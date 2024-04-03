@@ -32,7 +32,8 @@ if TYPE_CHECKING:
 def consume(iterator: Iterator[object], /, n: int | None = None) -> None:
     """Consume *n* values from *iterator*.
 
-    If *n* is not specified, this consumes the entire iterator."""
+    If *n* is not specified, this consumes the entire iterator.
+    """
     # use the C API to efficiently consume iterators
     if n is None:
         deque(iterator, maxlen=0)

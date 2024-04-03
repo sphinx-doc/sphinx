@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import operator
 import re
 from typing import TYPE_CHECKING
@@ -96,45 +97,102 @@ def test_line_unsupported_operators(operand):
     assert Line() != operand
 
 
-def test_line_count_substring():
+def test_line_startswith():
+    line = Line('abac')
+    assert line.startswith('a')
+    assert line.startswith('ab')
+    assert not line.startswith('no')
+
+    line = Line('ab bb c')
+    assert line.startswith(' ', 2)
+    assert line.startswith(' bb', 2)
+    assert not line.startswith('a', 2)
+
+
+def test_line_endswith():
+    line = Line('ab1ac')
+    assert line.endswith('c')
+    assert line.endswith('ac')
+    assert not line.endswith('no')
+
+    line = Line('ab 4b 3c ')
+    assert line.endswith(' ', 2)
+    assert line.endswith('3c ', 2)
+    assert not line.endswith('b 3c ', 0, 4)
+
+
+def test_line_type_errors():
+    line = Line()
+    pytest.raises(TypeError, line.count, 2)
+    pytest.raises(TypeError, line.index, 2)
+    pytest.raises(TypeError, line.find, 2)
+
+
+def test_line_count_substrings():
     line = Line('abac')
     assert line.count('no') == 0
     assert line.count('a') == 2
 
-    #                     0    1   2    3    4   5    6    7    8   9   10
-    line = Line(''.join(('a', 'b', '', 'b', 'b', '', 'a', 'c', '', 'c', 'c')))
+    line = Line(''.join(('a', 'b', ' ', 'b', 'b', ' ', 'a', 'c', ' ', 'c', 'c')))
     assert line.count(re.compile(r'^\Z')) == 0
     assert line.count(re.compile(r'a[bc]')) == 2
 
 
-def test_line_substring_index():
-    line = Line('abac')
-    assert line.index('a') == 0
-    assert line.index('a', 1) == 2
-    pytest.raises(ValueError, line.index, 'no')
-    pytest.raises(ValueError, line.index, 'c', 0, 2)
+@pytest.mark.parametrize(
+    ('line', 'data'),
+    [
+        (
+            Line('abaz'),
+            [
+                ('a', (), 0),
+                ('a', (1,), 2),
+                ('not_found', (), -1),
+                ('z', (0, 2), -1),  # do not include last character
+            ],
+        ),
+        (
+            #            -11  -10   -9   -8   -7   -6   -5   -4   -3   -2   -1
+            #              0    1    2    3    4    5    6    7    8    9   10
+            Line(''.join(('a', 'b', ' ', 'b', 'b', ' ', 'x', 'c', ' ', 'c', 'c'))),
+            [
+                (re.compile(r'a\w'), (), 0),
+                (re.compile(r'\bx'), (2,), 6),
+                *itertools.product(
+                    [re.compile(r'\s+')],
+                    [(3,), (-8,)],
+                    [5],
+                ),
+                *itertools.product(
+                    [re.compile(r'c ')],
+                    [(6, 9), (6, -2), (-5, -2), (-5, 9)],  # all equivalent to (6, 9)
+                    [7],
+                ),
+                *itertools.product(
+                    [re.compile(r'^bb')],
+                    [(3, 8), (3, -3), (-8, -3), (-8, -3)],  # all equivalent to (3, 8)
+                    [3],
+                ),
+                (re.compile(r'^\Z'), (), -1),
+                *itertools.product(
+                    [re.compile(r'c[cd]')],
+                    [(0, 5), (-6, 5)],
+                    [-1],
+                ),
+            ],
+        ),
+    ],
+)
+def test_line_find(line: Line, data: list[tuple[str, tuple[int, ...], int]]) -> None:
+    for target, args, expect in data:
+        actual = line.find(target, *args)
 
-    #                     0    1   2    3    4   5    6    7    8   9   10
-    line = Line(''.join(('a', 'b', '', 'b', 'b', '', 'a', 'c', '', 'c', 'c')))
-    assert line.index(re.compile(r'a\w')) == 0
-    assert line.index(re.compile(r'a\w'), 3) == 6
-    pytest.raises(ValueError, line.index, re.compile(r'^\Z'))
-    pytest.raises(ValueError, line.index, re.compile(r'c[cd]'), 0, 5)
-
-
-def test_line_find_substring():
-    line = Line('abac')
-    assert line.find('a') == 0
-    assert line.find('a', 1) == 2
-    assert line.find('no') == -1
-    assert line.find('c', 0, 2) == -1
-
-    #                     0    1   2    3    4   5    6    7    8   9   10
-    line = Line(''.join(('a', 'b', '', 'b', 'b', '', 'a', 'c', '', 'c', 'c')))
-    assert line.find(re.compile(r'^ab')) == 0
-    assert line.find(re.compile(r'a\w'), 3) == 6
-    assert line.find(re.compile(r'^\Z')) == -1
-    assert line.find(re.compile(r'c[cd]'), 0, 5) == -1
+        if expect == -1:
+            assert actual == expect, (line.buffer, target, args)
+            with pytest.raises(ValueError, match=re.escape(str(target))):
+                line.index(target, *args)
+        else:
+            assert actual == expect, (line.buffer, target, args)
+            assert line.index(target, *args) == expect
 
 
 def test_block_constructor():
@@ -233,31 +291,53 @@ def test_block_count_lines():
     assert block.count(re.compile(r'a\w')) == 2
 
 
-def test_block_line_index():
-    block = Block(['a', 'b', 'a', 'c'])
-    assert block.index('a') == 0
-    assert block.index('a', 1) == 2
-    pytest.raises(ValueError, block.index, 'no')
-    pytest.raises(ValueError, block.index, 'c', 0, 2)
+@pytest.mark.parametrize(
+    ('block', 'data'),
+    [
+        (
+            Block(['a', 'b', 'a', 'end']),
+            [
+                ('a', (), 0),
+                ('a', (1,), 2),
+                ('not_found', (), -1),
+                ('end', (0, 2), -1),  # do not include last line
+            ],
+        ),
+        (
+            #      -11   -10   -9    -8    -7   -6    -5    -4   -3    -2    -1
+            #        0     1    2     3     4    5     6     7    8     9    10
+            Block(('a0', 'b1', ' ', 'b3', 'b4', ' ', '6a', 'a7', ' ', 'cc', 'c?')),
+            [
+                (re.compile(r'a\d'), (), 0),
+                (re.compile(r'a\d'), (1,), 7),
+                *itertools.product(
+                    [re.compile(r'\d\w')],  # '6a'
+                    [(3, 9), (3, -2), (-8, 9), (-8, -2)],  # all equivalent to (3, 9)
+                    [6],
+                ),
+                *itertools.product(
+                    [re.compile(r'^\s+')],
+                    [(5, 8), (5, -3), (-6, 8), (-6, -3)],  # all equivalent to (5, 8)
+                    [5],
+                ),
+                (re.compile(r'^\Z'), (), -1),
+                *itertools.product(
+                    [re.compile(r'c\?')],
+                    [(0, 4), (-7, 9)],
+                    [-1],
+                ),
+            ],
+        ),
+    ],
+)
+def test_block_find(block: Block, data: list[tuple[str, tuple[int, ...], int]]) -> None:
+    for target, args, expect in data:
+        actual = block.find(target, *args)
 
-    block = Block(['ab', 'bb', 'ac', 'cc'])
-    # this also tests the predicate-based implementation
-    assert block.index(re.compile(r'a\w')) == 0
-    assert block.index(re.compile(r'a\w'), 1) == 2
-    pytest.raises(ValueError, block.index, re.compile(r'^\Z'))
-    pytest.raises(ValueError, block.index, re.compile(r'c\w'), 0, 2)
-
-
-def test_block_find_line():
-    block = Block(['a', 'b', 'a', 'c'])
-    assert block.find('a') == 0
-    assert block.find('a', 1) == 2
-    assert block.find('no') == -1
-    assert block.find('c', 0, 2) == -1
-
-    block = Block(['ab', 'bb', 'ac', 'cc'])
-    # this also tests the predicate-based implementation
-    assert block.find(re.compile(r'a\w')) == 0
-    assert block.find(re.compile(r'a\w'), 1) == 2
-    assert block.find(re.compile(r'^\Z')) == -1
-    assert block.find(re.compile(r'c\W'), 0, 2) == -1
+        if expect == -1:
+            assert actual == expect, (block.buffer, target, args)
+            with pytest.raises(ValueError, match=re.escape(str(target))):
+                block.index(target, *args)
+        else:
+            assert actual == expect, (block.buffer, target, args)
+            assert block.index(target, *args) == expect

@@ -19,9 +19,11 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from sphinx.testing._matcher.util import LinePattern
+    LineText = Union[str, re.Pattern[str]]
+    """A line's substring or a compiled substring pattern."""
 
-    BlockLine = Union[object, LinePattern, Callable[[str], object]]
+    BlockMatch = Union[object, str, re.Pattern[str], Callable[[str], object]]
+    """A block's line, a compiled pattern or a predicate."""
 
 _T = TypeVar('_T', bound=Sequence[str])
 
@@ -38,7 +40,7 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
     # add __weakref__ to allow the object being weak-referencable
     __slots__ = ('__buffer', '__offset', '__weakref__')
 
-    def __init__(self, buffer: _T, offset: int = 0, /, *, _check: bool = True) -> None:
+    def __init__(self, buffer: _T, /, offset: int = 0, *, _check: bool = True) -> None:
         """Construct a :class:`SourceView`.
 
         :param buffer: The view's content (a string or a list of strings).
@@ -50,6 +52,7 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         their constructor arguments are known to be valid at call time.
         """
         if _check:
+            __tracebackhide__ = True
             if not isinstance(offset, int):
                 msg = f'offset must be an integer, got: {offset!r}'
                 raise TypeError(msg)
@@ -95,6 +98,7 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         """
         index = self.find(value, start, stop)
         if index == -1:
+            __tracebackhide__ = True
             raise ValueError(value)
         return index
 
@@ -181,7 +185,7 @@ class Line(SourceView[str]):
     # character's types, but it would not be possible to use the C API
     # implementing the :class:`str` interface anymore.
 
-    def __init__(self, line: str = '', offset: int = 0, /, *, _check: bool = True) -> None:
+    def __init__(self, line: str = '', /, offset: int = 0, *, _check: bool = True) -> None:
         """Construct a :class:`Line` object."""
         super().__init__(line, offset, _check=_check)
 
@@ -246,25 +250,27 @@ class Line(SourceView[str]):
         # separately check offsets before the buffers for efficiency
         return self.offset == other[1] and self.buffer > other[0]
 
-    def startswith(self, prefix: str, start: int = 0, end: int | None = None, /) -> bool:
+    def startswith(self, prefix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
         """Test whether the line starts with the given *prefix*.
 
         :param prefix: A line prefix to test.
         :param start: The test start position.
         :param end: The test stop position.
         """
+        __tracebackhide__ = True
         return self.buffer.startswith(prefix, start, end)
 
-    def endswith(self, suffix: str, start: int = 0, end: int | None = None, /) -> bool:
+    def endswith(self, suffix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
         """Test whether the line ends with the given *suffix*.
 
         :param suffix: A line suffix to test.
         :param start: The test start position.
         :param end: The test stop position.
         """
+        __tracebackhide__ = True
         return self.buffer.endswith(suffix, start, end)
 
-    def count(self, sub: str | re.Pattern[str], /) -> int:
+    def count(self, sub: LineText, /) -> int:
         """Count the number of occurrences of a substring or pattern.
 
         :raise TypeError: *sub* is not a string or a compiled pattern.
@@ -277,25 +283,36 @@ class Line(SourceView[str]):
             util.consume(zip(sub.finditer(self.buffer), counter))
             return next(counter)
 
+        __tracebackhide__ = True
         return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
 
     # explicitly add the method since its signature differs from :meth:`SourceView.index`
-    def index(self, sub: LinePattern, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def index(self, sub: LineText, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a substring.
 
         :raise TypeError: *sub* is not a string or a compiled pattern.
         """
+        __tracebackhide__ = True
         return super().index(sub, start, stop)
 
-    def find(self, sub: LinePattern, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def find(self, sub: LineText, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a substring or *-1* on failure.
 
         :raise TypeError: *sub* is not a string or a compiled pattern.
         """
         if isinstance(sub, re.Pattern):
-            # use re.search() to find the pattern inside ``line[start:stop]``
-            match = sub.search(self.buffer, start, stop)
-            return -1 if match is None else start + match.pos
+            # Do not use sub.search(buffer, start, end) since the '^' pattern
+            # character matches at the *real* beginning of *buffer* but *not*
+            # necessarily at the index where the search is to start.
+            #
+            # Ref: https://docs.python.org/3/library/re.html#re.Pattern.search
+            if match := sub.search(self.buffer[start:stop]):
+                # normalize the start position
+                start_index, _, _ = slice(start, stop).indices(self.length)
+                return match.start() + start_index
+            return -1
+
+        __tracebackhide__ = True
         return self.buffer.find(sub, start, stop)  # raise a TypeError if *sub* is not a string
 
     def __parse_non_string(self, other: object, /) -> tuple[str, int] | None:
@@ -335,13 +352,14 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
     """
 
     def __init__(
-        self, buffer: Iterable[str] = (), offset: int = 0, /, *, _check: bool = True
+        self, buffer: Iterable[str] = (), /, offset: int = 0, *, _check: bool = True
     ) -> None:
         # It is more efficient to first consume everything and then
         # iterate over the values for checks rather than to add the
         # validated values one by one.
         buffer = tuple(buffer)
         if _check:
+            __tracebackhide__ = True
             for line in buffer:
                 if not isinstance(line, str):
                     err = f'expecting a native string, got: {line!r}'
@@ -393,12 +411,19 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
             assert source[before] == ['2', '3']
             assert source[after] == ['7', '8']
         """
+        assert delta >= 0, 'context size must be >= 0'
+        assert limit >= 0, 'source length must be >= 0'
+
+        before_start, before_stop = max(0, self.offset - delta), min(self.offset, limit)
+        before_slice = slice(before_start, before_stop)
+
         block_stop = self.offset + self.length
-        before_slice = slice(max(0, self.offset - delta), min(self.offset, limit))
-        after_slice = slice(min(block_stop, limit), min(block_stop + delta, limit))
+        after_start, after_stop = min(block_stop, limit), min(block_stop + delta, limit)
+        after_slice = slice(after_start, after_stop)
+
         return before_slice, after_slice
 
-    def count(self, target: BlockLine, /) -> int:
+    def count(self, target: BlockMatch, /) -> int:
         """Count the number of occurrences of matching lines.
 
         For :class:`~re.Pattern` inputs, the following are equivalent::
@@ -419,7 +444,7 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         return self.buffer.count(target)
 
     # explicitly add the method since its signature differs from :meth:`SourceView.index`
-    def index(self, target: BlockLine, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def index(self, target: BlockMatch, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a matching line.
 
         For :class:`~re.Pattern` inputs, the following are equivalent::
@@ -429,7 +454,7 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         """
         return super().index(target, start, stop)
 
-    def find(self, target: BlockLine, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def find(self, target: BlockMatch, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a matching line or *-1* on failure.
 
         For :class:`~re.Pattern` inputs, the following are equivalent::
@@ -441,6 +466,7 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
             return self.find(target.match, start, stop)
 
         if callable(target):
+            start, stop, _ = slice(start, stop).indices(self.length)
             sliced = itertools.islice(self.buffer, start, stop)
             return next(itertools.compress(itertools.count(start), map(target, sliced)), -1)
 
@@ -479,6 +505,7 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
             # normalize negative and None slice fields
             _, _, step = index.indices(self.length)
             if step != 1:
+                __tracebackhide__ = True
                 msg = 'only contiguous regions can be extracted'
                 raise ValueError(msg)
         return self.buffer[index]
