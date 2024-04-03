@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     # For some reason, mypy does not like Union of Literal,
     # so we wrap the Literal types inside a bigger Literal.
     OptionName = Literal[FlagOption, StripOption, DeleteOption, FilteringOption, FlavorOption]
+    OptionValue = Union[bool, StripChars, DeletePattern, LinePredicate, Flavor]
 
     DT = TypeVar('DT')
     _OptionsView = Union['Options', 'CompleteOptions']
@@ -46,6 +47,9 @@ class Options(TypedDict, total=False):
 
     .. seealso:: :mod:`sphinx.testing._matcher.cleaner`
     """
+
+    # only immutable fields should be used as options, otherwise undesired
+    # side-effects might occur when using a default option mutable value
 
     ansi: bool
     """Indicate whether to keep the ANSI escape sequences.
@@ -173,6 +177,7 @@ class Configurable:
     """Mixin supporting a known set of options."""
 
     __slots__ = ('_options',)
+    __tracebackhide__: bool = True
 
     default_options: ClassVar[CompleteOptions] = CompleteOptions(
         ansi=True,
@@ -186,13 +191,12 @@ class Configurable:
         ignore=None,
         flavor='none',
     )
-    """The default options to use.
+    """The default options to use when an option is not specified.
 
     Subclasses should override this field for different default options.
     """
 
     def __init__(self, /, *args: object, **options: Unpack[Options]) -> None:
-        # always complete the set of options for this object
         self._options = options
 
     @property
@@ -239,8 +243,24 @@ class Configurable:
     # fmt: on
     def get_option(self, name: OptionName, /) -> object:  # NoQA: E301
         """Get a known option value, or its default value."""
+        __tracebackhide__ = self.__tracebackhide__
         if name in self._options:
             return self._options[name]
-
-        __tracebackhide__ = True
         return self.default_options[name]
+
+    # fmt: off
+    @overload
+    def set_option(self, name: FlagOption,  value: bool, /) -> None: ...  # NoQA: E704
+    @overload
+    def set_option(self, name: StripOption, value: StripChars, /) -> None: ...  # NoQA: E704
+    @overload
+    def set_option(self, name: DeleteOption, value: DeletePattern, /) -> None: ...  # NoQA: E704
+    @overload
+    def set_option(self, name: FilteringOption, value:  LinePredicate | None, /) -> None: ...  # NoQA: E704
+    @overload
+    def set_option(self, name: FlavorOption, value: Flavor, /) -> None: ...  # NoQA: E704
+    # fmt: on
+    def set_option(self, name: OptionName, value: OptionValue, /) -> None:  # NoQA: E301
+        """Set a persistent option value."""
+        __tracebackhide__ = self.__tracebackhide__
+        self._options[name] = value

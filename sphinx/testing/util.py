@@ -80,6 +80,12 @@ def etree_parse(path: str | os.PathLike[str]) -> ElementTree:
     return xml_parse(path)
 
 
+class _SphinxLineMatcher(LineMatcher):
+    default_options = LineMatcher.default_options.copy()
+    default_options['ansi'] = False
+    default_options['strip'] = True
+
+
 class SphinxTestApp(sphinx.application.Sphinx):
     """A subclass of :class:`~sphinx.application.Sphinx` for tests.
 
@@ -196,11 +202,11 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
     def stdout(self, /, **options: Unpack[Options]) -> LineMatcher:
         """Create a line matcher object for the status messages."""
-        return LineMatcher(self.status, **options)
+        return _SphinxLineMatcher(self.status, **options)
 
     def stderr(self, /, **options: Unpack[Options]) -> LineMatcher:
         """Create a line matcher object for the warning messages."""
-        return LineMatcher(self.warning, **options)
+        return _SphinxLineMatcher(self.warning, **options)
 
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
