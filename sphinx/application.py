@@ -287,7 +287,7 @@ class Sphinx:
         locale_dirs += [path.join(package_dir, 'locale')]
 
         self.translator, has_translation = locale.init(locale_dirs, self.config.language)
-        if has_translation:
+        if has_translation or self.config.language == 'en':
             logger.info(__('done'))
         else:
             logger.info(__('not available for built-in messages'))
