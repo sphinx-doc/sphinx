@@ -5,18 +5,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.testing._matcher.options import (
-    CompleteOptions,
-    Options,
-    OptionsHolder,
-)
+from sphinx.testing._matcher.options import CompleteOptions, Options, OptionsHolder
 
 if TYPE_CHECKING:
     from typing import ClassVar
 
-    from sphinx.testing._matcher.options import (
-        OptionName,
-    )
+    from sphinx.testing._matcher.options import OptionName
 
 
 def test_options_class():
