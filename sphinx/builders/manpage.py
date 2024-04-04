@@ -13,7 +13,7 @@ from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
