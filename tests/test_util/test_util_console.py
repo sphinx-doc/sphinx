@@ -14,8 +14,9 @@ if TYPE_CHECKING:
 
     _T = TypeVar('_T')
 
-ERASE_IN_LINE: Final[str] = '\x1b[2K'
-BELL_TEXT: Final[str] = '\x07 Hello world!'
+CURSOR_UP: Final[str] = '\x1b[2A'  # ignored ANSI code
+ERASE_LINE: Final[str] = '\x1b[2K'  # supported ANSI code
+TEXT: Final[str] = '\x07 Hello world!'
 
 
 @pytest.mark.parametrize(
@@ -23,17 +24,17 @@ BELL_TEXT: Final[str] = '\x07 Hello world!'
     [
         (
             strip_colors,
-            # double ERASE_IN_LINE so that the tested strings may have 2 of them
-            [BELL_TEXT, blue(BELL_TEXT), reset(BELL_TEXT), ERASE_IN_LINE, ERASE_IN_LINE],
-            # :func:`strip_colors` removes color codes but keep ERASE_IN_LINE
-            [BELL_TEXT, BELL_TEXT, BELL_TEXT, ERASE_IN_LINE, ERASE_IN_LINE],
+            # double ERASE_LINE so that the tested strings may have 2 of them
+            [TEXT, blue(TEXT), reset(TEXT), ERASE_LINE, ERASE_LINE, CURSOR_UP],
+            # :func:`strip_colors` removes color codes but keeps ERASE_LINE and CURSOR_UP
+            [TEXT, TEXT, TEXT, ERASE_LINE, ERASE_LINE, CURSOR_UP],
         ),
         (
             strip_escape_sequences,
-            # double ERASE_IN_LINE so that the tested strings may have 2 of them
-            [BELL_TEXT, blue(BELL_TEXT), reset(BELL_TEXT), ERASE_IN_LINE, ERASE_IN_LINE],
+            # double ERASE_LINE so that the tested strings may have 2 of them
+            [TEXT, blue(TEXT), reset(TEXT), ERASE_LINE, ERASE_LINE, CURSOR_UP],
             # :func:`strip_escape_sequences` strips ANSI codes known by Sphinx
-            [BELL_TEXT, BELL_TEXT, BELL_TEXT, '', ''],
+            [TEXT, TEXT, TEXT, '', '', CURSOR_UP],
         ),
     ],
     ids=[strip_colors.__name__, strip_escape_sequences.__name__],
@@ -48,11 +49,17 @@ def test_strip_ansi(
     N = len(ansi_base_blocks)
 
     def next_ansi_blocks(choices: Sequence[str], n: int) -> Sequence[str]:
+        # Get a list of *n* words from a cyclic sequence of *choices*.
+        #
+        # For instance ``next_ansi_blocks(['a', 'b'], 3) == ['a', 'b', 'a']``.
         stream = itertools.cycle(choices)
         return list(map(operator.itemgetter(0), zip(stream, range(n))))
 
+    # generate all permutations of length N
     for sigma in itertools.permutations(range(N), N):
+        # apply the permutation on the blocks with ANSI codes
         ansi_blocks = list(map(ansi_base_blocks.__getitem__, sigma))
+        # apply the permutation on the blocks with stripped codes
         text_blocks = list(map(text_base_blocks.__getitem__, sigma))
 
         for glue, n in itertools.product(['.', '\n', '\r\n'], range(4 * N)):
