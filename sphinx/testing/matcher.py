@@ -7,7 +7,7 @@ import itertools
 from typing import TYPE_CHECKING, cast
 
 from sphinx.testing._matcher import cleaner, engine, util
-from sphinx.testing._matcher.buffer import Block, Line
+from sphinx.testing._matcher.buffer import Block
 from sphinx.testing._matcher.options import Configurable, Options
 
 if TYPE_CHECKING:
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self, Unpack
 
+    from sphinx.testing._matcher.buffer import Line
     from sphinx.testing._matcher.options import Flavor
     from sphinx.testing._matcher.util import LinePattern
 
@@ -63,8 +64,7 @@ class LineMatcher(Configurable):
 
     def __iter__(self) -> Iterator[Line]:
         """An iterator on the cached lines."""
-        # we do not use Line.view to avoid checking the type of each line
-        yield from (Line(s, i, _check=False) for i, s in enumerate(self.lines()))
+        return self.lines().lines_iterator()
 
     @contextlib.contextmanager
     def override(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
@@ -89,22 +89,19 @@ class LineMatcher(Configurable):
         cached = stack[-1]
 
         if cached is None:
-            # compute for the first time the value
             options = self.default_options | cast(Options, self.options)
-            # use the *same* type as a block's buffer to speed-up the Block's constructor
+            # compute for the first time the block's lines
             lines = tuple(cleaner.clean_text(self.content, **options))
             # check if the value is the same as any of a previously cached value
             for addr, value in enumerate(itertools.islice(stack, 0, len(stack) - 1)):
                 if isinstance(value, int):
                     cached = cast(Block, stack[value])
-                    assert isinstance(cached.buffer, tuple)
                     if cached.buffer == lines:
-                        # compare only the lines (C interface)
-                        stack[-1] = value  # indirection
+                        # compare only the lines as strings
+                        stack[-1] = value  # indirection near to beginning
                         return cached
 
                 if isinstance(value, Block):
-                    assert isinstance(value.buffer, tuple)
                     if value.buffer == lines:
                         stack[-1] = addr  # indirection
                         return value
@@ -118,7 +115,6 @@ class LineMatcher(Configurable):
             assert isinstance(value, Block)
             return value
 
-        assert isinstance(cached, Block)
         return cached
 
     def find(
@@ -132,8 +128,8 @@ class LineMatcher(Configurable):
     ) -> Iterator[Line]:
         """Yield the lines that match one (or more) of the given patterns.
 
-        When one or more patterns are given, the order of evaluation is the
-        same as they are given (or arbitrary if they are given in a set).
+        :param expect: One or more patterns to satisfy.
+        :param flavor: Optional temporary flavor for non-compiled patterns.
         """
         patterns = engine.to_line_patterns(expect)
         if not patterns:  # nothinig to match
@@ -160,7 +156,7 @@ class LineMatcher(Configurable):
         """Yield non-overlapping blocks matching the given line patterns.
 
         :param expect: The line patterns that a block must satisfy.
-        :param flavor: Optional temporary flavor for string patterns.
+        :param flavor: Optional temporary flavor for non-compiled patterns.
         :return: An iterator on the matching blocks.
 
         When *expect* is a single string, it is split into lines, each of
@@ -213,9 +209,8 @@ class LineMatcher(Configurable):
 
         :param expect: One or more patterns the lines must satisfy.
         :param count: If specified, the exact number of matching lines.
-        :param flavor: Optional temporary flavor for string patterns.
+        :param flavor: Optional temporary flavor for non-compiled patterns.
         """
-        __tracebackhide__ = True
         patterns = engine.to_line_patterns(expect)
         self._assert_found('line', patterns, count=count, flavor=flavor)
 
@@ -231,9 +226,8 @@ class LineMatcher(Configurable):
 
         :param expect: One or more patterns the lines must not satisfy.
         :param context: Number of lines to print around a failing line.
-        :param flavor: Optional temporary flavor for string patterns.
+        :param flavor: Optional temporary flavor for non-compiled patterns.
         """
-        __tracebackhide__ = True
         patterns = engine.to_line_patterns(expect)
         self._assert_not_found('line', patterns, context_size=context, flavor=flavor)
 
@@ -249,12 +243,11 @@ class LineMatcher(Configurable):
 
         :param expect: The line patterns that a block must satisfy.
         :param count: The number of blocks that should be found.
-        :param flavor: Optional temporary flavor for string patterns.
+        :param flavor: Optional temporary flavor for non-compiled patterns.
 
         When *expect* is a single string, it is split into lines, each
         of which corresponding to the pattern a block's line must satisfy.
         """
-        __tracebackhide__ = True
         patterns = engine.to_block_pattern(expect)
         self._assert_found('block', patterns, count=count, flavor=flavor)
 
@@ -270,14 +263,13 @@ class LineMatcher(Configurable):
 
         :param expect: The line patterns that a block must satisfy.
         :param context: Number of lines to print around a failing block.
-        :param flavor: Optional temporary flavor for string patterns.
+        :param flavor: Optional temporary flavor for non-compiled patterns.
 
         When *expect* is a single string, it is split into lines, each
         of which corresponding to the pattern a block's line must satisfy.
 
         Use :data:`sys.maxsize` to show all capture lines.
         """
-        __tracebackhide__ = True
         patterns = engine.to_block_pattern(expect)
         self._assert_not_found('block', patterns, context_size=context, flavor=flavor)
 
@@ -299,8 +291,6 @@ class LineMatcher(Configurable):
             ctx = util.highlight(self.lines(), keepends=keepends)
             pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
             logs = [f'{pattern_type} pattern', pat, 'not found in', ctx]
-
-            __tracebackhide__ = True
             raise AssertionError('\n\n'.join(logs))
 
         indices = {block.offset: len(block) for block in blocks}
@@ -312,8 +302,6 @@ class LineMatcher(Configurable):
         pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
         noun = util.plural_form(pattern_type, count)
         logs = [f'found {found} != {count} {noun} matching', pat, 'in', ctx]
-
-        __tracebackhide__ = True
         raise AssertionError('\n\n'.join(logs))
 
     def _assert_not_found(
@@ -343,8 +331,6 @@ class LineMatcher(Configurable):
                 block_object = Block(block, start, _check=False)
                 ctx = util.get_debug_context(lines, block_object, context_size)
                 logs = [f'{pattern_type} pattern', pat, 'found in', '\n'.join(ctx)]
-
-                __tracebackhide__ = True
                 raise AssertionError('\n\n'.join(logs))
 
     def __compile(

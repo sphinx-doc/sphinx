@@ -177,7 +177,6 @@ class Configurable:
     """Mixin supporting a known set of options."""
 
     __slots__ = ('_options',)
-    __tracebackhide__: bool = True
 
     default_options: ClassVar[CompleteOptions] = CompleteOptions(
         keep_ansi=True,
@@ -243,7 +242,6 @@ class Configurable:
     # fmt: on
     def get_option(self, name: OptionName, /) -> object:  # NoQA: E301
         """Get a known option value, or its default value."""
-        __tracebackhide__ = self.__tracebackhide__
         if name in self._options:
             return self._options[name]
         return self.default_options[name]
@@ -262,5 +260,4 @@ class Configurable:
     # fmt: on
     def set_option(self, name: OptionName, value: OptionValue, /) -> None:  # NoQA: E301
         """Set a persistent option value."""
-        __tracebackhide__ = self.__tracebackhide__
         self._options[name] = value

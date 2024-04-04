@@ -5,7 +5,6 @@ __all__ = ('Line', 'Block')
 import abc
 import contextlib
 import itertools
-import operator
 import re
 import sys
 from collections.abc import Sequence
@@ -37,9 +36,6 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
     :meta private:
     """
 
-    __tracebackhide__: bool = True
-    """A flag to hide the traceback frames in pytest output."""
-
     # add __weakref__ to allow the object being weak-referencable
     __slots__ = ('__buffer', '__offset', '__weakref__')
 
@@ -54,7 +50,6 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         to speed-up the construction of :class:`SourceView` objects for which
         their constructor arguments are known to be valid at call time.
         """
-        __tracebackhide__ = self.__tracebackhide__
         if _check:
             if not isinstance(offset, int):
                 msg = f'offset must be an integer, got: {offset!r}'
@@ -95,7 +90,6 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
 
         .. seealso:: :meth:`find`
         """
-        __tracebackhide__ = self.__tracebackhide__
         index = self.find(value, start, stop)
         if index == -1:
             raise ValueError(value)
@@ -150,7 +144,6 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         By default, ``self == other`` is called before ``self < other``, but
         subclasses should override this method  for an efficient alternative.
         """
-        __tracebackhide__ = self.__tracebackhide__
         return self == other or self < other
 
     def __ge__(self, other: object, /) -> bool:
@@ -159,7 +152,6 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         By default, ``self == other`` is called before ``self > other``, but
         subclasses should override this method  for an efficient alternative.
         """
-        __tracebackhide__ = self.__tracebackhide__
         return self == other or self > other
 
     @abc.abstractmethod
@@ -171,9 +163,8 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         """
 
 
-@final
 class Line(SourceView[str]):
-    """A line found by :meth:`~sphinx.testing.matcher.LineMatcher.match`.
+    """A line found by :meth:`~sphinx.testing.matcher.LineMatcher.find`.
 
     A :class:`Line` can be compared to :class:`str`, :class:`Line` objects or
     a pair (i.e., a two-length sequence) ``(line, line_offset)`` where
@@ -192,9 +183,7 @@ class Line(SourceView[str]):
 
     def __init__(self, line: str = '', /, offset: int = 0, *, _check: bool = True) -> None:
         """Construct a :class:`Line` object."""
-        __tracebackhide__ = self.__tracebackhide__
         super().__init__(line, offset, _check=_check)
-
 
     # dunder methods
 
@@ -203,7 +192,6 @@ class Line(SourceView[str]):
         return self.buffer
 
     def __getitem__(self, index: int | slice, /) -> str:
-        __tracebackhide__ = self.__tracebackhide__
         return self.buffer[index]
 
     def __eq__(self, other: object, /) -> bool:
@@ -218,8 +206,6 @@ class Line(SourceView[str]):
         return self.offset == other[1] and self.buffer == other[0]
 
     def __lt__(self, other: object, /) -> bool:
-        __tracebackhide__ = self.__tracebackhide__
-
         if isinstance(other, str):
             return self.buffer < other
 
@@ -231,8 +217,6 @@ class Line(SourceView[str]):
         return self.offset == other[1] and self.buffer < other[0]
 
     def __gt__(self, other: object, /) -> bool:
-        __tracebackhide__ = self.__tracebackhide__
-
         if isinstance(other, str):
             return self.buffer > other
 
@@ -250,7 +234,6 @@ class Line(SourceView[str]):
         :param start: The test start position.
         :param end: The test stop position.
         """
-        __tracebackhide__ = self.__tracebackhide__
         return self.buffer.startswith(prefix, start, end)
 
     def endswith(self, suffix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
@@ -260,7 +243,6 @@ class Line(SourceView[str]):
         :param start: The test start position.
         :param end: The test stop position.
         """
-        __tracebackhide__ = self.__tracebackhide__
         return self.buffer.endswith(suffix, start, end)
 
     def count(self, sub: LineText, /) -> int:
@@ -276,7 +258,6 @@ class Line(SourceView[str]):
             util.consume(zip(sub.finditer(self.buffer), counter))
             return next(counter)
 
-        __tracebackhide__ = self.__tracebackhide__
         return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
 
     # explicitly add the method since its signature differs from :meth:`SourceView.index`
@@ -285,7 +266,6 @@ class Line(SourceView[str]):
 
         :raise TypeError: *sub* is not a string or a compiled pattern.
         """
-        __tracebackhide__ = self.__tracebackhide__
         return super().index(sub, start, stop)
 
     def find(self, sub: LineText, start: int = 0, stop: int = sys.maxsize, /) -> int:
@@ -305,33 +285,38 @@ class Line(SourceView[str]):
                 return match.start() + start_index
             return -1
 
-        __tracebackhide__ = self.__tracebackhide__
         return self.buffer.find(sub, start, stop)  # raise a TypeError if *sub* is not a string
 
 
-@final
 class Block(SourceView[tuple[str, ...]], Sequence[str]):
-    """Block found by :meth:`~sphinx.testing.matcher.LineMatcher.find`.
+    """Block found by :meth:`~sphinx.testing.matcher.LineMatcher.find_blocks`.
 
     A block is a sequence of lines comparable to :class:`Line`, generally a
-    string (the line content) or a pair ``(line, line_offset)``. In addition,
-    a block can be compared to pair ``(block_lines, block_offset)`` where:
+    string (the line content) or a pair ``(line, line_offset)``.
 
-    - *block_lines* is a sequence of lines-like objects, and
+    A block can also be compared to pair ``(block_lines, block_offset)`` where
+
+    - *block_lines* is a sequence of line-like objects, and
     - *block_offset* is an integer (matched against :attr:`offset`).
 
-    Whenever a pair ``(line, line_offset)`` or ``(block, block_offset)``
-    is needed, it can be any two-element sequence (e.g., tuple or list).
+    Pairs ``(line, line_offset)`` or ``(block_lines, block_offset)`` can be any
+    non-string two-elements sequence (e.g., a tuple or a list), e.g::
 
-    For instance,::
-
-        assert Block(['a', 'b', 'c'], 2) == ['a', ('b', 3), Line('c', 4)]
+        assert Block(['a', 'b', 'c', 'd'], 2) == [
+            'a',
+            ('b', 3),
+            ['c', 4],
+            Line('d', 5),
+        ]
 
     .. note::
 
-       By convention, ``block[i]`` or ``block[i:j]`` returns :class:`str`
-       or sequences of :class:`str`. Consider using :meth:`at` to get the
-       corresponding :class:`Line` or :class:`Block` values.
+       By convention, ``block[i]`` and ``block[i:j]`` return :class:`str`
+       and tuples of :class:`str` respectively. Consider using :meth:`at`
+       to convert the output to :class:`Line` or :class:`Block` objects.
+
+       Similarly, ``iter(block)`` returns an iterator on strings. Consider
+       using :meth:`lines_iterator` to iterate over :class:`Line` objects.
     """
 
     __slots__ = ('__cached_lines',)
@@ -339,7 +324,6 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
     def __init__(
         self, buffer: Iterable[str] = (), /, offset: int = 0, *, _check: bool = True
     ) -> None:
-        __tracebackhide__ = self.__tracebackhide__
         # It is more efficient to first consume everything and then
         # iterate over the values for checks rather than to add the
         # validated values one by one.
@@ -351,7 +335,13 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
                     raise TypeError(err)
 
         super().__init__(buffer, offset, _check=_check)
-        self.__cached_lines: list[object] | None = None
+        self.__cached_lines: tuple[Line, ...] | None = None
+        """This block as a tuple of :class:`Line` objects.
+
+        The rationale behind duplicating the buffer's data is to ease
+        comparison by relying on the C API for comparing lists which
+        dispatches to the :class:`Line` comparison operators.
+        """
 
     @property
     def window(self) -> slice:
@@ -424,7 +414,6 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
             block.index(target, ...)
             block.index(target.match, ...)
         """
-        __tracebackhide__ = self.__tracebackhide__
         return super().index(target, start, stop)
 
     def find(self, target: BlockMatch, start: int = 0, stop: int = sys.maxsize, /) -> int:
@@ -446,6 +435,17 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         with contextlib.suppress(ValueError):
             return self.buffer.index(target, start, stop)
         return -1
+
+    def lines(self) -> tuple[Line, ...]:
+        """This block as a tuple of :class:`Line` objects."""
+        if self.__cached_lines is None:
+            self.__cached_lines = tuple(self.lines_iterator())
+        return self.__cached_lines
+
+    def lines_iterator(self) -> Iterator[Line]:
+        """This block as a list of :class:`Line` objects."""
+        for index, line in enumerate(self, self.offset):
+            yield Line(line, index, _check=False)
 
     # fmt: off
     @overload
@@ -473,7 +473,6 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
     # fmt: on
     def __getitem__(self, index: int | slice, /) -> str | Sequence[str]:  # NoQA: E301
         """Get a line or a contiguous sub-block."""
-        __tracebackhide__ = self.__tracebackhide__
         if isinstance(index, slice):
             # normalize negative and None slice fields
             _, _, step = index.indices(self.length)
@@ -483,8 +482,6 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         return self.buffer[index]
 
     def __eq__(self, other: object, /) -> bool:
-        __tracebackhide__ = self.__tracebackhide__
-
         if isinstance(other, self.__class__):
             # more efficient to first check the offsets
             return (self.offset, self.buffer) == (other.offset, other.buffer)
@@ -494,19 +491,14 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
             return NotImplemented
 
         lines, offset = other
-        # check offsets before computing len(lines) or len(self)
+        # check offsets before computing len(lines)
         if offset != -1 and offset != self.offset:
             return False
 
-        if len(lines) == self.length:
-            # match the lines one by one, possibly using a rich comparison
-            expect = self.__lines_iterator()
-            return all(map(operator.__eq__, expect, lines))
-        return False
+        # check the lengths before computing the cached lines if possible
+        return self.length == len(lines) and self.lines() == lines
 
     def __lt__(self, other: object, /) -> bool:
-        __tracebackhide__ = self.__tracebackhide__
-
         if isinstance(other, self.__class__):
             # More efficient to first check if the indices are valid before
             # checking the lines using tuple comparisons (both objects have
@@ -521,13 +513,11 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         lines, other_offset = other
         if other_offset != -1:
             aligned = _can_be_strict_in(self.offset, self.length, other_offset, len(lines))
-            return aligned and self.__lines() < lines
+            return aligned and self.lines() < lines
         # we want to find this block in the *other* block (at any place)
-        return self.__lines() < lines
+        return self.lines() < lines
 
     def __gt__(self, other: object, /) -> bool:
-        __tracebackhide__ = self.__tracebackhide__
-
         if isinstance(other, self.__class__):
             return other < self
 
@@ -538,21 +528,12 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         lines, other_offset = other
         if other_offset != -1:
             aligned = _can_be_strict_in(other_offset, len(lines), self.offset, self.length)
-            return aligned and self.__lines() > lines
-        return self.__lines() > lines
+            return aligned and self.lines() > lines
+        return self.lines() > lines
 
-    # Do not annotate with list[Line] since otherwise mypy complains
-    # when comparing with a right-hand side that is a list of objects.
-    def __lines(self) -> list[object]:
-        """This block as a list of :class:`Line` objects."""
-        if self.__cached_lines is None:
-            self.__cached_lines = list(self.__lines_iterator())
-        return self.__cached_lines
 
-    def __lines_iterator(self) -> Iterator[Line]:
-        """This block as a list of :class:`Line` objects."""
-        for index, line in enumerate(self, self.offset):
-            yield Line(line, index, _check=False)
+# Those functions are private and are not included in :class:`Line`
+# or :class:`Block` to minimize the size of the class dictionary.
 
 
 def _parse_non_string(other: object, /) -> tuple[str, int] | None:
@@ -582,7 +563,7 @@ def _is_block_line_compatible(other: object, /) -> bool:
     return False
 
 
-def _parse_non_block(other: object, /) -> tuple[list[object], int] | None:
+def _parse_non_block(other: object, /) -> tuple[tuple[object, ...], int] | None:
     """Try to parse *other* as a pair ``(block lines, block offset)``.
 
     For efficiency, do *not* call this method on :class:`Block` instances
@@ -593,7 +574,7 @@ def _parse_non_block(other: object, /) -> tuple[list[object], int] | None:
 
     if all(map(_is_block_line_compatible, other)):
         # offset will never be given in this scenario
-        return list(other), -1
+        return tuple(other), -1
 
     if len(other) == 2:
         lines, offset = other
@@ -607,7 +588,7 @@ def _parse_non_block(other: object, /) -> tuple[list[object], int] | None:
         if not all(map(_is_block_line_compatible, lines)):
             return None
 
-        return list(lines), offset
+        return tuple(lines), offset
 
     return None
 
