@@ -195,25 +195,6 @@ class Line(SourceView[str]):
         __tracebackhide__ = self.__tracebackhide__
         super().__init__(line, offset, _check=_check)
 
-    @classmethod
-    def view(cls, index: int, line: str, /, *, _check: bool = True) -> Self:
-        """Alternative constructor flipping the order of the arguments.
-
-        This is typically useful with :func:`enumerate`, namely this makes::
-
-            from itertools import starmap
-            lines = list(starmap(Line.view, enumerate(src))
-
-        equivalent to::
-
-            def cast(line: object) -> str:
-                return line if isinstance(line, str) else str(line)
-
-            lines = [Line(cast(line), index) for index, line in enumerate(src)]
-        """
-        __tracebackhide__ = cls.__tracebackhide__
-        line = line if isinstance(line, str) else str(line)
-        return cls(line, index, _check=_check)
 
     # dunder methods
 
@@ -371,22 +352,6 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
 
         super().__init__(buffer, offset, _check=_check)
         self.__cached_lines: list[object] | None = None
-
-    @classmethod
-    def view(cls, index: int, buffer: Iterable[str], /, *, _check: bool = True) -> Self:
-        """Alternative constructor flipping the order of the arguments.
-
-        This is typically useful with :func:`enumerate`, namely this makes::
-
-            from itertools import starmap
-            blocks = list(starmap(Block.view, enumerate(src))
-
-        equivalent to::
-
-            blocks = [Block(lines, index) for index, lines in enumerate(src)]
-        """
-        __tracebackhide__ = cls.__tracebackhide__
-        return cls(buffer, index, _check=_check)
 
     @property
     def window(self) -> slice:
