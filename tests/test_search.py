@@ -2,7 +2,9 @@
 
 import json
 import warnings
+from hashlib import sha256
 from io import BytesIO
+from pathlib import Path
 
 import pytest
 from docutils import frontend, utils
@@ -341,3 +343,20 @@ def test_search_index_is_deterministic(app):
     # Pretty print the index. Only shown by pytest on failure.
     print(f'searchindex.js contents:\n\n{json.dumps(index, indent=2)}')
     assert_is_sorted(index, '')
+
+
+def test_check_js_search_indexes(make_app):
+    projects = {}
+
+    TEST_JS_ROOTS = Path(__file__).resolve().parent / 'js' / 'roots'
+    for directory in TEST_JS_ROOTS.iterdir():
+        app = make_app('html', srcdir=directory)
+        app.build()
+        searchindex = (app.outdir / 'searchindex.js').read_bytes()
+        projects[directory.name] = sha256(searchindex).digest()
+
+    TEST_JS_FIXTURES = Path(__file__).resolve().parent / 'js' / 'fixtures'
+    for directory in TEST_JS_FIXTURES.iterdir():
+        msg = f"Search index fixture in {directory} does not match regenerated copy."
+        searchindex = (directory / 'searchindex.js').read_bytes()
+        assert projects[directory.name] == sha256(searchindex).digest(), msg
