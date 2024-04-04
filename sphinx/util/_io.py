@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sphinx.util.console import _strip_escape_sequences
+from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
     from typing import Protocol
@@ -25,7 +25,7 @@ class TeeStripANSI:
 
     def write(self, text: str, /) -> None:
         self.stream_term.write(text)
-        self.stream_file.write(_strip_escape_sequences(text))
+        self.stream_file.write(strip_escape_sequences(text))
 
     def flush(self) -> None:
         if hasattr(self.stream_term, 'flush'):
