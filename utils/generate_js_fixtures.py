@@ -3,7 +3,7 @@
 import subprocess
 from pathlib import Path
 
-SPHINX_ROOT = Path(__file__).resolve().parents[1]
+SPHINX_ROOT = Path(__file__).resolve().parent.parent
 TEST_JS_FIXTURES = SPHINX_ROOT / 'tests' / 'js' / 'fixtures'
 TEST_JS_ROOTS = SPHINX_ROOT / 'tests' / 'js' / 'roots'
 
