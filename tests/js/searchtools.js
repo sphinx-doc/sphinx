@@ -12,8 +12,7 @@ describe('Basic html theme search', function() {
     it('should find "C++" when in index', function() {
       eval(loadFixture("cpp/searchindex.js"));
 
-      searchterms = ['c++'];
-      excluded = [];
+      [/* first-ignored */, searchterms, excluded, /*rest-ignored*/] = Search._parseQuery('C++');
       terms = Search._index.terms;
       titleterms = Search._index.titleterms;
 
@@ -31,8 +30,7 @@ describe('Basic html theme search', function() {
     it('should be able to search for multiple terms', function() {
       eval(loadFixture("multiterm/searchindex.js"));
 
-      searchterms = ['main', 'page'];
-      excluded = [];
+      [/* first-ignored */, searchterms, excluded, /*rest-ignored*/] = Search._parseQuery('main page');
       terms = Search._index.terms;
       titleterms = Search._index.titleterms;
       hits = [[
@@ -48,8 +46,7 @@ describe('Basic html theme search', function() {
     it('should partially-match "sphinx" when in title index', function() {
       eval(loadFixture("partial/searchindex.js"));
 
-      searchterms = ['sphinx'];
-      excluded = [];
+      [/* first-ignored */, searchterms, excluded, /*rest-ignored*/] = Search._parseQuery('sphinx');
       terms = Search._index.terms;
       titleterms = Search._index.titleterms;
 
