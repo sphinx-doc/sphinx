@@ -13,11 +13,6 @@ def build(srcdir: Path) -> None:
     subprocess.run(cmd, check=True, capture_output=True)
 
 
-def beautify(filename: Path) -> None:
-    cmd = ('js-beautify', '-r', filename)
-    subprocess.run(cmd, check=True, capture_output=True)
-
-
 for directory in TEST_JS_ROOTS.iterdir():
     searchindex = directory / 'build' / 'searchindex.js'
     destination = TEST_JS_FIXTURES / directory.name / 'searchindex.js'
