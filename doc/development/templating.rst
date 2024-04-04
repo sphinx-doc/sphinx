@@ -30,6 +30,7 @@ No.  You have several other options:
   produces pickle files with the page contents, and postprocess them using a
   custom tool, or use them in your Web application.
 
+.. _templating-primer:
 
 Jinja/Sphinx Templating Primer
 ------------------------------
@@ -108,7 +109,7 @@ The following blocks exist in the ``layout.html`` template:
     parent documents on the left, and the links to index, modules etc. on the
     right).  ``relbar1`` appears before the document, ``relbar2`` after the
     document.  By default, both blocks are filled; to show the relbar only
-    before the document, you would override `relbar2` like this::
+    before the document, you would override ``relbar2`` like this::
 
        {% block relbar2 %}{% endblock %}
 
@@ -422,7 +423,7 @@ are in HTML form), these variables are also available:
 .. data:: next
 
    The next document for the navigation.  This variable is either false or has
-   two attributes `link` and `title`.  The title contains HTML markup.  For
+   two attributes ``link`` and ``title``.  The title contains HTML markup.  For
    example, to generate a link to the next page, you can use this snippet::
 
       {% if next %}

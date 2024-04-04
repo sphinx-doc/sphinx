@@ -281,7 +281,7 @@ class TexinfoTranslator(SphinxTranslator):
                         for name, content in self.indices]
         # each section is also a node
         for section in self.document.findall(nodes.section):
-            title = cast(nodes.TextElement, section.next_node(nodes.Titular))
+            title = cast(nodes.TextElement, section.next_node(nodes.Titular))  # type: ignore[type-var]
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
 
@@ -1291,11 +1291,10 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.visit_literal_block(None)
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
+
         for production in productionlist:
             if production['tokenname']:
                 for id in production.get('ids'):

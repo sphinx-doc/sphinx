@@ -16,7 +16,7 @@ from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.index_entries import split_index_msg
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ logger = logging.getLogger(__name__)
 class Message:
     """An entry of translatable message."""
 
-    def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]):
+    def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]) -> None:
         self.text = text
         self.locations = locations
         self.uuids = uuids
@@ -66,7 +67,7 @@ class Catalog:
         line = origin.line
         if line is None:
             line = -1
-        self.metadata[msg].append((origin.source, line, origin.uid))
+        self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore[arg-type]
 
     def __iter__(self) -> Generator[Message, None, None]:
         for message in self.messages:
@@ -302,7 +303,7 @@ def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
         config.gettext_compact = True  # type: ignore[attr-defined]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext', {bool, str})

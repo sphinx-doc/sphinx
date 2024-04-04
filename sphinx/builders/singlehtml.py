@@ -11,7 +11,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import global_toctree_for_doc
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +190,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(SingleFileHTMLBuilder)

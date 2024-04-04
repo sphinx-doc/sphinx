@@ -6,7 +6,7 @@ source file translated by test_build.
 
 import pytest
 
-from tests.test_extensions.test_ext_autodoc import do_autodoc
+from tests.test_extensions.autodoc_util import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -197,5 +197,16 @@ def test_async_generator(app):
         '.. py:function:: asyncgenerator()',
         '   :module: target.functions',
         '   :async:',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_slice_function_arg(app):
+    actual = do_autodoc(app, 'function', 'target.functions.slice_arg_func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: slice_arg_func(arg: float64[:, :])',
+        '   :module: target.functions',
         '',
     ]

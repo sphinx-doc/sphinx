@@ -37,7 +37,7 @@ import re
 from collections.abc import Iterable, Sequence
 from importlib import import_module
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -58,7 +58,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
     from sphinx.writers.texinfo import TexinfoTranslator
@@ -316,20 +316,19 @@ class InheritanceGraph:
             # Write the node
             this_node_attrs = n_attrs.copy()
             if fullname in urls:
-                this_node_attrs['URL'] = '"%s"' % urls[fullname]
-                this_node_attrs['target'] = '"_top"'
+                this_node_attrs["URL"] = '"%s"' % urls[fullname]
+                this_node_attrs["target"] = '"_top"'
             if tooltip:
-                this_node_attrs['tooltip'] = tooltip
-            res.append('  "%s" [%s];\n' %
-                       (name, self._format_node_attrs(this_node_attrs)))
+                this_node_attrs["tooltip"] = tooltip
+            res.append('  "%s" [%s];\n' % (name, self._format_node_attrs(this_node_attrs)))
 
             # Write the edges
-            for base_name in bases:
-                res.append('  "%s" -> "%s" [%s];\n' %
-                           (base_name, name,
-                            self._format_node_attrs(e_attrs)))
-        res.append('}\n')
-        return ''.join(res)
+            res.extend(
+                '  "%s" -> "%s" [%s];\n' % (base_name, name, self._format_node_attrs(e_attrs))
+                for base_name in bases
+            )
+        res.append("}\n")
+        return "".join(res)
 
 
 class inheritance_diagram(graphviz):
@@ -349,7 +348,7 @@ class InheritanceDiagram(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'parts': int,
         'private-bases': directives.flag,
         'caption': directives.unchanged,
@@ -379,7 +378,7 @@ class InheritanceDiagram(SphinxDirective):
                 aliases=self.config.inheritance_alias,
                 top_classes=node['top-classes'])
         except InheritanceException as err:
-            return [node.document.reporter.warning(err, line=self.lineno)]
+            return [node.document.reporter.warning(err, line=self.lineno)]  # type: ignore[union-attr]
 
         # Create xref nodes for each target of the graph's image map and
         # add them to the doc tree so that Sphinx can resolve the
@@ -387,7 +386,7 @@ class InheritanceDiagram(SphinxDirective):
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
             refnodes, x = class_role(  # type: ignore[call-arg,misc]
-                'class', ':class:`%s`' % name, name, 0, self.state)  # type: ignore[arg-type]
+                'class', ':class:`%s`' % name, name, 0, self.state)
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
         # dot file later
@@ -478,7 +477,7 @@ def skip(self: nodes.NodeVisitor, node: inheritance_diagram) -> None:
     raise nodes.SkipNode
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.ext.graphviz')
     app.add_node(
         inheritance_diagram,

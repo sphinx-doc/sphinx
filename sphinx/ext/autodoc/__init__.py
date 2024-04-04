@@ -13,7 +13,7 @@ import re
 import sys
 import warnings
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar
 
 from docutils.statemachine import StringList
 
@@ -33,7 +33,13 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import OptionSpec, get_type_hints, restify, stringify_annotation
+from sphinx.util.typing import (
+    ExtensionMetadata,
+    OptionSpec,
+    get_type_hints,
+    restify,
+    stringify_annotation,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -313,7 +319,7 @@ class Documenter:
     #: true if the generated content may contain titles
     titles_allowed = True
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
         'noindex': bool_option,
     }
@@ -455,9 +461,7 @@ class Documenter:
 
         subject = inspect.unpartial(self.object)
         modname = self.get_attr(subject, '__module__', None)
-        if modname and modname != self.modname:
-            return False
-        return True
+        return not modname or modname == self.modname
 
     def format_args(self, **kwargs: Any) -> str:
         """Format the argument signature of *self.object*.
@@ -976,7 +980,7 @@ class ModuleDocumenter(Documenter):
     content_indent = ''
     _extra_indent = '   '
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'members': members_option, 'undoc-members': bool_option,
         'no-index': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'synopsis': identity,
@@ -1138,10 +1142,10 @@ class ModuleLevelDocumenter(Documenter):
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
         if modname is not None:
-            return modname, parents + [base]
+            return modname, [*parents, base]
         if path:
             modname = path.rstrip('.')
-            return modname, parents + [base]
+            return modname, [*parents, base]
 
         # if documenting a toplevel object without explicit module,
         # it can be contained in another auto directive ...
@@ -1150,7 +1154,7 @@ class ModuleLevelDocumenter(Documenter):
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid
-        return modname, parents + [base]
+        return modname, [*parents, base]
 
 
 class ClassLevelDocumenter(Documenter):
@@ -1162,7 +1166,7 @@ class ClassLevelDocumenter(Documenter):
     def resolve_name(self, modname: str | None, parents: Any, path: str, base: str,
                      ) -> tuple[str | None, list[str]]:
         if modname is not None:
-            return modname, parents + [base]
+            return modname, [*parents, base]
 
         if path:
             mod_cls = path.rstrip('.')
@@ -1186,7 +1190,7 @@ class ClassLevelDocumenter(Documenter):
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid
-        return modname, parents + [base]
+        return modname, [*parents, base]
 
 
 class DocstringSignatureMixin:
@@ -1462,7 +1466,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     objtype = 'class'
     member_order = 20
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'members': members_option, 'undoc-members': bool_option,
         'no-index': bool_option, 'inherited-members': inherited_members_option,
         'show-inheritance': bool_option, 'member-order': member_order_option,
@@ -2038,7 +2042,7 @@ class DataDocumenter(GenericAliasMixin,
     objtype = 'data'
     member_order = 40
     priority = -10
-    option_spec: OptionSpec = dict(ModuleLevelDocumenter.option_spec)
+    option_spec: ClassVar[OptionSpec] = dict(ModuleLevelDocumenter.option_spec)
     option_spec["annotation"] = annotation_option
     option_spec["no-value"] = bool_option
 
@@ -2229,7 +2233,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             self.add_line('   :abstractmethod:', sourcename)
         if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
             self.add_line('   :async:', sourcename)
-        if inspect.isclassmethod(obj):
+        if (inspect.isclassmethod(obj) or
+                inspect.is_singledispatch_method(obj) and inspect.isclassmethod(obj.func)):
             self.add_line('   :classmethod:', sourcename)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.add_line('   :staticmethod:', sourcename)
@@ -2261,6 +2266,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 if typ is object:
                     pass  # default implementation. skipped.
                 else:
+                    if inspect.isclassmethod(func):
+                        func = func.__func__
                     dispatchmeth = self.annotate_to_first_argument(func, typ)
                     if dispatchmeth:
                         documenter = MethodDocumenter(self.directive, '')
@@ -2463,9 +2470,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         # An instance variable defined in __init__().
         if self.get_attribute_comment(parent, self.objpath[-1]):  # type: ignore[attr-defined]
             return True
-        if self.is_runtime_instance_attribute_not_commented(parent):
-            return True
-        return False
+        return self.is_runtime_instance_attribute_not_commented(parent)
 
     def is_runtime_instance_attribute_not_commented(self, parent: Any) -> bool:
         """Check the subject is an attribute defined in __init__() without comment."""
@@ -2584,7 +2589,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
 
     objtype = 'attribute'
     member_order = 60
-    option_spec: OptionSpec = dict(ModuleLevelDocumenter.option_spec)
+    option_spec: ClassVar[OptionSpec] = dict(ModuleLevelDocumenter.option_spec)
     option_spec["annotation"] = annotation_option
     option_spec["no-value"] = bool_option
 
@@ -2604,9 +2609,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
             return False
         if inspect.isattributedescriptor(member):
             return True
-        if not inspect.isroutine(member) and not isinstance(member, type):
-            return True
-        return False
+        return not inspect.isroutine(member) and not isinstance(member, type)
 
     def document_members(self, all_members: bool = False) -> None:
         pass
@@ -2841,7 +2844,7 @@ def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     return safe_getattr(obj, name, *defargs)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_autodocumenter(ModuleDocumenter)
     app.add_autodocumenter(ClassDocumenter)
     app.add_autodocumenter(ExceptionDocumenter)
