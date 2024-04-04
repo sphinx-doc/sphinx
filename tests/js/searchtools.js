@@ -12,7 +12,7 @@ describe('Basic html theme search', function() {
     it('should find "C++" when in index', function() {
       eval(loadFixture("cpp/searchindex.js"));
 
-      searchTerms = Search._parseQuery('C++');
+      searchParameters = Search._parseQuery('C++');
 
       hits = [[
         "index",
@@ -22,7 +22,7 @@ describe('Basic html theme search', function() {
         5,
         "index.rst"
       ]];
-      expect(Search._performSearch(...searchTerms)).toEqual(hits);
+      expect(Search._performSearch(...searchParameters)).toEqual(hits);
     });
 
     it('should be able to search for multiple terms', function() {
