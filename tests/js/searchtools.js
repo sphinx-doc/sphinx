@@ -69,6 +69,37 @@ describe('Basic html theme search', function() {
 
   });
 
+  describe('aggregation of search results', function() {
+
+    it('should combine document title and document term matches', function() {
+      eval(loadFixture("multiterm/searchindex.js"));
+
+      searchParameters = Search._parseQuery('main page');
+
+      // fixme: duplicate result due to https://github.com/sphinx-doc/sphinx/issues/11961
+      hits = [
+        [
+          'index',
+          'Main Page',
+          '',
+          null,
+          15,
+          'index.rst'
+        ],
+        [
+          'index',
+          'Main Page',
+          '#main-page',
+          null,
+          100,
+          'index.rst'
+        ]
+      ];
+      expect(Search._performSearch(...searchParameters)).toEqual(hits);
+    });
+
+  });
+
 });
 
 describe("htmlToText", function() {
