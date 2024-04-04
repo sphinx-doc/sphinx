@@ -4,7 +4,6 @@ import json
 import warnings
 from hashlib import sha256
 from io import BytesIO
-from pathlib import Path
 
 import pytest
 from docutils import frontend, utils
@@ -348,7 +347,7 @@ def test_search_index_is_deterministic(app):
 
 
 @pytest.mark.parametrize('directory', (
-    directory for directory in (Path(__file__).resolve().parent / 'js' / 'roots').iterdir()
+    directory for directory in (TESTS_ROOT / 'js' / 'roots').iterdir()
 ))
 def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
     app = make_app('html', srcdir=directory, builddir=sphinx_test_tempdir / directory.name)
@@ -357,7 +356,7 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
     fresh_searchindex = (app.outdir / 'searchindex.js')
     fresh_hash = sha256(fresh_searchindex.read_bytes()).digest()
 
-    existing_searchindex = (Path(__file__).resolve().parent / 'js' / 'fixtures' / directory.name / 'searchindex.js')
+    existing_searchindex = (TESTS_ROOT / 'js' / 'fixtures' / directory.name / 'searchindex.js')
     existing_hash = sha256(existing_searchindex.read_bytes()).digest()
 
     msg = f"Search index fixture in {directory} does not match regenerated copy."
