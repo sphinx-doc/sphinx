@@ -30,8 +30,8 @@ describe('Basic html theme search', function() {
 
       searchterms = ['main', 'page'];
       excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
       hits = [[
         'index',
         'Main Page',
