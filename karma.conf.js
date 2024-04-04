@@ -15,8 +15,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'tests/js/project/documentation_options.js',
-      'tests/js/project/language_data.js',
+      'tests/js/documentation_options.js',
       'sphinx/themes/basic/static/doctools.js',
       'sphinx/themes/basic/static/searchtools.js',
       'sphinx/themes/basic/static/sphinx_highlight.js',
