@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from types import MappingProxyType
 from typing import TYPE_CHECKING
 
 from sphinx.testing._matcher.options import CompleteOptions, Configurable, Options
@@ -17,7 +18,7 @@ def test_options_class():
     assert not foreign_keys, f'unknown option(s): {", ".join(foreign_keys)}'
 
 
-def test_matcher_default_options():
+def test_default_options():
     """Check the synchronization of default options and classes in Sphinx."""
     default_options = Configurable.default_options.copy()
 
@@ -46,3 +47,26 @@ def test_matcher_default_options():
 
     # check that there are no leftover options
     assert sorted(processed) == sorted(Options.__annotations__)
+
+
+def test_get_option():
+    class Object(Configurable):
+        default_options = Configurable.default_options.copy()
+        default_options['keepends'] = True
+
+    obj = Object()
+    assert isinstance(obj.options, MappingProxyType)
+
+    assert 'keepends' not in obj.options
+    assert obj.get_option('keepends') is True
+    assert 'keepends' not in obj.options
+
+
+def test_set_option():
+    obj = Configurable()
+
+    assert 'delete' not in obj.options
+    assert obj.get_option('delete') == ()
+    obj.set_option('delete', 'abc')
+    assert 'delete' in obj.options
+    assert obj.get_option('delete') == 'abc'
