@@ -12,7 +12,10 @@ describe('Basic html theme search', function() {
     it('should find "C++" when in index', function() {
       eval(loadFixture("cpp/searchindex.js"));
 
-      searchParameters = Search._parseQuery('C++');
+      searchterms = ['c++'];
+      excluded = [];
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -22,7 +25,7 @@ describe('Basic html theme search', function() {
         5,
         "index.rst"
       ]];
-      expect(Search._performSearch(...searchParameters)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
 
     it('should be able to search for multiple terms', function() {
@@ -45,7 +48,10 @@ describe('Basic html theme search', function() {
     it('should partially-match "sphinx" when in title index', function() {
       eval(loadFixture("partial/searchindex.js"));
 
-      searchParameters = Search._parseQuery('sphinx');
+      searchterms = ['sphinx'];
+      excluded = [];
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -55,7 +61,7 @@ describe('Basic html theme search', function() {
         7,
         "index.rst"
       ]];
-      expect(Search._performSearch(...searchParameters)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
 
   });
