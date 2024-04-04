@@ -12,6 +12,8 @@ from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 
+from tests.utils import TESTS_ROOT
+
 
 class DummyEnvironment:
     def __init__(self, version, domains):
@@ -355,7 +357,7 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
     fresh_searchindex = (app.outdir / 'searchindex.js')
     fresh_hash = sha256(fresh_searchindex.read_bytes()).digest()
 
-    existing_searchindex = (directory / '..' / '..' / 'fixtures' / directory.name / 'searchindex.js')
+    existing_searchindex = (Path(__file__).resolve().parent / 'js' / 'fixtures' / directory.name / 'searchindex.js')
     existing_hash = sha256(existing_searchindex.read_bytes()).digest()
 
     msg = f"Search index fixture in {directory} does not match regenerated copy."
