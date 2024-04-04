@@ -268,16 +268,7 @@ const Search = {
     else Search.deferQuery(query);
   },
 
-  /**
-   * execute search (requires search index to be loaded)
-   */
-  query: (query) => {
-    const filenames = Search._index.filenames;
-    const docNames = Search._index.docnames;
-    const titles = Search._index.titles;
-    const allTitles = Search._index.alltitles;
-    const indexEntries = Search._index.indexentries;
-
+  _parseQuery: (query) => {
     // stem the search terms and add them to the correct list
     const stemmer = new Stemmer();
     const searchTerms = new Set();
@@ -312,6 +303,19 @@ const Search = {
     // console.debug("SEARCH: searching for:");
     // console.info("required: ", [...searchTerms]);
     // console.info("excluded: ", [...excludedTerms]);
+
+    return [query, searchTerms, excludedTerms, highlightTerms, objectTerms];
+  },
+
+  /**
+   * execute search (requires search index to be loaded)
+   */
+  _performSearch: (query, searchTerms, excludedTerms, highlightTerms, objectTerms) => {
+    const filenames = Search._index.filenames;
+    const docNames = Search._index.docnames;
+    const titles = Search._index.titles;
+    const allTitles = Search._index.alltitles;
+    const indexEntries = Search._index.indexentries;
 
     // Collect multiple result groups to be sorted separately and then ordered.
     // Each is an array of [docname, title, anchor, descr, score, filename].
@@ -394,7 +398,12 @@ const Search = {
       return acc;
     }, []);
 
-    results = results.reverse();
+    return results.reverse();
+  },
+
+  query: (query) => {
+    const searchTerms = Search._parseQuery(query);
+    const results = Search._performSearch(...searchTerms);
 
     // for debugging
     //Search.lastresults = results.slice();  // a copy
