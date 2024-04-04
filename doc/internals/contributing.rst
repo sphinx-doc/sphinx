@@ -339,7 +339,7 @@ Debugging tips
   non-minified ones using ``uglifyjs`` (installed via npm), with ``-m``
   option to enable mangling.
 
-* The ``searchindex.js`` files found in the ``tests/js/roots/*`` directories
+* The ``searchindex.js`` files found in the ``tests/js/fixtures/*`` directories
   are generated using the Sphinx HTML builder, and are provided as test
   fixtures to the Sphinx JavaScript test suite.  A utility script found at
   ``utils/generate_js_fixtures.py`` can be used to regenerate them.
