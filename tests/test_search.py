@@ -359,5 +359,5 @@ def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
     existing_searchindex = (TESTS_ROOT / 'js' / 'fixtures' / directory.name / 'searchindex.js')
     existing_hash = sha256(existing_searchindex.read_bytes()).digest()
 
-    msg = f"Search index fixture in {directory} does not match regenerated copy."
+    msg = f"Search index fixture {existing_searchindex} does not match regenerated copy."
     assert fresh_hash == existing_hash, msg
