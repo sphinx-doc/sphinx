@@ -116,8 +116,8 @@ const _finishSearch = (resultCount) => {
     );
   else
     Search.status.innerText = _(
-      `Search finished, found ${resultCount} page(s) matching the search query.`
-    );
+      "Search finished, found ${resultCount} page(s) matching the search query."
+    ).replace('${resultCount}', resultCount);
 };
 const _displayNextItem = (
   results,
@@ -508,7 +508,7 @@ const Search = {
         if (!titleTerms.hasOwnProperty(word)) {
           Object.keys(titleTerms).forEach((term) => {
             if (term.match(escapedWord))
-              arr.push({ files: titleTerms[word], score: Scorer.partialTitle });
+              arr.push({ files: titleTerms[term], score: Scorer.partialTitle });
           });
         }
       }
