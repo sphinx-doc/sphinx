@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
     _LinePatternT = TypeVar('_LinePatternT', str, re.Pattern[str])
 
+
 def _check_flavor(flavor: Flavor) -> None:
     allowed: Sequence[Flavor] = ('none', 'fnmatch', 're')
     if flavor not in allowed:
