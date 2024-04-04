@@ -348,8 +348,8 @@ def test_search_index_is_deterministic(app):
 @pytest.mark.parametrize('directory', (
     directory for directory in (Path(__file__).resolve().parent / 'js' / 'roots').iterdir()
 ))
-def test_check_js_search_indexes(make_app, directory):
-    app = make_app('html', srcdir=directory)
+def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
+    app = make_app('html', srcdir=directory, builddir=sphinx_test_tempdir / directory.name)
     app.build()
 
     fresh_searchindex = (app.outdir / 'searchindex.js').read_bytes()
