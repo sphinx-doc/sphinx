@@ -43,18 +43,9 @@ describe('Basic html theme search', function() {
     });
 
     it('should partially-match "sphinx" when in title index', function() {
-      index = {
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{'useful': 0, 'utilities': 0},
-        titles:["sphinx_utils module"],
-        titleterms:{'sphinx_utils': 0}
-      }
-      Search.setIndex(index);
-      searchterms = ['sphinx'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      eval(loadFixture("partial/searchindex.js"));
+
+      searchParameters = Search._parseQuery('sphinx');
 
       hits = [[
         "index",
@@ -64,7 +55,7 @@ describe('Basic html theme search', function() {
         7,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search._performSearch(...searchParameters)).toEqual(hits);
     });
 
   });
