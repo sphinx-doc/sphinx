@@ -62,7 +62,7 @@ def test_strip_ansi(
         # apply the permutation on the blocks with stripped codes
         text_blocks = list(map(text_base_blocks.__getitem__, sigma))
 
-        for glue, n in itertools.product(['.', '\n', '\r\n'], range(N)):
+        for glue, n in itertools.product(['.', '\n', '\r\n'], range(4 * N)):
             ansi_strings = next_ansi_blocks(ansi_blocks, n)
             text_strings = next_ansi_blocks(text_blocks, n)
             assert len(ansi_strings) == len(text_strings) == n
