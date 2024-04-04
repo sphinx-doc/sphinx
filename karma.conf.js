@@ -15,13 +15,13 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      { pattern: 'tests/js/fixtures/**/*.js', included: false, served: true },
       'tests/js/documentation_options.js',
       'tests/js/language_data.js',
       'sphinx/themes/basic/static/doctools.js',
       'sphinx/themes/basic/static/searchtools.js',
       'sphinx/themes/basic/static/sphinx_highlight.js',
-      'tests/js/*.js',
-      { pattern: 'tests/js/fixtures/**/*.js', included: false, served: true }
+      'tests/js/*.js'
     ],
 
 
