@@ -10,6 +10,7 @@ from itertools import filterfalse
 from typing import TYPE_CHECKING
 
 from sphinx.testing._matcher import engine, util
+from sphinx.testing._matcher.options import OptionsHolder
 from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
@@ -31,34 +32,31 @@ if TYPE_CHECKING:
 
 def clean_text(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
     """Clean a text, returning an iterable of lines."""
-    if not options.get('keep_ansi', True):
+    config = OptionsHolder(**options)
+
+    if not config.keep_ansi:
         text = strip_escape_sequences(text)
 
-    strip = options.get('strip', False)
-    text = strip_chars(text, strip)
-
-    keepends = options.get('keepends', False)
-    lines = text.splitlines(keepends)
+    text = strip_chars(text, config.strip)
+    lines = text.splitlines(config.keep_break)
 
     return clean_lines(lines, **options)
 
 
 def clean_lines(lines: Iterable[str], /, **options: Unpack[Options]) -> Iterable[str]:
     """Clean an iterable of lines."""
-    stripline = options.get('stripline', False)
-    lines = strip_lines(lines, stripline)
+    config = OptionsHolder(**options)
 
-    keep_empty = options.get('keep_empty', True)
-    compress = options.get('compress', False)
-    unique = options.get('unique', False)
+    lines = strip_lines(lines, config.stripline)
+
+    keep_empty, compress, unique = config.keep_empty, config.compress, config.unique
     lines = filter_lines(lines, keep_empty=keep_empty, compress=compress, unique=unique)
 
-    delete = options.get('delete', ())
-    flavor = options.get('flavor', 'none')
-    lines = prune_lines(lines, delete, flavor=flavor)
+    deleter_objects, flavor = config.delete, config.flavor
+    lines = prune_lines(lines, deleter_objects, flavor=flavor)
 
-    ignore = options.get('ignore', None)
-    lines = ignore_lines(lines, ignore)
+    ignore_predicate = config.ignore
+    lines = ignore_lines(lines, ignore_predicate)
 
     return lines
 

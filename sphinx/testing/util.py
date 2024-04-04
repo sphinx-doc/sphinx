@@ -25,13 +25,13 @@ from sphinx.util.docutils import additional_nodes
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from pathlib import Path
-    from typing import Any
+    from typing import Any, ClassVar
     from xml.etree.ElementTree import ElementTree
 
     from docutils.nodes import Node
     from typing_extensions import Unpack
 
-    from sphinx.testing._matcher.options import Options
+    from sphinx.testing._matcher.options import CompleteOptions, Options
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -81,7 +81,7 @@ def etree_parse(path: str | os.PathLike[str]) -> ElementTree:
 
 
 class _SphinxLineMatcher(LineMatcher):
-    default_options = LineMatcher.default_options.copy()
+    default_options: ClassVar[CompleteOptions] = LineMatcher.default_options.copy()
     default_options['keep_ansi'] = False
     default_options['strip'] = True
 

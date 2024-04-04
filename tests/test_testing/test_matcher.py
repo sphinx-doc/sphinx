@@ -145,7 +145,8 @@ def test_matcher_cache():
     source = [term.blue('hello'), '', 'world']
     matcher = LineMatcher.from_lines(source)
 
-    stack = matcher._stack
+    stack_attribute = f'_{matcher.__class__.__name__.lstrip("_")}__stack'
+    stack = getattr(matcher, stack_attribute)
     assert len(stack) == 1
     assert stack[0] is None
 
@@ -418,14 +419,12 @@ def test_assert_lines_debug(lines, pattern, count, expect):
     assert parse_excinfo(exc_info) == expect
 
 
-# fmt: off
 @pytest.mark.parametrize(('maxsize', 'start', 'count'), [
     # combinations of integers (a, b, c) such that c >= 1 and a >= b + c
     (1, 0, 1),
     (2, 0, 1), (2, 0, 2), (2, 1, 1),
     (3, 0, 1), (3, 0, 2), (3, 0, 3), (3, 1, 1), (3, 1, 2), (3, 2, 1),
-])
-# fmt: on
+])  # fmt: skip
 @pytest.mark.parametrize('dedup', range(3))
 def test_assert_no_lines(maxsize, start, count, dedup):
     # 'maxsize' might be smaller than start + (dedup +  1) * count
@@ -437,10 +436,13 @@ def test_assert_no_lines(maxsize, start, count, dedup):
         matcher.assert_no_lines(source.main, context=0)
 
     assert parse_excinfo(exc_info) == [
-        'block pattern', '',
+        'block pattern',
+        '',
         *util.indent_lines(source.main, indent=4, highlight=False),
-        '', 'found in', '',
-        *util.indent_lines(source.main, indent=4, highlight=True)
+        '',
+        'found in',
+        '',
+        *util.indent_lines(source.main, indent=4, highlight=True),
     ]
 
 
@@ -480,13 +482,19 @@ def test_assert_no_lines_debug(
         matcher.assert_no_lines(source.main, context=context_size)
 
     assert parse_excinfo(exc_info) == [
-        'block pattern', '',
+        'block pattern',
+        '',
         *util.indent_lines(source.main, indent=4, highlight=False),
-        '', 'found in', '',
+        '',
+        'found in',
+        '',
         *make_debug_context(
             source.main,
-            source.peek_prev(context_size), omit_prev,
-            source.peek_next(context_size), omit_next,
-            context_size=context_size, indent=4,
-        )
+            source.peek_prev(context_size),
+            omit_prev,
+            source.peek_next(context_size),
+            omit_next,
+            context_size=context_size,
+            indent=4,
+        ),
     ]

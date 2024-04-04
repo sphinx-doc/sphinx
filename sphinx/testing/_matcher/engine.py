@@ -30,14 +30,12 @@ def _sort_pattern(s: str | re.Pattern[str]) -> tuple[str, int, int]:
     return (s.pattern, s.flags, s.groups)
 
 
-# fmt: off
 @overload
 def to_line_patterns(expect: str) -> tuple[str]: ...  # NoQA: E704
 @overload
 def to_line_patterns(expect: re.Pattern[str]) -> tuple[re.Pattern[str]]: ...  # NoQA: E704
 @overload
 def to_line_patterns(expect: Iterable[LinePattern], /) -> tuple[LinePattern, ...]: ...  # NoQA: E704
-# fmt: on
 def to_line_patterns(expect: LinePattern | Iterable[LinePattern]) -> Sequence[LinePattern]:  # NoqA: E302
     """Get a read-only sequence of line-matching patterns.
 
@@ -64,14 +62,12 @@ def to_line_patterns(expect: LinePattern | Iterable[LinePattern]) -> Sequence[Li
     return tuple(expect)
 
 
-# fmt: off
 @overload
 def to_block_pattern(expect: str) -> tuple[str, ...]: ...  # NoQA: E704
 @overload
 def to_block_pattern(expect: re.Pattern[str]) -> tuple[re.Pattern[str]]: ...  # NoQA: E704
 @overload
 def to_block_pattern(expect: Sequence[LinePattern]) -> Sequence[LinePattern]: ...  # NoQA: E704
-# fmt: on
 def to_block_pattern(expect: LinePattern | Sequence[LinePattern]) -> Sequence[LinePattern]:  # NoQA: E302
     r"""Get a read-only sequence for a s single block pattern.
 
@@ -94,12 +90,10 @@ def to_block_pattern(expect: LinePattern | Sequence[LinePattern]) -> Sequence[Li
     return tuple(expect)
 
 
-# fmt: off
 @overload
 def transform(fn: Callable[[str], str], x: str, /) -> str: ...  # NoQA: E704
 @overload
 def transform(fn: Callable[[str], str], x: re.Pattern[str], /) -> re.Pattern[str]: ...  # NoQA: E704
-# fmt: on
 def transform(fn: Callable[[str], str], x: LinePattern, /) -> LinePattern:  # NoQA: E302
     """Transform regular expressions, leaving compiled patterns untouched."""
     return fn(x) if isinstance(x, str) else x

@@ -447,12 +447,10 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         for index, line in enumerate(self, self.offset):
             yield Line(line, index, _check=False)
 
-    # fmt: off
     @overload
     def at(self, index: int, /) -> Line: ...  # NoQA: E704
     @overload
     def at(self, index: slice, /) -> Self: ...  # NoQA: E704
-    # fmt: on
     def at(self, index: int | slice, /) -> Line | Block:  # NoQA: E301
         """Get a :class:`Line` or a contiguous sub-:class:`Block`."""
         if isinstance(index, slice):
@@ -465,12 +463,10 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         start, _, _ = slice(index, -1).indices(self.length)
         return Line(self.buffer[index], self.offset + start, _check=False)
 
-    # fmt: off
     @overload
     def __getitem__(self, index: int, /) -> str: ...  # NoQA: E704
     @overload
     def __getitem__(self, index: slice, /) -> Sequence[str]: ...  # NoQA: E704
-    # fmt: on
     def __getitem__(self, index: int | slice, /) -> str | Sequence[str]:  # NoQA: E301
         """Get a line or a contiguous sub-block."""
         if isinstance(index, slice):
