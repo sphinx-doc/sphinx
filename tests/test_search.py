@@ -345,18 +345,18 @@ def test_search_index_is_deterministic(app):
     assert_is_sorted(index, '')
 
 
-def test_check_js_search_indexes(make_app):
-    projects = {}
+@pytest.mark.parametrize('directory', (
+    directory for directory in (Path(__file__).resolve().parent / 'js' / 'roots').iterdir()
+))
+def test_check_js_search_indexes(make_app, directory):
+    app = make_app('html', srcdir=directory)
+    app.build()
 
-    TEST_JS_ROOTS = Path(__file__).resolve().parent / 'js' / 'roots'
-    for directory in TEST_JS_ROOTS.iterdir():
-        app = make_app('html', srcdir=directory)
-        app.build()
-        searchindex = (app.outdir / 'searchindex.js').read_bytes()
-        projects[directory.name] = sha256(searchindex).digest()
+    fresh_searchindex = (app.outdir / 'searchindex.js').read_bytes()
+    fresh_hash = sha256(fresh_searchindex).digest()
 
-    TEST_JS_FIXTURES = Path(__file__).resolve().parent / 'js' / 'fixtures'
-    for directory in TEST_JS_FIXTURES.iterdir():
-        msg = f"Search index fixture in {directory} does not match regenerated copy."
-        searchindex = (directory / 'searchindex.js').read_bytes()
-        assert projects[directory.name] == sha256(searchindex).digest(), msg
+    existing_searchindex = (directory / '..' / '..' / 'fixtures' / directory.name / 'searchindex.js').read_bytes()
+    existing_hash = sha256(existing_searchindex).digest()
+
+    msg = f"Search index fixture in {directory} does not match regenerated copy."
+    assert fresh_hash == existing_hash, msg
