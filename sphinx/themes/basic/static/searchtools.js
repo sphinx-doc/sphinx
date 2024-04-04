@@ -116,8 +116,8 @@ const _finishSearch = (resultCount) => {
     );
   else
     Search.status.innerText = _(
-      `Search finished, found ${resultCount} page(s) matching the search query.`
-    );
+      "Search finished, found ${resultCount} page(s) matching the search query."
+    ).replace('${resultCount}', resultCount);
 };
 const _displayNextItem = (
   results,
