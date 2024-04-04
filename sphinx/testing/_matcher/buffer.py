@@ -82,10 +82,6 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         """The number of items in this object."""
         return len(self)
 
-    def pformat(self) -> str:
-        """A nice representation of this object."""
-        return '{0.__class__.__name__}({0!r}, @={0.offset}, #={0.length})'.format(self)
-
     @abc.abstractmethod
     # The 'value' is 'Any' so that subclasses do not violate Liskov's substitution principle
     def count(self, value: Any, /) -> int:
@@ -112,6 +108,10 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
 
         .. seealso:: :meth:`index`
         """
+
+    def pformat(self) -> str:
+        """A nice representation of this object."""
+        return f'{self.__class__.__name__}({self!r}, @={self.offset}, #={self.length})'
 
     def __repr__(self) -> str:
         return repr(self.buffer)
