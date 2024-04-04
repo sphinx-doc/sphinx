@@ -13,7 +13,7 @@
 var stopwords = [];
 
 
-/* Non-minified version is copied as a separate JS file, is available */
+/* Non-minified version is copied as a separate JS file, if available */
 
 /**
  * Dummy stemmer for languages without stemming rules.
