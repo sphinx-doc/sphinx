@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils.parsers.rst import directives
 
@@ -36,7 +36,7 @@ class ReSTMarkup(ObjectDescription[str]):
     Description of generic reST markup.
     """
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -142,7 +142,7 @@ class ReSTDirectiveOption(ReSTMarkup):
     Description of an option for reST directive.
     """
 
-    option_spec: OptionSpec = ReSTMarkup.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = ReSTMarkup.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
     })

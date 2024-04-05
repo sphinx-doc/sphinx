@@ -245,7 +245,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
             super().visit_term(node)
 
     # overwritten -- we don't want source comments to show up
-    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
+    def visit_comment(self, node: Element) -> None:
         raise nodes.SkipNode
 
     # overwritten -- added ensure_eol()
@@ -316,7 +316,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
-        self.visit_Text(node)  # type: ignore[arg-type]
+        self.visit_Text(node)
         self.body.append(self.defs['reference'][1])
 
         if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):

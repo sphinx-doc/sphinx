@@ -16,7 +16,7 @@ from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.index_entries import split_index_msg
@@ -67,7 +67,7 @@ class Catalog:
         line = origin.line
         if line is None:
             line = -1
-        self.metadata[msg].append((origin.source, line, origin.uid))
+        self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore[arg-type]
 
     def __iter__(self) -> Generator[Message, None, None]:
         for message in self.messages:
