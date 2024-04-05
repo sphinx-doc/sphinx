@@ -112,7 +112,7 @@ def make_debug_context(
     context_size: int,  # the original value of the 'context_size' parameter
     indent: int = 4,
 ) -> list[str]:
-    """Other API for :func:`sphinx.testing._matcher.util.get_debug_context`.
+    """Other API for :func:`sphinx.testing.matcher._util.diff`.
 
     The resulting lines are of the form::
 
