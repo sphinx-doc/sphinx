@@ -44,19 +44,25 @@ try:
 except ImportError:
     colorama = None
 
+_CSI: Final[str] = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
 
-_CSI = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
-_ansi_re: re.Pattern[str] = re.compile(
+# Pattern matching ANSI control sequences containing colors.
+_ansi_color_re: Final[re.Pattern[str]] = re.compile(r'\x1b\[(?:\d+;){0,2}\d*m')
+
+_ansi_re: Final[re.Pattern[str]] = re.compile(
     _CSI
     + r"""
-    (
-      (\d\d;){0,2}\d\dm  # ANSI colour code
+    (?:
+      (?:\d+;){0,2}\d*m     # ANSI color code    ('m' is equivalent to '0m')
     |
-      \dK                # ANSI Erase in Line
+      [012]?K               # ANSI Erase in Line ('K' is equivalent to '0K')
     )""",
     re.VERBOSE | re.ASCII,
 )
-_ansi_color_re: Final[re.Pattern[str]] = re.compile('\x1b.*?m')
+"""Pattern matching ANSI CSI colors (SGR) and erase line (EL) sequences.
+
+See :func:`strip_escape_sequences` for details.
+"""
 
 codes: dict[str, str] = {}
 
@@ -80,7 +86,7 @@ def term_width_line(text: str) -> str:
         return text + '\n'
     else:
         # codes are not displayed, this must be taken into account
-        return text.ljust(_tw + len(text) - len(_ansi_re.sub('', text))) + '\r'
+        return text.ljust(_tw + len(text) - len(strip_escape_sequences(text))) + '\r'
 
 
 def color_terminal() -> bool:
@@ -128,11 +134,39 @@ def colorize(name: str, text: str, input_mode: bool = False) -> str:
 
 
 def strip_colors(s: str) -> str:
+    """Remove the ANSI color codes in a string *s*.
+
+    .. caution::
+
+       This function is not meant to be used in production and should only
+       be used for testing Sphinx's output messages.
+
+    .. seealso:: :func:`strip_escape_sequences`
+    """
     return _ansi_color_re.sub('', s)
 
 
-def _strip_escape_sequences(s: str) -> str:
-    return _ansi_re.sub('', s)
+def strip_escape_sequences(text: str, /) -> str:
+    r"""Remove the ANSI CSI colors and "erase in line" sequences.
+
+    Other `escape sequences `__ (e.g., VT100-specific functions) are not
+    supported and only control sequences *natively* known to Sphinx (i.e.,
+    colors declared in this module and "erase entire line" (``'\x1b[2K'``))
+    are eliminated by this function.
+
+    .. caution::
+
+       This function is not meant to be used in production and should only
+       be used for testing Sphinx's output messages that were not tempered
+       with by third-party extensions.
+
+    .. versionadded:: 7.3
+
+       This function is added as an *experimental* feature.
+
+    __ https://en.wikipedia.org/wiki/ANSI_escape_code
+    """
+    return _ansi_re.sub('', text)
 
 
 def create_color_func(name: str) -> None:
@@ -151,8 +185,8 @@ _attrs = {
     'blink': '05m',
 }
 
-for _name, _value in _attrs.items():
-    codes[_name] = '\x1b[' + _value
+for __name, __value in _attrs.items():
+    codes[__name] = '\x1b[' + __value
 
 _colors = [
     ('black', 'darkgray'),
@@ -165,9 +199,9 @@ _colors = [
     ('lightgray', 'white'),
 ]
 
-for i, (dark, light) in enumerate(_colors, 30):
-    codes[dark] = '\x1b[%im' % i
-    codes[light] = '\x1b[%im' % (i + 60)
+for __i, (__dark, __light) in enumerate(_colors, 30):
+    codes[__dark] = '\x1b[%im' % __i
+    codes[__light] = '\x1b[%im' % (__i + 60)
 
 _orig_codes = codes.copy()
 
