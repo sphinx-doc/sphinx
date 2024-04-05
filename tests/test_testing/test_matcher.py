@@ -12,7 +12,7 @@ import sphinx.util.console as term
 from sphinx.testing.matcher import LineMatcher
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Sequence
+    from collections.abc import Sequence, Set
 
     from _pytest._code import ExceptionInfo
 
@@ -201,7 +201,7 @@ def test_matcher_cache():
 def test_matcher_find(
     lines: list[str],
     flavor: Flavor,
-    pattern: Collection[LinePattern],
+    pattern: LinePattern | Set[LinePattern] | Sequence[LinePattern],
     expect: Sequence[tuple[str, int]],
 ) -> None:
     matcher = LineMatcher.from_lines(lines, flavor=flavor)
