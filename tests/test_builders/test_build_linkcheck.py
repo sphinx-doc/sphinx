@@ -37,6 +37,7 @@ ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from io import StringIO
 
     from sphinx.application import Sphinx
 
@@ -575,7 +576,7 @@ def test_follows_redirects_on_GET(app, capsys, warning):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
-def test_linkcheck_allowed_redirects(app, warning):
+def test_linkcheck_allowed_redirects(app: Sphinx, warning: StringIO) -> None:
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
         app.config.linkcheck_allowed_redirects = {f'http://{address}/.*1': '.*'}  # type: ignore[attr-defined]
         compile_linkcheck_allowed_redirects(app, app.config)
