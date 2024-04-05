@@ -14,11 +14,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from sphinx.testing.matcher.buffer import _Region
+    from sphinx.testing.matcher.buffer import Region
 
 
 @pytest.mark.parametrize('cls', [Line, Block])
-def test_offset_value(cls: type[_Region[Any]]) -> None:
+def test_offset_value(cls: type[Region[Any]]) -> None:
     with pytest.raises(TypeError, match=re.escape('offset must be an integer, got: None')):
         cls('', None)  # type: ignore[arg-type]
 
@@ -26,13 +26,13 @@ def test_offset_value(cls: type[_Region[Any]]) -> None:
         cls('', -1)
 
 
-def test_line_region_window():
+def test_line_region_span():
     for n in range(3):
         # the empty line is still a line in the source
-        assert Line('', n).window == slice(n, n + 1)
+        assert Line('', n).span == slice(n, n + 1)
 
     line = Line('', 1)
-    assert ['L1', '', 'L3', 'L4', 'L4'][line.window] == ['']
+    assert ['L1', '', 'L3', 'L4', 'L4'][line.span] == ['']
 
 
 def test_line_slice_context():
@@ -360,13 +360,13 @@ def test_block_unsupported_operators(operand):
     assert Block() != operand
 
 
-def test_block_region_window():
+def test_block_region_span():
     for n in range(3):
-        assert Block([], n).window == slice(n, n)
+        assert Block([], n).span == slice(n, n)
 
     block = Block(['B', 'C', 'D'], 1)
-    assert block.window == slice(1, 4)
-    assert ['A', 'B', 'C', 'D', 'E'][block.window] == ['B', 'C', 'D']
+    assert block.span == slice(1, 4)
+    assert ['A', 'B', 'C', 'D', 'E'][block.span] == ['B', 'C', 'D']
 
 
 def test_block_slice_context():

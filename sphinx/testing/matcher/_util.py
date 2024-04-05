@@ -189,8 +189,8 @@ def diff(
     before, after = region.context(context, limit := len(source))
     writelines(omit_line(has_context * before.start))
     writelines(indent_lines(source[before], indent=indent, highlight=False))
-    # use region.window to ensure that single lines are wrapped in lists
-    writelines(indent_lines(source[region.window], indent=indent, highlight=True))
+    # use region.span to ensure that single lines are wrapped in lists
+    writelines(indent_lines(source[region.span], indent=indent, highlight=True))
     writelines(indent_lines(source[after], indent=indent, highlight=False))
     writelines(omit_line(has_context * (limit - after.stop)))
 

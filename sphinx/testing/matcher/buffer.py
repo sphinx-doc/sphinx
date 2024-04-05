@@ -33,27 +33,25 @@ if TYPE_CHECKING:
 _T = TypeVar('_T', bound=Sequence[str])
 
 
-class _Region(Generic[_T], Sequence[str], abc.ABC):
+class Region(Generic[_T], Sequence[str], abc.ABC):
     """A string or a sequence of strings implementing rich comparison.
 
-    Given an implicit *source* as a list of strings, a :class:`SourceView`
-    is a subset  of that implicit *source* starting at some :attr:`offset`.
-
-    :meta private:
+    Given an implicit *source* as a list of strings, a :class:`Region` is
+    of that of that implicit *source* starting at some :attr:`offset`.
     """
 
     # add __weakref__ to allow the object being weak-referencable
     __slots__ = ('__buffer', '__offset', '__weakref__')
 
     def __init__(self, buffer: _T, /, offset: int = 0, *, _check: bool = True) -> None:
-        """Construct a :class:`SourceView`.
+        """Construct a :class:`Region` object.
 
-        :param buffer: The view's content (a string or a list of strings).
-        :param offset: The view's offset with respect to the original source.
+        :param buffer: The region's content (a string or a list of strings).
+        :param offset: The region's offset with respect to the original source.
         :param _check: An internal parameter used for validating inputs.
 
         The *_check* parameter is only meant for internal usage and strives
-        to speed-up the construction of :class:`SourceView` objects for which
+        to speed-up the construction of :class:`Region` objects for which
         their constructor arguments are known to be valid at call time.
         """
         if _check:
@@ -75,40 +73,29 @@ class _Region(Generic[_T], Sequence[str], abc.ABC):
 
     @property
     def offset(self) -> int:
-        """The index of this object in the original source."""
+        """The index of this region in the original source."""
         return self.__offset
 
     @property
     def length(self) -> int:
-        """The number of items in this object."""
+        """The number of "atomic" items in this region."""
         return len(self)
 
     @property
     @abc.abstractmethod
-    def window(self) -> slice:
+    def span(self) -> slice:
         """A slice representing this region in its source.
-
-        If *source* is the original source this region is contained within,
-        then ``assert [*source[region.window]] == [*region.lines()]`` holds.
 
         Examples::
 
             source = ['L1', 'L2', 'L3']
             line = Line('L2', 1)
-            assert source[line.window] == ['L2']
+            assert source[line.span] == ['L2']
 
             source = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
             block = Block(['4', '5', '6'], 3)
-            assert source[block.window] == ['4', '5', '6']
+            assert source[block.span] == ['4', '5', '6']
         """
-
-    @abc.abstractmethod
-    def lines(self) -> tuple[Line, ...]:
-        """This region as a tuple of :class:`Line` objects."""
-
-    @abc.abstractmethod
-    def lines_iterator(self) -> Iterator[Line]:
-        """This region as an iterator of :class:`Line` objects."""
 
     def context(self, delta: int, limit: int) -> tuple[slice, slice]:
         """A slice object indicating a context around this region.
@@ -128,11 +115,11 @@ class _Region(Generic[_T], Sequence[str], abc.ABC):
         assert delta >= 0, 'context size must be >= 0'
         assert limit >= 0, 'source length must be >= 0'
 
-        window = self.window
-        before_start, before_stop = max(0, window.start - delta), min(window.start, limit)
+        span = self.span
+        before_start, before_stop = max(0, span.start - delta), min(span.start, limit)
         before_slice = slice(before_start, before_stop)
 
-        after_start, after_stop = min(window.stop, limit), min(window.stop + delta, limit)
+        after_start, after_stop = min(span.stop, limit), min(span.stop + delta, limit)
         after_slice = slice(after_start, after_stop)
 
         return before_slice, after_slice
@@ -164,7 +151,7 @@ class _Region(Generic[_T], Sequence[str], abc.ABC):
         """
 
     def pformat(self) -> str:
-        """A nice representation of this object."""
+        """A nice representation of this region."""
         return f'{self.__class__.__name__}({self!r}, @={self.offset}, #={self.length})'
 
     def __repr__(self) -> str:
@@ -174,7 +161,7 @@ class _Region(Generic[_T], Sequence[str], abc.ABC):
         return self.__class__(self.buffer, self.offset, _check=False)
 
     def __bool__(self) -> bool:
-        """Indicate whether this view is empty or not."""
+        """Indicate whether this region is empty or not."""
         return bool(self.buffer)
 
     @final
@@ -183,23 +170,19 @@ class _Region(Generic[_T], Sequence[str], abc.ABC):
         return iter(self.buffer)
 
     def __len__(self) -> int:
-        """The number of "atomic" items in this view."""
+        """The number of "atomic" items in this region."""
         return len(self.buffer)
 
     def __contains__(self, value: object, /) -> bool:
-        """Check that an "atomic" value is represented by this view."""
+        """Check that an "atomic" value is represented by this region."""
         return value in self.buffer or self.find(value) != -1
 
     @abc.abstractmethod
     def __lt__(self, other: object, /) -> bool:
-        """Check that this view is strictly contained in *other*.
-
-        Subclasses implementing the :class:`SourceView` interface
-        should describe the expected types for *object*.
-        """
+        """Check that this region is strictly contained in *other*."""
 
     def __le__(self, other: object, /) -> bool:
-        """Check that this view is contained in *other*.
+        """Check that this region is contained in *other*.
 
         By default, ``self == other`` is called before ``self < other``, but
         subclasses should override this method  for an efficient alternative.
@@ -207,7 +190,7 @@ class _Region(Generic[_T], Sequence[str], abc.ABC):
         return self == other or self < other
 
     def __ge__(self, other: object, /) -> bool:
-        """Check that *other* is contained by this view.
+        """Check that *other* is contained by this region.
 
         By default, ``self == other`` is called before ``self > other``, but
         subclasses should override this method  for an efficient alternative.
@@ -216,20 +199,16 @@ class _Region(Generic[_T], Sequence[str], abc.ABC):
 
     @abc.abstractmethod
     def __gt__(self, other: object, /) -> bool:
-        """Check that this view strictly contains *other*.
-
-        Subclasses implementing the :class:`SourceView` interface
-        should describe the expected types for *object*.
-        """
+        """Check that this region strictly contains *other*."""
 
 
-class Line(_Region[str]):
+class Line(Region[str]):
     """A line found by :meth:`~sphinx.testing.matcher.LineMatcher.find`.
 
     A :class:`Line` can be compared to :class:`str`, :class:`Line` objects or
-    a pair (i.e., a two-length sequence) ``(line, line_offset)`` where
+    a pair (i.e., a two-length sequence) ``(line_content, line_offset)`` where
 
-    - *line* is a :class:`str` object, and
+    - *line_content* is a :class:`str`, and
     - *line_offset* is an nonnegative integer.
 
     By convention, the comparison result (except for ``!=``) of :class:`Line`
@@ -246,14 +225,8 @@ class Line(_Region[str]):
         super().__init__(line, offset, _check=_check)
 
     @property
-    def window(self) -> slice:
+    def span(self) -> slice:
         return slice(self.offset, self.offset + 1)
-
-    def lines(self) -> tuple[Line]:
-        return (self,)
-
-    def lines_iterator(self) -> Iterator[Line]:
-        yield self
 
     def count(self, sub: SubStringLike, /) -> int:
         """Count the number of occurrences of a substring or pattern.
@@ -270,7 +243,7 @@ class Line(_Region[str]):
 
         return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
 
-    # explicitly add the method since its signature differs from :meth:`SourceView.index`
+    # explicitly add the method since its signature differs from :meth:`_Region.index`
     def index(self, sub: SubStringLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a substring.
 
@@ -358,7 +331,7 @@ class Line(_Region[str]):
         return self.offset == other[1] and self.buffer > other[0]
 
 
-class Block(_Region[tuple[str, ...]]):
+class Block(Region[tuple[str, ...]]):
     """Block found by :meth:`~sphinx.testing.matcher.LineMatcher.find_blocks`.
 
     A block is a sequence of lines comparable to :class:`Line`, generally a
@@ -414,17 +387,8 @@ class Block(_Region[tuple[str, ...]]):
         """
 
     @property
-    def window(self) -> slice:
+    def span(self) -> slice:
         return slice(self.offset, self.offset + self.length)
-
-    def lines(self) -> tuple[Line, ...]:
-        if self.__cached_lines is None:
-            self.__cached_lines = tuple(self.lines_iterator())
-        return self.__cached_lines
-
-    def lines_iterator(self) -> Iterator[Line]:
-        for index, line in enumerate(self, self.offset):
-            yield Line(line, index, _check=False)
 
     def count(self, target: BlockLineLike, /) -> int:
         """Count the number of occurrences of matching lines.
@@ -446,7 +410,7 @@ class Block(_Region[tuple[str, ...]]):
 
         return self.buffer.count(target)
 
-    # explicitly add the method since its signature differs from :meth:`SourceView.index`
+    # explicitly add the method since its signature differs from :meth:`_Region.index`
     def index(self, target: BlockLineLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a matching line.
 
@@ -476,6 +440,17 @@ class Block(_Region[tuple[str, ...]]):
         with contextlib.suppress(ValueError):
             return self.buffer.index(target, start, stop)
         return -1
+
+    def lines(self) -> tuple[Line, ...]:
+        """This region as a tuple of :class:`Line` objects."""
+        if self.__cached_lines is None:
+            self.__cached_lines = tuple(self.lines_iterator())
+        return self.__cached_lines
+
+    def lines_iterator(self) -> Iterator[Line]:
+        """This region as an iterator of :class:`Line` objects."""
+        for index, line in enumerate(self, self.offset):
+            yield Line(line, index, _check=False)
 
     @overload
     def at(self, index: int, /) -> Line: ...  # NoQA: E704
