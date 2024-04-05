@@ -342,8 +342,8 @@ class Block(Region[tuple[str, ...]]):
     - *block_lines* is a sequence of line-like objects, and
     - *block_offset* is an integer (matched against :attr:`offset`).
 
-    Pairs ``(line, line_offset)`` or ``(block_lines, block_offset)`` can be any
-    non-string two-elements sequence (e.g., a tuple or a list), e.g::
+    Pairs ``(line, line_offset)`` or ``(block_lines, block_offset)`` can be
+    any non-string two-elements sequence (e.g., a tuple or a list), e.g::
 
         assert Block(['a', 'b', 'c', 'd'], 2) == [
             'a',
