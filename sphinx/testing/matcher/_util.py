@@ -16,15 +16,21 @@ from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
     import re
-    from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
     from typing import TypeVar, Union
 
     from typing_extensions import Never
 
-    from sphinx.testing._matcher.buffer import Block
+    from sphinx.testing.matcher.buffer import Block, Line
 
+    PatternLike = Union[str, re.Pattern[str]]
+    """A regular expression (compiled or not)."""
     LinePattern = Union[str, re.Pattern[str]]
-    """A regular expression or a compiled pattern."""
+    """A regular expression (compiled or not) for an entire line."""
+    LinePredicate = Callable[[str], object]
+    """A predicate called on an entire line."""
+    BlockPattern = Sequence[LinePattern]
+    """A sequence of regular expression (compiled or not) for a block."""
 
     _T = TypeVar('_T')
 
@@ -152,7 +158,7 @@ def indent_lines(
 
 
 def prettify_patterns(
-    patterns: Sequence[LinePattern],
+    patterns: Sequence[PatternLike],
     /,
     *,
     indent: int = 4,
@@ -164,27 +170,27 @@ def prettify_patterns(
     return indent_source(source, indent=indent, highlight=False)
 
 
-def get_debug_context(
-    source: Sequence[str], block: Block, /, context: int, *, indent: int = 4
+def diff(
+    source: Sequence[str], region: Line | Block, /, context: int, *, indent: int = 4
 ) -> list[str]:
     """Get some context lines around *block* and highlight the *block*.
 
     :param source: The source containing the *block*.
-    :param block: A block to highlight.
+    :param region: A block to highlight.
     :param context: The number of lines to display around the block.
     :param indent: The number of indentation spaces.
     :return: A list of formatted lines.
     """
-    assert block <= source, 'the block must be contained in the source'
+    assert region <= source, 'the block must be contained in the source'
 
     logs: list[str] = []
     writelines = logs.extend
     has_context = int(context > 0)
-    before, after = block.context(context, limit := len(source))
-
+    before, after = region.context(context, limit := len(source))
     writelines(omit_line(has_context * before.start))
     writelines(indent_lines(source[before], indent=indent, highlight=False))
-    writelines(indent_lines(block, indent=indent, highlight=True))
+    # use region.window to ensure that single lines are wrapped in lists
+    writelines(indent_lines(source[region.window], indent=indent, highlight=True))
     writelines(indent_lines(source[after], indent=indent, highlight=False))
     writelines(omit_line(has_context * (limit - after.stop)))
 

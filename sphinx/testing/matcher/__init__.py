@@ -1,26 +1,29 @@
+"""Public module containing the matcher interface."""
+
 from __future__ import annotations
 
-__all__ = ('Options', 'LineMatcher')
+__all__ = ('LineMatcher',)
 
 import contextlib
 import itertools
-from typing import TYPE_CHECKING, cast
+import re
+from typing import TYPE_CHECKING, cast, overload
 
-from sphinx.testing._matcher import cleaner, engine, util
-from sphinx.testing._matcher.buffer import Block
-from sphinx.testing._matcher.options import Options, OptionsHolder
+from sphinx.testing.matcher import _cleaner, _engine, _util
+from sphinx.testing.matcher.buffer import Block
+from sphinx.testing.matcher.options import Options, OptionsHolder
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Generator, Iterable, Iterator, Sequence
+    from collections.abc import Generator, Iterable, Iterator, Sequence, Set
     from io import StringIO
     from re import Pattern
     from typing import ClassVar, Literal
 
     from typing_extensions import Self, Unpack
 
-    from sphinx.testing._matcher.buffer import Line
-    from sphinx.testing._matcher.options import CompleteOptions, Flavor
-    from sphinx.testing._matcher.util import LinePattern
+    from sphinx.testing.matcher._util import BlockPattern, LinePattern
+    from sphinx.testing.matcher.buffer import Line
+    from sphinx.testing.matcher.options import CompleteOptions, Flavor
 
     PatternType = Literal['line', 'block']
 
@@ -90,7 +93,7 @@ class LineMatcher(OptionsHolder):
         if cached is None:
             options = self.default_options | cast(Options, self.options)
             # compute for the first time the block's lines
-            lines = tuple(cleaner.clean_text(self.content, **options))
+            lines = tuple(_cleaner.clean_text(self.content, **options))
             # check if the value is the same as any of a previously cached value
             for addr, value in enumerate(itertools.islice(stack, 0, len(stack) - 1)):
                 if isinstance(value, int):
@@ -117,25 +120,34 @@ class LineMatcher(OptionsHolder):
         return cached
 
     def find(
-        self, expect: LinePattern | Collection[LinePattern], /, *, flavor: Flavor | None = None
+        self,
+        patterns: LinePattern | Set[LinePattern] | Sequence[LinePattern],
+        /,
+        *,
+        flavor: Flavor | None = None,
     ) -> Sequence[Line]:
         """Same as :meth:`iterfind` but returns a sequence of lines."""
-        return list(self.iterfind(expect, flavor=flavor))
+        return list(self.iterfind(patterns, flavor=flavor))
 
     def iterfind(
-        self, expect: LinePattern | Collection[LinePattern], /, *, flavor: Flavor | None = None
+        self,
+        patterns: LinePattern | Set[LinePattern] | Sequence[LinePattern],
+        /,
+        *,
+        flavor: Flavor | None = None,
     ) -> Iterator[Line]:
         """Yield the lines that match one (or more) of the given patterns.
 
-        :param expect: One or more patterns to satisfy.
+        :param patterns: The patterns deciding whether a line is selected.
         :param flavor: Optional temporary flavor for non-compiled patterns.
         """
-        patterns = engine.to_line_patterns(expect)
+        patterns = _engine.to_line_patterns(patterns)
         if not patterns:  # nothinig to match
             return
 
         compiled_patterns = set(self.__compile(patterns, flavor=flavor))
-        matchers = {pattern.match for pattern in compiled_patterns}
+        # faster to iterate over a tuple rather than a set or a list
+        matchers = tuple(pattern.match for pattern in compiled_patterns)
 
         def predicate(line: Line) -> bool:
             text = line.buffer
@@ -144,33 +156,32 @@ class LineMatcher(OptionsHolder):
         yield from filter(predicate, self)
 
     def find_blocks(
-        self, expect: str | Sequence[LinePattern], /, *, flavor: Flavor | None = None
+        self, pattern: str | BlockPattern, /, *, flavor: Flavor | None = None
     ) -> Sequence[Block]:
         """Same as :meth:`iterfind_blocks` but returns a sequence of blocks."""
-        return list(self.iterfind_blocks(expect, flavor=flavor))
+        return list(self.iterfind_blocks(pattern, flavor=flavor))
 
     def iterfind_blocks(
-        self, expect: str | Sequence[LinePattern], /, *, flavor: Flavor | None = None
+        self, patterns: str | BlockPattern, /, *, flavor: Flavor | None = None
     ) -> Iterator[Block]:
         """Yield non-overlapping blocks matching the given line patterns.
 
-        :param expect: The line patterns that a block must satisfy.
+        :param patterns: The line patterns that a block must satisfy.
         :param flavor: Optional temporary flavor for non-compiled patterns.
         :return: An iterator on the matching blocks.
 
-        When *expect* is a single string, it is split into lines, each of
-        which corresponding to the pattern a block's line must satisfy.
+        When *patterns* is a single string, it is split into lines, each
+        of which corresponding to the pattern a block's line must satisfy.
 
         .. note::
 
-           This interface does not support single :class:`~re.Pattern`
-           objects as they could be interpreted as a line or a block
-           pattern.
+           Standalone :class:`~re.Pattern` objects are not supported
+           as they could be interpreted as a line or a block pattern.
         """
         # in general, the patterns are smaller than the lines
         # so we expect the following to be more efficient than
         # cleaning up the whole text source
-        patterns = engine.to_block_pattern(expect)
+        patterns = _engine.to_block_pattern(patterns)
         if not patterns:  # no pattern to locate
             return
 
@@ -181,11 +192,12 @@ class LineMatcher(OptionsHolder):
         if (width := len(patterns)) > len(lines):  # too many lines to match
             return
 
+        match_function = re.Pattern.match
         compiled_patterns = self.__compile(patterns, flavor=flavor)
-        block_iterator = enumerate(util.strict_windowed(lines, width))
+        block_iterator = enumerate(_util.strict_windowed(lines, width))
         for start, block in block_iterator:
             # check if the block matches the patterns line by line
-            if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
+            if all(map(match_function, compiled_patterns, block)):
                 yield Block(block, start, _check=False)
                 # Consume the iterator so that the next block consists
                 # of lines just after the block that was just yielded.
@@ -193,83 +205,89 @@ class LineMatcher(OptionsHolder):
                 # Note that since the iterator yielded *block*, its
                 # state is already on the "next" line, so we need to
                 # advance by the block size - 1 only.
-                util.consume(block_iterator, width - 1)
+                _util.consume(block_iterator, width - 1)
 
     # assert methods
 
     def assert_match(
         self,
-        expect: LinePattern | Collection[LinePattern],
+        patterns: LinePattern | Set[LinePattern] | Sequence[LinePattern],
         /,
         count: int | None = None,
         flavor: Flavor | None = None,
     ) -> None:
-        """Assert that there exist one or more lines matching *pattern*.
+        """Assert that the number of matching lines for the given patterns.
 
-        :param expect: One or more patterns the lines must satisfy.
+        A matching line is a line that satisfies one or more patterns
+        given in *patterns*.
+
+        :param patterns: The patterns deciding whether a line is counted.
         :param count: If specified, the exact number of matching lines.
         :param flavor: Optional temporary flavor for non-compiled patterns.
         """
-        patterns = engine.to_line_patterns(expect)
+        patterns = _engine.to_line_patterns(patterns)
         self._assert_found('line', patterns, count=count, flavor=flavor)
 
     def assert_no_match(
         self,
-        expect: LinePattern | Collection[LinePattern],
+        patterns: LinePattern | Set[LinePattern] | Sequence[LinePattern],
         /,
         *,
         context: int = 3,
         flavor: Flavor | None = None,
     ) -> None:
-        """Assert that there are no lines matching *pattern*.
+        """Assert that there exist no matching line for the given patterns.
 
-        :param expect: One or more patterns the lines must not satisfy.
+        A matching line is a line that satisfies one or more patterns
+        given in *patterns*.
+
+        :param patterns: The patterns deciding whether a line is counted.
         :param context: Number of lines to print around a failing line.
         :param flavor: Optional temporary flavor for non-compiled patterns.
         """
-        patterns = engine.to_line_patterns(expect)
+        patterns = _engine.to_line_patterns(patterns)
         self._assert_not_found('line', patterns, context_size=context, flavor=flavor)
 
-    def assert_lines(
+    def assert_block(
         self,
-        expect: str | Sequence[LinePattern],
+        lines: str | BlockPattern,
         /,
         *,
         count: int | None = None,
         flavor: Flavor | None = None,
     ) -> None:
-        """Assert that there exist one or more blocks matching the *patterns*.
+        """Assert that the number of matching blocks for the given patterns.
 
-        :param expect: The line patterns that a block must satisfy.
+        :param lines: The line patterns that a block must satisfy.
         :param count: The number of blocks that should be found.
         :param flavor: Optional temporary flavor for non-compiled patterns.
 
-        When *expect* is a single string, it is split into lines, each
-        of which corresponding to the pattern a block's line must satisfy.
+        When *lines* is a single string, it is split into lines, each of
+        which corresponding to the pattern a block's line must satisfy.
         """
-        patterns = engine.to_block_pattern(expect)
+        patterns = _engine.to_block_pattern(lines)
         self._assert_found('block', patterns, count=count, flavor=flavor)
 
-    def assert_no_lines(
+    def assert_no_block(
         self,
-        expect: str | Sequence[LinePattern],
+        lines: str | BlockPattern,
         /,
         *,
         context: int = 3,
         flavor: Flavor | None = None,
     ) -> None:
-        """Assert that no block matches the *patterns*.
+        """Assert that there exist no matching blocks for the given patterns.
 
-        :param expect: The line patterns that a block must satisfy.
+        :param lines: The line patterns that a block must satisfy.
         :param context: Number of lines to print around a failing block.
         :param flavor: Optional temporary flavor for non-compiled patterns.
 
-        When *expect* is a single string, it is split into lines, each
+        When *patterns* is a single string, it is split into lines, each
         of which corresponding to the pattern a block's line must satisfy.
 
         Use :data:`sys.maxsize` to show all capture lines.
         """
-        patterns = engine.to_block_pattern(expect)
+        patterns = _engine.to_block_pattern(lines)
         self._assert_not_found('block', patterns, context_size=context, flavor=flavor)
 
     def _assert_found(
@@ -280,24 +298,24 @@ class LineMatcher(OptionsHolder):
         count: int | None,
         flavor: Flavor | None,
     ) -> None:
-        blocks = self.iterfind_blocks(patterns, flavor=flavor)
+        regions = self.__find(pattern_type, patterns, flavor=flavor)
 
         if count is None:
-            if next(blocks, None):
+            if next(regions, None) is not None:
                 return
 
-            ctx = util.highlight(self.lines(), keepends=self.keep_break)
-            pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
+            ctx = _util.highlight(self.lines(), keepends=self.keep_break)
+            pat = _util.prettify_patterns(patterns, sort=pattern_type == 'line')
             logs = [f'{pattern_type} pattern', pat, 'not found in', ctx]
             raise AssertionError('\n\n'.join(logs))
 
-        indices = {block.offset: len(block) for block in blocks}
+        indices = {region.offset: region.length for region in regions}
         if (found := len(indices)) == count:
             return
 
-        ctx = util.highlight(self.lines(), indices, keepends=self.keep_break)
-        pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
-        noun = util.plural_form(pattern_type, count)
+        ctx = _util.highlight(self.lines(), indices, keepends=self.keep_break)
+        pat = _util.prettify_patterns(patterns, sort=pattern_type == 'line')
+        noun = _util.plural_form(pattern_type, count)
         logs = [f'found {found} != {count} {noun} matching', pat, 'in', ctx]
         raise AssertionError('\n\n'.join(logs))
 
@@ -312,26 +330,45 @@ class LineMatcher(OptionsHolder):
         if not patterns:  # no pattern to find
             return
 
-        lines: Sequence[str] = self.lines()
-        if not lines:  # no lines to match
+        values = self.__find(pattern_type, patterns, flavor=flavor)
+        found: Line | Block | None = next(values, None)
+        if found is None:
             return
 
-        # early abort if there are more lines to match than available
-        if (window_size := len(patterns)) > len(lines):
-            return
-
-        compiled_patterns = self.__compile(patterns, flavor=flavor)
-
-        for start, block in enumerate(util.strict_windowed(lines, window_size)):
-            if all(pattern.match(line) for pattern, line in zip(compiled_patterns, block)):
-                pat = util.prettify_patterns(patterns, sort=pattern_type == 'line')
-                block_object = Block(block, start, _check=False)
-                ctx = util.get_debug_context(lines, block_object, context_size)
-                logs = [f'{pattern_type} pattern', pat, 'found in', '\n'.join(ctx)]
-                raise AssertionError('\n\n'.join(logs))
+        pat = _util.prettify_patterns(patterns, sort=pattern_type == 'line')
+        ctx = _util.diff(self.lines(), found, context_size)
+        logs = [f'{pattern_type} pattern', pat, 'found in', '\n'.join(ctx)]
+        raise AssertionError('\n\n'.join(logs))
 
     def __compile(
         self, patterns: Iterable[LinePattern], *, flavor: Flavor | None
     ) -> Sequence[Pattern[str]]:
         flavor = self.flavor if flavor is None else flavor
-        return engine.compile(patterns, flavor=flavor)
+        return _engine.compile(patterns, flavor=flavor)
+
+    @overload
+    def __find(  # NoQA: E704
+        self,
+        pattern_type: Literal['line'],
+        patterns: Sequence[LinePattern],
+        /,
+        flavor: Flavor | None,
+    ) -> Iterator[Line]: ...
+    @overload  # NoQA: E301
+    def __find(  # NoQA: E704
+        self,
+        pattern_type: Literal['block'],
+        patterns: Sequence[LinePattern],
+        /,
+        flavor: Flavor | None,
+    ) -> Iterator[Block]: ...
+    def __find(  # NoQA: E301
+        self,
+        pattern_type: PatternType,
+        patterns: Sequence[LinePattern],
+        /,
+        flavor: Flavor | None,
+    ) -> Iterator[Line] | Iterator[Block]:
+        if pattern_type == 'line':
+            return self.iterfind(patterns, flavor=flavor)
+        return self.iterfind_blocks(patterns, flavor=flavor)

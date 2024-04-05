@@ -4,9 +4,7 @@ import fnmatch
 import random
 import re
 
-import pytest
-
-from sphinx.testing._matcher import engine
+from sphinx.testing.matcher import _engine as engine
 
 
 def test_line_pattern():
@@ -40,40 +38,41 @@ def test_block_patterns():
 
     p = re.compile('a')
     assert engine.to_block_pattern(p) == (p,)
-
     assert engine.to_block_pattern(['a', p]) == ('a', p)
 
-    pytest.raises(TypeError, engine.to_block_pattern, {'a'})
-    pytest.raises(TypeError, engine.to_block_pattern, {'a', p})
 
-
-def test_transform_expressions():
-    fn = '^'.__add__
-    assert engine.transform(fn, 'a') == '^a'
+def test_format_expression():
+    assert engine.format_expression(str.upper, 'a') == 'A'
 
     p = re.compile('')
-    assert engine.transform(fn, p) is p
+    assert engine.format_expression(str.upper, p) is p
 
 
 def test_translate_expressions():
     string, pattern = 'a*', re.compile('.*')
     inputs = (string, pattern)
 
-    expect = [rf'^(?s:{re.escape(string)})\Z', pattern]
-    assert list(engine.translate(inputs, flavor='none')) == expect
+    expect = [engine.string_expression(string), pattern]
+    assert [*engine.translate(inputs, flavor='none')] == expect
+    expect = [string.upper(), pattern]
+    assert [*engine.translate(inputs, flavor='none', escape=str.upper)] == expect
 
     expect = [string, pattern]
-    assert list(engine.translate(inputs, flavor='re')) == expect
+    assert [*engine.translate(inputs, flavor='re')] == expect
+    expect = [string.upper(), pattern]
+    assert [*engine.translate(inputs, flavor='re', str2regexpr=str.upper)] == expect
 
     expect = [fnmatch.translate(string), pattern]
-    assert list(engine.translate(inputs, flavor='fnmatch')) == expect
+    assert [*engine.translate(inputs, flavor='fnmatch')] == expect
+    expect = [string.upper(), pattern]
+    assert [*engine.translate(inputs, flavor='fnmatch', str2fnmatch=str.upper)] == expect
 
 
 def test_compile_patterns():
     string = 'a*'
     compiled = re.compile('.*')
 
-    expect = (re.compile(rf'^(?s:{re.escape(string)})\Z'), compiled)
+    expect = (re.compile(engine.string_expression(string)), compiled)
     assert engine.compile([string, compiled], flavor='none') == expect
 
     expect = (re.compile(fnmatch.translate(string)), compiled)

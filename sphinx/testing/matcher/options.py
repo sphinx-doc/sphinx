@@ -1,40 +1,43 @@
+"""Module for the :class:`~sphinx.testing.matcher.LineMatcher` options."""
+
 from __future__ import annotations
 
-__all__ = ('Options',)
+__all__ = ('Options', 'CompleteOptions', 'OptionsHolder')
 
 import contextlib
 from types import MappingProxyType
 from typing import TYPE_CHECKING, TypedDict, final, overload
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator, Mapping, Sequence
+    from collections.abc import Generator, Mapping, Sequence
     from typing import ClassVar, Literal, TypeVar, Union
 
     from typing_extensions import Unpack
 
-    from sphinx.testing._matcher.util import LinePattern
+    from sphinx.testing.matcher._util import LinePattern, LinePredicate
 
     FlagOption = Literal['keep_ansi', 'keep_break', 'keep_empty', 'compress', 'unique']
 
     StripOption = Literal['strip', 'stripline']
     StripChars = Union[bool, str, None]
+    """Allowed values for :attr:`Options.strip` and :attr:`Options.stripline`."""
 
     DeleteOption = Literal['delete']
     DeletePattern = Union[LinePattern, Sequence[LinePattern]]
+    """A prefix or a compiled prefix pattern."""
 
     IgnoreOption = Literal['ignore']
-    LinePredicate = Callable[[str], object]
 
     FlavorOption = Literal['flavor']
     Flavor = Literal['re', 'fnmatch', 'none']
+    """Allowed values for :attr:`Options.flavor`."""
 
     # For some reason, mypy does not like Union of Literal,
     # so we wrap the Literal types inside a bigger Literal.
-    OptionName = Literal[FlagOption, StripOption, DeleteOption, IgnoreOption, FlavorOption]
     OptionValue = Union[bool, StripChars, DeletePattern, Union[LinePredicate, None], Flavor]
+    OptionName = Literal[FlagOption, StripOption, DeleteOption, IgnoreOption, FlavorOption]
 
     DT = TypeVar('DT')
-    _OptionsView = Union['Options', 'CompleteOptions']
 
 
 @final
@@ -58,7 +61,7 @@ class Options(TypedDict, total=False):
     """
 
     strip: StripChars
-    """Call :meth:`str.strip` on the original source.
+    """Describe the characters to strip from the source.
 
     The allowed values for :attr:`strip` are:
 
@@ -68,7 +71,7 @@ class Options(TypedDict, total=False):
     """
 
     stripline: StripChars
-    """Call :meth:`str.strip` on the lines obtained after splitting the source.
+    """Describe the characters to strip from each source's line.
 
     The allowed values for :attr:`stripline` are:
 
@@ -78,13 +81,13 @@ class Options(TypedDict, total=False):
     """
 
     keep_break: bool
-    """If true, keep line breaks in the output.
+    """Indicate whether to keep line breaks at the end of each line.
 
-    The default value is ``False``.
+    The default value is ``False`` (to mirror :meth:`str.splitlines`).
     """
 
     keep_empty: bool
-    """If false, eliminate empty lines in the output.
+    """Indicate whether to keep empty lines in the output.
 
     The default value is ``True``.
     """
@@ -153,10 +156,7 @@ class Options(TypedDict, total=False):
 
 @final
 class CompleteOptions(TypedDict):
-    """Same as :class:`Options` but as a total dictionary.
-
-    :meta private:
-    """
+    """Same as :class:`Options` but as a total dictionary."""
 
     keep_ansi: bool
     strip: StripChars

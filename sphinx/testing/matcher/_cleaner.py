@@ -1,3 +1,9 @@
+"""Private utility functions for :mod:`sphinx.testing.matcher`.
+
+All objects provided by this module are considered an implementation detail
+and are not meant to be used by external libraries.
+"""
+
 from __future__ import annotations
 
 __all__ = ()
@@ -9,25 +15,17 @@ from functools import reduce
 from itertools import filterfalse
 from typing import TYPE_CHECKING
 
-from sphinx.testing._matcher import engine, util
-from sphinx.testing._matcher.options import OptionsHolder
+from sphinx.testing.matcher import _engine, _util
+from sphinx.testing.matcher.options import OptionsHolder
 from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import TypeVar
+    from collections.abc import Iterable, MutableSequence, Sequence
 
     from typing_extensions import Unpack
 
-    from sphinx.testing._matcher.options import (
-        DeletePattern,
-        Flavor,
-        LinePredicate,
-        Options,
-        StripChars,
-    )
-
-    _StrIterableT = TypeVar('_StrIterableT', bound=Iterable[str])
+    from sphinx.testing.matcher._util import LinePredicate
+    from sphinx.testing.matcher.options import DeletePattern, Flavor, Options, StripChars
 
 
 def clean_text(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
@@ -53,7 +51,7 @@ def clean_lines(lines: Iterable[str], /, **options: Unpack[Options]) -> Iterable
     lines = filter_lines(lines, keep_empty=keep_empty, compress=compress, unique=unique)
 
     deleter_objects, flavor = config.delete, config.flavor
-    lines = prune_lines(lines, deleter_objects, flavor=flavor)
+    lines = prune_lines(lines, deleter_objects, flavor=flavor, trace=None)
 
     ignore_predicate = config.ignore
     lines = ignore_lines(lines, ignore_predicate)
@@ -95,18 +93,18 @@ def filter_lines(
     in the same iteration, duplicates elimination is performed *after* empty
     lines are removed. To change the behaviour, consider using::
 
-        lines = filterlines(lines, compress=True)
-        lines = filterlines(lines, empty=True)
+        lines = filter_lines(lines, compress=True)
+        lines = filter_lines(lines, empty=True)
     """
     if not keep_empty:
         lines = filter(None, lines)
 
     if unique:
         # 'compress' has no effect when 'unique' is set
-        return util.unique_everseen(lines)
+        return _util.unique_everseen(lines)
 
     if compress:
-        return util.unique_justseen(lines)
+        return _util.unique_justseen(lines)
 
     return lines
 
@@ -125,9 +123,9 @@ def prune_lines(
     lines: Iterable[str],
     delete: DeletePattern,
     /,
-    flavor: Flavor = 'none',
     *,
-    trace: list[Sequence[tuple[str, Sequence[str]]]] | None = None,
+    flavor: Flavor = 'none',
+    trace: MutableSequence[Sequence[tuple[str, Sequence[str]]]] | None = None,
 ) -> Iterable[str]:
     r"""Remove substrings from a source satisfying some patterns.
 
@@ -162,20 +160,20 @@ def prune_lines(
             trace.append(entry)
             yield res
     """
-    delete_patterns = engine.to_line_patterns(delete)
+    delete_patterns = _engine.to_line_patterns(delete)
     # Since fnmatch-style patterns do not support a meta-character for
     # matching at the start of the string, we first translate patterns
-    # and then add an explicit '^' character in the regular expression.
-    patterns = engine.translate(
+    # and then add an explicit '\A' character in the regular expression.
+    patterns = _engine.translate(
         delete_patterns,
         flavor=flavor,
-        default_translate=re.escape,
-        fnmatch_translate=lambda prefix: fnmatch.translate(prefix).rstrip(r'\Z$'),
+        escape=re.escape,
+        str2fnmatch=lambda prefix: fnmatch.translate(prefix).rstrip(r'\Z$'),
     )
-    # and now we add the '^' meta-character to ensure that we only match
-    # at the beginning of the string and not in the middle of the string
-    patterns = (engine.transform('^'.__add__, pattern) for pattern in patterns)
-    compiled = [re.compile(pattern) for pattern in patterns]
+    # Now, we add the '\A' meta-character to ensure that we only match
+    # at the beginning of the string and not in the middle of the string.
+    re_translate = r'\A'.__add__
+    compiled = _engine.compile(patterns, flavor='re', str2regexpr=re_translate)
 
     def prune_redux(line: str, pattern: re.Pattern[str]) -> str:
         return pattern.sub('', line)

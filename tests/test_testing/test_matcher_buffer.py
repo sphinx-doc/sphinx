@@ -8,17 +8,17 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.testing._matcher.buffer import Block, Line
+from sphinx.testing.matcher.buffer import Block, Line
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from sphinx.testing._matcher.buffer import SourceView
+    from sphinx.testing.matcher.buffer import _Region
 
 
 @pytest.mark.parametrize('cls', [Line, Block])
-def test_offset_value(cls: type[SourceView[Any]]) -> None:
+def test_offset_value(cls: type[_Region[Any]]) -> None:
     with pytest.raises(TypeError, match=re.escape('offset must be an integer, got: None')):
         cls('', None)  # type: ignore[arg-type]
 

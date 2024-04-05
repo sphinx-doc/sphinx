@@ -1,3 +1,5 @@
+"""Interface for comparing strings or list of strings."""
+
 from __future__ import annotations
 
 __all__ = ('Line', 'Block')
@@ -10,24 +12,28 @@ import sys
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Generic, TypeVar, final, overload
 
-from sphinx.testing._matcher import util
+from sphinx.testing.matcher._util import consume as _consume
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
+    from collections.abc import Iterable, Iterator
     from typing import Any, Union
 
     from typing_extensions import Self
 
-    LineText = Union[str, re.Pattern[str]]
+    from sphinx.testing.matcher._util import LinePattern, LinePredicate, PatternLike
+
+    SubStringLike = PatternLike
     """A line's substring or a compiled substring pattern."""
 
-    BlockMatch = Union[object, str, re.Pattern[str], Callable[[str], object]]
+    BlockLineLike = Union[object, LinePattern, LinePredicate]
     """A block's line, a compiled pattern or a predicate."""
 
+# We would like to have a covariant buffer type but Python does not
+# support higher-kinded type, so we can only use an invariant type.
 _T = TypeVar('_T', bound=Sequence[str])
 
 
-class SourceView(Generic[_T], Sequence[str], abc.ABC):
+class _Region(Generic[_T], Sequence[str], abc.ABC):
     """A string or a sequence of strings implementing rich comparison.
 
     Given an implicit *source* as a list of strings, a :class:`SourceView`
@@ -77,6 +83,60 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         """The number of items in this object."""
         return len(self)
 
+    @property
+    @abc.abstractmethod
+    def window(self) -> slice:
+        """A slice representing this region in its source.
+
+        If *source* is the original source this region is contained within,
+        then ``assert [*source[region.window]] == [*region.lines()]`` holds.
+
+        Examples::
+
+            source = ['L1', 'L2', 'L3']
+            line = Line('L2', 1)
+            assert source[line.window] == ['L2']
+
+            source = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+            block = Block(['4', '5', '6'], 3)
+            assert source[block.window] == ['4', '5', '6']
+        """
+
+    @abc.abstractmethod
+    def lines(self) -> tuple[Line, ...]:
+        """This region as a tuple of :class:`Line` objects."""
+
+    @abc.abstractmethod
+    def lines_iterator(self) -> Iterator[Line]:
+        """This region as an iterator of :class:`Line` objects."""
+
+    def context(self, delta: int, limit: int) -> tuple[slice, slice]:
+        """A slice object indicating a context around this region.
+
+        :param delta: The number of context lines to show.
+        :param limit: The number of lines in the source the region belongs to.
+        :return: The slices for the 'before' and 'after' lines.
+
+        Example::
+
+            source = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+            block = Block(['4', '5', '6'], 3)
+            before, after = block.context(2, 10)
+            assert source[before] == ['2', '3']
+            assert source[after] == ['7', '8']
+        """
+        assert delta >= 0, 'context size must be >= 0'
+        assert limit >= 0, 'source length must be >= 0'
+
+        window = self.window
+        before_start, before_stop = max(0, window.start - delta), min(window.start, limit)
+        before_slice = slice(before_start, before_stop)
+
+        after_start, after_stop = min(window.stop, limit), min(window.stop + delta, limit)
+        after_slice = slice(after_start, after_stop)
+
+        return before_slice, after_slice
+
     @abc.abstractmethod
     # The 'value' is 'Any' so that subclasses do not violate Liskov's substitution principle
     def count(self, value: Any, /) -> int:
@@ -115,7 +175,7 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
 
     def __bool__(self) -> bool:
         """Indicate whether this view is empty or not."""
-        return bool(len(self))
+        return bool(self.buffer)
 
     @final
     def __iter__(self) -> Iterator[str]:
@@ -163,7 +223,7 @@ class SourceView(Generic[_T], Sequence[str], abc.ABC):
         """
 
 
-class Line(SourceView[str]):
+class Line(_Region[str]):
     """A line found by :meth:`~sphinx.testing.matcher.LineMatcher.find`.
 
     A :class:`Line` can be compared to :class:`str`, :class:`Line` objects or
@@ -184,6 +244,76 @@ class Line(SourceView[str]):
     def __init__(self, line: str = '', /, offset: int = 0, *, _check: bool = True) -> None:
         """Construct a :class:`Line` object."""
         super().__init__(line, offset, _check=_check)
+
+    @property
+    def window(self) -> slice:
+        return slice(self.offset, self.offset + 1)
+
+    def lines(self) -> tuple[Line]:
+        return (self,)
+
+    def lines_iterator(self) -> Iterator[Line]:
+        yield self
+
+    def count(self, sub: SubStringLike, /) -> int:
+        """Count the number of occurrences of a substring or pattern.
+
+        :raise TypeError: *sub* is not a string or a compiled pattern.
+        """
+        if isinstance(sub, re.Pattern):
+            # avoid using value.findall() since we only want the length
+            # of the corresponding iterator (the following lines are more
+            # efficient from a memory perspective)
+            counter = itertools.count()
+            _consume(zip(sub.finditer(self.buffer), counter))
+            return next(counter)
+
+        return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
+
+    # explicitly add the method since its signature differs from :meth:`SourceView.index`
+    def index(self, sub: SubStringLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
+        """Find the lowest index of a substring.
+
+        :raise TypeError: *sub* is not a string or a compiled pattern.
+        """
+        return super().index(sub, start, stop)
+
+    def find(self, sub: SubStringLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
+        """Find the lowest index of a substring or *-1* on failure.
+
+        :raise TypeError: *sub* is not a string or a compiled pattern.
+        """
+        if isinstance(sub, re.Pattern):
+            # Do not use sub.search(buffer, start, end) since the '^' pattern
+            # character matches at the *real* beginning of *buffer* but *not*
+            # necessarily at the index where the search is to start.
+            #
+            # Ref: https://docs.python.org/3/library/re.html#re.Pattern.search
+            if match := sub.search(self.buffer[start:stop]):
+                # normalize the start position
+                start_index, _, _ = slice(start, stop).indices(self.length)
+                return match.start() + start_index
+            return -1
+
+        return self.buffer.find(sub, start, stop)  # raise a TypeError if *sub* is not a string
+
+    def startswith(self, prefix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
+        """Test whether the line starts with the given *prefix*.
+
+        :param prefix: A line prefix to test.
+        :param start: The test start position.
+        :param end: The test stop position.
+        """
+        return self.buffer.startswith(prefix, start, end)
+
+    def endswith(self, suffix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
+        """Test whether the line ends with the given *suffix*.
+
+        :param suffix: A line suffix to test.
+        :param start: The test start position.
+        :param end: The test stop position.
+        """
+        return self.buffer.endswith(suffix, start, end)
 
     # dunder methods
 
@@ -227,68 +357,8 @@ class Line(SourceView[str]):
         # separately check offsets before the buffers for efficiency
         return self.offset == other[1] and self.buffer > other[0]
 
-    def startswith(self, prefix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
-        """Test whether the line starts with the given *prefix*.
 
-        :param prefix: A line prefix to test.
-        :param start: The test start position.
-        :param end: The test stop position.
-        """
-        return self.buffer.startswith(prefix, start, end)
-
-    def endswith(self, suffix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
-        """Test whether the line ends with the given *suffix*.
-
-        :param suffix: A line suffix to test.
-        :param start: The test start position.
-        :param end: The test stop position.
-        """
-        return self.buffer.endswith(suffix, start, end)
-
-    def count(self, sub: LineText, /) -> int:
-        """Count the number of occurrences of a substring or pattern.
-
-        :raise TypeError: *sub* is not a string or a compiled pattern.
-        """
-        if isinstance(sub, re.Pattern):
-            # avoid using value.findall() since we only want the length
-            # of the corresponding iterator (the following lines are more
-            # efficient from a memory perspective)
-            counter = itertools.count()
-            util.consume(zip(sub.finditer(self.buffer), counter))
-            return next(counter)
-
-        return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
-
-    # explicitly add the method since its signature differs from :meth:`SourceView.index`
-    def index(self, sub: LineText, start: int = 0, stop: int = sys.maxsize, /) -> int:
-        """Find the lowest index of a substring.
-
-        :raise TypeError: *sub* is not a string or a compiled pattern.
-        """
-        return super().index(sub, start, stop)
-
-    def find(self, sub: LineText, start: int = 0, stop: int = sys.maxsize, /) -> int:
-        """Find the lowest index of a substring or *-1* on failure.
-
-        :raise TypeError: *sub* is not a string or a compiled pattern.
-        """
-        if isinstance(sub, re.Pattern):
-            # Do not use sub.search(buffer, start, end) since the '^' pattern
-            # character matches at the *real* beginning of *buffer* but *not*
-            # necessarily at the index where the search is to start.
-            #
-            # Ref: https://docs.python.org/3/library/re.html#re.Pattern.search
-            if match := sub.search(self.buffer[start:stop]):
-                # normalize the start position
-                start_index, _, _ = slice(start, stop).indices(self.length)
-                return match.start() + start_index
-            return -1
-
-        return self.buffer.find(sub, start, stop)  # raise a TypeError if *sub* is not a string
-
-
-class Block(SourceView[tuple[str, ...]], Sequence[str]):
+class Block(_Region[tuple[str, ...]]):
     """Block found by :meth:`~sphinx.testing.matcher.LineMatcher.find_blocks`.
 
     A block is a sequence of lines comparable to :class:`Line`, generally a
@@ -345,47 +415,18 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
 
     @property
     def window(self) -> slice:
-        """A slice representing this block in its source.
-
-        If *source* is the original source this block is contained within,
-        then ``assert source[block.window] == block`` is satisfied.
-
-        Example::
-
-            source = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-            block = Block(['4', '5', '6'], 3)
-            assert source[block.window] == ['4', '5', '6']
-        """
         return slice(self.offset, self.offset + self.length)
 
-    def context(self, delta: int, limit: int) -> tuple[slice, slice]:
-        """A slice object indicating a context around this block.
+    def lines(self) -> tuple[Line, ...]:
+        if self.__cached_lines is None:
+            self.__cached_lines = tuple(self.lines_iterator())
+        return self.__cached_lines
 
-        :param delta: The number of context lines to show.
-        :param limit: The number of lines in the source the block belongs to.
-        :return: The slices for the 'before' and 'after' lines.
+    def lines_iterator(self) -> Iterator[Line]:
+        for index, line in enumerate(self, self.offset):
+            yield Line(line, index, _check=False)
 
-        Example::
-
-            source = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-            block = Block(['4', '5', '6'], 3)
-            before, after = block.context(2, 10)
-            assert source[before] == ['2', '3']
-            assert source[after] == ['7', '8']
-        """
-        assert delta >= 0, 'context size must be >= 0'
-        assert limit >= 0, 'source length must be >= 0'
-
-        before_start, before_stop = max(0, self.offset - delta), min(self.offset, limit)
-        before_slice = slice(before_start, before_stop)
-
-        block_stop = self.offset + self.length
-        after_start, after_stop = min(block_stop, limit), min(block_stop + delta, limit)
-        after_slice = slice(after_start, after_stop)
-
-        return before_slice, after_slice
-
-    def count(self, target: BlockMatch, /) -> int:
+    def count(self, target: BlockLineLike, /) -> int:
         """Count the number of occurrences of matching lines.
 
         For :class:`~re.Pattern` inputs, the following are equivalent::
@@ -400,13 +441,13 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
 
         if callable(target):
             counter = itertools.count()
-            util.consume(zip(filter(target, self.buffer), counter))
+            _consume(zip(filter(target, self.buffer), counter))
             return next(counter)
 
         return self.buffer.count(target)
 
     # explicitly add the method since its signature differs from :meth:`SourceView.index`
-    def index(self, target: BlockMatch, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def index(self, target: BlockLineLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a matching line.
 
         For :class:`~re.Pattern` inputs, the following are equivalent::
@@ -416,7 +457,7 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         """
         return super().index(target, start, stop)
 
-    def find(self, target: BlockMatch, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def find(self, target: BlockLineLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a matching line or *-1* on failure.
 
         For :class:`~re.Pattern` inputs, the following are equivalent::
@@ -435,17 +476,6 @@ class Block(SourceView[tuple[str, ...]], Sequence[str]):
         with contextlib.suppress(ValueError):
             return self.buffer.index(target, start, stop)
         return -1
-
-    def lines(self) -> tuple[Line, ...]:
-        """This block as a tuple of :class:`Line` objects."""
-        if self.__cached_lines is None:
-            self.__cached_lines = tuple(self.lines_iterator())
-        return self.__cached_lines
-
-    def lines_iterator(self) -> Iterator[Line]:
-        """This block as a list of :class:`Line` objects."""
-        for index, line in enumerate(self, self.offset):
-            yield Line(line, index, _check=False)
 
     @overload
     def at(self, index: int, /) -> Line: ...  # NoQA: E704

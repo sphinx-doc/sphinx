@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
     from typing_extensions import Unpack
 
-    from sphinx.testing._matcher.options import CompleteOptions, Options
+    from sphinx.testing.matcher.options import CompleteOptions, Options
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:

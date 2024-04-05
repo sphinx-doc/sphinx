@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.testing._matcher.cleaner import filter_lines, prune_lines, strip_chars, strip_lines
+from sphinx.testing.matcher._cleaner import filter_lines, prune_lines, strip_chars, strip_lines
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -38,6 +38,10 @@ def test_filter_lines():
 
 @pytest.fixture()
 def prune_trace_object() -> Callable[[], list[Sequence[tuple[str, Sequence[str]]]]]:
+    """A fixture returning a factory for a typed trace object.
+
+    Without this fixture, trace objects need to be explicitly typed for mypy.
+    """
     return list
 
 
