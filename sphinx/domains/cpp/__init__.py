@@ -148,7 +148,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             if decl.objectType == 'concept':
                 isInConcept = True
                 break
-        if not isInConcept and 'no-index-entry' not in self.options:
+        if not isInConcept and ('no-index-entry' not in self.options or self.config.no_index_entry):
             strippedName = name
             for prefix in self.env.config.cpp_index_common_prefix:
                 if name.startswith(prefix):

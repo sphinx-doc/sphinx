@@ -344,7 +344,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             domain.note_object(canonical_name, self.objtype, node_id, aliased=True,
                                location=signode)
 
-        if 'no-index-entry' not in self.options:
+        if 'no-index-entry' not in self.options or self.config.no_index_entry:
             indextext = self.get_index_text(modname, name_cls)
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))

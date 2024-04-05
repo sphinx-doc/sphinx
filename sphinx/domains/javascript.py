@@ -153,7 +153,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         domain = cast(JavaScriptDomain, self.env.get_domain('js'))
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
-        if 'no-index-entry' not in self.options:
+        if 'no-index-entry' not in self.options or self.config.no_index_entry:
             indextext = self.get_index_text(mod_name, name_obj)  # type: ignore[arg-type]
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))

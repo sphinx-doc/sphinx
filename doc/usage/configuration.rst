@@ -483,6 +483,11 @@ General configuration
    .. versionchanged:: 6.2
       Changed allowable container types to a set, list, or tuple
 
+.. confval:: no_index_entry
+
+   If ``True``, set the ``:no-index-entry:`` flag by default on all documented domain
+   objects (see :doc:`domain </usage/domains/index>` ). Default: ``False`` .
+
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they

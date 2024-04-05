@@ -61,6 +61,10 @@ Features added
   to ``Added in [...]``.
   Patch by Bénédikt Tran.
 
+* Added :confval:`no_index_entry` configuration option, and allow autodoc
+  directives to use ``:no-index-entry:``.
+  Patch by Jonny Saunders
+
 
 Bugs fixed
 ----------

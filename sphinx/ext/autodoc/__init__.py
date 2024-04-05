@@ -322,6 +322,8 @@ class Documenter:
     option_spec: ClassVar[OptionSpec] = {
         'no-index': bool_option,
         'noindex': bool_option,
+        'no-index-entry': bool_option,
+        'noindexentry': bool_option,
     }
 
     def get_attr(self, obj: Any, name: str, *defargs: Any) -> Any:
@@ -544,6 +546,10 @@ class Documenter:
 
         if self.options.no_index or self.options.noindex:
             self.add_line('   :no-index:', sourcename)
+        if self.options.no_index_entry or self.config.no_index_entry:
+            self.add_line('   :no-index-entry:', sourcename)
+        if self.options.noindexentry:
+            self.add_line('   :noindexentry:', sourcename)
         if self.objpath:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
@@ -990,6 +996,8 @@ class ModuleDocumenter(Documenter):
         'imported-members': bool_option, 'ignore-module-all': bool_option,
         'no-value': bool_option,
         'noindex': bool_option,
+        'no-index-entry': bool_option,
+        'noindexentry': bool_option,
     }
 
     def __init__(self, *args: Any) -> None:
@@ -1054,6 +1062,9 @@ class ModuleDocumenter(Documenter):
             self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
+        if self.options.no_index_entry or self.options.noindexentry or self.config.no_index_entry:
+            self.add_line('   :no-index-entry:', sourcename)
+
 
     def get_module_members(self) -> dict[str, ObjectMember]:
         """Get members of target module."""
@@ -1474,6 +1485,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'private-members': members_option, 'special-members': members_option,
         'class-doc-from': class_doc_from_option,
         'noindex': bool_option,
+        'no-index-entry': bool_option,
+        'noindexentry': bool_option,
     }
 
     # Must be higher than FunctionDocumenter, ClassDocumenter, and

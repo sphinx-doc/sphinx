@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 AUTODOC_DEFAULT_OPTIONS = ['members', 'undoc-members', 'inherited-members',
                            'show-inheritance', 'private-members', 'special-members',
                            'ignore-module-all', 'exclude-members', 'member-order',
-                           'imported-members', 'class-doc-from', 'no-value']
+                           'imported-members', 'class-doc-from', 'no-value', 'no-index-entry']
 
 AUTODOC_EXTENDABLE_OPTIONS = ['members', 'private-members', 'special-members',
                               'exclude-members']

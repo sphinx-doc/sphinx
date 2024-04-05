@@ -310,6 +310,13 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 0.4
 
+   * All autodoc directives support the ``no-index-entry`` flag option that has the
+     same effect as for standard :rst:dir:`py:function` etc. directives:
+     cross-references will still be generated, but entries won't be added to
+     :ref:`genindex`
+
+     .. versionadded:: 7.3
+
    * :rst:dir:`automodule` also recognizes the ``synopsis``, ``platform`` and
      ``deprecated`` options that the standard :rst:dir:`py:module` directive
      supports.

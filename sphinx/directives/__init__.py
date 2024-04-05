@@ -230,7 +230,8 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             'no-index-entry' in self.options
             # xref RemovedInSphinx90Warning
             # deprecate noindexentry in Sphinx 9.0
-            or 'noindexentry' in self.options)
+            or 'noindexentry' in self.options
+            or self.config.no_index_entry)
         node['no-contents-entry'] = node['nocontentsentry'] = (
             'no-contents-entry' in self.options
             # xref RemovedInSphinx90Warning
