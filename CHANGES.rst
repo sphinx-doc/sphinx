@@ -143,8 +143,8 @@ Bugs fixed
   the user search query are included in search results.
   Patch by James Addison.
 * #11970: singlehtml builder: make target URIs to be same-document references in
-  the sense of :rfc:`3986#section-5.1`, e.g., ``index.html#foo`` becomes ``#foo``.
-  Patch by eanorige.
+  the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
+  becomes ``#foo``. Patch by eanorige.
 
 Testing
 -------
