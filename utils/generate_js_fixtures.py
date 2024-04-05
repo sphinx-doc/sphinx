@@ -22,5 +22,6 @@ for directory in TEST_JS_ROOTS.iterdir():
     print('done')
 
     print(f'Moving {searchindex} to {destination} ... ', end='')
+    destination.parent.mkdir(exist_ok=True)
     searchindex.replace(destination)
     print('done')
