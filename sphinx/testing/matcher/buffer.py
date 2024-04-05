@@ -334,10 +334,10 @@ class Line(Region[str]):
 class Block(Region[tuple[str, ...]]):
     """Block found by :meth:`~sphinx.testing.matcher.LineMatcher.find_blocks`.
 
-    A block is a sequence of lines comparable to :class:`Line`, generally a
-    string (the line content) or a pair ``(line, line_offset)``.
+    A block is a *sequence* of lines comparable to :class:`Line` objects,
+    usually given as :class:`str` objects or ``(line, line_offset)`` pairs.
 
-    A block can also be compared to pair ``(block_lines, block_offset)`` where
+    A block can be compared to pairs ``(block_lines, block_offset)`` where
 
     - *block_lines* is a sequence of line-like objects, and
     - *block_offset* is an integer (matched against :attr:`offset`).
