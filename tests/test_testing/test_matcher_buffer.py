@@ -26,76 +26,18 @@ def test_offset_value(cls: type[_Region[Any]]) -> None:
         cls('', -1)
 
 
-def test_line_comparison_operators():
-    assert Line('a', 1) == 'a'
-    assert Line('a', 1) == ('a', 1)
-    assert Line('a', 1) == ['a', 1]
-    assert Line('a', 1) == Line('a', 1)
+def test_line_region_window():
+    for n in range(3):
+        # the empty line is still a line in the source
+        assert Line('', n).window == slice(n, n + 1)
 
-    assert Line('a', 2) != 'b'
-    assert Line('a', 2) != ('a', 1)
-    assert Line('a', 2) != ('b', 2)
-    assert Line('a', 2) != ['a', 1]
-    assert Line('a', 2) != ['b', 2]
-    assert Line('a', 2) != Line('a', 1)
-    assert Line('a', 2) != Line('b', 2)
-
-    # order
-    assert Line('ab', 1) > 'a'
-    assert Line('ab', 1) > ('a', 1)
-    assert Line('ab', 1) > ['a', 1]
-    assert Line('ab', 1) > Line('a', 1)
-
-    assert Line('a', 1) < 'ab'
-    assert Line('a', 1) < ('ab', 1)
-    assert Line('a', 1) < ['ab', 1]
-    assert Line('a', 1) < Line('ab', 1)
-
-    assert Line('ab', 1) >= 'ab'
-    assert Line('ab', 1) >= ('ab', 1)
-    assert Line('ab', 1) >= ['ab', 1]
-    assert Line('ab', 1) >= Line('ab', 1)
-
-    assert Line('ab', 1) <= 'ab'
-    assert Line('ab', 1) <= ('ab', 1)
-    assert Line('ab', 1) <= ['ab', 1]
-    assert Line('ab', 1) <= Line('ab', 1)
+    line = Line('', 1)
+    assert ['L1', '', 'L3', 'L4', 'L4'][line.window] == ['']
 
 
-def test_empty_line():
-    assert Line() == ''
-    assert Line() == ['', 0]
-
-    assert Line() != ['', 1]
-    assert Line() != ['a']
-    assert Line() != ['a', 0]
-    assert Line() != object()
-
-    assert Line() <= ''
-    assert Line() <= 'a'
-    assert Line() <= ['a', 0]
-    assert Line() <= Line('a', 0)
-
-    assert Line() < 'a'
-    assert Line() < ['a', 0]
-    assert Line() < Line('a', 0)
-
-    # do not simplify these expressions
-    assert not operator.__lt__(Line(), '')
-    assert not operator.__lt__(Line(), ['', 0])
-    assert not operator.__lt__(Line(), Line())
-
-    assert not operator.__gt__(Line(), '')
-    assert not operator.__gt__(Line(), ['', 0])
-    assert not operator.__gt__(Line(), Line())
-
-
-@pytest.mark.parametrize('operand', [[], [Line()], [Line(), 0], [[chr(1), chr(2)], 0]])
-def test_line_unsupported_operators(operand):
-    for dispatcher in [operator.__lt__, operator.__le__, operator.__ge__, operator.__gt__]:
-        pytest.raises(TypeError, dispatcher, Line(), operand)
-
-    assert Line() != operand
+def test_line_slice_context():
+    assert Line('L2', 1).context(delta=4, limit=5) == (slice(0, 1), slice(2, 5))
+    assert Line('L2', 3).context(delta=2, limit=9) == (slice(1, 3), slice(4, 6))
 
 
 def test_line_startswith():
@@ -196,6 +138,106 @@ def test_line_find(line: Line, data: list[tuple[str, tuple[int, ...], int]]) -> 
             assert line.index(target, *args) == expect
 
 
+def test_empty_line_operators():
+    assert Line() == ''
+    assert Line() == ['', 0]
+
+    assert Line() != ['', 1]
+    assert Line() != ['a']
+    assert Line() != ['a', 0]
+    assert Line() != object()
+
+    assert Line() <= ''
+    assert Line() <= 'a'
+    assert Line() <= ['a', 0]
+    assert Line() <= Line('a', 0)
+
+    assert Line() < 'a'
+    assert Line() < ['a', 0]
+    assert Line() < Line('a', 0)
+
+    # do not simplify these expressions
+    assert not operator.__lt__(Line(), '')
+    assert not operator.__lt__(Line(), ['', 0])
+    assert not operator.__lt__(Line(), Line())
+
+    assert not operator.__gt__(Line(), '')
+    assert not operator.__gt__(Line(), ['', 0])
+    assert not operator.__gt__(Line(), Line())
+
+
+def test_non_empty_line_operators():
+    assert Line('a', 1) == 'a'
+    assert Line('a', 1) == ('a', 1)
+    assert Line('a', 1) == ['a', 1]
+    assert Line('a', 1) == Line('a', 1)
+
+    assert Line('a', 2) != 'b'
+    assert Line('a', 2) != ('a', 1)
+    assert Line('a', 2) != ('b', 2)
+    assert Line('a', 2) != ['a', 1]
+    assert Line('a', 2) != ['b', 2]
+    assert Line('a', 2) != Line('a', 1)
+    assert Line('a', 2) != Line('b', 2)
+
+    # order
+    assert Line('ab', 1) > 'a'
+    assert Line('ab', 1) > ('a', 1)
+    assert Line('ab', 1) > ['a', 1]
+    assert Line('ab', 1) > Line('a', 1)
+
+    assert Line('a', 1) < 'ab'
+    assert Line('a', 1) < ('ab', 1)
+    assert Line('a', 1) < ['ab', 1]
+    assert Line('a', 1) < Line('ab', 1)
+
+    assert Line('ab', 1) >= 'ab'
+    assert Line('ab', 1) >= ('ab', 1)
+    assert Line('ab', 1) >= ['ab', 1]
+    assert Line('ab', 1) >= Line('ab', 1)
+
+    assert Line('ab', 1) <= 'ab'
+    assert Line('ab', 1) <= ('ab', 1)
+    assert Line('ab', 1) <= ['ab', 1]
+    assert Line('ab', 1) <= Line('ab', 1)
+
+
+@pytest.mark.parametrize(
+    'operand',
+    [
+        '',
+        '12',  # 2-element sequence
+        'abcdef',
+        ['L1', 0],
+        ('L1', 1),
+        Line(),
+    ],
+)
+def test_line_supported_operators(operand):
+    with contextlib.nullcontext():
+        for dispatcher in [operator.__lt__, operator.__le__, operator.__ge__, operator.__gt__]:
+            dispatcher(Line(), operand)
+
+
+@pytest.mark.parametrize(
+    'operand',
+    [
+        [],
+        [Line()],
+        [Line(), 0],
+        [chr(1)],
+        [chr(1), chr(2)],
+        [chr(1), chr(2), chr(3)],
+        [[chr(1), chr(2)], 0],
+    ],
+)
+def test_line_unsupported_operators(operand):
+    for dispatcher in [operator.__lt__, operator.__le__, operator.__ge__, operator.__gt__]:
+        pytest.raises(TypeError, dispatcher, Line(), operand)
+
+    assert Line() != operand
+
+
 def test_block_constructor():
     empty = Block()
     assert empty.buffer == ()
@@ -206,7 +248,7 @@ def test_block_constructor():
         Block([1234])  # type: ignore[list-item]
 
 
-def test_empty_block():
+def test_empty_block_operators():
     assert Block() == []
     assert Block() == [[], 0]
 
@@ -243,7 +285,7 @@ def test_empty_block():
         (['a', 'b', 'c'], 'd', ('a', ['b', 2], Line('c', 3))),
     ],
 )
-def test_block_comparison_operators(
+def test_non_empty_block_operators(
     lines: list[str], foreign: str, expect: Sequence[str | tuple[str, int] | Line]
 ) -> None:
     assert Block(lines, 1) == expect
@@ -278,7 +320,9 @@ def test_block_comparison_operators(
         [[], 0],
         ['L1'],
         [Line()],
-        ['L1', 'L2'],
+        ['AA', 'AA'],  # outer: 2 items, inner: 2 items
+        ['AAA', 'AAA'],  # outer: 2 items, inner: 3 items
+        ['AA', ('AA', 1)],  # first line, second line + offset
         ['L1', Line()],
         ['L1', 'L2', 'L3'],
         ['L1', 'L2', Line()],
@@ -300,7 +344,10 @@ def test_block_supported_operators(operand):
         object(),  # bad lines
         ['L1', object(), 'L3'],  # bad lines (no offset)
         [['a', object()], 1],  # bad lines (with offset)
+        [1, 'L1'],  # two-elements bad inputs
         ['L1', 1],  # single line + offset not allowed
+        ['AA', (1, 1)],  # outer: 2 items, inner: 2 items
+        ['AA', ('AA', '102')],
         [[], object()],  # no lines + bad offset
         [['L1', 'L2'], object()],  # ok lines + bad offset
         [[object(), object()], object()],  # bad lines + bad offset
@@ -311,6 +358,15 @@ def test_block_unsupported_operators(operand):
         pytest.raises(TypeError, dispatcher, Block(), operand)
 
     assert Block() != operand
+
+
+def test_block_region_window():
+    for n in range(3):
+        assert Block([], n).window == slice(n, n)
+
+    block = Block(['B', 'C', 'D'], 1)
+    assert block.window == slice(1, 4)
+    assert ['A', 'B', 'C', 'D', 'E'][block.window] == ['B', 'C', 'D']
 
 
 def test_block_slice_context():
