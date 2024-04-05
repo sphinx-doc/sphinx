@@ -8,6 +8,7 @@ import warnings
 import pytest
 from docutils import nodes
 
+from sphinx.errors import ThemeError
 from sphinx.ext.mathjax import MATHJAX_URL
 from sphinx.testing.util import assert_node
 
@@ -95,6 +96,22 @@ def test_mathjax_options(app, status, warning):
     assert ('<script async="async" integrity="sha384-0123456789" '
             'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">'
             '</script>' in content)
+
+
+@pytest.mark.sphinx(
+    'html', testroot='ext-math-integrity',
+    confoverrides={
+        'extensions': ['sphinx.ext.mathjax'],
+        'mathjax_options': {'integrity': 'sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI='},
+        'mathjax_path': 'tex-mml-chtml.js',
+    }
+)
+def test_mathjax_integrity_mismatch(app, status, warning):
+    with pytest.raises(ThemeError) as excinfo:
+        app.build(force_all=True)
+    assert "sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" in str(excinfo.value)
+    assert "sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=" in str(excinfo.value)
+    shutil.rmtree(app.outdir)
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',

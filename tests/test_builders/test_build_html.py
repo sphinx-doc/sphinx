@@ -209,7 +209,8 @@ def test_alternate_stylesheets(app, cached_etree_parse, expect):
 def test_html_style(app, status, warning):
     app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/default.css" />' in result
+    assert ('<link integrity="sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=" '
+            'rel="stylesheet" type="text/css" href="_static/default.css" />' in result)
     assert ('<link rel="stylesheet" type="text/css" href="_static/alabaster.css" />'
             not in result)
 

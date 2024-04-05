@@ -111,7 +111,7 @@ def test_staticfiles(app, status, warning):
 
 @pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'test-theme'})
 def test_dark_style(app, monkeypatch):
-    monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
+    monkeypatch.setattr(sphinx.builders.html, '_file_integrity', lambda o, f: '')
 
     style = app.builder.dark_highlighter.formatter_args.get('style')
     assert style.__name__ == 'MonokaiStyle'

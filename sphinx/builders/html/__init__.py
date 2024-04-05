@@ -26,7 +26,12 @@ from docutils.utils import relative_path
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
 from sphinx.builders import Builder
-from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
+from sphinx.builders.html._assets import (
+    _CascadingStyleSheet,
+    _file_integrity,
+    _integrity_overlap,
+    _JavaScript,
+)
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
@@ -1050,12 +1055,14 @@ class StandaloneHTMLBuilder(Builder):
                      for key, value in css.attributes.items()
                      if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
-            # the EPUB format does not allow the use of query components
-            # the Windows help compiler requires that css links
-            # don't have a query component
-            if self.name not in {'epub', 'htmlhelp'}:
-                if checksum := _file_checksum(outdir, css.filename):
-                    uri += f'?v={checksum}'
+            if integrity := _file_integrity(outdir, css.filename):
+                existing_integrity = css.attributes.get('integrity', '')
+                # Check for overlap between locally-determined integrity and
+                # any existing integrity claims on the HTML element.
+                if not _integrity_overlap(integrity, existing_integrity):
+                    msg = f"Integrity mismatch: '{integrity}' against '{existing_integrity}'"
+                    raise ThemeError(msg)
+                attrs.append(f'integrity="{html.escape(integrity, quote=True)}"')
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
 
         ctx['css_tag'] = css_tag
@@ -1082,10 +1089,14 @@ class StandaloneHTMLBuilder(Builder):
                 # https://docs.mathjax.org/en/v2.7-latest/configuration.html#considerations-for-using-combined-configuration-files
                 # https://github.com/sphinx-doc/sphinx/issues/11658
                 pass
-            # the EPUB format does not allow the use of query components
-            elif self.name != 'epub':
-                if checksum := _file_checksum(outdir, js.filename):
-                    uri += f'?v={checksum}'
+            elif integrity := _file_integrity(outdir, js.filename):
+                existing_integrity = js.attributes.get('integrity', '')
+                # Check for overlap between locally-determined integrity and
+                # any existing integrity claims on the HTML element.
+                if not _integrity_overlap(integrity, existing_integrity):
+                    msg = f"Integrity mismatch: '{integrity}' against '{existing_integrity}'"
+                    raise ThemeError(msg)
+                attrs.append(f'integrity="{html.escape(integrity, quote=True)}"')
             if attrs:
                 return f'<script {" ".join(sorted(attrs))} src="{uri}"></script>'
             return f'<script src="{uri}"></script>'

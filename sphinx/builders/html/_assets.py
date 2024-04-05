@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import os
 import warnings
-import zlib
+from base64 import b64encode
+from collections import defaultdict
+from hashlib import sha256
 from typing import TYPE_CHECKING, Any, NoReturn
 
 from sphinx.deprecation import RemovedInSphinx90Warning
@@ -124,7 +126,16 @@ class _JavaScript:
         return os.fspath(self.filename)[key]
 
 
-def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
+def _file_integrity(outdir: Path, filename: str | os.PathLike[str]) -> str:
+    """Generate SubResource Integrity checksums for local Cascading StyleSheet
+    and JavaScript files included within a Sphinx project built for publication
+    in HTML format.
+
+    The ordering of algorithms is significant; please refer to the W3C SRI
+    specification for details.
+
+    Ref: https://www.w3.org/TR/2016/REC-SRI-20160623/
+    """
     filename = os.fspath(filename)
     # Don't generate checksums for HTTP URIs
     if '://' in filename:
@@ -136,11 +147,40 @@ def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
     if '?' in filename:
         msg = f'Local asset file paths must not contain query strings: {filename!r}'
         raise ThemeError(msg)
+    algorithms = {
+        'sha256': sha256,
+    }
+    checksums = []
     try:
-        # Remove all carriage returns to avoid checksum differences
-        content = outdir.joinpath(filename).read_bytes().translate(None, b'\r')
+        content = outdir.joinpath(filename).read_bytes()
+        for prefix, hasher in algorithms.items():
+            checksum: bytes = hasher(content).digest()
+            checksum_base64: str = b64encode(checksum).decode('ascii')
+            checksums.append(f"{prefix}-{checksum_base64}")
     except FileNotFoundError:
         return ''
-    if not content:
-        return ''
-    return f'{zlib.crc32(content):08x}'
+    return ' '.join(checksums)
+
+
+def _integrity_overlap(integrity_a: str, integrity_b: str) -> bool:
+    """Determines whether two W3C SubResource Integrity values could
+    possibly agree on the content that they both refer to.  This requires
+    that they share at least one common hash value for each algorithm that
+    they both contain a checksum for.
+    """
+
+    def _hashes_by_algorithm(integrity: str) -> dict[str, set[str]]:
+        hashes = defaultdict(set)
+        for checksum in integrity.split():
+            algorithm, _ = checksum.split("-")
+            hashes[algorithm].add(checksum)
+        return hashes
+
+    hashes_a, hashes_b = (
+        _hashes_by_algorithm(integrity_a),
+        _hashes_by_algorithm(integrity_b),
+    )
+    for algorithm in hashes_a.keys() & hashes_b.keys():
+        if not hashes_a[algorithm] & hashes_b[algorithm]:
+            return False
+    return True

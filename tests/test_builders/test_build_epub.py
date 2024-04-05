@@ -328,8 +328,8 @@ def test_epub_assets(app):
 
     # epub_sytlesheets (same as html_css_files)
     content = (app.outdir / 'index.xhtml').read_text(encoding='utf8')
-    assert ('<link rel="stylesheet" type="text/css" href="_static/css/style.css" />'
-            in content)
+    assert ('<link integrity="sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=" '
+            'rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content)
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
             'href="https://example.com/custom.css" />' in content)
 

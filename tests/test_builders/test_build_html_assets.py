@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 import sphinx.builders.html
-from sphinx.builders.html._assets import _file_checksum
+from sphinx.builders.html._assets import _file_integrity, _integrity_overlap
 from sphinx.errors import ThemeError
 
 
@@ -44,19 +44,21 @@ def test_html_assets(app):
 
     # html_css_files
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content
+    assert ('<link integrity="sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=" '
+            'rel="stylesheet" type="text/css" href="_static/css/style.css" />' in content)
     assert ('<link media="print" rel="stylesheet" title="title" type="text/css" '
             'href="https://example.com/custom.css" />' in content)
 
     # html_js_files
-    assert '<script src="_static/js/custom.js"></script>' in content
+    assert ('<script integrity="sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=" '
+            'src="_static/js/custom.js"></script>' in content)
     assert ('<script async="async" src="https://example.com/script.js">'
             '</script>' in content)
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
 def test_assets_order(app, monkeypatch):
-    monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
+    monkeypatch.setattr(sphinx.builders.html, '_file_integrity', lambda o, f: '')
 
     app.add_css_file('normal.css')
     app.add_css_file('early.css', priority=100)
@@ -112,12 +114,10 @@ def test_file_checksum(app):
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     # checksum for local files
-    assert '<link rel="stylesheet" type="text/css" href="_static/stylesheet-a.css?v=e575b6df" />' in content
-    assert '<link rel="stylesheet" type="text/css" href="_static/stylesheet-b.css?v=a2d5cc0f" />' in content
-    assert '<script src="_static/script.js?v=48278d48"></script>' in content
-
-    # empty files have no checksum
-    assert '<script src="_static/empty.js"></script>' in content
+    assert '<link integrity="sha256-/ZHTZmCFDIBtlJyAoquBRQ7CghWI34qN+Psx7/8lLdM=" rel="stylesheet" type="text/css" href="_static/stylesheet-a.css" />' in content
+    assert '<link integrity="sha256-2wFSzZiTwyNsx+TYraw5/vDB7MaSfIzqCxhbLlie7Nw=" rel="stylesheet" type="text/css" href="_static/stylesheet-b.css" />' in content
+    assert '<script integrity="sha256-t4GTPcvABXf3u5gw75UJGem8b7u0JRRKVkC+F+/Pp6o=" src="_static/script.js"></script>' in content
+    assert '<script integrity="sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=" src="_static/empty.js"></script>' in content
 
     # no checksum for hyperlinks
     assert '<link rel="stylesheet" type="text/css" href="https://example.com/custom.css" />' in content
@@ -126,16 +126,16 @@ def test_file_checksum(app):
 
 def test_file_checksum_query_string():
     with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
-        _file_checksum(Path(), 'with_query_string.css?dead_parrots=1')
+        _file_integrity(Path(), 'with_query_string.css?dead_parrots=1')
 
     with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
-        _file_checksum(Path(), 'with_query_string.js?dead_parrots=1')
+        _file_integrity(Path(), 'with_query_string.js?dead_parrots=1')
 
     with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
-        _file_checksum(Path.cwd(), '_static/with_query_string.css?dead_parrots=1')
+        _file_integrity(Path.cwd(), '_static/with_query_string.css?dead_parrots=1')
 
     with pytest.raises(ThemeError, match='Local asset file paths must not contain query strings'):
-        _file_checksum(Path.cwd(), '_static/with_query_string.js?dead_parrots=1')
+        _file_integrity(Path.cwd(), '_static/with_query_string.js?dead_parrots=1')
 
 
 @pytest.mark.sphinx('html', testroot='html_assets')
@@ -150,3 +150,21 @@ def test_javscript_loading_method(app):
     assert '<script src="_static/normal.js"></script>' in content
     assert '<script async="async" src="_static/early.js"></script>' in content
     assert '<script defer="defer" src="_static/late.js"></script>' in content
+
+
+@pytest.mark.parametrize(('checksums_a', 'checksums_b', 'expected_concurrence'), [
+    ('strong-1234 weak-100', 'strong-1234 weak-100', True),
+    ('strong-1234 weak-100', 'strong-1234', True),
+    ('weak-100', 'weak-100', True),
+    ('', 'weak-100', True),
+    ('weak-50', 'weak-100', False),
+    ('strong-1234 weak-100 weak-50', 'strong-2345 weak-100', False),
+    ('strong-1234 weak-100 weak-50', 'strong-1234 weak-101', False),
+    ('strong-1234 weak-100 weak-50', 'strong-1234 weak-50', True),
+    ('strong-1234', 'weak-50', True),
+])
+def test_integrity_overlap(checksums_a, checksums_b, expected_concurrence):
+    concurrence = _integrity_overlap(checksums_a, checksums_b)
+    transitive_concurrence = _integrity_overlap(checksums_b, checksums_a)
+    assert concurrence is expected_concurrence
+    assert concurrence is transitive_concurrence
