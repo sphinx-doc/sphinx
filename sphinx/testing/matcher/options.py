@@ -48,7 +48,7 @@ class Options(TypedDict, total=False):
     while others (e.g., :attr:`stripline`) act on the lines obtained after
     splitting the (transformed) original string.
 
-    .. seealso:: :mod:`sphinx.testing._matcher.cleaner`
+    .. seealso:: :mod:`sphinx.testing.matcher._cleaner`
     """
 
     # only immutable fields should be used as options, otherwise undesired

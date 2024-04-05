@@ -55,7 +55,7 @@ def to_line_patterns(  # NoqA: E302
 
     .. note::
 
-       If *expect* is a :class:`collections.abc.Set`-like object, the order
+       If *expect* is a :class:`~collections.abc.Set`-like object, the order
        of the output sequence is an implementation detail but guaranteed to
        be the same for the same inputs. Otherwise, the order of *expect* is
        retained, in case this could make a difference.
