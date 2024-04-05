@@ -85,7 +85,7 @@ class PyFunction(PyObject):
     def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
                              signode: desc_signature) -> None:
         super().add_target_and_index(name_cls, sig, signode)
-        if 'no-index-entry' not in self.options or self.config.no_index_entry:
+        if not ('no-index-entry' in self.options or self.config.no_index_entry):
             modname = self.options.get('module', self.env.ref_context.get('py:module'))
             node_id = signode['ids'][0]
 

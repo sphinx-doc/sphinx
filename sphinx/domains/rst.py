@@ -54,7 +54,7 @@ class ReSTMarkup(ObjectDescription[str]):
         domain = cast(ReSTDomain, self.env.get_domain('rst'))
         domain.note_object(self.objtype, name, node_id, location=signode)
 
-        if 'no-index-entry' not in self.options or self.config.no_index_entry:
+        if not ('no-index-entry' in self.options or self.config.no_index_entry):
             indextext = self.get_index_text(self.objtype, name)
             if indextext:
                 self.indexnode['entries'].append(('single', indextext, node_id, '', None))
