@@ -1062,9 +1062,12 @@ class ModuleDocumenter(Documenter):
             self.add_line('   :platform: ' + self.options.platform, sourcename)
         if self.options.deprecated:
             self.add_line('   :deprecated:', sourcename)
-        if self.options.no_index_entry or self.options.noindexentry or self.config.no_index_entry:
+        if (
+            self.options.no_index_entry
+            or self.options.noindexentry
+            or self.config.no_index_entry
+        ):
             self.add_line('   :no-index-entry:', sourcename)
-
 
     def get_module_members(self) -> dict[str, ObjectMember]:
         """Get members of target module."""

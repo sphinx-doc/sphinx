@@ -403,7 +403,9 @@ class PyModule(SphinxDirective):
 
         modname = self.arguments[0].strip()
         no_index = 'no-index' in self.options or 'noindex' in self.options
-        no_index_entry = 'no-index-entry' in self.options or 'noindexentry' in self.options or self.config.no_index_entry
+        no_index_entry = ('no-index-entry' in self.options
+                          or 'noindexentry' in self.options
+                          or self.config.no_index_entry)
         self.env.ref_context['py:module'] = modname
 
         content_node: Element = nodes.section()

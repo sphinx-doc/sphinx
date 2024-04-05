@@ -2922,6 +2922,7 @@ def test_literal_render(app):
         *function_rst('foo', 'x: typing.Literal[target.literal.MyEnum.a]'),
     ]
 
+
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_no_index_entry(app):
     # modules can use no-index-entry
