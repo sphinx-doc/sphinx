@@ -57,6 +57,10 @@ Features added
   .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
   .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
 
+* #11015: :rst:dir:`versionadded` wording changes from ``New in [...]``
+  to ``Added in [...]``.
+  Patch by Bénédikt Tran.
+
 * #12231: Replace CRC32 checksums with `W3C SubResource Integrity`_ for CSS/JS.
   For caching and expiry guidance for affected resources, refer to :rfc:`9111`.
   Patch by James Addison.
