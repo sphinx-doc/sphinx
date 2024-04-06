@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, overload
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
 
-    from sphinx.testing.matcher._util import BlockPattern, LinePattern, PatternLike
+    from sphinx.testing.matcher._util import BlockPattern, LinePattern, PatternLike, Patterns
     from sphinx.testing.matcher.options import Flavor
 
 
@@ -71,8 +71,8 @@ def to_block_pattern(pattern: str, /) -> tuple[str, ...]: ...  # NoQA: E704
 @overload
 def to_block_pattern(pattern: re.Pattern[str], /) -> tuple[re.Pattern[str]]: ...  # NoQA: E704
 @overload
-def to_block_pattern(patterns: BlockPattern, /) -> BlockPattern: ...  # NoQA: E704
-def to_block_pattern(patterns: PatternLike | BlockPattern, /) -> BlockPattern:  # NoQA: E302
+def to_block_pattern(patterns: BlockPattern, /) -> tuple[LinePattern, ...]: ...  # NoQA: E704
+def to_block_pattern(patterns: PatternLike | BlockPattern, /) -> tuple[LinePattern, ...]:  # NoQA: E302
     r"""Get a read-only sequence for a s single block pattern.
 
     :param patterns: A string, :class:`~re.Pattern` or a sequence thereof.
@@ -151,7 +151,7 @@ def compile(
     escape: Callable[[str], str] | None = string_expression,
     regular_translate: Callable[[str], str] | None = None,
     fnmatch_translate: Callable[[str], str] | None = fnmatch.translate,
-) -> tuple[re.Pattern[str], ...]:
+) -> Patterns:
     """Compile one or more patterns into :class:`~re.Pattern` objects.
 
     :param patterns: An iterable of patterns to translate and compile.

@@ -205,30 +205,30 @@ def test_matcher_find(
     expect: Sequence[tuple[str, int]],
 ) -> None:
     matcher = LineMatcher.from_lines(lines, flavor=flavor)
-    assert matcher.find(pattern) == expect
+    assert matcher.find(pattern) == tuple(expect)
 
     matcher = LineMatcher.from_lines(lines, flavor='none')
-    assert matcher.find(pattern, flavor=flavor) == expect
+    assert matcher.find(pattern, flavor=flavor) == tuple(expect)
 
 
 def test_matcher_find_blocks():
     lines = ['hello', 'world', 'yay', 'hello', 'world', '!', 'yay']
     matcher = LineMatcher.from_lines(lines)
 
-    assert matcher.find_blocks(['hello', 'world']) == [
+    assert matcher.find_blocks(['hello', 'world']) == (
         [('hello', 0), ('world', 1)],
         [('hello', 3), ('world', 4)],
-    ]
+    )
 
-    assert matcher.find_blocks(['hello', 'w[oO]rld'], flavor='fnmatch') == [
+    assert matcher.find_blocks(['hello', 'w[oO]rld'], flavor='fnmatch') == (
         [('hello', 0), ('world', 1)],
         [('hello', 3), ('world', 4)],
-    ]
+    )
 
-    assert matcher.find_blocks(['hello', r'^w[a-z]{2}\wd$'], flavor='re') == [
+    assert matcher.find_blocks(['hello', r'^w[a-z]{2}\wd$'], flavor='re') == (
         [('hello', 0), ('world', 1)],
         [('hello', 3), ('world', 4)],
-    ]
+    )
 
 
 def test_assert_match():

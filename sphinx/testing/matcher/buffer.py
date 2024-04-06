@@ -243,7 +243,7 @@ class Line(Region[str]):
 
         return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
 
-    # explicitly add the method since its signature differs from :meth:`_Region.index`
+    # explicitly add the method since its signature differs from :meth:`Region.index`
     def index(self, sub: SubStringLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a substring.
 
@@ -287,8 +287,6 @@ class Line(Region[str]):
         :param end: The test stop position.
         """
         return self.buffer.endswith(suffix, start, end)
-
-    # dunder methods
 
     def __str__(self) -> str:
         """The line as a string."""
@@ -410,7 +408,7 @@ class Block(Region[tuple[str, ...]]):
 
         return self.buffer.count(target)
 
-    # explicitly add the method since its signature differs from :meth:`_Region.index`
+    # explicitly add the method since its signature differs from :meth:`Region.index`
     def index(self, target: BlockLineLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
         """Find the lowest index of a matching line.
 

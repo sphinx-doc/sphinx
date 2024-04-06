@@ -16,11 +16,11 @@ from typing import TYPE_CHECKING, overload
 if TYPE_CHECKING:
     import re
     from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
-    from typing import TypeVar, Union
+    from typing import Any, TypeVar, Union
 
     from typing_extensions import Never
 
-    from sphinx.testing.matcher.buffer import Block, Line
+    from sphinx.testing.matcher.buffer import Region
 
     PatternLike = Union[str, re.Pattern[str]]
     """A regular expression (compiled or not)."""
@@ -30,10 +30,13 @@ if TYPE_CHECKING:
     """A predicate called on an entire line."""
     BlockPattern = Sequence[LinePattern]
     """A sequence of regular expressions (compiled or not) for a block.
-    
-    For instance, ``['a', re.compile('b*')]`` matches blocks 
+
+    For instance, ``['a', re.compile('b*')]`` matches blocks
     with the line ``'a'`` followed by a line matching ``'b*'``.
     """
+
+    Patterns = tuple[re.Pattern[str], ...]
+    """Sequence of compiled patterns to use."""
 
     _T = TypeVar('_T')
 
@@ -160,21 +163,8 @@ def indent_lines(
     return [prefix + line for line in lines]
 
 
-def prettify_patterns(
-    patterns: Sequence[PatternLike],
-    /,
-    *,
-    indent: int = 4,
-    sort: bool = False,
-) -> str:
-    """Prettify the *patterns* as a string to print."""
-    lines = (p if isinstance(p, str) else p.pattern for p in patterns)
-    source = sorted(lines) if sort else lines
-    return indent_source(source, indent=indent, highlight=False)
-
-
 def get_context_lines(
-    source: Sequence[str], region: Line | Block, /, context: int, *, indent: int = 4
+    source: Sequence[str], region: Region[Any], /, context: int, *, indent: int = 4
 ) -> list[str]:
     """Get some context lines around *block* and highlight the *region*.
 
