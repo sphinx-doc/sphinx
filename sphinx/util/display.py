@@ -5,7 +5,7 @@ from typing import Any, Callable, TypeVar
 
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold, color_terminal  # type: ignore[attr-defined]
+from sphinx.util.console import bold, color_terminal
 
 if False:
     from collections.abc import Iterable, Iterator

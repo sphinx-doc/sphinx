@@ -9,7 +9,7 @@ def test_build(app):
 
     # TODO: Use better checking of html content
     htmltext = (app.outdir / 'changes.html').read_text(encoding='utf8')
-    assert 'New in version 0.6: Some funny stuff.' in htmltext
+    assert 'Added in version 0.6: Some funny stuff.' in htmltext
     assert 'Changed in version 0.6: Even more funny stuff.' in htmltext
     assert 'Deprecated since version 0.6: Boring stuff.' in htmltext
 
