@@ -162,7 +162,7 @@ def _file_integrity(outdir: Path, filename: str | os.PathLike[str]) -> str:
     return ' '.join(checksums)
 
 
-def _integrity_overlap(integrity_a: str, integrity_b: str) -> bool:
+def _integrity_concordance(integrity_a: str, integrity_b: str) -> bool:
     """Determines whether two W3C SubResource Integrity values could
     possibly agree on the content that they both refer to.  This requires
     that they share at least one common hash value for each algorithm that

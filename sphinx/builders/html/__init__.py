@@ -29,7 +29,7 @@ from sphinx.builders import Builder
 from sphinx.builders.html._assets import (
     _CascadingStyleSheet,
     _file_integrity,
-    _integrity_overlap,
+    _integrity_concordance,
     _JavaScript,
 )
 from sphinx.config import ENUM, Config
@@ -1059,7 +1059,7 @@ class StandaloneHTMLBuilder(Builder):
                 existing_integrity = css.attributes.get('integrity', '')
                 # Check for overlap between locally-determined integrity and
                 # any existing integrity claims on the HTML element.
-                if not _integrity_overlap(integrity, existing_integrity):
+                if not _integrity_concordance(integrity, existing_integrity):
                     msg = f"Integrity mismatch: '{integrity}' against '{existing_integrity}'"
                     raise ThemeError(msg)
                 attrs.append(f'integrity="{html.escape(integrity, quote=True)}"')
@@ -1093,7 +1093,7 @@ class StandaloneHTMLBuilder(Builder):
                 existing_integrity = js.attributes.get('integrity', '')
                 # Check for overlap between locally-determined integrity and
                 # any existing integrity claims on the HTML element.
-                if not _integrity_overlap(integrity, existing_integrity):
+                if not _integrity_concordance(integrity, existing_integrity):
                     msg = f"Integrity mismatch: '{integrity}' against '{existing_integrity}'"
                     raise ThemeError(msg)
                 attrs.append(f'integrity="{html.escape(integrity, quote=True)}"')

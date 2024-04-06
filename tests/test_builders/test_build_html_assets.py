@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 import sphinx.builders.html
-from sphinx.builders.html._assets import _file_integrity, _integrity_overlap
+from sphinx.builders.html._assets import _file_integrity, _integrity_concordance
 from sphinx.errors import ThemeError
 
 
@@ -152,7 +152,7 @@ def test_javscript_loading_method(app):
     assert '<script defer="defer" src="_static/late.js"></script>' in content
 
 
-@pytest.mark.parametrize(('checksums_a', 'checksums_b', 'expected_concurrence'), [
+@pytest.mark.parametrize(('checksums_a', 'checksums_b', 'expected_concordance'), [
     ('strong-1234 weak-100', 'strong-1234 weak-100', True),
     ('strong-1234 weak-100', 'strong-1234', True),
     ('weak-100', 'weak-100', True),
@@ -163,8 +163,8 @@ def test_javscript_loading_method(app):
     ('strong-1234 weak-100 weak-50', 'strong-1234 weak-50', True),
     ('strong-1234', 'weak-50', True),
 ])
-def test_integrity_overlap(checksums_a, checksums_b, expected_concurrence):
-    concurrence = _integrity_overlap(checksums_a, checksums_b)
-    transitive_concurrence = _integrity_overlap(checksums_b, checksums_a)
-    assert concurrence is expected_concurrence
-    assert concurrence is transitive_concurrence
+def test_integrity_concordance(checksums_a, checksums_b, expected_concordance):
+    concordance = _integrity_concordance(checksums_a, checksums_b)
+    transitive_concordance = _integrity_concordance(checksums_b, checksums_a)
+    assert concordance is expected_concordance
+    assert concordance is transitive_concordance
