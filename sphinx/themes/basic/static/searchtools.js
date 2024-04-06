@@ -410,7 +410,7 @@ const Search = {
     // console.info("search results:", Search.lastresults);
 
     // print the results
-    _displayNextItem(results, results.length, searchTerms, highlightTerms);
+    _displayNextItem(results, results.length, searchParameters[1], searchParameters[3]);
   },
 
   /**
