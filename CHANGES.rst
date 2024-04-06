@@ -59,6 +59,7 @@ Features added
 
 * #12231: Replace CRC32 checksums with `W3C SubResource Integrity`_ for CSS/JS.
   For caching and expiry guidance for affected resources, refer to :rfc:`9111`.
+  Patch by James Addison.
 
   .. _W3C SubResource Integrity: https://www.w3.org/TR/2016/REC-SRI-20160623/
 
