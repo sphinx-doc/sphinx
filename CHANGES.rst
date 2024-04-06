@@ -30,8 +30,9 @@ Features added
   to annotate the return type of their ``setup`` function.
   Patch by Chris Sewell.
 
-* #12133: Allow ``external`` roles to reference object types
-  (rather than role names). Patch by Chris Sewell.
+* #12193: Improve ``external`` warnings for unknown roles.
+  In particular, suggest related role names if an object type is mistakenly used.
+  Patch by Chris Sewell.
 
 * #12131: Added :confval:`show_warning_types` configuration option.
   Patch by Chris Sewell.
@@ -55,6 +56,11 @@ Features added
 
   .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
   .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
+
+* #11015: :rst:dir:`versionadded` wording changes from ``New in [...]``
+  to ``Added in [...]``.
+  Patch by Bénédikt Tran.
+
 
 Bugs fixed
 ----------
@@ -138,6 +144,9 @@ Bugs fixed
 * #10786: improve the error message when a file to be copied (e.g., an asset)
   is removed during Sphinx execution.
   Patch by Bénédikt Tran.
+* #12040: HTML Search: Ensure that document titles that are partially-matched by
+  the user search query are included in search results.
+  Patch by James Addison.
 
 Testing
 -------
@@ -151,6 +160,10 @@ Testing
 
 * pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
   ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
+* utils: use dynamic allocation of unused port numbers for the test HTTP(S)
+  servers.  As a side-effect, this removes the need for test server lockfiles,
+  meaning that any remaining ``tests/test-server.lock`` files can safely be
+  deleted.
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================
