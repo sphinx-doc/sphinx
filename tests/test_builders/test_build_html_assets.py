@@ -115,7 +115,7 @@ def test_file_checksum(app):
 
     # checksum for local files
     assert '<link integrity="sha256-/ZHTZmCFDIBtlJyAoquBRQ7CghWI34qN+Psx7/8lLdM=" rel="stylesheet" type="text/css" href="_static/stylesheet-a.css" />' in content
-    assert '<link integrity="sha256-2wFSzZiTwyNsx+TYraw5/vDB7MaSfIzqCxhbLlie7Nw=" rel="stylesheet" type="text/css" href="_static/stylesheet-b.css" />' in content
+    assert '<link integrity="sha256-6K3r2rV8W5oX6rh/3yWDUAv5KFU5xyClOzAZoC/PNWc=" rel="stylesheet" type="text/css" href="_static/stylesheet-b.css" />' in content
     assert '<script integrity="sha256-t4GTPcvABXf3u5gw75UJGem8b7u0JRRKVkC+F+/Pp6o=" src="_static/script.js"></script>' in content
     assert '<script integrity="sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=" src="_static/empty.js"></script>' in content
 

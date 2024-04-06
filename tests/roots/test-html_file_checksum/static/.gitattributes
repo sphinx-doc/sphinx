@@ -1,0 +1,3 @@
+script.js text=auto eol=lf
+stylesheet-a.css text=auto eol=lf
+stylesheet-b.css text=auto eol=crlf
