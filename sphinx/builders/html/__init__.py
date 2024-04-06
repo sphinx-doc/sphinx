@@ -1057,8 +1057,8 @@ class StandaloneHTMLBuilder(Builder):
             uri = pathto(os.fspath(css.filename), resource=True)
             if integrity := _file_integrity(outdir, css.filename):
                 existing_integrity = css.attributes.get('integrity', '')
-                # Check for overlap between locally-determined integrity and
-                # any existing integrity claims on the HTML element.
+                # Check for disagreement between locally-determined integrity
+                # compared to any existing integrity claims.
                 if not _integrity_concordance(integrity, existing_integrity):
                     msg = f"Integrity mismatch: '{integrity}' against '{existing_integrity}'"
                     raise ThemeError(msg)
@@ -1091,8 +1091,8 @@ class StandaloneHTMLBuilder(Builder):
                 pass
             elif integrity := _file_integrity(outdir, js.filename):
                 existing_integrity = js.attributes.get('integrity', '')
-                # Check for overlap between locally-determined integrity and
-                # any existing integrity claims on the HTML element.
+                # Check for disagreement between locally-determined integrity
+                # compared to any existing integrity claims.
                 if not _integrity_concordance(integrity, existing_integrity):
                     msg = f"Integrity mismatch: '{integrity}' against '{existing_integrity}'"
                     raise ThemeError(msg)
