@@ -57,6 +57,15 @@ Features added
   .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
   .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
 
+* #12231: CSS/JS content integrity for HTML-like formats is provided using the
+  `W3C SubResource Integrity`_ recommended HTML ``integrity`` attribute instead
+  of CRC32 checksums in resource query-strings.  To provide effective caching
+  and expiry of affected resources, please ensure that your webserver makes use
+  of appropriate :rfc:`9111` caching mechanisms, such as the ``Cache-Control``
+  and ``ETag`` HTTP response headers.
+
+  .. _W3C SubResource Integrity: https://www.w3.org/TR/2016/REC-SRI-20160623/
+
 Bugs fixed
 ----------
 
