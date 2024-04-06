@@ -402,15 +402,15 @@ const Search = {
   },
 
   query: (query) => {
-    const searchParameters = Search._parseQuery(query);
-    const results = Search._performSearch(...searchParameters);
+    const [searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms] = Search._parseQuery(query);
+    const results = Search._performSearch(searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms);
 
     // for debugging
     //Search.lastresults = results.slice();  // a copy
     // console.info("search results:", Search.lastresults);
 
     // print the results
-    _displayNextItem(results, results.length, searchParameters[1], searchParameters[3]);
+    _displayNextItem(results, results.length, searchTerms, highlightTerms);
   },
 
   /**
