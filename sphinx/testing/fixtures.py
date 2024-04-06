@@ -34,7 +34,7 @@ from sphinx.testing.util import (
     SphinxTestAppLazyBuild,
     SphinxTestAppWrapperForSkipBuilding,
 )
-from sphinx.util.console import _strip_escape_sequences
+from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -318,7 +318,7 @@ _APP_INFO_KEY: pytest.StashKey[AppInfo] = pytest.StashKey()
 
 def _cleanup_app_info(text: str) -> str:
     if os.name == 'nt':
-        text = _strip_escape_sequences(text)
+        text = strip_escape_sequences(text)
         text = text.encode('ascii', errors='backslashreplace').decode('ascii')
     return text
 
