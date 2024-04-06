@@ -1,7 +1,6 @@
-"""Private utility functions for :mod:`sphinx.testing.matcher`.
+"""Private regular expressions utilities for :mod:`sphinx.testing.matcher`.
 
-All objects provided by this module are considered an implementation detail
-and are not meant to be used by external libraries.
+All objects provided by this module are considered an implementation detail.
 """
 
 from __future__ import annotations
@@ -43,7 +42,7 @@ def to_line_patterns(  # NoQA: E704
 ) -> tuple[LinePattern, ...]: ...
 def to_line_patterns(  # NoqA: E302
     patterns: LinePattern | Set[LinePattern] | Sequence[LinePattern], /
-) -> Sequence[LinePattern]:
+) -> tuple[LinePattern, ...]:
     """Get a read-only sequence of line-matching patterns.
 
     :param patterns: One or more patterns a line should match (in its entirety).
@@ -106,13 +105,18 @@ def string_expression(line: str, /) -> str:
     return rf'\A{re.escape(line)}\Z'
 
 
+def fnmatch_prefix(prefix: str) -> str:
+    """A regular expression matching a :mod:`fnmatch`-style prefix."""
+    return fnmatch.translate(prefix).rstrip(r'\Z$')
+
+
 def translate(
     patterns: Iterable[PatternLike],
     *,
     flavor: Flavor,
     escape: Callable[[str], str] | None = string_expression,
-    str2regexpr: Callable[[str], str] | None = None,
-    str2fnmatch: Callable[[str], str] | None = fnmatch.translate,
+    regular_translate: Callable[[str], str] | None = None,
+    fnmatch_translate: Callable[[str], str] | None = fnmatch.translate,
 ) -> Iterable[PatternLike]:
     r"""Translate regular expressions according to *flavor*.
 
@@ -122,8 +126,8 @@ def translate(
     :param patterns: An iterable of regular expressions to translate.
     :param flavor: The translation flavor for non-compiled patterns.
     :param escape: Translation function for ``'none'`` flavor.
-    :param str2regexpr: Translation function for ``'re'`` flavor.
-    :param str2fnmatch: Translation function for ``'fnmatch'`` flavor.
+    :param regular_translate: Translation function for ``'re'`` flavor.
+    :param fnmatch_translate: Translation function for ``'fnmatch'`` flavor.
     :return: An iterable of :class:`re`-style pattern-like objects.
     """
     _check_flavor(flavor)
@@ -131,10 +135,10 @@ def translate(
     if flavor == 'none' and callable(translator := escape):
         return (format_expression(translator, expr) for expr in patterns)
 
-    if flavor == 're' and callable(translator := str2regexpr):
+    if flavor == 're' and callable(translator := regular_translate):
         return (format_expression(translator, expr) for expr in patterns)
 
-    if flavor == 'fnmatch' and callable(translator := str2fnmatch):
+    if flavor == 'fnmatch' and callable(translator := fnmatch_translate):
         return (format_expression(translator, expr) for expr in patterns)
 
     return patterns
@@ -145,24 +149,24 @@ def compile(
     *,
     flavor: Flavor,
     escape: Callable[[str], str] | None = string_expression,
-    str2regexpr: Callable[[str], str] | None = None,
-    str2fnmatch: Callable[[str], str] | None = fnmatch.translate,
-) -> Sequence[re.Pattern[str]]:
+    regular_translate: Callable[[str], str] | None = None,
+    fnmatch_translate: Callable[[str], str] | None = fnmatch.translate,
+) -> tuple[re.Pattern[str], ...]:
     """Compile one or more patterns into :class:`~re.Pattern` objects.
 
     :param patterns: An iterable of patterns to translate and compile.
     :param flavor: The translation flavor for non-compiled patterns.
     :param escape: Translation function for ``'none'`` flavor.
-    :param str2regexpr: Translation function for ``'re'`` flavor.
-    :param str2fnmatch: Translation function for ``'fnmatch'`` flavor.
+    :param regular_translate: Translation function for ``'re'`` flavor.
+    :param fnmatch_translate: Translation function for ``'fnmatch'`` flavor.
     :return: A sequence of compiled regular expressions.
     """
     patterns = translate(
         patterns,
         flavor=flavor,
         escape=escape,
-        str2regexpr=str2regexpr,
-        str2fnmatch=str2fnmatch,
+        regular_translate=regular_translate,
+        fnmatch_translate=fnmatch_translate,
     )
     # mypy does not like map + re.compile() although it is correct but
     # this is likely due to https://github.com/python/mypy/issues/11880

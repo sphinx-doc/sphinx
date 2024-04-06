@@ -1,7 +1,6 @@
 """Private utility functions for :mod:`sphinx.testing.matcher`.
 
-All objects provided by this module are considered an implementation detail
-and are not meant to be used by external libraries.
+All objects provided by this module are considered an implementation detail.
 """
 
 from __future__ import annotations
@@ -30,7 +29,11 @@ if TYPE_CHECKING:
     LinePredicate = Callable[[str], object]
     """A predicate called on an entire line."""
     BlockPattern = Sequence[LinePattern]
-    """A sequence of regular expression (compiled or not) for a block."""
+    """A sequence of regular expressions (compiled or not) for a block.
+    
+    For instance, ``['a', re.compile('b*')]`` matches blocks 
+    with the line ``'a'`` followed by a line matching ``'b*'``.
+    """
 
     _T = TypeVar('_T')
 
@@ -170,18 +173,18 @@ def prettify_patterns(
     return indent_source(source, indent=indent, highlight=False)
 
 
-def diff(
+def get_context_lines(
     source: Sequence[str], region: Line | Block, /, context: int, *, indent: int = 4
 ) -> list[str]:
-    """Get some context lines around *block* and highlight the *block*.
+    """Get some context lines around *block* and highlight the *region*.
 
     :param source: The source containing the *block*.
-    :param region: A block to highlight.
+    :param region: A region to highlight (a line or a block).
     :param context: The number of lines to display around the block.
     :param indent: The number of indentation spaces.
     :return: A list of formatted lines.
     """
-    assert region <= source, 'the block must be contained in the source'
+    assert region <= source, 'the region must be contained in the source'
 
     logs: list[str] = []
     writelines = logs.extend

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Unpack
 
-    from sphinx.testing.matcher._util import LinePattern, LinePredicate
+    from sphinx.testing.matcher._util import LinePredicate, PatternLike
 
     FlagOption = Literal['keep_ansi', 'keep_break', 'keep_empty', 'compress', 'unique']
 
@@ -23,8 +23,8 @@ if TYPE_CHECKING:
     """Allowed values for :attr:`Options.strip` and :attr:`Options.stripline`."""
 
     DeleteOption = Literal['delete']
-    DeletePattern = Union[LinePattern, Sequence[LinePattern]]
-    """A prefix or a compiled prefix pattern."""
+    DeletePattern = Union[PatternLike, Sequence[PatternLike]]
+    """One or more patterns to delete."""
 
     IgnoreOption = Literal['ignore']
 
@@ -70,6 +70,12 @@ class Options(TypedDict, total=False):
     * a string (*chars*) -- remove leading and trailing characters in *chars*.
     """
 
+    keep_break: bool
+    """Indicate whether to keep line breaks at the end of each line.
+
+    The default value is ``False`` (to mirror :meth:`str.splitlines`).
+    """
+
     stripline: StripChars
     """Describe the characters to strip from each source's line.
 
@@ -78,12 +84,6 @@ class Options(TypedDict, total=False):
     * ``False`` -- keep leading and trailing whitespaces (the default).
     * ``True`` -- remove leading and trailing whitespaces.
     * a string (*chars*) -- remove leading and trailing characters in *chars*.
-    """
-
-    keep_break: bool
-    """Indicate whether to keep line breaks at the end of each line.
-
-    The default value is ``False`` (to mirror :meth:`str.splitlines`).
     """
 
     keep_empty: bool
@@ -113,23 +113,16 @@ class Options(TypedDict, total=False):
     """
 
     delete: DeletePattern
-    r"""Prefixes or patterns to remove from the output lines.
+    r"""Regular expressions for substrings to delete from the output lines.
 
-    The transformation is described for one or more :class:`str`
-    or :class:`~re.Pattern` objects as follows:
-
-    - Compile :class:`str` pattern into :class:`~re.Pattern` according
-      to the pattern :attr:`flavor` and remove prefixes matching those
-      patterns from the output lines.
-    - Replace substrings in the output lines matching one or more
-      patterns directly given as :class:`~re.Pattern` objects.
-
-    The process is repeated until no output lines starts by any
-    of the given strings or matches any of the given patterns.
+    The output lines are pruned from their matching substrings (checked
+    using :func:`re.match`) until the output lines are stabilized.
 
     This transformation is applied at the end of the transformation
     chain, just before filtering the output lines are filtered with
     the :attr:`ignore` predicate.
+
+    See :func:`sphinx.testing.matcher.cleaner.prune_lines` for an example.
     """
 
     ignore: LinePredicate | None
@@ -149,8 +142,8 @@ class Options(TypedDict, total=False):
     * ``'fnmatch'`` -- match lines using :mod:`fnmatch`-style patterns.
     * ``'re'`` -- match lines using :mod:`re`-style patterns.
 
-    This option only affects non-compiled patterns (i.e., those given
-    as :class:`str` and not :class:`~re.Pattern` objects).
+    This option only affects non-compiled patterns. Unless stated otheriwse,
+    matching is performed on compiled patterns by :func:`~re.Pattern.match`.
     """
 
 

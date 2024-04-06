@@ -5,10 +5,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.testing.matcher._cleaner import filter_lines, prune_lines, strip_chars, strip_lines
+from sphinx.testing.matcher.cleaner import filter_lines, prune_lines, strip_chars, strip_lines
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Sequence
+
+    from sphinx.testing.matcher._util import PatternLike
 
 
 def test_strip_chars():
@@ -36,74 +38,72 @@ def test_filter_lines():
     assert list(filter_lines(src, keep_empty=True, unique=True)) == ['a', '', 'b', 'c']
 
 
-@pytest.fixture()
-def prune_trace_object() -> Callable[[], list[Sequence[tuple[str, Sequence[str]]]]]:
-    """A fixture returning a factory for a typed trace object.
-
-    Without this fixture, trace objects need to be explicitly typed for mypy.
-    """
-    return list
-
-
-def test_prune_prefix(prune_trace_object):
-    trace = prune_trace_object()
-    lines = prune_lines(['1111a1', 'b1'], '1', flavor='none', trace=trace)
-    assert list(lines) == ['a1', 'b1']
-    assert trace == [
-        [
-            ('1111a1', ['111a1']),
-            ('111a1', ['11a1']),
-            ('11a1', ['1a1']),
-            ('1a1', ['a1']),
-            ('a1', ['a1']),
-        ],
-        [('b1', ['b1'])],
-    ]
-
-    trace = prune_trace_object()
-    lines = prune_lines(['1111a1', 'b1'], r'\d+', flavor='re', trace=trace)
-    assert list(lines) == ['a1', 'b1']
-    assert trace == [
-        [('1111a1', ['a1']), ('a1', ['a1'])],
-        [('b1', ['b1'])],
-    ]
-
-    trace = prune_trace_object()
-    lines = prune_lines(['/a/b/c.txt', 'keep.py'], '*.txt', flavor='fnmatch', trace=trace)
-    assert list(lines) == ['', 'keep.py']
-    assert trace == [
-        [('/a/b/c.txt', ['']), ('', [''])],
-        [('keep.py', ['keep.py'])],
-    ]
-
-
-def test_prune_groups(prune_trace_object):
-    lines = prune_lines(['a123b', 'c123d'], re.compile(r'\d+'))
-    assert list(lines) == ['ab', 'cd']
-
-    p1 = re.compile(r'\d\d')
-    p2 = re.compile(r'\n+')
-
-    trace = prune_trace_object()
-    lines = prune_lines(['a 123\n456x7\n8\n b'], [p1, p2], trace=trace)
-    assert list(lines) == ['a x b']
-
-    assert len(trace) == 1
-    assert len(trace[0]) == 3
-    # elimination of double digits and new lines (in that order)
-    assert trace[0][0] == ('a 123\n456x7\n8\n b', ['a 3\n6x7\n8\n b', 'a 36x78 b'])
-    # new digits appeared so we re-eliminated them
-    assert trace[0][1] == ('a 36x78 b', ['a x b', 'a x b'])
-    # identity for both patterns
-    assert trace[0][2] == ('a x b', ['a x b', 'a x b'])
-
-    trace = prune_trace_object()
-    lines = prune_lines(['a 123\n456x7\n8\n b'], [p2, p1], trace=trace)
-    assert list(lines) == ['a x b']
-
-    assert len(trace) == 1
-    assert len(trace[0]) == 2
-    # elimination of new lines and double digits (in that order)
-    assert trace[0][0] == ('a 123\n456x7\n8\n b', ['a 123456x78 b', 'a x b'])
-    # identity for both patterns
-    assert trace[0][1] == ('a x b', ['a x b', 'a x b'])
+@pytest.mark.parametrize(
+    ('lines', 'patterns', 'expect', 'trace'),
+    [
+        (
+            ['88D79F0A2', '###'],
+            r'\d+',
+            ['DFA', '###'],
+            [
+                [('88D79F0A2', ['DFA'])],
+                [('###', ['###'])],
+            ],
+        ),
+        (
+            ['11a1', 'b1'],
+            '^1',
+            ['a1', 'b1'],
+            [
+                [('11a1', ['1a1']), ('1a1', ['a1'])],
+                [('b1', ['b1'])],
+            ],
+        ),
+        (
+            ['ABC#123'],
+            [r'^[A-Z]', r'\d$'],
+            ['#'],
+            [
+                [
+                    ('ABC#123', ['BC#123', 'BC#12']),
+                    ('BC#12', ['C#12', 'C#1']),
+                    ('C#1', ['#1', '#']),
+                ],
+            ],
+        ),
+        (
+            ['a 123\n456x7\n8\n b'],
+            [re.compile(r'\d\d'), re.compile(r'\n+')],
+            ['a x b'],
+            [
+                [
+                    # elimination of double digits and new lines (in that order)
+                    ('a 123\n456x7\n8\n b', ['a 3\n6x7\n8\n b', 'a 36x78 b']),
+                    # new digits appeared so we re-eliminated them
+                    ('a 36x78 b', ['a x b', 'a x b']),
+                ]
+            ],
+        ),
+        (
+            ['a 123\n456x7\n8\n b'],
+            [re.compile(r'\n+'), re.compile(r'\d\d')],
+            ['a x b'],
+            [
+                [
+                    # elimination of new lines and double digits (in that order)
+                    ('a 123\n456x7\n8\n b', ['a 123456x78 b', 'a x b']),
+                ]
+            ],
+        ),
+    ],
+)
+def test_prune_lines(
+    lines: Sequence[str],
+    patterns: PatternLike | Sequence[PatternLike],
+    expect: Sequence[str],
+    trace: list[list[tuple[str, list[str]]]],
+) -> None:
+    actual_trace: list[list[tuple[str, list[str]]]] = []
+    actual = prune_lines(lines, patterns, trace=actual_trace)
+    assert list(actual) == list(expect)
+    assert actual_trace == list(trace)

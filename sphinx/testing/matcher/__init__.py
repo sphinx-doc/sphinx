@@ -9,7 +9,7 @@ import itertools
 import re
 from typing import TYPE_CHECKING, cast, overload
 
-from sphinx.testing.matcher import _cleaner, _engine, _util
+from sphinx.testing.matcher import cleaner, _engine, _util
 from sphinx.testing.matcher.buffer import Block
 from sphinx.testing.matcher.options import Options, OptionsHolder
 
@@ -93,7 +93,7 @@ class LineMatcher(OptionsHolder):
         if cached is None:
             options = self.default_options | cast(Options, self.options)
             # compute for the first time the block's lines
-            lines = tuple(_cleaner.clean_text(self.content, **options))
+            lines = tuple(cleaner.clean(self.content, **options))
             # check if the value is the same as any of a previously cached value
             for addr, value in enumerate(itertools.islice(stack, 0, len(stack) - 1)):
                 if isinstance(value, int):
@@ -336,7 +336,7 @@ class LineMatcher(OptionsHolder):
             return
 
         pat = _util.prettify_patterns(patterns, sort=pattern_type == 'line')
-        ctx = _util.diff(self.lines(), found, context_size)
+        ctx = _util.get_context_lines(self.lines(), found, context_size)
         logs = [f'{pattern_type} pattern', pat, 'found in', '\n'.join(ctx)]
         raise AssertionError('\n\n'.join(logs))
 

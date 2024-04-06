@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import fnmatch
 import random
 import re
+
+import pytest
 
 from sphinx.testing.matcher import _engine as engine
 
@@ -48,35 +49,39 @@ def test_format_expression():
     assert engine.format_expression(str.upper, p) is p
 
 
+@pytest.mark.parametrize(('string', 'expect'), [('foo.bar', r'\Afoo\.bar\Z')])
+def test_string_expression(string, expect):
+    assert engine.string_expression(string) == expect
+    pattern = re.compile(engine.string_expression(string))
+    for func in (pattern.match, pattern.search, pattern.fullmatch):
+        assert func(string) is not None
+        assert func(string + '.') is None
+        assert func('.' + string) is None
+
+
 def test_translate_expressions():
-    string, pattern = 'a*', re.compile('.*')
-    inputs = (string, pattern)
+    string, compiled = 'a*', re.compile('.*')
+    patterns = (string, compiled)
 
-    expect = [engine.string_expression(string), pattern]
-    assert [*engine.translate(inputs, flavor='none')] == expect
-    expect = [string.upper(), pattern]
-    assert [*engine.translate(inputs, flavor='none', escape=str.upper)] == expect
+    assert [*engine.translate(patterns, flavor='none')] == [r'\Aa\*\Z', compiled]
+    assert [*engine.translate(patterns, flavor='re')] == [string, compiled]
+    assert [*engine.translate(patterns, flavor='fnmatch')] == [r'(?s:a.*)\Z', compiled]
 
-    expect = [string, pattern]
-    assert [*engine.translate(inputs, flavor='re')] == expect
-    expect = [string.upper(), pattern]
-    assert [*engine.translate(inputs, flavor='re', str2regexpr=str.upper)] == expect
-
-    expect = [fnmatch.translate(string), pattern]
-    assert [*engine.translate(inputs, flavor='fnmatch')] == expect
-    expect = [string.upper(), pattern]
-    assert [*engine.translate(inputs, flavor='fnmatch', str2fnmatch=str.upper)] == expect
+    expect, func = [string.upper(), compiled], str.upper
+    assert [*engine.translate(patterns, flavor='none', escape=func)] == expect
+    assert [*engine.translate(patterns, flavor='re', regular_translate=func)] == expect
+    assert [*engine.translate(patterns, flavor='fnmatch', fnmatch_translate=func)] == expect
 
 
 def test_compile_patterns():
-    string = 'a*'
-    compiled = re.compile('.*')
+    string, compiled = 'a*', re.compile('.*')
+    patterns = (string, compiled)
 
-    expect = (re.compile(engine.string_expression(string)), compiled)
-    assert engine.compile([string, compiled], flavor='none') == expect
+    assert engine.compile(patterns, flavor='none') == (re.compile(r'\Aa\*\Z'), compiled)
+    assert engine.compile(patterns, flavor='re') == (re.compile(string), compiled)
+    assert engine.compile(patterns, flavor='fnmatch') == (re.compile(r'(?s:a.*)\Z'), compiled)
 
-    expect = (re.compile(fnmatch.translate(string)), compiled)
-    assert engine.compile([string, compiled], flavor='fnmatch') == expect
-
-    expect = (re.compile(string), compiled)
-    assert engine.compile([string, compiled], flavor='re') == expect
+    expect = (re.compile('A*'), compiled)
+    assert engine.compile(patterns, flavor='none', escape=str.upper) == expect
+    assert engine.compile(patterns, flavor='re', regular_translate=str.upper) == expect
+    assert engine.compile(patterns, flavor='fnmatch', fnmatch_translate=str.upper) == expect
