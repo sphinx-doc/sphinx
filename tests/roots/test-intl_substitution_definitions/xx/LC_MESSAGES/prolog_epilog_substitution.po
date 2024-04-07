@@ -28,11 +28,11 @@ msgstr "SUBSTITUTED IMAGE |subst_epilog_2| HERE."
 msgid "subst_prolog_2"
 msgstr "SUBST_PROLOG_2 TRANSLATED"
 
-msgid ".. image:: /img.png"
-msgstr ".. image:: /i18n.png"
+msgid "/img.png"
+msgstr "/i18n.png"
 
 msgid "subst_epilog_2"
 msgstr "SUBST_EPILOG_2 TRANSLATED"
 
-msgid ".. image:: /i18n.png"
-msgstr ".. image:: /img.png"
+msgid "/i18n.png"
+msgstr "/img.png"

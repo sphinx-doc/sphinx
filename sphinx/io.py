@@ -143,6 +143,12 @@ class SphinxI18nReader(SphinxBaseReader):
             if transform in self.transforms:
                 self.transforms.remove(transform)
 
+    def parse(self):
+        """Parse `self.input` into a document tree."""
+        self.document = document = self.new_document()
+        self.parser.parse_inline(self.input, document)
+        document.current_source = document.current_line = None
+
 
 class SphinxDummyWriter(UnfilteredWriter):
     """Dummy writer module used for generating doctree."""
