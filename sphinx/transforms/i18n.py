@@ -5,7 +5,6 @@ from __future__ import annotations
 import contextlib
 from os import path
 from re import DOTALL, match
-from textwrap import indent
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from docutils import nodes
