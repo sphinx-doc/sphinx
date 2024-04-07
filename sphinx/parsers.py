@@ -46,7 +46,7 @@ class Parser(docutils.parsers.Parser):
         self.config = app.config
         self.env = app.env
 
-    def parse_inline(self, inputstring: str, lineno: int) -> nodes.Node:
+    def parse_inline(self, inputstring: str, document: nodes.document) -> None:
         """Parse the inline elements of a text block and generate a document tree."""
         raise NotImplementedError('Parser subclasses must implement parse_inline')
 
@@ -64,7 +64,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         transforms.remove(SmartQuotes)
         return transforms
 
-    def parse_inline(self, inputstring: str | StringList, document: nodes.document) -> None:
+    def parse_inline(self, inputstring: str, document: nodes.document) -> None:
         """Parse inline syntax from text and generate a document tree."""
 
         # Avoid "Literal block expected; none found." warnings.
@@ -79,15 +79,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
             debug=document.reporter.debug_flag,
         )
 
-        # preprocess inputstring
-        if isinstance(inputstring, str):
-            lines = docutils.statemachine.string2lines(
-                inputstring, tab_width=document.settings.tab_width, convert_whitespace=True
-            )
-
-            inputlines = StringList(lines, document.current_source)
-        else:
-            inputlines = inputstring
+        inputlines = StringList([inputstring], document.current_source)
 
         self.decorate(inputlines)
         self.statemachine.run(inputlines, document, inliner=self.inliner)
