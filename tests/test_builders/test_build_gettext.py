@@ -207,11 +207,11 @@ def test_gettext_prolog_epilog_substitution(app):
         "This is content that contains |subst_prolog_1|.",
         "Substituted image |subst_prolog_2| here.",
         "subst_prolog_2",
-        ".. image:: /img.png",
+        "/img.png",
         "This is content that contains |subst_epilog_1|.",
         "Substituted image |subst_epilog_2| here.",
         "subst_epilog_2",
-        ".. image:: /i18n.png",
+        "/i18n.png",
     ]
 
 
