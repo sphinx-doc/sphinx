@@ -147,6 +147,8 @@ Bugs fixed
 * #12040: HTML Search: Ensure that document titles that are partially-matched by
   the user search query are included in search results.
   Patch by James Addison.
+* #11410: Fix autodoc can't detect overloads for functions defined in other file.
+  Patch by Amy Pircher.
 
 Testing
 -------

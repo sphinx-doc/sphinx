@@ -929,6 +929,13 @@ class Documenter:
             try:
                 analyzer = ModuleAnalyzer.for_module(guess_modname)
                 self.directive.record_dependencies.add(analyzer.srcname)
+                if self.analyzer:
+                    # Add overloads defined in other module to this module so they are
+                    # properly documented
+                    analyzer.find_attr_docs()
+                    for name, signatures in analyzer.overloads.items():
+                        if name not in self.analyzer.overloads:
+                            self.analyzer.overloads[name] = signatures
             except PycodeError:
                 pass
 
