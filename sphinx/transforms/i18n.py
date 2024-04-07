@@ -21,7 +21,6 @@ from sphinx.util import get_filetype, logging
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import (
-    IMAGE_TYPE_NODES,
     LITERAL_TYPE_NODES,
     NodeMatcher,
     extract_messages,
@@ -444,14 +443,17 @@ class Locale(SphinxTransform):
                 node['uri'] = msgstr
                 continue
 
-            # literalblock and images do not need to be parsed as they do not contain inline syntax
-            if isinstance(node, LITERAL_TYPE_NODES + IMAGE_TYPE_NODES):
-                patch = nodes.paragraph(text=msgstr)
-            else:
-                patch = publish_msgstr(self.app, msgstr, source,
-                                       node.line, self.config, settings)  # type: ignore[arg-type]
+            # literalblock do not need to be parsed as they do not contain inline syntax
+            if isinstance(node, LITERAL_TYPE_NODES):
+                node.children = [nodes.Text(msgstr)]
+                # for highlighting that expects .rawsource and .astext() are same.
+                node.rawsource = node.astext()
+                node['translated'] = True
+                continue
 
-            # Structural Subelements phase2
+            patch = publish_msgstr(self.app, msgstr, source,
+                                   node.line, self.config, settings)  # type: ignore[arg-type]
+
             # ignore unexpected markups in translation message
             if not isinstance(patch, nodes.paragraph):
                 continue  # skip
@@ -463,10 +465,6 @@ class Locale(SphinxTransform):
             updater.update_citation_references()
             updater.update_pending_xrefs()
             updater.update_leaves()
-
-            # for highlighting that expects .rawsource and .astext() are same.
-            if isinstance(node, LITERAL_TYPE_NODES):
-                node.rawsource = node.astext()
 
             node['translated'] = True  # to avoid double translation
 
