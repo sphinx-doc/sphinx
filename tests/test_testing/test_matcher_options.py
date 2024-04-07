@@ -23,13 +23,6 @@ def test_options_class():
     foreign_keys = CompleteOptions.__annotations__.keys() - Options.__annotations__
     assert not foreign_keys, f'unknown option(s): {", ".join(foreign_keys)}'
 
-    for name in Options.__annotations__:
-        func = OptionsHolder.__dict__.get(name)
-        assert isinstance(func, property), f'missing property for option {name!r}'
-        assert func.fget is not None, f'missing getter for option {name!r}'
-        assert func.fset is not None, f'missing setter for option {name!r}'
-        assert func.fdel is None, f'extra deleter for option {name!r}'
-
 
 def test_default_options():
     """Check the synchronization of default options and classes in Sphinx."""
@@ -62,15 +55,22 @@ def test_default_options():
     assert sorted(processed) == sorted(Options.__annotations__)
 
 
-def test_get_option():
+def test_options_holder():
+    obj = OptionsHolder()
+    assert isinstance(obj.options, MappingProxyType)
+    assert isinstance(obj.complete_options, MappingProxyType)
+
+    obj = OptionsHolder()
+    assert 'keep_break' not in obj.options
+    assert 'keep_break' in obj.complete_options
+
+
+def test_get_options():
     class Config(OptionsHolder):
         default_options: ClassVar[CompleteOptions] = OptionsHolder.default_options.copy()
         default_options['keep_break'] = True
 
     obj = Config()
-    assert isinstance(obj.options, MappingProxyType)
-
-    assert 'keep_break' not in obj.options
     assert obj.keep_break is True
     assert obj.get_option('keep_break') is True
     assert obj.get_option('keep_break', False) is False
@@ -93,12 +93,33 @@ def test_set_option():
     assert obj.get_option('delete', 'unused') == 'abc'
 
 
-@pytest.mark.parametrize('option', list(Options.__annotations__))
-def test_set_option_property_implementation(option: OptionName) -> None:
+@pytest.mark.parametrize('option_name', list(Options.__annotations__))
+def test_property_implementation(option_name: OptionName) -> None:
     """Test that the implementation is correct and do not have typos."""
-    obj, val = OptionsHolder(), object()  # fresh sentinel for every option
+    obj = OptionsHolder()
+
+    descriptor = obj.__class__.__dict__.get(option_name)
+    assert isinstance(descriptor, property)
+
+    # make sure that the docstring is correct
+    assert descriptor.__doc__ == f'See :attr:`Options.{option_name}`.'
+
+    assert descriptor.fget is not None
+    assert descriptor.fget.__doc__ == descriptor.__doc__
+    assert descriptor.fget.__name__ == option_name
+
+    assert descriptor.fset is not None
+    assert descriptor.fset.__doc__ in (None, '')
+    assert descriptor.fset.__name__ == option_name
+
+    assert descriptor.fdel is None  # no deleter
+
     # assert that the default value being returned is the correct one
-    assert obj.__class__.__dict__[option].fget(obj) is OptionsHolder.default_options[option]
-    obj.__class__.__dict__[option].fset(obj, val)
-    assert obj.get_option(option) is val
-    assert obj.__class__.__dict__[option].fget(obj) is val
+    default_value = obj.__class__.default_options[option_name]
+    assert descriptor.fget(obj) is default_value
+    assert obj.get_option(option_name) is default_value
+
+    # assert that the setter is correctly implemented
+    descriptor.fset(obj, val := object())
+    assert descriptor.fget(obj) is val
+    assert obj.get_option(option_name) is val

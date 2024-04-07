@@ -5,37 +5,43 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sphinx.testing.matcher.cleaner import filter_lines, prune_lines, strip_chars, strip_lines
+from sphinx.testing.matcher import cleaner
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from sphinx.testing.matcher._util import PatternLike
+    from sphinx.testing.matcher.cleaner import Trace
 
 
 def test_strip_chars():
-    assert strip_chars('abaaa\n') == 'abaaa'
-    assert strip_chars('abaaa\n', False) == 'abaaa\n'
-    assert strip_chars('abaaa', 'a') == 'b'
-    assert strip_chars('abaaa', 'ab') == ''
+    assert cleaner.strip_chars('abaaa\n') == 'abaaa'
+    assert cleaner.strip_chars('abaaa\n', False) == 'abaaa\n'
+    assert cleaner.strip_chars('abaaa', 'a') == 'b'
+    assert cleaner.strip_chars('abaaa', 'ab') == ''
 
 
 def test_strip_lines():
-    assert list(strip_lines(['aba\n', 'aba\n'])) == ['aba', 'aba']
-    assert list(strip_lines(['aba\n', 'aba\n'], False)) == ['aba\n', 'aba\n']
-    assert list(strip_lines(['aba', 'aba'], 'a')) == ['b', 'b']
-    assert list(strip_lines(['aba', 'aba'], 'ab')) == ['', '']
+    assert list(cleaner.strip_lines(['aba\n', 'aba\n'])) == ['aba', 'aba']
+    assert list(cleaner.strip_lines(['aba\n', 'aba\n'], False)) == ['aba\n', 'aba\n']
+    assert list(cleaner.strip_lines(['aba', 'aba'], 'a')) == ['b', 'b']
+    assert list(cleaner.strip_lines(['aba', 'aba'], 'ab')) == ['', '']
 
 
 def test_filter_lines():
     src = ['a', 'a', '', 'a', 'b', 'c', 'a']
-    assert list(filter_lines(src, keep_empty=False, compress=True)) == ['a', 'b', 'c', 'a']
-    assert list(filter_lines(src, keep_empty=False, unique=True)) == ['a', 'b', 'c']
+
+    expect = ['a', 'b', 'c', 'a']
+    assert list(cleaner.filter_lines(src, keep_empty=False, compress=True)) == expect
+
+    expect = ['a', 'b', 'c']
+    assert list(cleaner.filter_lines(src, keep_empty=False, unique=True)) == expect
 
     expect = ['a', '', 'a', 'b', 'c', 'a']
-    assert list(filter_lines(src, keep_empty=True, compress=True)) == expect
+    assert list(cleaner.filter_lines(src, keep_empty=True, compress=True)) == expect
 
-    assert list(filter_lines(src, keep_empty=True, unique=True)) == ['a', '', 'b', 'c']
+    expect = ['a', '', 'b', 'c']
+    assert list(cleaner.filter_lines(src, keep_empty=True, unique=True)) == expect
 
 
 @pytest.mark.parametrize(
@@ -101,9 +107,9 @@ def test_prune_lines(
     lines: Sequence[str],
     patterns: PatternLike | Sequence[PatternLike],
     expect: Sequence[str],
-    trace: list[list[tuple[str, list[str]]]],
+    trace: Trace,
 ) -> None:
-    actual_trace: list[list[tuple[str, list[str]]]] = []
-    actual = prune_lines(lines, patterns, trace=actual_trace)
+    actual_trace: Trace = []
+    actual = cleaner.prune_lines(lines, patterns, trace=actual_trace)
     assert list(actual) == list(expect)
     assert actual_trace == list(trace)

@@ -10,7 +10,7 @@ import itertools
 import re
 import sys
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Generic, TypeVar, final, overload
+from typing import TYPE_CHECKING, Generic, TypeVar, overload
 
 from sphinx.testing.matcher._util import consume as _consume
 
@@ -164,7 +164,6 @@ class Region(Generic[_T], Sequence[str], abc.ABC):
         """Indicate whether this region is empty or not."""
         return bool(self.buffer)
 
-    @final
     def __iter__(self) -> Iterator[str]:
         """An iterator over the string items."""
         return iter(self.buffer)
@@ -234,14 +233,15 @@ class Line(Region[str]):
         :raise TypeError: *sub* is not a string or a compiled pattern.
         """
         if isinstance(sub, re.Pattern):
-            # avoid using value.findall() since we only want the length
-            # of the corresponding iterator (the following lines are more
-            # efficient from a memory perspective)
+            # avoid using sub.findall() since we only want the length
+            # of the corresponding iterator (the following lines are
+            # more efficient from a memory perspective)
             counter = itertools.count()
             _consume(zip(sub.finditer(self.buffer), counter))
             return next(counter)
 
-        return self.buffer.count(sub)  # raise a TypeError if *sub* is not a string
+        # buffer.count() raises a TypeError if *sub* is not a string
+        return self.buffer.count(sub)
 
     # explicitly add the method since its signature differs from :meth:`Region.index`
     def index(self, sub: SubStringLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
@@ -268,7 +268,8 @@ class Line(Region[str]):
                 return match.start() + start_index
             return -1
 
-        return self.buffer.find(sub, start, stop)  # raise a TypeError if *sub* is not a string
+        # buffer.find() raises a TypeError if *sub* is not a string
+        return self.buffer.find(sub, start, stop)
 
     def startswith(self, prefix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
         """Test whether the line starts with the given *prefix*.
@@ -340,8 +341,8 @@ class Block(Region[tuple[str, ...]]):
     - *block_lines* is a sequence of line-like objects, and
     - *block_offset* is an integer (matched against :attr:`offset`).
 
-    Pairs ``(line, line_offset)`` or ``(block_lines, block_offset)`` can be
-    any non-string two-elements sequence (e.g., a tuple or a list), e.g::
+    Pairs ``(line, line_offset)`` or ``(block_lines, block_offset)`` are
+    to be given as any two-elements sequences (tuple, list, deque, ...)::
 
         assert Block(['a', 'b', 'c', 'd'], 2) == [
             'a',
@@ -350,14 +351,12 @@ class Block(Region[tuple[str, ...]]):
             Line('d', 5),
         ]
 
-    .. note::
+    By convention, ``block[i]`` and ``block[i:j]`` return :class:`str`
+    and tuples of :class:`str` respectively. Consider using :meth:`at`
+    to convert the output to :class:`Line` or :class:`Block` objects.
 
-       By convention, ``block[i]`` and ``block[i:j]`` return :class:`str`
-       and tuples of :class:`str` respectively. Consider using :meth:`at`
-       to convert the output to :class:`Line` or :class:`Block` objects.
-
-       Similarly, ``iter(block)`` returns an iterator on strings. Consider
-       using :meth:`lines_iterator` to iterate over :class:`Line` objects.
+    Similarly, ``iter(block)`` returns an iterator on strings. Consider
+    using :meth:`lines_iterator` to iterate over :class:`Line` objects.
     """
 
     __slots__ = ('__cached_lines',)
@@ -380,7 +379,7 @@ class Block(Region[tuple[str, ...]]):
         """This block as a tuple of :class:`Line` objects.
 
         The rationale behind duplicating the buffer's data is to ease
-        comparison by relying on the C API for comparing lists which
+        comparison by relying on the C API for comparing tuples which
         dispatches to the :class:`Line` comparison operators.
         """
 
@@ -469,8 +468,8 @@ class Block(Region[tuple[str, ...]]):
     @overload
     def __getitem__(self, index: int, /) -> str: ...  # NoQA: E704
     @overload
-    def __getitem__(self, index: slice, /) -> Sequence[str]: ...  # NoQA: E704
-    def __getitem__(self, index: int | slice, /) -> str | Sequence[str]:  # NoQA: E301
+    def __getitem__(self, index: slice, /) -> tuple[str, ...]: ...  # NoQA: E704
+    def __getitem__(self, index: int | slice, /) -> str | tuple[str, ...]:  # NoQA: E301
         """Get a line or a contiguous sub-block."""
         if isinstance(index, slice):
             # normalize negative and None slice fields
@@ -536,11 +535,12 @@ class Block(Region[tuple[str, ...]]):
 
 
 def _parse_non_string(other: object, /) -> tuple[str, int] | None:
-    """Try to parse *other* as a ``line`` or a ``(line, offset)`` pair.
+    """Try to parse *other* as a ``(line_content, line_offset)`` pair.
 
-    For efficiency, do *not* call this method on :class:`str` instances
-    since they will be handled separately more efficiently.
+    Do **NOT** call this method on :class:`str` instances since they are
+    handled separately and more efficiently by :class:`Line`'s operators.
     """
+    assert not isinstance(other, str)
     if isinstance(other, Line):
         return other.buffer, other.offset
     if isinstance(other, Sequence) and len(other) == 2:
@@ -550,7 +550,7 @@ def _parse_non_string(other: object, /) -> tuple[str, int] | None:
     return None
 
 
-def _is_block_line_compatible(other: object, /) -> bool:
+def _is_block_line_like(other: object, /) -> bool:
     if isinstance(other, (str, Line)):
         return True
 
@@ -565,13 +565,14 @@ def _is_block_line_compatible(other: object, /) -> bool:
 def _parse_non_block(other: object, /) -> tuple[tuple[object, ...], int] | None:
     """Try to parse *other* as a pair ``(block lines, block offset)``.
 
-    For efficiency, do *not* call this method on :class:`Block` instances
-    since they will be handled separately more efficiently.
+    Do **NOT** call this method on :class:`Block` instances since they are
+    handled separately and more efficiently by :class:`Block`'s operators.
     """
+    assert not isinstance(other, Block)
     if not isinstance(other, Sequence):
         return None
 
-    if all(map(_is_block_line_compatible, other)):
+    if all(map(_is_block_line_like, other)):
         # offset will never be given in this scenario
         return tuple(other), -1
 
@@ -584,7 +585,7 @@ def _parse_non_block(other: object, /) -> tuple[tuple[object, ...], int] | None:
             # do not allow [line, offset] with single string 'line'
             return None
 
-        if not all(map(_is_block_line_compatible, lines)):
+        if not all(map(_is_block_line_like, lines)):
             return None
 
         return tuple(lines), offset

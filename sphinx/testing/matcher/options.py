@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, TypedDict, final, overload
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Mapping, Sequence
-    from typing import ClassVar, Literal, TypeVar, Union
+    from typing import Any, ClassVar, Literal, TypeVar, Union
 
     from typing_extensions import Unpack
 
@@ -22,9 +22,9 @@ if TYPE_CHECKING:
     StripChars = Union[bool, str, None]
     """Allowed values for :attr:`Options.strip` and :attr:`Options.stripline`."""
 
-    DeleteOption = Literal['delete']
-    DeletePattern = Union[PatternLike, Sequence[PatternLike]]
-    """One or more patterns to delete."""
+    PruneOption = Literal['delete']
+    PrunePattern = Union[PatternLike, Sequence[PatternLike]]
+    """One or more patterns to prune."""
 
     IgnoreOption = Literal['ignore']
 
@@ -34,8 +34,8 @@ if TYPE_CHECKING:
 
     # For some reason, mypy does not like Union of Literal,
     # so we wrap the Literal types inside a bigger Literal.
-    OptionValue = Union[bool, StripChars, DeletePattern, Union[LinePredicate, None], Flavor]
-    OptionName = Literal[FlagOption, StripOption, DeleteOption, IgnoreOption, FlavorOption]
+    OptionValue = Union[bool, StripChars, PrunePattern, Union[LinePredicate, None], Flavor]
+    OptionName = Literal[FlagOption, StripOption, PruneOption, IgnoreOption, FlavorOption]
 
     DT = TypeVar('DT')
 
@@ -112,8 +112,8 @@ class Options(TypedDict, total=False):
     after empty and duplicated consecutive lines might have been eliminated.
     """
 
-    delete: DeletePattern
-    r"""Regular expressions for substrings to delete from the output lines.
+    delete: PrunePattern
+    r"""Regular expressions for substrings to prune from the output lines.
 
     The output lines are pruned from their matching substrings (checked
     using :func:`re.match`) until the output lines are stabilized.
@@ -160,14 +160,29 @@ class CompleteOptions(TypedDict):
     compress: bool
     unique: bool
 
-    delete: DeletePattern
+    delete: PrunePattern
     ignore: LinePredicate | None
 
     flavor: Flavor
 
 
 class OptionsHolder:
-    """Mixin supporting a known set of options."""
+    """Mixin supporting a known set of options.
+
+    An :class:`OptionsHolder` object stores a set of partial options,
+    overriding the default values specified by :attr:`default_options`.
+
+    At runtime, only the options given at construction time, explicitly
+    set via :meth:`set_option` or the corresponding property are stored
+    by this object.
+
+    As such, :attr:`options` and :attr:`complete_options` return a proxy
+    on :class:`Options` and :class:`CompleteOptions` respectively, e.g.::
+
+        obj = OptionsHolder(strip=True)
+        assert obj.options == {'strip': True}
+        assert obj.complete_options == dict(obj.default_options, strip=True)
+    """
 
     __slots__ = ('__options',)
 
@@ -183,31 +198,44 @@ class OptionsHolder:
         ignore=None,
         flavor='none',
     )
-    """The default options to use when an option is not specified.
+    """The supported options specifications and their default values.
 
     Subclasses should override this field for different default options.
     """
 
     def __init__(self, /, **options: Unpack[Options]) -> None:
+        """Construct an :class:`OptionsHolder` object."""
         self.__options = options
 
     @property
-    def options(self) -> Mapping[str, object]:  # cannot use CompleteOptions :(
-        """A read-only view on the current mapping of options."""
+    def options(self) -> Mapping[str, object]:
+        """A read-only view of the *current* mapping of options.
+
+        It can be regarded as a proxy on a :class:`Options` dictionary.
+        """
         return MappingProxyType(self.__options)
 
+    @property
+    def complete_options(self) -> Mapping[str, object]:
+        """A read-only view of the *complete* mapping of options.
+
+        It can be regarded as a proxy on a :class:`CompleteOptions` dictionary.
+        """
+        return MappingProxyType(self.default_options | self.__options)
+
     @contextlib.contextmanager
-    def use(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
+    def set_options(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
         """Temporarily replace the set of options with *options*."""
-        local_options = self.default_options | options
-        with self.override(**local_options):
-            yield
+        return self.__set_options(options)
 
     @contextlib.contextmanager
     def override(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
         """Temporarily extend the set of options with *options*."""
+        return self.__set_options(self.__options | options)
+
+    def __set_options(self, options: Options) -> Generator[None, None, None]:
         saved_options = self.__options.copy()
-        self.__options |= options
+        self.__options = options
         try:
             yield
         finally:
@@ -230,13 +258,13 @@ class OptionsHolder:
     def get_option(self, name: StripOption, default: StripChars, /) -> StripChars: ...  # NoQA: E704
     @overload
     def get_option(self, name: StripOption, default: DT, /) -> StripChars | DT: ...  # NoQA: E704
-    # delete prefix/suffix option
+    # pruning option
     @overload
-    def get_option(self, name: DeleteOption, /) -> DeletePattern: ...  # NoQA: E704
+    def get_option(self, name: PruneOption, /) -> PrunePattern: ...  # NoQA: E704
     @overload
-    def get_option(self, name: DeleteOption, default: DeletePattern, /) -> DeletePattern: ...  # NoQA: E704
+    def get_option(self, name: PruneOption, default: PrunePattern, /) -> PrunePattern: ...  # NoQA: E704
     @overload
-    def get_option(self, name: DeleteOption, default: DT, /) -> DeletePattern | DT: ...  # NoQA: E704
+    def get_option(self, name: PruneOption, default: DT, /) -> PrunePattern | DT: ...  # NoQA: E704
     # filtering options
     @overload
     def get_option(self, name: IgnoreOption, /) -> LinePredicate | None: ...  # NoQA:  E704
@@ -256,7 +284,14 @@ class OptionsHolder:
     @overload
     def get_option(self, name: FlavorOption, default: DT, /) -> Flavor | DT: ...  # NoQA: E704
     def get_option(self, name: OptionName, /, *default: object) -> object:  # NoQA: E301
-        """Get a known option value, or a default value."""
+        """Get an option value, or a default value.
+
+        :param name: An option name specified in :attr:`default_options`.
+        :return: An option value.
+
+        When *default* is specified and *name* is not explicitly set, it is
+        returned instead of the default specified in :attr:`default_options`.
+        """
         if name in self.__options:
             return self.__options[name]
         return default[0] if default else self.default_options[name]
@@ -266,13 +301,18 @@ class OptionsHolder:
     @overload
     def set_option(self, name: StripOption, value: StripChars, /) -> None: ...  # NoQA: E704
     @overload
-    def set_option(self, name: DeleteOption, value: DeletePattern, /) -> None: ...  # NoQA: E704
+    def set_option(self, name: PruneOption, value: PrunePattern, /) -> None: ...  # NoQA: E704
     @overload
     def set_option(self, name: IgnoreOption, value: LinePredicate | None, /) -> None: ...  # NoQA: E704
     @overload
     def set_option(self, name: FlavorOption, value: Flavor, /) -> None: ...  # NoQA: E704
-    def set_option(self, name: OptionName, value: OptionValue, /) -> None:  # NoQA: E301
-        """Set a persistent option value."""
+    def set_option(self, name: OptionName, value: Any, /) -> None:  # NoQA: E301
+        """Set a persistent option value.
+
+        The *name* should be an option for which a default value is specified
+        in :attr:`default_options`, but this is not enforced at runtime; thus,
+        the consistency of this object's state is left to the user.
+        """
         self.__options[name] = value
 
     @property
@@ -339,12 +379,12 @@ class OptionsHolder:
         self.set_option('unique', value)
 
     @property
-    def delete(self) -> DeletePattern:
+    def delete(self) -> PrunePattern:
         """See :attr:`Options.delete`."""
         return self.get_option('delete')
 
     @delete.setter
-    def delete(self, value: DeletePattern) -> None:
+    def delete(self, value: PrunePattern) -> None:
         self.set_option('delete', value)
 
     @property

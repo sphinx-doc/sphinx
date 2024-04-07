@@ -36,7 +36,7 @@ class LineMatcher(OptionsHolder):
     def __init__(self, content: str | StringIO, /, **options: Unpack[Options]) -> None:
         """Construct a :class:`LineMatcher` for the given string content.
 
-        :param content: The source string.
+        :param content: The source string or stream.
         :param options: The matcher options.
         """
         super().__init__(**options)
@@ -46,16 +46,21 @@ class LineMatcher(OptionsHolder):
 
     @classmethod
     def from_lines(cls, lines: Iterable[str] = (), /, **options: Unpack[Options]) -> Self:
-        """Construct a :class:`LineMatcher` object from a list of lines.
+        r"""Construct a :class:`LineMatcher` object from a list of lines.
 
         This is typically useful when writing tests for :class:`LineMatcher`
         since writing the lines instead of a long string is usually cleaner.
 
-        The lines are glued together according to whether line breaks,
-        which can be specified by the keyword argument *keepends*.
+        The lines are glued together according to *keep_break* (the default
+        value is specified by :attr:`default_options`), e.g.,::
 
-        By default, the lines are assumed *not* to have line breaks (since
-        this is usually what is the most common).
+            text = 'foo\nbar'
+
+            lines = text.splitlines()
+            LineMatcher.from_lines(lines) == LineMatcher(text)
+
+            lines = text.splitlines(True)
+            LineMatcher.from_lines(lines, keep_break=True) == LineMatcher(text)
         """
         keep_break = options.get('keep_break', cls.default_options['keep_break'])
         glue = '' if keep_break else '\n'
@@ -93,9 +98,7 @@ class LineMatcher(OptionsHolder):
                 return cast(Block, self.__stack[cached])
             return cached
 
-        options = self.default_options | cast(Options, self.options)
-        # compute for the first time the block's lines
-        lines = tuple(cleaner.clean(self.content, **options))
+        lines = self.__get_clean_lines()
         # check if the value is the same as any of a previously cached value
         # but do not use slices to avoid a copy of the stack
         for addr, value in zip(range(len(stack) - 1), stack):
@@ -121,7 +124,7 @@ class LineMatcher(OptionsHolder):
         /,
         *,
         flavor: Flavor | None = None,
-    ) -> Sequence[Line]:
+    ) -> tuple[Line, ...]:
         """Same as :meth:`iterfind` but returns a sequence of lines."""
         # use tuple to preserve immutability
         return tuple(self.iterfind(patterns, flavor=flavor))
@@ -159,7 +162,7 @@ class LineMatcher(OptionsHolder):
 
     def find_blocks(
         self, pattern: str | BlockPattern, /, *, flavor: Flavor | None = None
-    ) -> Sequence[Block]:
+    ) -> tuple[Block, ...]:
         """Same as :meth:`iterfind_blocks` but returns a sequence of blocks."""
         return tuple(self.iterfind_blocks(pattern, flavor=flavor))
 
@@ -352,3 +355,9 @@ class LineMatcher(OptionsHolder):
     def __compile(self, patterns: Iterable[PatternLike], flavor: Flavor | None) -> Patterns:
         flavor = self.flavor if flavor is None else flavor
         return _engine.compile(patterns, flavor=flavor)
+
+    def __get_clean_lines(self) -> tuple[str, ...]:
+        # use a complete set of options so that the default
+        # that were chosen by cleaner.clean() are ignored
+        options = cast(Options, self.complete_options)
+        return tuple(cleaner.clean(self.content, **options))
