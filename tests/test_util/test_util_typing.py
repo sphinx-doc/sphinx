@@ -327,10 +327,16 @@ def test_restify_pep_585():
 
 def test_restify_Unpack():
     import typing
+
     from typing_extensions import Unpack as UnpackCompat
 
+    class X(typing.TypedDict):
+        x: int
+        y: int
+        label: str
+
     # Unpack is considered as typing special form so we always have '~'
-    expect = r':py:obj:`~typing_extensions.Unpack`\ [:py:class:`X`]'
+    expect = rf':py:obj:`~{UnpackCompat.__module__}.Unpack`\ [:py:class:`X`]'
     assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
     assert restify(UnpackCompat['X'], 'smart') == expect
 
@@ -491,10 +497,23 @@ def test_stringify_Annotated():
 
 def test_stringify_Unpack():
     import typing
+
     from typing_extensions import Unpack as UnpackCompat
 
-    assert stringify_annotation(UnpackCompat['X']) == 'typing_extensions.Unpack[X]'
-    assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing_extensions.Unpack[X]'
+    class X(typing.TypedDict):
+        x: int
+        y: int
+        label: str
+
+    # typing.Unpack is introduced in 3.11 but typing_extensions.Unpack
+    # is only using typing.Unpack since 3.12, so those objects are not
+    # synchronized with each other.
+    if hasattr(typing, 'Unpack') and typing.Unpack is UnpackCompat:
+        assert stringify_annotation(UnpackCompat['X']) == 'Unpack[X]'
+        assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing.Unpack[X]'
+    else:
+        assert stringify_annotation(UnpackCompat['X']) == 'typing_extensions.Unpack[X]'
+        assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing_extensions.Unpack[X]'
 
     if NativeUnpack := getattr(typing, 'Unpack', None):
         assert stringify_annotation(NativeUnpack['X']) == 'Unpack[X]'
