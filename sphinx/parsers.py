@@ -72,7 +72,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         if has_literal:
             inputstring = inputstring[:-2]
 
-        self.setup_parse(inputstring, document)  # type: ignore[arg-type]
+        self.setup_parse(inputstring, document)
         self.statemachine = states.RSTStateMachine(
             state_classes=self.state_classes,
             initial_state='Text',
