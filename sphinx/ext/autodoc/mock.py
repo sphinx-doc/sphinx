@@ -8,13 +8,16 @@ import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.util import logging
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator, Sequence
+    from typing import Any
+
+    from typing_extensions import TypeGuard
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +156,7 @@ def mock(modnames: list[str]) -> Generator[None, None, None]:
         finder.invalidate_caches()
 
 
-def ismockmodule(subject: Any) -> bool:
+def ismockmodule(subject: Any) -> TypeGuard[_MockModule]:
     """Check if the object is a mocked module."""
     return isinstance(subject, _MockModule)
 
