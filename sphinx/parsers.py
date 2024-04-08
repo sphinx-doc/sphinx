@@ -48,7 +48,8 @@ class Parser(docutils.parsers.Parser):
 
     def parse_inline(self, inputstring: str, document: nodes.document) -> None:
         """Parse the inline elements of a text block and generate a document tree."""
-        raise NotImplementedError('Parser subclasses must implement parse_inline')
+        msg = 'Parser subclasses must implement parse_inline'
+        raise NotImplementedError(msg)
 
 
 class RSTParser(docutils.parsers.rst.Parser, Parser):
