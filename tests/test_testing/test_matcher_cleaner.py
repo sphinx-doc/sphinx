@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from sphinx.testing.matcher import cleaner
+from sphinx.testing.matcher.options import Options
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -29,19 +30,19 @@ def test_strip_lines():
 
 
 def test_filter_lines():
-    src = ['a', 'a', '', 'a', 'b', 'c', 'a']
+    src = '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a'])
 
     expect = ['a', 'b', 'c', 'a']
-    assert list(cleaner.filter_lines(src, keep_empty=False, compress=True)) == expect
+    assert list(cleaner.clean(src, keep_empty=False, compress=True)) == expect
 
     expect = ['a', 'b', 'c']
-    assert list(cleaner.filter_lines(src, keep_empty=False, unique=True)) == expect
+    assert list(cleaner.clean(src, keep_empty=False, unique=True)) == expect
 
     expect = ['a', '', 'a', 'b', 'c', 'a']
-    assert list(cleaner.filter_lines(src, keep_empty=True, compress=True)) == expect
+    assert list(cleaner.clean(src, keep_empty=True, compress=True)) == expect
 
     expect = ['a', '', 'b', 'c']
-    assert list(cleaner.filter_lines(src, keep_empty=True, unique=True)) == expect
+    assert list(cleaner.clean(src, keep_empty=True, unique=True)) == expect
 
 
 @pytest.mark.parametrize(
@@ -113,3 +114,15 @@ def test_prune_lines(
     actual = cleaner.prune_lines(lines, patterns, trace=actual_trace)
     assert list(actual) == list(expect)
     assert actual_trace == list(trace)
+
+
+def test_opcodes():
+    options = Options(strip_line=True, keep_empty=False, compress=True)
+
+    src = '\n'.join(['a', '', 'a', '', 'a'])
+    # empty lines removed before duplicates
+    assert list(cleaner.clean(src, **options)) == ['a']
+
+    # empty lines removed after duplicates
+    ops = ('strip', 'compress', 'check')
+    assert list(cleaner.clean(src, **options, ops=ops)) == ['a', 'a', 'a']

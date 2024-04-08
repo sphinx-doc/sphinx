@@ -5,10 +5,10 @@ from __future__ import annotations
 __all__ = ()
 
 import itertools
-from functools import reduce
+from functools import partial, reduce
 from typing import TYPE_CHECKING
 
-from sphinx.testing.matcher import _engine, _util
+from sphinx.testing.matcher import _codes, _engine
 from sphinx.testing.matcher.options import OptionsHolder
 from sphinx.util.console import strip_escape_sequences
 
@@ -24,6 +24,16 @@ if TYPE_CHECKING:
     TraceInfo = list[list[tuple[str, list[str]]]]
 
 
+# we do not want to expose a non-positional-only public interface
+def _strip_lines_aux(chars: StripChars, lines: Iterable[str]) -> Iterable[str]:
+    return strip_lines(lines, chars)
+
+
+# we do not want to expose a non-positional-only public interface
+def _prune_lines_aux(patterns: PrunePattern, lines: Iterable[str]) -> Iterable[str]:
+    return prune_lines(lines, patterns, trace=None)
+
+
 def clean(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
     """Clean a text, returning an iterable of lines.
 
@@ -32,23 +42,22 @@ def clean(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
 
     See :class:`~.options.Options` for the meaning of each supported option.
     """
-    config = OptionsHolder(**options)
+    args = OptionsHolder(**options)
 
     # clean the text as a string
-    if not config.keep_ansi:
+    if not args.keep_ansi:
         text = strip_escape_sequences(text)
-    text = strip_chars(text, config.strip)
-
-    lines: Iterable[str] = text.splitlines(config.keep_break)
-    lines = strip_lines(lines, config.stripline)
-
-    keep_empty, compress, unique = config.keep_empty, config.compress, config.unique
-    lines = filter_lines(lines, keep_empty=keep_empty, compress=compress, unique=unique)
-    lines = prune_lines(lines, config.delete)
-
-    if callable(ignore_predicate := config.ignore):
-        lines = itertools.filterfalse(ignore_predicate, lines)
-
+    text = strip_chars(text, args.strip)
+    # obtain the lines
+    lines: Iterable[str] = text.splitlines(args.keep_break)
+    # process the lines according to the operation codes sequence
+    stripfn = partial(_strip_lines_aux, args.strip_line)
+    prunefn = partial(_prune_lines_aux, args.prune)
+    dispatchers = _codes.get_dispatcher_map(args, strip_lines=stripfn, prune_lines=prunefn)
+    for opcode in _codes.get_active_opcodes(args):
+        if (fn := dispatchers.get(opcode)) is None:
+            raise ValueError('unknown operation code: %r' % opcode)
+        lines = fn(lines)
     return lines
 
 
@@ -65,56 +74,11 @@ def strip_chars(text: str, chars: StripChars = True, /) -> str:
 def strip_lines(lines: Iterable[str], chars: StripChars = True, /) -> Iterable[str]:
     """Same as :func:`strip_chars` but applied to each line in *lines*.
 
-    See :attr:`~.options.Options.stripline` for the meaning of *chars*.
+    See :attr:`~.options.Options.strip_line` for the meaning of *chars*.
     """
     if isinstance(chars, bool):
         return map(str.strip, lines) if chars else lines
     return (line.strip(chars) for line in lines)
-
-
-def filter_lines(
-    lines: Iterable[str],
-    /,
-    *,
-    keep_empty: bool = True,
-    compress: bool = False,
-    unique: bool = False,
-) -> Iterable[str]:
-    """Filter the lines.
-
-    :param lines: The lines to filter.
-    :param keep_empty: If true, keep empty lines in the output.
-    :param compress: If true, remove consecutive duplicated lines.
-    :param unique: If true, remove duplicated lines.
-    :return: An iterable of filtered lines.
-
-    Since removing empty lines first allows serial duplicates to be eliminated
-    in the same iteration, duplicates elimination is performed *after* empty
-    lines are removed. Consider comparing::
-
-        >>> lines = ['a', '', 'a', '', 'a']
-        >>> list(filter_lines(lines, keep_empty=False, compress=True))
-        ['a']
-
-    together with::
-
-        >>> lines = ['a', '', 'a', '', 'a']
-        >>> filtered = filter_lines(lines, compress=True)
-        >>> filtered = filter_lines(filtered, keep_empty=False)
-        >>> list(filtered)
-        ['a', 'a', 'a']
-    """
-    if not keep_empty:
-        lines = filter(None, lines)
-
-    if unique:
-        # 'compress' has no effect when 'unique' is set
-        return _util.unique_everseen(lines)
-
-    if compress:
-        return _util.unique_justseen(lines)
-
-    return lines
 
 
 def prune_lines(

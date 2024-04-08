@@ -1,10 +1,15 @@
 # Sphinx documentation build configuration file
+from __future__ import annotations
 
 import os
 import re
 import time
+from typing import TYPE_CHECKING
 
 import sphinx
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -159,7 +164,7 @@ texinfo_documents = [
 ]
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
+    'python': ('https://docs.python.org/3/', ('_static/python.inv', None)),
     'requests': ('https://requests.readthedocs.io/en/latest/', None),
     'readthedocs': ('https://docs.readthedocs.io/en/stable', None),
 }
@@ -208,6 +213,13 @@ nitpick_ignore = {
     ('py:class', 'sphinx.theming.Theme'),
     ('py:class', 'sphinxcontrib.websupport.errors.DocumentNotFoundError'),
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
+    # stdlib
+    ('py:class', '_io.StringIO'),
+    ('py:class', 'typing_extensions.Self'),
+    ('py:class', 'typing_extensions.Unpack'),
+    # type variables
+    ('py:class', 'sphinx.testing.matcher.buffer.T'),
+    ('py:class', 'sphinx.testing.matcher.options.DT'),
     ('py:exc', 'docutils.nodes.SkipNode'),
     ('py:exc', 'sphinx.environment.NoUri'),
     ('py:func', 'setup'),
@@ -274,9 +286,10 @@ def linkify_issues_in_changelog(app, docname, source):
         source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
 
 
-def setup(app):
+def setup(app: Sphinx) -> None:
     from sphinx.ext.autodoc import cut_lines
     from sphinx.util.docfields import GroupedField
+    from sphinx.roles import code_role
 
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.connect('source-read', linkify_issues_in_changelog)
@@ -290,3 +303,13 @@ def setup(app):
     app.add_object_type(
         'event', 'event', 'pair: %s; event', parse_event, doc_field_types=[fdesc]
     )
+
+    def pycode_role(name, rawtext, text, lineno, inliner, options=None, content=()):
+        options = (options or {}) | {'language': 'python'}
+        return code_role(name, rawtext, text, lineno, inliner, options, content)
+
+    def pyrepr_role(name, rawtext, text, lineno, inliner, options=None, content=()):
+        return pycode_role(name, rawtext, repr(text), lineno, inliner, options, content)
+
+    app.add_role('py3', pycode_role)
+    app.add_role('py3repr', pyrepr_role)

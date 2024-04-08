@@ -15,6 +15,7 @@ the extension interface see :doc:`/extdev/index`.
    overview
    tutorials/index
    builders
+   testing/index
 
 .. toctree::
    :caption: Theming

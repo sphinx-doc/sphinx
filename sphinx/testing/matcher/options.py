@@ -5,39 +5,47 @@ from __future__ import annotations
 __all__ = ('Options', 'CompleteOptions', 'OptionsHolder')
 
 import contextlib
+from collections.abc import Sequence
 from types import MappingProxyType
-from typing import TYPE_CHECKING, TypedDict, final, overload
+from typing import TYPE_CHECKING, Literal, TypedDict, TypeVar, Union, final, overload
+
+from sphinx.testing.matcher._util import LinePredicate, PatternLike
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Mapping, Sequence
-    from typing import Any, ClassVar, Literal, TypeVar, Union
+    from collections.abc import Generator, Mapping
+    from typing import Any, ClassVar
 
     from typing_extensions import Unpack
 
-    from sphinx.testing.matcher._util import LinePredicate, PatternLike
+_FLAG = Literal['keep_ansi', 'keep_break', 'keep_empty', 'compress', 'unique']
 
-    FlagOption = Literal['keep_ansi', 'keep_break', 'keep_empty', 'compress', 'unique']
+_STRIP = Literal['strip', 'strip_line']
+StripChars = Union[bool, str, None]
+"""Allowed values for :attr:`Options.strip` and :attr:`Options.strip_line`."""
 
-    StripOption = Literal['strip', 'stripline']
-    StripChars = Union[bool, str, None]
-    """Allowed values for :attr:`Options.strip` and :attr:`Options.stripline`."""
+_PRUNE = Literal['prune']
+PrunePattern = Union[PatternLike, Sequence[PatternLike]]
+"""One or more (non-empty) patterns to prune."""
 
-    PruneOption = Literal['delete']
-    PrunePattern = Union[PatternLike, Sequence[PatternLike]]
-    """One or more patterns to prune."""
+_IGNORE = Literal['ignore']
+IgnorePredicate = Union[LinePredicate, None]
 
-    IgnoreOption = Literal['ignore']
+_OPCODES = Literal['ops']
+# must be kept in sync with :mod:`sphinx.testing.matcher._codes`
+OpCode = Literal['strip', 'check', 'compress', 'unique', 'prune', 'filter']
+"""Known operation codes (see :attr:`Options.ops`)."""
+OpCodes = Sequence[OpCode]
 
-    FlavorOption = Literal['flavor']
-    Flavor = Literal['re', 'fnmatch', 'none']
-    """Allowed values for :attr:`Options.flavor`."""
+_FLAVOR = Literal['flavor']
+Flavor = Literal['re', 'fnmatch', 'none']
+"""Allowed values for :attr:`Options.flavor`."""
 
-    # For some reason, mypy does not like Union of Literal,
-    # so we wrap the Literal types inside a bigger Literal.
-    OptionValue = Union[bool, StripChars, PrunePattern, Union[LinePredicate, None], Flavor]
-    OptionName = Literal[FlagOption, StripOption, PruneOption, IgnoreOption, FlavorOption]
+# For some reason, mypy does not like Union of Literal,
+# so we wrap the Literal types inside a bigger Literal.
+OptionValue = Union[bool, StripChars, PrunePattern, IgnorePredicate, OpCodes, Flavor]
+OptionName = Literal[_FLAG, _STRIP, _PRUNE, _IGNORE, _OPCODES, _FLAVOR]
 
-    DT = TypeVar('DT')
+DT = TypeVar('DT')
 
 
 @final
@@ -45,10 +53,10 @@ class Options(TypedDict, total=False):
     """Options for a :class:`~sphinx.testing.matcher.LineMatcher` object.
 
     Some options directly act on the original string (e.g., :attr:`strip`),
-    while others (e.g., :attr:`stripline`) act on the lines obtained after
+    while others (e.g., :attr:`strip_line`) act on the lines obtained after
     splitting the (transformed) original string.
 
-    .. seealso:: :mod:`sphinx.testing.matcher._cleaner`
+    .. seealso:: :mod:`sphinx.testing.matcher.cleaner`
     """
 
     # only immutable fields should be used as options, otherwise undesired
@@ -57,7 +65,7 @@ class Options(TypedDict, total=False):
     keep_ansi: bool
     """Indicate whether to keep the ANSI escape sequences.
 
-    The default value is ``True``.
+    The default value is :py3:`True`.
     """
 
     strip: StripChars
@@ -65,72 +73,105 @@ class Options(TypedDict, total=False):
 
     The allowed values for :attr:`strip` are:
 
-    * ``False`` -- keep leading and trailing whitespaces (the default).
-    * ``True`` -- remove leading and trailing whitespaces.
+    * :py3:`False` -- keep leading and trailing whitespaces (the default).
+    * :py3:`True` or :py3:`None` -- remove leading and trailing whitespaces.
     * a string (*chars*) -- remove leading and trailing characters in *chars*.
     """
 
     keep_break: bool
     """Indicate whether to keep line breaks at the end of each line.
 
-    The default value is ``False`` (to mirror :meth:`str.splitlines`).
+    The default value is :py3:`False` (to mirror :meth:`str.splitlines`).
     """
 
-    stripline: StripChars
+    strip_line: StripChars
     """Describe the characters to strip from each source's line.
 
-    The allowed values for :attr:`stripline` are:
+    The allowed values for :attr:`strip_line` are:
 
-    * ``False`` -- keep leading and trailing whitespaces (the default).
-    * ``True`` -- remove leading and trailing whitespaces.
+    * :py3:`False` -- keep leading and trailing whitespaces (the default).
+    * :py3:`True` or :py3:`None` -- remove leading and trailing whitespaces.
     * a string (*chars*) -- remove leading and trailing characters in *chars*.
     """
 
     keep_empty: bool
     """Indicate whether to keep empty lines in the output.
 
-    The default value is ``True``.
+    The default value is :py3:`True`.
     """
 
     compress: bool
     """Eliminate duplicated consecutive lines in the output.
 
-    The default value is ``False``.
-
-    For instance, ``['a', 'b', 'b', 'c'] -> ['a', 'b', 'c']``.
-
-    Note that if :attr:`empty` is ``False``, empty lines are removed *before*
-    the duplicated lines, i.e., ``['a', 'b', '', 'b'] -> ['a', 'b']``.
+    The default value is :py3:`False`.
     """
 
     unique: bool
     """Eliminate multiple occurrences of lines in the output.
 
-    The default value is ``False``.
-
-    This option is only applied at the very end of the transformation chain,
-    after empty and duplicated consecutive lines might have been eliminated.
+    The default value is :py3:`False`.
     """
 
-    delete: PrunePattern
+    prune: PrunePattern
     r"""Regular expressions for substrings to prune from the output lines.
 
     The output lines are pruned from their matching substrings (checked
     using :func:`re.match`) until the output lines are stabilized.
 
-    This transformation is applied at the end of the transformation
-    chain, just before filtering the output lines are filtered with
-    the :attr:`ignore` predicate.
-
     See :func:`sphinx.testing.matcher.cleaner.prune_lines` for an example.
     """
 
-    ignore: LinePredicate | None
+    ignore: IgnorePredicate
     """A predicate for filtering the output lines.
 
     Lines that satisfy this predicate are not included in the output.
 
-    The default is ``None``, meaning that all lines are included.
+    The default is :py3:`None`, meaning that all lines are included.
+    """
+
+    ops: OpCodes
+    """A sequence of *opcode* representing the line operations.
+
+    The following table describes the allowed *opcode*.
+
+    .. default-role:: py3repr
+
+    +------------+--------------------+---------------------------------------+
+    | Op. Code   | Option             | Description                           |
+    +============+====================+=======================================+
+    | `strip`    | :attr:`strip_line` | Strip leading and trailing characters |
+    +------------+--------------------+---------------------------------------+
+    | `check`    | :attr:`keep_empty` | Remove empty lines                    |
+    +------------+--------------------+---------------------------------------+
+    | `compress` | :attr:`compress`   | Remove consecutive duplicated lines   |
+    +------------+--------------------+---------------------------------------+
+    | `unique`   | :attr:`unique`     | Remove duplicated lines               |
+    +------------+--------------------+---------------------------------------+
+    | `prune`    | :attr:`prune`      | Remove matching substrings            |
+    +------------+--------------------+---------------------------------------+
+    | `filter`   | :attr:`ignore`     | Ignore matching lines                 |
+    +------------+--------------------+---------------------------------------+
+
+    .. default-role::
+
+    The default value::
+
+        ('strip', 'check', 'compress', 'unique', 'prune', 'filter')
+
+    .. rubric:: Example
+
+    Let :py3:`lines = ['a', '', 'a', '', 'a']` and::
+
+        options = Options(strip_line=True, keep_empty=False, compress=True)
+
+    By default, the lines are transformed into :py3:`['a']` since empty lines
+    are removed before serial duplicates. On the other hand, assume that::
+
+        options = Options(strip_line=True, keep_empty=False, compress=True,
+                          ops=('strip', 'compress', 'check'))
+
+    Here, the empty lines will be removed *after* the serial duplicates,
+    and therefore the lines are trasnformed into :py3:`['a', 'a', 'a']`.
     """
 
     flavor: Flavor
@@ -138,12 +179,12 @@ class Options(TypedDict, total=False):
 
     The allowed values for :attr:`flavor` are:
 
-    * ``'none'`` -- match lines using string equality (the default).
-    * ``'fnmatch'`` -- match lines using :mod:`fnmatch`-style patterns.
-    * ``'re'`` -- match lines using :mod:`re`-style patterns.
+    * :py3:`'none'` -- match lines using string equality (the default).
+    * :py3:`'fnmatch'` -- match lines using :mod:`fnmatch`-style patterns.
+    * :py3:`'re'` -- match lines using :mod:`re`-style patterns.
 
     This option only affects non-compiled patterns. Unless stated otheriwse,
-    matching is performed on compiled patterns by :func:`~re.Pattern.match`.
+    matching is performed on compiled patterns by :meth:`re.Pattern.match`.
     """
 
 
@@ -153,16 +194,17 @@ class CompleteOptions(TypedDict):
 
     keep_ansi: bool
     strip: StripChars
-    stripline: StripChars
+    strip_line: StripChars
 
     keep_break: bool
     keep_empty: bool
     compress: bool
     unique: bool
 
-    delete: PrunePattern
-    ignore: LinePredicate | None
+    prune: PrunePattern
+    ignore: IgnorePredicate
 
+    ops: OpCodes
     flavor: Flavor
 
 
@@ -189,13 +231,14 @@ class OptionsHolder:
     default_options: ClassVar[CompleteOptions] = CompleteOptions(
         keep_ansi=True,
         strip=False,
-        stripline=False,
+        strip_line=False,
         keep_break=False,
         keep_empty=True,
         compress=False,
         unique=False,
-        delete=(),
+        prune=(),
         ignore=None,
+        ops=('strip', 'check', 'compress', 'unique', 'prune', 'filter'),
         flavor='none',
     )
     """The supported options specifications and their default values.
@@ -211,7 +254,7 @@ class OptionsHolder:
     def options(self) -> Mapping[str, object]:
         """A read-only view of the *current* mapping of options.
 
-        It can be regarded as a proxy on a :class:`Options` dictionary.
+        It can be regarded as a proxy on an :class:`Options` dictionary.
         """
         return MappingProxyType(self.__options)
 
@@ -246,66 +289,71 @@ class OptionsHolder:
     #
     # boolean-like options
     @overload
-    def get_option(self, name: FlagOption, /) -> bool: ...  # NoQA: E704
+    def get_option(self, name: _FLAG, /) -> bool: ...  # NoQA: E704
     @overload
-    def get_option(self, name: FlagOption, default: bool, /) -> bool: ...  # NoQA: E704
+    def get_option(self, name: _FLAG, default: bool, /) -> bool: ...  # NoQA: E704
     @overload
-    def get_option(self, name: FlagOption, default: DT, /) -> bool | DT: ...  # NoQA: E704
+    def get_option(self, name: _FLAG, default: DT, /) -> bool | DT: ...  # NoQA: E704
     # strip-like options
     @overload
-    def get_option(self, name: StripOption, /) -> StripChars: ...  # NoQA: E704
+    def get_option(self, name: _STRIP, /) -> StripChars: ...  # NoQA: E704
     @overload
-    def get_option(self, name: StripOption, default: StripChars, /) -> StripChars: ...  # NoQA: E704
+    def get_option(self, name: _STRIP, default: StripChars, /) -> StripChars: ...  # NoQA: E704
     @overload
-    def get_option(self, name: StripOption, default: DT, /) -> StripChars | DT: ...  # NoQA: E704
+    def get_option(self, name: _STRIP, default: DT, /) -> StripChars | DT: ...  # NoQA: E704
     # pruning option
     @overload
-    def get_option(self, name: PruneOption, /) -> PrunePattern: ...  # NoQA: E704
+    def get_option(self, name: _PRUNE, /) -> PrunePattern: ...  # NoQA: E704
     @overload
-    def get_option(self, name: PruneOption, default: PrunePattern, /) -> PrunePattern: ...  # NoQA: E704
+    def get_option(self, name: _PRUNE, default: PrunePattern, /) -> PrunePattern: ...  # NoQA: E704
     @overload
-    def get_option(self, name: PruneOption, default: DT, /) -> PrunePattern | DT: ...  # NoQA: E704
+    def get_option(self, name: _PRUNE, default: DT, /) -> PrunePattern | DT: ...  # NoQA: E704
     # filtering options
     @overload
-    def get_option(self, name: IgnoreOption, /) -> LinePredicate | None: ...  # NoQA:  E704
-    @overload  # NoQA: E301
-    def get_option(  # NoQA: E704
-        self, name: IgnoreOption, default: LinePredicate | None, /
-    ) -> LinePredicate | None: ...
-    @overload  # NoQA: E301
-    def get_option(  # NoQA: E704
-        self, name: IgnoreOption, default: DT, /
-    ) -> LinePredicate | None | DT: ...
+    def get_option(self, name: _IGNORE, /) -> IgnorePredicate: ...  # NoQA:  E704
+    @overload
+    def get_option(self, name: _IGNORE, default: IgnorePredicate, /) -> IgnorePredicate: ...  # NoQA:  E704
+    @overload
+    def get_option(self, name: _IGNORE, default: DT, /) -> IgnorePredicate | DT: ...  # NoQA: E704
     # miscellaneous options
     @overload
-    def get_option(self, name: FlavorOption, /) -> Flavor: ...  # NoQA: E704
+    def get_option(self, name: _OPCODES, /) -> OpCodes: ...  # NoQA: E704
     @overload
-    def get_option(self, name: FlavorOption, default: Flavor, /) -> Flavor: ...  # NoQA: E704
+    def get_option(self, name: _OPCODES, default: OpCodes, /) -> OpCodes: ...  # NoQA: E704
     @overload
-    def get_option(self, name: FlavorOption, default: DT, /) -> Flavor | DT: ...  # NoQA: E704
+    def get_option(self, name: _OPCODES, default: DT, /) -> OpCodes | DT: ...  # NoQA: E704
+    @overload
+    def get_option(self, name: _FLAVOR, /) -> Flavor: ...  # NoQA: E704
+    @overload
+    def get_option(self, name: _FLAVOR, default: Flavor, /) -> Flavor: ...  # NoQA: E704
+    @overload
+    def get_option(self, name: _FLAVOR, default: DT, /) -> Flavor | DT: ...  # NoQA: E704
     def get_option(self, name: OptionName, /, *default: object) -> object:  # NoQA: E301
         """Get an option value, or a default value.
 
         :param name: An option name specified in :attr:`default_options`.
         :return: An option value.
 
-        When *default* is specified and *name* is not explicitly set, it is
-        returned instead of the default specified in :attr:`default_options`.
+        When *default* is specified and *name* is not explicitly stored by
+        this object, that *default* is returned instead of the default value
+        specified in :attr:`default_options`.
         """
         if name in self.__options:
             return self.__options[name]
         return default[0] if default else self.default_options[name]
 
     @overload
-    def set_option(self, name: FlagOption, value: bool, /) -> None: ...  # NoQA: E704
+    def set_option(self, name: _FLAG, value: bool, /) -> None: ...  # NoQA: E704
     @overload
-    def set_option(self, name: StripOption, value: StripChars, /) -> None: ...  # NoQA: E704
+    def set_option(self, name: _STRIP, value: StripChars, /) -> None: ...  # NoQA: E704
     @overload
-    def set_option(self, name: PruneOption, value: PrunePattern, /) -> None: ...  # NoQA: E704
+    def set_option(self, name: _PRUNE, value: PrunePattern, /) -> None: ...  # NoQA: E704
     @overload
-    def set_option(self, name: IgnoreOption, value: LinePredicate | None, /) -> None: ...  # NoQA: E704
+    def set_option(self, name: _IGNORE, value: LinePredicate | None, /) -> None: ...  # NoQA: E704
     @overload
-    def set_option(self, name: FlavorOption, value: Flavor, /) -> None: ...  # NoQA: E704
+    def set_option(self, name: _OPCODES, value: OpCodes, /) -> None: ...  # NoQA: E704
+    @overload
+    def set_option(self, name: _FLAVOR, value: Flavor, /) -> None: ...  # NoQA: E704
     def set_option(self, name: OptionName, value: Any, /) -> None:  # NoQA: E301
         """Set a persistent option value.
 
@@ -334,13 +382,13 @@ class OptionsHolder:
         self.set_option('strip', value)
 
     @property
-    def stripline(self) -> StripChars:
-        """See :attr:`Options.stripline`."""
-        return self.get_option('stripline')
+    def strip_line(self) -> StripChars:
+        """See :attr:`Options.strip_line`."""
+        return self.get_option('strip_line')
 
-    @stripline.setter
-    def stripline(self, value: StripChars) -> None:
-        self.set_option('stripline', value)
+    @strip_line.setter
+    def strip_line(self, value: StripChars) -> None:
+        self.set_option('strip_line', value)
 
     @property
     def keep_break(self) -> bool:
@@ -379,13 +427,13 @@ class OptionsHolder:
         self.set_option('unique', value)
 
     @property
-    def delete(self) -> PrunePattern:
-        """See :attr:`Options.delete`."""
-        return self.get_option('delete')
+    def prune(self) -> PrunePattern:
+        """See :attr:`Options.prune`."""
+        return self.get_option('prune')
 
-    @delete.setter
-    def delete(self, value: PrunePattern) -> None:
-        self.set_option('delete', value)
+    @prune.setter
+    def prune(self, value: PrunePattern) -> None:
+        self.set_option('prune', value)
 
     @property
     def ignore(self) -> LinePredicate | None:
@@ -395,6 +443,15 @@ class OptionsHolder:
     @ignore.setter
     def ignore(self, value: LinePredicate | None) -> None:
         self.set_option('ignore', value)
+
+    @property
+    def ops(self) -> Sequence[OpCode]:
+        """See :attr:`Options.ops`."""
+        return self.get_option('ops')
+
+    @ops.setter
+    def ops(self, value: OpCodes) -> None:
+        self.set_option('ops', value)
 
     @property
     def flavor(self) -> Flavor:

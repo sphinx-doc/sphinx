@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-__all__ = ('Line', 'Block')
+__all__ = ('Region', 'Line', 'Block')
 
 import abc
 import contextlib
 import itertools
 import re
-import sys
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Generic, TypeVar, overload
 
@@ -30,10 +29,10 @@ if TYPE_CHECKING:
 
 # We would like to have a covariant buffer type but Python does not
 # support higher-kinded type, so we can only use an invariant type.
-_T = TypeVar('_T', bound=Sequence[str])
+T = TypeVar('T', bound=Sequence[str])
 
 
-class Region(Generic[_T], Sequence[str], abc.ABC):
+class Region(Generic[T], Sequence[str], abc.ABC):
     """A string or a sequence of strings implementing rich comparison.
 
     Given an implicit *source* as a list of strings, a :class:`Region` is
@@ -43,7 +42,7 @@ class Region(Generic[_T], Sequence[str], abc.ABC):
     # add __weakref__ to allow the object being weak-referencable
     __slots__ = ('__buffer', '__offset', '__weakref__')
 
-    def __init__(self, buffer: _T, /, offset: int = 0, *, _check: bool = True) -> None:
+    def __init__(self, buffer: T, /, offset: int = 0, *, _check: bool = True) -> None:
         """Construct a :class:`Region` object.
 
         :param buffer: The region's content (a string or a list of strings).
@@ -67,7 +66,7 @@ class Region(Generic[_T], Sequence[str], abc.ABC):
         self.__offset = offset
 
     @property
-    def buffer(self) -> _T:
+    def buffer(self) -> T:
         """The internal (immutable) buffer."""
         return self.__buffer
 
@@ -84,18 +83,7 @@ class Region(Generic[_T], Sequence[str], abc.ABC):
     @property
     @abc.abstractmethod
     def span(self) -> slice:
-        """A slice representing this region in its source.
-
-        Examples::
-
-            source = ['L1', 'L2', 'L3']
-            line = Line('L2', 1)
-            assert source[line.span] == ['L2']
-
-            source = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
-            block = Block(['4', '5', '6'], 3)
-            assert source[block.span] == ['4', '5', '6']
-        """
+        """A slice representing this region in its source."""
 
     def context(self, delta: int, limit: int) -> tuple[slice, slice]:
         """A slice object indicating a context around this region.
@@ -130,12 +118,10 @@ class Region(Generic[_T], Sequence[str], abc.ABC):
         """Count the number of occurences of matching item."""
 
     # The 'value' is 'Any' so that subclasses do not violate Liskov's substitution principle
-    def index(self, value: Any, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def index(self, value: Any, start: int = 0, stop: int | None = None, /) -> int:
         """Return the lowest index of a matching item.
 
         :raise ValueError: The value does not exist.
-
-        .. seealso:: :meth:`find`
         """
         index = self.find(value, start, stop)
         if index == -1:
@@ -144,11 +130,8 @@ class Region(Generic[_T], Sequence[str], abc.ABC):
 
     @abc.abstractmethod
     # The 'value' is 'Any' so that subclasses do not violate Liskov's substitution principle.
-    def find(self, value: Any, start: int = 0, stop: int = sys.maxsize, /) -> int:
-        """Return the lowest index of a matching item or *-1* on failure.
-
-        .. seealso:: :meth:`index`
-        """
+    def find(self, value: Any, start: int = 0, stop: int | None = None, /) -> int:
+        """Return the lowest index of a matching item or *-1* on failure."""
 
     def pformat(self) -> str:
         """A nice representation of this region."""
@@ -202,17 +185,14 @@ class Region(Generic[_T], Sequence[str], abc.ABC):
 
 
 class Line(Region[str]):
-    """A line found by :meth:`~sphinx.testing.matcher.LineMatcher.find`.
+    """A line found by :meth:`.LineMatcher.find`.
 
-    A :class:`Line` can be compared to :class:`str`, :class:`Line` objects or
-    a pair (i.e., a two-length sequence) ``(line_content, line_offset)`` where
+    A :class:`Line` can be compared to:
 
-    - *line_content* is a :class:`str`, and
-    - *line_offset* is an nonnegative integer.
-
-    By convention, the comparison result (except for ``!=``) of :class:`Line`
-    objects with distinct :attr:`offset` is always ``False``. Use :class:`str`
-    objects instead if the offset is not relevant.
+    - a :class:`str`, in which case the :attr:`text <.buffer>` is compared,
+    - a pair ``(line_content, line_offset)`` where *line_content* is a string
+      and *line_offset* is an nonnegative integer, or another :class:`Line`,
+      in which case both the offset and the content must match.
     """
 
     # NOTE(picnixz): this class could be extended to support arbitrary
@@ -225,6 +205,14 @@ class Line(Region[str]):
 
     @property
     def span(self) -> slice:
+        """A slice representing this line in its source.
+
+        Example::
+
+            source = ['L1', 'L2', 'L3']
+            line = Line('L2', 1)
+            assert source[line.span] == ['L2']
+        """
         return slice(self.offset, self.offset + 1)
 
     def count(self, sub: SubStringLike, /) -> int:
@@ -244,14 +232,14 @@ class Line(Region[str]):
         return self.buffer.count(sub)
 
     # explicitly add the method since its signature differs from :meth:`Region.index`
-    def index(self, sub: SubStringLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def index(self, sub: SubStringLike, start: int = 0, stop: int | None = None, /) -> int:
         """Find the lowest index of a substring.
 
         :raise TypeError: *sub* is not a string or a compiled pattern.
         """
         return super().index(sub, start, stop)
 
-    def find(self, sub: SubStringLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def find(self, sub: SubStringLike, start: int = 0, stop: int | None = None, /) -> int:
         """Find the lowest index of a substring or *-1* on failure.
 
         :raise TypeError: *sub* is not a string or a compiled pattern.
@@ -271,7 +259,7 @@ class Line(Region[str]):
         # buffer.find() raises a TypeError if *sub* is not a string
         return self.buffer.find(sub, start, stop)
 
-    def startswith(self, prefix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
+    def startswith(self, prefix: str, start: int = 0, end: int | None = None, /) -> bool:
         """Test whether the line starts with the given *prefix*.
 
         :param prefix: A line prefix to test.
@@ -280,7 +268,7 @@ class Line(Region[str]):
         """
         return self.buffer.startswith(prefix, start, end)
 
-    def endswith(self, suffix: str, start: int = 0, end: int = sys.maxsize, /) -> bool:
+    def endswith(self, suffix: str, start: int = 0, end: int | None = None, /) -> bool:
         """Test whether the line ends with the given *suffix*.
 
         :param suffix: A line suffix to test.
@@ -331,7 +319,7 @@ class Line(Region[str]):
 
 
 class Block(Region[tuple[str, ...]]):
-    """Block found by :meth:`~sphinx.testing.matcher.LineMatcher.find_blocks`.
+    """Block found by :meth:`.LineMatcher.find_blocks`.
 
     A block is a *sequence* of lines comparable to :class:`Line` objects,
     usually given as :class:`str` objects or ``(line, line_offset)`` pairs.
@@ -339,10 +327,10 @@ class Block(Region[tuple[str, ...]]):
     A block can be compared to pairs ``(block_lines, block_offset)`` where
 
     - *block_lines* is a sequence of line-like objects, and
-    - *block_offset* is an integer (matched against :attr:`offset`).
+    - *block_offset* is an integer (matched against :attr:`.offset`).
 
-    Pairs ``(line, line_offset)`` or ``(block_lines, block_offset)`` are
-    to be given as any two-elements sequences (tuple, list, deque, ...)::
+    Pairs ``(line, line_offset)`` or ``(block_lines, block_offset)`` are to
+    be given as any two-elements sequences (tuple, list, deque, ...), e.g.::
 
         assert Block(['a', 'b', 'c', 'd'], 2) == [
             'a',
@@ -385,6 +373,14 @@ class Block(Region[tuple[str, ...]]):
 
     @property
     def span(self) -> slice:
+        """A slice representing this block in its source.
+
+        Example::
+
+            source = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+            block = Block(['4', '5', '6'], 3)
+            assert source[block.span] == ['4', '5', '6']
+        """
         return slice(self.offset, self.offset + self.length)
 
     def count(self, target: BlockLineLike, /) -> int:
@@ -408,7 +404,7 @@ class Block(Region[tuple[str, ...]]):
         return self.buffer.count(target)
 
     # explicitly add the method since its signature differs from :meth:`Region.index`
-    def index(self, target: BlockLineLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def index(self, target: BlockLineLike, start: int = 0, stop: int | None = None, /) -> int:
         """Find the lowest index of a matching line.
 
         For :class:`~re.Pattern` inputs, the following are equivalent::
@@ -418,7 +414,7 @@ class Block(Region[tuple[str, ...]]):
         """
         return super().index(target, start, stop)
 
-    def find(self, target: BlockLineLike, start: int = 0, stop: int = sys.maxsize, /) -> int:
+    def find(self, target: BlockLineLike, start: int = 0, stop: int | None = None, /) -> int:
         """Find the lowest index of a matching line or *-1* on failure.
 
         For :class:`~re.Pattern` inputs, the following are equivalent::
@@ -435,6 +431,8 @@ class Block(Region[tuple[str, ...]]):
             return next(itertools.compress(itertools.count(start), map(target, sliced)), -1)
 
         with contextlib.suppress(ValueError):
+            if stop is None:
+                return self.buffer.index(target, start)
             return self.buffer.index(target, start, stop)
         return -1
 
@@ -454,7 +452,7 @@ class Block(Region[tuple[str, ...]]):
     @overload
     def at(self, index: slice, /) -> Self: ...  # NoQA: E704
     def at(self, index: int | slice, /) -> Line | Block:  # NoQA: E301
-        """Get a :class:`Line` or a contiguous sub-:class:`Block`."""
+        """Get a :class:`Line` or a contiguous region as a :class:`Block`."""
         if isinstance(index, slice):
             # exception for invalid step is handled by __getitem__
             buffer = self[index]

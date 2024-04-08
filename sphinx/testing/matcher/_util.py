@@ -8,37 +8,38 @@ from __future__ import annotations
 __all__ = ()
 
 import itertools
+import re
 import textwrap
 from collections import deque
+from collections.abc import Callable, Sequence
 from operator import itemgetter
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, Union, overload
 
 if TYPE_CHECKING:
-    import re
-    from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
-    from typing import Any, TypeVar, Union
+    from collections.abc import Iterable, Iterator, Mapping
+    from typing import Any, TypeVar
 
     from typing_extensions import Never
 
     from sphinx.testing.matcher.buffer import Region
 
-    PatternLike = Union[str, re.Pattern[str]]
-    """A regular expression (compiled or not)."""
-    LinePattern = Union[str, re.Pattern[str]]
-    """A regular expression (compiled or not) for an entire line."""
-    LinePredicate = Callable[[str], object]
-    """A predicate called on an entire line."""
-    BlockPattern = Sequence[LinePattern]
-    """A sequence of regular expressions (compiled or not) for a block.
-
-    For instance, ``['a', re.compile('b*')]`` matches blocks
-    with the line ``'a'`` followed by a line matching ``'b*'``.
-    """
-
-    Patterns = tuple[re.Pattern[str], ...]
-    """Sequence of compiled patterns to use."""
-
     _T = TypeVar('_T')
+
+PatternLike = Union[str, re.Pattern[str]]
+"""A regular expression (compiled or not)."""
+LinePattern = Union[str, re.Pattern[str]]
+"""A regular expression (compiled or not) for an entire line."""
+LinePredicate = Callable[[str], object]
+"""A predicate called on an entire line."""
+BlockPattern = Sequence[LinePattern]
+"""A sequence of regular expressions (compiled or not) for a block.
+
+For instance, ``['a', re.compile('b*')]`` matches blocks
+with the line ``'a'`` followed by a line matching ``'b*'``.
+"""
+
+Patterns = tuple[re.Pattern[str], ...]
+"""Sequence of compiled patterns to use."""
 
 
 def consume(iterator: Iterator[object], /, n: int | None = None) -> None:

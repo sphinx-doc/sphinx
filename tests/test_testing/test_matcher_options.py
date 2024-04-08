@@ -39,16 +39,17 @@ def test_default_options():
     check('keep_ansi', True)
 
     check('strip', False)
-    check('stripline', False)
+    check('strip_line', False)
 
     check('keep_break', False)
     check('keep_empty', True)
     check('compress', False)
     check('unique', False)
 
-    check('delete', ())
+    check('prune', ())
     check('ignore', None)
 
+    check('ops', ('strip', 'check', 'compress', 'unique', 'prune', 'filter'))
     check('flavor', 'none')
 
     # check that there are no leftover options
@@ -75,22 +76,22 @@ def test_get_options():
     assert obj.get_option('keep_break') is True
     assert obj.get_option('keep_break', False) is False
 
-    obj = Config(delete='abc')
-    assert obj.get_option('delete') == 'abc'
-    assert obj.get_option('delete', 'unused') == 'abc'
+    obj = Config(prune='abc')
+    assert obj.get_option('prune') == 'abc'
+    assert obj.get_option('prune', 'unused') == 'abc'
 
 
 def test_set_option():
     obj = OptionsHolder()
 
-    assert 'delete' not in obj.options
-    assert obj.delete == ()
-    obj.set_option('delete', 'abc')
+    assert 'prune' not in obj.options
+    assert obj.prune == ()
+    obj.set_option('prune', 'abc')
 
-    assert 'delete' in obj.options
-    assert obj.delete == 'abc'
-    assert obj.get_option('delete') == 'abc'
-    assert obj.get_option('delete', 'unused') == 'abc'
+    assert 'prune' in obj.options
+    assert obj.prune == 'abc'
+    assert obj.get_option('prune') == 'abc'
+    assert obj.get_option('prune', 'unused') == 'abc'
 
 
 @pytest.mark.parametrize('option_name', list(Options.__annotations__))
@@ -102,7 +103,9 @@ def test_property_implementation(option_name: OptionName) -> None:
     assert isinstance(descriptor, property)
 
     # make sure that the docstring is correct
-    assert descriptor.__doc__ == f'See :attr:`Options.{option_name}`.'
+    docstring = descriptor.__doc__
+    assert docstring is not None
+    assert docstring.startswith(f'See :attr:`Options.{option_name}`.')
 
     assert descriptor.fget is not None
     assert descriptor.fget.__doc__ == descriptor.__doc__
