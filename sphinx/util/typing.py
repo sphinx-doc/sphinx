@@ -178,6 +178,14 @@ def _is_annotated_form(obj: Any) -> TypeGuard[Annotated[Any, ...]]:
     return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
 
 
+def _is_unpack_form(obj: Any) -> bool:
+    """Check if the object is :class:`typing.Unpack` or equivalent."""
+    origin = typing.get_origin(obj)
+    origin_module = getattr(origin, '__module__', None)
+    origin_name = getattr(origin, '__name__', None)
+    return origin_module == 'typing' and origin_name == 'Unpack'
+
+
 def _typing_internal_name(obj: Any) -> str | None:
     if sys.version_info[:2] >= (3, 10):
         return obj.__name__
@@ -366,7 +374,8 @@ def stringify_annotation(
     annotation_module_is_typing = annotation_module == 'typing'
 
     # Extract the annotation's base type by considering formattable cases
-    if isinstance(annotation, TypeVar):
+    if isinstance(annotation, TypeVar) and not _is_unpack_form(annotation):
+        # typing_extensions.Unpack is incorrectly determined as a TypeVar
         if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
         return module_prefix + f'{annotation_module}.{annotation_name}'
@@ -404,6 +413,8 @@ def stringify_annotation(
             module_prefix = f'~{module_prefix}'
         if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
             module_prefix = ''
+    elif _is_unpack_form(annotation) and annotation_module == 'typing_extensions':
+        module_prefix = '~' if mode == 'smart' else ''
     else:
         module_prefix = ''
 
