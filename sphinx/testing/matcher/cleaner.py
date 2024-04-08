@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from sphinx.testing.matcher._util import Patterns
     from sphinx.testing.matcher.options import Options, PrunePattern, StripChars
 
-    Trace = list[list[tuple[str, list[str]]]]
+    TraceInfo = list[list[tuple[str, list[str]]]]
 
 
 def clean(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
@@ -118,7 +118,7 @@ def filter_lines(
 
 
 def prune_lines(
-    lines: Iterable[str], patterns: PrunePattern, /, *, trace: Trace | None = None
+    lines: Iterable[str], patterns: PrunePattern, /, *, trace: TraceInfo | None = None
 ) -> Iterable[str]:
     r"""Eliminate substrings in each line.
 
@@ -167,7 +167,7 @@ def _prune(lines: Iterable[str], compiled: Patterns) -> Iterable[str]:
     return map(prune, lines)
 
 
-def _prune_debug(lines: Iterable[str], compiled: Patterns, trace: Trace) -> Iterable[str]:
+def _prune_debug(lines: Iterable[str], compiled: Patterns, trace: TraceInfo) -> Iterable[str]:
     def apply(line: str) -> tuple[str, list[str]]:
         values = itertools.accumulate(compiled, _prune_pattern, initial=line)
         states = list(itertools.islice(values, 1, None))  # skip initial value

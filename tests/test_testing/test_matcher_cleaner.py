@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from sphinx.testing.matcher._util import PatternLike
-    from sphinx.testing.matcher.cleaner import Trace
+    from sphinx.testing.matcher.cleaner import TraceInfo
 
 
 def test_strip_chars():
@@ -107,9 +107,9 @@ def test_prune_lines(
     lines: Sequence[str],
     patterns: PatternLike | Sequence[PatternLike],
     expect: Sequence[str],
-    trace: Trace,
+    trace: TraceInfo,
 ) -> None:
-    actual_trace: Trace = []
+    actual_trace: TraceInfo = []
     actual = cleaner.prune_lines(lines, patterns, trace=actual_trace)
     assert list(actual) == list(expect)
     assert actual_trace == list(trace)
