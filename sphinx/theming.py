@@ -27,6 +27,8 @@ else:
     from importlib_metadata import entry_points  # type: ignore[import-not-found]
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
@@ -270,3 +272,58 @@ def _load_theme_conf(theme_dir: os.PathLike[str] | str, /) -> configparser.RawCo
         raise ThemeError(__('theme configuration file %r not found') % config_file_path)
     c.read(config_file_path, encoding='utf-8')
     return c
+
+
+class _ConfigFile:
+    __slots__ = (
+        'stylesheets',
+        'sidebar_templates',
+        'pygments_style_default',
+        'pygments_style_dark',
+        'options',
+    )
+
+    def __init__(
+        self,
+        stylesheets: Iterable[str],
+        sidebar_templates: Iterable[str],
+        pygments_style_default: str | None,
+        pygments_style_dark: str | None,
+        options: dict[str, str],
+    ) -> None:
+        self.stylesheets: tuple[str, ...] = tuple(stylesheets)
+        self.sidebar_templates: tuple[str, ...] = tuple(sidebar_templates)
+        self.pygments_style_default: str | None = pygments_style_default
+        self.pygments_style_dark: str | None = pygments_style_dark
+        self.options: dict[str, str] = options.copy()
+
+    def __repr__(self) -> str:
+        return (
+            f'{self.__class__.__qualname__}('
+            f'stylesheets={self.stylesheets!r}, '
+            f'sidebar_templates={self.sidebar_templates!r}, '
+            f'pygments_style_default={self.pygments_style_default!r}, '
+            f'pygments_style_dark={self.pygments_style_dark!r}, '
+            f'options={self.options!r})'
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, _ConfigFile):
+            return (
+                self.stylesheets == other.stylesheets
+                and self.sidebar_templates == other.sidebar_templates
+                and self.pygments_style_default == other.pygments_style_default
+                and self.pygments_style_dark == other.pygments_style_dark
+                and self.options == other.options
+            )
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash((
+            self.__class__.__qualname__,
+            self.stylesheets,
+            self.sidebar_templates,
+            self.pygments_style_default,
+            self.pygments_style_dark,
+            self.options,
+        ))
