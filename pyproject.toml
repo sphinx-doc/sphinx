@@ -284,7 +284,7 @@ module = [
 disallow_any_generics = false
 
 [tool.pytest.ini_options]
-minversion = 6.0
+minversion = "6.0"
 addopts = [
     "-ra",
     "--import-mode=prepend",
