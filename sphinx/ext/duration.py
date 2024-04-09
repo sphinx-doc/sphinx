@@ -38,8 +38,8 @@ class DurationDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.reading_durations.pop(docname, None)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, float]) -> None:
-        for docname, duration in otherdata.items():
+    def merge_domaindata(self, docnames: list[str], otherdata) -> None:
+        for docname, duration in otherdata['reading_durations'].items():
             if docname in docnames:
                 self.reading_durations[docname] = duration
 
