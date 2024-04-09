@@ -417,7 +417,7 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
 
 
 def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
-    """attr_name is implemented at builtin class, return True.
+    """If attr_name is implemented at builtin class, return True.
 
         >>> is_builtin_class_method(int, '__init__')
         True
