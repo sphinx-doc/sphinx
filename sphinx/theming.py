@@ -47,36 +47,57 @@ class Theme:
         self,
         name: str,
         *,
-        configs: dict[str, configparser.RawConfigParser],
+        configs: dict[str, _ConfigFile],
         paths: list[str],
         tmp_dirs: list[str],
     ) -> None:
         self.name = name
-        self._dirs = paths
+        self._dirs = tuple(paths)
         self._tmp_dirs = tmp_dirs
 
-        theme: dict[str, Any] = {}
         options: dict[str, Any] = {}
+        self.stylesheets: tuple[str, ...] = ()
+        self.sidebar_templates: tuple[str, ...] = ()
+        self.pygments_style_default: str | None = None
+        self.pygments_style_dark: str | None = None
         for config in reversed(configs.values()):
-            theme |= dict(config.items('theme'))
-            if config.has_section('options'):
-                options |= dict(config.items('options'))
+            options |= config.options
+            if len(config.stylesheets):
+                self.stylesheets = config.stylesheets
+            if len(config.sidebar_templates):
+                self.sidebar_templates = config.sidebar_templates
+            if config.pygments_style_default is not None:
+                self.pygments_style_default = config.pygments_style_default
+            if config.pygments_style_dark is not None:
+                self.pygments_style_dark = config.pygments_style_dark
 
-        self._settings = theme
         self._options = options
+
+        if len(self.stylesheets) == 0:
+            msg = __("No loaded theme defines 'theme.stylesheet' in the configuration")
+            raise ThemeError(msg) from None
 
     def get_theme_dirs(self) -> list[str]:
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
-        return self._dirs.copy()
+        return list(self._dirs)
 
     def get_config(self, section: str, name: str, default: Any = _NO_DEFAULT) -> Any:
         """Return the value for a theme configuration setting, searching the
         base theme chain.
         """
         if section == 'theme':
-            value = self._settings.get(name, default)
+            if name == 'stylesheet':
+                value = ', '.join(self.stylesheets) or default
+            elif name == 'sidebars':
+                value = ', '.join(self.sidebar_templates) or default
+            elif name == 'pygments_style':
+                value = self.pygments_style_default or default
+            elif name == 'pygments_dark_style':
+                value = self.pygments_style_dark or default
+            else:
+                value = default
         elif section == 'options':
             value = self._options.get(name, default)
         else:
@@ -198,8 +219,8 @@ def _is_archived_theme(filename: str, /) -> bool:
 
 def _load_theme_with_ancestors(
     theme_paths: dict[str, str], name: str, /
-) -> tuple[dict[str, configparser.RawConfigParser], list[str], list[str]]:
-    themes: dict[str, configparser.RawConfigParser] = {}
+) -> tuple[dict[str, _ConfigFile], list[str], list[str]]:
+    themes: dict[str, _ConfigFile] = {}
     theme_dirs: list[str] = []
     tmp_dirs: list[str] = []
 
@@ -229,9 +250,7 @@ def _load_theme_with_ancestors(
     return themes, theme_dirs, tmp_dirs
 
 
-def _load_theme(
-    name: str, theme_path: str, /
-) -> tuple[str, str, str | None, configparser.RawConfigParser]:
+def _load_theme(name: str, theme_path: str, /) -> tuple[str, str, str | None, _ConfigFile]:
     if path.isdir(theme_path):
         # already a directory, do nothing
         tmp_dir = None
@@ -242,12 +261,13 @@ def _load_theme(
         theme_dir = path.join(tmp_dir, name)
         _extract_zip(theme_path, theme_dir)
 
-    config = _load_theme_conf(theme_dir)
-    try:
-        inherit = config.get('theme', 'inherit')
-    except (configparser.NoOptionError, configparser.NoSectionError):
-        msg = __('The %r theme must define the "theme.inherit" setting') % name
-        raise ThemeError(msg) from None
+    if os.path.isfile(conf_path := path.join(theme_dir, _THEME_CONF)):
+        _cfg_parser = _load_theme_conf(conf_path)
+        inherit = _validate_theme_conf(_cfg_parser, name)
+        config = _convert_theme_conf(_cfg_parser)
+    else:
+        raise ThemeError(__('no theme configuration file found in %r') % theme_dir)
+
     return inherit, theme_dir, tmp_dir, config
 
 
@@ -265,13 +285,40 @@ def _extract_zip(filename: str, target_dir: str, /) -> None:
                 fp.write(archive.read(name))
 
 
-def _load_theme_conf(theme_dir: os.PathLike[str] | str, /) -> configparser.RawConfigParser:
+def _load_theme_conf(config_file_path: str, /) -> configparser.RawConfigParser:
     c = configparser.RawConfigParser()
-    config_file_path = path.join(theme_dir, _THEME_CONF)
-    if not os.path.isfile(config_file_path):
-        raise ThemeError(__('theme configuration file %r not found') % config_file_path)
     c.read(config_file_path, encoding='utf-8')
     return c
+
+
+def _validate_theme_conf(cfg: configparser.RawConfigParser, name: str) -> str:
+    if not cfg.has_section('theme'):
+        raise ThemeError(__('theme %r doesn\'t have the "theme" table') % name)
+    if inherit := cfg.get('theme', 'inherit', fallback=None):
+        return inherit
+    msg = __('The %r theme must define the "theme.inherit" setting') % name
+    raise ThemeError(msg)
+
+
+def _convert_theme_conf(cfg: configparser.RawConfigParser, /) -> _ConfigFile:
+    if stylesheet := cfg.get('theme', 'stylesheet', fallback=''):
+        stylesheets: tuple[str, ...] = tuple(map(str.strip, stylesheet.split(',')))
+    else:
+        stylesheets = ()
+    if sidebar := cfg.get('theme', 'sidebars', fallback=''):
+        sidebar_templates: tuple[str, ...] = tuple(map(str.strip, sidebar.split(',')))
+    else:
+        sidebar_templates = ()
+    pygments_style_default: str | None = cfg.get('theme', 'pygments_style', fallback=None)
+    pygments_style_dark: str | None = cfg.get('theme', 'pygments_dark_style', fallback=None)
+    options = dict(cfg.items('options')) if cfg.has_section('options') else {}
+    return _ConfigFile(
+        stylesheets=stylesheets,
+        sidebar_templates=sidebar_templates,
+        pygments_style_default=pygments_style_default,
+        pygments_style_dark=pygments_style_dark,
+        options=options,
+    )
 
 
 class _ConfigFile:
