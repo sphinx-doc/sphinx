@@ -31,7 +31,7 @@ from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
-ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), "..", ".."))
+ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), '..', '..'))
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
     'variable_end_string': '%>',
@@ -100,12 +100,15 @@ def run_extract() -> None:
                         options = opt_dict
                 with open(os.path.join(root, filename), 'rb') as fileobj:
                     for lineno, message, comments, context in extract(
-                        method, fileobj, KEYWORDS, options=options,
+                        method, fileobj, KEYWORDS, options=options
                     ):
                         filepath = os.path.join(input_path, relative_name)
                         catalogue.add(
-                            message, None, [(filepath, lineno)],
-                            auto_comments=comments, context=context,
+                            message,
+                            None,
+                            [(filepath, lineno)],
+                            auto_comments=comments,
+                            context=context,
                         )
                 break
 
@@ -137,7 +140,8 @@ def run_update() -> None:
 
         catalog.update(template)
         tmp_name = os.path.join(
-            os.path.dirname(filename), tempfile.gettempprefix() + os.path.basename(filename),
+            os.path.dirname(filename),
+            tempfile.gettempprefix() + os.path.basename(filename),
         )
         try:
             with open(tmp_name, 'wb') as tmpfile:
@@ -179,8 +183,13 @@ def run_compile() -> None:
         for message, errors in catalog.check():
             for error in errors:
                 total_errors += 1
-                log.error('error: %s:%d: %s\nerror:     in message string: %s',
-                          po_file, message.lineno, error, message.string)
+                log.error(
+                    'error: %s:%d: %s\nerror:     in message string: %s',
+                    po_file,
+                    message.lineno,
+                    error,
+                    message.string,
+                )
 
         mo_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.mo')
         log.info('compiling catalog %s to %s', po_file, mo_file)
@@ -192,26 +201,30 @@ def run_compile() -> None:
         js_catalogue = {}
         for message in catalog:
             if any(
-                    x[0].endswith(('.js', '.js.jinja', '.js_t', '.html'))
-                    for x in message.locations
+                x[0].endswith(('.js', '.js.jinja', '.js_t', '.html'))
+                for x in message.locations
             ):
                 msgid = message.id
                 if isinstance(msgid, (list, tuple)):
                     msgid = msgid[0]
                 js_catalogue[msgid] = message.string
 
-        obj = json.dumps({
-            'messages': js_catalogue,
-            'plural_expr': catalog.plural_expr,
-            'locale': str(catalog.locale),
-        }, sort_keys=True, indent=4)
+        obj = json.dumps(
+            {
+                'messages': js_catalogue,
+                'plural_expr': catalog.plural_expr,
+                'locale': str(catalog.locale),
+            },
+            sort_keys=True,
+            indent=4,
+        )
         with open(js_file, 'wb') as outfile:
             # to ensure lines end with ``\n`` rather than ``\r\n``:
             outfile.write(f'Documentation.addTranslations({obj});'.encode())
 
     if total_errors > 0:
         log.error('%d errors encountered.', total_errors)
-        print("Compiling failed.", file=sys.stderr)
+        print('Compiling failed.', file=sys.stderr)
         raise SystemExit(2)
 
 
@@ -232,17 +245,17 @@ if __name__ == '__main__':
         raise SystemExit(2) from None
 
     os.chdir(ROOT)
-    if action == "extract":
-        raise SystemExit(run_extract())
-    if action == "update":
-        raise SystemExit(run_update())
-    if action == "compile":
-        raise SystemExit(run_compile())
-    if action == "all":
-        exit_code = run_extract()
-        if exit_code:
-            raise SystemExit(exit_code)
-        exit_code = run_update()
-        if exit_code:
-            raise SystemExit(exit_code)
-        raise SystemExit(run_compile())
+    if action == 'extract':
+        run_extract()
+    elif action == 'update':
+        run_update()
+    elif action == 'compile':
+        run_compile()
+    elif action == 'all':
+        run_extract()
+        run_update()
+        run_compile()
+    else:
+        msg = f"invalid action: '{action}'"
+        raise ValueError(msg)
+    raise SystemExit

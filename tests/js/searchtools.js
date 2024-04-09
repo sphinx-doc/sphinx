@@ -54,6 +54,31 @@ describe('Basic html theme search', function() {
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
 
+    it('should partially-match "sphinx" when in title index', function() {
+      index = {
+        docnames:["index"],
+        filenames:["index.rst"],
+        terms:{'useful': 0, 'utilities': 0},
+        titles:["sphinx_utils module"],
+        titleterms:{'sphinx_utils': 0}
+      }
+      Search.setIndex(index);
+      searchterms = ['sphinx'];
+      excluded = [];
+      terms = index.terms;
+      titleterms = index.titleterms;
+
+      hits = [[
+        "index",
+        "sphinx_utils module",
+        "",
+        null,
+        7,
+        "index.rst"
+      ]];
+      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+    });
+
   });
 
 });
@@ -61,20 +86,33 @@ describe('Basic html theme search', function() {
 describe("htmlToText", function() {
 
   const testHTML = `<html>
-  <div class="body" role="main">
-    <section id="getting-started">
-      <h1>Getting Started</h1>
-      <p>Some text</p>
-    </section>
-    <section id="other-section">
-      <h1>Other Section</h1>
-      <p>Other text</p>
-    </section>
-    <section id="yet-another-section">
-      <h1>Yet Another Section</h1>
-      <p>More text</p>
-    </section>
-  </div>
+  <body>
+    <script src="directory/filename.js"></script>
+    <div class="body" role="main">
+      <script>
+        console.log('dynamic');
+      </script>
+      <style>
+        div.body p.centered {
+          text-align: center;
+          margin-top: 25px;
+        }
+      </style>
+      <!-- main content -->
+      <section id="getting-started">
+        <h1>Getting Started</h1>
+        <p>Some text</p>
+      </section>
+      <section id="other-section">
+        <h1>Other Section</h1>
+        <p>Other text</p>
+      </section>
+      <section id="yet-another-section">
+        <h1>Yet Another Section</h1>
+        <p>More text</p>
+      </section>
+    </div>
+  </body>
   </html>`;
 
   it("basic case", () => {

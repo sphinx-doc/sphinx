@@ -3,24 +3,26 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from html5lib import HTMLParser
+
+from sphinx.testing.util import etree_parse
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
     from pathlib import Path
+    from xml.etree.ElementTree import ElementTree
 
-etree_cache = {}
+_etree_cache: dict[Path, ElementTree] = {}
 
 
-def _parse(fname: Path) -> HTMLParser:
-    if fname in etree_cache:
-        return etree_cache[fname]
-    with fname.open('rb') as fp:
-        etree = HTMLParser(namespaceHTMLElements=False).parse(fp)
-        etree_cache[fname] = etree
-        return etree
+def _parse(path: Path) -> ElementTree:
+    if path in _etree_cache:
+        return _etree_cache[path]
+
+    _etree_cache[path] = tree = etree_parse(path)
+    return tree
 
 
 @pytest.fixture(scope='package')
-def cached_etree_parse():
+def cached_etree_parse() -> Iterator[Callable[[Path], ElementTree]]:
     yield _parse
-    etree_cache.clear()
+    _etree_cache.clear()

@@ -378,16 +378,21 @@ def test_duplicated_toctree_entry(app, status, warning):
 def test_run_epubcheck(app):
     app.build()
 
+    if not runnable(['java', '-version']):
+        pytest.skip("Unable to run Java; skipping test")
+
     epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
-    if runnable(['java', '-version']) and os.path.exists(epubcheck):
-        try:
-            subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
-                           capture_output=True, check=True)
-        except CalledProcessError as exc:
-            print(exc.stdout.decode('utf-8'))
-            print(exc.stderr.decode('utf-8'))
-            msg = f'epubcheck exited with return code {exc.returncode}'
-            raise AssertionError(msg) from exc
+    if not os.path.exists(epubcheck):
+        pytest.skip("Could not find epubcheck; skipping test")
+
+    try:
+        subprocess.run(['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
+                       capture_output=True, check=True)
+    except CalledProcessError as exc:
+        print(exc.stdout.decode('utf-8'))
+        print(exc.stderr.decode('utf-8'))
+        msg = f'epubcheck exited with return code {exc.returncode}'
+        raise AssertionError(msg) from exc
 
 
 def test_xml_name_pattern_check():

@@ -22,11 +22,12 @@ from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
+    from collections.abc import Iterable, Iterator
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -79,9 +80,7 @@ def is_supported_builder(builder: Builder) -> bool:
         return False
     if builder.name == 'singlehtml':
         return False
-    if builder.name.startswith('epub') and not builder.config.viewcode_enable_epub:
-        return False
-    return True
+    return not (builder.name.startswith('epub') and not builder.config.viewcode_enable_epub)
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
@@ -240,7 +239,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     return True
 
 
-def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], None, None]:
+def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
@@ -341,7 +340,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
     yield (posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html')
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('viewcode_import', None, '')
     app.add_config_value('viewcode_enable_epub', False, '')
     app.add_config_value('viewcode_follow_imported_members', True, '')

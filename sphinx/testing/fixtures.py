@@ -14,14 +14,22 @@ import pytest
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
+    from collections.abc import Callable, Iterator
     from pathlib import Path
     from typing import Any
 
 DEFAULT_ENABLED_MARKERS = [
+    # The marker signature differs from the constructor signature
+    # since the way it is processed assumes keyword arguments for
+    # the 'testroot' and 'srcdir'.
     (
-        'sphinx(builder, testroot=None, freshenv=False, confoverrides=None, tags=None, '
-        'docutils_conf=None, parallel=0): arguments to initialize the sphinx test application.'
+        'sphinx('
+        'buildername="html", *, '
+        'testroot="root", srcdir=None, '
+        'confoverrides=None, freshenv=False, '
+        'warningiserror=False, tags=None, verbosity=0, parallel=0, '
+        'keep_going=False, builddir=None, docutils_conf=None'
+        '): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
 ]
@@ -45,8 +53,8 @@ class SharedResult:
         if key in self.cache:
             return
         data = {
-            'status': app_._status.getvalue(),
-            'warning': app_._warning.getvalue(),
+            'status': app_.status.getvalue(),
+            'warning': app_.warning.getvalue(),
         }
         self.cache[key] = data
 
@@ -139,7 +147,7 @@ def app(
     app_params: tuple[dict, dict],
     make_app: Callable,
     shared_result: SharedResult,
-) -> Generator[SphinxTestApp, None, None]:
+) -> Iterator[SphinxTestApp]:
     """
     Provides the 'sphinx.application.Sphinx' object
     """
@@ -163,7 +171,7 @@ def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
     """
-    return app._status
+    return app.status
 
 
 @pytest.fixture()
@@ -171,11 +179,11 @@ def warning(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
     """
-    return app._warning
+    return app.warning
 
 
 @pytest.fixture()
-def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, None]:
+def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
     """
     Provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
@@ -281,7 +289,7 @@ def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
 
 
 @pytest.fixture()
-def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
+def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.

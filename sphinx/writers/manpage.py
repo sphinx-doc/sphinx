@@ -245,7 +245,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
             super().visit_term(node)
 
     # overwritten -- we don't want source comments to show up
-    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
+    def visit_comment(self, node: Element) -> None:
         raise nodes.SkipNode
 
     # overwritten -- added ensure_eol()
@@ -308,13 +308,17 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node: Element) -> None:
+        uri = node.get('refuri', '')
+        if uri:
+            # OSC 8 link start (using groff's device control directive).
+            self.body.append(fr"\X'tty: link {uri}'")
+
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
-        self.visit_Text(node)  # type: ignore[arg-type]
+        self.visit_Text(node)
         self.body.append(self.defs['reference'][1])
 
-        uri = node.get('refuri', '')
         if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
@@ -324,6 +328,9 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
                     ' <',
                     self.defs['strong'][0], uri, self.defs['strong'][1],
                     '>'])
+        if uri:
+            # OSC 8 link end.
+            self.body.append(r"\X'tty: link'")
         raise nodes.SkipNode
 
     def visit_number_reference(self, node: Element) -> None:

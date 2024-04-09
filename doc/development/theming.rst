@@ -35,6 +35,9 @@ theme name), containing the following:
 * A ``static/`` directory containing any static files that will be copied to the
   output static directory on build.  These can be images, styles, script files.
 
+Theme configuration (``theme.conf``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
 Python :mod:`configparser` module) and has the following structure:
 
@@ -141,7 +144,7 @@ searches for templates:
 When extending a template in the base theme with the same name, use the theme
 name as an explicit directory: ``{% extends "basic/layout.html" %}``.  From a
 user ``templates_path`` template, you can still use the "exclamation mark"
-syntax as described in the templating document.
+syntax as :ref:`described in the templating document <templating-primer>`.
 
 
 .. _theming-static-templates:

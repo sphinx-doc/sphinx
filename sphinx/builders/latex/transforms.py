@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 
@@ -114,7 +115,7 @@ class ShowUrlsTransform(SphinxPostTransform):
                 node = node.parent
 
         try:
-            source = node['source']  # type: ignore[index]
+            source = node['source']
         except TypeError:
             raise ValueError(__('Failed to get a docname!')) from None
         raise ValueError(__('Failed to get a docname '
@@ -522,7 +523,7 @@ class BibliographyTransform(SphinxPostTransform):
             citations += node
 
         if len(citations) > 0:
-            self.document += citations
+            self.document += citations  # type: ignore[attr-defined]
 
 
 class CitationReferenceTransform(SphinxPostTransform):
@@ -631,7 +632,7 @@ class IndexInSectionTitleTransform(SphinxPostTransform):
                     node.parent.insert(i + 1, index)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(FootnoteDocnameUpdater)
     app.add_post_transform(SubstitutionDefinitionsRemover)
     app.add_post_transform(BibliographyTransform)

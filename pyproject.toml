@@ -82,19 +82,18 @@ docs = [
 ]
 lint = [
     "flake8>=3.5.0",
-    "ruff==0.3.2",
+    "ruff==0.3.4",
     "mypy==1.9.0",
     "sphinx-lint",
-    "docutils-stubs",
+    "types-docutils",
     "types-requests",
     "pytest>=6.0",
 ]
 test = [
     "pytest>=6.0",
-    "html5lib",
+    "defusedxml>=0.7.1", # for secure XML/HTML parsing
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
-    "filelock",
 ]
 
 [[project.authors]]
@@ -131,7 +130,79 @@ exclude = [
 ]
 
 [tool.mypy]
-files = ["sphinx"]
+files = ["sphinx", "utils", "tests"]
+exclude = [
+    "tests/certs",
+    "tests/js",
+    "tests/roots",
+    # tests/
+    "^tests/test_events\\.py$",
+    "^tests/test_quickstart\\.py$",
+    "^tests/test_search\\.py$",
+    "^tests/test_versioning\\.py$",
+    # tests/test_builders
+    "^tests/test_builders/test_build_dirhtml\\.py$",
+    "^tests/test_builders/test_build_epub\\.py$",
+    "^tests/test_builders/test_builder\\.py$",
+    "^tests/test_builders/test_build_gettext\\.py$",
+    "^tests/test_builders/test_build_html\\.py$",
+    "^tests/test_builders/test_build_latex\\.py$",
+    "^tests/test_builders/test_build_linkcheck\\.py$",
+    "^tests/test_builders/test_build_texinfo\\.py$",
+    # tests/test_config
+    "^tests/test_config/test_config\\.py$",
+    # tests/test_directives
+    "^tests/test_directives/test_directive_object_description\\.py$",
+    "^tests/test_directives/test_directive_only\\.py$",
+    "^tests/test_directives/test_directive_other\\.py$",
+    "^tests/test_directives/test_directive_patch\\.py$",
+    # tests/test_domains
+    "^tests/test_domains/test_domain_c\\.py$",
+    "^tests/test_domains/test_domain_cpp\\.py$",
+    "^tests/test_domains/test_domain_js\\.py$",
+    "^tests/test_domains/test_domain_py\\.py$",
+    "^tests/test_domains/test_domain_py_fields\\.py$",
+    "^tests/test_domains/test_domain_py_pyfunction\\.py$",
+    "^tests/test_domains/test_domain_py_pyobject\\.py$",
+    "^tests/test_domains/test_domain_rst\\.py$",
+    "^tests/test_domains/test_domain_std\\.py$",
+    # tests/test_environment
+    "^tests/test_environment/test_environment_toctree\\.py$",
+    # tests/test_extensions
+    "^tests/test_extensions/test_ext_apidoc\\.py$",
+    "^tests/test_extensions/test_ext_autodoc\\.py$",
+    "^tests/test_extensions/test_ext_autodoc_autofunction\\.py$",
+    "^tests/test_extensions/test_ext_autodoc_events\\.py$",
+    "^tests/test_extensions/test_ext_autodoc_mock\\.py$",
+    "^tests/test_extensions/test_ext_autosummary\\.py$",
+    "^tests/test_extensions/test_ext_doctest\\.py$",
+    "^tests/test_extensions/test_ext_inheritance_diagram\\.py$",
+    "^tests/test_extensions/test_ext_intersphinx\\.py$",
+    "^tests/test_extensions/test_ext_napoleon\\.py$",
+    "^tests/test_extensions/test_ext_napoleon_docstring\\.py$",
+    # tests/test_intl
+    "^tests/test_intl/test_intl\\.py$",
+    # tests/test_markup
+    "^tests/test_markup/test_markup\\.py$",
+    # tests/test_pycode
+    "^tests/test_pycode/test_pycode\\.py$",
+    "^tests/test_pycode/test_pycode_ast\\.py$",
+    # tests/test_theming
+    # tests/test_transforms
+    "^tests/test_transforms/test_transforms_move_module_targets\\.py$",
+    "^tests/test_transforms/test_transforms_post_transforms\\.py$",
+    # tests/test_util
+    "^tests/test_util/test_util_fileutil\\.py$",
+    "^tests/test_util/test_util_i18n\\.py$",
+    "^tests/test_util/test_util_inspect\\.py$",
+    "^tests/test_util/test_util_logging\\.py$",
+    "^tests/test_util/test_util_nodes\\.py$",
+    "^tests/test_util/test_util_rst\\.py$",
+    "^tests/test_util/test_util_template\\.py$",
+    "^tests/test_util/test_util_typing\\.py$",
+    "^tests/test_util/typing_test_data\\.py$",
+    # tests/test_writers
+]
 check_untyped_defs = true
 disallow_incomplete_defs = true
 python_version = "3.9"
@@ -213,7 +284,7 @@ module = [
 disallow_any_generics = false
 
 [tool.pytest.ini_options]
-minversion = 6.0
+minversion = "6.0"
 addopts = [
     "-ra",
     "--import-mode=prepend",

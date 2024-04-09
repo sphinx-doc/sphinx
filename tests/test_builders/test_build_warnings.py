@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from sphinx.testing.util import strip_escseq
+from sphinx.util.console import strip_colors
 
 ENV_WARNINGS = """\
 {root}/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
@@ -42,7 +42,7 @@ TEXINFO_WARNINGS = ENV_WARNINGS + """\
 
 
 def _check_warnings(expected_warnings: str, warning: str) -> None:
-    warnings = strip_escseq(re.sub(re.escape(os.sep) + '{1,2}', '/', warning))
+    warnings = strip_colors(re.sub(re.escape(os.sep) + '{1,2}', '/', warning))
     assert re.match(f'{expected_warnings}$', warnings), (
         "Warnings don't match:\n"
         + f'--- Expected (regex):\n{expected_warnings}\n'
@@ -70,3 +70,19 @@ def test_texinfo_warnings(app, warning):
     app.build(force_all=True)
     warnings_exp = TEXINFO_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, warning.getvalue())
+
+
+def test_uncacheable_config_warning(make_app, tmp_path):
+    """Test than an unpickleable config value raises a warning."""
+    tmp_path.joinpath('conf.py').write_text("""
+my_config = lambda: None
+show_warning_types = True
+def setup(app):
+    app.add_config_value('my_config', None, 'env')
+    """, encoding='utf-8')
+    tmp_path.joinpath('index.rst').write_text('Test\n====\n', encoding='utf-8')
+    app = make_app(srcdir=tmp_path)
+    app.build()
+    assert strip_colors(app.warning.getvalue()).strip() == (
+        "WARNING: cannot cache unpickable configuration value: 'my_config' [config.cache]"
+    )
