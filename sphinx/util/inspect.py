@@ -11,34 +11,32 @@ import re
 import sys
 import types
 import typing
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
-from inspect import (  # NoQA: F401
-    Parameter,
-    isasyncgenfunction,
-    isclass,
-    ismethod,
-    ismethoddescriptor,
-    ismodule,
-)
+from inspect import Parameter, isclass
 from io import StringIO
-from types import (
-    ClassMethodDescriptorType,
-    MethodDescriptorType,
-    MethodType,
-    ModuleType,
-    WrapperDescriptorType,
-)
-from typing import Any, Callable, cast
+from types import ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType
+from typing import TYPE_CHECKING, Any
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
 from sphinx.util.typing import ForwardRef, stringify_annotation
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from types import MethodType, ModuleType
+
 logger = logging.getLogger(__name__)
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
+
+# re-export
+isasyncgenfunction = inspect.isasyncgenfunction
+ismethod = inspect.ismethod
+ismethoddescriptor = inspect.ismethoddescriptor
+isclass = inspect.isclass  # NoQA: F811
+ismodule = inspect.ismodule
 
 
 def unwrap(obj: Any) -> Any:
@@ -46,6 +44,7 @@ def unwrap(obj: Any) -> Any:
     if hasattr(obj, '__sphinx_mock__'):
         # Skip unwrapping mock object to avoid RecursionError
         return obj
+
     try:
         return inspect.unwrap(obj)
     except ValueError:
@@ -61,6 +60,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
     while True:
         if stop and stop(obj):
             return obj
+
         if ispartial(obj):
             obj = obj.func
         elif inspect.isroutine(obj) and hasattr(obj, '__wrapped__'):
@@ -96,8 +96,7 @@ def getannotations(obj: Any) -> Mapping[str, Any]:
         __annotations__ = __dict__.get('__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
-    else:
-        return {}
+    return {}
 
 
 def getglobals(obj: Any) -> Mapping[str, Any]:
@@ -105,8 +104,7 @@ def getglobals(obj: Any) -> Mapping[str, Any]:
     __globals__ = safe_getattr(obj, '__globals__', None)
     if isinstance(__globals__, Mapping):
         return __globals__
-    else:
-        return {}
+    return {}
 
 
 def getmro(obj: Any) -> tuple[type, ...]:
@@ -114,8 +112,7 @@ def getmro(obj: Any) -> tuple[type, ...]:
     __mro__ = safe_getattr(obj, '__mro__', None)
     if isinstance(__mro__, tuple):
         return __mro__
-    else:
-        return ()
+    return ()
 
 
 def getorigbases(obj: Any) -> tuple[Any, ...] | None:
@@ -129,8 +126,7 @@ def getorigbases(obj: Any) -> tuple[Any, ...] | None:
     __orig_bases__ = __dict__.get('__orig_bases__')
     if isinstance(__orig_bases__, tuple) and len(__orig_bases__) > 0:
         return __orig_bases__
-    else:
-        return None
+    return None
 
 
 def getslots(obj: Any) -> dict[str, Any] | None:
@@ -182,7 +178,6 @@ def unpartial(obj: Any) -> Any:
     """
     while ispartial(obj):
         obj = obj.func
-
     return obj
 
 
@@ -198,12 +193,12 @@ def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     if inspect.ismethod(obj) and obj.__self__ is not None and isclass(obj.__self__):
         return True
     if cls and name:
-        placeholder = object()
+        # trace __mro__ if the method is defined in parent class
+        sentinel = object()
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, placeholder)
-            if meth is not placeholder:
+            meth = basecls.__dict__.get(name, sentinel)
+            if meth is not sentinel:
                 return isclassmethod(meth)
-
     return False
 
 
@@ -213,11 +208,10 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        #
-        # .. note:: This only works well with new style classes.
+        sentinel = object()
         for basecls in getattr(cls, '__mro__', [cls]):
-            meth = basecls.__dict__.get(name)
-            if meth:
+            meth = basecls.__dict__.get(name, sentinel)
+            if meth is not sentinel:
                 return isinstance(meth, staticmethod)
     return False
 
@@ -225,8 +219,7 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
 def isdescriptor(x: Any) -> bool:
     """Check if the object is some kind of descriptor."""
     return any(
-        callable(safe_getattr(x, item, None))
-        for item in ('__get__', '__set__', '__delete__')
+        callable(safe_getattr(x, item, None)) for item in ('__get__', '__set__', '__delete__')
     )
 
 
@@ -265,22 +258,24 @@ def isattributedescriptor(obj: Any) -> bool:
         if inspect.isclass(unwrapped):
             # attribute must not be a class
             return False
-        if isinstance(unwrapped, (ClassMethodDescriptorType,
-                                  MethodDescriptorType,
-                                  WrapperDescriptorType)):
+        if isinstance(
+            unwrapped, (ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType)
+        ):
             # attribute must not be a method descriptor
             return False
         # attribute must not be an instancemethod (C-API)
-        return type(unwrapped).__name__ != "instancemethod"
+        return type(unwrapped).__name__ != 'instancemethod'
     return False
 
 
 def is_singledispatch_function(obj: Any) -> bool:
     """Check if the object is singledispatch function."""
-    return (inspect.isfunction(obj) and
-            hasattr(obj, 'dispatch') and
-            hasattr(obj, 'register') and
-            obj.dispatch.__module__ == 'functools')
+    return (
+        inspect.isfunction(obj)
+        and hasattr(obj, 'dispatch')
+        and hasattr(obj, 'register')
+        and obj.dispatch.__module__ == 'functools'
+    )
 
 
 def is_singledispatch_method(obj: Any) -> bool:
@@ -305,6 +300,7 @@ def isroutine(obj: Any) -> bool:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is coroutine-function."""
+
     def iswrappedcoroutine(obj: Any) -> bool:
         """Check if the object is wrapped coroutine-function."""
         if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
@@ -324,8 +320,7 @@ def isproperty(obj: Any) -> bool:
 
 def isgenericalias(obj: Any) -> bool:
     """Check if the object is GenericAlias."""
-    return isinstance(
-        obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
+    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -366,8 +361,10 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
             # Cannot sort dict keys, fall back to using descriptions as a sort key
             sorted_keys = sorted(obj, key=lambda k: object_description(k, _seen=seen))
 
-        items = ((object_description(key, _seen=seen),
-                  object_description(obj[key], _seen=seen)) for key in sorted_keys)
+        items = (
+            (object_description(key, _seen=seen), object_description(obj[key], _seen=seen))
+            for key in sorted_keys
+        )
         return '{%s}' % ', '.join(f'{key}: {value}' for (key, value) in items)
     elif isinstance(obj, set):
         if id(obj) in seen:
@@ -388,8 +385,9 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         except TypeError:
             # Cannot sort frozenset values, fall back to using descriptions as a sort key
             sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
-        return 'frozenset({%s})' % ', '.join(object_description(x, _seen=seen)
-                                             for x in sorted_values)
+        return 'frozenset({%s})' % ', '.join(
+            object_description(x, _seen=seen) for x in sorted_values
+        )
     elif isinstance(obj, enum.Enum):
         if obj.__repr__.__func__ is not enum.Enum.__repr__:  # type: ignore[attr-defined]
             return repr(obj)
@@ -419,7 +417,7 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
 
 
 def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
-    """If attr_name is implemented at builtin class, return True.
+    """attr_name is implemented at builtin class, return True.
 
         >>> is_builtin_class_method(int, '__init__')
         True
@@ -427,8 +425,9 @@ def is_builtin_class_method(obj: Any, attr_name: str) -> bool:
     Why this function needed? CPython implements int.__init__ by Descriptor
     but PyPy implements it by pure Python code.
     """
+    mro = getmro(obj)
+
     try:
-        mro = getmro(obj)
         cls = next(c for c in mro if attr_name in safe_getattr(c, '__dict__', {}))
     except StopIteration:
         return False
@@ -516,7 +515,8 @@ class TypeAliasNamespace(dict[str, Any]):
     This enables to look up nested modules and classes like `mod1.mod2.Class`.
     """
 
-    def __init__(self, mapping: dict[str, str]) -> None:
+    def __init__(self, mapping: Mapping[str, str]) -> None:
+        super().__init__()
         self.__mapping = mapping
 
     def __getitem__(self, key: str) -> Any:
@@ -537,12 +537,16 @@ def _should_unwrap(subject: Callable) -> bool:
     """Check the function should be unwrapped on getting signature."""
     __globals__ = getglobals(subject)
     # contextmanger should be unwrapped
-    return (__globals__.get('__name__') == 'contextlib' and
-            __globals__.get('__file__') == contextlib.__file__)
+    return (
+        __globals__.get('__name__') == 'contextlib'
+        and __globals__.get('__file__') == contextlib.__file__
+    )
 
 
 def signature(
-    subject: Callable, bound_method: bool = False, type_aliases: dict[str, str] | None = None,
+    subject: Callable,
+    bound_method: bool = False,
+    type_aliases: Mapping[str, str] | None = None,
 ) -> inspect.Signature:
     """Return a Signature object for the given *subject*.
 
@@ -596,22 +600,30 @@ def signature(
     #
     # For example, this helps a function having a default value `inspect._empty`.
     # refs: https://github.com/sphinx-doc/sphinx/issues/7935
-    return inspect.Signature(parameters, return_annotation=return_annotation,
-                             __validate_parameters__=False)
+    return inspect.Signature(
+        parameters, return_annotation=return_annotation, __validate_parameters__=False
+    )
 
 
-def evaluate_signature(sig: inspect.Signature, globalns: dict[str, Any] | None = None,
-                       localns: dict[str, Any] | None = None,
-                       ) -> inspect.Signature:
+def evaluate_signature(
+    sig: inspect.Signature,
+    globalns: dict[str, Any] | None = None,
+    localns: dict[str, Any] | None = None,
+) -> inspect.Signature:
     """Evaluate unresolved type annotations in a signature object."""
+
     def evaluate_forwardref(
-        ref: ForwardRef, globalns: dict[str, Any] | None, localns: dict[str, Any] | None,
+        ref: ForwardRef,
+        globalns: dict[str, Any] | None,
+        localns: dict[str, Any] | None,
     ) -> Any:
         """Evaluate a forward reference."""
         return ref._evaluate(globalns, localns, frozenset())
 
     def evaluate(
-        annotation: Any, globalns: dict[str, Any], localns: dict[str, Any],
+        annotation: Any,
+        globalns: dict[str, Any],
+        localns: dict[str, Any],
     ) -> Any:
         """Evaluate unresolved type annotation."""
         try:
@@ -649,9 +661,12 @@ def evaluate_signature(sig: inspect.Signature, globalns: dict[str, Any] | None =
     return sig.replace(parameters=parameters, return_annotation=return_annotation)
 
 
-def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
-                        show_return_annotation: bool = True,
-                        unqualified_typehints: bool = False) -> str:
+def stringify_signature(
+    sig: inspect.Signature,
+    show_annotation: bool = True,
+    show_return_annotation: bool = True,
+    unqualified_typehints: bool = False,
+) -> str:
     """Stringify a Signature object.
 
     :param show_annotation: If enabled, show annotations on the signature
@@ -664,31 +679,35 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
     else:
         mode = 'fully-qualified'
 
+    EMPTY = Parameter.empty
+
     args = []
     last_kind = None
     for param in sig.parameters.values():
-        if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
+        if param.kind != Parameter.POSITIONAL_ONLY and last_kind == Parameter.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
             args.append('/')
-        if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
-                                                              param.POSITIONAL_ONLY,
-                                                              None):
+        if param.kind == Parameter.KEYWORD_ONLY and last_kind in (
+            Parameter.POSITIONAL_OR_KEYWORD,
+            Parameter.POSITIONAL_ONLY,
+            None,
+        ):
             # PEP-3102: Separator for Keyword Only Parameter: *
             args.append('*')
 
         arg = StringIO()
-        if param.kind == param.VAR_POSITIONAL:
+        if param.kind is Parameter.VAR_POSITIONAL:
             arg.write('*' + param.name)
-        elif param.kind == param.VAR_KEYWORD:
+        elif param.kind is Parameter.VAR_KEYWORD:
             arg.write('**' + param.name)
         else:
             arg.write(param.name)
 
-        if show_annotation and param.annotation is not param.empty:
+        if show_annotation and param.annotation is not EMPTY:
             arg.write(': ')
             arg.write(stringify_annotation(param.annotation, mode))
-        if param.default is not param.empty:
-            if show_annotation and param.annotation is not param.empty:
+        if param.default is not EMPTY:
+            if show_annotation and param.annotation is not EMPTY:
                 arg.write(' = ')
             else:
                 arg.write('=')
@@ -697,14 +716,12 @@ def stringify_signature(sig: inspect.Signature, show_annotation: bool = True,
         args.append(arg.getvalue())
         last_kind = param.kind
 
-    if last_kind == Parameter.POSITIONAL_ONLY:
+    if last_kind is Parameter.POSITIONAL_ONLY:
         # PEP-570: Separator for Positional Only Parameter: /
         args.append('/')
 
     concatenated_args = ', '.join(args)
-    if (sig.return_annotation is Parameter.empty or
-            show_annotation is False or
-            show_return_annotation is False):
+    if sig.return_annotation is EMPTY or not show_annotation or not show_return_annotation:
         return f'({concatenated_args})'
     else:
         annotation = stringify_annotation(sig.return_annotation, mode)
@@ -715,71 +732,62 @@ def signature_from_str(signature: str) -> inspect.Signature:
     """Create a Signature object from string."""
     code = 'def func' + signature + ': pass'
     module = ast.parse(code)
-    function = cast(ast.FunctionDef, module.body[0])
+    function = typing.cast(ast.FunctionDef, module.body[0])
 
     return signature_from_ast(function, code)
 
 
 def signature_from_ast(node: ast.FunctionDef, code: str = '') -> inspect.Signature:
     """Create a Signature object from AST *node*."""
-    args = node.args
-    defaults = list(args.defaults)
-    params = []
-    if hasattr(args, "posonlyargs"):
-        posonlyargs = len(args.posonlyargs)
-        positionals = posonlyargs + len(args.args)
-    else:
-        posonlyargs = 0
-        positionals = len(args.args)
+    EMPTY: type[Any] = Parameter.empty
 
-    for _ in range(len(defaults), positionals):
-        defaults.insert(0, Parameter.empty)  # type: ignore[arg-type]
+    args: ast.arguments = node.args
+    default_expressions: tuple[ast.expr | None, ...] = tuple(args.defaults)
+    pos_only_offset = len(args.posonlyargs)
+    defaults_offset = pos_only_offset + len(args.args) - len(args.defaults)
+    # The sequence ``D = args.defaults`` contains non-None AST expressions,
+    # so we can use ``None`` as a sentinel value for that to indicate that
+    # there is no default value for a specific parameter.
+    #
+    # Let *p* be the number of positional-only and positional-or-keyword
+    # arguments. Note that ``0 <= len(D) <= p`` and ``D[0]`` is the default
+    # value corresponding to a positional-only *or* a positional-or-keyword
+    # argument. Since a non-default argument cannot follow a default argument,
+    # the sequence *D* can be completed on the left by adding None sentinels
+    # so that ``len(D) == p`` and ``D[i]`` is the *i*-th default argument.
+    default_expressions = (None,) * defaults_offset + default_expressions
 
-    if hasattr(args, "posonlyargs"):
-        for i, arg in enumerate(args.posonlyargs):
-            if defaults[i] is Parameter.empty:
-                default = Parameter.empty
-            else:
-                default = DefaultValue(
-                    ast_unparse(defaults[i], code))  # type: ignore[assignment]
+    # construct the parameters list
+    params: list[Parameter] = []
 
-            annotation = ast_unparse(arg.annotation, code) or Parameter.empty
-            params.append(Parameter(arg.arg, Parameter.POSITIONAL_ONLY,
-                                    default=default, annotation=annotation))
+    # The real type of a parameter's kind is ``inspect._ParameterKind``
+    # but this (integral) enumeration is not part of the public API.
+    def process_arg(kind: Any, arg: ast.arg, *, defexpr: ast.expr | None = None) -> None:
+        default: Any = EMPTY if defexpr is None else DefaultValue(ast_unparse(defexpr, code))
+        annotation = ast_unparse(arg.annotation, code) or EMPTY
+        params.append(Parameter(arg.arg, kind, default=default, annotation=annotation))
 
-    for i, arg in enumerate(args.args):
-        if defaults[i + posonlyargs] is Parameter.empty:
-            default = Parameter.empty
-        else:
-            default = DefaultValue(
-                ast_unparse(defaults[i + posonlyargs], code),  # type: ignore[assignment]
-            )
+    # positional-only arguments (introduced in Python 3.8)
+    for arg, defexpr in zip(args.posonlyargs, default_expressions):
+        process_arg(Parameter.POSITIONAL_ONLY, arg, defexpr=defexpr)
 
-        annotation = ast_unparse(arg.annotation, code) or Parameter.empty
-        params.append(Parameter(arg.arg, Parameter.POSITIONAL_OR_KEYWORD,
-                                default=default, annotation=annotation))
+    # normal arguments
+    for arg, defexpr in zip(args.args, default_expressions[pos_only_offset:]):
+        process_arg(Parameter.POSITIONAL_OR_KEYWORD, arg, defexpr=defexpr)
 
+    # variadic positional argument (no possible default expression)
     if args.vararg:
-        annotation = ast_unparse(args.vararg.annotation, code) or Parameter.empty
-        params.append(Parameter(args.vararg.arg, Parameter.VAR_POSITIONAL,
-                                annotation=annotation))
+        process_arg(Parameter.VAR_POSITIONAL, args.vararg, defexpr=None)
 
-    for i, arg in enumerate(args.kwonlyargs):
-        if args.kw_defaults[i] is None:
-            default = Parameter.empty
-        else:
-            default = DefaultValue(
-                ast_unparse(args.kw_defaults[i], code))  # type: ignore[arg-type,assignment]
-        annotation = ast_unparse(arg.annotation, code) or Parameter.empty
-        params.append(Parameter(arg.arg, Parameter.KEYWORD_ONLY, default=default,
-                                annotation=annotation))
+    # keyword-only arguments
+    for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults):
+        process_arg(Parameter.KEYWORD_ONLY, arg, defexpr=defexpr)
 
+    # variadic keyword argument (no possible default expression)
     if args.kwarg:
-        annotation = ast_unparse(args.kwarg.annotation, code) or Parameter.empty
-        params.append(Parameter(args.kwarg.arg, Parameter.VAR_KEYWORD,
-                                annotation=annotation))
+        process_arg(Parameter.VAR_KEYWORD, args.kwarg, defexpr=None)
 
-    return_annotation = ast_unparse(node.returns, code) or Parameter.empty
+    return_annotation = ast_unparse(node.returns, code) or EMPTY
 
     return inspect.Signature(params, return_annotation=return_annotation)
 
@@ -799,14 +807,14 @@ def getdoc(
     * inherited docstring
     * inherited decorated methods
     """
+
     def getdoc_internal(
-        obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr,
+        obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr
     ) -> str | None:
         doc = attrgetter(obj, '__doc__', None)
         if isinstance(doc, str):
             return doc
-        else:
-            return None
+        return None
 
     if cls and name and isclassmethod(obj, cls, name):
         for basecls in getmro(cls):
