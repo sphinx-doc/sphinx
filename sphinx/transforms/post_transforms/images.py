@@ -64,7 +64,8 @@ class ImageDownloader(BaseImageConverter):
                 basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
             basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
-            dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
+            dirname = node['uri'].replace('://', '/').translate({ord(":"): "/",
+                                                                 ord("?"): "/",
                                                                  ord("&"): "/"})
             if len(dirname) > MAX_FILENAME_LEN:
                 dirname = sha1(dirname.encode(), usedforsecurity=False).hexdigest()
