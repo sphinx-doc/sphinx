@@ -1427,7 +1427,7 @@ def test_latex_raw_directive(app, status, warning):
 @pytest.mark.usefixtures('if_online')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_latex_images(app, status, warning):
-    with http_server(RemoteImageHandler):
+    with http_server(RemoteImageHandler, port=7777):
         app.build(force_all=True)
 
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
