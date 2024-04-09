@@ -18,7 +18,7 @@ from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
-from tests.utils import http_server
+from tests.utils import http_server, serve_application
 
 try:
     from contextlib import chdir
@@ -1427,7 +1427,7 @@ def test_latex_raw_directive(app, status, warning):
 @pytest.mark.usefixtures('if_online')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_latex_images(app, status, warning):
-    with http_server(RemoteImageHandler):
+    with serve_application(app, RemoteImageHandler) as address:
         app.build(force_all=True)
 
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
@@ -1439,7 +1439,7 @@ def test_latex_images(app, status, warning):
     # not found images
     assert '\\sphinxincludegraphics{{NOT_EXIST}.PNG}' not in result
     assert ('WARNING: Could not fetch remote image: '
-            'http://localhost:7777/NOT_EXIST.PNG [404]' in warning.getvalue())
+            f'http://{address}/NOT_EXIST.PNG [404]' in warning.getvalue())
 
     # an image having target
     assert ('\\sphinxhref{https://www.sphinx-doc.org/}'
