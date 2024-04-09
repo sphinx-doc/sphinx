@@ -253,36 +253,6 @@ def _query(address: tuple[str, int]) -> str | None:
 
 
 @pytest.fixture(scope='session')
-def sphinx_remote_query_address() -> tuple[str, int]:
-    """Address to which a query is made to check that the host is online.
-
-    By default, onlineness is tested by querying the DNS server ``1.1.1.1``
-    but users concerned about privacy might change it in ``conftest.py``.
-    """
-    return ('1.1.1.1', 80)
-
-
-@pytest.fixture(scope='session')
-def if_online(  # NoQA: PT004
-    request: pytest.FixtureRequest,
-    sphinx_remote_query_address: tuple[str, int],
-) -> None:
-    """Skip the test if the host has no connection.
-
-    Usage::
-
-        @pytest.mark.usefixtures('if_online')
-        def test_if_host_is_online(): ...
-    """
-    if _HOST_ONLINE_ERROR not in request.session.stash:
-        # do not use setdefault() to avoid creating a socket connection
-        lookup_error = _query(sphinx_remote_query_address)
-        request.session.stash[_HOST_ONLINE_ERROR] = lookup_error
-    if (error := request.session.stash[_HOST_ONLINE_ERROR]) is not None:
-        pytest.skip('host appears to be offline (%s)' % error)
-
-
-@pytest.fixture(scope='session')
 def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
     """Temporary directory."""
     return tmp_path_factory.getbasetemp()
