@@ -22,7 +22,7 @@ import sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 

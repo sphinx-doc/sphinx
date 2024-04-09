@@ -16,7 +16,7 @@ from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.index_entries import split_index_msg
@@ -27,7 +27,7 @@ from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Generator, Iterable
+    from collections.abc import Iterable, Iterator
 
     from docutils.nodes import Element
 
@@ -69,7 +69,7 @@ class Catalog:
             line = -1
         self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore[arg-type]
 
-    def __iter__(self) -> Generator[Message, None, None]:
+    def __iter__(self) -> Iterator[Message]:
         for message in self.messages:
             positions = sorted({(source, line) for source, line, uuid
                                in self.metadata[message]})
