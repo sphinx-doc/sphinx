@@ -236,22 +236,6 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     pytest.skip('graphviz "dot" is not available')
 
 
-_HOST_ONLINE_ERROR = pytest.StashKey[Optional[str]]()
-
-
-def _query(address: tuple[str, int]) -> str | None:
-    import socket
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        try:
-            sock.settimeout(5)
-            sock.connect(address)
-        except OSError as exc:
-            # other type of errors are propagated
-            return str(exc)
-        return None
-
-
 @pytest.fixture(scope='session')
 def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
     """Temporary directory."""
