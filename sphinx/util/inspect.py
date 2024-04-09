@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from enum import Enum
     from types import MethodType, ModuleType
-    from typing import Callable, Protocol, Union
+    from typing import Protocol, Union
 
     from typing_extensions import TypeGuard
 
