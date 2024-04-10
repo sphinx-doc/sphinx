@@ -108,7 +108,7 @@ latex_use_xindy = True
 linkcheck_timeout = 5
 linkcheck_ignore = [
     r'^contents\.html$',  # extra generated page
-    '^\.\./contents\.html$',
+    r'^\.\./contents\.html$',
     re.escape('https://gitlab.com/projects/new'),  # requires sign-in
     re.escape('https://web.libera.chat/?channel=#sphinx-doc'),
 ]
