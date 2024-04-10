@@ -29,7 +29,7 @@ from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from typing import Any, Callable
 
     from requests import Response
@@ -224,7 +224,7 @@ class HyperlinkAvailabilityChecker:
         self.to_ignore: list[re.Pattern[str]] = list(map(re.compile,
                                                          self.config.linkcheck_ignore))
 
-    def check(self, hyperlinks: dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
+    def check(self, hyperlinks: dict[str, Hyperlink]) -> Iterator[CheckResult]:
         self.invoke_threads()
 
         total_links = 0
