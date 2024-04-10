@@ -1424,10 +1424,6 @@ def test_latex_raw_directive(app, status, warning):
     assert 'LaTeX: abc def ghi' in result
 
 
-@pytest.mark.xfail(
-    os.name != 'posix',
-    reason="Bug #12100: download of images from URLs with port numbers on Windows."
-)
 @pytest.mark.sphinx('latex', testroot='images')
 def test_latex_images(app, status, warning):
     with http_server(RemoteImageHandler, port=7777):
