@@ -9,7 +9,7 @@ from defusedxml.ElementTree import parse as xml_parse
 
 import sphinx.builders.html
 from sphinx.errors import ThemeError
-from sphinx.theming import _load_theme_conf
+from sphinx.theming import _load_theme
 
 
 @pytest.mark.sphinx(
@@ -81,7 +81,7 @@ def test_nonexistent_theme_conf(tmp_path):
     # Check that error occurs with a non-existent theme.conf
     # (https://github.com/sphinx-doc/sphinx/issues/11668)
     with pytest.raises(ThemeError):
-        _load_theme_conf(tmp_path)
+        _load_theme('', str(tmp_path))
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')

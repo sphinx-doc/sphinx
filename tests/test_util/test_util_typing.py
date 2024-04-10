@@ -32,6 +32,7 @@ from typing import (
     Callable,
     Dict,
     Generator,
+    Iterator,
     List,
     NewType,
     Optional,
@@ -175,6 +176,8 @@ def test_restify_type_hints_containers():
     assert restify(Generator[None, None, None]) == (":py:class:`~typing.Generator`\\ "
                                                     "[:py:obj:`None`, :py:obj:`None`, "
                                                     ":py:obj:`None`]")
+    assert restify(Iterator[None]) == (":py:class:`~typing.Iterator`\\ "
+                                       "[:py:obj:`None`]")
 
 
 def test_restify_type_hints_Callable():
@@ -390,6 +393,10 @@ def test_stringify_type_hints_containers():
     assert stringify_annotation(Generator[None, None, None], 'fully-qualified-except-typing') == "Generator[None, None, None]"
     assert stringify_annotation(Generator[None, None, None], "fully-qualified") == "typing.Generator[None, None, None]"
     assert stringify_annotation(Generator[None, None, None], "smart") == "~typing.Generator[None, None, None]"
+
+    assert stringify_annotation(Iterator[None], 'fully-qualified-except-typing') == "Iterator[None]"
+    assert stringify_annotation(Iterator[None], "fully-qualified") == "typing.Iterator[None]"
+    assert stringify_annotation(Iterator[None], "smart") == "~typing.Iterator[None]"
 
 
 def test_stringify_type_hints_pep_585():
