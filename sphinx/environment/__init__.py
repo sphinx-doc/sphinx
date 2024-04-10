@@ -23,7 +23,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from pathlib import Path
 
     from docutils import nodes
@@ -524,7 +524,7 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def check_dependents(self, app: Sphinx, already: set[str]) -> Generator[str, None, None]:
+    def check_dependents(self, app: Sphinx, already: set[str]) -> Iterator[str]:
         to_rewrite: list[str] = []
         for docnames in self.events.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
