@@ -202,6 +202,10 @@ type for that event:
 
 Here is a more detailed list of these events.
 
+.. seealso::
+
+   .. autoclass:: CoreEvent
+
 .. event:: builder-inited (app)
 
    Emitted when the builder object has been created.  It is available as
@@ -363,7 +367,8 @@ Here is a more detailed list of these events.
 
    Emitted before caching the environment.
 
-   Here you can check for consistency of data in the environment, before it is stored.
+   Here you can check for consistency of data in the environment,
+   before it is stored.
 
    .. versionadded:: 1.6
 

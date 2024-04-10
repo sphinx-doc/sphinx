@@ -51,7 +51,10 @@ core_events = {
 
 
 class CoreEvent(Enum):
-    """Enumeration of core events."""
+    """Enumeration of core events.
+
+    .. versionadded:: 7.3
+    """
 
     builder_inited = 'builder-inited'
     """Emitted when the builder object has been created::
