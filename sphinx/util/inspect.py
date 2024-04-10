@@ -89,7 +89,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
 
 
 def getall(obj: Any) -> Sequence[str] | None:
-    """Get the ``__all__`` attribute of an module as sequence.
+    """Get the ``__all__`` attribute of an object as sequence.
 
     This returns ``None`` if the given ``obj.__all__`` does not exist and
     raises :exc:`ValueError` if ``obj.__all__`` is not a list or tuple of
