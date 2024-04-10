@@ -64,7 +64,7 @@ dependencies = [
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
     "Pygments>=2.14",
-    "docutils>=0.18.1,<0.21",
+    "docutils>=0.18.1,<0.22",
     "snowballstemmer>=2.0",
     "babel>=2.9",
     "alabaster~=0.7.14",
