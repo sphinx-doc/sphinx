@@ -260,7 +260,7 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 0.5
 
-.. event:: include-read (app, relative_path, parent_docname, content)
+.. event:: include-read (app, relative_path, parent_docname, source)
 
    Emitted when a file has been read with the :dudir:`include` directive.
    The *relative_path* argument is a :py:class:`~pathlib.Path` object representing
@@ -361,8 +361,9 @@ Here is a more detailed list of these events.
 
 .. event:: env-check-consistency (app, env)
 
-   Emitted when Consistency checks phase.  You can check consistency of
-   metadata for whole of documents.
+   Emitted before caching the environment.
+
+   Here you can check for consistency of data in the environment, before it is stored.
 
    .. versionadded:: 1.6
 

@@ -25,7 +25,7 @@ from sphinx import locale, package_dir
 from sphinx.config import ENUM, Config, _ConfigRebuild
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
-from sphinx.events import EventManager
+from sphinx.events import CoreEvent, EventManager
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
@@ -424,7 +424,7 @@ class Sphinx:
             raise VersionRequirementError(req)
 
     # event interface
-    def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
+    def connect(self, event: str | CoreEvent, callback: Callable, priority: int = 500) -> int:
         """Register *callback* to be called when *event* is emitted.
 
         For details on available core events and the arguments of callback
