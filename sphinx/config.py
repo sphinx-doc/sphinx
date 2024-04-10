@@ -359,14 +359,14 @@ class Config:
 
     @staticmethod
     def pre_init_values() -> None:
-        # method only retained for compatability
+        # method only retained for compatibility
         pass
         # warnings.warn(
         #     'Config.pre_init_values() will be removed in Sphinx 9.0 or later',
         #     RemovedInSphinx90Warning, stacklevel=2)
 
     def init_values(self) -> None:
-        # method only retained for compatability
+        # method only retained for compatibility
         self._report_override_warnings()
         # warnings.warn(
         #     'Config.init_values() will be removed in Sphinx 9.0 or later',
