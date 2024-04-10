@@ -288,8 +288,8 @@ def linkify_issues_in_changelog(app, docname, source):
 
 def setup(app: Sphinx) -> None:
     from sphinx.ext.autodoc import cut_lines
-    from sphinx.util.docfields import GroupedField
     from sphinx.roles import code_role
+    from sphinx.util.docfields import GroupedField
 
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.connect('source-read', linkify_issues_in_changelog)

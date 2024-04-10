@@ -124,5 +124,5 @@ def test_opcodes():
     assert list(cleaner.clean(src, **options)) == ['a']
 
     # empty lines removed after duplicates
-    ops = ('strip', 'compress', 'check')
-    assert list(cleaner.clean(src, **options, ops=ops)) == ['a', 'a', 'a']
+    options_with_opcodes = options | {'ops': ('strip', 'compress', 'check')}
+    assert list(cleaner.clean(src, **options_with_opcodes)) == ['a', 'a', 'a']
