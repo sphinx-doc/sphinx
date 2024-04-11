@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
+    from typing import Final
 
 logger = logging.getLogger(__name__)
 
@@ -218,10 +219,9 @@ def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        sentinel = object()
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, sentinel)
-            if meth is not sentinel:
+            meth = basecls.__dict__.get(name)
+            if meth is not None:
                 return isclassmethod(meth)
     return False
 
@@ -232,10 +232,9 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        sentinel = object()
         for basecls in getattr(cls, '__mro__', [cls]):
-            meth = basecls.__dict__.get(name, sentinel)
-            if meth is not sentinel:
+            meth = basecls.__dict__.get(name)
+            if meth is not None:
                 return isinstance(meth, staticmethod)
     return False
 
@@ -265,6 +264,13 @@ def is_cython_function_or_method(obj: Any) -> bool:
         return False
 
 
+_DESCRIPTOR_LIKE: Final[tuple[type, ...]] = (
+    ClassMethodDescriptorType,
+    MethodDescriptorType,
+    WrapperDescriptorType,
+)
+
+
 def isattributedescriptor(obj: Any) -> bool:
     """Check if the object is an attribute-like descriptor."""
     if inspect.isdatadescriptor(obj):
@@ -282,9 +288,7 @@ def isattributedescriptor(obj: Any) -> bool:
         if isclass(unwrapped):
             # attribute must not be a class
             return False
-        if isinstance(
-            unwrapped, (ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType)
-        ):
+        if isinstance(unwrapped, _DESCRIPTOR_LIKE):
             # attribute must not be a method descriptor
             return False
         # attribute must not be an instancemethod (C-API)
