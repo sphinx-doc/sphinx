@@ -21,17 +21,42 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib  # type: ignore[import-not-found]
+
 if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
 else:
     from importlib_metadata import entry_points  # type: ignore[import-not-found]
 
 if TYPE_CHECKING:
+    from typing import TypedDict
+
+    from typing_extensions import Required
+
     from sphinx.application import Sphinx
+
+    class _ThemeToml(TypedDict, total=False):
+        theme: Required[_ThemeTomlTheme]
+        options: dict[str, str]
+
+    class _ThemeTomlTheme(TypedDict, total=False):
+        inherit: Required[str]
+        stylesheets: list[str]
+        sidebars: list[str]
+        pygments_style: _ThemeTomlThemePygments
+
+    class _ThemeTomlThemePygments(TypedDict, total=False):
+        default: str
+        dark: str
+
 
 logger = logging.getLogger(__name__)
 
 _NO_DEFAULT = object()
+_THEME_TOML = 'theme.toml'
 _THEME_CONF = 'theme.conf'
 
 
@@ -185,7 +210,9 @@ class HTMLThemeFactory:
                         entry,
                     )
             else:
-                if path.isfile(path.join(pathname, _THEME_CONF)):
+                toml_path = path.join(pathname, _THEME_TOML)
+                conf_path = path.join(pathname, _THEME_CONF)
+                if path.isfile(toml_path) or path.isfile(conf_path):
                     themes[entry] = pathname
 
         return themes
@@ -196,7 +223,7 @@ class HTMLThemeFactory:
             self._load_extra_theme(name)
 
         if name not in self._themes:
-            raise ThemeError(__('no theme named %r found (missing theme.conf?)') % name)
+            raise ThemeError(__('no theme named %r found (missing theme.toml?)') % name)
 
         themes, theme_dirs, tmp_dirs = _load_theme_with_ancestors(self._themes, name)
         return Theme(name, configs=themes, paths=theme_dirs, tmp_dirs=tmp_dirs)
@@ -206,7 +233,8 @@ def _is_archived_theme(filename: str, /) -> bool:
     """Check whether the specified file is an archived theme file or not."""
     try:
         with ZipFile(filename) as f:
-            return _THEME_CONF in f.namelist()
+            namelist = frozenset(f.namelist())
+            return _THEME_TOML in namelist or _THEME_CONF in namelist
     except Exception:
         return False
 
@@ -255,7 +283,11 @@ def _load_theme(name: str, theme_path: str, /) -> tuple[str, str, str | None, _C
         theme_dir = path.join(tmp_dir, name)
         _extract_zip(theme_path, theme_dir)
 
-    if path.isfile(conf_path := path.join(theme_dir, _THEME_CONF)):
+    if path.isfile(toml_path := path.join(theme_dir, _THEME_TOML)):
+        _cfg_table = _load_theme_toml(toml_path)
+        inherit = _validate_theme_toml(_cfg_table, name)
+        config = _convert_theme_toml(_cfg_table)
+    elif path.isfile(conf_path := path.join(theme_dir, _THEME_CONF)):
         _cfg_parser = _load_theme_conf(conf_path)
         inherit = _validate_theme_conf(_cfg_parser, name)
         config = _convert_theme_conf(_cfg_parser)
@@ -277,6 +309,48 @@ def _extract_zip(filename: str, target_dir: str, /) -> None:
             ensuredir(path.dirname(entry))
             with open(path.join(entry), 'wb') as fp:
                 fp.write(archive.read(name))
+
+
+def _load_theme_toml(config_file_path: str, /) -> _ThemeToml:
+    with open(config_file_path, encoding='utf-8') as f:
+        config_text = f.read()
+    c = tomllib.loads(config_text)
+    return {s: c[s] for s in ('theme', 'options') if s in c}  # type: ignore[return-value]
+
+
+def _validate_theme_toml(cfg: _ThemeToml, name: str) -> str:
+    if 'theme' not in cfg:
+        raise ThemeError(__('theme %r doesn\'t have the "theme" table') % name)
+    if inherit := cfg['theme'].get('inherit', ''):
+        return inherit
+    msg = __('The %r theme must define the "theme.inherit" setting') % name
+    raise ThemeError(msg)
+
+
+def _convert_theme_toml(cfg: _ThemeToml, /) -> _ConfigFile:
+    theme = cfg['theme']
+    if 'stylesheets' in theme:
+        stylesheets: tuple[str, ...] | None = tuple(theme['stylesheets'])
+    else:
+        stylesheets = None
+    if 'sidebars' in theme:
+        sidebar_templates: tuple[str, ...] | None = tuple(theme['sidebars'])
+    else:
+        sidebar_templates = None
+    pygments_table = theme.get('pygments_style', {})
+    if isinstance(pygments_table, str):
+        hint = f'pygments_style = {{ default = "{pygments_table}" }}'
+        msg = __('The "theme.pygments_style" setting must be a table. Hint: "%s"') % hint
+        raise ThemeError(msg)
+    pygments_style_default: str | None = pygments_table.get('default')
+    pygments_style_dark: str | None = pygments_table.get('dark')
+    return _ConfigFile(
+        stylesheets=stylesheets,
+        sidebar_templates=sidebar_templates,
+        pygments_style_default=pygments_style_default,
+        pygments_style_dark=pygments_style_dark,
+        options=cfg.get('options', {}),
+    )
 
 
 def _load_theme_conf(config_file_path: str, /) -> configparser.RawConfigParser:

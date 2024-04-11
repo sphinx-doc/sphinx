@@ -77,8 +77,8 @@ def test_theme_api(app, status, warning):
     assert not any(map(os.path.exists, theme._tmp_dirs))
 
 
-def test_nonexistent_theme_conf(tmp_path):
-    # Check that error occurs with a non-existent theme.conf
+def test_nonexistent_theme_settings(tmp_path):
+    # Check that error occurs with a non-existent theme.toml or theme.conf
     # (https://github.com/sphinx-doc/sphinx/issues/11668)
     with pytest.raises(ThemeError):
         _load_theme('', str(tmp_path))
