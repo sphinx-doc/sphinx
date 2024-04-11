@@ -24,12 +24,12 @@ from sphinx.util.osutil import ensuredir
 if sys.version_info >= (3, 11):
     import tomllib
 else:
-    import tomli as tomllib  # type: ignore[import-not-found]
+    import tomli as tomllib
 
 if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
 else:
-    from importlib_metadata import entry_points  # type: ignore[import-not-found]
+    from importlib_metadata import entry_points
 
 if TYPE_CHECKING:
     from typing import TypedDict
