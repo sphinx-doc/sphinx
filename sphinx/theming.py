@@ -27,8 +27,6 @@ else:
     from importlib_metadata import entry_points  # type: ignore[import-not-found]
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from sphinx.application import Sphinx
 
 logger = logging.getLogger(__name__)
@@ -62,9 +60,9 @@ class Theme:
         self.pygments_style_dark: str | None = None
         for config in reversed(configs.values()):
             options |= config.options
-            if len(config.stylesheets):
+            if config.stylesheets is not None:
                 self.stylesheets = config.stylesheets
-            if len(config.sidebar_templates):
+            if config.sidebar_templates is not None:
                 self.sidebar_templates = config.sidebar_templates
             if config.pygments_style_default is not None:
                 self.pygments_style_default = config.pygments_style_default
@@ -72,10 +70,6 @@ class Theme:
                 self.pygments_style_dark = config.pygments_style_dark
 
         self._options = options
-
-        if len(self.stylesheets) == 0:
-            msg = __("No loaded theme defines 'theme.stylesheet' in the configuration")
-            raise ThemeError(msg) from None
 
     def get_theme_dirs(self) -> list[str]:
         """Return a list of theme directories, beginning with this theme's,
@@ -261,7 +255,7 @@ def _load_theme(name: str, theme_path: str, /) -> tuple[str, str, str | None, _C
         theme_dir = path.join(tmp_dir, name)
         _extract_zip(theme_path, theme_dir)
 
-    if os.path.isfile(conf_path := path.join(theme_dir, _THEME_CONF)):
+    if path.isfile(conf_path := path.join(theme_dir, _THEME_CONF)):
         _cfg_parser = _load_theme_conf(conf_path)
         inherit = _validate_theme_conf(_cfg_parser, name)
         config = _convert_theme_conf(_cfg_parser)
@@ -302,13 +296,13 @@ def _validate_theme_conf(cfg: configparser.RawConfigParser, name: str) -> str:
 
 def _convert_theme_conf(cfg: configparser.RawConfigParser, /) -> _ConfigFile:
     if stylesheet := cfg.get('theme', 'stylesheet', fallback=''):
-        stylesheets: tuple[str, ...] = tuple(map(str.strip, stylesheet.split(',')))
+        stylesheets: tuple[str, ...] | None = tuple(map(str.strip, stylesheet.split(',')))
     else:
-        stylesheets = ()
+        stylesheets = None
     if sidebar := cfg.get('theme', 'sidebars', fallback=''):
-        sidebar_templates: tuple[str, ...] = tuple(map(str.strip, sidebar.split(',')))
+        sidebar_templates: tuple[str, ...] | None = tuple(map(str.strip, sidebar.split(',')))
     else:
-        sidebar_templates = ()
+        sidebar_templates = None
     pygments_style_default: str | None = cfg.get('theme', 'pygments_style', fallback=None)
     pygments_style_dark: str | None = cfg.get('theme', 'pygments_dark_style', fallback=None)
     options = dict(cfg.items('options')) if cfg.has_section('options') else {}
@@ -332,14 +326,14 @@ class _ConfigFile:
 
     def __init__(
         self,
-        stylesheets: Iterable[str],
-        sidebar_templates: Iterable[str],
+        stylesheets: tuple[str, ...] | None,
+        sidebar_templates: tuple[str, ...] | None,
         pygments_style_default: str | None,
         pygments_style_dark: str | None,
         options: dict[str, str],
     ) -> None:
-        self.stylesheets: tuple[str, ...] = tuple(stylesheets)
-        self.sidebar_templates: tuple[str, ...] = tuple(sidebar_templates)
+        self.stylesheets: tuple[str, ...] | None = stylesheets
+        self.sidebar_templates: tuple[str, ...] | None = sidebar_templates
         self.pygments_style_default: str | None = pygments_style_default
         self.pygments_style_dark: str | None = pygments_style_dark
         self.options: dict[str, str] = options.copy()
