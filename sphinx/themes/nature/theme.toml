@@ -1,4 +1,6 @@
 [theme]
-inherit = basic
-stylesheet = nature.css
-pygments_style = tango
+inherit = "basic"
+stylesheets = [
+    "nature.css",
+]
+pygments_style = { default = "tango" }

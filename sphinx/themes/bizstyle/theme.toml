@@ -1,10 +1,12 @@
 [theme]
-inherit = basic
-stylesheet = bizstyle.css
-pygments_style = friendly
+inherit = "basic"
+stylesheets = [
+    "bizstyle.css",
+]
+pygments_style = { default = "friendly" }
 
 [options]
-rightsidebar = false
-sidebarwidth = 210
+rightsidebar = "false"
+sidebarwidth = "210"
 
-maincolor = #336699
+maincolor = "#336699"
