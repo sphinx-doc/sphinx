@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from pathlib import Path
 from xml.etree.ElementTree import ParseError
 
 import pytest
@@ -9,7 +10,16 @@ from defusedxml.ElementTree import parse as xml_parse
 
 import sphinx.builders.html
 from sphinx.errors import ThemeError
-from sphinx.theming import _load_theme
+from sphinx.theming import (
+    _ConfigFile,
+    _convert_theme_conf,
+    _convert_theme_toml,
+    _load_theme,
+    _load_theme_conf,
+    _load_theme_toml,
+)
+
+HERE = Path(__file__).resolve().parent
 
 
 @pytest.mark.sphinx(
@@ -187,3 +197,31 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
             xml_parse(html_file)
         except ParseError as exc:
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
+
+
+def test_config_file_toml():
+    config_path = HERE / 'theme.toml'
+    cfg = _load_theme_toml(str(config_path))
+    config = _convert_theme_toml(cfg)
+
+    assert config == _ConfigFile(
+        stylesheets=('spam.css', 'ham.css'),
+        sidebar_templates=None,
+        pygments_style_default='spam',
+        pygments_style_dark=None,
+        options={'lobster': 'thermidor'},
+    )
+
+
+def test_config_file_conf():
+    config_path = HERE / 'theme.conf'
+    cfg = _load_theme_conf(str(config_path))
+    config = _convert_theme_conf(cfg)
+
+    assert config == _ConfigFile(
+        stylesheets=('spam.css', 'ham.css'),
+        sidebar_templates=None,
+        pygments_style_default='spam',
+        pygments_style_dark=None,
+        options={'lobster': 'thermidor'},
+    )
