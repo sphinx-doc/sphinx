@@ -1,4 +1,6 @@
 [theme]
-inherit = basic
-stylesheet = pyramid.css
-pygments_style = sphinx.pygments_styles.PyramidStyle
+inherit = "basic"
+stylesheets = [
+    "pyramid.css",
+]
+pygments_style = { default = "sphinx.pygments_styles.PyramidStyle" }

@@ -1,8 +1,10 @@
 [theme]
-inherit = basic
-stylesheet = nonav.css
-pygments_style = none
+inherit = "basic"
+stylesheets = [
+    "nonav.css",
+]
+pygments_style = { default = "none" }
 
 [options]
-relbar1 = true
-footer = true
+relbar1 = "true"
+footer = "true"
