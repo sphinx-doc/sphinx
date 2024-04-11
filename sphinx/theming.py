@@ -320,11 +320,21 @@ def _load_theme_toml(config_file_path: str, /) -> _ThemeToml:
 
 def _validate_theme_toml(cfg: _ThemeToml, name: str) -> str:
     if 'theme' not in cfg:
-        raise ThemeError(__('theme %r doesn\'t have the "theme" table') % name)
-    if inherit := cfg['theme'].get('inherit', ''):
-        return inherit
-    msg = __('The %r theme must define the "theme.inherit" setting') % name
-    raise ThemeError(msg)
+        msg = __('theme %r doesn\'t have the "theme" table') % name
+        raise ThemeError(msg)
+    theme = cfg['theme']
+    if not isinstance(theme, dict):
+        msg = __('The %r theme "[theme]" table is not a table') % name
+        raise ThemeError(msg)
+    inherit = theme.get('inherit', '')
+    if not inherit:
+        msg = __('The %r theme must define the "theme.inherit" setting') % name
+        raise ThemeError(msg)
+    if 'options' in cfg:
+        if not isinstance(cfg['options'], dict):
+            msg = __('The %r theme "[options]" table is not a table') % name
+            raise ThemeError(msg)
+    return inherit
 
 
 def _convert_theme_toml(cfg: _ThemeToml, /) -> _ConfigFile:
