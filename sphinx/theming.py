@@ -442,3 +442,77 @@ class _ConfigFile:
             self.pygments_style_dark,
             self.options,
         ))
+
+
+def _migrate_conf_to_toml(argv: list[str]) -> int:
+    if argv[:1] != ['conf_to_toml']:
+        raise SystemExit(0)
+    argv = argv[1:]
+    if len(argv) != 1:
+        print('Usage: python -m sphinx.theming conf_to_toml <theme path>')  # NoQA: T201
+        raise SystemExit(1)
+    theme_dir = path.realpath(argv[0])
+    conf_path = path.join(theme_dir, _THEME_CONF)
+    if not path.isdir(theme_dir) or not path.isfile(conf_path):
+        print(  # NoQA: T201
+            f'{theme_dir!r} must be a path to a theme directory containing a "theme.conf" file'
+        )
+        return 1
+    _cfg_parser = _load_theme_conf(conf_path)
+    if not _cfg_parser.has_section('theme'):
+        print('The "theme" table is missing.')  # NoQA: T201
+        return 1
+    inherit = _cfg_parser.get('theme', 'inherit', fallback=None)
+    if not inherit:
+        print('The "theme.inherit" setting is missing.')  # NoQA: T201
+        return 1
+
+    toml_lines = [
+        '[theme]',
+        f'inherit = "{inherit}"',
+    ]
+
+    stylesheet = _cfg_parser.get('theme', 'stylesheet', fallback=...)
+    if stylesheet == '':
+        toml_lines.append('stylesheets = []')
+    elif stylesheet is not ...:
+        toml_lines.append('stylesheets = [')
+        toml_lines.extend(f'    "{s}",' for s in map(str.strip, stylesheet.split(',')))
+        toml_lines.append(']')
+
+    sidebar = _cfg_parser.get('theme', 'sidebars', fallback=...)
+    if sidebar == '':
+        toml_lines.append('sidebars = []')
+    elif sidebar is not ...:
+        toml_lines.append('sidebars = [')
+        toml_lines += [f'    "{s}",' for s in map(str.strip, sidebar.split(','))]
+        toml_lines.append(']')
+
+    styles = []
+    default = _cfg_parser.get('theme', 'pygments_style', fallback=...)
+    if default is not ...:
+        styles.append(f'default = "{default}"')
+    dark = _cfg_parser.get('theme', 'pygments_dark_style', fallback=...)
+    if dark is not ...:
+        styles.append(f'dark = "{dark}"')
+    if styles:
+        toml_lines.append('pygments_style = { ' + ', '.join(styles) + ' }')
+
+    if _cfg_parser.has_section('options'):
+        toml_lines.append('')
+        toml_lines.append('[options]')
+        toml_lines += [
+            f'{key} = "{d}"'
+            for key, default in _cfg_parser.items('options')
+            if (d := default.replace('"', r'\"')) or True
+        ]
+
+    toml_path = path.join(theme_dir, _THEME_TOML)
+    with open(toml_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(toml_lines) + '\n')
+    print(f'Written converted settings to {toml_path!r}')  # NoQA: T201
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(_migrate_conf_to_toml(sys.argv[1:]))

@@ -160,6 +160,24 @@ Python :mod:`configparser` module) and has the following structure:
 
    The stylesheet setting accepts multiple CSS filenames
 
+Convert ``theme.conf`` to ``theme.toml``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+INI-style theme configuration files (``theme.conf``) can be converted to TOML
+via a helper programme distributed with Sphinx.
+This is intended for one-time use, and may be removed without notice in a future
+version of Sphinx.
+
+.. code-block:: console
+
+   $ python -m sphinx.theming conf_to_toml [THEME DIRECTORY PATH]
+
+The required argument is a path to a directory containing a ``theme.conf`` file.
+The programme will write a ``theme.toml`` file in the same directory,
+and will not modify the original ``theme.conf`` file.
+
+.. versionadded:: 7.3
+
 .. _distribute-your-theme:
 
 Distribute your theme as a Python package
