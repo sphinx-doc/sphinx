@@ -546,6 +546,7 @@ exclude = [
     "sphinx/util/cfamily.py",
     "sphinx/util/math.py",
     "sphinx/util/logging.py",
+    "sphinx/util/inspect.py",
     "sphinx/util/parallel.py",
     "sphinx/util/inventory.py",
     "sphinx/util/__init__.py",
