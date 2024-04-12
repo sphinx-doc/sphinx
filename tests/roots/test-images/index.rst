@@ -23,7 +23,7 @@ test-image
    :target: https://www.python.org/
 
 .. a remote image
-.. image:: https://www.python.org/static/img/python-logo.png
+.. image:: http://localhost:7777/sphinx.png
 
 .. non-exist remote image
-.. image:: https://www.google.com/NOT_EXIST.PNG
+.. image:: http://localhost:7777/NOT_EXIST.PNG
