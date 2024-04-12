@@ -108,6 +108,8 @@ Bugs fixed
   responses as broken.
   Patch by James Addison.
 * #11868: linkcheck: added a distinct ``timeout`` reporting status code.
+  This can be enabled by setting :confval:`linkcheck_report_timeouts_as_broken`
+  to ``False``.
   Patch by James Addison.
 * #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
   Patch by James Addison.
