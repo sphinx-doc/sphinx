@@ -87,6 +87,8 @@ lint = [
     "sphinx-lint",
     "types-docutils",
     "types-requests",
+    "importlib_metadata",  # for mypy (Python<=3.9)
+    "tomli",  # for mypy (Python<=3.10)
     "pytest>=6.0",
 ]
 test = [
@@ -284,7 +286,7 @@ module = [
 disallow_any_generics = false
 
 [tool.pytest.ini_options]
-minversion = 6.0
+minversion = "6.0"
 addopts = [
     "-ra",
     "--import-mode=prepend",
