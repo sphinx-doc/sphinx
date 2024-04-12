@@ -312,7 +312,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
-        self._timeout_status = 'broken' if config.linkcheck_report_timeouts_as_broken else 'timeout'
+        if config.linkcheck_report_timeouts_as_broken:
+            self._timeout_status = 'broken'
+        else:
+            self._timeout_status = 'timeout'
 
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
