@@ -4,6 +4,10 @@ Release 7.3.0 (in development)
 Dependencies
 ------------
 
+* #11411: Support `Docutils 0.21`_. Patch by Adam Turner.
+
+.. _Docutils 0.21: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-21-2024-04-09
+
 Incompatible changes
 --------------------
 
