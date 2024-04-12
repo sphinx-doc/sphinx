@@ -100,6 +100,11 @@ jobs:
     name: Docutils HEAD
 
     steps:
+    - name: Install epubcheck
+      run: |
+        mkdir /tmp/epubcheck && cd /tmp/epubcheck
+        wget https://github.com/w3c/epubcheck/releases/download/v5.1.0/epubcheck-5.1.0.zip
+        unzip epubcheck-5.1.0.zip
     - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -119,6 +124,8 @@ jobs:
       run: python -m pytest -vv
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
+        DO_EPUBCHECK: "1"
+        EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
 
   latex:
     runs-on: ubuntu-latest

@@ -4,6 +4,10 @@ Release 7.3.0 (in development)
 Dependencies
 ------------
 
+* #11411: Support `Docutils 0.21`_. Patch by Adam Turner.
+
+.. _Docutils 0.21: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-21-2024-04-09
+
 Incompatible changes
 --------------------
 
@@ -104,6 +108,8 @@ Bugs fixed
   responses as broken.
   Patch by James Addison.
 * #11868: linkcheck: added a distinct ``timeout`` reporting status code.
+  This can be enabled by setting :confval:`linkcheck_report_timeouts_as_broken`
+  to ``False``.
   Patch by James Addison.
 * #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
   Patch by James Addison.
@@ -150,6 +156,10 @@ Bugs fixed
 * #11970: singlehtml builder: make target URIs to be same-document references in
   the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
   becomes ``#foo``. Patch by eanorige.
+* #12271: Partially revert Docutils' r9562__ to fix EPUB files.
+  Patch by Adam Turner.
+
+  __ https://sourceforge.net/p/docutils/code/9562/
 
 Testing
 -------
