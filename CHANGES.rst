@@ -150,6 +150,10 @@ Bugs fixed
 * #11970: singlehtml builder: make target URIs to be same-document references in
   the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
   becomes ``#foo``. Patch by eanorige.
+* #12271: Partially revert Docutils' r9562__ to fix EPUB files.
+  Patch by Adam Turner.
+
+  __ https://sourceforge.net/p/docutils/code/9562/
 
 Testing
 -------
