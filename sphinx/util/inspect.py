@@ -802,36 +802,45 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> Signature:
     # so that ``len(D) == p`` and ``D[i]`` is the *i*-th default argument.
     defaults = (None,) * defaults_offset + defaults
 
-    # construct the parameters list
+    # construct the parameter list
     params: list[Parameter] = []
-
-    def define(kind: _ParameterKind, arg: ast.arg, *, defexpr: ast.expr | None) -> None:
-        default: Any = EMPTY if defexpr is None else DefaultValue(ast_unparse(defexpr, code))
-        annotation = ast_unparse(arg.annotation, code) or EMPTY
-        params.append(Parameter(arg.arg, kind, default=default, annotation=annotation))
 
     # positional-only arguments (introduced in Python 3.8)
     for arg, defexpr in zip(args.posonlyargs, defaults):
-        define(Parameter.POSITIONAL_ONLY, arg, defexpr=defexpr)
+        params.append(_define(Parameter.POSITIONAL_ONLY, arg, code, defexpr=defexpr))
 
     # normal arguments
     for arg, defexpr in zip(args.args, defaults[pos_only_offset:]):
-        define(Parameter.POSITIONAL_OR_KEYWORD, arg, defexpr=defexpr)
+        params.append(_define(Parameter.POSITIONAL_OR_KEYWORD, arg, code, defexpr=defexpr))
 
     # variadic positional argument (no possible default expression)
     if args.vararg:
-        define(Parameter.VAR_POSITIONAL, args.vararg, defexpr=None)
+        params.append(_define(Parameter.VAR_POSITIONAL, args.vararg, code, defexpr=None))
 
     # keyword-only arguments
     for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults):
-        define(Parameter.KEYWORD_ONLY, arg, defexpr=defexpr)
+        params.append(_define(Parameter.KEYWORD_ONLY, arg, code, defexpr=defexpr))
 
     # variadic keyword argument (no possible default expression)
     if args.kwarg:
-        define(Parameter.VAR_KEYWORD, args.kwarg, defexpr=None)
+        params.append(_define(Parameter.VAR_KEYWORD, args.kwarg, code, defexpr=None))
 
     return_annotation = ast_unparse(node.returns, code) or EMPTY
     return Signature(params, return_annotation=return_annotation)
+
+
+def _define(
+    kind: _ParameterKind,
+    arg: ast.arg,
+    code: str,
+    *,
+    defexpr: ast.expr | None,
+) -> Parameter:
+    EMPTY = Parameter.empty
+
+    default = EMPTY if defexpr is None else DefaultValue(ast_unparse(defexpr, code))
+    annotation = ast_unparse(arg.annotation, code) or EMPTY
+    return Parameter(arg.arg, kind, default=default, annotation=annotation)
 
 
 def getdoc(
