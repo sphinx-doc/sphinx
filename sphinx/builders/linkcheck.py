@@ -75,12 +75,13 @@ class CheckExternalLinksBuilder(DummyBuilder):
             )
             warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
 
-        if not self.config.linkcheck_discriminate_timeouts:
+        if self.config.linkcheck_report_timeouts_as_broken:
             deprecation_msg = (
-                "The default value for 'linkcheck_discriminate_timeouts' will change "
-                "from `False` in Sphinx 7.3+ to `True`, meaning that timeouts for "
-                "HTTP requests will be reported using a distinct 'timeout' status. "
-                "See https://github.com/sphinx-doc/sphinx/issues/11868 for details."
+                "The default value for 'linkcheck_report_timeouts_as_broken' will change "
+                'to False in Sphinx 8, meaning that request timeouts '
+                "will be reported with a new 'timeout' status, instead of as 'broken'. "
+                'This is intended to provide more detail as to the failure mode. '
+                'See https://github.com/sphinx-doc/sphinx/issues/11868 for details.'
             )
             warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
 
@@ -311,7 +312,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
-        self._discriminate_timeouts = config.linkcheck_discriminate_timeouts
+        self._timeout_status = 'broken' if config.linkcheck_report_timeouts_as_broken else 'timeout'
 
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
@@ -454,7 +455,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 break
 
             except RequestTimeout as err:
-                return 'timeout' if self._discriminate_timeouts else 'broken', str(err), 0
+                return self._timeout_status, str(err), 0
 
             except SSLError as err:
                 # SSL failure; report that the link is broken.
@@ -679,7 +680,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
     app.add_config_value('linkcheck_allow_unauthorized', True, '')
-    app.add_config_value('linkcheck_discriminate_timeouts', False, '', bool)
+    app.add_config_value('linkcheck_report_timeouts_as_broken', True, '', bool)
 
     app.add_event('linkcheck-process-uri')
 
