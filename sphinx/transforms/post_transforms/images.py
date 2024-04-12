@@ -30,6 +30,7 @@ _URI_TO_PATH = {
     ord(k): '/' for k in ('"', '&', '*', '/', ':', '<', '>', '?', '\\', '|')
 }
 
+
 class BaseImageConverter(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(nodes.image):
