@@ -343,17 +343,17 @@ def isroutine(obj: Any) -> bool:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is a :external+python:term:`coroutine` function."""
-
-    def iswrappedcoroutine(obj: Any) -> bool:
-        """Check if the object is wrapped coroutine-function."""
-        if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
-            # staticmethod, classmethod and partial method are not a wrapped coroutine-function
-            # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
-            return False
-        return hasattr(obj, '__wrapped__')
-
-    obj = unwrap_all(obj, stop=iswrappedcoroutine)
+    obj = unwrap_all(obj, stop=_is_wrapped_coroutine)
     return inspect.iscoroutinefunction(obj)
+
+
+def _is_wrapped_coroutine(obj: Any) -> bool:
+    """Check if the object is wrapped coroutine-function."""
+    if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
+        # staticmethod, classmethod and partial method are not a wrapped coroutine-function
+        # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
+        return False
+    return hasattr(obj, '__wrapped__')
 
 
 def isproperty(obj: Any) -> bool:
@@ -655,38 +655,6 @@ def evaluate_signature(
     localns: dict[str, Any] | None = None,
 ) -> Signature:
     """Evaluate unresolved type annotations in a signature object."""
-
-    def evaluate_forwardref(
-        ref: ForwardRef,
-        globalns: dict[str, Any] | None,
-        localns: dict[str, Any] | None,
-    ) -> Any:
-        """Evaluate a forward reference."""
-        return ref._evaluate(globalns, localns, frozenset())
-
-    def evaluate(
-        annotation: Any,
-        globalns: dict[str, Any],
-        localns: dict[str, Any],
-    ) -> Any:
-        """Evaluate unresolved type annotation."""
-        try:
-            if isinstance(annotation, str):
-                ref = ForwardRef(annotation, True)
-                annotation = evaluate_forwardref(ref, globalns, localns)
-
-                if isinstance(annotation, ForwardRef):
-                    annotation = evaluate_forwardref(ref, globalns, localns)
-                elif isinstance(annotation, str):
-                    # might be a ForwardRef'ed annotation in overloaded functions
-                    ref = ForwardRef(annotation, True)
-                    annotation = evaluate_forwardref(ref, globalns, localns)
-        except (NameError, TypeError):
-            # failed to evaluate type. skipped.
-            pass
-
-        return annotation
-
     if globalns is None:
         globalns = {}
     if localns is None:
@@ -695,14 +663,47 @@ def evaluate_signature(
     parameters = list(sig.parameters.values())
     for i, param in enumerate(parameters):
         if param.annotation:
-            annotation = evaluate(param.annotation, globalns, localns)
+            annotation = _evaluate(param.annotation, globalns, localns)
             parameters[i] = param.replace(annotation=annotation)
 
     return_annotation = sig.return_annotation
     if return_annotation:
-        return_annotation = evaluate(return_annotation, globalns, localns)
+        return_annotation = _evaluate(return_annotation, globalns, localns)
 
     return sig.replace(parameters=parameters, return_annotation=return_annotation)
+
+
+def _evaluate_forwardref(
+    ref: ForwardRef,
+    globalns: dict[str, Any] | None,
+    localns: dict[str, Any] | None,
+) -> Any:
+    """Evaluate a forward reference."""
+    return ref._evaluate(globalns, localns, frozenset())
+
+
+def _evaluate(
+    annotation: Any,
+    globalns: dict[str, Any],
+    localns: dict[str, Any],
+) -> Any:
+    """Evaluate unresolved type annotation."""
+    try:
+        if isinstance(annotation, str):
+            ref = ForwardRef(annotation, True)
+            annotation = _evaluate_forwardref(ref, globalns, localns)
+
+            if isinstance(annotation, ForwardRef):
+                annotation = _evaluate_forwardref(ref, globalns, localns)
+            elif isinstance(annotation, str):
+                # might be a ForwardRef'ed annotation in overloaded functions
+                ref = ForwardRef(annotation, True)
+                annotation = _evaluate_forwardref(ref, globalns, localns)
+    except (NameError, TypeError):
+        # failed to evaluate type. skipped.
+        pass
+
+    return annotation
 
 
 def stringify_signature(
@@ -848,15 +849,6 @@ def getdoc(
     * inherited docstring
     * inherited decorated methods
     """
-
-    def getdoc_internal(
-        obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr
-    ) -> str | None:
-        doc = attrgetter(obj, '__doc__', None)
-        if isinstance(doc, str):
-            return doc
-        return None
-
     if cls and name and isclassmethod(obj, cls, name):
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
@@ -865,7 +857,7 @@ def getdoc(
                 if doc is not None or not allow_inherited:
                     return doc
 
-    doc = getdoc_internal(obj)
+    doc = _getdoc_internal(obj)
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
     elif doc is None and allow_inherited:
@@ -874,7 +866,7 @@ def getdoc(
             for basecls in getmro(cls):
                 meth = safe_getattr(basecls, name, None)
                 if meth is not None:
-                    doc = getdoc_internal(meth)
+                    doc = _getdoc_internal(meth)
                     if doc is not None:
                         break
 
@@ -891,3 +883,12 @@ def getdoc(
             doc = inspect.getdoc(obj)
 
     return doc
+
+
+def _getdoc_internal(
+    obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr
+) -> str | None:
+    doc = attrgetter(obj, '__doc__', None)
+    if isinstance(doc, str):
+        return doc
+    return None
