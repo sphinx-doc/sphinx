@@ -475,6 +475,17 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
             self.body.append('<span class="caption-text">')
+        # Partially revert https://sourceforge.net/p/docutils/code/9562/
+        if (
+                isinstance(node.parent, nodes.topic)
+                and self.settings.toc_backlinks
+                and 'contents' in node.parent['classes']
+                and self.body[-1].startswith('<a ')
+                # TODO: only remove for EPUB
+        ):
+            # remove <a class="reference internal" href="#top">
+            self.body.pop()
+            self.context[-1] = '</p>\n'
 
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
