@@ -359,14 +359,14 @@ class Config:
 
     @staticmethod
     def pre_init_values() -> None:
-        # method only retained for compatability
+        # method only retained for compatibility
         pass
         # warnings.warn(
         #     'Config.pre_init_values() will be removed in Sphinx 9.0 or later',
         #     RemovedInSphinx90Warning, stacklevel=2)
 
     def init_values(self) -> None:
-        # method only retained for compatability
+        # method only retained for compatibility
         self._report_override_warnings()
         # warnings.warn(
         #     'Config.init_values() will be removed in Sphinx 9.0 or later',
@@ -465,6 +465,17 @@ class Config:
         for name, opt in self._options.items():
             real_value = getattr(self, name)
             if not is_serializable(real_value):
+                if opt.rebuild:
+                    # if the value is not cached, then any build that utilises this cache
+                    # will always mark the config value as changed,
+                    # and thus always invalidate the cache and perform a rebuild.
+                    logger.warning(
+                        __('cannot cache unpickable configuration value: %r'),
+                        name,
+                        type='config',
+                        subtype='cache',
+                        once=True,
+                    )
                 # omit unserializable value
                 real_value = None
             # valid_types is also omitted

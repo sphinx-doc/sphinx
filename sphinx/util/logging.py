@@ -16,7 +16,7 @@ from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
     from docutils.nodes import Node
 
@@ -246,7 +246,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
 
 @contextmanager
-def pending_warnings() -> Generator[logging.Handler, None, None]:
+def pending_warnings() -> Iterator[logging.Handler]:
     """Context manager to postpone logging warnings temporarily.
 
     Similar to :func:`pending_logging`.
@@ -274,7 +274,7 @@ def pending_warnings() -> Generator[logging.Handler, None, None]:
 
 
 @contextmanager
-def suppress_logging() -> Generator[MemoryHandler, None, None]:
+def suppress_logging() -> Iterator[MemoryHandler]:
     """Context manager to suppress logging all logs temporarily.
 
     For example::
@@ -303,7 +303,7 @@ def suppress_logging() -> Generator[MemoryHandler, None, None]:
 
 
 @contextmanager
-def pending_logging() -> Generator[MemoryHandler, None, None]:
+def pending_logging() -> Iterator[MemoryHandler]:
     """Context manager to postpone logging all logs temporarily.
 
     For example::
@@ -323,7 +323,7 @@ def pending_logging() -> Generator[MemoryHandler, None, None]:
 
 
 @contextmanager
-def skip_warningiserror(skip: bool = True) -> Generator[None, None, None]:
+def skip_warningiserror(skip: bool = True) -> Iterator[None]:
     """Context manager to skip WarningIsErrorFilter temporarily."""
     logger = logging.getLogger(NAMESPACE)
 
@@ -343,7 +343,7 @@ def skip_warningiserror(skip: bool = True) -> Generator[None, None, None]:
 
 
 @contextmanager
-def prefixed_warnings(prefix: str) -> Generator[None, None, None]:
+def prefixed_warnings(prefix: str) -> Iterator[None]:
     """Context manager to prepend prefix to all warning log records temporarily.
 
     For example::
@@ -393,7 +393,7 @@ class LogCollector:
         self.logs: list[logging.LogRecord] = []
 
     @contextmanager
-    def collect(self) -> Generator[None, None, None]:
+    def collect(self) -> Iterator[None]:
         with pending_logging() as memhandler:
             yield
 

@@ -4,6 +4,10 @@ Release 7.3.0 (in development)
 Dependencies
 ------------
 
+* #11411: Support `Docutils 0.21`_. Patch by Adam Turner.
+
+.. _Docutils 0.21: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-21-2024-04-09
+
 Incompatible changes
 --------------------
 
@@ -57,6 +61,11 @@ Features added
   .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
   .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
 
+* #11015: :rst:dir:`versionadded` wording changes from ``New in [...]``
+  to ``Added in [...]``.
+  Patch by Bénédikt Tran.
+
+
 Bugs fixed
 ----------
 
@@ -99,6 +108,8 @@ Bugs fixed
   responses as broken.
   Patch by James Addison.
 * #11868: linkcheck: added a distinct ``timeout`` reporting status code.
+  This can be enabled by setting :confval:`linkcheck_report_timeouts_as_broken`
+  to ``False``.
   Patch by James Addison.
 * #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
   Patch by James Addison.
@@ -139,6 +150,17 @@ Bugs fixed
 * #10786: improve the error message when a file to be copied (e.g., an asset)
   is removed during Sphinx execution.
   Patch by Bénédikt Tran.
+* #12040: HTML Search: Ensure that document titles that are partially-matched by
+  the user search query are included in search results.
+  Patch by James Addison.
+* #11970: singlehtml builder: make target URIs to be same-document references in
+  the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
+  becomes ``#foo``. Patch by eanorige.
+* #12271: Partially revert Docutils' r9562__ to fix EPUB files.
+  Patch by Adam Turner.
+
+  __ https://sourceforge.net/p/docutils/code/9562/
+
 * #11961: Omit anchor references from document title entries in the search index,
   removing duplication of search results.
   Patch by James Addison.
@@ -155,6 +177,10 @@ Testing
 
 * pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
   ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
+* utils: use dynamic allocation of unused port numbers for the test HTTP(S)
+  servers.  As a side-effect, this removes the need for test server lockfiles,
+  meaning that any remaining ``tests/test-server.lock`` files can safely be
+  deleted.
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================
