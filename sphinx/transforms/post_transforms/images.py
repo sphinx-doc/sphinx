@@ -25,10 +25,6 @@ logger = logging.getLogger(__name__)
 
 MAX_FILENAME_LEN = 32
 CRITICAL_PATH_CHAR_RE = re.compile('[:;<>|*" ]')
-# Replace reserved Windows or Unix path characters with '/'.
-_URI_TO_PATH = {
-    ord(k): '/' for k in ('"', '&', '*', '/', ':', '<', '>', '?', '\\', '|')
-}
 
 
 class BaseImageConverter(SphinxTransform):
@@ -68,7 +64,8 @@ class ImageDownloader(BaseImageConverter):
                 basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
             basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
-            dirname = node['uri'].replace('://', '/').translate(_URI_TO_PATH)
+            dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
+                                                                 ord("&"): "/"})
             if len(dirname) > MAX_FILENAME_LEN:
                 dirname = sha1(dirname.encode(), usedforsecurity=False).hexdigest()
             ensuredir(os.path.join(self.imagedir, dirname))
