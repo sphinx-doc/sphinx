@@ -211,7 +211,7 @@ def isNewType(obj: Any) -> bool:
 
 def isenumclass(x: Any) -> TypeGuard[type[Enum]]:
     """Check if the object is an :class:`enumeration class <enum.Enum>`."""
-    return inspect.isclass(x) and issubclass(x, enum.Enum)
+    return isclass(x) and issubclass(x, enum.Enum)
 
 
 def isenumattribute(x: Any) -> TypeGuard[Enum]:
