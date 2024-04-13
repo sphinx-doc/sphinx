@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from enum import Enum
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Protocol, Union
+    from typing import Final, Protocol, Union
 
     from typing_extensions import TypeGuard
 
@@ -244,10 +244,9 @@ def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        sentinel = object()
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name, sentinel)
-            if meth is not sentinel:
+            meth = basecls.__dict__.get(name)
+            if meth is not None:
                 return isclassmethod(meth)
     return False
 
@@ -258,10 +257,9 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
-        sentinel = object()
         for basecls in getattr(cls, '__mro__', [cls]):
-            meth = basecls.__dict__.get(name, sentinel)
-            if meth is not sentinel:
+            meth = basecls.__dict__.get(name)
+            if meth is not None:
                 return isinstance(meth, staticmethod)
     return False
 
@@ -291,6 +289,13 @@ def is_cython_function_or_method(obj: Any) -> bool:
         return False
 
 
+_DESCRIPTOR_LIKE: Final[tuple[type, ...]] = (
+    ClassMethodDescriptorType,
+    MethodDescriptorType,
+    WrapperDescriptorType,
+)
+
+
 def isattributedescriptor(obj: Any) -> bool:
     """Check if the object is an attribute-like descriptor."""
     if inspect.isdatadescriptor(obj):
@@ -308,9 +313,7 @@ def isattributedescriptor(obj: Any) -> bool:
         if isclass(unwrapped):
             # attribute must not be a class
             return False
-        if isinstance(
-            unwrapped, (ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType)
-        ):
+        if isinstance(unwrapped, _DESCRIPTOR_LIKE):
             # attribute must not be a method descriptor
             return False
         # attribute must not be an instancemethod (C-API)
@@ -365,20 +368,20 @@ def isroutine(obj: Any) -> TypeGuard[_RoutineType]:
 
 def iscoroutinefunction(obj: Any) -> bool:
     """Check if the object is a :external+python:term:`coroutine` function."""
-
-    def iswrappedcoroutine(obj: Any) -> bool:
-        """Check if the object is wrapped coroutine-function."""
-        if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
-            # staticmethod, classmethod and partial method are not a wrapped coroutine-function
-            # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
-            return False
-        return hasattr(obj, '__wrapped__')
-
-    obj = unwrap_all(obj, stop=iswrappedcoroutine)
+    obj = unwrap_all(obj, stop=_is_wrapped_coroutine)
     return inspect.iscoroutinefunction(obj)
 
 
-def isproperty(obj: Any) -> TypeGuard[property | cached_property]:
+def _is_wrapped_coroutine(obj: Any) -> bool:
+    """Check if the object is wrapped coroutine-function."""
+    if isstaticmethod(obj) or isclassmethod(obj) or ispartial(obj):
+        # staticmethod, classmethod and partial method are not a wrapped coroutine-function
+        # Note: Since 3.10, staticmethod and classmethod becomes a kind of wrappers
+        return False
+    return hasattr(obj, '__wrapped__')
+
+
+def isproperty(obj: Any) -> bool:
     """Check if the object is property (possibly cached)."""
     return isinstance(obj, (property, cached_property))
 
@@ -677,38 +680,6 @@ def evaluate_signature(
     localns: dict[str, Any] | None = None,
 ) -> Signature:
     """Evaluate unresolved type annotations in a signature object."""
-
-    def evaluate_forwardref(
-        ref: ForwardRef,
-        globalns: dict[str, Any] | None,
-        localns: dict[str, Any] | None,
-    ) -> Any:
-        """Evaluate a forward reference."""
-        return ref._evaluate(globalns, localns, frozenset())
-
-    def evaluate(
-        annotation: Any,
-        globalns: dict[str, Any],
-        localns: dict[str, Any],
-    ) -> Any:
-        """Evaluate unresolved type annotation."""
-        try:
-            if isinstance(annotation, str):
-                ref = ForwardRef(annotation, True)
-                annotation = evaluate_forwardref(ref, globalns, localns)
-
-                if isinstance(annotation, ForwardRef):
-                    annotation = evaluate_forwardref(ref, globalns, localns)
-                elif isinstance(annotation, str):
-                    # might be a ForwardRef'ed annotation in overloaded functions
-                    ref = ForwardRef(annotation, True)
-                    annotation = evaluate_forwardref(ref, globalns, localns)
-        except (NameError, TypeError):
-            # failed to evaluate type. skipped.
-            pass
-
-        return annotation
-
     if globalns is None:
         globalns = {}
     if localns is None:
@@ -717,14 +688,47 @@ def evaluate_signature(
     parameters = list(sig.parameters.values())
     for i, param in enumerate(parameters):
         if param.annotation:
-            annotation = evaluate(param.annotation, globalns, localns)
+            annotation = _evaluate(param.annotation, globalns, localns)
             parameters[i] = param.replace(annotation=annotation)
 
     return_annotation = sig.return_annotation
     if return_annotation:
-        return_annotation = evaluate(return_annotation, globalns, localns)
+        return_annotation = _evaluate(return_annotation, globalns, localns)
 
     return sig.replace(parameters=parameters, return_annotation=return_annotation)
+
+
+def _evaluate_forwardref(
+    ref: ForwardRef,
+    globalns: dict[str, Any] | None,
+    localns: dict[str, Any] | None,
+) -> Any:
+    """Evaluate a forward reference."""
+    return ref._evaluate(globalns, localns, frozenset())
+
+
+def _evaluate(
+    annotation: Any,
+    globalns: dict[str, Any],
+    localns: dict[str, Any],
+) -> Any:
+    """Evaluate unresolved type annotation."""
+    try:
+        if isinstance(annotation, str):
+            ref = ForwardRef(annotation, True)
+            annotation = _evaluate_forwardref(ref, globalns, localns)
+
+            if isinstance(annotation, ForwardRef):
+                annotation = _evaluate_forwardref(ref, globalns, localns)
+            elif isinstance(annotation, str):
+                # might be a ForwardRef'ed annotation in overloaded functions
+                ref = ForwardRef(annotation, True)
+                annotation = _evaluate_forwardref(ref, globalns, localns)
+    except (NameError, TypeError):
+        # failed to evaluate type. skipped.
+        pass
+
+    return annotation
 
 
 def stringify_signature(
@@ -823,36 +827,45 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> Signature:
     # so that ``len(D) == p`` and ``D[i]`` is the *i*-th default argument.
     defaults = (None,) * defaults_offset + defaults
 
-    # construct the parameters list
+    # construct the parameter list
     params: list[Parameter] = []
-
-    def define(kind: _ParameterKind, arg: ast.arg, *, defexpr: ast.expr | None) -> None:
-        default: Any = EMPTY if defexpr is None else DefaultValue(ast_unparse(defexpr, code))
-        annotation = ast_unparse(arg.annotation, code) or EMPTY
-        params.append(Parameter(arg.arg, kind, default=default, annotation=annotation))
 
     # positional-only arguments (introduced in Python 3.8)
     for arg, defexpr in zip(args.posonlyargs, defaults):
-        define(Parameter.POSITIONAL_ONLY, arg, defexpr=defexpr)
+        params.append(_define(Parameter.POSITIONAL_ONLY, arg, code, defexpr=defexpr))
 
     # normal arguments
     for arg, defexpr in zip(args.args, defaults[pos_only_offset:]):
-        define(Parameter.POSITIONAL_OR_KEYWORD, arg, defexpr=defexpr)
+        params.append(_define(Parameter.POSITIONAL_OR_KEYWORD, arg, code, defexpr=defexpr))
 
     # variadic positional argument (no possible default expression)
     if args.vararg:
-        define(Parameter.VAR_POSITIONAL, args.vararg, defexpr=None)
+        params.append(_define(Parameter.VAR_POSITIONAL, args.vararg, code, defexpr=None))
 
     # keyword-only arguments
     for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults):
-        define(Parameter.KEYWORD_ONLY, arg, defexpr=defexpr)
+        params.append(_define(Parameter.KEYWORD_ONLY, arg, code, defexpr=defexpr))
 
     # variadic keyword argument (no possible default expression)
     if args.kwarg:
-        define(Parameter.VAR_KEYWORD, args.kwarg, defexpr=None)
+        params.append(_define(Parameter.VAR_KEYWORD, args.kwarg, code, defexpr=None))
 
     return_annotation = ast_unparse(node.returns, code) or EMPTY
     return Signature(params, return_annotation=return_annotation)
+
+
+def _define(
+    kind: _ParameterKind,
+    arg: ast.arg,
+    code: str,
+    *,
+    defexpr: ast.expr | None,
+) -> Parameter:
+    EMPTY = Parameter.empty
+
+    default = EMPTY if defexpr is None else DefaultValue(ast_unparse(defexpr, code))
+    annotation = ast_unparse(arg.annotation, code) or EMPTY
+    return Parameter(arg.arg, kind, default=default, annotation=annotation)
 
 
 def getdoc(
@@ -870,15 +883,6 @@ def getdoc(
     * inherited docstring
     * inherited decorated methods
     """
-
-    def getdoc_internal(
-        obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr
-    ) -> str | None:
-        doc = attrgetter(obj, '__doc__', None)
-        if isinstance(doc, str):
-            return doc
-        return None
-
     if cls and name and isclassmethod(obj, cls, name):
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
@@ -887,7 +891,7 @@ def getdoc(
                 if doc is not None or not allow_inherited:
                     return doc
 
-    doc = getdoc_internal(obj)
+    doc = _getdoc_internal(obj)
     if ispartial(obj) and doc == obj.__class__.__doc__:
         return getdoc(obj.func)
     elif doc is None and allow_inherited:
@@ -896,7 +900,7 @@ def getdoc(
             for basecls in getmro(cls):
                 meth = safe_getattr(basecls, name, None)
                 if meth is not None:
-                    doc = getdoc_internal(meth)
+                    doc = _getdoc_internal(meth)
                     if doc is not None:
                         break
 
@@ -913,3 +917,12 @@ def getdoc(
             doc = inspect.getdoc(obj)
 
     return doc
+
+
+def _getdoc_internal(
+    obj: Any, attrgetter: Callable[[Any, str, Any], Any] = safe_getattr
+) -> str | None:
+    doc = attrgetter(obj, '__doc__', None)
+    if isinstance(doc, str):
+        return doc
+    return None
