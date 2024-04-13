@@ -831,7 +831,7 @@ class PythonDomain(Domain):
                                          node: pending_xref, contnode: Element,
                                          objtypes: list[str]) -> None:
         # we adjust the object types for backwards compatibility
-        if 'attribute' in objtypes:
+        if 'attribute' in objtypes and 'method' not in objtypes:
             # Since Sphinx-2.1, properties are stored as py:method
             objtypes.append('method')
 
