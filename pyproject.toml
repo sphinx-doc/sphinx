@@ -87,6 +87,7 @@ lint = [
     "sphinx-lint",
     "types-docutils",
     "types-requests",
+    "typing-extensions",  # implicitly required by mypy
     "importlib_metadata",  # for mypy (Python<=3.9)
     "tomli",  # for mypy (Python<=3.10)
     "pytest>=6.0",
