@@ -2971,6 +2971,21 @@ Options for the linkcheck builder
 
    .. versionadded:: 7.3
 
+.. confval:: linkcheck_report_timeouts_as_broken
+
+   When an HTTP response is not received from a webserver before the configured
+   :confval:`linkcheck_timeout` expires,
+   the current default behaviour of Sphinx is to treat the link as 'broken'.
+   To report timeouts using a distinct report code of ``timeout``,
+   set :confval:`linkcheck_report_timeouts_as_broken` to ``False``.
+
+   From Sphinx 8.0 onwards, timeouts that occur while checking hyperlinks
+   will be reported using the new 'timeout' status code.
+
+   .. xref RemovedInSphinx80Warning
+
+   .. versionadded:: 7.3
+
 
 Options for the XML builder
 ---------------------------

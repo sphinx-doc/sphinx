@@ -20,6 +20,7 @@ ignore = [
     "E741",  # Ambiguous variable name: `{name}`
     "F841",  # Local variable `{name}` is assigned to but never used
     "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
+    "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
     "PLC1901",  # simplify truthy/falsey string comparisons
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
@@ -371,7 +372,10 @@ select = [
 "doc/conf.py" = ["INP001", "W605"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
-"doc/development/tutorials/examples/recipe.py" = ["T201"]
+"doc/development/tutorials/examples/recipe.py" = [
+    "FURB118",
+    "T201"
+]
 "sphinx/domains/**" = ["FURB113"]
 "tests/test_domains/test_domain_cpp.py" = ["FURB113"]
 
