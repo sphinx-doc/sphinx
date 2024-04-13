@@ -427,7 +427,16 @@ class Domain:
         that should not be inspected by the domain, but merely returned as a result
         of reference resolution.
 
-        The domain must store the given data in the given *store*,
+        For example, for Python the data could look like the following.
+
+        .. code-block:: python
+
+            data = {
+                'class': {'pkg.mod.Foo': SomeIntersphinxData(...)},
+                'method': {'pkg.mod.Foo.bar': SomeIntersphinxData(...)},
+            }
+
+        The domain must store the given inner intersphinx data in the given *store*,
         in whichever way makes sense for later reference resolution.
         This *store* was initially a copy of :attr:`initial_intersphinx_inventory`.
 
