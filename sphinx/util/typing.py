@@ -186,11 +186,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             else:
                 return ':py:class:`%s`' % cls.__name__
         elif UnionType and isinstance(cls, UnionType):
-            if len(cls.__args__) > 1 and None in cls.__args__:
-                args = ' | '.join(restify(a, mode) for a in cls.__args__ if a)
-                return 'Optional[%s]' % args
-            else:
-                return ' | '.join(restify(a, mode) for a in cls.__args__)
+            return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
                 if not cls.__args__:  # Empty tuple, list, ...
@@ -203,19 +199,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
         elif (inspect.isgenericalias(cls)
               and cls.__module__ == 'typing'
               and cls.__origin__ is Union):  # type: ignore[attr-defined]
-            if (len(cls.__args__) > 1  # type: ignore[attr-defined]
-                    and cls.__args__[-1] is NoneType):  # type: ignore[attr-defined]
-                if len(cls.__args__) > 2:  # type: ignore[attr-defined]
-                    args = ', '.join(restify(a, mode)
-                                     for a in cls.__args__[:-1])  # type: ignore[attr-defined]
-                    return ':py:obj:`~typing.Optional`\\ [:obj:`~typing.Union`\\ [%s]]' % args
-                else:
-                    return ':py:obj:`~typing.Optional`\\ [%s]' % restify(
-                        cls.__args__[0], mode)  # type: ignore[attr-defined]
-            else:
-                args = ', '.join(restify(a, mode)
-                                 for a in cls.__args__)  # type: ignore[attr-defined]
-                return ':py:obj:`~typing.Union`\\ [%s]' % args
+            return ' | '.join(restify(a, mode) for a in cls.__args__)  # type: ignore[attr-defined]
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
