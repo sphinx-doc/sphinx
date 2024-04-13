@@ -60,7 +60,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def process_disabled_reftypes(env: BuildEnvironment) -> None:
+def _process_disabled_reftypes(env: BuildEnvironment) -> None:
     # Compile intersphinx_disabled_reftypes into datastructures
     # easier to check during reference resolution.
     # It is a separate function so the tests can use it.
@@ -126,7 +126,8 @@ class _EnvAdapter:
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
-            process_disabled_reftypes(env)
+            _process_disabled_reftypes(env)
+
             # old stuff, RemovedInSphinx90, still used in tests
             self.env.intersphinx_inventory = {}  # type: ignore[attr-defined]
             # old stuff end
