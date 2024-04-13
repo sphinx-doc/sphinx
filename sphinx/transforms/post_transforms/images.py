@@ -68,7 +68,7 @@ class ImageDownloader(BaseImageConverter):
                 ord("?"): "/",
                 ord("&"): "/",
             })  # remappings formerly used for filepath sanitization; retained for cache reuse
-            dirname = sha1(  # Note: formerly applied only to length 32+ URIs
+            dirname = sha1(  # Note: formerly applied only to length 33+ URIs
                 hashinput.encode(),
                 usedforsecurity=False,
             ).hexdigest()
