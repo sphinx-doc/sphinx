@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
 
-    class _SpecialForm(typing.Protocol):
+    class _SpecialFormInterface(typing.Protocol):
         _name: str
 
 
@@ -167,12 +167,19 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def _is_special_form(obj: Any) -> TypeGuard[_SpecialForm]:
+def _is_special_form(obj: Any) -> TypeGuard[_SpecialFormInterface]:
+    """Check if *obj* is a typing special form.
+
+    The guarded type is a protocol with the members that Sphinx needs in
+    this module and not the native ``typing._SpecialForm`` from typeshed,
+    but the runtime type of *obj* must be a true special form instance.
+    """
     return isinstance(obj, typing._SpecialForm)
 
 
 def _is_annotated_form(obj: Any) -> TypeGuard[Annotated[Any, ...]]:
-    return typing.get_origin(obj) is Annotated or str(obj) == 'typing.Annotated'
+    """Check if *obj* is an annotated type."""
+    return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
 
 
 def _get_typing_internal_name(obj: Any) -> str | None:
