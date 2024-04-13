@@ -381,7 +381,7 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
     return hasattr(obj, '__wrapped__')
 
 
-def isproperty(obj: Any) -> bool:
+def isproperty(obj: Any) -> TypeGuard[property | cached_property]:
     """Check if the object is property (possibly cached)."""
     return isinstance(obj, (property, cached_property))
 
