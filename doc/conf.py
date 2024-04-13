@@ -101,11 +101,22 @@ latex_show_urls = 'footnote'
 latex_use_xindy = True
 
 linkcheck_timeout = 5
+linkcheck_ignore = [
+    r'^contents\.html$',  # extra generated page
+    r'^\.\./contents\.html$',
+    re.escape('https://gitlab.com/projects/new'),  # requires sign-in
+    re.escape('https://web.libera.chat/?channel=#sphinx-doc'),
+]
+linkcheck_anchors_ignore_for_url = [
+    # anchors in Markdown files cannot be accessed directly
+    'https://github.com/Khan/style-guides/blob/master/style/python.md',
+]
 
 autodoc_member_order = 'groupwise'
 autosummary_generate = False
 todo_include_todos = True
 extlinks = {
+    'dupage': ('https://docutils.sourceforge.io/docs/ref/rst/' '%s.html', '%s'),
     'duref': (
         'https://docutils.sourceforge.io/docs/ref/rst/' 'restructuredtext.html#%s',
         '%s',

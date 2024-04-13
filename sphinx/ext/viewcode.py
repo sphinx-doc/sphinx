@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 import posixpath
 import traceback
 from importlib import import_module
@@ -22,7 +23,7 @@ from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
+    from collections.abc import Iterable, Iterator
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -239,7 +240,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     return True
 
 
-def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], None, None]:
+def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
@@ -254,7 +255,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             sorted(env._viewcode_modules.items()),
             __('highlighting module code... '), "blue",
             len(env._viewcode_modules),
-            app.verbosity, lambda x: x[0]):
+            app.verbosity, operator.itemgetter(0)):
         if not entry:
             continue
         if not should_generate_module_page(app, modname):

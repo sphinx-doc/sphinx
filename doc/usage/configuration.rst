@@ -2939,7 +2939,8 @@ Options for the linkcheck builder
 
    Otherwise, ``linkcheck`` waits for a minute before to retry and keeps
    doubling the wait time between attempts until it succeeds or exceeds the
-   ``linkcheck_rate_limit_timeout``. By default, the timeout is 5 minutes.
+   ``linkcheck_rate_limit_timeout``. By default, the timeout is 300 seconds
+   and custom timeouts should be given in seconds.
 
    .. _Retry-After: https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3
 
@@ -2967,6 +2968,21 @@ Options for the linkcheck builder
    The default value for this option will be changed in Sphinx 8.0; from that
    version onwards, HTTP 401 responses to checked hyperlinks will be treated
    as "broken" by default.
+
+   .. versionadded:: 7.3
+
+.. confval:: linkcheck_report_timeouts_as_broken
+
+   When an HTTP response is not received from a webserver before the configured
+   :confval:`linkcheck_timeout` expires,
+   the current default behaviour of Sphinx is to treat the link as 'broken'.
+   To report timeouts using a distinct report code of ``timeout``,
+   set :confval:`linkcheck_report_timeouts_as_broken` to ``False``.
+
+   From Sphinx 8.0 onwards, timeouts that occur while checking hyperlinks
+   will be reported using the new 'timeout' status code.
+
+   .. xref RemovedInSphinx80Warning
 
    .. versionadded:: 7.3
 

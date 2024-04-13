@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
     from types import ModuleType
 
     from docutils.frontend import Values
@@ -38,29 +38,12 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import RoleFunction
 
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
-    '__version_info__': (docutils.__version_info__, 'docutils.__version_info__'),
-}
-
-
-def __getattr__(name: str) -> Any:
-    if name not in _DEPRECATED_OBJECTS:
-        msg = f'module {__name__!r} has no attribute {name!r}'
-        raise AttributeError(msg)
-
-    from sphinx.deprecation import _deprecation_warning
-
-    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=(7, 0))
-    return deprecated_object
-
 
 additional_nodes: set[type[Element]] = set()
 
 
 @contextmanager
-def docutils_namespace() -> Generator[None, None, None]:
+def docutils_namespace() -> Iterator[None]:
     """Create namespace for reST parsers."""
     try:
         _directives = copy(directives._directives)  # type: ignore[attr-defined]
@@ -138,7 +121,7 @@ def unregister_node(node: type[Element]) -> None:
 
 
 @contextmanager
-def patched_get_language() -> Generator[None, None, None]:
+def patched_get_language() -> Iterator[None]:
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
@@ -158,7 +141,7 @@ def patched_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def patched_rst_get_language() -> Generator[None, None, None]:
+def patched_rst_get_language() -> Iterator[None]:
     """Patch docutils.parsers.rst.languages.get_language().
     Starting from docutils 0.17, get_language() in ``rst.languages``
     also has a reporter, which needs to be disabled temporarily.
@@ -182,7 +165,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]:
+def using_user_docutils_conf(confdir: str | None) -> Iterator[None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
@@ -198,7 +181,7 @@ def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]
 
 
 @contextmanager
-def du19_footnotes() -> Generator[None, None, None]:
+def du19_footnotes() -> Iterator[None]:
     def visit_footnote(self: HTMLTranslator, node: Element) -> None:
         label_style = self.settings.footnote_references
         if not isinstance(node.previous_sibling(), type(node)):
@@ -231,7 +214,7 @@ def du19_footnotes() -> Generator[None, None, None]:
 
 
 @contextmanager
-def patch_docutils(confdir: str | None = None) -> Generator[None, None, None]:
+def patch_docutils(confdir: str | None = None) -> Iterator[None]:
     """Patch to docutils temporarily."""
     with patched_get_language(), \
          patched_rst_get_language(), \
@@ -376,7 +359,7 @@ class NullReporter(Reporter):
 
 
 @contextmanager
-def switch_source_input(state: State, content: StringList) -> Generator[None, None, None]:
+def switch_source_input(state: State, content: StringList) -> Iterator[None]:
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method

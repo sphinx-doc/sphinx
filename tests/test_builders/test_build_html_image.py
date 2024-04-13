@@ -5,15 +5,14 @@ import docutils
 import pytest
 
 
-@pytest.mark.usefixtures('if_online')
 @pytest.mark.sphinx('html', testroot='images')
 def test_html_remote_images(app, status, warning):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
-            'src="https://www.python.org/static/img/python-logo.png" />' in result)
-    assert not (app.outdir / 'python-logo.png').exists()
+    assert ('<img alt="http://localhost:7777/sphinx.png" '
+            'src="http://localhost:7777/sphinx.png" />' in result)
+    assert not (app.outdir / 'sphinx.png').exists()
 
 
 @pytest.mark.sphinx('html', testroot='image-escape')
@@ -25,7 +24,6 @@ def test_html_encoded_image(app, status, warning):
     assert (app.outdir / '_images/img_#1.png').exists()
 
 
-@pytest.mark.usefixtures('if_online')
 @pytest.mark.sphinx('html', testroot='remote-logo')
 def test_html_remote_logo(app, status, warning):
     app.build(force_all=True)

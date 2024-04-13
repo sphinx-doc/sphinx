@@ -265,8 +265,7 @@ class StandaloneHTMLBuilder(Builder):
         elif self.config.html_style is not None:
             yield from self.config.html_style
         elif self.theme:
-            stylesheet = self.theme.get_config('theme', 'stylesheet')
-            yield from map(str.strip, stylesheet.split(','))
+            yield from self.theme.stylesheets
         else:
             yield 'default.css'
 
@@ -286,13 +285,15 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
-            style = self.theme.get_config('theme', 'pygments_style', 'none')
+            # From the ``pygments_style`` theme setting
+            style = self.theme.pygments_style_default or 'none'
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
         if self.theme:
-            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+            # From the ``pygments_dark_style`` theme setting
+            dark_style = self.theme.pygments_style_dark
         else:
             dark_style = None
 
@@ -307,8 +308,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def css_files(self) -> list[_CascadingStyleSheet]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', '',
-                             remove=(9, 0))
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', remove=(9, 0))
         return self._css_files
 
     def init_css_files(self) -> None:
@@ -334,8 +334,8 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def script_files(self) -> list[_JavaScript]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.script_files', '',
-                             remove=(9, 0))
+        canonical_name = f'{self.__class__.__name__}.script_files'
+        _deprecation_warning(__name__, canonical_name, remove=(9, 0))
         return self._js_files
 
     def init_js_files(self) -> None:
@@ -961,13 +961,11 @@ class StandaloneHTMLBuilder(Builder):
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
-        sidebars = None
         matched = None
         customsidebar = None
 
         # default sidebars settings for selected theme
-        if theme_default_sidebars := self.theme.get_config('theme', 'sidebars', None):
-            sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        sidebars = list(self.theme.sidebar_templates)
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
@@ -986,7 +984,7 @@ class StandaloneHTMLBuilder(Builder):
                 matched = pattern
                 sidebars = patsidebars
 
-        if sidebars is None:
+        if len(sidebars) == 0:
             # keep defaults
             pass
 
@@ -1340,7 +1338,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # NoQA: E501
+    # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
@@ -1373,8 +1372,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     }
 
 
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
     'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
 }
