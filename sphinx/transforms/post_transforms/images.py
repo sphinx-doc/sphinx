@@ -67,7 +67,7 @@ class ImageDownloader(BaseImageConverter):
             hashinput = node['uri'].replace('://', '/').translate({
                 ord("?"): "/",
                 ord("&"): "/",
-            })  # remappings formerly used for filepath sanitization; retained for cache keying
+            })  # remappings formerly used for filepath sanitization; retained for cache reuse
             dirname = sha1(  # Note: formerly applied only to length 32+ URIs
                 hashinput.encode(),
                 usedforsecurity=False,
