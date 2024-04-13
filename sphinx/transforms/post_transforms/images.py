@@ -64,10 +64,14 @@ class ImageDownloader(BaseImageConverter):
                 basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
             basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
-            dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
-                                                                 ord("&"): "/"})
-            if len(dirname) > MAX_FILENAME_LEN:
-                dirname = sha1(dirname.encode(), usedforsecurity=False).hexdigest()
+            hashinput = node['uri'].replace('://', '/').translate({
+                ord("?"): "/",
+                ord("&"): "/",
+            })  # remappings formerly used for filepath sanitization; retained for cache keying
+            dirname = sha1(  # Note: formerly applied only to length 32+ URIs
+                hashinput.encode(),
+                usedforsecurity=False,
+            ).hexdigest()
             ensuredir(os.path.join(self.imagedir, dirname))
             path = os.path.join(self.imagedir, dirname, basename)
 
