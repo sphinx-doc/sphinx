@@ -202,7 +202,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
               and cls.__module__ == 'typing'
               and cls.__origin__ is Union):  # type: ignore[attr-defined]
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist;
-            if NoneType in (__args__ := cls.__args__):
+            if NoneType in (__args__ := cls.__args__):  # type: ignore[attr-defined]
                 # Shape: Union[T_1, ..., T_k, None, T_{k+1}, ..., T_n]
                 #
                 # Note that we keep Literal[None] in their rightful place
