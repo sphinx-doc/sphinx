@@ -1023,10 +1023,9 @@ class StandardDomain(Domain):
                 # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
                 # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
                 target_lower = target.lower()
-                insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
-                                                  store[objtype].keys()))
-                if insensitive_matches:
-                    return store[objtype][insensitive_matches[0]]
+                for object_name, object_data in store[objtype].items():
+                    if object_name.lower() == target_lower:
+                        return object_data
         return None
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
