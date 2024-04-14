@@ -17,6 +17,7 @@ from sphinx.locale import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+    from typing import ClassVar
 
     from docutils import nodes
     from docutils.parsers.rst import Directive
@@ -205,7 +206,9 @@ class Domain:
     #: It must be copy.deepcopy-able.
     #: If this value is overridden, then the various intersphinx methods in the domain should
     #: probably also be overridden.
-    initial_intersphinx_inventory: dict = {}
+    #: Intersphinx is not inspecting this dictionary, so the domain has complete freedom in
+    #: the key and value type.
+    initial_intersphinx_inventory: ClassVar[dict] = {}
 
     def __init__(self, env: BuildEnvironment) -> None:
         self.env: BuildEnvironment = env
