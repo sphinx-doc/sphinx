@@ -449,7 +449,24 @@ class Domain:
         assert len(store) == 0  # the method is called at most once
         store.update(data)  # update so the object is changed in-place
 
-    def _intersphinx_adjust_object_types(self, objtypes: list[str]) -> None:
+    def _intersphinx_adjust_object_types(self, env: BuildEnvironment,
+                                         store: Any,
+                                         typ: str, target: str,
+                                         disabled_object_types: list[str],
+                                         node: pending_xref, contnode: Element,
+                                         objtypes: list[str]) -> None:
+        """For implementing backwards compatibility.
+
+        This method is an internal implementation detail used in the std and python domains,
+        for implementing backwards compatibility.
+
+        The given *objtypes* is the list of object types computed based on the *typ*,
+        which will be used for lookup.
+        By overriding this method this list can be manipulated, e.g., adding types
+        that were removed in earlier Sphinx versions.
+        After this method returns, the types in *disabled_object_types* are removed
+        from *objtypes*. This final list is given to the lookup method.
+        """
         # for std and py to overwrite for their backwards compatibility
         # we adjust the object types for backwards compatibility
         if self.name == 'std' and 'cmdoption' in objtypes:
@@ -525,7 +542,8 @@ class Domain:
                 return None
             objtypes = for_role
 
-        self._intersphinx_adjust_object_types(objtypes)
+        self._intersphinx_adjust_object_types(
+            env, store, typ, target, disabled_object_types, node, contnode, objtypes)
         objtypes = [o for o in objtypes if o not in disabled_object_types]
 
         typed_store = cast(dict[str, dict[str, Any]], store)
