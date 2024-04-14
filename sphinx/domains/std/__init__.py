@@ -996,7 +996,12 @@ class StandardDomain(Domain):
                                                    labelid, contnode)))
         return results
 
-    def _intersphinx_adjust_object_types(self, objtypes: list[str]) -> None:
+    def _intersphinx_adjust_object_types(self, env: BuildEnvironment,
+                                         store: Any,
+                                         typ: str, target: str,
+                                         disabled_object_types: list[str],
+                                         node: pending_xref, contnode: Element,
+                                         objtypes: list[str]) -> None:
         # we adjust the object types for backwards compatibility
         if 'cmdoption' in objtypes:
             # until Sphinx-1.6, cmdoptions are stored as std:option
