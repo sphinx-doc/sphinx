@@ -479,6 +479,12 @@ class Domain:
     def _intersphinx_resolve_xref_lookup(self, store: dict[str, dict[str, Any]],
                                          target: str, objtypes: list[str]
                                          ) -> Any | None:
+        """Default implementation for the actual lookup.
+
+        This method is an internal implementation detail, and may be overridden
+        by the bundled domains, e.g., std, for customizing the lookup, while
+        reusing the rest of the default implementation.
+        """
         for objtype in objtypes:
             if objtype not in store:
                 # Continue if there's nothing of this kind in the inventory
