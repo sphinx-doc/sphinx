@@ -258,8 +258,6 @@ module = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.directive",
     "sphinx.ext.autodoc.importer",
-    "sphinx.ext.autodoc.mock",
-    "sphinx.ext.autodoc.mock",
     "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
