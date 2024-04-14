@@ -35,6 +35,7 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from typing import ClassVar
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -667,7 +668,7 @@ class CDomain(Domain):
         'objects': {},  # fullname -> docname, node_id, objtype
     }
 
-    initial_intersphinx_inventory: dict[str, Symbol] = {
+    initial_intersphinx_inventory: ClassVar[dict[str, Symbol]] = {
         'root_symbol': Symbol(None, None, None, None, None),
     }
 
