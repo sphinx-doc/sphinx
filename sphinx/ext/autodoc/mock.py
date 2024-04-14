@@ -54,7 +54,7 @@ class _MockObject:
     def __iter__(self) -> Iterator[Any]:
         return iter([])
 
-    def __mro_entries__(self, bases: tuple[Any, ...]) -> tuple[type[Any], ...]:
+    def __mro_entries__(self, bases: tuple[Any, ...]) -> tuple[type, ...]:
         return (self.__class__,)
 
     def __getitem__(self, key: Any) -> _MockObject:
@@ -160,8 +160,8 @@ def mock(modnames: list[str]) -> Iterator[None]:
         # mock modules are enabled here
         ...
     """
+    finder = MockFinder(modnames)
     try:
-        finder = MockFinder(modnames)
         sys.meta_path.insert(0, finder)
         yield
     finally:
