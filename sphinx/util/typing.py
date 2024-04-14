@@ -186,11 +186,9 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             else:
                 return ':py:class:`%s`' % cls.__name__
         elif UnionType and isinstance(cls, UnionType):
-            if len(cls.__args__) > 1 and None in cls.__args__:
-                args = ' | '.join(restify(a, mode) for a in cls.__args__ if a)
-                return 'Optional[%s]' % args
-            else:
-                return ' | '.join(restify(a, mode) for a in cls.__args__)
+            # Union types (PEP 585) retain their definition order when they
+            # are printed natively and ``None``-like types are kept as is.
+            return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
                 if not cls.__args__:  # Empty tuple, list, ...
@@ -203,19 +201,24 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
         elif (inspect.isgenericalias(cls)
               and cls.__module__ == 'typing'
               and cls.__origin__ is Union):  # type: ignore[attr-defined]
-            if (len(cls.__args__) > 1  # type: ignore[attr-defined]
-                    and cls.__args__[-1] is NoneType):  # type: ignore[attr-defined]
-                if len(cls.__args__) > 2:  # type: ignore[attr-defined]
-                    args = ', '.join(restify(a, mode)
-                                     for a in cls.__args__[:-1])  # type: ignore[attr-defined]
-                    return ':py:obj:`~typing.Optional`\\ [:obj:`~typing.Union`\\ [%s]]' % args
-                else:
-                    return ':py:obj:`~typing.Optional`\\ [%s]' % restify(
-                        cls.__args__[0], mode)  # type: ignore[attr-defined]
-            else:
-                args = ', '.join(restify(a, mode)
-                                 for a in cls.__args__)  # type: ignore[attr-defined]
-                return ':py:obj:`~typing.Union`\\ [%s]' % args
+            # *cls* is defined in ``typing``, and thus ``__args__`` must exist;
+            if NoneType in (__args__ := cls.__args__):
+                # Shape: Union[T_1, ..., T_k, None, T_{k+1}, ..., T_n]
+                #
+                # Note that we keep Literal[None] in their rightful place
+                # since we want to distinguish the following semantics:
+                #
+                # - ``Union[int, None]`` is "an optional integer" and is
+                #   natively represented by ``Optional[int]``.
+                # - ``Uniont[int, Literal["None"]]`` is "an integer or
+                #   the literal ``None``", and is natively kept as is.
+                non_none = [a for a in __args__ if a is not NoneType]
+                if len(non_none) == 1:
+                    return rf':py:obj:`~typing.Optional`\ [{restify(non_none[0], mode)}]'
+                args = ', '.join(restify(a, mode) for a in non_none)
+                return rf':py:obj:`~typing.Optional`\ [:obj:`~typing.Union`\ [{args}]]'
+            args = ', '.join(restify(a, mode) for a in __args__)
+            return rf':py:obj:`~typing.Union`\ [{args}]'
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
