@@ -5,13 +5,13 @@ from __future__ import annotations
 import ast
 import builtins
 import contextlib
-import enum
 import inspect
 import re
 import sys
 import types
 import typing
 from collections.abc import Mapping
+from enum import Enum
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
 from inspect import Parameter, Signature
@@ -26,8 +26,44 @@ from sphinx.util.typing import ForwardRef, stringify_annotation
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from inspect import _ParameterKind
-    from types import MethodType, ModuleType
-    from typing import Final
+    from typing import Final, Protocol, Union
+
+    from typing_extensions import TypeGuard
+
+    class _SupportsGet(Protocol):
+        def __get__(self, __instance: Any, __owner: type | None = ...) -> Any: ...  # NoQA: E704
+
+    class _SupportsSet(Protocol):
+        # instance and value are contravariants but we do not need that precision
+        def __set__(self, __instance: Any, __value: Any) -> None: ...  # NoQA: E704
+
+    class _SupportsDelete(Protocol):
+        # instance is contravariant but we do not need that precision
+        def __delete__(self, __instance: Any) -> None: ...  # NoQA: E704
+
+    class _GenericAliasLike(Protocol):
+        # Minimalist interface for a generic alias in typing.py.
+
+        # The ``__origin__`` is defined both on the base type for generics
+        # in typing.py *and* on the public ``types.GenericAlias`` type.
+        __origin__: type
+
+        # Note that special generic alias types (tuple and callables) do
+        # not directly define ``__args__``. At runtime, however, they are
+        # actually instances of ``typing._GenericAlias`` which does have
+        # an ``__args__`` field.
+        __args__: tuple[Any, ...]
+
+    _RoutineType = Union[
+        types.FunctionType,
+        types.LambdaType,
+        types.MethodType,
+        types.BuiltinFunctionType,
+        types.BuiltinMethodType,
+        types.WrapperDescriptorType,
+        types.MethodDescriptorType,
+        types.ClassMethodDescriptorType,
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +126,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
 
 
 def getall(obj: Any) -> Sequence[str] | None:
-    """Get the ``__all__`` attribute of an object as sequence.
+    """Get the ``__all__`` attribute of an object as a sequence.
 
     This returns ``None`` if the given ``obj.__all__`` does not exist and
     raises :exc:`ValueError` if ``obj.__all__`` is not a list or tuple of
@@ -184,14 +220,14 @@ def isNewType(obj: Any) -> bool:
     return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
 
 
-def isenumclass(x: Any) -> bool:
+def isenumclass(x: Any) -> TypeGuard[type[Enum]]:
     """Check if the object is an :class:`enumeration class <enum.Enum>`."""
-    return isclass(x) and issubclass(x, enum.Enum)
+    return isclass(x) and issubclass(x, Enum)
 
 
-def isenumattribute(x: Any) -> bool:
+def isenumattribute(x: Any) -> TypeGuard[Enum]:
     """Check if the object is an enumeration attribute."""
-    return isinstance(x, enum.Enum)
+    return isinstance(x, Enum)
 
 
 def unpartial(obj: Any) -> Any:
@@ -206,7 +242,7 @@ def unpartial(obj: Any) -> Any:
     return obj
 
 
-def ispartial(obj: Any) -> bool:
+def ispartial(obj: Any) -> TypeGuard[partial | partialmethod]:
     """Check if the object is a partial function or method."""
     return isinstance(obj, (partial, partialmethod))
 
@@ -241,7 +277,7 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     return False
 
 
-def isdescriptor(x: Any) -> bool:
+def isdescriptor(x: Any) -> TypeGuard[_SupportsGet | _SupportsSet | _SupportsDelete]:
     """Check if the object is a :external+python:term:`descriptor`."""
     return any(
         callable(safe_getattr(x, item, None)) for item in ('__get__', '__set__', '__delete__')
@@ -253,7 +289,7 @@ def isabstractmethod(obj: Any) -> bool:
     return safe_getattr(obj, '__isabstractmethod__', False) is True
 
 
-def isboundmethod(method: MethodType) -> bool:
+def isboundmethod(method: types.MethodType) -> bool:
     """Check if the method is a bound method."""
     return safe_getattr(method, '__self__', None) is not None
 
@@ -308,12 +344,12 @@ def is_singledispatch_function(obj: Any) -> bool:
     )
 
 
-def is_singledispatch_method(obj: Any) -> bool:
+def is_singledispatch_method(obj: Any) -> TypeGuard[singledispatchmethod]:
     """Check if the object is a :class:`~functools.singledispatchmethod`."""
     return isinstance(obj, singledispatchmethod)
 
 
-def isfunction(obj: Any) -> bool:
+def isfunction(obj: Any) -> TypeGuard[types.FunctionType]:
     """Check if the object is a user-defined function.
 
     Partial objects are unwrapped before checking them.
@@ -323,7 +359,7 @@ def isfunction(obj: Any) -> bool:
     return inspect.isfunction(unpartial(obj))
 
 
-def isbuiltin(obj: Any) -> bool:
+def isbuiltin(obj: Any) -> TypeGuard[types.BuiltinFunctionType]:
     """Check if the object is a built-in function or method.
 
     Partial objects are unwrapped before checking them.
@@ -333,7 +369,7 @@ def isbuiltin(obj: Any) -> bool:
     return inspect.isbuiltin(unpartial(obj))
 
 
-def isroutine(obj: Any) -> bool:
+def isroutine(obj: Any) -> TypeGuard[_RoutineType]:
     """Check if the object is a kind of function or method.
 
     Partial objects are unwrapped before checking them.
@@ -358,7 +394,7 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
     return hasattr(obj, '__wrapped__')
 
 
-def isproperty(obj: Any) -> bool:
+def isproperty(obj: Any) -> TypeGuard[property | cached_property]:
     """Check if the object is property (possibly cached)."""
     return isinstance(obj, (property, cached_property))
 
@@ -433,8 +469,8 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         return 'frozenset({%s})' % ', '.join(
             object_description(x, _seen=seen) for x in sorted_values
         )
-    elif isinstance(obj, enum.Enum):
-        if obj.__repr__.__func__ is not enum.Enum.__repr__:  # type: ignore[attr-defined]
+    elif isinstance(obj, Enum):
+        if obj.__repr__.__func__ is not Enum.__repr__:  # type: ignore[attr-defined]
             return repr(obj)
         return f'{obj.__class__.__name__}.{obj.name}'
     elif isinstance(obj, tuple):
@@ -529,7 +565,7 @@ class TypeAliasModule:
         self.__modname = modname
         self.__mapping = mapping
 
-        self.__module: ModuleType | None = None
+        self.__module: types.ModuleType | None = None
 
     def __getattr__(self, name: str) -> Any:
         fullname = '.'.join(filter(None, [self.__modname, name]))

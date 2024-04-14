@@ -15,7 +15,7 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal
+    from typing import Final, Literal, Protocol
 
     from typing_extensions import TypeAlias
 
@@ -30,6 +30,10 @@ if TYPE_CHECKING:
         'fully-qualified',
         'smart',
     ]
+
+    class _SpecialFormInterface(Protocol):
+        _name: str
+
 
 if sys.version_info >= (3, 10):
     from types import UnionType
