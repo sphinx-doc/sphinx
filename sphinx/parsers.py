@@ -68,9 +68,8 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
     def parse_inline(self, inputstring: str, document: nodes.document) -> None:
         """Parse inline syntax from text and generate a document tree."""
         # Avoid "Literal block expected; none found." warnings.
-        has_literal = inputstring.endswith('::')
-        if has_literal:
-            inputstring = inputstring[:-2]
+        if inputstring.endswith('::'):
+            inputstring = inputstring[:-1]
 
         self.setup_parse(inputstring, document)
         self.statemachine = states.RSTStateMachine(
@@ -84,10 +83,6 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         self.decorate(inputlines)
         self.statemachine.run(inputlines, document, inliner=self.inliner)
         self.finish_parse()
-        if has_literal:
-            p = document[0]
-            assert isinstance(p, nodes.paragraph)
-            p += nodes.Text(':')
 
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
