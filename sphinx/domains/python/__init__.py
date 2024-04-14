@@ -824,7 +824,12 @@ class PythonDomain(Domain):
         return make_refnode(builder, fromdocname, module.docname, module.node_id,
                             contnode, title)
 
-    def _intersphinx_adjust_object_types(self, objtypes: list[str]) -> None:
+    def _intersphinx_adjust_object_types(self, env: BuildEnvironment,
+                                         store: Any,
+                                         typ: str, target: str,
+                                         disabled_object_types: list[str],
+                                         node: pending_xref, contnode: Element,
+                                         objtypes: list[str]) -> None:
         # we adjust the object types for backwards compatibility
         if 'attribute' in objtypes:
             # Since Sphinx-2.1, properties are stored as py:method
