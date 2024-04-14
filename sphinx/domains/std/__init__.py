@@ -1010,8 +1010,7 @@ class StandardDomain(Domain):
     def _intersphinx_resolve_xref_lookup(self, store: dict[str, dict[str, Any]],
                                          target: str, objtypes: list[str]
                                          ) -> Any | None:
-        # Semi-haxy overwriting of the private method in Domain, as we only need to do
-        # case-insensitive lookup for label term
+        # Overridden as we also need to do case-insensitive lookup for label and term.
         for objtype in objtypes:
             if objtype not in store:
                 continue
