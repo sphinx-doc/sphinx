@@ -241,7 +241,7 @@ def test_text_definition_terms(app):
     app.build()
     # --- definition terms: regression test for #975, #2198, #2205
     result = (app.outdir / 'definition_terms.txt').read_text(encoding='utf8')
-    expect = ("13. I18N WITH DEFINITION TERMS"
+    expect = ("14. I18N WITH DEFINITION TERMS"
               "\n******************************\n"
               "\nSOME TERM"
               "\n   THE CORRESPONDING DEFINITION\n"
@@ -261,7 +261,7 @@ def test_text_glossary_term(app, warning):
     app.build()
     # --- glossary terms: regression test for #1090
     result = (app.outdir / 'glossary_terms.txt').read_text(encoding='utf8')
-    expect = (r"""18. I18N WITH GLOSSARY TERMS
+    expect = (r"""19. I18N WITH GLOSSARY TERMS
 ****************************
 
 SOME NEW TERM
@@ -296,7 +296,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
     result = (app.outdir / 'glossary_terms_inconsistency.txt').read_text(encoding='utf8')
-    expect = ("19. I18N WITH GLOSSARY TERMS INCONSISTENCY"
+    expect = ("20. I18N WITH GLOSSARY TERMS INCONSISTENCY"
               "\n******************************************\n"
               "\n1. LINK TO *SOME NEW TERM*.\n")
     assert result == expect
@@ -341,7 +341,7 @@ def test_text_seealso(app):
     app.build()
     # --- seealso
     result = (app.outdir / 'seealso.txt').read_text(encoding='utf8')
-    expect = ("12. I18N WITH SEEALSO"
+    expect = ("13. I18N WITH SEEALSO"
               "\n*********************\n"
               "\nSee also: SHORT TEXT 1\n"
               "\nSee also: LONG TEXT 1\n"
@@ -358,13 +358,13 @@ def test_text_figure_captions(app):
     app.build()
     # --- figure captions: regression test for #940
     result = (app.outdir / 'figure.txt').read_text(encoding='utf8')
-    expect = ("14. I18N WITH FIGURE CAPTION"
+    expect = ("15. I18N WITH FIGURE CAPTION"
               "\n****************************\n"
               "\n   [image]MY CAPTION OF THE FIGURE\n"
               "\n   MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
               "\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
               "\n"
-              "\n14.1. FIGURE IN THE BLOCK"
+              "\n15.1. FIGURE IN THE BLOCK"
               "\n=========================\n"
               "\nBLOCK\n"
               "\n      [image]MY CAPTION OF THE FIGURE\n"
@@ -372,7 +372,7 @@ def test_text_figure_captions(app):
               "\n      MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
               "\n"
               "\n"
-              "14.2. IMAGE URL AND ALT\n"
+              "15.2. IMAGE URL AND ALT\n"
               "=======================\n"
               "\n"
               "[image: I18N -> IMG][image]\n"
@@ -380,11 +380,11 @@ def test_text_figure_captions(app):
               "   [image: IMG -> I18N][image]\n"
               "\n"
               "\n"
-              "14.3. IMAGE ON SUBSTITUTION\n"
+              "15.3. IMAGE ON SUBSTITUTION\n"
               "===========================\n"
               "\n"
               "\n"
-              "14.4. IMAGE UNDER NOTE\n"
+              "15.4. IMAGE UNDER NOTE\n"
               "======================\n"
               "\n"
               "Note:\n"
@@ -420,7 +420,7 @@ def test_text_docfields(app):
     app.build()
     # --- docfields
     result = (app.outdir / 'docfields.txt').read_text(encoding='utf8')
-    expect = ("21. I18N WITH DOCFIELDS"
+    expect = ("22. I18N WITH DOCFIELDS"
               "\n***********************\n"
               "\nclass Cls1\n"
               "\n   Parameters:"
@@ -1435,7 +1435,7 @@ def test_additional_targets_should_be_translated(app):
                      """<span class="no">LIST</span>""")
     assert_count(expected_expr, result, 1)
 
-    # doctest block should not be translated but be highlighted
+    # doctest block should be translated and highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
@@ -1444,6 +1444,11 @@ def test_additional_targets_should_be_translated(app):
 
     # '#noqa' should remain in literal blocks.
     assert_count("#noqa", result, 1)
+
+    # parsed literal should be translated
+    expected_expr = ('<strong>THIS</strong> <em>IS</em>\n'
+                     '<a class="reference internal" href="#parsed-literal">PARSED LITERAL</a>')
+    assert_count(expected_expr, result, 1)
 
     # [raw.txt]
 

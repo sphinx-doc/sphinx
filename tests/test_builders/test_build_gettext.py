@@ -265,4 +265,6 @@ def test_gettext_literalblock_additional(app):
         "function\\n...     sys.stdout.write('hello')  # call write method of "
         "stdout object\\n>>>\\n>>> if __name__ == '__main__':  # if run this py "
         'file as python script\\n...     main()  # call main',
+        'parsed literal',
+        '**this** *is*\\n`parsed literal`_',
     ]
