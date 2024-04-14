@@ -5,7 +5,7 @@ from io import BytesIO
 
 import sphinx.locale
 from sphinx.testing.util import SphinxTestApp
-from sphinx.util.inventory import InventoryFile
+from sphinx.util.inventory import InventoryFile, InventoryItemSet
 
 from tests.test_util.intersphinx_data import (
     INVENTORY_V1,
@@ -76,3 +76,24 @@ def test_inventory_localization(tmp_path):
 
     # Ensure that the inventory contents differ
     assert inventory_et.read_bytes() != inventory_en.read_bytes()
+
+
+def test_inventory_item_set_repr():
+    # Given
+    item_set = InventoryItemSet()
+
+    # When
+    item_set._items = {
+        "test_inventory_name": [
+            (
+                "project name",
+                "project version",
+                "https://project.example/page.html#anchor",
+                "display name"
+            ),
+        ]
+    }
+
+    # Then
+    assert repr(item_set) == "InventoryItemSet({'test_inventory_name': [('project name', 'project version', 'https://project.example/page.html#anchor', 'display name')]})"
+    assert str(item_set) == repr(item_set)

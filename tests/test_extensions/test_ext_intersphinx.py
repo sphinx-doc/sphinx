@@ -16,6 +16,7 @@ from sphinx.ext.intersphinx import (
     load_mappings,
     missing_reference,
     normalize_intersphinx_mapping,
+    process_disabled_reftypes,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.util.console import strip_colors
@@ -44,6 +45,7 @@ def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
+    process_disabled_reftypes(app.env)
 
 
 @mock.patch('sphinx.ext.intersphinx.InventoryFile')
@@ -346,18 +348,22 @@ def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
 
     # the base case, everything should resolve
     assert app.config.intersphinx_disabled_reftypes == []
+    process_disabled_reftypes(app.env)
     case(term=True, doc=True, py=True)
 
     # disabled a single ref type
     app.config.intersphinx_disabled_reftypes = ['std:doc']
+    process_disabled_reftypes(app.env)
     case(term=True, doc=False, py=True)
 
     # disabled a whole domain
     app.config.intersphinx_disabled_reftypes = ['std:*']
+    process_disabled_reftypes(app.env)
     case(term=False, doc=False, py=True)
 
     # disabled all domains
     app.config.intersphinx_disabled_reftypes = ['*']
+    process_disabled_reftypes(app.env)
     case(term=False, doc=False, py=False)
 
 
