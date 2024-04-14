@@ -489,7 +489,7 @@ class Domain:
                 continue
         return None
 
-    def intersphinx_resolve_xref(self, env: "BuildEnvironment",
+    def intersphinx_resolve_xref(self, env: BuildEnvironment,
                                  store: Any,
                                  typ: str, target: str,
                                  disabled_object_types: list[str],
