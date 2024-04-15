@@ -442,8 +442,10 @@ class Locale(SphinxTransform):
                 node['uri'] = msgstr
                 continue
 
-            # literalblock do not need to be parsed as they do not contain inline syntax
-            if isinstance(node, LITERAL_TYPE_NODES):
+            # literalblock do not need to be parsed as they do not contain inline syntax,
+            # except for parsed-literals, but they use the same node type, so we differentiate
+            # them based on their number of children.
+            if isinstance(node, LITERAL_TYPE_NODES) and len(node.children) <= 1:
                 node.children = [nodes.Text(msgstr)]
                 # for highlighting that expects .rawsource and .astext() are same.
                 node.rawsource = node.astext()
