@@ -184,7 +184,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 # newtypes have correct module info since Python 3.10+
                 return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
             else:
-                return ':py:class:`%s`' % cls.__name__
+                return f':py:class:`{cls.__name__}`'
         elif UnionType and isinstance(cls, UnionType):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
@@ -197,28 +197,12 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             else:
-                return ':py:class:`%s`' % cls.__name__
+                return f':py:class:`{cls.__name__}`'
         elif (inspect.isgenericalias(cls)
               and cls.__module__ == 'typing'
               and cls.__origin__ is Union):  # type: ignore[attr-defined]
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist;
-            if NoneType in (__args__ := cls.__args__):  # type: ignore[attr-defined]
-                # Shape: Union[T_1, ..., T_k, None, T_{k+1}, ..., T_n]
-                #
-                # Note that we keep Literal[None] in their rightful place
-                # since we want to distinguish the following semantics:
-                #
-                # - ``Union[int, None]`` is "an optional integer" and is
-                #   natively represented by ``Optional[int]``.
-                # - ``Uniont[int, Literal["None"]]`` is "an integer or
-                #   the literal ``None``", and is natively kept as is.
-                non_none = [a for a in __args__ if a is not NoneType]
-                if len(non_none) == 1:
-                    return rf':py:obj:`~typing.Optional`\ [{restify(non_none[0], mode)}]'
-                args = ', '.join(restify(a, mode) for a in non_none)
-                return rf':py:obj:`~typing.Optional`\ [:obj:`~typing.Union`\ [{args}]]'
-            args = ', '.join(restify(a, mode) for a in __args__)
-            return rf':py:obj:`~typing.Union`\ [{args}]'
+            return ' | '.join(restify(a, mode) for a in cls.__args__)  # type: ignore[attr-defined]
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
@@ -248,10 +232,10 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                         literal_args.append(_format_literal_enum_arg(a, mode=mode))
                     else:
                         literal_args.append(repr(a))
-                text += r"\ [%s]" % ', '.join(literal_args)
+                text += fr"\ [{', '.join(literal_args)}]"
                 del literal_args
             elif cls.__args__:
-                text += r"\ [%s]" % ", ".join(restify(a, mode) for a in cls.__args__)
+                text += fr"\ [{', '.join(restify(a, mode) for a in cls.__args__)}]"
 
             return text
         elif isinstance(cls, typing._SpecialForm):
@@ -265,7 +249,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             else:
                 return f':py:class:`{modprefix}{cls.__module__}.{cls.__qualname__}`'
         elif isinstance(cls, ForwardRef):
-            return ':py:class:`%s`' % cls.__forward_arg__
+            return f':py:class:`{cls.__forward_arg__}`'
         else:
             # not a class (ex. TypeVar)
             if cls.__module__ == 'typing':
