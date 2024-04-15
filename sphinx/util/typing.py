@@ -184,7 +184,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 # newtypes have correct module info since Python 3.10+
                 return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
             else:
-                return ':py:class:`%s`' % cls.__name__
+                return f':py:class:`{cls.__name__}`'
         elif UnionType and isinstance(cls, UnionType):
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
@@ -195,7 +195,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             else:
-                return ':py:class:`%s`' % cls.__name__
+                return f':py:class:`{cls.__name__}`'
         elif (inspect.isgenericalias(cls)
               and cls.__module__ == 'typing'
               and cls.__origin__ is Union):  # type: ignore[attr-defined]
@@ -229,10 +229,10 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                         literal_args.append(_format_literal_enum_arg(a, mode=mode))
                     else:
                         literal_args.append(repr(a))
-                text += r"\ [%s]" % ', '.join(literal_args)
+                text += fr"\ [{', '.join(literal_args)}]"
                 del literal_args
             elif cls.__args__:
-                text += r"\ [%s]" % ", ".join(restify(a, mode) for a in cls.__args__)
+                text += fr"\ [{', '.join(restify(a, mode) for a in cls.__args__)}]"
 
             return text
         elif isinstance(cls, typing._SpecialForm):
@@ -246,7 +246,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             else:
                 return f':py:class:`{modprefix}{cls.__module__}.{cls.__qualname__}`'
         elif isinstance(cls, ForwardRef):
-            return ':py:class:`%s`' % cls.__forward_arg__
+            return f':py:class:`{cls.__forward_arg__}`'
         else:
             # not a class (ex. TypeVar)
             if cls.__module__ == 'typing':
