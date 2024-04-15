@@ -15,16 +15,23 @@ exclude = [
     "doc/usage/extensions/example*.py",
 ]
 ignore = [
+    # flake8-annotations
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
+    # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
+    # pyflakes
     "F841",  # Local variable `{name}` is assigned to but never used
+    # refurb
     "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
+    "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
+    # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
+    # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
+    # pyupgrade
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
-
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
     "E704",
@@ -35,7 +42,8 @@ select = [
       # NOT YET USED
     # airflow ('AIR')
       # Airflow is not used in Sphinx
-    "ANN",  # flake8-annotations ('ANN')
+    # flake8-annotations ('ANN')
+    "ANN",
     # flake8-unused-arguments ('ARG')
     "ARG004",  # Unused static method argument: `{name}`
     # flake8-async ('ASYNC')
@@ -123,7 +131,8 @@ select = [
       # NOT YET USED
     # flynt ('FLY')
       # NOT YET USED
-    "FURB",     # refurb
+    # refurb ('FURB')
+    "FURB",
     # flake8-logging-format ('G')
     "G001",  # Logging statement uses `str.format`
 #    "G002",  # Logging statement uses `%`
@@ -135,6 +144,7 @@ select = [
     "G202",  # Logging statement has redundant `exc_info`
     # isort ('I')
     "I",
+    # flake8-import-conventions ('ICN')
     "ICN",  # flake8-import-conventions
     # flake8-no-pep420 ('INP')
     "INP",
@@ -326,16 +336,19 @@ select = [
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
 #    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
+    # flake8-simplify ('SIM')
     "SIM",  # flake8-simplify
     # flake8-self ('SLF')
       # NOT YET USED
-    "SLOT",  # flake8-slots
+    # flake8-slots ('SLOT')
+    "SLOT",
     # flake8-debugger ('T10')
     "T100",  # Trace found: `{name}` used
     # flake8-print ('T20')
     "T201",  # `print` found
     "T203",  # `pprint` found
-    "TCH",  # flake8-type-checking
+    # flake8-type-checking ('TCH')
+    "TCH",
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
@@ -351,7 +364,8 @@ select = [
       # Trio is not used in Sphinx
     # tryceratops ('TRY')
       # NOT YET USED
-    "UP001",  # pyupgrade
+    # pyupgrade ('UP')
+    "UP",
     # pycodestyle ('W')
     "W191",  # Indentation contains tabs
 #    "W291",  # Trailing whitespace
@@ -370,7 +384,10 @@ select = [
 "doc/conf.py" = ["INP001", "W605"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
-"doc/development/tutorials/examples/recipe.py" = ["T201"]
+"doc/development/tutorials/examples/recipe.py" = [
+    "FURB118",
+    "T201"
+]
 "sphinx/domains/**" = ["FURB113"]
 "tests/test_domains/test_domain_cpp.py" = ["FURB113"]
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 import posixpath
 import traceback
 from importlib import import_module
@@ -254,7 +255,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
             sorted(env._viewcode_modules.items()),
             __('highlighting module code... '), "blue",
             len(env._viewcode_modules),
-            app.verbosity, lambda x: x[0]):
+            app.verbosity, operator.itemgetter(0)):
         if not entry:
             continue
         if not should_generate_module_page(app, modname):

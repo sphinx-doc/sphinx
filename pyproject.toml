@@ -64,7 +64,7 @@ dependencies = [
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
     "Pygments>=2.14",
-    "docutils>=0.18.1,<0.21",
+    "docutils>=0.18.1,<0.22",
     "snowballstemmer>=2.0",
     "babel>=2.9",
     "alabaster~=0.7.14",
@@ -83,12 +83,14 @@ docs = [
 ]
 lint = [
     "flake8>=3.5.0",
-    "ruff==0.3.4",
+    "ruff==0.3.7",
     "mypy==1.9.0",
     "sphinx-lint",
     "types-docutils",
     "types-requests",
     "typing-extensions",
+    "importlib_metadata",  # for mypy (Python<=3.9)
+    "tomli",  # for mypy (Python<=3.10)
     "pytest>=6.0",
 ]
 test = [
