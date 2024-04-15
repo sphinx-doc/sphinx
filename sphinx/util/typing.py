@@ -201,7 +201,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
         elif (inspect.isgenericalias(cls)
               and cls.__module__ == 'typing'
               and cls.__origin__ is Union):  # type: ignore[attr-defined]
-            # *cls* is defined in ``typing``, and thus ``__args__`` must exist;
+            # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)  # type: ignore[attr-defined]
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
