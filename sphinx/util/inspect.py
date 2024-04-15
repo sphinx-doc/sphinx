@@ -219,9 +219,10 @@ def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
+        sentinel = object()
         for basecls in getmro(cls):
-            meth = basecls.__dict__.get(name)
-            if meth is not None:
+            meth = basecls.__dict__.get(name, sentinel)
+            if meth is not sentinel:
                 return isclassmethod(meth)
     return False
 
@@ -232,9 +233,10 @@ def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
         return True
     if cls and name:
         # trace __mro__ if the method is defined in parent class
+        sentinel = object()
         for basecls in getattr(cls, '__mro__', [cls]):
-            meth = basecls.__dict__.get(name)
-            if meth is not None:
+            meth = basecls.__dict__.get(name, sentinel)
+            if meth is not sentinel:
                 return isinstance(meth, staticmethod)
     return False
 
