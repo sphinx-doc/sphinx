@@ -1,5 +1,5 @@
-Release 7.3.0 (in development)
-==============================
+Release 7.3.0 (released Apr 16, 2024)
+=====================================
 
 Dependencies
 ------------
@@ -8,9 +8,6 @@ Dependencies
 
 .. _Docutils 0.21: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-21-2024-04-09
 * #12012: Use ``types-docutils`` instead of ``docutils-stubs``.
-
-Incompatible changes
---------------------
 
 Deprecated
 ----------
