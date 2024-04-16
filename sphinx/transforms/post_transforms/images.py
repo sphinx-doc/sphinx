@@ -64,16 +64,9 @@ class ImageDownloader(BaseImageConverter):
                 basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
             basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
-            hashinput = node['uri'].replace('://', '/').translate({
-                ord("?"): "/",
-                ord("&"): "/",
-            })  # remappings formerly used for filepath sanitization; retained for cache reuse
-            dirname = sha1(  # Note: formerly applied only to length 33+ URIs
-                hashinput.encode(),
-                usedforsecurity=False,
-            ).hexdigest()
-            ensuredir(os.path.join(self.imagedir, dirname))
-            path = os.path.join(self.imagedir, dirname, basename)
+            uri_hash = sha1(node['uri'].encode(), usedforsecurity=False).hexdigest()
+            ensuredir(os.path.join(self.imagedir, uri_hash))
+            path = os.path.join(self.imagedir, uri_hash, basename)
 
             headers = {}
             if os.path.exists(path):
@@ -105,7 +98,7 @@ class ImageDownloader(BaseImageConverter):
                 if mimetype != '*' and os.path.splitext(basename)[1] == '':
                     # append a suffix if URI does not contain suffix
                     ext = get_image_extension(mimetype)
-                    newpath = os.path.join(self.imagedir, dirname, basename + ext)
+                    newpath = os.path.join(self.imagedir, uri_hash, basename + ext)
                     os.replace(path, newpath)
                     self.app.env.original_image_uri.pop(path)
                     self.app.env.original_image_uri[newpath] = node['uri']
