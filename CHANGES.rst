@@ -4,9 +4,11 @@ Release 7.3.0 (released Apr 16, 2024)
 Dependencies
 ------------
 
+* #11858: Increase the minimum supported version of Alabaster to 0.7.14.
+  Patch by Adam Turner.
 * #11411: Support `Docutils 0.21`_. Patch by Adam Turner.
 
-.. _Docutils 0.21: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-21-2024-04-09
+  .. _Docutils 0.21: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-21-2024-04-09
 * #12012: Use ``types-docutils`` instead of ``docutils-stubs``.
 
 Deprecated
@@ -32,10 +34,22 @@ Features added
   Patch by Bénédikt Tran.
 
   .. _`\<search\>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+* #11776: Add long option names to ``sphinx-build``.
+  Patch by Hugo van Kemenade, Adam Turner, Bénédikt Tran, and Ezio Melotti.
+* Organise the ``sphinx-build`` options into groups.
+  Patch by Adam Turner.
+* #11855: Defer computation of configuration values.
+  Patch by Adam Turner.
+* Add ``:no-search:`` as an alias of the ``:nosearch:`` metadata field.
+  Patch by Adam Turner.
 * #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
   if defined. Patch by Shengyu Zhang.
+* #11825: Allow custom targets in the manpage role.
+  Patch by Nicolas Peugnet.
 * #11892: Improved performance when resolving cross references in the C++ domain.
   Patch by Rouslan Korneychuk.
+* #11905: Add a :rst:dir:`versionremoved` directive.
+  Patch by Hugo van Kemenade, Adam Turner, and C.A.M. Gerlach.
 * #11981: Improve rendering of signatures using ``slice`` syntax,
   e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
 * The manpage builder now adds `OSC 8`_ anchors to hyperlinks, using
@@ -84,9 +98,13 @@ Bugs fixed
 * #11675: Fix rendering of progression bars in environments that do not support
   ANSI control sequences.
   Patch by Bénédikt Tran.
+* #11861: Whitelist more types with an incorrect ``__module__`` attribute.
+  Patch by Adam Turner.
 * #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
   ``ImageDownloader``.
   Patch by Nick Touran.
+* Allow hyphens in group names for :rst:dir:`productionlist` cross-references.
+  Patch by Adam Turner.
 * #11433: Added the :confval:`linkcheck_allow_unauthorized` configuration option.
   Set this option to ``False`` to report HTTP 401 (unauthorized) server
   responses as broken.
@@ -103,22 +121,28 @@ Bugs fixed
   Patch by Colin Marquardt.
 * #11598: Do not use query components in URLs for assets in EPUB rendering.
   Patch by David Runge.
-* #11917: Fix rendering of annotated inherited members for Python 3.9.
-  Patch by Janet Carson.
+* #11904: Support unary subtraction when parsing annotations.
+  Patch by James Addison.
 * #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
+* #11917: Fix rendering of annotated inherited members for Python 3.9.
+  Patch by Janet Carson.
+* #11935: C Domain: Fix namespace-pop context.
+  Patch by Frank Dana.
+* #11923: Avoid zombie processes when parallel builds fail.
+  Patch by Felix von Drigalski.
 * #11353: Support enumeration classes inheriting from mixin or data types.
   Patch by Bénédikt Tran.
 * #11962: Fix target resolution when using ``:paramtype:`` fields.
   Patch by Bénédikt Tran.
+* #11944: Use anchor in search preview.
+  Patch by Will Lachance.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
-* #11959: Fix multiple term matching when word appears in both title and document.
-  Patch by Will Lachance.
 * #11958: HTML Search: Fix partial matches overwriting full matches.
   Patch by William Lachance.
-* #11944: Use anchor in search preview.
+* #11959: Fix multiple term matching when word appears in both title and document.
   Patch by Will Lachance.
 * #11474: Fix doctrees caching causing files not be rebuilt in some cases,
   e.g., when :confval:`numfig` is ``True``.
@@ -127,7 +151,7 @@ Bugs fixed
   combined with :func:`@classmethod <classmethod>`.
   Patch by Bénédikt Tran.
 * #11894: Do not add checksums to css files if building using the htmlhelp builder.
-  Patch by mkay.
+  Patch by reduerK akiM.
 * #12052: Remove ``<script>`` and ``<style>`` tags from the content of search result
   summary snippets.
   Patch by James Addison.
@@ -145,15 +169,22 @@ Bugs fixed
   Patch by James Addison.
 * #11970: singlehtml builder: make target URIs to be same-document references in
   the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
-  becomes ``#foo``. Patch by eanorige.
+  becomes ``#foo``. Patch by Eric Norige.
 * #12271: Partially revert Docutils' r9562__ to fix EPUB files.
   Patch by Adam Turner.
 
   __ https://sourceforge.net/p/docutils/code/9562/
+* #12253: Escape reserved path characters in the remote images post-transform
+  download cache.
+  Patch by James Addison and Adam Turner.
 
 Testing
 -------
 
+* Reorganise tests into directories.
+  Patch by Adam Turner.
+* Clean up global state in ``SphinxTestApp``.
+  Patch by Adam Turner.
 * #11285: :func:`!pytest.mark.sphinx` and :class:`!sphinx.testing.util.SphinxTestApp`
   accept *warningiserror*, *keep_going* and *verbosity* as keyword arguments.
   Patch by Bénédikt Tran.
