@@ -4,6 +4,8 @@ Release 7.3.1 (in development)
 Dependencies
 ------------
 
+* Require ``tomli`` on Python 3.10 and earlier.
+  Patch by Adam Turner.
 
 Release 7.3.0 (released Apr 16, 2024)
 =====================================
