@@ -402,7 +402,7 @@ class Glossary(SphinxDirective):
         in_comment = False
         was_empty = True
         messages: list[Node] = []
-        for line, (source, lineno) in zip(self.content, self.content.items):
+        for line, (source, lineno) in zip(self.content, self.content.items, strict=True):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:

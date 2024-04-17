@@ -79,7 +79,7 @@ class _RootArgumentParser(argparse.ArgumentParser):
         ]
 
         if commands := list(_load_subcommand_descriptions()):
-            command_max_length = min(max(map(len, next(zip(*commands), ()))), 22)
+            command_max_length = min(max(map(len, next(zip(*commands, strict=True), ()))), 22)
             help_fragments += [
                 '\n',
                 bold(underline(__('Commands:'))),

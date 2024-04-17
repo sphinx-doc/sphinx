@@ -842,11 +842,11 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> Signature:
     params: list[Parameter] = []
 
     # positional-only arguments (introduced in Python 3.8)
-    for arg, defexpr in zip(args.posonlyargs, defaults):
+    for arg, defexpr in zip(args.posonlyargs, defaults, strict=False):
         params.append(_define(Parameter.POSITIONAL_ONLY, arg, code, defexpr=defexpr))
 
     # normal arguments
-    for arg, defexpr in zip(args.args, defaults[pos_only_offset:]):
+    for arg, defexpr in zip(args.args, defaults[pos_only_offset:], strict=False):
         params.append(_define(Parameter.POSITIONAL_OR_KEYWORD, arg, code, defexpr=defexpr))
 
     # variadic positional argument (no possible default expression)
@@ -854,7 +854,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> Signature:
         params.append(_define(Parameter.VAR_POSITIONAL, args.vararg, code, defexpr=None))
 
     # keyword-only arguments
-    for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults):
+    for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults, strict=False):
         params.append(_define(Parameter.KEYWORD_ONLY, arg, code, defexpr=defexpr))
 
     # variadic keyword argument (no possible default expression)

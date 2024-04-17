@@ -2421,7 +2421,7 @@ definition_after_normal_text : int
             [r"'with \'quotes\''"],
         )
 
-        for spec, expected in zip(specs, tokens):
+        for spec, expected in zip(specs, tokens, strict=True):
             actual = _tokenize_type_spec(spec)
             assert expected == actual
 
@@ -2440,7 +2440,7 @@ definition_after_normal_text : int
             ["{'F', 'C', 'N'}", ", ", "default", " ", "None"],
         )
 
-        for tokens_, expected in zip(tokens, combined_tokens):
+        for tokens_, expected in zip(tokens, combined_tokens, strict=True):
             actual = _recombine_set_tokens(tokens_)
             assert expected == actual
 
@@ -2456,7 +2456,7 @@ definition_after_normal_text : int
             ["{1, 2", ", ", "default", ": ", "None"],
         )
 
-        for tokens_, expected in zip(tokens, combined_tokens):
+        for tokens_, expected in zip(tokens, combined_tokens, strict=True):
             actual = _recombine_set_tokens(tokens_)
             assert expected == actual
 
@@ -2491,7 +2491,7 @@ definition_after_normal_text : int
             ":class:`pandas.DataFrame`, *optional*",
         )
 
-        for spec, expected in zip(specs, converted):
+        for spec, expected in zip(specs, converted, strict=True):
             actual = _convert_numpy_type_spec(spec, translations=translations)
             assert expected == actual
 
@@ -2569,7 +2569,7 @@ definition_after_normal_text : int
             r".+: malformed string literal \(missing closing quote\):",
             r".+: malformed string literal \(missing opening quote\):",
         )
-        for token, error in zip(tokens, errors):
+        for token, error in zip(tokens, errors, strict=True):
             try:
                 _token_type(token)
             finally:
@@ -2698,6 +2698,6 @@ int py:class 1 int.html -
         a_ = list(li.findall('.//a[@class="reference external"]'))
 
         assert len(a_) == 2
-        for a, uri in zip(a_, ('list.html', 'int.html')):
+        for a, uri in zip(a_, ('list.html', 'int.html'), strict=True):
             assert a.attrib['href'] == f'127.0.0.1:5555/{uri}'
             assert a.attrib['title'] == '(in Intersphinx Test v42)'

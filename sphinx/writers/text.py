@@ -221,10 +221,10 @@ class Table:
             tail = "+" if out[-1][0] == "-" else "|"
             glue = [
                 "+" if left[0] == "-" or right[0] == "-" else "|"
-                for left, right in zip(out, out[1:])
+                for left, right in zip(out, out[1:], strict=False)
             ]
             glue.append(tail)
-            return head + "".join(chain.from_iterable(zip(out, glue)))
+            return head + "".join(chain.from_iterable(zip(out, glue, strict=False)))
 
         for lineno, line in enumerate(self.lines):
             if self.separator and lineno == self.separator:

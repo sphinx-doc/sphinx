@@ -734,7 +734,7 @@ class StandaloneHTMLBuilder(Builder):
                              'genindex-split.html')
             self.handle_page('genindex-all', genindexcontext,
                              'genindex.html')
-            for (key, entries), count in zip(genindex, indexcounts):
+            for (key, entries), count in zip(genindex, indexcounts, strict=True):
                 ctx = {'key': key, 'entries': entries, 'count': count,
                        'genindexentries': genindex}
                 self.handle_page('genindex-' + key, ctx,
