@@ -4,6 +4,8 @@ Release 7.3.4 (in development)
 Bugs fixed
 ----------
 
+* Handle cases when ``Any`` is not an instance of ``type``.
+  Patch by Adam Turner.
 
 Release 7.3.3 (released Apr 17, 2024)
 =====================================

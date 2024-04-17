@@ -532,7 +532,7 @@ def _validate_valid_types(
         return ()
     if isinstance(valid_types, (frozenset, ENUM)):
         return valid_types
-    if isinstance(valid_types, type):
+    if isinstance(valid_types, type) or valid_types is Any:
         return frozenset((valid_types,))
     if isinstance(valid_types, set):
         return frozenset(valid_types)
