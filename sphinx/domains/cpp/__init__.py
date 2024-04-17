@@ -167,8 +167,8 @@ from sphinx.domains.cpp._ids import (  # NoQA: F401
     _visibility_re,
     udl_identifier_re,
 )
-from sphinx.domains.cpp.._parser import DefinitionParser  # NoQA: F401
-from sphinx.domains.cpp.._symbol import (  # NoQA: F401
+from sphinx.domains.cpp._parser import DefinitionParser  # NoQA: F401
+from sphinx.domains.cpp._symbol import (  # NoQA: F401
     LookupKey,
     Symbol,
     SymbolLookupResult,
