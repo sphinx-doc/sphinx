@@ -463,6 +463,9 @@ class Config:
         # create a picklable copy of ``self._options``
         __dict__['_options'] = _options = {}
         for name, opt in self._options.items():
+            if not isinstance(opt, _Opt) and isinstance(opt, tuple) and len(opt) <= 3:
+                # Fix for Furo's ``_update_default``.
+                self._options[name] = opt = _Opt(*opt)
             real_value = getattr(self, name)
             if not is_serializable(real_value):
                 if opt.rebuild:
@@ -531,6 +534,8 @@ def _validate_valid_types(
         return valid_types
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
+    if valid_types is Any:
+        return frozenset({Any})  # type: ignore[arg-type]
     if isinstance(valid_types, set):
         return frozenset(valid_types)
     if not isinstance(valid_types, tuple):
@@ -655,7 +660,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if default is None and not valid_types:
             continue  # neither inferable nor explicitly annotated types
 
-        if valid_types is Any:  # any type of value is accepted
+        if valid_types == frozenset({Any}):  # any type of value is accepted
             continue
 
         if isinstance(valid_types, ENUM):

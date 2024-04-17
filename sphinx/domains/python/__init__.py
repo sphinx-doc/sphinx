@@ -36,6 +36,16 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.python._object import (  # NoQA: F401
+    PyField,
+    PyGroupedField,
+    PyTypedField,
+    PyXrefMixin,
+    py_sig_re,
+)
+
 logger = logging.getLogger(__name__)
 
 pairindextypes = {
