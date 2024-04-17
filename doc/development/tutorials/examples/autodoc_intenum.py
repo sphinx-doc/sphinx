@@ -4,12 +4,12 @@ from enum import IntEnum
 from typing import TYPE_CHECKING, Any
 
 from sphinx.ext.autodoc import ClassDocumenter, bool_option
-from sphinx.util.typing import ExtensionMetadata
 
 if TYPE_CHECKING:
     from docutils.statemachine import StringList
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class IntEnumDocumenter(ClassDocumenter):
@@ -57,6 +57,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.ext.autodoc')  # Require autodoc extension
     app.add_autodocumenter(IntEnumDocumenter)
     return {
-        'version': '0.1',
+        'version': '1',
         'parallel_read_safe': True,
     }
