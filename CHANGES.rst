@@ -6,6 +6,9 @@ Bugs fixed
 
 * Preload all themes defined via entry points.
   Patch by Adam Turner.
+* Fix a bad interaction between the ``'Furo'`` theme and the new-style for
+  configuration values.
+  Patch by Adam Turner.
 
 Release 7.3.1 (released Apr 17, 2024)
 =====================================

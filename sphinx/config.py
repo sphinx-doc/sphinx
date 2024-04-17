@@ -463,6 +463,9 @@ class Config:
         # create a picklable copy of ``self._options``
         __dict__['_options'] = _options = {}
         for name, opt in self._options.items():
+            if not isinstance(opt, _Opt) and isinstance(opt, tuple) and len(opt) <= 3:
+                # Fix for Furo's ``_update_default``.
+                self._options[name] = opt = _Opt(*opt)
             real_value = getattr(self, name)
             if not is_serializable(real_value):
                 if opt.rebuild:
