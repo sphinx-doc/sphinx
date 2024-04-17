@@ -4,6 +4,9 @@ Release 7.3.3 (in development)
 Bugs fixed
 ----------
 
+* #12290: Fix a false-positive warning when setting a configuration value
+  with ``Any`` as the valid type to a type other than the value's default.
+  Patch by Adam Turner.
 
 Release 7.3.2 (released Apr 17, 2024)
 =====================================

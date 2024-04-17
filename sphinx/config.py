@@ -658,7 +658,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if default is None and not valid_types:
             continue  # neither inferable nor explicitly annotated types
 
-        if valid_types is Any:  # any type of value is accepted
+        if valid_types == frozenset({Any}):  # any type of value is accepted
             continue
 
         if isinstance(valid_types, ENUM):
