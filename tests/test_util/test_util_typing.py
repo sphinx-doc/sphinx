@@ -190,24 +190,44 @@ def test_restify_type_hints_Callable():
 
 
 def test_restify_type_hints_Union():
-    assert restify(Optional[int]) == ":py:obj:`~typing.Optional`\\ [:py:class:`int`]"
-    assert restify(Union[str, None]) == ":py:obj:`~typing.Optional`\\ [:py:class:`str`]"
-    assert restify(Union[int, str]) == (":py:obj:`~typing.Union`\\ "
-                                        "[:py:class:`int`, :py:class:`str`]")
-    assert restify(Union[int, Integral]) == (":py:obj:`~typing.Union`\\ "
-                                             "[:py:class:`int`, :py:class:`numbers.Integral`]")
-    assert restify(Union[int, Integral], "smart") == (":py:obj:`~typing.Union`\\ "
-                                                      "[:py:class:`int`,"
-                                                      " :py:class:`~numbers.Integral`]")
+    assert restify(Union[int]) == ":py:class:`int`"
+    assert restify(Union[int, str]) == ":py:class:`int` | :py:class:`str`"
+    assert restify(Optional[int]) == ":py:class:`int` | :py:obj:`None`"
+
+    assert restify(Union[str, None]) == ":py:class:`str` | :py:obj:`None`"
+    assert restify(Union[None, str]) == ":py:obj:`None` | :py:class:`str`"
+    assert restify(Optional[str]) == ":py:class:`str` | :py:obj:`None`"
+
+    assert restify(Union[int, str, None]) == (
+        ":py:class:`int` | :py:class:`str` | :py:obj:`None`"
+    )
+    assert restify(Optional[Union[int, str]]) in {
+        ":py:class:`str` | :py:class:`int` | :py:obj:`None`",
+        ":py:class:`int` | :py:class:`str` | :py:obj:`None`",
+    }
+
+    assert restify(Union[int, Integral]) == (
+        ":py:class:`int` | :py:class:`numbers.Integral`"
+    )
+    assert restify(Union[int, Integral], "smart") == (
+        ":py:class:`int` | :py:class:`~numbers.Integral`"
+    )
 
     assert (restify(Union[MyClass1, MyClass2]) ==
-            (":py:obj:`~typing.Union`\\ "
-             "[:py:class:`tests.test_util.test_util_typing.MyClass1`, "
-             ":py:class:`tests.test_util.test_util_typing.<MyClass2>`]"))
+            (":py:class:`tests.test_util.test_util_typing.MyClass1`"
+             " | :py:class:`tests.test_util.test_util_typing.<MyClass2>`"))
     assert (restify(Union[MyClass1, MyClass2], "smart") ==
-            (":py:obj:`~typing.Union`\\ "
-             "[:py:class:`~tests.test_util.test_util_typing.MyClass1`,"
-             " :py:class:`~tests.test_util.test_util_typing.<MyClass2>`]"))
+            (":py:class:`~tests.test_util.test_util_typing.MyClass1`"
+             " | :py:class:`~tests.test_util.test_util_typing.<MyClass2>`"))
+
+    assert (restify(Optional[Union[MyClass1, MyClass2]]) ==
+            (":py:class:`tests.test_util.test_util_typing.MyClass1`"
+             " | :py:class:`tests.test_util.test_util_typing.<MyClass2>`"
+             " | :py:obj:`None`"))
+    assert (restify(Optional[Union[MyClass1, MyClass2]], "smart") ==
+            (":py:class:`~tests.test_util.test_util_typing.MyClass1`"
+             " | :py:class:`~tests.test_util.test_util_typing.<MyClass2>`"
+             " | :py:obj:`None`"))
 
 
 def test_restify_type_hints_typevars():
@@ -300,6 +320,7 @@ def test_restify_pep_585():
 @pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
 def test_restify_type_union_operator():
     assert restify(int | None) == ":py:class:`int` | :py:obj:`None`"  # type: ignore[attr-defined]
+    assert restify(None | int) == ":py:obj:`None` | :py:class:`int`"  # type: ignore[attr-defined]
     assert restify(int | str) == ":py:class:`int` | :py:class:`str`"  # type: ignore[attr-defined]
     assert restify(int | str | None) == (":py:class:`int` | :py:class:`str` | "  # type: ignore[attr-defined]
                                          ":py:obj:`None`")
@@ -486,9 +507,12 @@ def test_stringify_type_hints_Union():
     assert stringify_annotation(Optional[int], "fully-qualified") == "int | None"
     assert stringify_annotation(Optional[int], "smart") == "int | None"
 
-    assert stringify_annotation(Union[str, None], 'fully-qualified-except-typing') == "str | None"
-    assert stringify_annotation(Union[str, None], "fully-qualified") == "str | None"
-    assert stringify_annotation(Union[str, None], "smart") == "str | None"
+    assert stringify_annotation(Union[int, None], 'fully-qualified-except-typing') == "int | None"
+    assert stringify_annotation(Union[None, int], 'fully-qualified-except-typing') == "None | int"
+    assert stringify_annotation(Union[int, None], "fully-qualified") == "int | None"
+    assert stringify_annotation(Union[None, int], "fully-qualified") == "None | int"
+    assert stringify_annotation(Union[int, None], "smart") == "int | None"
+    assert stringify_annotation(Union[None, int], "smart") == "None | int"
 
     assert stringify_annotation(Union[int, str], 'fully-qualified-except-typing') == "int | str"
     assert stringify_annotation(Union[int, str], "fully-qualified") == "int | str"
