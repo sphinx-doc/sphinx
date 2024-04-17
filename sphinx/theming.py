@@ -159,6 +159,7 @@ class HTMLThemeFactory:
         self._load_builtin_themes()
         if getattr(app.config, 'html_theme_path', None):
             self._load_additional_themes(app.config.html_theme_path)
+        self._load_entry_point_themes()
 
     def _load_builtin_themes(self) -> None:
         """Load built-in themes."""
@@ -174,17 +175,14 @@ class HTMLThemeFactory:
             for name, theme in themes.items():
                 self._themes[name] = theme
 
-    def _load_extra_theme(self, name: str) -> None:
+    def _load_entry_point_themes(self) -> None:
         """Try to load a theme with the specified name.
 
         This uses the ``sphinx.html_themes`` entry point from package metadata.
         """
-        theme_entry_points = entry_points(group='sphinx.html_themes')
-        try:
-            entry_point = theme_entry_points[name]
-        except KeyError:
-            pass
-        else:
+        for entry_point in entry_points(group='sphinx.html_themes'):
+            if entry_point.name in self._themes:
+                continue  # don't overwrite loaded themes
             self._app.registry.load_extension(self._app, entry_point.module)
             _config_post_init(self._app, self._app.config)
 
@@ -219,9 +217,6 @@ class HTMLThemeFactory:
 
     def create(self, name: str) -> Theme:
         """Create an instance of theme."""
-        if name not in self._themes:
-            self._load_extra_theme(name)
-
         if name not in self._themes:
             raise ThemeError(__('no theme named %r found (missing theme.toml?)') % name)
 

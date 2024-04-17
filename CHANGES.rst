@@ -4,6 +4,8 @@ Release 7.3.2 (in development)
 Bugs fixed
 ----------
 
+* Preload all themes defined via entry points.
+  Patch by Adam Turner.
 
 Release 7.3.1 (released Apr 17, 2024)
 =====================================
