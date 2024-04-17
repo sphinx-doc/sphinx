@@ -96,19 +96,6 @@ from sphinx.domains.c._ast import (  # NoQA: F401
     ASTUnaryOpExpr,
     ASTUnion,
 )
-from sphinx.domains.c._ids import (  # NoQA: F401
-    _expression_assignment_ops,
-    _expression_bin_ops,
-    _expression_unary_ops,
-    _id_prefix,
-    _keywords,
-    _simple_type_specifiers_re,
-    _string_re,
-)
-from sphinx.domains.c._symbol import (  # NoQA: F401
-    LookupKey,
-    SymbolLookupResult,
-)
 
 logger = logging.getLogger(__name__)
 

@@ -139,32 +139,6 @@ from sphinx.domains.cpp._ast import (  # NoQA: F401
     ASTUnion,
     ASTUserDefinedLiteral,
 )
-from sphinx.domains.cpp._ids import (  # NoQA: F401
-    _expression_assignment_ops,
-    _expression_bin_ops,
-    _expression_unary_ops,
-    _fold_operator_re,
-    _id_char_from_prefix,
-    _id_explicit_cast,
-    _id_fundamental_v1,
-    _id_fundamental_v2,
-    _id_operator_unary_v2,
-    _id_operator_v1,
-    _id_operator_v2,
-    _id_prefix,
-    _id_shorthands_v1,
-    _keywords,
-    _operator_re,
-    _simple_type_specifiers_re,
-    _string_re,
-    _visibility_re,
-    udl_identifier_re,
-)
-from sphinx.domains.cpp._symbol import (  # NoQA: F401
-    LookupKey,
-    SymbolLookupResult,
-    _is_specialization,
-)
 
 logger = logging.getLogger(__name__)
 
