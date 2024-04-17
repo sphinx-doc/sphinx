@@ -23,7 +23,7 @@ def _template_basename(filename: str | os.PathLike[str]) -> str | None:
     basename = os.path.basename(filename)
     if basename.lower().endswith('_t'):
         return str(filename)[:-2]
-    elif basename.lower().endswith(".jinja"):
+    elif basename.endswith('.jinja'):
         return str(filename)[:-6]
     return None
 

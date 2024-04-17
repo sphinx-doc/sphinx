@@ -104,10 +104,10 @@ def test_copy_asset(tmp_path):
 
 
 def test_template_basename():
-    assert not _template_basename("asset.txt")
-    assert _template_basename("asset.txt.jinja") == "asset.txt"
-    assert _template_basename("sidebar.html.jinja") == "sidebar.html"
+    assert _template_basename('asset.txt') is None
+    assert _template_basename('asset.txt.jinja') == 'asset.txt'
+    assert _template_basename('sidebar.html.jinja') == 'sidebar.html'
 
 
 def test_legacy_template_basename():
-    assert _template_basename("asset.txt_t") == "asset.txt"
+    assert _template_basename('asset.txt_t') == 'asset.txt'

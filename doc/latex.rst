@@ -1836,6 +1836,11 @@ Miscellany
    .. versionadded:: 1.6
       currently all template variables are unstable and undocumented.
 
+   .. versionchanged:: 7.4
+      Added support for the ``.jinja`` file extension, which is preferred.
+      The old file names remain supported.
+      (``latex.tex_t``, ``longtable.tex_t``, ``tabulary.tex_t``, and ``tabular.tex_t``)
+
 .. raw:: latex
 
    \endgroup

@@ -248,11 +248,13 @@ so-called "static templates", like this:
 
 If the name of a file in the ``static/`` directory of a theme (or in the user's
 static path) ends with ``.jinja`` or ``_t``, it will be processed by the
-template engine.  The suffix will be removed from the final file name.  For
-example, the *classic* theme has a file ``static/classic.css.jinja`` which uses
-templating to put the color options into the stylesheet.  When a documentation
-project is built with the classic theme, the output directory will contain a
-``_static/classic.css`` file where all template tags have been processed.
+template engine.  The suffix will be removed from the final file name.
+
+For example, a theme with a ``static/theme_styles.css.jinja`` file could use
+templating to put options into the stylesheet.
+When a documentation project is built with that theme,
+the output directory will contain a ``_static/theme_styles.css`` file
+where all template tags have been processed.
 
 .. versionchanged:: 7.3
 
