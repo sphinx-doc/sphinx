@@ -43,7 +43,14 @@ from sphinx.domains.python._object import (  # NoQA: F401
     PyGroupedField,
     PyTypedField,
     PyXrefMixin,
+    _parse_annotation,
+    _parse_arglist,
+    _parse_type_list,
+    _pseudo_parse_arglist,
+    _TypeParameterListParser,
+    parse_reftarget,
     py_sig_re,
+    type_to_xref,
 )
 
 logger = logging.getLogger(__name__)
