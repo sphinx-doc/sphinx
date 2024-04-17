@@ -14,11 +14,11 @@ from sphinx import addnodes
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.domains.python._annotations import _parse_annotation
 from sphinx.domains.python._object import (
-    PyObject,
-    PyXrefMixin,
     PyField,
-    PyTypedField,
     PyGroupedField,
+    PyObject,
+    PyTypedField,
+    PyXrefMixin,
     py_sig_re,
 )
 from sphinx.locale import _, __
