@@ -4,6 +4,8 @@ Release 7.3.6 (in development)
 Bugs fixed
 ----------
 
+* #12295: Re-export all AST types in the C and C++ domains.
+  Patch by Adam Turner.
 
 Release 7.3.5 (released Apr 17, 2024)
 =====================================
