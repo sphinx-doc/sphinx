@@ -17,6 +17,7 @@ from sphinx.domains.python._object import (
     PyObject,
     PyXrefMixin,
     PyField,
+    PyTypedField,
     PyGroupedField,
     py_sig_re,
 )
