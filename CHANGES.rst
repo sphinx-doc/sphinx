@@ -6,6 +6,9 @@ Bugs fixed
 
 * #12295: Re-export all AST types in the C and C++ domains.
   Patch by Adam Turner.
+* #12295: Re-export various objects from ``sphinx.domains.python._annotations``
+  in ``sphinx.domains.python``.
+  Patch by Jacob Chesslo and Adam Turner.
 
 Release 7.3.5 (released Apr 17, 2024)
 =====================================
