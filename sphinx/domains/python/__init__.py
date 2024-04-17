@@ -13,14 +13,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.domains.python._annotations import _parse_annotation
-from sphinx.domains.python._object import (
-    PyField,  # NoQA: F401
-    PyGroupedField,  # NoQA: F401
-    PyObject,
-    PyTypedField,  # NoQA: F401
-    PyXrefMixin,  # NoQA: F401
-    py_sig_re,  # NoQA: F401
-)
+from sphinx.domains.python._object import PyObject
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
@@ -42,6 +35,16 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
+
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.python._object import (  # NoQA: F401
+    PyField,
+    PyGroupedField,
+    PyTypedField,
+    PyXrefMixin,
+    py_sig_re,
+)
 
 logger = logging.getLogger(__name__)
 
