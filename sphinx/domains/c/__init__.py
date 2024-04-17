@@ -44,6 +44,82 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
+
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.c._ast import (  # NoQA: F401
+    ASTAlignofExpr,
+    ASTArray,
+    ASTAssignmentExpr,
+    ASTBase,
+    ASTBinOpExpr,
+    ASTBooleanLiteral,
+    ASTBracedInitList,
+    ASTCastExpr,
+    ASTCharLiteral,
+    ASTDeclSpecs,
+    ASTDeclSpecsSimple,
+    ASTDeclaration,
+    ASTDeclarator,
+    ASTDeclaratorNameBitField,
+    ASTDeclaratorNameParam,
+    ASTDeclaratorParen,
+    ASTDeclaratorPtr,
+    ASTEnum,
+    ASTEnumerator,
+    ASTExpression,
+    ASTFallbackExpr,
+    ASTFunctionParameter,
+    ASTIdExpression,
+    ASTIdentifier,
+    ASTInitializer,
+    ASTLiteral,
+    ASTMacro,
+    ASTMacroParameter,
+    ASTNestedName,
+    ASTNumberLiteral,
+    ASTParameters,
+    ASTParenExpr,
+    ASTParenExprList,
+    ASTPostfixArray,
+    ASTPostfixCallExpr,
+    ASTPostfixDec,
+    ASTPostfixExpr,
+    ASTPostfixInc,
+    ASTPostfixMemberOfPointer,
+    ASTPostfixOp,
+    ASTSizeofExpr,
+    ASTSizeofType,
+    ASTStringLiteral,
+    ASTStruct,
+    ASTTrailingTypeSpec,
+    ASTTrailingTypeSpecFundamental,
+    ASTTrailingTypeSpecName,
+    ASTType,
+    ASTTypeWithInit,
+    ASTUnaryOpExpr,
+    ASTUnion,
+)
+from sphinx.domains.c._ids import (  # NoQA: F401
+    _expression_assignment_ops,
+    _expression_bin_ops,
+    _expression_unary_ops,
+    _id_prefix,
+    _keywords,
+    _macroKeywords,
+    _max_id,
+    _simple_type_specifiers_re,
+    _string_re,
+)
+from sphinx.domains.c._parser import DefinitionParser  # NoQA: F401
+from sphinx.domains.c._symbol import (  # NoQA: F401
+    _DuplicateSymbolError,
+    SymbolLookupResult,
+    LookupKey,
+    Symbol,
+)
+
+
 logger = logging.getLogger(__name__)
 
 
