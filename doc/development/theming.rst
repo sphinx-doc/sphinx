@@ -256,7 +256,7 @@ When a documentation project is built with that theme,
 the output directory will contain a ``_static/theme_styles.css`` file
 where all template tags have been processed.
 
-.. versionchanged:: 7.3
+.. versionchanged:: 7.4
 
    The preferred suffix for static templates is now ``.jinja``, in line with
    the Jinja project's `recommended file extension`_.
