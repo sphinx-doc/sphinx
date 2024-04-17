@@ -532,8 +532,10 @@ def _validate_valid_types(
         return ()
     if isinstance(valid_types, (frozenset, ENUM)):
         return valid_types
-    if isinstance(valid_types, type) or valid_types is Any:
+    if isinstance(valid_types, type):
         return frozenset((valid_types,))
+    if valid_types is Any:
+        return frozenset({Any})  # type: ignore[arg-type]
     if isinstance(valid_types, set):
         return frozenset(valid_types)
     if not isinstance(valid_types, tuple):
