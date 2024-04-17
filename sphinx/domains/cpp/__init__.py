@@ -154,22 +154,17 @@ from sphinx.domains.cpp._ids import (  # NoQA: F401
     _id_prefix,
     _id_shorthands_v1,
     _keywords,
-    _max_id,
     _operator_re,
     _simple_type_specifiers_re,
     _string_re,
     _visibility_re,
     udl_identifier_re,
 )
-from sphinx.domains.cpp._parser import DefinitionParser  # NoQA: F401
 from sphinx.domains.cpp._symbol import (  # NoQA: F401
     LookupKey,
-    Symbol,
     SymbolLookupResult,
-    _DuplicateSymbolError,
     _is_specialization,
 )
-
 
 logger = logging.getLogger(__name__)
 
