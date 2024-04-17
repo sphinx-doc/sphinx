@@ -4,7 +4,7 @@ Release 7.3.5 (in development)
 Bugs fixed
 ----------
 
-* Re-export various objects from ``sphinx.domains.python._object``
+* #12295: Re-export various objects from ``sphinx.domains.python._object``
   in ``sphinx.domains.python``.
   Patch by Jacob Chesslo and Adam Turner.
 
