@@ -1454,7 +1454,7 @@ class _EnumFormatter:
         """Generate the brief part of the class being documented."""
         assert doc, f'enumeration class {self.target!r} should have an explicit docstring'
 
-        if sys.version_info[:2] >= (3, 13):
+        if sys.version_info[:2] >= (3, 13) or sys.version_info[:3] >= (3, 12, 3):
             args = ('(value, names=<not given>, *values, module=None, '
                     'qualname=None, type=None, start=1, boundary=None)')
         elif sys.version_info[:2] >= (3, 12):
