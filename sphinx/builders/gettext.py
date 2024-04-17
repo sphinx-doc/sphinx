@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 import time
 from codecs import open
 from collections import defaultdict
@@ -281,7 +282,7 @@ class MessageCatalogBuilder(I18nBuilder):
                                                    __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,
-                                                   lambda textdomain__: textdomain__[0]):
+                                                   operator.itemgetter(0)):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
