@@ -14,12 +14,12 @@ from sphinx import addnodes
 from sphinx.domains import Domain, Index, IndexEntry, ObjType
 from sphinx.domains.python._annotations import _parse_annotation
 from sphinx.domains.python._object import (
-    PyField,
-    PyGroupedField,
+    PyField,  # NoQA: F401
+    PyGroupedField,  # NoQA: F401
     PyObject,
-    PyTypedField,
-    PyXrefMixin,
-    py_sig_re,
+    PyTypedField,  # NoQA: F401
+    PyXrefMixin,  # NoQA: F401
+    py_sig_re,  # NoQA: F401
 )
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
