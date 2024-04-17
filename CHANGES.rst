@@ -173,7 +173,7 @@ Bugs fixed
   Patch by David Runge.
 * #11904: Support unary subtraction when parsing annotations.
   Patch by James Addison.
-* #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
+* #11925: Denylist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
 * #11917: Fix rendering of annotated inherited members for Python 3.9.
