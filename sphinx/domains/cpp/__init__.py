@@ -48,7 +48,6 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
-
 # re-export objects for backwards compatibility
 # xref https://github.com/sphinx-doc/sphinx/issues/12295
 from sphinx.domains.cpp._ast import (  # NoQA: F401
@@ -66,7 +65,6 @@ from sphinx.domains.cpp._ast import (  # NoQA: F401
     ASTCommaExpr,
     ASTConcept,
     ASTConditionalExpr,
-    ASTDeclaration,
     ASTDeclarator,
     ASTDeclaratorMemPtr,
     ASTDeclaratorNameBitField,
@@ -86,13 +84,9 @@ from sphinx.domains.cpp._ast import (  # NoQA: F401
     ASTFallbackExpr,
     ASTFoldExpr,
     ASTFunctionParameter,
-    ASTIdentifier,
     ASTIdExpression,
     ASTInitializer,
     ASTLiteral,
-    ASTNamespace,
-    ASTNestedName,
-    ASTNestedNameElement,
     ASTNewExpr,
     ASTNoexceptExpr,
     ASTNoexceptSpec,
