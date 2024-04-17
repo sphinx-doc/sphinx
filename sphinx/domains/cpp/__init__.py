@@ -11,12 +11,18 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.domains.cpp._ast import (
+
+# re-export objects for backwards compatibility
+# x-ref https://github.com/sphinx-doc/sphinx/pull/12298
+from sphinx.domains.cpp._ast import (  # NoQA: F401
     ASTDeclaration,
+    ASTDeclaratorNameParamQual,
+    ASTDeclaratorParen,
     ASTIdentifier,
     ASTNamespace,
     ASTNestedName,
     ASTNestedNameElement,
+    ASTParametersQualifiers,
 )
 from sphinx.domains.cpp._ids import _max_id
 from sphinx.domains.cpp._parser import DefinitionParser
