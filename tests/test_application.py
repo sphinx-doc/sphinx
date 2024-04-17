@@ -84,7 +84,7 @@ def test_extensions(app, status, warning):
     assert "extension 'shutil' has no setup() function" in warning
 
 
-def test_extension_in_blacklist(app, status, warning):
+def test_extension_in_denylist(app, status, warning):
     app.setup_extension('sphinxjp.themecore')
     msg = strip_colors(warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")

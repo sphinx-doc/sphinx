@@ -134,7 +134,7 @@ const SphinxHighlight = {
 
     document.addEventListener("keydown", (event) => {
       // bail for input elements
-      if (BLACKLISTED_KEY_CONTROL_ELEMENTS.has(document.activeElement.tagName)) return;
+      if (DENYLISTED_KEY_CONTROL_ELEMENTS.has(document.activeElement.tagName)) return;
       // bail with special keys
       if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
       if (DOCUMENTATION_OPTIONS.ENABLE_SEARCH_SHORTCUTS && (event.key === "Escape")) {

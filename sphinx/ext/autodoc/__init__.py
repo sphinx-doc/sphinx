@@ -1448,13 +1448,13 @@ class DecoratorDocumenter(FunctionDocumenter):
 # Types which have confusing metaclass signatures it would be best not to show.
 # These are listed by name, rather than storing the objects themselves, to avoid
 # needing to import the modules.
-_METACLASS_CALL_BLACKLIST = [
+_METACLASS_CALL_DENYLIST = [
     'enum.EnumMeta.__call__',
 ]
 
 
 # Types whose __new__ signature is a pass-through.
-_CLASS_NEW_BLACKLIST = [
+_CLASS_NEW_DENYLIST = [
     'typing.Generic.__new__',
 ]
 
@@ -1550,7 +1550,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         call = get_user_defined_function_or_method(type(self.object), '__call__')
 
         if call is not None:
-            if f"{call.__module__}.{call.__qualname__}" in _METACLASS_CALL_BLACKLIST:
+            if f"{call.__module__}.{call.__qualname__}" in _METACLASS_CALL_DENYLIST:
                 call = None
 
         if call is not None:
@@ -1566,7 +1566,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         new = get_user_defined_function_or_method(self.object, '__new__')
 
         if new is not None:
-            if f"{new.__module__}.{new.__qualname__}" in _CLASS_NEW_BLACKLIST:
+            if f"{new.__module__}.{new.__qualname__}" in _CLASS_NEW_DENYLIST:
                 new = None
 
         if new is not None:

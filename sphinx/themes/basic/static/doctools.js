@@ -10,7 +10,7 @@
  */
 "use strict";
 
-const BLACKLISTED_KEY_CONTROL_ELEMENTS = new Set([
+const DENYLISTED_KEY_CONTROL_ELEMENTS = new Set([
   "TEXTAREA",
   "INPUT",
   "SELECT",
@@ -112,7 +112,7 @@ const Documentation = {
 
     document.addEventListener("keydown", (event) => {
       // bail for input elements
-      if (BLACKLISTED_KEY_CONTROL_ELEMENTS.has(document.activeElement.tagName)) return;
+      if (DENYLISTED_KEY_CONTROL_ELEMENTS.has(document.activeElement.tagName)) return;
       // bail with special keys
       if (event.altKey || event.ctrlKey || event.metaKey) return;
 

@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 
 # list of deprecated extensions. Keys are extension name.
 # Values are Sphinx version that merge the extension.
-EXTENSION_BLACKLIST = {
+EXTENSION_DENYLIST = {
     "sphinxjp.themecore": "1.2",
     "sphinxprettysearchresults": "2.0.0",
 }
@@ -440,10 +440,10 @@ class SphinxComponentRegistry:
         """Load a Sphinx extension."""
         if extname in app.extensions:  # already loaded
             return
-        if extname in EXTENSION_BLACKLIST:
+        if extname in EXTENSION_DENYLIST:
             logger.warning(__('the extension %r was already merged with Sphinx since '
                               'version %s; this extension is ignored.'),
-                           extname, EXTENSION_BLACKLIST[extname])
+                           extname, EXTENSION_DENYLIST[extname])
             return
 
         # update loading context
