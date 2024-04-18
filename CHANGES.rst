@@ -4,6 +4,10 @@ Release 7.3.7 (in development)
 Bugs fixed
 ----------
 
+* #12299: Defer loading themes defined via entry points until
+  their explicit use by the user or a child theme.
+  Patch by Adam Turner.
+
 
 Release 7.3.6 (released Apr 17, 2024)
 =====================================
