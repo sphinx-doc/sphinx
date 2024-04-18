@@ -44,6 +44,59 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.c._ast import (  # NoQA: F401
+    ASTAlignofExpr,
+    ASTArray,
+    ASTAssignmentExpr,
+    ASTBase,
+    ASTBinOpExpr,
+    ASTBooleanLiteral,
+    ASTBracedInitList,
+    ASTCastExpr,
+    ASTCharLiteral,
+    ASTDeclarator,
+    ASTDeclaratorNameBitField,
+    ASTDeclaratorNameParam,
+    ASTDeclaratorParen,
+    ASTDeclaratorPtr,
+    ASTDeclSpecs,
+    ASTDeclSpecsSimple,
+    ASTEnum,
+    ASTEnumerator,
+    ASTExpression,
+    ASTFallbackExpr,
+    ASTFunctionParameter,
+    ASTIdExpression,
+    ASTInitializer,
+    ASTLiteral,
+    ASTMacro,
+    ASTMacroParameter,
+    ASTNumberLiteral,
+    ASTParameters,
+    ASTParenExpr,
+    ASTParenExprList,
+    ASTPostfixArray,
+    ASTPostfixCallExpr,
+    ASTPostfixDec,
+    ASTPostfixExpr,
+    ASTPostfixInc,
+    ASTPostfixMemberOfPointer,
+    ASTPostfixOp,
+    ASTSizeofExpr,
+    ASTSizeofType,
+    ASTStringLiteral,
+    ASTStruct,
+    ASTTrailingTypeSpec,
+    ASTTrailingTypeSpecFundamental,
+    ASTTrailingTypeSpecName,
+    ASTType,
+    ASTTypeWithInit,
+    ASTUnaryOpExpr,
+    ASTUnion,
+)
+
 logger = logging.getLogger(__name__)
 
 

@@ -1,9 +1,35 @@
-Release 7.3.5 (in development)
+Release 7.3.7 (in development)
 ==============================
 
 Bugs fixed
 ----------
 
+* #12299: Defer loading themes defined via entry points until
+  their explicit use by the user or a child theme.
+  Patch by Adam Turner.
+
+
+Release 7.3.6 (released Apr 17, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12295: Re-export all AST types in the C and C++ domains.
+  Patch by Adam Turner.
+* #12295: Re-export various objects from ``sphinx.domains.python._annotations``
+  in ``sphinx.domains.python``.
+  Patch by Jacob Chesslo and Adam Turner.
+
+Release 7.3.5 (released Apr 17, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12295: Re-export various objects from ``sphinx.domains.python._object``
+  in ``sphinx.domains.python``.
+  Patch by Jacob Chesslo and Adam Turner.
 
 Release 7.3.4 (released Apr 17, 2024)
 =====================================

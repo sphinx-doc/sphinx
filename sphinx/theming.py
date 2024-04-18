@@ -32,6 +32,7 @@ else:
     from importlib_metadata import entry_points
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from typing import TypedDict
 
     from typing_extensions import Required
@@ -156,6 +157,7 @@ class HTMLThemeFactory:
     def __init__(self, app: Sphinx) -> None:
         self._app = app
         self._themes = app.registry.html_themes
+        self._entry_point_themes: dict[str, Callable[[], None]] = {}
         self._load_builtin_themes()
         if getattr(app.config, 'html_theme_path', None):
             self._load_additional_themes(app.config.html_theme_path)
@@ -183,8 +185,16 @@ class HTMLThemeFactory:
         for entry_point in entry_points(group='sphinx.html_themes'):
             if entry_point.name in self._themes:
                 continue  # don't overwrite loaded themes
-            self._app.registry.load_extension(self._app, entry_point.module)
-            _config_post_init(self._app, self._app.config)
+
+            def _load_theme_closure(
+                # bind variables in the function definition
+                app: Sphinx = self._app,
+                theme_module: str = entry_point.module,
+            ) -> None:
+                app.setup_extension(theme_module)
+                _config_post_init(app, app.config)
+
+            self._entry_point_themes[entry_point.name] = _load_theme_closure
 
     @staticmethod
     def _find_themes(theme_path: str) -> dict[str, str]:
@@ -217,10 +227,18 @@ class HTMLThemeFactory:
 
     def create(self, name: str) -> Theme:
         """Create an instance of theme."""
+        if name in self._entry_point_themes:
+            # Load a deferred theme from an entry point
+            entry_point_loader = self._entry_point_themes[name]
+            entry_point_loader()
         if name not in self._themes:
             raise ThemeError(__('no theme named %r found (missing theme.toml?)') % name)
 
-        themes, theme_dirs, tmp_dirs = _load_theme_with_ancestors(self._themes, name)
+        themes, theme_dirs, tmp_dirs = _load_theme_with_ancestors(
+            name,
+            self._themes,
+            self._entry_point_themes,
+        )
         return Theme(name, configs=themes, paths=theme_dirs, tmp_dirs=tmp_dirs)
 
 
@@ -235,7 +253,10 @@ def _is_archived_theme(filename: str, /) -> bool:
 
 
 def _load_theme_with_ancestors(
-    theme_paths: dict[str, str], name: str, /
+    name: str,
+    theme_paths: dict[str, str],
+    entry_point_themes: dict[str, Callable[[], None]],
+    /,
 ) -> tuple[dict[str, _ConfigFile], list[str], list[str]]:
     themes: dict[str, _ConfigFile] = {}
     theme_dirs: list[str] = []
@@ -253,6 +274,10 @@ def _load_theme_with_ancestors(
         if inherit in themes:
             msg = __('The %r theme has circular inheritance') % name
             raise ThemeError(msg)
+        if inherit in entry_point_themes and inherit not in theme_paths:
+            # Load a deferred theme from an entry point
+            entry_point_loader = entry_point_themes[inherit]
+            entry_point_loader()
         if inherit not in theme_paths:
             msg = __(
                 'The %r theme inherits from %r, which is not a loaded theme. '
