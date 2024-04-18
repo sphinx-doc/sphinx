@@ -47,6 +47,7 @@ from sphinx.domains.python._object import (  # NoQA: F401
     PyGroupedField,
     PyTypedField,
     PyXrefMixin,
+    py_sig_re,
 )
 
 logger = logging.getLogger(__name__)
