@@ -506,6 +506,7 @@ exclude = [
     "sphinx/ext/intersphinx/__init__.py",
     "sphinx/ext/intersphinx/_cli.py",
     "sphinx/ext/intersphinx/_load.py",
+    "sphinx/ext/intersphinx/_resolve.py",
     "sphinx/ext/duration.py",
     "sphinx/ext/imgconverter.py",
     "sphinx/ext/imgmath.py",
