@@ -54,16 +54,18 @@ from sphinx.addnodes import pending_xref
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.deprecation import _deprecation_warning
 from sphinx.errors import ExtensionError
+from sphinx.ext.intersphinx._shared import LOGGER as logger
+from sphinx.ext.intersphinx._shared import InventoryAdapter
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
-from sphinx.util import logging, requests
+from sphinx.util import requests
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from types import ModuleType
-    from typing import IO, Any, Union
+    from typing import IO, Any
 
     from docutils.nodes import Node, TextElement, system_message
     from docutils.utils import Reporter
@@ -72,49 +74,8 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
+    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
     from sphinx.util.typing import ExtensionMetadata, Inventory, InventoryItem, RoleFunction
-
-    InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
-
-logger = logging.getLogger(__name__)
-
-
-class InventoryAdapter:
-    """Inventory adapter for environment"""
-
-    def __init__(self, env: BuildEnvironment) -> None:
-        self.env = env
-
-        if not hasattr(env, 'intersphinx_cache'):
-            # initial storage when fetching inventories before processing
-            self.env.intersphinx_cache = {}  # type: ignore[attr-defined]
-
-            self.env.intersphinx_inventory = {}  # type: ignore[attr-defined]
-            self.env.intersphinx_named_inventory = {}  # type: ignore[attr-defined]
-
-    @property
-    def cache(self) -> dict[str, InventoryCacheEntry]:
-        """Intersphinx cache.
-
-        - Key is the URI of the remote inventory
-        - Element one is the key given in the Sphinx intersphinx_mapping
-          configuration value
-        - Element two is a time value for cache invalidation, a float
-        - Element three is the loaded remote inventory, type Inventory
-        """
-        return self.env.intersphinx_cache  # type: ignore[attr-defined]
-
-    @property
-    def main_inventory(self) -> Inventory:
-        return self.env.intersphinx_inventory  # type: ignore[attr-defined]
-
-    @property
-    def named_inventory(self) -> dict[str, Inventory]:
-        return self.env.intersphinx_named_inventory  # type: ignore[attr-defined]
-
-    def clear(self) -> None:
-        self.env.intersphinx_inventory.clear()  # type: ignore[attr-defined]
-        self.env.intersphinx_named_inventory.clear()  # type: ignore[attr-defined]
 
 
 def _strip_basic_auth(url: str) -> str:
