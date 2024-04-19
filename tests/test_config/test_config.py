@@ -5,7 +5,7 @@ import pickle
 import time
 from collections import Counter
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 import pytest
@@ -46,7 +46,7 @@ def check_is_serializable(subject: object, *, circular: bool) -> None:
 
         # check that without recursive guards, a recursion error occurs
         with pytest.raises(RecursionError):
-            assert is_serializable(subject, _recursive_guard=UselessGuard())
+            assert is_serializable(subject, _seen=UselessGuard())
 
 
 def test_is_serializable() -> None:
@@ -550,6 +550,14 @@ def test_check_enum_for_list_failed(logger):
     config.add('value', 'default', False, ENUM('default', 'one', 'two'))
     check_confval_types(None, config)
     assert logger.warning.called
+
+
+@mock.patch("sphinx.config.logger")
+def test_check_any(logger):
+    config = Config({'value': None})
+    config.add('value', 'default', '', Any)
+    check_confval_types(None, config)
+    logger.warning.assert_not_called()  # not warned
 
 
 nitpick_warnings = [
