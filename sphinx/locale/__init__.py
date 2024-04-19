@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import locale
+import sys
 from gettext import NullTranslations, translation
 from os import path
 from typing import TYPE_CHECKING
@@ -156,13 +157,15 @@ def init_console(
     """
     if locale_dir is None:
         locale_dir = _LOCALE_DIR
-    try:
-        # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)
-    except AttributeError:
-        # LC_MESSAGES is not always defined. Fallback to the default language
-        # in case it is not.
+    if sys.platform == 'win32':
         language = None
+    else:
+        try:
+            # encoding is ignored
+            language, _ = locale.getlocale(locale.LC_MESSAGES)
+        except AttributeError:
+            # Fallback to the default language in case LC_MESSAGES is not defined.
+            language = None
     return init([locale_dir], language, catalog, 'console')
 
 

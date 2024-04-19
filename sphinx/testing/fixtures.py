@@ -9,6 +9,7 @@ import subprocess
 import sys
 import warnings
 from collections.abc import Callable
+from io import StringIO
 from typing import TYPE_CHECKING, Optional, cast
 
 import pytest
@@ -37,7 +38,7 @@ from sphinx.testing.util import (
 from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Iterator
     from io import StringIO
     from pathlib import Path
     from typing import Any, Final, Union
@@ -409,7 +410,7 @@ def app(
     module_cache: ModuleCache,
     shared_result: LegacyModuleCache,  # xref RemovedInSphinx90Warning
     sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
-) -> Generator[AnySphinxTestApp, None, None]:  # xref RemovedInSphinx90Warning: update type
+) -> Iterator[AnySphinxTestApp, None, None]:  # xref RemovedInSphinx90Warning: update type
     """A :class:`sphinx.application.Sphinx` object suitable for testing."""
     if sphinx_use_legacy_plugin:  # xref RemovedInSphinx90Warning
         # a warning will be emitted by the app_params fixture
@@ -446,7 +447,7 @@ def make_app(
     test_params: TestParams,
     sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
     # xref RemovedInSphinx90Warning: narrow callable return type
-) -> Generator[Callable[..., SphinxTestApp | SphinxTestAppWrapperForSkipBuilding], None, None]:
+) -> Iterator[Callable[..., SphinxTestApp | SphinxTestAppWrapperForSkipBuilding]]:
     """Fixture to create :class:`~sphinx.testing.util.SphinxTestApp` objects."""
     stack: list[SphinxTestApp] = []
     allow_rebuild = test_params['shared_result'] is None
@@ -563,7 +564,7 @@ def if_online(  # NoQA: PT004
 
 
 @pytest.fixture()
-def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
+def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.

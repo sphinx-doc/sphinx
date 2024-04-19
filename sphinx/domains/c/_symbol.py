@@ -11,7 +11,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
 
     from typing_extensions import Self
 
@@ -248,7 +248,7 @@ class Symbol:
             Symbol.debug_print("recurseInAnon:    ", recurseInAnon)
             Symbol.debug_print("searchInSiblings: ", searchInSiblings)
 
-        def candidates() -> Generator[Symbol, None, None]:
+        def candidates() -> Iterator[Symbol]:
             s = self
             if Symbol.debug_lookup:
                 Symbol.debug_print("searching in self:")

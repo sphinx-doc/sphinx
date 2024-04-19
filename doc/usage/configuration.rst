@@ -345,7 +345,7 @@ General configuration
    * ``app.add_role``
    * ``app.add_generic_role``
    * ``app.add_source_parser``
-   * ``autosectionlabel.*``
+   * ``config.cache``
    * ``download.not_readable``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
@@ -367,7 +367,14 @@ General configuration
    * ``toc.not_readable``
    * ``toc.secnum``
 
-   Then extensions can also define their own warning types.
+   Extensions can also define their own warning types.
+   Those defined by the first-party ``sphinx.ext`` extensions are:
+
+   * ``autodoc``
+   * ``autodoc.import_object``
+   * ``autosectionlabel.<document name>``
+   * ``autosummary``
+   * ``intersphinx.external``
 
    You can choose from these types.  You can also give only the first
    component to exclude all warnings attached to it.
@@ -388,7 +395,7 @@ General configuration
 
    .. versionchanged:: 2.1
 
-      Added ``autosectionlabel.*``
+      Added ``autosectionlabel.<document name>``
 
    .. versionchanged:: 3.3.0
 
@@ -402,9 +409,13 @@ General configuration
 
       Added ``i18n.inconsistent_references``
 
-    .. versionadded:: 7.1
+   .. versionadded:: 7.1
 
-        Added ``index`` warning type.
+      Added ``index`` warning type.
+
+   .. versionadded:: 7.3
+
+      Added ``config.cache`` warning type.
 
 .. confval:: needs_sphinx
 
@@ -2968,6 +2979,21 @@ Options for the linkcheck builder
    The default value for this option will be changed in Sphinx 8.0; from that
    version onwards, HTTP 401 responses to checked hyperlinks will be treated
    as "broken" by default.
+
+   .. versionadded:: 7.3
+
+.. confval:: linkcheck_report_timeouts_as_broken
+
+   When an HTTP response is not received from a webserver before the configured
+   :confval:`linkcheck_timeout` expires,
+   the current default behaviour of Sphinx is to treat the link as 'broken'.
+   To report timeouts using a distinct report code of ``timeout``,
+   set :confval:`linkcheck_report_timeouts_as_broken` to ``False``.
+
+   From Sphinx 8.0 onwards, timeouts that occur while checking hyperlinks
+   will be reported using the new 'timeout' status code.
+
+   .. xref RemovedInSphinx80Warning
 
    .. versionadded:: 7.3
 
