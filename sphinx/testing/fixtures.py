@@ -9,7 +9,6 @@ import subprocess
 import sys
 import warnings
 from collections.abc import Callable
-from io import StringIO
 from typing import TYPE_CHECKING, Optional, cast
 
 import pytest
