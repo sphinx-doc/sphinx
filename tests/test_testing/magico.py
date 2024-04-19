@@ -47,20 +47,20 @@ from tests.test_testing._const import MAGICO
 from tests.test_testing._util import MagicStream
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
 _MAGICAL_KEY: pytest.StashKey[MagicStream] = pytest.StashKey()
 
 
 @pytest.hookimpl(wrapper=True)
-def pytest_runtest_setup(item: pytest.Item) -> Generator[None, None, None]:
+def pytest_runtest_setup(item: pytest.Item) -> Iterator[None]:
     """Initialize the magical buffer fixture for the item."""
     item.stash.setdefault(_MAGICAL_KEY, MagicStream())
     yield
 
 
 @pytest.hookimpl(wrapper=True)
-def pytest_runtest_teardown(item: pytest.Item) -> Generator[None, None, None]:
+def pytest_runtest_teardown(item: pytest.Item) -> Iterator[None]:
     """Write the magical buffer content as a report section."""
     # teardown of fixtures
     yield
