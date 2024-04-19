@@ -13,7 +13,7 @@ from sphinx.testing.matcher.buffer import Block
 from sphinx.testing.matcher.options import Options, OptionsHolder
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable, Iterator, Sequence, Set
+    from collections.abc import Iterable, Iterator, Sequence, Set
     from io import StringIO
     from typing import Any, ClassVar, Literal
 
@@ -71,12 +71,14 @@ class LineMatcher(OptionsHolder):
         return self.lines().lines_iterator()
 
     @contextlib.contextmanager
-    def override(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
+    def override(self, /, **options: Unpack[Options]) -> Iterator[None]:
         """Temporarily extend the set of options with *options*."""
         self.__stack.append(None)  # prepare the next cache entry
-        with super().override(**options):
-            yield
-        self.__stack.pop()  # pop the cached lines
+        try:
+            with super().override(**options):
+                yield
+        finally:
+            self.__stack.pop()  # pop the cached lines
 
     @property
     def content(self) -> str:

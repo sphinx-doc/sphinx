@@ -10,7 +10,7 @@ from sphinx.testing.matcher.options import CompleteOptions, Options, OptionsHold
 if TYPE_CHECKING:
     from typing import ClassVar
 
-    from sphinx.testing.matcher.options import OptionName
+    from sphinx.testing.matcher.options import _OPTION
 
 
 def test_options_class():
@@ -30,7 +30,7 @@ def test_default_options():
 
     processed = set()
 
-    def check(option: OptionName, default: object) -> None:
+    def check(option: _OPTION, default: object) -> None:
         assert option not in processed
         assert option in default_options
         assert default_options[option] == default
@@ -95,7 +95,7 @@ def test_set_option():
 
 
 @pytest.mark.parametrize('option_name', list(Options.__annotations__))
-def test_property_implementation(option_name: OptionName) -> None:
+def test_property_implementation(option_name: _OPTION) -> None:
     """Test that the implementation is correct and do not have typos."""
     obj = OptionsHolder()
 

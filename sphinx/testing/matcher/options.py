@@ -7,15 +7,17 @@ __all__ = ('Options', 'CompleteOptions', 'OptionsHolder')
 import contextlib
 from collections.abc import Sequence
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Literal, TypedDict, TypeVar, Union, final, overload
+from typing import TYPE_CHECKING, Literal, TypedDict, Union, final, overload
 
 from sphinx.testing.matcher._util import LinePredicate, PatternLike
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Mapping
-    from typing import Any, ClassVar
+    from collections.abc import Iterator, Mapping
+    from typing import Any, ClassVar, TypeVar
 
     from typing_extensions import Unpack
+
+    DT = TypeVar('DT')
 
 _FLAG = Literal['keep_ansi', 'keep_break', 'keep_empty', 'compress', 'unique']
 
@@ -40,12 +42,10 @@ _FLAVOR = Literal['flavor']
 Flavor = Literal['re', 'fnmatch', 'none']
 """Allowed values for :attr:`Options.flavor`."""
 
-# For some reason, mypy does not like Union of Literal,
-# so we wrap the Literal types inside a bigger Literal.
-OptionValue = Union[bool, StripChars, PrunePattern, IgnorePredicate, OpCodes, Flavor]
-OptionName = Literal[_FLAG, _STRIP, _PRUNE, _IGNORE, _OPCODES, _FLAVOR]
-
-DT = TypeVar('DT')
+# For some reason, mypy does not like Union of Literal when used as keys
+# of a TypedDict (see: https://github.com/python/mypy/issues/16818), so
+# we instead use a Literal of those (which is equivalent).
+_OPTION = Literal[_FLAG, _STRIP, _PRUNE, _IGNORE, _OPCODES, _FLAVOR]
 
 
 @final
@@ -267,16 +267,16 @@ class OptionsHolder:
         return MappingProxyType(self.default_options | self.__options)
 
     @contextlib.contextmanager
-    def set_options(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
+    def set_options(self, /, **options: Unpack[Options]) -> Iterator[None]:
         """Temporarily replace the set of options with *options*."""
         return self.__set_options(options)
 
     @contextlib.contextmanager
-    def override(self, /, **options: Unpack[Options]) -> Generator[None, None, None]:
+    def override(self, /, **options: Unpack[Options]) -> Iterator[None]:
         """Temporarily extend the set of options with *options*."""
         return self.__set_options(self.__options | options)
 
-    def __set_options(self, options: Options) -> Generator[None, None, None]:
+    def __set_options(self, options: Options) -> Iterator[None]:
         saved_options = self.__options.copy()
         self.__options = options
         try:
@@ -328,7 +328,7 @@ class OptionsHolder:
     def get_option(self, name: _FLAVOR, default: Flavor, /) -> Flavor: ...  # NoQA: E704
     @overload
     def get_option(self, name: _FLAVOR, default: DT, /) -> Flavor | DT: ...  # NoQA: E704
-    def get_option(self, name: OptionName, /, *default: object) -> object:  # NoQA: E301
+    def get_option(self, name: _OPTION, /, *default: object) -> object:  # NoQA: E301
         """Get an option value, or a default value.
 
         :param name: An option name specified in :attr:`default_options`.
@@ -354,7 +354,7 @@ class OptionsHolder:
     def set_option(self, name: _OPCODES, value: OpCodes, /) -> None: ...  # NoQA: E704
     @overload
     def set_option(self, name: _FLAVOR, value: Flavor, /) -> None: ...  # NoQA: E704
-    def set_option(self, name: OptionName, value: Any, /) -> None:  # NoQA: E301
+    def set_option(self, name: _OPTION, value: Any, /) -> None:  # NoQA: E301
         """Set a persistent option value.
 
         The *name* should be an option for which a default value is specified
