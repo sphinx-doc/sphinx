@@ -18,6 +18,24 @@ This works as follows:
 
 from __future__ import annotations
 
+__all__ = (
+    'InventoryAdapter',
+    'fetch_inventory',
+    'fetch_inventory_group',
+    'load_mappings',
+    'normalize_intersphinx_mapping',
+    'IntersphinxRoleResolver',
+    'inventory_exists',
+    'install_dispatcher',
+    'resolve_reference_in_inventory',
+    'resolve_reference_any_inventory',
+    'resolve_reference_detect_inventory',
+    'missing_reference',
+    'IntersphinxDispatcher',
+    'IntersphinxRole',
+    'inspect_main',
+)
+
 import concurrent.futures
 import functools
 import posixpath
