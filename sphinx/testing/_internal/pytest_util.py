@@ -16,7 +16,7 @@ from _pytest.nodes import get_fslocation_from_item
 from sphinx.testing._internal.warnings import MarkWarning, NodeWarning, SphinxTestingWarning
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Collection, Generator, Iterable, Iterator
+    from collections.abc import Callable, Collection, Iterable, Iterator
     from typing import Any, ClassVar, Final
 
     T = TypeVar('T')
