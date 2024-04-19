@@ -30,10 +30,84 @@ Creating themes
 Themes take the form of either a directory or a zipfile (whose name is the
 theme name), containing the following:
 
-* A :file:`theme.conf` file.
+* Either a :file:`theme.toml` file (preferred) or a :file:`theme.conf` file.
 * HTML templates, if needed.
 * A ``static/`` directory containing any static files that will be copied to the
   output static directory on build.  These can be images, styles, script files.
+
+Theme configuration (``theme.toml``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The :file:`theme.toml` file is a TOML_ document,
+containing two tables: ``[theme]`` and ``[options]``.
+
+The ``[theme]`` table defines the theme's settings:
+
+* **inherit** (string): The name of the base theme from which to inherit
+  settings, options, templates, and static files.
+  All static files from theme 'ancestors' will be used.
+  The theme will use all options defined in inherited themes.
+  Finally, inherited themes will be used to locate missing templates
+  (for example, if ``"basic"`` is used as the base theme, most templates will
+  already be defined).
+
+  If set to ``"none"``, the theme will not inherit from any other theme.
+  Inheritance is recursive, forming a chain of inherited themes
+  (e.g. ``default`` -> ``classic`` -> ``basic`` -> ``none``).
+
+* **stylesheets** (list of strings): A list of CSS filenames which will be
+  included in generated HTML header.
+  Setting the   :confval:`html_style` config value will override this setting.
+
+  Other mechanisms for including multiple stylesheets include ``@import`` in CSS
+  or using a custom HTML template with appropriate ``<link rel="stylesheet">`` tags.
+
+* **sidebars** (list of strings): A list of sidebar templates.
+  This can be overridden by the user via the :confval:`html_sidebars` config value.
+
+* **pygments_style** (table): A TOML table defining the names of Pygments styles
+  to use for highlighting syntax.
+  The table has two recognised keys: ``default`` and ``dark``.
+  The style defined in the ``dark`` key will be used when
+  the CSS media query ``(prefers-color-scheme: dark)`` evaluates to true.
+
+  ``[theme.pygments_style.default]`` can be overridden by the user via the
+  :confval:`pygments_style` config value.
+
+The ``[options]`` table defines the options for the theme.
+It is structured such that each key-value pair corresponds to a variable name
+and the corresponding default value.
+These options can be overridden by the user in :confval:`html_theme_options`
+and are accessible from all templates as ``theme_<name>``.
+
+.. versionadded:: 7.3
+   ``theme.toml`` support.
+
+.. _TOML: https://toml.io/en/
+
+Exemplar :file:`theme.toml` file:
+
+.. code-block:: toml
+
+   [theme]
+   inherit = "basic"
+   stylesheets = [
+       "main-CSS-stylesheet.css",
+   ]
+   sidebars = [
+       "localtoc.html",
+       "relations.html",
+       "sourcelink.html",
+       "searchbox.html",
+   ]
+   # Style names from https://pygments.org/styles/
+   pygments_style = { default = "style_name", dark = "dark_style" }
+
+   [options]
+   variable = "default value"
+
+Theme configuration (``theme.conf``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
 Python :mod:`configparser` module) and has the following structure:
@@ -85,6 +159,24 @@ Python :mod:`configparser` module) and has the following structure:
 .. versionchanged:: 5.1
 
    The stylesheet setting accepts multiple CSS filenames
+
+Convert ``theme.conf`` to ``theme.toml``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+INI-style theme configuration files (``theme.conf``) can be converted to TOML
+via a helper programme distributed with Sphinx.
+This is intended for one-time use, and may be removed without notice in a future
+version of Sphinx.
+
+.. code-block:: console
+
+   $ python -m sphinx.theming conf_to_toml [THEME DIRECTORY PATH]
+
+The required argument is a path to a directory containing a ``theme.conf`` file.
+The programme will write a ``theme.toml`` file in the same directory,
+and will not modify the original ``theme.conf`` file.
+
+.. versionadded:: 7.3
 
 .. _distribute-your-theme:
 

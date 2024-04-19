@@ -2439,8 +2439,8 @@ class SlotsMixin(DataDocumenterMixinBase):
         if self.object is SLOTSATTR:
             try:
                 parent___slots__ = inspect.getslots(self.parent)
-                if parent___slots__ and parent___slots__.get(self.objpath[-1]):
-                    docstring = prepare_docstring(parent___slots__[self.objpath[-1]])
+                if parent___slots__ and (docstring := parent___slots__.get(self.objpath[-1])):
+                    docstring = prepare_docstring(docstring)
                     return [docstring]
                 else:
                     return []
