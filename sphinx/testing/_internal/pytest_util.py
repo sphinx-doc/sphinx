@@ -16,7 +16,7 @@ from _pytest.nodes import get_fslocation_from_item
 from sphinx.testing._internal.warnings import MarkWarning, NodeWarning, SphinxTestingWarning
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Collection, Generator, Iterable
+    from collections.abc import Callable, Collection, Generator, Iterable, Iterator
     from typing import Any, ClassVar, Final
 
     T = TypeVar('T')
@@ -301,7 +301,7 @@ def stack_pytest_markers(
 
 
 @contextmanager
-def pytest_not_raises(*exceptions: type[BaseException]) -> Generator[None, None, None]:
+def pytest_not_raises(*exceptions: type[BaseException]) -> Iterator[None]:
     """Context manager asserting that no exception is raised."""
     try:
         yield

@@ -38,7 +38,7 @@ from sphinx.testing.util import (
 from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from io import StringIO
     from pathlib import Path
     from typing import Any, Final, Union
@@ -329,7 +329,7 @@ def _app_info_context(
     node: PytestNode,
     app: SphinxTestApp,
     app_params: AppParams,
-) -> Generator[None, None, None]:
+) -> Iterator[None]:
     # create or get the current :class:`AppInfo` object of the node
     if _APP_INFO_KEY not in node.stash:
         node.stash[_APP_INFO_KEY] = AppInfo(
@@ -390,7 +390,7 @@ def __app_fixture(
     app_params: AppParams,
     make_app: Callable[..., SphinxTestApp],
     module_cache: ModuleCache,
-) -> Generator[SphinxTestApp, None, None]:
+) -> Iterator[SphinxTestApp]:
     shared_result = app_params.kwargs['shared_result']
 
     app = make_app(*app_params.args, **app_params.kwargs)
@@ -410,7 +410,7 @@ def app(
     module_cache: ModuleCache,
     shared_result: LegacyModuleCache,  # xref RemovedInSphinx90Warning
     sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
-) -> Iterator[AnySphinxTestApp, None, None]:  # xref RemovedInSphinx90Warning: update type
+) -> Iterator[AnySphinxTestApp]:  # xref RemovedInSphinx90Warning: update type
     """A :class:`sphinx.application.Sphinx` object suitable for testing."""
     if sphinx_use_legacy_plugin:  # xref RemovedInSphinx90Warning
         # a warning will be emitted by the app_params fixture
@@ -447,13 +447,13 @@ def make_app(
     test_params: TestParams,
     sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
     # xref RemovedInSphinx90Warning: narrow callable return type
-) -> Iterator[Callable[..., SphinxTestApp | SphinxTestAppWrapperForSkipBuilding]]:
+) -> Iterator[Callable[..., AnySphinxTestApp]]:
     """Fixture to create :class:`~sphinx.testing.util.SphinxTestApp` objects."""
     stack: list[SphinxTestApp] = []
     allow_rebuild = test_params['shared_result'] is None
 
     # xref RemovedInSphinx90Warning: narrow return type
-    def make(*args: Any, **kwargs: Any) -> SphinxTestApp | SphinxTestAppWrapperForSkipBuilding:
+    def make(*args: Any, **kwargs: Any) -> AnySphinxTestApp:
         if allow_rebuild:
             app = SphinxTestApp(*args, **kwargs)
         else:
@@ -629,7 +629,7 @@ def __app_fixture_legacy(  # xref RemovedInSphinx90Warning
     test_params: TestParams,
     make_app: Callable[..., AnySphinxTestApp],
     shared_result: LegacyModuleCache,
-) -> Generator[AnySphinxTestApp, None, None]:
+) -> Iterator[AnySphinxTestApp]:
     app = make_app(*app_params.args, **app_params.kwargs)
     yield app
 
