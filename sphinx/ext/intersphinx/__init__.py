@@ -850,10 +850,3 @@ def inspect_main(argv: list[str], /) -> int:
         return 1
     else:
         return 0
-
-
-if __name__ == '__main__':
-    import logging as _logging
-    _logging.basicConfig()
-
-    raise SystemExit(inspect_main(sys.argv[1:]))
