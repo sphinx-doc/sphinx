@@ -395,7 +395,7 @@ select = [
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
 # whitelist ``print`` for stdout messages
-"sphinx/ext/intersphinx.py" = ["T201"]
+"sphinx/ext/intersphinx/__init__.py" = ["T201"]
 
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
@@ -503,7 +503,7 @@ exclude = [
     "sphinx/ext/mathjax.py",
     "sphinx/ext/doctest.py",
     "sphinx/ext/autosectionlabel.py",
-    "sphinx/ext/intersphinx.py",
+    "sphinx/ext/intersphinx/__init__.py",
     "sphinx/ext/duration.py",
     "sphinx/ext/imgconverter.py",
     "sphinx/ext/imgmath.py",
