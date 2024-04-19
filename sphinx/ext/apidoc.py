@@ -32,7 +32,7 @@ from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Sequence
+    from collections.abc import Iterator, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -214,7 +214,7 @@ def is_skipped_module(filename: str, opts: Any, _excludes: Sequence[re.Pattern[s
 
 
 def walk(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
-         ) -> Generator[tuple[str, list[str], list[str]], None, None]:
+         ) -> Iterator[tuple[str, list[str], list[str]]]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)
     includeprivate = getattr(opts, 'includeprivate', False)

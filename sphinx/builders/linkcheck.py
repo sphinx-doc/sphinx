@@ -29,7 +29,7 @@ from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from typing import Any, Callable
 
     from requests import Response
@@ -72,6 +72,16 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 "from `True` in Sphinx 7.3+ to `False`, meaning that HTTP 401 "
                 "unauthorized responses will be reported as broken by default. "
                 "See https://github.com/sphinx-doc/sphinx/issues/11433 for details."
+            )
+            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
+
+        if self.config.linkcheck_report_timeouts_as_broken:
+            deprecation_msg = (
+                "The default value for 'linkcheck_report_timeouts_as_broken' will change "
+                'to False in Sphinx 8, meaning that request timeouts '
+                "will be reported with a new 'timeout' status, instead of as 'broken'. "
+                'This is intended to provide more detail as to the failure mode. '
+                'See https://github.com/sphinx-doc/sphinx/issues/11868 for details.'
             )
             warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
 
@@ -224,7 +234,7 @@ class HyperlinkAvailabilityChecker:
         self.to_ignore: list[re.Pattern[str]] = list(map(re.compile,
                                                          self.config.linkcheck_ignore))
 
-    def check(self, hyperlinks: dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
+    def check(self, hyperlinks: dict[str, Hyperlink]) -> Iterator[CheckResult]:
         self.invoke_threads()
 
         total_links = 0
@@ -302,6 +312,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
+        if config.linkcheck_report_timeouts_as_broken:
+            self._timeout_status = 'broken'
+        else:
+            self._timeout_status = 'timeout'
 
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
@@ -444,7 +458,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 break
 
             except RequestTimeout as err:
-                return 'timeout', str(err), 0
+                return self._timeout_status, str(err), 0
 
             except SSLError as err:
                 # SSL failure; report that the link is broken.
@@ -669,6 +683,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
     app.add_config_value('linkcheck_allow_unauthorized', True, '')
+    app.add_config_value('linkcheck_report_timeouts_as_broken', True, '', bool)
 
     app.add_event('linkcheck-process-uri')
 

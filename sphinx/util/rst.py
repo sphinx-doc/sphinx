@@ -18,7 +18,7 @@ from sphinx.locale import __
 from sphinx.util import docutils, logging
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
     from docutils.statemachine import StringList
 
@@ -61,7 +61,7 @@ def heading(env: Environment, text: str, level: int = 1) -> str:
 
 
 @contextmanager
-def default_role(docname: str, name: str) -> Generator[None, None, None]:
+def default_role(docname: str, name: str) -> Iterator[None]:
     if name:
         dummy_reporter = Reporter('', 4, 4)
         role_fn, _ = roles.role(name, english, 0, dummy_reporter)

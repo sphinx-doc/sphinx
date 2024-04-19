@@ -402,8 +402,8 @@ const Search = {
   },
 
   query: (query) => {
-    const searchParameters = Search._parseQuery(query);
-    const results = Search._performSearch(...searchParameters);
+    const [searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms] = Search._parseQuery(query);
+    const results = Search._performSearch(searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms);
 
     // for debugging
     //Search.lastresults = results.slice();  // a copy

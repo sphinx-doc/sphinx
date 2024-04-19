@@ -56,5 +56,5 @@ Documentation.addTranslations({
         "search this documentation": "\u05d7\u05e4\u05e9 \u05d1\u05ea\u05d9\u05e2\u05d5\u05d3 \u05d6\u05d4",
         "the documentation for": ""
     },
-    "plural_expr": "(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3"
+    "plural_expr": "(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2"
 });
