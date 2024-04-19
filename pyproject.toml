@@ -263,7 +263,7 @@ module = [
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
-    "sphinx.ext.intersphinx",
+    "sphinx.ext.intersphinx._load",
     "sphinx.ext.napoleon.docstring",
     "sphinx.highlighting",
     "sphinx.jinja2glue",

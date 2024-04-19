@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 
-from sphinx.ext.intersphinx import fetch_inventory
+from sphinx.ext.intersphinx._load import fetch_inventory
 
 
 def inspect_main(argv: list[str], /) -> int:
