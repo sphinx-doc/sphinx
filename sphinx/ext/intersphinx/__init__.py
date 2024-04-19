@@ -40,7 +40,6 @@ import concurrent.futures
 import functools
 import posixpath
 import re
-import sys
 import time
 from os import path
 from typing import TYPE_CHECKING, cast
@@ -54,6 +53,7 @@ from sphinx.addnodes import pending_xref
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.deprecation import _deprecation_warning
 from sphinx.errors import ExtensionError
+from sphinx.ext.intersphinx._cli import inspect_main
 from sphinx.ext.intersphinx._shared import LOGGER as logger
 from sphinx.ext.intersphinx._shared import InventoryAdapter
 from sphinx.locale import _, __
@@ -792,40 +792,3 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'env_version': 1,
         'parallel_read_safe': True,
     }
-
-
-def inspect_main(argv: list[str], /) -> int:
-    """Debug functionality to print out an inventory"""
-    if len(argv) < 1:
-        print("Print out an inventory file.\n"
-              "Error: must specify local path or URL to an inventory file.",
-              file=sys.stderr)
-        return 1
-
-    class MockConfig:
-        intersphinx_timeout: int | None = None
-        tls_verify = False
-        tls_cacerts: str | dict[str, str] | None = None
-        user_agent: str = ''
-
-    class MockApp:
-        srcdir = ''
-        config = MockConfig()
-
-    try:
-        filename = argv[0]
-        inv_data = fetch_inventory(MockApp(), '', filename)  # type: ignore[arg-type]
-        for key in sorted(inv_data or {}):
-            print(key)
-            inv_entries = sorted(inv_data[key].items())
-            for entry, (_proj, _ver, url_path, display_name) in inv_entries:
-                display_name = display_name * (display_name != '-')
-                print(f'    {entry:<40} {display_name:<40}: {url_path}')
-    except ValueError as exc:
-        print(exc.args[0] % exc.args[1:], file=sys.stderr)
-        return 1
-    except Exception as exc:
-        print(f'Unknown error: {exc!r}', file=sys.stderr)
-        return 1
-    else:
-        return 0
