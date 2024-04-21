@@ -1314,6 +1314,9 @@ def test_xml_strange_markup(app):
     title1, = subsec1.findall('title')
     assert_elem(title1, ['1. TITLE STARTING WITH 1.'])
 
+    pars = subsec1.findall('paragraph')
+    assert_elem(pars[0], ['A. EINSTEIN WAS A REALLY SMART DUDE.'])
+
 
 @sphinx_intl
 @pytest.mark.sphinx('html')
