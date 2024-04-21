@@ -1191,6 +1191,15 @@ def test_xml_role_xref(app):
         ['i18n-role-xref', 'index',
          'glossary_terms#term-Some-term'])
 
+    sec1_1, = sec1.findall('section')
+    title, = sec1_1.findall('title')
+    assert_elem(
+        title,
+        ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
+         'SOME NEW TERM', '.'],
+        ['i18n-role-xref', 'index',
+         'glossary_terms#term-Some-term'])
+
     para2 = sec2.findall('paragraph')
     assert_elem(
         para2[0],
