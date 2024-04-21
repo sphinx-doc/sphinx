@@ -1303,6 +1303,19 @@ def test_xml_label_targets(app):
 
 
 @sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_xml_strange_markup(app):
+    app.build()
+    et = etree_parse(app.outdir / 'markup.xml')
+    secs = et.findall('section')
+
+    subsec1, = secs[0].findall('section')
+    title1, = subsec1.findall('title')
+    assert_elem(title1, ['1. TITLE STARTING WITH 1.'])
+
+
+@sphinx_intl
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app):
