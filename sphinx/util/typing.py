@@ -159,7 +159,10 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
 
-    if mode == 'smart':
+    # If the mode is 'smart', we always use '~'.
+    # If the mode is 'fully-qualified-except-typing',
+    # we use '~' only for the objects in the ``typing`` module.
+    if mode == 'smart' or getattr(cls, '__module__', None) == 'typing':
         modprefix = '~'
     else:
         modprefix = ''
@@ -206,10 +209,7 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
             elif getattr(cls, '_name', None):
                 cls_name = cls._name  # type: ignore[attr-defined]
-                if cls.__module__ == 'typing':
-                    text = f':py:class:`~{cls.__module__}.{cls_name}`'
-                else:
-                    text = f':py:class:`{modprefix}{cls.__module__}.{cls_name}`'
+                text = f':py:class:`{modprefix}{cls.__module__}.{cls_name}`'
             else:
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined]
 
@@ -237,18 +237,12 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
         elif hasattr(cls, '__qualname__'):
-            if cls.__module__ == 'typing':
-                return f':py:class:`~{cls.__module__}.{cls.__qualname__}`'
-            else:
-                return f':py:class:`{modprefix}{cls.__module__}.{cls.__qualname__}`'
+            return f':py:class:`{modprefix}{cls.__module__}.{cls.__qualname__}`'
         elif isinstance(cls, ForwardRef):
             return f':py:class:`{cls.__forward_arg__}`'
         else:
             # not a class (ex. TypeVar)
-            if cls.__module__ == 'typing':
-                return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
-            else:
-                return f':py:obj:`{modprefix}{cls.__module__}.{cls.__name__}`'
+            return f':py:obj:`{modprefix}{cls.__module__}.{cls.__name__}`'
     except (AttributeError, TypeError):
         return inspect.object_description(cls)
 
