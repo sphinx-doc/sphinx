@@ -14,8 +14,6 @@ from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
-    import enum
-
     from sphinx.application import Sphinx
 
 if sys.version_info >= (3, 10):
@@ -226,14 +224,9 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 args = ', '.join(restify(a, mode) for a in cls.__args__[:-1])
                 text += fr"\ [[{args}], {restify(cls.__args__[-1], mode)}]"
             elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
-                literal_args = []
-                for a in cls.__args__:
-                    if inspect.isenumattribute(a):
-                        literal_args.append(_format_literal_enum_arg(a, mode=mode))
-                    else:
-                        literal_args.append(repr(a))
-                text += fr"\ [{', '.join(literal_args)}]"
-                del literal_args
+                args = ', '.join(_format_literal_arg_restify(a, mode=mode)
+                                 for a in cls.__args__)
+                text += fr"\ [{args}]"
             elif cls.__args__:
                 text += fr"\ [{', '.join(restify(a, mode) for a in cls.__args__)}]"
 
@@ -258,6 +251,19 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
                 return f':py:obj:`{modprefix}{cls.__module__}.{cls.__name__}`'
     except (AttributeError, TypeError):
         return inspect.object_description(cls)
+
+
+def _format_literal_arg_restify(arg: Any, /, *, mode: str) -> str:
+    from sphinx.util.inspect import isenumattribute  # lazy loading
+
+    if isenumattribute(arg):
+        enum_cls = arg.__class__
+        if mode == 'smart' or enum_cls.__module__ == 'typing':
+            # MyEnum.member
+            return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+        # module.MyEnum.member
+        return f':py:attr:`{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+    return repr(arg)
 
 
 def stringify_annotation(
@@ -385,21 +391,8 @@ def stringify_annotation(
             returns = stringify_annotation(annotation_args[-1], mode)
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
-            from sphinx.util.inspect import isenumattribute  # lazy loading
-
-            def format_literal_arg(arg: Any) -> str:
-                if isenumattribute(arg):
-                    enumcls = arg.__class__
-
-                    if mode == 'smart':
-                        # MyEnum.member
-                        return f'{enumcls.__qualname__}.{arg.name}'
-
-                    # module.MyEnum.member
-                    return f'{enumcls.__module__}.{enumcls.__qualname__}.{arg.name}'
-                return repr(arg)
-
-            args = ', '.join(map(format_literal_arg, annotation_args))
+            args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
+                             for a in annotation_args)
             return f'{module_prefix}Literal[{args}]'
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify_annotation(annotation_args[0], mode)
@@ -413,12 +406,17 @@ def stringify_annotation(
     return module_prefix + qualname
 
 
-def _format_literal_enum_arg(arg: enum.Enum, /, *, mode: str) -> str:
-    enum_cls = arg.__class__
-    if mode == 'smart' or enum_cls.__module__ == 'typing':
-        return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
-    else:
-        return f':py:attr:`{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+def _format_literal_arg_stringify(arg: Any, /, *, mode: str) -> str:
+    from sphinx.util.inspect import isenumattribute  # lazy loading
+
+    if isenumattribute(arg):
+        enum_cls = arg.__class__
+        if mode == 'smart' or enum_cls.__module__ == 'typing':
+            # MyEnum.member
+            return f'{enum_cls.__qualname__}.{arg.name}'
+        # module.MyEnum.member
+        return f'{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}'
+    return repr(arg)
 
 
 # deprecated name -> (object to return, canonical path or empty string, removal version)
