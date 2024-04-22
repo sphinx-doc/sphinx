@@ -133,7 +133,7 @@ select = [
     "FURB",
     # flake8-logging-format ('G')
     "G001",  # Logging statement uses `str.format`
-#    "G002",  # Logging statement uses `%`
+    "G002",  # Logging statement uses `%`
 #    "G003",  # Logging statement uses `+`
     "G004",  # Logging statement uses f-string
     "G010",  # Logging statement uses `warn` instead of `warning`

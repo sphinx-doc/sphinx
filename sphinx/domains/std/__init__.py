@@ -1110,7 +1110,7 @@ def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
         else:
             msg = __('Failed to create a cross reference. A title or caption not found: %r')
 
-        logger.warning(msg % target, location=node, type='ref', subtype=node['reftype'])
+        logger.warning(msg, target, location=node, type='ref', subtype=node['reftype'])
         return True
 
 

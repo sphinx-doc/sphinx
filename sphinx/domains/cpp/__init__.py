@@ -705,7 +705,7 @@ class AliasTransform(SphinxTransform):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
 
-                logger.warning("Can not find C++ declaration for alias '%s'." % ast,
+                logger.warning("Can not find C++ declaration for alias '%s'.", ast,
                                location=node)
                 node.replace_self(signode)
             else:
