@@ -124,8 +124,8 @@ class CodeBlock(SphinxDirective):
                 nlines = len(self.content)
                 hl_lines = parselinenos(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
-                    logger.warning(__('line number spec is out of range(1-%d): %r') %
-                                   (nlines, self.options['emphasize-lines']),
+                    logger.warning(__('line number spec is out of range(1-%d): %r'),
+                                   nlines, self.options['emphasize-lines'],
                                    location=location)
 
                 hl_lines = [x + 1 for x in hl_lines if x < nlines]
@@ -274,8 +274,8 @@ class LiteralIncludeReader:
         if linespec:
             linelist = parselinenos(linespec, len(lines))
             if any(i >= len(lines) for i in linelist):
-                logger.warning(__('line number spec is out of range(1-%d): %r') %
-                               (len(lines), linespec), location=location)
+                logger.warning(__('line number spec is out of range(1-%d): %r'),
+                               len(lines), linespec, location=location)
 
             if 'lineno-match' in self.options:
                 # make sure the line list is not "disjoint".
@@ -450,8 +450,8 @@ class LiteralInclude(SphinxDirective):
             if 'emphasize-lines' in self.options:
                 hl_lines = parselinenos(self.options['emphasize-lines'], lines)
                 if any(i >= lines for i in hl_lines):
-                    logger.warning(__('line number spec is out of range(1-%d): %r') %
-                                   (lines, self.options['emphasize-lines']),
+                    logger.warning(__('line number spec is out of range(1-%d): %r'),
+                                   lines, self.options['emphasize-lines'],
                                    location=location)
                 extra_args['hl_lines'] = [x + 1 for x in hl_lines if x < lines]
             extra_args['linenostart'] = reader.lineno_start
