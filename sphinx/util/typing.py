@@ -14,7 +14,21 @@ from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
+    from typing import Literal
+
+    from typing_extensions import TypeAlias
+
     from sphinx.application import Sphinx
+
+    _RestifyMode: TypeAlias = Literal[
+        'fully-qualified-except-typing',
+        'smart',
+    ]
+    _StringifyMode: TypeAlias = Literal[
+        'fully-qualified-except-typing',
+        'fully-qualified',
+        'smart',
+    ]
 
 if sys.version_info >= (3, 10):
     from types import UnionType
@@ -145,7 +159,7 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> str:
+def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
     """Convert python class to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
@@ -158,6 +172,12 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
+
+    valid_modes = {'fully-qualified-except-typing', 'smart'}
+    if mode not in valid_modes:
+        valid = ', '.join(map(repr, sorted(valid_modes)))
+        msg = f'mode must be one of {valid}; got {mode!r}'
+        raise ValueError(msg)
 
     # If the mode is 'smart', we always use '~'.
     # If the mode is 'fully-qualified-except-typing',
@@ -263,7 +283,7 @@ def _format_literal_arg_restify(arg: Any, /, *, mode: str) -> str:
 def stringify_annotation(
     annotation: Any,
     /,
-    mode: str = 'fully-qualified-except-typing',
+    mode: _StringifyMode = 'fully-qualified-except-typing',
 ) -> str:
     """Stringify type annotation object.
 
@@ -281,9 +301,10 @@ def stringify_annotation(
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util.inspect import isNewType  # lazy loading
 
-    if mode not in {'fully-qualified-except-typing', 'fully-qualified', 'smart'}:
-        msg = ("'mode' must be one of 'fully-qualified-except-typing', "
-               f"'fully-qualified', or 'smart'; got {mode!r}.")
+    valid_modes = {'fully-qualified-except-typing', 'fully-qualified', 'smart'}
+    if mode not in valid_modes:
+        valid = ', '.join(map(repr, sorted(valid_modes)))
+        msg = f'mode must be one of {valid}; got {mode!r}'
         raise ValueError(msg)
 
     if mode == 'smart':
