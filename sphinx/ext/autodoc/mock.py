@@ -33,12 +33,8 @@ class _MockObject:
             superclass = args[1][-1].__class__
             if superclass is cls:
                 # subclassing MockObject
-                return _make_subclass(
-                    args[0],
-                    superclass.__display_name__,
-                    superclass=superclass,
-                    attributes=args[2],
-                )
+                return _make_subclass(args[0], superclass.__display_name__,
+                                      superclass=superclass, attributes=args[2])
 
         return super().__new__(cls)
 
@@ -52,7 +48,7 @@ class _MockObject:
         return False
 
     def __iter__(self) -> Iterator[Any]:
-        return iter([])
+        return iter(())
 
     def __mro_entries__(self, bases: tuple[Any, ...]) -> tuple[type, ...]:
         return (self.__class__,)
@@ -72,19 +68,12 @@ class _MockObject:
         return self.__display_name__
 
 
-def _make_subclass(
-    name: str,
-    module: str,
-    superclass: Any = _MockObject,
-    attributes: Any = None,
-    decorator_args: tuple[Any, ...] = (),
-) -> Any:
-    attrs = {
-        '__module__': module,
-        '__display_name__': module + '.' + name,
-        '__name__': name,
-        '__sphinx_decorator_args__': decorator_args,
-    }
+def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
+                   attributes: Any = None, decorator_args: tuple[Any, ...] = ()) -> Any:
+    attrs = {'__module__': module,
+             '__display_name__': module + '.' + name,
+             '__name__': name,
+             '__sphinx_decorator_args__': decorator_args}
     attrs.update(attributes or {})
 
     return type(name, (superclass,), attrs)
@@ -133,12 +122,8 @@ class MockFinder(MetaPathFinder):
         self.loader = MockLoader(self)
         self.mocked_modules: list[str] = []
 
-    def find_spec(
-        self,
-        fullname: str,
-        path: Sequence[bytes | str] | None,
-        target: ModuleType | None = None,
-    ) -> ModuleSpec | None:
+    def find_spec(self, fullname: str, path: Sequence[bytes | str] | None,
+                  target: ModuleType | None = None) -> ModuleSpec | None:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
             if modname == fullname or fullname.startswith(modname + '.'):
