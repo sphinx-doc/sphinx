@@ -179,6 +179,14 @@ def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typin
         msg = f'mode must be one of {valid}; got {mode!r}'
         raise ValueError(msg)
 
+    # things that are not types
+    if cls is None or cls is NoneType:
+        return ':py:obj:`None`'
+    if cls is Ellipsis:
+        return '...'
+    if isinstance(cls, str):
+        return cls
+
     # If the mode is 'smart', we always use '~'.
     # If the mode is 'fully-qualified-except-typing',
     # we use '~' only for the objects in the ``typing`` module.
@@ -188,13 +196,7 @@ def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typin
         modprefix = ''
 
     try:
-        if cls is None or cls is NoneType:
-            return ':py:obj:`None`'
-        elif cls is Ellipsis:
-            return '...'
-        elif isinstance(cls, str):
-            return cls
-        elif ismockmodule(cls):
+        if ismockmodule(cls):
             return f':py:class:`{modprefix}{cls.__name__}`'
         elif ismock(cls):
             return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
@@ -307,6 +309,19 @@ def stringify_annotation(
         msg = f'mode must be one of {valid}; got {mode!r}'
         raise ValueError(msg)
 
+    # things that are not types
+    if annotation is None or annotation is NoneType:
+        return 'None'
+    if annotation is Ellipsis:
+        return '...'
+    if isinstance(annotation, str):
+        if annotation.startswith("'") and annotation.endswith("'"):
+            # Might be a double Forward-ref'ed type.  Go unquoting.
+            return annotation[1:-1]
+        return annotation
+    if not annotation:
+        return repr(annotation)
+
     if mode == 'smart':
         module_prefix = '~'
     else:
@@ -317,13 +332,7 @@ def stringify_annotation(
     annotation_name = getattr(annotation, '__name__', '')
     annotation_module_is_typing = annotation_module == 'typing'
 
-    if isinstance(annotation, str):
-        if annotation.startswith("'") and annotation.endswith("'"):
-            # might be a double Forward-ref'ed type.  Go unquoting.
-            return annotation[1:-1]
-        else:
-            return annotation
-    elif isinstance(annotation, TypeVar):
+    if isinstance(annotation, TypeVar):
         if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
         else:
@@ -334,10 +343,6 @@ def stringify_annotation(
             return module_prefix + f'{annotation_module}.{annotation_name}'
         else:
             return annotation_name
-    elif not annotation:
-        return repr(annotation)
-    elif annotation is NoneType:
-        return 'None'
     elif ismockmodule(annotation):
         return module_prefix + annotation_name
     elif ismock(annotation):
@@ -355,8 +360,6 @@ def stringify_annotation(
             return f'{annotation_qualname}[{concatenated_args}]'
         else:
             return annotation_qualname
-    elif annotation is Ellipsis:
-        return '...'
 
     module_prefix = f'{annotation_module}.'
     annotation_forward_arg = getattr(annotation, '__forward_arg__', None)
