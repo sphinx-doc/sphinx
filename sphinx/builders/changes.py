@@ -56,7 +56,7 @@ class ChangesBuilder(Builder):
 
         changesets = domain.get_changesets_for(version)
         if not changesets:
-            logger.info(bold(__('no changes in version %s.') % version))
+            logger.info(bold(__('no changes in version %s.')), version)
             return
         logger.info(bold(__('writing summary file...')))
         for changeset in changesets:
