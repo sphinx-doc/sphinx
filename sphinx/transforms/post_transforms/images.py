@@ -80,8 +80,8 @@ class ImageDownloader(BaseImageConverter):
                 _tls_info=(config.tls_verify, config.tls_cacerts),
             )
             if r.status_code >= 400:
-                logger.warning(__('Could not fetch remote image: %s [%d]') %
-                               (node['uri'], r.status_code))
+                logger.warning(__('Could not fetch remote image: %s [%d]'),
+                               node['uri'], r.status_code)
             else:
                 self.app.env.original_image_uri[path] = node['uri']
 
@@ -108,7 +108,7 @@ class ImageDownloader(BaseImageConverter):
                 node['uri'] = path
                 self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:
-            logger.warning(__('Could not fetch remote image: %s [%s]') % (node['uri'], exc))
+            logger.warning(__('Could not fetch remote image: %s [%s]'), node['uri'], exc)
 
 
 class DataURIExtractor(BaseImageConverter):
