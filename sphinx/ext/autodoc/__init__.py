@@ -170,7 +170,7 @@ def merge_members_option(options: dict) -> None:
         return
 
     members = options.setdefault('members', [])
-    for key in {'private-members', 'special-members'}:
+    for key in ('private-members', 'special-members'):
         if key in options and options[key] not in (ALL, None):
             for member in options[key]:
                 if member not in members:

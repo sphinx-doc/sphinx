@@ -921,7 +921,7 @@ class StandardDomain(Domain):
             # * :option:`-foo=bar`
             # * :option:`-foo[=bar]`
             # * :option:`-foo bar`
-            for needle in {'=', '[=', ' '}:
+            for needle in ('=', '[=', ' '):
                 if needle in target:
                     stem, _, _ = target.partition(needle)
                     docname, labelid = self.progoptions.get((progname, stem), ('', ''))
