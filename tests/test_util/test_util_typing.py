@@ -512,7 +512,7 @@ def test_stringify_Unpack():
         # each other, but we will assume that users use typing.Unpack.
         import typing
 
-        UnpackCompat = typing.Unpack
+        UnpackCompat = typing.Unpack  # NoQA: F811
         assert stringify_annotation(UnpackCompat['X']) == 'Unpack[X]'
         assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing.Unpack[X]'
     else:
