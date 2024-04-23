@@ -3,7 +3,7 @@
 from unittest import mock
 
 from sphinx.jinja2glue import BuiltinTemplateLoader
-from sphinx.util.fileutil import copy_asset, copy_asset_file
+from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
 
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
@@ -101,3 +101,13 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_static' / 'basic.css').exists()
     assert (destdir / '_templates' / 'layout.html').exists()
     assert not (destdir / '_templates' / 'sidebar.html').exists()
+
+
+def test_template_basename():
+    assert _template_basename('asset.txt') is None
+    assert _template_basename('asset.txt.jinja') == 'asset.txt'
+    assert _template_basename('sidebar.html.jinja') == 'sidebar.html'
+
+
+def test_legacy_template_basename():
+    assert _template_basename('asset.txt_t') == 'asset.txt'
