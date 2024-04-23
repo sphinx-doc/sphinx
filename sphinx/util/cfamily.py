@@ -109,7 +109,7 @@ class ASTBaseBase:
         return self._stringify(lambda ast: ast.get_display_string())
 
     def __repr__(self) -> str:
-        return '<%s>' % self.__class__.__name__
+        return f'<{self.__class__.__name__}: {self._stringify(repr)}>'
 
 
 ################################################################################
@@ -134,7 +134,7 @@ class ASTCPPAttribute(ASTAttribute):
         return hash(self.arg)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return "[[" + self.arg + "]]"
+        return f"[[{self.arg}]]"
 
     def describe_signature(self, signode: TextElement) -> None:
         signode.append(addnodes.desc_sig_punctuation('[[', '[['))
@@ -156,10 +156,9 @@ class ASTGnuAttribute(ASTBaseBase):
         return hash((self.name, self.args))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = [self.name]
         if self.args:
-            res.append(transform(self.args))
-        return ''.join(res)
+            return self.name + transform(self.args)
+        return self.name
 
 
 class ASTGnuAttributeList(ASTAttribute):
@@ -175,19 +174,11 @@ class ASTGnuAttributeList(ASTAttribute):
         return hash(self.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['__attribute__((']
-        first = True
-        for attr in self.attrs:
-            if not first:
-                res.append(', ')
-            first = False
-            res.append(transform(attr))
-        res.append('))')
-        return ''.join(res)
+        attrs = ', '.join(map(transform, self.attrs))
+        return f'__attribute__(({attrs}))'
 
     def describe_signature(self, signode: TextElement) -> None:
-        txt = str(self)
-        signode.append(nodes.Text(txt))
+        signode.append(nodes.Text(str(self)))
 
 
 class ASTIdAttribute(ASTAttribute):
@@ -227,11 +218,10 @@ class ASTParenAttribute(ASTAttribute):
         return hash((self.id, self.arg))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return self.id + '(' + self.arg + ')'
+        return f'{self.id}({self.arg})'
 
     def describe_signature(self, signode: TextElement) -> None:
-        txt = str(self)
-        signode.append(nodes.Text(txt))
+        signode.append(nodes.Text(str(self)))
 
 
 class ASTAttributeList(ASTBaseBase):
@@ -253,7 +243,7 @@ class ASTAttributeList(ASTBaseBase):
         return ASTAttributeList(self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ' '.join(transform(attr) for attr in self.attrs)
+        return ' '.join(map(transform, self.attrs))
 
     def describe_signature(self, signode: TextElement) -> None:
         if len(self.attrs) == 0:
