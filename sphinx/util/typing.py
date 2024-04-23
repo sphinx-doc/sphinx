@@ -206,13 +206,12 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
     if isinstance(cls, str):
         return cls
 
+    cls_module_is_typing = getattr(cls, '__module__', '') == 'typing'
+
     # If the mode is 'smart', we always use '~'.
     # If the mode is 'fully-qualified-except-typing',
     # we use '~' only for the objects in the ``typing`` module.
-    #
-    # With an if-else block, mypy infers 'mode' to be a 'str'
-    # instead of a literal string (and we don't want to cast).
-    module_prefix = '~' if mode == 'smart' or getattr(cls, '__module__', None) == 'typing' else ''
+    module_prefix = '~' if mode == 'smart' or cls_module_is_typing else ''
 
     try:
         if ismockmodule(cls):
@@ -242,7 +241,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             return f':py:class:`{cls.__name__}`'
         elif (inspect.isgenericalias(cls)
-              and cls.__module__ == 'typing'
+              and cls_module_is_typing
               and cls.__origin__ is Union):
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
@@ -270,7 +269,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 returns = restify(__args__[-1], mode)
                 return fr'{text}\ [[{args}], {returns}]'
 
-            if cls.__module__ == 'typing' and cls.__origin__.__name__ == 'Literal':
+            if cls_module_is_typing and cls.__origin__.__name__ == 'Literal':
                 params = ', '.join(_format_literal_arg_restify(a, mode=mode)
                                    for a in cls.__args__)
             else:
