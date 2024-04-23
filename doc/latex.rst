@@ -1826,15 +1826,20 @@ Miscellany
 .. hint::
 
    As an experimental feature, Sphinx can use user-defined template file for
-   LaTeX source if you have a file named ``_templates/latex.tex_t`` in your
+   LaTeX source if you have a file named ``_templates/latex.tex.jinja`` in your
    project.
 
-   Additional files ``longtable.tex_t``, ``tabulary.tex_t`` and
-   ``tabular.tex_t`` can be added to ``_templates/`` to configure some aspects
-   of table rendering (such as the caption position).
+   Additional files ``longtable.tex.jinja``, ``tabulary.tex.jinja`` and
+   ``tabular.tex.jinja`` can be added to ``_templates/`` to configure some
+   aspects of table rendering (such as the caption position).
 
    .. versionadded:: 1.6
       currently all template variables are unstable and undocumented.
+
+   .. versionchanged:: 7.4
+      Added support for the ``.jinja`` file extension, which is preferred.
+      The old file names remain supported.
+      (``latex.tex_t``, ``longtable.tex_t``, ``tabulary.tex_t``, and ``tabular.tex_t``)
 
 .. raw:: latex
 

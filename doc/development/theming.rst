@@ -247,12 +247,28 @@ template static files as well as HTML files.  Therefore, Sphinx supports
 so-called "static templates", like this:
 
 If the name of a file in the ``static/`` directory of a theme (or in the user's
-static path, for that matter) ends with ``_t``, it will be processed by the
-template engine.  The ``_t`` will be left from the final file name.  For
-example, the *classic* theme has a file ``static/classic.css_t`` which uses
-templating to put the color options into the stylesheet.  When a documentation
-project is built with the classic theme, the output directory will contain a
-``_static/classic.css`` file where all template tags have been processed.
+static path) ends with ``.jinja`` or ``_t``, it will be processed by the
+template engine.  The suffix will be removed from the final file name.
+
+For example, a theme with a ``static/theme_styles.css.jinja`` file could use
+templating to put options into the stylesheet.
+When a documentation project is built with that theme,
+the output directory will contain a ``_static/theme_styles.css`` file
+where all template tags have been processed.
+
+.. versionchanged:: 7.4
+
+   The preferred suffix for static templates is now ``.jinja``, in line with
+   the Jinja project's `recommended file extension`_.
+
+   The ``_t`` file suffix for static templates is now considered 'legacy', and
+   support may eventually be removed.
+
+   If a static template with either a ``_t`` suffix or a ``.jinja`` suffix is
+   detected, it will be processed by the template engine, with the suffix
+   removed from the final file name.
+
+  .. _recommended file extension: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
 
 
 Use custom page metadata in HTML templates
