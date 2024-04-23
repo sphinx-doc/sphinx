@@ -506,9 +506,13 @@ def test_stringify_Unpack():
         y: int
         label: str
 
-    # typing.Unpack is introduced in 3.11 but typing_extensions.Unpack only uses
-    # typing.Unpack in 3.12+, so the objects are not synchronised with each other.
-    if sys.version_info[:2] >= (3, 12):
+    if sys.version_info[:2] >= (3, 11):
+        # typing.Unpack is introduced in 3.11 but typing_extensions.Unpack only
+        # uses typing.Unpack in 3.12+, so the objects are not synchronised with
+        # each other, but we will assume that users use typing.Unpack.
+        import typing
+
+        UnpackCompat = typing.Unpack
         assert stringify_annotation(UnpackCompat['X']) == 'Unpack[X]'
         assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing.Unpack[X]'
     else:
