@@ -178,6 +178,12 @@ def _is_annotated_form(obj: Any) -> TypeGuard[Annotated[Any, ...]]:
     return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
 
 
+def _get_typing_internal_name(obj: Any) -> str | None:
+    if sys.version_info[:2] >= (3, 10):
+        return obj.__name__
+    return getattr(obj, '_name', None)
+
+
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
     """Convert python class to a reST reference.
 
@@ -246,10 +252,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif inspect.isgenericalias(cls):
-            if sys.version_info[:2] >= (3, 10):
-                cls_name = cls.__name__
-            else:
-                cls_name = getattr(cls, '_name', '')
+            cls_name = _get_typing_internal_name(cls)
 
             if isinstance(cls.__origin__, typing._SpecialForm):
                 # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard
@@ -268,12 +271,12 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 return text
 
             # Callable has special formatting
-            if cls_module_is_typing and cls.__origin__.__name__ == 'Callable':
+            if cls_module_is_typing and _get_typing_internal_name(cls) == 'Callable':
                 args = ', '.join(restify(a, mode) for a in __args__[:-1])
                 returns = restify(__args__[-1], mode)
                 return fr'{text}\ [[{args}], {returns}]'
 
-            if cls_module_is_typing and cls.__origin__.__name__ == 'Literal':
+            if cls_module_is_typing and _get_typing_internal_name(cls.__origin__) == 'Literal':
                 args = ', '.join(_format_literal_arg_restify(a, mode=mode)
                                  for a in cls.__args__)
                 return fr'{text}\ [{args}]'
@@ -282,9 +285,8 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             args = ', '.join(restify(a, mode) for a in __args__)
             return fr'{text}\ [{args}]'
         elif isinstance(cls, typing._SpecialForm):
-            if sys.version_info[:2] >= (3, 10):
-                return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
-            return f':py:obj:`~{cls.__module__}.{cls._name}`'  # type: ignore[attr-defined]
+            cls_name = _get_typing_internal_name(cls)
+            return f':py:obj:`~{cls.__module__}.{cls_name}`'
         elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
