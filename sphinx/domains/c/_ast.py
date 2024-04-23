@@ -61,10 +61,6 @@ class ASTIdentifier(ASTBaseBase):
     def __str__(self) -> str:
         return self.name
 
-    @property
-    def name(self) -> str:
-        return self.identifier
-
     def get_display_string(self) -> str:
         return "[anonymous]" if self.is_anonymous else self.name
 
