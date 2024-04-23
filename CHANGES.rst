@@ -1,5 +1,26 @@
-Release 7.3.7 (in development)
+Release 7.4.0 (in development)
 ==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+-------
+
+Release 7.3.7 (released Apr 19, 2024)
+=====================================
 
 Bugs fixed
 ----------
@@ -7,7 +28,9 @@ Bugs fixed
 * #12299: Defer loading themes defined via entry points until
   their explicit use by the user or a child theme.
   Patch by Adam Turner.
-
+* #12305: Return the default value for ``theme.get_config()`` with
+  an unsupported theme configuration section.
+  Patch by Adam Turner.
 
 Release 7.3.6 (released Apr 17, 2024)
 =====================================

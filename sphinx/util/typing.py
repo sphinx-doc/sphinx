@@ -14,9 +14,22 @@ from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
-    import enum
+    from collections.abc import Mapping
+    from typing import Final, Literal
+
+    from typing_extensions import TypeAlias
 
     from sphinx.application import Sphinx
+
+    _RestifyMode: TypeAlias = Literal[
+        'fully-qualified-except-typing',
+        'smart',
+    ]
+    _StringifyMode: TypeAlias = Literal[
+        'fully-qualified-except-typing',
+        'fully-qualified',
+        'smart',
+    ]
 
 if sys.version_info >= (3, 10):
     from types import UnionType
@@ -24,7 +37,7 @@ else:
     UnionType = None
 
 # classes that have an incorrect .__module__ attribute
-_INVALID_BUILTIN_CLASSES = {
+_INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
     Context: 'contextvars.Context',  # Context.__module__ == '_contextvars'
     ContextVar: 'contextvars.ContextVar',  # ContextVar.__module__ == '_contextvars'
     Token: 'contextvars.Token',  # Token.__module__ == '_contextvars'
@@ -71,8 +84,10 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
-                        tuple[list[nodes.Node], list[nodes.system_message]]]
+RoleFunction = Callable[
+    [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+    tuple[list[nodes.Node], list[nodes.system_message]],
+]
 
 # A option spec for directive
 OptionSpec = dict[str, Callable[[str], Any]]
@@ -115,7 +130,9 @@ if TYPE_CHECKING:
 
 
 def get_type_hints(
-    obj: Any, globalns: dict[str, Any] | None = None, localns: dict[str, Any] | None = None,
+    obj: Any,
+    globalns: dict[str, Any] | None = None,
+    localns: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -147,7 +164,7 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> str:
+def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
     """Convert python class to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
@@ -161,31 +178,46 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
 
-    if mode == 'smart':
+    valid_modes = {'fully-qualified-except-typing', 'smart'}
+    if mode not in valid_modes:
+        valid = ', '.join(map(repr, sorted(valid_modes)))
+        msg = f'mode must be one of {valid}; got {mode!r}'
+        raise ValueError(msg)
+
+    # things that are not types
+    if cls is None or cls is NoneType:
+        return ':py:obj:`None`'
+    if cls is Ellipsis:
+        return '...'
+    if isinstance(cls, str):
+        return cls
+
+    # If the mode is 'smart', we always use '~'.
+    # If the mode is 'fully-qualified-except-typing',
+    # we use '~' only for the objects in the ``typing`` module.
+    if mode == 'smart' or getattr(cls, '__module__', None) == 'typing':
         modprefix = '~'
     else:
         modprefix = ''
 
     try:
-        if cls is None or cls is NoneType:
-            return ':py:obj:`None`'
-        elif cls is Ellipsis:
-            return '...'
-        elif isinstance(cls, str):
-            return cls
-        elif ismockmodule(cls):
+        if ismockmodule(cls):
             return f':py:class:`{modprefix}{cls.__name__}`'
         elif ismock(cls):
             return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
         elif is_invalid_builtin_class(cls):
+            # The above predicate never raises TypeError but should not be
+            # evaluated before determining whether *cls* is a mocked object
+            # or not; instead of two try-except blocks, we keep it here.
             return f':py:class:`{modprefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
         elif inspect.isNewType(cls):
             if sys.version_info[:2] >= (3, 10):
                 # newtypes have correct module info since Python 3.10+
                 return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
-            else:
-                return f':py:class:`{cls.__name__}`'
+            return f':py:class:`{cls.__name__}`'
         elif UnionType and isinstance(cls, UnionType):
+            # Union types (PEP 585) retain their definition order when they
+            # are printed natively and ``None``-like types are kept as is.
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
@@ -194,21 +226,18 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
 
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
-            else:
-                return f':py:class:`{cls.__name__}`'
+            return f':py:class:`{cls.__name__}`'
         elif (inspect.isgenericalias(cls)
               and cls.__module__ == 'typing'
               and cls.__origin__ is Union):  # type: ignore[attr-defined]
+            # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)  # type: ignore[attr-defined]
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
             elif getattr(cls, '_name', None):
                 cls_name = cls._name  # type: ignore[attr-defined]
-                if cls.__module__ == 'typing':
-                    text = f':py:class:`~{cls.__module__}.{cls_name}`'
-                else:
-                    text = f':py:class:`{modprefix}{cls.__module__}.{cls_name}`'
+                text = f':py:class:`{modprefix}{cls.__module__}.{cls_name}`'
             else:
                 text = restify(cls.__origin__, mode)  # type: ignore[attr-defined]
 
@@ -218,19 +247,13 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             elif all(is_system_TypeVar(a) for a in cls.__args__):
                 # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
                 pass
-            elif (cls.__module__ == 'typing'
-                  and cls._name == 'Callable'):  # type: ignore[attr-defined]
+            elif cls.__module__ == 'typing' and cls._name == 'Callable':  # type: ignore[attr-defined]
                 args = ', '.join(restify(a, mode) for a in cls.__args__[:-1])
-                text += fr"\ [[{args}], {restify(cls.__args__[-1], mode)}]"
+                text += fr'\ [[{args}], {restify(cls.__args__[-1], mode)}]'
             elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
-                literal_args = []
-                for a in cls.__args__:
-                    if inspect.isenumattribute(a):
-                        literal_args.append(_format_literal_enum_arg(a, mode=mode))
-                    else:
-                        literal_args.append(repr(a))
-                text += fr"\ [{', '.join(literal_args)}]"
-                del literal_args
+                args = ', '.join(_format_literal_arg_restify(a, mode=mode)
+                                 for a in cls.__args__)
+                text += fr"\ [{args}]"
             elif cls.__args__:
                 text += fr"\ [{', '.join(restify(a, mode) for a in cls.__args__)}]"
 
@@ -241,26 +264,33 @@ def restify(cls: type | None, mode: str = 'fully-qualified-except-typing') -> st
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
         elif hasattr(cls, '__qualname__'):
-            if cls.__module__ == 'typing':
-                return f':py:class:`~{cls.__module__}.{cls.__qualname__}`'
-            else:
-                return f':py:class:`{modprefix}{cls.__module__}.{cls.__qualname__}`'
+            return f':py:class:`{modprefix}{cls.__module__}.{cls.__qualname__}`'
         elif isinstance(cls, ForwardRef):
             return f':py:class:`{cls.__forward_arg__}`'
         else:
             # not a class (ex. TypeVar)
-            if cls.__module__ == 'typing':
-                return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
-            else:
-                return f':py:obj:`{modprefix}{cls.__module__}.{cls.__name__}`'
+            return f':py:obj:`{modprefix}{cls.__module__}.{cls.__name__}`'
     except (AttributeError, TypeError):
         return inspect.object_description(cls)
+
+
+def _format_literal_arg_restify(arg: Any, /, *, mode: str) -> str:
+    from sphinx.util.inspect import isenumattribute  # lazy loading
+
+    if isenumattribute(arg):
+        enum_cls = arg.__class__
+        if mode == 'smart' or enum_cls.__module__ == 'typing':
+            # MyEnum.member
+            return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+        # module.MyEnum.member
+        return f':py:attr:`{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+    return repr(arg)
 
 
 def stringify_annotation(
     annotation: Any,
     /,
-    mode: str = 'fully-qualified-except-typing',
+    mode: _StringifyMode = 'fully-qualified-except-typing',
 ) -> str:
     """Stringify type annotation object.
 
@@ -278,67 +308,69 @@ def stringify_annotation(
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util.inspect import isNewType  # lazy loading
 
-    if mode not in {'fully-qualified-except-typing', 'fully-qualified', 'smart'}:
-        msg = ("'mode' must be one of 'fully-qualified-except-typing', "
-               f"'fully-qualified', or 'smart'; got {mode!r}.")
+    valid_modes = {'fully-qualified-except-typing', 'fully-qualified', 'smart'}
+    if mode not in valid_modes:
+        valid = ', '.join(map(repr, sorted(valid_modes)))
+        msg = f'mode must be one of {valid}; got {mode!r}'
         raise ValueError(msg)
+
+    # things that are not types
+    if annotation is None or annotation is NoneType:
+        return 'None'
+    if annotation is Ellipsis:
+        return '...'
+    if isinstance(annotation, str):
+        if annotation.startswith("'") and annotation.endswith("'"):
+            # Might be a double Forward-ref'ed type.  Go unquoting.
+            return annotation[1:-1]
+        return annotation
+    if not annotation:
+        return repr(annotation)
 
     if mode == 'smart':
         module_prefix = '~'
     else:
         module_prefix = ''
 
-    annotation_qualname = getattr(annotation, '__qualname__', '')
-    annotation_module = getattr(annotation, '__module__', '')
-    annotation_name = getattr(annotation, '__name__', '')
+    # The values below must be strings if the objects are well-formed.
+    annotation_qualname: str = getattr(annotation, '__qualname__', '')
+    annotation_module: str = getattr(annotation, '__module__', '')
+    annotation_name: str = getattr(annotation, '__name__', '')
     annotation_module_is_typing = annotation_module == 'typing'
 
-    if isinstance(annotation, str):
-        if annotation.startswith("'") and annotation.endswith("'"):
-            # might be a double Forward-ref'ed type.  Go unquoting.
-            return annotation[1:-1]
-        else:
-            return annotation
-    elif isinstance(annotation, TypeVar):
+    if isinstance(annotation, TypeVar):
         if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
-        else:
-            return module_prefix + f'{annotation_module}.{annotation_name}'
+        return module_prefix + f'{annotation_module}.{annotation_name}'
     elif isNewType(annotation):
         if sys.version_info[:2] >= (3, 10):
             # newtypes have correct module info since Python 3.10+
             return module_prefix + f'{annotation_module}.{annotation_name}'
-        else:
-            return annotation_name
-    elif not annotation:
-        return repr(annotation)
-    elif annotation is NoneType:
-        return 'None'
+        return annotation_name
     elif ismockmodule(annotation):
         return module_prefix + annotation_name
     elif ismock(annotation):
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif is_invalid_builtin_class(annotation):
         return module_prefix + _INVALID_BUILTIN_CLASSES[annotation]
-    elif str(annotation).startswith('typing.Annotated'):  # for py310+
+    elif str(annotation).startswith('typing.Annotated'):  # for py39+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
-        if (args := getattr(annotation, '__args__', None)) is not None:  # PEP 585 generic
-            if not args:  # Empty tuple, list, ...
-                return repr(annotation)
-
-            concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
-            return f'{annotation_qualname}[{concatenated_args}]'
-        else:
+        args = getattr(annotation, '__args__', None)
+        if args is None:
             return annotation_qualname
-    elif annotation is Ellipsis:
-        return '...'
+
+        # PEP 585 generic
+        if not args:  # Empty tuple, list, ...
+            return repr(annotation)
+        concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
+        return f'{annotation_qualname}[{concatenated_args}]'
 
     module_prefix = f'{annotation_module}.'
-    annotation_forward_arg = getattr(annotation, '__forward_arg__', None)
+    annotation_forward_arg: str | None = getattr(annotation, '__forward_arg__', None)
     if annotation_qualname or (annotation_module_is_typing and not annotation_forward_arg):
         if mode == 'smart':
-            module_prefix = '~' + module_prefix
+            module_prefix = f'~{module_prefix}'
         if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
             module_prefix = ''
     else:
@@ -382,21 +414,8 @@ def stringify_annotation(
             returns = stringify_annotation(annotation_args[-1], mode)
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
-            from sphinx.util.inspect import isenumattribute  # lazy loading
-
-            def format_literal_arg(arg: Any) -> str:
-                if isenumattribute(arg):
-                    enumcls = arg.__class__
-
-                    if mode == 'smart':
-                        # MyEnum.member
-                        return f'{enumcls.__qualname__}.{arg.name}'
-
-                    # module.MyEnum.member
-                    return f'{enumcls.__module__}.{enumcls.__qualname__}.{arg.name}'
-                return repr(arg)
-
-            args = ', '.join(map(format_literal_arg, annotation_args))
+            args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
+                             for a in annotation_args)
             return f'{module_prefix}Literal[{args}]'
         elif str(annotation).startswith('typing.Annotated'):  # for py39+
             return stringify_annotation(annotation_args[0], mode)
@@ -410,12 +429,17 @@ def stringify_annotation(
     return module_prefix + qualname
 
 
-def _format_literal_enum_arg(arg: enum.Enum, /, *, mode: str) -> str:
-    enum_cls = arg.__class__
-    if mode == 'smart' or enum_cls.__module__ == 'typing':
-        return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
-    else:
-        return f':py:attr:`{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+def _format_literal_arg_stringify(arg: Any, /, *, mode: str) -> str:
+    from sphinx.util.inspect import isenumattribute  # lazy loading
+
+    if isenumattribute(arg):
+        enum_cls = arg.__class__
+        if mode == 'smart' or enum_cls.__module__ == 'typing':
+            # MyEnum.member
+            return f'{enum_cls.__qualname__}.{arg.name}'
+        # module.MyEnum.member
+        return f'{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}'
+    return repr(arg)
 
 
 # deprecated name -> (object to return, canonical path or empty string, removal version)

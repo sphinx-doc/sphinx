@@ -121,7 +121,17 @@ class Theme:
         elif section == 'options':
             value = self._options.get(name, default)
         else:
-            value = _NO_DEFAULT
+            # https://github.com/sphinx-doc/sphinx/issues/12305
+            # For backwards compatibility when attempting to read a value
+            # from an unsupported configuration section.
+            # xref: RemovedInSphinx80Warning
+            msg = __(
+                'Theme configuration sections other than [theme] and [options] '
+                'are not supported, returning the default value instead '
+                '(tried to get a value from %r)'
+            )
+            logger.info(msg, section)
+            value = default
         if value is _NO_DEFAULT:
             msg = __('setting %s.%s occurs in none of the searched theme configs') % (
                 section,
@@ -138,7 +148,7 @@ class Theme:
         options = self._options.copy()
         for option, value in overrides.items():
             if option not in options:
-                logger.warning(__('unsupported theme option %r given') % option)
+                logger.warning(__('unsupported theme option %r given'), option)
             else:
                 options[option] = value
 

@@ -114,6 +114,9 @@ class Symbol:
         # Do symbol addition after self._children has been initialised.
         self._add_function_params()
 
+    def __repr__(self) -> str:
+        return f'<Symbol {self.to_string(indent=0)!r}>'
+
     def _fill_empty(self, declaration: ASTDeclaration, docname: str, line: int) -> None:
         self._assert_invariants()
         assert self.declaration is None

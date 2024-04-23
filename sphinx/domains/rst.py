@@ -244,8 +244,8 @@ class ReSTDomain(Domain):
     def note_object(self, objtype: str, name: str, node_id: str, location: Any = None) -> None:
         if (objtype, name) in self.objects:
             docname, node_id = self.objects[objtype, name]
-            logger.warning(__('duplicate description of %s %s, other instance in %s') %
-                           (objtype, name, docname), location=location)
+            logger.warning(__('duplicate description of %s %s, other instance in %s'),
+                           objtype, name, docname, location=location)
 
         self.objects[objtype, name] = (self.env.docname, node_id)
 
