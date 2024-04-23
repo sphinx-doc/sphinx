@@ -14,7 +14,8 @@ from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
-    from typing import Literal
+    from collections.abc import Mapping
+    from typing import Final, Literal
 
     from typing_extensions import TypeAlias
 
@@ -36,7 +37,7 @@ else:
     UnionType = None
 
 # classes that have an incorrect .__module__ attribute
-_INVALID_BUILTIN_CLASSES = {
+_INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
     Context: 'contextvars.Context',  # Context.__module__ == '_contextvars'
     ContextVar: 'contextvars.ContextVar',  # ContextVar.__module__ == '_contextvars'
     Token: 'contextvars.Token',  # Token.__module__ == '_contextvars'
@@ -83,8 +84,10 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[[str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
-                        tuple[list[nodes.Node], list[nodes.system_message]]]
+RoleFunction = Callable[
+    [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+    tuple[list[nodes.Node], list[nodes.system_message]],
+]
 
 # A option spec for directive
 OptionSpec = dict[str, Callable[[str], Any]]
@@ -127,7 +130,9 @@ if TYPE_CHECKING:
 
 
 def get_type_hints(
-    obj: Any, globalns: dict[str, Any] | None = None, localns: dict[str, Any] | None = None,
+    obj: Any,
+    globalns: dict[str, Any] | None = None,
+    localns: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -201,13 +206,15 @@ def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typin
         elif ismock(cls):
             return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
         elif is_invalid_builtin_class(cls):
+            # The above predicate never raises TypeError but should not be
+            # evaluated before determining whether *cls* is a mocked object
+            # or not; instead of two try-except blocks, we keep it here.
             return f':py:class:`{modprefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
         elif inspect.isNewType(cls):
             if sys.version_info[:2] >= (3, 10):
                 # newtypes have correct module info since Python 3.10+
                 return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
-            else:
-                return f':py:class:`{cls.__name__}`'
+            return f':py:class:`{cls.__name__}`'
         elif UnionType and isinstance(cls, UnionType):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
@@ -219,8 +226,7 @@ def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typin
 
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
-            else:
-                return f':py:class:`{cls.__name__}`'
+            return f':py:class:`{cls.__name__}`'
         elif (inspect.isgenericalias(cls)
               and cls.__module__ == 'typing'
               and cls.__origin__ is Union):  # type: ignore[attr-defined]
@@ -241,10 +247,9 @@ def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typin
             elif all(is_system_TypeVar(a) for a in cls.__args__):
                 # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
                 pass
-            elif (cls.__module__ == 'typing'
-                  and cls._name == 'Callable'):  # type: ignore[attr-defined]
+            elif cls.__module__ == 'typing' and cls._name == 'Callable':  # type: ignore[attr-defined]
                 args = ', '.join(restify(a, mode) for a in cls.__args__[:-1])
-                text += fr"\ [[{args}], {restify(cls.__args__[-1], mode)}]"
+                text += fr'\ [[{args}], {restify(cls.__args__[-1], mode)}]'
             elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
                 args = ', '.join(_format_literal_arg_restify(a, mode=mode)
                                  for a in cls.__args__)
@@ -327,45 +332,45 @@ def stringify_annotation(
     else:
         module_prefix = ''
 
-    annotation_qualname = getattr(annotation, '__qualname__', '')
-    annotation_module = getattr(annotation, '__module__', '')
-    annotation_name = getattr(annotation, '__name__', '')
+    # The values below must be strings if the objects are well-formed.
+    annotation_qualname: str = getattr(annotation, '__qualname__', '')
+    annotation_module: str = getattr(annotation, '__module__', '')
+    annotation_name: str = getattr(annotation, '__name__', '')
     annotation_module_is_typing = annotation_module == 'typing'
 
     if isinstance(annotation, TypeVar):
         if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
-        else:
-            return module_prefix + f'{annotation_module}.{annotation_name}'
+        return module_prefix + f'{annotation_module}.{annotation_name}'
     elif isNewType(annotation):
         if sys.version_info[:2] >= (3, 10):
             # newtypes have correct module info since Python 3.10+
             return module_prefix + f'{annotation_module}.{annotation_name}'
-        else:
-            return annotation_name
+        return annotation_name
     elif ismockmodule(annotation):
         return module_prefix + annotation_name
     elif ismock(annotation):
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif is_invalid_builtin_class(annotation):
         return module_prefix + _INVALID_BUILTIN_CLASSES[annotation]
-    elif str(annotation).startswith('typing.Annotated'):  # for py310+
+    elif str(annotation).startswith('typing.Annotated'):  # for py39+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
-        if (args := getattr(annotation, '__args__', None)) is not None:  # PEP 585 generic
-            if not args:  # Empty tuple, list, ...
-                return repr(annotation)
-
-            concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
-            return f'{annotation_qualname}[{concatenated_args}]'
-        else:
+        args = getattr(annotation, '__args__', None)
+        if args is None:
             return annotation_qualname
 
+        # PEP 585 generic
+        if not args:  # Empty tuple, list, ...
+            return repr(annotation)
+        concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
+        return f'{annotation_qualname}[{concatenated_args}]'
+
     module_prefix = f'{annotation_module}.'
-    annotation_forward_arg = getattr(annotation, '__forward_arg__', None)
+    annotation_forward_arg: str | None = getattr(annotation, '__forward_arg__', None)
     if annotation_qualname or (annotation_module_is_typing and not annotation_forward_arg):
         if mode == 'smart':
-            module_prefix = '~' + module_prefix
+            module_prefix = f'~{module_prefix}'
         if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
             module_prefix = ''
     else:
