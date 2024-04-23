@@ -5,13 +5,13 @@ from __future__ import annotations
 import ast
 import builtins
 import contextlib
+import enum
 import inspect
 import re
 import sys
 import types
 import typing
 from collections.abc import Mapping
-from enum import Enum
 from functools import cached_property, partial, partialmethod, singledispatchmethod
 from importlib import import_module
 from inspect import Parameter, Signature
@@ -25,10 +25,12 @@ from sphinx.util.typing import ForwardRef, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from enum import Enum
     from inspect import _ParameterKind
+    from types import MethodType, ModuleType
     from typing import Final, Protocol, Union
 
-    from typing_extensions import TypeGuard
+    from typing_extensions import TypeAlias, TypeGuard
 
     class _SupportsGet(Protocol):
         def __get__(self, __instance: Any, __owner: type | None = ...) -> Any: ...  # NoQA: E704
@@ -41,20 +43,7 @@ if TYPE_CHECKING:
         # instance is contravariant but we do not need that precision
         def __delete__(self, __instance: Any) -> None: ...  # NoQA: E704
 
-    class _GenericAliasLike(Protocol):
-        # Minimalist interface for a generic alias in typing.py.
-
-        # The ``__origin__`` is defined both on the base type for generics
-        # in typing.py *and* on the public ``types.GenericAlias`` type.
-        __origin__: type
-
-        # Note that special generic alias types (tuple and callables) do
-        # not directly define ``__args__``. At runtime, however, they are
-        # actually instances of ``typing._GenericAlias`` which does have
-        # an ``__args__`` field.
-        __args__: tuple[Any, ...]
-
-    _RoutineType = Union[
+    _RoutineType: TypeAlias = Union[
         types.FunctionType,
         types.LambdaType,
         types.MethodType,
@@ -63,6 +52,11 @@ if TYPE_CHECKING:
         types.WrapperDescriptorType,
         types.MethodDescriptorType,
         types.ClassMethodDescriptorType,
+    ]
+    _SignatureType: TypeAlias = Union[
+        Callable[..., Any],
+        staticmethod,
+        classmethod,
     ]
 
 logger = logging.getLogger(__name__)
@@ -126,7 +120,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
 
 
 def getall(obj: Any) -> Sequence[str] | None:
-    """Get the ``__all__`` attribute of an object as a sequence.
+    """Get the ``__all__`` attribute of an object as sequence.
 
     This returns ``None`` if the given ``obj.__all__`` does not exist and
     raises :exc:`ValueError` if ``obj.__all__`` is not a list or tuple of
@@ -222,12 +216,12 @@ def isNewType(obj: Any) -> bool:
 
 def isenumclass(x: Any) -> TypeGuard[type[Enum]]:
     """Check if the object is an :class:`enumeration class <enum.Enum>`."""
-    return isclass(x) and issubclass(x, Enum)
+    return isclass(x) and issubclass(x, enum.Enum)
 
 
 def isenumattribute(x: Any) -> TypeGuard[Enum]:
     """Check if the object is an enumeration attribute."""
-    return isinstance(x, Enum)
+    return isinstance(x, enum.Enum)
 
 
 def unpartial(obj: Any) -> Any:
@@ -247,7 +241,11 @@ def ispartial(obj: Any) -> TypeGuard[partial | partialmethod]:
     return isinstance(obj, (partial, partialmethod))
 
 
-def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
+def isclassmethod(
+    obj: Any,
+    cls: Any = None,
+    name: str | None = None,
+) -> TypeGuard[classmethod]:
     """Check if the object is a :class:`classmethod`."""
     if isinstance(obj, classmethod):
         return True
@@ -263,7 +261,11 @@ def isclassmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     return False
 
 
-def isstaticmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
+def isstaticmethod(
+    obj: Any,
+    cls: Any = None,
+    name: str | None = None,
+) -> TypeGuard[staticmethod]:
     """Check if the object is a :class:`staticmethod`."""
     if isinstance(obj, staticmethod):
         return True
@@ -289,7 +291,7 @@ def isabstractmethod(obj: Any) -> bool:
     return safe_getattr(obj, '__isabstractmethod__', False) is True
 
 
-def isboundmethod(method: types.MethodType) -> bool:
+def isboundmethod(method: MethodType) -> bool:
     """Check if the method is a bound method."""
     return safe_getattr(method, '__self__', None) is not None
 
@@ -379,7 +381,7 @@ def isroutine(obj: Any) -> TypeGuard[_RoutineType]:
     return inspect.isroutine(unpartial(obj))
 
 
-def iscoroutinefunction(obj: Any) -> bool:
+def iscoroutinefunction(obj: Any) -> TypeGuard[Callable[..., types.CoroutineType]]:
     """Check if the object is a :external+python:term:`coroutine` function."""
     obj = unwrap_all(obj, stop=_is_wrapped_coroutine)
     return inspect.iscoroutinefunction(obj)
@@ -399,7 +401,7 @@ def isproperty(obj: Any) -> TypeGuard[property | cached_property]:
     return isinstance(obj, (property, cached_property))
 
 
-def isgenericalias(obj: Any) -> bool:
+def isgenericalias(obj: Any) -> TypeGuard[types.GenericAlias]:
     """Check if the object is a generic alias."""
     return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
 
@@ -469,8 +471,8 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         return 'frozenset({%s})' % ', '.join(
             object_description(x, _seen=seen) for x in sorted_values
         )
-    elif isinstance(obj, Enum):
-        if obj.__repr__.__func__ is not Enum.__repr__:  # type: ignore[attr-defined]
+    elif isinstance(obj, enum.Enum):
+        if obj.__repr__.__func__ is not enum.Enum.__repr__:  # type: ignore[attr-defined]
             return repr(obj)
         return f'{obj.__class__.__name__}.{obj.name}'
     elif isinstance(obj, tuple):
@@ -565,7 +567,7 @@ class TypeAliasModule:
         self.__modname = modname
         self.__mapping = mapping
 
-        self.__module: types.ModuleType | None = None
+        self.__module: ModuleType | None = None
 
     def __getattr__(self, name: str) -> Any:
         fullname = '.'.join(filter(None, [self.__modname, name]))
@@ -615,7 +617,7 @@ class TypeAliasNamespace(dict[str, Any]):
                 raise KeyError
 
 
-def _should_unwrap(subject: Callable[..., Any]) -> bool:
+def _should_unwrap(subject: _SignatureType) -> bool:
     """Check the function should be unwrapped on getting signature."""
     __globals__ = getglobals(subject)
     # contextmanger should be unwrapped
@@ -626,7 +628,7 @@ def _should_unwrap(subject: Callable[..., Any]) -> bool:
 
 
 def signature(
-    subject: Callable[..., Any],
+    subject: _SignatureType,
     bound_method: bool = False,
     type_aliases: Mapping[str, str] | None = None,
 ) -> Signature:
@@ -639,12 +641,12 @@ def signature(
 
     try:
         if _should_unwrap(subject):
-            signature = inspect.signature(subject)
+            signature = inspect.signature(subject)  # type: ignore[arg-type]
         else:
-            signature = inspect.signature(subject, follow_wrapped=True)
+            signature = inspect.signature(subject, follow_wrapped=True)  # type: ignore[arg-type]
     except ValueError:
         # follow built-in wrappers up (ex. functools.lru_cache)
-        signature = inspect.signature(subject)
+        signature = inspect.signature(subject)  # type: ignore[arg-type]
     parameters = list(signature.parameters.values())
     return_annotation = signature.return_annotation
 

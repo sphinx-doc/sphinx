@@ -15,7 +15,7 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal, Protocol
+    from typing import Final, Literal
 
     from typing_extensions import TypeAlias
 
@@ -30,10 +30,6 @@ if TYPE_CHECKING:
         'fully-qualified',
         'smart',
     ]
-
-    class _SpecialFormInterface(Protocol):
-        _name: str
-
 
 if sys.version_info >= (3, 10):
     from types import UnionType
@@ -168,7 +164,7 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
+def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
     """Convert python class to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
@@ -233,17 +229,17 @@ def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typin
             return f':py:class:`{cls.__name__}`'
         elif (inspect.isgenericalias(cls)
               and cls.__module__ == 'typing'
-              and cls.__origin__ is Union):  # type: ignore[attr-defined]
+              and cls.__origin__ is Union):
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
-            return ' | '.join(restify(a, mode) for a in cls.__args__)  # type: ignore[attr-defined]
+            return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif inspect.isgenericalias(cls):
-            if isinstance(cls.__origin__, typing._SpecialForm):  # type: ignore[attr-defined]
-                text = restify(cls.__origin__, mode)  # type: ignore[attr-defined,arg-type]
+            if isinstance(cls.__origin__, typing._SpecialForm):
+                text = restify(cls.__origin__, mode)
             elif getattr(cls, '_name', None):
-                cls_name = cls._name  # type: ignore[attr-defined]
+                cls_name = cls._name
                 text = f':py:class:`{modprefix}{cls.__module__}.{cls_name}`'
             else:
-                text = restify(cls.__origin__, mode)  # type: ignore[attr-defined]
+                text = restify(cls.__origin__, mode)
 
             origin = getattr(cls, '__origin__', None)
             if not hasattr(cls, '__args__'):  # NoQA: SIM114
@@ -251,7 +247,7 @@ def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typin
             elif all(is_system_TypeVar(a) for a in cls.__args__):
                 # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
                 pass
-            elif cls.__module__ == 'typing' and cls._name == 'Callable':  # type: ignore[attr-defined]
+            elif cls.__module__ == 'typing' and cls._name == 'Callable':
                 args = ', '.join(restify(a, mode) for a in cls.__args__[:-1])
                 text += fr'\ [[{args}], {restify(cls.__args__[-1], mode)}]'
             elif cls.__module__ == 'typing' and getattr(origin, '_name', None) == 'Literal':
@@ -263,7 +259,7 @@ def restify(cls: type | None, mode: _RestifyMode = 'fully-qualified-except-typin
 
             return text
         elif isinstance(cls, typing._SpecialForm):
-            return f':py:obj:`~{cls.__module__}.{cls._name}`'
+            return f':py:obj:`~{cls.__module__}.{cls._name}`'  # type: ignore[attr-defined]
         elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'

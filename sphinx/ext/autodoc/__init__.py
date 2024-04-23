@@ -2267,7 +2267,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     pass  # default implementation. skipped.
                 else:
                     if inspect.isclassmethod(func):
-                        func = func.__func__  # type: ignore[attr-defined]
+                        func = func.__func__
                     dispatchmeth = self.annotate_to_first_argument(func, typ)
                     if dispatchmeth:
                         documenter = MethodDocumenter(self.directive, '')
