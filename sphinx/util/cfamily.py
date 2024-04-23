@@ -90,14 +90,11 @@ class NoOldIdError(Exception):
 class ASTBaseBase:
     def __eq__(self, other: object) -> bool:
         if type(self) is not type(other):
-            return False
+            return NotImplemented
         try:
-            for key, value in self.__dict__.items():
-                if value != getattr(other, key):
-                    return False
+            return self.__dict__ == other.__dict__
         except AttributeError:
             return False
-        return True
 
     def clone(self) -> Any:
         return deepcopy(self)
