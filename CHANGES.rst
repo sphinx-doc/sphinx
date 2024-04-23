@@ -13,6 +13,12 @@ Deprecated
 Features added
 --------------
 
+* #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
+  files.
+  Patch by James Addison and Adam Turner
+
+  .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
+
 Bugs fixed
 ----------
 
@@ -124,11 +130,6 @@ Deprecated
 
 Features added
 --------------
-* #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
-  files. 
-  Patch by James Addison and Adam Turner
-
-  .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
 
 * #12265: Support theme configuration via ``theme.toml``.
 * #11701: HTML Search: Adopt the new `\<search\>`_ element.
