@@ -246,12 +246,17 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif inspect.isgenericalias(cls):
+            if sys.version_info[:2] >= (3, 10):
+                cls_name = cls.__name__
+            else:
+                cls_name = getattr(cls, '_name', '')
+
             if isinstance(cls.__origin__, typing._SpecialForm):
                 # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard
                 # Required/NotRequired
                 text = restify(cls.__origin__, mode)
-            elif hasattr(cls, '_name'):
-                text = f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
+            elif cls_name:
+                text = f':py:class:`{module_prefix}{cls.__module__}.{cls_name}`'
             else:
                 text = restify(cls.__origin__, mode)
 
@@ -263,7 +268,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 return text
 
             # Callable has special formatting
-            if cls_module_is_typing and cls.__name__ == 'Callable':
+            if cls_module_is_typing and cls.__origin__.__name__ == 'Callable':
                 args = ', '.join(restify(a, mode) for a in __args__[:-1])
                 returns = restify(__args__[-1], mode)
                 return fr'{text}\ [[{args}], {returns}]'
