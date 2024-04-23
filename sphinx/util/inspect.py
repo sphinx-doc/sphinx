@@ -752,7 +752,7 @@ def stringify_signature(
 
         if show_annotation and param.annotation is not EMPTY:
             arg.write(': ')
-            arg.write(stringify_annotation(param.annotation, mode))
+            arg.write(stringify_annotation(param.annotation, mode))  # type: ignore[arg-type]
         if param.default is not EMPTY:
             if show_annotation and param.annotation is not EMPTY:
                 arg.write(' = ')
@@ -771,7 +771,7 @@ def stringify_signature(
     if sig.return_annotation is EMPTY or not show_annotation or not show_return_annotation:
         return f'({concatenated_args})'
     else:
-        retann = stringify_annotation(sig.return_annotation, mode)
+        retann = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
         return f'({concatenated_args}) -> {retann}'
 
 

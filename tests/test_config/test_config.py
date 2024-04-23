@@ -46,7 +46,7 @@ def check_is_serializable(subject: object, *, circular: bool) -> None:
 
         # check that without recursive guards, a recursion error occurs
         with pytest.raises(RecursionError):
-            assert is_serializable(subject, _recursive_guard=UselessGuard())
+            assert is_serializable(subject, _seen=UselessGuard())
 
 
 def test_is_serializable() -> None:
