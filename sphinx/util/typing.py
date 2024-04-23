@@ -262,7 +262,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 # Don't print the arguments; they're all system defined type variables.
                 return text
 
-            # Callable (either collections.abc or typing)
+            # Callable has special formatting
             if cls_module_is_typing and cls.__name__ == 'Callable':
                 args = ', '.join(restify(a, mode) for a in __args__[:-1])
                 returns = restify(__args__[-1], mode)
