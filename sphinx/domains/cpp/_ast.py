@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from docutils import nodes
 
@@ -48,6 +48,7 @@ class ASTIdentifier(ASTBase):
         assert identifier is not None
         assert len(identifier) != 0
         self.identifier = identifier
+        self.is_anonymous = identifier[0] == '@'
 
     # ASTBaseBase already implements this method,
     # but specialising it here improves performance
@@ -63,10 +64,10 @@ class ASTIdentifier(ASTBase):
         return transform(self.identifier)
 
     def is_anon(self) -> bool:
-        return self.identifier[0] == '@'
+        return self.is_anonymous
 
     def get_id(self, version: int) -> str:
-        if self.is_anon() and version < 3:
+        if self.is_anonymous and version < 3:
             raise NoOldIdError
         if version == 1:
             if self.identifier == 'size_t':
@@ -79,7 +80,7 @@ class ASTIdentifier(ASTBase):
             # a destructor, just use an arbitrary version of dtors
             return 'D0'
         else:
-            if self.is_anon():
+            if self.is_anonymous:
                 return 'Ut%d_%s' % (len(self.identifier) - 1, self.identifier[1:])
             else:
                 return str(len(self.identifier)) + self.identifier
@@ -90,12 +91,12 @@ class ASTIdentifier(ASTBase):
         return self.identifier
 
     def get_display_string(self) -> str:
-        return "[anonymous]" if self.is_anon() else self.identifier
+        return "[anonymous]" if self.is_anonymous else self.identifier
 
     def describe_signature(self, signode: TextElement, mode: str, env: BuildEnvironment,
                            prefix: str, templateArgs: str, symbol: Symbol) -> None:
         verify_description_mode(mode)
-        if self.is_anon():
+        if self.is_anonymous:
             node = addnodes.desc_sig_name(text="[anonymous]")
         else:
             node = addnodes.desc_sig_name(self.identifier, self.identifier)
@@ -121,7 +122,7 @@ class ASTIdentifier(ASTBase):
             # the target is 'operator""id' instead of just 'id'
             assert len(prefix) == 0
             assert len(templateArgs) == 0
-            assert not self.is_anon()
+            assert not self.is_anonymous
             targetText = 'operator""' + self.identifier
             pnode = addnodes.pending_xref('', refdomain='cpp',
                                           reftype='identifier',
@@ -1454,6 +1455,8 @@ class ASTFallbackExpr(ASTExpression):
 ################################################################################
 
 class ASTOperator(ASTBase):
+    is_anonymous: ClassVar[Literal[False]] = False
+
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError(repr(self))
 
@@ -1461,7 +1464,7 @@ class ASTOperator(ASTBase):
         raise NotImplementedError(repr(self))
 
     def is_anon(self) -> bool:
-        return False
+        return self.is_anonymous
 
     def is_operator(self) -> bool:
         return True

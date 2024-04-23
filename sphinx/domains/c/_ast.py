@@ -42,6 +42,7 @@ class ASTIdentifier(ASTBaseBase):
         assert identifier is not None
         assert len(identifier) != 0
         self.identifier = identifier
+        self.is_anonymous = identifier[0] == '@'
 
     # ASTBaseBase already implements this method,
     # but specialising it here improves performance
@@ -51,7 +52,7 @@ class ASTIdentifier(ASTBaseBase):
         return self.identifier == other.identifier
 
     def is_anon(self) -> bool:
-        return self.identifier[0] == '@'
+        return self.is_anonymous
 
     # and this is where we finally make a difference between __str__ and the display string
 
@@ -59,13 +60,13 @@ class ASTIdentifier(ASTBaseBase):
         return self.identifier
 
     def get_display_string(self) -> str:
-        return "[anonymous]" if self.is_anon() else self.identifier
+        return "[anonymous]" if self.is_anonymous else self.identifier
 
     def describe_signature(self, signode: TextElement, mode: str, env: BuildEnvironment,
                            prefix: str, symbol: Symbol) -> None:
         # note: slightly different signature of describe_signature due to the prefix
         verify_description_mode(mode)
-        if self.is_anon():
+        if self.is_anonymous:
             node = addnodes.desc_sig_name(text="[anonymous]")
         else:
             node = addnodes.desc_sig_name(self.identifier, self.identifier)
