@@ -724,7 +724,7 @@ def _evaluate_forwardref(
         # before 3.12.4 still has the old signature).
         #
         # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(globalns, localns, {}, recursive_guard=frozenset())
+        return ref._evaluate(globalns, localns, {}, recursive_guard=frozenset())  # type: ignore[arg-type, misc]
     return ref._evaluate(globalns, localns, frozenset())
 
 
