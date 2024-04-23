@@ -25,7 +25,6 @@ from sphinx.util.typing import ForwardRef, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from enum import Enum
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
     from typing import Final, Protocol, Union
@@ -120,7 +119,7 @@ def unwrap_all(obj: Any, *, stop: Callable[[Any], bool] | None = None) -> Any:
 
 
 def getall(obj: Any) -> Sequence[str] | None:
-    """Get the ``__all__`` attribute of an object as sequence.
+    """Get the ``__all__`` attribute of an object as a sequence.
 
     This returns ``None`` if the given ``obj.__all__`` does not exist and
     raises :exc:`ValueError` if ``obj.__all__`` is not a list or tuple of
@@ -214,12 +213,12 @@ def isNewType(obj: Any) -> bool:
     return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
 
 
-def isenumclass(x: Any) -> TypeGuard[type[Enum]]:
+def isenumclass(x: Any) -> TypeGuard[type[enum.Enum]]:
     """Check if the object is an :class:`enumeration class <enum.Enum>`."""
     return isclass(x) and issubclass(x, enum.Enum)
 
 
-def isenumattribute(x: Any) -> TypeGuard[Enum]:
+def isenumattribute(x: Any) -> TypeGuard[enum.Enum]:
     """Check if the object is an enumeration attribute."""
     return isinstance(x, enum.Enum)
 
