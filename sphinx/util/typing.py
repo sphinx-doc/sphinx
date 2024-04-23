@@ -275,7 +275,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 # generic representation of the parameters
                 params = ', '.join(restify(a, mode) for a in __args__)
 
-            return rf'{text}\ [{params}]'
+            return fr'{text}\ [{params}]'
         elif isinstance(cls, typing._SpecialForm):
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
