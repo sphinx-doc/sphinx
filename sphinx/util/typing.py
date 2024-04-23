@@ -250,7 +250,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard
                 # Required/NotRequired
                 text = restify(cls.__origin__, mode)
-            elif cls.__name__:
+            elif hasattr(cls, '_name'):
                 text = f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
             else:
                 text = restify(cls.__origin__, mode)
