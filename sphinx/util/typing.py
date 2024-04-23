@@ -269,13 +269,13 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 return fr'{text}\ [[{args}], {returns}]'
 
             if cls_module_is_typing and cls.__origin__.__name__ == 'Literal':
-                params = ', '.join(_format_literal_arg_restify(a, mode=mode)
-                                   for a in cls.__args__)
-            else:
-                # generic representation of the parameters
-                params = ', '.join(restify(a, mode) for a in __args__)
+                args = ', '.join(_format_literal_arg_restify(a, mode=mode)
+                                 for a in cls.__args__)
+                return fr'{text}\ [{args}]'
 
-            return fr'{text}\ [{params}]'
+            # generic representation of the parameters
+            args = ', '.join(restify(a, mode) for a in __args__)
+            return fr'{text}\ [{args}]'
         elif isinstance(cls, typing._SpecialForm):
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
