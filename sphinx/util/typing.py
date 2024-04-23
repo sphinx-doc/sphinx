@@ -180,6 +180,10 @@ def _is_annotated_form(obj: Any) -> TypeGuard[Annotated[Any, ...]]:
 
 def _is_unpack_form(obj: Any) -> bool:
     """Check if the object is :class:`typing.Unpack` or equivalent."""
+    if sys.version_info >= (3, 11):
+        from typing import Unpack
+
+        return typing.get_origin(obj) is Unpack
     origin = typing.get_origin(obj)
     origin_module = getattr(origin, '__module__', None)
     origin_name = getattr(origin, '__name__', None)

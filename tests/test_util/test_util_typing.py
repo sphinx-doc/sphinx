@@ -325,25 +325,19 @@ def test_restify_pep_585():
                                                       ":py:class:`int`]")
 
 
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 11), reason='python 3.11+ is required.')
 def test_restify_Unpack():
-    import typing
+    from typing import Unpack
 
-    from typing_extensions import Unpack as UnpackCompat
-
-    class X(typing.TypedDict):
+    class X(t.TypedDict):
         x: int
         y: int
         label: str
 
     # Unpack is considered as typing special form so we always have '~'
-    expect = rf':py:obj:`~{UnpackCompat.__module__}.Unpack`\ [:py:class:`X`]'
-    assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
-    assert restify(UnpackCompat['X'], 'smart') == expect
-
-    if NativeUnpack := getattr(typing, 'Unpack', None):
-        expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
-        assert restify(NativeUnpack['X'], 'fully-qualified-except-typing') == expect
-        assert restify(NativeUnpack['X'], 'smart') == expect
+    expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
+    assert restify(Unpack['X'], 'fully-qualified-except-typing') == expect
+    assert restify(Unpack['X'], 'smart') == expect
 
 
 @pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
@@ -495,29 +489,17 @@ def test_stringify_Annotated():
     assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "str"
 
 
+@pytest.mark.skipif(sys.version_info[:2] <= (3, 11), reason='python 3.11+ is required.')
 def test_stringify_Unpack():
-    import typing
+    from typing import Unpack
 
-    from typing_extensions import Unpack as UnpackCompat
-
-    class X(typing.TypedDict):
+    class X(t.TypedDict):
         x: int
         y: int
         label: str
 
-    # typing.Unpack is introduced in 3.11 but typing_extensions.Unpack
-    # is only using typing.Unpack since 3.12, so those objects are not
-    # synchronized with each other.
-    if hasattr(typing, 'Unpack') and typing.Unpack is UnpackCompat:
-        assert stringify_annotation(UnpackCompat['X']) == 'Unpack[X]'
-        assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing.Unpack[X]'
-    else:
-        assert stringify_annotation(UnpackCompat['X']) == 'typing_extensions.Unpack[X]'
-        assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing_extensions.Unpack[X]'
-
-    if NativeUnpack := getattr(typing, 'Unpack', None):
-        assert stringify_annotation(NativeUnpack['X']) == 'Unpack[X]'
-        assert stringify_annotation(NativeUnpack['X'], 'smart') == '~typing.Unpack[X]'
+    assert stringify_annotation(Unpack['X']) == 'Unpack[X]'
+    assert stringify_annotation(Unpack['X'], 'smart') == '~typing.Unpack[X]'
 
 
 def test_stringify_type_hints_string():
