@@ -22,6 +22,10 @@ Features added
 Bugs fixed
 ----------
 
+* #12162: Fix a performance regression in the C domain that has
+  been present since version 3.0.0.
+  Patch by Donald Hunter.
+
 Testing
 -------
 
