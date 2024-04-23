@@ -212,22 +212,22 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
     #
     # With an if-else block, mypy infers 'mode' to be a 'str'
     # instead of a literal string (and we don't want to cast).
-    modprefix = '~' if mode == 'smart' or getattr(cls, '__module__', None) == 'typing' else ''
+    module_prefix = '~' if mode == 'smart' or getattr(cls, '__module__', None) == 'typing' else ''
 
     try:
         if ismockmodule(cls):
-            return f':py:class:`{modprefix}{cls.__name__}`'
+            return f':py:class:`{module_prefix}{cls.__name__}`'
         elif ismock(cls):
-            return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
+            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
         elif is_invalid_builtin_class(cls):
             # The above predicate never raises TypeError but should not be
             # evaluated before determining whether *cls* is a mocked object
             # or not; instead of two try-except blocks, we keep it here.
-            return f':py:class:`{modprefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
+            return f':py:class:`{module_prefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
         elif inspect.isNewType(cls):
             if sys.version_info[:2] >= (3, 10):
                 # newtypes have correct module info since Python 3.10+
-                return f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
+                return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
             return f':py:class:`{cls.__name__}`'
         elif UnionType and isinstance(cls, UnionType):
             # Union types (PEP 585) retain their definition order when they
@@ -252,7 +252,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 # Required/NotRequired
                 text = restify(cls.__origin__, mode)
             elif cls.__name__:
-                text = f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
+                text = f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
             else:
                 text = restify(cls.__origin__, mode)
 
@@ -284,12 +284,12 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
         elif hasattr(cls, '__qualname__'):
-            return f':py:class:`{modprefix}{cls.__module__}.{cls.__qualname__}`'
+            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__qualname__}`'
         elif isinstance(cls, ForwardRef):
             return f':py:class:`{cls.__forward_arg__}`'
         else:
             # not a class (ex. TypeVar)
-            return f':py:obj:`{modprefix}{cls.__module__}.{cls.__name__}`'
+            return f':py:obj:`{module_prefix}{cls.__module__}.{cls.__name__}`'
     except (AttributeError, TypeError):
         return inspect.object_description(cls)
 
