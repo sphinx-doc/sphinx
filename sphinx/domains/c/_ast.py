@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+import warnings
 from typing import TYPE_CHECKING, Any, Union, cast
 
 from docutils import nodes
@@ -38,18 +40,18 @@ class ASTBase(ASTBaseBase):
 ################################################################################
 
 class ASTIdentifier(ASTBaseBase):
-    def __init__(self, identifier: str) -> None:
-        assert identifier is not None
-        assert len(identifier) != 0
-        self.identifier = identifier
-        self.is_anonymous = identifier[0] == '@'
+    def __init__(self, name: str) -> None:
+        if not isinstance(name, str) or len(name) == 0:
+            raise AssertionError
+        self.name = sys.intern(name)
+        self.is_anonymous = name[0] == '@'
 
     # ASTBaseBase already implements this method,
     # but specialising it here improves performance
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ASTIdentifier):
             return NotImplemented
-        return self.identifier == other.identifier
+        return self.name == other.name
 
     def is_anon(self) -> bool:
         return self.is_anonymous
@@ -57,10 +59,10 @@ class ASTIdentifier(ASTBaseBase):
     # and this is where we finally make a difference between __str__ and the display string
 
     def __str__(self) -> str:
-        return self.identifier
+        return self.name
 
     def get_display_string(self) -> str:
-        return "[anonymous]" if self.is_anonymous else self.identifier
+        return "[anonymous]" if self.is_anonymous else self.name
 
     def describe_signature(self, signode: TextElement, mode: str, env: BuildEnvironment,
                            prefix: str, symbol: Symbol) -> None:
@@ -69,9 +71,9 @@ class ASTIdentifier(ASTBaseBase):
         if self.is_anonymous:
             node = addnodes.desc_sig_name(text="[anonymous]")
         else:
-            node = addnodes.desc_sig_name(self.identifier, self.identifier)
+            node = addnodes.desc_sig_name(self.name, self.name)
         if mode == 'markType':
-            targetText = prefix + self.identifier
+            targetText = prefix + self.name
             pnode = addnodes.pending_xref('', refdomain='c',
                                           reftype='identifier',
                                           reftarget=targetText, modname=None,
@@ -87,6 +89,14 @@ class ASTIdentifier(ASTBaseBase):
             signode += node
         else:
             raise Exception('Unknown description mode: %s' % mode)
+
+    @property
+    def identifier(self) -> str:
+        warnings.warn(
+            '`ASTIdentifier.identifier` is deprecated, use `ASTIdentifier.name` instead',
+            DeprecationWarning, stacklevel=2,
+        )
+        return self.name
 
 
 class ASTNestedName(ASTBase):
