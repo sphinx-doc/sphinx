@@ -24,7 +24,7 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal, Protocol
+    from typing import Final, Literal
 
     from typing_extensions import TypeAlias, TypeGuard
 
@@ -39,9 +39,6 @@ if TYPE_CHECKING:
         'fully-qualified',
         'smart',
     ]
-
-    class _SpecialFormInterface(Protocol):
-        _name: str
 
 if sys.version_info >= (3, 10):
     from types import UnionType
@@ -176,23 +173,9 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def _is_special_form(obj: Any) -> TypeGuard[_SpecialFormInterface]:
-    """Check if *obj* is a typing special form.
-
-    The guarded type is a protocol with the members that Sphinx needs in
-    this module and not the native ``typing._SpecialForm`` from typeshed,
-    but the runtime type of *obj* must be a true special form instance.
-    """
-    return isinstance(obj, typing._SpecialForm)
-
-
 def _is_annotated_form(obj: Any) -> TypeGuard[Annotated[Any, ...]]:
     """Check if *obj* is an annotated type."""
     return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
-
-
-def _get_typing_internal_name(obj: Any) -> str | None:
-    return getattr(obj, '_name', None)
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
@@ -265,39 +248,38 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif inspect.isgenericalias(cls):
             if isinstance(cls.__origin__, typing._SpecialForm):
+                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard
+                # Required/NotRequired
                 text = restify(cls.__origin__, mode)
-            elif getattr(cls, '_name', None):
-                cls_name = cls._name
-                text = f':py:class:`{modprefix}{cls.__module__}.{cls_name}`'
+            elif cls.__name__:
+                text = f':py:class:`{modprefix}{cls.__module__}.{cls.__name__}`'
             else:
                 text = restify(cls.__origin__, mode)
 
             __args__ = getattr(cls, '__args__', ())
             if not __args__:
                 return text
-
             if all(map(is_system_TypeVar, __args__)):
-                # do not print the arguments they are all type variables
+                # Don't print the arguments; they're all system defined type variables.
                 return text
 
-            params: str | None = None
+            # Callable (either collections.abc or typing)
+            if (cls.__module__ in {'collections.abc', 'typing'}
+                    and cls.__name__ == 'Callable'):
+                args = ', '.join(restify(a, mode) for a in __args__[:-1])
+                returns = restify(__args__[-1], mode)
+                return fr'{text}\ [[{args}], {returns}]'
 
-            if cls.__module__ == 'typing':
-                if _get_typing_internal_name(cls) == 'Callable':
-                    vargs = ', '.join(restify(a, mode) for a in __args__[:-1])
-                    rtype = restify(__args__[-1], mode)
-                    params = f'[{vargs}], {rtype}'
-                elif _get_typing_internal_name(cls.__origin__) == 'Literal':
-                    params = ', '.join(_format_literal_arg_restify(a, mode=mode)
-                                       for a in cls.__args__)
-
-            if params is None:
+            if cls.__module__ == 'typing' and cls.__origin__.__name__ == 'Literal':
+                params = ', '.join(_format_literal_arg_restify(a, mode=mode)
+                                   for a in cls.__args__)
+            else:
                 # generic representation of the parameters
                 params = ', '.join(restify(a, mode) for a in __args__)
 
             return rf'{text}\ [{params}]'
-        elif _is_special_form(cls):
-            return f':py:obj:`~{cls.__module__}.{cls._name}`'
+        elif isinstance(cls, typing._SpecialForm):
+            return f':py:obj:`~{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
@@ -365,10 +347,7 @@ def stringify_annotation(
     if not annotation:
         return repr(annotation)
 
-    if mode == 'smart':
-        module_prefix = '~'
-    else:
-        module_prefix = ''
+    module_prefix = '~' if mode == 'smart' else ''
 
     # The values below must be strings if the objects are well-formed.
     annotation_qualname: str = getattr(annotation, '__qualname__', '')
@@ -376,7 +355,7 @@ def stringify_annotation(
     annotation_name: str = getattr(annotation, '__name__', '')
     annotation_module_is_typing = annotation_module == 'typing'
 
-    # extract the annotation's base type by considering formattable cases
+    # Extract the annotation's base type by considering formattable cases
     if isinstance(annotation, TypeVar):
         if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
@@ -392,7 +371,7 @@ def stringify_annotation(
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif is_invalid_builtin_class(annotation):
         return module_prefix + _INVALID_BUILTIN_CLASSES[annotation]
-    elif str(annotation).startswith('typing.Annotated'):  # for py39+
+    elif _is_annotated_form(annotation):  # for py39+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
         args = getattr(annotation, '__args__', None)
@@ -430,7 +409,7 @@ def stringify_annotation(
                 qualname = annotation_qualname
             else:
                 # in this case, we know that the annotation is a member
-                # of :mod:`typing` and all of them define ``__origin__``
+                # of ``typing`` and all of them define ``__origin__``
                 qualname = stringify_annotation(
                     annotation.__origin__, 'fully-qualified-except-typing',
                 ).replace('typing.', '')  # ex. Union
@@ -446,9 +425,8 @@ def stringify_annotation(
         # only make them appear twice
         return repr(annotation)
 
-    # process the generic arguments (if any); they must be a list or a tuple
-    # otherwise they are considered as 'broken'
-
+    # Process the generic arguments (if any).
+    # They must be a list or a tuple, otherwise they are considered 'broken'.
     annotation_args = getattr(annotation, '__args__', ())
     if annotation_args and isinstance(annotation_args, (list, tuple)):
         if qualname in {'Optional', 'Union', 'types.UnionType'}:
@@ -461,7 +439,7 @@ def stringify_annotation(
             args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
                              for a in annotation_args)
             return f'{module_prefix}Literal[{args}]'
-        elif str(annotation).startswith('typing.Annotated'):  # for py39+
+        elif _is_annotated_form(annotation):  # for py39+
             return stringify_annotation(annotation_args[0], mode)
         elif all(is_system_TypeVar(a) for a in annotation_args):
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
