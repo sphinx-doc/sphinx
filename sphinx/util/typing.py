@@ -187,7 +187,7 @@ def _is_unpack_form(obj: Any) -> bool:
     origin = typing.get_origin(obj)
     origin_module = getattr(origin, '__module__', None)
     origin_name = getattr(origin, '__name__', None)
-    return origin_module == 'typing' and origin_name == 'Unpack'
+    return origin_module in {'typing', 'typing_extensions'} and origin_name == 'Unpack'
 
 
 def _typing_internal_name(obj: Any) -> str | None:
