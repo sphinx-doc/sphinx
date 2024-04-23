@@ -46,7 +46,7 @@ class ASTIdentifier(ASTBaseBase):
     # ASTBaseBase already implements this method,
     # but specialising it here improves performance
     def __eq__(self, other: object) -> bool:
-        if type(other) is not ASTIdentifier:
+        if not isinstance(other, ASTIdentifier):
             return NotImplemented
         return self.identifier == other.identifier
 
@@ -93,6 +93,14 @@ class ASTNestedName(ASTBase):
         assert len(names) > 0
         self.names = names
         self.rooted = rooted
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTNestedName):
+            return NotImplemented
+        return self.names == other.names and self.rooted == other.rooted
+
+    def __hash__(self) -> int:
+        return hash((self.names, self.rooted))
 
     @property
     def name(self) -> ASTNestedName:
@@ -186,6 +194,14 @@ class ASTBooleanLiteral(ASTLiteral):
     def __init__(self, value: bool) -> None:
         self.value = value
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTBooleanLiteral):
+            return NotImplemented
+        return self.value == other.value
+
+    def __hash__(self) -> int:
+        return hash(self.value)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.value:
             return 'true'
@@ -201,6 +217,14 @@ class ASTBooleanLiteral(ASTLiteral):
 class ASTNumberLiteral(ASTLiteral):
     def __init__(self, data: str) -> None:
         self.data = data
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTNumberLiteral):
+            return NotImplemented
+        return self.data == other.data
+
+    def __hash__(self) -> int:
+        return hash(self.data)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.data
@@ -221,6 +245,17 @@ class ASTCharLiteral(ASTLiteral):
         else:
             raise UnsupportedMultiCharacterCharLiteral(decoded)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTCharLiteral):
+            return NotImplemented
+        return (
+            self.prefix == other.prefix
+            and self.value == other.value
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.prefix, self.value))
+
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.prefix is None:
             return "'" + self.data + "'"
@@ -237,6 +272,14 @@ class ASTStringLiteral(ASTLiteral):
     def __init__(self, data: str) -> None:
         self.data = data
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTStringLiteral):
+            return NotImplemented
+        return self.data == other.data
+
+    def __hash__(self) -> int:
+        return hash(self.data)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.data
 
@@ -250,6 +293,14 @@ class ASTIdExpression(ASTExpression):
     def __init__(self, name: ASTNestedName) -> None:
         # note: this class is basically to cast a nested name as an expression
         self.name = name
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTIdExpression):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.name)
@@ -265,6 +316,14 @@ class ASTIdExpression(ASTExpression):
 class ASTParenExpr(ASTExpression):
     def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTParenExpr):
+            return NotImplemented
+        return self.expr == other.expr
+
+    def __hash__(self) -> int:
+        return hash(self.expr)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return '(' + transform(self.expr) + ')'
@@ -290,6 +349,14 @@ class ASTPostfixCallExpr(ASTPostfixOp):
     def __init__(self, lst: ASTParenExprList | ASTBracedInitList) -> None:
         self.lst = lst
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTPostfixCallExpr):
+            return NotImplemented
+        return self.lst == other.lst
+
+    def __hash__(self) -> int:
+        return hash(self.lst)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return transform(self.lst)
 
@@ -301,6 +368,14 @@ class ASTPostfixCallExpr(ASTPostfixOp):
 class ASTPostfixArray(ASTPostfixOp):
     def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTPostfixArray):
+            return NotImplemented
+        return self.expr == other.expr
+
+    def __hash__(self) -> int:
+        return hash(self.expr)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return '[' + transform(self.expr) + ']'
@@ -334,6 +409,14 @@ class ASTPostfixMemberOfPointer(ASTPostfixOp):
     def __init__(self, name: ASTNestedName) -> None:
         self.name = name
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTPostfixMemberOfPointer):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return '->' + transform(self.name)
 
@@ -347,6 +430,14 @@ class ASTPostfixExpr(ASTExpression):
     def __init__(self, prefix: ASTExpression, postFixes: list[ASTPostfixOp]) -> None:
         self.prefix = prefix
         self.postFixes = postFixes
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTPostfixExpr):
+            return NotImplemented
+        return self.prefix == other.prefix and self.postFixes == other.postFixes
+
+    def __hash__(self) -> int:
+        return hash((self.prefix, self.postFixes))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return ''.join([transform(self.prefix), *(transform(p) for p in self.postFixes)])
@@ -365,6 +456,14 @@ class ASTUnaryOpExpr(ASTExpression):
     def __init__(self, op: str, expr: ASTExpression) -> None:
         self.op = op
         self.expr = expr
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTUnaryOpExpr):
+            return NotImplemented
+        return self.op == other.op and self.expr == other.expr
+
+    def __hash__(self) -> int:
+        return hash((self.op, self.expr))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.op[0] in 'cn':
@@ -386,6 +485,14 @@ class ASTSizeofType(ASTExpression):
     def __init__(self, typ: ASTType) -> None:
         self.typ = typ
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTSizeofType):
+            return NotImplemented
+        return self.typ == other.typ
+
+    def __hash__(self) -> int:
+        return hash(self.typ)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return "sizeof(" + transform(self.typ) + ")"
 
@@ -401,6 +508,14 @@ class ASTSizeofExpr(ASTExpression):
     def __init__(self, expr: ASTExpression) -> None:
         self.expr = expr
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTSizeofExpr):
+            return NotImplemented
+        return self.expr == other.expr
+
+    def __hash__(self) -> int:
+        return hash(self.expr)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return "sizeof " + transform(self.expr)
 
@@ -414,6 +529,14 @@ class ASTSizeofExpr(ASTExpression):
 class ASTAlignofExpr(ASTExpression):
     def __init__(self, typ: ASTType) -> None:
         self.typ = typ
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTAlignofExpr):
+            return NotImplemented
+        return self.typ == other.typ
+
+    def __hash__(self) -> int:
+        return hash(self.typ)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return "alignof(" + transform(self.typ) + ")"
@@ -433,6 +556,17 @@ class ASTCastExpr(ASTExpression):
     def __init__(self, typ: ASTType, expr: ASTExpression) -> None:
         self.typ = typ
         self.expr = expr
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTCastExpr):
+            return NotImplemented
+        return (
+            self.typ == other.typ
+            and self.expr == other.expr
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.typ, self.expr))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['(']
@@ -455,6 +589,17 @@ class ASTBinOpExpr(ASTBase):
         assert len(exprs) == len(ops) + 1
         self.exprs = exprs
         self.ops = ops
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTBinOpExpr):
+            return NotImplemented
+        return (
+            self.exprs == other.exprs
+            and self.ops == other.ops
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.exprs, self.ops))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
@@ -487,6 +632,17 @@ class ASTAssignmentExpr(ASTExpression):
         self.exprs = exprs
         self.ops = ops
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTAssignmentExpr):
+            return NotImplemented
+        return (
+            self.exprs == other.exprs
+            and self.ops == other.ops
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.exprs, self.ops))
+
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
         res.append(transform(self.exprs[0]))
@@ -515,6 +671,14 @@ class ASTFallbackExpr(ASTExpression):
     def __init__(self, expr: str) -> None:
         self.expr = expr
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTFallbackExpr):
+            return NotImplemented
+        return self.expr == other.expr
+
+    def __hash__(self) -> int:
+        return hash(self.expr)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.expr
 
@@ -539,6 +703,14 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
         assert len(names) != 0
         self.names = names
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTTrailingTypeSpecFundamental):
+            return NotImplemented
+        return self.names == other.names
+
+    def __hash__(self) -> int:
+        return hash(self.names)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return ' '.join(self.names)
 
@@ -557,6 +729,17 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
     def __init__(self, prefix: str, nestedName: ASTNestedName) -> None:
         self.prefix = prefix
         self.nestedName = nestedName
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTTrailingTypeSpecName):
+            return NotImplemented
+        return (
+            self.prefix == other.prefix
+            and self.nestedName == other.nestedName
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.prefix, self.nestedName))
 
     @property
     def name(self) -> ASTNestedName:
@@ -583,6 +766,14 @@ class ASTFunctionParameter(ASTBase):
         self.arg = arg
         self.ellipsis = ellipsis
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTFunctionParameter):
+            return NotImplemented
+        return self.arg == other.arg and self.ellipsis == other.ellipsis
+
+    def __hash__(self) -> int:
+        return hash((self.arg, self.ellipsis))
+
     def get_id(self, version: int, objectType: str, symbol: Symbol) -> str:
         # the anchor will be our parent
         return symbol.parent.declaration.get_id(version, prefixed=False)
@@ -606,6 +797,14 @@ class ASTParameters(ASTBase):
     def __init__(self, args: list[ASTFunctionParameter], attrs: ASTAttributeList) -> None:
         self.args = args
         self.attrs = attrs
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTParameters):
+            return NotImplemented
+        return self.args == other.args and self.attrs == other.attrs
+
+    def __hash__(self) -> int:
+        return hash((self.args, self.attrs))
 
     @property
     def function_params(self) -> list[ASTFunctionParameter]:
@@ -674,6 +873,30 @@ class ASTDeclSpecsSimple(ASTBaseBase):
         self.const = const
         self.attrs = attrs
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTDeclSpecsSimple):
+            return NotImplemented
+        return (
+            self.storage == other.storage
+            and self.threadLocal == other.threadLocal
+            and self.inline == other.inline
+            and self.restrict == other.restrict
+            and self.volatile == other.volatile
+            and self.const == other.const
+            and self.attrs == other.attrs
+        )
+
+    def __hash__(self) -> int:
+        return hash((
+            self.storage,
+            self.threadLocal,
+            self.inline,
+            self.restrict,
+            self.volatile,
+            self.const,
+            self.attrs,
+        ))
+
     def mergeWith(self, other: ASTDeclSpecsSimple) -> ASTDeclSpecsSimple:
         if not other:
             return self
@@ -741,6 +964,24 @@ class ASTDeclSpecs(ASTBase):
         self.allSpecs = self.leftSpecs.mergeWith(self.rightSpecs)
         self.trailingTypeSpec = trailing
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTDeclSpecs):
+            return NotImplemented
+        return (
+            self.outer == other.outer
+            and self.leftSpecs == other.leftSpecs
+            and self.rightSpecs == other.rightSpecs
+            and self.trailingTypeSpec == other.trailingTypeSpec
+        )
+
+    def __hash__(self) -> int:
+        return hash((
+            self.outer,
+            self.leftSpecs,
+            self.rightSpecs,
+            self.trailingTypeSpec,
+        ))
+
     def _stringify(self, transform: StringifyTransform) -> str:
         res: list[str] = []
         l = transform(self.leftSpecs)
@@ -795,6 +1036,28 @@ class ASTArray(ASTBase):
             assert size is None
         if size is not None:
             assert not vla
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTArray):
+            return NotImplemented
+        return (
+            self.static == other.static
+            and self.const == other.const
+            and self.volatile == other.volatile
+            and self.restrict == other.restrict
+            and self.vla == other.vla
+            and self.size == other.size
+        )
+
+    def __hash__(self) -> int:
+        return hash((
+            self.static,
+            self.const,
+            self.volatile,
+            self.restrict,
+            self.vla,
+            self.size,
+        ))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         el = []
@@ -861,6 +1124,18 @@ class ASTDeclaratorNameParam(ASTDeclarator):
         self.arrayOps = arrayOps
         self.param = param
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTDeclaratorNameParam):
+            return NotImplemented
+        return (
+            self.declId == other.declId
+            and self.arrayOps == other.arrayOps
+            and self.param == other.param
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.declId, self.arrayOps, self.param))
+
     @property
     def name(self) -> ASTNestedName:
         return self.declId
@@ -899,6 +1174,14 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
         self.declId = declId
         self.size = size
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTDeclaratorNameBitField):
+            return NotImplemented
+        return self.declId == other.declId and self.size == other.size
+
+    def __hash__(self) -> int:
+        return hash((self.declId, self.size))
+
     @property
     def name(self) -> ASTNestedName:
         return self.declId
@@ -936,6 +1219,20 @@ class ASTDeclaratorPtr(ASTDeclarator):
         self.volatile = volatile
         self.const = const
         self.attrs = attrs
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTDeclaratorPtr):
+            return NotImplemented
+        return (
+            self.next == other.next
+            and self.restrict == other.restrict
+            and self.volatile == other.volatile
+            and self.const == other.const
+            and self.attrs == other.attrs
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.next, self.restrict, self.volatile, self.const, self.attrs))
 
     @property
     def name(self) -> ASTNestedName:
@@ -1006,6 +1303,14 @@ class ASTDeclaratorParen(ASTDeclarator):
         self.next = next
         # TODO: we assume the name and params are in inner
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTDeclaratorParen):
+            return NotImplemented
+        return self.inner == other.inner and self.next == other.next
+
+    def __hash__(self) -> int:
+        return hash((self.inner, self.next))
+
     @property
     def name(self) -> ASTNestedName:
         return self.inner.name
@@ -1040,6 +1345,14 @@ class ASTParenExprList(ASTBaseParenExprList):
     def __init__(self, exprs: list[ASTExpression]) -> None:
         self.exprs = exprs
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTParenExprList):
+            return NotImplemented
+        return self.exprs == other.exprs
+
+    def __hash__(self) -> int:
+        return hash(self.exprs)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = [transform(e) for e in self.exprs]
         return '(%s)' % ', '.join(exprs)
@@ -1063,6 +1376,14 @@ class ASTBracedInitList(ASTBase):
     def __init__(self, exprs: list[ASTExpression], trailingComma: bool) -> None:
         self.exprs = exprs
         self.trailingComma = trailingComma
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTBracedInitList):
+            return NotImplemented
+        return self.exprs == other.exprs and self.trailingComma == other.trailingComma
+
+    def __hash__(self) -> int:
+        return hash((self.exprs, self.trailingComma))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = ', '.join(transform(e) for e in self.exprs)
@@ -1092,6 +1413,14 @@ class ASTInitializer(ASTBase):
         self.value = value
         self.hasAssign = hasAssign
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTInitializer):
+            return NotImplemented
+        return self.value == other.value and self.hasAssign == other.hasAssign
+
+    def __hash__(self) -> int:
+        return hash((self.value, self.hasAssign))
+
     def _stringify(self, transform: StringifyTransform) -> str:
         val = transform(self.value)
         if self.hasAssign:
@@ -1115,6 +1444,14 @@ class ASTType(ASTBase):
         assert decl
         self.declSpecs = declSpecs
         self.decl = decl
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTType):
+            return NotImplemented
+        return self.declSpecs == other.declSpecs and self.decl == other.decl
+
+    def __hash__(self) -> int:
+        return hash((self.declSpecs, self.decl))
 
     @property
     def name(self) -> ASTNestedName:
@@ -1161,6 +1498,14 @@ class ASTTypeWithInit(ASTBase):
         self.type = type
         self.init = init
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTTypeWithInit):
+            return NotImplemented
+        return self.type == other.type and self.init == other.init
+
+    def __hash__(self) -> int:
+        return hash((self.type, self.init))
+
     @property
     def name(self) -> ASTNestedName:
         return self.type.name
@@ -1190,6 +1535,18 @@ class ASTMacroParameter(ASTBase):
         self.ellipsis = ellipsis
         self.variadic = variadic
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTMacroParameter):
+            return NotImplemented
+        return (
+            self.arg == other.arg
+            and self.ellipsis == other.ellipsis
+            and self.variadic == other.variadic
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.arg, self.ellipsis, self.variadic))
+
     def _stringify(self, transform: StringifyTransform) -> str:
         if self.ellipsis:
             return '...'
@@ -1214,6 +1571,14 @@ class ASTMacro(ASTBase):
     def __init__(self, ident: ASTNestedName, args: list[ASTMacroParameter] | None) -> None:
         self.ident = ident
         self.args = args
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTMacro):
+            return NotImplemented
+        return self.ident == other.ident and self.args == other.args
+
+    def __hash__(self) -> int:
+        return hash((self.ident, self.args))
 
     @property
     def name(self) -> ASTNestedName:
@@ -1254,6 +1619,14 @@ class ASTStruct(ASTBase):
     def __init__(self, name: ASTNestedName) -> None:
         self.name = name
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTStruct):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
     def get_id(self, version: int, objectType: str, symbol: Symbol) -> str:
         return symbol.get_full_nested_name().get_id(version)
 
@@ -1270,6 +1643,14 @@ class ASTUnion(ASTBase):
     def __init__(self, name: ASTNestedName) -> None:
         self.name = name
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTUnion):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
     def get_id(self, version: int, objectType: str, symbol: Symbol) -> str:
         return symbol.get_full_nested_name().get_id(version)
 
@@ -1285,6 +1666,14 @@ class ASTUnion(ASTBase):
 class ASTEnum(ASTBase):
     def __init__(self, name: ASTNestedName) -> None:
         self.name = name
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTEnum):
+            return NotImplemented
+        return self.name == other.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
 
     def get_id(self, version: int, objectType: str, symbol: Symbol) -> str:
         return symbol.get_full_nested_name().get_id(version)
@@ -1304,6 +1693,18 @@ class ASTEnumerator(ASTBase):
         self.name = name
         self.init = init
         self.attrs = attrs
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTEnumerator):
+            return NotImplemented
+        return (
+            self.name == other.name
+            and self.init == other.init
+            and self.attrs == other.attrs
+        )
+
+    def __hash__(self) -> int:
+        return hash((self.name, self.init, self.attrs))
 
     def get_id(self, version: int, objectType: str, symbol: Symbol) -> str:
         return symbol.get_full_nested_name().get_id(version)
@@ -1345,6 +1746,18 @@ class ASTDeclaration(ASTBaseBase):
         # the cache assumes that by the time get_newest_id is called, no
         # further changes will be made to this object
         self._newest_id_cache: str | None = None
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTDeclaration):
+            return NotImplemented
+        return (
+            self.objectType == other.objectType
+            and self.directiveType == other.directiveType
+            and self.declaration == other.declaration
+            and self.semicolon == other.semicolon
+            and self.symbol == other.symbol
+            and self.enumeratorScopedSymbol == other.enumeratorScopedSymbol
+        )
 
     def clone(self) -> ASTDeclaration:
         return ASTDeclaration(self.objectType, self.directiveType,

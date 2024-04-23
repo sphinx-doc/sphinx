@@ -99,9 +99,6 @@ class ASTBaseBase:
             return False
         return True
 
-    # Defining __hash__ = None is not strictly needed when __eq__ is defined.
-    __hash__ = None  # type: ignore[assignment]
-
     def clone(self) -> Any:
         return deepcopy(self)
 
@@ -131,6 +128,14 @@ class ASTCPPAttribute(ASTAttribute):
     def __init__(self, arg: str) -> None:
         self.arg = arg
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTCPPAttribute):
+            return NotImplemented
+        return self.arg == other.arg
+
+    def __hash__(self) -> int:
+        return hash(self.arg)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return "[[" + self.arg + "]]"
 
@@ -146,9 +151,12 @@ class ASTGnuAttribute(ASTBaseBase):
         self.args = args
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not ASTGnuAttribute:
+        if not isinstance(other, ASTGnuAttribute):
             return NotImplemented
         return self.name == other.name and self.args == other.args
+
+    def __hash__(self) -> int:
+        return hash((self.name, self.args))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = [self.name]
@@ -160,6 +168,14 @@ class ASTGnuAttribute(ASTBaseBase):
 class ASTGnuAttributeList(ASTAttribute):
     def __init__(self, attrs: list[ASTGnuAttribute]) -> None:
         self.attrs = attrs
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTGnuAttributeList):
+            return NotImplemented
+        return self.attrs == other.attrs
+
+    def __hash__(self) -> int:
+        return hash(self.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['__attribute__((']
@@ -183,6 +199,14 @@ class ASTIdAttribute(ASTAttribute):
     def __init__(self, id: str) -> None:
         self.id = id
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTIdAttribute):
+            return NotImplemented
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.id
 
@@ -197,6 +221,14 @@ class ASTParenAttribute(ASTAttribute):
         self.id = id
         self.arg = arg
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTParenAttribute):
+            return NotImplemented
+        return self.id == other.id and self.arg == other.arg
+
+    def __hash__(self) -> int:
+        return hash((self.id, self.arg))
+
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.id + '(' + self.arg + ')'
 
@@ -210,9 +242,12 @@ class ASTAttributeList(ASTBaseBase):
         self.attrs = attrs
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not ASTAttributeList:
+        if not isinstance(other, ASTAttributeList):
             return NotImplemented
         return self.attrs == other.attrs
+
+    def __hash__(self) -> int:
+        return hash(self.attrs)
 
     def __len__(self) -> int:
         return len(self.attrs)
