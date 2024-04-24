@@ -2,29 +2,34 @@ target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
 output-format = "full"
 
-[lint]
-preview = true
-exclude = [
-    ".git",
-    ".tox",
-    ".venv",
+extend-exclude = [
     "tests/roots/*",
     "build/*",
     "doc/_build/*",
     "sphinx/search/*",
     "doc/usage/extensions/example*.py",
 ]
+
+[lint]
+preview = true
 ignore = [
+    # flake8-annotations
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
+    # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
+    # pyflakes
     "F841",  # Local variable `{name}` is assigned to but never used
+    # refurb
     "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
+    "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
+    # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
+    # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
+    # pyupgrade
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
-
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
     "E704",
@@ -35,7 +40,8 @@ select = [
       # NOT YET USED
     # airflow ('AIR')
       # Airflow is not used in Sphinx
-    "ANN",  # flake8-annotations ('ANN')
+    # flake8-annotations ('ANN')
+    "ANN",
     # flake8-unused-arguments ('ARG')
     "ARG004",  # Unused static method argument: `{name}`
     # flake8-async ('ASYNC')
@@ -106,9 +112,7 @@ select = [
     # pycodestyle ('E')
     "E",
     # flake8-errmsg ('EM')
-    "EM101",  # Exception must not use a string literal, assign to variable first
-    "EM102",  # Exception must not use an f-string literal, assign to variable first
-    "EM103",  # Exception must not use a `.format()` string directly, assign to variable first
+    "EM",
     # eradicate ('ERA')
       # NOT YET USED
     # flake8-executable ('EXE')
@@ -122,11 +126,12 @@ select = [
     # flake8-fixme ('FIX')
       # NOT YET USED
     # flynt ('FLY')
-      # NOT YET USED
-    "FURB",     # refurb
+    "FLY",
+    # refurb ('FURB')
+    "FURB",
     # flake8-logging-format ('G')
     "G001",  # Logging statement uses `str.format`
-#    "G002",  # Logging statement uses `%`
+    "G002",  # Logging statement uses `%`
 #    "G003",  # Logging statement uses `+`
     "G004",  # Logging statement uses f-string
     "G010",  # Logging statement uses `warn` instead of `warning`
@@ -135,20 +140,16 @@ select = [
     "G202",  # Logging statement has redundant `exc_info`
     # isort ('I')
     "I",
+    # flake8-import-conventions ('ICN')
     "ICN",  # flake8-import-conventions
     # flake8-no-pep420 ('INP')
     "INP",
     # flake8-gettext ('INT')
-    "INT001",  # f-string is resolved before function call; consider `_("string %s") % arg`
-    "INT002",  # `format` method argument is resolved before function call; consider `_("string %s") % arg`
-    "INT003",  # printf-style format is resolved before function call; consider `_("string %s") % arg`
+    "INT",
     # flake8-implicit-str-concat ('ISC')
       # NOT YET USED
     # flake8-logging ('LOG')
-    "LOG001",  # Use `logging.getLogger()` to instantiate loggers
-    "LOG002",  # Use `__name__` with `logging.getLogger()`
-    "LOG007",  # Use of `logging.exception` with falsy `exc_info`
-    "LOG009",  # Use of undocumented `logging.WARN` constant
+    "LOG",
     # pep8-naming ('N')
       # NOT YET USED
     # numpy-specific rules ('NPY')
@@ -176,9 +177,15 @@ select = [
     "PLC0105",  # `{kind}` name "{param_name}" does not reflect its {variance}; consider renaming it to "{replacement_name}"
     "PLC0131",  # `{kind}` cannot be both covariant and contravariant
     "PLC0132",  # `{kind}` name `{param_name}` does not match assigned variable name `{var_name}`
-#    "PLC0205",  # Class `__slots__` should be a non-string iterable
-#    "PLC0208",  # Use a sequence type instead of a `set` when iterating over values
+    "PLC0205",  # Class `__slots__` should be a non-string iterable
+    "PLC0208",  # Use a sequence type instead of a `set` when iterating over values
     "PLC0414",  # Import alias does not rename original package
+#    "PLC0415",  # `import` should be at the top-level of a file
+    "PLC1901",  # `{existing}` can be simplified to `{replacement}` as an empty string is falsey
+    "PLC2401",  # {kind} name `{name}` contains a non-ASCII character, consider renaming it
+    "PLC2403",  # Module alias `{name}` contains a non-ASCII character, use an ASCII-only alias
+#    "PLC2701",  # Private name import `{name}` from external module `{module}`
+    "PLC2801",  # Unnecessary dunder call to `{method}`. {replacement}.
     "PLC3002",  # Lambda expression called directly. Execute the expression inline instead.
     # pylint ('PLE')
     "PLE0100",  # `__init__` method is a generator
@@ -326,16 +333,19 @@ select = [
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
 #    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
+    # flake8-simplify ('SIM')
     "SIM",  # flake8-simplify
     # flake8-self ('SLF')
       # NOT YET USED
-    "SLOT",  # flake8-slots
+    # flake8-slots ('SLOT')
+    "SLOT",
     # flake8-debugger ('T10')
     "T100",  # Trace found: `{name}` used
     # flake8-print ('T20')
     "T201",  # `print` found
     "T203",  # `pprint` found
-    "TCH",  # flake8-type-checking
+    # flake8-type-checking ('TCH')
+    "TCH",
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
@@ -351,14 +361,10 @@ select = [
       # Trio is not used in Sphinx
     # tryceratops ('TRY')
       # NOT YET USED
-    "UP001",  # pyupgrade
+    # pyupgrade ('UP')
+    "UP",
     # pycodestyle ('W')
-    "W191",  # Indentation contains tabs
-#    "W291",  # Trailing whitespace
-    "W292",  # No newline at end of file
-    "W293",  # Blank line contains whitespace
-    "W505",  # Doc line too long ({width} > {limit} characters)
-    "W605",  # Invalid escape sequence: `\{char}`
+    "W",
     # flake8-2020 ('YTT')
     "YTT",
 ]
@@ -370,7 +376,10 @@ select = [
 "doc/conf.py" = ["INP001", "W605"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
-"doc/development/tutorials/examples/recipe.py" = ["T201"]
+"doc/development/tutorials/examples/recipe.py" = [
+    "FURB118",
+    "T201"
+]
 "sphinx/domains/**" = ["FURB113"]
 "tests/test_domains/test_domain_cpp.py" = ["FURB113"]
 

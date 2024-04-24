@@ -306,7 +306,7 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ') % self.name) + summary)
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
@@ -314,8 +314,7 @@ class Builder:
 
         doccount = len(updated_docnames)
         logger.info(bold(__('looking for now-outdated files... ')), nonl=True)
-        for docname in self.env.check_dependents(self.app, updated_docnames):
-            updated_docnames.add(docname)
+        updated_docnames.update(self.env.check_dependents(self.app, updated_docnames))
         outdated = len(updated_docnames) - doccount
         if outdated:
             logger.info(__('%d found'), outdated)
