@@ -304,7 +304,7 @@ def test_anchors_ignored_for_url(app):
 
     assert rows[f'http://{address}/valid']['status'] == 'working'
     assert rows[f'http://{address}/valid#valid-anchor']['status'] == 'working'
-    assert rows['http://localhost:7777/valid#py:module::urllib.parse']['status'] == 'broken'
+    assert rows[f'http://{address}/valid#py:module::urllib.parse']['status'] == 'broken'
     assert rows[f'http://{address}/valid#invalid-anchor'] == {
         'status': 'broken',
         'info': "Anchor 'invalid-anchor' not found",
