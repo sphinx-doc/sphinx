@@ -27,6 +27,8 @@ Bugs fixed
   Patch by Donald Hunter.
 * #12320: Fix removal of anchors from search summaries (regression in 7.3.0).
   Patch by Will Lachance.
+* #12251: Fix ``merge_domaindata()`` in ``sphinx.ext.duration``.
+  Patch by Matthias Geier.
 
 Testing
 -------
