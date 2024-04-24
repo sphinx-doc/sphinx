@@ -217,7 +217,7 @@ class RenderMode(enum.IntFlag):
     smart_short_literal = smart | short_literal
     """Apply PEP 604 style to :attr:`smart`."""
     fully_qualified_short_literal = fully_qualified | short_literal
-    """Apply PEP 605 style to :attr:`fully_qualified`."""
+    """Apply PEP 604 style to :attr:`fully_qualified`."""
     fully_qualified_except_typing_short_literal = fully_qualified_except_typing | short_literal
     """Apply PEP 604 style to :attr:`fully_qualified_except_typing`."""
 
@@ -283,19 +283,15 @@ def _normalize_mode(mode: str) -> RenderMode:  # NoQA: E302
     raise ValueError('invalid string mode name: %r' % mode)
 
 
-def restify(
-    cls: Any,
-    mode: _RestifyMode = 'fully-qualified-except-typing'
-) -> str:
+def restify(cls: Any, mode: _RestifyMode = RenderMode.fully_qualified_except_typing) -> str:
     """Convert python class to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
 
-                 'fully-qualified-except-typing'
-                     Show the module name and qualified name of the annotation except
-                     the "typing" module.
-                 'smart'
-                     Show the name of the annotation.
+    The following values can be given as a shorthand of a rendering mode:
+
+    * ``smart`` -- :attr:`RenderMode.smart`.
+    * ``fully-qualified-except-typing`` -- :attr:`RenderMode.fully_qualified_except_typing`.
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
@@ -437,9 +433,7 @@ def _format_literal_arg_restify(arg: Any, /, *, mode: RenderMode) -> str:
 
 
 def stringify_annotation(
-    annotation: Any,
-    /,
-    mode: _StringifyMode = RenderMode.fully_qualified_except_typing,
+    annotation: Any, /, mode: _StringifyMode = RenderMode.fully_qualified_except_typing
 ) -> str:
     """Stringify type annotation object.
 
