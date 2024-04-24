@@ -429,7 +429,7 @@ def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
     hooked_members = {s[1] for s in getattr_spy}
     documented_members = {s[1] for s in processed_signatures}
     for attr in attrs:
-        fullname = '.'.join((name, attr))
+        fullname = f'{name}.{attr}'
         assert attr in hooked_members
         assert fullname not in documented_members, f'{fullname!r} not intercepted'
 
@@ -832,9 +832,13 @@ def test_autodoc_special_members(app):
     ]
 
     # all special methods
-    options = {"members": None,
-               "undoc-members": None,
-               "special-members": None}
+    options = {
+        "members": None,
+        "undoc-members": None,
+        "special-members": None,
+    }
+    if sys.version_info >= (3, 13, 0, 'alpha', 5):
+        options["exclude-members"] = "__static_attributes__"
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
@@ -1450,7 +1454,7 @@ class _EnumFormatter:
         """Generate the brief part of the class being documented."""
         assert doc, f'enumeration class {self.target!r} should have an explicit docstring'
 
-        if sys.version_info[:2] >= (3, 13):
+        if sys.version_info[:2] >= (3, 13) or sys.version_info[:3] >= (3, 12, 3):
             args = ('(value, names=<not given>, *values, module=None, '
                     'qualname=None, type=None, start=1, boundary=None)')
         elif sys.version_info[:2] >= (3, 12):

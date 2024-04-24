@@ -15,6 +15,19 @@ if TYPE_CHECKING:
     from sphinx.util.typing import PathMatcher
 
 
+def _template_basename(filename: str | os.PathLike[str]) -> str | None:
+    """Given an input filename:
+    If the input looks like a template, then return the filename output should
+    be written to.  Otherwise, return no result (None).
+    """
+    basename = os.path.basename(filename)
+    if basename.lower().endswith('_t'):
+        return str(filename)[:-2]
+    elif basename.lower().endswith('.jinja'):
+        return str(filename)[:-6]
+    return None
+
+
 def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLike[str],
                     context: dict[str, Any] | None = None,
                     renderer: BaseRenderer | None = None) -> None:
@@ -37,14 +50,13 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
     else:
         destination = str(destination)
 
-    if os.path.basename(source).endswith(('_t', '_T')) and context is not None:
+    if _template_basename(source) and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
-            if destination.endswith(('_t', '_T')):
-                destination = destination[:-2]
+            destination = _template_basename(destination) or destination
             with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
