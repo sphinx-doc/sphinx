@@ -53,11 +53,13 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Node
+    from docutils.readers import Reader
 
     from sphinx.application import Sphinx
     from sphinx.config import _ConfigRebuild
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
+    from sphinx.util.typing import ExtensionMetadata
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -199,7 +201,7 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
-        reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
+        reader: Reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
         pub = Publisher(
             reader=reader,
             parser=reader.parser,
@@ -263,8 +265,7 @@ class StandaloneHTMLBuilder(Builder):
         elif self.config.html_style is not None:
             yield from self.config.html_style
         elif self.theme:
-            stylesheet = self.theme.get_config('theme', 'stylesheet')
-            yield from map(str.strip, stylesheet.split(','))
+            yield from self.theme.stylesheets
         else:
             yield 'default.css'
 
@@ -284,13 +285,15 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
-            style = self.theme.get_config('theme', 'pygments_style', 'none')
+            # From the ``pygments_style`` theme setting
+            style = self.theme.pygments_style_default or 'none'
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
         if self.theme:
-            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+            # From the ``pygments_dark_style`` theme setting
+            dark_style = self.theme.pygments_style_dark
         else:
             dark_style = None
 
@@ -305,8 +308,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def css_files(self) -> list[_CascadingStyleSheet]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', '',
-                             remove=(9, 0))
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', remove=(9, 0))
         return self._css_files
 
     def init_css_files(self) -> None:
@@ -332,8 +334,8 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def script_files(self) -> list[_JavaScript]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.script_files', '',
-                             remove=(9, 0))
+        canonical_name = f'{self.__class__.__name__}.script_files'
+        _deprecation_warning(__name__, canonical_name, remove=(9, 0))
         return self._js_files
 
     def init_js_files(self) -> None:
@@ -436,7 +438,7 @@ class StandaloneHTMLBuilder(Builder):
         doc.append(node)
         self._publisher.set_source(doc)
         self._publisher.publish()
-        return self._publisher.writer.parts  # type: ignore[union-attr]
+        return self._publisher.writer.parts
 
     def prepare_writing(self, docnames: set[str]) -> None:
         # create the search indexer
@@ -766,7 +768,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)  # type: ignore[arg-type]
+            return relative_path(self.srcdir, f)
 
         # copy downloadable files
         if self.env.dlfiles:
@@ -827,7 +829,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
 
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        excluded = Matcher([*self.config.exclude_patterns, '**/.*'])
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
@@ -959,13 +961,11 @@ class StandaloneHTMLBuilder(Builder):
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
-        sidebars = None
         matched = None
         customsidebar = None
 
         # default sidebars settings for selected theme
-        if theme_default_sidebars := self.theme.get_config('theme', 'sidebars', None):
-            sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        sidebars = list(self.theme.sidebar_templates)
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
@@ -984,7 +984,7 @@ class StandaloneHTMLBuilder(Builder):
                 matched = pattern
                 sidebars = patsidebars
 
-        if sidebars is None:
+        if len(sidebars) == 0:
             # keep defaults
             pass
 
@@ -1032,9 +1032,7 @@ class StandaloneHTMLBuilder(Builder):
                 return True
             if name == 'search' and self.search:
                 return True
-            if name == 'genindex' and self.get_builder_config('use_index', 'html'):
-                return True
-            return False
+            return name == 'genindex' and self.get_builder_config('use_index', 'html')
         ctx['hasdoc'] = hasdoc
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
@@ -1052,7 +1050,9 @@ class StandaloneHTMLBuilder(Builder):
                      if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
             # the EPUB format does not allow the use of query components
-            if self.name != 'epub':
+            # the Windows help compiler requires that css links
+            # don't have a query component
+            if self.name not in {'epub', 'htmlhelp'}:
                 if checksum := _file_checksum(outdir, css.filename):
                     uri += f'?v={checksum}'
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
@@ -1294,7 +1294,7 @@ def error_on_html_4(_app: Sphinx, config: Config) -> None:
         ))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     # builders
     app.add_builder(StandaloneHTMLBuilder)
 
@@ -1338,7 +1338,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # NoQA: E501
+    # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
@@ -1371,8 +1372,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     }
 
 
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
     'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
 }

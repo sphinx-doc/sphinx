@@ -17,7 +17,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
@@ -306,7 +306,7 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ') % self.name) + summary)
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
@@ -314,8 +314,7 @@ class Builder:
 
         doccount = len(updated_docnames)
         logger.info(bold(__('looking for now-outdated files... ')), nonl=True)
-        for docname in self.env.check_dependents(self.app, updated_docnames):
-            updated_docnames.add(docname)
+        updated_docnames.update(self.env.check_dependents(self.app, updated_docnames))
         outdated = len(updated_docnames) - doccount
         if outdated:
             logger.info(__('%d found'), outdated)
@@ -520,7 +519,7 @@ class Builder:
         doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.record_dependencies = None  # type: ignore[assignment]
+        doctree.settings.record_dependencies = None
 
         doctree_filename = path.join(self.doctreedir, docname + '.doctree')
         ensuredir(path.dirname(doctree_filename))

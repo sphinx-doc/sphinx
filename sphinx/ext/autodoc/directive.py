@@ -115,7 +115,7 @@ class AutodocDirective(SphinxDirective):
         reporter = self.state.document.reporter
 
         try:
-            source, lineno = reporter.get_source_and_line(  # type: ignore[attr-defined]
+            source, lineno = reporter.get_source_and_line(
                 self.lineno)
         except AttributeError:
             source, lineno = (None, None)
@@ -130,8 +130,8 @@ class AutodocDirective(SphinxDirective):
             documenter_options = process_documenter_options(doccls, self.config, self.options)
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
-            logger.error('An option to %s is either unknown or has an invalid value: %s' %
-                         (self.name, exc), location=(self.env.docname, lineno))
+            logger.error('An option to %s is either unknown or has an invalid value: %s',
+                         self.name, exc, location=(self.env.docname, lineno))
             return []
 
         # generate the output

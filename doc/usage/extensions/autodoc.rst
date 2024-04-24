@@ -40,7 +40,7 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 :mod:`napoleon <sphinx.ext.napoleon>` is a preprocessor that converts your
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
-.. _Google: https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
+.. _Google: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 

@@ -13,7 +13,7 @@ from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
@@ -22,6 +22,7 @@ from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +115,7 @@ def default_man_pages(config: Config) -> list[tuple[str, str, str, list[str], in
              [config.author], 1)]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(ManualPageBuilder)
 
     app.add_config_value('man_pages', default_man_pages, '')

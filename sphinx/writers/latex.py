@@ -29,7 +29,7 @@ try:
     from docutils.utils.roman import toRoman
 except ImportError:
     # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore[no-redef]
+    from roman import toRoman  # type: ignore[no-redef, import-not-found]
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node, Text
@@ -332,8 +332,8 @@ class LaTeXTranslator(SphinxTranslator):
                 self.top_sectionlevel = \
                     self.sectionnames.index(self.config.latex_toplevel_sectioning)
             except ValueError:
-                logger.warning(__('unknown %r toplevel_sectioning for class %r') %
-                               (self.config.latex_toplevel_sectioning, self.theme.docclass))
+                logger.warning(__('unknown %r toplevel_sectioning for class %r'),
+                               self.config.latex_toplevel_sectioning, self.theme.docclass)
 
         if self.config.numfig:
             self.numfig_secnum_depth = self.config.numfig_secnum_depth
@@ -2121,7 +2121,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}}$')
 
     def visit_inline(self, node: Element) -> None:
-        classes = node.get('classes', [])
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
         if classes == ['menuselection']:
             self.body.append(r'\sphinxmenuselection{')
             self.context.append('}')
@@ -2153,12 +2153,12 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_container(self, node: Element) -> None:
-        classes = node.get('classes', [])
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
         for c in classes:
             self.body.append('\n\\begin{sphinxuseclass}{%s}' % c)
 
     def depart_container(self, node: Element) -> None:
-        classes = node.get('classes', [])
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
         for _c in classes:
             self.body.append('\n\\end{sphinxuseclass}')
 

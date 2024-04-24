@@ -133,7 +133,8 @@ class AutosummaryRenderer:
 
         if app.translator:
             self.env.add_extension("jinja2.ext.i18n")
-            self.env.install_gettext_translations(app.translator)
+            # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
+            self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]
 
     def render(self, template_name: str, context: dict) -> str:
         """Render a template file."""
@@ -466,11 +467,11 @@ def generate_autosummary_docs(sources: list[str],
     showed_sources = sorted(sources)
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
-    logger.info(__('[autosummary] generating autosummary for: %s') %
+    logger.info(__('[autosummary] generating autosummary for: %s'),
                 ', '.join(showed_sources))
 
     if output_dir:
-        logger.info(__('[autosummary] writing to %s') % output_dir)
+        logger.info(__('[autosummary] writing to %s'), output_dir)
 
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
@@ -508,9 +509,9 @@ def generate_autosummary_docs(sources: list[str],
                 qualname = name.replace(modname + ".", "")
             except ImportError as exc2:
                 if exc2.__cause__:
-                    exceptions: list[BaseException] = exc.exceptions + [exc2.__cause__]
+                    exceptions: list[BaseException] = [*exc.exceptions, exc2.__cause__]
                 else:
-                    exceptions = exc.exceptions + [exc2]
+                    exceptions = [*exc.exceptions, exc2]
 
                 errors = list({f"* {type(e).__name__}: {e}" for e in exceptions})
                 logger.warning(__('[autosummary] failed to import %s.\nPossible hints:\n%s'),

@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from docutils.parsers.rst.states import Inliner
 
     from sphinx.application import Sphinx
-    from sphinx.util.typing import RoleFunction
+    from sphinx.util.typing import ExtensionMetadata, RoleFunction
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ def setup_link_roles(app: Sphinx) -> None:
         app.add_role(name, make_link_role(name, base_url, caption))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('extlinks', {}, 'env')
     app.add_config_value('extlinks_detect_hardcoded_links', False, 'env')
 

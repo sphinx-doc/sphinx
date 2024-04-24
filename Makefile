@@ -1,7 +1,10 @@
 PYTHON ?= python3
 
 .PHONY: all
-all: style-check type-check test
+all: format style-check type-check doclinter test
+
+.PHONY: check
+check: style-check type-check doclinter
 
 .PHONY: clean
 clean: clean
@@ -19,7 +22,7 @@ clean: clean
 	# clean generated:
 	find . -name '.DS_Store' -exec rm -f {} +
 
-	# clean rendered documentation :
+	# clean rendered documentation:
 	rm -rf doc/build/
 	rm -rf doc/_build/
 	rm -rf build/sphinx/
@@ -34,6 +37,7 @@ clean: clean
 	rm -rf .tox/
 	rm -rf .cache/
 	find . -name '.pytest_cache' -exec rm -rf {} +
+	rm -f tests/test-server.lock
 
 	# clean build files:
 	rm -rf dist/
@@ -41,15 +45,22 @@ clean: clean
 
 .PHONY: style-check
 style-check:
-	@ruff
+	@echo '[+] running flake8' ; flake8 .
+	@echo '[+] running ruff' ; ruff check .
+
+.PHONY: format
+format:
+	@ruff format .
 
 .PHONY: type-check
 type-check:
-	mypy sphinx
+	@mypy
 
 .PHONY: doclinter
 doclinter:
-	sphinx-lint --enable line-too-long --max-line-length 85 *.rst doc/
+	@sphinx-lint --enable all --disable triple-backticks --max-line-length 85 --sort-by filename,line \
+			     $(addprefix -i doc/, _build _static _templates _themes) \
+	             AUTHORS.rst CHANGES.rst CODE_OF_CONDUCT.rst CONTRIBUTING.rst README.rst doc/
 
 .PHONY: test
 test:

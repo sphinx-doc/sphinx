@@ -16,7 +16,7 @@ from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
     from docutils.nodes import Node
 
@@ -147,6 +147,52 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def handle(self, record: logging.LogRecord) -> None:
         self.logger.handle(record)
 
+    def warning(  # type: ignore[override]
+        self,
+        msg: object,
+        *args: object,
+        type: None | str = None,
+        subtype: None | str = None,
+        location: None | str | tuple[str | None, int | None] | Node = None,
+        nonl: bool = True,
+        color: str | None = None,
+        once: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        """Log a sphinx warning.
+
+        It is recommended to include a ``type`` and ``subtype`` for warnings as
+        these can be displayed to the user using :confval:`show_warning_types`
+        and used in :confval:`suppress_warnings` to suppress specific warnings.
+
+        It is also recommended to specify a ``location`` whenever possible
+        to help users in correcting the warning.
+
+        :param msg: The message, which may contain placeholders for ``args``.
+        :param args: The arguments to substitute into ``msg``.
+        :param type: The type of the warning.
+        :param subtype: The subtype of the warning.
+        :param location: The source location of the warning's origin,
+            which can be a string (the ``docname`` or ``docname:lineno``),
+            a tuple of ``(docname, lineno)``,
+            or the docutils node object.
+        :param nonl: Whether to append a new line terminator to the message.
+        :param color: A color code for the message.
+        :param once: Do not log this warning,
+            if a previous warning already has same ``msg``, ``args`` and ``once=True``.
+        """
+        return super().warning(
+            msg,
+            *args,
+            type=type,
+            subtype=subtype,
+            location=location,
+            nonl=nonl,
+            color=color,
+            once=once,
+            **kwargs,
+        )
+
 
 class WarningStreamHandler(logging.StreamHandler):
     """StreamHandler for warnings."""
@@ -200,7 +246,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
 
 @contextmanager
-def pending_warnings() -> Generator[logging.Handler, None, None]:
+def pending_warnings() -> Iterator[logging.Handler]:
     """Context manager to postpone logging warnings temporarily.
 
     Similar to :func:`pending_logging`.
@@ -228,7 +274,7 @@ def pending_warnings() -> Generator[logging.Handler, None, None]:
 
 
 @contextmanager
-def suppress_logging() -> Generator[MemoryHandler, None, None]:
+def suppress_logging() -> Iterator[MemoryHandler]:
     """Context manager to suppress logging all logs temporarily.
 
     For example::
@@ -257,7 +303,7 @@ def suppress_logging() -> Generator[MemoryHandler, None, None]:
 
 
 @contextmanager
-def pending_logging() -> Generator[MemoryHandler, None, None]:
+def pending_logging() -> Iterator[MemoryHandler]:
     """Context manager to postpone logging all logs temporarily.
 
     For example::
@@ -277,7 +323,7 @@ def pending_logging() -> Generator[MemoryHandler, None, None]:
 
 
 @contextmanager
-def skip_warningiserror(skip: bool = True) -> Generator[None, None, None]:
+def skip_warningiserror(skip: bool = True) -> Iterator[None]:
     """Context manager to skip WarningIsErrorFilter temporarily."""
     logger = logging.getLogger(NAMESPACE)
 
@@ -297,7 +343,7 @@ def skip_warningiserror(skip: bool = True) -> Generator[None, None, None]:
 
 
 @contextmanager
-def prefixed_warnings(prefix: str) -> Generator[None, None, None]:
+def prefixed_warnings(prefix: str) -> Iterator[None]:
     """Context manager to prepend prefix to all warning log records temporarily.
 
     For example::
@@ -347,7 +393,7 @@ class LogCollector:
         self.logs: list[logging.LogRecord] = []
 
     @contextmanager
-    def collect(self) -> Generator[None, None, None]:
+    def collect(self) -> Iterator[None]:
         with pending_logging() as memhandler:
             yield
 
@@ -480,6 +526,7 @@ class SphinxLogRecordTranslator(logging.Filter):
 
     * Make a instance of SphinxLogRecord
     * docname to path if location given
+    * append warning type/subtype to message if :confval:`show_warning_types` is ``True``
     """
 
     LogRecordClass: type[logging.LogRecord]
@@ -521,6 +568,23 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for WARNING level log records."""
 
     LogRecordClass = SphinxWarningLogRecord
+
+    def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
+        ret = super().filter(record)
+
+        try:
+            show_warning_types = self.app.config.show_warning_types
+        except AttributeError:
+            # config is not initialized yet (ex. in conf.py)
+            show_warning_types = False
+        if show_warning_types:
+            if log_type := getattr(record, 'type', ''):
+                if log_subtype := getattr(record, 'subtype', ''):
+                    record.msg += f' [{log_type}.{log_subtype}]'
+                else:
+                    record.msg += f' [{log_type}]'
+
+        return ret
 
 
 def get_node_location(node: Node) -> str | None:

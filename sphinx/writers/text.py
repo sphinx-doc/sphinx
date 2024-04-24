@@ -5,7 +5,7 @@ import math
 import os
 import re
 import textwrap
-from collections.abc import Generator, Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from itertools import chain, groupby
 from typing import TYPE_CHECKING, Any, cast
 
@@ -166,7 +166,7 @@ class Table:
         return width + (cell.colspan - 1) * 3
 
     @property
-    def cells(self) -> Generator[Cell, None, None]:
+    def cells(self) -> Iterator[Cell]:
         seen: set[Cell] = set()
         for line in self.lines:
             for cell in line:
@@ -749,10 +749,8 @@ class TextTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.new_state()
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:

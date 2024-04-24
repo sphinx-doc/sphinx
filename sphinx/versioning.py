@@ -1,4 +1,5 @@
 """Implements the low-level algorithms Sphinx uses for versioning doctrees."""
+
 from __future__ import annotations
 
 import pickle
@@ -16,9 +17,11 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 try:
-    import Levenshtein
+    import Levenshtein  # type: ignore[import-not-found]
+
     IS_SPEEDUP = True
 except ImportError:
     IS_SPEEDUP = False
@@ -169,7 +172,7 @@ class UIDTransform(SphinxTransform):
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(UIDTransform)
 
     return {

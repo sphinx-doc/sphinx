@@ -34,9 +34,7 @@ def _is_single_paragraph(node: nodes.field_body) -> bool:
         for subnode in node[1:]:  # type: Node
             if not isinstance(subnode, nodes.system_message):
                 return False
-    if isinstance(node[0], nodes.paragraph):
-        return True
-    return False
+    return isinstance(node[0], nodes.paragraph)
 
 
 class Field:
@@ -80,7 +78,7 @@ class Field:
         assert env is not None
         assert (inliner is None) == (location is None), (inliner, location)
         if not rolename:
-            return contnode or innernode(target, target)
+            return contnode or innernode(target, target)  # type: ignore[call-arg]
         # The domain is passed from DocFieldTransformer. So it surely exists.
         # So we don't need to take care the env.get_domain() raises an exception.
         role = env.get_domain(domain).role(rolename)
@@ -91,7 +89,7 @@ class Field:
                 logger.warning(__(msg), domain, rolename, location=location)
             refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
                                             reftype=rolename, reftarget=target)
-            refnode += contnode or innernode(target, target)
+            refnode += contnode or innernode(target, target)  # type: ignore[call-arg]
             env.get_domain(domain).process_field_xref(refnode)
             return refnode
         lineno = -1
@@ -236,7 +234,7 @@ class TypedField(GroupedField):
         inliner: Inliner | None = None,
         location: Element | None = None,
     ) -> nodes.field:
-        def handle_item(fieldarg: str, content: str) -> nodes.paragraph:
+        def handle_item(fieldarg: str, content: list[Node]) -> nodes.paragraph:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
                                        addnodes.literal_strong, env=env))
@@ -254,8 +252,10 @@ class TypedField(GroupedField):
                 else:
                     par += fieldtype
                 par += nodes.Text(')')
-            par += nodes.Text(' -- ')
-            par += content
+            has_content = any(c.astext().strip() for c in content)
+            if has_content:
+                par += nodes.Text(' -- ')
+                par += content
             return par
 
         fieldname = nodes.field_name('', self.label)

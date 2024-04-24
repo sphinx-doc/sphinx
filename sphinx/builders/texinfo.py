@@ -17,7 +17,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')
@@ -134,7 +135,7 @@ class TexinfoBuilder(Builder):
     def assemble_doctree(
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
-        self.docnames = set([indexfile] + appendices)
+        self.docnames = {indexfile, *appendices}
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
@@ -214,7 +215,7 @@ def default_texinfo_documents(
              'One line description of project', 'Miscellaneous')]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TexinfoBuilder)
 
     app.add_config_value('texinfo_documents', default_texinfo_documents, '')

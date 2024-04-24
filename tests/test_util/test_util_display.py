@@ -2,8 +2,8 @@
 
 import pytest
 
-from sphinx.testing.util import strip_escseq
 from sphinx.util import logging
+from sphinx.util.console import strip_colors
 from sphinx.util.display import (
     SkipProgressMessage,
     display_chunk,
@@ -28,13 +28,14 @@ def test_status_iterator_length_0(app, status, warning):
     status.seek(0)
     status.truncate(0)
     yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... '))
-    output = strip_escseq(status.getvalue())
+    output = strip_colors(status.getvalue())
     assert 'testing ... hello sphinx world \n' in output
     assert yields == ['hello', 'sphinx', 'world']
 
 
 @pytest.mark.sphinx('dummy')
-def test_status_iterator_verbosity_0(app, status, warning):
+def test_status_iterator_verbosity_0(app, status, warning, monkeypatch):
+    monkeypatch.setenv("FORCE_COLOR", "1")
     logging.setup(app, status, warning)
 
     # test for status_iterator (verbosity=0)
@@ -42,7 +43,7 @@ def test_status_iterator_verbosity_0(app, status, warning):
     status.truncate(0)
     yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
                                   length=3, verbosity=0))
-    output = strip_escseq(status.getvalue())
+    output = strip_colors(status.getvalue())
     assert 'testing ... [ 33%] hello\r' in output
     assert 'testing ... [ 67%] sphinx\r' in output
     assert 'testing ... [100%] world\r\n' in output
@@ -50,7 +51,8 @@ def test_status_iterator_verbosity_0(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy')
-def test_status_iterator_verbosity_1(app, status, warning):
+def test_status_iterator_verbosity_1(app, status, warning, monkeypatch):
+    monkeypatch.setenv("FORCE_COLOR", "1")
     logging.setup(app, status, warning)
 
     # test for status_iterator (verbosity=1)
@@ -58,7 +60,7 @@ def test_status_iterator_verbosity_1(app, status, warning):
     status.truncate(0)
     yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
                                   length=3, verbosity=1))
-    output = strip_escseq(status.getvalue())
+    output = strip_colors(status.getvalue())
     assert 'testing ... [ 33%] hello\n' in output
     assert 'testing ... [ 67%] sphinx\n' in output
     assert 'testing ... [100%] world\n\n' in output
@@ -73,14 +75,14 @@ def test_progress_message(app, status, warning):
     with progress_message('testing'):
         logger.info('blah ', nonl=True)
 
-    output = strip_escseq(status.getvalue())
+    output = strip_colors(status.getvalue())
     assert 'testing... blah done\n' in output
 
     # skipping case
     with progress_message('testing'):
         raise SkipProgressMessage('Reason: %s', 'error')  # NoQA: EM101
 
-    output = strip_escseq(status.getvalue())
+    output = strip_colors(status.getvalue())
     assert 'testing... skipped\nReason: error\n' in output
 
     # error case
@@ -90,7 +92,7 @@ def test_progress_message(app, status, warning):
     except Exception:
         pass
 
-    output = strip_escseq(status.getvalue())
+    output = strip_colors(status.getvalue())
     assert 'testing... failed\n' in output
 
     # decorator
@@ -99,5 +101,5 @@ def test_progress_message(app, status, warning):
         logger.info('in func ', nonl=True)
 
     func()
-    output = strip_escseq(status.getvalue())
+    output = strip_colors(status.getvalue())
     assert 'testing... in func done\n' in output

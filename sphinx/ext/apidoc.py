@@ -32,7 +32,7 @@ from sphinx.util.osutil import FileAvoidWrite, ensuredir
 from sphinx.util.template import ReSTRenderer
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Sequence
+    from collections.abc import Iterator, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ else:
         'show-inheritance',
     ]
 
-PY_SUFFIXES = ('.py', '.pyx') + tuple(EXTENSION_SUFFIXES)
+PY_SUFFIXES = ('.py', '.pyx', *tuple(EXTENSION_SUFFIXES))
 
 template_dir = path.join(package_dir, 'templates', 'apidoc')
 
@@ -209,14 +209,12 @@ def is_skipped_module(filename: str, opts: Any, _excludes: Sequence[re.Pattern[s
     if not path.exists(filename):
         # skip if the file doesn't exist
         return True
-    if path.basename(filename).startswith('_') and not opts.includeprivate:
-        # skip if the module has a "private" name
-        return True
-    return False
+    # skip if the module has a "private" name
+    return path.basename(filename).startswith('_') and not opts.includeprivate
 
 
 def walk(rootpath: str, excludes: Sequence[re.Pattern[str]], opts: Any,
-         ) -> Generator[tuple[str, list[str], list[str]], None, None]:
+         ) -> Iterator[tuple[str, list[str], list[str]]]:
     """Walk through the directory and list files and subdirectories up."""
     followlinks = getattr(opts, 'followlinks', False)
     includeprivate = getattr(opts, 'includeprivate', False)

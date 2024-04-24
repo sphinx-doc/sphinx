@@ -11,7 +11,7 @@ from typing import Union
 
 import pytest
 
-from tests.test_extensions.test_ext_autodoc import do_autodoc
+from tests.test_extensions.autodoc_util import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -169,6 +169,7 @@ def test_undocumented_uninitialized_attributes(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_decorators(app):
     actual = do_autodoc(app, 'class', 'target.decorator.Baz')
     assert list(actual) == [
@@ -275,8 +276,7 @@ def test_show_inheritance_for_subclass_of_generic_type(app):
         '.. py:class:: Quux(iterable=(), /)',
         '   :module: target.classes',
         '',
-        '   Bases: :py:class:`~typing.List`\\ '
-        '[:py:obj:`~typing.Union`\\ [:py:class:`int`, :py:class:`float`]]',
+        '   Bases: :py:class:`~typing.List`\\ [:py:class:`int` | :py:class:`float`]',
         '',
         '   A subclass of List[Union[int, float]]',
         '',
@@ -373,6 +373,7 @@ def test_class_doc_from_both(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_class_alias(app):
     def autodoc_process_docstring(*args):
         """A handler always raises an error.
@@ -391,6 +392,7 @@ def test_class_alias(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_class_alias_having_doccomment(app):
     actual = do_autodoc(app, 'class', 'target.classes.OtherAlias')
     assert list(actual) == [
@@ -403,6 +405,7 @@ def test_class_alias_having_doccomment(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_class_alias_for_imported_object_having_doccomment(app):
     actual = do_autodoc(app, 'class', 'target.classes.IntAlias')
     assert list(actual) == [

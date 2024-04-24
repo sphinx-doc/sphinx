@@ -5,7 +5,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import typing
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -34,7 +34,21 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
+
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.python._annotations import (  # NoQA: F401
+    _parse_arglist,  # for sphinx-immaterial
+    type_to_xref,
+)
+from sphinx.domains.python._object import (  # NoQA: F401
+    PyField,
+    PyGroupedField,
+    PyTypedField,
+    PyXrefMixin,
+    py_sig_re,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +81,7 @@ class ModuleEntry(NamedTuple):
 class PyFunction(PyObject):
     """Description of a function."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()  # noqa: F821
     option_spec.update({
         'async': directives.flag,
     })
@@ -122,7 +136,7 @@ class PyDecoratorFunction(PyFunction):
 class PyVariable(PyObject):
     """Description of a variable."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
         'value': directives.unchanged,
@@ -161,7 +175,7 @@ class PyClasslike(PyObject):
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'final': directives.flag,
     })
@@ -189,7 +203,7 @@ class PyClasslike(PyObject):
 class PyMethod(PyObject):
     """Description of a method."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'abstractmethod': directives.flag,
         'async': directives.flag,
@@ -243,7 +257,7 @@ class PyMethod(PyObject):
 class PyClassMethod(PyMethod):
     """Description of a classmethod."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
 
     def run(self) -> list[Node]:
         self.name = 'py:method'
@@ -255,7 +269,7 @@ class PyClassMethod(PyMethod):
 class PyStaticMethod(PyMethod):
     """Description of a staticmethod."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
 
     def run(self) -> list[Node]:
         self.name = 'py:method'
@@ -283,7 +297,7 @@ class PyDecoratorMethod(PyMethod):
 class PyAttribute(PyObject):
     """Description of an attribute."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
         'value': directives.unchanged,
@@ -385,7 +399,7 @@ class PyModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'platform': lambda x: x,
         'synopsis': lambda x: x,
         'no-index': directives.flag,
@@ -444,7 +458,7 @@ class PyCurrentModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         modname = self.arguments[0].strip()
@@ -870,7 +884,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
     return None
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.directives')
 
     app.add_domain(PythonDomain)

@@ -23,7 +23,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from pathlib import Path
 
     from docutils import nodes
@@ -146,7 +146,7 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app: Sphinx):
+    def __init__(self, app: Sphinx) -> None:
         self.app: Sphinx = app
         self.doctreedir: Path = app.doctreedir
         self.srcdir: Path = app.srcdir
@@ -265,6 +265,9 @@ class BuildEnvironment:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
         __dict__.update(app=None, domains={}, events=None)  # clear unpickable attributes
+        # ensure that upon restoring the state, the most recent pickled files
+        # on the disk are used instead of those from a possibly outdated state
+        __dict__.update(_pickled_doctree_cache={})
         return __dict__
 
     def __setstate__(self, state: dict) -> None:
@@ -521,7 +524,7 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def check_dependents(self, app: Sphinx, already: set[str]) -> Generator[str, None, None]:
+    def check_dependents(self, app: Sphinx, already: set[str]) -> Iterator[str]:
         to_rewrite: list[str] = []
         for docnames in self.events.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
