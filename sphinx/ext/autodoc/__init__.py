@@ -13,12 +13,12 @@ import re
 import sys
 import warnings
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from docutils.statemachine import StringList
 
 import sphinx
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
@@ -34,8 +34,6 @@ from sphinx.util.inspect import (
     stringify_signature,
 )
 from sphinx.util.typing import (
-    ExtensionMetadata,
-    OptionSpec,
     RenderMode,
     get_type_hints,
     restify,
@@ -45,10 +43,13 @@ from sphinx.util.typing import (
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
     from types import ModuleType
+    from typing import Any, Callable, ClassVar
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc.directive import DocumenterBridge
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec, _RestifyRenderMode
 
 logger = logging.getLogger(__name__)
 
@@ -72,10 +73,10 @@ special_member_re = re.compile(r'^__\S+__$')
 
 
 def _get_render_mode(
-    config: Config, default: RenderMode = RenderMode.fully_qualified_except_typing,
-) -> RenderMode:
+    config: Config, default: _RestifyRenderMode = RenderMode.fully_qualified_except_typing,
+) -> _RestifyRenderMode:
     if config.autodoc_typehints_format == "short":
-        mode = RenderMode.smart
+        mode: _RestifyRenderMode = RenderMode.smart
     else:
         mode = default
 
