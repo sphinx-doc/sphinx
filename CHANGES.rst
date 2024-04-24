@@ -1,4 +1,4 @@
-Release 7.3.0 (in development)
+Release 7.4.0 (in development)
 ==============================
 
 Dependencies
@@ -6,6 +6,120 @@ Dependencies
 
 Incompatible changes
 --------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+* #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
+  files.
+  Patch by James Addison and Adam Turner
+
+  .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
+
+Bugs fixed
+----------
+
+* #12162: Fix a performance regression in the C domain that has
+  been present since version 3.0.0.
+  Patch by Donald Hunter.
+* #12320: Fix removal of anchors from search summaries (regression in 7.3.0).
+  Patch by Will Lachance.
+* #12251: Fix ``merge_domaindata()`` in ``sphinx.ext.duration``.
+  Patch by Matthias Geier.
+
+Testing
+-------
+
+Release 7.3.7 (released Apr 19, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12299: Defer loading themes defined via entry points until
+  their explicit use by the user or a child theme.
+  Patch by Adam Turner.
+* #12305: Return the default value for ``theme.get_config()`` with
+  an unsupported theme configuration section.
+  Patch by Adam Turner.
+
+Release 7.3.6 (released Apr 17, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12295: Re-export all AST types in the C and C++ domains.
+  Patch by Adam Turner.
+* #12295: Re-export various objects from ``sphinx.domains.python._annotations``
+  in ``sphinx.domains.python``.
+  Patch by Jacob Chesslo and Adam Turner.
+
+Release 7.3.5 (released Apr 17, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12295: Re-export various objects from ``sphinx.domains.python._object``
+  in ``sphinx.domains.python``.
+  Patch by Jacob Chesslo and Adam Turner.
+
+Release 7.3.4 (released Apr 17, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* Handle cases when ``Any`` is not an instance of ``type``.
+  Patch by Adam Turner.
+
+Release 7.3.3 (released Apr 17, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12290: Fix a false-positive warning when setting a configuration value
+  with ``Any`` as the valid type to a type other than the value's default.
+  Patch by Adam Turner.
+
+Release 7.3.2 (released Apr 17, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* Preload all themes defined via entry points.
+  Patch by Adam Turner.
+* Fix a bad interaction between the ``'Furo'`` theme and the new-style for
+  configuration values.
+  Patch by Adam Turner.
+
+Release 7.3.1 (released Apr 17, 2024)
+=====================================
+
+Dependencies
+------------
+
+* Require ``tomli`` on Python 3.10 and earlier.
+  Patch by Adam Turner.
+
+Release 7.3.0 (released Apr 16, 2024)
+=====================================
+
+Dependencies
+------------
+
+* #11858: Increase the minimum supported version of Alabaster to 0.7.14.
+  Patch by Adam Turner.
+* #11411: Support `Docutils 0.21`_. Patch by Adam Turner.
+
+  .. _Docutils 0.21: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-21-2024-04-09
+* #12012: Use ``types-docutils`` instead of ``docutils-stubs``.
 
 Deprecated
 ----------
@@ -18,52 +132,57 @@ Deprecated
   the public properties :attr:`!sphinx.testing.util.SphinxTestApp.status`
   and :attr:`!sphinx.testing.util.SphinxTestApp.warning` instead.
   Patch by Bénédikt Tran.
-* tests: :func:`!sphinx.testing.util.strip_escseq` is deprecated in favor of
+* tests: :func:`!sphinx.testing.util.strip_escseq` is deprecated in favour of
   :func:`!sphinx.util.console.strip_colors`.
   Patch by Bénédikt Tran.
 
 Features added
 --------------
 
-* Add public type alias :class:`sphinx.util.typing.ExtensionMetadata`.
-  This can be used by extension developers
-  to annotate the return type of their ``setup`` function.
-  Patch by Chris Sewell.
-
-* #12133: Allow ``external`` roles to reference object types
-  (rather than role names). Patch by Chris Sewell.
-
-* #12131: Added :confval:`show_warning_types` configuration option.
-  Patch by Chris Sewell.
-
-* #11701: HTML Search: Adopt the new `<search>`_ element.
+* #12265: Support theme configuration via ``theme.toml``.
+* #11701: HTML Search: Adopt the new `\<search\>`_ element.
   Patch by Bénédikt Tran.
 
-  .. _`<search>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+  .. _`\<search\>`: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/search
+* #11776: Add long option names to ``sphinx-build``.
+  Patch by Hugo van Kemenade, Adam Turner, Bénédikt Tran, and Ezio Melotti.
+* Organise the ``sphinx-build`` options into groups.
+  Patch by Adam Turner.
+* #11855: Defer computation of configuration values.
+  Patch by Adam Turner.
+* Add ``:no-search:`` as an alias of the ``:nosearch:`` metadata field.
+  Patch by Adam Turner.
 * #11803: autodoc: Use an overriden ``__repr__()`` function in an enum,
   if defined. Patch by Shengyu Zhang.
-
-* #11892: Improved performance when resolving cross references in cpp domain.
+* #11825: Allow custom targets in the manpage role.
+  Patch by Nicolas Peugnet.
+* #11892: Improved performance when resolving cross references in the C++ domain.
   Patch by Rouslan Korneychuk.
-
+* #11905: Add a :rst:dir:`versionremoved` directive.
+  Patch by Hugo van Kemenade, Adam Turner, and C.A.M. Gerlach.
 * #11981: Improve rendering of signatures using ``slice`` syntax,
   e.g., ``def foo(arg: np.float64[:,:]) -> None: ...``.
-
 * The manpage builder now adds `OSC 8`_ anchors to hyperlinks, using
   the `groff`_ device control command.
 
   .. _OSC 8: https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
   .. _groff: https://lists.gnu.org/archive/html/groff/2021-10/msg00000.html
+* #11015: Change the text of the :rst:dir:`versionadded` directive from
+  ``New in [...]`` to ``Added in [...]``.
+  Patch by Bénédikt Tran.
+* #12131: Added :confval:`show_warning_types` configuration option.
+  Patch by Chris Sewell.
+* #12193: Improve ``external`` warnings for unknown roles.
+  In particular, suggest related role names if an object type is mistakenly used.
+  Patch by Chris Sewell.
+* Add public type alias :class:`sphinx.util.typing.ExtensionMetadata`.
+  This can be used by extension developers
+  to annotate the return type of their ``setup`` function.
+  Patch by Chris Sewell.
 
 Bugs fixed
 ----------
 
-* #11959: Fix multiple term matching when word appears in both title and document.
-  Patch by Will Lachance.
-* #11958: HTML Search: Fix partial matches overwriting full matches.
-  Patch by William Lachance.
-* #11944: Use anchor in search preview.
-  Patch by Will Lachance.
 * #11668: Raise a useful error when ``theme.conf`` is missing.
   Patch by Vinay Sajip.
 * #11622: Ensure that the order of keys in ``searchindex.js`` is deterministic.
@@ -89,14 +208,20 @@ Bugs fixed
 * #11675: Fix rendering of progression bars in environments that do not support
   ANSI control sequences.
   Patch by Bénédikt Tran.
+* #11861: Whitelist more types with an incorrect ``__module__`` attribute.
+  Patch by Adam Turner.
 * #11715: Apply ``tls_verify`` and ``tls_cacerts`` config to
   ``ImageDownloader``.
   Patch by Nick Touran.
+* Allow hyphens in group names for :rst:dir:`productionlist` cross-references.
+  Patch by Adam Turner.
 * #11433: Added the :confval:`linkcheck_allow_unauthorized` configuration option.
   Set this option to ``False`` to report HTTP 401 (unauthorized) server
   responses as broken.
   Patch by James Addison.
 * #11868: linkcheck: added a distinct ``timeout`` reporting status code.
+  This can be enabled by setting :confval:`linkcheck_report_timeouts_as_broken`
+  to ``False``.
   Patch by James Addison.
 * #11869: Refresh the documentation for the ``linkcheck_timeout`` setting.
   Patch by James Addison.
@@ -106,17 +231,29 @@ Bugs fixed
   Patch by Colin Marquardt.
 * #11598: Do not use query components in URLs for assets in EPUB rendering.
   Patch by David Runge.
-* #11917: Fix rendering of annotated inherited members for Python 3.9.
-  Patch by Janet Carson.
+* #11904: Support unary subtraction when parsing annotations.
+  Patch by James Addison.
 * #11925: Blacklist the ``sphinxprettysearchresults`` extension; the functionality
   it provides was merged into Sphinx v2.0.0.
   Patch by James Addison.
+* #11917: Fix rendering of annotated inherited members for Python 3.9.
+  Patch by Janet Carson.
+* #11935: C Domain: Fix namespace-pop context.
+  Patch by Frank Dana.
+* #11923: Avoid zombie processes when parallel builds fail.
+  Patch by Felix von Drigalski.
 * #11353: Support enumeration classes inheriting from mixin or data types.
   Patch by Bénédikt Tran.
 * #11962: Fix target resolution when using ``:paramtype:`` fields.
   Patch by Bénédikt Tran.
+* #11944: Use anchor in search preview.
+  Patch by Will Lachance.
 * #12008: Fix case-sensitive lookup of ``std:label`` names in intersphinx inventory.
   Patch by Michael Goerz.
+* #11958: HTML Search: Fix partial matches overwriting full matches.
+  Patch by William Lachance.
+* #11959: Fix multiple term matching when word appears in both title and document.
+  Patch by Will Lachance.
 * #11474: Fix doctrees caching causing files not be rebuilt in some cases,
   e.g., when :confval:`numfig` is ``True``.
   Patch by Bénédikt Tran.
@@ -124,7 +261,7 @@ Bugs fixed
   combined with :func:`@classmethod <classmethod>`.
   Patch by Bénédikt Tran.
 * #11894: Do not add checksums to css files if building using the htmlhelp builder.
-  Patch by mkay.
+  Patch by reduerK akiM.
 * #12052: Remove ``<script>`` and ``<style>`` tags from the content of search result
   summary snippets.
   Patch by James Addison.
@@ -137,9 +274,27 @@ Bugs fixed
 * #10786: improve the error message when a file to be copied (e.g., an asset)
   is removed during Sphinx execution.
   Patch by Bénédikt Tran.
+* #12040: HTML Search: Ensure that document titles that are partially-matched by
+  the user search query are included in search results.
+  Patch by James Addison.
+* #11970: singlehtml builder: make target URIs to be same-document references in
+  the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
+  becomes ``#foo``. Patch by Eric Norige.
+* #12271: Partially revert Docutils' r9562__ to fix EPUB files.
+  Patch by Adam Turner.
+
+  __ https://sourceforge.net/p/docutils/code/9562/
+* #12253: Escape reserved path characters in the remote images post-transform
+  download cache.
+  Patch by James Addison and Adam Turner.
 
 Testing
 -------
+
+* Reorganise tests into directories.
+  Patch by Adam Turner.
+* Clean up global state in ``SphinxTestApp``.
+  Patch by Adam Turner.
 * #11285: :func:`!pytest.mark.sphinx` and :class:`!sphinx.testing.util.SphinxTestApp`
   accept *warningiserror*, *keep_going* and *verbosity* as keyword arguments.
   Patch by Bénédikt Tran.
@@ -147,9 +302,12 @@ Testing
   arguments are checked to be :class:`io.StringIO` objects (the public API
   incorrectly assumed this without checking it).
   Patch by Bénédikt Tran.
-
-* pytest: report the result of ``test_run_epubcheck`` as ``skipped`` instead of
-  ``success`` when Java and/or the ``epubcheck.jar`` code are not available.
+* Report the result of ``test_run_epubcheck`` as ``skipped`` instead of
+  ``success`` when either Java or ``epubcheck`` are not available.
+* Use dynamic allocation of unused port numbers for the test HTTP(S) servers.
+  As a side-effect, this removes the need for test server lockfiles,
+  meaning that any remaining ``tests/test-server.lock`` files can safely be
+  deleted.
 
 Release 7.2.6 (released Sep 13, 2023)
 =====================================

@@ -51,17 +51,28 @@ class ConfigValue(NamedTuple):
     rebuild: _ConfigRebuild
 
 
-def is_serializable(obj: Any) -> bool:
-    """Check if object is serializable or not."""
+def is_serializable(obj: object, *, _seen: frozenset[int] = frozenset()) -> bool:
+    """Check if an object is serializable or not."""
     if isinstance(obj, UNSERIALIZABLE_TYPES):
         return False
-    elif isinstance(obj, dict):
-        for key, value in obj.items():
-            if not is_serializable(key) or not is_serializable(value):
-                return False
-    elif isinstance(obj, (list, tuple, set)):
-        return all(map(is_serializable, obj))
 
+    # use id() to handle un-hashable objects
+    if id(obj) in _seen:
+        return True
+
+    if isinstance(obj, dict):
+        seen = _seen | {id(obj)}
+        return all(
+            is_serializable(key, _seen=seen) and is_serializable(value, _seen=seen)
+            for key, value in obj.items()
+        )
+    elif isinstance(obj, (list, tuple, set, frozenset)):
+        seen = _seen | {id(obj)}
+        return all(is_serializable(item, _seen=seen) for item in obj)
+
+    # if an issue occurs for a non-serializable type, pickle will complain
+    # since the object is likely coming from a third-party extension
+    # (we natively expect 'simple' types and not weird ones)
     return True
 
 
@@ -346,14 +357,14 @@ class Config:
 
     @staticmethod
     def pre_init_values() -> None:
-        # method only retained for compatability
+        # method only retained for compatibility
         pass
         # warnings.warn(
         #     'Config.pre_init_values() will be removed in Sphinx 9.0 or later',
         #     RemovedInSphinx90Warning, stacklevel=2)
 
     def init_values(self) -> None:
-        # method only retained for compatability
+        # method only retained for compatibility
         self._report_override_warnings()
         # warnings.warn(
         #     'Config.init_values() will be removed in Sphinx 9.0 or later',
@@ -450,8 +461,23 @@ class Config:
         # create a picklable copy of ``self._options``
         __dict__['_options'] = _options = {}
         for name, opt in self._options.items():
+            if not isinstance(opt, _Opt) and isinstance(opt, tuple) and len(opt) <= 3:
+                # Fix for Furo's ``_update_default``.
+                self._options[name] = opt = _Opt(*opt)
             real_value = getattr(self, name)
             if not is_serializable(real_value):
+                if opt.rebuild:
+                    # if the value is not cached, then any build that utilises this cache
+                    # will always mark the config value as changed,
+                    # and thus always invalidate the cache and perform a rebuild.
+                    logger.warning(
+                        __('cannot cache unpickable configuration value: %r '
+                           '(because it contains a function, class, or module object)'),
+                        name,
+                        type='config',
+                        subtype='cache',
+                        once=True,
+                    )
                 # omit unserializable value
                 real_value = None
             # valid_types is also omitted
@@ -507,6 +533,8 @@ def _validate_valid_types(
         return valid_types
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
+    if valid_types is Any:
+        return frozenset({Any})  # type: ignore[arg-type]
     if isinstance(valid_types, set):
         return frozenset(valid_types)
     if not isinstance(valid_types, tuple):
@@ -631,7 +659,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
         if default is None and not valid_types:
             continue  # neither inferable nor explicitly annotated types
 
-        if valid_types is Any:  # any type of value is accepted
+        if valid_types == frozenset({Any}):  # any type of value is accepted
             continue
 
         if isinstance(valid_types, ENUM):

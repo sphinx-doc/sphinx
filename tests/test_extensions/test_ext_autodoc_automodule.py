@@ -4,11 +4,13 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
+import inspect
 import sys
+import typing
 
 import pytest
 
-from tests.test_extensions.test_ext_autodoc import do_autodoc
+from tests.test_extensions.autodoc_util import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -185,7 +187,21 @@ def test_automodule_inherited_members(app):
                                                             'sphinx.missing_module4']})
 @pytest.mark.usefixtures("rollback_sysmodules")
 def test_subclass_of_mocked_object(app):
+    from sphinx.ext.autodoc.mock import _MockObject
     sys.modules.pop('target', None)  # unload target module to clear the module cache
+
+    options = {'members': None}
+    actual = do_autodoc(app, 'module', 'target.need_mocks', options)
+    # ``typing.Any`` is not available at runtime on ``_MockObject.__new__``
+    assert '.. py:class:: Inherited(*args: Any, **kwargs: Any)' in actual
+
+    # make ``typing.Any`` available at runtime on ``_MockObject.__new__``
+    sig = inspect.signature(_MockObject.__new__)
+    parameters = sig.parameters.copy()
+    for name in ('args', 'kwargs'):
+        parameters[name] = parameters[name].replace(annotation=typing.Any)
+    sig = sig.replace(parameters=tuple(parameters.values()))
+    _MockObject.__new__.__signature__ = sig  # type: ignore[attr-defined]
 
     options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)

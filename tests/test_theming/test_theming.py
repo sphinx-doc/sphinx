@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from pathlib import Path
 from xml.etree.ElementTree import ParseError
 
 import pytest
@@ -9,7 +10,16 @@ from defusedxml.ElementTree import parse as xml_parse
 
 import sphinx.builders.html
 from sphinx.errors import ThemeError
-from sphinx.theming import _load_theme_conf
+from sphinx.theming import (
+    _ConfigFile,
+    _convert_theme_conf,
+    _convert_theme_toml,
+    _load_theme,
+    _load_theme_conf,
+    _load_theme_toml,
+)
+
+HERE = Path(__file__).resolve().parent
 
 
 @pytest.mark.sphinx(
@@ -77,11 +87,11 @@ def test_theme_api(app, status, warning):
     assert not any(map(os.path.exists, theme._tmp_dirs))
 
 
-def test_nonexistent_theme_conf(tmp_path):
-    # Check that error occurs with a non-existent theme.conf
+def test_nonexistent_theme_settings(tmp_path):
+    # Check that error occurs with a non-existent theme.toml or theme.conf
     # (https://github.com/sphinx-doc/sphinx/issues/11668)
     with pytest.raises(ThemeError):
-        _load_theme_conf(tmp_path)
+        _load_theme('', str(tmp_path))
 
 
 @pytest.mark.sphinx(testroot='double-inheriting-theme')
@@ -99,6 +109,11 @@ def test_nested_zipped_theme(app, status, warning):
 @pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'staticfiles'})
 def test_staticfiles(app, status, warning):
     app.build()
+    assert (app.outdir / '_static' / 'legacytmpl.html').exists()
+    assert (app.outdir / '_static' / 'legacytmpl.html').read_text(encoding='utf8') == (
+        '<!-- testing legacy _t static templates -->\n'
+        '<html><project>python</project></html>'
+    )
     assert (app.outdir / '_static' / 'staticimg.png').exists()
     assert (app.outdir / '_static' / 'statictmpl.html').exists()
     assert (app.outdir / '_static' / 'statictmpl.html').read_text(encoding='utf8') == (
@@ -187,3 +202,31 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
             xml_parse(html_file)
         except ParseError as exc:
             pytest.fail(f'Failed to parse {html_file.relative_to(app.outdir)}: {exc}')
+
+
+def test_config_file_toml():
+    config_path = HERE / 'theme.toml'
+    cfg = _load_theme_toml(str(config_path))
+    config = _convert_theme_toml(cfg)
+
+    assert config == _ConfigFile(
+        stylesheets=('spam.css', 'ham.css'),
+        sidebar_templates=None,
+        pygments_style_default='spam',
+        pygments_style_dark=None,
+        options={'lobster': 'thermidor'},
+    )
+
+
+def test_config_file_conf():
+    config_path = HERE / 'theme.conf'
+    cfg = _load_theme_conf(str(config_path))
+    config = _convert_theme_conf(cfg)
+
+    assert config == _ConfigFile(
+        stylesheets=('spam.css', 'ham.css'),
+        sidebar_templates=None,
+        pygments_style_default='spam',
+        pygments_style_dark=None,
+        options={'lobster': 'thermidor'},
+    )
