@@ -6,7 +6,7 @@ import os
 import re
 from datetime import datetime, timezone
 from os import path
-from typing import TYPE_CHECKING, Callable, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -18,10 +18,41 @@ from sphinx.util import logging
 from sphinx.util.osutil import SEP, canon_path, relpath
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    import datetime as dt
+    from collections.abc import Iterator
+    from typing import Protocol, Union
+
+    from babel.core import Locale
 
     from sphinx.environment import BuildEnvironment
 
+    class DateFormatter(Protocol):
+        def __call__(  # NoQA: E704
+            self,
+            date: dt.date | None = ...,
+            format: str = ...,
+            locale: str | Locale | None = ...,
+        ) -> str: ...
+
+    class TimeFormatter(Protocol):
+        def __call__(  # NoQA: E704
+            self,
+            time: dt.time | dt.datetime | float | None = ...,
+            format: str = ...,
+            tzinfo: dt.tzinfo | None = ...,
+            locale: str | Locale | None = ...,
+        ) -> str: ...
+
+    class DatetimeFormatter(Protocol):
+        def __call__(  # NoQA: E704
+            self,
+            datetime: dt.date | dt.time | float | None = ...,
+            format: str = ...,
+            tzinfo: dt.tzinfo | None = ...,
+            locale: str | Locale | None = ...,
+        ) -> str: ...
+
+    Formatter = Union[DateFormatter, TimeFormatter, DatetimeFormatter]
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +112,7 @@ class CatalogRepository:
         self.encoding = encoding
 
     @property
-    def locale_dirs(self) -> Generator[str, None, None]:
+    def locale_dirs(self) -> Iterator[str]:
         if not self.language:
             return
 
@@ -94,7 +125,7 @@ class CatalogRepository:
                 logger.verbose(__('locale_dir %s does not exist'), locale_path)
 
     @property
-    def pofiles(self) -> Generator[tuple[str, str], None, None]:
+    def pofiles(self) -> Iterator[tuple[str, str]]:
         for locale_dir in self.locale_dirs:
             basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
             for root, dirnames, filenames in os.walk(basedir):
@@ -108,7 +139,7 @@ class CatalogRepository:
                         yield basedir, relpath(fullpath, basedir)
 
     @property
-    def catalogs(self) -> Generator[CatalogInfo, None, None]:
+    def catalogs(self) -> Iterator[CatalogInfo]:
         for basedir, filename in self.pofiles:
             domain = canon_path(path.splitext(filename)[0])
             yield CatalogInfo(basedir, domain, self.encoding)
@@ -169,7 +200,7 @@ date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
 def babel_format_date(date: datetime, format: str, locale: str,
-                      formatter: Callable = babel.dates.format_date) -> str:
+                      formatter: Formatter = babel.dates.format_date) -> str:
     # Check if we have the tzinfo attribute. If not we cannot do any time
     # related formats.
     if not hasattr(date, 'tzinfo'):
@@ -207,6 +238,7 @@ def format_date(
             # Check if we have to use a different babel formatter then
             # format_datetime, because we only want to format a date
             # or a time.
+            function: Formatter
             if token == '%x':
                 function = babel.dates.format_date
             elif token == '%X':

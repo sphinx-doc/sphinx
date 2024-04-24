@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
 
 from docutils import nodes
 
@@ -16,19 +16,21 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 versionlabels = {
-    'versionadded':   _('New in version %s'),
+    'versionadded':   _('Added in version %s'),
     'versionchanged': _('Changed in version %s'),
     'deprecated':     _('Deprecated since version %s'),
+    'versionremoved': _('Removed in version %s'),
 }
 
 versionlabel_classes = {
     'versionadded':     'added',
     'versionchanged':   'changed',
     'deprecated':       'deprecated',
+    'versionremoved':   'removed',
 }
 
 
@@ -45,11 +47,12 @@ class VersionChange(SphinxDirective):
     """
     Directive to describe a change/addition/deprecation in a specific version.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         node = addnodes.versionmodified()
@@ -120,13 +123,13 @@ class ChangeSetDomain(Domain):
         version = node['version']
         module = self.env.ref_context.get('py:module')
         objname = self.env.temp_data.get('object')
-        changeset = ChangeSet(node['type'], self.env.docname, node.line,
+        changeset = ChangeSet(node['type'], self.env.docname, node.line,  # type: ignore[arg-type]
                               module, objname, node.astext())
         self.changesets.setdefault(version, []).append(changeset)
 
     def clear_doc(self, docname: str) -> None:
         for changes in self.changesets.values():
-            for changeset in changes[:]:
+            for changeset in changes.copy():
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
@@ -147,11 +150,12 @@ class ChangeSetDomain(Domain):
         return self.changesets.get(version, [])
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(ChangeSetDomain)
     app.add_directive('deprecated', VersionChange)
     app.add_directive('versionadded', VersionChange)
     app.add_directive('versionchanged', VersionChange)
+    app.add_directive('versionremoved', VersionChange)
 
     return {
         'version': 'builtin',

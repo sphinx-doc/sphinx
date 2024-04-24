@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import ast
 import contextlib
+import functools
 import inspect
 import itertools
+import operator
 import re
 import tokenize
 from inspect import Signature
@@ -243,7 +245,7 @@ class VariableCommentPicker(ast.NodeVisitor):
             else:
                 return None
         else:
-            return self.context + [name]
+            return [*self.context, name]
 
     def add_entry(self, name: str) -> None:
         qualname = self.get_qualname_for(name)
@@ -350,9 +352,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames: list[str] = sum(
-                [get_lvar_names(t, self=self.get_self()) for t in targets], [],
-            )
+            varnames: list[str] = functools.reduce(
+                operator.iadd, [get_lvar_names(t, self=self.get_self()) for t in targets], [])
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
@@ -476,7 +477,7 @@ class DefinitionFinder(TokenProcessor):
 
     def add_definition(self, name: str, entry: tuple[str, int, int]) -> None:
         """Add a location of definition."""
-        if self.indents and self.indents[-1][0] == 'def' and entry[0] == 'def':
+        if self.indents and self.indents[-1][0] == entry[0] == 'def':
             # ignore definition of inner function
             pass
         else:

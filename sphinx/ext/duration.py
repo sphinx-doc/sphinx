@@ -13,15 +13,21 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from typing import TypedDict
+
     from docutils import nodes
 
     from sphinx.application import Sphinx
+
+    class _DurationDomainData(TypedDict):
+        reading_durations: dict[str, float]
 
 logger = logging.getLogger(__name__)
 
 
 class DurationDomain(Domain):
     """A domain for durations of Sphinx processing."""
+
     name = 'duration'
 
     @property
@@ -37,9 +43,11 @@ class DurationDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.reading_durations.pop(docname, None)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, float]) -> None:
-        for docname, duration in otherdata.items():
-            if docname in docnames:
+    def merge_domaindata(self, docnames: list[str], otherdata: _DurationDomainData) -> None:  # type: ignore[override]
+        other_reading_durations = otherdata.get('reading_durations', {})
+        docnames_set = frozenset(docnames)
+        for docname, duration in other_reading_durations.items():
+            if docname in docnames_set:
                 self.reading_durations[docname] = duration
 
 

@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,7 @@ class CitationDomain(Domain):
             path = self.env.doc2path(self.citations[label][0])
             logger.warning(__('duplicate citation %s, other instance in %s'), label, path,
                            location=node, type='ref', subtype='citation')
-        self.citations[label] = (node['docname'], node['ids'][0], node.line)
+        self.citations[label] = (node['docname'], node['ids'][0], node.line)  # type: ignore[assignment]
 
     def note_citation_reference(self, node: pending_xref) -> None:
         docnames = self.citation_refs.setdefault(node['reftarget'], set())
@@ -103,6 +104,7 @@ class CitationDomain(Domain):
 
 class CitationDefinitionTransform(SphinxTransform):
     """Mark citation definition labels as not smartquoted."""
+
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
@@ -122,6 +124,7 @@ class CitationReferenceTransform(SphinxTransform):
     Replace citation references by pending_xref nodes before the default
     docutils transform tries to resolve them.
     """
+
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
@@ -141,7 +144,7 @@ class CitationReferenceTransform(SphinxTransform):
             domain.note_citation_reference(ref)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CitationDomain)
     app.add_transform(CitationDefinitionTransform)
     app.add_transform(CitationReferenceTransform)

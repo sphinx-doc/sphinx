@@ -39,7 +39,12 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
-    from sphinx.util.typing import RoleFunction, TitleGetter
+    from sphinx.util.typing import (
+        ExtensionMetadata,
+        RoleFunction,
+        TitleGetter,
+        _ExtensionSetupFunc,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +52,7 @@ logger = logging.getLogger(__name__)
 # Values are Sphinx version that merge the extension.
 EXTENSION_BLACKLIST = {
     "sphinxjp.themecore": "1.2",
+    "sphinxprettysearchresults": "2.0.0",
 }
 
 
@@ -55,7 +61,7 @@ class SphinxComponentRegistry:
         #: special attrgetter for autodoc; class object -> attrgetter
         self.autodoc_attrgettrs: dict[type, Callable[[Any, str, Any], Any]] = {}
 
-        #: builders; a dict of builder name -> bulider class
+        #: builders; a dict of builder name -> builder class
         self.builders: dict[str, type[Builder]] = {}
 
         #: autodoc documenters; a dict of documenter name -> documenter class
@@ -450,11 +456,11 @@ class SphinxComponentRegistry:
                 raise ExtensionError(__('Could not import extension %s') % extname,
                                      err) from err
 
-            setup = getattr(mod, 'setup', None)
+            setup: _ExtensionSetupFunc | None = getattr(mod, 'setup', None)
             if setup is None:
                 logger.warning(__('extension %r has no setup() function; is it really '
                                   'a Sphinx extension module?'), extname)
-                metadata: dict[str, Any] = {}
+                metadata: ExtensionMetadata = {}
             else:
                 try:
                     metadata = setup(app)
@@ -476,7 +482,7 @@ class SphinxComponentRegistry:
 
             app.extensions[extname] = Extension(extname, mod, **metadata)
 
-    def get_envversion(self, app: Sphinx) -> dict[str, str]:
+    def get_envversion(self, app: Sphinx) -> dict[str, int]:
         from sphinx.environment import ENV_VERSION
         envversion = {ext.name: ext.metadata['env_version'] for ext in app.extensions.values()
                       if ext.metadata.get('env_version')}
@@ -507,7 +513,7 @@ def merge_source_suffix(app: Sphinx, config: Config) -> None:
     app.registry.source_suffix = app.config.source_suffix
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', merge_source_suffix, priority=800)
 
     return {

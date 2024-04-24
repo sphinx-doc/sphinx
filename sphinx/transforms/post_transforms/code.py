@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node, TextElement
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class HighlightSetting(NamedTuple):
@@ -32,6 +33,7 @@ class HighlightLanguageTransform(SphinxTransform):
     :rst:dir:`highlight` directive.  After processing, this transform
     removes ``highlightlang`` node from doctree.
     """
+
     default_priority = 400
 
     def apply(self, **kwargs: Any) -> None:
@@ -88,6 +90,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
     see :confval:`trim_doctest_flags` for more information.
     """
+
     default_priority = HighlightLanguageTransform.default_priority + 1
 
     def apply(self, **kwargs: Any) -> None:
@@ -128,7 +131,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         return False
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(HighlightLanguageTransform)
     app.add_post_transform(TrimDoctestFlagsTransform)
 

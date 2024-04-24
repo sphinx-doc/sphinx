@@ -70,11 +70,11 @@ var Stemmer = function() {
 
     _word_re = re.compile(r'\w+')
 
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
         self.options = options
         self.init(options)
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         """
         Initialize the class with the options the user has given.
         """
@@ -121,7 +121,7 @@ def parse_stop_word(source: str) -> set[str]:
     """
     Parse snowball style word list like this:
 
-    * http://snowball.tartarus.org/algorithms/finnish/stop.txt
+    * https://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
     result: set[str] = set()
     for line in source.splitlines():
@@ -171,10 +171,10 @@ class _JavaScriptIndex:
             raise ValueError('invalid data')
         return json.loads(data)
 
-    def dump(self, data: Any, f: IO) -> None:
+    def dump(self, data: Any, f: IO[str]) -> None:
         f.write(self.dumps(data))
 
-    def load(self, f: IO) -> Any:
+    def load(self, f: IO[str]) -> Any:
         return self.loads(f.read())
 
 
@@ -182,7 +182,7 @@ js_index = _JavaScriptIndex()
 
 
 def _is_meta_keywords(
-    node: nodes.meta,  # type: ignore[name-defined]
+    node: nodes.meta,
     lang: str | None,
 ) -> bool:
     if node.get('name') == 'keywords':
@@ -234,7 +234,7 @@ class WordCollector(nodes.NodeVisitor):
             ids = node.parent['ids']
             self.found_titles.append((title, ids[0] if ids else None))
             self.found_title_words.extend(self.lang.split(title))
-        elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):
+        elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):  # type: ignore[arg-type]
             keywords = node['content']
             keywords = [keyword.strip() for keyword in keywords.split(',')]
             self.found_words.extend(keywords)
@@ -250,7 +250,7 @@ class IndexBuilder:
         'pickle':   pickle
     }
 
-    def __init__(self, env: BuildEnvironment, lang: str, options: dict, scoring: str) -> None:
+    def __init__(self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str) -> None:
         self.env = env
         # docname -> title
         self._titles: dict[str, str] = env._search_index_titles
@@ -368,8 +368,8 @@ class IndexBuilder:
                 plist.append((fn2index[docname], typeindex, prio, shortanchor, name))
         return rv
 
-    def get_terms(self, fn2index: dict) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
-        rvs: tuple[dict[str, list[str]], dict[str, list[str]]] = ({}, {})
+    def get_terms(self, fn2index: dict[str, int]) -> tuple[dict[str, list[int] | int], dict[str, list[int] | int]]:
+        rvs: tuple[dict[str, list[int] | int], dict[str, list[int] | int]] = ({}, {})
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
             for k, v in mapping.items():
                 if len(v) == 1:
@@ -377,7 +377,7 @@ class IndexBuilder:
                     if fn in fn2index:
                         rv[k] = fn2index[fn]
                 else:
-                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
+                    rv[k] = sorted(fn2index[fn] for fn in v if fn in fn2index)
         return rvs
 
     def freeze(self) -> dict[str, Any]:
@@ -392,14 +392,14 @@ class IndexBuilder:
         objnames = self._objnames
 
         alltitles: dict[str, list[tuple[int, str]]] = {}
-        for docname, titlelist in self._all_titles.items():
+        for docname, titlelist in sorted(self._all_titles.items()):
             for title, titleid in titlelist:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
 
-        index_entries: dict[str, list[tuple[int, str]]] = {}
+        index_entries: dict[str, list[tuple[int, str, bool]]] = {}
         for docname, entries in self._index_entries.items():
             for entry, entry_id, main_entry in entries:
-                index_entries.setdefault(entry.lower(), []).append((fn2index[docname], entry_id))
+                index_entries.setdefault(entry.lower(), []).append((fn2index[docname], entry_id, main_entry == "main"))
 
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
@@ -438,7 +438,7 @@ class IndexBuilder:
         _stem = self.lang.stem
 
         # memoise self.lang.stem
-        @functools.lru_cache(maxsize=None)
+        @functools.cache
         def stem(word_to_stem: str) -> str:
             return _stem(word_to_stem).lower()
 
@@ -495,7 +495,7 @@ class IndexBuilder:
                     nodetext = re.sub(r'<[^<]+?>', '', nodetext)
                     word_store.words.extend(split(nodetext))
                 return
-            elif (isinstance(node, nodes.meta)  # type: ignore[attr-defined]
+            elif (isinstance(node, nodes.meta)
                   and _is_meta_keywords(node, language)):
                 keywords = [keyword.strip() for keyword in node['content'].split(',')]
                 word_store.words.extend(keywords)
@@ -508,7 +508,6 @@ class IndexBuilder:
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)
-            return
 
         word_store = WordStore()
         split = self.lang.split

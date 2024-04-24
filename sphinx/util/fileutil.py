@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import posixpath
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils.utils import relative_path
 
@@ -15,8 +15,21 @@ if TYPE_CHECKING:
     from sphinx.util.typing import PathMatcher
 
 
+def _template_basename(filename: str | os.PathLike[str]) -> str | None:
+    """Given an input filename:
+    If the input looks like a template, then return the filename output should
+    be written to.  Otherwise, return no result (None).
+    """
+    basename = os.path.basename(filename)
+    if basename.lower().endswith('_t'):
+        return str(filename)[:-2]
+    elif basename.lower().endswith('.jinja'):
+        return str(filename)[:-6]
+    return None
+
+
 def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLike[str],
-                    context: dict | None = None,
+                    context: dict[str, Any] | None = None,
                     renderer: BaseRenderer | None = None) -> None:
     """Copy an asset file to destination.
 
@@ -37,14 +50,13 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
     else:
         destination = str(destination)
 
-    if os.path.basename(source).endswith(('_t', '_T')) and context is not None:
+    if _template_basename(source) and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
-            if destination.endswith(('_t', '_T')):
-                destination = destination[:-2]
+            destination = _template_basename(destination) or destination
             with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
@@ -53,7 +65,7 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
 
 def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[str],
                excluded: PathMatcher = lambda path: False,
-               context: dict | None = None, renderer: BaseRenderer | None = None,
+               context: dict[str, Any] | None = None, renderer: BaseRenderer | None = None,
                onerror: Callable[[str, Exception], None] | None = None) -> None:
     """Copy asset files to destination recursively.
 
@@ -80,8 +92,8 @@ def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[st
         return
 
     for root, dirs, files in os.walk(source, followlinks=True):
-        reldir = relative_path(source, root)  # type: ignore[arg-type]
-        for dir in dirs[:]:
+        reldir = relative_path(source, root)
+        for dir in dirs.copy():
             if excluded(posixpath.join(reldir, dir)):
                 dirs.remove(dir)
             else:

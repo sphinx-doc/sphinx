@@ -7,6 +7,7 @@ import contextlib
 import inspect
 import re
 from functools import partial
+from itertools import starmap
 from typing import TYPE_CHECKING, Any, Callable
 
 from sphinx.locale import _, __
@@ -14,6 +15,8 @@ from sphinx.util import logging
 from sphinx.util.typing import get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from sphinx.application import Sphinx
     from sphinx.config import Config as SphinxConfig
 
@@ -145,7 +148,7 @@ class GoogleDocstring:
     """
 
     _name_rgx = re.compile(r"^\s*((?::(?P<role>\S+):)?`(?P<name>~?[a-zA-Z0-9_.-]+)`|"
-                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.X)
+                           r" (?P<name2>~?[a-zA-Z0-9_.-]+))\s*", re.VERBOSE)
 
     def __init__(
         self,
@@ -304,19 +307,18 @@ class GoogleDocstring:
             _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
 
         indent = self._get_indent(line) + 1
-        _descs = [_desc] + self._dedent(self._consume_indented_block(indent))
+        _descs = [_desc, *self._dedent(self._consume_indented_block(indent))]
         _descs = self.__class__(_descs, self._config).lines()
         return _name, _type, _descs
 
     def _consume_fields(self, parse_type: bool = True, prefer_type: bool = False,
                         multiple: bool = False) -> list[tuple[str, str, list[str]]]:
         self._consume_empty()
-        fields = []
+        fields: list[tuple[str, str, list[str]]] = []
         while not self._is_section_break():
             _name, _type, _desc = self._consume_field(parse_type, prefer_type)
             if multiple and _name:
-                for name in _name.split(","):
-                    fields.append((name.strip(), _type, _desc))
+                fields.extend((name.strip(), _type, _desc) for name in _name.split(","))
             elif _name or _type or _desc:
                 fields.append((_name, _type, _desc))
         return fields
@@ -327,7 +329,7 @@ class GoogleDocstring:
         if not colon or not _desc:
             _type, _desc = _desc, _type
             _desc += colon
-        _descs = [_desc] + self._dedent(self._consume_to_end())
+        _descs = [_desc, *self._dedent(self._consume_to_end())]
         _descs = self.__class__(_descs, self._config).lines()
         return _type, _descs
 
@@ -399,15 +401,15 @@ class GoogleDocstring:
 
     def _fix_field_desc(self, desc: list[str]) -> list[str]:
         if self._is_list(desc):
-            desc = [''] + desc
+            desc = ['', *desc]
         elif desc[0].endswith('::'):
             desc_block = desc[1:]
             indent = self._get_indent(desc[0])
             block_indent = self._get_initial_indent(desc_block)
             if block_indent > indent:
-                desc = [''] + desc
+                desc = ['', *desc]
             else:
-                desc = ['', desc[0]] + self._indent(desc_block, 4)
+                desc = ['', desc[0], *self._indent(desc_block, 4)]
         return desc
 
     def _format_admonition(self, admonition: str, lines: list[str]) -> list[str]:
@@ -416,7 +418,7 @@ class GoogleDocstring:
             return [f'.. {admonition}:: {lines[0].strip()}', '']
         elif lines:
             lines = self._indent(self._dedent(lines), 3)
-            return ['.. %s::' % admonition, ''] + lines + ['']
+            return ['.. %s::' % admonition, '', *lines, '']
         else:
             return ['.. %s::' % admonition, '']
 
@@ -453,7 +455,7 @@ class GoogleDocstring:
 
             if _type:
                 lines.append(f':{type_role} {_name}: {_type}')
-        return lines + ['']
+        return [*lines, '']
 
     def _format_field(self, _name: str, _type: str, _desc: list[str]) -> list[str]:
         _desc = self._strip_empty(_desc)
@@ -480,7 +482,7 @@ class GoogleDocstring:
             if _desc[0]:
                 return [field + _desc[0]] + _desc[1:]
             else:
-                return [field] + _desc
+                return [field, *_desc]
         else:
             return [field]
 
@@ -537,7 +539,7 @@ class GoogleDocstring:
         return [(' ' * n) + line for line in lines]
 
     def _is_indented(self, line: str, indent: int = 1) -> bool:
-        for i, s in enumerate(line):  # noqa: SIM110
+        for i, s in enumerate(line):  # NoQA: SIM110
             if i >= indent:
                 return True
             elif not s.isspace():
@@ -623,7 +625,7 @@ class GoogleDocstring:
                     self._is_in_section = True
                     self._section_indent = self._get_current_indent()
                     if _directive_regex.match(section):
-                        lines = [section] + self._consume_to_next_section()
+                        lines = [section, *self._consume_to_next_section()]
                     else:
                         lines = self._sections[section.lower()](section)
                 finally:
@@ -711,7 +713,7 @@ class GoogleDocstring:
         else:
             header = '.. rubric:: %s' % section
         if lines:
-            return [header, ''] + lines + ['']
+            return [header, '', *lines, '']
         else:
             return [header, '']
 
@@ -733,7 +735,7 @@ class GoogleDocstring:
                 if 'no-index' in self._opt or 'noindex' in self._opt:
                     lines.append('   :no-index:')
             if _desc:
-                lines.extend([''] + self._indent(_desc, 3))
+                lines.extend(['', *self._indent(_desc, 3)])
             lines.append('')
         return lines
 
@@ -888,7 +890,7 @@ def _recombine_set_tokens(tokens: list[str]) -> list[str]:
     token_queue = collections.deque(tokens)
     keywords = ("optional", "default")
 
-    def takewhile_set(tokens):
+    def takewhile_set(tokens: collections.deque[str]) -> Iterator[str]:
         open_braces = 0
         previous_token = None
         while True:
@@ -924,7 +926,7 @@ def _recombine_set_tokens(tokens: list[str]) -> list[str]:
             if open_braces == 0:
                 break
 
-    def combine_set(tokens):
+    def combine_set(tokens: collections.deque[str]) -> Iterator[str]:
         while True:
             try:
                 token = tokens.popleft()
@@ -941,7 +943,7 @@ def _recombine_set_tokens(tokens: list[str]) -> list[str]:
 
 
 def _tokenize_type_spec(spec: str) -> list[str]:
-    def postprocess(item):
+    def postprocess(item: str) -> list[str]:
         if _default_regex.match(item):
             default = item[:7]
             # can't be separated by anything other than a single space
@@ -962,7 +964,7 @@ def _tokenize_type_spec(spec: str) -> list[str]:
 
 
 def _token_type(token: str, location: str | None = None) -> str:
-    def is_numeric(token):
+    def is_numeric(token: str) -> bool:
         try:
             # use complex to make sure every numeric value is detected as literal
             complex(token)
@@ -1026,7 +1028,7 @@ def _convert_numpy_type_spec(
     if translations is None:
         translations = {}
 
-    def convert_obj(obj, translations, default_translation):
+    def convert_obj(obj: str, translations: dict[str, str], default_translation: str) -> str:
         translation = translations.get(obj, obj)
 
         # use :class: (the default) only if obj is not a standard singleton
@@ -1155,6 +1157,7 @@ class NumpyDocstring(GoogleDocstring):
             The lines of the docstring in a list.
 
     """
+
     def __init__(
         self,
         docstring: str | list[str],
@@ -1180,13 +1183,13 @@ class NumpyDocstring(GoogleDocstring):
         elif filepath is None:
             filepath = ""
 
-        return ":".join([filepath, "docstring of %s" % name])
+        return f"{filepath}:docstring of {name}"
 
     def _escape_args_and_kwargs(self, name: str) -> str:
         func = super()._escape_args_and_kwargs
 
         if ", " in name:
-            return ", ".join(func(param) for param in name.split(", "))
+            return ", ".join(map(func, name.split(", ")))
         else:
             return func(name)
 
@@ -1233,7 +1236,7 @@ class NumpyDocstring(GoogleDocstring):
         line1, line2 = self._lines.get(0), self._lines.get(1)
         return (not self._lines or
                 self._is_section_header() or
-                ['', ''] == [line1, line2] or
+                (line1 == line2 == '') or
                 (self._is_in_section and
                     line1 and
                     not self._is_indented(line1, self._section_indent)))
@@ -1269,7 +1272,7 @@ class NumpyDocstring(GoogleDocstring):
         func_name1, func_name2, :meth:`func_name`, func_name3
 
         """
-        items = []
+        items: list[tuple[str, list[str], str | None]] = []
 
         def parse_item_name(text: str) -> tuple[str, str | None]:
             """Match ':role:`name`' or 'name'"""
@@ -1286,10 +1289,12 @@ class NumpyDocstring(GoogleDocstring):
             if not name:
                 return
             name, role = parse_item_name(name)
-            items.append((name, list(rest), role))
-            del rest[:]
+            items.append((name, rest.copy(), role))
+            rest.clear()
 
-        def translate(func, description, role):
+        def translate(
+            func: str, description: list[str], role: str | None,
+        ) -> tuple[str, list[str], str | None]:
             translations = self._config.napoleon_type_aliases
             if role is not None or not translations:
                 return func, description, role
@@ -1336,10 +1341,7 @@ class NumpyDocstring(GoogleDocstring):
             return []
 
         # apply type aliases
-        items = [
-            translate(func, description, role)
-            for func, description, role in items
-        ]
+        items = list(starmap(translate, items))
 
         lines: list[str] = []
         last_had_desc = True

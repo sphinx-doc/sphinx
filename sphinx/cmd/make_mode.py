@@ -17,17 +17,12 @@ from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.cmd.build import build_main
-from sphinx.util.console import (  # type: ignore[attr-defined]
-    blue,
-    bold,
-    color_terminal,
-    nocolor,
-)
+from sphinx.util.console import blue, bold, color_terminal, nocolor
 from sphinx.util.osutil import rmtree
 
-try:
-    from contextlib import chdir  # type: ignore[attr-defined]
-except ImportError:
+if sys.version_info >= (3, 11):
+    from contextlib import chdir
+else:
     from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -11,7 +11,7 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
-from sphinx.domains.python import _pseudo_parse_arglist
+from sphinx.domains.python._annotations import _pseudo_parse_arglist
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     """
     Description of a JavaScript object.
     """
+
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
     has_arguments = False
@@ -45,7 +46,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     #: based on directive nesting
     allow_nesting = False
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -88,12 +89,12 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         finally:
             name = member_name
             if prefix and member_prefix:
-                prefix = '.'.join([prefix, member_prefix])
+                prefix = f'{prefix}.{member_prefix}'
             elif prefix is None and member_prefix:
                 prefix = member_prefix
         fullname = name
         if prefix:
-            fullname = '.'.join([prefix, name])
+            fullname = f'{prefix}.{name}'
 
         signode['module'] = mod_name
         signode['object'] = prefix
@@ -241,12 +242,13 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
-            return '.'.join(parents + [name + parens])
+            return '.'.join([*parents, name + parens])
         return ''
 
 
 class JSCallable(JSObject):
     """Description of a JavaScript function, method or constructor."""
+
     has_arguments = True
 
     doc_field_types = [
@@ -296,7 +298,7 @@ class JSModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
@@ -358,6 +360,7 @@ class JSXRefRole(XRefRole):
 
 class JavaScriptDomain(Domain):
     """JavaScript language domain."""
+
     name = 'js'
     label = 'JavaScript'
     # if you add a new object type make sure to edit JSObject.get_index_string
@@ -440,11 +443,11 @@ class JavaScriptDomain(Domain):
 
         searches = []
         if mod_name and prefix:
-            searches.append('.'.join([mod_name, prefix, name]))
+            searches.append(f'{mod_name}.{prefix}.{name}')
         if mod_name:
-            searches.append('.'.join([mod_name, name]))
+            searches.append(f'{mod_name}.{name}')
         if prefix:
-            searches.append('.'.join([prefix, name]))
+            searches.append(f'{prefix}.{name}')
         searches.append(name)
 
         if searchorder == 0:
@@ -495,10 +498,10 @@ class JavaScriptDomain(Domain):
             return '.'.join(filter(None, [modname, prefix, target]))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', types={int, None},
+        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)},
     )
     return {
         'version': 'builtin',

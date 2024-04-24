@@ -29,7 +29,7 @@ try:
     from docutils.utils.roman import toRoman
 except ImportError:
     # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore[no-redef]
+    from roman import toRoman  # type: ignore[no-redef, import-not-found]
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node, Text
@@ -158,7 +158,7 @@ class Table:
             return 'tabulary'
 
     def get_colspec(self) -> str:
-        """Returns a column spec of table.
+        r"""Returns a column spec of table.
 
         This is what LaTeX calls the 'preamble argument' of the used table environment.
 
@@ -321,7 +321,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.elements = self.builder.context.copy()
 
         # initial section names
-        self.sectionnames = LATEXSECTIONNAMES[:]
+        self.sectionnames = LATEXSECTIONNAMES.copy()
         if self.theme.toplevel_sectioning == 'section':
             self.sectionnames.remove('chapter')
 
@@ -332,8 +332,8 @@ class LaTeXTranslator(SphinxTranslator):
                 self.top_sectionlevel = \
                     self.sectionnames.index(self.config.latex_toplevel_sectioning)
             except ValueError:
-                logger.warning(__('unknown %r toplevel_sectioning for class %r') %
-                               (self.config.latex_toplevel_sectioning, self.theme.docclass))
+                logger.warning(__('unknown %r toplevel_sectioning for class %r'),
+                               self.config.latex_toplevel_sectioning, self.theme.docclass)
 
         if self.config.numfig:
             self.numfig_secnum_depth = self.config.numfig_secnum_depth
@@ -911,8 +911,8 @@ class LaTeXTranslator(SphinxTranslator):
         self._depart_sig_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.params_left_at_level = sum([isinstance(c, addnodes.desc_parameter)
-                                         for c in node.children])
+        self.params_left_at_level = sum(isinstance(c, addnodes.desc_parameter)
+                                        for c in node.children)
         self.optional_param_level += 1
         self.max_optional_param_level = self.optional_param_level
         if self.multi_line_parameter_list:
@@ -2121,14 +2121,14 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}}$')
 
     def visit_inline(self, node: Element) -> None:
-        classes = node.get('classes', [])
-        if classes in [['menuselection']]:
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
+        if classes == ['menuselection']:
             self.body.append(r'\sphinxmenuselection{')
             self.context.append('}')
-        elif classes in [['guilabel']]:
+        elif classes == ['guilabel']:
             self.body.append(r'\sphinxguilabel{')
             self.context.append('}')
-        elif classes in [['accelerator']]:
+        elif classes == ['accelerator']:
             self.body.append(r'\sphinxaccelerator{')
             self.context.append('}')
         elif classes and not self.in_title:
@@ -2153,12 +2153,12 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_container(self, node: Element) -> None:
-        classes = node.get('classes', [])
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
         for c in classes:
             self.body.append('\n\\begin{sphinxuseclass}{%s}' % c)
 
     def depart_container(self, node: Element) -> None:
-        classes = node.get('classes', [])
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
         for _c in classes:
             self.body.append('\n\\end{sphinxuseclass}')
 
@@ -2261,6 +2261,6 @@ class LaTeXTranslator(SphinxTranslator):
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import (  # noqa: E402  # isort:skip
+from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
     HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext,
 )

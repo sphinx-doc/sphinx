@@ -228,6 +228,7 @@ General configuration
    are matched against the source file names relative to the source directory,
    using slashes as directory separators on all platforms. The default is ``**``,
    meaning that all files are recursively included from the source directory.
+   :confval:`exclude_patterns` has priority over :confval:`include_patterns`.
 
    Example patterns:
 
@@ -325,18 +326,26 @@ General configuration
 
    .. versionadded:: 0.5
 
+.. confval:: show_warning_types
+
+   If ``True``, the type of each warning is added as a suffix to the warning message,
+   e.g., ``WARNING: [...] [index]`` or ``WARNING: [...] [toc.circular]``.
+   The default is ``False``.
+
+   .. versionadded:: 7.3.0
+
 .. confval:: suppress_warnings
 
    A list of warning types to suppress arbitrary warning messages.
 
-   Sphinx supports following warning types:
+   Sphinx core supports following warning types:
 
    * ``app.add_node``
    * ``app.add_directive``
    * ``app.add_role``
    * ``app.add_generic_role``
    * ``app.add_source_parser``
-   * ``autosectionlabel.*``
+   * ``config.cache``
    * ``download.not_readable``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
@@ -358,10 +367,17 @@ General configuration
    * ``toc.not_readable``
    * ``toc.secnum``
 
+   Extensions can also define their own warning types.
+   Those defined by the first-party ``sphinx.ext`` extensions are:
+
+   * ``autodoc``
+   * ``autodoc.import_object``
+   * ``autosectionlabel.<document name>``
+   * ``autosummary``
+   * ``intersphinx.external``
+
    You can choose from these types.  You can also give only the first
    component to exclude all warnings attached to it.
-
-   Now, this option should be considered *experimental*.
 
    .. versionadded:: 1.4
 
@@ -379,7 +395,7 @@ General configuration
 
    .. versionchanged:: 2.1
 
-      Added ``autosectionlabel.*``
+      Added ``autosectionlabel.<document name>``
 
    .. versionchanged:: 3.3.0
 
@@ -393,9 +409,13 @@ General configuration
 
       Added ``i18n.inconsistent_references``
 
-    .. versionadded:: 7.1
+   .. versionadded:: 7.1
 
-        Added ``index`` warning type.
+      Added ``index`` warning type.
+
+   .. versionadded:: 7.3
+
+      Added ``config.cache`` warning type.
 
 .. confval:: needs_sphinx
 
@@ -1178,7 +1198,7 @@ that use Sphinx's HTMLWriter class.
                          ('print.css', {'media': 'print'})]
 
    As a special attribute, *priority* can be set as an integer to load the CSS
-   file earlier or lazier step.  For more information, refer
+   file at an earlier or lazier step.  For more information, refer
    :meth:`.Sphinx.add_css_file()`.
 
    .. versionadded:: 1.8
@@ -1200,9 +1220,9 @@ that use Sphinx's HTMLWriter class.
                         'https://example.com/scripts/custom.js',
                         ('custom.js', {'async': 'async'})]
 
-   As a special attribute, *priority* can be set as an integer to load the CSS
-   file earlier or lazier step.  For more information, refer
-   :meth:`.Sphinx.add_css_file()`.
+   As a special attribute, *priority* can be set as an integer to load the
+   JavaScript file at an earlier or lazier step.  For more information, refer
+   :meth:`.Sphinx.add_js_file()`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
@@ -1591,7 +1611,41 @@ that use Sphinx's HTMLWriter class.
    The name of a JavaScript file (relative to the configuration directory) that
    implements a search results scorer.  If empty, the default will be used.
 
-   .. XXX describe interface for scorer here
+   The scorer must implement the following interface,
+   and may optionally define the ``score()`` function for more granular control.
+
+   .. code-block:: javascript
+
+      const Scorer = {
+          // Implement the following function to further tweak the score for each result
+          score: result => {
+            const [docName, title, anchor, descr, score, filename] = result
+
+            // ... calculate a new score ...
+            return score
+          },
+
+          // query matches the full name of an object
+          objNameMatch: 11,
+          // or matches in the last dotted part of the object name
+          objPartialMatch: 6,
+          // Additive scores depending on the priority of the object
+          objPrio: {
+            0: 15, // used to be importantResults
+            1: 5, // used to be objectResults
+            2: -5, // used to be unimportantResults
+          },
+          //  Used when the priority is not in the mapping.
+          objPrioDefault: 0,
+
+          // query found in title
+          title: 15,
+          partialTitle: 7,
+
+          // query found in terms
+          term: 5,
+          partialTerm: 2,
+      };
 
    .. versionadded:: 1.2
 
@@ -1641,7 +1695,7 @@ Options for Single HTML output
 .. confval:: singlehtml_sidebars
 
    Custom sidebar templates, must be a dictionary that maps document names to
-   template names.  And it only allows a key named `'index'`.  All other keys
+   template names.  And it only allows a key named ``'index'``.  All other keys
    are ignored.  For more information, refer to :confval:`html_sidebars`.  By
    default, it is same as :confval:`html_sidebars`.
 
@@ -1963,7 +2017,7 @@ the `Dublin Core metadata <https://dublincore.org/>`_.
    Meta data for the guide element of :file:`content.opf`. This is a
    sequence of tuples containing the *type*, the *uri* and the *title* of
    the optional guide information. See the OPF documentation
-   at `<http://idpf.org/epub>`_ for details. If possible, default entries
+   at `<https://idpf.org/epub>`_ for details. If possible, default entries
    for the *cover* and *toc* types are automatically inserted. However,
    the types can be explicitly overwritten if the default entries are not
    appropriate. Example::
@@ -2366,7 +2420,7 @@ These options influence LaTeX output.
    usage).  This means that words with UTF-8 characters will get
    ordered correctly for the :confval:`language`.
 
-   __ http://xindy.sourceforge.net/
+   __ https://xindy.sourceforge.net/
 
    - This option is ignored if :confval:`latex_engine` is ``'platex'``
      (Japanese documents; :program:`mendex` replaces :program:`makeindex`
@@ -2742,7 +2796,7 @@ Options for the linkcheck builder
    A list of regular expressions that match URIs that should not be checked
    when doing a ``linkcheck`` build.  Example::
 
-      linkcheck_ignore = [r'http://localhost:\d+/']
+      linkcheck_ignore = [r'https://localhost:\d+/']
 
    .. versionadded:: 1.1
 
@@ -2804,8 +2858,8 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_timeout
 
-   A timeout value, in seconds, for the linkcheck builder.  The default is to
-   use Python's global socket timeout.
+   The duration, in seconds, that the linkcheck builder will wait for a
+   response after each hyperlink request.  Defaults to 30 seconds.
 
    .. versionadded:: 1.1
 
@@ -2896,7 +2950,8 @@ Options for the linkcheck builder
 
    Otherwise, ``linkcheck`` waits for a minute before to retry and keeps
    doubling the wait time between attempts until it succeeds or exceeds the
-   ``linkcheck_rate_limit_timeout``. By default, the timeout is 5 minutes.
+   ``linkcheck_rate_limit_timeout``. By default, the timeout is 300 seconds
+   and custom timeouts should be given in seconds.
 
    .. _Retry-After: https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3
 
@@ -2914,6 +2969,33 @@ Options for the linkcheck builder
       linkcheck_exclude_documents = [r'.*/legacy/.*']
 
    .. versionadded:: 4.4
+
+.. confval:: linkcheck_allow_unauthorized
+
+   When a webserver responds with an HTTP 401 (unauthorized) response, the
+   current default behaviour of Sphinx is to treat the link as "working".  To
+   change that behaviour, set this option to ``False``.
+
+   The default value for this option will be changed in Sphinx 8.0; from that
+   version onwards, HTTP 401 responses to checked hyperlinks will be treated
+   as "broken" by default.
+
+   .. versionadded:: 7.3
+
+.. confval:: linkcheck_report_timeouts_as_broken
+
+   When an HTTP response is not received from a webserver before the configured
+   :confval:`linkcheck_timeout` expires,
+   the current default behaviour of Sphinx is to treat the link as 'broken'.
+   To report timeouts using a distinct report code of ``timeout``,
+   set :confval:`linkcheck_report_timeouts_as_broken` to ``False``.
+
+   From Sphinx 8.0 onwards, timeouts that occur while checking hyperlinks
+   will be reported using the new 'timeout' status code.
+
+   .. xref RemovedInSphinx80Warning
+
+   .. versionadded:: 7.3
 
 
 Options for the XML builder
@@ -3066,7 +3148,7 @@ Options for the Python domain
    for the latter, the signature length ignores the length of
    the type parameters list.
 
-   For instance, with `python_maximum_signature_line_length = 20`,
+   For instance, with ``python_maximum_signature_line_length = 20``,
    only the list of type parameters will be wrapped
    while the arguments list will be rendered on a single line
 

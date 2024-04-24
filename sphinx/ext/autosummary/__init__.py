@@ -48,7 +48,9 @@ This can be used as the default role to make links 'smart'.
 
 from __future__ import annotations
 
+import functools
 import inspect
+import operator
 import os
 import posixpath
 import re
@@ -56,7 +58,7 @@ import sys
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -93,7 +95,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.extension import Extension
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
@@ -162,7 +164,7 @@ class FakeDirective(DocumenterBridge):
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
         app = FakeApplication()
-        app.config.add('autodoc_class_signature', 'mixed', True, None)
+        app.config.add('autodoc_class_signature', 'mixed', 'env', ())
         env = BuildEnvironment(app)  # type: ignore[arg-type]
         state = Struct(document=document)
         super().__init__(env, None, Options(), 0, state)
@@ -216,7 +218,7 @@ class Autosummary(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     has_content = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
@@ -284,9 +286,9 @@ class Autosummary(SphinxDirective):
                     return import_ivar_by_name(name, prefixes)
                 except ImportError as exc2:
                     if exc2.__cause__:
-                        errors: list[BaseException] = exc.exceptions + [exc2.__cause__]
+                        errors: list[BaseException] = [*exc.exceptions, exc2.__cause__]
                     else:
-                        errors = exc.exceptions + [exc2]
+                        errors = [*exc.exceptions, exc2]
 
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
@@ -591,7 +593,7 @@ def limited_join(sep: str, items: list[str], max_chars: int = 30,
         else:
             break
 
-    return sep.join(list(items[:n_items]) + [overflow_marker])
+    return sep.join([*list(items[:n_items]), overflow_marker])
 
 
 # -- Importing items -----------------------------------------------------------
@@ -603,7 +605,7 @@ class ImportExceptionGroup(Exception):
     It contains an error messages and a list of exceptions as its arguments.
     """
 
-    def __init__(self, message: str | None, exceptions: Sequence[BaseException]):
+    def __init__(self, message: str | None, exceptions: Sequence[BaseException]) -> None:
         super().__init__(message)
         self.exceptions = list(exceptions)
 
@@ -640,7 +642,7 @@ def import_by_name(
     for prefix in prefixes:
         try:
             if prefix:
-                prefixed_name = '.'.join([prefix, name])
+                prefixed_name = f'{prefix}.{name}'
             else:
                 prefixed_name = name
             obj, parent, modname = _import_by_name(prefixed_name, grouped_exception=True)
@@ -651,7 +653,8 @@ def import_by_name(
             tried.append(prefixed_name)
             errors.append(exc)
 
-    exceptions: list[BaseException] = sum((e.exceptions for e in errors), [])
+    exceptions: list[BaseException] = functools.reduce(
+        operator.iadd, (e.exceptions for e in errors), [])
     raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
 
 
@@ -742,6 +745,7 @@ class AutoLink(SphinxRole):
     Expands to ':obj:`text`' if `text` is an object that can be imported;
     otherwise expands to '*text*'.
     """
+
     def run(self) -> tuple[list[Node], list[system_message]]:
         pyobj_role = self.env.get_domain('py').role('obj')
         assert pyobj_role is not None
@@ -766,7 +770,7 @@ class AutoLink(SphinxRole):
 
 def get_rst_suffix(app: Sphinx) -> str | None:
     def get_supported_format(suffix: str) -> tuple[str, ...]:
-        parser_class = app.registry.get_source_parsers().get(suffix)
+        parser_class = app.registry.get_source_parsers().get(suffix.removeprefix('.'))
         if parser_class is None:
             return ('restructuredtext',)
         return parser_class.supported
@@ -803,7 +807,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     suffix = get_rst_suffix(app)
     if suffix is None:
-        logger.warning(__('autosummary generats .rst files internally. '
+        logger.warning(__('autosummary generates .rst files internally. '
                           'But your source_suffix does not contain .rst. Skipped.'))
         return
 
@@ -817,7 +821,7 @@ def process_generate_options(app: Sphinx) -> None:
                                   encoding=app.config.source_encoding)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     # I need autodoc
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,
@@ -835,13 +839,13 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_directive('autosummary', Autosummary)
     app.add_role('autolink', AutoLink())
     app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_context', {}, True)
+    app.add_config_value('autosummary_context', {}, 'env')
     app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', True, True, [bool, list])
-    app.add_config_value('autosummary_generate_overwrite', True, False)
+    app.add_config_value('autosummary_generate', True, 'env', {bool, list})
+    app.add_config_value('autosummary_generate_overwrite', True, '')
     app.add_config_value('autosummary_mock_imports',
                          lambda config: config.autodoc_mock_imports, 'env')
-    app.add_config_value('autosummary_imported_members', [], False, [bool])
+    app.add_config_value('autosummary_imported_members', [], '', bool)
     app.add_config_value('autosummary_ignore_module_all', True, 'env', bool)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

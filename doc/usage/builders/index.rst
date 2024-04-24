@@ -199,7 +199,7 @@ The most common builders are:
    This builder produces the same output as the standalone HTML builder, but
    also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
    details about it.  For definition of the epub format, have a look at
-   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
+   `<https://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 3* files.
 
    .. autoattribute:: name
@@ -353,8 +353,8 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 .. class:: SerializingHTMLBuilder
 
    This builder uses a module that implements the Python serialization API
-   (`pickle`, `simplejson`, `phpserialize`, and others) to dump the generated
-   HTML documentation.  The pickle builder is a subclass of it.
+   (``pickle``, ``simplejson``, ``phpserialize``, and others) to dump the
+   generated HTML documentation.  The pickle builder is a subclass of it.
 
    A concrete subclass of this builder serializing to the `PHP serialization`_
    format could look like this::
@@ -372,10 +372,10 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 
    .. attribute:: implementation
 
-      A module that implements `dump()`, `load()`, `dumps()` and `loads()`
+      A module that implements ``dump()``, ``load()``, ``dumps()`` and ``loads()``
       functions that conform to the functions with the same names from the
       pickle module.  Known modules implementing this interface are
-      `simplejson`, `phpserialize`, `plistlib`, and others.
+      ``simplejson``, ``phpserialize``, ``plistlib``, and others.
 
    .. attribute:: out_suffix
 
@@ -453,9 +453,9 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 .. class:: ChangesBuilder
 
    This builder produces an HTML overview of all :rst:dir:`versionadded`,
-   :rst:dir:`versionchanged` and :rst:dir:`deprecated` directives for the
-   current :confval:`version`.  This is useful to generate a ChangeLog file, for
-   example.
+   :rst:dir:`versionchanged`, :rst:dir:`deprecated` and :rst:dir:`versionremoved`
+   directives for the current :confval:`version`.  This is useful to generate a
+   changelog file, for example.
 
    .. autoattribute:: name
 

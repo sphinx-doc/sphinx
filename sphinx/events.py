@@ -77,21 +77,21 @@ class EventManager:
     def disconnect(self, listener_id: int) -> None:
         """Disconnect a handler."""
         for listeners in self.listeners.values():
-            for listener in listeners[:]:
+            for listener in listeners.copy():
                 if listener.id == listener_id:
                     listeners.remove(listener)
 
-    def emit(self, name: str, *args: Any,
-             allowed_exceptions: tuple[type[Exception], ...] = ()) -> list:
+    def emit(
+        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+    ) -> list:
         """Emit a Sphinx event."""
-
         # not every object likes to be repr()'d (think
         # random stuff coming via autodoc)
         with contextlib.suppress(Exception):
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
 
         results = []
-        listeners = sorted(self.listeners[name], key=attrgetter("priority"))
+        listeners = sorted(self.listeners[name], key=attrgetter('priority'))
         for listener in listeners:
             try:
                 results.append(listener.handler(self.app, *args))
@@ -105,12 +105,17 @@ class EventManager:
                     # Just pass through the error, so that it can be debugged.
                     raise
                 modname = safe_getattr(listener.handler, '__module__', None)
-                raise ExtensionError(__("Handler %r for event %r threw an exception") %
-                                     (listener.handler, name), exc, modname=modname) from exc
+                raise ExtensionError(
+                    __('Handler %r for event %r threw an exception')
+                    % (listener.handler, name),
+                    exc,
+                    modname=modname,
+                ) from exc
         return results
 
-    def emit_firstresult(self, name: str, *args: Any,
-                         allowed_exceptions: tuple[type[Exception], ...] = ()) -> Any:
+    def emit_firstresult(
+        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+    ) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.

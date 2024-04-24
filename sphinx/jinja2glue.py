@@ -8,16 +8,11 @@ from typing import TYPE_CHECKING, Any, Callable
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
-from jinja2.utils import open_if_exists
+from jinja2.utils import open_if_exists, pass_context
 
 from sphinx.application import TemplateBridge
 from sphinx.util import logging
 from sphinx.util.osutil import mtimes_of_files
-
-try:
-    from jinja2.utils import pass_context
-except ImportError:
-    from jinja2 import contextfunction as pass_context
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -60,7 +55,7 @@ def _todim(val: int | str) -> str:
 
 
 def _slice_index(values: list, slices: int) -> Iterator[list]:
-    seq = list(values)
+    seq = values.copy()
     length = 0
     for value in values:
         length += 1 + len(value[1][1])  # count includes subitems
@@ -70,7 +65,7 @@ def _slice_index(values: list, slices: int) -> Iterator[list]:
         count = 0
         start = offset
         if slices == slice_number + 1:  # last column
-            offset = len(seq)  # noqa: SIM113
+            offset = len(seq)  # NoQA: SIM113
         else:
             for value in values[offset:]:
                 count += 1 + len(value[1][1])
@@ -100,6 +95,7 @@ class idgen:
     def __next__(self) -> int:
         self.id += 1
         return self.id
+
     next = __next__  # Python 2/Jinja compatibility
 
 
@@ -138,6 +134,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
                 return path.getmtime(filename) == mtime
             except OSError:
                 return False
+
         return contents, filename, uptodate
 
 
@@ -170,8 +167,9 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         # prepend explicit template paths
         self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
-            cfg_templates_path = [path.join(builder.confdir, tp)
-                                  for tp in builder.config.templates_path]
+            cfg_templates_path = [
+                path.join(builder.confdir, tp) for tp in builder.config.templates_path
+            ]
             pathchain[0:0] = cfg_templates_path
             loaderchain[0:0] = cfg_templates_path
 
@@ -183,8 +181,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
         use_i18n = builder.app.translator is not None
         extensions = ['jinja2.ext.i18n'] if use_i18n else []
-        self.environment = SandboxedEnvironment(loader=self,
-                                                extensions=extensions)
+        self.environment = SandboxedEnvironment(loader=self, extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
         self.environment.filters['todim'] = _todim
@@ -194,7 +191,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.globals['accesskey'] = pass_context(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:
-            self.environment.install_gettext_translations(builder.app.translator)
+            # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
+            self.environment.install_gettext_translations(  # type: ignore[attr-defined]
+                builder.app.translator
+            )
 
     def render(self, template: str, context: dict) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
@@ -211,11 +211,12 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):
-            loaders = loaders[self.templatepathlen:]
+            loaders = loaders[self.templatepathlen :]
             template = template[1:]
         for loader in loaders:
             try:
                 return loader.get_source(environment, template)
             except TemplateNotFound:
                 pass
-        raise TemplateNotFound(template)
+        msg = f'{template!r} not found in {self.environment.loader.pathchain}'  # type: ignore[union-attr]
+        raise TemplateNotFound(msg)

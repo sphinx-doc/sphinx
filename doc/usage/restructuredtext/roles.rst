@@ -175,6 +175,10 @@ different style:
    ``:manpage:`ls(1)``` displays :manpage:`ls(1)`. Creates a hyperlink to an
    external site rendering the manpage if :confval:`manpages_url` is defined.
 
+   .. versionchanged:: 7.3
+      Allow specifying a target with ``<>``, like hyperlinks.
+      For example, ``:manpage:`blah <ls(1)>``` displays :manpage:`blah <ls(1)>`.
+
 .. rst:role:: menuselection
 
    Menu selections should be marked using the ``menuselection`` role.  This is
@@ -236,7 +240,10 @@ different style:
    :rst:role:`code` role instead.
 
    .. versionchanged:: 1.8
-      Allowed to escape curly braces with backslash
+      Allowed to escape curly braces with double backslash.  For example, in
+      ``:samp:`print(f"answer=\\{1+{variable}*2\\}")```, the part ``variable``
+      would be emphasized and the escaped curly braces would be displayed:
+      :samp:`print(f"answer=\\{1+{variable}*2\\}")`
 
 There is also an :rst:role:`index` role to generate index entries.
 
@@ -269,7 +276,7 @@ the standard reST markup for that purpose.
 Substitutions
 -------------
 
-The documentation system provides three substitutions that are defined by
+The documentation system provides some substitutions that are defined by
 default. They are set in the build configuration file.
 
 .. describe:: |release|
@@ -293,5 +300,5 @@ default. They are set in the build configuration file.
 .. describe:: |translation progress|
 
    Replaced by the translation progress of the document.
-   This substitution is intented for use by document translators
+   This substitution is intended for use by document translators
    as a marker for the translation progress of the document.
