@@ -1,5 +1,6 @@
 """Test the build process with LaTeX builder with the test root."""
 
+import http.server
 import os
 import re
 import subprocess
@@ -16,6 +17,8 @@ from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
+
+from tests.utils import http_server
 
 try:
     from contextlib import chdir
@@ -79,6 +82,28 @@ def skip_if_stylefiles_notfound(testfunc):
         return testfunc
 
 
+class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+    def do_GET(self):
+        content, content_type = None, None
+        if self.path == "/sphinx.png":
+            with open("tests/roots/test-local-logo/images/img.png", "rb") as f:
+                content = f.read()
+                content_type = "image/png"
+
+        if content:
+            self.send_response(200, "OK")
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("Content-Type", content_type)
+            self.end_headers()
+            self.wfile.write(content)
+        else:
+            self.send_response(404, "Not Found")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+
+
 @skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
@@ -112,7 +137,8 @@ def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_le
     load_mappings(app)
     app.builder.init()
     LaTeXTranslator.ignore_missing_images = True
-    app.build(force_all=True)
+    with http_server(RemoteImageHandler):
+        app.build(force_all=True)
 
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').is_file()
@@ -1365,6 +1391,7 @@ def test_latex_table_custom_template_caseA(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' in result
+    assert 'AU REVOIR, KANIGGETS' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
@@ -1398,21 +1425,21 @@ def test_latex_raw_directive(app, status, warning):
     assert 'LaTeX: abc def ghi' in result
 
 
-@pytest.mark.usefixtures('if_online')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_latex_images(app, status, warning):
-    app.build(force_all=True)
+    with http_server(RemoteImageHandler, port=7777):
+        app.build(force_all=True)
 
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
 
     # images are copied
-    assert '\\sphinxincludegraphics{{python-logo}.png}' in result
-    assert (app.outdir / 'python-logo.png').exists()
+    assert '\\sphinxincludegraphics{{sphinx}.png}' in result
+    assert (app.outdir / 'sphinx.png').exists()
 
     # not found images
     assert '\\sphinxincludegraphics{{NOT_EXIST}.PNG}' not in result
     assert ('WARNING: Could not fetch remote image: '
-            'https://www.google.com/NOT_EXIST.PNG [404]' in warning.getvalue())
+            'http://localhost:7777/NOT_EXIST.PNG [404]' in warning.getvalue())
 
     # an image having target
     assert ('\\sphinxhref{https://www.sphinx-doc.org/}'
@@ -1682,7 +1709,7 @@ def test_copy_images(app, status, warning):
         image.name for image in test_dir.rglob('*')
         if image.suffix in {'.gif', '.pdf', '.png', '.svg'}
     }
-    images.discard('python-logo.png')
+    images.discard('sphinx.png')
     assert images == {
         'img.pdf',
         'rimg.png',

@@ -265,8 +265,7 @@ class StandaloneHTMLBuilder(Builder):
         elif self.config.html_style is not None:
             yield from self.config.html_style
         elif self.theme:
-            stylesheet = self.theme.get_config('theme', 'stylesheet')
-            yield from map(str.strip, stylesheet.split(','))
+            yield from self.theme.stylesheets
         else:
             yield 'default.css'
 
@@ -286,13 +285,15 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
-            style = self.theme.get_config('theme', 'pygments_style', 'none')
+            # From the ``pygments_style`` theme setting
+            style = self.theme.pygments_style_default or 'none'
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
         if self.theme:
-            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+            # From the ``pygments_dark_style`` theme setting
+            dark_style = self.theme.pygments_style_dark
         else:
             dark_style = None
 
@@ -960,13 +961,11 @@ class StandaloneHTMLBuilder(Builder):
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
-        sidebars = None
         matched = None
         customsidebar = None
 
         # default sidebars settings for selected theme
-        if theme_default_sidebars := self.theme.get_config('theme', 'sidebars', None):
-            sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        sidebars = list(self.theme.sidebar_templates)
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
@@ -985,7 +984,7 @@ class StandaloneHTMLBuilder(Builder):
                 matched = pattern
                 sidebars = patsidebars
 
-        if sidebars is None:
+        if len(sidebars) == 0:
             # keep defaults
             pass
 
