@@ -444,7 +444,7 @@ def stringify_annotation(
             and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)
         ):
             # special case to flatten a Union of Literals into a literal
-            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[valid-type]
+            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]
             args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
                              for a in flattened_args)
             return f'{module_prefix}Literal[{args}]'
