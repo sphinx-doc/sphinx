@@ -13,7 +13,7 @@ from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import TYPE_CHECKING, NamedTuple, cast
-from urllib.parse import unquote, urlparse, urlsplit, urlunparse
+from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
@@ -409,6 +409,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     if rex.match(req_url):
                         anchor = ''
                         break
+            anchor = unquote(anchor)
 
         # handle non-ASCII URIs
         try:
@@ -446,7 +447,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if (self.check_anchors and response.ok and anchor
                             and not contains_anchor(response, anchor)):
-                        raise Exception(__(f'Anchor {anchor!r} not found'))
+                        raise Exception(__(f'Anchor {quote(anchor)!r} not found'))
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
@@ -592,7 +593,7 @@ def _get_request_headers(
 
 def contains_anchor(response: Response, anchor: str) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
-    parser = AnchorCheckParser(unquote(anchor))
+    parser = AnchorCheckParser(anchor)
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):

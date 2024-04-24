@@ -295,7 +295,7 @@ def test_anchors_ignored_for_url(app):
 
     attrs = ('filename', 'lineno', 'status', 'code', 'uri', 'info')
     data = [json.loads(x) for x in content.splitlines()]
-    assert len(data) == 7
+    assert len(data) == 8
     assert all(all(attr in row for attr in attrs) for row in data)
 
     # rows may be unsorted due to network latency or
@@ -304,6 +304,7 @@ def test_anchors_ignored_for_url(app):
 
     assert rows[f'http://{address}/valid']['status'] == 'working'
     assert rows[f'http://{address}/valid#valid-anchor']['status'] == 'working'
+    assert rows['http://localhost:7777/valid#py:module::urllib.parse']['status'] == 'broken'
     assert rows[f'http://{address}/valid#invalid-anchor'] == {
         'status': 'broken',
         'info': "Anchor 'invalid-anchor' not found",
