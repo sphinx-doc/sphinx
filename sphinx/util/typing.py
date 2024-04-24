@@ -450,7 +450,9 @@ def stringify_annotation(
                              for a in annotation_args)
             return f'{module_prefix}Literal[{args}]'
         elif _is_annotated_form(annotation):  # for py39+
-            return stringify_annotation(annotation_args[0], mode)
+            args = stringify_annotation(annotation_args[0], mode)
+            meta = ', '.join(map(repr, annotation.__metadata__))
+            return f'{module_prefix}Annotated[{args}, {meta}]'
         elif all(is_system_TypeVar(a) for a in annotation_args):
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
             return module_prefix + qualname

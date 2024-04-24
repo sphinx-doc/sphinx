@@ -18,6 +18,7 @@ Features added
   Patch by James Addison and Adam Turner
 
   .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
+* #11773: Added metadata information to rendering of `~typing.Annotated` types.
 
 Bugs fixed
 ----------
