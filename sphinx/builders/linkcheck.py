@@ -30,7 +30,7 @@ from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Any, Callable, Optional
+    from typing import Any, Callable
 
     from requests import Response
 
@@ -179,11 +179,10 @@ class HyperlinkCollector(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
         for node in self.document.findall():
-            uri = self.find_uri(node)
-            if uri:
+            if uri := self.find_uri(node):
                 self._add_uri(uri, node)
 
-    def find_uri(self, node: nodes.Element) -> Optional[str]:
+    def find_uri(self, node: nodes.Element) -> str | None:
         """
         Find a URI for a given node.
 
