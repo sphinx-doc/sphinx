@@ -2,18 +2,16 @@ target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
 output-format = "full"
 
-[lint]
-preview = true
-exclude = [
-    ".git",
-    ".tox",
-    ".venv",
+extend-exclude = [
     "tests/roots/*",
     "build/*",
     "doc/_build/*",
     "sphinx/search/*",
     "doc/usage/extensions/example*.py",
 ]
+
+[lint]
+preview = true
 ignore = [
     # flake8-annotations
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
