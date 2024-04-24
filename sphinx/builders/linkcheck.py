@@ -183,8 +183,7 @@ class HyperlinkCollector(SphinxPostTransform):
                 self._add_uri(uri, node)
 
     def find_uri(self, node: nodes.Element) -> str | None:
-        """
-        Find a URI for a given node.
+        """Find a URI for a given node.
 
         This call can be used to retrieve a URI from a provided node. If no
         URI exists for a provided node, this call will return ``None``.
@@ -216,8 +215,7 @@ class HyperlinkCollector(SphinxPostTransform):
         return None
 
     def _add_uri(self, uri: str, node: nodes.Element) -> None:
-        """
-        Registers a node's URI into a builder's collection of hyperlinks.
+        """Registers a node's URI into a builder's collection of hyperlinks.
 
         Provides the ability to register a URI value determined from a node
         into the linkcheck's builder. URI's processed through this call can
