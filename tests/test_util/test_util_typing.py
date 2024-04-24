@@ -30,9 +30,12 @@ from types import (
     WrapperDescriptorType,
 )
 from typing import (
+    Annotated,
     Any,
     Dict,
+    ForwardRef,
     List,
+    Literal,
     NewType,
     Optional,
     Tuple,
@@ -184,6 +187,11 @@ def test_restify_type_hints_containers():
                                            "[:py:obj:`None`]")
 
 
+def test_restify_Annotated():
+    assert restify(Annotated[str, "foo", "bar"]) == ':py:class:`~typing.Annotated`\\ [:py:class:`str`]'
+    assert restify(Annotated[str, "foo", "bar"], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`str`]'
+
+
 def test_restify_type_hints_Callable():
     assert restify(t.Callable) == ":py:class:`~typing.Callable`"
     assert restify(t.Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
@@ -284,7 +292,6 @@ def test_restify_type_hints_alias():
 
 
 def test_restify_type_ForwardRef():
-    from typing import ForwardRef  # type: ignore[attr-defined]
     assert restify(ForwardRef("MyInt")) == ":py:class:`MyInt`"
 
     assert restify(list[ForwardRef("MyInt")]) == ":py:class:`list`\\ [:py:class:`MyInt`]"
@@ -293,7 +300,6 @@ def test_restify_type_ForwardRef():
 
 
 def test_restify_type_Literal():
-    from typing import Literal  # type: ignore[attr-defined]
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
     assert restify(Literal[MyEnum.a], 'fully-qualified-except-typing') == ':py:obj:`~typing.Literal`\\ [:py:attr:`tests.test_util.test_util_typing.MyEnum.a`]'
@@ -469,9 +475,8 @@ def test_stringify_type_hints_pep_585():
 
 
 def test_stringify_Annotated():
-    from typing import Annotated  # type: ignore[attr-defined]
-    assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str[foo, bar]"
-    assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "str[foo, bar]"
+    assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "Annotated[str, 'foo', 'bar']"
+    assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "~typing.Annotated[str, 'foo', 'bar']"
 
 
 def test_stringify_type_hints_string():
@@ -606,7 +611,6 @@ def test_stringify_type_hints_alias():
 
 
 def test_stringify_type_Literal():
-    from typing import Literal  # type: ignore[attr-defined]
     assert stringify_annotation(Literal[1, "2", "\r"], 'fully-qualified-except-typing') == "Literal[1, '2', '\\r']"
     assert stringify_annotation(Literal[1, "2", "\r"], "fully-qualified") == "typing.Literal[1, '2', '\\r']"
     assert stringify_annotation(Literal[1, "2", "\r"], "smart") == "~typing.Literal[1, '2', '\\r']"
@@ -648,8 +652,6 @@ def test_stringify_mock():
 
 
 def test_stringify_type_ForwardRef():
-    from typing import ForwardRef  # type: ignore[attr-defined]
-
     assert stringify_annotation(ForwardRef("MyInt")) == "MyInt"
     assert stringify_annotation(ForwardRef("MyInt"), 'smart') == "MyInt"
 
