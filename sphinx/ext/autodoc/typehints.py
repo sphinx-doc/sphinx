@@ -35,9 +35,9 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
-                    annotation[param.name] = stringify_annotation(param.annotation, mode)
+                    annotation[param.name] = stringify_annotation(param.annotation, mode)  # type: ignore[arg-type]
             if sig.return_annotation is not sig.empty:
-                annotation['return'] = stringify_annotation(sig.return_annotation, mode)
+                annotation['return'] = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
     except (TypeError, ValueError):
         pass
 

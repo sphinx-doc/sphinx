@@ -662,7 +662,7 @@ def test_getslots():
         __slots__ = {'attr': 'docstring'}
 
     class Qux:
-        __slots__ = 'attr'
+        __slots__ = 'attr'  # NoQA: PLC0205
 
     assert inspect.getslots(Foo) is None
     assert inspect.getslots(Bar) == {'attr': None}

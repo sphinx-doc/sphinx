@@ -194,7 +194,7 @@ class Sphinx:
         self.messagelog: deque = deque(maxlen=10)
 
         # say hello to the world
-        logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
+        logger.info(bold(__('Running Sphinx v%s')), sphinx.__display_version__)
 
         # status code for command-line application
         self.statuscode = 0
@@ -274,7 +274,7 @@ class Sphinx:
         if self.config.language == 'en':
             self.translator, _ = locale.init([], None)
         else:
-            logger.info(bold(__('loading translations [%s]... ') % self.config.language),
+            logger.info(bold(__('loading translations [%s]... ')), self.config.language,
                         nonl=True)
 
             # compile mo files if sphinx.po file in user locale directories are updated
@@ -376,13 +376,13 @@ class Sphinx:
                 else:
                     msg = __('build %s, %s warnings.')
 
-            logger.info(bold(msg % (status, self._warncount)))
+            logger.info(bold(msg), status, self._warncount)
         else:
-            logger.info(bold(__('build %s.') % status))
+            logger.info(bold(__('build %s.')), status)
 
         if self.statuscode == 0 and self.builder.epilog:
             logger.info('')
-            logger.info(self.builder.epilog % {
+            logger.info(self.builder.epilog, {
                 'outdir': relpath(self.outdir),
                 'project': self.config.project,
             })

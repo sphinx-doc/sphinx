@@ -64,7 +64,7 @@ dependencies = [
     "sphinxcontrib-qthelp",
     "Jinja2>=3.0",
     "Pygments>=2.14",
-    "docutils>=0.18.1,<0.21",
+    "docutils>=0.18.1,<0.22",
     "snowballstemmer>=2.0",
     "babel>=2.9",
     "alabaster~=0.7.14",
@@ -72,6 +72,7 @@ dependencies = [
     "requests>=2.25.0",
     "packaging>=21.0",
     "importlib-metadata>=4.8; python_version < '3.10'",
+    "tomli>=2; python_version < '3.11'",
     "colorama>=0.4.5; sys_platform == 'win32'",
 ]
 dynamic = ["version"]
@@ -82,11 +83,13 @@ docs = [
 ]
 lint = [
     "flake8>=3.5.0",
-    "ruff==0.3.4",
+    "ruff==0.4.1",
     "mypy==1.9.0",
     "sphinx-lint",
     "types-docutils",
     "types-requests",
+    "importlib_metadata",  # for mypy (Python<=3.9)
+    "tomli",  # for mypy (Python<=3.10)
     "pytest>=6.0",
 ]
 test = [
@@ -256,8 +259,6 @@ module = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.directive",
     "sphinx.ext.autodoc.importer",
-    "sphinx.ext.autodoc.mock",
-    "sphinx.ext.autodoc.mock",
     "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
@@ -284,7 +285,7 @@ module = [
 disallow_any_generics = false
 
 [tool.pytest.ini_options]
-minversion = 6.0
+minversion = "6.0"
 addopts = [
     "-ra",
     "--import-mode=prepend",

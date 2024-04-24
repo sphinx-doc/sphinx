@@ -16,13 +16,12 @@ if sys.version_info[:2] >= (3, 11):
 else:
     from sphinx.util.osutil import _chdir as chdir
 
-_MSGID_PATTERN = re.compile(r'msgid "(.*)"')
+_MSGID_PATTERN = re.compile(r'msgid "((?:\n|.)*?)"\nmsgstr', re.MULTILINE)
 
 
-def msgid_getter(msgid):
-    if m := _MSGID_PATTERN.search(msgid):
-        return m[1]
-    return None
+def get_msgids(pot):
+    matches = _MSGID_PATTERN.findall(pot)
+    return [m.replace('"\n"', '') for m in matches[1:]]
 
 
 def test_Catalog_duplicated_message():
@@ -105,7 +104,7 @@ def test_gettext_index_entries(app):
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
     pot = (app.outdir / 'index_entries.pot').read_text(encoding='utf8')
-    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
+    msg_ids = get_msgids(pot)
 
     assert msg_ids == [
         "i18n with index entries",
@@ -134,7 +133,7 @@ def test_gettext_disable_index_entries(app):
     app.build(filenames=[app.srcdir / 'index_entries.txt'])
 
     pot = (app.outdir / 'index_entries.pot').read_text(encoding='utf8')
-    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
+    msg_ids = get_msgids(pot)
 
     assert msg_ids == [
         "i18n with index entries",
@@ -200,7 +199,7 @@ def test_gettext_prolog_epilog_substitution(app):
 
     assert (app.outdir / 'prolog_epilog_substitution.pot').is_file()
     pot = (app.outdir / 'prolog_epilog_substitution.pot').read_text(encoding='utf8')
-    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
+    msg_ids = get_msgids(pot)
 
     assert msg_ids == [
         "i18n with prologue and epilogue substitutions",
@@ -227,9 +226,43 @@ def test_gettext_prolog_epilog_substitution_excluded(app):
 
     assert (app.outdir / 'prolog_epilog_substitution_excluded.pot').is_file()
     pot = (app.outdir / 'prolog_epilog_substitution_excluded.pot').read_text(encoding='utf8')
-    msg_ids = list(filter(None, map(msgid_getter, pot.splitlines())))
+    msg_ids = get_msgids(pot)
 
     assert msg_ids == [
         "i18n without prologue and epilogue substitutions",
         "This is content that does not include prologue and epilogue substitutions.",
+    ]
+
+
+@pytest.mark.sphinx(
+    'gettext', srcdir='gettext',
+    confoverrides={'gettext_compact': False,
+                   'gettext_additional_targets': ['literal-block', 'doctest-block']})
+def test_gettext_literalblock_additional(app):
+    app.build(force_all=True)
+
+    assert (app.outdir / 'literalblock.pot').is_file()
+    pot = (app.outdir / 'literalblock.pot').read_text(encoding='utf8')
+    msg_ids = get_msgids(pot)
+
+    assert msg_ids == [
+        'i18n with literal block',
+        'Correct literal block::',
+        'this is\\nliteral block',
+        'Missing literal block::',
+        "That's all.",
+        'included raw.txt',
+        '===\\nRaw\\n===\\n\\n.. raw:: html\\n\\n   <iframe src=\\"https://sphinx-doc.org\\"></iframe>\\n\\n',
+        'code blocks',
+        "def main\\n   'result'\\nend",
+        '#include <stdlib.h>\\nint main(int argc, char** argv)\\n{\\n    return 0;\\n}',
+        'example of C language',
+        '#include <stdio.h>\\nint main(int argc, char** argv)\\n{\\n    return 0;\\n}',
+        'literal-block\\nin list',
+        'test_code_for_noqa()\\ncontinued()',
+        'doctest blocks',
+        '>>> import sys  # sys importing\\n>>> def main():  # define main '
+        "function\\n...     sys.stdout.write('hello')  # call write method of "
+        "stdout object\\n>>>\\n>>> if __name__ == '__main__':  # if run this py "
+        'file as python script\\n...     main()  # call main',
     ]
