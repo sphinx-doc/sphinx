@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils.parsers.rst import directives
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class ReSTMarkup(ObjectDescription[str]):
     Description of generic reST markup.
     """
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -142,7 +142,7 @@ class ReSTDirectiveOption(ReSTMarkup):
     Description of an option for reST directive.
     """
 
-    option_spec: OptionSpec = ReSTMarkup.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = ReSTMarkup.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
     })
@@ -244,8 +244,8 @@ class ReSTDomain(Domain):
     def note_object(self, objtype: str, name: str, node_id: str, location: Any = None) -> None:
         if (objtype, name) in self.objects:
             docname, node_id = self.objects[objtype, name]
-            logger.warning(__('duplicate description of %s %s, other instance in %s') %
-                           (objtype, name, docname), location=location)
+            logger.warning(__('duplicate description of %s %s, other instance in %s'),
+                           objtype, name, docname, location=location)
 
         self.objects[objtype, name] = (self.env.docname, node_id)
 
@@ -293,7 +293,7 @@ class ReSTDomain(Domain):
             yield name, name, typ, docname, node_id, 1
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(ReSTDomain)
 
     return {

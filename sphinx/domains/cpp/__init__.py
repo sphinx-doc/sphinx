@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -46,7 +46,99 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains.cpp._symbol import LookupKey
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
+
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.cpp._ast import (  # NoQA: F401
+    ASTAlignofExpr,
+    ASTArray,
+    ASTAssignmentExpr,
+    ASTBase,
+    ASTBaseClass,
+    ASTBinOpExpr,
+    ASTBooleanLiteral,
+    ASTBracedInitList,
+    ASTCastExpr,
+    ASTCharLiteral,
+    ASTClass,
+    ASTCommaExpr,
+    ASTConcept,
+    ASTConditionalExpr,
+    ASTDeclarator,
+    ASTDeclaratorMemPtr,
+    ASTDeclaratorNameBitField,
+    ASTDeclaratorNameParamQual,
+    ASTDeclaratorParamPack,
+    ASTDeclaratorParen,
+    ASTDeclaratorPtr,
+    ASTDeclaratorRef,
+    ASTDeclSpecs,
+    ASTDeclSpecsSimple,
+    ASTDeleteExpr,
+    ASTEnum,
+    ASTEnumerator,
+    ASTExplicitCast,
+    ASTExplicitSpec,
+    ASTExpression,
+    ASTFallbackExpr,
+    ASTFoldExpr,
+    ASTFunctionParameter,
+    ASTIdExpression,
+    ASTInitializer,
+    ASTLiteral,
+    ASTNewExpr,
+    ASTNoexceptExpr,
+    ASTNoexceptSpec,
+    ASTNumberLiteral,
+    ASTOperator,
+    ASTOperatorBuildIn,
+    ASTOperatorLiteral,
+    ASTOperatorType,
+    ASTPackExpansionExpr,
+    ASTParametersQualifiers,
+    ASTParenExpr,
+    ASTParenExprList,
+    ASTPointerLiteral,
+    ASTPostfixArray,
+    ASTPostfixCallExpr,
+    ASTPostfixDec,
+    ASTPostfixExpr,
+    ASTPostfixInc,
+    ASTPostfixMember,
+    ASTPostfixMemberOfPointer,
+    ASTPostfixOp,
+    ASTRequiresClause,
+    ASTSizeofExpr,
+    ASTSizeofParamPack,
+    ASTSizeofType,
+    ASTStringLiteral,
+    ASTTemplateArgConstant,
+    ASTTemplateArgs,
+    ASTTemplateDeclarationPrefix,
+    ASTTemplateIntroduction,
+    ASTTemplateIntroductionParameter,
+    ASTTemplateKeyParamPackIdDefault,
+    ASTTemplateParam,
+    ASTTemplateParamConstrainedTypeWithInit,
+    ASTTemplateParamNonType,
+    ASTTemplateParams,
+    ASTTemplateParamTemplateType,
+    ASTTemplateParamType,
+    ASTThisLiteral,
+    ASTTrailingTypeSpec,
+    ASTTrailingTypeSpecDecltype,
+    ASTTrailingTypeSpecDecltypeAuto,
+    ASTTrailingTypeSpecFundamental,
+    ASTTrailingTypeSpecName,
+    ASTType,
+    ASTTypeId,
+    ASTTypeUsing,
+    ASTTypeWithInit,
+    ASTUnaryOpExpr,
+    ASTUnion,
+    ASTUserDefinedLiteral,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +157,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
                      can_collapse=True),
     ]
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
@@ -128,7 +220,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             except NoOldIdError:
                 assert i < _max_id
         # let's keep the newest first
-        ids = list(reversed(ids))
+        ids.reverse()
         newestId = ids[0]
         assert newestId  # shouldn't be None
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
@@ -394,7 +486,7 @@ class CPPNamespaceObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
@@ -425,7 +517,7 @@ class CPPNamespacePushObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
@@ -457,7 +549,7 @@ class CPPNamespacePopObject(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         stack = self.env.temp_data.get('cpp:namespace_stack', None)
@@ -613,7 +705,7 @@ class AliasTransform(SphinxTransform):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
 
-                logger.warning("Can not find C++ declaration for alias '%s'." % ast,
+                logger.warning("Can not find C++ declaration for alias '%s'.", ast,
                                location=node)
                 node.replace_self(signode)
             else:
@@ -634,7 +726,7 @@ class AliasTransform(SphinxTransform):
 
 
 class CPPAliasObject(ObjectDescription):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
     }
@@ -1063,7 +1155,7 @@ class CPPDomain(Domain):
         return f'{parentName}::{target}'
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')

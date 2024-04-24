@@ -31,13 +31,7 @@ from docutils.utils import column_width
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.locale import __
-from sphinx.util.console import (  # type: ignore[attr-defined]
-    bold,
-    color_terminal,
-    colorize,
-    nocolor,
-    red,
-)
+from sphinx.util.console import bold, color_terminal, colorize, nocolor, red
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
@@ -463,10 +457,7 @@ def valid_dir(d: dict) -> bool:
         d['dot'] + 'templates',
         d['master'] + d['suffix'],
     ]
-    if set(reserved_names) & set(os.listdir(dir)):
-        return False
-
-    return True
+    return not set(reserved_names) & set(os.listdir(dir))
 
 
 def get_parser() -> argparse.ArgumentParser:

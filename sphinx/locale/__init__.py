@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import locale
+import sys
 from gettext import NullTranslations, translation
 from os import path
 from typing import TYPE_CHECKING
@@ -51,8 +52,10 @@ class _TranslationProxy:
         try:
             return f'i{self.__str__()!r}'
         except Exception:
-            return (self.__class__.__name__
-                    + f'({self._catalogue}, {self._namespace}, {self._message})')
+            return (
+                self.__class__.__name__
+                + f'({self._catalogue}, {self._namespace}, {self._message})'
+            )
 
     def __add__(self, other: str) -> str:
         return self.__str__() + other
@@ -154,13 +157,15 @@ def init_console(
     """
     if locale_dir is None:
         locale_dir = _LOCALE_DIR
-    try:
-        # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)
-    except AttributeError:
-        # LC_MESSAGES is not always defined. Fallback to the default language
-        # in case it is not.
+    if sys.platform == 'win32':
         language = None
+    else:
+        try:
+            # encoding is ignored
+            language, _ = locale.getlocale(locale.LC_MESSAGES)
+        except AttributeError:
+            # Fallback to the default language in case LC_MESSAGES is not defined.
+            language = None
     return init([locale_dir], language, catalog, 'console')
 
 
@@ -197,6 +202,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
     .. versionadded:: 1.8
     """
+
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
@@ -220,13 +226,13 @@ __ = get_translation('sphinx', 'console')
 # labels
 admonitionlabels = {
     'attention': _('Attention'),
-    'caution':   _('Caution'),
-    'danger':    _('Danger'),
-    'error':     _('Error'),
-    'hint':      _('Hint'),
+    'caution': _('Caution'),
+    'danger': _('Danger'),
+    'error': _('Error'),
+    'hint': _('Hint'),
     'important': _('Important'),
-    'note':      _('Note'),
-    'seealso':   _('See also'),
-    'tip':       _('Tip'),
-    'warning':   _('Warning'),
+    'note': _('Note'),
+    'seealso': _('See also'),
+    'tip': _('Tip'),
+    'warning': _('Warning'),
 }

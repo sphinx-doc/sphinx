@@ -8,12 +8,12 @@ import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
 
 script_dir = Path(__file__).parent
 package_dir = script_dir.parent
@@ -23,9 +23,7 @@ RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
 VersionInfo: TypeAlias = tuple[int, int, int, str, int]
 
 
-def stringify_version(
-    version_info: VersionInfo, in_develop: bool = True,
-) -> str:
+def stringify_version(version_info: VersionInfo, in_develop: bool = True) -> str:
     version = '.'.join(str(v) for v in version_info[:3])
     if not in_develop and version_info[3] != 'final':
         version += version_info[3][0] + str(version_info[4])
@@ -33,9 +31,7 @@ def stringify_version(
     return version
 
 
-def bump_version(
-    path: Path, version_info: VersionInfo, in_develop: bool = True,
-) -> None:
+def bump_version(path: Path, version_info: VersionInfo, in_develop: bool = True) -> None:
     version = stringify_version(version_info, in_develop)
 
     with open(path, encoding='utf-8') as f:
@@ -177,9 +173,10 @@ def parse_options(argv: Sequence[str]) -> argparse.Namespace:
 def main() -> None:
     options = parse_options(sys.argv[1:])
 
-    with processing("Rewriting sphinx/__init__.py"):
-        bump_version(package_dir / 'sphinx' / '__init__.py',
-                     options.version, options.in_develop)
+    with processing('Rewriting sphinx/__init__.py'):
+        bump_version(
+            package_dir / 'sphinx' / '__init__.py', options.version, options.in_develop
+        )
 
     with processing('Rewriting CHANGES'):
         changes = Changes(package_dir / 'CHANGES.rst')

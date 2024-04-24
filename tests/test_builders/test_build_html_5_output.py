@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from tests.test_builders.test_build_html import check_xpath
+from tests.test_builders.xpath_util import check_xpath
 
 
 def tail_check(check):
@@ -113,7 +113,7 @@ def tail_check(check):
     # abbreviations
     ('markup.html', ".//abbr[@title='abbreviation']", '^abbr$'),
     # version stuff
-    ('markup.html', ".//div[@class='versionadded']/p/span", 'New in version 0.6: '),
+    ('markup.html', ".//div[@class='versionadded']/p/span", 'Added in version 0.6: '),
     ('markup.html', ".//div[@class='versionadded']/p/span",
      tail_check('First paragraph of versionadded')),
     ('markup.html', ".//div[@class='versionchanged']/p/span",
@@ -128,7 +128,7 @@ def tail_check(check):
     # ``seealso`` directive
     ('markup.html', ".//div/p[@class='admonition-title']", 'See also'),
     # a ``hlist`` directive
-    ('markup.html', ".//table[@class='hlist']/tbody/tr/td/ul/li/p", '^This$'),
+    ('markup.html', ".//table[@class='hlist']/tr/td/ul/li/p", '^This$'),
     # a ``centered`` directive
     ('markup.html', ".//p[@class='centered']/strong", 'LICENSE'),
     # a glossary

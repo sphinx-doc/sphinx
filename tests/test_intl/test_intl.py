@@ -15,7 +15,8 @@ from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import assert_node, etree_parse, strip_escseq
+from sphinx.testing.util import assert_node, etree_parse
+from sphinx.util.console import strip_colors
 from sphinx.util.nodes import NodeMatcher
 
 _CATALOG_LOCALE = 'xx'
@@ -966,7 +967,7 @@ def test_html_versionchanges(app):
     assert expect1 == matched_content
 
     expect2 = (
-        """<p><span class="versionmodified added">New in version 1.0: </span>"""
+        """<p><span class="versionmodified added">Added in version 1.0: </span>"""
         """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
     matched_content = get_content(result, "versionadded")
     assert expect2 == matched_content
@@ -1190,6 +1191,15 @@ def test_xml_role_xref(app):
         ['i18n-role-xref', 'index',
          'glossary_terms#term-Some-term'])
 
+    sec1_1, = sec1.findall('section')
+    title, = sec1_1.findall('title')
+    assert_elem(
+        title,
+        ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
+         'SOME NEW TERM', '.'],
+        ['i18n-role-xref', 'index',
+         'glossary_terms#term-Some-term'])
+
     para2 = sec2.findall('paragraph')
     assert_elem(
         para2[0],
@@ -1293,6 +1303,19 @@ def test_xml_label_targets(app):
 
 
 @sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_xml_strange_markup(app):
+    app.build()
+    et = etree_parse(app.outdir / 'markup.xml')
+    secs = et.findall('section')
+
+    subsec1, = secs[0].findall('section')
+    title1, = subsec1.findall('title')
+    assert_elem(title1, ['1. TITLE STARTING WITH 1.'])
+
+
+@sphinx_intl
 @pytest.mark.sphinx('html')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app):
@@ -1375,6 +1398,15 @@ def test_additional_targets_should_be_translated(app):
     app.build()
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
+
+    # basic literal bloc should be translated
+    expected_expr = ('<span class="n">THIS</span> <span class="n">IS</span>\n'
+                     '<span class="n">LITERAL</span> <span class="n">BLOCK</span>')
+    assert_count(expected_expr, result, 1)
+
+    # literalinclude should be translated
+    expected_expr = '<span class="s2">&quot;HTTPS://SPHINX-DOC.ORG&quot;</span>'
+    assert_count(expected_expr, result, 1)
 
     # title should be translated
     expected_expr = 'CODE-BLOCKS'
@@ -1593,7 +1625,7 @@ def test_image_glob_intl_using_figure_language_filename(app):
 
 
 def getwarning(warnings):
-    return strip_escseq(warnings.getvalue().replace(os.sep, '/'))
+    return strip_colors(warnings.getvalue().replace(os.sep, '/'))
 
 
 @pytest.mark.sphinx('html', testroot='basic',
@@ -1635,13 +1667,13 @@ def test_gettext_disallow_fuzzy_translations(app):
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'language': 'de'})
-def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
+def test_customize_system_message(make_app, app_params):
     try:
         # clear translators cache
         locale.translators.clear()
 
         # prepare message catalog (.po)
-        locale_dir = sphinx_test_tempdir / 'basic' / 'locales' / 'de' / 'LC_MESSAGES'
+        locale_dir = app_params.kwargs['srcdir'] / 'locales' / 'de' / 'LC_MESSAGES'
         locale_dir.mkdir(parents=True, exist_ok=True)
         with (locale_dir / 'sphinx.po').open('wb') as f:
             catalog = Catalog()

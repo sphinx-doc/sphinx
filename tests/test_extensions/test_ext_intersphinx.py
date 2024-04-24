@@ -18,8 +18,9 @@ from sphinx.ext.intersphinx import (
     normalize_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.util.console import strip_colors
 
-from tests.test_util.test_util_inventory import inventory_v2, inventory_v2_not_having_version
+from tests.test_util.intersphinx_data import INVENTORY_V2, INVENTORY_V2_NO_VERSION
 from tests.utils import http_server
 
 
@@ -91,7 +92,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status,
 
 def test_missing_reference(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
         'https://docs.python.org/': str(inv_file),
         'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
@@ -169,7 +170,7 @@ def test_missing_reference(tmp_path, app, status, warning):
 
 def test_missing_reference_pydomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
         'https://docs.python.org/': str(inv_file),
     })
@@ -199,7 +200,7 @@ def test_missing_reference_pydomain(tmp_path, app, status, warning):
 
 def test_missing_reference_stddomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
         'cmd': ('https://docs.python.org/', str(inv_file)),
     })
@@ -250,7 +251,7 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
 def test_missing_reference_cppdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
         'https://docs.python.org/': str(inv_file),
     })
@@ -276,7 +277,7 @@ def test_missing_reference_cppdomain(tmp_path, app, status, warning):
 
 def test_missing_reference_jsdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
         'https://docs.python.org/': str(inv_file),
     })
@@ -300,7 +301,7 @@ def test_missing_reference_jsdomain(tmp_path, app, status, warning):
 
 def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
         'inv': ('https://docs.python.org/', str(inv_file)),
     })
@@ -362,7 +363,7 @@ def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
 
 def test_inventory_not_having_version(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2_not_having_version)
+    inv_file.write_bytes(INVENTORY_V2_NO_VERSION)
     set_config(app, {
         'https://docs.python.org/': str(inv_file),
     })
@@ -384,7 +385,7 @@ def test_load_mappings_warnings(tmp_path, app, status, warning):
     identifiers are not string
     """
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
         'https://docs.python.org/': str(inv_file),
         'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
@@ -405,7 +406,7 @@ def test_load_mappings_warnings(tmp_path, app, status, warning):
 
 def test_load_mappings_fallback(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {})
 
     # connect to invalid path
@@ -504,7 +505,7 @@ def test_inspect_main_noargs(capsys):
 def test_inspect_main_file(capsys, tmp_path):
     """inspect_main interface, with file argument"""
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
 
     inspect_main([str(inv_file)])
 
@@ -519,15 +520,14 @@ def test_inspect_main_url(capsys):
         def do_GET(self):
             self.send_response(200, "OK")
             self.end_headers()
-            self.wfile.write(inventory_v2)
+            self.wfile.write(INVENTORY_V2)
 
         def log_message(*args, **kwargs):
             # Silenced.
             pass
 
-    url = 'http://localhost:7777/' + INVENTORY_FILENAME
-
-    with http_server(InventoryHandler):
+    with http_server(InventoryHandler) as server:
+        url = f'http://localhost:{server.server_port}/{INVENTORY_FILENAME}'
         inspect_main([url])
 
     stdout, stderr = capsys.readouterr()
@@ -538,7 +538,7 @@ def test_inspect_main_url(capsys):
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-role')
 def test_intersphinx_role(app, warning):
     inv_file = app.srcdir / 'inventory'
-    inv_file.write_bytes(inventory_v2)
+    inv_file.write_bytes(INVENTORY_V2)
     app.config.intersphinx_mapping = {
         'inv': ('https://example.org/', str(inv_file)),
     }
@@ -551,22 +551,27 @@ def test_intersphinx_role(app, warning):
 
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    wStr = warning.getvalue()
+    warnings = strip_colors(warning.getvalue()).splitlines()
+    index_path = app.srcdir / 'index.rst'
+    assert warnings == [
+        f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope'",
+        f"{index_path}:28: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'nope'",
+        f"{index_path}:39: WARNING: inventory for external cross-reference not found: 'invNope'",
+        f"{index_path}:44: WARNING: role for external cross-reference not found in domain 'c': 'function' (perhaps you meant one of: 'func', 'identifier', 'type')",
+        f"{index_path}:45: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'function' (perhaps you meant one of: 'cpp:func', 'cpp:identifier', 'cpp:type')",
+        f'{index_path}:9: WARNING: external py:mod reference target not found: module3',
+        f'{index_path}:14: WARNING: external py:mod reference target not found: module10',
+        f'{index_path}:19: WARNING: external py:meth reference target not found: inv:Foo.bar',
+    ]
 
     html = '<a class="reference external" href="https://example.org/{}" title="(in foo v2.0)">'
     assert html.format('foo.html#module-module1') in content
     assert html.format('foo.html#module-module2') in content
-    assert "WARNING: external py:mod reference target not found: module3" in wStr
-    assert "WARNING: external py:mod reference target not found: module10" in wStr
 
     assert html.format('sub/foo.html#module1.func') in content
-    assert "WARNING: external py:meth reference target not found: inv:Foo.bar" in wStr
-
-    assert "WARNING: role for external cross-reference not found: py:nope" in wStr
 
     # default domain
     assert html.format('index.html#std_uint8_t') in content
-    assert "WARNING: role for external cross-reference not found: nope" in wStr
 
     # std roles without domain prefix
     assert html.format('docname.html') in content
@@ -574,7 +579,6 @@ def test_intersphinx_role(app, warning):
 
     # explicit inventory
     assert html.format('cfunc.html#CFunc') in content
-    assert "WARNING: inventory for external cross-reference not found: invNope" in wStr
 
     # explicit title
     assert html.format('index.html#foons') in content
