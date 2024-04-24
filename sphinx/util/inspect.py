@@ -718,6 +718,13 @@ def _evaluate_forwardref(
     localns: dict[str, Any] | None,
 ) -> Any:
     """Evaluate a forward reference."""
+    if sys.version_info >= (3, 12, 4):
+        # ``type_params`` were added in 3.13 and the signature of _evaluate()
+        # is not backward-compatible (it was backported to 3.12.4, so anything
+        # before 3.12.4 still has the old signature).
+        #
+        # See: https://github.com/python/cpython/pull/118104.
+        return ref._evaluate(globalns, localns, {}, recursive_guard=frozenset())  # type: ignore[arg-type, misc]
     return ref._evaluate(globalns, localns, frozenset())
 
 

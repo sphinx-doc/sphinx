@@ -22,11 +22,12 @@ Features added
 Bugs fixed
 ----------
 
-* #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
-  Patch by Bénédikt Tran.
 * #12162: Fix a performance regression in the C domain that has
   been present since version 3.0.0.
   Patch by Donald Hunter.
+
+* #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
