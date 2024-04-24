@@ -437,9 +437,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     if rex.match(req_url):
                         anchor = ''
                         break
+            anchor = unquote(anchor)
         if delimiter and anchor:
             lenient = any(rex.match(req_url) for rex in self.parse_leniently)
-        anchor = unquote(anchor)
 
         # handle non-ASCII URIs
         try:
@@ -468,12 +468,12 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         for retrieval_method, kwargs in self._retrieval_methods(self.check_anchors, anchor):
             try:
                 with retrieval_method(
-                        url=req_url, auth=auth_info,
-                        headers=headers,
-                        timeout=self.timeout,
-                        **kwargs,
-                        _user_agent=self.user_agent,
-                        _tls_info=(self.tls_verify, self.tls_cacerts),
+                    url=req_url, auth=auth_info,
+                    headers=headers,
+                    timeout=self.timeout,
+                    **kwargs,
+                    _user_agent=self.user_agent,
+                    _tls_info=(self.tls_verify, self.tls_cacerts),
                 ) as response:
                     if anchor and self.check_anchors and response.ok:
                         try:
@@ -481,7 +481,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         except UnicodeDecodeError:
                             return 'ignored', 'unable to decode response content', 0
                         if not found:
-                            return 'broken', str(__(f'Anchor {quote(anchor)!r} not found')), 0
+                            return 'broken', f'Anchor {quote(anchor)!r} not found', 0
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
