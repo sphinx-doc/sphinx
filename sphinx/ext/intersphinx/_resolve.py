@@ -15,6 +15,7 @@ from sphinx.errors import ExtensionError
 from sphinx.ext.intersphinx._shared import LOGGER, InventoryAdapter
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
+from sphinx.util import logging
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 
 if TYPE_CHECKING:
@@ -29,6 +30,8 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+
+logger = logging.getLogger(__name__)
 
 
 def _create_element_from_result(domain: Domain, inv_name: str | None,
@@ -80,6 +83,8 @@ def _resolve_reference_in_domain_by_target(
             target_lower = target.lower()
             insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
                                               inventory[objtype].keys()))
+            if len(insensitive_matches) > 1:
+                logger.warning(f"{domain.name}: multiple matches found for {objtype}:{target}")
             if insensitive_matches:
                 data = inventory[objtype][insensitive_matches[0]]
             else:

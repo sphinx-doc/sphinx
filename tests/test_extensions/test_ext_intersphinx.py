@@ -2,6 +2,7 @@
 
 import http.server
 from unittest import mock
+from warnings import catch_warnings
 
 import pytest
 from docutils import nodes
@@ -245,6 +246,24 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'The Julia Domain'
+
+
+def test_ambiguous_reference_warning(tmp_path, app, warning):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(INVENTORY_V2)
+    set_config(app, {
+        'cmd': ('https://docs.python.org/', str(inv_file)),
+    })
+
+    # load the inventory
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    # term reference (case insensitive)
+    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
+    missing_reference(app, app.env, node, contnode)
+
+    assert 'multiple matches found for std:term:A TERM' in warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
