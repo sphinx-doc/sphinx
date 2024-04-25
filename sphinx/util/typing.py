@@ -439,6 +439,15 @@ def stringify_annotation(
     # They must be a list or a tuple, otherwise they are considered 'broken'.
     annotation_args = getattr(annotation, '__args__', ())
     if annotation_args and isinstance(annotation_args, (list, tuple)):
+        if (
+            qualname in {'Union', 'types.UnionType'}
+            and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)
+        ):
+            # special case to flatten a Union of Literals into a literal
+            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]
+            args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
+                             for a in flattened_args)
+            return f'{module_prefix}Literal[{args}]'
         if qualname in {'Optional', 'Union', 'types.UnionType'}:
             return ' | '.join(stringify_annotation(a, mode) for a in annotation_args)
         elif qualname == 'Callable':
