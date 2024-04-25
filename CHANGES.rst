@@ -25,6 +25,12 @@ Bugs fixed
 * #12162: Fix a performance regression in the C domain that has
   been present since version 3.0.0.
   Patch by Donald Hunter.
+* #12320: Fix removal of anchors from search summaries (regression in 7.3.0).
+  Patch by Will Lachance.
+* #12251: Fix ``merge_domaindata()`` in ``sphinx.ext.duration``.
+  Patch by Matthias Geier.
+* #12224: Properly detect WebP files.
+  Patch by Benjamin Cabé.
 
 * #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
   Patch by Bénédikt Tran.
