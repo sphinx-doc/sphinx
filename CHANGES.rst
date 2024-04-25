@@ -32,6 +32,8 @@ Bugs fixed
   Patch by Will Lachance.
 * #12251: Fix ``merge_domaindata()`` in ``sphinx.ext.duration``.
   Patch by Matthias Geier.
+* #12224: Properly detect WebP files.
+  Patch by Benjamin Cabé.
 
 Testing
 -------
