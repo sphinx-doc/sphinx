@@ -1,3 +1,65 @@
+Release 7.4.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+* #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
+  files.
+  Patch by James Addison and Adam Turner
+
+  .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
+
+Bugs fixed
+----------
+
+* #12162: Fix a performance regression in the C domain that has
+  been present since version 3.0.0.
+  Patch by Donald Hunter.
+* #12320: Fix removal of anchors from search summaries (regression in 7.3.0).
+  Patch by Will Lachance.
+* #12251: Fix ``merge_domaindata()`` in ``sphinx.ext.duration``.
+  Patch by Matthias Geier.
+* #12224: Properly detect WebP files.
+  Patch by Benjamin Cabé.
+
+Testing
+-------
+
+Release 7.3.7 (released Apr 19, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12299: Defer loading themes defined via entry points until
+  their explicit use by the user or a child theme.
+  Patch by Adam Turner.
+* #12305: Return the default value for ``theme.get_config()`` with
+  an unsupported theme configuration section.
+  Patch by Adam Turner.
+
+Release 7.3.6 (released Apr 17, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12295: Re-export all AST types in the C and C++ domains.
+  Patch by Adam Turner.
+* #12295: Re-export various objects from ``sphinx.domains.python._annotations``
+  in ``sphinx.domains.python``.
+  Patch by Jacob Chesslo and Adam Turner.
+
 Release 7.3.5 (released Apr 17, 2024)
 =====================================
 

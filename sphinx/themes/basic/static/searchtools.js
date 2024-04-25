@@ -178,7 +178,7 @@ const Search = {
 
   htmlToText: (htmlString, anchor) => {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
-    for (const removalQuery of [".headerlinks", "script", "style"]) {
+    for (const removalQuery of [".headerlink", "script", "style"]) {
       htmlElement.querySelectorAll(removalQuery).forEach((el) => { el.remove() });
     }
     if (anchor) {

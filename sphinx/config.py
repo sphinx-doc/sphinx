@@ -51,30 +51,28 @@ class ConfigValue(NamedTuple):
     rebuild: _ConfigRebuild
 
 
-def is_serializable(obj: object, *, _recursive_guard: frozenset[int] = frozenset()) -> bool:
-    """Check if object is serializable or not."""
+def is_serializable(obj: object, *, _seen: frozenset[int] = frozenset()) -> bool:
+    """Check if an object is serializable or not."""
     if isinstance(obj, UNSERIALIZABLE_TYPES):
         return False
 
     # use id() to handle un-hashable objects
-    if id(obj) in _recursive_guard:
+    if id(obj) in _seen:
         return True
 
     if isinstance(obj, dict):
-        guard = _recursive_guard | {id(obj)}
-        for key, value in obj.items():
-            if (
-                not is_serializable(key, _recursive_guard=guard)
-                or not is_serializable(value, _recursive_guard=guard)
-            ):
-                return False
+        seen = _seen | {id(obj)}
+        return all(
+            is_serializable(key, _seen=seen) and is_serializable(value, _seen=seen)
+            for key, value in obj.items()
+        )
     elif isinstance(obj, (list, tuple, set, frozenset)):
-        guard = _recursive_guard | {id(obj)}
-        return all(is_serializable(item, _recursive_guard=guard) for item in obj)
+        seen = _seen | {id(obj)}
+        return all(is_serializable(item, _seen=seen) for item in obj)
 
     # if an issue occurs for a non-serializable type, pickle will complain
-    # since the object is likely coming from a third-party extension (we
-    # natively expect 'simple' types and not weird ones)
+    # since the object is likely coming from a third-party extension
+    # (we natively expect 'simple' types and not weird ones)
     return True
 
 
@@ -473,7 +471,8 @@ class Config:
                     # will always mark the config value as changed,
                     # and thus always invalidate the cache and perform a rebuild.
                     logger.warning(
-                        __('cannot cache unpickable configuration value: %r'),
+                        __('cannot cache unpickable configuration value: %r '
+                           '(because it contains a function, class, or module object)'),
                         name,
                         type='config',
                         subtype='cache',
