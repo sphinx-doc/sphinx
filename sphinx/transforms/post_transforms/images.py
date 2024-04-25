@@ -192,9 +192,6 @@ class ImageConverter(BaseImageConverter):
     #:     ]
     conversion_rules: list[tuple[str, str]] = []
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
@@ -232,10 +229,12 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError
 
     def guess_mimetypes(self, node: nodes.image) -> list[str]:
+        # The special key ? is set for nonlocal URIs.
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            guessed = guess_mimetype(os.path.join(self.app.srcdir, node['uri']))
+            path = os.path.join(self.app.srcdir, node['uri'])
+            guessed = guess_mimetype(path)
             return [guessed] if guessed is not None else []
         else:
             return node['candidates'].keys()
