@@ -19,7 +19,6 @@ Both, the url string and the caption string must escape ``%`` as ``%%``.
 
 from __future__ import annotations
 
-import html
 import re
 from typing import TYPE_CHECKING, Any
 
@@ -109,7 +108,7 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
             else:
                 title = caption % part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
-        pnode["classes"].append(f"extlink-{html.escape(name)}")
+        pnode["classes"].append(f"extlink-{name}")
         return [pnode], []
     return role
 
