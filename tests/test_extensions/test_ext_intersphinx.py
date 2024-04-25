@@ -7,8 +7,8 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.ext.intersphinx import (
-    INVENTORY_FILENAME,
     _get_safe_url,
     _strip_basic_auth,
     fetch_inventory,
