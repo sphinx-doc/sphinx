@@ -10,8 +10,8 @@ from sphinx.ext.intersphinx._load import fetch_inventory
 def inspect_main(argv: list[str], /) -> int:
     """Debug functionality to print out an inventory"""
     if len(argv) < 1:
-        print("Print out an inventory file.\n"
-              "Error: must specify local path or URL to an inventory file.",
+        print('Print out an inventory file.\n'
+              'Error: must specify local path or URL to an inventory file.',
               file=sys.stderr)
         return 1
 

@@ -46,8 +46,7 @@ def _create_element_from_result(domain: Domain, inv_name: str | None,
     if node.get('refexplicit'):
         # use whatever title was given
         newnode.append(contnode)
-    elif dispname == '-' or \
-            (domain.name == 'std' and node['reftype'] == 'keyword'):
+    elif dispname == '-' or (domain.name == 'std' and node['reftype'] == 'keyword'):
         # use whatever title was given, but strip prefix
         title = contnode.astext()
         if inv_name is not None and title.startswith(inv_name + ':'):
@@ -113,7 +112,7 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
 
     # the inventory contains domain:type as objtype
     domain_name = domain.name
-    obj_types = {f"{domain_name}:{obj_type}": None for obj_type in obj_types}
+    obj_types = {f'{domain_name}:{obj_type}': None for obj_type in obj_types}
 
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
@@ -151,7 +150,7 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
     if typ == 'any':
         for domain_name, domain in env.domains.items():
             if (honor_disabled_refs
-                    and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes):
+                    and (domain_name + ':*') in env.config.intersphinx_disabled_reftypes):
                 continue
             objtypes: Iterable[str] = domain.object_types.keys()
             res = _resolve_reference_in_domain(env, inv_name, inventory,
@@ -166,8 +165,8 @@ def _resolve_reference(env: BuildEnvironment, inv_name: str | None, inventory: I
         if not domain_name:
             # only objects in domains are in the inventory
             return None
-        if honor_disabled_refs \
-                and (domain_name + ":*") in env.config.intersphinx_disabled_reftypes:
+        if (honor_disabled_refs
+                and (domain_name + ':*') in env.config.intersphinx_disabled_reftypes):
             return None
         domain = env.get_domain(domain_name)
         objtypes = domain.objtypes_for_role(typ) or ()
@@ -264,7 +263,7 @@ class IntersphinxRole(SphinxRole):
     # group 1: just for the optionality of the inventory name
     # group 2: the inventory name (optional)
     # group 3: the domain:role or role part
-    _re_inv_ref = re.compile(r"(\+([^:]+))?:(.*)")
+    _re_inv_ref = re.compile(r'(\+([^:]+))?:(.*)')
 
     def __init__(self, orig_name: str) -> None:
         self.orig_name = orig_name

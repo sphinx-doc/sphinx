@@ -42,10 +42,10 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 name, uri, inv = None, key, value
                 msg = (
                     "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
-                    "deprecated and will be removed in Sphinx 8. Update to the "
-                    "current format as described in the documentation. "
-                    f"Hint: \"intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}\"."
-                    "https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"  # NoQA: E501
+                    'deprecated and will be removed in Sphinx 8. Update to the '
+                    'current format as described in the documentation. '
+                    f"Hint: `intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}`."
+                    'https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping'  # NoQA: E501
                 )
                 LOGGER.warning(msg)
 
@@ -131,14 +131,14 @@ def fetch_inventory_group(
         if failures == []:
             pass
         elif len(failures) < len(invs):
-            LOGGER.info(__("encountered some issues with some of the inventories,"
-                           " but they had working alternatives:"))
+            LOGGER.info(__('encountered some issues with some of the inventories,'
+                           ' but they had working alternatives:'))
             for fail in failures:
                 LOGGER.info(*fail)
         else:
             issues = '\n'.join(f[0] % f[1:] for f in failures)
-            LOGGER.warning(__("failed to reach any of the inventories "
-                              "with the following issues:") + "\n" + issues)
+            LOGGER.warning(__('failed to reach any of the inventories '
+                              'with the following issues:') + '\n' + issues)
 
 
 def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
@@ -218,7 +218,7 @@ def _strip_basic_auth(url: str) -> str:
     :rtype: ``str``
     """
     frags = list(urlsplit(url))
-    # swap out "user[:pass]@hostname" for "hostname"
+    # swap out 'user[:pass]@hostname' for 'hostname'
     if '@' in frags[1]:
         frags[1] = frags[1].split('@')[1]
     return urlunsplit(frags)
