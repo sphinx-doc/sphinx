@@ -15,8 +15,8 @@ from sphinx.util import logging
 from sphinx.util.typing import RenderMode, get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from typing import Any, Callable
+    from collections.abc import Callable, Iterator
+    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.config import Config as SphinxConfig

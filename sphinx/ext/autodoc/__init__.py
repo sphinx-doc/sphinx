@@ -41,9 +41,9 @@ from sphinx.util.typing import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
-    from typing import Any, Callable, ClassVar
+    from typing import Any, ClassVar
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
