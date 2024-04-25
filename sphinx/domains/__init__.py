@@ -17,6 +17,7 @@ from sphinx.locale import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+    from typing import ClassVar
 
     from docutils import nodes
     from docutils.parsers.rst import Directive
@@ -201,6 +202,13 @@ class Domain:
     data: dict
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
+    #: Value for an empty inventory of objects for this domain.
+    #: It must be copy.deepcopy-able.
+    #: If this value is overridden, then the various intersphinx methods in the domain should
+    #: probably also be overridden.
+    #: Intersphinx is not inspecting this dictionary, so the domain has complete freedom in
+    #: the key and value type.
+    initial_intersphinx_inventory: ClassVar[dict] = {}
 
     def __init__(self, env: BuildEnvironment) -> None:
         self.env: BuildEnvironment = env
@@ -404,3 +412,128 @@ class Domain:
     def get_full_qualified_name(self, node: Element) -> str | None:
         """Return full qualified name for given node."""
         pass
+
+    def intersphinx_add_entries_v2(self, store: Any,
+                                   data: dict[str, dict[str, Any]]) -> None:
+        """Store the given *data* for later intersphinx reference resolution.
+
+        This method is called at most once with all data loaded from inventories in
+        v1 and v2 format.
+
+        The *data* is a dictionary indexed by **object type**, i.e, a key from
+        :attr:`object_types`. The value is a dictionary indexed by **object name**,
+        i.e., the **name** part of each tuple returned by :meth:`get_objects`.
+        The value of those inner dictionaries are objects with intersphinx data,
+        that should not be inspected by the domain, but merely returned as a result
+        of reference resolution.
+
+        For example, for Python the data could look like the following.
+
+        .. code-block:: python
+
+            data = {
+                'class': {'pkg.mod.Foo': SomeIntersphinxData(...)},
+                'method': {'pkg.mod.Foo.bar': SomeIntersphinxData(...)},
+            }
+
+        The domain must store the given inner intersphinx data in the given *store*,
+        in whichever way makes sense for later reference resolution.
+        This *store* was initially a copy of :attr:`initial_intersphinx_inventory`.
+
+        Later in :meth:`intersphinx_resolve_xref` during intersphinx reference resolution,
+        the domain is again given the *store* object to perform the resolution.
+
+        .. versionadded:: 8.0
+        """
+        store = cast(dict[str, dict[str, Any]], store)
+        assert len(store) == 0  # the method is called at most once
+        store.update(data)  # update so the object is changed in-place
+
+    def _intersphinx_adjust_object_types(self, env: BuildEnvironment,
+                                         store: Any,
+                                         typ: str, target: str,
+                                         disabled_object_types: list[str],
+                                         node: pending_xref, contnode: Element,
+                                         objtypes: list[str]) -> None:
+        """For implementing backwards compatibility.
+
+        This method is an internal implementation detail used in the std and python domains,
+        for implementing backwards compatibility.
+
+        The given *objtypes* is the list of object types computed based on the *typ*,
+        which will be used for lookup.
+        By overriding this method this list can be manipulated, e.g., adding types
+        that were removed in earlier Sphinx versions.
+        After this method returns, the types in *disabled_object_types* are removed
+        from *objtypes*. This final list is given to the lookup method.
+        """
+        pass
+
+    def _intersphinx_resolve_xref_lookup(self, store: dict[str, dict[str, Any]],
+                                         target: str, objtypes: list[str]
+                                         ) -> Any | None:
+        """Default implementation for the actual lookup.
+
+        This method is an internal implementation detail, and may be overridden
+        by the bundled domains, e.g., std, for customizing the lookup, while
+        reusing the rest of the default implementation.
+        """
+        for objtype in objtypes:
+            if objtype not in store:
+                continue
+            if target in store[objtype]:
+                return store[objtype][target]
+        return None
+
+    def intersphinx_resolve_xref(self, env: BuildEnvironment,
+                                 store: Any,
+                                 typ: str, target: str,
+                                 disabled_object_types: list[str],
+                                 node: pending_xref, contnode: Element
+                                 ) -> Any | None:
+        """Resolve the pending_xref *node* with the given *target* via intersphinx.
+
+        This method should perform lookup of the pending cross-reference
+        in the given *store*, but otherwise behave very similarly to :meth:`resolve_xref`.
+
+        The *typ* may be ``any`` if the cross-references comes from an any-role.
+
+        The *store* was created through a previous call to :meth:`intersphinx_add_entries_v2`.
+
+        The *disabled_object_types* is a list of object types that the reference may not
+        resolve to, per user request through :confval:`intersphinx_disabled_reftypes`.
+        These disabled object types are just the names of the types, without a domain prefix.
+
+        If a candidate is found in the store, the associated object must be returned.
+
+        If no candidates can be found, *None* can be returned; and subsequent event
+        handlers will be given a chance to resolve the reference.
+        The method can also raise :exc:`sphinx.environment.NoUri` to suppress
+        any subsequent resolution of this reference.
+
+        .. versionadded:: 8.0
+        """
+        if typ == 'any':
+            objtypes = list(self.object_types)
+        else:
+            for_role = self.objtypes_for_role(typ)
+            if not for_role:
+                return None
+            objtypes = for_role
+
+        self._intersphinx_adjust_object_types(
+            env, store, typ, target, disabled_object_types, node, contnode, objtypes)
+        objtypes = [o for o in objtypes if o not in disabled_object_types]
+
+        typed_store = cast(dict[str, dict[str, Any]], store)
+        # we try the target either as is, or with full qualification based on the scope of node
+        res = self._intersphinx_resolve_xref_lookup(typed_store, target, objtypes)
+        if res is not None:
+            return res
+        # try with qualification of the current scope instead
+        full_qualified_name = self.get_full_qualified_name(node)
+        if full_qualified_name:
+            return self._intersphinx_resolve_xref_lookup(
+                typed_store, full_qualified_name, objtypes)
+        else:
+            return None
