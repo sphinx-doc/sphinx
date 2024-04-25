@@ -12,8 +12,7 @@ from docutils.utils import relative_path
 from sphinx.addnodes import pending_xref
 from sphinx.deprecation import _deprecation_warning
 from sphinx.errors import ExtensionError
-from sphinx.ext.intersphinx._shared import LOGGER as logger
-from sphinx.ext.intersphinx._shared import InventoryAdapter
+from sphinx.ext.intersphinx._shared import LOGGER, InventoryAdapter
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
@@ -403,7 +402,7 @@ class IntersphinxRole(SphinxRole):
             return None, None
 
     def _emit_warning(self, msg: str, /, *args: Any) -> None:
-        logger.warning(
+        LOGGER.warning(
             msg,
             *args,
             type='intersphinx',
@@ -489,7 +488,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
                 typ = node['reftype']
                 msg = (__('external %s:%s reference target not found: %s') %
                        (node['refdomain'], typ, node['reftarget']))
-                logger.warning(msg, location=node, type='ref', subtype=typ)
+                LOGGER.warning(msg, location=node, type='ref', subtype=typ)
                 node.replace_self(contnode)
             else:
                 node.replace_self(newnode)
