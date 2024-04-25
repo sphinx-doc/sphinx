@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from typing import Final, Literal
 
-    from typing_extensions import TypeAlias, TypeGuard
+    from typing_extensions import TypeAlias, TypeIs
 
     from sphinx.application import Sphinx
 
@@ -173,7 +173,7 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def _is_annotated_form(obj: Any) -> TypeGuard[Annotated[Any, ...]]:
+def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
     """Check if *obj* is an annotated type."""
     return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
 
@@ -255,7 +255,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             cls_name = _typing_internal_name(cls)
 
             if isinstance(cls.__origin__, typing._SpecialForm):
-                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard
+                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard; TypeIs
                 # Required/NotRequired
                 text = restify(cls.__origin__, mode)
             elif cls_name:
