@@ -2,7 +2,6 @@
 
 import http.server
 from unittest import mock
-from warnings import catch_warnings
 
 import pytest
 from docutils import nodes
