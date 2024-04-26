@@ -19,7 +19,11 @@ from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx._load import _get_safe_url, _strip_basic_auth
 from sphinx.util.console import strip_colors
 
-from tests.test_util.intersphinx_data import INVENTORY_V2, INVENTORY_V2_NO_VERSION
+from tests.test_util.intersphinx_data import (
+    INVENTORY_V2,
+    INVENTORY_V2_AMBIGUOUS_TERMS,
+    INVENTORY_V2_NO_VERSION,
+)
 from tests.utils import http_server
 
 
@@ -249,7 +253,7 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
 
 def test_ambiguous_reference_warning(tmp_path, app, warning):
     inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(INVENTORY_V2)
+    inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
     set_config(app, {
         'cmd': ('https://docs.python.org/', str(inv_file)),
     })

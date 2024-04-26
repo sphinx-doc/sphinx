@@ -32,7 +32,6 @@ foo::Bar::baz cpp:function 1 index.html#cpp_foo_bar_baz -
 foons cpp:type 1 index.html#foons -
 foons::bartype cpp:type 1 index.html#foons_bartype -
 a term std:term -1 glossary.html#term-a-term -
-A term std:term -1 glossary.html#term-a-term -
 ls.-l std:cmdoption 1 index.html#cmdoption-ls-l -
 docname std:doc -1 docname.html -
 foo js:module 1 index.html#foo -
@@ -50,4 +49,14 @@ INVENTORY_V2_NO_VERSION: Final[bytes] = b'''\
 # The remainder of this file is compressed with zlib.
 ''' + zlib.compress(b'''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
+''')
+
+INVENTORY_V2_AMBIGUOUS_TERMS: Final[bytes] = b'''\
+# Sphinx inventory version 2
+# Project: foo
+# Version: 2.0
+# The remainder of this file is compressed with zlib.
+''' + zlib.compress(b'''\
+a term std:term -1 glossary.html#term-a-term -
+A term std:term -1 glossary.html#term-a-term -
 ''')
