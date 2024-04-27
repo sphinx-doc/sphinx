@@ -430,7 +430,7 @@ def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
     hooked_members = {s[1] for s in getattr_spy}
     documented_members = {s[1] for s in processed_signatures}
     for attr in attrs:
-        fullname = '.'.join((name, attr))
+        fullname = f'{name}.{attr}'
         assert attr in hooked_members
         assert fullname not in documented_members, f'{fullname!r} not intercepted'
 

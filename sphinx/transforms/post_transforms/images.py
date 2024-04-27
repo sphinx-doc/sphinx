@@ -80,8 +80,8 @@ class ImageDownloader(BaseImageConverter):
                 _tls_info=(config.tls_verify, config.tls_cacerts),
             )
             if r.status_code >= 400:
-                logger.warning(__('Could not fetch remote image: %s [%d]') %
-                               (node['uri'], r.status_code))
+                logger.warning(__('Could not fetch remote image: %s [%d]'),
+                               node['uri'], r.status_code)
             else:
                 self.app.env.original_image_uri[path] = node['uri']
 
@@ -108,7 +108,7 @@ class ImageDownloader(BaseImageConverter):
                 node['uri'] = path
                 self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:
-            logger.warning(__('Could not fetch remote image: %s [%s]') % (node['uri'], exc))
+            logger.warning(__('Could not fetch remote image: %s [%s]'), node['uri'], exc)
 
 
 class DataURIExtractor(BaseImageConverter):
@@ -192,9 +192,6 @@ class ImageConverter(BaseImageConverter):
     #:     ]
     conversion_rules: list[tuple[str, str]] = []
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
@@ -232,10 +229,12 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError
 
     def guess_mimetypes(self, node: nodes.image) -> list[str]:
+        # The special key ? is set for nonlocal URIs.
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            guessed = guess_mimetype(node['uri'])
+            path = os.path.join(self.app.srcdir, node['uri'])
+            guessed = guess_mimetype(path)
             return [guessed] if guessed is not None else []
         else:
             return node['candidates'].keys()

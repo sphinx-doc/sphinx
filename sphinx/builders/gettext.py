@@ -240,7 +240,7 @@ class MessageCatalogBuilder(I18nBuilder):
     def _extract_from_template(self) -> None:
         files = list(self._collect_templates())
         files.sort()
-        logger.info(bold(__('building [%s]: ') % self.name), nonl=True)
+        logger.info(bold(__('building [%s]: ')), self.name,  nonl=True)
         logger.info(__('targets for %d template files'), len(files))
 
         extract_translations = self.templates.environment.extract_translations

@@ -130,7 +130,7 @@ class Theme:
                 'are not supported, returning the default value instead '
                 '(tried to get a value from %r)'
             )
-            logger.info(msg % section)
+            logger.info(msg, section)
             value = default
         if value is _NO_DEFAULT:
             msg = __('setting %s.%s occurs in none of the searched theme configs') % (
@@ -148,7 +148,7 @@ class Theme:
         options = self._options.copy()
         for option, value in overrides.items():
             if option not in options:
-                logger.warning(__('unsupported theme option %r given') % option)
+                logger.warning(__('unsupported theme option %r given'), option)
             else:
                 options[option] = value
 
