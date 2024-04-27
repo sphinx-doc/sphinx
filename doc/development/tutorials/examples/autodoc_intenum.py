@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from docutils.statemachine import StringList
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class IntEnumDocumenter(ClassDocumenter):
@@ -52,6 +53,10 @@ class IntEnumDocumenter(ClassDocumenter):
             self.add_line('', source_name)
 
 
-def setup(app: Sphinx) -> None:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.ext.autodoc')  # Require autodoc extension
     app.add_autodocumenter(IntEnumDocumenter)
+    return {
+        'version': '1',
+        'parallel_read_safe': True,
+    }

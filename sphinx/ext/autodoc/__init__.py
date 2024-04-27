@@ -2773,7 +2773,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
             obj = __dict__.get(self.objpath[-1])
             if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
                 self.object = obj.__func__
-                self.isclassmethod = True
+                self.isclassmethod: bool = True
                 return True
             else:
                 return False
