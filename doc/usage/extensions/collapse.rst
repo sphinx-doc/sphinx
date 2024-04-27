@@ -41,13 +41,31 @@ This extension is quite simple, and features only one directive:
 
    .. code-block:: reStructuredText
 
-      .. collapse:: ``literal`` and **bold** content.
+      .. collapse:: ``literal`` and **bold** content,
+                    split over multiple lines.
+         :open:
 
          This is the body of the directive.
 
-   .. collapse:: ``literal`` and **bold** content.
+         It is open by default as the ``:open:`` option was used.
+
+         Markup Demonstration
+         --------------------
+
+         The body can also contain *markup*, including sections.
+
+   .. collapse:: ``literal`` and **bold** content,
+                 split over multiple lines.
+      :open:
 
       This is the body of the directive.
+
+      It is open by default as the ``:open:`` option was used.
+
+      Markup Demonstration
+      --------------------
+
+      The body can also contain *markup*, including sections.
 
    .. versionadded:: 7.4
 
