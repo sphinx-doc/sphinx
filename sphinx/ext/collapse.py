@@ -171,25 +171,17 @@ class CollapsibleNodeTransform(SphinxPostTransform):
     default_priority = 55
 
     def run(self, **kwargs: Any) -> None:
-        self._process_collapsible_nodes(self.document, self.app.builder.name)
-
-    @staticmethod
-    def _process_collapsible_nodes(document: nodes.Node, builder_name: str) -> None:
         """Filter collapsible and collapsible_summary nodes based on HTML 5 support."""
-        if builder_name in HTML_5_BUILDERS:
+        if self.app.builder.name in HTML_5_BUILDERS:
             return
 
-        for summary_node in document.findall(summary):
+        for summary_node in self.document.findall(summary):
             summary_para = nodes.paragraph('', '', *summary_node)
             summary_node.replace_self(summary_para)
 
-        for collapsible_node in document.findall(collapsible):
-            # A comment on the comment() nodes being inserted: replacing by [] would
-            # result in a "Losing ids" exception if there is a target node before
-            # the only node, so we make sure docutils can transfer the id to
-            # something, even if it's just a comment and will lose the id anyway…
-            collapsible_children = collapsible_node.children or nodes.comment()
-            collapsible_node.replace_self(collapsible_children)
+        for collapsible_node in self.document.findall(collapsible):
+            container = nodes.container('', *collapsible_node.children)
+            collapsible_node.replace_self(container)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
