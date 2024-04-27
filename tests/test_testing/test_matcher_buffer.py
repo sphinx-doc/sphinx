@@ -76,7 +76,7 @@ def test_line_count_substrings():
     assert line.count('no') == 0
     assert line.count('a') == 2
 
-    line = Line(''.join(('a', 'b', ' ', 'b', 'b', ' ', 'a', 'c', ' ', 'c', 'c')))
+    line = Line('ab bb ac cc')
     assert line.count(re.compile(r'^\Z')) == 0
     assert line.count(re.compile(r'a[bc]')) == 2
 
@@ -96,7 +96,7 @@ def test_line_count_substrings():
         (
             #            -11  -10   -9   -8   -7   -6   -5   -4   -3   -2   -1
             #              0    1    2    3    4    5    6    7    8    9   10
-            Line(''.join(('a', 'b', ' ', 'b', 'b', ' ', 'x', 'c', ' ', 'c', 'c'))),
+            Line(''.join(('a', 'b', ' ', 'b', 'b', ' ', 'x', 'c', ' ', 'c', 'c'))),  # NoQA: FLY002
             [
                 (re.compile(r'a\w'), (), 0),
                 (re.compile(r'\bx'), (2,), 6),
@@ -157,13 +157,13 @@ def test_empty_line_operators():
     assert Line() < Line('a', 0)
 
     # do not simplify these expressions
-    assert not operator.__lt__(Line(), '')
-    assert not operator.__lt__(Line(), ['', 0])
-    assert not operator.__lt__(Line(), Line())
+    assert not operator.__lt__(Line(), '')  # NoQA: PLC2801
+    assert not operator.__lt__(Line(), ['', 0])  # NoQA: PLC2801
+    assert not operator.__lt__(Line(), Line())  # NoQA: PLC2801
 
-    assert not operator.__gt__(Line(), '')
-    assert not operator.__gt__(Line(), ['', 0])
-    assert not operator.__gt__(Line(), Line())
+    assert not operator.__gt__(Line(), '')  # NoQA: PLC2801
+    assert not operator.__gt__(Line(), ['', 0])  # NoQA: PLC2801
+    assert not operator.__gt__(Line(), Line())  # NoQA: PLC2801
 
 
 def test_non_empty_line_operators():
@@ -267,8 +267,8 @@ def test_empty_block_operators():
     assert Block() < [[Line('a', 0)], 0]
 
     # do not simplify these expressions
-    assert not operator.__lt__(Block(), [])
-    assert not operator.__lt__(Block(), [[], 0])
+    assert not operator.__lt__(Block(), [])  # NoQA: PLC2801
+    assert not operator.__lt__(Block(), [[], 0])  # NoQA: PLC2801
 
     assert not operator.__gt__(Block(), [])
     assert not operator.__gt__(Block(), ['a'])
