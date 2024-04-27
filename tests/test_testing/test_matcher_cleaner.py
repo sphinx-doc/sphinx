@@ -30,7 +30,7 @@ def test_strip_lines():
 
 
 def test_filter_lines():
-    src = '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a'])
+    src = '\n'.join(['a', 'a', '', 'a', 'b', 'c', 'a'])  # NoQA: FLY002
 
     expect = ['a', 'b', 'c', 'a']
     assert list(cleaner.clean(src, keep_empty=False, compress=True)) == expect
@@ -119,7 +119,7 @@ def test_prune_lines(
 def test_opcodes():
     options = Options(strip_line=True, keep_empty=False, compress=True)
 
-    src = '\n'.join(['a', '', 'a', '', 'a'])
+    src = '\n'.join(['a', '', 'a', '', 'a'])  # NoQA: FLY002
     # empty lines removed before duplicates
     assert list(cleaner.clean(src, **options)) == ['a']
 
