@@ -51,6 +51,10 @@ This extension is quite simple, and features only one directive:
 
    .. versionadded:: 7.4
 
+   .. rst:directive:option:: open
+
+      Expand the collapsible content by default.
+
 Internal node classes
 ---------------------
 
