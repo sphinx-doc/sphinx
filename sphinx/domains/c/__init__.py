@@ -543,7 +543,7 @@ class AliasTransform(SphinxTransform):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
 
-                logger.warning("Could not find C declaration for alias '%s'." % name,
+                logger.warning("Could not find C declaration for alias '%s'.", name,
                                location=node)
                 node.replace_self(signode)
                 continue
@@ -557,7 +557,7 @@ class AliasTransform(SphinxTransform):
                 signode += addnodes.desc_name(sig, sig)
 
                 logger.warning(
-                    "Can not render C declaration for alias '%s'. No such declaration." % name,
+                    "Can not render C declaration for alias '%s'. No such declaration.", name,
                     location=node)
                 node.replace_self(signode)
                 continue

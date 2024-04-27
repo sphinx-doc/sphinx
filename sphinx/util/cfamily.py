@@ -90,17 +90,11 @@ class NoOldIdError(Exception):
 class ASTBaseBase:
     def __eq__(self, other: object) -> bool:
         if type(self) is not type(other):
-            return False
+            return NotImplemented
         try:
-            for key, value in self.__dict__.items():
-                if value != getattr(other, key):
-                    return False
+            return self.__dict__ == other.__dict__
         except AttributeError:
             return False
-        return True
-
-    # Defining __hash__ = None is not strictly needed when __eq__ is defined.
-    __hash__ = None  # type: ignore[assignment]
 
     def clone(self) -> Any:
         return deepcopy(self)
@@ -115,7 +109,7 @@ class ASTBaseBase:
         return self._stringify(lambda ast: ast.get_display_string())
 
     def __repr__(self) -> str:
-        return '<%s>' % self.__class__.__name__
+        return f'<{self.__class__.__name__}: {self._stringify(repr)}>'
 
 
 ################################################################################
@@ -131,8 +125,16 @@ class ASTCPPAttribute(ASTAttribute):
     def __init__(self, arg: str) -> None:
         self.arg = arg
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTCPPAttribute):
+            return NotImplemented
+        return self.arg == other.arg
+
+    def __hash__(self) -> int:
+        return hash(self.arg)
+
     def _stringify(self, transform: StringifyTransform) -> str:
-        return "[[" + self.arg + "]]"
+        return f"[[{self.arg}]]"
 
     def describe_signature(self, signode: TextElement) -> None:
         signode.append(addnodes.desc_sig_punctuation('[[', '[['))
@@ -146,35 +148,37 @@ class ASTGnuAttribute(ASTBaseBase):
         self.args = args
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not ASTGnuAttribute:
+        if not isinstance(other, ASTGnuAttribute):
             return NotImplemented
         return self.name == other.name and self.args == other.args
 
+    def __hash__(self) -> int:
+        return hash((self.name, self.args))
+
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = [self.name]
         if self.args:
-            res.append(transform(self.args))
-        return ''.join(res)
+            return self.name + transform(self.args)
+        return self.name
 
 
 class ASTGnuAttributeList(ASTAttribute):
     def __init__(self, attrs: list[ASTGnuAttribute]) -> None:
         self.attrs = attrs
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTGnuAttributeList):
+            return NotImplemented
+        return self.attrs == other.attrs
+
+    def __hash__(self) -> int:
+        return hash(self.attrs)
+
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['__attribute__((']
-        first = True
-        for attr in self.attrs:
-            if not first:
-                res.append(', ')
-            first = False
-            res.append(transform(attr))
-        res.append('))')
-        return ''.join(res)
+        attrs = ', '.join(map(transform, self.attrs))
+        return f'__attribute__(({attrs}))'
 
     def describe_signature(self, signode: TextElement) -> None:
-        txt = str(self)
-        signode.append(nodes.Text(txt))
+        signode.append(nodes.Text(str(self)))
 
 
 class ASTIdAttribute(ASTAttribute):
@@ -182,6 +186,14 @@ class ASTIdAttribute(ASTAttribute):
 
     def __init__(self, id: str) -> None:
         self.id = id
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTIdAttribute):
+            return NotImplemented
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return hash(self.id)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return self.id
@@ -197,12 +209,19 @@ class ASTParenAttribute(ASTAttribute):
         self.id = id
         self.arg = arg
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ASTParenAttribute):
+            return NotImplemented
+        return self.id == other.id and self.arg == other.arg
+
+    def __hash__(self) -> int:
+        return hash((self.id, self.arg))
+
     def _stringify(self, transform: StringifyTransform) -> str:
-        return self.id + '(' + self.arg + ')'
+        return f'{self.id}({self.arg})'
 
     def describe_signature(self, signode: TextElement) -> None:
-        txt = str(self)
-        signode.append(nodes.Text(txt))
+        signode.append(nodes.Text(str(self)))
 
 
 class ASTAttributeList(ASTBaseBase):
@@ -210,9 +229,12 @@ class ASTAttributeList(ASTBaseBase):
         self.attrs = attrs
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not ASTAttributeList:
+        if not isinstance(other, ASTAttributeList):
             return NotImplemented
         return self.attrs == other.attrs
+
+    def __hash__(self) -> int:
+        return hash(self.attrs)
 
     def __len__(self) -> int:
         return len(self.attrs)
@@ -221,7 +243,7 @@ class ASTAttributeList(ASTBaseBase):
         return ASTAttributeList(self.attrs + other.attrs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return ' '.join(transform(attr) for attr in self.attrs)
+        return ' '.join(map(transform, self.attrs))
 
     def describe_signature(self, signode: TextElement) -> None:
         if len(self.attrs) == 0:
