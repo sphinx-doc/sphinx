@@ -47,7 +47,7 @@ Features added
   Patch by Adam Turner.
 
 * #10532: Add a new extension to support collapsible content in HTML,
-  ``sphinx.ext.collapse``, which enables the :rst:dir:`collapsible` directive.
+  ``sphinx.ext.collapse``, which enables the :rst:dir:`collapse` directive.
   Patch by Adam Turner.
 
 Bugs fixed
