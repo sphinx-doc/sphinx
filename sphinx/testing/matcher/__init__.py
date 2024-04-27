@@ -152,9 +152,11 @@ class LineMatcher(OptionsHolder):
         if not patterns:  # nothinig to match
             return
 
-        compiled_patterns = set(self.__compile(patterns, flavor=flavor))
+        compiled_patterns = self.__compile(patterns, flavor=flavor)
+        # remove duplicated patterns but retain order
+        unique_compiled_patterns = _util.unique_everseen(compiled_patterns)
         # faster to iterate over a tuple rather than a set or a list
-        matchers = tuple(pattern.match for pattern in compiled_patterns)
+        matchers = tuple(pattern.match for pattern in unique_compiled_patterns)
 
         def predicate(line: Line) -> bool:
             text = line.buffer
