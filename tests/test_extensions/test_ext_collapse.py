@@ -3,10 +3,10 @@
 import pytest
 from docutils import nodes
 
-from sphinx import addnodes
+from sphinx.ext.collapse import collapsible, summary
 
 
-@pytest.mark.sphinx('text', testroot='directive-collapsible')
+@pytest.mark.sphinx('text', testroot='ext-collapse')
 def test_non_html(app, status, warning):
     app.build()
 
@@ -46,18 +46,18 @@ This is some text!
 """
 
 
-@pytest.mark.sphinx('html', testroot='directive-collapsible')
+@pytest.mark.sphinx('html', testroot='ext-collapse')
 def test_html(app, status, warning):
     app.build()
     doctree = app.env.get_doctree('index')
-    collapsible_nodes = list(doctree.findall(addnodes.collapsible))
+    collapsible_nodes = list(doctree.findall(collapsible))
     assert len(collapsible_nodes) == 5
 
-    assert isinstance(collapsible_nodes[0][0], addnodes.collapsible_summary)
-    assert isinstance(collapsible_nodes[1][0], addnodes.collapsible_summary)
-    assert isinstance(collapsible_nodes[2][0], addnodes.collapsible_summary)
-    assert isinstance(collapsible_nodes[3][0], addnodes.collapsible_summary)
-    assert isinstance(collapsible_nodes[4][0], addnodes.collapsible_summary)
+    assert isinstance(collapsible_nodes[0][0], summary)
+    assert isinstance(collapsible_nodes[1][0], summary)
+    assert isinstance(collapsible_nodes[2][0], summary)
+    assert isinstance(collapsible_nodes[3][0], summary)
+    assert isinstance(collapsible_nodes[4][0], summary)
 
     assert collapsible_nodes[0][0].astext() == 'Collapsed Content:'
     assert collapsible_nodes[2][0].astext() == 'Collapsed Content:'
@@ -65,5 +65,5 @@ def test_html(app, status, warning):
 
     assert isinstance(collapsible_nodes[3][2], nodes.section)
 
-    assert "RFC 2324" in collapsible_nodes[4][0].astext()
-    assert "We can also\nhave " in collapsible_nodes[4][0][8]
+    assert 'RFC 2324' in collapsible_nodes[4][0].astext()
+    assert 'We can also\nhave ' in collapsible_nodes[4][0][8]  # type: ignore[operator]

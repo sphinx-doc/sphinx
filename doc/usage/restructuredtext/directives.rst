@@ -1083,37 +1083,6 @@ Including content based on tags
       This directive is designed to control only content of document.  It could
       not control sections, labels and so on.
 
-.. _collapsible:
-
-Using collapsible content
--------------------------
-
-.. rst:directive:: .. collapsible:: <summary description>
-
-   For HTML builders, place the content of the directive into a HTML `details
-   disclosure`_ element, with the *summary description* text included as the
-   summary for the element. The *summary description* text is parsed as
-   reStructuredText, and can be broken over multiple lines if required. An
-   example and the equivalent output are shown below:
-
-   .. code-block:: reStructuredText
-
-      .. collapsible:: ``literal`` and **bold** content.
-
-         This is the body of the directive.
-
-   .. collapsible:: ``literal`` and **bold** content.
-
-      This is the body of the directive.
-
-   Only the HTML 5 output format supports collapsible content. For other builders,
-   the *summary description* text and the body of the directive are rendered in
-   the document.
-
-   .. versionadded:: 5.1
-
-   .. _details disclosure: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details
-
 .. _table-directives:
 
 Tables
