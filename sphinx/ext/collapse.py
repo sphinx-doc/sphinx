@@ -35,7 +35,7 @@ class summary(nodes.General, nodes.TextElement):
 
 
 def visit_collapsible(translator: HTML5Translator, node: nodes.Element) -> None:
-    if node.get('collapsible_open'):
+    if node.get('open'):
         translator.body.append(translator.starttag(node, 'details', open='open'))
     else:
         translator.body.append(translator.starttag(node, 'details'))
@@ -68,10 +68,9 @@ class Collapsible(SphinxDirective):
     }
 
     def run(self) -> list[nodes.Node]:
-        node = collapsible(
-            classes=self.options.get('classes', []),
-            collapsible_open='open' in self.options,
-        )
+        node = collapsible(classes=['collapsible'], open='open' in self.options)
+        if 'class' in self.options:
+            node['classes'] += self.options['class']
         self.add_name(node)
         node.document = self.state.document
         self.set_source_info(node)
