@@ -650,6 +650,7 @@ exclude = [
     "tests/test_extensions/test_ext_githubpages.py",
     "tests/test_extensions/test_ext_intersphinx.py",
     "tests/test_extensions/test_ext_napoleon.py",
+    "tests/test_extensions/test_ext_collapse.py",
     "tests/test_extensions/test_ext_coverage.py",
     "tests/test_extensions/ext_napoleon_pep526_data_numpy.py",
     "tests/test_extensions/test_ext_autodoc_configs.py",
