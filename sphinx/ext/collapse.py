@@ -23,14 +23,14 @@ if TYPE_CHECKING:
 class collapsible(nodes.General, nodes.Element):
     """Node for collapsible content.
 
-    This is used by the :rst:dir:`collapsible` directive.
+    This is used by the :rst:dir:`collapse` directive.
     """
 
 
 class summary(nodes.General, nodes.TextElement):
     """Node for the description for collapsible content.
 
-    This is used by the :rst:dir:`collapsible` directive.
+    This is used by the :rst:dir:`collapse` directive.
     """
 
 
