@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from typing import Final, Literal
 
-    from typing_extensions import TypeAlias, TypeGuard
+    from typing_extensions import TypeAlias, TypeIs
 
     from sphinx.application import Sphinx
 
@@ -167,7 +167,7 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def _is_annotated_form(obj: Any) -> TypeGuard[Annotated[Any, ...]]:
+def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
     """Check if *obj* is an annotated type."""
     return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
 
@@ -349,7 +349,7 @@ def restify(cls: Any, mode: _RestifyMode = RenderMode.fully_qualified_except_typ
             cls_name = _typing_internal_name(cls)
 
             if isinstance(cls.__origin__, typing._SpecialForm):
-                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard
+                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard; TypeIs
                 # Required/NotRequired
                 text = restify(cls.__origin__, mode)
             elif cls_name:
@@ -548,6 +548,15 @@ def stringify_annotation(
     # They must be a list or a tuple, otherwise they are considered 'broken'.
     annotation_args = getattr(annotation, '__args__', ())
     if annotation_args and isinstance(annotation_args, (list, tuple)):
+        if (
+            qualname in {'Union', 'types.UnionType'}
+            and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)
+        ):
+            # special case to flatten a Union of Literals into a literal
+            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]
+            args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
+                             for a in flattened_args)
+            return f'{module_prefix}Literal[{args}]'
         if qualname in {'Optional', 'Union', 'types.UnionType'}:
             return ' | '.join(stringify_annotation(a, mode) for a in annotation_args)
         elif qualname == 'Callable':

@@ -18,6 +18,9 @@ Features added
   Patch by James Addison and Adam Turner
 
   .. _officially recommended: https://jinja.palletsprojects.com/en/latest/templates/#template-file-extension
+* Flatten ``Union[Literal[T], Literal[U], ...]`` to ``Literal[T, U, ...]``
+  when turning annotations into strings.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
     from typing import Any
 
-    from typing_extensions import TypeGuard
+    from typing_extensions import TypeIs
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +156,7 @@ def mock(modnames: list[str]) -> Iterator[None]:
         finder.invalidate_caches()
 
 
-def ismockmodule(subject: Any) -> TypeGuard[_MockModule]:
+def ismockmodule(subject: Any) -> TypeIs[_MockModule]:
     """Check if the object is a mocked module."""
     return isinstance(subject, _MockModule)
 
