@@ -34,23 +34,23 @@ class summary(nodes.General, nodes.TextElement):
     """
 
 
-def visit_collapsible(self: HTML5Translator, node: nodes.Element) -> None:
+def visit_collapsible(translator: HTML5Translator, node: nodes.Element) -> None:
     if node.get('collapsible_open'):
-        self.body.append(self.starttag(node, 'details', open='open'))
+        translator.body.append(translator.starttag(node, 'details', open='open'))
     else:
-        self.body.append(self.starttag(node, 'details'))
+        translator.body.append(translator.starttag(node, 'details'))
 
 
-def depart_collapsible(self: HTML5Translator, node: nodes.Element) -> None:
-    self.body.append('</details>\n')
+def depart_collapsible(translator: HTML5Translator, node: nodes.Element) -> None:
+    translator.body.append('</details>\n')
 
 
-def visit_summary(self: HTML5Translator, node: nodes.Element) -> None:
-    self.body.append(self.starttag(node, 'summary'))
+def visit_summary(translator: HTML5Translator, node: nodes.Element) -> None:
+    translator.body.append(translator.starttag(node, 'summary'))
 
 
-def depart_summary(self: HTML5Translator, node: nodes.Element) -> None:
-    self.body.append('</summary>\n')
+def depart_summary(translator: HTML5Translator, node: nodes.Element) -> None:
+    translator.body.append('</summary>\n')
 
 
 class Collapsible(SphinxDirective):
@@ -72,23 +72,21 @@ class Collapsible(SphinxDirective):
             classes=self.options.get('classes', []),
             collapsible_open='open' in self.options,
         )
+        self.add_name(node)
         node.document = self.state.document
         self.set_source_info(node)
+
         if len(self.arguments) > 0:
-            summary_trimmed = self._prepare_argument_string(self.arguments[0].strip())
+            # parse the argument as reST
+            trimmed_summary = self._prepare_argument_string(self.arguments[0].strip())
+            textnodes, messages = self.state.inline_text(trimmed_summary, self.lineno)
+            node.append(summary(trimmed_summary, '', *textnodes))
+            node += messages
         else:
-            summary_trimmed = 'Collapsed Content:'
+            label = 'Collapsed Content:'
+            node.append(summary(label, label))
 
-        # parse the argument as reST
-        textnodes, messages = self.state.inline_text(summary_trimmed, self.lineno)
-        node.append(summary(summary_trimmed, '', *textnodes))
-        node += messages
-
-        content_nodes = self._parse_content(
-            self.state, node, self.content, self.content_offset
-        )
-        self.add_name(node)
-        return content_nodes
+        return self._parse_content(self.state, node, self.content, self.content_offset)
 
     @staticmethod
     def _prepare_argument_string(s: str) -> str:
@@ -102,8 +100,7 @@ class Collapsible(SphinxDirective):
         lines = s.expandtabs().splitlines()
 
         # Find minimum indentation of any non-blank lines after the first.
-        # if your indent is larger than a million spaces,
-        # there's a problem...
+        # If your indent is larger than a million spaces, there's a problem…
         margin = 10**6
         for line in lines[1:]:
             content = len(line.lstrip())
@@ -180,15 +177,20 @@ class CollapsibleNodeTransform(SphinxPostTransform):
     @staticmethod
     def _process_collapsible_nodes(document: nodes.Node, builder_name: str) -> None:
         """Filter collapsible and collapsible_summary nodes based on HTML 5 support."""
-        for node in document.findall(collapsible):
-            if builder_name not in HTML_5_BUILDERS:
-                children = node.children
-                children[0] = nodes.paragraph('', '', *children[0].children)
-                # A comment on the comment() nodes being inserted: replacing by [] would
-                # result in a "Losing ids" exception if there is a target node before
-                # the only node, so we make sure docutils can transfer the id to
-                # something, even if it's just a comment and will lose the id anyway...
-                node.replace_self(children or nodes.comment())
+        if builder_name in HTML_5_BUILDERS:
+            return
+
+        for summary_node in document.findall(summary):
+            summary_para = nodes.paragraph('', '', *summary_node)
+            summary_node.replace_self(summary_para)
+
+        for collapsible_node in document.findall(collapsible):
+            # A comment on the comment() nodes being inserted: replacing by [] would
+            # result in a "Losing ids" exception if there is a target node before
+            # the only node, so we make sure docutils can transfer the id to
+            # something, even if it's just a comment and will lose the id anyway…
+            collapsible_children = collapsible_node.children or nodes.comment()
+            collapsible_node.replace_self(collapsible_children)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
