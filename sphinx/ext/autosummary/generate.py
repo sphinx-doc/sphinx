@@ -467,11 +467,11 @@ def generate_autosummary_docs(sources: list[str],
     showed_sources = sorted(sources)
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
-    logger.info(__('[autosummary] generating autosummary for: %s') %
+    logger.info(__('[autosummary] generating autosummary for: %s'),
                 ', '.join(showed_sources))
 
     if output_dir:
-        logger.info(__('[autosummary] writing to %s') % output_dir)
+        logger.info(__('[autosummary] writing to %s'), output_dir)
 
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]

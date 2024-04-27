@@ -178,7 +178,7 @@ const Search = {
 
   htmlToText: (htmlString, anchor) => {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
-    for (const removalQuery of [".headerlinks", "script", "style"]) {
+    for (const removalQuery of [".headerlink", "script", "style"]) {
       htmlElement.querySelectorAll(removalQuery).forEach((el) => { el.remove() });
     }
     if (anchor) {
@@ -402,8 +402,8 @@ const Search = {
   },
 
   query: (query) => {
-    const searchParameters = Search._parseQuery(query);
-    const results = Search._performSearch(...searchParameters);
+    const [searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms] = Search._parseQuery(query);
+    const results = Search._performSearch(searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms);
 
     // for debugging
     //Search.lastresults = results.slice();  // a copy
