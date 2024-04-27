@@ -1,6 +1,8 @@
 """Tests util.typing functions."""
 
 import sys
+import typing as t
+from collections import abc
 from contextvars import Context, ContextVar, Token
 from enum import Enum
 from numbers import Integral
@@ -28,12 +30,12 @@ from types import (
     WrapperDescriptorType,
 )
 from typing import (
+    Annotated,
     Any,
-    Callable,
     Dict,
-    Generator,
-    Iterator,
+    ForwardRef,
     List,
+    Literal,
     NewType,
     Optional,
     Tuple,
@@ -173,20 +175,35 @@ def test_restify_type_hints_containers():
     assert restify(MyList[Tuple[int, int]]) == (":py:class:`tests.test_util.test_util_typing.MyList`\\ "
                                                 "[:py:class:`~typing.Tuple`\\ "
                                                 "[:py:class:`int`, :py:class:`int`]]")
-    assert restify(Generator[None, None, None]) == (":py:class:`~typing.Generator`\\ "
-                                                    "[:py:obj:`None`, :py:obj:`None`, "
-                                                    ":py:obj:`None`]")
-    assert restify(Iterator[None]) == (":py:class:`~typing.Iterator`\\ "
-                                       "[:py:obj:`None`]")
+    assert restify(t.Generator[None, None, None]) == (":py:class:`~typing.Generator`\\ "
+                                                      "[:py:obj:`None`, :py:obj:`None`, "
+                                                      ":py:obj:`None`]")
+    assert restify(abc.Generator[None, None, None]) == (":py:class:`collections.abc.Generator`\\ "
+                                                        "[:py:obj:`None`, :py:obj:`None`, "
+                                                        ":py:obj:`None`]")
+    assert restify(t.Iterator[None]) == (":py:class:`~typing.Iterator`\\ "
+                                         "[:py:obj:`None`]")
+    assert restify(abc.Iterator[None]) == (":py:class:`collections.abc.Iterator`\\ "
+                                           "[:py:obj:`None`]")
+
+
+@pytest.mark.xfail(sys.version_info[:2] <= (3, 11), reason='Needs fixing.')
+def test_restify_Annotated():
+    assert restify(Annotated[str, "foo", "bar"]) == ':py:class:`~typing.Annotated`\\ [:py:class:`str`]'
+    assert restify(Annotated[str, "foo", "bar"], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`str`]'
 
 
 def test_restify_type_hints_Callable():
-    assert restify(Callable) == ":py:class:`~typing.Callable`"
-
-    assert restify(Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
-                                             "[[:py:class:`str`], :py:class:`int`]")
-    assert restify(Callable[..., int]) == (":py:class:`~typing.Callable`\\ "
-                                           "[[...], :py:class:`int`]")
+    assert restify(t.Callable) == ":py:class:`~typing.Callable`"
+    assert restify(t.Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
+                                               "[[:py:class:`str`], :py:class:`int`]")
+    assert restify(t.Callable[..., int]) == (":py:class:`~typing.Callable`\\ "
+                                             "[[...], :py:class:`int`]")
+    assert restify(abc.Callable) == ":py:class:`collections.abc.Callable`"
+    assert restify(abc.Callable[[str], int]) == (":py:class:`collections.abc.Callable`\\ "
+                                                 "[[:py:class:`str`], :py:class:`int`]")
+    assert restify(abc.Callable[..., int]) == (":py:class:`collections.abc.Callable`\\ "
+                                               "[[...], :py:class:`int`]")
 
 
 def test_restify_type_hints_Union():
@@ -276,7 +293,6 @@ def test_restify_type_hints_alias():
 
 
 def test_restify_type_ForwardRef():
-    from typing import ForwardRef  # type: ignore[attr-defined]
     assert restify(ForwardRef("MyInt")) == ":py:class:`MyInt`"
 
     assert restify(list[ForwardRef("MyInt")]) == ":py:class:`list`\\ [:py:class:`MyInt`]"
@@ -285,7 +301,6 @@ def test_restify_type_ForwardRef():
 
 
 def test_restify_type_Literal():
-    from typing import Literal  # type: ignore[attr-defined]
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
     assert restify(Literal[MyEnum.a], 'fully-qualified-except-typing') == ':py:obj:`~typing.Literal`\\ [:py:attr:`tests.test_util.test_util_typing.MyEnum.a`]'
@@ -409,13 +424,21 @@ def test_stringify_type_hints_containers():
     assert stringify_annotation(MyList[Tuple[int, int]], "fully-qualified") == "tests.test_util.test_util_typing.MyList[typing.Tuple[int, int]]"
     assert stringify_annotation(MyList[Tuple[int, int]], "smart") == "~tests.test_util.test_util_typing.MyList[~typing.Tuple[int, int]]"
 
-    assert stringify_annotation(Generator[None, None, None], 'fully-qualified-except-typing') == "Generator[None, None, None]"
-    assert stringify_annotation(Generator[None, None, None], "fully-qualified") == "typing.Generator[None, None, None]"
-    assert stringify_annotation(Generator[None, None, None], "smart") == "~typing.Generator[None, None, None]"
+    assert stringify_annotation(t.Generator[None, None, None], 'fully-qualified-except-typing') == "Generator[None, None, None]"
+    assert stringify_annotation(t.Generator[None, None, None], "fully-qualified") == "typing.Generator[None, None, None]"
+    assert stringify_annotation(t.Generator[None, None, None], "smart") == "~typing.Generator[None, None, None]"
 
-    assert stringify_annotation(Iterator[None], 'fully-qualified-except-typing') == "Iterator[None]"
-    assert stringify_annotation(Iterator[None], "fully-qualified") == "typing.Iterator[None]"
-    assert stringify_annotation(Iterator[None], "smart") == "~typing.Iterator[None]"
+    assert stringify_annotation(abc.Generator[None, None, None], 'fully-qualified-except-typing') == "collections.abc.Generator[None, None, None]"
+    assert stringify_annotation(abc.Generator[None, None, None], "fully-qualified") == "collections.abc.Generator[None, None, None]"
+    assert stringify_annotation(abc.Generator[None, None, None], "smart") == "~collections.abc.Generator[None, None, None]"
+
+    assert stringify_annotation(t.Iterator[None], 'fully-qualified-except-typing') == "Iterator[None]"
+    assert stringify_annotation(t.Iterator[None], "fully-qualified") == "typing.Iterator[None]"
+    assert stringify_annotation(t.Iterator[None], "smart") == "~typing.Iterator[None]"
+
+    assert stringify_annotation(abc.Iterator[None], 'fully-qualified-except-typing') == "collections.abc.Iterator[None]"
+    assert stringify_annotation(abc.Iterator[None], "fully-qualified") == "collections.abc.Iterator[None]"
+    assert stringify_annotation(abc.Iterator[None], "smart") == "~collections.abc.Iterator[None]"
 
 
 def test_stringify_type_hints_pep_585():
@@ -453,7 +476,6 @@ def test_stringify_type_hints_pep_585():
 
 
 def test_stringify_Annotated():
-    from typing import Annotated  # type: ignore[attr-defined]
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str"
     assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "str"
 
@@ -489,17 +511,29 @@ def test_stringify_type_hints_string():
 
 
 def test_stringify_type_hints_Callable():
-    assert stringify_annotation(Callable, 'fully-qualified-except-typing') == "Callable"
-    assert stringify_annotation(Callable, "fully-qualified") == "typing.Callable"
-    assert stringify_annotation(Callable, "smart") == "~typing.Callable"
+    assert stringify_annotation(t.Callable, 'fully-qualified-except-typing') == "Callable"
+    assert stringify_annotation(t.Callable, "fully-qualified") == "typing.Callable"
+    assert stringify_annotation(t.Callable, "smart") == "~typing.Callable"
 
-    assert stringify_annotation(Callable[[str], int], 'fully-qualified-except-typing') == "Callable[[str], int]"
-    assert stringify_annotation(Callable[[str], int], "fully-qualified") == "typing.Callable[[str], int]"
-    assert stringify_annotation(Callable[[str], int], "smart") == "~typing.Callable[[str], int]"
+    assert stringify_annotation(t.Callable[[str], int], 'fully-qualified-except-typing') == "Callable[[str], int]"
+    assert stringify_annotation(t.Callable[[str], int], "fully-qualified") == "typing.Callable[[str], int]"
+    assert stringify_annotation(t.Callable[[str], int], "smart") == "~typing.Callable[[str], int]"
 
-    assert stringify_annotation(Callable[..., int], 'fully-qualified-except-typing') == "Callable[[...], int]"
-    assert stringify_annotation(Callable[..., int], "fully-qualified") == "typing.Callable[[...], int]"
-    assert stringify_annotation(Callable[..., int], "smart") == "~typing.Callable[[...], int]"
+    assert stringify_annotation(t.Callable[..., int], 'fully-qualified-except-typing') == "Callable[[...], int]"
+    assert stringify_annotation(t.Callable[..., int], "fully-qualified") == "typing.Callable[[...], int]"
+    assert stringify_annotation(t.Callable[..., int], "smart") == "~typing.Callable[[...], int]"
+
+    assert stringify_annotation(abc.Callable, 'fully-qualified-except-typing') == "collections.abc.Callable"
+    assert stringify_annotation(abc.Callable, "fully-qualified") == "collections.abc.Callable"
+    assert stringify_annotation(abc.Callable, "smart") == "~collections.abc.Callable"
+
+    assert stringify_annotation(abc.Callable[[str], int], 'fully-qualified-except-typing') == "collections.abc.Callable[[str], int]"
+    assert stringify_annotation(abc.Callable[[str], int], "fully-qualified") == "collections.abc.Callable[[str], int]"
+    assert stringify_annotation(abc.Callable[[str], int], "smart") == "~collections.abc.Callable[[str], int]"
+
+    assert stringify_annotation(abc.Callable[..., int], 'fully-qualified-except-typing') == "collections.abc.Callable[[...], int]"
+    assert stringify_annotation(abc.Callable[..., int], "fully-qualified") == "collections.abc.Callable[[...], int]"
+    assert stringify_annotation(abc.Callable[..., int], "smart") == "~collections.abc.Callable[[...], int]"
 
 
 def test_stringify_type_hints_Union():

@@ -8,13 +8,16 @@ import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.util import logging
 from sphinx.util.inspect import isboundmethod, safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import Any
+
+    from typing_extensions import TypeIs
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +49,10 @@ class _MockObject:
     def __contains__(self, key: str) -> bool:
         return False
 
-    def __iter__(self) -> Iterator:
-        return iter([])
+    def __iter__(self) -> Iterator[Any]:
+        return iter(())
 
-    def __mro_entries__(self, bases: tuple) -> tuple:
+    def __mro_entries__(self, bases: tuple[Any, ...]) -> tuple[type, ...]:
         return (self.__class__,)
 
     def __getitem__(self, key: Any) -> _MockObject:
@@ -68,7 +71,7 @@ class _MockObject:
 
 
 def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any = None, decorator_args: tuple = ()) -> Any:
+                   attributes: Any = None, decorator_args: tuple[Any, ...] = ()) -> Any:
     attrs = {'__module__': module,
              '__display_name__': module + '.' + name,
              '__name__': name,
@@ -144,8 +147,8 @@ def mock(modnames: list[str]) -> Iterator[None]:
         # mock modules are enabled here
         ...
     """
+    finder = MockFinder(modnames)
     try:
-        finder = MockFinder(modnames)
         sys.meta_path.insert(0, finder)
         yield
     finally:
@@ -153,7 +156,7 @@ def mock(modnames: list[str]) -> Iterator[None]:
         finder.invalidate_caches()
 
 
-def ismockmodule(subject: Any) -> bool:
+def ismockmodule(subject: Any) -> TypeIs[_MockModule]:
     """Check if the object is a mocked module."""
     return isinstance(subject, _MockModule)
 
