@@ -270,11 +270,11 @@ def test_empty_block_operators():
     assert not operator.__lt__(Block(), [])  # NoQA: PLC2801
     assert not operator.__lt__(Block(), [[], 0])  # NoQA: PLC2801
 
-    assert not operator.__gt__(Block(), [])
-    assert not operator.__gt__(Block(), ['a'])
-    assert not operator.__gt__(Block(), [['a'], 0])
-    assert not operator.__gt__(Block(), [[('a', 0)], 0])
-    assert not operator.__gt__(Block(), [[Line('a', 0)], 0])
+    assert not operator.__gt__(Block(), [])  # NoQA: PLC2801
+    assert not operator.__gt__(Block(), ['a'])  # NoQA: PLC2801
+    assert not operator.__gt__(Block(), [['a'], 0])  # NoQA: PLC2801
+    assert not operator.__gt__(Block(), [[('a', 0)], 0])  # NoQA: PLC2801
+    assert not operator.__gt__(Block(), [[Line('a', 0)], 0])  # NoQA: PLC2801
 
 
 @pytest.mark.parametrize(
