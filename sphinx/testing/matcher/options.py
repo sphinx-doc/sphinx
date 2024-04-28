@@ -15,37 +15,39 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping
     from typing import Any, ClassVar, TypeVar
 
-    from typing_extensions import Unpack
+    from typing_extensions import TypeAlias, Unpack
 
     DT = TypeVar('DT')
 
-_FLAG = Literal['keep_ansi', 'keep_break', 'keep_empty', 'compress', 'unique']
+_FLAG: TypeAlias = Literal['keep_ansi', 'keep_break', 'keep_empty', 'compress', 'unique']
 
-_STRIP = Literal['strip', 'strip_line']
-StripChars = Union[bool, str, None]
+_STRIP: TypeAlias = Literal['strip', 'strip_line']
+StripChars: TypeAlias = Union[bool, str, None]
 """Allowed values for :attr:`Options.strip` and :attr:`Options.strip_line`."""
 
-_PRUNE = Literal['prune']
-PrunePattern = Union[PatternLike, Sequence[PatternLike]]
+_PRUNE: TypeAlias = Literal['prune']
+PrunePattern: TypeAlias = Union[PatternLike, Sequence[PatternLike]]
 """One or more (non-empty) patterns to prune."""
 
-_IGNORE = Literal['ignore']
-IgnorePredicate = Union[LinePredicate, None]
+_IGNORE: TypeAlias = Literal['ignore']
+IgnorePredicate: TypeAlias = Union[LinePredicate, None]
 
 _OPCODES = Literal['ops']
 # must be kept in sync with :mod:`sphinx.testing.matcher._codes`
-OpCode = Literal['strip', 'check', 'compress', 'unique', 'prune', 'filter']
+# and  must be present at runtime for testing the synchronization
+OpCode: TypeAlias = Literal['strip', 'check', 'compress', 'unique', 'prune', 'filter']
 """Known operation codes (see :attr:`Options.ops`)."""
-OpCodes = Sequence[OpCode]
+OpCodes: TypeAlias = Sequence[OpCode]
 
-_FLAVOR = Literal['flavor']
-Flavor = Literal['re', 'fnmatch', 'none']
+_FLAVOR: TypeAlias = Literal['flavor']
+# When Python 3.11 becomes the minimal version, change this for a string enumeration.
+Flavor: TypeAlias = Literal['literal', 'fnmatch', 're']
 """Allowed values for :attr:`Options.flavor`."""
 
 # For some reason, mypy does not like Union of Literal when used as keys
 # of a TypedDict (see: https://github.com/python/mypy/issues/16818), so
 # we instead use a Literal of those (which is equivalent).
-_OPTION = Literal[_FLAG, _STRIP, _PRUNE, _IGNORE, _OPCODES, _FLAVOR]
+_OPTION: TypeAlias = Literal[_FLAG, _STRIP, _PRUNE, _IGNORE, _OPCODES, _FLAVOR]
 
 
 @final
@@ -134,7 +136,7 @@ class Options(TypedDict, total=False):
 
     The following table describes the allowed *opcode*.
 
-    .. default-role:: py3repr
+    .. default-role:: py3r
 
     +------------+--------------------+---------------------------------------+
     | Op. Code   | Option             | Description                           |
@@ -160,8 +162,9 @@ class Options(TypedDict, total=False):
 
     .. rubric:: Example
 
-    Let :py3:`lines = ['a', '', 'a', '', 'a']` and::
+    Consider the following setup::
 
+        lines = ['a', '', 'a', '', 'a']
         options = Options(strip_line=True, keep_empty=False, compress=True)
 
     By default, the lines are transformed into :py3:`['a']` since empty lines
@@ -179,11 +182,11 @@ class Options(TypedDict, total=False):
 
     The allowed values for :attr:`flavor` are:
 
-    * :py3:`'none'` -- match lines using string equality (the default).
-    * :py3:`'fnmatch'` -- match lines using :mod:`fnmatch`-style patterns.
-    * :py3:`'re'` -- match lines using :mod:`re`-style patterns.
+    * :py3r:`literal` -- match lines using string equality (the default).
+    * :py3r:`fnmatch` -- match lines using :mod:`fnmatch`-style patterns.
+    * :py3r:`re` -- match lines using :mod:`re`-style patterns.
 
-    This option only affects non-compiled patterns. Unless stated otheriwse,
+    This option only affects non-compiled patterns. Unless stated otherwise,
     matching is performed on compiled patterns by :meth:`re.Pattern.match`.
     """
 
@@ -239,7 +242,7 @@ class OptionsHolder:
         prune=(),
         ignore=None,
         ops=('strip', 'check', 'compress', 'unique', 'prune', 'filter'),
-        flavor='none',
+        flavor='literal',
     )
     """The supported options specifications and their default values.
 

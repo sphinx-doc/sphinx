@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 def _check_flavor(flavor: Flavor) -> None:
-    allowed: Sequence[Flavor] = ('none', 'fnmatch', 're')
+    allowed: Sequence[Flavor] = ('literal', 'fnmatch', 're')
     if flavor not in allowed:
         msg = f'unknown flavor: {flavor!r} (choose from: {allowed})'
         raise ValueError(msg)
@@ -59,6 +59,14 @@ def to_line_patterns(  # NoqA: E302
        be the same for the same inputs. Otherwise, the order of *expect* is
        retained, in case this could make a difference.
     """
+    # This function is usually called *twice* in ``assert_*``-like routines
+    # and thus, we expect the inputs to mainly be strings or tuples.
+    #
+    # Nevertheless, tuples could appear more frequently than strings since
+    # the inputs could arise from variadic functions and thus we check for
+    # tuples first.
+    if isinstance(patterns, tuple):
+        return patterns
     if isinstance(patterns, (str, re.Pattern)):
         return (patterns,)
     if isinstance(patterns, Set):
@@ -83,6 +91,9 @@ def to_block_pattern(patterns: PatternLike | BlockPattern, /) -> tuple[LinePatte
 
         to_block_pattern('line1\nline2') == ('line1', 'line2')
     """
+    # See `to_line_patterns` for the `if` statements evaluation order.
+    if isinstance(patterns, tuple):
+        return patterns
     if isinstance(patterns, str):
         return tuple(patterns.splitlines())
     if isinstance(patterns, re.Pattern):
@@ -105,11 +116,6 @@ def string_expression(line: str, /) -> str:
     return rf'\A{re.escape(line)}\Z'
 
 
-def fnmatch_prefix(prefix: str) -> str:
-    """A regular expression matching a :mod:`fnmatch`-style prefix."""
-    return fnmatch.translate(prefix).rstrip(r'\Z$')
-
-
 def translate(
     patterns: Iterable[PatternLike],
     *,
@@ -125,14 +131,14 @@ def translate(
 
     :param patterns: An iterable of regular expressions to translate.
     :param flavor: The translation flavor for non-compiled patterns.
-    :param escape: Translation function for ``'none'`` flavor.
-    :param regular_translate: Translation function for ``'re'`` flavor.
-    :param fnmatch_translate: Translation function for ``'fnmatch'`` flavor.
+    :param escape: Translation function for :py3r:`literal` flavor.
+    :param regular_translate: Translation function for :py3r:`re` flavor.
+    :param fnmatch_translate: Translation function for :py3r:`fnmatch` flavor.
     :return: An iterable of :class:`re`-style pattern-like objects.
     """
     _check_flavor(flavor)
 
-    if flavor == 'none' and callable(translator := escape):
+    if flavor == 'literal' and callable(translator := escape):
         return (format_expression(translator, expr) for expr in patterns)
 
     if flavor == 're' and callable(translator := regular_translate):
@@ -156,9 +162,9 @@ def compile(
 
     :param patterns: An iterable of patterns to translate and compile.
     :param flavor: The translation flavor for non-compiled patterns.
-    :param escape: Translation function for ``'none'`` flavor.
-    :param regular_translate: Translation function for ``'re'`` flavor.
-    :param fnmatch_translate: Translation function for ``'fnmatch'`` flavor.
+    :param escape: Translation function for :py3r:`literal` flavor.
+    :param regular_translate: Translation function for :py3r:`re` flavor.
+    :param fnmatch_translate: Translation function for :py3r:`fnmatch` flavor.
     :return: A sequence of compiled regular expressions.
     """
     patterns = translate(
@@ -168,6 +174,8 @@ def compile(
         regular_translate=regular_translate,
         fnmatch_translate=fnmatch_translate,
     )
-    # mypy does not like map + re.compile() although it is correct but
-    # this is likely due to https://github.com/python/mypy/issues/11880
+
+    # mypy does not like map + re.compile() although it is correct
+    #
+    # xref: https://github.com/python/mypy/issues/11880
     return tuple(re.compile(pattern) for pattern in patterns)
