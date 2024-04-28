@@ -44,6 +44,59 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.c._ast import (  # NoQA: F401
+    ASTAlignofExpr,
+    ASTArray,
+    ASTAssignmentExpr,
+    ASTBase,
+    ASTBinOpExpr,
+    ASTBooleanLiteral,
+    ASTBracedInitList,
+    ASTCastExpr,
+    ASTCharLiteral,
+    ASTDeclarator,
+    ASTDeclaratorNameBitField,
+    ASTDeclaratorNameParam,
+    ASTDeclaratorParen,
+    ASTDeclaratorPtr,
+    ASTDeclSpecs,
+    ASTDeclSpecsSimple,
+    ASTEnum,
+    ASTEnumerator,
+    ASTExpression,
+    ASTFallbackExpr,
+    ASTFunctionParameter,
+    ASTIdExpression,
+    ASTInitializer,
+    ASTLiteral,
+    ASTMacro,
+    ASTMacroParameter,
+    ASTNumberLiteral,
+    ASTParameters,
+    ASTParenExpr,
+    ASTParenExprList,
+    ASTPostfixArray,
+    ASTPostfixCallExpr,
+    ASTPostfixDec,
+    ASTPostfixExpr,
+    ASTPostfixInc,
+    ASTPostfixMemberOfPointer,
+    ASTPostfixOp,
+    ASTSizeofExpr,
+    ASTSizeofType,
+    ASTStringLiteral,
+    ASTStruct,
+    ASTTrailingTypeSpec,
+    ASTTrailingTypeSpecFundamental,
+    ASTTrailingTypeSpecName,
+    ASTType,
+    ASTTypeWithInit,
+    ASTUnaryOpExpr,
+    ASTUnion,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -490,7 +543,7 @@ class AliasTransform(SphinxTransform):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
 
-                logger.warning("Could not find C declaration for alias '%s'." % name,
+                logger.warning("Could not find C declaration for alias '%s'.", name,
                                location=node)
                 node.replace_self(signode)
                 continue
@@ -504,7 +557,7 @@ class AliasTransform(SphinxTransform):
                 signode += addnodes.desc_name(sig, sig)
 
                 logger.warning(
-                    "Can not render C declaration for alias '%s'. No such declaration." % name,
+                    "Can not render C declaration for alias '%s'. No such declaration.", name,
                     location=node)
                 node.replace_self(signode)
                 continue
