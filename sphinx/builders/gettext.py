@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 import time
 from codecs import open
 from collections import defaultdict
@@ -27,7 +28,7 @@ from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Generator, Iterable
+    from collections.abc import Iterable, Iterator
 
     from docutils.nodes import Element
 
@@ -69,7 +70,7 @@ class Catalog:
             line = -1
         self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore[arg-type]
 
-    def __iter__(self) -> Generator[Message, None, None]:
+    def __iter__(self) -> Iterator[Message]:
         for message in self.messages:
             positions = sorted({(source, line) for source, line, uuid
                                in self.metadata[message]})
@@ -239,7 +240,7 @@ class MessageCatalogBuilder(I18nBuilder):
     def _extract_from_template(self) -> None:
         files = list(self._collect_templates())
         files.sort()
-        logger.info(bold(__('building [%s]: ') % self.name), nonl=True)
+        logger.info(bold(__('building [%s]: ')), self.name,  nonl=True)
         logger.info(__('targets for %d template files'), len(files))
 
         extract_translations = self.templates.environment.extract_translations
@@ -281,7 +282,7 @@ class MessageCatalogBuilder(I18nBuilder):
                                                    __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,
-                                                   lambda textdomain__: textdomain__[0]):
+                                                   operator.itemgetter(0)):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 

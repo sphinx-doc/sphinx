@@ -24,6 +24,7 @@ mime_suffixes = {
     '.svg': 'image/svg+xml',
     '.svgz': 'image/svg+xml',
     '.ai': 'application/illustrator',
+    '.webp': 'image/webp',
 }
 _suffix_from_mime = {v: k for k, v in reversed(mime_suffixes.items())}
 

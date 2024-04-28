@@ -60,8 +60,8 @@ class MathDomain(Domain):
     def note_equation(self, docname: str, labelid: str, location: Any = None) -> None:
         if labelid in self.equations:
             other = self.equations[labelid][0]
-            logger.warning(__('duplicate label of equation %s, other instance in %s') %
-                           (labelid, other), location=location)
+            logger.warning(__('duplicate label of equation %s, other instance in %s'),
+                           labelid, other, location=location)
 
         self.equations[labelid] = (docname, self.env.new_serialno('eqno') + 1)
 

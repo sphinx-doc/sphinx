@@ -464,7 +464,7 @@ def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
             msg = __("Unknown configure key: latex_elements[%r], ignored.")
-            logger.warning(msg % (key,))
+            logger.warning(msg, key)
             config.latex_elements.pop(key)
 
 
@@ -472,7 +472,7 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_theme_options):
         if key not in Theme.UPDATABLE_KEYS:
             msg = __("Unknown theme option: latex_theme_options[%r], ignored.")
-            logger.warning(msg % (key,))
+            logger.warning(msg, key)
             config.latex_theme_options.pop(key)
 
 
