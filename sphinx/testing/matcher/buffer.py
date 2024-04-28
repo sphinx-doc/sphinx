@@ -17,14 +17,14 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
     from typing import Any, Union
 
-    from typing_extensions import Self
+    from typing_extensions import Self, TypeAlias
 
     from sphinx.testing.matcher._util import LinePattern, LinePredicate, PatternLike
 
-    SubStringLike = PatternLike
+    SubStringLike: TypeAlias = PatternLike
     """A line's substring or a compiled substring pattern."""
 
-    BlockLineLike = Union[object, LinePattern, LinePredicate]
+    BlockLineLike: TypeAlias = Union[object, LinePattern, LinePredicate]
     """A block's line, a compiled pattern or a predicate."""
 
 # We would like to have a covariant buffer type but Python does not

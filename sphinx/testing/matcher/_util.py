@@ -19,26 +19,26 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
     from typing import Any, TypeVar
 
-    from typing_extensions import Never
+    from typing_extensions import Never, TypeAlias
 
     from sphinx.testing.matcher.buffer import Region
 
     _T = TypeVar('_T')
 
-PatternLike = Union[str, re.Pattern[str]]
+PatternLike: TypeAlias = Union[str, re.Pattern[str]]
 """A regular expression (compiled or not)."""
-LinePattern = Union[str, re.Pattern[str]]
+LinePattern: TypeAlias = Union[str, re.Pattern[str]]
 """A regular expression (compiled or not) for an entire line."""
-LinePredicate = Callable[[str], object]
+LinePredicate: TypeAlias = Callable[[str], object]
 """A predicate called on an entire line."""
-BlockPattern = Sequence[LinePattern]
+BlockPattern: TypeAlias = Sequence[LinePattern]
 """A sequence of regular expressions (compiled or not) for a block.
 
 For instance, ``['a', re.compile('b*')]`` matches blocks
 with the line ``'a'`` followed by a line matching ``'b*'``.
 """
 
-Patterns = tuple[re.Pattern[str], ...]
+Patterns: TypeAlias = tuple[re.Pattern[str], ...]
 """Sequence of compiled patterns to use."""
 
 
