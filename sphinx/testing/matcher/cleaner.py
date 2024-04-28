@@ -4,34 +4,24 @@ from __future__ import annotations
 
 __all__ = ()
 
-import itertools
-from functools import partial, reduce
+from functools import reduce
+from itertools import accumulate, islice
 from typing import TYPE_CHECKING
 
-from sphinx.testing.matcher import _codes, _engine
+from sphinx.testing.matcher import _cleaner, _engine
 from sphinx.testing.matcher.options import OptionsHolder
 from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
-    import re
     from collections.abc import Iterable
+    from re import Pattern
 
-    from typing_extensions import Unpack
+    from typing_extensions import TypeAlias, Unpack
 
     from sphinx.testing.matcher._util import Patterns
     from sphinx.testing.matcher.options import Options, PrunePattern, StripChars
 
-    TraceInfo = list[list[tuple[str, list[str]]]]
-
-
-# we do not want to expose a non-positional-only public interface
-def _strip_lines_aux(chars: StripChars, lines: Iterable[str]) -> Iterable[str]:
-    return strip_lines(lines, chars)
-
-
-# we do not want to expose a non-positional-only public interface
-def _prune_lines_aux(patterns: PrunePattern, lines: Iterable[str]) -> Iterable[str]:
-    return prune_lines(lines, patterns, trace=None)
+    TraceInfo: TypeAlias = list[list[tuple[str, list[str]]]]
 
 
 def clean(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
@@ -50,14 +40,12 @@ def clean(text: str, /, **options: Unpack[Options]) -> Iterable[str]:
     text = strip_chars(text, args.strip)
     # obtain the lines
     lines: Iterable[str] = text.splitlines(args.keep_break)
-    # process the lines according to the operation codes sequence
-    stripfn = partial(_strip_lines_aux, args.strip_line)
-    prunefn = partial(_prune_lines_aux, args.prune)
-    dispatchers = _codes.get_dispatcher_map(args, strip_lines=stripfn, prune_lines=prunefn)
-    for opcode in _codes.get_active_opcodes(args):
-        if (fn := dispatchers.get(opcode)) is None:
+    # process the lines according to the operation codes sequence$
+    handlers = _cleaner.make_handlers(args)
+    for opcode in _cleaner.get_active_opcodes(args):
+        if (handler := handlers.get(opcode)) is None:
             raise ValueError('unknown operation code: %r' % opcode)
-        lines = fn(lines)
+        lines = handler(lines)
     return lines
 
 
@@ -114,7 +102,7 @@ def prune_lines(
     return _prune_debug(lines, compiled, trace)
 
 
-def _prune_pattern(line: str, pattern: re.Pattern[str]) -> str:
+def _prune_pattern(line: str, pattern: Pattern[str]) -> str:
     return pattern.sub('', line)
 
 
@@ -133,8 +121,8 @@ def _prune(lines: Iterable[str], compiled: Patterns) -> Iterable[str]:
 
 def _prune_debug(lines: Iterable[str], compiled: Patterns, trace: TraceInfo) -> Iterable[str]:
     def apply(line: str) -> tuple[str, list[str]]:
-        values = itertools.accumulate(compiled, _prune_pattern, initial=line)
-        states = list(itertools.islice(values, 1, None))  # skip initial value
+        values = accumulate(compiled, _prune_pattern, initial=line)
+        states = list(islice(values, 1, None))  # skip initial value
         return states[-1], states
 
     def prune(line: str) -> str:
