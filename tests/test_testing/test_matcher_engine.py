@@ -63,25 +63,25 @@ def test_translate_expressions():
     string, compiled = 'a*', re.compile('.*')
     patterns = (string, compiled)
 
-    assert [*engine.translate(patterns, flavor='none')] == [r'\Aa\*\Z', compiled]
-    assert [*engine.translate(patterns, flavor='re')] == [string, compiled]
+    assert [*engine.translate(patterns, flavor='literal')] == [r'\Aa\*\Z', compiled]
     assert [*engine.translate(patterns, flavor='fnmatch')] == [r'(?s:a.*)\Z', compiled]
+    assert [*engine.translate(patterns, flavor='re')] == [string, compiled]
 
     expect, func = [string.upper(), compiled], str.upper
-    assert [*engine.translate(patterns, flavor='none', escape=func)] == expect
-    assert [*engine.translate(patterns, flavor='re', regular_translate=func)] == expect
+    assert [*engine.translate(patterns, flavor='literal', escape=func)] == expect
     assert [*engine.translate(patterns, flavor='fnmatch', fnmatch_translate=func)] == expect
+    assert [*engine.translate(patterns, flavor='re', regular_translate=func)] == expect
 
 
 def test_compile_patterns():
     string, compiled = 'a*', re.compile('.*')
     patterns = (string, compiled)
 
-    assert engine.compile(patterns, flavor='none') == (re.compile(r'\Aa\*\Z'), compiled)
-    assert engine.compile(patterns, flavor='re') == (re.compile(string), compiled)
+    assert engine.compile(patterns, flavor='literal') == (re.compile(r'\Aa\*\Z'), compiled)
     assert engine.compile(patterns, flavor='fnmatch') == (re.compile(r'(?s:a.*)\Z'), compiled)
+    assert engine.compile(patterns, flavor='re') == (re.compile(string), compiled)
 
     expect = (re.compile('A*'), compiled)
-    assert engine.compile(patterns, flavor='none', escape=str.upper) == expect
-    assert engine.compile(patterns, flavor='re', regular_translate=str.upper) == expect
+    assert engine.compile(patterns, flavor='literal', escape=str.upper) == expect
     assert engine.compile(patterns, flavor='fnmatch', fnmatch_translate=str.upper) == expect
+    assert engine.compile(patterns, flavor='re', regular_translate=str.upper) == expect

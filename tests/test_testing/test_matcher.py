@@ -187,13 +187,13 @@ def test_matcher_cache():
 @pytest.mark.parametrize(
     ('lines', 'flavor', 'pattern', 'expect'),
     [
-        ([], 'none', [], []),
-        (['a'], 'none', '', []),
-        (['a'], 'none', [], []),
-        (['1', 'b', '3', 'a', '5', '!'], 'none', ('a', 'b'), [('b', 1), ('a', 3)]),
+        ([], 'literal', [], []),
+        (['a'], 'literal', '', []),
+        (['a'], 'literal', [], []),
+        (['1', 'b', '3', 'a', '5', '!'], 'literal', ('a', 'b'), [('b', 1), ('a', 3)]),
         (['blbl', 'yay', 'hihi', '^o^'], 'fnmatch', '*[ao]*', [('yay', 1), ('^o^', 3)]),
         (['111', 'hello', 'world', '222'], 're', r'\d+', [('111', 0), ('222', 3)]),
-        (['hello', 'world', 'yay'], 'none', {'hello', 'yay'}, [('hello', 0), ('yay', 2)]),
+        (['hello', 'world', 'yay'], 'literal', {'hello', 'yay'}, [('hello', 0), ('yay', 2)]),
         (['hello', 'world', 'yay'], 'fnmatch', {'hello', 'y*y'}, [('hello', 0), ('yay', 2)]),
         (['hello', 'world', 'yay'], 're', {'hello', r'^y\wy$'}, [('hello', 0), ('yay', 2)]),
     ],
@@ -207,7 +207,7 @@ def test_matcher_find(
     matcher = LineMatcher.from_lines(lines, flavor=flavor)
     assert matcher.find(pattern) == tuple(expect)
 
-    matcher = LineMatcher.from_lines(lines, flavor='none')
+    matcher = LineMatcher.from_lines(lines, flavor='literal')
     assert matcher.find(pattern, flavor=flavor) == tuple(expect)
 
 
@@ -233,20 +233,20 @@ def test_matcher_find_blocks():
 
 def test_assert_match():
     matcher = LineMatcher.from_lines(['a', 'b', 'c', 'd'])
-    matcher.assert_match('.+', flavor='re')
-    matcher.assert_match('[abcd]', flavor='fnmatch')
+    matcher.assert_any_of('.+', flavor='re')
+    matcher.assert_any_of('[abcd]', flavor='fnmatch')
 
     matcher = LineMatcher('')
     with pytest.raises(AssertionError, match=r'(?s:.+not found in.+)'):
-        matcher.assert_match('.+', flavor='re')
+        matcher.assert_any_of('.+', flavor='re')
 
     matcher = LineMatcher('')
     with pytest.raises(AssertionError, match=r'(?s:.+not found in.+)'):
-        matcher.assert_match('.*', flavor='re')
+        matcher.assert_any_of('.*', flavor='re')
 
     matcher = LineMatcher.from_lines(['\n'])
     assert matcher.lines() == ['']
-    matcher.assert_match('.*', flavor='re')
+    matcher.assert_any_of('.*', flavor='re')
 
 
 @pytest.mark.parametrize(
@@ -276,15 +276,15 @@ def test_assert_match_debug(lines, pattern, flavor, expect):
     matcher = LineMatcher.from_lines(lines)
 
     with pytest.raises(AssertionError) as exc_info:
-        matcher.assert_match(pattern, flavor=flavor)
+        matcher.assert_any_of(pattern, flavor=flavor)
 
     assert parse_excinfo(exc_info) == expect
 
 
 def test_assert_no_match():
     matcher = LineMatcher.from_lines(['a', 'b', 'c', 'd'])
-    matcher.assert_no_match(r'\d+', flavor='re')
-    matcher.assert_no_match('[1-9]', flavor='fnmatch')
+    matcher.assert_none_of(r'\d+', flavor='re')
+    matcher.assert_none_of('[1-9]', flavor='fnmatch')
 
 
 @pytest.mark.parametrize(
@@ -316,7 +316,7 @@ def test_assert_no_match_debug(lines, pattern, flavor, context, expect):
     matcher = LineMatcher.from_lines(lines)
 
     with pytest.raises(AssertionError) as exc_info:
-        matcher.assert_no_match(pattern, context=context, flavor=flavor)
+        matcher.assert_none_of(pattern, context=context, flavor=flavor)
 
     assert parse_excinfo(exc_info) == expect
 
@@ -330,14 +330,14 @@ def test_assert_block_coverage(maxsize, start, count, dedup):
     matcher = LineMatcher(source.text)
 
     # the main block is matched exactly once
-    matcher.assert_block(source.main, count=1, flavor='none')
+    matcher.assert_block(source.main, count=1, flavor='literal')
     assert source.base * source.ncopy == source.main
-    matcher.assert_block(source.base, count=source.ncopy, flavor='none')
+    matcher.assert_block(source.base, count=source.ncopy, flavor='literal')
 
     for subidx in range(1, count + 1):
         # check that the sub-blocks are matched correctly
         subblock = [Source.block_line(start + i) for i in range(subidx)]
-        matcher.assert_block(subblock, count=source.ncopy, flavor='none')
+        matcher.assert_block(subblock, count=source.ncopy, flavor='literal')
 
 
 @pytest.mark.parametrize(
@@ -407,7 +407,7 @@ def test_assert_block_coverage(maxsize, start, count, dedup):
     ],
 )
 def test_assert_block_debug(lines, pattern, count, expect):
-    matcher = LineMatcher.from_lines(lines, flavor='none')
+    matcher = LineMatcher.from_lines(lines, flavor='literal')
 
     if expect is None:
         matcher.assert_block(pattern, count=count)
@@ -430,7 +430,7 @@ def test_assert_no_block_coverage(maxsize, start, count, dedup):
     # 'maxsize' might be smaller than start + (dedup +  1) * count
     # but it is fine since stop indices are clamped internally
     source = Source(maxsize, start, count, dedup=dedup)
-    matcher = LineMatcher(source.text, flavor='none')
+    matcher = LineMatcher(source.text, flavor='literal')
 
     with pytest.raises(AssertionError) as exc_info:
         matcher.assert_no_block(source.main, context=0)
@@ -515,7 +515,7 @@ def test_assert_no_block_debug_coverage(
     maxsize, start, count, dedup, omit_prev, omit_next, context_size
 ):
     source = Source(maxsize, start, count, dedup=dedup)
-    matcher = LineMatcher(source.text, flavor='none')
+    matcher = LineMatcher(source.text, flavor='literal')
     with pytest.raises(AssertionError) as exc_info:
         matcher.assert_no_block(source.main, context=context_size)
 

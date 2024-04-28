@@ -2,17 +2,36 @@ from __future__ import annotations
 
 import re
 from typing import TYPE_CHECKING
+from unittest import mock
 
 import pytest
 
 from sphinx.testing.matcher import cleaner
-from sphinx.testing.matcher.options import Options
+from sphinx.testing.matcher._cleaner import HandlerMap, make_handlers
+from sphinx.testing.matcher.options import OpCode, Options
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from sphinx.testing.matcher._util import PatternLike
     from sphinx.testing.matcher.cleaner import TraceInfo
+
+
+def test_implementation_details():
+    # expected and supported operation codes
+    expect = sorted(getattr(OpCode, '__args__', []))
+    qualname = f'{HandlerMap.__module__}.{HandlerMap.__name__}'
+    assert expect, f'{qualname}: invalid literal type: {OpCode}'
+
+    # ensure that the typed dictionary is synchronized
+    actual = sorted(HandlerMap.__annotations__.keys())
+    qualname = f'{HandlerMap.__module__}.{HandlerMap.__name__}'
+    assert actual == expect, f'invalid operation codes in: {qualname!r}'
+
+    handlers = make_handlers(mock.Mock())
+    assert isinstance(handlers, dict)
+    actual = sorted(handlers.keys())
+    assert actual == expect, 'invalid factory function'
 
 
 def test_strip_chars():

@@ -13,7 +13,8 @@ if TYPE_CHECKING:
     from sphinx.testing.matcher.options import _OPTION
 
 
-def test_options_class():
+def test_options_type_implementation_details():
+    """Test total and non-total synchronized typed dictionaries."""
     assert len(Options.__annotations__) > 0, 'missing annotations'
 
     # ensure that the classes are kept synchronized
@@ -50,7 +51,7 @@ def test_default_options():
     check('ignore', None)
 
     check('ops', ('strip', 'check', 'compress', 'unique', 'prune', 'filter'))
-    check('flavor', 'none')
+    check('flavor', 'literal')
 
     # check that there are no leftover options
     assert sorted(processed) == sorted(Options.__annotations__)
