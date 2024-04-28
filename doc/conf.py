@@ -242,7 +242,6 @@ nitpick_ignore = {
     ('std:confval', 'globaltoc_maxdepth'),
 }
 
-
 # -- Extension interface -------------------------------------------------------
 
 from sphinx import addnodes  # NoQA: E402
@@ -309,7 +308,9 @@ def setup(app: Sphinx) -> None:
         return code_role(name, rawtext, text, lineno, inliner, options, content)
 
     def pyrepr_role(name, rawtext, text, lineno, inliner, options=None, content=()):
-        return pycode_role(name, rawtext, repr(text), lineno, inliner, options, content)
+        # restore backslashes instead of null bytes
+        text = repr(text).replace(r'\x00', '\\')
+        return pycode_role(name, rawtext, text, lineno, inliner, options, content)
 
     app.add_role('py3', pycode_role)
-    app.add_role('py3repr', pyrepr_role)
+    app.add_role('py3r', pyrepr_role)
