@@ -438,6 +438,7 @@ forced-separate = [
 preview = true
 quote-style = "single"
 exclude = [
+    "sphinx/_cli/*",
     "sphinx/addnodes.py",
     "sphinx/application.py",
     "sphinx/builders/gettext.py",
