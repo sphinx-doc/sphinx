@@ -51,7 +51,7 @@ def test_read_inventory_v2_not_having_version():
 
 def test_ambiguous_definition_warning(warning):
     f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
-    InventoryFile.load(f, '/util', posixpath.join)
+    invdata = InventoryFile.load(f, '/util', posixpath.join)
 
     assert 'contains multiple definitions for std:term:a' in warning.getvalue().lower()
 
