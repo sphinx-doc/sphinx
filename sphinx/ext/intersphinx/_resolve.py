@@ -81,8 +81,8 @@ def _resolve_reference_in_domain_by_target(
             insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
                                               inventory[objtype].keys()))
             if len(insensitive_matches) > 1:
-                LOGGER.warning(__("%s: multiple matches found for %s:%s"),
-                               domain.name, objtype, target,
+                LOGGER.warning(__("multiple matches found for %s:%s"),
+                               objtype, target,
                                type='intersphinx',  subtype='external', location=node)
             if insensitive_matches:
                 data = inventory[objtype][insensitive_matches[0]]
