@@ -35,7 +35,7 @@ from sphinx._cli.util.colour import (
 from sphinx.locale import __, init_console
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
+    from collections.abc import Callable, Iterable, Iterator, Sequence
     from typing import NoReturn
 
     _PARSER_SETUP = Callable[[argparse.ArgumentParser], argparse.ArgumentParser]
