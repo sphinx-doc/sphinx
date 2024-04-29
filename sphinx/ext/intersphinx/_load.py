@@ -32,8 +32,9 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 # new format
                 name, (uri, inv) = key, value
                 if not isinstance(name, str):
-                    LOGGER.warning(__('intersphinx identifier %r is not string. Ignored'),
-                                   name)
+                    LOGGER.warning(
+                        __('intersphinx identifier %r is not string. Ignored'), name
+                    )
                     config.intersphinx_mapping.pop(key)
                     continue
             else:
@@ -70,9 +71,11 @@ def load_mappings(app: Sphinx) -> None:
         uri: str
         invs: tuple[str | None, ...]
         for name, (uri, invs) in app.config.intersphinx_mapping.values():
-            futures.append(pool.submit(
-                fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now,
-            ))
+            futures.append(
+                pool.submit(
+                    fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now
+                )
+            )
         updated = [f.result() for f in concurrent.futures.as_completed(futures)]
 
     if any(updated):
@@ -131,14 +134,21 @@ def fetch_inventory_group(
         if failures == []:
             pass
         elif len(failures) < len(invs):
-            LOGGER.info(__('encountered some issues with some of the inventories,'
-                           ' but they had working alternatives:'))
+            LOGGER.info(
+                __(
+                    'encountered some issues with some of the inventories,'
+                    ' but they had working alternatives:'
+                )
+            )
             for fail in failures:
                 LOGGER.info(*fail)
         else:
             issues = '\n'.join(f[0] % f[1:] for f in failures)
-            LOGGER.warning(__('failed to reach any of the inventories '
-                              'with the following issues:') + '\n' + issues)
+            LOGGER.warning(
+                __('failed to reach any of the inventories with the following issues:')
+                + '\n'
+                + issues
+            )
 
 
 def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
@@ -154,8 +164,12 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
         else:
             f = open(path.join(app.srcdir, inv), 'rb')  # NoQA: SIM115
     except Exception as err:
-        err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
-                    inv, err.__class__, str(err))
+        err.args = (
+            'intersphinx inventory %r not fetchable due to %s: %s',
+            inv,
+            err.__class__,
+            str(err),
+        )
         raise
     try:
         if hasattr(f, 'url'):
@@ -171,8 +185,12 @@ def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
     except Exception as err:
-        err.args = ('intersphinx inventory %r not readable due to %s: %s',
-                    inv, err.__class__.__name__, str(err))
+        err.args = (
+            'intersphinx inventory %r not readable due to %s: %s',
+            inv,
+            err.__class__.__name__,
+            str(err),
+        )
         raise
     else:
         return invdata
@@ -240,9 +258,13 @@ def _read_from_url(url: str, *, config: Config) -> IO:
     :return: data read from resource described by *url*
     :rtype: ``file``-like object
     """
-    r = requests.get(url, stream=True, timeout=config.intersphinx_timeout,
-                     _user_agent=config.user_agent,
-                     _tls_info=(config.tls_verify, config.tls_cacerts))
+    r = requests.get(
+        url,
+        stream=True,
+        timeout=config.intersphinx_timeout,
+        _user_agent=config.user_agent,
+        _tls_info=(config.tls_verify, config.tls_cacerts),
+    )
     r.raise_for_status()
     r.raw.url = r.url
     # decode content-body based on the header.
