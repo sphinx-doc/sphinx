@@ -103,7 +103,7 @@ class InventoryFile:
         stream: InventoryFileReader,
         uri: str,
         join: Callable[[str, str], str],
-    ) -> tuple[Inventory, set]:
+    ) -> tuple[Inventory, set[str]]:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -118,7 +118,7 @@ class InventoryFile:
                 type = 'py:' + type
                 location += '#' + name
             invdata.setdefault(type, {})[name] = (projname, version, location, '-')
-        return invdata, frozenset()
+        return invdata, set()
 
     @classmethod
     def load_v2(
@@ -126,7 +126,7 @@ class InventoryFile:
         stream: InventoryFileReader,
         uri: str,
         join: Callable[[str, str], str],
-    ) -> tuple[Inventory, set]:
+    ) -> tuple[Inventory, set[str]]:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
