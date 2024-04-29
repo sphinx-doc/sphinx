@@ -134,7 +134,7 @@ class _RootArgumentParser(argparse.ArgumentParser):
     def _format_metavar(
         nargs: int | str | None,
         metavar: str | tuple[str, ...] | None,
-        choices: Collection[str] | None,
+        choices: Iterable[str] | None,
         dest: str,
     ) -> str:
         if metavar is None:
