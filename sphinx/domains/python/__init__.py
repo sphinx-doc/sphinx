@@ -244,7 +244,7 @@ class PyMethod(PyObject):
             if modname:
                 return _('%s() (in module %s)') % (name, modname)
             else:
-                return '%s()' % name
+                return f'{name}()'
 
         if 'classmethod' in self.options:
             return _('%s() (%s class method)') % (methname, clsname)

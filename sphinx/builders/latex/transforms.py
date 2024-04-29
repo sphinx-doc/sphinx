@@ -102,7 +102,7 @@ class ShowUrlsTransform(SphinxPostTransform):
 
                         self.expanded = True
                     else:  # all other true values (b/w compat)
-                        textnode = nodes.Text(" (%s)" % uri)
+                        textnode = nodes.Text(f' ({uri})')
                         node.parent.insert(index + 1, textnode)
 
     def get_docname_for_node(self, node: Node) -> str:

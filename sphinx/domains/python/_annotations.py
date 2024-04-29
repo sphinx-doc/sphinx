@@ -408,7 +408,7 @@ def _parse_arglist(
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     params['multi_line_parameter_list'] = multi_line_parameter_list
-    sig = signature_from_str('(%s)' % arglist)
+    sig = signature_from_str(f'({arglist})')
     last_kind = None
     for param in sig.parameters.values():
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:

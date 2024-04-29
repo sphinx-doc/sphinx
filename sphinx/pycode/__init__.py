@@ -35,7 +35,8 @@ class ModuleAnalyzer:
         try:
             mod = import_module(modname)
         except Exception as err:
-            raise PycodeError('error importing %r' % modname, err) from err
+            msg = f'error importing {modname!r}'
+            raise PycodeError(msg, err) from err
         loader = getattr(mod, '__loader__', None)
         filename = getattr(mod, '__file__', None)
         if loader and getattr(loader, 'get_source', None):
@@ -52,20 +53,24 @@ class ModuleAnalyzer:
             try:
                 filename = loader.get_filename(modname)
             except ImportError as err:
-                raise PycodeError('error getting filename for %r' % modname, err) from err
+                msg = f'error getting filename for {modname!r}'
+                raise PycodeError(msg, err) from err
         if filename is None:
             # all methods for getting filename failed, so raise...
-            raise PycodeError('no source found for module %r' % modname)
+            msg = f'no source found for module {modname!r}'
+            raise PycodeError(msg)
         filename = path.normpath(path.abspath(filename))
         if filename.lower().endswith(('.pyo', '.pyc')):
             filename = filename[:-1]
             if not path.isfile(filename) and path.isfile(filename + 'w'):
                 filename += 'w'
         elif not filename.lower().endswith(('.py', '.pyw')):
-            raise PycodeError('source is not a .py file: %r' % filename)
+            msg = f'source is not a .py file: {filename!r}'
+            raise PycodeError(msg)
 
         if not path.isfile(filename):
-            raise PycodeError('source file is not present: %r' % filename)
+            msg = f'source file is not present: {filename!r}'
+            raise PycodeError(msg)
         return filename, None
 
     @classmethod
@@ -84,7 +89,8 @@ class ModuleAnalyzer:
             obj = cls(string, modname, filename)
             cls.cache['file', filename] = obj
         except Exception as err:
-            raise PycodeError('error opening %r' % filename, err) from err
+            msg = f'error opening {filename!r}'
+            raise PycodeError(msg, err) from err
         return obj
 
     @classmethod

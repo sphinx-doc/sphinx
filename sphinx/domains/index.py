@@ -79,7 +79,7 @@ class IndexDirective(SphinxDirective):
             targetname = self.options['name']
             targetnode = nodes.target('', '', names=[targetname])
         else:
-            targetid = 'index-%s' % self.env.new_serialno('index')
+            targetid = f'index-{self.env.new_serialno("index")}'
             targetnode = nodes.target('', '', ids=[targetid])
 
         self.state.document.note_explicit_target(targetnode)
@@ -94,7 +94,7 @@ class IndexDirective(SphinxDirective):
 
 class IndexRole(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
-        target_id = 'index-%s' % self.env.new_serialno('index')
+        target_id = f'index-{self.env.new_serialno("index")}'
         if self.has_explicit_title:
             # if an explicit target is given, process it as a full entry
             title = self.title

@@ -68,7 +68,7 @@ class MecabSplitter(BaseSplitter):
         param = '-Owakati'
         dict = options.get('dict')
         if dict:
-            param += ' -d %s' % dict
+            param += f' -d {dict}'
         self.native = MeCab.Tagger(param)
 
     def init_ctypes(self, options: dict[str, str]) -> None:
@@ -94,7 +94,7 @@ class MecabSplitter(BaseSplitter):
         param = 'mecab -Owakati'
         dict = options.get('dict')
         if dict:
-            param += ' -d %s' % dict
+            param += f' -d {dict}'
 
         fs_enc = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -509,8 +509,8 @@ class SearchJapanese(SearchLanguage):
         try:
             self.splitter = import_object(dotted_path)(options)
         except ExtensionError as exc:
-            raise ExtensionError("Splitter module %r can't be imported" %
-                                 dotted_path) from exc
+            msg = f"Splitter module {dotted_path!r} can't be imported"
+            raise ExtensionError(msg) from exc
 
     def split(self, input: str) -> list[str]:
         return self.splitter.split(input)

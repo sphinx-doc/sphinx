@@ -83,7 +83,8 @@ class ASTIdentifier(ASTBase):
             return 'D0'
         else:
             if self.is_anonymous:
-                return 'Ut%d_%s' % (len(self.name) - 1, self.name[1:])
+                name_suffix = self.name[1:]
+                return f'Ut{len(name_suffix)}_{name_suffix}'
             else:
                 return str(len(self.name)) + self.name
 
@@ -134,7 +135,8 @@ class ASTIdentifier(ASTBase):
             pnode += node
             signode += pnode
         else:
-            raise Exception('Unknown description mode: %s' % mode)
+            msg = f'Unknown description mode: {mode}'
+            raise Exception(msg)
 
     @property
     def identifier(self) -> str:
@@ -326,7 +328,8 @@ class ASTNestedName(ASTBase):
                     signode += addnodes.desc_sig_space()
                 self.names[-1].describe_signature(signode, mode, env, '', symbol)
         else:
-            raise Exception('Unknown description mode: %s' % mode)
+            msg = f'Unknown description mode: {mode}'
+            raise Exception(msg)
 
 
 ################################################################################
@@ -413,7 +416,8 @@ class ASTNumberLiteral(ASTLiteral):
 
     def get_id(self, version: int) -> str:
         # TODO: floats should be mangled by writing the hex of the binary representation
-        return "L%sE" % self.data.replace("'", "")
+        data = self.data.replace("'", '')
+        return f"L{data}E"
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -437,7 +441,7 @@ class ASTStringLiteral(ASTLiteral):
 
     def get_id(self, version: int) -> str:
         # note: the length is not really correct with escaping
-        return "LA%d_KcE" % (len(self.data) - 2)
+        return f"LA{len(self.data) - 2}_KcE"
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -1328,7 +1332,7 @@ class ASTBracedInitList(ASTBase):
         return hash((self.exprs, self.trailingComma))
 
     def get_id(self, version: int) -> str:
-        return "il%sE" % ''.join(e.get_id(version) for e in self.exprs)
+        return f'il{"".join(e.get_id(version) for e in self.exprs)}E'
 
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = ', '.join(transform(e) for e in self.exprs)
@@ -1537,8 +1541,8 @@ class ASTOperatorBuildIn(ASTOperator):
         else:
             ids = _id_operator_v2
         if self.op not in ids:
-            raise Exception('Internal error: Built-in operator "%s" can not '
-                            'be mapped to an id.' % self.op)
+            msg = f'Internal error: Built-in operator "{self.op}" can not be mapped to an id.'
+            raise Exception(msg)
         return ids[self.op]
 
     def _stringify(self, transform: StringifyTransform) -> str:
@@ -1596,9 +1600,9 @@ class ASTOperatorType(ASTOperator):
 
     def get_id(self, version: int) -> str:
         if version == 1:
-            return 'castto-%s-operator' % self.type.get_id(version)
+            return f'castto-{self.type.get_id(version)}-operator'
         else:
-            return 'cv' + self.type.get_id(version)
+            return f'cv{self.type.get_id(version)}'
 
     def _stringify(self, transform: StringifyTransform) -> str:
         return f'operator {transform(self.type)}'
@@ -1742,10 +1746,12 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
 
         txt = ' '.join(self.canonNames)
         if txt not in _id_fundamental_v2:
-            raise Exception(
-                'Semi-internal error: Fundamental type "%s" can not be mapped '
-                'to an ID. Is it a true fundamental type? If not so, the '
-                'parser should have rejected it.' % txt)
+            msg = (
+                f'Semi-internal error: Fundamental type "{txt}" can not be mapped to an ID. '
+                'Is it a true fundamental type? '
+                'If not so, the parser should have rejected it.'
+            )
+            raise Exception(msg)
         return _id_fundamental_v2[txt]
 
     def describe_signature(self, signode: TextElement, mode: str,
@@ -2488,7 +2494,8 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
         # cv-qualifiers
         if self.paramQual:
             return self.paramQual.get_modifiers_id(version)
-        raise Exception("This should only be called on a function: %s" % self)
+        msg = f"This should only be called on a function: {self}"
+        raise Exception(msg)
 
     def get_param_id(self, version: int) -> str:  # only the parameters (if any)
         if self.paramQual:
@@ -3095,11 +3102,11 @@ class ASTParenExprList(ASTBaseParenExprList):
         return hash(self.exprs)
 
     def get_id(self, version: int) -> str:
-        return "pi%sE" % ''.join(e.get_id(version) for e in self.exprs)
+        return f'pi{"".join(e.get_id(version) for e in self.exprs)}E'
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        exprs = [transform(e) for e in self.exprs]
-        return '(%s)' % ', '.join(exprs)
+        exprs = ', '.join(map(transform, self.exprs))
+        return f'({exprs})'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:

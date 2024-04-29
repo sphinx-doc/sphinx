@@ -286,7 +286,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
                 self.body.append(self.defs['strong'][1])
                 self.body.append(' ::= ')
             elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
+                self.body.append(' ' * len(lastname) + '     ')
             production.walkabout(self)
             self.body.append('\n')
         self.body.append('\n.fi\n')
@@ -442,8 +442,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
                 # skip the document title
                 raise nodes.SkipNode
             elif self.section_level == 1:
-                self.body.append('.SH %s\n' %
-                                 self.deunicode(node.astext().upper()))
+                self.body.append(f'.SH {self.deunicode(node.astext().upper())}\n')
                 raise nodes.SkipNode
         return super().visit_title(node)
 

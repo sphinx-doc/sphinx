@@ -197,7 +197,7 @@ class TexinfoTranslator(SphinxTranslator):
         for index in self.indices:
             name, content = index
             pointers = tuple([name] + self.rellinks[name])
-            self.body.append('\n@node %s,%s,%s,%s\n' % pointers)
+            self.body.append('\n@node {},{},{},{}\n'.format(*pointers))
             self.body.append(f'@unnumbered {name}\n\n{content}\n')
 
         while self.referenced_ids:
@@ -243,13 +243,14 @@ class TexinfoTranslator(SphinxTranslator):
         if self.settings.texinfo_dir_entry:
             entry = self.format_menu_entry(
                 self.escape_menu(self.settings.texinfo_dir_entry),
-                '(%s)' % elements['filename'],
+                f'({elements["filename"]})',
                 self.escape_arg(self.settings.texinfo_dir_description))
-            elements['direntry'] = ('@dircategory %s\n'
-                                    '@direntry\n'
-                                    '%s'
-                                    '@end direntry\n') % (
-                self.escape_id(self.settings.texinfo_dir_category), entry)
+            elements['direntry'] = (
+                f'@dircategory {self.escape_id(self.settings.texinfo_dir_category)}\n'
+                '@direntry\n'
+                f'{entry}'
+                '@end direntry\n'
+            )
         elements['copying'] = COPYING % elements
         # allow the user to override them all
         elements.update(self.settings.texinfo_elements)
@@ -266,7 +267,7 @@ class TexinfoTranslator(SphinxTranslator):
             while node_id + suffix in self.written_ids or \
                     node_id + suffix in self.node_names:
                 nth += 1
-                suffix = '<%s>' % nth
+                suffix = f'<{nth}>'
             node_id += suffix
             self.written_ids.add(node_id)
             self.node_names[node_id] = name
@@ -588,7 +589,7 @@ class TexinfoTranslator(SphinxTranslator):
 
         node_name = node['node_name']
         pointers = tuple([node_name] + self.rellinks[node_name])
-        self.body.append('\n@node %s,%s,%s,%s\n' % pointers)
+        self.body.append('\n@node {},{},{},{}\n'.format(*pointers))
         for id in sorted(self.next_section_ids):
             self.add_anchor(id, node)
 
@@ -632,7 +633,7 @@ class TexinfoTranslator(SphinxTranslator):
                 heading = self.headings[self.section_level]
             except IndexError:
                 heading = self.headings[-1]
-            self.body.append('\n%s ' % heading)
+            self.body.append(f'\n{heading} ')
 
     def depart_title(self, node: Element) -> None:
         self.body.append('\n\n')
@@ -644,7 +645,7 @@ class TexinfoTranslator(SphinxTranslator):
             rubric = self.rubrics[self.section_level]
         except IndexError:
             rubric = self.rubrics[-1]
-        self.body.append('\n%s ' % rubric)
+        self.body.append(f'\n{rubric} ')
         self.escape_newlines += 1
 
     def depart_rubric(self, node: Element) -> None:
@@ -890,7 +891,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_bullet_list(self, node: Element) -> None:
         bullet = node.get('bullet', '*')
-        self.body.append('\n\n@itemize %s\n' % bullet)
+        self.body.append(f'\n\n@itemize {bullet}\n')
 
     def depart_bullet_list(self, node: Element) -> None:
         self.ensure_eol()
@@ -903,7 +904,7 @@ class TexinfoTranslator(SphinxTranslator):
                     'loweralpha': 'a',
                     'upperalpha': 'A'}
         start = node.get('start', starters.get(enum, ''))
-        self.body.append('\n\n@enumerate %s\n' % start)
+        self.body.append(f'\n\n@enumerate {start}\n')
 
     def depart_enumerated_list(self, node: Element) -> None:
         self.ensure_eol()
@@ -938,7 +939,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_option(self, node: Element) -> None:
         self.escape_hyphens += 1
-        self.body.append('\n%s ' % self.at_item_x)
+        self.body.append(f'\n{self.at_item_x} ')
         self.at_item_x = '@itemx'
 
     def depart_option(self, node: Element) -> None:
@@ -985,7 +986,7 @@ class TexinfoTranslator(SphinxTranslator):
             if isinstance(n, (addnodes.index, nodes.target)):
                 n.walkabout(self)
                 node.remove(n)
-        self.body.append('\n%s ' % self.at_item_x)
+        self.body.append(f'\n{self.at_item_x} ')
         self.at_item_x = '@itemx'
 
     def depart_term(self, node: Element) -> None:
@@ -1054,7 +1055,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.entry_sep = '@item'
 
     def visit_entry(self, node: Element) -> None:
-        self.body.append('\n%s\n' % self.entry_sep)
+        self.body.append(f'\n{self.entry_sep}\n')
         self.entry_sep = '@tab'
 
     def depart_entry(self, node: Element) -> None:
@@ -1094,11 +1095,11 @@ class TexinfoTranslator(SphinxTranslator):
         if not name:
             title = cast(nodes.title, node[0])
             name = self.escape(title.astext())
-        self.body.append('\n@cartouche\n@quotation %s ' % name)
+        self.body.append(f'\n@cartouche\n@quotation {name} ')
 
     def _visit_named_admonition(self, node: Element) -> None:
         label = admonitionlabels[node.tagname]
-        self.body.append('\n@cartouche\n@quotation %s ' % label)
+        self.body.append(f'\n@cartouche\n@quotation {label} ')
 
     def depart_admonition(self, node: Element) -> None:
         self.ensure_eol()
@@ -1158,14 +1159,14 @@ class TexinfoTranslator(SphinxTranslator):
             raise nodes.SkipNode
         title = cast(nodes.title, node[0])
         self.visit_rubric(title)
-        self.body.append('%s\n' % self.escape(title.astext()))
+        self.body.append(f'{self.escape(title.astext())}\n')
         self.depart_rubric(title)
 
     def depart_topic(self, node: Element) -> None:
         pass
 
     def visit_transition(self, node: Element) -> None:
-        self.body.append('\n\n%s\n\n' % ('_' * 66))
+        self.body.append(f'\n\n{"_" * 66}\n\n')
 
     def depart_transition(self, node: Element) -> None:
         pass
@@ -1220,8 +1221,7 @@ class TexinfoTranslator(SphinxTranslator):
         height = self.tex_image_length(node.get('height', ''))
         alt = self.escape_arg(node.get('alt', ''))
         filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore[index]
-        self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
-                         (filename, width, height, alt, ext[1:]))
+        self.body.append(f'\n@image{{{filename},{width},{height},{alt},{ext[1:]}}}\n')
 
     def depart_image(self, node: Element) -> None:
         pass
@@ -1264,14 +1264,14 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_system_message(self, node: Element) -> None:
         self.body.append('\n@verbatim\n'
-                         '<SYSTEM MESSAGE: %s>\n'
-                         '@end verbatim\n' % node.astext())
+                         f'<SYSTEM MESSAGE: {node.astext()}>\n'
+                         '@end verbatim\n')
         raise nodes.SkipNode
 
     def visit_comment(self, node: Element) -> None:
         self.body.append('\n')
         for line in node.astext().splitlines():
-            self.body.append('@c %s\n' % line)
+            self.body.append(f'@c {line}\n')
         raise nodes.SkipNode
 
     def visit_problematic(self, node: Element) -> None:
@@ -1301,7 +1301,7 @@ class TexinfoTranslator(SphinxTranslator):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
             else:
-                s = '%s    ' % (' ' * maxlen)
+                s = ' ' * maxlen + '    '
             self.body.append(self.escape(s))
             self.body.append(self.escape(production.astext() + '\n'))
         self.depart_literal_block(None)
@@ -1333,7 +1333,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.body.append('\n')
         for (_entry_type, value, _target_id, _main, _category_key) in node['entries']:
             text = self.escape_menu(value)
-            self.body.append('@geindex %s\n' % text)
+            self.body.append(f'@geindex {text}\n')
 
     def visit_versionmodified(self, node: Element) -> None:
         self.body.append('\n')
@@ -1353,12 +1353,11 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_centered(self, node: Element) -> None:
         txt = self.escape_arg(node.astext())
-        self.body.append('\n\n@center %s\n\n' % txt)
+        self.body.append(f'\n\n@center {txt}\n\n')
         raise nodes.SkipNode
 
     def visit_seealso(self, node: Element) -> None:
-        self.body.append('\n\n@subsubheading %s\n\n' %
-                         admonitionlabels['seealso'])
+        self.body.append(f'\n\n@subsubheading {admonitionlabels["seealso"]}\n\n')
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append('\n')
@@ -1570,6 +1569,5 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_math_block(self, node: Element) -> None:
         if node.get('label'):
             self.add_anchor(node['label'], node)
-        self.body.append('\n\n@example\n%s\n@end example\n\n' %
-                         self.escape_arg(node.astext()))
+        self.body.append(f'\n\n@example\n{self.escape_arg(node.astext())}\n@end example\n\n')
         raise nodes.SkipNode

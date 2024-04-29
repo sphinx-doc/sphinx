@@ -162,7 +162,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
             self.write_entry('redirected ' + text, result.docname, filename,
                              result.lineno, result.uri + ' to ' + result.message)
         else:
-            raise ValueError('Unknown status %s.' % result.status)
+            msg = f'Unknown status {result.status}.'
+            raise ValueError(msg)
 
     def write_linkstat(self, data: dict) -> None:
         self.json_outfile.write(json.dumps(data))

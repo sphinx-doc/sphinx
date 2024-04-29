@@ -499,7 +499,7 @@ class Documenter:
         """
         if self.args is not None:
             # signature given explicitly
-            args = "(%s)" % self.args
+            args = f'({self.args})'
             retann = self.retann
         else:
             # try to introspect the signature
@@ -523,7 +523,7 @@ class Documenter:
             args, retann = result
 
         if args is not None:
-            return args + ((' -> %s' % retann) if retann else '')
+            return args + (f' -> {retann}' if retann else '')
         else:
             return ''
 
@@ -547,7 +547,7 @@ class Documenter:
         if self.objpath:
             # Be explicit about the module, this is necessary since .. class::
             # etc. don't support a prepended module name
-            self.add_line('   :module: %s' % self.modname, sourcename)
+            self.add_line(f'   :module: {self.modname}', sourcename)
 
     def get_doc(self) -> list[list[str]] | None:
         """Decode and return lines of the docstring(s) for the object.
@@ -589,7 +589,7 @@ class Documenter:
         if self.analyzer:
             return f'{self.analyzer.srcname}:docstring of {fullname}'
         else:
-            return 'docstring of %s' % fullname
+            return f'docstring of {fullname}'
 
     def add_content(self, more_content: StringList | None) -> None:
         """Add content from docstrings, attribute documentation and user."""
@@ -1718,7 +1718,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         canonical_fullname = self.get_canonical_fullname()
         if (not self.doc_as_attr and not inspect.isNewType(self.object)
                 and canonical_fullname and self.fullname != canonical_fullname):
-            self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
+            self.add_line(f'   :canonical: {canonical_fullname}', sourcename)
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
@@ -2091,8 +2091,7 @@ class DataDocumenter(GenericAliasMixin,
         if self.options.annotation is SUPPRESS or self.should_suppress_directive_header():
             pass
         elif self.options.annotation:
-            self.add_line('   :annotation: %s' % self.options.annotation,
-                          sourcename)
+            self.add_line(f'   :annotation: {self.options.annotation}', sourcename)
         else:
             if self.config.autodoc_typehints != 'none':
                 # obtain annotation for this data
@@ -2668,7 +2667,7 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
         if self.options.annotation is SUPPRESS or self.should_suppress_directive_header():
             pass
         elif self.options.annotation:
-            self.add_line('   :annotation: %s' % self.options.annotation, sourcename)
+            self.add_line(f'   :annotation: {self.options.annotation}', sourcename)
         else:
             if self.config.autodoc_typehints != 'none':
                 # obtain type annotation for this attribute

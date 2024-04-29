@@ -88,7 +88,8 @@ class ASTIdentifier(ASTBaseBase):
         elif mode == 'noneIsName':
             signode += node
         else:
-            raise Exception('Unknown description mode: %s' % mode)
+            msg = f'Unknown description mode: {mode}'
+            raise Exception(msg)
 
     @property
     def identifier(self) -> str:
@@ -183,7 +184,8 @@ class ASTNestedName(ASTBase):
                     signode += dest
                 self.names[-1].describe_signature(signode, mode, env, '', symbol)
         else:
-            raise Exception('Unknown description mode: %s' % mode)
+            msg = f'Unknown description mode: {mode}'
+            raise Exception(msg)
 
 
 ################################################################################
@@ -1365,8 +1367,8 @@ class ASTParenExprList(ASTBaseParenExprList):
         return hash(self.exprs)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        exprs = [transform(e) for e in self.exprs]
-        return '(%s)' % ', '.join(exprs)
+        exprs = ', '.join(map(transform, self.exprs))
+        return f'({exprs})'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:

@@ -84,7 +84,7 @@ def write_svg_depth(filename: str, depth: int) -> None:
     """Write the depth to SVG file as a comment at end of file
     """
     with open(filename, 'a', encoding="utf-8") as f:
-        f.write('\n<!-- DEPTH=%s -->' % depth)
+        f.write(f'\n<!-- DEPTH={depth} -->')
 
 
 def generate_latex_macro(image_format: str,
@@ -175,7 +175,8 @@ def convert_dvi_to_image(command: list[str], name: str) -> tuple[str, str]:
                        name, command[0], name)
         raise InvokeError from exc
     except CalledProcessError as exc:
-        raise MathExtError('%s exited with error' % name, exc.stderr, exc.stdout) from exc
+        msg = f'{name} exited with error'
+        raise MathExtError(msg, exc.stderr, exc.stdout) from exc
 
 
 def convert_dvi_to_png(dvipath: str, builder: Builder, out_path: str) -> int | None:
@@ -312,7 +313,7 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
 
 def get_tooltip(self: HTML5Translator, node: Element) -> str:
     if self.builder.config.imgmath_add_tooltips:
-        return ' alt="%s"' % self.encode(node.astext()).strip()
+        return f' alt="{self.encode(node.astext()).strip()}"'
     return ''
 
 
@@ -329,8 +330,9 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
 
     if rendered_path is None:
         # something failed -- use text-only as a bad substitute
-        self.body.append('<span class="math">%s</span>' %
-                         self.encode(node.astext()).strip())
+        self.body.append(
+            f'<span class="math">{self.encode(node.astext()).strip()}</span>'
+        )
     else:
         if self.builder.config.imgmath_embed:
             image_format = self.builder.config.imgmath_image_format.lower()
@@ -364,14 +366,15 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     self.body.append('<p>')
     if node['number']:
         number = get_node_equation_number(self, node)
-        self.body.append('<span class="eqno">(%s)' % number)
+        self.body.append(f'<span class="eqno">({number})')
         self.add_permalink_ref(node, _('Link to this equation'))
         self.body.append('</span>')
 
     if rendered_path is None:
         # something failed -- use text-only as a bad substitute
-        self.body.append('<span class="math">%s</span></p>\n</div>' %
-                         self.encode(node.astext()).strip())
+        self.body.append(
+            f'<span class="math">{self.encode(node.astext()).strip()}</span></p>\n</div>'
+        )
     else:
         if self.builder.config.imgmath_embed:
             image_format = self.builder.config.imgmath_image_format.lower()

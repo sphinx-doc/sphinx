@@ -408,7 +408,7 @@ class Autosummary(SphinxDirective):
             for text in column_texts:
                 node = nodes.paragraph('')
                 vl = StringList()
-                vl.append(text, '%s:%d:<autosummary>' % (source, line))
+                vl.append(text, f'{source}:{line:d}:<autosummary>')
                 with switch_source_input(self.state, vl):
                     self.state.nested_parse(vl, 0, node)
                     try:
@@ -507,12 +507,13 @@ def mangle_signature(sig: str, max_chars: int = 30) -> str:
     sig = limited_join(", ", args, max_chars=max_chars - 2)
     if opts:
         if not sig:
-            sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars - 4)
+            opt_args = limited_join(", ", opts, max_chars=max_chars - 4)
+            sig = f"[{opt_args}]"
         elif len(sig) < max_chars - 4 - 2 - 3:
-            sig += "[, %s]" % limited_join(", ", opts,
-                                           max_chars=max_chars - len(sig) - 4 - 2)
+            opt_args = limited_join(", ", opts, max_chars=max_chars - len(sig) - 4 - 2)
+            sig += f"[, {opt_args}]"
 
-    return "(%s)" % sig
+    return f"({sig})"
 
 
 def extract_summary(doc: list[str], document: Any) -> str:
@@ -655,7 +656,8 @@ def import_by_name(
 
     exceptions: list[BaseException] = functools.reduce(
         operator.iadd, (e.exceptions for e in errors), [])
-    raise ImportExceptionGroup('no module named %s' % ' or '.join(tried), exceptions)
+    msg = f'no module named {" or ".join(tried)}'
+    raise ImportExceptionGroup(msg, exceptions)
 
 
 def _import_by_name(name: str, grouped_exception: bool = True) -> tuple[Any, Any, str]:

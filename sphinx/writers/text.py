@@ -270,7 +270,8 @@ class TextWrapper(textwrap.TextWrapper):
         """
         lines: list[str] = []
         if self.width <= 0:
-            raise ValueError("invalid width %r (must be > 0)" % self.width)
+            msg = f"invalid width {self.width!r} (must be > 0)"
+            raise ValueError(msg)
 
         chunks.reverse()
 
@@ -515,12 +516,11 @@ class TextTranslator(SphinxTranslator):
             char = self._title_char
         else:
             char = '^'
-        text = ''
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)  # type: ignore[misc]
         if self.add_secnumbers:
             text = self.get_section_number_string(node) + text
         self.stateindent.pop()
-        title = ['', text, '%s' % (char * column_width(text)), '']
+        title = ['', text, char * column_width(text), '']
         if len(self.states) == 2 and len(self.states[-1]) == 0:
             # remove an empty line before title if it is first section title in the document
             title.pop(0)
@@ -758,7 +758,7 @@ class TextTranslator(SphinxTranslator):
                 self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
                 lastname = production['tokenname']
             elif lastname is not None:
-                self.add_text('%s    ' % (' ' * len(lastname)))
+                self.add_text(' ' * len(lastname) + '    ')
             self.add_text(production.astext() + self.nl)
         self.end_state(wrap=False)
         raise nodes.SkipNode
@@ -769,7 +769,7 @@ class TextTranslator(SphinxTranslator):
         self.new_state(len(self._footnote) + 3)
 
     def depart_footnote(self, node: Element) -> None:
-        self.end_state(first='[%s] ' % self._footnote)
+        self.end_state(first=f'[{self._footnote}] ')
 
     def visit_citation(self, node: Element) -> None:
         if len(node) and isinstance(node[0], nodes.label):
@@ -779,7 +779,7 @@ class TextTranslator(SphinxTranslator):
         self.new_state(len(self._citlabel) + 3)
 
     def depart_citation(self, node: Element) -> None:
-        self.end_state(first='[%s] ' % self._citlabel)
+        self.end_state(first=f'[{self._citlabel}] ')
 
     def visit_label(self, node: Element) -> None:
         raise nodes.SkipNode
@@ -951,7 +951,7 @@ class TextTranslator(SphinxTranslator):
         elif self.list_counter[-1] == -2:
             pass
         else:
-            self.end_state(first='%s. ' % self.list_counter[-1])
+            self.end_state(first=f'{self.list_counter[-1]}. ')
 
     def visit_definition_list_item(self, node: Element) -> None:
         self._classifier_count_in_li = len(list(node.findall(nodes.classifier)))
@@ -1190,7 +1190,7 @@ class TextTranslator(SphinxTranslator):
 
     def depart_abbreviation(self, node: Element) -> None:
         if node.hasattr('explanation'):
-            self.add_text(' (%s)' % node['explanation'])
+            self.add_text(f' ({node["explanation"]})')
 
     def visit_manpage(self, node: Element) -> None:
         return self.visit_literal_emphasis(node)
@@ -1223,11 +1223,11 @@ class TextTranslator(SphinxTranslator):
         pass
 
     def visit_footnote_reference(self, node: Element) -> None:
-        self.add_text('[%s]' % node.astext())
+        self.add_text(f'[{node.astext()}]')
         raise nodes.SkipNode
 
     def visit_citation_reference(self, node: Element) -> None:
-        self.add_text('[%s]' % node.astext())
+        self.add_text(f'[{node.astext()}]')
         raise nodes.SkipNode
 
     def visit_Text(self, node: Text) -> None:
@@ -1264,7 +1264,7 @@ class TextTranslator(SphinxTranslator):
 
     def visit_system_message(self, node: Element) -> None:
         self.new_state(0)
-        self.add_text('<SYSTEM MESSAGE: %s>' % node.astext())
+        self.add_text(f'<SYSTEM MESSAGE: {node.astext()}>')
         self.end_state()
         raise nodes.SkipNode
 

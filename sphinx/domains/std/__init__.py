@@ -90,7 +90,7 @@ class EnvVarXRefRole(XRefRole):
         if not is_ref:
             return [node], []
         varname = node['reftarget']
-        tgtid = 'index-%s' % env.new_serialno('index')
+        tgtid = f'index-{env.new_serialno("index")}'
         indexnode = addnodes.index()
         indexnode['entries'] = [
             ('single', varname, tgtid, '', None),
@@ -478,7 +478,7 @@ class ProductionList(SphinxDirective):
             name = name.strip()
             subnode['tokenname'] = name
             if subnode['tokenname']:
-                prefix = 'grammar-token-%s' % productionGroup
+                prefix = f'grammar-token-{productionGroup}'
                 node_id = make_id(self.env, self.state.document, prefix, name)
                 subnode['ids'].append(node_id)
                 self.state.document.note_implicit_target(subnode, subnode)

@@ -106,17 +106,18 @@ class ChangesBuilder(Builder):
         with open(path.join(self.outdir, 'changes.html'), 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/versionchanges.html', ctx))
 
-        hltext = ['.. versionadded:: %s' % version,
-                  '.. versionchanged:: %s' % version,
-                  '.. deprecated:: %s' % version,
-                  '.. versionremoved:: %s' % version,
-                  ]
+        hltext = [
+            f'.. versionadded:: {version}',
+            f'.. versionchanged:: {version}',
+            f'.. deprecated:: {version}',
+            f'.. versionremoved:: {version}',
+        ]
 
         def hl(no: int, line: str) -> str:
-            line = '<a name="L%s"> </a>' % no + html.escape(line)
+            line = f'<a name="L{no}"> </a>{html.escape(line)}'
             for x in hltext:
                 if x in line:
-                    line = '<span class="hl">%s</span>' % line
+                    line = f'<span class="hl">{line}</span>'
                     break
             return line
 

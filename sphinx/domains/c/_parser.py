@@ -147,7 +147,7 @@ class DefinitionParser(BaseParser):
             try:
                 return ASTCharLiteral(prefix, data)
             except UnicodeDecodeError as e:
-                self.fail("Can not handle character literal. Internal error was: %s" % e)
+                self.fail(f"Can not handle character literal. Internal error was: {e}")
             except UnsupportedMultiCharacterCharLiteral:
                 self.fail("Can not handle character literal"
                           " resulting in multiple decoded characters.")
@@ -451,7 +451,7 @@ class DefinitionParser(BaseParser):
             if not allow or not self.allowFallbackExpressionParsing:
                 raise
             self.warn("Parsing of expression failed. Using fallback parser."
-                      " Error was:\n%s" % e)
+                      f" Error was:\n{e}")
             self.pos = prevPos
         # and then the fallback scanning
         assert end is not None
@@ -472,8 +472,7 @@ class DefinitionParser(BaseParser):
                     symbols.pop()
                 self.pos += 1
             if len(end) > 0 and self.eof:
-                self.fail("Could not find end of expression starting at %d."
-                          % startPos)
+                self.fail(f"Could not find end of expression starting at {startPos}.")
             value = self.definition[startPos:self.pos].strip()
         return ASTFallbackExpr(value.strip())
 
@@ -491,14 +490,14 @@ class DefinitionParser(BaseParser):
             identifier = self.matched_text
             # make sure there isn't a keyword
             if identifier in _keywords:
-                self.fail("Expected identifier in nested name, "
-                          "got keyword: %s" % identifier)
+                self.fail(f"Expected identifier in nested name, got keyword: {identifier}")
             if self.matched_text in self.config.c_extra_keywords:
-                msg = "Expected identifier, got user-defined keyword: %s." \
-                      + " Remove it from c_extra_keywords to allow it as identifier.\n" \
-                      + "Currently c_extra_keywords is %s."
-                self.fail(msg % (self.matched_text,
-                                 str(self.config.c_extra_keywords)))
+                msg = (
+                    f"Expected identifier, got user-defined keyword: {self.matched_text}. "
+                    f"Remove it from c_extra_keywords to allow it as identifier.\n"
+                    f"Currently c_extra_keywords is {self.config.c_extra_keywords!s}."
+                )
+                self.fail(msg)
             ident = ASTIdentifier(identifier)
             names.append(ident)
 
@@ -647,7 +646,8 @@ class DefinitionParser(BaseParser):
     def _parse_decl_specs(self, outer: str | None, typed: bool = True) -> ASTDeclSpecs:
         if outer:
             if outer not in ('type', 'member', 'function'):
-                raise Exception('Internal error, unknown outer "%s".' % outer)
+                msg = f'Internal error, unknown outer "{outer}".'
+                raise Exception(msg)
         leftSpecs = self._parse_decl_specs_simple(outer, typed)
         rightSpecs = None
 
@@ -666,14 +666,14 @@ class DefinitionParser(BaseParser):
         if named == 'single':
             if self.match(identifier_re):
                 if self.matched_text in _keywords:
-                    self.fail("Expected identifier, "
-                              "got keyword: %s" % self.matched_text)
+                    self.fail(f"Expected identifier, got keyword: {self.matched_text}")
                 if self.matched_text in self.config.c_extra_keywords:
-                    msg = "Expected identifier, got user-defined keyword: %s." \
-                          + " Remove it from c_extra_keywords to allow it as identifier.\n" \
-                          + "Currently c_extra_keywords is %s."
-                    self.fail(msg % (self.matched_text,
-                                     str(self.config.c_extra_keywords)))
+                    msg = (
+                        f"Expected identifier, got user-defined keyword: {self.matched_text}. "
+                        f"Remove it from c_extra_keywords to allow it as identifier.\n"
+                        f"Currently c_extra_keywords is {self.config.c_extra_keywords!s}."
+                    )
+                    self.fail(msg)
                 identifier = ASTIdentifier(self.matched_text)
                 declId = ASTNestedName([identifier], rooted=False)
             else:
@@ -743,8 +743,8 @@ class DefinitionParser(BaseParser):
                           typed: bool = True) -> ASTDeclarator:
         # 'typed' here means 'parse return type stuff'
         if paramMode not in ('type', 'function'):
-            raise Exception(
-                "Internal error, unknown paramMode '%s'." % paramMode)
+            msg = f"Internal error, unknown paramMode '{paramMode}'."
+            raise Exception(msg)
         prevErrors = []
         self.skip_ws()
         if typed and self.skip_string('*'):
@@ -840,8 +840,7 @@ class DefinitionParser(BaseParser):
         elif outer is None:  # function parameter
             fallbackEnd = [',', ')']
         else:
-            self.fail("Internal error, initializer for outer '%s' not "
-                      "implemented." % outer)
+            self.fail(f"Internal error, initializer for outer '{outer}' not implemented.")
 
         def parser() -> ASTExpression:
             return self._parse_assignment_expression()
@@ -856,7 +855,8 @@ class DefinitionParser(BaseParser):
         """
         if outer:  # always named
             if outer not in ('type', 'member', 'function'):
-                raise Exception('Internal error, unknown outer "%s".' % outer)
+                msg = f'Internal error, unknown outer "{outer}".'
+                raise Exception(msg)
             assert named
 
         if outer == 'type':
@@ -984,10 +984,12 @@ class DefinitionParser(BaseParser):
     def parse_declaration(self, objectType: str, directiveType: str) -> ASTDeclaration:
         if objectType not in ('function', 'member',
                               'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
-            raise Exception('Internal error, unknown objectType "%s".' % objectType)
+            msg = f'Internal error, unknown objectType "{objectType}".'
+            raise Exception(msg)
         if directiveType not in ('function', 'member', 'var',
                                  'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
-            raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
+            msg = f'Internal error, unknown directiveType "{directiveType}".'
+            raise Exception(msg)
 
         declaration: DeclarationType | None = None
         if objectType == 'member':

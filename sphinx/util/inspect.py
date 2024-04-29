@@ -447,7 +447,8 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
             (object_description(key, _seen=seen), object_description(obj[key], _seen=seen))
             for key in sorted_keys
         )
-        return '{%s}' % ', '.join(f'{key}: {value}' for (key, value) in items)
+        elements = ', '.join(f'{key}: {value}' for (key, value) in items)
+        return '{' + elements + '}'
     elif isinstance(obj, set):
         if id(obj) in seen:
             return 'set(...)'
@@ -457,7 +458,8 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         except TypeError:
             # Cannot sort set values, fall back to using descriptions as a sort key
             sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
-        return '{%s}' % ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+        elements = ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+        return '{' + elements + '}'
     elif isinstance(obj, frozenset):
         if id(obj) in seen:
             return 'frozenset(...)'
@@ -467,9 +469,8 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         except TypeError:
             # Cannot sort frozenset values, fall back to using descriptions as a sort key
             sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
-        return 'frozenset({%s})' % ', '.join(
-            object_description(x, _seen=seen) for x in sorted_values
-        )
+        elements = ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+        return f'frozenset({{{elements}}})'
     elif isinstance(obj, enum.Enum):
         if obj.__repr__.__func__ is not enum.Enum.__repr__:  # type: ignore[attr-defined]
             return repr(obj)
@@ -478,15 +479,15 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         if id(obj) in seen:
             return 'tuple(...)'
         seen |= frozenset([id(obj)])
-        return '({}{})'.format(
-            ', '.join(object_description(x, _seen=seen) for x in obj),
-            ',' * (len(obj) == 1),
-        )
+        elements = ', '.join(object_description(x, _seen=seen) for x in obj)
+        trailing_comma = ',' * (len(obj) == 1)
+        return f'({elements}{trailing_comma})'
     elif isinstance(obj, list):
         if id(obj) in seen:
             return 'list(...)'
         seen |= {id(obj)}
-        return '[%s]' % ', '.join(object_description(x, _seen=seen) for x in obj)
+        elements = ', '.join(object_description(x, _seen=seen) for x in obj)
+        return f'[{elements}]'
 
     try:
         s = repr(obj)

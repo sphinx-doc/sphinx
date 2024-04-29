@@ -68,9 +68,9 @@ class _UnparseVisitor(ast.NodeVisitor):
         name = self.visit(arg)
         if default:
             if arg.annotation:
-                name += " = %s" % self.visit(default)
+                name += f" = {self.visit(default)}"
             else:
-                name += "=%s" % self.visit(default)
+                name += f"={self.visit(default)}"
         return name
 
     def visit_arguments(self, node: ast.arguments) -> str:
@@ -117,7 +117,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         return " ".join(map(self.visit, (node.left, node.op, node.right)))
 
     def visit_BoolOp(self, node: ast.BoolOp) -> str:
-        op = " %s " % self.visit(node.op)
+        op = f" {self.visit(node.op)} "
         return op.join(self.visit(e) for e in node.values)
 
     def visit_Call(self, node: ast.Call) -> str:
@@ -145,7 +145,7 @@ class _UnparseVisitor(ast.NodeVisitor):
         return "{" + ", ".join(items) + "}"
 
     def visit_Lambda(self, node: ast.Lambda) -> str:
-        return "lambda %s: ..." % self.visit(node.args)
+        return f"lambda {self.visit(node.args)}: ..."
 
     def visit_List(self, node: ast.List) -> str:
         return "[" + ", ".join(self.visit(e) for e in node.elts) + "]"
@@ -195,9 +195,10 @@ class _UnparseVisitor(ast.NodeVisitor):
         if len(node.elts) == 0:
             return "()"
         elif len(node.elts) == 1:
-            return "(%s,)" % self.visit(node.elts[0])
+            return f"({self.visit(node.elts[0])},)"
         else:
             return "(" + ", ".join(self.visit(e) for e in node.elts) + ")"
 
     def generic_visit(self, node: ast.AST) -> NoReturn:
-        raise NotImplementedError('Unable to parse %s object' % type(node).__name__)
+        msg = f'Unable to parse {type(node).__name__} object'
+        raise NotImplementedError(msg)

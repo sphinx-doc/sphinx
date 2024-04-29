@@ -304,12 +304,12 @@ class DocTestBuilder(Builder):
         self.cleanup_tries = 0
 
         date = time.strftime('%Y-%m-%d %H:%M:%S')
+        line = '=' * len(date)
 
         outpath = self.outdir.joinpath('output.txt')
         self.outfile = outpath.open('w', encoding='utf-8')  # NoQA: SIM115
-        self.outfile.write(('Results of doctest builder run on %s\n'
-                            '==================================%s\n') %
-                           (date, '=' * len(date)))
+        self.outfile.write(f'Results of doctest builder run on {date}\n'
+                           f'=================================={line}\n')
 
     def __del__(self) -> None:
         # free resources upon destruction (the file handler might not be
@@ -338,18 +338,14 @@ class DocTestBuilder(Builder):
         # write executive summary
         def s(v: int) -> str:
             return 's' if v != 1 else ''
-        repl = (self.total_tries, s(self.total_tries),
-                self.total_failures, s(self.total_failures),
-                self.setup_failures, s(self.setup_failures),
-                self.cleanup_failures, s(self.cleanup_failures))
-        self._out('''
+        self._out(f'''
 Doctest summary
 ===============
-%5d test%s
-%5d failure%s in tests
-%5d failure%s in setup code
-%5d failure%s in cleanup code
-''' % repl)
+{self.total_tries:5d} test{s(self.total_tries)}
+{self.total_failures:5d} failure{s(self.total_failures)} in tests
+{self.setup_failures:5d} failure{s(self.setup_failures)} in setup code
+{self.cleanup_failures:5d} failure{s(self.cleanup_failures)} in cleanup code
+''')
         self.outfile.close()
 
         if self.total_failures or self.setup_failures or self.cleanup_failures:

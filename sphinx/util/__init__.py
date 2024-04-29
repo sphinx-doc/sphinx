@@ -239,9 +239,10 @@ def import_object(objname: str, source: str | None = None) -> Any:
         return obj
     except (AttributeError, ImportError) as exc:
         if source:
-            raise ExtensionError('Could not import %s (needed for %s)' %
-                                 (objname, source), exc) from exc
-        raise ExtensionError('Could not import %s' % objname, exc) from exc
+            msg = f'Could not import {objname} (needed for {source})'
+            raise ExtensionError(msg, exc) from exc
+        msg = f'Could not import {objname}'
+        raise ExtensionError(msg, exc) from exc
 
 
 def encode_uri(uri: str) -> str:

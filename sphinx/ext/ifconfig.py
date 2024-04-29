@@ -63,9 +63,10 @@ def process_ifconfig_nodes(app: Sphinx, doctree: nodes.document, docname: str) -
             # handle exceptions in a clean fashion
             from traceback import format_exception_only
             msg = ''.join(format_exception_only(err.__class__, err))
-            newnode = doctree.reporter.error('Exception occurred in '
-                                             'ifconfig expression: \n%s' %
-                                             msg, base_node=node)
+            newnode = doctree.reporter.error(
+                f'Exception occurred in ifconfig expression: \n{msg}',
+                base_node=node,
+            )
             node.replace_self(newnode)
         else:
             if not res:

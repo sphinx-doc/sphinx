@@ -121,12 +121,12 @@ def unmangle(subject: Any, name: str) -> str | None:
     """Unmangle the given name."""
     try:
         if isclass(subject) and not name.endswith('__'):
-            prefix = "_%s__" % subject.__name__
+            prefix = f'_{subject.__name__}__'
             if name.startswith(prefix):
                 return name.replace(prefix, "__", 1)
             else:
                 for cls in subject.__mro__:
-                    prefix = "_%s__" % cls.__name__
+                    prefix = f'_{cls.__name__}__'
                     if name.startswith(prefix):
                         # mangled attribute defined in parent class
                         return None
@@ -222,11 +222,12 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
             # restore ImportError
             exc = exc_on_importing
 
+        errmsg = f'autodoc: failed to import {objtype} '
         if objpath:
-            errmsg = ('autodoc: failed to import %s %r from module %r' %
-                      (objtype, '.'.join(objpath), modname))
+            dotted_path = '.'.join(objpath)
+            errmsg += f'{dotted_path!r} from module {modname!r}'
         else:
-            errmsg = f'autodoc: failed to import {objtype} {modname!r}'
+            errmsg += f'{modname!r}'
 
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
@@ -236,11 +237,11 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
                 errmsg += ('; the module executes module level statement '
                            'and it might call sys.exit().')
             elif isinstance(real_exc, ImportError) and real_exc.args:
-                errmsg += '; the following exception was raised:\n%s' % real_exc.args[0]
+                errmsg += f'; the following exception was raised:\n{real_exc.args[0]}'
             else:
-                errmsg += '; the following exception was raised:\n%s' % traceback_msg
+                errmsg += f'; the following exception was raised:\n{traceback_msg}'
         else:
-            errmsg += '; the following exception was raised:\n%s' % traceback.format_exc()
+            errmsg += f'; the following exception was raised:\n{traceback.format_exc()}'
 
         logger.debug(errmsg)
         raise ImportError(errmsg) from exc

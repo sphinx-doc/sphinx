@@ -325,7 +325,7 @@ excluded from generation.
 Note: By default this script will not overwrite already created files."""))
 
     parser.add_argument('--version', action='version', dest='show_version',
-                        version='%%(prog)s %s' % __display_version__)
+                        version=f'%(prog)s {__display_version__}')
 
     parser.add_argument('module_path',
                         help=__('path to module to document'))
@@ -395,8 +395,8 @@ Note: By default this script will not overwrite already created files."""))
     group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
                        action='append', help=__('enable arbitrary extensions'))
     for ext in EXTENSIONS:
-        group.add_argument('--ext-%s' % ext, action='append_const',
-                           const='sphinx.ext.%s' % ext, dest='extensions',
+        group.add_argument(f'--ext-{ext}', action='append_const',
+                           const=f'sphinx.ext.{ext}', dest='extensions',
                            help=__('enable %s extension') % ext)
 
     group = parser.add_argument_group(__('Project templating'))
@@ -443,7 +443,7 @@ def main(argv: Sequence[str] = (), /) -> int:
             if module.startswith(prev_module + '.'):
                 continue
             prev_module = module
-            text += '   %s\n' % module
+            text += f'   {module}\n'
         d = {
             'path': args.destdir,
             'sep': False,

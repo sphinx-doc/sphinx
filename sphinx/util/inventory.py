@@ -90,7 +90,8 @@ class InventoryFile:
         elif line == '# Sphinx inventory version 2':
             return cls.load_v2(reader, uri, joinfunc)
         else:
-            raise ValueError('invalid inventory header: %s' % line)
+            msg = f'invalid inventory header: {line}'
+            raise ValueError(msg)
 
     @classmethod
     def load_v1(
@@ -127,7 +128,8 @@ class InventoryFile:
         version = stream.readline().rstrip()[11:]
         line = stream.readline()
         if 'zlib' not in line:
-            raise ValueError('invalid inventory header (not compressed): %s' % line)
+            msg = f'invalid inventory header (not compressed): {line}'
+            raise ValueError(msg)
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
@@ -164,11 +166,9 @@ class InventoryFile:
         with open(os.path.join(filename), 'wb') as f:
             # header
             f.write(('# Sphinx inventory version 2\n'
-                     '# Project: %s\n'
-                     '# Version: %s\n'
-                     '# The remainder of this file is compressed using zlib.\n' %
-                     (escape(env.config.project),
-                      escape(env.config.version))).encode())
+                     f'# Project: {escape(env.config.project)}\n'
+                     f'# Version: {escape(env.config.version)}\n'
+                     '# The remainder of this file is compressed using zlib.\n').encode())
 
             # body
             compressor = zlib.compressobj(9)
@@ -183,7 +183,6 @@ class InventoryFile:
                         uri += '#' + anchor
                     if dispname == name:
                         dispname = '-'
-                    entry = ('%s %s:%s %s %s %s\n' %
-                             (name, domainname, typ, prio, uri, dispname))
+                    entry = (f'{name} {domainname}:{typ} {prio} {uri} {dispname}\n')
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

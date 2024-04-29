@@ -563,7 +563,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         3. ``self.unknown_visit()``
         """
         for node_class in node.__class__.__mro__:
-            method = getattr(self, 'visit_%s' % (node_class.__name__), None)
+            method = getattr(self, f'visit_{node_class.__name__}', None)
             if method:
                 method(node)
                 break
@@ -580,7 +580,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         3. ``self.unknown_departure()``
         """
         for node_class in node.__class__.__mro__:
-            method = getattr(self, 'depart_%s' % (node_class.__name__), None)
+            method = getattr(self, f'depart_{node_class.__name__}', None)
             if method:
                 method(node)
                 break

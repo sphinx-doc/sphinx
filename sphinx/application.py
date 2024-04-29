@@ -1292,7 +1292,8 @@ class Sphinx:
                                       "to check and make it explicit")
             message_not_safe = __("the %s extension is not safe for parallel writing")
         else:
-            raise ValueError('parallel type %s is not supported' % typ)
+            msg = f'parallel type {typ} is not supported'
+            raise ValueError(msg)
 
         for ext in self.extensions.values():
             allowed = getattr(ext, attrname, None)
@@ -1316,7 +1317,8 @@ class Sphinx:
         .. versionadded: 4.1
         """
         if policy not in ('always', 'per_page'):
-            raise ValueError('policy %s is not supported' % policy)
+            msg = f'policy {policy} is not supported'
+            raise ValueError(msg)
         self.registry.html_assets_policy = policy
 
 

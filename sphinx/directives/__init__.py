@@ -326,7 +326,7 @@ class DefaultRole(SphinxDirective):
         else:
             literal_block = nodes.literal_block(self.block_text, self.block_text)
             reporter = self.state.reporter
-            error = reporter.error('Unknown interpreted text role "%s".' % role_name,
+            error = reporter.error(f'Unknown interpreted text role "{role_name}".',
                                    literal_block, line=self.lineno)
             messages += [error]
 

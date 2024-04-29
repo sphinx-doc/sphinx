@@ -79,7 +79,8 @@ char_literal_re = re.compile(r'''
 
 def verify_description_mode(mode: str) -> None:
     if mode not in ('lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'):
-        raise Exception("Description mode '%s' is invalid." % mode)
+        msg = f"Description mode '{mode}' is invalid."
+        raise Exception(msg)
 
 
 class NoOldIdError(Exception):
@@ -321,8 +322,9 @@ class BaseParser:
         errors = []
         indicator = '-' * self.pos + '^'
         exMain = DefinitionError(
-            'Invalid %s declaration: %s [error at %d]\n  %s\n  %s' %
-            (self.language, msg, self.pos, self.definition, indicator))
+            f'Invalid {self.language} declaration: {msg} [error at {self.pos}]\n'
+            f'  {self.definition}\n  {indicator}'
+        )
         errors.append((exMain, "Main error"))
         errors.extend((err, "Potential other error") for err in self.otherErrors)
         self.otherErrors = []
@@ -348,7 +350,7 @@ class BaseParser:
         return False
 
     def skip_word(self, word: str) -> bool:
-        return self.match(re.compile(r'\b%s\b' % re.escape(word)))
+        return self.match(re.compile(fr'\b{re.escape(word)}\b'))
 
     def skip_ws(self) -> bool:
         return self.match(_whitespace_re)
@@ -419,7 +421,7 @@ class BaseParser:
             elif len(symbols) > 0 and self.current_char == symbols[-1]:
                 symbols.pop()
             elif self.current_char in ")]}":
-                self.fail("Unexpected '%s' in balanced-token-seq." % self.current_char)
+                self.fail(f"Unexpected '{self.current_char}' in balanced-token-seq.")
             self.pos += 1
         if self.eof:
             self.fail("Could not find end of balanced-token-seq starting at %d."

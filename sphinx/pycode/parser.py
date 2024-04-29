@@ -48,12 +48,14 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
 
     node_name = node.__class__.__name__
     if node_name in ('Constant', 'Index', 'Slice', 'Subscript'):
-        raise TypeError('%r does not create new variable' % node)
+        msg = f'{node!r} does not create new variable'
+        raise TypeError(msg)
     if node_name == 'Name':
         if self is None or node.id == self_id:  # type: ignore[attr-defined]
             return [node.id]  # type: ignore[attr-defined]
         else:
-            raise TypeError('The assignment %r is not instance variable' % node)
+            msg = f'The assignment {node!r} is not instance variable'
+            raise TypeError(msg)
     elif node_name in ('Tuple', 'List'):
         members = []
         for elt in node.elts:  # type: ignore[attr-defined]
@@ -67,15 +69,17 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
             self and node.value.id == self_id  # type: ignore[attr-defined]
         ):
             # instance variable
-            return ["%s" % get_lvar_names(node.attr, self)[0]]  # type: ignore[attr-defined]
+            return [str(get_lvar_names(node.attr, self)[0])]  # type: ignore[attr-defined]
         else:
-            raise TypeError('The assignment %r is not instance variable' % node)
+            msg = f'The assignment {node!r} is not instance variable'
+            raise TypeError(msg)
     elif node_name == 'str':
         return [node]  # type: ignore[list-item]
     elif node_name == 'Starred':
         return get_lvar_names(node.value, self)  # type: ignore[attr-defined]
     else:
-        raise NotImplementedError('Unexpected node name %r' % node_name)
+        msg = f'Unexpected node name {node_name!r}'
+        raise NotImplementedError(msg)
 
 
 def dedent_docstring(s: str) -> str:
@@ -113,7 +117,8 @@ class Token:
         elif other is None:
             return False
         else:
-            raise ValueError('Unknown value: %r' % other)
+            msg = f'Unknown value: {other!r}'
+            raise ValueError(msg)
 
     def match(self, *conditions: Any) -> bool:
         return any(self == candidate for candidate in conditions)
@@ -280,7 +285,7 @@ class VariableCommentPicker(ast.NodeVisitor):
     def is_final(self, decorators: list[ast.expr]) -> bool:
         final = []
         if self.typing:
-            final.append('%s.final' % self.typing)
+            final.append(f'{self.typing}.final')
         if self.typing_final:
             final.append(self.typing_final)
 
@@ -296,7 +301,7 @@ class VariableCommentPicker(ast.NodeVisitor):
     def is_overload(self, decorators: list[ast.expr]) -> bool:
         overload = []
         if self.typing:
-            overload.append('%s.overload' % self.typing)
+            overload.append(f'{self.typing}.overload')
         if self.typing_overload:
             overload.append(self.typing_overload)
 

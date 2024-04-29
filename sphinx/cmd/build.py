@@ -63,7 +63,7 @@ def handle_exception(
             print(red(__('reST markup error:')), file=stderr)
             print(terminal_safe(exception.args[0]), file=stderr)
         elif isinstance(exception, SphinxError):
-            print(red('%s:' % exception.category), file=stderr)
+            print(red(f'{exception.category}:'), file=stderr)
             print(str(exception), file=stderr)
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)

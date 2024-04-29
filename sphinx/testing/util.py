@@ -39,15 +39,15 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                     assert_node(node, cls[1], xpath=xpath, **kwargs)
                 else:
                     assert isinstance(node, nodes.Element), \
-                        'The node%s does not have any children' % xpath
+                        f'The node{xpath} does not have any children'
                     assert len(node) == 1, \
-                        'The node%s has %d child nodes, not one' % (xpath, len(node))
+                        f'The node{xpath} has {len(node):d} child nodes, not one'
                     assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
         elif isinstance(cls, tuple):
             assert isinstance(node, (list, nodes.Element)), \
-                'The node%s does not have any items' % xpath
+                f'The node{xpath} does not have any items'
             assert len(node) == len(cls), \
-                'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
+                f'The node{xpath} has {len(node):d} child nodes, not {len(cls)!r}'
             for i, nodecls in enumerate(cls):
                 path = xpath + "[%d]" % i
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
@@ -59,7 +59,7 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
 
     if kwargs:
         assert isinstance(node, nodes.Element), \
-            'The node%s does not have any attributes' % xpath
+            f'The node{xpath} does not have any attributes'
 
         for key, value in kwargs.items():
             if key not in node:
@@ -134,7 +134,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             status = None if quiet else StringIO()
         elif not isinstance(status, StringIO):
-            err = "%r must be an io.StringIO object, got: %s" % ('status', type(status))
+            err = f"'status' must be an io.StringIO object, got: {type(status)}"
             raise TypeError(err)
 
         if warning is None:
@@ -142,7 +142,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             warning = None if quiet else StringIO()
         elif not isinstance(warning, StringIO):
-            err = '%r must be an io.StringIO object, got: %s' % ('warning', type(warning))
+            err = f"'warning' must be an io.StringIO object, got: {type(warning)}"
             raise TypeError(err)
 
         self.docutils_conf_path = srcdir / 'docutils.conf'

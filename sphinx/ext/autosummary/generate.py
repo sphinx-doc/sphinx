@@ -143,7 +143,7 @@ class AutosummaryRenderer:
         except TemplateNotFound:
             try:
                 # objtype is given as template_name
-                template = self.env.get_template('autosummary/%s.rst' % template_name)
+                template = self.env.get_template(f'autosummary/{template_name}.rst')
             except TemplateNotFound:
                 # fallback to base.rst
                 template = self.env.get_template('autosummary/base.rst')
@@ -701,7 +701,7 @@ The format of the autosummary directive is documented in the
 """))
 
     parser.add_argument('--version', action='version', dest='show_version',
-                        version='%%(prog)s %s' % __display_version__)
+                        version=f'%(prog)s {__display_version__}')
 
     parser.add_argument('source_file', nargs='+',
                         help=__('source files to generate rST files for'))

@@ -478,7 +478,7 @@ def get_parser() -> argparse.ArgumentParser:
                         default=None,
                         help=__('quiet mode'))
     parser.add_argument('--version', action='version', dest='show_version',
-                        version='%%(prog)s %s' % __display_version__)
+                        version=f'%(prog)s {__display_version__}')
 
     parser.add_argument('path', metavar='PROJECT_DIR', default='.', nargs='?',
                         help=__('project root'))
@@ -511,8 +511,8 @@ def get_parser() -> argparse.ArgumentParser:
 
     group = parser.add_argument_group(__('Extension options'))
     for ext in EXTENSIONS:
-        group.add_argument('--ext-%s' % ext, action='append_const',
-                           const='sphinx.ext.%s' % ext, dest='extensions',
+        group.add_argument(f'--ext-{ext}', action='append_const',
+                           const=f'sphinx.ext.{ext}', dest='extensions',
                            help=__('enable %s extension') % ext)
     group.add_argument('--extensions', metavar='EXTENSIONS', dest='extensions',
                        action='append', help=__('enable arbitrary extensions'))

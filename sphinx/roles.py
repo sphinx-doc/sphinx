@@ -194,7 +194,7 @@ class AnyXRefRole(XRefRole):
 
 class PEP(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
-        target_id = 'index-%s' % self.env.new_serialno('index')
+        target_id = f'index-{self.env.new_serialno("index")}'
         entries = [
             (
                 'single',
@@ -230,15 +230,15 @@ class PEP(ReferenceRole):
         base_url = self.inliner.document.settings.pep_base_url
         ret = self.target.split('#', 1)
         if len(ret) == 2:
-            return base_url + 'pep-%04d/#%s' % (int(ret[0]), ret[1])
+            return base_url + f'pep-{int(ret[0]):04}/#{ret[1]}'
         else:
-            return base_url + 'pep-%04d/' % int(ret[0])
+            return base_url + f'pep-{int(ret[0]):04}/'
 
 
 class RFC(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
-        target_id = 'index-%s' % self.env.new_serialno('index')
-        entries = [('single', 'RFC; RFC %s' % self.target, target_id, '', None)]
+        target_id = f'index-{self.env.new_serialno("index")}'
+        entries = [('single', f'RFC; RFC {self.target}', target_id, '', None)]
 
         index = addnodes.index(entries=entries)
         target = nodes.target('', '', ids=[target_id])

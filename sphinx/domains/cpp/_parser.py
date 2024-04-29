@@ -217,7 +217,7 @@ class DefinitionParser(BaseParser):
             try:
                 charLit = ASTCharLiteral(prefix, data)
             except UnicodeDecodeError as e:
-                self.fail("Can not handle character literal. Internal error was: %s" % e)
+                self.fail(f"Can not handle character literal. Internal error was: {e}")
             except UnsupportedMultiCharacterCharLiteral:
                 self.fail("Can not handle character literal"
                           " resulting in multiple decoded characters.")
@@ -275,8 +275,8 @@ class DefinitionParser(BaseParser):
         if not self.match(_fold_operator_re):
             self.fail("Expected fold operator or ')' after '...' in fold expression.")
         if op != self.matched_text:
-            self.fail("Operators are different in binary fold: '%s' and '%s'."
-                      % (op, self.matched_text))
+            self.fail('Operators are different in binary fold: '
+                      f"'{op}' and '{self.matched_text}'.")
         rightExpr = self._parse_cast_expression()
         self.skip_ws()
         if not self.skip_string(')'):
@@ -408,20 +408,20 @@ class DefinitionParser(BaseParser):
         if cast is not None:
             prefixType = "cast"
             if not self.skip_string("<"):
-                self.fail("Expected '<' after '%s'." % cast)
+                self.fail(f"Expected '<' after '{cast}'.")
             typ = self._parse_type(False)
             self.skip_ws()
             if not self.skip_string_and_ws(">"):
-                self.fail("Expected '>' after type in '%s'." % cast)
+                self.fail(f"Expected '>' after type in '{cast}'.")
             if not self.skip_string("("):
-                self.fail("Expected '(' in '%s'." % cast)
+                self.fail(f"Expected '(' in '{cast}'.")
 
             def parser() -> ASTExpression:
                 return self._parse_expression()
             expr = self._parse_expression_fallback([')'], parser)
             self.skip_ws()
             if not self.skip_string(")"):
-                self.fail("Expected ')' to end '%s'." % cast)
+                self.fail(f"Expected ')' to end '{cast}'.")
             prefix = ASTExplicitCast(cast, typ, expr)
         elif self.skip_word_and_ws("typeid"):
             prefixType = "typeid"
@@ -782,7 +782,7 @@ class DefinitionParser(BaseParser):
             if not allow or not self.allowFallbackExpressionParsing:
                 raise
             self.warn("Parsing of expression failed. Using fallback parser."
-                      " Error was:\n%s" % e)
+                      f" Error was:\n{e}")
             self.pos = prevPos
         # and then the fallback scanning
         assert end is not None
@@ -803,8 +803,7 @@ class DefinitionParser(BaseParser):
                     symbols.pop()
                 self.pos += 1
             if len(end) > 0 and self.eof:
-                self.fail("Could not find end of expression starting at %d."
-                          % startPos)
+                self.fail(f"Could not find end of expression starting at {startPos:d}.")
             value = self.definition[startPos:self.pos].strip()
         return ASTFallbackExpr(value.strip())
 
@@ -934,7 +933,7 @@ class DefinitionParser(BaseParser):
                 # make sure there isn't a keyword
                 if identifier in _keywords:
                     self.fail("Expected identifier in nested name, "
-                              "got keyword: %s" % identifier)
+                              f"got keyword: {identifier}")
                 identOrOp = ASTIdentifier(identifier)
             # try greedily to get template arguments,
             # but otherwise a < might be because we are in an expression
@@ -1178,9 +1177,9 @@ class DefinitionParser(BaseParser):
                     initializer = w
                     break
             if not initializer:
-                self.fail(
-                    'Expected "%s" in initializer-specifier.'
-                    % '" or "'.join(valid))
+                self.fail('Expected {} in initializer-specifier.'.format(
+                    ' or '.join(f'"{v}"' for v in valid)
+                ))
 
         return ASTParametersQualifiers(
             args, volatile, const, refQual, exceptionSpec, trailingReturn,
@@ -1282,7 +1281,8 @@ class DefinitionParser(BaseParser):
     def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:
         if outer:
             if outer not in ('type', 'member', 'function', 'templateParam'):
-                raise Exception('Internal error, unknown outer "%s".' % outer)
+                msg = f'Internal error, unknown outer "{outer}".'
+                raise Exception(msg)
         """
         storage-class-specifier function-specifier "constexpr"
         "volatile" "const" trailing-type-specifier
@@ -1365,8 +1365,9 @@ class DefinitionParser(BaseParser):
                           ) -> ASTDeclarator:
         # 'typed' here means 'parse return type stuff'
         if paramMode not in ('type', 'function', 'operatorCast', 'new'):
+            msg = f"Internal error, unknown paramMode '{paramMode}'."
             raise Exception(
-                "Internal error, unknown paramMode '%s'." % paramMode)
+                msg)
         prevErrors = []
         self.skip_ws()
         if typed and self.skip_string('*'):
@@ -1514,8 +1515,8 @@ class DefinitionParser(BaseParser):
         elif outer is None:  # function parameter
             fallbackEnd = [',', ')']
         else:
-            self.fail("Internal error, initializer for outer '%s' not "
-                      "implemented." % outer)
+            self.fail(f"Internal error, initializer for outer '{outer}' not "
+                      "implemented.")
 
         inTemplate = outer == 'templateParam'
 
@@ -1534,7 +1535,8 @@ class DefinitionParser(BaseParser):
         if outer:  # always named
             if outer not in ('type', 'member', 'function',
                              'operatorCast', 'templateParam'):
-                raise Exception('Internal error, unknown outer "%s".' % outer)
+                msg = f'Internal error, unknown outer "{outer}".'
+                raise Exception(msg)
             if outer != 'operatorCast':
                 assert named
         if outer in ('type', 'function'):
@@ -1853,7 +1855,7 @@ class DefinitionParser(BaseParser):
             # make sure there isn't a keyword
             if txt_identifier in _keywords:
                 self.fail("Expected identifier in template introduction list, "
-                          "got keyword: %s" % txt_identifier)
+                          f"got keyword: {txt_identifier}")
             identifier = ASTIdentifier(txt_identifier)
             params.append(ASTTemplateIntroductionParameter(identifier, parameterPack))
 
@@ -1966,19 +1968,17 @@ class DefinitionParser(BaseParser):
             else:
                 numParams = len(templatePrefix.templates)
         if numArgs + 1 < numParams:
-            self.fail("Too few template argument lists compared to parameter"
-                      " lists. Argument lists: %d, Parameter lists: %d."
-                      % (numArgs, numParams))
+            self.fail("Too few template argument lists compared to parameter lists. "
+                      f"Argument lists: {numArgs:d}, Parameter lists: {numParams:d}.")
         if numArgs > numParams:
             numExtra = numArgs - numParams
             if not fullSpecShorthand and not isMemberInstantiation:
-                msg = "Too many template argument lists compared to parameter" \
-                    " lists. Argument lists: %d, Parameter lists: %d," \
-                    " Extra empty parameters lists prepended: %d." \
-                    % (numArgs, numParams, numExtra)
-                msg += " Declaration:\n\t"
+                msg = ("Too many template argument lists compared to parameter lists. "
+                       f"Argument lists: {numArgs:d}, Parameter lists: {numParams:d}, "
+                       f"Extra empty parameters lists prepended: {numExtra:d}. "
+                       "Declaration:\n\t")
                 if templatePrefix:
-                    msg += "%s\n\t" % templatePrefix
+                    msg += f"{templatePrefix}\n\t"
                 msg += str(nestedName)
                 self.warn(msg)
 
@@ -1994,11 +1994,13 @@ class DefinitionParser(BaseParser):
     def parse_declaration(self, objectType: str, directiveType: str) -> ASTDeclaration:
         if objectType not in ('class', 'union', 'function', 'member', 'type',
                               'concept', 'enum', 'enumerator'):
-            raise Exception('Internal error, unknown objectType "%s".' % objectType)
+            msg = f'Internal error, unknown objectType "{objectType}".'
+            raise Exception(msg)
         if directiveType not in ('class', 'struct', 'union', 'function', 'member', 'var',
                                  'type', 'concept',
                                  'enum', 'enum-struct', 'enum-class', 'enumerator'):
-            raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
+            msg = f'Internal error, unknown directiveType "{directiveType}".'
+            raise Exception(msg)
         visibility = None
         templatePrefix = None
         trailingRequiresClause = None

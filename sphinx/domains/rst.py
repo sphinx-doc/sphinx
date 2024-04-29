@@ -157,9 +157,10 @@ class ReSTDirectiveOption(ReSTMarkup):
         signode['fullname'] = name.strip()
         signode += addnodes.desc_name(desc_name, desc_name)
         if argument:
-            signode += addnodes.desc_annotation(' ' + argument, ' ' + argument)
-        if self.options.get('type'):
-            text = ' (%s)' % self.options['type']
+            text = f' {argument}'
+            signode += addnodes.desc_annotation(text, text)
+        if type_ := self.options.get('type', ''):
+            text = f' ({type_})'
             signode += addnodes.desc_annotation(text, text)
         return name
 

@@ -549,7 +549,6 @@ class IndexBuilder:
                 base_js = js_file.read()
             with open(path.join(js_dir, self.lang.js_stemmer_rawcode), encoding='utf-8') as js_file:
                 language_js = js_file.read()
-            return ('%s\n%s\nStemmer = %sStemmer;' %
-                    (base_js, language_js, self.lang.language_name))
+            return f'{base_js}\n{language_js}\nStemmer = {self.lang.language_name}Stemmer;'
         else:
             return self.lang.js_stemmer_code

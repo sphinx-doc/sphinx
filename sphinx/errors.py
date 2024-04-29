@@ -55,7 +55,7 @@ class ExtensionError(SphinxError):
     @property
     def category(self) -> str:  # type: ignore[override]
         if self.modname:
-            return 'Extension error (%s)' % self.modname
+            return f'Extension error ({self.modname})'
         else:
             return 'Extension error'
 
@@ -120,7 +120,7 @@ class PycodeError(Exception):
     def __str__(self) -> str:
         res = self.args[0]
         if len(self.args) > 1:
-            res += ' (exception was: %r)' % self.args[1]
+            res += f' (exception was: {self.args[1]!r})'
         return res
 
 

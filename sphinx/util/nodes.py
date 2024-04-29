@@ -156,7 +156,7 @@ def apply_source_workaround(node: Element) -> None:
                      get_full_module_name(node), repr_domxml(node))
         # strip classifier from rawsource of term
         for classifier in reversed(list(node.parent.findall(nodes.classifier))):
-            node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
+            node.rawsource = re.sub(r'\s*:\s*' + re.escape(classifier.astext()),
                                     '', node.rawsource)
     if isinstance(node, nodes.topic) and node.source is None:
         # docutils-0.18 does not fill the source attribute of topic

@@ -153,9 +153,8 @@ class BuildInfo:
         f.write('# Sphinx build info version 1\n'
                 '# This file hashes the configuration used when building these files.'
                 ' When it is not found, a full rebuild will be done.\n'
-                'config: %s\n'
-                'tags: %s\n' %
-                (self.config_hash, self.tags_hash))
+                f'config: {self.config_hash}\n'
+                f'tags: {self.tags_hash}\n')
 
 
 class StandaloneHTMLBuilder(Builder):

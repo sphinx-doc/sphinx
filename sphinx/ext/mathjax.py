@@ -49,7 +49,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     # necessary to e.g. set the id property correctly
     if node['number']:
         number = get_node_equation_number(self, node)
-        self.body.append('<span class="eqno">(%s)' % number)
+        self.body.append(f'<span class="eqno">({number})')
         self.add_permalink_ref(node, _('Link to this equation'))
         self.body.append('</span>')
     self.body.append(self.builder.config.mathjax_display[0])
@@ -91,10 +91,10 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict
                 logger.warning(
                     'mathjax_config/mathjax2_config does not work '
                     'for the current MathJax version, use mathjax3_config instead')
-            body = 'MathJax.Hub.Config(%s)' % json.dumps(app.config.mathjax2_config)
+            body = f'MathJax.Hub.Config({json.dumps(app.config.mathjax2_config)})'
             builder.add_js_file('', type='text/x-mathjax-config', body=body)
         if app.config.mathjax3_config:
-            body = 'window.MathJax = %s' % json.dumps(app.config.mathjax3_config)
+            body = f'window.MathJax = {json.dumps(app.config.mathjax3_config)}'
             builder.add_js_file('', body=body)
 
         options = {}

@@ -62,14 +62,15 @@ class ClickableMapDefinition:
     def parse(self, dot: str) -> None:
         matched = self.maptag_re.match(self.content[0])
         if not matched:
-            raise GraphvizError('Invalid clickable map file found: %s' % self.filename)
+            msg = f'Invalid clickable map file found: {self.filename}'
+            raise GraphvizError(msg)
 
         self.id = matched.group(1)
         if self.id == '%3':
             # graphviz generates wrong ID if graph name not specified
             # https://gitlab.com/graphviz/graphviz/issues/1327
             hashed = sha1(dot.encode(), usedforsecurity=False).hexdigest()
-            self.id = 'grapviz%s' % hashed[-10:]
+            self.id = f'grapviz{hashed[-10:]}'
             self.content[0] = self.content[0].replace('%3', self.id)
 
         for line in self.content:
@@ -198,8 +199,8 @@ class GraphvizSimple(SphinxDirective):
 
     def run(self) -> list[Node]:
         node = graphviz()
-        node['code'] = '%s %s {\n%s\n}\n' % \
-                       (self.name, self.arguments[0], '\n'.join(self.content))
+        content = '\n'.join(self.content)
+        node['code'] = f'{self.name} {self.arguments[0]} {{\n{content}\n}}\n'
         node['options'] = {'docname': self.env.docname}
         if 'graphviz_dot' in self.options:
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
@@ -294,7 +295,7 @@ def render_dot(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
         cwd = path.dirname(path.join(self.builder.srcdir, docname))
 
     if format == 'png':
-        dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
+        dot_args.extend(['-Tcmapx', f'-o{outfn}.map'])
 
     try:
         ret = subprocess.run(dot_args, input=code.encode(), capture_output=True,
@@ -342,13 +343,12 @@ def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: d
         if alt is None:
             alt = node.get('alt', self.encode(code).strip())
         if 'align' in node:
-            self.body.append('<div align="%s" class="align-%s">' %
-                             (node['align'], node['align']))
+            self.body.append(f'<div align="{node["align"]}" class="align-{node["align"]}">')
         if format == 'svg':
             self.body.append('<div class="graphviz">')
-            self.body.append('<object data="%s" type="image/svg+xml" class="%s">\n' %
-                             (fname, imgcls))
-            self.body.append('<p class="warning">%s</p>' % alt)
+            self.body.append(f'<object data="{fname}" type="image/svg+xml" '
+                             f'class="{imgcls}">\n')
+            self.body.append(f'<p class="warning">{alt}</p>')
             self.body.append('</object></div>\n')
         else:
             assert outfn is not None
@@ -357,15 +357,14 @@ def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: d
                 if imgmap.clickable:
                     # has a map
                     self.body.append('<div class="graphviz">')
-                    self.body.append('<img src="%s" alt="%s" usemap="#%s" class="%s" />' %
-                                     (fname, alt, imgmap.id, imgcls))
+                    self.body.append(f'<img src="{fname}" alt="{alt}" usemap="#{imgmap.id}" '
+                                     f'class="{imgcls}" />')
                     self.body.append('</div>\n')
                     self.body.append(imgmap.generate_clickable_map())
                 else:
                     # nothing in image map
                     self.body.append('<div class="graphviz">')
-                    self.body.append('<img src="%s" alt="%s" class="%s" />' %
-                                     (fname, alt, imgcls))
+                    self.body.append(f'<img src="{fname}" alt="{alt}" class="{imgcls}" />')
                     self.body.append('</div>\n')
         if 'align' in node:
             self.body.append('</div>\n')
@@ -401,12 +400,12 @@ def render_dot_latex(self: LaTeXTranslator, node: graphviz, code: str,
             elif node['align'] == 'center':
                 pre = r'{\hfill'
                 post = r'\hspace*{\fill}}'
-        self.body.append('\n%s' % pre)
+        self.body.append(f'\n{pre}')
 
     self.body.append(r'\sphinxincludegraphics[]{%s}' % fname)
 
     if not is_inline:
-        self.body.append('%s\n' % post)
+        self.body.append(f'{post}\n')
 
     raise nodes.SkipNode
 

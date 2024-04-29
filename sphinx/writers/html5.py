@@ -71,7 +71,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
         self.docnames.append(node['docname'])
-        self.body.append('<span id="document-%s"></span>' % node['docname'])
+        self.body.append(f'<span id="document-{node["docname"]}"></span>')
 
     def depart_start_of_file(self, node: Element) -> None:
         self.docnames.pop()
@@ -328,8 +328,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.body.append(self.starttag(node, 'a', '', **atts))
 
         if node.get('secnumber'):
-            self.body.append(('%s' + self.secnumber_suffix) %
-                             '.'.join(map(str, node['secnumber'])))
+            dotted_secnum = '.'.join(map(str, node['secnumber']))
+            self.body.append(f'{dotted_secnum}{self.secnumber_suffix}')
 
     def visit_number_reference(self, node: Element) -> None:
         self.visit_reference(node)
@@ -364,11 +364,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = "{}/#{}".format(docname, node.parent['ids'][0])
+                anchorname = f'{docname}/#{node.parent["ids"][0]}'
                 if anchorname not in self.builder.secnumbers:
-                    anchorname = "%s/" % docname  # try first heading which has no anchor
+                    anchorname = f"{docname}/"  # try first heading which has no anchor
             else:
-                anchorname = '#' + node.parent['ids'][0]
+                anchorname = f'#{node.parent["ids"][0]}'
                 if anchorname not in self.builder.secnumbers:
                     anchorname = ''  # try first heading which has no anchor
 
@@ -378,10 +378,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         return None
 
     def add_secnumber(self, node: Element) -> None:
-        secnumber = self.get_secnumber(node)
-        if secnumber:
-            self.body.append('<span class="section-number">%s</span>' %
-                             ('.'.join(map(str, secnumber)) + self.secnumber_suffix))
+        if secnumber := self.get_secnumber(node):
+            dotted_secnum = '.'.join(map(str, secnumber))
+            self.body.append(
+                f'<span class="section-number">{dotted_secnum}{self.secnumber_suffix}</span>'
+            )
 
     def add_fignumber(self, node: Element) -> None:
         def append_fignumber(figtype: str, figure_id: str) -> None:
@@ -495,11 +496,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             if close_tag.startswith('</h'):
                 self.add_permalink_ref(node.parent, _('Link to this heading'))
             elif close_tag.startswith('</a></h'):
-                self.body.append('</a><a class="headerlink" href="#%s" ' %
-                                 node.parent['ids'][0] +
-                                 'title="{}">{}'.format(
-                                     _('Link to this heading'),
-                                     self.config.html_permalinks_icon))
+                title_text = _("Link to this heading")
+                self.body.append(
+                    f'</a><a class="headerlink" href="#{node.parent["ids"][0]}" '
+                    f'title="{title_text}">{self.config.html_permalinks_icon}'
+                )
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
                 self.add_permalink_ref(node.parent, _('Link to this table'))
@@ -528,7 +529,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             location=node, **highlight_args,
         )
         starttag = self.starttag(node, 'div', suffix='',
-                                 CLASS='highlight-%s notranslate' % lang)
+                                 CLASS=f'highlight-{lang} notranslate')
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 
@@ -586,7 +587,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             node,
             "code",
             suffix="",
-            CLASS="docutils literal highlight highlight-%s" % lang,
+            CLASS=f"docutils literal highlight highlight-{lang}",
         )
         self.body.append(starttag + highlighted.strip() + "</code>")
         raise nodes.SkipNode
@@ -610,7 +611,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                 self.body.append(self.starttag(production, 'strong', ''))
                 self.body.append(lastname + '</strong> ::= ')
             elif lastname is not None:
-                self.body.append('%s     ' % (' ' * len(lastname)))
+                self.body.append(' ' * len(lastname) + '     ')
             production.walkabout(self)
             self.body.append('\n')
         self.body.append('</pre>\n')
@@ -708,7 +709,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                     atts['height'] = multiply_length(atts['height'], node['scale'])
             atts['alt'] = node.get('alt', uri)
             if 'align' in node:
-                atts['class'] = 'align-%s' % node['align']
+                atts['class'] = f'align-{node["align"]}'
             self.body.append(self.emptytag(node, 'img', '', **atts))
             return
 
@@ -766,7 +767,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             for token in self.words_and_spaces.findall(encoded):
                 if token.strip():
                     # protect literal text from line wrapping
-                    self.body.append('<span class="pre">%s</span>' % token)
+                    self.body.append(f'<span class="pre">{token}</span>')
                 elif token in ' \n':
                     # allow breaks at whitespace
                     self.body.append(token)
@@ -869,10 +870,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         classes.insert(0, "docutils")  # compat
 
         # set align-default if align not specified to give a default style
-        classes.append('align-%s' % node.get('align', 'default'))
+        classes.append(f'align-{node.get("align", "default")}')
 
         if 'width' in node:
-            atts['style'] = 'width: %s' % node['width']
+            atts['style'] = f'width: {node["width"]}'
         tag = self.starttag(node, 'table', CLASS=' '.join(classes), **atts)
         self.body.append(tag)
 

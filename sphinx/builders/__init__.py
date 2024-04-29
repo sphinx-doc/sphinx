@@ -92,8 +92,8 @@ class Builder:
         self.tags: Tags = app.tags
         self.tags.add(self.format)
         self.tags.add(self.name)
-        self.tags.add("format_%s" % self.format)
-        self.tags.add("builder_%s" % self.name)
+        self.tags.add(f'format_{self.format}')
+        self.tags.add(f'builder_{self.name}')
 
         # images that need to be copied over (source -> dest)
         self.images: dict[str, str] = {}
@@ -419,8 +419,8 @@ class Builder:
             self._read_serial(docnames)
 
         if self.config.root_doc not in self.env.all_docs:
-            raise SphinxError('root file %s not found' %
-                              self.env.doc2path(self.config.root_doc))
+            msg = f'root file {self.env.doc2path(self.config.root_doc)} not found'
+            raise SphinxError(msg)
 
         for retval in self.events.emit('env-updated', self.env):
             if retval is not None:

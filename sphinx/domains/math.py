@@ -101,7 +101,7 @@ class MathDomain(Domain):
         if result:
             docname, number = result
             # TODO: perhaps use rather a sphinx-core provided prefix here?
-            node_id = make_id('equation-%s' % target)
+            node_id = make_id(f'equation-{target}')
             if env.config.math_numfig and env.config.numfig:
                 if docname in env.toc_fignumbers:
                     numbers = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
@@ -117,8 +117,7 @@ class MathDomain(Domain):
             except KeyError as exc:
                 logger.warning(__('Invalid math_eqref_format: %r'), exc,
                                location=node)
-                title = nodes.Text("(%d)" % number)
-                title = nodes.Text("(%d)" % number)
+                title = nodes.Text(f'({number})')
             return make_refnode(builder, fromdocname, docname, node_id, title)
         else:
             return None

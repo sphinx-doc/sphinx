@@ -50,7 +50,7 @@ def _todim(val: int | str) -> str:
     if val is None:
         return 'initial'
     elif str(val).isdigit():
-        return '0' if int(val) == 0 else '%spx' % val
+        return '0' if int(val) == 0 else f'{val}px'
     return val  # type: ignore[return-value]
 
 
@@ -81,7 +81,7 @@ def accesskey(context: Any, key: str) -> str:
         context.vars['_accesskeys'] = {}
     if key and key not in context.vars['_accesskeys']:
         context.vars['_accesskeys'][key] = 1
-        return 'accesskey="%s"' % key
+        return f'accesskey="{key}"'
     return ''
 
 

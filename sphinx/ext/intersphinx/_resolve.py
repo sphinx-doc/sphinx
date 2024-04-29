@@ -300,8 +300,9 @@ class IntersphinxRole(SphinxRole):
                 if (
                     object_types := domain.object_types.get(role_name)
                 ) is not None and object_types.roles:
+                    msg += ' (perhaps you meant one of: %s)'
                     self._emit_warning(
-                        __(f'{msg} (perhaps you meant one of: %s)'),
+                        __(msg),
                         domain_name,
                         role_name,
                         self._concat_strings(object_types.roles),
@@ -335,7 +336,7 @@ class IntersphinxRole(SphinxRole):
                     if o := d.object_types.get(role_name):
                         possible_roles.update(f'{d.name}:{r}' for r in o.roles)
                 if possible_roles:
-                    msg = f'{msg} (perhaps you meant one of: %s)'
+                    msg += ' (perhaps you meant one of: %s)'
                     self._emit_warning(
                         __(msg),
                         domains_str,

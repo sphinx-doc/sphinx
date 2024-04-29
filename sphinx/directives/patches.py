@@ -158,7 +158,7 @@ class MathDirective(SphinxDirective):
         # assign label automatically if math_number_all enabled
         if node['label'] == '' or (self.config.math_number_all and not node['label']):
             seq = self.env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = "%s:%d" % (self.env.docname, seq)
+            node['label'] = f'{self.env.docname}:{seq}'
 
         # no targets and numbers are needed
         if not node['label']:
@@ -170,7 +170,7 @@ class MathDirective(SphinxDirective):
         node['number'] = domain.get_equation_number_for(node['label'])
 
         # add target node
-        node_id = make_id('equation-%s' % node['label'])
+        node_id = make_id(f'equation-{node["label"]}')
         target = nodes.target('', '', ids=[node_id])
         self.state.document.note_explicit_target(target)
         ret.insert(0, target)

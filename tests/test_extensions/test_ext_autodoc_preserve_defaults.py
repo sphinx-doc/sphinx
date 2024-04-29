@@ -24,8 +24,8 @@ def test_preserve_defaults(app):
         '',
         '',
         '   .. py:method:: Class.clsmeth(name: str = CONSTANT, sentinel: ~typing.Any = '
-        'SENTINEL, now: ~datetime.datetime = datetime.now(), color: int = %s, *, '
-        'kwarg1, kwarg2=%s) -> None' % (color, color),
+        f'SENTINEL, now: ~datetime.datetime = datetime.now(), color: int = {color}, *, '
+        f'kwarg1, kwarg2={color}) -> None',
         '      :module: target.preserve_defaults',
         '      :classmethod:',
         '',
@@ -33,8 +33,8 @@ def test_preserve_defaults(app):
         '',
         '',
         '   .. py:method:: Class.meth(name: str = CONSTANT, sentinel: ~typing.Any = '
-        'SENTINEL, now: ~datetime.datetime = datetime.now(), color: int = %s, *, '
-        'kwarg1, kwarg2=%s) -> None' % (color, color),
+        f'SENTINEL, now: ~datetime.datetime = datetime.now(), color: int = {color}, *, '
+        f'kwarg1, kwarg2={color}) -> None',
         '      :module: target.preserve_defaults',
         '',
         '      docstring',
@@ -77,8 +77,8 @@ def test_preserve_defaults(app):
         '',
         '',
         '.. py:function:: foo(name: str = CONSTANT, sentinel: ~typing.Any = SENTINEL, '
-        'now: ~datetime.datetime = datetime.now(), color: int = %s, *, kwarg1, '
-        'kwarg2=%s) -> None' % (color, color),
+        f'now: ~datetime.datetime = datetime.now(), color: int = {color}, *, kwarg1, '
+        f'kwarg2={color}) -> None',
         '   :module: target.preserve_defaults',
         '',
         '   docstring',

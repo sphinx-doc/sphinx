@@ -136,7 +136,7 @@ class CitationReferenceTransform(SphinxTransform):
                                support_smartquotes=False,
                                ids=node["ids"],
                                classes=node.get('classes', []))
-            ref += nodes.inline(target, '[%s]' % target)
+            ref += nodes.inline(target, f'[{target}]')
             copy_source_info(node, ref)
             node.replace_self(ref)
 

@@ -239,7 +239,7 @@ class SigElementFallbackTransform(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
         def has_visitor(translator: type[nodes.NodeVisitor], node: type[Element]) -> bool:
-            return hasattr(translator, "visit_%s" % node.__name__)
+            return hasattr(translator, f"visit_{node.__name__}")
 
         try:
             translator = self.app.builder.get_translator_class()

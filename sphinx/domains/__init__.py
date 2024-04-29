@@ -94,8 +94,8 @@ class Index(ABC):
 
     def __init__(self, domain: Domain) -> None:
         if not self.name or self.localname is None:
-            raise SphinxError('Index subclass %s has no valid name or localname'
-                              % self.__class__.__name__)
+            msg = f'Index subclass {self.__class__.__name__} has no valid name or localname'
+            raise SphinxError(msg)
         self.domain = domain
 
     @abstractmethod
@@ -223,7 +223,8 @@ class Domain:
         else:
             self.data = env.domaindata[self.name]
             if self.data['version'] != self.data_version:
-                raise OSError('data of %r domain out of date' % self.label)
+                msg = f'data of {self.label!r} domain out of date'
+                raise OSError(msg)
         for name, obj in self.object_types.items():
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
@@ -300,9 +301,11 @@ class Domain:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """
-        raise NotImplementedError('merge_domaindata must be implemented in %s '
-                                  'to be able to do parallel builds!' %
-                                  self.__class__)
+        msg = (
+            f'merge_domaindata must be implemented in {self.__class__} '
+            'to be able to do parallel builds!'
+        )
+        raise NotImplementedError(msg)
 
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:

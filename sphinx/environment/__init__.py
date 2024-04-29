@@ -353,7 +353,8 @@ class BuildEnvironment:
             condition = method
         else:
             if method not in versioning_conditions:
-                raise ValueError('invalid versioning method: %r' % method)
+                msg = f'invalid versioning method: {method!r}'
+                raise ValueError(msg)
             condition = versioning_conditions[method]
 
         if self.versioning_condition not in (None, condition):

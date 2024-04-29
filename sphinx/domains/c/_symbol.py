@@ -28,7 +28,7 @@ class _DuplicateSymbolError(Exception):
         self.declaration = declaration
 
     def __str__(self) -> str:
-        return "Internal C duplicate symbol error:\n%s" % self.symbol.dump(0)
+        return f"Internal C duplicate symbol error:\n{self.symbol.dump(0)}"
 
 
 class SymbolLookupResult:
@@ -509,9 +509,9 @@ class Symbol:
                     name = str(ourChild.declaration)
                     msg = __("Duplicate C declaration, also defined at %s:%s.\n"
                              "Declaration is '.. c:%s:: %s'.")
-                    msg = msg % (ourChild.docname, ourChild.line,
-                                 ourChild.declaration.directiveType, name)
-                    logger.warning(msg, location=(otherChild.docname, otherChild.line))
+                    logger.warning(msg, ourChild.docname, ourChild.line,
+                                   ourChild.declaration.directiveType, name,
+                                   location=(otherChild.docname, otherChild.line))
                 else:
                     # Both have declarations, and in the same docname.
                     # This can apparently happen, it should be safe to

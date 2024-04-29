@@ -72,15 +72,15 @@ class Make:
         if not path.exists(self.builddir):
             return 0
         elif not path.isdir(self.builddir):
-            print("Error: %r is not a directory!" % self.builddir)
+            print(f'Error: {self.builddir!r} is not a directory!')
             return 1
         elif srcdir == builddir:
-            print("Error: %r is same as source directory!" % self.builddir)
+            print(f'Error: {self.builddir!r} is same as source directory!')
             return 1
         elif path.commonpath([srcdir, builddir]) == builddir:
-            print("Error: %r directory contains source directory!" % self.builddir)
+            print(f'Error: {self.builddir!r} directory contains source directory!')
             return 1
-        print("Removing everything under %r..." % self.builddir)
+        print(f'Removing everything under {self.builddir!r}...')
         for item in os.listdir(self.builddir):
             rmtree(self.builddir_join(item))
         return 0
@@ -89,8 +89,9 @@ class Make:
         if not color_terminal():
             nocolor()
 
-        print(bold("Sphinx v%s" % sphinx.__display_version__))
-        print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))
+        target = blue('target')
+        print(bold(f'Sphinx v{sphinx.__display_version__}'))
+        print(f"Please use `make {target}' where {target} is one of")
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
                 print(f'  {blue(bname.ljust(10))}  {description}')
@@ -103,12 +104,13 @@ class Make:
         make_fallback = 'make.bat' if sys.platform == 'win32' else 'make'
         makecmd = os.environ.get('MAKE', make_fallback)
         if not makecmd.lower().startswith('make'):
-            raise RuntimeError('Invalid $MAKE command: %r' % makecmd)
+            msg = f'Invalid $MAKE command: {makecmd!r}'
+            raise RuntimeError(msg)
         try:
             with chdir(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
         except OSError:
-            print('Error: Failed to run: %s' % makecmd)
+            print(f'Error: Failed to run: {makecmd}')
             return 1
 
     def build_latexpdfja(self) -> int:
@@ -119,12 +121,13 @@ class Make:
         make_fallback = 'make.bat' if sys.platform == 'win32' else 'make'
         makecmd = os.environ.get('MAKE', make_fallback)
         if not makecmd.lower().startswith('make'):
-            raise RuntimeError('Invalid $MAKE command: %r' % makecmd)
+            msg = f'Invalid $MAKE command: {makecmd!r}'
+            raise RuntimeError(msg)
         try:
             with chdir(self.builddir_join('latex')):
                 return subprocess.call([makecmd, 'all-pdf'])
         except OSError:
-            print('Error: Failed to run: %s' % makecmd)
+            print(f'Error: Failed to run: {makecmd}')
             return 1
 
     def build_info(self) -> int:
@@ -134,12 +137,13 @@ class Make:
         # Use $MAKE to determine the make command
         makecmd = os.environ.get('MAKE', 'make')
         if not makecmd.lower().startswith('make'):
-            raise RuntimeError('Invalid $MAKE command: %r' % makecmd)
+            msg = f'Invalid $MAKE command: {makecmd!r}'
+            raise RuntimeError(msg)
         try:
             with chdir(self.builddir_join('texinfo')):
                 return subprocess.call([makecmd, 'info'])
         except OSError:
-            print('Error: Failed to run: %s' % makecmd)
+            print(f'Error: Failed to run: {makecmd}')
             return 1
 
     def build_gettext(self) -> int:

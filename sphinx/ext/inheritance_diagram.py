@@ -114,9 +114,8 @@ def import_classes(name: str, currmodule: str) -> Any:
         target = try_import(name)
 
     if target is None:
-        raise InheritanceException(
-            'Could not import class or module %r specified for '
-            'inheritance diagram' % name)
+        msg = f'Could not import class or module {name!r} specified for inheritance diagram'
+        raise InheritanceException(msg)
 
     if inspect.isclass(target):
         # If imported object is a class, just return it
@@ -125,8 +124,8 @@ def import_classes(name: str, currmodule: str) -> Any:
         # If imported object is a module, return classes defined on it
         return [cls for cls in target.__dict__.values()
                 if inspect.isclass(cls) and cls.__module__ == target.__name__]
-    raise InheritanceException('%r specified for inheritance diagram is '
-                               'not a class or module' % name)
+    msg = f'{name!r} specified for inheritance diagram is not a class or module'
+    raise InheritanceException(msg)
 
 
 class InheritanceException(Exception):
@@ -199,7 +198,7 @@ class InheritanceGraph:
                 if cls.__doc__:
                     doc = cls.__doc__.strip().split("\n")[0]
                     if doc:
-                        tooltip = '"%s"' % doc.replace('"', '\\"')
+                        tooltip = '"' + doc.replace('"', '\\"') + '"'
             except Exception:  # might raise AttributeError for strange classes
                 pass
 
@@ -316,15 +315,15 @@ class InheritanceGraph:
             # Write the node
             this_node_attrs = n_attrs.copy()
             if fullname in urls:
-                this_node_attrs["URL"] = '"%s"' % urls[fullname]
+                this_node_attrs["URL"] = f'"{urls[fullname]}"'
                 this_node_attrs["target"] = '"_top"'
             if tooltip:
                 this_node_attrs["tooltip"] = tooltip
-            res.append('  "%s" [%s];\n' % (name, self._format_node_attrs(this_node_attrs)))
+            res.append(f'  "{name}" [{self._format_node_attrs(this_node_attrs)}];\n')
 
             # Write the edges
             res.extend(
-                '  "%s" -> "%s" [%s];\n' % (base_name, name, self._format_node_attrs(e_attrs))
+                f'  "{base_name}" -> "{name}" [{self._format_node_attrs(e_attrs)}];\n'
                 for base_name in bases
             )
         res.append("}\n")
@@ -386,7 +385,7 @@ class InheritanceDiagram(SphinxDirective):
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
             refnodes, x = class_role(  # type: ignore[call-arg,misc]
-                'class', ':class:`%s`' % name, name, 0, self.state)
+                'class', f':class:`{name}`', name, 0, self.state)
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
         # dot file later
@@ -414,7 +413,7 @@ def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diag
     graph = node['graph']
 
     graph_hash = get_graph_hash(node)
-    name = 'inheritance%s' % graph_hash
+    name = f'inheritance{graph_hash}'
 
     # Create a mapping from fully-qualified class names to URLs.
     graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
@@ -449,7 +448,7 @@ def latex_visit_inheritance_diagram(self: LaTeXTranslator, node: inheritance_dia
     graph = node['graph']
 
     graph_hash = get_graph_hash(node)
-    name = 'inheritance%s' % graph_hash
+    name = f'inheritance{graph_hash}'
 
     dotcode = graph.generate_dot(name, env=self.builder.env,
                                  graph_attrs={'size': '"6.0,6.0"'})
@@ -465,7 +464,7 @@ def texinfo_visit_inheritance_diagram(self: TexinfoTranslator, node: inheritance
     graph = node['graph']
 
     graph_hash = get_graph_hash(node)
-    name = 'inheritance%s' % graph_hash
+    name = f'inheritance{graph_hash}'
 
     dotcode = graph.generate_dot(name, env=self.builder.env,
                                  graph_attrs={'size': '"6.0,6.0"'})
