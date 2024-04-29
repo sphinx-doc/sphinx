@@ -387,6 +387,9 @@ select = [
 "sphinx/*" = ["E241"]
 
 # whitelist ``print`` for stdout messages
+"sphinx/_cli/__init__.py" = ["T201"]
+
+# whitelist ``print`` for stdout messages
 "sphinx/cmd/build.py" = ["T201"]
 "sphinx/cmd/make_mode.py" = ["T201"]
 "sphinx/cmd/quickstart.py" = ["T201"]
@@ -435,6 +438,7 @@ forced-separate = [
 preview = true
 quote-style = "single"
 exclude = [
+    "sphinx/_cli/*",
     "sphinx/addnodes.py",
     "sphinx/application.py",
     "sphinx/builders/*",
