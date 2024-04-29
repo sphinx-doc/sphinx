@@ -359,6 +359,10 @@ def test_signature_annotations():
     sig = inspect.signature(mod.f25)
     assert stringify_signature(sig) == '(a, b, /)'
 
+    # collapse Literal types
+    sig = inspect.signature(mod.f26)
+    assert stringify_signature(sig) == "(x: typing.Literal[1, 2, 3] = 1, y: typing.Literal['a', 'b'] = 'a') -> None"
+
 
 def test_signature_from_str_basic():
     signature = '(a, b, *args, c=0, d="blah", **kwargs)'
@@ -662,7 +666,7 @@ def test_getslots():
         __slots__ = {'attr': 'docstring'}
 
     class Qux:
-        __slots__ = 'attr'
+        __slots__ = 'attr'  # NoQA: PLC0205
 
     assert inspect.getslots(Foo) is None
     assert inspect.getslots(Bar) == {'attr': None}

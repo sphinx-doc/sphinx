@@ -7,10 +7,8 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.ext.intersphinx import (
-    INVENTORY_FILENAME,
-    _get_safe_url,
-    _strip_basic_auth,
     fetch_inventory,
     inspect_main,
     load_mappings,
@@ -18,6 +16,7 @@ from sphinx.ext.intersphinx import (
     normalize_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.ext.intersphinx._load import _get_safe_url, _strip_basic_auth
 from sphinx.util.console import strip_colors
 
 from tests.test_util.intersphinx_data import INVENTORY_V2, INVENTORY_V2_NO_VERSION
@@ -46,8 +45,8 @@ def set_config(app, mapping):
     app.config.intersphinx_disabled_reftypes = []
 
 
-@mock.patch('sphinx.ext.intersphinx.InventoryFile')
-@mock.patch('sphinx.ext.intersphinx._read_from_url')
+@mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
+@mock.patch('sphinx.ext.intersphinx._load._read_from_url')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):  # NoQA: PT019
     intersphinx_setup(app)
     _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
@@ -526,9 +525,8 @@ def test_inspect_main_url(capsys):
             # Silenced.
             pass
 
-    url = 'http://localhost:7777/' + INVENTORY_FILENAME
-
-    with http_server(InventoryHandler):
+    with http_server(InventoryHandler) as server:
+        url = f'http://localhost:{server.server_port}/{INVENTORY_FILENAME}'
         inspect_main([url])
 
     stdout, stderr = capsys.readouterr()

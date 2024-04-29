@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
     from types import ModuleType
 
     from docutils.frontend import Values
@@ -43,7 +43,7 @@ additional_nodes: set[type[Element]] = set()
 
 
 @contextmanager
-def docutils_namespace() -> Generator[None, None, None]:
+def docutils_namespace() -> Iterator[None]:
     """Create namespace for reST parsers."""
     try:
         _directives = copy(directives._directives)  # type: ignore[attr-defined]
@@ -121,7 +121,7 @@ def unregister_node(node: type[Element]) -> None:
 
 
 @contextmanager
-def patched_get_language() -> Generator[None, None, None]:
+def patched_get_language() -> Iterator[None]:
     """Patch docutils.languages.get_language() temporarily.
 
     This ignores the second argument ``reporter`` to suppress warnings.
@@ -141,7 +141,7 @@ def patched_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def patched_rst_get_language() -> Generator[None, None, None]:
+def patched_rst_get_language() -> Iterator[None]:
     """Patch docutils.parsers.rst.languages.get_language().
     Starting from docutils 0.17, get_language() in ``rst.languages``
     also has a reporter, which needs to be disabled temporarily.
@@ -165,7 +165,7 @@ def patched_rst_get_language() -> Generator[None, None, None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]:
+def using_user_docutils_conf(confdir: str | None) -> Iterator[None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
         docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
@@ -181,7 +181,7 @@ def using_user_docutils_conf(confdir: str | None) -> Generator[None, None, None]
 
 
 @contextmanager
-def du19_footnotes() -> Generator[None, None, None]:
+def du19_footnotes() -> Iterator[None]:
     def visit_footnote(self: HTMLTranslator, node: Element) -> None:
         label_style = self.settings.footnote_references
         if not isinstance(node.previous_sibling(), type(node)):
@@ -214,7 +214,7 @@ def du19_footnotes() -> Generator[None, None, None]:
 
 
 @contextmanager
-def patch_docutils(confdir: str | None = None) -> Generator[None, None, None]:
+def patch_docutils(confdir: str | None = None) -> Iterator[None]:
     """Patch to docutils temporarily."""
     with patched_get_language(), \
          patched_rst_get_language(), \
@@ -359,7 +359,7 @@ class NullReporter(Reporter):
 
 
 @contextmanager
-def switch_source_input(state: State, content: StringList) -> Generator[None, None, None]:
+def switch_source_input(state: State, content: StringList) -> Iterator[None]:
     """Switch current source input of state temporarily."""
     try:
         # remember the original ``get_source_and_line()`` method

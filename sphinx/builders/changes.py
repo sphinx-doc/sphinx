@@ -12,7 +12,7 @@ from sphinx.domains.changeset import ChangeSetDomain
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
 
@@ -56,7 +56,7 @@ class ChangesBuilder(Builder):
 
         changesets = domain.get_changesets_for(version)
         if not changesets:
-            logger.info(bold(__('no changes in version %s.') % version))
+            logger.info(bold(__('no changes in version %s.')), version)
             return
         logger.info(bold(__('writing summary file...')))
         for changeset in changesets:

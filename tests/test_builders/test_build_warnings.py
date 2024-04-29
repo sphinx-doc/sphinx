@@ -73,8 +73,8 @@ def test_texinfo_warnings(app, warning):
 
 
 def test_uncacheable_config_warning(make_app, tmp_path):
-    """Test than an unpickleable config value raises a warning."""
-    tmp_path.joinpath('conf.py').write_text("""
+    """Test that an unpickleable config value raises a warning."""
+    tmp_path.joinpath('conf.py').write_text("""\
 my_config = lambda: None
 show_warning_types = True
 def setup(app):
@@ -84,5 +84,6 @@ def setup(app):
     app = make_app(srcdir=tmp_path)
     app.build()
     assert strip_colors(app.warning.getvalue()).strip() == (
-        "WARNING: cannot cache unpickable configuration value: 'my_config' [config.cache]"
+        "WARNING: cannot cache unpickable configuration value: 'my_config' "
+        "(because it contains a function, class, or module object) [config.cache]"
     )
