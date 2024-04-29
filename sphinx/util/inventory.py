@@ -158,10 +158,11 @@ class InventoryFile:
                 # Some types require case insensitive matches:
                 # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
                 # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
-                if name.lower() in potential_ambiguities:
-                    actual_ambiguities.add(f"{type}:{name}")
+                definition = f"{type}:{name}"
+                if definition.lower() in potential_ambiguities:
+                    actual_ambiguities.add(definition)
                 else:
-                    potential_ambiguities.add(name.lower())
+                    potential_ambiguities.add(definition.lower())
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
