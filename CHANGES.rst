@@ -25,6 +25,8 @@ Features added
 Bugs fixed
 ----------
 
+* #12314: Properly format ``collections.abc.Callable`` in annotations.
+  Patch by Adam Turner.
 * #12162: Fix a performance regression in the C domain that has
   been present since version 3.0.0.
   Patch by Donald Hunter.
