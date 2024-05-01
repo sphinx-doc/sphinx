@@ -309,7 +309,8 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node: Element) -> None:
         uri = node.get('refuri', '')
-        if uri:
+        is_safe_to_click = uri.startswith(('mailto:', 'http:', 'https:', 'ftp:'))
+        if is_safe_to_click:
             # OSC 8 link start (using groff's device control directive).
             self.body.append(fr"\X'tty: link {uri}'")
 
@@ -319,7 +320,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         self.visit_Text(node)
         self.body.append(self.defs['reference'][1])
 
-        if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
+        if uri and not uri.startswith('#'):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
                 if uri.startswith('mailto:'):
@@ -328,7 +329,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
                     ' <',
                     self.defs['strong'][0], uri, self.defs['strong'][1],
                     '>'])
-        if uri:
+        if is_safe_to_click:
             # OSC 8 link end.
             self.body.append(r"\X'tty: link'")
         raise nodes.SkipNode
