@@ -1711,6 +1711,7 @@ def test_copy_images(app, status, warning):
     }
     images.discard('sphinx.png')
     assert images == {
+        'ba30773957c3fe046897111afd65a80b81cad089.png',
         'img.pdf',
         'rimg.png',
         'testimäge.png',

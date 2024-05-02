@@ -115,10 +115,8 @@ class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
     def match(self, node: nodes.image) -> bool:
-        if not self.app.builder.supported_remote_images:
-            return False
         if self.app.builder.supported_data_uri_images is True:
-            return False
+            return False  # the builder natively supports data URIs, so do not transform it
         return node['uri'].startswith('data:')
 
     def handle(self, node: nodes.image) -> None:
