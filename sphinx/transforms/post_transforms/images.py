@@ -116,7 +116,7 @@ class DataURIExtractor(BaseImageConverter):
 
     def match(self, node: nodes.image) -> bool:
         if self.app.builder.supported_data_uri_images is True:
-            return False  # the builder natively supports data URIs, so do not transform it
+            return False  # do not transform the image; data URIs are valid in the build output
         return node['uri'].startswith('data:')
 
     def handle(self, node: nodes.image) -> None:
