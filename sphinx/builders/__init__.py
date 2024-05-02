@@ -71,9 +71,9 @@ class Builder:
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
     supported_image_types: list[str] = []
-    #: The builder supports remote images or not.
+    #: The builder can produce output documents that may fetch external images when opened.
     supported_remote_images = False
-    #: The builder supports data URIs or not.
+    #: The file format produced by the builder allows images to be embedded using data-URIs.
     supported_data_uri_images = False
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
