@@ -36,6 +36,9 @@ Bugs fixed
   Patch by Matthias Geier.
 * #12224: Properly detect WebP files.
   Patch by Benjamin Cabé.
+* #12331: Resolve data-URI-image-extraction regression from v7.3.0 affecting
+  builders without native support for data-URIs in their output format.
+  Patch by James Addison.
 
 Testing
 -------
