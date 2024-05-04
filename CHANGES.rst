@@ -21,6 +21,9 @@ Features added
 * Flatten ``Union[Literal[T], Literal[U], ...]`` to ``Literal[T, U, ...]``
   when turning annotations into strings.
   Patch by Adam Turner.
+* Add detection of ambiguous ``std:label`` and ``std:term`` references during
+  loading and resolution of Intersphinx targets.
+  Patch by James Addison.
 
 Bugs fixed
 ----------
