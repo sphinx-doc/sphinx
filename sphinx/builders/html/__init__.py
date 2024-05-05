@@ -548,6 +548,7 @@ class StandaloneHTMLBuilder(Builder):
             'sphinx_version_tuple': sphinx_version,
             'docutils_version_info': docutils.__version_info__[:5],
             'styles': styles,
+            'style': styles[-1],  # only for backwards compatibility
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
