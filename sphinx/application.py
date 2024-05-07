@@ -143,8 +143,29 @@ class Sphinx:
                  tags: list[str] | None = None,
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
                  pdb: bool = False) -> None:
+        """Initialize the Sphinx application.
+
+        :param srcdir: The path to the source directory.
+        :param confdir: The path to the configuration directory.
+            If not given, it is assumed to be the same as ``srcdir``.
+        :param outdir: Directory for storing build documents.
+        :param doctreedir: Directory for caching pickled doctrees.
+        :param buildername: The name of the builder to use.
+        :param confoverrides: A dictionary of configuration settings that override the
+            settings in the configuration file.
+        :param status: A file-like object to write status messages to.
+        :param warning: A file-like object to write warnings to.
+        :param freshenv: If true, clear the cached environment.
+        :param warningiserror: If true, warnings become errors.
+        :param tags: A list of tags to apply.
+        :param verbosity: The verbosity level.
+        :param parallel: The number of parallel jobs to use.
+        :param keep_going: If true, continue processing when an error occurs.
+        :param pdb: If true, enable the Python debugger on an exception.
+        """
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
+        self._fresh_env_used: bool | None = None
         self.extensions: dict[str, Extension] = {}
         self.registry = SphinxComponentRegistry()
 
@@ -267,6 +288,13 @@ class Sphinx:
         # set up the builder
         self._init_builder()
 
+    @property
+    def fresh_env_used(self) -> bool | None:
+        """True/False as to whether a new environment was created for this build,
+        or None if the environment has not been initialised yet.
+        """
+        return self._fresh_env_used
+
     def _init_i18n(self) -> None:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
@@ -322,7 +350,6 @@ class Sphinx:
     def _post_init_env(self) -> None:
         if self._fresh_env_used:
             self.env.find_files(self.config, self.builder)
-        del self._fresh_env_used
 
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
