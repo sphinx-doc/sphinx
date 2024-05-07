@@ -159,7 +159,8 @@ class Sphinx:
         :param warningiserror: If true, warnings become errors.
         :param tags: A list of tags to apply.
         :param verbosity: The verbosity level.
-        :param parallel: The maximum number of parallel jobs to use when reading/writing documents.
+        :param parallel: The maximum number of parallel jobs to use
+        	when reading/writing documents.
         :param keep_going: If true, continue processing when an error occurs.
         :param pdb: If true, enable the Python debugger on an exception.
         """
