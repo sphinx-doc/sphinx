@@ -11,6 +11,7 @@ import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
 from queue import Queue
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import docutils
@@ -32,6 +33,9 @@ from sphinx.util.console import strip_colors
 from tests.utils import CERT_FILE, serve_application
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class DefaultsHandler(BaseHTTPRequestHandler):
@@ -266,6 +270,43 @@ def test_anchors_ignored(app):
 
 
 class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
+    protocol_version = 'HTTP/1.1'
+
+    def _chunk_content(self, content: str, *, max_chunk_size: int) -> Iterable[bytes]:
+
+        def _encode_chunk(chunk: bytes) -> Iterable[bytes]:
+            """Encode a bytestring into a format suitable for HTTP chunked-transfer.
+
+            https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding
+            """
+            yield f'{len(chunk):X}'.encode('ascii')
+            yield b'\r\n'
+            yield chunk
+            yield b'\r\n'
+
+        buffer = bytes()
+        for char in content:
+            buffer += char.encode('utf-8')
+            if len(buffer) >= max_chunk_size:
+                chunk, buffer = buffer[:max_chunk_size], buffer[max_chunk_size:]
+                yield from _encode_chunk(chunk)
+
+        # Flush remaining bytes, if any
+        if buffer:
+            yield from _encode_chunk(buffer)
+
+        # Emit a final empty chunk to close the stream
+        yield from _encode_chunk(b'')
+
+    def _send_chunked(self, content: str) -> bool:
+        for chunk in self._chunk_content(content, max_chunk_size=20):
+            try:
+                self.wfile.write(chunk)
+            except (BrokenPipeError, ConnectionResetError) as e:
+                self.log_message(str(e))
+                return False
+        return True
+
     def do_HEAD(self):
         if self.path in {'/valid', '/ignored'}:
             self.send_response(200, "OK")
@@ -274,14 +315,31 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        self.do_HEAD()
         if self.path == '/valid':
-            self.wfile.write(b"<h1 id='valid-anchor'>valid anchor</h1>\n")
+            self.send_response(200, 'OK')
+            content = "<h1 id='valid-anchor'>valid anchor</h1>\n"
         elif self.path == '/ignored':
-            self.wfile.write(b"no anchor but page exists\n")
+            self.send_response(200, 'OK')
+            content = 'no anchor but page exists\n'
+        else:
+            self.send_response(404, 'Not Found')
+            content = 'not found\n'
+        self.send_header('Transfer-Encoding', 'chunked')
+        self.end_headers()
+        self._send_chunked(content)
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True)
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True,
+    confoverrides={
+        'linkcheck_anchors_ignore_for_url': [
+            'http://localhost:7777/ignored',  # existing page
+            'http://localhost:7777/invalid',  # unknown page
+        ],
+        'linkcheck_parse_leniently': [
+            r'http://localhost:7777/valid',  # incomplete HTML doc
+        ],
+    })
 def test_anchors_ignored_for_url(app):
     with serve_application(app, AnchorsIgnoreForUrlHandler) as address:
         app.config.linkcheck_anchors_ignore_for_url = [  # type: ignore[attr-defined]
@@ -339,6 +397,51 @@ def test_raises_for_invalid_status(app):
         "500 Server Error: Internal Server Error "
         f"for url: http://{address}/\n"
     )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
+def test_incomplete_html_anchor(app):
+    class IncompleteHTMLDocumentHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_GET(self):
+            content = b'this is <div id="anchor">not</div> a valid HTML document'
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+    with serve_application(app, IncompleteHTMLDocumentHandler) as address:
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    assert len(content.splitlines()) == 1
+
+    row = json.loads(content)
+    assert row['status'] == 'broken'
+    assert row['info'] == 'encountered start tag "div" before a doctype declaration'
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
+def test_decoding_error_anchor_ignored(app):
+    class NonASCIIHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_GET(self):
+            content = b'\x80\x00\x80\x00'  # non-ASCII byte-string
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+    with serve_application(app, NonASCIIHandler) as address:
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    assert len(content.splitlines()) == 1
+
+    row = json.loads(content)
+    assert row['status'] == 'ignored'
 
 
 def custom_handler(valid_credentials=(), success_criteria=lambda _: True):

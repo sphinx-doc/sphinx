@@ -325,6 +325,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             map(re.compile, config.linkcheck_anchors_ignore))
         self.anchors_ignore_for_url: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_anchors_ignore_for_url))
+        self.parse_leniently: list[re.Pattern[str]] = list(
+            map(re.compile, config.linkcheck_parse_leniently))
         self.documents_exclude: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_exclude_documents))
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
@@ -436,6 +438,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         anchor = ''
                         break
             anchor = unquote(anchor)
+        if delimiter and anchor:
+            lenient = any(rex.match(req_url) for rex in self.parse_leniently)
 
         # handle non-ASCII URIs
         try:
@@ -471,9 +475,13 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     _user_agent=self.user_agent,
                     _tls_info=(self.tls_verify, self.tls_cacerts),
                 ) as response:
-                    if (self.check_anchors and response.ok and anchor
-                            and not contains_anchor(response, anchor)):
-                        raise Exception(__(f'Anchor {quote(anchor)!r} not found'))
+                    if anchor and self.check_anchors and response.ok:
+                        try:
+                            found = contains_anchor(response, anchor, lenient=lenient)
+                        except UnicodeDecodeError:
+                            return 'ignored', 'unable to decode response content', 0
+                        if not found:
+                            return 'broken', f'Anchor {quote(anchor)!r} not found', 0
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
@@ -617,7 +625,7 @@ def _get_request_headers(
     return {}
 
 
-def contains_anchor(response: Response, anchor: str) -> bool:
+def contains_anchor(response: Response, anchor: str, *, lenient: bool = False) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
     parser = AnchorCheckParser(anchor)
     # Read file in chunks. If we find a matching anchor, we break
@@ -630,6 +638,10 @@ def contains_anchor(response: Response, anchor: str) -> bool:
         if parser.found:
             break
     parser.close()
+
+    if parser.errors and not lenient:
+        raise ValueError(parser.errors[0])
+
     return parser.found
 
 
@@ -641,8 +653,17 @@ class AnchorCheckParser(HTMLParser):
 
         self.search_anchor = search_anchor
         self.found = False
+        self.errors: list[str] = []
+        self.decl: str | None = None
+
+    def handle_decl(self, decl: str) -> None:
+        self.decl = decl
 
     def handle_starttag(self, tag: Any, attrs: Any) -> None:
+        if self.errors:
+            return
+        if self.decl is None:
+            self.errors.append(f'encountered start tag "{tag}" before a doctype declaration')
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
@@ -708,6 +729,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
+    app.add_config_value('linkcheck_parse_leniently', (), '', (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
     app.add_config_value('linkcheck_allow_unauthorized', True, '')
     app.add_config_value('linkcheck_report_timeouts_as_broken', True, '', bool)
