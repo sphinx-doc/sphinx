@@ -146,8 +146,7 @@ class SphinxI18nReader(SphinxBaseReader):
     def parse(self) -> None:
         """Override the BaseReader parse method to call self.parser.parse_inline()."""
         self.document = document = self.new_document()
-        self.parser.parse_inline(self.input, document)
-        document.current_source = document.current_line = None
+        self.parser.parse_inline(self.input, document, 1)
 
 
 class SphinxDummyWriter(UnfilteredWriter):

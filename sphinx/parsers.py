@@ -8,6 +8,7 @@ import docutils.parsers
 import docutils.parsers.rst
 from docutils import nodes
 from docutils.parsers.rst import states
+from docutils.parsers.rst import languages
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
@@ -46,7 +47,7 @@ class Parser(docutils.parsers.Parser):
         self.config = app.config
         self.env = app.env
 
-    def parse_inline(self, inputstring: str, document: nodes.document) -> None:
+    def parse_inline(self, inputstring: str, document: nodes.document, lineno: int) -> None:
         """Parse the inline elements of a text block and generate a document tree."""
         msg = 'Parser subclasses must implement parse_inline'
         raise NotImplementedError(msg)
@@ -65,24 +66,32 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         transforms.remove(SmartQuotes)
         return transforms
 
-    def parse_inline(self, inputstring: str, document: nodes.document) -> None:
+    def parse_inline(self, inputstring: str, document: nodes.document, lineno: int) -> None:
         """Parse inline syntax from text and generate a document tree."""
         # Avoid "Literal block expected; none found." warnings.
         if inputstring.endswith('::'):
             inputstring = inputstring[:-1]
 
-        self.setup_parse(inputstring, document)
-        self.statemachine = states.RSTStateMachine(
-            state_classes=self.state_classes,
-            initial_state='Text',
-            debug=document.reporter.debug_flag,
-        )
-
-        inputlines = StringList([inputstring], document.current_source)
-
-        self.decorate(inputlines)
-        self.statemachine.run(inputlines, document, inliner=self.inliner)
-        self.finish_parse()
+        language = languages.get_language(
+            document.settings.language_code, document.reporter)
+        if self.inliner is None:
+            inliner = states.Inliner()
+        else:
+            inliner = self.inliner
+        inliner.init_customizations(document.settings)
+        memo = states.Struct(document=document,
+                             reporter=document.reporter,
+                             language=language,
+                             title_styles=[],
+                             section_level=0,
+                             section_bubble_up_kludge=False,
+                             inliner=inliner)
+        memo.reporter.get_source_and_line = lambda x: (document.source, x)
+        textnodes, _ = inliner.parse(inputstring, lineno, memo, document)
+        p = nodes.paragraph(inputstring, '', *textnodes)
+        p.source = document.source
+        p.line = lineno
+        document.append(p)
 
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
