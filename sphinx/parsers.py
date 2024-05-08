@@ -87,11 +87,11 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
                              section_bubble_up_kludge=False,
                              inliner=inliner)
         memo.reporter.get_source_and_line = lambda x: (document.source, x)
-        textnodes, _ = inliner.parse(inputstring, lineno, memo, document)
+        textnodes, messages = inliner.parse(inputstring, lineno, memo, document)
         p = nodes.paragraph(inputstring, '', *textnodes)
         p.source = document.source
         p.line = lineno
-        document.append(p)
+        document += [p] + messages
 
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
