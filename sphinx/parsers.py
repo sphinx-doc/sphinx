@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING
 import docutils.parsers
 import docutils.parsers.rst
 from docutils import nodes
-from docutils.parsers.rst import states
-from docutils.parsers.rst import languages
+from docutils.parsers.rst import languages, states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
@@ -91,7 +90,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         p = nodes.paragraph(inputstring, '', *textnodes)
         p.source = document.source
         p.line = lineno
-        document += [p] + messages
+        document += [p, *messages]
 
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
