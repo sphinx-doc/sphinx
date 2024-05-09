@@ -2,29 +2,34 @@ target-version = "py39"  # Pin Ruff to Python 3.9
 line-length = 95
 output-format = "full"
 
-[lint]
-preview = true
-exclude = [
-    ".git",
-    ".tox",
-    ".venv",
+extend-exclude = [
     "tests/roots/*",
     "build/*",
     "doc/_build/*",
     "sphinx/search/*",
     "doc/usage/extensions/example*.py",
 ]
+
+[lint]
+preview = true
 ignore = [
+    # flake8-annotations
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
+    # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
+    # pyflakes
     "F841",  # Local variable `{name}` is assigned to but never used
+    # refurb
     "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
+    "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
+    # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
+    # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
+    # pyupgrade
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
-
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
     "E704",
@@ -35,7 +40,8 @@ select = [
       # NOT YET USED
     # airflow ('AIR')
       # Airflow is not used in Sphinx
-    "ANN",  # flake8-annotations ('ANN')
+    # flake8-annotations ('ANN')
+    "ANN",
     # flake8-unused-arguments ('ARG')
     "ARG004",  # Unused static method argument: `{name}`
     # flake8-async ('ASYNC')
@@ -106,9 +112,7 @@ select = [
     # pycodestyle ('E')
     "E",
     # flake8-errmsg ('EM')
-    "EM101",  # Exception must not use a string literal, assign to variable first
-    "EM102",  # Exception must not use an f-string literal, assign to variable first
-    "EM103",  # Exception must not use a `.format()` string directly, assign to variable first
+    "EM",
     # eradicate ('ERA')
       # NOT YET USED
     # flake8-executable ('EXE')
@@ -122,11 +126,12 @@ select = [
     # flake8-fixme ('FIX')
       # NOT YET USED
     # flynt ('FLY')
-      # NOT YET USED
-    "FURB",     # refurb
+    "FLY",
+    # refurb ('FURB')
+    "FURB",
     # flake8-logging-format ('G')
     "G001",  # Logging statement uses `str.format`
-#    "G002",  # Logging statement uses `%`
+    "G002",  # Logging statement uses `%`
 #    "G003",  # Logging statement uses `+`
     "G004",  # Logging statement uses f-string
     "G010",  # Logging statement uses `warn` instead of `warning`
@@ -135,20 +140,16 @@ select = [
     "G202",  # Logging statement has redundant `exc_info`
     # isort ('I')
     "I",
+    # flake8-import-conventions ('ICN')
     "ICN",  # flake8-import-conventions
     # flake8-no-pep420 ('INP')
     "INP",
     # flake8-gettext ('INT')
-    "INT001",  # f-string is resolved before function call; consider `_("string %s") % arg`
-    "INT002",  # `format` method argument is resolved before function call; consider `_("string %s") % arg`
-    "INT003",  # printf-style format is resolved before function call; consider `_("string %s") % arg`
+    "INT",
     # flake8-implicit-str-concat ('ISC')
       # NOT YET USED
     # flake8-logging ('LOG')
-    "LOG001",  # Use `logging.getLogger()` to instantiate loggers
-    "LOG002",  # Use `__name__` with `logging.getLogger()`
-    "LOG007",  # Use of `logging.exception` with falsy `exc_info`
-    "LOG009",  # Use of undocumented `logging.WARN` constant
+    "LOG",
     # pep8-naming ('N')
       # NOT YET USED
     # numpy-specific rules ('NPY')
@@ -176,9 +177,15 @@ select = [
     "PLC0105",  # `{kind}` name "{param_name}" does not reflect its {variance}; consider renaming it to "{replacement_name}"
     "PLC0131",  # `{kind}` cannot be both covariant and contravariant
     "PLC0132",  # `{kind}` name `{param_name}` does not match assigned variable name `{var_name}`
-#    "PLC0205",  # Class `__slots__` should be a non-string iterable
-#    "PLC0208",  # Use a sequence type instead of a `set` when iterating over values
+    "PLC0205",  # Class `__slots__` should be a non-string iterable
+    "PLC0208",  # Use a sequence type instead of a `set` when iterating over values
     "PLC0414",  # Import alias does not rename original package
+#    "PLC0415",  # `import` should be at the top-level of a file
+    "PLC1901",  # `{existing}` can be simplified to `{replacement}` as an empty string is falsey
+    "PLC2401",  # {kind} name `{name}` contains a non-ASCII character, consider renaming it
+    "PLC2403",  # Module alias `{name}` contains a non-ASCII character, use an ASCII-only alias
+#    "PLC2701",  # Private name import `{name}` from external module `{module}`
+    "PLC2801",  # Unnecessary dunder call to `{method}`. {replacement}.
     "PLC3002",  # Lambda expression called directly. Execute the expression inline instead.
     # pylint ('PLE')
     "PLE0100",  # `__init__` method is a generator
@@ -326,16 +333,19 @@ select = [
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
 #    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
+    # flake8-simplify ('SIM')
     "SIM",  # flake8-simplify
     # flake8-self ('SLF')
       # NOT YET USED
-    "SLOT",  # flake8-slots
+    # flake8-slots ('SLOT')
+    "SLOT",
     # flake8-debugger ('T10')
     "T100",  # Trace found: `{name}` used
     # flake8-print ('T20')
     "T201",  # `print` found
     "T203",  # `pprint` found
-    "TCH",  # flake8-type-checking
+    # flake8-type-checking ('TCH')
+    "TCH",
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD003",  # Missing issue link on the line following this TODO
@@ -351,14 +361,10 @@ select = [
       # Trio is not used in Sphinx
     # tryceratops ('TRY')
       # NOT YET USED
-    "UP001",  # pyupgrade
+    # pyupgrade ('UP')
+    "UP",
     # pycodestyle ('W')
-    "W191",  # Indentation contains tabs
-#    "W291",  # Trailing whitespace
-    "W292",  # No newline at end of file
-    "W293",  # Blank line contains whitespace
-    "W505",  # Doc line too long ({width} > {limit} characters)
-    "W605",  # Invalid escape sequence: `\{char}`
+    "W",
     # flake8-2020 ('YTT')
     "YTT",
 ]
@@ -370,12 +376,18 @@ select = [
 "doc/conf.py" = ["INP001", "W605"]
 "doc/development/tutorials/examples/*" = ["INP001"]
 # allow print() in the tutorial
-"doc/development/tutorials/examples/recipe.py" = ["T201"]
+"doc/development/tutorials/examples/recipe.py" = [
+    "FURB118",
+    "T201"
+]
 "sphinx/domains/**" = ["FURB113"]
 "tests/test_domains/test_domain_cpp.py" = ["FURB113"]
 
 # from .flake8
 "sphinx/*" = ["E241"]
+
+# whitelist ``print`` for stdout messages
+"sphinx/_cli/__init__.py" = ["T201"]
 
 # whitelist ``print`` for stdout messages
 "sphinx/cmd/build.py" = ["T201"]
@@ -386,7 +398,7 @@ select = [
 "sphinx/environment/adapters/toctree.py" = ["B026"]
 
 # whitelist ``print`` for stdout messages
-"sphinx/ext/intersphinx.py" = ["T201"]
+"sphinx/ext/intersphinx/_cli.py" = ["T201"]
 
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
@@ -426,279 +438,36 @@ forced-separate = [
 preview = true
 quote-style = "single"
 exclude = [
+    "sphinx/_cli/*",
     "sphinx/addnodes.py",
     "sphinx/application.py",
-    "sphinx/builders/gettext.py",
-    "sphinx/builders/text.py",
-    "sphinx/builders/linkcheck.py",
-    "sphinx/builders/_epub_base.py",
-    "sphinx/builders/dummy.py",
-    "sphinx/builders/changes.py",
-    "sphinx/builders/texinfo.py",
-    "sphinx/builders/dirhtml.py",
-    "sphinx/builders/__init__.py",
-    "sphinx/builders/xml.py",
-    "sphinx/builders/singlehtml.py",
-    "sphinx/builders/epub3.py",
-    "sphinx/builders/manpage.py",
-    "sphinx/builders/latex/constants.py",
-    "sphinx/builders/latex/__init__.py",
-    "sphinx/builders/latex/theming.py",
-    "sphinx/builders/latex/transforms.py",
-    "sphinx/builders/latex/util.py",
-    "sphinx/builders/latex/nodes.py",
-    "sphinx/builders/html/_assets.py",
-    "sphinx/builders/html/__init__.py",
-    "sphinx/builders/html/transforms.py",
-    "sphinx/cmd/quickstart.py",
-    "sphinx/cmd/build.py",
-    "sphinx/cmd/make_mode.py",
+    "sphinx/builders/*",
+    "sphinx/cmd/*",
     "sphinx/config.py",
-    "sphinx/directives/__init__.py",
-    "sphinx/directives/code.py",
-    "sphinx/directives/patches.py",
-    "sphinx/directives/other.py",
-    "sphinx/domains/math.py",
-    "sphinx/domains/changeset.py",
-    "sphinx/domains/javascript.py",
-    "sphinx/domains/__init__.py",
-    "sphinx/domains/citation.py",
-    "sphinx/domains/rst.py",
-    "sphinx/domains/index.py",
-    "sphinx/domains/std/__init__.py",
-    "sphinx/domains/python/_annotations.py",
-    "sphinx/domains/python/__init__.py",
-    "sphinx/domains/python/_object.py",
-    "sphinx/domains/cpp/_parser.py",
-    "sphinx/domains/cpp/_ids.py",
-    "sphinx/domains/cpp/__init__.py",
-    "sphinx/domains/cpp/_symbol.py",
-    "sphinx/domains/cpp/_ast.py",
-    "sphinx/domains/c/_parser.py",
-    "sphinx/domains/c/_ids.py",
-    "sphinx/domains/c/__init__.py",
-    "sphinx/domains/c/_symbol.py",
-    "sphinx/domains/c/_ast.py",
-    "sphinx/environment/__init__.py",
-    "sphinx/environment/collectors/dependencies.py",
-    "sphinx/environment/collectors/toctree.py",
-    "sphinx/environment/collectors/metadata.py",
-    "sphinx/environment/collectors/title.py",
-    "sphinx/environment/collectors/asset.py",
-    "sphinx/environment/collectors/__init__.py",
-    "sphinx/environment/adapters/toctree.py",
-    "sphinx/environment/adapters/indexentries.py",
-    "sphinx/environment/adapters/asset.py",
-    "sphinx/ext/extlinks.py",
-    "sphinx/ext/todo.py",
-    "sphinx/ext/mathjax.py",
-    "sphinx/ext/doctest.py",
-    "sphinx/ext/autosectionlabel.py",
-    "sphinx/ext/intersphinx.py",
-    "sphinx/ext/duration.py",
-    "sphinx/ext/imgconverter.py",
-    "sphinx/ext/imgmath.py",
-    "sphinx/ext/apidoc.py",
-    "sphinx/ext/viewcode.py",
-    "sphinx/ext/githubpages.py",
-    "sphinx/ext/linkcode.py",
-    "sphinx/ext/ifconfig.py",
-    "sphinx/ext/inheritance_diagram.py",
-    "sphinx/ext/coverage.py",
-    "sphinx/ext/graphviz.py",
-    "sphinx/ext/napoleon/docstring.py",
-    "sphinx/ext/napoleon/__init__.py",
-    "sphinx/ext/autodoc/typehints.py",
-    "sphinx/ext/autodoc/preserve_defaults.py",
-    "sphinx/ext/autodoc/__init__.py",
-    "sphinx/ext/autodoc/directive.py",
-    "sphinx/ext/autodoc/importer.py",
-    "sphinx/ext/autodoc/type_comment.py",
-    "sphinx/ext/autodoc/mock.py",
-    "sphinx/ext/autosummary/__init__.py",
-    "sphinx/ext/autosummary/generate.py",
-    "sphinx/pycode/ast.py",
-    "sphinx/pycode/__init__.py",
-    "sphinx/pycode/parser.py",
+    "sphinx/directives/*",
+    "sphinx/domains/*",
+    "sphinx/environment/*",
+    "sphinx/ext/*",
+    "sphinx/pycode/*",
     "sphinx/pygments_styles.py",
     "sphinx/registry.py",
-    "sphinx/search/*.py",
-    "sphinx/testing/fixtures.py",
-    "sphinx/testing/path.py",
-    "sphinx/testing/restructuredtext.py",
-    "sphinx/testing/util.py",
-    "sphinx/transforms/__init__.py",
-    "sphinx/transforms/compact_bullet_list.py",
-    "sphinx/transforms/references.py",
-    "sphinx/transforms/i18n.py",
-    "sphinx/transforms/post_transforms/__init__.py",
-    "sphinx/transforms/post_transforms/code.py",
-    "sphinx/transforms/post_transforms/images.py",
-    "sphinx/util/build_phase.py",
-    "sphinx/util/template.py",
-    "sphinx/util/osutil.py",
-    "sphinx/util/docutils.py",
-    "sphinx/util/_pathlib.py",
-    "sphinx/util/cfamily.py",
-    "sphinx/util/math.py",
-    "sphinx/util/logging.py",
-    "sphinx/util/inspect.py",
-    "sphinx/util/parallel.py",
-    "sphinx/util/inventory.py",
-    "sphinx/util/__init__.py",
-    "sphinx/util/docfields.py",
-    "sphinx/util/display.py",
-    "sphinx/util/http_date.py",
-    "sphinx/util/matching.py",
-    "sphinx/util/index_entries.py",
-    "sphinx/util/typing.py",
-    "sphinx/util/images.py",
-    "sphinx/util/exceptions.py",
-    "sphinx/util/requests.py",
-    "sphinx/util/docstrings.py",
-    "sphinx/util/rst.py",
-    "sphinx/util/i18n.py",
-    "sphinx/util/fileutil.py",
-    "sphinx/util/png.py",
-    "sphinx/util/tags.py",
-    "sphinx/util/texescape.py",
-    "sphinx/util/nodes.py",
-    "sphinx/util/_io.py",
-    "sphinx/writers/text.py",
-    "sphinx/writers/html5.py",
-    "sphinx/writers/html.py",
-    "sphinx/writers/texinfo.py",
-    "sphinx/writers/latex.py",
-    "sphinx/writers/xml.py",
-    "sphinx/writers/manpage.py",
-    "tests/conftest.py",
-    "tests/roots/**/*",
-    "tests/test_addnodes.py",
-    "tests/test_application.py",
-    "tests/test_builders/test_build_html_maths.py",
-    "tests/test_builders/test_build_html_image.py",
-    "tests/test_builders/test_build_latex.py",
-    "tests/test_builders/test_build_text.py",
-    "tests/test_builders/test_build_html_5_output.py",
-    "tests/test_builders/test_build_changes.py",
-    "tests/test_builders/test_builder.py",
-    "tests/test_builders/test_build_html_tocdepth.py",
-    "tests/test_builders/test_build_html_download.py",
-    "tests/test_builders/test_build_dirhtml.py",
-    "tests/test_builders/test_build_warnings.py",
-    "tests/test_builders/test_build_html_assets.py",
-    "tests/test_builders/test_build_html.py",
-    "tests/test_builders/test_build_linkcheck.py",
-    "tests/test_builders/test_build_manpage.py",
-    "tests/test_builders/xpath_data.py",
-    "tests/test_builders/test_build_html_highlight.py",
-    "tests/test_builders/test_build_epub.py",
-    "tests/test_builders/test_build_html_code.py",
-    "tests/test_builders/test_build_texinfo.py",
-    "tests/test_builders/xpath_util.py",
-    "tests/test_builders/test_build_gettext.py",
-    "tests/test_builders/conftest.py",
-    "tests/test_builders/test_build_html_numfig.py",
-    "tests/test_builders/test_build.py",
-    "tests/test_config/test_correct_year.py",
-    "tests/test_config/test_config.py",
-    "tests/test_directives/test_directive_patch.py",
-    "tests/test_directives/test_directive_code.py",
-    "tests/test_directives/test_directive_other.py",
-    "tests/test_directives/test_directive_option.py",
-    "tests/test_directives/test_directive_object_description.py",
-    "tests/test_directives/test_directive_only.py",
-    "tests/test_directives/test_directives_no_typesetting.py",
-    "tests/test_domains/test_domain_rst.py",
-    "tests/test_domains/test_domain_py_pyobject.py",
-    "tests/test_domains/test_domain_cpp.py",
-    "tests/test_domains/test_domain_py_canonical.py",
-    "tests/test_domains/test_domain_js.py",
-    "tests/test_domains/test_domain_c.py",
-    "tests/test_domains/test_domain_py_fields.py",
-    "tests/test_domains/test_domain_py.py",
-    "tests/test_domains/test_domain_std.py",
-    "tests/test_domains/test_domain_py_pyfunction.py",
-    "tests/test_environment/test_environment_indexentries.py",
-    "tests/test_environment/test_environment_record_dependencies.py",
-    "tests/test_environment/test_environment_toctree.py",
-    "tests/test_environment/test_environment.py",
-    "tests/test_errors.py",
-    "tests/test_events.py",
-    "tests/test_extensions/test_ext_doctest.py",
-    "tests/test_extensions/test_extension.py",
-    "tests/test_extensions/test_ext_imgconverter.py",
-    "tests/test_extensions/test_ext_graphviz.py",
-    "tests/test_extensions/test_ext_apidoc.py",
-    "tests/test_extensions/test_ext_autodoc.py",
-    "tests/test_extensions/test_ext_todo.py",
-    "tests/test_extensions/autodoc_util.py",
-    "tests/test_extensions/test_ext_extlinks.py",
-    "tests/test_extensions/test_ext_autodoc_events.py",
-    "tests/test_extensions/test_ext_githubpages.py",
-    "tests/test_extensions/test_ext_intersphinx.py",
-    "tests/test_extensions/test_ext_napoleon.py",
-    "tests/test_extensions/test_ext_coverage.py",
-    "tests/test_extensions/ext_napoleon_pep526_data_numpy.py",
-    "tests/test_extensions/test_ext_autodoc_configs.py",
-    "tests/test_extensions/test_ext_viewcode.py",
-    "tests/test_extensions/test_ext_autodoc_preserve_defaults.py",
-    "tests/test_extensions/test_ext_autodoc_mock.py",
-    "tests/test_extensions/test_ext_autodoc_autoclass.py",
-    "tests/test_extensions/test_ext_imgmockconverter.py",
-    "tests/test_extensions/test_ext_autodoc_autoattribute.py",
-    "tests/test_extensions/test_ext_ifconfig.py",
-    "tests/test_extensions/test_ext_autodoc_autofunction.py",
-    "tests/test_extensions/ext_napoleon_pep526_data_google.py",
-    "tests/test_extensions/test_ext_duration.py",
-    "tests/test_extensions/test_ext_autodoc_autoproperty.py",
-    "tests/test_extensions/test_ext_autosummary.py",
-    "tests/test_extensions/test_ext_autosectionlabel.py",
-    "tests/test_extensions/test_ext_napoleon_docstring.py",
-    "tests/test_extensions/test_ext_autodoc_automodule.py",
-    "tests/test_extensions/test_ext_autodoc_private_members.py",
-    "tests/test_extensions/test_ext_math.py",
-    "tests/test_extensions/test_ext_autodoc_autodata.py",
-    "tests/test_extensions/test_ext_inheritance_diagram.py",
-    "tests/test_highlighting.py",
-    "tests/test_intl/test_catalogs.py",
-    "tests/test_intl/test_intl.py",
-    "tests/test_intl/test_locale.py",
-    "tests/test_markup/test_smartquotes.py",
-    "tests/test_markup/test_markup.py",
-    "tests/test_markup/test_parser.py",
-    "tests/test_markup/test_metadata.py",
-    "tests/test_project.py",
-    "tests/test_pycode/test_pycode_parser.py",
-    "tests/test_pycode/test_pycode_ast.py",
-    "tests/test_pycode/test_pycode.py",
-    "tests/test_quickstart.py",
-    "tests/test_roles.py",
-    "tests/test_search.py",
-    "tests/test_toctree.py",
-    "tests/test_transforms/test_transforms_reorder_nodes.py",
-    "tests/test_transforms/test_transforms_move_module_targets.py",
-    "tests/test_transforms/test_transforms_post_transforms_code.py",
-    "tests/test_transforms/test_transforms_post_transforms.py",
-    "tests/test_util/test_util_display.py",
-    "tests/test_util/test_util_inventory.py",
-    "tests/test_util/intersphinx_data.py",
-    "tests/test_util/test_util_logging.py",
-    "tests/test_util/test_util_matching.py",
-    "tests/test_util/test_util_typing.py",
-    "tests/test_util/test_util_fileutil.py",
-    "tests/test_util/test_util_template.py",
-    "tests/test_util/test_util_docstrings.py",
-    "tests/test_util/test_util_images.py",
-    "tests/test_util/test_util.py",
-    "tests/test_util/test_util_nodes.py",
-    "tests/test_util/test_util_i18n.py",
-    "tests/test_util/test_util_rst.py",
-    "tests/test_util/typing_test_data.py",
-    "tests/test_util/test_util_docutils.py",
-    "tests/test_util/test_util_inspect.py",
-    "tests/test_versioning.py",
-    "tests/test_writers/test_api_translator.py",
-    "tests/test_writers/test_docutilsconf.py",
-    "tests/test_writers/test_writer_latex.py",
+    "sphinx/search/*",
+    "sphinx/testing/*",
+    "sphinx/transforms/*",
+    "sphinx/util/*",
+    "sphinx/writers/*",
+    "tests/*",
+    "tests/roots/*",
+    "tests/test_builders/*",
+    "tests/test_config/*",
+    "tests/test_directives/*",
+    "tests/test_domains/*",
+    "tests/test_environment/*",
+    "tests/test_extensions/*",
+    "tests/test_intl/*",
+    "tests/test_markup/*",
+    "tests/test_pycode/*",
+    "tests/test_transforms/*",
+    "tests/test_util/*",
+    "tests/test_writers/*",
 ]

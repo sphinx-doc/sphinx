@@ -303,7 +303,7 @@ def test_anchors_ignored_for_url(app: Sphinx) -> None:
 
     attrs = ('filename', 'lineno', 'status', 'code', 'uri', 'info')
     data = [json.loads(x) for x in content.splitlines()]
-    assert len(data) == 7
+    assert len(data) == 8
     assert all(all(attr in row for attr in attrs) for row in data)
 
     # rows may be unsorted due to network latency or
@@ -312,6 +312,7 @@ def test_anchors_ignored_for_url(app: Sphinx) -> None:
 
     assert rows[f'http://{address}/valid']['status'] == 'working'
     assert rows[f'http://{address}/valid#valid-anchor']['status'] == 'working'
+    assert rows[f'http://{address}/valid#py:module::urllib.parse']['status'] == 'broken'
     assert rows[f'http://{address}/valid#invalid-anchor'] == {
         'status': 'broken',
         'info': "Anchor 'invalid-anchor' not found",
@@ -866,8 +867,13 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
     )
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True,
-                    confoverrides={'linkcheck_timeout': 0.01})
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck-localserver', freshenv=True,
+    confoverrides={
+        'linkcheck_report_timeouts_as_broken': False,
+        'linkcheck_timeout': 0.01,
+    }
+)
 def test_requests_timeout(app: Sphinx) -> None:
     class DelayedResponseHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"

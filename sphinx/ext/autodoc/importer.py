@@ -25,7 +25,7 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator, Mapping
+    from collections.abc import Callable, Iterator, Mapping
     from types import ModuleType
     from typing import Any
 
@@ -38,7 +38,7 @@ def _filter_enum_dict(
     enum_class: type[Enum],
     attrgetter: Callable[[Any, str, Any], Any],
     enum_class_dict: Mapping[str, object],
-) -> Generator[tuple[str, type, Any], None, None]:
+) -> Iterator[tuple[str, type, Any]]:
     """Find the attributes to document of an enumeration class.
 
     The output consists of triplets ``(attribute name, defining class, value)``
