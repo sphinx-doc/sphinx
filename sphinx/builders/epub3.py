@@ -194,7 +194,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'), self.outdir,
+        copy_asset_file(path.join(self.template_dir, 'nav.xhtml.jinja'), self.outdir,
                         self.navigation_doc_metadata(navlist))
 
         # Add nav.xhtml to epub file
