@@ -71,6 +71,8 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         if inputstring.endswith('::'):
             inputstring = inputstring[:-1]
 
+        reporter = document.reporter
+        reporter.get_source_and_line = lambda x: (document.source, x)
         language = languages.get_language(document.settings.language_code, document.reporter)
         if self.inliner is None:
             inliner = states.Inliner()
@@ -79,14 +81,13 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         inliner.init_customizations(document.settings)
         memo = states.Struct(
             document=document,
-            reporter=document.reporter,
+            reporter=reporter,
             language=language,
             title_styles=[],
             section_level=0,
             section_bubble_up_kludge=False,
             inliner=inliner,
         )
-        memo.reporter.get_source_and_line = lambda x: (document.source, x)
         textnodes, messages = inliner.parse(inputstring, lineno, memo, document)
         p = nodes.paragraph(inputstring, '', *textnodes)
         p.source = document.source
