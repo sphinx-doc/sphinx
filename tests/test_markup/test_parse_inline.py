@@ -1,28 +1,32 @@
 import os
+
 import pytest
-from docutils.io import StringInput
 from docutils import frontend, nodes
+from docutils.io import StringInput
 
 from sphinx import addnodes, parsers
 from sphinx.io import SphinxStandaloneReader
 from sphinx.util.console import strip_colors
 
-@pytest.fixture
+
+@pytest.fixture()
 def document(app):
     settings = frontend.get_default_settings(parsers.RSTParser)
     settings.env = app.builder.env
     reader = SphinxStandaloneReader()
     reader.setup(app)
-    reader.source = StringInput(source_path="dummy/document.rst")
+    reader.source = StringInput(source_path='dummy/document.rst')
     reader.settings = settings
     document = reader.new_document()
     return document
 
-@pytest.fixture
+
+@pytest.fixture()
 def parser(app):
     parser = parsers.RSTParser()
     parser.set_application(app)
     return parser
+
 
 @pytest.mark.parametrize(('rst', 'expected'), [
     (
@@ -115,6 +119,7 @@ def test_inline_errors(rst, expected, parser, document, warning):
         assert message.__class__ == nodes.system_message
     warnings = getwarning(warning)
     assert expected in warnings
+
 
 def getwarning(warnings):
     return strip_colors(warnings.getvalue().replace(os.sep, '/'))
