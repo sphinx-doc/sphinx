@@ -1,5 +1,6 @@
 import os
 
+import docutils
 import pytest
 from docutils import frontend, nodes
 from docutils.io import StringInput
@@ -7,6 +8,10 @@ from docutils.io import StringInput
 from sphinx import addnodes, parsers
 from sphinx.io import SphinxStandaloneReader
 from sphinx.util.console import strip_colors
+
+docutils_version = pytest.mark.skipif(
+    docutils.__version_info__ < (0, 19), reason="at least docutils 0.19 required"
+)
 
 
 @pytest.fixture()
@@ -28,6 +33,7 @@ def parser(app):
     return parser
 
 
+@docutils_version()
 @pytest.mark.parametrize(('rst', 'expected'), [
     (
         # pep role
@@ -100,6 +106,7 @@ def test_inline_no_error(rst, expected, parser, document):
         assert child.__class__ == expected[i]
 
 
+@docutils_version()
 @pytest.mark.parametrize(('rst', 'expected'), [
     (
         # invalid unfinished literal
