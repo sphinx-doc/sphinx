@@ -83,10 +83,6 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
             document=document,
             reporter=reporter,
             language=language,
-            title_styles=[],
-            section_level=0,
-            section_bubble_up_kludge=False,
-            inliner=inliner,
         )
         textnodes, messages = inliner.parse(inputstring, lineno, memo, document)
         p = nodes.paragraph(inputstring, '', *textnodes)
