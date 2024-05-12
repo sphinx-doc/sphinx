@@ -95,6 +95,11 @@ def parser(app):
         'Reference a footnote [1]_',
         [nodes.Text, nodes.footnote_reference]
     ),
+    (
+        # substitution reference
+        'here is a |substituted| text',
+        [nodes.Text, nodes.substitution_reference, nodes.Text]
+    ),
 ])
 def test_inline_no_error(rst, expected, parser, document):
     parser.parse_inline(rst, document, 1)
