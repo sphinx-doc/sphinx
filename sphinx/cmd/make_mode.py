@@ -53,6 +53,8 @@ BUILDERS = [
     ("",      "doctest",     "to run all doctests embedded in the documentation "
                              "(if enabled)"),
     ("",      "coverage",    "to run coverage check of the documentation (if enabled)"),
+    ("",      "pycoverage",  "to run Python-specific coverage check of the documentation "
+                             "(if enabled)"),
     ("",      "clean",       "to remove everything in the build directory"),
 ]
 
