@@ -22,6 +22,9 @@ Features added
   when turning annotations into strings.
   Patch by Adam Turner.
 
+* #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
+  Patch by Hugo van Kemenade.
+
 Bugs fixed
 ----------
 
