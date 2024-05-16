@@ -226,7 +226,10 @@ easy to fetch and push translations.
 
 #. Install the `Transifex CLI tool`_.
 
-   You need the :command:`tx` command line tool for uploading resources (pot files). The official installation process place the :command:`tx` binary file in the current directory along with a README and a LICENSE file, and adds the current directory to :envvar:`$PATH`
+   You need the :command:`tx` command line tool for uploading resources (pot files).
+   The official installation process place the :file:`tx` binary file in
+   the current directory along with a README and a LICENSE file, and adds
+   the current directory to :envvar:`$PATH`.
 
    .. code-block:: console
 
@@ -234,7 +237,8 @@ easy to fetch and push translations.
 
    .. seealso:: `Transifex Client documentation`_
 
-#. Create your Transifex_ account and create new project and a organization for your document.
+#. Create your Transifex_ account and create new project and a organization
+   for your document.
 
    Currently, Transifex does not allow for a translation project to have more
    than one version of the document, so you'd better include a version number in
