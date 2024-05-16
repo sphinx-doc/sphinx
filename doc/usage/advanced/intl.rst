@@ -229,7 +229,7 @@ easy to fetch and push translations.
    You need the :command:`tx` command line tool for uploading resources (pot files).
    The official installation process place the :file:`tx` binary file in
    the current directory along with a README and a LICENSE file, and adds
-   the current directory to :envvar:`$PATH`.
+   the current directory to ``$PATH``.
 
    .. code-block:: console
 
@@ -293,8 +293,8 @@ easy to fetch and push translations.
         --transifex-organization-name=sphinx-document \
         --transifex-project-name=sphinx-document-test_1_0
 
-   You can use :envvar:`SPHINXINTL_TRANSIFEX_ORGANIZATION_NAME` and
-   :envvar:`SPHINXINTL_TRANSIFEX_PROJECT_NAME` instead of the respective
+   You can use ``SPHINXINTL_TRANSIFEX_ORGANIZATION_NAME`` and
+   ``SPHINXINTL_TRANSIFEX_PROJECT_NAME`` instead of the respective
    command line argument.
 
    .. seealso:: `sphinx-intl update-txconfig-resources documentation`_
