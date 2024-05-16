@@ -251,15 +251,16 @@ easy to fetch and push translations.
    Go to your `Transifex API token`_ page and generate a token.
    Copy the generated token now, as you will not be able to see it again later.
 
-#. Set your Transifex API token in the user configuration file `$HOME/.transifexrc`.
+#. Set your Transifex API token in the user configuration file :file:`$HOME/.transifexrc`.
 
    .. code-block:: ini
-      
+
       [https://app.transifex.com]
       rest_hostname = https://rest.api.transifex.com
       token         = paste_your_api_token_here
 
-#. Alternatively, you can store your Transifex API token as the environment variable ``TX_TOKEN``, which is recognized and used by :command:`tx`.
+#. Alternatively, you can store your Transifex API token as the environment variable
+   ``TX_TOKEN``, which is recognized and used by :command:`tx`.
 
    .. code-block:: console
 
@@ -273,12 +274,13 @@ easy to fetch and push translations.
 
       $ cd /your/document/root
       $ tx init
-      
+
       Successful creation of '.tx/config' file
 
 #. Upload pot files to Transifex service.
 
-   Register pot files to ``.tx/config`` file, adjusting ``--pot-dir`` value to your project's pot files' directory:
+   Register pot files to ``.tx/config`` file, adjusting ``--pot-dir`` value
+   to your project's pot files' directory:
 
    .. code-block:: console
 
@@ -287,22 +289,24 @@ easy to fetch and push translations.
         --transifex-organization-name=sphinx-document \
         --transifex-project-name=sphinx-document-test_1_0
 
-   You can use :envvar:`SPHINXINTL_TRANSIFEX_ORGANIZATION_NAME` and :envvar:`SPHINXINTL_TRANSIFEX_PROJECT_NAME` instead of the respective command line argument.
+   You can use :envvar:`SPHINXINTL_TRANSIFEX_ORGANIZATION_NAME` and
+   :envvar:`SPHINXINTL_TRANSIFEX_PROJECT_NAME` instead of the respective
+   command line argument.
 
    .. seealso:: `sphinx-intl update-txconfig-resources documentation`_
-   
+
    and upload pot files:
 
    .. code-block:: console
 
       $ tx push -s
       # Getting info about resources
-      
+
       sphinx-document-test_1_0.builders - Getting info
       sphinx-document-test_1_0.builders - Done
 
       # Pushing source files
-      
+
       sphinx-document-test_1_0.builders - Uploading file
       sphinx-document-test_1_0.builders - Done
 
@@ -320,12 +324,12 @@ easy to fetch and push translations.
       $ cd /your/document/root
       $ tx pull -l de
       # Getting info about resources
-      
+
       sphinx-document-test_1_0.builders - Getting info
       sphinx-document-test_1_0.builders - Done
-      
+
       # Pulling files
-      
+
       sphinx-document-test_1_0.builders [de] - Pulling file
       sphinx-document-test_1_0.builders [de] - Creating download job
       sphinx-document-test_1_0.builders [de] - Done
