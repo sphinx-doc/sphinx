@@ -27,7 +27,7 @@ Sphinx uses these facilities to translate whole documents.
 
 Initially project maintainers have to collect all translatable strings (also
 referred to as *messages*) to make them known to translators.  Sphinx extracts
-these through invocation of ``sphinx-build -M gettext``.
+these through invocation of :command:`sphinx-build -M gettext`.
 
 Every single element in the doctree will end up in a single message which
 results in lists being equally split into different chunks while large
@@ -51,13 +51,13 @@ through :program:`msgfmt` for efficiency reasons.  If you make these files
 discoverable with :confval:`locale_dirs` for your :confval:`language`, Sphinx
 will pick them up automatically.
 
-An example: you have a document ``usage.rst`` in your Sphinx project.  The
-*gettext* builder will put its messages into ``usage.pot``.  Imagine you have
-Spanish translations [2]_ stored in ``usage.po`` --- for your builds to
+An example: you have a document :file:`usage.rst` in your Sphinx project.  The
+*gettext* builder will put its messages into :file:`usage.pot`.  Imagine you have
+Spanish translations [2]_ stored in :file:`usage.po` --- for your builds to
 be translated you need to follow these instructions:
 
 * Compile your message catalog to a locale directory, say ``locale``, so it
-  ends up in ``./locale/es/LC_MESSAGES/usage.mo`` in your source directory
+  ends up in :file:`./locale/es/LC_MESSAGES/usage.mo` in your source directory
   (where ``es`` is the language code for Spanish.) ::
 
         msgfmt "usage.po" -o "locale/es/LC_MESSAGES/usage.mo"
@@ -101,7 +101,7 @@ section describe an easy way to translate with *sphinx-intl*.
 
       $ pip install sphinx-intl
 
-#. Add configurations to ``conf.py``.
+#. Add configurations to :file:`conf.py`.
 
    ::
 
@@ -137,7 +137,7 @@ section describe an easy way to translate with *sphinx-intl*.
 #. Translate po files.
 
    As noted above, these are located in the ``./locale/<lang>/LC_MESSAGES``
-   directory.  An example of one such file, from Sphinx, ``builders.po``, is
+   directory.  An example of one such file, from Sphinx, :file:`builders.po`, is
    given below.
 
    .. code-block:: po
@@ -165,7 +165,7 @@ section describe an easy way to translate with *sphinx-intl*.
 
 #. Build translated document.
 
-   You need a :confval:`language` parameter in ``conf.py`` or you may also
+   You need a :confval:`language` parameter in :file:`conf.py` or you may also
    specify the parameter on the command line.
 
    For BSD/GNU make, run:
@@ -378,7 +378,7 @@ There is a `sphinx translation page`_ for Sphinx (master) documentation.
 4. Wait acceptance by Transifex sphinx translation maintainers.
 5. (After acceptance) Translate on Transifex.
 
-Detail is here: https://docs.transifex.com/getting-started-1/translators
+Detail is here: https://help.transifex.com/en/articles/6248698-getting-started-as-a-translator
 
 
 Translation progress and statistics
@@ -406,9 +406,9 @@ percentage of nodes that have been translated on a per-document basis.
 
 .. _`Transifex CLI tool`: https://https://github.com/transifex/cli/
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
-.. _Transifex: https://www.transifex.com/
+.. _Transifex: https://app.transifex.com/
 .. _Weblate's documentation: https://docs.weblate.org/en/latest/devel/sphinx.html
-.. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
+.. _`sphinx translation page`: https://app.transifex.com/sphinx-doc/sphinx-doc/
 .. _`Transifex Client documentation`: https://developers.transifex.com/docs/using-the-client
 .. _`Transifex API token`: https://app.transifex.com/user/settings/api/
 .. _`sphinx-intl update-txconfig-resources documentation`: https://sphinx-intl.readthedocs.io/en/master/refs.html#sphinx-intl-update-txconfig-resources
