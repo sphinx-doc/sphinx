@@ -378,7 +378,8 @@ There is a `sphinx translation page`_ for Sphinx (master) documentation.
 4. Wait acceptance by Transifex sphinx translation maintainers.
 5. (After acceptance) Translate on Transifex.
 
-Detail is here: https://help.transifex.com/en/articles/6248698-getting-started-as-a-translator
+Detail is here:
+https://help.transifex.com/en/articles/6248698-getting-started-as-a-translator
 
 
 Translation progress and statistics
