@@ -284,8 +284,9 @@ easy to fetch and push translations.
 
 #. Upload pot files to Transifex service.
 
-   Register pot files to ``.tx/config`` file, adjusting ``--pot-dir`` value
-   to your project's pot files' directory:
+   Register pot files to ``.tx/config`` file using
+   :command:`sphinx-intl update-txconfig-resources`, adjusting
+   ``--pot-dir`` value to your project's pot files' directory:
 
    .. code-block:: console
 
@@ -294,9 +295,9 @@ easy to fetch and push translations.
         --transifex-organization-name=sphinx-document \
         --transifex-project-name=sphinx-document-test_1_0
 
-   You can use ``SPHINXINTL_TRANSIFEX_ORGANIZATION_NAME`` and
-   ``SPHINXINTL_TRANSIFEX_PROJECT_NAME`` instead of the respective
-   command line argument.
+   You can use the ``SPHINXINTL_TRANSIFEX_ORGANIZATION_NAME`` and
+   ``SPHINXINTL_TRANSIFEX_PROJECT_NAME`` environment variables
+   instead of the respective command line arguments.
 
    .. seealso:: `sphinx-intl update-txconfig-resources documentation`_
 
