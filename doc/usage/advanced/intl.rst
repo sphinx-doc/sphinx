@@ -255,7 +255,8 @@ easy to fetch and push translations.
    Go to your `Transifex API token`_ page and generate a token.
    Copy the generated token now, as you will not be able to see it again later.
 
-#. Set your Transifex API token in the user configuration file :file:`$HOME/.transifexrc`.
+#. Set your Transifex API token in the user configuration file
+   :file:`$HOME/.transifexrc`.
 
    .. code-block:: ini
 
