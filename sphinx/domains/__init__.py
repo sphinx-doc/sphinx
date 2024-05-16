@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, NamedTuple, Optional, cast
 
 from docutils.nodes import Element, Node, system_message
 
@@ -184,19 +184,19 @@ class Domain:
     #: domain label: longer, more descriptive (used in messages)
     label = ''
     #: type (usually directive) name -> ObjType instance
-    object_types: dict[str, ObjType] = {}
+    object_types: ClassVar[dict[str, ObjType]] = {}
     #: directive name -> directive class
-    directives: dict[str, type[Directive]] = {}
+    directives: ClassVar[dict[str, type[Directive]]] = {}
     #: role name -> role callable
-    roles: dict[str, RoleFunction | XRefRole] = {}
+    roles: ClassVar[dict[str, RoleFunction | XRefRole]] = {}
     #: a list of Index subclasses
-    indices: list[type[Index]] = []
+    indices: ClassVar[list[type[Index]]] = []
     #: role name -> a warning message if reference is missing
-    dangling_warnings: dict[str, str] = {}
+    dangling_warnings: ClassVar[dict[str, str]] = {}
     #: node_class -> (enum_node_type, title_getter)
-    enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {}
+    enumerable_nodes: ClassVar[dict[type[Node], tuple[str, TitleGetter | None]]] = {}
     #: data value for a fresh environment
-    initial_data: dict = {}
+    initial_data: ClassVar[dict] = {}
     #: data value
     data: dict
     #: data version, bump this when the format of `self.data` changes
