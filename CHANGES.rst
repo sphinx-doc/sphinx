@@ -39,6 +39,9 @@ Bugs fixed
   Patch by Matthias Geier.
 * #12224: Properly detect WebP files.
   Patch by Benjamin Cabé.
+* #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
+  the current page number and the footnote does appear on that same page.
+  Patch by Jean-François B.
 
 Testing
 -------
