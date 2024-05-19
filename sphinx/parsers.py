@@ -73,7 +73,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
 
         reporter = document.reporter
         reporter.get_source_and_line = lambda x: (document.source, x)  # type: ignore[attr-defined]
-        language = languages.get_language(document.settings.language_code, document.reporter)
+        language = languages.get_language(document.settings.language_code, reporter)
         if self.inliner is None:
             inliner = states.Inliner()
         else:
@@ -86,8 +86,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         )
         textnodes, messages = inliner.parse(inputstring, lineno, memo, document)
         p = nodes.paragraph(inputstring, '', *textnodes)
-        p.source = document.source
-        p.line = lineno
+        p.source, p.line = document.source, lineno
         document += [p, *messages]
 
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
