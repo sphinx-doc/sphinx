@@ -558,8 +558,10 @@ class Builder:
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
 
-        with progress_message(__('copying assets')):
-            self.copy_assets()
+        # we can not use progress_message() because self.copy_assets() will
+        # print some log lines.
+        logger.info(bold(__('copying assets') + "..."))
+        self.copy_assets()
 
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
