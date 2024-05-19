@@ -362,9 +362,9 @@ class Locale(SphinxTransform):
         for node, msg in extract_messages(self.document):
             msgstr = merged.get(msg, '')
 
-            # There is no point in having #noqa on literal blocks because
+            # There is no point in having noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
-            # completely prevent escaping the #noqa.  Outside of literal
+            # completely prevent escaping the noqa.  Outside of literal
             # blocks, one can always write \#noqa.
             if not isinstance(node, LITERAL_TYPE_NODES):
                 msgstr, _ = parse_noqa(msgstr)

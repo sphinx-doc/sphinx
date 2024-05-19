@@ -22,9 +22,14 @@ Features added
   when turning annotations into strings.
   Patch by Adam Turner.
 
+* #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
+  Patch by Hugo van Kemenade.
+
 Bugs fixed
 ----------
 
+* #12314: Properly format ``collections.abc.Callable`` in annotations.
+  Patch by Adam Turner.
 * #12162: Fix a performance regression in the C domain that has
   been present since version 3.0.0.
   Patch by Donald Hunter.
@@ -34,6 +39,9 @@ Bugs fixed
   Patch by Matthias Geier.
 * #12224: Properly detect WebP files.
   Patch by Benjamin Cabé.
+* #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
+  the current page number and the footnote does appear on that same page.
+  Patch by Jean-François B.
 
 Testing
 -------
