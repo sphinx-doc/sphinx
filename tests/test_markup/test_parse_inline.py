@@ -91,6 +91,11 @@ def parser(app):
         [nodes.Text]
     ),
     (
+        # section title
+        'This is a title\n================\n',
+        [nodes.Text]
+    ),
+    (
         # footnote reference
         'Reference a footnote [1]_',
         [nodes.Text, nodes.footnote_reference]
