@@ -314,7 +314,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
     expected_warning_expr = (
         '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '
-        'WARNING: term not in glossary: \'TERM NOT IN GLOSSARY\'')
+        "WARNING: term not in glossary: 'TERM NOT IN GLOSSARY'")
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
