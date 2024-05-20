@@ -691,7 +691,7 @@ class TexinfoTranslator(SphinxTranslator):
         # cases for the sake of appearance
         if isinstance(node.parent, (nodes.title, addnodes.desc_type)):
             return
-        if isinstance(node[0], nodes.image):
+        if len(node) != 0 and isinstance(node[0], nodes.image):
             return
         name = node.get('name', node.astext()).strip()
         uri = node.get('refuri', '')
