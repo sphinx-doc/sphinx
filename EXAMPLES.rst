@@ -28,6 +28,7 @@ Documentation using the alabaster theme
 * `Invoke <https://docs.pyinvoke.org/>`__
 * `Jinja <https://jinja.palletsprojects.com/>`__
 * `Lino <https://www.lino-framework.org/>`__ (customized)
+* `Linux kernel <https://www.kernel.org/doc/html/latest/index.html>`__ (customized)
 * `marbl <https://getmarbl.readthedocs.io/>`__
 * `MeshPy <https://documen.tician.de/meshpy/>`__
 * `Molecule <https://molecule.readthedocs.io/>`__
@@ -214,7 +215,6 @@ Documentation using sphinx_rtd_theme
 * `Learning Apache Spark with Python <https://runawayhorse001.github.io/LearningApacheSpark>`__
 * `LibCEED <https://libceed.readthedocs.io/>`__
 * `Linguistica <https://linguistica-uchicago.github.io/lxa5/>`__
-* `Linux kernel <https://www.kernel.org/doc/html/latest/index.html>`__
 * `Mailman <https://docs.list.org/>`__
 * `MathJax <https://docs.mathjax.org/>`__
 * `MDTraj <https://mdtraj.org/>`__ (customized)
