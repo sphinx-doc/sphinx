@@ -126,7 +126,7 @@ Options
    Distribute the build over *N* processes in parallel, to make building on
    multiprocessor machines more effective.  Note that not all parts and not all
    builders of Sphinx can be parallelized.  If ``auto`` argument is given,
-   Sphinx uses the number of CPUs as *N*.
+   Sphinx uses the number of CPUs as *N*. Defaults to 1.
 
    .. versionadded:: 1.2
       This option should be considered *experimental*.
