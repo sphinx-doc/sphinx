@@ -563,7 +563,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         else:
             return 'redirected', response_url, 0
 
-    def limit_rate(self, response_url: str, retry_after: str) -> float | None:
+    def limit_rate(self, response_url: str, retry_after: str | None) -> float | None:
         delay = DEFAULT_DELAY
         next_check = None
         if retry_after:

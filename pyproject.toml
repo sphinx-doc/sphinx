@@ -83,7 +83,7 @@ docs = [
 ]
 lint = [
     "flake8>=3.5.0",
-    "ruff==0.4.1",
+    "ruff==0.4.4",
     "mypy==1.10.0",
     "sphinx-lint",
     "types-docutils",
@@ -151,7 +151,6 @@ exclude = [
     "^tests/test_builders/test_build_gettext\\.py$",
     "^tests/test_builders/test_build_html\\.py$",
     "^tests/test_builders/test_build_latex\\.py$",
-    "^tests/test_builders/test_build_linkcheck\\.py$",
     "^tests/test_builders/test_build_texinfo\\.py$",
     # tests/test_config
     "^tests/test_config/test_config\\.py$",
