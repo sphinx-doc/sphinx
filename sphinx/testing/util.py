@@ -12,7 +12,6 @@ from io import StringIO
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 
-from defusedxml.ElementTree import parse as xml_parse
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
@@ -77,6 +76,8 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
 # keep this to restrict the API usage and to have a correct return type
 def etree_parse(path: str | os.PathLike[str]) -> ElementTree:
     """Parse a file into a (safe) XML element tree."""
+    from defusedxml.ElementTree import parse as xml_parse
+
     return xml_parse(path)
 
 

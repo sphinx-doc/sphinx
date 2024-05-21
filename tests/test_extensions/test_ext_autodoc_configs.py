@@ -679,6 +679,10 @@ def test_autodoc_typehints_signature(app):
         type_o = "~typing.Any | None"
     else:
         type_o = "~typing.Any"
+    if sys.version_info[:2] >= (3, 13):
+        type_ppp = "pathlib._local.PurePosixPath"
+    else:
+        type_ppp = "pathlib.PurePosixPath"
 
     options = {"members": None,
                "undoc-members": None}
@@ -703,7 +707,7 @@ def test_autodoc_typehints_signature(app):
         '',
         '.. py:data:: CONST3',
         '   :module: target.typehints',
-        '   :type: ~pathlib.PurePosixPath',
+        f'   :type: ~{type_ppp}',
         "   :value: PurePosixPath('/a/b/c')",
         '',
         '   docstring',
@@ -726,7 +730,7 @@ def test_autodoc_typehints_signature(app):
         '',
         '   .. py:attribute:: Math.CONST3',
         '      :module: target.typehints',
-        '      :type: ~pathlib.PurePosixPath',
+        f'      :type: ~{type_ppp}',
         "      :value: PurePosixPath('/a/b/c')",
         '',
         '',
@@ -748,7 +752,7 @@ def test_autodoc_typehints_signature(app):
         '',
         '   .. py:property:: Math.path',
         '      :module: target.typehints',
-        '      :type: ~pathlib.PurePosixPath',
+        f'      :type: ~{type_ppp}',
         '',
         '',
         '   .. py:property:: Math.prop',
@@ -773,7 +777,7 @@ def test_autodoc_typehints_signature(app):
         '',
         '   docstring',
         '',
-        "   alias of TypeVar('T', bound=\\ :py:class:`~pathlib.PurePosixPath`)",
+        f"   alias of TypeVar('T', bound=\\ :py:class:`~{type_ppp}`)",
         '',
         '',
         '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '
@@ -802,6 +806,10 @@ def test_autodoc_typehints_signature(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints': "none"})
 def test_autodoc_typehints_none(app):
+    if sys.version_info[:2] >= (3, 13):
+        type_ppp = "pathlib._local.PurePosixPath"
+    else:
+        type_ppp = "pathlib.PurePosixPath"
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -887,7 +895,7 @@ def test_autodoc_typehints_none(app):
         '',
         '   docstring',
         '',
-        "   alias of TypeVar('T', bound=\\ :py:class:`~pathlib.PurePosixPath`)",
+        f"   alias of TypeVar('T', bound=\\ :py:class:`~{type_ppp}`)",
         '',
         '',
         '.. py:function:: complex_func(arg1, arg2, arg3=None, *args, **kwargs)',
@@ -1424,7 +1432,10 @@ def test_autodoc_typehints_format_fully_qualified(app):
         type_o = "typing.Any | None"
     else:
         type_o = "typing.Any"
-
+    if sys.version_info[:2] >= (3, 13):
+        type_ppp = "pathlib._local.PurePosixPath"
+    else:
+        type_ppp = "pathlib.PurePosixPath"
     options = {"members": None,
                "undoc-members": None}
     actual = do_autodoc(app, 'module', 'target.typehints', options)
@@ -1448,7 +1459,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '',
         '.. py:data:: CONST3',
         '   :module: target.typehints',
-        '   :type: pathlib.PurePosixPath',
+        f'   :type: {type_ppp}',
         "   :value: PurePosixPath('/a/b/c')",
         '',
         '   docstring',
@@ -1471,7 +1482,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '',
         '   .. py:attribute:: Math.CONST3',
         '      :module: target.typehints',
-        '      :type: pathlib.PurePosixPath',
+        f'      :type: {type_ppp}',
         "      :value: PurePosixPath('/a/b/c')",
         '',
         '',
@@ -1493,7 +1504,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '',
         '   .. py:property:: Math.path',
         '      :module: target.typehints',
-        '      :type: pathlib.PurePosixPath',
+        f'      :type: {type_ppp}',
         '',
         '',
         '   .. py:property:: Math.prop',
@@ -1518,7 +1529,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '',
         '   docstring',
         '',
-        "   alias of TypeVar('T', bound=\\ :py:class:`pathlib.PurePosixPath`)",
+        f"   alias of TypeVar('T', bound=\\ :py:class:`{type_ppp}`)",
         '',
         '',
         '.. py:function:: complex_func(arg1: str, arg2: List[int], arg3: Tuple[int, '

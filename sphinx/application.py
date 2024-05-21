@@ -271,29 +271,26 @@ class Sphinx:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
         """
-        if self.config.language == 'en':
-            self.translator, _ = locale.init([], None)
+        logger.info(bold(__('loading translations [%s]... ')), self.config.language,
+                    nonl=True)
+
+        # compile mo files if sphinx.po file in user locale directories are updated
+        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                 self.config.language, self.config.source_encoding)
+        for catalog in repo.catalogs:
+            if catalog.domain == 'sphinx' and catalog.is_outdated():
+                catalog.write_mo(self.config.language,
+                                 self.config.gettext_allow_fuzzy_translations)
+
+        locale_dirs: list[str | None] = list(repo.locale_dirs)
+        locale_dirs += [None]
+        locale_dirs += [path.join(package_dir, 'locale')]
+
+        self.translator, has_translation = locale.init(locale_dirs, self.config.language)
+        if has_translation or self.config.language == 'en':
+            logger.info(__('done'))
         else:
-            logger.info(bold(__('loading translations [%s]... ')), self.config.language,
-                        nonl=True)
-
-            # compile mo files if sphinx.po file in user locale directories are updated
-            repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                     self.config.language, self.config.source_encoding)
-            for catalog in repo.catalogs:
-                if catalog.domain == 'sphinx' and catalog.is_outdated():
-                    catalog.write_mo(self.config.language,
-                                     self.config.gettext_allow_fuzzy_translations)
-
-            locale_dirs: list[str | None] = list(repo.locale_dirs)
-            locale_dirs += [None]
-            locale_dirs += [path.join(package_dir, 'locale')]
-
-            self.translator, has_translation = locale.init(locale_dirs, self.config.language)
-            if has_translation:
-                logger.info(__('done'))
-            else:
-                logger.info(__('not available for built-in messages'))
+            logger.info(__('not available for built-in messages'))
 
     def _init_env(self, freshenv: bool) -> BuildEnvironment:
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
