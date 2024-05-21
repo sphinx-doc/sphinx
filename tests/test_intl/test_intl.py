@@ -180,8 +180,11 @@ def test_text_inconsistency_warnings(app, warning):
         })
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
+    expected_citation_ref_warning_expr = (
+        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.')
+    assert re.search(expected_citation_ref_warning_expr, warnings), f'{expected_citation_ref_warning_expr!r} did not match {warnings!r}'
+
     expected_citation_warning_expr = (
-        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
     assert re.search(expected_citation_warning_expr, warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
 
@@ -286,7 +289,7 @@ VVV
 """)
     assert result == expect
     warnings = getwarning(warning)
-    assert 'term not in glossary' not in warnings
+    assert warnings.count('term not in glossary') == 1
 
 
 @sphinx_intl
@@ -298,7 +301,8 @@ def test_text_glossary_term_inconsistencies(app, warning):
     result = (app.outdir / 'glossary_terms_inconsistency.txt').read_text(encoding='utf8')
     expect = ("19. I18N WITH GLOSSARY TERMS INCONSISTENCY"
               "\n******************************************\n"
-              "\n1. LINK TO *SOME NEW TERM*.\n")
+              "\n1. LINK TO *SOME NEW TERM*.\n"
+              "\n2. LINK TO *TERM NOT IN GLOSSARY*.\n")
     assert result == expect
 
     warnings = getwarning(warning)
@@ -307,6 +311,10 @@ def test_text_glossary_term_inconsistencies(app, warning):
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\]\n")
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    expected_warning_expr = (
+        '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '
+        "WARNING: term not in glossary: 'TERM NOT IN GLOSSARY'")
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
@@ -1240,7 +1248,7 @@ def test_xml_warnings(app, warning):
     app.build()
     # warnings
     warnings = getwarning(warning)
-    assert 'term not in glossary' not in warnings
+    assert warnings.count('term not in glossary') == 1
     assert 'undefined label' not in warnings
     assert 'unknown document' not in warnings
 
