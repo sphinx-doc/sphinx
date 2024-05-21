@@ -122,6 +122,7 @@ class RecipeDomain(Domain):
         'recipes': [],  # object list
         'recipe_ingredients': {},  # name -> object
     }
+    data_version = 0
 
     def get_full_qualified_name(self, node):
         return f'recipe.{node.arguments[0]}'
