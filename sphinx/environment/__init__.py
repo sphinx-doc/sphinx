@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
     from docutils import nodes
     from docutils.nodes import Node
+    from docutils.parsers import Parser
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -548,6 +549,11 @@ class BuildEnvironment:
     def docname(self) -> str:
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
+
+    @property
+    def parser(self) -> Parser:
+        """Returns the parser being used for to parse the current document."""
+        return self.temp_data['_parser']
 
     def new_serialno(self, category: str = '') -> int:
         """Return a serial number, e.g. for index entry targets.
