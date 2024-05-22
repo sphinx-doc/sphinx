@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #12361: Allow the parser instance to be accessed within directives
+  with ``self.env.parser``. Patch by Chris Sewell.
+
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files.
   Patch by James Addison and Adam Turner
