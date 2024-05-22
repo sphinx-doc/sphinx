@@ -62,7 +62,7 @@ class SkipProgressMessage(Exception):
 
 
 class progress_message:
-    def __init__(self, message: str, nonl: bool = True) -> None:
+    def __init__(self, message: str, *, nonl: bool = True) -> None:
         self.message = message
         self.nonl = nonl
 
