@@ -75,7 +75,7 @@ class progress_message:
         val: BaseException | None,
         tb: TracebackType | None,
     ) -> bool:
-        prefix = "" if self.nonl else bold(self.message + '... ')
+        prefix = "" if self.nonl else bold(self.message + ': ')
         if isinstance(val, SkipProgressMessage):
             logger.info(prefix + __('skipped'))
             if val.args:
