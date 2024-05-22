@@ -62,11 +62,12 @@ class SkipProgressMessage(Exception):
 
 
 class progress_message:
-    def __init__(self, message: str) -> None:
+    def __init__(self, message: str, nonl: bool = True) -> None:
         self.message = message
+        self.nonl = nonl
 
     def __enter__(self) -> None:
-        logger.info(bold(self.message + '... '), nonl=True)
+        logger.info(bold(self.message + '... '), nonl=self.nonl)
 
     def __exit__(
         self,
@@ -74,15 +75,16 @@ class progress_message:
         val: BaseException | None,
         tb: TracebackType | None,
     ) -> bool:
+        prefix = "" if self.nonl else bold(self.message + '... ')
         if isinstance(val, SkipProgressMessage):
-            logger.info(__('skipped'))
+            logger.info(prefix + __('skipped'))
             if val.args:
                 logger.info(*val.args)
             return True
         elif val:
-            logger.info(__('failed'))
+            logger.info(prefix + __('failed'))
         else:
-            logger.info(__('done'))
+            logger.info(prefix + __('done'))
 
         return False
 
