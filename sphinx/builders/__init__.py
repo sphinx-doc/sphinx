@@ -559,7 +559,7 @@ class Builder:
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
 
-        with progress_message(__('copying assets')):
+        with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
         if self.parallel_ok:
