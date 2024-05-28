@@ -71,6 +71,18 @@ jobs:
     - name: Type check with mypy
       run: mypy
 
+  locale-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check locale files with gettext
+      run: make locale-check
+
   docs-lint:
     runs-on: ubuntu-latest
 
