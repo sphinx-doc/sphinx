@@ -1,10 +1,10 @@
+# Ignore locales that are known failures. See utils/babel_runner.py
 IGNORED = ta
-LOCALES = $(filter-out $(IGNORED),$(patsubst %/LC_MESSAGES,%,$(wildcard */LC_MESSAGES)))
-POFILES = $(LOCALES:%=%/LC_MESSAGES/sphinx.po)
+POFILES = $(wildcard */LC_MESSAGES/sphinx.po)
 CHECK   = $(POFILES:.po=.check)
 
 .PHONY: all
-check: $(CHECK)
+check: $(filter-out $(IGNORED:=/LC_MESSAGES/sphinx.check),$(CHECK))
 
 .PHONY: $(CHECK)
 $(CHECK): %.check: %.po
