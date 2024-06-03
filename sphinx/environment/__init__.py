@@ -416,8 +416,8 @@ class BuildEnvironment:
         containing document.
         """
         filename = os_path(filename)
-        if filename.startswith(('/', os.sep)):
-            rel_fn = filename[1:]
+        if os.path.isabs(filename):
+            rel_fn = filename[filename.index(os.path.sep)+1:]
         else:
             docdir = path.dirname(self.doc2path(docname or self.docname,
                                                 base=False))
