@@ -150,13 +150,16 @@
 {%- block extrahead %} {% endblock %}
   </head>
   {%- block body_tag %}<body>{% endblock %}
+
+{%- block skip_to_main_content %}<a href="#skip-target">Skip to main content</a>{% endblock %}
+
 {%- block header %}{% endblock %}
 
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
 
 {%- block content %}
   {%- block sidebar1 %} {# possible location for sidebar #} {% endblock %}
-
+    <span id="skip-target"></span>
     <div class="document">
   {%- block document %}
       <div class="documentwrapper">
