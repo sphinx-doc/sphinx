@@ -384,6 +384,15 @@ class Config:
                 opt_value = '<error!>'
             values.append(f"{opt_name}={opt_value!r}")
         return self.__class__.__qualname__ + '(' + ', '.join(values) + ')'
+    
+    def __setattr__(self, key: str, value: Any) -> None:
+        # if someone is still using 'master_doc', we need to update 'root_doc'
+        if key in ('master_doc', 'root_doc'):
+            super().__setattr__('root_doc', value)
+            super().__setattr__('master_doc', value)
+            return
+
+        super().__setattr__(key, value)
 
     def __getattr__(self, name: str) -> Any:
         if name in self._options:
