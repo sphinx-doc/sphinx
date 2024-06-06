@@ -570,10 +570,10 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         #
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
-        config.source_suffix = {source_suffix: None}  # type: ignore[attr-defined]
+        config.source_suffix = {source_suffix: None}
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
-        config.source_suffix = dict.fromkeys(source_suffix, None)  # type: ignore[attr-defined]
+        config.source_suffix = dict.fromkeys(source_suffix, None)
     elif not isinstance(source_suffix, dict):
         logger.warning(__("The config value `source_suffix' expects "
                           "a string, list of strings, or dictionary. "
@@ -589,8 +589,7 @@ def convert_highlight_options(app: Sphinx, config: Config) -> None:
     options = config.highlight_options
     if options and not all(isinstance(v, dict) for v in options.values()):
         # old styled option detected because all values are not dictionary.
-        config.highlight_options = {config.highlight_language:  # type: ignore[attr-defined]
-                                    options}
+        config.highlight_options = {config.highlight_language: options}
 
 
 def init_numfig_format(app: Sphinx, config: Config) -> None:
@@ -602,7 +601,7 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
 
     # override default labels by configuration
     numfig_format.update(config.numfig_format)
-    config.numfig_format = numfig_format  # type: ignore[attr-defined]
+    config.numfig_format = numfig_format
 
 
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
@@ -722,7 +721,7 @@ def check_primary_domain(app: Sphinx, config: Config) -> None:
     primary_domain = config.primary_domain
     if primary_domain and not app.registry.has_domain(primary_domain):
         logger.warning(__('primary_domain %r not found, ignored.'), primary_domain)
-        config.primary_domain = None  # type: ignore[attr-defined]
+        config.primary_domain = None
 
 
 def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
@@ -735,7 +734,7 @@ def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
             'contents' in app.project.docnames):
         logger.warning(__('Since v2.0, Sphinx uses "index" as root_doc by default. '
                           'Please add "root_doc = \'contents\'" to your conf.py.'))
-        app.config.root_doc = "contents"  # type: ignore[attr-defined]
+        app.config.root_doc = "contents"
 
     return changed
 
