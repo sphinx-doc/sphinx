@@ -237,7 +237,7 @@ easy to fetch and push translations.
 
    .. seealso:: `Transifex Client documentation`_
 
-#. Create your Transifex_ account and create new project and a organization
+#. Create your Transifex_ account and create a new project and an organization
    for your document.
 
    Currently, Transifex does not allow for a translation project to have more
@@ -250,7 +250,7 @@ easy to fetch and push translations.
    :Project ID: ``sphinx-document-test_1_0``
    :Project URL: ``https://www.transifex.com/projects/p/sphinx-document-test_1_0/``
 
-#. Create a API token to be used in the command-line.
+#. Create an API token to be used in the command-line.
 
    Go to your `Transifex API token`_ page and generate a token.
    Copy the generated token now, as you will not be able to see it again later.
