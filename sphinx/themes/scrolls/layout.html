@@ -26,7 +26,7 @@
         <h1 class="heading"><a href="{{ pathto(root_doc)|e }}"
           title="back to the documentation overview"><span>{{ title|striptags|e }}</span></a></h1>
       </div>
-      <div class="relnav" role="navigation" aria-label="related navigation">
+      <div class="relnav" role="navigation" aria-label="Related">
         {%- if prev %}
         <a href="{{ prev.link|e }}">&laquo; {{ prev.title }}</a> |
         {%- endif %}
@@ -37,7 +37,7 @@
       </div>
       <div id="contentwrapper">
         {%- if display_toc %}
-        <div id="toc" role="navigation" aria-label="table of contents navigation">
+        <div id="toc" role="navigation" aria-label="Table of contents">
           <h3>{{ _('Table of Contents') }}</h3>
           {{ toc }}
         </div>
