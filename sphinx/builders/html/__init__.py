@@ -552,6 +552,7 @@ class StandaloneHTMLBuilder(Builder):
             'builder': self.name,
             'parents': [],
             'logo_url': logo,
+            'logo_alt': 'Logo',
             'favicon_url': favicon,
             'html5_doctype': True,
         }
