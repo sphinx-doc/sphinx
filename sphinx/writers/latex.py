@@ -332,8 +332,8 @@ class LaTeXTranslator(SphinxTranslator):
                 self.top_sectionlevel = \
                     self.sectionnames.index(self.config.latex_toplevel_sectioning)
             except ValueError:
-                logger.warning(__('unknown %r toplevel_sectioning for class %r') %
-                               (self.config.latex_toplevel_sectioning, self.theme.docclass))
+                logger.warning(__('unknown %r toplevel_sectioning for class %r'),
+                               self.config.latex_toplevel_sectioning, self.theme.docclass)
 
         if self.config.numfig:
             self.numfig_secnum_depth = self.config.numfig_secnum_depth

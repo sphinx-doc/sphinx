@@ -306,7 +306,7 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ') % self.name) + summary)
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
@@ -485,6 +485,7 @@ class Builder:
         filename = self.env.doc2path(docname)
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
+        self.env.temp_data['_parser'] = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
         publisher.settings.record_dependencies = DependencyList()
@@ -558,7 +559,7 @@ class Builder:
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
 
-        with progress_message(__('copying assets')):
+        with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
         if self.parallel_ok:

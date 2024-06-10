@@ -25,10 +25,6 @@ logger = logging.getLogger(__name__)
 
 MAX_FILENAME_LEN = 32
 CRITICAL_PATH_CHAR_RE = re.compile('[:;<>|*" ]')
-# Replace reserved Windows or Unix path characters with '/'.
-_URI_TO_PATH = {
-    ord(k): '/' for k in ('"', '&', '*', '/', ':', '<', '>', '?', '\\', '|')
-}
 
 
 class BaseImageConverter(SphinxTransform):
@@ -68,11 +64,9 @@ class ImageDownloader(BaseImageConverter):
                 basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
             basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
-            dirname = node['uri'].replace('://', '/').translate(_URI_TO_PATH)
-            if len(dirname) > MAX_FILENAME_LEN:
-                dirname = sha1(dirname.encode(), usedforsecurity=False).hexdigest()
-            ensuredir(os.path.join(self.imagedir, dirname))
-            path = os.path.join(self.imagedir, dirname, basename)
+            uri_hash = sha1(node['uri'].encode(), usedforsecurity=False).hexdigest()
+            ensuredir(os.path.join(self.imagedir, uri_hash))
+            path = os.path.join(self.imagedir, uri_hash, basename)
 
             headers = {}
             if os.path.exists(path):
@@ -86,8 +80,8 @@ class ImageDownloader(BaseImageConverter):
                 _tls_info=(config.tls_verify, config.tls_cacerts),
             )
             if r.status_code >= 400:
-                logger.warning(__('Could not fetch remote image: %s [%d]') %
-                               (node['uri'], r.status_code))
+                logger.warning(__('Could not fetch remote image: %s [%d]'),
+                               node['uri'], r.status_code)
             else:
                 self.app.env.original_image_uri[path] = node['uri']
 
@@ -104,7 +98,7 @@ class ImageDownloader(BaseImageConverter):
                 if mimetype != '*' and os.path.splitext(basename)[1] == '':
                     # append a suffix if URI does not contain suffix
                     ext = get_image_extension(mimetype)
-                    newpath = os.path.join(self.imagedir, dirname, basename + ext)
+                    newpath = os.path.join(self.imagedir, uri_hash, basename + ext)
                     os.replace(path, newpath)
                     self.app.env.original_image_uri.pop(path)
                     self.app.env.original_image_uri[newpath] = node['uri']
@@ -114,7 +108,7 @@ class ImageDownloader(BaseImageConverter):
                 node['uri'] = path
                 self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:
-            logger.warning(__('Could not fetch remote image: %s [%s]') % (node['uri'], exc))
+            logger.warning(__('Could not fetch remote image: %s [%s]'), node['uri'], exc)
 
 
 class DataURIExtractor(BaseImageConverter):
@@ -198,9 +192,6 @@ class ImageConverter(BaseImageConverter):
     #:     ]
     conversion_rules: list[tuple[str, str]] = []
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
             return False
@@ -238,10 +229,12 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError
 
     def guess_mimetypes(self, node: nodes.image) -> list[str]:
+        # The special key ? is set for nonlocal URIs.
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            guessed = guess_mimetype(node['uri'])
+            path = os.path.join(self.app.srcdir, node['uri'])
+            guessed = guess_mimetype(path)
             return [guessed] if guessed is not None else []
         else:
             return node['candidates'].keys()

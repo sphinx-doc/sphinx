@@ -255,6 +255,8 @@ def tail_check(check):
     ('extensions.html', ".//a[@href='https://python.org/dev/']", "https://python.org/dev/"),
     ('extensions.html', ".//a[@href='https://bugs.python.org/issue1000']", "issue 1000"),
     ('extensions.html', ".//a[@href='https://bugs.python.org/issue1042']", "explicit caption"),
+    ('extensions.html', ".//a[@class='extlink-pyurl reference external']", "https://python.org/dev/"),
+    ('extensions.html', ".//a[@class='extlink-issue reference external']", "issue 1000"),
 
     # index entries
     ('genindex.html', ".//a/strong", "Main"),
@@ -270,7 +272,6 @@ def tail_check(check):
 ])
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
-@pytest.mark.test_params(shared_result='test_build_html_output')
 def test_html5_output(app, cached_etree_parse, fname, path, check):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)

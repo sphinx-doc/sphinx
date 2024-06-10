@@ -72,6 +72,7 @@ dependencies = [
     "requests>=2.25.0",
     "packaging>=21.0",
     "importlib-metadata>=4.8; python_version < '3.10'",
+    "tomli>=2; python_version < '3.11'",
     "colorama>=0.4.5; sys_platform == 'win32'",
 ]
 dynamic = ["version"]
@@ -82,8 +83,8 @@ docs = [
 ]
 lint = [
     "flake8>=3.5.0",
-    "ruff==0.3.7",
-    "mypy==1.9.0",
+    "ruff==0.4.7",
+    "mypy==1.10.0",
     "sphinx-lint",
     "types-docutils",
     "types-requests",
@@ -149,7 +150,6 @@ exclude = [
     "^tests/test_builders/test_build_gettext\\.py$",
     "^tests/test_builders/test_build_html\\.py$",
     "^tests/test_builders/test_build_latex\\.py$",
-    "^tests/test_builders/test_build_linkcheck\\.py$",
     "^tests/test_builders/test_build_texinfo\\.py$",
     # tests/test_config
     "^tests/test_config/test_config\\.py$",
@@ -258,13 +258,11 @@ module = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.directive",
     "sphinx.ext.autodoc.importer",
-    "sphinx.ext.autodoc.mock",
-    "sphinx.ext.autodoc.mock",
     "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
-    "sphinx.ext.intersphinx",
+    "sphinx.ext.intersphinx._load",
     "sphinx.ext.napoleon.docstring",
     "sphinx.highlighting",
     "sphinx.jinja2glue",

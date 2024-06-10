@@ -13,7 +13,7 @@ from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import TYPE_CHECKING, NamedTuple, cast
-from urllib.parse import unquote, urlparse, urlsplit, urlunparse
+from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
@@ -178,41 +178,67 @@ class HyperlinkCollector(SphinxPostTransform):
     default_priority = 800
 
     def run(self, **kwargs: Any) -> None:
+        for node in self.document.findall():
+            if uri := self.find_uri(node):
+                self._add_uri(uri, node)
+
+    def find_uri(self, node: nodes.Element) -> str | None:
+        """Find a URI for a given node.
+
+        This call can be used to retrieve a URI from a provided node. If no
+        URI exists for a provided node, this call will return ``None``.
+
+        This method can be useful for extension developers who wish to
+        easily inject hyperlinks into a builder by only needing to override
+        this method.
+
+        :param node: A node class
+        :returns: URI of the node
+        """
+        # reference nodes
+        if isinstance(node, nodes.reference):
+            if 'refuri' in node:
+                return node['refuri']
+
+        # image nodes
+        if isinstance(node, nodes.image):
+            uri = node['candidates'].get('?')
+            if uri and '://' in uri:
+                return uri
+
+        # raw nodes
+        if isinstance(node, nodes.raw):
+            uri = node.get('source')
+            if uri and '://' in uri:
+                return uri
+
+        return None
+
+    def _add_uri(self, uri: str, node: nodes.Element) -> None:
+        """Registers a node's URI into a builder's collection of hyperlinks.
+
+        Provides the ability to register a URI value determined from a node
+        into the linkcheck's builder. URI's processed through this call can
+        be manipulated through a ``linkcheck-process-uri`` event before the
+        builder attempts to validate.
+
+        :param uri: URI to add
+        :param node: A node class where the URI was found
+        """
         builder = cast(CheckExternalLinksBuilder, self.app.builder)
         hyperlinks = builder.hyperlinks
         docname = self.env.docname
 
-        # reference nodes
-        for refnode in self.document.findall(nodes.reference):
-            if 'refuri' in refnode:
-                uri = refnode['refuri']
-                _add_uri(self.app, uri, refnode, hyperlinks, docname)
+        if newuri := self.app.emit_firstresult('linkcheck-process-uri', uri):
+            uri = newuri
 
-        # image nodes
-        for imgnode in self.document.findall(nodes.image):
-            uri = imgnode['candidates'].get('?')
-            if uri and '://' in uri:
-                _add_uri(self.app, uri, imgnode, hyperlinks, docname)
+        try:
+            lineno = get_node_line(node)
+        except ValueError:
+            lineno = -1
 
-        # raw nodes
-        for rawnode in self.document.findall(nodes.raw):
-            uri = rawnode.get('source')
-            if uri and '://' in uri:
-                _add_uri(self.app, uri, rawnode, hyperlinks, docname)
-
-
-def _add_uri(app: Sphinx, uri: str, node: nodes.Element,
-             hyperlinks: dict[str, Hyperlink], docname: str) -> None:
-    if newuri := app.emit_firstresult('linkcheck-process-uri', uri):
-        uri = newuri
-
-    try:
-        lineno = get_node_line(node)
-    except ValueError:
-        lineno = -1
-
-    if uri not in hyperlinks:
-        hyperlinks[uri] = Hyperlink(uri, docname, app.env.doc2path(docname), lineno)
+        if uri not in hyperlinks:
+            hyperlinks[uri] = Hyperlink(uri, docname, self.env.doc2path(docname), lineno)
 
 
 class Hyperlink(NamedTuple):
@@ -409,6 +435,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     if rex.match(req_url):
                         anchor = ''
                         break
+            anchor = unquote(anchor)
 
         # handle non-ASCII URIs
         try:
@@ -446,7 +473,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if (self.check_anchors and response.ok and anchor
                             and not contains_anchor(response, anchor)):
-                        raise Exception(__(f'Anchor {anchor!r} not found'))
+                        raise Exception(__(f'Anchor {quote(anchor)!r} not found'))
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
@@ -536,7 +563,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         else:
             return 'redirected', response_url, 0
 
-    def limit_rate(self, response_url: str, retry_after: str) -> float | None:
+    def limit_rate(self, response_url: str, retry_after: str | None) -> float | None:
         delay = DEFAULT_DELAY
         next_check = None
         if retry_after:
@@ -592,7 +619,7 @@ def _get_request_headers(
 
 def contains_anchor(response: Response, anchor: str) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
-    parser = AnchorCheckParser(unquote(anchor))
+    parser = AnchorCheckParser(anchor)
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
