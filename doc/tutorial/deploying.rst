@@ -159,7 +159,7 @@ way of getting started is to follow :doc:`the RTD
 tutorial <readthedocs:tutorial/index>`, which is loosely based on this one.
 You can publish your sources on GitHub as explained :ref:`in the previous
 section <publishing-sources>`, then skip directly to
-:ref:`readthedocs:tutorial/index:Sign up for Read the Docs`.
+:ref:`readthedocs:tutorial/index:Creating a Read the Docs account`.
 If you choose GitLab instead, the process is similar.
 
 GitHub Pages

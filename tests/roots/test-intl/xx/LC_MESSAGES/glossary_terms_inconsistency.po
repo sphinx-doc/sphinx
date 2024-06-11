@@ -21,3 +21,6 @@ msgstr "I18N WITH GLOSSARY TERMS INCONSISTENCY"
 
 msgid "link to :term:`Some term` and :term:`Some other term`."
 msgstr "LINK TO :term:`SOME NEW TERM`."
+
+msgid "link to :term:`Some term`."
+msgstr "LINK TO :term:`TERM NOT IN GLOSSARY`."

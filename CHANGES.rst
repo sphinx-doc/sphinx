@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #12361: Allow the parser instance to be accessed within directives
+  with ``self.env.parser``. Patch by Chris Sewell.
+
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files.
   Patch by James Addison and Adam Turner
@@ -24,6 +27,9 @@ Features added
 * Add detection of ambiguous ``std:label`` and ``std:term`` references during
   loading and resolution of Intersphinx targets.
   Patch by James Addison.
+
+* #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
+  Patch by Hugo van Kemenade.
 
 Bugs fixed
 ----------
@@ -39,6 +45,9 @@ Bugs fixed
   Patch by Matthias Geier.
 * #12224: Properly detect WebP files.
   Patch by Benjamin Cabé.
+* #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
+  the current page number and the footnote does appear on that same page.
+  Patch by Jean-François B.
 
 Testing
 -------
