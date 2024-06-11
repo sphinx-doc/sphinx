@@ -13,7 +13,7 @@ def build(srcdir: Path) -> None:
         'sphinx-build',
         '--fresh-env',
         '--quiet',
-        '--builder', 'html',
+        *('--builder', 'html'),
         f'{srcdir}',
         f'{srcdir}/_build',
     )
