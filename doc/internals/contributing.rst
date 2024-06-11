@@ -156,7 +156,7 @@ Please follow these guidelines when writing code for Sphinx:
 
 Style and type checks can be run as follows::
 
-    ruff .
+    ruff check .
     mypy sphinx/
 
 Unit tests
