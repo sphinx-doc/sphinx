@@ -109,7 +109,7 @@ def _get_arguments_inner(x: Any, /) -> ast.arguments | None:
     return None
 
 
-def get_default_value(lines: list[str], position: ast.AST) -> str | None:
+def get_default_value(lines: list[str], position: ast.expr) -> str | None:
     try:
         if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
