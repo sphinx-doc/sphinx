@@ -9,7 +9,14 @@ TEST_JS_ROOTS = SPHINX_ROOT / 'tests' / 'js' / 'roots'
 
 
 def build(srcdir: Path) -> None:
-    cmd = ('sphinx-build', '-E', '-q', '-b', 'html', f'{srcdir}', f'{srcdir}/_build')
+    cmd = (
+        'sphinx-build',
+        '--fresh-env',
+        '--quiet',
+        '--builder', 'html',
+        f'{srcdir}',
+        f'{srcdir}/_build',
+    )
     subprocess.run(cmd, check=True, capture_output=True)
 
 
