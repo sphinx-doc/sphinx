@@ -87,15 +87,11 @@ class InventoryFile:
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
         if line == '# Sphinx inventory version 1':
-            invdata, ambiguities = cls.load_v1(reader, uri, joinfunc)
+            return cls.load_v1(reader, uri, joinfunc)
         elif line == '# Sphinx inventory version 2':
-            invdata, ambiguities = cls.load_v2(reader, uri, joinfunc)
+            return cls.load_v2(reader, uri, joinfunc)
         else:
             raise ValueError('invalid inventory header: %s' % line)
-        for ambiguity in ambiguities:
-            logger.warning(__("inventory <%s> contains multiple definitions for %s"),
-                           uri, ambiguity, type='intersphinx',  subtype='external')
-        return invdata
 
     @classmethod
     def load_v1(
@@ -103,7 +99,7 @@ class InventoryFile:
         stream: InventoryFileReader,
         uri: str,
         join: Callable[[str, str], str],
-    ) -> tuple[Inventory, set[str]]:
+    ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -118,7 +114,7 @@ class InventoryFile:
                 type = 'py:' + type
                 location += '#' + name
             invdata.setdefault(type, {})[name] = (projname, version, location, '-')
-        return invdata, set()
+        return invdata
 
     @classmethod
     def load_v2(
@@ -126,7 +122,7 @@ class InventoryFile:
         stream: InventoryFileReader,
         uri: str,
         join: Callable[[str, str], str],
-    ) -> tuple[Inventory, set[str]]:
+    ) -> Inventory:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
@@ -168,7 +164,10 @@ class InventoryFile:
             location = join(uri, location)
             inv_item: InventoryItem = projname, version, location, dispname
             invdata.setdefault(type, {})[name] = inv_item
-        return invdata, actual_ambiguities
+        for ambiguity in actual_ambiguities:
+            logger.warning(__("inventory <%s> contains multiple definitions for %s"),
+                           uri, ambiguity, type='intersphinx',  subtype='external')
+        return invdata
 
     @classmethod
     def dump(
