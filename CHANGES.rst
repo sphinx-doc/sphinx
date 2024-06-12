@@ -86,6 +86,8 @@ Bugs fixed
 * #12331: Resolve data-URI-image-extraction regression from v7.3.0 affecting
   builders without native support for data-URIs in their output format.
   Patch by James Addison.
+* #12425: Remove early return in SVG processing for HTML.
+  Patch by Tunç Başar Köse.
 
 Testing
 -------
