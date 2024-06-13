@@ -45,6 +45,9 @@ Bugs fixed
 * #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
   the current page number and the footnote does appear on that same page.
   Patch by Jean-François B.
+* #11961: Omit anchor references from document title entries in the search index,
+  removing duplication of search results.
+  Patch by James Addison.
 
 Testing
 -------
@@ -306,10 +309,6 @@ Bugs fixed
 * #12253: Escape reserved path characters in the remote images post-transform
   download cache.
   Patch by James Addison and Adam Turner.
-
-* #11961: Omit anchor references from document title entries in the search index,
-  removing duplication of search results.
-  Patch by James Addison.
 
 Testing
 -------
