@@ -4,6 +4,7 @@ output-format = "full"
 
 extend-exclude = [
     "tests/roots/*",
+    "tests/js/roots/*",
     "build/*",
     "doc/_build/*",
     "sphinx/search/*",
