@@ -103,7 +103,7 @@ latex_use_xindy = True
 linkcheck_timeout = 5
 linkcheck_ignore = [
     r'^contents\.html$',  # extra generated page
-    '^\.\./contents\.html$',
+    r'^\.\./contents\.html$',
     re.escape('https://gitlab.com/projects/new'),  # requires sign-in
     re.escape('https://web.libera.chat/?channel=#sphinx-doc'),
 ]
@@ -116,13 +116,13 @@ autodoc_member_order = 'groupwise'
 autosummary_generate = False
 todo_include_todos = True
 extlinks = {
-    'dupage': ('https://docutils.sourceforge.io/docs/ref/rst/' '%s.html', '%s'),
+    'dupage': ('https://docutils.sourceforge.io/docs/ref/rst/%s.html', '%s'),
     'duref': (
-        'https://docutils.sourceforge.io/docs/ref/rst/' 'restructuredtext.html#%s',
+        'https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#%s',
         '%s',
     ),
-    'durole': ('https://docutils.sourceforge.io/docs/ref/rst/' 'roles.html#%s', '%s'),
-    'dudir': ('https://docutils.sourceforge.io/docs/ref/rst/' 'directives.html#%s', '%s'),
+    'durole': ('https://docutils.sourceforge.io/docs/ref/rst/roles.html#%s', '%s'),
+    'dudir': ('https://docutils.sourceforge.io/docs/ref/rst/directives.html#%s', '%s'),
 }
 
 man_pages = [
@@ -137,7 +137,7 @@ man_pages = [
     (
         'man/sphinx-quickstart',
         'sphinx-quickstart',
-        'Sphinx documentation ' 'template generator',
+        'Sphinx documentation template generator',
         '',
         1,
     ),

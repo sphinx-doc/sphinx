@@ -23,11 +23,12 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from pathlib import Path
 
     from docutils import nodes
     from docutils.nodes import Node
+    from docutils.parsers import Parser
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -524,7 +525,7 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def check_dependents(self, app: Sphinx, already: set[str]) -> Generator[str, None, None]:
+    def check_dependents(self, app: Sphinx, already: set[str]) -> Iterator[str]:
         to_rewrite: list[str] = []
         for docnames in self.events.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
@@ -548,6 +549,11 @@ class BuildEnvironment:
     def docname(self) -> str:
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
+
+    @property
+    def parser(self) -> Parser:
+        """Returns the parser being used for to parse the current document."""
+        return self.temp_data['_parser']
 
     def new_serialno(self, category: str = '') -> int:
         """Return a serial number, e.g. for index entry targets.

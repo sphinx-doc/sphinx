@@ -180,8 +180,11 @@ def test_text_inconsistency_warnings(app, warning):
         })
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
+    expected_citation_ref_warning_expr = (
+        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.')
+    assert re.search(expected_citation_ref_warning_expr, warnings), f'{expected_citation_ref_warning_expr!r} did not match {warnings!r}'
+
     expected_citation_warning_expr = (
-        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
     assert re.search(expected_citation_warning_expr, warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
 
@@ -286,7 +289,7 @@ VVV
 """)
     assert result == expect
     warnings = getwarning(warning)
-    assert 'term not in glossary' not in warnings
+    assert warnings.count('term not in glossary') == 1
 
 
 @sphinx_intl
@@ -298,7 +301,8 @@ def test_text_glossary_term_inconsistencies(app, warning):
     result = (app.outdir / 'glossary_terms_inconsistency.txt').read_text(encoding='utf8')
     expect = ("19. I18N WITH GLOSSARY TERMS INCONSISTENCY"
               "\n******************************************\n"
-              "\n1. LINK TO *SOME NEW TERM*.\n")
+              "\n1. LINK TO *SOME NEW TERM*.\n"
+              "\n2. LINK TO *TERM NOT IN GLOSSARY*.\n")
     assert result == expect
 
     warnings = getwarning(warning)
@@ -307,6 +311,10 @@ def test_text_glossary_term_inconsistencies(app, warning):
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\]\n")
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    expected_warning_expr = (
+        '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '
+        "WARNING: term not in glossary: 'TERM NOT IN GLOSSARY'")
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
@@ -967,7 +975,7 @@ def test_html_versionchanges(app):
     assert expect1 == matched_content
 
     expect2 = (
-        """<p><span class="versionmodified added">New in version 1.0: </span>"""
+        """<p><span class="versionmodified added">Added in version 1.0: </span>"""
         """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
     matched_content = get_content(result, "versionadded")
     assert expect2 == matched_content
@@ -1191,6 +1199,15 @@ def test_xml_role_xref(app):
         ['i18n-role-xref', 'index',
          'glossary_terms#term-Some-term'])
 
+    sec1_1, = sec1.findall('section')
+    title, = sec1_1.findall('title')
+    assert_elem(
+        title,
+        ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
+         'SOME NEW TERM', '.'],
+        ['i18n-role-xref', 'index',
+         'glossary_terms#term-Some-term'])
+
     para2 = sec2.findall('paragraph')
     assert_elem(
         para2[0],
@@ -1231,7 +1248,7 @@ def test_xml_warnings(app, warning):
     app.build()
     # warnings
     warnings = getwarning(warning)
-    assert 'term not in glossary' not in warnings
+    assert warnings.count('term not in glossary') == 1
     assert 'undefined label' not in warnings
     assert 'unknown document' not in warnings
 
@@ -1291,6 +1308,19 @@ def test_xml_label_targets(app):
         ['label-bridged-target-section',
          'section-and-label',
          'section-and-label'])
+
+
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_xml_strange_markup(app):
+    app.build()
+    et = etree_parse(app.outdir / 'markup.xml')
+    secs = et.findall('section')
+
+    subsec1, = secs[0].findall('section')
+    title1, = subsec1.findall('title')
+    assert_elem(title1, ['1. TITLE STARTING WITH 1.'])
 
 
 @sphinx_intl
@@ -1376,6 +1406,15 @@ def test_additional_targets_should_be_translated(app):
     app.build()
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
+
+    # basic literal bloc should be translated
+    expected_expr = ('<span class="n">THIS</span> <span class="n">IS</span>\n'
+                     '<span class="n">LITERAL</span> <span class="n">BLOCK</span>')
+    assert_count(expected_expr, result, 1)
+
+    # literalinclude should be translated
+    expected_expr = '<span class="s2">&quot;HTTPS://SPHINX-DOC.ORG&quot;</span>'
+    assert_count(expected_expr, result, 1)
 
     # title should be translated
     expected_expr = 'CODE-BLOCKS'

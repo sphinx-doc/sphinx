@@ -17,7 +17,7 @@ from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
@@ -306,7 +306,7 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ') % self.name) + summary)
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
@@ -314,8 +314,7 @@ class Builder:
 
         doccount = len(updated_docnames)
         logger.info(bold(__('looking for now-outdated files... ')), nonl=True)
-        for docname in self.env.check_dependents(self.app, updated_docnames):
-            updated_docnames.add(docname)
+        updated_docnames.update(self.env.check_dependents(self.app, updated_docnames))
         outdated = len(updated_docnames) - doccount
         if outdated:
             logger.info(__('%d found'), outdated)
@@ -486,6 +485,7 @@ class Builder:
         filename = self.env.doc2path(docname)
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
+        self.env.temp_data['_parser'] = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
         publisher.settings.record_dependencies = DependencyList()
@@ -559,7 +559,7 @@ class Builder:
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
 
-        with progress_message(__('copying assets')):
+        with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
         if self.parallel_ok:

@@ -33,7 +33,7 @@ from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils, logging
 from sphinx.util._pathlib import _StrPath
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
@@ -143,8 +143,30 @@ class Sphinx:
                  tags: list[str] | None = None,
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
                  pdb: bool = False) -> None:
+        """Initialize the Sphinx application.
+
+        :param srcdir: The path to the source directory.
+        :param confdir: The path to the configuration directory.
+            If not given, it is assumed to be the same as ``srcdir``.
+        :param outdir: Directory for storing build documents.
+        :param doctreedir: Directory for caching pickled doctrees.
+        :param buildername: The name of the builder to use.
+        :param confoverrides: A dictionary of configuration settings that override the
+            settings in the configuration file.
+        :param status: A file-like object to write status messages to.
+        :param warning: A file-like object to write warnings to.
+        :param freshenv: If true, clear the cached environment.
+        :param warningiserror: If true, warnings become errors.
+        :param tags: A list of tags to apply.
+        :param verbosity: The verbosity level.
+        :param parallel: The maximum number of parallel jobs to use
+            when reading/writing documents.
+        :param keep_going: If true, continue processing when an error occurs.
+        :param pdb: If true, enable the Python debugger on an exception.
+        """
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
+        self._fresh_env_used: bool | None = None
         self.extensions: dict[str, Extension] = {}
         self.registry = SphinxComponentRegistry()
 
@@ -194,7 +216,7 @@ class Sphinx:
         self.messagelog: deque = deque(maxlen=10)
 
         # say hello to the world
-        logger.info(bold(__('Running Sphinx v%s') % sphinx.__display_version__))
+        logger.info(bold(__('Running Sphinx v%s')), sphinx.__display_version__)
 
         # status code for command-line application
         self.statuscode = 0
@@ -267,33 +289,37 @@ class Sphinx:
         # set up the builder
         self._init_builder()
 
+    @property
+    def fresh_env_used(self) -> bool | None:
+        """True/False as to whether a new environment was created for this build,
+        or None if the environment has not been initialised yet.
+        """
+        return self._fresh_env_used
+
     def _init_i18n(self) -> None:
         """Load translated strings from the configured localedirs if enabled in
         the configuration.
         """
-        if self.config.language == 'en':
-            self.translator, _ = locale.init([], None)
+        logger.info(bold(__('loading translations [%s]... ')), self.config.language,
+                    nonl=True)
+
+        # compile mo files if sphinx.po file in user locale directories are updated
+        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
+                                 self.config.language, self.config.source_encoding)
+        for catalog in repo.catalogs:
+            if catalog.domain == 'sphinx' and catalog.is_outdated():
+                catalog.write_mo(self.config.language,
+                                 self.config.gettext_allow_fuzzy_translations)
+
+        locale_dirs: list[str | None] = list(repo.locale_dirs)
+        locale_dirs += [None]
+        locale_dirs += [path.join(package_dir, 'locale')]
+
+        self.translator, has_translation = locale.init(locale_dirs, self.config.language)
+        if has_translation or self.config.language == 'en':
+            logger.info(__('done'))
         else:
-            logger.info(bold(__('loading translations [%s]... ') % self.config.language),
-                        nonl=True)
-
-            # compile mo files if sphinx.po file in user locale directories are updated
-            repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                     self.config.language, self.config.source_encoding)
-            for catalog in repo.catalogs:
-                if catalog.domain == 'sphinx' and catalog.is_outdated():
-                    catalog.write_mo(self.config.language,
-                                     self.config.gettext_allow_fuzzy_translations)
-
-            locale_dirs: list[str | None] = list(repo.locale_dirs)
-            locale_dirs += [None]
-            locale_dirs += [path.join(package_dir, 'locale')]
-
-            self.translator, has_translation = locale.init(locale_dirs, self.config.language)
-            if has_translation:
-                logger.info(__('done'))
-            else:
-                logger.info(__('not available for built-in messages'))
+            logger.info(__('not available for built-in messages'))
 
     def _init_env(self, freshenv: bool) -> BuildEnvironment:
         filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
@@ -322,7 +348,6 @@ class Sphinx:
     def _post_init_env(self) -> None:
         if self._fresh_env_used:
             self.env.find_files(self.config, self.builder)
-        del self._fresh_env_used
 
     def preload_builder(self, name: str) -> None:
         self.registry.preload_builder(self, name)
@@ -376,13 +401,13 @@ class Sphinx:
                 else:
                     msg = __('build %s, %s warnings.')
 
-            logger.info(bold(msg % (status, self._warncount)))
+            logger.info(bold(msg), status, self._warncount)
         else:
-            logger.info(bold(__('build %s.') % status))
+            logger.info(bold(__('build %s.')), status)
 
         if self.statuscode == 0 and self.builder.epilog:
             logger.info('')
-            logger.info(self.builder.epilog % {
+            logger.info(self.builder.epilog, {
                 'outdir': relpath(self.outdir),
                 'project': self.config.project,
             })

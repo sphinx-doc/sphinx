@@ -1,20 +1,20 @@
 describe('Basic html theme search', function() {
 
+  function loadFixture(name) {
+      req = new XMLHttpRequest();
+      req.open("GET", `base/tests/js/fixtures/${name}`, false);
+      req.send(null);
+      return req.responseText;
+  }
+
   describe('terms search', function() {
 
     it('should find "C++" when in index', function() {
-      index = {
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{'c++':0},
-        titles:["&lt;no title&gt;"],
-        titleterms:{}
-      }
-      Search.setIndex(index);
-      searchterms = ['c++'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      eval(loadFixture("cpp/searchindex.js"));
+
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('C++');
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -28,22 +28,11 @@ describe('Basic html theme search', function() {
     });
 
     it('should be able to search for multiple terms', function() {
-      index = {
-        alltitles: {
-          'Main Page': [[0, 'main-page']],
-        },
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{main:0, page:0},
-        titles:["Main Page"],
-        titleterms:{ main:0, page:0 }
-      }
-      Search.setIndex(index);
+      eval(loadFixture("multiterm/searchindex.js"));
 
-      searchterms = ['main', 'page'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('main page');
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
       hits = [[
         'index',
         'Main Page',
@@ -55,18 +44,11 @@ describe('Basic html theme search', function() {
     });
 
     it('should partially-match "sphinx" when in title index', function() {
-      index = {
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{'useful': 0, 'utilities': 0},
-        titles:["sphinx_utils module"],
-        titleterms:{'sphinx_utils': 0}
-      }
-      Search.setIndex(index);
-      searchterms = ['sphinx'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      eval(loadFixture("partial/searchindex.js"));
+
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('sphinx');
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -77,6 +59,37 @@ describe('Basic html theme search', function() {
         "index.rst"
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+    });
+
+  });
+
+  describe('aggregation of search results', function() {
+
+    it('should combine document title and document term matches', function() {
+      eval(loadFixture("multiterm/searchindex.js"));
+
+      searchParameters = Search._parseQuery('main page');
+
+      // fixme: duplicate result due to https://github.com/sphinx-doc/sphinx/issues/11961
+      hits = [
+        [
+          'index',
+          'Main Page',
+          '',
+          null,
+          15,
+          'index.rst'
+        ],
+        [
+          'index',
+          'Main Page',
+          '#main-page',
+          null,
+          100,
+          'index.rst'
+        ]
+      ];
+      expect(Search._performSearch(...searchParameters)).toEqual(hits);
     });
 
   });
@@ -100,15 +113,15 @@ describe("htmlToText", function() {
       </style>
       <!-- main content -->
       <section id="getting-started">
-        <h1>Getting Started</h1>
+        <h1>Getting Started <a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
         <p>Some text</p>
       </section>
       <section id="other-section">
-        <h1>Other Section</h1>
+        <h1>Other Section <a class="headerlink" href="#other-section" title="Link to this heading">¶</a></h1>
         <p>Other text</p>
       </section>
       <section id="yet-another-section">
-        <h1>Yet Another Section</h1>
+        <h1>Yet Another Section <a class="headerlink" href="#yet-another-section" title="Link to this heading">¶</a></h1>
         <p>More text</p>
       </section>
     </div>

@@ -20,7 +20,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.console import bold, darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import bold, darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -464,7 +464,7 @@ def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
             msg = __("Unknown configure key: latex_elements[%r], ignored.")
-            logger.warning(msg % (key,))
+            logger.warning(msg, key)
             config.latex_elements.pop(key)
 
 
@@ -472,7 +472,7 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_theme_options):
         if key not in Theme.UPDATABLE_KEYS:
             msg = __("Unknown theme option: latex_theme_options[%r], ignored.")
-            logger.warning(msg % (key,))
+            logger.warning(msg, key)
             config.latex_theme_options.pop(key)
 
 
