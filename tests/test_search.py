@@ -13,6 +13,8 @@ from sphinx.search import IndexBuilder
 
 from tests.utils import TESTS_ROOT
 
+JAVASCRIPT_TEST_ROOTS = list((TESTS_ROOT / 'js' / 'roots').iterdir())
+
 
 class DummyEnvironment:
     def __init__(self, version, domains):
@@ -350,7 +352,6 @@ def assert_is_sorted(item, path: str):
             assert_is_sorted(child, f'{path}[{i}]')
 
 
-JAVASCRIPT_TEST_ROOTS = list((TESTS_ROOT / 'js' / 'roots').iterdir())
 @pytest.mark.parametrize('directory', JAVASCRIPT_TEST_ROOTS)
 def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
     app = make_app('html', srcdir=directory, builddir=sphinx_test_tempdir / directory.name)
