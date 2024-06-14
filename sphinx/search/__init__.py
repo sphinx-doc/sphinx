@@ -198,7 +198,7 @@ def _is_meta_keywords(
 @dataclasses.dataclass
 class WordStore:
     words: list[str] = dataclasses.field(default_factory=list)
-    titles: list[tuple[str, str]] = dataclasses.field(default_factory=list)
+    titles: list[tuple[str, str | None]] = dataclasses.field(default_factory=list)
     title_words: list[str] = dataclasses.field(default_factory=list)
 
 
@@ -253,7 +253,7 @@ class IndexBuilder:
     def __init__(self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str) -> None:
         self.env = env
         # docname -> title
-        self._titles: dict[str, str] = env._search_index_titles
+        self._titles: dict[str, str | None] = env._search_index_titles
         # docname -> filename
         self._filenames: dict[str, str] = env._search_index_filenames
         # stemmed words -> set(docname)
@@ -261,7 +261,7 @@ class IndexBuilder:
         # stemmed words in titles -> set(docname)
         self._title_mapping: dict[str, set[str]] = env._search_index_title_mapping
         # docname -> all titles in document
-        self._all_titles: dict[str, list[tuple[str, str]]] = env._search_index_all_titles
+        self._all_titles: dict[str, list[tuple[str, str | None]]] = env._search_index_all_titles
         # docname -> list(index entry)
         self._index_entries: dict[str, list[tuple[str, str, str]]] = env._search_index_index_entries
         # objtype -> index
@@ -391,7 +391,7 @@ class IndexBuilder:
         objtypes = {v: k[0] + ':' + k[1] for (k, v) in self._objtypes.items()}
         objnames = self._objnames
 
-        alltitles: dict[str, list[tuple[int, str]]] = {}
+        alltitles: dict[str, list[tuple[int, str | None]]] = {}
         for docname, titlelist in sorted(self._all_titles.items()):
             for title, titleid in titlelist:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
