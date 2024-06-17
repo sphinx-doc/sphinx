@@ -1187,7 +1187,7 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.html_css_files = html_css_files  # type: ignore[attr-defined]
+    config.html_css_files = html_css_files
 
 
 def _format_modified_time(timestamp: float) -> str:
@@ -1210,7 +1210,7 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid js_file: %r, ignored'), entry)
                 continue
 
-    config.html_js_files = html_js_files  # type: ignore[attr-defined]
+    config.html_js_files = html_js_files
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
@@ -1273,7 +1273,7 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_logo)) and
             not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
-        config.html_logo = None  # type: ignore[attr-defined]
+        config.html_logo = None
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
@@ -1282,7 +1282,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_favicon)) and
             not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
-        config.html_favicon = None  # type: ignore[attr-defined]
+        config.html_favicon = None
 
 
 def error_on_html_4(_app: Sphinx, config: Config) -> None:
