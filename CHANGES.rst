@@ -48,6 +48,9 @@ Bugs fixed
 * #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
   the current page number and the footnote does appear on that same page.
   Patch by Jean-François B.
+* #12331: Resolve data-URI-image-extraction regression from v7.3.0 affecting
+  builders without native support for data-URIs in their output format.
+  Patch by James Addison.
 
 Testing
 -------

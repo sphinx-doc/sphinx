@@ -72,6 +72,7 @@ def test_copy_images(app, status, warning):
     images_dir = Path(app.outdir) / '_images'
     images = {image.name for image in images_dir.rglob('*')}
     assert images == {
+        # 'ba30773957c3fe046897111afd65a80b81cad089.png',  # html: image from data:image/png URI in source
         'img.png',
         'rimg.png',
         'rimg1.png',

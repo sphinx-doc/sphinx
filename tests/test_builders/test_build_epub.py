@@ -409,6 +409,7 @@ def test_copy_images(app, status, warning):
     images = {image.name for image in images_dir.rglob('*')}
     images.discard('python-logo.png')
     assert images == {
+        # 'ba30773957c3fe046897111afd65a80b81cad089.png',  # epub: image from data:image/png URI in source
         'img.png',
         'rimg.png',
         'rimg1.png',
