@@ -12,13 +12,6 @@
 This extension can import the modules you are documenting, and pull in
 documentation from docstrings in a semi-automatic way.
 
-.. note::
-
-   For Sphinx (actually, the Python interpreter that executes Sphinx) to find
-   your module, it must be importable.  That means that the module or the
-   package must be in one of the directories on :data:`sys.path` -- adapt your
-   :data:`sys.path` in the configuration file accordingly.
-
 .. warning::
 
    :mod:`~sphinx.ext.autodoc` **imports** the modules to be documented.  If any
@@ -43,6 +36,68 @@ docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 .. _Google: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
+Getting started
+---------------
+
+Setup
+.....
+Activate the plugin by adding ``'sphinx.ext.autodoc'`` to the :confval:`extensions`
+in your :file:`conf.py`::
+
+   extensions = [
+       ...
+       'sphinx.ext.autodoc',
+   ]
+
+Ensuring the code can be imported
+.................................
+
+:mod:`~sphinx.ext.autodoc` analyses the code and docstrings by introspection after
+importing the modules. For importing to work. you have to make sure that your
+modules can be found by sphinx and that dependencies can be resolved (if your
+module does ``import foo``, but ``foo`` is not available in the python environment
+that Sphinx runs in, your module import will fail).
+
+There are two ways to ensure this:
+
+1. Use an environment that contains your package and Sphinx. This can e.g. be your
+   local dev environment (with an editable install), or an environment in CI in
+   which you install Sphinx and your package. The regular installation process
+   ensures that your package can be found by sphinx and that all dependencies are
+   available.
+
+2. It is alternatively possible to patch the Sphinx run so that it can operate
+   directly on the sources; e.g. if you want to be able to do a sphinx build from a
+   source checkout.
+
+   - Patch :data:`sys.path` in your Sphinx :file:`conf.py` to include the folder of
+     your sources. E.g. if you have a repository structure with :file:`doc/conf.py`
+     and your package is at :file:`src/mypackage`, then you sould add::
+
+        sys.path.insert(0, os.path.abspath('../src'))
+
+     to your :file:`conf.py`.
+
+   - To cope with missing dependencies, specify the missing modules in
+     :confval:`autodoc_mock_imports`.
+
+Usage
+.....
+
+You can now use the :ref:`autodoc-directives` to add formatted documentation for
+Python code elements like functions, classes, modules, etc. For example, to document
+the function ``io.open()``, reading its signature and docstring from the source file,
+you'd write ::
+
+   .. autofunction:: io.open
+
+You can also document whole classes or even modules automatically, using member
+options for the auto directives, like ::
+
+   .. automodule:: io
+      :members:
+
+.. _autodoc-directives:
 
 Directives
 ----------

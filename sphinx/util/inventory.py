@@ -6,6 +6,7 @@ import re
 import zlib
 from typing import IO, TYPE_CHECKING, Callable
 
+from sphinx.locale import __
 from sphinx.util import logging
 
 BUFSIZE = 16 * 1024
@@ -125,6 +126,8 @@ class InventoryFile:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
+        potential_ambiguities = set()
+        actual_ambiguities = set()
         line = stream.readline()
         if 'zlib' not in line:
             raise ValueError('invalid inventory header (not compressed): %s' % line)
@@ -147,11 +150,23 @@ class InventoryFile:
                 # for Python modules, and the first
                 # one is correct
                 continue
+            if type in {'std:label', 'std:term'}:
+                # Some types require case insensitive matches:
+                # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
+                # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
+                definition = f"{type}:{name}"
+                if definition.lower() in potential_ambiguities:
+                    actual_ambiguities.add(definition)
+                else:
+                    potential_ambiguities.add(definition.lower())
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
             inv_item: InventoryItem = projname, version, location, dispname
             invdata.setdefault(type, {})[name] = inv_item
+        for ambiguity in actual_ambiguities:
+            logger.warning(__("inventory <%s> contains multiple definitions for %s"),
+                           uri, ambiguity, type='intersphinx',  subtype='external')
         return invdata
 
     @classmethod
