@@ -275,7 +275,9 @@ class BuildEnvironment:
         __dict__ = self.__dict__.copy()
         # clear unpickable attributes
         __dict__.update(app=None, domains={}, events=None)
-        # clear in-memory doctree caches
+        # clear in-memory doctree caches, to reduce memory consumption and
+        # ensure that, upon restoring the state, the most recent pickled files
+        # on the disk are used instead of those from a possibly outdated state
         __dict__.update(_pickled_doctree_cache={}, _write_doc_doctree_cache={})
         return __dict__
 
