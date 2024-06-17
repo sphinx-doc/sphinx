@@ -49,6 +49,9 @@ Bugs fixed
   the current page number and the footnote does appear on that same page.
   Patch by Jean-François B.
 
+* #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
+  Patch by Bénédikt Tran.
+
 Testing
 -------
 

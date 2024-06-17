@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
-from sphinx.util.typing import ForwardRef, stringify_annotation
+from sphinx.util.typing import ForwardRef, RenderMode, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -757,6 +757,7 @@ def stringify_signature(
     show_annotation: bool = True,
     show_return_annotation: bool = True,
     unqualified_typehints: bool = False,
+    short_literal_types: bool = False,
 ) -> str:
     """Stringify a :class:`~inspect.Signature` object.
 
@@ -764,11 +765,15 @@ def stringify_signature(
     :param show_return_annotation: If enabled, show annotation of the return value
     :param unqualified_typehints: If enabled, show annotations as unqualified
                                   (ex. io.StringIO -> StringIO)
+    :param short_literal_types: If enabled, use short literal types.
     """
     if unqualified_typehints:
-        mode = 'smart'
+        mode = RenderMode.smart
     else:
-        mode = 'fully-qualified'
+        mode = RenderMode.fully_qualified
+
+    if short_literal_types:
+        mode |= RenderMode.short_literal
 
     EMPTY = Parameter.empty
 

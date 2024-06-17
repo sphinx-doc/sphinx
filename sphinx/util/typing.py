@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import enum
+import itertools
+import operator
 import sys
 import types
 import typing
 from collections.abc import Sequence
 from contextvars import Context, ContextVar, Token
+from functools import reduce
 from struct import Struct
 from typing import (
     TYPE_CHECKING,
@@ -29,16 +33,6 @@ if TYPE_CHECKING:
     from typing_extensions import TypeAlias, TypeIs
 
     from sphinx.application import Sphinx
-
-    _RestifyMode: TypeAlias = Literal[
-        'fully-qualified-except-typing',
-        'smart',
-    ]
-    _StringifyMode: TypeAlias = Literal[
-        'fully-qualified-except-typing',
-        'fully-qualified',
-        'smart',
-    ]
 
 if sys.version_info >= (3, 10):
     from types import UnionType
@@ -184,25 +178,125 @@ def _typing_internal_name(obj: Any) -> str | None:
     return getattr(obj, '_name', None)
 
 
-def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
+class _Mode(enum.IntFlag):
+    smart = enum.auto()
+    fully_qualified = enum.auto()
+    fully_qualified_except_typing = enum.auto()
+    short_literal = enum.auto()
+
+
+_VALID_RENDER_MODE_COMBINATIONS: Final[frozenset[int]] = frozenset(
+    int(reduce(operator.__or__, __modes))
+    for __modes in itertools.product({0, *_Mode}, {0, _Mode.short_literal})
+)
+
+
+class RenderMode(enum.IntFlag):
+    """Additional flags for rendering annotations or reST content."""
+
+    # primary modes (mutually exclusive)
+    smart = _Mode.smart
+    """Show the annotation name."""
+
+    fully_qualified = _Mode.fully_qualified
+    """Show the module name and qualified name of the annotation.
+
+    This mode is mutually exclusive with :attr:`smart` and :attr:`fully_qualified_except_typing`.
+    """  # NoQA: E501
+
+    fully_qualified_except_typing = _Mode.fully_qualified_except_typing
+    """Same as :attr:`fully_qualified` but do not show module name for ``typing`` members.
+
+    This mode is mutually exclusive with :attr:`smart` and :attr:`fully_qualified`.
+    """
+
+    # extra bit flags
+    short_literal = _Mode.short_literal
+    """Use PEP 604 style to render literals."""
+
+    smart_short_literal = smart | short_literal
+    """Apply PEP 604 style to :attr:`smart`."""
+    fully_qualified_short_literal = fully_qualified | short_literal
+    """Apply PEP 604 style to :attr:`fully_qualified`."""
+    fully_qualified_except_typing_short_literal = fully_qualified_except_typing | short_literal
+    """Apply PEP 604 style to :attr:`fully_qualified_except_typing`."""
+
+    @classmethod
+    def _missing_(cls, value: object) -> Any:
+        # As soon as Python 3.11 becomes the minimal version, remove
+        # the ``_Mode`` enumeration and use the STRICT boundary instead.
+        if value not in _VALID_RENDER_MODE_COMBINATIONS:
+            raise ValueError("%r is not a valid %s" % (value, cls.__qualname__))
+        return super()._missing_(value)
+
+
+if TYPE_CHECKING:
+    _RestifyRenderMode: TypeAlias = Literal[
+        RenderMode.smart,
+        RenderMode.smart_short_literal,
+        RenderMode.fully_qualified_except_typing,
+        RenderMode.fully_qualified_except_typing_short_literal,
+    ]
+
+    _RestifyMode: TypeAlias = Literal[
+        'smart',
+        'fully-qualified-except-typing',
+        _RestifyRenderMode,
+    ]
+
+    _StringifyRenderMode: TypeAlias = Literal[
+        RenderMode.smart,
+        RenderMode.smart_short_literal,
+        RenderMode.fully_qualified,
+        RenderMode.fully_qualified_short_literal,
+        RenderMode.fully_qualified_except_typing,
+        RenderMode.fully_qualified_except_typing_short_literal,
+    ]
+
+    _StringifyMode: TypeAlias = Literal[
+        'smart',
+        'fully-qualified',
+        'fully-qualified-except-typing',
+        _StringifyRenderMode
+    ]
+
+
+@typing.overload
+def _normalize_mode(  # NoQA: E704
+    mode: Literal['smart']
+) -> Literal[RenderMode.smart]: ...
+@typing.overload  # NoQA: E302
+def _normalize_mode(  # NoQA: E704
+    mode: Literal['fully-qualified']
+) -> Literal[RenderMode.fully_qualified]: ...
+@typing.overload  # NoQA: E302
+def _normalize_mode(  # NoQA: E704
+    mode: Literal['fully-qualified-except-typing']
+) -> Literal[RenderMode.fully_qualified_except_typing]: ...
+def _normalize_mode(mode: str) -> RenderMode:  # NoQA: E302
+    if mode == 'smart':
+        return RenderMode.smart
+    if mode == 'fully-qualified':
+        return RenderMode.fully_qualified
+    if mode == 'fully-qualified-except-typing':
+        return RenderMode.fully_qualified_except_typing
+    raise ValueError('invalid string mode name: %r' % mode)
+
+
+def restify(cls: Any, mode: _RestifyMode = RenderMode.fully_qualified_except_typing) -> str:
     """Convert python class to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
 
-                 'fully-qualified-except-typing'
-                     Show the module name and qualified name of the annotation except
-                     the "typing" module.
-                 'smart'
-                     Show the name of the annotation.
+    The following values can be given as a shorthand of a rendering mode:
+
+    * ``smart`` -- :attr:`RenderMode.smart`.
+    * ``fully-qualified-except-typing`` -- :attr:`RenderMode.fully_qualified_except_typing`.
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util import inspect  # lazy loading
 
-    valid_modes = {'fully-qualified-except-typing', 'smart'}
-    if mode not in valid_modes:
-        valid = ', '.join(map(repr, sorted(valid_modes)))
-        msg = f'mode must be one of {valid}; got {mode!r}'
-        raise ValueError(msg)
+    mode = _normalize_restify_mode(mode)
 
     # things that are not types
     if cls in {None, NoneType}:
@@ -217,7 +311,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
     # If the mode is 'smart', we always use '~'.
     # If the mode is 'fully-qualified-except-typing',
     # we use '~' only for the objects in the ``typing`` module.
-    module_prefix = '~' if mode == 'smart' or cls_module_is_typing else ''
+    module_prefix = '~' if mode & RenderMode.smart or cls_module_is_typing else ''
 
     try:
         if ismockmodule(cls):
@@ -304,12 +398,33 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         return inspect.object_description(cls)
 
 
-def _format_literal_arg_restify(arg: Any, /, *, mode: str) -> str:
+def _normalize_restify_mode(mode: _RestifyMode) -> _RestifyRenderMode:
+    valid_modes = {
+        'smart',
+        'fully-qualified',
+        'fully-qualified-except-typing',
+        RenderMode.smart,
+        RenderMode.smart_short_literal,
+        RenderMode.fully_qualified_except_typing,
+        RenderMode.fully_qualified_except_typing_short_literal,
+    }
+
+    if mode not in valid_modes:
+        valid = ', '.join(sorted(map(repr, valid_modes)))
+        msg = f'mode must be one of {valid}; got {mode!r}'
+        raise ValueError(msg)
+    return mode if isinstance(mode, RenderMode) else _normalize_mode(mode)
+
+
+def _format_literal_arg_restify(arg: Any, /, *, mode: RenderMode) -> str:
     from sphinx.util.inspect import isenumattribute  # lazy loading
 
     if isenumattribute(arg):
         enum_cls = arg.__class__
-        if mode == 'smart' or enum_cls.__module__ == 'typing':
+        # For now, ignore :confval:`python_display_short_literal_types`
+        # in restification since the latter is used for 'aliasing' and
+        # keeping 'Literal' is preferable for readability.
+        if mode & RenderMode.smart or enum_cls.__module__ == 'typing':
             # MyEnum.member
             return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
         # module.MyEnum.member
@@ -318,31 +433,23 @@ def _format_literal_arg_restify(arg: Any, /, *, mode: str) -> str:
 
 
 def stringify_annotation(
-    annotation: Any,
-    /,
-    mode: _StringifyMode = 'fully-qualified-except-typing',
+    annotation: Any, /, mode: _StringifyMode = RenderMode.fully_qualified_except_typing
 ) -> str:
     """Stringify type annotation object.
 
     :param annotation: The annotation to stringified.
     :param mode: Specify a method how annotations will be stringified.
 
-                 'fully-qualified-except-typing'
-                     Show the module name and qualified name of the annotation except
-                     the "typing" module.
-                 'smart'
-                     Show the name of the annotation.
-                 'fully-qualified'
-                     Show the module name and qualified name of the annotation.
+    The following values can be given as a shorthand of a rendering mode:
+
+    * ``smart`` -- :attr:`RenderMode.smart`.
+    * ``fully-qualified`` -- :attr:`RenderMode.fully_qualified`.
+    * ``fully-qualified-except-typing`` -- :attr:`RenderMode.fully_qualified_except_typing`.
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
     from sphinx.util.inspect import isNewType  # lazy loading
 
-    valid_modes = {'fully-qualified-except-typing', 'fully-qualified', 'smart'}
-    if mode not in valid_modes:
-        valid = ', '.join(map(repr, sorted(valid_modes)))
-        msg = f'mode must be one of {valid}; got {mode!r}'
-        raise ValueError(msg)
+    mode = _normalize_stringify_mode(mode)
 
     # things that are not types
     if annotation in {None, NoneType}:
@@ -357,7 +464,7 @@ def stringify_annotation(
     if not annotation:
         return repr(annotation)
 
-    module_prefix = '~' if mode == 'smart' else ''
+    module_prefix = '~' if mode & RenderMode.smart else ''
 
     # The values below must be strings if the objects are well-formed.
     annotation_qualname: str = getattr(annotation, '__qualname__', '')
@@ -367,7 +474,9 @@ def stringify_annotation(
 
     # Extract the annotation's base type by considering formattable cases
     if isinstance(annotation, TypeVar):
-        if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
+        if annotation_module_is_typing and mode & (
+            RenderMode.smart | RenderMode.fully_qualified_except_typing
+        ):
             return annotation_name
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif isNewType(annotation):
@@ -400,9 +509,9 @@ def stringify_annotation(
     module_prefix = f'{annotation_module}.'
     annotation_forward_arg: str | None = getattr(annotation, '__forward_arg__', None)
     if annotation_qualname or (annotation_module_is_typing and not annotation_forward_arg):
-        if mode == 'smart':
+        if mode & RenderMode.smart:
             module_prefix = f'~{module_prefix}'
-        if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
+        if annotation_module_is_typing and mode & RenderMode.fully_qualified_except_typing:
             module_prefix = ''
     else:
         module_prefix = ''
@@ -421,7 +530,7 @@ def stringify_annotation(
                 # in this case, we know that the annotation is a member
                 # of ``typing`` and all of them define ``__origin__``
                 qualname = stringify_annotation(
-                    annotation.__origin__, 'fully-qualified-except-typing',
+                    annotation.__origin__, RenderMode.fully_qualified_except_typing,
                 ).replace('typing.', '')  # ex. Union
     elif annotation_qualname:
         qualname = annotation_qualname
@@ -455,9 +564,10 @@ def stringify_annotation(
             returns = stringify_annotation(annotation_args[-1], mode)
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
-            args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
-                             for a in annotation_args)
-            return f'{module_prefix}Literal[{args}]'
+            args = (_format_literal_arg_stringify(a, mode=mode) for a in annotation_args)
+            if mode & RenderMode.short_literal:
+                return ' | '.join(args)
+            return f"{module_prefix}Literal[{', '.join(args)}]"
         elif _is_annotated_form(annotation):  # for py39+
             return stringify_annotation(annotation_args[0], mode)
         elif all(is_system_TypeVar(a) for a in annotation_args):
@@ -470,12 +580,32 @@ def stringify_annotation(
     return module_prefix + qualname
 
 
-def _format_literal_arg_stringify(arg: Any, /, *, mode: str) -> str:
+def _normalize_stringify_mode(mode: _StringifyMode) -> _StringifyRenderMode:
+    valid_modes = {
+        'smart',
+        'fully-qualified',
+        'fully-qualified-except-typing',
+        RenderMode.smart,
+        RenderMode.smart_short_literal,
+        RenderMode.fully_qualified,
+        RenderMode.fully_qualified_short_literal,
+        RenderMode.fully_qualified_except_typing,
+        RenderMode.fully_qualified_except_typing_short_literal,
+    }
+
+    if mode not in valid_modes:
+        valid = ', '.join(sorted(map(repr, valid_modes)))
+        msg = f'mode must be one of {valid}; got {mode!r}'
+        raise ValueError(msg)
+    return mode if isinstance(mode, RenderMode) else _normalize_mode(mode)
+
+
+def _format_literal_arg_stringify(arg: Any, /, *, mode: RenderMode) -> str:
     from sphinx.util.inspect import isenumattribute  # lazy loading
 
     if isenumattribute(arg):
         enum_cls = arg.__class__
-        if mode == 'smart' or enum_cls.__module__ == 'typing':
+        if mode & RenderMode.smart or enum_cls.__module__ == 'typing':
             # MyEnum.member
             return f'{enum_cls.__qualname__}.{arg.name}'
         # module.MyEnum.member
