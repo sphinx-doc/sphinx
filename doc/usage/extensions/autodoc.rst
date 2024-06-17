@@ -36,9 +36,21 @@ docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 .. _Google: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
+Getting started
+---------------
+
+Setup
+.....
+Activate the plugin by adding ``'sphinx.ext.autodoc'`` to the :confval:`extensions`
+in your :file:`conf.py`::
+
+   extensions = [
+       ...
+       'sphinx.ext.autodoc',
+   ]
 
 Ensuring the code can be imported
----------------------------------
+.................................
 
 :mod:`~sphinx.ext.autodoc` analyses the code and docstrings by introspection after
 importing the modules. For importing to work. you have to make sure that your
@@ -69,6 +81,23 @@ There are two ways to ensure this:
    - To cope with missing dependencies, specify the missing modules in
      :confval:`autodoc_mock_imports`.
 
+Usage
+.....
+
+You can now use the :ref:`autodoc-directives` to add formatted documentation for
+Python code elements like functions, classes, modules, etc. For example, to document
+the function ``io.open()``, reading its signature and docstring from the source file,
+you'd write ::
+
+   .. autofunction:: io.open
+
+You can also document whole classes or even modules automatically, using member
+options for the auto directives, like ::
+
+   .. automodule:: io
+      :members:
+
+.. _autodoc-directives:
 
 Directives
 ----------
