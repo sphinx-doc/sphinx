@@ -18,7 +18,7 @@
 {% endblock %}
 
 {%- block relbar1 %}
-<div class="related" role="navigation" aria-label="related navigation">
+<div class="related" role="navigation" aria-label="Related">
   <h3>{{ _('Navigation') }}</h3>
   <ul>
     <li><a href="{{ pathto(root_doc)|e }}">Documentation</a> &raquo;</li>
@@ -32,7 +32,7 @@
 
 {%- block content %}
 <div class="document">
-  <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+  <div class="sphinxsidebar" role="navigation" aria-label="Main">
     {%- include "searchfield.html" %}
     <div class="sphinxsidebar-navigation__contents">
       <h3>{{ _('On this page') }}</h3>
