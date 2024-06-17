@@ -186,6 +186,7 @@ class BuildEnvironment:
 
         self._pickled_doctree_cache: dict[str, bytes] = {}
         """In-memory cache for reading pickled doctrees from disk.
+        docname -> pickled doctree
 
         This cache is used in the ``get_doctree`` method to avoid reading the
         doctree from disk multiple times.
@@ -193,6 +194,7 @@ class BuildEnvironment:
 
         self._write_doc_doctree_cache: dict[str, nodes.document] = {}
         """In-memory cache for unpickling doctrees from disk.
+        docname -> doctree
 
         Items are added in ``Builder.write_doctree``, during the read phase,
         then used only in the ``get_and_resolve_doctree`` method.
