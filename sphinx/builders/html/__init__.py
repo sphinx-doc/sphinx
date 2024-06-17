@@ -1147,6 +1147,20 @@ class StandaloneHTMLBuilder(Builder):
                             ctx: dict, event_arg: Any) -> None:
         pass
 
+    def parallel_write_data_retrieve(
+            self, context: dict[str, Any], docnames: list[str]
+    ) -> None:
+        context['indexer'] = self.indexer
+        context['images'] = self.images
+
+    def parallel_write_data_merge(self, context: dict[str, Any], docnames: list[str]) -> None:
+        if (indexer := context.get("indexer")) and self.indexer is not None:
+            # TODO can self.indexer be None if indexer is not None?
+            self.indexer.merge_other(indexer)
+        for filepath, filename in context['images'].items():
+            if filepath not in self.images:
+                self.images[filepath] = filename
+
     def handle_finish(self) -> None:
         self.finish_tasks.add_task(self.dump_search_index)
         self.finish_tasks.add_task(self.dump_inventory)

@@ -266,6 +266,7 @@ class Config:
         'smartquotes_excludes': _Opt(
             {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', ()),
         'option_emphasise_placeholders': _Opt(False, 'env', ()),
+        'parallel_post_transform': _Opt(False, 'env', ()),
     }
 
     def __init__(self, config: dict[str, Any] | None = None,

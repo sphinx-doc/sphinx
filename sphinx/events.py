@@ -45,6 +45,8 @@ core_events = {
     'warn-missing-reference': 'domain, node',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
+    'write-data-retrieve': 'builder, context, written docnames',
+    'write-data-merge': 'builder, context, written docnames',
     'build-finished': 'exception',
 }
 
