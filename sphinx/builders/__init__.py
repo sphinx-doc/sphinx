@@ -6,7 +6,7 @@ import codecs
 import pickle
 import time
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from docutils import nodes
 from docutils.utils import DependencyList
@@ -298,9 +298,9 @@ class Builder:
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
-        """Main build method.
+        """Main build method, usually called by a specific ``build_*`` method.
 
         First updates the environment, and then calls
         :meth:`!write`.
@@ -537,7 +537,7 @@ class Builder:
         self,
         build_docnames: Iterable[str] | None,
         updated_docnames: Sequence[str],
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
