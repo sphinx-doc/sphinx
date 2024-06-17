@@ -23,6 +23,7 @@ import pkgutil
 import pydoc
 import re
 import sys
+from collections import defaultdict
 from os import path
 from typing import TYPE_CHECKING, Any, NamedTuple
 
@@ -275,24 +276,34 @@ def generate_autosummary_content(name: str, obj: Any, parent: Any,
         respect_module_all = not app.config.autosummary_ignore_module_all
         imported_members = imported_members or ('__all__' in dir(obj) and respect_module_all)
 
-        ns['functions'], ns['all_functions'] = \
-            _get_members(doc, app, obj, {'function'}, imported=imported_members)
-        ns['classes'], ns['all_classes'] = \
-            _get_members(doc, app, obj, {'class'}, imported=imported_members)
-        ns['exceptions'], ns['all_exceptions'] = \
-            _get_members(doc, app, obj, {'exception'}, imported=imported_members)
-        ns['attributes'], ns['all_attributes'] = \
-            _get_module_attrs(name, ns['members'])
+        members_by_obj_type = _get_members_by_objtype(doc, app, obj, imported=imported_members)
+        for objtype in app.registry.documenters:
+            ns[objtype] = members_by_obj_type.get(objtype, [])
+        # TODO: Clash between objtype "module" and variable for current module name,
+        #  defined below
+        attributes_public, ns['attribute'] = _get_module_attrs(name, ns['members'])
+        ns['public'] = (_get_public_members(doc, app, obj, imported=imported_members) +
+                        attributes_public)
+
+        # Define legacy variables for compatibility
+        ns['functions'] = [item for item in ns['function'] if item in ns['public']]
+        ns['all_functions'] = ns['function']
+        ns['classes'] = [item for item in ns['class'] if item in ns['public']]
+        ns['all_classes'] = ns['class']
+        ns['exceptions'] = [item for item in ns['exception'] if item in ns['public']]
+        ns['all_exceptions'] = ns['exception']
+        ns['attributes'] = [item for item in ns['attribute'] if item in ns['public']]
+        ns['all_attributes'] = ns['attribute']
+
         ispackage = hasattr(obj, '__path__')
         if ispackage and recursive:
             # Use members that are not modules as skip list, because it would then mean
             # that module was overwritten in the package namespace
-            skip = (
-                ns["all_functions"]
-                + ns["all_classes"]
-                + ns["all_exceptions"]
-                + ns["all_attributes"]
-            )
+            skip = [
+                item for objtype, items in members_by_obj_type.items()
+                if objtype != "module"
+                for item in items
+            ]
 
             # If respect_module_all and module has a __all__ attribute, first get
             # modules that were explicitly imported. Next, find the rest with the
@@ -409,6 +420,46 @@ def _get_members(doc: type[Documenter], app: Sphinx, obj: Any, types: set[str], 
                         # considers member as public
                         public.append(name)
     return public, items
+
+
+def _get_members_by_objtype(doc: type[Documenter], app: Sphinx, obj: Any, *,
+                            imported: bool = True) -> dict[str, list[str]]:
+    items: dict[str, list[str]] = defaultdict(list)
+
+    all_members = _get_all_members(doc, app, obj)
+    for name, value in all_members.items():
+        documenter = get_documenter(app, value, obj)
+        objtype = documenter.objtype
+        # skip imported members if expected
+        if imported or getattr(value, '__module__', None) == obj.__name__:
+            skipped = _skip_member(app, value, name, documenter.objtype)
+            if skipped is True:
+                pass
+            items[objtype].append(name)
+    return dict(items)
+
+
+def _get_public_members(doc: type[Documenter], app: Sphinx, obj: Any, *,
+                        include_public: Set[str] = frozenset(),
+                        imported: bool = True) -> list[str]:
+    public = []
+
+    all_members = _get_all_members(doc, app, obj)
+    for name, value in all_members.items():
+        documenter = get_documenter(app, value, obj)
+        # skip imported members if expected
+        if imported or getattr(value, '__module__', None) == obj.__name__:
+            skipped = _skip_member(app, value, name, documenter.objtype)
+            if skipped is True:
+                pass
+            elif skipped is False:
+                # show the member forcedly
+                public.append(name)
+            else:
+                if name in include_public or not name.startswith('_'):
+                    # considers member as public
+                    public.append(name)
+    return public
 
 
 def _get_module_attrs(name: str, members: Any) -> tuple[list[str], list[str]]:
