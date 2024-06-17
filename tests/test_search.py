@@ -11,6 +11,10 @@ from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 
+from tests.utils import TESTS_ROOT
+
+JAVASCRIPT_TEST_ROOTS = list((TESTS_ROOT / 'js' / 'roots').iterdir())
+
 
 class DummyEnvironment:
     def __init__(self, version, domains):
@@ -346,3 +350,15 @@ def assert_is_sorted(item, path: str):
             assert item == sorted(item), f'{err_path} is not sorted'
         for i, child in enumerate(item):
             assert_is_sorted(child, f'{path}[{i}]')
+
+
+@pytest.mark.parametrize('directory', JAVASCRIPT_TEST_ROOTS)
+def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
+    app = make_app('html', srcdir=directory, builddir=sphinx_test_tempdir / directory.name)
+    app.build()
+
+    fresh_searchindex = (app.outdir / 'searchindex.js')
+    existing_searchindex = (TESTS_ROOT / 'js' / 'fixtures' / directory.name / 'searchindex.js')
+
+    msg = f"Search index fixture {existing_searchindex} does not match regenerated copy."
+    assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg
