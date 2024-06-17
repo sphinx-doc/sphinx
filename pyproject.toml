@@ -92,9 +92,13 @@ lint = [
     "tomli",  # for mypy (Python<=3.10)
     "pytest>=6.0",
 ]
+dev = [
+    "pytest>=6.0",
+    "defusedxml>=0.7.1",  # for secure XML/HTML parsing
+]
 test = [
     "pytest>=6.0",
-    "defusedxml>=0.7.1", # for secure XML/HTML parsing
+    "defusedxml>=0.7.1",
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
 ]
