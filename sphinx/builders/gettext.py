@@ -7,7 +7,7 @@ import time
 from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from docutils import nodes
@@ -261,7 +261,7 @@ class MessageCatalogBuilder(I18nBuilder):
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)
