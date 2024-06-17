@@ -108,7 +108,7 @@ class ImageCollector(EnvironmentCollector):
                 logger.warning(__('image file %s not readable: %s'), filename, err,
                                location=node, type='image', subtype='not_readable')
         for key, files in globbed.items():
-            candidates[key] = sorted(files, key=len)[0]  # select by similarity
+            candidates[key] = min(files, key=len)  # select by similarity
 
 
 class DownloadFileCollector(EnvironmentCollector):
