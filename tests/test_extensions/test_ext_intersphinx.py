@@ -19,7 +19,11 @@ from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx._load import _get_safe_url, _strip_basic_auth
 from sphinx.util.console import strip_colors
 
-from tests.test_util.intersphinx_data import INVENTORY_V2, INVENTORY_V2_NO_VERSION
+from tests.test_util.intersphinx_data import (
+    INVENTORY_V2,
+    INVENTORY_V2_AMBIGUOUS_TERMS,
+    INVENTORY_V2_NO_VERSION,
+)
 from tests.utils import http_server
 
 
@@ -245,6 +249,24 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     node, contnode = fake_node('std', 'ref', 'the-julia-domain', 'the-julia-domain')
     rn = missing_reference(app, app.env, node, contnode)
     assert rn.astext() == 'The Julia Domain'
+
+
+def test_ambiguous_reference_warning(tmp_path, app, warning):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
+    set_config(app, {
+        'cmd': ('https://docs.python.org/', str(inv_file)),
+    })
+
+    # load the inventory
+    normalize_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    # term reference (case insensitive)
+    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
+    missing_reference(app, app.env, node, contnode)
+
+    assert 'multiple matches found for std:term:A TERM' in warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
