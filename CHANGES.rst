@@ -24,6 +24,9 @@ Features added
 * Flatten ``Union[Literal[T], Literal[U], ...]`` to ``Literal[T, U, ...]``
   when turning annotations into strings.
   Patch by Adam Turner.
+* Add detection of ambiguous ``std:label`` and ``std:term`` references during
+  loading and resolution of Intersphinx targets.
+  Patch by James Addison.
 
 * #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
   Patch by Hugo van Kemenade.
@@ -45,6 +48,10 @@ Bugs fixed
 * #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
   the current page number and the footnote does appear on that same page.
   Patch by Jean-François B.
+* #12416: :confval:`root_doc` is synchronized with :confval:`master_doc`
+  so that if either of the two values is modified, the other reflects that
+  modification. It is still recommended to use :confval:`root_doc`.
+  Patch by Bénédikt Tran.
 * #11961: Omit anchor references from document title entries in the search index,
   removing duplication of search results.
   Patch by James Addison.

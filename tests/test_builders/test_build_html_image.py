@@ -29,7 +29,7 @@ def test_html_remote_logo(app, status, warning):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo"/>' in result)
+    assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo of Python"/>' in result)
     assert ('<link rel="icon" href="https://www.python.org/static/favicon.ico"/>' in result)
     assert not (app.outdir / 'python-logo.png').exists()
 
@@ -39,7 +39,7 @@ def test_html_local_logo(app, status, warning):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert ('<img class="logo" src="_static/img.png" alt="Logo"/>' in result)
+    assert ('<img class="logo" src="_static/img.png" alt="Logo of Python"/>' in result)
     assert (app.outdir / '_static/img.png').exists()
 
 
