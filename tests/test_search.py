@@ -72,7 +72,7 @@ section_title
 .. test that comments are not indexed: boson
 
 another_title
-===============
+=============
 
 test that non-comments are indexed: fermion
 '''
