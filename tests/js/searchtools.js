@@ -7,6 +7,21 @@ describe('Basic html theme search', function() {
       return req.responseText;
   }
 
+  function checkRanking(expectedRanking, results) {
+    nextExpected = expectedRanking.pop(0);
+
+    results.forEach(result => {
+      let [expectedPage, expectedTitle, expectedTarget] = nextExpected;
+      let [page, title, target] = result;
+
+      if (page == expectedPage && title == expectedTitle && target == expectedTarget) {
+        nextExpected = expectedRanking.pop(0);
+      }
+    });
+
+    expect(expectedRanking.length).toEqual(0);
+  }
+
   describe('terms search', function() {
 
     it('should find "C++" when in index', function() {
@@ -90,6 +105,25 @@ describe('Basic html theme search', function() {
         ]
       ];
       expect(Search._performSearch(...searchParameters)).toEqual(hits);
+    });
+
+  });
+
+  describe('search result ranking', function() {
+
+    it('should score an object-name match above a page-title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['index', 'relevance', '#module-relevance'],  /* py:module documentation */
+        ['relevance', 'Relevance', '#relevance'],  /* main title */
+        ['index', 'Main Page > Relevance', '#relevance'],  /* subsection heading title */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
     });
 
   });
