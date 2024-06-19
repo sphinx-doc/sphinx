@@ -4,6 +4,10 @@
 :root {
     --fonts-sans-serif: system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --colour-sphinx-blue: #0A507A;
+    --colour-warning-bg: #f8e3d0;
+    --colour-note-bg: #dce7fc;
+    --colour-success-bg: #d6ece1;
+    --colour-todo-bg: #e0c7ff;
     --colour-text: #333;
     --colour-links-light: #057;
 }
@@ -91,6 +95,16 @@ div.sphinxsidebar {
     padding-right: 15px;
     padding-top: 0.5em;
     font-size: 1em;
+}
+
+/* horizontal line between sidebar components */
+div.sphinxsidebar div:not(:first-child) {
+    border-top: 1px solid var(--colour-sphinx-blue);
+}
+
+/* overwrite color from basic theme */
+div.sphinxsidebar input {
+    border: 1px solid var(--colour-sphinx-blue);
 }
 
 div.sphinxsidebar h3 {
@@ -186,7 +200,7 @@ h1 {
     margin: 10px 0 0 0;
     font-size: 2.4em;
     color: var(--colour-sphinx-blue);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 h1 span.pre {
@@ -198,7 +212,7 @@ h1 span.pre {
 h2 {
     margin: 1em 0 0.2em 0;
     font-size: 1.5em;
-    font-weight: 300;
+    font-weight: 400;
     padding: 0;
     color: #174967;
 }
@@ -206,7 +220,7 @@ h2 {
 h3 {
     margin: 1em 0 -0.3em 0;
     font-size: 1.3em;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.body h6 a {
@@ -341,7 +355,31 @@ div.admonition > pre, div.warning > pre {
 div.admonition > p.admonition-title,
 div.warning > p.admonition-title {
     font-weight: bold;
+    background-color: #ddd;
+    margin: -1rem -1rem 0.8rem -1rem;
+    padding: 0.3rem 1rem;
 }
+
+div.important > p.admonition-title,
+div.caution > p.admonition-title,
+div.warning > p.admonition-title {
+    background-color: var(--colour-warning-bg);
+}
+
+div.note > p.admonition-title {
+    background-color: var(--colour-note-bg);
+}
+
+div.hint > p.admonition-title,
+div.tip > p.admonition-title,
+div.seealso > p.admonition-title {
+    background-color: var(--colour-success-bg);
+}
+
+div.todo > p.admonition-title {
+    background-color: var(--colour-todo-bg);
+}
+
 
 div.warning {
     border: 1px solid #940000;

@@ -299,9 +299,9 @@ def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
     gettext_compact = config.gettext_compact
     # Convert 0/1 from the command line to ``bool`` types
     if gettext_compact == '0':
-        config.gettext_compact = False  # type: ignore[attr-defined]
+        config.gettext_compact = False
     elif gettext_compact == '1':
-        config.gettext_compact = True  # type: ignore[attr-defined]
+        config.gettext_compact = True
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
