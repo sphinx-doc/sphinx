@@ -513,10 +513,11 @@ class Builder:
 
         self.write_doctree(docname, doctree, _cache=_cache)
 
+    @final
     def write_doctree(
         self, docname: str, doctree: nodes.document, *, _cache: bool = True,
     ) -> None:
-        """Write the doctree to a file."""
+        """Write the doctree to a file, to be used as a cache by re-builds."""
         # make it picklable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
@@ -545,6 +546,7 @@ class Builder:
         updated_docnames: Sequence[str],
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
+        """Write builder specific output files."""
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
