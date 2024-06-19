@@ -115,7 +115,7 @@ linkcheck_anchors_ignore_for_url = [
 
 autodoc_member_order = 'groupwise'
 autosummary_generate = False
-todo_include_todos = "READTHEDOCS" not in os.environ
+todo_include_todos = 'READTHEDOCS' not in os.environ
 extlinks = {
     'dupage': ('https://docutils.sourceforge.io/docs/ref/rst/%s.html', '%s'),
     'duref': (
