@@ -204,6 +204,7 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    :maxdepth: 2
 
    appapi
+   event_callbacks
    projectapi
    envapi
    builderapi

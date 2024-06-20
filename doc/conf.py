@@ -5,6 +5,7 @@ import re
 import time
 
 import sphinx
+from sphinx.application import Sphinx
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -18,6 +19,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.coverage',
+    'sphinx.ext.graphviz',
 ]
 coverage_statistics_to_report = coverage_statistics_to_stdout = True
 templates_path = ['_templates']
@@ -114,7 +116,7 @@ linkcheck_anchors_ignore_for_url = [
 
 autodoc_member_order = 'groupwise'
 autosummary_generate = False
-todo_include_todos = True
+todo_include_todos = 'READTHEDOCS' not in os.environ
 extlinks = {
     'dupage': ('https://docutils.sourceforge.io/docs/ref/rst/%s.html', '%s'),
     'duref': (
@@ -274,7 +276,7 @@ def linkify_issues_in_changelog(app, docname, source):
         source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
 
 
-def setup(app):
+def setup(app: Sphinx) -> None:
     from sphinx.ext.autodoc import cut_lines
     from sphinx.util.docfields import GroupedField
 

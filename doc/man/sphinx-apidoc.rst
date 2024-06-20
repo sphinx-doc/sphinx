@@ -54,7 +54,7 @@ Options
 
 .. option:: -n, --dry-run
 
-   Do not create any files.
+   Do not create or remove any files.
 
 .. option:: -s <suffix>
 
@@ -72,6 +72,12 @@ Options
 
    Do not create a table of contents file. Ignored when :option:`--full` is
    provided.
+
+.. option:: --remove-old
+
+   Remove existing files in the output directory
+   that are not created anymore.
+   Not compatible with :option:`--full`.
 
 .. option:: -F, --full
 
