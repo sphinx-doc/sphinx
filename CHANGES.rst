@@ -34,6 +34,8 @@ Features added
 * #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
   Patch by Hugo van Kemenade.
 
+* #11778: Add the possibility to use custom Project class.
+
 Bugs fixed
 ----------
 
