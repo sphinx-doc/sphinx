@@ -239,7 +239,7 @@ Here is a more detailed list of these events.
    :param app: :class:`.Sphinx`
    :param domain: The :class:`.Domain` of the missing reference.
    :param node: The :class:`.pending_xref` node that could not be resolved.
-   :returns: ``True`` if a warning was emitted
+   :returns: ``True`` if a warning was emitted, else ``None``
 
    Emitted when a cross-reference to an object cannot be resolved even after
    :event:`missing-reference`.
