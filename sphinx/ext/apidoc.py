@@ -494,7 +494,6 @@ Note: By default this script will not overwrite already created files."""),
     )
     exclusive_group = parser.add_mutually_exclusive_group()
     exclusive_group.add_argument(
-        '-r',
         '--remove-old',
         action='store_true',
         dest='remove_old',
