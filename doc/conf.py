@@ -5,6 +5,7 @@ import re
 import time
 
 import sphinx
+from sphinx.application import Sphinx
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -275,7 +276,7 @@ def linkify_issues_in_changelog(app, docname, source):
         source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
 
 
-def setup(app):
+def setup(app: Sphinx) -> None:
     from sphinx.ext.autodoc import cut_lines
     from sphinx.util.docfields import GroupedField
 
