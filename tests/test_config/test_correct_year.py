@@ -27,3 +27,10 @@ def test_correct_year(expect_date, app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert expect_date in content
+
+
+@pytest.mark.sphinx('html', testroot='correct-year-unicode-dash')
+def test_correct_year_unicode_dash(expect_date, app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert expect_date.replace("-", "–") in content
