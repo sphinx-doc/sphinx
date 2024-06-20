@@ -322,8 +322,6 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 1.6
 
-      As an **experimental** event
-
 .. event:: build-finished (app, exception)
 
    :param app: :class:`.Sphinx`
