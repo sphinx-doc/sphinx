@@ -636,6 +636,8 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     * ``YYYY-YYYY,``
     * ``YYYY-YYYY ``
 
+    Note: Unicode 'EN DASH' (U+2013) is also a valid year-range separator.
+
     The final year in the string is replaced with ``replace_year``.
     """
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
