@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #12448: Add ``--remove-old`` option to ``sphinx-apidoc``.
+  Patch by Chris Sewell.
+
 * #12361: Allow the parser instance to be accessed within directives
   with ``self.env.parser``. Patch by Chris Sewell.
 
