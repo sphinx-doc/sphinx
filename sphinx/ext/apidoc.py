@@ -355,7 +355,7 @@ def is_excluded(root: str | Path, excludes: Sequence[re.Pattern[str]]) -> bool:
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exclude "foo" also accidentally excluding "foobar".
     """
-    root_str = Path(root).as_posix()
+    root_str = str(root)
     return any(exclude.match(root_str) for exclude in excludes)
 
 
