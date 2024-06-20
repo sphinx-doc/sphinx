@@ -631,10 +631,10 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     Legal formats are:
 
     * ``YYYY``
-    * ``YYYY,``
-    * ``YYYY ``
-    * ``YYYY-YYYY,``
-    * ``YYYY-YYYY ``
+    * ``YYYY-YYYY``
+    * ``YYYY–YYYY``
+
+    ...followed optionally by a space or comma character.
 
     The final year in the string is replaced with ``replace_year``.
     """
