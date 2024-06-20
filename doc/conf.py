@@ -5,6 +5,7 @@ import re
 import time
 
 import sphinx
+from sphinx.application import Sphinx
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -239,7 +240,7 @@ from sphinx import addnodes  # NoQA: E402
 event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
 
-def parse_event(env, sig, signode):
+def parse_event(env, sig: str, signode) -> str:
     m = event_sig_re.match(sig)
     if not m:
         signode += addnodes.desc_name(sig, sig)
@@ -275,7 +276,7 @@ def linkify_issues_in_changelog(app, docname, source):
         source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
 
 
-def setup(app):
+def setup(app: Sphinx):
     from sphinx.ext.autodoc import cut_lines
     from sphinx.util.docfields import GroupedField
 
