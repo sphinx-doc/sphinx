@@ -126,7 +126,7 @@ class LaTeXBuilder(Builder):
         self.babel: ExtBabel
         self.context: dict[str, Any] = {}
         self.docnames: Iterable[str] = {}
-        self.document_data: list[tuple[str, str, str, str, str, bool]] = []
+        self.document_data: list[tuple[str, str, str, str, str, bool, dict[str, str]]] = []
         self.themes = ThemeFactory(self.app)
         texescape.init()
 
@@ -289,8 +289,12 @@ class LaTeXBuilder(Builder):
             docname, targetname, title, author, themename = entry[:5]
             theme = self.themes.get(themename)
             toctree_only = False
+            latex_elements: dict[str, str] = self.config.latex_elements
             if len(entry) > 5:
                 toctree_only = entry[5]
+            if len(entry) > 6:
+                latex_elements = latex_elements.copy()
+                latex_elements.update(entry[6])
             destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
                                            encoding='utf-8', overwrite_if_changed=True)
             with progress_message(__("processing %s") % targetname):
@@ -308,7 +312,7 @@ class LaTeXBuilder(Builder):
                 doctree['contentsname'] = self.get_contentsname(docname)
                 doctree['tocdepth'] = tocdepth
                 self.post_process_images(doctree)
-                self.update_doc_context(title, author, theme)
+                self.update_doc_context(title, author, theme, latex_elements)
                 self.update_context()
 
             with progress_message(__("writing")):
@@ -332,13 +336,16 @@ class LaTeXBuilder(Builder):
 
         return contentsname
 
-    def update_doc_context(self, title: str, author: str, theme: Theme) -> None:
+    def update_doc_context(self, title: str, author: str, theme: Theme, 
+            latex_elements: dict[str, str]) -> None:
         self.context['title'] = title
         self.context['author'] = author
         self.context['docclass'] = theme.docclass
         self.context['papersize'] = theme.papersize
         self.context['pointsize'] = theme.pointsize
         self.context['wrapperclass'] = theme.wrapperclass
+        self.context.update(latex_elements)
+
 
     def assemble_doctree(
         self, indexfile: str, toctree_only: bool, appendices: list[str],
