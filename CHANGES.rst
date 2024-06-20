@@ -30,6 +30,9 @@ Features added
 
 * #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
   Patch by Hugo van Kemenade.
+* #12449: Permit the Unicode en-dash as a copyright year-range separator during
+  ``SOURCE_DATE_EPOCH`` copyright end-year substitution.
+  Patch by James Addison.
 
 Bugs fixed
 ----------
