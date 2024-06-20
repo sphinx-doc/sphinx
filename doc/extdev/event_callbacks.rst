@@ -171,7 +171,7 @@ Here is a more detailed list of these events.
    :param app: :class:`.Sphinx`
    :param relative_path: :class:`~pathlib.Path`
       representing the included file
-      relative to the :term:`source directory`
+      relative to the :term:`source directory`.
    :param parent_docname: ``str``
       of the document name that
       contains the :dudir:`include` directive.
@@ -322,7 +322,7 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 1.6
 
-      As a **experimental** event
+      As an **experimental** event
 
 .. event:: build-finished (app, exception)
 
@@ -346,7 +346,7 @@ These events are emitted by specific builders.
 .. event:: html-collect-pages (app)
 
    :param app: :class:`.Sphinx`
-   :returns: iterable of ``(pagename str, context dict[str, Any], templatename str)``
+   :returns: iterable of ``(pagename, context, templatename)`` where *pagename* and *templatename* are strings and *context* is a ``dict[str, Any]``.
 
    Emitted when the HTML builder is starting to write non-document pages.
 

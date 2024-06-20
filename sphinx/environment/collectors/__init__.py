@@ -19,9 +19,9 @@ class EnvironmentCollector:
     Examples of specific data would be images, download files, section titles, metadatas, index
     entries and toctrees, etc.
 
-    .. seealso::
+    .. note::
 
-        This class essentially wraps a sub-set of :ref:`Sphinx event callbacks <events>`
+        This class essentially wraps a sub-set of :ref:`Sphinx event callbacks <events>`.
     """
 
     listener_ids: dict[str, int] | None = None
@@ -72,7 +72,7 @@ class EnvironmentCollector:
     def get_updated_docs(self, app: Sphinx, env: BuildEnvironment) -> list[str]:
         """Return a list of docnames to re-read.
 
-        This methods is called after reading the whole of documents.
+        This method is called after reading the whole of documents.
 
         .. seealso:: :event:`env-get-updated`
         """
@@ -82,7 +82,7 @@ class EnvironmentCollector:
                           added: set[str], changed: set[str], removed: set[str]) -> list[str]:
         """Return a list of docnames to re-read.
 
-        This methods is called before reading the documents.
+        This method is called before reading the documents.
 
         .. seealso:: :event:`env-get-outdated`
         """
