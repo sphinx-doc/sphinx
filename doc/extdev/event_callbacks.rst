@@ -140,7 +140,7 @@ Here is a more detailed list of these events.
    It allows extension authors to reorder
    the list of docnames (*inplace*) before processing,
    or add more docnames that Sphinx did not consider changed
-   (but never add any docnames that are not in ``env.found_docs``).
+   (but never add any docnames that are not in :attr:`.found_docs`).
 
    You can also remove document names; do this with caution since it will make
    Sphinx treat changed files as unchanged.
@@ -346,7 +346,9 @@ These events are emitted by specific builders.
 .. event:: html-collect-pages (app)
 
    :param app: :class:`.Sphinx`
-   :returns: iterable of ``(pagename, context, templatename)`` where *pagename* and *templatename* are strings and *context* is a ``dict[str, Any]``.
+   :returns: iterable of ``(pagename, context, templatename)``
+      where *pagename* and *templatename* are strings and
+      *context* is a ``dict[str, Any]``.
 
    Emitted when the HTML builder is starting to write non-document pages.
 
