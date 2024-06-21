@@ -294,7 +294,7 @@ REDIRECT_TEMPLATE = """
 """  # noqa: E501
 
 
-def build_redirects(app: Sphinx, exception):
+def build_redirects(app: Sphinx, exception: Exception | None) -> None:
     # this is a very simple implementation of
     # https://github.com/wpilibsuite/sphinxext-rediraffe/blob/main/sphinxext/rediraffe.py
     # to re-direct some old pages to new ones
