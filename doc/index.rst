@@ -12,7 +12,7 @@ Sphinx
 
       Author in :ref:`reStructuredText <rst-primer>`
       or :ref:`MyST Markdown <markdown>`
-      to enable the creation of highly structured technical documents,
+      to create highly structured technical documents,
       including tables, highlighted code blocks, mathematical notations, and more.
 
    .. admonition:: 🔗 Powerful Cross-Referencing
