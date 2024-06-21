@@ -5,7 +5,7 @@ Get support
 
 For questions or to report problems with Sphinx:
 
-- Please verify that your question does not exist on StackOverflow_ 
+- Please verify that your question does not exist on StackOverflow_
   (with the tag ``python-sphinx``)
 - open a topic at the `Github discussions`_ page,
 - open an issue at the `Github issues`_ page,
