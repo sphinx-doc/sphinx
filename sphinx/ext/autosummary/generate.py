@@ -526,10 +526,7 @@ def generate_autosummary_docs(
     new_files: list[Path] = []
     all_files: list[Path] = []
 
-    if app:
-        filename_map = app.config.autosummary_filename_map
-    else:
-        filename_map = {}
+    filename_map = app.config.autosummary_filename_map
 
     # write
     for entry in sorted(set(items), key=str):
