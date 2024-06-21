@@ -437,11 +437,11 @@ div.viewcode-block:target {
 .rst-versions .rst-current-version .fa {
     color: var(--colour-sphinx-blue);
 }
-.rst-versions .rst-other-version {
+.rst-versions .rst-other-versions {
     background-color: #f7f7f7;
     color: var(--colour-text);
 }
-.rst-versions .rst-other-version a {
+.rst-versions .rst-other-versions dd a {
     color: var(--colour-sphinx-blue);
 }
 
