@@ -29,7 +29,7 @@ body {
 }
 
 .pageheader a {
-    width: 5%;
+    width: 2em;
 }
 
 .pageheader img {
@@ -39,10 +39,9 @@ body {
 .pageheader h1{
     color: white;
     margin: 0;
-    font-weight: 600;
-    font-size: 3.5rem;
+    font-weight: 400;
+    font-size: 2em;
     line-height: 1;
-    font-variant: small-caps;
 }
 
 div.document {
@@ -90,6 +89,7 @@ div.sphinxsidebar {
     align-self: flex-start;
     height: 100vh;
     width: 250px;
+    min-width: 150px;
     overflow-y: auto;
     overflow-wrap: break-word;
     margin: 0;
@@ -339,7 +339,7 @@ div.admonition, div.warning {
     font-size: 0.9em;
     margin: 1em 0 1em 0;
     border: 1px solid #86989B;
-    border-radius: 2px;
+    border-radius: 3px;
     background-color: #f7f7f7;
     padding: 1rem;
 }
@@ -356,9 +356,10 @@ div.admonition > pre, div.warning > pre {
 div.admonition > p.admonition-title,
 div.warning > p.admonition-title {
     font-weight: bold;
-    background-color: #ddd;
+    background-color: #dddddd;
     margin: -1rem -1rem 0.8rem -1rem;
     padding: 0.3rem 1rem;
+    border-radius: 3px 3px 0 0;
 }
 
 div.important > p.admonition-title,
@@ -412,11 +413,54 @@ div.viewcode-block:target {
 /* media queries */
 
 /* Reduce padding & margins for smaller screens */
-@media (max-width: 750px) {
+@media (max-width: 768px) {
     .sphinxsidebar {
         display: none;
     }
     div.body {
         border-left: none;
     }
+}
+
+
+/* Landing page */
+.sphinx-tagline * {
+    hyphens: none !important;
+    font-style: italic !important;
+}
+/* By default align the sphinx-features one per-row and center them,
+then for larger screens align them two per-row. */
+.sphinx-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+.sphinx-feature {
+    flex: 1 1 100%;
+    margin: 0 !important;
+    background-color: white !important;
+}
+.sphinx-feature p {
+    hyphens: none !important;
+}
+.sphinx-feature > p.admonition-title {
+    background-color: #f7f7f7 !important;
+}
+@media (min-width: 768px) {
+    .sphinx-feature {
+        flex: 0 0 auto;
+        box-sizing: border-box;
+        width: 48%;
+    }
+}
+.sphinx-users {
+    text-align: center;
+    font-weight: 500;
+}
+.sphinx-users-logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
 }
