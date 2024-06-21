@@ -10,46 +10,42 @@ Sphinx
    .. admonition:: 📝 Rich Text Formatting
       :class: sphinx-feature
 
-      Using reStructuredText_ or :ref:`MyST Markdown <markdown>`,
-      Sphinx supports rich text formatting, including
-      tables, highlighted code blocks, mathematical notations, and more.
-      This enables the creation of
-      highly detailed and structured technical documents.
+      Author in :ref:`reStructuredText <rst-primer>` or :ref:`MyST Markdown <markdown>`
+      to enable the creation of
+      highly structured technical documents,
+      including tables, highlighted code blocks, mathematical notations, and more.
 
    .. admonition:: 🔗 Powerful Cross-Referencing
       :class: sphinx-feature
 
-      Sphinx excels in its ability to create :ref:`cross-references <xref-syntax>`
-      within the documentation,
-      and even across :ref:`different projects <ext-intersphinx>`,
-      with automated index generation.
-      This includes references to
-      sections, figures, tables, citations, glossaries and code objects.
+      Create :ref:`cross-references <xref-syntax>`
+      within your project,
+      and even across :ref:`different projects <ext-intersphinx>`.
+      Include references to
+      sections, figures, tables, citations, glossaries, code objects,
+      and more.
 
    .. admonition:: 📚 Versatile Documentation Formats
       :class: sphinx-feature
 
-      Sphinx can generate documentation in various formats
-      including HTML, LaTeX (for PDF), ePub, Texinfo, and more.
-      This versatility ensures that your documentation
-      can be easily accessed and read in the preferred format of your audience.
+      Generate documentation in in the preferred formats of your audience, including
+      HTML, LaTeX (for PDF), ePub, Texinfo, :ref:`and more <builders>`.
 
    .. admonition:: 🎨 Extensive Theme Support
       :class: sphinx-feature
 
-      With a wide range of :ref:`built-in <builtin-themes>`
+      Create visually appealing documentation,
+      with a wide choice of :ref:`built-in <builtin-themes>`
       and :ref:`third-party <third-party-themes>` HTML themes
       and the ability to customize
-      or :ref:`create new themes <extension-html-theme>`,
-      Sphinx allows you to create visually appealing documentation
-      that aligns with your branding and aesthetic preferences.
+      or :ref:`create new themes <extension-html-theme>`.
 
    .. admonition:: 🔌 Fully Extensible
       :class: sphinx-feature
 
-      Sphinx has robust :ref:`extension mechanisms <extending-sphinx>`
-      that allow you to add custom functionality for complex documentation needs.
-      There are numerous :ref:`built-in <builtin-extensions>`
+      Add custom functionality,
+      via robust :ref:`extension mechanisms <extending-sphinx>`
+      with numerous :ref:`built-in <builtin-extensions>`
       and :ref:`third-party <third-party-extensions>`
       extensions available for tasks like
       creating diagrams, testing code, and more.
@@ -57,25 +53,23 @@ Sphinx
    .. admonition:: 🛠️ Automatic API Documentation
       :class: sphinx-feature
 
-      For Python, C++ and other software projects, Sphinx can automatically
-      :ref:`generate API documentation <ext-autodoc>` from docstrings.
-      This ensures that your code documentation
-      stays up-to-date with minimal manual effort.
+      Generate API documentation for
+      Python, C++ and other :ref:`software domains <usage-domains>`,
+      manually or :ref:`automatically from docstrings <ext-autodoc>`,
+      ensuring your code documentation
+      stays up-to-date with minimal effort.
 
    .. admonition:: 🌍 Internationalization (i18n)
       :class: sphinx-feature
 
-      Sphinx supports :ref:`internationalization <intl>`,
-      allowing you to create documentation in multiple languages.
-      This is particularly beneficial for projects with a global audience.
+      Add documentation :ref:`translations <intl>`
+      multiple languages to reach a global audience.
 
    .. admonition:: 🌟 Active Community and Support
       :class: sphinx-feature
 
-      Sphinx has an :ref:`active community <support-index>`
-      and extensive documentation itself.
-      There are numerous resources, including tutorials, forums, and examples,
-      which can help users get the most out of the tool.
+      Benefit from an :ref:`active community <support-index>`,
+      with numerous resources, tutorials, forums, and examples.
 
    .. .. admonition:: 🌐 Integration with Version Control
    ..    :class: sphinx-feature
@@ -83,9 +77,6 @@ Sphinx
    ..    Sphinx integrates seamlessly with version control systems like Git.
    ..    This allows for easy collaboration, version tracking,
    ..    and deployment of documentation as part of a continuous integration pipeline.
-
-.. _reStructuredText: https://docutils.sourceforge.io/rst.html
-.. _Pygments: https://pygments.org/
 
 ----------------
 
