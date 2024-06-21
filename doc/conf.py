@@ -276,12 +276,51 @@ def linkify_issues_in_changelog(app, docname, source):
         source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
 
 
+REDIRECT_TEMPLATE = """
+<html>
+    <head>
+        <noscript>
+            <meta http-equiv="refresh" content="0; url={{rel_url}}"/>
+        </noscript>
+    </head>
+    <body>
+        <script>
+            window.location.href = '{{rel_url}}' + (window.location.search || '') + (window.location.hash || '');
+        </script>
+        <p>You should have been redirected.</p>
+        <a href="{{rel_url}}">If not, click here to continue.</a>
+    </body>
+</html>
+"""  # noqa: E501
+
+
+def build_redirects(app: Sphinx, exception):
+    # this is a very simple implementation of
+    # https://github.com/wpilibsuite/sphinxext-rediraffe/blob/main/sphinxext/rediraffe.py
+    # to re-direct some old pages to new ones
+    if exception is not None or app.builder.name != 'html':
+        return
+    for page, rel_redirect in (
+        (('development', 'overview.html'), 'index.html'),
+        (('development', 'builders.html'), 'howtos/builders.html'),
+        (('development', 'theming.html'), 'html_themes/index.html'),
+        (('development', 'templating.html'), 'html_themes/templating.html'),
+    ):
+        path = app.outdir.joinpath(*page)
+        if path.exists():
+            continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open('w', encoding='utf-8') as f:
+            f.write(REDIRECT_TEMPLATE.replace('{{rel_url}}', rel_redirect))
+
+
 def setup(app: Sphinx) -> None:
     from sphinx.ext.autodoc import cut_lines
     from sphinx.util.docfields import GroupedField
 
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.connect('source-read', linkify_issues_in_changelog)
+    app.connect('build-finished', build_redirects)
     app.add_object_type(
         'confval',
         'confval',

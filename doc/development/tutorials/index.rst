@@ -1,17 +1,12 @@
 .. _extension-tutorials-index:
 
-Extension tutorials
-===================
-
-Refer to the following tutorials to get started with extension development.
-
+Tutorials
+=========
 
 .. toctree::
-   :caption: Directive tutorials
-   :maxdepth: 1
+   :maxdepth: 2
 
    helloworld
    todo
    recipe
    autodoc_ext
-

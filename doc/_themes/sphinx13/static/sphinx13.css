@@ -29,7 +29,7 @@ body {
 }
 
 .pageheader a {
-    width: 5%;
+    width: 2em;
 }
 
 .pageheader img {
@@ -40,9 +40,8 @@ body {
     color: white;
     margin: 0;
     font-weight: 600;
-    font-size: 3.5rem;
+    font-size: 2em;
     line-height: 1;
-    font-variant: small-caps;
 }
 
 div.document {
@@ -90,6 +89,7 @@ div.sphinxsidebar {
     align-self: flex-start;
     height: 100vh;
     width: 250px;
+    min-width: 150px;
     overflow-y: auto;
     overflow-wrap: break-word;
     margin: 0;
@@ -318,6 +318,7 @@ blockquote.epigraph {
     font-size: 1.5em;
     padding-left: 1rem;
     margin-left: 0;
+    hyphens: none;
 }
 
 nav.contents,
@@ -339,7 +340,7 @@ div.admonition, div.warning {
     font-size: 0.9em;
     margin: 1em 0 1em 0;
     border: 1px solid #86989B;
-    border-radius: 2px;
+    border-radius: 3px;
     background-color: #f7f7f7;
     padding: 1rem;
 }
@@ -412,7 +413,7 @@ div.viewcode-block:target {
 /* media queries */
 
 /* Reduce padding & margins for smaller screens */
-@media (max-width: 750px) {
+@media (max-width: 768px) {
     .sphinxsidebar {
         display: none;
     }
@@ -420,3 +421,33 @@ div.viewcode-block:target {
         border-left: none;
     }
 }
+
+
+/* Landing page */
+/* By default align the sphinx-features one per-row and center them,
+then for larger screens align them two per-row. */
+.sphinx-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+.sphinx-feature {
+    flex: 1 1 100%;
+    margin: 0 !important;
+    background-color: white !important;
+}
+.sphinx-feature p {
+    hyphens: none !important;
+}
+.sphinx-feature > p.admonition-title {
+    background-color: #f7f7f7 !important;
+}
+@media (min-width: 768px) {
+    .sphinx-feature {
+        flex: 0 0 auto;
+        box-sizing: border-box;
+        width: 48%;
+    }
+}
+
