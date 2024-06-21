@@ -25,6 +25,7 @@ body {
     width: 100%;
     background-color: var(--colour-sphinx-blue);
     padding: 10px 20px;
+    box-sizing: border-box;
 }
 
 .pageheader a {
