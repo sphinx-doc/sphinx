@@ -80,6 +80,38 @@ Sphinx
 
 ----------------
 
+.. container:: sphinx-users
+
+   As used by:
+
+   .. container:: sphinx-users-logos
+
+      .. figure:: _static/python-logo.png
+         :alt: Python Logo
+         :height: 100px
+         :align: center
+         :target: https://docs.python.org
+
+         Python Foundation
+
+      .. figure:: _static/linux-logo.png
+         :alt: Linux Logo
+         :height: 100px
+         :align: center
+         :target: https://docs.kernel.org/
+
+         Linux Kernel
+
+      .. figure:: _static/jupyter-logo.png
+         :alt: Jupyter Logo
+         :height: 100px
+         :align: center
+         :target: https://docs.jupyter.org
+
+         Project Jupyter
+
+----------------
+
 See below for how to navigate Sphinx's documentation.
 
 .. seealso::

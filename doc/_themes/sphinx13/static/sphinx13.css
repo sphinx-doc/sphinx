@@ -454,4 +454,13 @@ then for larger screens align them two per-row. */
         width: 48%;
     }
 }
-
+.sphinx-users {
+    text-align: center;
+    font-weight: 500;
+}
+.sphinx-users-logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
