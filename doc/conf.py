@@ -1,11 +1,11 @@
 # Sphinx documentation build configuration file
+from __future__ import annotations
 
 import os
 import re
 import time
 
 import sphinx
-from sphinx.application import Sphinx
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -236,6 +236,7 @@ nitpick_ignore = {
 # -- Extension interface -------------------------------------------------------
 
 from sphinx import addnodes  # NoQA: E402
+from sphinx.application import Sphinx  # NoQA: E402, TCH001
 
 event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
