@@ -2,30 +2,86 @@
 Installing Sphinx
 =================
 
-.. contents::
-   :depth: 1
+Sphinx is a Python application. It can be installed in one of the ways described
+below.
+
+.. contents:: Installation methods
+   :depth: 2
    :local:
    :backlinks: none
 
 .. highlight:: console
 
-Overview
---------
+After installation, you can check that Sphinx is available by running ::
 
-Sphinx is written in `Python`__ and supports Python 3.9+. It builds upon the
-shoulders of many third-party libraries such as `Docutils`__ and `Jinja`__,
-which are installed when Sphinx is installed.
+   $ sphinx-build --version
 
-__ https://docs.python-guide.org/
-__ https://docutils.sourceforge.io/
-__ https://jinja.palletsprojects.com/
+This should print out the Sphinx version number.
 
+
+.. tip::
+
+   If you use Sphinx for documenting a Python library or application, it is
+   generally recommended to install Sphinx into your development environment
+   (`venv <https://docs.python.org/3/library/venv.html>`_ or `conda
+   <https://conda.io/projects/conda/en/latest/user-guide/getting-started.html>`_
+   environment).
+
+   By adding Sphinx and 3rdparty extensions or themes that you use to your dev
+   dependencies, you make sure that you have a consistent setup for building
+   your documentation.
+
+
+.. _install-pypi:
+
+PyPI package
+------------
+
+Sphinx packages are published on the `Python Package Index
+<https://pypi.org/project/Sphinx/>`_ (PyPI).  The preferred tool for installing
+packages from *PyPI* is :command:`pip`, which is included in all modern versions of
+Python.
+
+Run the following command::
+
+   $ pip install -U sphinx
+
+.. _install-conda:
+
+Conda package
+-------------
+To work with :command:`conda`, you need a conda-based Python distribution such as
+`anaconda`__, `miniconda`__, `miniforge`__ or `micromamba`__.
+
+__ https://docs.anaconda.com/anaconda/
+__ https://docs.anaconda.com/miniconda/
+__ https://github.com/conda-forge/miniforge/
+__ https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html
+
+
+Sphinx is available both via the *anaconda main* channel (maintained by Anaconda
+Inc.)
+
+::
+
+   $ conda install sphinx
+
+as well as via the *conda-forge* community channel ::
+
+   $ conda install -c conda-forge sphinx
+
+OS-specific package manager
+---------------------------
+
+You may install a global version of Sphinx into your system using OS-specific
+package managers. However, be aware that this is less flexible and you may run into
+compatibility issues if you want to work across different projects.
 
 Linux
------
+~~~~~
 
 Debian/Ubuntu
-~~~~~~~~~~~~~
+"""""""""""""
 
 Install either ``python3-sphinx`` using :command:`apt-get`:
 
@@ -36,7 +92,7 @@ Install either ``python3-sphinx`` using :command:`apt-get`:
 If it not already present, this will install Python for you.
 
 RHEL, CentOS
-~~~~~~~~~~~~
+""""""""""""
 
 Install ``python-sphinx`` using :command:`yum`:
 
@@ -47,7 +103,7 @@ Install ``python-sphinx`` using :command:`yum`:
 If it not already present, this will install Python for you.
 
 Other distributions
-~~~~~~~~~~~~~~~~~~~
+"""""""""""""""""""
 
 Most Linux distributions have Sphinx in their package repositories.  Usually
 the package is called ``python3-sphinx``, ``python-sphinx`` or ``sphinx``.  Be
@@ -55,19 +111,16 @@ aware that there are at least two other packages with ``sphinx`` in their name:
 a speech recognition toolkit (*CMU Sphinx*) and a full-text search database
 (*Sphinx search*).
 
-
 macOS
------
+~~~~~
 
-Sphinx can be installed using `Homebrew`__, `MacPorts`__, or as part of
-a Python distribution such as `Anaconda`__.
+Sphinx can be installed using `Homebrew`__, `MacPorts`__.
 
 __ https://brew.sh/
 __ https://www.macports.org/
-__ https://www.anaconda.com/download
 
 Homebrew
-~~~~~~~~
+""""""""
 
 ::
 
@@ -78,7 +131,7 @@ For more information, refer to the `package overview`__.
 __ https://formulae.brew.sh/formula/sphinx-doc
 
 MacPorts
-~~~~~~~~
+""""""""
 
 Install either ``python3x-sphinx`` using :command:`port`:
 
@@ -97,23 +150,15 @@ For more information, refer to the `package overview`__.
 
 __ https://www.macports.org/ports.php?by=library&substr=py39-sphinx
 
-Anaconda
-~~~~~~~~
-
-::
-
-   $ conda install sphinx
-
 Windows
--------
+~~~~~~~
 
-Sphinx can be install using `Chocolatey`__ or
-:ref:`installed manually <windows-other-method>`.
+Sphinx can be install using `Chocolatey`__.
 
 __ https://chocolatey.org/
 
 Chocolatey
-~~~~~~~~~~
+""""""""""
 
 ::
 
@@ -126,89 +171,6 @@ before running this.
 For more information, refer to the `chocolatey page`__.
 
 __ https://chocolatey.org/packages/sphinx/
-
-.. _windows-other-method:
-
-Other Methods
-~~~~~~~~~~~~~
-
-Most Windows users do not have Python installed by default, so we begin with
-the installation of Python itself.  To check if you already have Python
-installed, open the *Command Prompt* (:kbd:`⊞Win-r` and type :command:`cmd`).
-Once the command prompt is open, type :command:`python --version` and press
-Enter.  If Python is installed, you will see the version of Python printed to
-the screen.  If you do not have Python installed, refer to the `Hitchhikers
-Guide to Python's`__ Python on Windows installation guides. You must install
-`Python 3`__.
-
-Once Python is installed, you can install Sphinx using :command:`pip`.  Refer
-to the :ref:`pip installation instructions <install-pypi>` below for more
-information.
-
-__ https://docs.python-guide.org/
-__ https://docs.python-guide.org/starting/install3/win/
-
-
-.. _install-pypi:
-
-Installation from PyPI
-----------------------
-
-Sphinx packages are published on the `Python Package Index
-<https://pypi.org/project/Sphinx/>`_.  The preferred tool for installing
-packages from *PyPI* is :command:`pip`.  This tool is provided with all modern
-versions of Python.
-
-On Linux or MacOS, you should open your terminal and run the following command.
-
-::
-
-   $ pip install -U sphinx
-
-On Windows, you should open *Command Prompt* (:kbd:`⊞Win-r` and type
-:command:`cmd`) and run the same command.
-
-.. code-block:: doscon
-
-   C:\> pip install -U sphinx
-
-After installation, type :command:`sphinx-build --version` on the command
-prompt.  If everything worked fine, you will see the version number for the
-Sphinx package you just installed.
-
-Installation from *PyPI* also allows you to install the latest development
-release.  You will not generally need (or want) to do this, but it can be
-useful if you see a possible bug in the latest stable release.  To do this, use
-the ``--pre`` flag.
-
-::
-
-   $ pip install -U --pre sphinx
-
-Using virtual environments
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When installing Sphinx using pip,
-it is highly recommended to use *virtual environments*,
-which isolate the installed packages from the system packages,
-thus removing the need to use administrator privileges.
-To create a virtual environment in the ``.venv`` directory,
-use the following command.
-
-::
-
-   $ python -m venv .venv
-
-.. seealso:: :mod:`venv` -- creating virtual environments
-
-.. warning::
-
-   Note that in some Linux distributions, such as Debian and Ubuntu,
-   this might require an extra installation step as follows.
-
-   .. code-block:: console
-
-      $ apt-get install python3-venv
 
 Docker
 ------
@@ -251,6 +213,17 @@ For more details, please read `README file`__ of docker images.
 
 .. __: https://hub.docker.com/r/sphinxdoc/sphinx
 
+Installation of the latest development release
+----------------------------------------------
+
+You can install the latest development from *PyPI* using the ``--pre`` flag::
+
+   $ pip install -U --pre sphinx
+
+.. warning::
+
+   You will not generally need (or want) to do this, but it can be
+   useful if you see a possible bug in the latest stable release.
 
 Installation from source
 ------------------------
