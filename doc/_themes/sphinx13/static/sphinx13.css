@@ -431,6 +431,7 @@ div.viewcode-block:target {
 }
 .rst-versions .rst-current-version {
     background-color: #f7f7f7;
+    border-radius: 3px;
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-current-version .fa {
