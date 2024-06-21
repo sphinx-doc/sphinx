@@ -679,7 +679,15 @@ def main(argv: Sequence[str] = (), /) -> int:
     if args.remove_old and not args.dryrun:
         for existing in Path(args.destdir).glob(f'**/*.{args.suffix}'):
             if existing not in written_files:
-                existing.unlink()
+                try:
+                    existing.unlink()
+                except OSError as exc:
+                    logger.warning(
+                        __('Failed to remove %s: %s'),
+                        existing,
+                        exc.strerror,
+                        type='autodoc',
+                    )
 
     return 0
 

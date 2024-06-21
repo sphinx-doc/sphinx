@@ -855,7 +855,15 @@ def main(argv: Sequence[str] = (), /) -> None:
     if args.remove_old:
         for existing in Path(args.output_dir).glob(f'**/*.{args.suffix}'):
             if existing not in written_files:
-                existing.unlink()
+                try:
+                    existing.unlink()
+                except OSError as exc:
+                    logger.warning(
+                        __('Failed to remove %s: %s'),
+                        existing,
+                        exc.strerror,
+                        type='autosummary',
+                    )
 
 
 if __name__ == '__main__':
