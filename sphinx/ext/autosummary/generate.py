@@ -505,6 +505,8 @@ def generate_autosummary_docs(
     encoding: str = 'utf-8',
 ) -> list[Path]:
     """Generate autosummary documentation for the given sources."""
+    assert app is not None, 'app is required'
+
     showed_sources = sorted(sources)
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
@@ -516,7 +518,6 @@ def generate_autosummary_docs(
     if base_path is not None:
         sources = [os.path.join(base_path, filename) for filename in sources]
 
-    assert app is not None
     template = AutosummaryRenderer(app)
 
     # read
@@ -560,9 +561,7 @@ def generate_autosummary_docs(
                 )
                 continue
 
-        context: dict[str, Any] = {}
-        if app:
-            context.update(app.config.autosummary_context)
+        context: dict[str, Any] = {**app.config.autosummary_context}
 
         content = generate_autosummary_content(
             name,
