@@ -13,7 +13,7 @@ Deprecated
 Features added
 --------------
 
-* #12448: Add :option:`sphinx-autogen --remove-old` option.
+* #12456: Add :option:`sphinx-autogen --remove-old` option.
   Patch by Chris Sewell.
 * #12448: Add :option:`sphinx-apidoc --remove-old` option.
   Patch by Chris Sewell.
