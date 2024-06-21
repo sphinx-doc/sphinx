@@ -15,7 +15,7 @@
 body {
     font-family: var(--fonts-sans-serif);
     margin: 0 auto;
-    color: var(--colour-text);
+    color: var(var(--colour-text));
 }
 
 .pageheader {
@@ -423,7 +423,7 @@ div.viewcode-block:target {
 }
 
 /* ReadtheDocs docs selector */
-.rst-versions {
+.rst-versions.rst-badge {
     background-color: #f7f7f7;
     border: 1px solid var(--colour-sphinx-blue);
     border-radius: 3px;
@@ -436,8 +436,11 @@ div.viewcode-block:target {
 .rst-versions .rst-current-version .fa {
     color: var(--colour-sphinx-blue);
 }
-.rst-versions .rst-current-version {
+.rst-versions .rst-other-version {
     background-color: #f7f7f7;
+    color: var(--colour-text);
+}
+.rst-versions .rst-other-version a {
     color: var(--colour-sphinx-blue);
 }
 
