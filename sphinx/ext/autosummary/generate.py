@@ -504,7 +504,10 @@ def generate_autosummary_docs(
     overwrite: bool = True,
     encoding: str = 'utf-8',
 ) -> list[Path]:
-    """Generate autosummary documentation for the given sources."""
+    """Generate autosummary documentation for the given sources.
+
+    :returns: list of generated files (both new and existing ones)
+    """
     assert app is not None, 'app is required'
 
     showed_sources = sorted(sources)
