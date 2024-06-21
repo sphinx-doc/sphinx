@@ -318,7 +318,6 @@ blockquote.epigraph {
     font-size: 1.5em;
     padding-left: 1rem;
     margin-left: 0;
-    hyphens: none;
 }
 
 nav.contents,
@@ -424,6 +423,10 @@ div.viewcode-block:target {
 
 
 /* Landing page */
+.sphinx-tagline * {
+    hyphens: none !important;
+    font-style: italic !important;
+}
 /* By default align the sphinx-features one per-row and center them,
 then for larger screens align them two per-row. */
 .sphinx-features {

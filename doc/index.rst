@@ -2,7 +2,8 @@
 Sphinx
 ======
 
-.. epigraph:: *Create intelligent and beautiful documentation with ease*
+.. cssclass:: sphinx-tagline
+.. epigraph:: Create intelligent and beautiful documentation with ease
 
 .. container:: sphinx-features
 
