@@ -137,6 +137,8 @@ The application object also provides runtime information as attributes.
 
    Directory for storing built document.
 
+.. autoattribute:: Sphinx.fresh_env_used
+
 Sphinx core events
 ------------------
 
