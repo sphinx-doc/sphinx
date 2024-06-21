@@ -24,6 +24,7 @@ import pydoc
 import re
 import sys
 from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 from jinja2 import TemplateNotFound
@@ -499,10 +500,16 @@ def generate_autosummary_docs(
     suffix: str = '.rst',
     base_path: str | os.PathLike[str] | None = None,
     imported_members: bool = False,
-    app: Any = None,
+    app: Sphinx | None = None,
     overwrite: bool = True,
     encoding: str = 'utf-8',
-) -> None:
+) -> list[Path]:
+    """Generate autosummary documentation for the given sources.
+
+    :returns: list of generated files (both new and existing ones)
+    """
+    assert app is not None, 'app is required'
+
     showed_sources = sorted(sources)
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
@@ -520,12 +527,10 @@ def generate_autosummary_docs(
     items = find_autosummary_in_files(sources)
 
     # keep track of new files
-    new_files = []
+    new_files: list[Path] = []
+    all_files: list[Path] = []
 
-    if app:
-        filename_map = app.config.autosummary_filename_map
-    else:
-        filename_map = {}
+    filename_map = app.config.autosummary_filename_map
 
     # write
     for entry in sorted(set(items), key=str):
@@ -559,9 +564,7 @@ def generate_autosummary_docs(
                 )
                 continue
 
-        context: dict[str, Any] = {}
-        if app:
-            context.update(app.config.autosummary_context)
+        context: dict[str, Any] = {**app.config.autosummary_context}
 
         content = generate_autosummary_content(
             name,
@@ -577,33 +580,38 @@ def generate_autosummary_docs(
             qualname,
         )
 
-        filename = os.path.join(path, filename_map.get(name, name) + suffix)
-        if os.path.isfile(filename):
-            with open(filename, encoding=encoding) as f:
+        file_path = Path(path, filename_map.get(name, name) + suffix)
+        all_files.append(file_path)
+        if file_path.is_file():
+            with file_path.open(encoding=encoding) as f:
                 old_content = f.read()
 
             if content == old_content:
                 continue
             if overwrite:  # content has changed
-                with open(filename, 'w', encoding=encoding) as f:
+                with file_path.open('w', encoding=encoding) as f:
                     f.write(content)
-                new_files.append(filename)
+                new_files.append(file_path)
         else:
-            with open(filename, 'w', encoding=encoding) as f:
+            with open(file_path, 'w', encoding=encoding) as f:
                 f.write(content)
-            new_files.append(filename)
+            new_files.append(file_path)
 
     # descend recursively to new files
     if new_files:
-        generate_autosummary_docs(
-            new_files,
-            output_dir=output_dir,
-            suffix=suffix,
-            base_path=base_path,
-            imported_members=imported_members,
-            app=app,
-            overwrite=overwrite,
+        all_files.extend(
+            generate_autosummary_docs(
+                [str(f) for f in new_files],
+                output_dir=output_dir,
+                suffix=suffix,
+                base_path=base_path,
+                imported_members=imported_members,
+                app=app,
+                overwrite=overwrite,
+            )
         )
+
+    return all_files
 
 
 # -- Finding documented entries in files ---------------------------------------
@@ -812,6 +820,13 @@ The format of the autosummary directive is documented in the
             '(default: %(default)s)'
         ),
     )
+    parser.add_argument(
+        '--remove-old',
+        action='store_true',
+        dest='remove_old',
+        default=False,
+        help=__('Remove existing files in the output directory that were not generated'),
+    )
 
     return parser
 
@@ -829,13 +844,26 @@ def main(argv: Sequence[str] = (), /) -> None:
         app.config.templates_path.append(path.abspath(args.templates))
     app.config.autosummary_ignore_module_all = not args.respect_module_all
 
-    generate_autosummary_docs(
+    written_files = generate_autosummary_docs(
         args.source_file,
         args.output_dir,
         '.' + args.suffix,
         imported_members=args.imported_members,
-        app=app,
+        app=app,  # type: ignore[arg-type]
     )
+
+    if args.remove_old:
+        for existing in Path(args.output_dir).glob(f'**/*.{args.suffix}'):
+            if existing not in written_files:
+                try:
+                    existing.unlink()
+                except OSError as exc:
+                    logger.warning(
+                        __('Failed to remove %s: %s'),
+                        existing,
+                        exc.strerror,
+                        type='autosummary',
+                    )
 
 
 if __name__ == '__main__':
