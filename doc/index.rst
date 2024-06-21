@@ -10,9 +10,9 @@ Sphinx
    .. admonition:: 📝 Rich Text Formatting
       :class: sphinx-feature
 
-      Author in :ref:`reStructuredText <rst-primer>` or :ref:`MyST Markdown <markdown>`
-      to enable the creation of
-      highly structured technical documents,
+      Author in :ref:`reStructuredText <rst-primer>`
+      or :ref:`MyST Markdown <markdown>`
+      to enable the creation of highly structured technical documents,
       including tables, highlighted code blocks, mathematical notations, and more.
 
    .. admonition:: 🔗 Powerful Cross-Referencing

@@ -39,7 +39,7 @@ body {
 .pageheader h1{
     color: white;
     margin: 0;
-    font-weight: 600;
+    font-weight: 400;
     font-size: 2em;
     line-height: 1;
 }
@@ -356,9 +356,10 @@ div.admonition > pre, div.warning > pre {
 div.admonition > p.admonition-title,
 div.warning > p.admonition-title {
     font-weight: bold;
-    background-color: #ddd;
+    background-color: #dddddd;
     margin: -1rem -1rem 0.8rem -1rem;
     padding: 0.3rem 1rem;
+    border-radius: 3px 3px 0 0;
 }
 
 div.important > p.admonition-title,
