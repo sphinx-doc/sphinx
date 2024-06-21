@@ -422,6 +422,25 @@ div.viewcode-block:target {
     }
 }
 
+/* ReadtheDocs docs selector */
+.rst-versions {
+    background-color: #f7f7f7;
+    border: 1px solid var(--colour-sphinx-blue);
+    border-radius: 3px;
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-current-version {
+    background-color: #f7f7f7;
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-current-version .fa {
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-current-version {
+    background-color: #f7f7f7;
+    color: var(--colour-sphinx-blue);
+}
+
 
 /* Landing page */
 .sphinx-tagline * {
