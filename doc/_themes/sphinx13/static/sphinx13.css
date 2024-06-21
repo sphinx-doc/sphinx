@@ -15,7 +15,7 @@
 body {
     font-family: var(--fonts-sans-serif);
     margin: 0 auto;
-    color: var(--colour-text);
+    color: var(var(--colour-text));
 }
 
 .pageheader {
@@ -420,6 +420,31 @@ div.viewcode-block:target {
     div.body {
         border-left: none;
     }
+}
+
+/* ReadtheDocs docs selector */
+/* see https://docs.readthedocs.io/en/stable/flyout-menu.html */
+.rst-versions.rst-badge {
+    background-color: #f7f7f7;
+    border: 1px solid var(--colour-sphinx-blue);
+    border-radius: 3px;
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-current-version {
+    background-color: #f7f7f7;
+    border-radius: 3px 3px 0 0;
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-current-version .fa {
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-other-versions {
+    border-top: 1px solid var(--colour-sphinx-blue);
+    background-color: #f7f7f7;
+    color: var(--colour-text);
+}
+.rst-versions .rst-other-versions dd a {
+    color: var(--colour-sphinx-blue);
 }
 
 
