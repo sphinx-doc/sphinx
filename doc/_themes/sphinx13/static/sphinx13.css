@@ -423,6 +423,7 @@ div.viewcode-block:target {
 }
 
 /* ReadtheDocs docs selector */
+/* see https://docs.readthedocs.io/en/stable/flyout-menu.html */
 .rst-versions.rst-badge {
     background-color: #f7f7f7;
     border: 1px solid var(--colour-sphinx-blue);
@@ -431,13 +432,14 @@ div.viewcode-block:target {
 }
 .rst-versions .rst-current-version {
     background-color: #f7f7f7;
-    border-radius: 3px;
+    border-radius: 3px 3px 0 0;
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-current-version .fa {
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-other-versions {
+    border-top: 1px solid var(--colour-sphinx-blue);
     background-color: #f7f7f7;
     color: var(--colour-text);
 }
