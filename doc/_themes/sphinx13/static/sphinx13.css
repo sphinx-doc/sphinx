@@ -4,40 +4,66 @@
 :root {
     --fonts-sans-serif: system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --colour-sphinx-blue: #0A507A;
+    --colour-warning-bg: #f8e3d0;
+    --colour-note-bg: #dce7fc;
+    --colour-success-bg: #d6ece1;
+    --colour-todo-bg: #e0c7ff;
     --colour-text: #333;
     --colour-links-light: #057;
+    --admonition-radius: 3px;
 }
 
 body {
     font-family: var(--fonts-sans-serif);
     margin: 0 auto;
-    color: var(--colour-text);
+    color: var(var(--colour-text));
 }
 
 .pageheader {
     display: flex;
     column-gap: 1em;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
     background-color: var(--colour-sphinx-blue);
     padding: 10px 20px;
+    box-sizing: border-box;
 }
 
-.pageheader a {
-    width: 5%;
+.pageheader .brand {
+    display: flex;
+    align-items: baseline;
+    column-gap: 1em;
+    color: white;
+    text-decoration: none;
 }
 
-.pageheader img {
+.pageheader .brand a {
+    width: 2em;
+}
+
+.pageheader .brand img {
     filter: invert(1) drop-shadow(1px 1px 2px black);
 }
 
-.pageheader h1{
+.pageheader .brand h1 {
     color: white;
     margin: 0;
-    font-weight: 600;
-    font-size: 3.5rem;
+    font-weight: 400;
+    font-size: 2em;
     line-height: 1;
-    font-variant: small-caps;
+}
+
+.pageheader .icons a {
+    color: white;
+}
+
+.pageheader .icons a:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.pageheader .icons svg {
+    height: 1.6em;
 }
 
 div.document {
@@ -85,6 +111,7 @@ div.sphinxsidebar {
     align-self: flex-start;
     height: 100vh;
     width: 250px;
+    min-width: 150px;
     overflow-y: auto;
     overflow-wrap: break-word;
     margin: 0;
@@ -93,8 +120,19 @@ div.sphinxsidebar {
     font-size: 1em;
 }
 
+/* horizontal line between sidebar components */
+div.sphinxsidebar div:not(:first-child) {
+    border-top: 1px solid var(--colour-sphinx-blue);
+}
+
+/* overwrite color from basic theme */
+div.sphinxsidebar input {
+    border: 1px solid var(--colour-sphinx-blue);
+}
+
 div.sphinxsidebar h3 {
-    font-size: 1.5em;
+    font-size: 1.2em;
+    font-weight: 300;
     margin-top: 0;
     margin-bottom: 0.5em;
     padding-top: 0.5em;
@@ -186,7 +224,7 @@ h1 {
     margin: 10px 0 0 0;
     font-size: 2.4em;
     color: var(--colour-sphinx-blue);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 h1 span.pre {
@@ -198,7 +236,7 @@ h1 span.pre {
 h2 {
     margin: 1em 0 0.2em 0;
     font-size: 1.5em;
-    font-weight: 300;
+    font-weight: 400;
     padding: 0;
     color: #174967;
 }
@@ -206,7 +244,7 @@ h2 {
 h3 {
     margin: 1em 0 -0.3em 0;
     font-size: 1.3em;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.body h6 a {
@@ -324,7 +362,7 @@ div.admonition, div.warning {
     font-size: 0.9em;
     margin: 1em 0 1em 0;
     border: 1px solid #86989B;
-    border-radius: 2px;
+    border-radius: var(--admonition-radius);
     background-color: #f7f7f7;
     padding: 1rem;
 }
@@ -341,7 +379,32 @@ div.admonition > pre, div.warning > pre {
 div.admonition > p.admonition-title,
 div.warning > p.admonition-title {
     font-weight: bold;
+    background-color: #dddddd;
+    margin: -1rem -1rem 0.8rem -1rem;
+    padding: 0.3rem 1rem;
+    border-radius: var(--admonition-radius) var(--admonition-radius) 0 0;
 }
+
+div.important > p.admonition-title,
+div.caution > p.admonition-title,
+div.warning > p.admonition-title {
+    background-color: var(--colour-warning-bg);
+}
+
+div.note > p.admonition-title {
+    background-color: var(--colour-note-bg);
+}
+
+div.hint > p.admonition-title,
+div.tip > p.admonition-title,
+div.seealso > p.admonition-title {
+    background-color: var(--colour-success-bg);
+}
+
+div.todo > p.admonition-title {
+    background-color: var(--colour-todo-bg);
+}
+
 
 div.warning {
     border: 1px solid #940000;
@@ -373,11 +436,80 @@ div.viewcode-block:target {
 /* media queries */
 
 /* Reduce padding & margins for smaller screens */
-@media (max-width: 750px) {
+@media (max-width: 768px) {
     .sphinxsidebar {
         display: none;
     }
     div.body {
         border-left: none;
     }
+}
+
+/* ReadtheDocs docs selector */
+/* see https://docs.readthedocs.io/en/stable/flyout-menu.html */
+.rst-versions.rst-badge {
+    background-color: #f7f7f7;
+    border: 1px solid var(--colour-sphinx-blue);
+    border-radius: var(--admonition-radius);
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-current-version {
+    background-color: #f7f7f7;
+    border-radius: var(--admonition-radius);
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-current-version .fa {
+    color: var(--colour-sphinx-blue);
+}
+.rst-versions .rst-other-versions {
+    border-radius: 0 0 var(--admonition-radius) var(--admonition-radius);
+    border-top: 1px solid var(--colour-sphinx-blue);
+    background-color: #f7f7f7;
+    color: var(--colour-text);
+}
+.rst-versions .rst-other-versions dd a {
+    color: var(--colour-sphinx-blue);
+}
+
+
+/* Landing page */
+.sphinx-tagline * {
+    hyphens: none !important;
+    font-style: italic !important;
+}
+/* By default align the sphinx-features one per-row and center them,
+then for larger screens align them two per-row. */
+.sphinx-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+.sphinx-feature {
+    flex: 1 1 100%;
+    margin: 0 !important;
+    background-color: white !important;
+}
+.sphinx-feature p {
+    hyphens: none !important;
+}
+.sphinx-feature > p.admonition-title {
+    background-color: #f7f7f7 !important;
+}
+@media (min-width: 768px) {
+    .sphinx-feature {
+        flex: 0 0 auto;
+        box-sizing: border-box;
+        width: 48%;
+    }
+}
+.sphinx-users {
+    text-align: center;
+    font-weight: 500;
+}
+.sphinx-users-logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
 }

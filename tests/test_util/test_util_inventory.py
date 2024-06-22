@@ -10,6 +10,7 @@ from sphinx.util.inventory import InventoryFile
 from tests.test_util.intersphinx_data import (
     INVENTORY_V1,
     INVENTORY_V2,
+    INVENTORY_V2_AMBIGUOUS_TERMS,
     INVENTORY_V2_NO_VERSION,
 )
 
@@ -46,6 +47,13 @@ def test_read_inventory_v2_not_having_version():
     invdata = InventoryFile.load(f, '/util', posixpath.join)
     assert invdata['py:module']['module1'] == \
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
+
+
+def test_ambiguous_definition_warning(warning):
+    f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
+    InventoryFile.load(f, '/util', posixpath.join)
+
+    assert 'contains multiple definitions for std:term:a' in warning.getvalue().lower()
 
 
 def _write_appconfig(dir, language, prefix=None):

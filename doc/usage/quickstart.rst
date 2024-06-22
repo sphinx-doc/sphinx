@@ -259,42 +259,8 @@ source files, in documentation strings.  Sphinx supports the inclusion of
 docstrings from your modules with an :dfn:`extension` (an extension is a Python
 module that provides additional features for Sphinx projects) called *autodoc*.
 
-In order to use *autodoc*, you need to activate it in :file:`conf.py` by
-putting the string ``'sphinx.ext.autodoc'`` into the list assigned to the
-:confval:`extensions` config value::
-
-   extensions = ['sphinx.ext.autodoc']
-
-Then, you have a few additional directives at your disposal.  For example, to
-document the function ``io.open()``, reading its signature and
-docstring from the source file, you'd write this::
-
-   .. autofunction:: io.open
-
-You can also document whole classes or even modules automatically, using member
-options for the auto directives, like ::
-
-   .. automodule:: io
-      :members:
-
-*autodoc* needs to import your modules in order to extract the docstrings.
-Therefore, you must add the appropriate path to :py:data:`sys.path` in your
-:file:`conf.py`.
-
-.. warning::
-
-   :mod:`~sphinx.ext.autodoc` **imports** the modules to be documented.  If any
-   modules have side effects on import, these will be executed by ``autodoc``
-   when ``sphinx-build`` is run.
-
-   If you document scripts (as opposed to library modules), make sure their
-   main routine is protected by a ``if __name__ == '__main__'`` condition.
-
 |more| See :mod:`sphinx.ext.autodoc` for the complete description of the
 features of autodoc.
-
-
-.. todo:: Move this doc to another section
 
 Intersphinx
 -----------

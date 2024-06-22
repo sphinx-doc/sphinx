@@ -117,7 +117,9 @@ def fetch_inventory_group(
             # files; remote ones only if the cache time is expired
             if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)
-                LOGGER.info(__('loading intersphinx inventory from %s...'), safe_inv_url)
+                inv_descriptor = name or 'main_inventory'
+                LOGGER.info(__("loading intersphinx inventory '%s' from %s..."),
+                            inv_descriptor, safe_inv_url)
                 try:
                     invdata = fetch_inventory(app, uri, inv)
                 except Exception as err:

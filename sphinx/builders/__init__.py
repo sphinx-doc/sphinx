@@ -6,7 +6,7 @@ import codecs
 import pickle
 import time
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, final
 
 from docutils import nodes
 from docutils.utils import DependencyList
@@ -245,12 +245,14 @@ class Builder:
 
     # build methods
 
+    @final
     def build_all(self) -> None:
         """Build all source files."""
         self.compile_all_catalogs()
 
         self.build(None, summary=__('all source files'), method='all')
 
+    @final
     def build_specific(self, filenames: list[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
         docnames: list[str] = []
@@ -281,6 +283,7 @@ class Builder:
         self.build(docnames, method='specific',
                    summary=__('%d source files given on command line') % len(docnames))
 
+    @final
     def build_update(self) -> None:
         """Only rebuild what was changed or added since last build."""
         self.compile_update_catalogs()
@@ -294,13 +297,14 @@ class Builder:
                        summary=__('targets for %d source files that are out of date') %
                        len(to_build))
 
+    @final
     def build(
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
-        """Main build method.
+        """Main build method, usually called by a specific ``build_*`` method.
 
         First updates the environment, and then calls
         :meth:`!write`.
@@ -367,6 +371,7 @@ class Builder:
         # wait for all tasks
         self.finish_tasks.join()
 
+    @final
     def read(self) -> list[str]:
         """(Re-)read all files new or changed since last update.
 
@@ -473,6 +478,7 @@ class Builder:
         tasks.join()
         logger.info('')
 
+    @final
     def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
@@ -507,10 +513,11 @@ class Builder:
 
         self.write_doctree(docname, doctree, _cache=_cache)
 
+    @final
     def write_doctree(
         self, docname: str, doctree: nodes.document, *, _cache: bool = True,
     ) -> None:
-        """Write the doctree to a file."""
+        """Write the doctree to a file, to be used as a cache by re-builds."""
         # make it picklable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
@@ -537,8 +544,9 @@ class Builder:
         self,
         build_docnames: Iterable[str] | None,
         updated_docnames: Sequence[str],
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
+        """Write builder specific output files."""
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
