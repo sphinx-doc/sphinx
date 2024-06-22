@@ -4,12 +4,8 @@ from __future__ import annotations
 import os
 import re
 import time
-from typing import TYPE_CHECKING
 
 import sphinx
-
-if TYPE_CHECKING:
-    from sphinx.application import Sphinx
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
