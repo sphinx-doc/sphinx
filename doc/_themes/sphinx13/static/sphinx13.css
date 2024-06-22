@@ -340,7 +340,7 @@ div.admonition, div.warning {
     font-size: 0.9em;
     margin: 1em 0 1em 0;
     border: 1px solid #86989B;
-    border-radius: var(----admonition-radius);
+    border-radius: var(--admonition-radius);
     background-color: #f7f7f7;
     padding: 1rem;
 }
