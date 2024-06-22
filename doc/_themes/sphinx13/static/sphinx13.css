@@ -10,7 +10,6 @@
     --colour-todo-bg: #e0c7ff;
     --colour-text: #333;
     --colour-links-light: #057;
-    --admonition-radius: 3px;
 }
 
 body {
@@ -360,7 +359,7 @@ div.warning > p.admonition-title {
     background-color: #dddddd;
     margin: -1rem -1rem 0.8rem -1rem;
     padding: 0.3rem 1rem;
-    border-radius: var(--admonition-radius) var(--admonition-radius) 0 0;
+    border-radius: 3px 3px 0 0;
 }
 
 div.important > p.admonition-title,
@@ -428,19 +427,19 @@ div.viewcode-block:target {
 .rst-versions.rst-badge {
     background-color: #f7f7f7;
     border: 1px solid var(--colour-sphinx-blue);
-    border-radius: var(--admonition-radius);
+    border-radius: 3px;
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-current-version {
     background-color: #f7f7f7;
-    border-radius: var(--admonition-radius);
+    border-radius: 3px;
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-current-version .fa {
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-other-versions {
-    border-radius: 0 0 var(--admonition-radius) var(--admonition-radius);
+    border-radius: 0 0 3px 3px;
     border-top: 1px solid var(--colour-sphinx-blue);
     background-color: #f7f7f7;
     color: var(--colour-text);
