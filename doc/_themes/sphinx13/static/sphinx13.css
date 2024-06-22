@@ -110,7 +110,8 @@ div.sphinxsidebar input {
 }
 
 div.sphinxsidebar h3 {
-    font-size: 1.5em;
+    font-size: 1.2em;
+    font-weight: 300;
     margin-top: 0;
     margin-bottom: 0.5em;
     padding-top: 0.5em;
