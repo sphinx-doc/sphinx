@@ -20,6 +20,10 @@ body {
 }
 
 .pageheader {
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    height: 3rem;
     display: flex;
     column-gap: 1em;
     align-items: center;
@@ -80,6 +84,9 @@ div.body {
 }
 
 div.related {
+    position: sticky;
+    top: 3rem;
+    z-index: 99;
     display: flex;
     color: white;
     background-color: var(--colour-sphinx-blue);
@@ -107,16 +114,15 @@ div.sphinxsidebarwrapper {
 
 div.sphinxsidebar {
     position: sticky;
-    top: 0;
+    top: 4.6rem;
     align-self: flex-start;
-    height: 100vh;
+    height: calc(100vh - 4.6rem);
     width: 250px;
     min-width: 150px;
     overflow-y: auto;
     overflow-wrap: break-word;
     margin: 0;
-    padding-right: 15px;
-    padding-top: 0.5em;
+    padding: 0.5em 15px 0.5em 10px;
     font-size: 1em;
 }
 
@@ -206,6 +212,11 @@ div.footer a {
 }
 
 /* -- body styles ----------------------------------------------------------- */
+
+.body :target {
+    /* ensure targets are not obscured by top-bar when they are navigated to */
+    scroll-margin-top: 6.5rem;
+}
 
 p {
     margin: 0.8em 0 0.5em 0;
