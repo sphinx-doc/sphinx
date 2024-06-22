@@ -34,12 +34,13 @@
 <div class="document">
   <div class="sphinxsidebar" role="navigation" aria-label="Main">
     {%- include "searchfield.html" %}
-    <div class="sphinxsidebar-navigation__contents">
-      <h3>{{ _('On this page') }}</h3>
-      {{ toc }}
-    </div>
+    {%- if display_toc %}
+      <div class="sphinxsidebar-navigation__contents">
+        <h3>{{ _('On this page') }}</h3>
+        {{ toc }}
+      </div>
+    {%- endif %}
     <div class="sphinxsidebar-navigation__pages">
-      <h3>{{ _('Site navigation') }}</h3>
       {{ toctree(includehidden=True, maxdepth=3, titles_only=True) }}
     </div>
   </div>
