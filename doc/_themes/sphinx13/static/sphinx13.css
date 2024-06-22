@@ -23,26 +23,47 @@ body {
     display: flex;
     column-gap: 1em;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
     background-color: var(--colour-sphinx-blue);
     padding: 10px 20px;
     box-sizing: border-box;
 }
 
-.pageheader a {
+.pageheader .brand {
+    display: flex;
+    align-items: baseline;
+    column-gap: 1em;
+    color: white;
+    text-decoration: none;
+}
+
+.pageheader .brand a {
     width: 2em;
 }
 
-.pageheader img {
+.pageheader .brand img {
     filter: invert(1) drop-shadow(1px 1px 2px black);
 }
 
-.pageheader h1{
+.pageheader .brand h1 {
     color: white;
     margin: 0;
     font-weight: 400;
     font-size: 2em;
     line-height: 1;
+}
+
+.pageheader .icons a {
+    color: white;
+}
+
+.pageheader .icons a:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.pageheader .icons svg {
+    height: 1.6em;
 }
 
 div.document {
