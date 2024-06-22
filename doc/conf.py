@@ -243,6 +243,7 @@ nitpick_ignore = {
     ('std:confval', 'globaltoc_maxdepth'),
 }
 
+
 # -- Extension interface -------------------------------------------------------
 
 from sphinx import addnodes  # NoQA: E402
