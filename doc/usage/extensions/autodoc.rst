@@ -1,5 +1,7 @@
 .. highlight:: rest
 
+.. _ext-autodoc:
+
 :mod:`sphinx.ext.autodoc` -- Include documentation from docstrings
 ==================================================================
 

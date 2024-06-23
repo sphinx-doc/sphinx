@@ -13,9 +13,14 @@ Deprecated
 Features added
 --------------
 
-* #12361: Allow the parser instance to be accessed within directives
-  with ``self.env.parser``. Patch by Chris Sewell.
-
+* #12456: Add :option:`sphinx-autogen --remove-old` option.
+  Patch by Chris Sewell.
+* #12448: Add :option:`sphinx-apidoc --remove-old` option.
+  Patch by Chris Sewell.
+* #12358: Add :attr:`.Sphinx.fresh_env_used`.
+  Patch by Chris Sewell.
+* #12361: Add :attr:`.BuildEnvironment.parser`.
+  Patch by Chris Sewell.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files.
   Patch by James Addison and Adam Turner
@@ -24,10 +29,9 @@ Features added
 * Flatten ``Union[Literal[T], Literal[U], ...]`` to ``Literal[T, U, ...]``
   when turning annotations into strings.
   Patch by Adam Turner.
-* Add detection of ambiguous ``std:label`` and ``std:term`` references during
+* #12329: Add detection of ambiguous ``std:label`` and ``std:term`` references during
   loading and resolution of Intersphinx targets.
   Patch by James Addison.
-
 * #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
   Patch by Hugo van Kemenade.
 
@@ -52,6 +56,18 @@ Bugs fixed
   so that if either of the two values is modified, the other reflects that
   modification. It is still recommended to use :confval:`root_doc`.
   Patch by Bénédikt Tran.
+* #12220: Fix loading custom template translations for ``en`` locale.
+  Patch by Nicolas Peugnet.
+
+Improvements
+------------
+
+* #12387: Improve CLI progress message, when copying assets.
+  Patch by Bénédikt Tran.
+* #12422: Do not duplicate "navigation" in aria-label of built-in themes.
+  Patch by Thomas Weißschuh
+* #12421: Include project name in ``logo_alt`` of built-in themes.
+  Patch by Thomas Weißschuh
 
 Testing
 -------
