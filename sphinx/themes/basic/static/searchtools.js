@@ -39,6 +39,7 @@ if (typeof Scorer === "undefined") {
     objPrioDefault: 0,
 
     // query found in title
+    mainTitle: 16,
     title: 15,
     partialTitle: 7,
     // query found in terms
@@ -328,14 +329,10 @@ const Search = {
     for (const [title, foundTitles] of Object.entries(allTitles)) {
       if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
-          let isMainTitle = titles[file] === title
-          // score these a little bit above document matches, with more of a boost
-          // for main document titles
-          let baseScore = Scorer.title + (isMainTitle ? 2 : 1)
-          let score = Math.round(baseScore * queryLower.length / title.length)
+          let score = Math.round(titles[file] !== title ? Scorer.title : Scorer.mainTitle * queryLower.length / title.length)
           normalResults.push([
             docNames[file],
-            isMainTitle ? title : `${titles[file]} > ${title}`,
+            titles[file] !== title ? `${titles[file]} > ${title}` : title,
             id !== null ? "#" + id : "",
             null,
             score,
