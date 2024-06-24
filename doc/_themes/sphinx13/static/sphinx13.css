@@ -526,3 +526,30 @@ then for larger screens align them two per-row. */
     justify-content: center;
     gap: 10px;
 }
+
+/* -- search results -------------------------------------------------------- */
+
+ul.search {
+    padding-left: 30px;
+}
+
+ul.search li {
+    padding: 5px 0 5px 10px;
+    list-style: initial;
+}
+
+ul.search li.index {
+    list-style: "\1F4D1";  /* Unicode: Bookmark Tabs */
+}
+
+ul.search li.object {
+    list-style: "\1F4E6";  /* Unicode: Package */
+}
+
+ul.search li.title {
+    list-style: "\1F4C4";  /* Unicode: Page Facing Up */
+}
+
+ul.search li.text {
+    list-style: "\1F4C4";  /* Unicode: Page Facing Up */
+}

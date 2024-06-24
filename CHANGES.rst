@@ -13,6 +13,8 @@ Deprecated
 Features added
 --------------
 
+* #12474: Support type-dependent search result highlighting via CSS
+  Patch by Tim Hoffmann
 * #12456: Add :option:`sphinx-autogen --remove-old` option.
   Patch by Chris Sewell.
 * #12448: Add :option:`sphinx-apidoc --remove-old` option.

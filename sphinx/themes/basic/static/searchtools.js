@@ -20,7 +20,7 @@ if (typeof Scorer === "undefined") {
     // and returns the new score.
     /*
     score: result => {
-      const [docname, title, anchor, descr, score, filename] = result
+      const [docname, title, anchor, descr, score, filename, resultType] = result
       return score
     },
     */
@@ -47,6 +47,13 @@ if (typeof Scorer === "undefined") {
   };
 }
 
+const SearchResultType = {
+  index: "index",
+  object: "object",
+  text: "text",
+  title: "title",
+}
+
 const _removeChildren = (element) => {
   while (element && element.lastChild) element.removeChild(element.lastChild);
 };
@@ -64,9 +71,10 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
   const contentRoot = document.documentElement.dataset.content_root;
 
-  const [docName, title, anchor, descr, score, _filename] = item;
+  const [docName, title, anchor, descr, score, _filename, resultType] = item;
 
   let listItem = document.createElement("li");
+  listItem.classList.add(resultType)
   let requestUrl;
   let linkUrl;
   if (docBuilder === "dirhtml") {
@@ -138,7 +146,7 @@ const _displayNextItem = (
   else _finishSearch(resultCount);
 };
 // Helper function used by query() to order search results.
-// Each input is an array of [docname, title, anchor, descr, score, filename].
+// Each input is an array of [docname, title, anchor, descr, score, filename, resultType].
 // Order the results by score (in opposite order of appearance, since the
 // `_displayNextItem` function uses pop() to retrieve items) and then alphabetically.
 const _orderResultsByScoreThenName = (a, b) => {
@@ -248,6 +256,7 @@ const Search = {
     searchSummary.classList.add("search-summary");
     searchSummary.innerText = "";
     const searchList = document.createElement("ul");
+    searchList.setAttribute("role", "list")
     searchList.classList.add("search");
 
     const out = document.getElementById("search-results");
@@ -318,7 +327,7 @@ const Search = {
     const indexEntries = Search._index.indexentries;
 
     // Collect multiple result groups to be sorted separately and then ordered.
-    // Each is an array of [docname, title, anchor, descr, score, filename].
+    // Each is an array of [docname, title, anchor, descr, score, filename, resultType].
     const normalResults = [];
     const nonMainIndexResults = [];
 
@@ -336,6 +345,7 @@ const Search = {
             null,
             score,
             filenames[file],
+            SearchResultType.title,
           ]);
         }
       }
@@ -353,6 +363,7 @@ const Search = {
             null,
             score,
             filenames[file],
+            SearchResultType.index,
           ];
           if (isMain) {
             normalResults.push(result);
@@ -474,6 +485,7 @@ const Search = {
         descr,
         score,
         filenames[match[0]],
+        SearchResultType.object,
       ]);
     };
     Object.keys(objects).forEach((prefix) =>
@@ -584,6 +596,7 @@ const Search = {
         null,
         score,
         filenames[file],
+        SearchResultType.text,
       ]);
     }
     return results;
