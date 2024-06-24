@@ -62,7 +62,7 @@ Bugs fixed
   titles tend to rank more highly than subsection titles, and also to provide
   a gain to matches on the name of programming domain objects relative to
   title/subtitle matches.
-  Patch by James Addison.
+  Patch by James Addison and Will Lachance.
 
 Improvements
 ------------
