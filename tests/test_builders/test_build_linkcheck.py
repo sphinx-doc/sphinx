@@ -1051,3 +1051,10 @@ def test_linkcheck_exclude_documents(app: Sphinx) -> None:
         'uri': 'https://www.sphinx-doc.org/this-is-another-broken-link',
         'info': 'br0ken_link matched br[0-9]ken_link from linkcheck_exclude_documents',
     } in content
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck',
+                    confoverrides={'linkcheck_rate_limit_timeout': 30})
+def test_limit_rate_type_checking(app: Sphinx, warning: StringIO) -> None:
+    app.build()
+    assert warning.getvalue() == ''
