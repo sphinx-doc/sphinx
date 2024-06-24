@@ -1,7 +1,7 @@
 .. _dev-extensions:
 
-Sphinx Extensions API
-=====================
+Sphinx API
+==========
 
 Since many projects will need special features in their documentation, Sphinx
 is designed to be extensible on several levels.
@@ -85,7 +85,7 @@ extension. These are:
    The config is available as ``app.config`` or ``env.config``.
 
 To see an example of use of these objects, refer to
-:doc:`../development/tutorials/index`.
+:ref:`the tutorials <extension-tutorials-index>`.
 
 .. _build-phases:
 
@@ -204,6 +204,7 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    :maxdepth: 2
 
    appapi
+   event_callbacks
    projectapi
    envapi
    builderapi

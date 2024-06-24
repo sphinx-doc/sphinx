@@ -5,7 +5,7 @@ The objective of this tutorial is to create a very basic extension that adds a
 new directive. This directive will output a paragraph containing "hello world".
 
 Only basic information is provided in this tutorial. For more information, refer
-to the :doc:`other tutorials <index>` that go into more details.
+to the :ref:`other tutorials <extension-tutorials-index>` that go into more details.
 
 .. warning::
 

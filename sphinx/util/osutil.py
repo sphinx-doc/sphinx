@@ -17,6 +17,7 @@ from sphinx.deprecation import _deprecation_warning
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
     from types import TracebackType
     from typing import Any
 
@@ -182,7 +183,7 @@ class FileAvoidWrite:
     Objects can be used as context managers.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str | Path) -> None:
         self._path = path
         self._io: StringIO | None = None
 
