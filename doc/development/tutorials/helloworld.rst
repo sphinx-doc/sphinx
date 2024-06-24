@@ -1,36 +1,32 @@
-Developing a "Hello world" extension
-====================================
+.. _tutorial-extending-syntax:
 
-The objective of this tutorial is to create a very basic extension that adds a
-new directive. This directive will output a paragraph containing "hello world".
-
-Only basic information is provided in this tutorial. For more information, refer
-to the :ref:`other tutorials <extension-tutorials-index>` that go into more details.
-
-.. warning::
-
-   For this extension, you will need some basic understanding of docutils_
-   and Python.
-
+Extending syntax with roles and directives
+==========================================
 
 Overview
 --------
 
-We want the extension to add the following to Sphinx:
+The syntax of both reStructuredText and MyST can be extended
+by creating new directives - for block-level elements -
+and roles - for inline elements.
 
-* A ``helloworld`` directive, that will simply output the text "hello world".
+In this tutorial we shall extend Sphinx to add:
 
+* A ``hello`` role, that will simply output the text ``Hello {text}!``.
+* A ``hello`` directive, that will simply output the text ``Hello {text}!``,
+  as a paragraph.
 
-Prerequisites
--------------
+For this extension, you will need some basic understanding of Python,
+and we shall also introduce aspects of the docutils_ API.
 
-We will not be distributing this plugin via `PyPI`_ and will instead include it
-as part of an existing project. This means you will need to use an existing
-project or create a new one using :program:`sphinx-quickstart`.
+Setting up the project
+----------------------
 
-We assume you are using separate source (:file:`source`) and build
-(:file:`build`) folders. Your extension file could be in any folder of your
-project. In our case, let's do the following:
+You can either use an existing Sphinx project
+or create a new one using :program:`sphinx-quickstart`.
+
+With this we will add the extension to the project,
+within the :file:`source` folder:
 
 #. Create an :file:`_ext` folder in :file:`source`
 #. Create a new Python file in the :file:`_ext` folder called
@@ -43,12 +39,8 @@ Here is an example of the folder structure you might obtain:
       └── source
           ├── _ext
           │   └── helloworld.py
-          ├── _static
           ├── conf.py
-          ├── somefolder
           ├── index.rst
-          ├── somefile.rst
-          └── someotherfile.rst
 
 
 Writing the extension
@@ -60,68 +52,107 @@ Open :file:`helloworld.py` and paste the following code in it:
    :language: python
    :linenos:
 
-Some essential things are happening in this example, and you will see them for
-all directives.
+Some essential things are happening in this example:
 
-.. rubric:: The directive class
+The role class
+...............
 
-Our new directive is declared in the ``HelloWorld`` class.
-
-.. literalinclude:: examples/helloworld.py
-   :language: python
-   :linenos:
-   :lines: 5-9
-
-This class extends the docutils_' ``Directive`` class. All extensions that
-create directives should extend this class.
-
-.. seealso::
-
-   `The docutils documentation on creating directives <docutils directives_>`_
-
-This class contains a ``run`` method.  This method is a requirement and it is
-part of every directive.  It contains the main logic of the directive and it
-returns a list of docutils nodes to be processed by Sphinx. These nodes are
-docutils' way of representing the content of a document. There are many types of
-nodes available: text, paragraph, reference, table, etc.
-
-.. seealso::
-
-   `The docutils documentation on nodes <docutils nodes_>`_
-
-The ``nodes.paragraph`` class creates a new paragraph node. A paragraph
-node typically contains some text that we can set during instantiation using
-the ``text`` parameter.
-
-.. rubric:: The ``setup`` function
-
-.. currentmodule:: sphinx.application
-
-This function is a requirement. We use it to plug our new directive into
-Sphinx.
+Our new role is declared in the ``HelloRole`` class.
 
 .. literalinclude:: examples/helloworld.py
    :language: python
    :linenos:
-   :lines: 12-
+   :lines: 10-15
 
-The simplest thing you can do is to call the :meth:`~Sphinx.add_directive` method,
-which is what we've done here. For this particular call, the first argument is
-the name of the directive itself as used in a reST file. In this case, we would
-use ``helloworld``. For example:
+This class extends the :class:`.SphinxRole` class.
+The class contains a ``run`` method,
+which is a requirement for every role.
+It contains the main logic of the role and it
+returns a tuple containing:
+
+- a list of inline-level docutils nodes to be processed by Sphinx.
+- an (optional) list of system message nodes
+
+The directive class
+...................
+
+Our new directive is declared in the ``HelloDirective`` class.
+
+.. literalinclude:: examples/helloworld.py
+   :language: python
+   :linenos:
+   :lines: 18-25
+
+This class extends the :class:`.SphinxDirective` class.
+The class contains a ``run`` method,
+which is a requirement for every directive.
+It contains the main logic of the directive and it
+returns a list of block-level docutils nodes to be processed by Sphinx.
+It also contains a ``required_arguments`` attribute,
+which tells Sphinx how many arguments are required for the directive.
+
+What are docutils nodes?
+........................
+
+When Sphinx parses a document,
+it creates an "Abstract Syntax Tree" (AST) of nodes
+that represent the content of the document in a structured way,
+that is generally independent of any one
+input (rST, MyST, etc) or output (HTML, LaTeX, etc) format.
+It is a tree because each node can have children nodes, and so on:
+
+.. code-block:: xml
+
+      <document>
+         <paragraph>
+            <text>
+               Hallo world!
+
+The docutils_ package provides many `built-in nodes <docutils nodes_>`_,
+to represent different types of content such as
+text, paragraphs, references, tables, etc.
+
+Each node type generally only accepts a specific set of direct child nodes,
+for example the ``document`` node should only contain "block-level" nodes,
+such as ``paragraph``, ``section``, ``table``, etc,
+whilst the ``paragraph`` node should only contain "inline-level" nodes,
+such as ``text``, ``emphasis``, ``strong``, etc.
+
+.. seealso::
+
+   The docutils documentation on
+   `creating directives <docutils directives_>`_, and
+   `creating roles <docutils roles_>`_.
+
+The ``setup`` function
+......................
+
+This function is a requirement.
+We use it to plug our new directive into Sphinx.
+
+.. literalinclude:: examples/helloworld.py
+   :language: python
+   :linenos:
+   :lines: 30-
+
+The simplest thing you can do is to call the
+:meth:`.Sphinx.add_role` and :meth:`.Sphinx.add_directive` methods,
+which is what we've done here.
+For this particular call, the first argument is the name of the role/directive itself
+as used in a reST file.
+In this case, we would use ``hello``. For example:
 
 .. code-block:: rst
 
    Some intro text here...
 
-   .. helloworld::
+   .. hello:: world
 
-   Some more text here...
+   Some text with a :hello:`world` role.
 
 We also return the :ref:`extension metadata <ext-metadata>` that indicates the
 version of our extension, along with the fact that it is safe to use the
 extension for both parallel reading and writing.
-
 
 Using the extension
 -------------------
@@ -158,9 +189,9 @@ You can now use the extension in a file. For example:
 
    Some intro text here...
 
-   .. helloworld::
+   .. hello:: world
 
-   Some more text here...
+   Some text with a :hello:`world` role.
 
 The sample above would generate:
 
@@ -168,20 +199,24 @@ The sample above would generate:
 
    Some intro text here...
 
-   Hello World!
+   Hello world!
 
-   Some more text here...
+   Some text with a hello world! role.
 
 
 Further reading
 ---------------
 
-This is the very basic principle of an extension that creates a new directive.
+This is the very basic principle of an extension
+that creates a new role and directive.
 
-For a more advanced example, refer to :doc:`todo`.
+For a more advanced example, refer to :ref:`tutorial-extend-build`.
 
+If you wish to share your extension across multiple projects or with others,
+check out the :ref:`third-party-extensions` section.
 
 .. _docutils: https://docutils.sourceforge.io/
+.. _docutils roles: https://docutils.sourceforge.io/docs/howto/rst-roles.html
 .. _docutils directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html
 .. _docutils nodes: https://docutils.sourceforge.io/docs/ref/doctree.html
 .. _PyPI: https://pypi.org/
