@@ -55,8 +55,8 @@ Ensuring the code can be imported
 .................................
 
 :mod:`~sphinx.ext.autodoc` analyses the code and docstrings by introspection after
-importing the modules. For importing to work. you have to make sure that your
-modules can be found by sphinx and that dependencies can be resolved (if your
+importing the modules. For importing to work, you have to make sure that your
+modules can be found by Sphinx and that dependencies can be resolved (if your
 module does ``import foo``, but ``foo`` is not available in the python environment
 that Sphinx runs in, your module import will fail).
 
@@ -65,16 +65,16 @@ There are two ways to ensure this:
 1. Use an environment that contains your package and Sphinx. This can e.g. be your
    local dev environment (with an editable install), or an environment in CI in
    which you install Sphinx and your package. The regular installation process
-   ensures that your package can be found by sphinx and that all dependencies are
+   ensures that your package can be found by Sphinx and that all dependencies are
    available.
 
 2. It is alternatively possible to patch the Sphinx run so that it can operate
-   directly on the sources; e.g. if you want to be able to do a sphinx build from a
+   directly on the sources; e.g. if you want to be able to do a Sphinx build from a
    source checkout.
 
    - Patch :data:`sys.path` in your Sphinx :file:`conf.py` to include the folder of
      your sources. E.g. if you have a repository structure with :file:`doc/conf.py`
-     and your package is at :file:`src/mypackage`, then you sould add::
+     and your package is at :file:`src/mypackage`, then you should add::
 
         sys.path.insert(0, os.path.abspath('../src'))
 
