@@ -936,21 +936,23 @@ def test_limit_rate_doubles_previous_wait_time(app: Sphinx) -> None:
     assert next_check == 120.0
 
 
-@pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 90.0})
-def test_limit_rate_clips_wait_time_to_max_time(app: Sphinx) -> None:
+@pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 90})
+def test_limit_rate_clips_wait_time_to_max_time(app: Sphinx, warning: StringIO) -> None:
     rate_limits = {"localhost": RateLimit(60.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
     with mock.patch('time.time', return_value=0.0):
         next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check == 90.0
+    assert warning.getvalue() == ''
 
 
 @pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 90.0})
-def test_limit_rate_bails_out_after_waiting_max_time(app: Sphinx) -> None:
+def test_limit_rate_bails_out_after_waiting_max_time(app: Sphinx, warning: StringIO) -> None:
     rate_limits = {"localhost": RateLimit(90.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
     next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check is None
+    assert warning.getvalue() == ''
 
 
 @mock.patch('sphinx.util.requests.requests.Session.get_adapter')

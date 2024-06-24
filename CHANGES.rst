@@ -58,6 +58,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12220: Fix loading custom template translations for ``en`` locale.
   Patch by Nicolas Peugnet.
+* #12459: Add valid-type arguments to the ``linkcheck_rate_limit_timeout``
+  configuration setting.
+  Patch by James Addison.
 * #12391: Adjust scoring of matches during HTML search so that document main
   titles tend to rank more highly than subsection titles, and also to provide
   a gain to matches on the name of programming domain objects relative to
