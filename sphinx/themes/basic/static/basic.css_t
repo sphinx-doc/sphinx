@@ -311,12 +311,15 @@ img.align-default, figure.align-default, .figure.align-default {
     text-align: right;
 }
 
-#skip {
+#sphinx-skip-link {
+  position: absolute;
   top: -1000%;
   left: -1000%;
+  background-color: #fda;
+  padding: 1em;
 }
 
-#skip:focus {
+#sphinx-skip-link:focus {
   top: 10px;
   left: 10px;
 }
