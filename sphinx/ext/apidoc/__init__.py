@@ -35,7 +35,12 @@ from sphinx.util.template import ReSTRenderer
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
+
 logger = logging.getLogger(__name__)
+
+WARNING_TYPE = 'apidoc'
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -96,10 +101,13 @@ def write_file(name: str, text: str, opts: CliOptions) -> Path:
 
 
 def create_module_file(
-    package: str | None, basename: str, opts: CliOptions, user_template_dir: str | None = None
+    package: str | None,
+    basename: str,
+    opts: CliOptions,
+    user_template_dir: str | None = None,
 ) -> Path:
     """Build the text of the file and write the file."""
-    options = copy(OPTIONS)
+    options = copy(OPTIONS if opts.automodule_options is None else opts.automodule_options)
     if opts.includeprivate and 'private-members' not in options:
         options.append('private-members')
 
@@ -361,7 +369,7 @@ def is_excluded(root: str | Path, excludes: Sequence[re.Pattern[str]]) -> bool:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> ' '[EXCLUDE_PATTERN, ...]',
+        usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> [EXCLUDE_PATTERN, ...]',
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Look recursively in <MODULE_PATH> for Python modules and packages and create
@@ -384,7 +392,7 @@ Note: By default this script will not overwrite already created files."""),
     parser.add_argument(
         'exclude_pattern',
         nargs='*',
-        help=__('fnmatch-style file and/or directory patterns ' 'to exclude from generation'),
+        help=__('fnmatch-style file and/or directory patterns to exclude from generation'),
     )
 
     parser.add_argument(
@@ -408,7 +416,7 @@ Note: By default this script will not overwrite already created files."""),
         dest='maxdepth',
         type=int,
         default=4,
-        help=__('maximum depth of submodules to show in the TOC ' '(default: 4)'),
+        help=__('maximum depth of submodules to show in the TOC (default: 4)'),
     )
     parser.add_argument(
         '-f', '--force', action='store_true', dest='force', help=__('overwrite existing files')
@@ -420,7 +428,7 @@ Note: By default this script will not overwrite already created files."""),
         dest='followlinks',
         default=False,
         help=__(
-            'follow symbolic links. Powerful when combined ' 'with collective.recipe.omelette.'
+            'follow symbolic links. Powerful when combined with collective.recipe.omelette.'
         ),
     )
     parser.add_argument(
@@ -474,14 +482,23 @@ Note: By default this script will not overwrite already created files."""),
         '--module-first',
         action='store_true',
         dest='modulefirst',
-        help=__('put module documentation before submodule ' 'documentation'),
+        help=__('put module documentation before submodule documentation'),
     )
     parser.add_argument(
         '--implicit-namespaces',
         action='store_true',
         dest='implicit_namespaces',
         help=__(
-            'interpret module paths according to PEP-0420 ' 'implicit namespaces specification'
+            'interpret module paths according to PEP-0420 implicit namespaces specification'
+        ),
+    )
+    parser.add_argument(
+        '--automodule-options',
+        dest='automodule_options',
+        default=None,
+        help=__(
+            'Comma-separated list of options to pass to automodule directive '
+            '(or use SPHINX_APIDOC_OPTIONS).'
         ),
     )
     parser.add_argument(
@@ -539,7 +556,7 @@ Note: By default this script will not overwrite already created files."""),
         '--doc-release',
         action='store',
         dest='release',
-        help=__('project release, used when --full is given, ' 'defaults to --doc-version'),
+        help=__('project release, used when --full is given, defaults to --doc-version'),
     )
 
     group = parser.add_argument_group(__('extension options'))
@@ -548,7 +565,7 @@ Note: By default this script will not overwrite already created files."""),
         metavar='EXTENSIONS',
         dest='extensions',
         action='append',
-        help=__('enable arbitrary extensions'),
+        help=__('enable arbitrary extensions, used when --full is given'),
     )
     for ext in EXTENSIONS:
         group.add_argument(
@@ -556,7 +573,7 @@ Note: By default this script will not overwrite already created files."""),
             action='append_const',
             const='sphinx.ext.%s' % ext,
             dest='extensions',
-            help=__('enable %s extension') % ext,
+            help=__('enable %s extension, used when --full is given') % ext,
         )
 
     group = parser.add_argument_group(__('Project templating'))
@@ -569,6 +586,20 @@ Note: By default this script will not overwrite already created files."""),
     )
 
     return parser
+
+
+def _remove_old_files(written_files: list[Path], destdir: str, suffix: str) -> None:
+    for existing in Path(destdir).glob(f'**/*.{suffix}'):
+        if existing not in written_files:
+            try:
+                existing.unlink()
+            except OSError as exc:
+                logger.warning(
+                    __('Failed to remove %s: %s'),
+                    existing,
+                    exc.strerror,
+                    type=WARNING_TYPE,
+                )
 
 
 class CliOptions(Protocol):
@@ -588,20 +619,24 @@ class CliOptions(Protocol):
     noheadings: bool
     modulefirst: bool
     implicit_namespaces: bool
+    automodule_options: list[str] | None
     suffix: str
+    header: str
+    templatedir: str | None
+
+    remove_old: bool
+
     full: bool
-    append_syspath: bool
-    header: str | None
+    # --full only
     author: str | None
     version: str | None
     release: str | None
     extensions: list[str] | None
-    templatedir: str | None
-    remove_old: bool
+    append_syspath: bool
 
 
 def main(argv: Sequence[str] = (), /) -> int:
-    """Parse and check the command line arguments."""
+    """Run the apidoc CLI."""
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
@@ -625,6 +660,8 @@ def main(argv: Sequence[str] = (), /) -> int:
         re.compile(fnmatch.translate(path.abspath(exclude)))
         for exclude in dict.fromkeys(args.exclude_pattern)
     )
+    if isinstance(args.automodule_options, str):
+        args.automodule_options = args.automodule_options.split(',')
     written_files, modules = recurse_tree(rootpath, excludes, args, args.templatedir)
 
     if args.full:
@@ -677,21 +714,15 @@ def main(argv: Sequence[str] = (), /) -> int:
         )
 
     if args.remove_old and not args.dryrun:
-        for existing in Path(args.destdir).glob(f'**/*.{args.suffix}'):
-            if existing not in written_files:
-                try:
-                    existing.unlink()
-                except OSError as exc:
-                    logger.warning(
-                        __('Failed to remove %s: %s'),
-                        existing,
-                        exc.strerror,
-                        type='autodoc',
-                    )
+        _remove_old_files(written_files, args.destdir, args.suffix)
 
     return 0
 
 
-# So program can be started with "python -m sphinx.apidoc ..."
-if __name__ == '__main__':
-    raise SystemExit(main(sys.argv[1:]))
+def setup(app: Sphinx) -> ExtensionMetadata:
+    from ._extension import run_apidoc_ext
+
+    app.setup_extension('sphinx.ext.autodoc')
+    app.add_config_value('apidoc_modules', [], 'env')
+    app.connect('builder-inited', run_apidoc_ext)
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
