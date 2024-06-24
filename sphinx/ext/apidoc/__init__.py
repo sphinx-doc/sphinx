@@ -13,9 +13,25 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import sphinx
 from sphinx.ext.apidoc._cli import main
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
+
 __all__: Sequence[str] = ('main',)
+
+
+def setup(app: Sphinx) -> ExtensionMetadata:
+    from sphinx.ext.apidoc._extension import run_apidoc_ext
+
+    app.setup_extension('sphinx.ext.autodoc')
+    app.add_config_value('apidoc_modules', [], 'env')
+    app.connect('builder-inited', run_apidoc_ext)
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }
