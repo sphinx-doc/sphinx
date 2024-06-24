@@ -2950,8 +2950,8 @@ Options for the linkcheck builder
 
    Otherwise, ``linkcheck`` waits for a minute before to retry and keeps
    doubling the wait time between attempts until it succeeds or exceeds the
-   ``linkcheck_rate_limit_timeout``. By default, the timeout is 300 seconds
-   and custom timeouts should be given in seconds.
+   ``linkcheck_rate_limit_timeout``. By default, the timeout is 300 seconds.
+   Custom timeouts should be given as a number of seconds.
 
    .. _Retry-After: https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3
 
