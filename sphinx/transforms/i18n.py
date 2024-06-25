@@ -341,6 +341,14 @@ class Locale(SphinxTransform):
     default_priority = 20
 
     def apply(self, **kwargs: Any) -> None:
+        # TODO/FIXME: If this document is marked :notranslate:, it might
+        # be better to skip translation here. Some paragraphs might
+        # still get translated in rare cases, e.g., if gettext_compact=True
+        # and there is an identical paragraph in a document that is not
+        # marked :notranslate:. This might be tricky, since self.env.metadata
+        # is only populated in the doctree-read event, which runs after
+        # this transform.
+
         settings, source = self.document.settings, self.document['source']
         msgstr = ''
 

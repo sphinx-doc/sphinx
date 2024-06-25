@@ -21,7 +21,11 @@ from sphinx.util.console import bold
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.index_entries import split_index_msg
-from sphinx.util.nodes import extract_messages, traverse_translatable_index
+from sphinx.util.nodes import (
+    extract_messages,
+    is_translatable_document,
+    traverse_translatable_index,
+)
 from sphinx.util.osutil import canon_path, ensuredir, relpath
 from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
@@ -156,6 +160,9 @@ class I18nBuilder(Builder):
         return
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        if not is_translatable_document(docname, self.env):
+            return
+
         catalog = self.catalogs[docname_to_domain(docname, self.config.gettext_compact)]
 
         for toctree in self.env.tocs[docname].findall(addnodes.toctree):
