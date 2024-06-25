@@ -328,17 +328,14 @@ const Search = {
     for (const [title, foundTitles] of Object.entries(allTitles)) {
       if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
-          let isMainTitle = titles[file] === title
-          // score these a little bit above document matches, with more of a boost
-          // for main document titles
-          let baseScore = Scorer.title + (isMainTitle ? 2 : 1)
-          let score = Math.round(baseScore * queryLower.length / title.length)
+          let score = Math.round(Scorer.title * queryLower.length / title.length);
+          let boost = titles[file] === title ? 1 : 0;  // add a boost for document titles
           normalResults.push([
             docNames[file],
-            isMainTitle ? title : `${titles[file]} > ${title}`,
+            titles[file] !== title ? `${titles[file]} > ${title}` : title,
             id !== null ? "#" + id : "",
             null,
-            score,
+            score + boost,
             filenames[file],
           ]);
         }
