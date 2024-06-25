@@ -26,7 +26,7 @@ This should print out the Sphinx version number.
    (using for example `venv`__ or `conda`__ environments).
    This will allow for the use of separate sphinx versions and third-party extensions
    for each sphinx project.
-   
+
    __ https://docs.python.org/3/library/venv.html
    __ https://conda.io/projects/conda/en/latest/user-guide/getting-started.html
 
@@ -50,12 +50,12 @@ Run the following command::
    To avoid issues when rebuilding your environment,
    it is advisable to pin sphinx and third-party extension
    versions in a `requirements.txt file`__::
-   
+
       $ pip install -r requirements.txt
-      
+
    Or, if writing documentation for a Python package,
    place the dependencies in the `pyproject.toml file`__::
-   
+
       $ pip install .[docs]
 
    __ https://pip.pypa.io/en/stable/reference/requirements-file-format/
