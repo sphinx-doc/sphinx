@@ -58,6 +58,9 @@ Bugs fixed
   Patch by Bénédikt Tran.
 * #12220: Fix loading custom template translations for ``en`` locale.
   Patch by Nicolas Peugnet.
+* #12459: Add valid-type arguments to the ``linkcheck_rate_limit_timeout``
+  configuration setting.
+  Patch by James Addison.
 
 Improvements
 ------------

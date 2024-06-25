@@ -10,6 +10,7 @@
     --colour-todo-bg: #e0c7ff;
     --colour-text: #333;
     --colour-links-light: #057;
+    --admonition-radius: 3px;
 }
 
 body {
@@ -19,29 +20,54 @@ body {
 }
 
 .pageheader {
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    height: 3rem;
     display: flex;
     column-gap: 1em;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
     background-color: var(--colour-sphinx-blue);
     padding: 10px 20px;
     box-sizing: border-box;
 }
 
-.pageheader a {
+.pageheader .brand {
+    display: flex;
+    align-items: baseline;
+    column-gap: 1em;
+    color: white;
+    text-decoration: none;
+}
+
+.pageheader .brand a {
     width: 2em;
 }
 
-.pageheader img {
+.pageheader .brand img {
     filter: invert(1) drop-shadow(1px 1px 2px black);
 }
 
-.pageheader h1{
+.pageheader .brand h1 {
     color: white;
     margin: 0;
     font-weight: 400;
     font-size: 2em;
     line-height: 1;
+}
+
+.pageheader .icons a {
+    color: white;
+}
+
+.pageheader .icons a:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.pageheader .icons svg {
+    height: 1.6em;
 }
 
 div.document {
@@ -58,6 +84,9 @@ div.body {
 }
 
 div.related {
+    position: sticky;
+    top: 3rem;
+    z-index: 99;
     display: flex;
     color: white;
     background-color: var(--colour-sphinx-blue);
@@ -85,16 +114,15 @@ div.sphinxsidebarwrapper {
 
 div.sphinxsidebar {
     position: sticky;
-    top: 0;
+    top: 4.6rem;
     align-self: flex-start;
-    height: 100vh;
+    height: calc(100vh - 4.6rem);
     width: 250px;
     min-width: 150px;
     overflow-y: auto;
     overflow-wrap: break-word;
     margin: 0;
-    padding-right: 15px;
-    padding-top: 0.5em;
+    padding: 0.5em 15px 0.5em 10px;
     font-size: 1em;
 }
 
@@ -109,7 +137,8 @@ div.sphinxsidebar input {
 }
 
 div.sphinxsidebar h3 {
-    font-size: 1.5em;
+    font-size: 1.2em;
+    font-weight: 300;
     margin-top: 0;
     margin-bottom: 0.5em;
     padding-top: 0.5em;
@@ -183,6 +212,11 @@ div.footer a {
 }
 
 /* -- body styles ----------------------------------------------------------- */
+
+.body :target {
+    /* ensure targets are not obscured by top-bar when they are navigated to */
+    scroll-margin-top: 6.5rem;
+}
 
 p {
     margin: 0.8em 0 0.5em 0;
@@ -339,7 +373,7 @@ div.admonition, div.warning {
     font-size: 0.9em;
     margin: 1em 0 1em 0;
     border: 1px solid #86989B;
-    border-radius: 3px;
+    border-radius: var(--admonition-radius);
     background-color: #f7f7f7;
     padding: 1rem;
 }
@@ -359,7 +393,7 @@ div.warning > p.admonition-title {
     background-color: #dddddd;
     margin: -1rem -1rem 0.8rem -1rem;
     padding: 0.3rem 1rem;
-    border-radius: 3px 3px 0 0;
+    border-radius: var(--admonition-radius) var(--admonition-radius) 0 0;
 }
 
 div.important > p.admonition-title,
@@ -419,6 +453,8 @@ div.viewcode-block:target {
     }
     div.body {
         border-left: none;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
     }
 }
 
@@ -427,18 +463,19 @@ div.viewcode-block:target {
 .rst-versions.rst-badge {
     background-color: #f7f7f7;
     border: 1px solid var(--colour-sphinx-blue);
-    border-radius: 3px;
+    border-radius: var(--admonition-radius);
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-current-version {
     background-color: #f7f7f7;
-    border-radius: 3px 3px 0 0;
+    border-radius: var(--admonition-radius);
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-current-version .fa {
     color: var(--colour-sphinx-blue);
 }
 .rst-versions .rst-other-versions {
+    border-radius: 0 0 var(--admonition-radius) var(--admonition-radius);
     border-top: 1px solid var(--colour-sphinx-blue);
     background-color: #f7f7f7;
     color: var(--colour-text);
