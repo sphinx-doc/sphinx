@@ -21,15 +21,14 @@ This should print out the Sphinx version number.
 
 .. tip::
 
-   If you use Sphinx for documenting a Python library or application, it is
-   generally recommended to install Sphinx into your development environment
-   (`venv <https://docs.python.org/3/library/venv.html>`_ or `conda
-   <https://conda.io/projects/conda/en/latest/user-guide/getting-started.html>`_
-   environment).
-
-   By adding Sphinx and 3rdparty extensions or themes that you use to your dev
-   dependencies, you make sure that you have a consistent setup for building
-   your documentation.
+   For local development, it is
+   generally recommended to install Sphinx into a non-global environment
+   (using for example `venv`__ or `conda`__ environments).
+   This will allow for the use of separate sphinx versions and third-party extensions
+   for each sphinx project.
+   
+   __ https://docs.python.org/3/library/venv.html
+   __ https://conda.io/projects/conda/en/latest/user-guide/getting-started.html
 
 
 .. _install-pypi:
@@ -39,12 +38,28 @@ PyPI package
 
 Sphinx packages are published on the `Python Package Index
 <https://pypi.org/project/Sphinx/>`_ (PyPI).  The preferred tool for installing
-packages from *PyPI* is :command:`pip`, which is included in all modern versions of
+packages from PyPI is :command:`pip`, which is included in all modern versions of
 Python.
 
 Run the following command::
 
    $ pip install -U sphinx
+
+.. tip::
+
+   To avoid issues when rebuilding your environment,
+   it is advisable to pin sphinx and third-party extension
+   versions in a `requirements.txt file`__::
+   
+      $ pip install -r requirements.txt
+      
+   Or, if writing documentation for a Python package,
+   place the dependencies in the `pyproject.toml file`__::
+   
+      $ pip install .[docs]
+
+   __ https://pip.pypa.io/en/stable/reference/requirements-file-format/
+   __ https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies
 
 .. _install-conda:
 
