@@ -100,7 +100,7 @@ describe('Basic html theme search', function() {
           'Main Page',
           '#main-page',
           null,
-          16,
+          17,
           'index.rst'
         ]
       ];
