@@ -119,8 +119,8 @@ class GettextRenderer(SphinxRenderer):
 class I18nTags(Tags):
     """Dummy tags module for I18nBuilder.
 
-    To translate all text inside of only nodes, this class
-    always returns True value even if no tags are defined.
+    To ensure that all text inside ``only`` nodes is translated,
+    this class always returns ``True`` regardless the defined tags.
     """
 
     def eval_condition(self, condition: Any) -> bool:
