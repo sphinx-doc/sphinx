@@ -366,6 +366,7 @@ General configuration
    * ``toc.excluded``
    * ``toc.not_readable``
    * ``toc.secnum``
+   * ``toc.no_title``
 
    Extensions can also define their own warning types.
    Those defined by the first-party ``sphinx.ext`` extensions are:
