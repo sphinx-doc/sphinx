@@ -147,7 +147,7 @@ the individual nodes of each doctree and produces some output in the process.
    that checks external links does not need anything more than the parsed
    doctrees and therefore does not have phases 2--4.
 
-To see an example of application, refer to :doc:`../development/tutorials/todo`.
+To see an example of application, refer to :ref:`tutorial-extend-build`.
 
 .. _ext-metadata:
 

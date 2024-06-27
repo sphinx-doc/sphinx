@@ -306,6 +306,9 @@ def build_redirects(app: Sphinx, exception: Exception | None) -> None:
         (('development', 'builders.html'), 'howtos/builders.html'),
         (('development', 'theming.html'), 'html_themes/index.html'),
         (('development', 'templating.html'), 'html_themes/templating.html'),
+        (('development', 'tutorials', 'helloworld.html'), 'extending_syntax.html'),
+        (('development', 'tutorials', 'todo.html'), 'extending_build.html'),
+        (('development', 'tutorials', 'recipe.html'), 'adding_domain.html'),
     ):
         path = app.outdir.joinpath(*page)
         if path.exists():
