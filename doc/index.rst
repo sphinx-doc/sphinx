@@ -28,7 +28,7 @@ Sphinx
    .. admonition:: 📚 Versatile Documentation Formats
       :class: sphinx-feature
 
-      Generate documentation in in the preferred formats of your audience, including
+      Generate documentation in the preferred formats of your audience, including
       HTML, LaTeX (for PDF), ePub, Texinfo, :ref:`and more <builders>`.
 
    .. admonition:: 🎨 Extensive Theme Support
