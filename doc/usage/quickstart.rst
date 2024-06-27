@@ -54,7 +54,8 @@ to contain the root of the "table of contents tree" (or *toctree*).  This is one
 of the main things that Sphinx adds to reStructuredText, a way to connect
 multiple files to a single hierarchy of documents.
 
-.. sidebar:: reStructuredText directives
+.. admonition:: reStructuredText directives
+   :class: note
 
    ``toctree`` is a reStructuredText :dfn:`directive`, a very versatile piece
    of markup.  Directives can have arguments, options and content.
@@ -95,7 +96,9 @@ documents to include are given as :term:`document name`\ s, which in short
 means that you leave off the file name extension and use forward slashes
 (``/``) as directory separators.
 
-|more| Read more about :ref:`the toctree directive <toctree-directive>`.
+.. seealso::
+
+   Read more about :ref:`the toctree directive <toctree-directive>`.
 
 You can now create the files you listed in the ``toctree`` and add content, and
 their section titles will be inserted (up to the ``maxdepth`` level) at the
@@ -118,8 +121,11 @@ for this document -- use the "Show Source" link in the sidebar.
 
 .. todo:: Update the below link when we add new guides on these.
 
-|more| See :doc:`/usage/restructuredtext/index` for a more in-depth
-introduction to reStructuredText, including markup added by Sphinx.
+.. seealso::
+
+   :doc:`/usage/restructuredtext/index`
+   for a more in-depth introduction to reStructuredText,
+   including markup added by Sphinx.
 
 
 Running the build
@@ -137,8 +143,10 @@ directory in which you want to place the built documentation.
 The :option:`-M <sphinx-build -M>` option selects a builder; in this example
 Sphinx will build HTML files.
 
-|more| Refer to the :doc:`sphinx-build man page </man/sphinx-build>` for all
-options that :program:`sphinx-build` supports.
+.. seealso::
+
+   Refer to the :doc:`sphinx-build man page </man/sphinx-build>`
+   for all options that :program:`sphinx-build` supports.
 
 However, :program:`sphinx-quickstart` script creates a :file:`Makefile` and a
 :file:`make.bat` which make life even easier for you. These can be executed by
@@ -220,8 +228,10 @@ Each domain will have special rules for how the signatures can look like, and
 make the formatted output look pretty, or add specific features like links to
 parameter types, e.g. in the C/C++ domains.
 
-|more| See :doc:`/usage/domains/index` for all the available domains
-and their directives/roles.
+.. seealso::
+
+   :doc:`/usage/domains/index`
+   for all the available domains and their directives/roles.
 
 
 Basic configuration
@@ -245,8 +255,10 @@ Keep in mind that the file uses Python syntax for strings, numbers, lists and
 so on.  The file is saved in UTF-8 by default, as indicated by the encoding
 declaration in the first line.
 
-|more| See :doc:`/usage/configuration` for documentation of all available
-config values.
+.. seealso::
+
+   :doc:`/usage/configuration`
+   for documentation of all available config values.
 
 
 .. todo:: Move this entire doc to a different section
@@ -259,8 +271,10 @@ source files, in documentation strings.  Sphinx supports the inclusion of
 docstrings from your modules with an :dfn:`extension` (an extension is a Python
 module that provides additional features for Sphinx projects) called *autodoc*.
 
-|more| See :mod:`sphinx.ext.autodoc` for the complete description of the
-features of autodoc.
+.. seealso::
+
+   :mod:`sphinx.ext.autodoc`
+   for the complete description of the features of autodoc.
 
 Intersphinx
 -----------
@@ -288,8 +302,10 @@ download the list of valid targets).  Intersphinx also works for some other
 :term:`domain`\'s roles including ``:ref:``, however it doesn't work for
 ``:doc:`` as that is non-domain role.
 
-|more| See :mod:`sphinx.ext.intersphinx` for the complete description of the
-features of intersphinx.
+.. seealso::
+
+   :mod:`sphinx.ext.intersphinx`
+   for the complete description of the features of intersphinx.
 
 
 More topics to be covered
@@ -308,7 +324,3 @@ More topics to be covered
 .. [#] This is the usual layout.  However, :file:`conf.py` can also live in
        another directory, the :term:`configuration directory`.  Refer to the
        :doc:`sphinx-build man page </man/sphinx-build>` for more information.
-
-.. |more| image:: /_static/more.png
-          :align: middle
-          :alt: more info
