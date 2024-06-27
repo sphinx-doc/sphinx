@@ -68,6 +68,7 @@ body {
 
 .pageheader .icons svg {
     height: 1.6em;
+    width: 1.6em;
 }
 
 div.document {
@@ -456,6 +457,51 @@ div.viewcode-block:target {
         padding-left: 0.5em;
         padding-right: 0.5em;
     }
+}
+
+/* Next/previous content footer */
+.related-pages {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 2rem;
+  font-size: smaller;
+}
+.related-pages .next-page {
+  text-align: right;
+}
+.related-pages a.prev-page,
+.related-pages a.next-page {
+    flex: 1 1 0%;
+    display: flex;
+    align-items: center;
+    border-radius: .25rem;
+    padding: .25rem;
+    text-decoration: none;
+}
+.related-pages a.prev-page {
+    justify-content: flex-start;
+    padding-left: 0;
+}
+.related-pages a.next-page {
+    justify-content: flex-end;
+    padding-right: 0;
+}
+.related-pages a:hover {
+    background-color: #f8f8f8;
+}
+.related-pages a .context {
+    font-size: small;
+    color: #5f5f5f;
+}
+.related-pages svg {
+    height: .75rem;
+    width: .75rem;
+    margin: 0 .5rem;
+    flex-shrink: 0;
+}
+.related-pages .prev-page svg {
+    transform: rotate(180deg);
 }
 
 /* ReadtheDocs docs selector */
