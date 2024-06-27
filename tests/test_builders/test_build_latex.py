@@ -1210,7 +1210,7 @@ def test_maxlistdepth_at_ten(app, status, warning):
                     confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
@@ -1281,7 +1281,7 @@ def test_latex_table_tabulars(app, status, warning):
                     confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
@@ -1342,7 +1342,7 @@ def test_latex_table_longtable(app, status, warning):
                     confoverrides={'latex_table_style': []})
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|renewcommand){', result)[1:]:
@@ -1405,7 +1405,7 @@ def test_latex_table_custom_template_caseB(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-table')
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_custom_template_caseC(app, status, warning):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'python.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' not in result
 

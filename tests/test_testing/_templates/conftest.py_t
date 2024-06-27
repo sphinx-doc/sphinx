@@ -1,0 +1,51 @@
+from __future__ import annotations
+
+import os
+
+import pytest
+
+from sphinx.testing._internal.pytest_xdist import is_pytest_xdist_enabled
+from sphinx.testing._internal.util import get_location_id
+
+from tests.test_testing._const import MAGICO_PLUGIN_NAME, SPHINX_PLUGIN_NAME
+
+pytest_plugins = [SPHINX_PLUGIN_NAME, MAGICO_PLUGIN_NAME]
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line('markers', 'serial(): mark a test as serial-only')
+    # This is to disable the 'default' xdist-group added by the test suite
+    # in the main conftest.py; note that this is only to check that whatever
+    # we are doing is correct compared to a native implementation.
+    config.addinivalue_line('markers', 'no_default_xdist_group()')
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_collection_modifyitems(
+    session: pytest.Session, config: pytest.Config, items: list[pytest.Item],
+) -> None:
+    if is_pytest_xdist_enabled(config):
+        for item in items:
+            if (
+                item.get_closest_marker('parametrize')
+                and item.get_closest_marker('no_default_xdist_group') is None
+            ):
+                fspath, lineno, _ = item.location
+                xdist_group = get_location_id((fspath, lineno or -1))
+                item.add_marker(pytest.mark.xdist_group(xdist_group), append=True)
+
+
+@pytest.fixture()
+def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
+    return False  # use the new implementation
+
+
+@pytest.fixture(scope='session')
+def rootdir() -> str:
+    parent_pytestconfig_rootpath = r"$PYTESTCONFIG_ROOTPATH"
+    return os.path.join(parent_pytestconfig_rootpath, 'tests', 'roots')
+
+
+@pytest.fixture(scope='session')
+def default_testroot() -> str:
+    return 'minimal'
