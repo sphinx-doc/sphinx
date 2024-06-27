@@ -97,6 +97,7 @@ test = [
     "defusedxml>=0.7.1", # for secure XML/HTML parsing
     "cython>=3.0",
     "setuptools>=67.0",  # for Cython compilation
+    "typing_extensions",  # for typing_extensions.Unpack
 ]
 
 [[project.authors]]
