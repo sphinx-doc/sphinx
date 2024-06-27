@@ -381,6 +381,10 @@ aside.topic {
     background-color: #f8f8f8;
 }
 
+p.topic-title {
+    margin-top: 0;
+}
+
 table {
     border-collapse: collapse;
     margin: 0 -0.5em 0 -0.5em;
