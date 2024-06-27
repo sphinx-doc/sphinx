@@ -9,6 +9,8 @@
     --admonition-radius: 3px;
 
     /* colours for admonition titles */
+    --color-admonition-bg: hsl(0, 0%, 90%);
+    --color-admonition-fg: hsl(0, 0%, 50%);
     --colour-warning-bg: hsl(28.5, 74%, 90%);
     --colour-warning-fg: hsl(28.5, 74%, 50%);
     --colour-note-bg: hsl(219.5, 84%, 90%);
@@ -409,7 +411,7 @@ div.admonition > pre, div.warning > pre {
 div.admonition > p.admonition-title {
     position: relative;
     font-weight: 500;
-    background-color: #dddddd;
+    background-color: var(--color-admonition-bg);
     margin: -1rem -1rem 0.8rem -1rem;
     padding: 0.3rem 1rem 0.3rem 2rem;
     border-radius: var(--admonition-radius) var(--admonition-radius) 0 0;
@@ -451,7 +453,7 @@ p.admonition-title::before {
 }
 
 div.admonition > p.admonition-title::before {
-    background-color: var(--colour-error-fg);
+    background-color: var(--color-admonition-fg);
     -webkit-mask-image: var(--icon-abstract);
     mask-image: var(--icon-abstract);
 }
