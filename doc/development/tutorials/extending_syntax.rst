@@ -81,7 +81,7 @@ Our new directive is declared in the ``HelloDirective`` class.
 .. literalinclude:: examples/helloworld.py
    :language: python
    :linenos:
-    :pyobject: HelloDirective
+   :pyobject: HelloDirective
 
 This class extends the :class:`.SphinxDirective` class.
 The class contains a ``run`` method,
@@ -106,7 +106,7 @@ It is a tree because each node can have children nodes, and so on:
       <document>
          <paragraph>
             <text>
-               Hallo world!
+               Hello world!
 
 The docutils_ package provides many `built-in nodes <docutils nodes_>`_,
 to represent different types of content such as
@@ -178,7 +178,7 @@ For example:
 
 .. tip::
 
-   We're not distributing this extension as a `Python package`_, we need to
+   Because we haven't installed our extension as a `Python package`_, we need to
    modify the `Python path`_ so Sphinx can find our extension. This is why we
    need the call to ``sys.path.append``.
 
