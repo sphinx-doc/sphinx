@@ -7,8 +7,8 @@ Overview
 --------
 
 The syntax of both reStructuredText and MyST can be extended
-by creating new directives - for block-level elements -
-and roles - for inline elements.
+by creating new **directives** - for block-level elements -
+and **roles** - for inline elements.
 
 In this tutorial we shall extend Sphinx to add:
 
@@ -62,7 +62,7 @@ Our new role is declared in the ``HelloRole`` class.
 .. literalinclude:: examples/helloworld.py
    :language: python
    :linenos:
-   :lines: 10-15
+   :pyobject: HelloRole
 
 This class extends the :class:`.SphinxRole` class.
 The class contains a ``run`` method,
@@ -81,7 +81,7 @@ Our new directive is declared in the ``HelloDirective`` class.
 .. literalinclude:: examples/helloworld.py
    :language: python
    :linenos:
-   :lines: 18-25
+    :pyobject: HelloDirective
 
 This class extends the :class:`.SphinxDirective` class.
 The class contains a ``run`` method,
