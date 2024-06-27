@@ -132,8 +132,7 @@ We use it to plug our new directive into Sphinx.
 
 .. literalinclude:: examples/helloworld.py
    :language: python
-   :linenos:
-   :lines: 28-
+   :pyobject: setup
 
 The simplest thing you can do is to call the
 :meth:`.Sphinx.add_role` and :meth:`.Sphinx.add_directive` methods,
