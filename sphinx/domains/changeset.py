@@ -62,8 +62,7 @@ class VersionChange(SphinxDirective):
         node['version'] = self.arguments[0]
         text = versionlabels[self.name] % self.arguments[0]
         if len(self.arguments) == 2:
-            inodes, messages = self.state.inline_text(self.arguments[1],
-                                                      self.lineno + 1)
+            inodes, messages = self.parse_inline(self.arguments[1], lineno=self.lineno + 1)
             para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
             self.set_source_info(para)
             node.append(para)

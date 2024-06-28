@@ -198,7 +198,7 @@ class Author(SphinxDirective):
         else:
             text = _('Author: ')
         emph += nodes.Text(text)
-        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
+        inodes, messages = self.parse_inline(self.arguments[0])
         emph.extend(inodes)
 
         ret: list[Node] = [para]
@@ -247,7 +247,7 @@ class Centered(SphinxDirective):
         if not self.arguments:
             return []
         subnode: Element = addnodes.centered()
-        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
+        inodes, messages = self.parse_inline(self.arguments[0])
         subnode.extend(inodes)
 
         ret: list[Node] = [subnode]
