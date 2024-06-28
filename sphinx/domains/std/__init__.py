@@ -20,6 +20,7 @@ from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
+from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -402,11 +403,12 @@ class Glossary(SphinxDirective):
 
             termnodes.extend(system_messages)
 
-            defnode = nodes.definition()
             if definition:
-                self.state.nested_parse(definition, definition.items[0][1],
-                                        defnode)
-            termnodes.append(defnode)
+                offset = definition.items[0][1]
+                definition_nodes = nested_parse_to_nodes(self.state, definition, offset=offset)
+            else:
+                definition_nodes = []
+            termnodes.append(nodes.definition('', *definition_nodes))
             items.append(nodes.definition_list_item('', *termnodes))
 
         dlist = nodes.definition_list('', *items)

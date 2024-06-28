@@ -13,6 +13,7 @@ from docutils.nodes import Node
 from sphinx import addnodes
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.parsing import _fresh_title_style_context
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -331,27 +332,13 @@ def nested_parse_with_titles(state: RSTState, content: StringList, node: Node,
 
     This is useful when the parsed content comes from a completely different
     context, such as docstrings.
+
+    This function is retained for compatability and will be deprecated in
+    Sphinx 8. Prefer ``parse_block_text()``.
     """
     with _fresh_title_style_context(state):
         ret = state.nested_parse(content, content_offset, node, match_titles=True)
     return ret
-
-
-@contextlib.contextmanager
-def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
-    # hack around title style bookkeeping
-    memo = state.memo
-    surrounding_title_styles: list[str | tuple[str, str]] = memo.title_styles
-    surrounding_section_level: int = memo.section_level
-    # clear current title styles
-    memo.title_styles = []
-    memo.section_level = 0
-    try:
-        yield
-    finally:
-        # reset title styles
-        memo.title_styles = surrounding_title_styles
-        memo.section_level = surrounding_section_level
 
 
 def clean_astext(node: Element) -> str:
