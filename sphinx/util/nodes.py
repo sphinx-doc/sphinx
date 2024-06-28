@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Element
     from docutils.parsers.rst import Directive
-    from docutils.parsers.rst.states import Inliner
+    from docutils.parsers.rst.states import Inliner, RSTState
     from docutils.statemachine import StringList
 
     from sphinx.builders import Builder
@@ -324,7 +324,7 @@ def traverse_translatable_index(
         yield node, entries
 
 
-def nested_parse_with_titles(state: Any, content: StringList, node: Node,
+def nested_parse_with_titles(state: RSTState, content: StringList, node: Node,
                              content_offset: int = 0) -> str:
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
@@ -332,16 +332,26 @@ def nested_parse_with_titles(state: Any, content: StringList, node: Node,
     This is useful when the parsed content comes from a completely different
     context, such as docstrings.
     """
+    with _fresh_title_style_context(state):
+        ret = state.nested_parse(content, content_offset, node, match_titles=True)
+    return ret
+
+
+@contextlib.contextmanager
+def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
     # hack around title style bookkeeping
-    surrounding_title_styles = state.memo.title_styles
-    surrounding_section_level = state.memo.section_level
-    state.memo.title_styles = []
-    state.memo.section_level = 0
+    memo = state.memo
+    surrounding_title_styles: list[str | tuple[str, str]] = memo.title_styles
+    surrounding_section_level: int = memo.section_level
+    # clear current title styles
+    memo.title_styles = []
+    memo.section_level = 0
     try:
-        return state.nested_parse(content, content_offset, node, match_titles=1)
+        yield
     finally:
-        state.memo.title_styles = surrounding_title_styles
-        state.memo.section_level = surrounding_section_level
+        # reset title styles
+        memo.title_styles = surrounding_title_styles
+        memo.section_level = surrounding_section_level
 
 
 def clean_astext(node: Element) -> str:
