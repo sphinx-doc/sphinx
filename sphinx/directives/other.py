@@ -267,15 +267,12 @@ class Acks(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        node = addnodes.acks()
-        node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node.children) != 1 or not isinstance(node.children[0],
-                                                     nodes.bullet_list):
+        children = self.parse_content_to_nodes()
+        if len(children) != 1 or not isinstance(children[0], nodes.bullet_list):
             logger.warning(__('.. acks content is not a list'),
                            location=(self.env.docname, self.lineno))
             return []
-        return [node]
+        return [addnodes.acks('', *children)]
 
 
 class HList(SphinxDirective):
@@ -293,15 +290,12 @@ class HList(SphinxDirective):
 
     def run(self) -> list[Node]:
         ncolumns = self.options.get('columns', 2)
-        node = nodes.paragraph()
-        node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node.children) != 1 or not isinstance(node.children[0],
-                                                     nodes.bullet_list):
+        children = self.parse_content_to_nodes()
+        if len(children) != 1 or not isinstance(children[0], nodes.bullet_list):
             logger.warning(__('.. hlist content is not a list'),
                            location=(self.env.docname, self.lineno))
             return []
-        fulllist = node.children[0]
+        fulllist = children[0]
         # create a hlist node where the items are distributed
         npercol, nmore = divmod(len(fulllist), ncolumns)
         index = 0

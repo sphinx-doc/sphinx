@@ -427,6 +427,9 @@ class SphinxDirective(Directive):
         """Get current location info for logging."""
         return ':'.join(str(s) for s in self.get_source_info())
 
+    def parse_content_to_nodes(self) -> list[Node]:
+        return nested_parse_to_nodes(self.state, self.content, offset=self.content_offset)
+
     def parse_text_to_nodes(self, content: str = '', /, *, offset: int = -1) -> list[Node]:
         if offset == -1:
             offset = self.content_offset

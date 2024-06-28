@@ -69,7 +69,7 @@ class VersionChange(SphinxDirective):
         else:
             messages = []
         if self.content:
-            self.state.nested_parse(self.content, self.content_offset, node)
+            node += self.parse_content_to_nodes()
         classes = ['versionmodified', versionlabel_classes[self.name]]
         if len(node) > 0 and isinstance(node[0], nodes.paragraph):
             # the contents start with a paragraph
