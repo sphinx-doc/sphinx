@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING
 
 import jinja2.environment
 import jinja2.nodes
 import jinja2.parser
 
+from sphinx.deprecation import RemovedInSphinx90Warning
+
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import Literal
 
 _ENV = jinja2.environment.Environment()
 
@@ -62,6 +66,12 @@ class Tags:
 
     def remove(self, tag: str) -> None:
         self._tags.discard(tag)
+
+    @property
+    def tags(self) -> dict[str, Literal[True]]:
+        warnings.warn('Tags.tags is deprecated, use methods on Tags.',
+                      RemovedInSphinx90Warning, stacklevel=2)
+        return dict.fromkeys(self._tags, True)
 
     def eval_condition(self, condition: str) -> bool:
         """Evaluate a boolean condition.
