@@ -260,10 +260,15 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
-def split_term_classifiers(line: str) -> list[str | None]:
+_term_classifiers_re = re.compile(' +: +')
+
+
+def split_term_classifiers(line: str) -> tuple[str, str | None]:
     # split line into a term and classifiers. if no classifier, None is used..
-    parts: list[str | None] = [*re.split(' +: +', line), None]
-    return parts
+    parts = _term_classifiers_re.split(line)
+    term = parts[0]
+    first_classifier = parts[1] if len(parts) >= 2 else None
+    return term, first_classifier
 
 
 def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str,
