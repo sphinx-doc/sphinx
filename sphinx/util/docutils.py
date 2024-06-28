@@ -529,7 +529,14 @@ class SphinxRole:
 
     def get_location(self) -> str:
         """Get current location info for logging."""
-        return ':'.join(str(s) for s in self.get_source_info())
+        source, line = self.get_source_info()
+        if source and line:
+            return f'{os.path.abspath(source)}:{line}'
+        if source:
+            return f'{os.path.abspath(source)}:'
+        if line:
+            return f'<unknown>:{line}'
+        return ''
 
 
 class ReferenceRole(SphinxRole):
