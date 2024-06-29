@@ -326,8 +326,10 @@ def test_gettext_section(app):
     # --- section
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
     actual = read_po(app.outdir / 'section.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
 
 
 @sphinx_intl
@@ -478,13 +480,17 @@ def test_gettext_toctree(app):
     # --- toctree (index.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'index.po')
     actual = read_po(app.outdir / 'index.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
     # --- toctree (toctree.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'toctree.po')
     actual = read_po(app.outdir / 'toctree.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
 
 
 @sphinx_intl
@@ -495,8 +501,10 @@ def test_gettext_table(app):
     # --- toctree
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
     actual = read_po(app.outdir / 'table.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
 
 
 @sphinx_intl
@@ -536,8 +544,10 @@ def test_gettext_topic(app):
     # --- topic
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
     actual = read_po(app.outdir / 'topic.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
 
 
 @sphinx_intl
@@ -560,8 +570,10 @@ def test_gettext_definition_terms(app):
     # --- definition terms: regression test for #2198, #2205
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'definition_terms.po')
     actual = read_po(app.outdir / 'definition_terms.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
 
 
 @sphinx_intl
@@ -572,8 +584,10 @@ def test_gettext_glossary_terms(app, warning):
     # --- glossary terms: regression test for #1090
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms.po')
     actual = read_po(app.outdir / 'glossary_terms.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
     warnings = warning.getvalue().replace(os.sep, '/')
     assert 'term not in glossary' not in warnings
 
@@ -586,8 +600,10 @@ def test_gettext_glossary_term_inconsistencies(app):
     # --- glossary term inconsistencies: regression test for #1090
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po')
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
 
 
 @sphinx_intl
@@ -606,16 +622,23 @@ def test_gettext_literalblock(app):
             pass  # skip code-blocks and literalblocks
 
 
-@sphinx_intl
-@pytest.mark.sphinx('gettext')
-@pytest.mark.test_params(shared_result='test_intl_gettext')
+@pytest.mark.sphinx(
+    'gettext',
+    testroot='intl-only-directive',
+    confoverrides={
+        'language': _CATALOG_LOCALE, 'locale_dirs': ['.'],
+        'gettext_compact': False,
+    },
+)
 def test_gettext_buildr_ignores_only_directive(app):
     app.build()
     # --- gettext builder always ignores ``only`` directive
-    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'only.po')
-    actual = read_po(app.outdir / 'only.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'index.po')
+    actual = read_po(app.outdir / 'index.pot')
+    actual_ids = {m.id for m in actual if m.id}
+    for expect_msg in expect:
+        if expect_msg.id:
+            assert expect_msg.id in actual_ids
 
 
 @sphinx_intl
