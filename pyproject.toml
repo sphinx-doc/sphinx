@@ -73,7 +73,7 @@ dependencies = [
     "packaging>=21.0",
     "importlib-metadata>=4.8; python_version < '3.10'",
     "tomli>=2; python_version < '3.11'",
-    "colorama>=0.4.5; sys_platform == 'win32'",
+    "colorama>=0.4.6; sys_platform == 'win32'",
 ]
 dynamic = ["version"]
 
