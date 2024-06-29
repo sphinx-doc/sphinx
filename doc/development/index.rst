@@ -17,3 +17,4 @@ For a more detailed discussion of the extension interface see :doc:`/extdev/inde
    tutorials/index
    howtos/index
    html_themes/index
+   testing/index

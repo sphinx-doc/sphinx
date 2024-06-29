@@ -17,16 +17,20 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
+from sphinx.testing.matcher import LineMatcher
 from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from pathlib import Path
-    from typing import Any
+    from typing import Any, ClassVar
     from xml.etree.ElementTree import ElementTree
 
     from docutils.nodes import Node
+    from typing_extensions import Unpack
+
+    from sphinx.testing.matcher.options import CompleteOptions, Options
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -75,6 +79,12 @@ def etree_parse(path: str | os.PathLike[str]) -> ElementTree:
     from defusedxml.ElementTree import parse as xml_parse
 
     return xml_parse(path)
+
+
+class _SphinxLineMatcher(LineMatcher):
+    default_options: ClassVar[CompleteOptions] = LineMatcher.default_options.copy()
+    default_options['keep_ansi'] = False
+    default_options['strip'] = True
 
 
 class SphinxTestApp(sphinx.application.Sphinx):
@@ -190,6 +200,14 @@ class SphinxTestApp(sphinx.application.Sphinx):
         # sphinx.application.Sphinx uses StringIO for a quiet stream
         assert isinstance(self._warning, StringIO)
         return self._warning
+
+    def stdout(self, /, **options: Unpack[Options]) -> LineMatcher:
+        """Create a line matcher object for the status messages."""
+        return _SphinxLineMatcher(self.status, **options)
+
+    def stderr(self, /, **options: Unpack[Options]) -> LineMatcher:
+        """Create a line matcher object for the warning messages."""
+        return _SphinxLineMatcher(self.warning, **options)
 
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
