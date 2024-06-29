@@ -30,7 +30,7 @@
 {% set title = _('Index') %}
 {% block body %}
 
-<h1 id="index">{% trans key=key %}Index &ndash; {{ key }}{% endtrans %}</h1>
+<h1 id="index">{% trans key=key %}Index &#x2013; {{ key }}{% endtrans %}</h1>
 
 <table style="width: 100%" class="indextable"><tr>
   {%- for column in entries|slice(2) if column %}
