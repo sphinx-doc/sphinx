@@ -71,6 +71,18 @@ jobs:
     - name: Type check with mypy
       run: mypy
 
+  locale-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install gettext
+    - name: Check locale files with gettext
+      run: make locale-check
+
   docs-lint:
     runs-on: ubuntu-latest
 

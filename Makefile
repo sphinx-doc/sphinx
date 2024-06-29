@@ -4,7 +4,7 @@ PYTHON ?= python3
 all: format style-check type-check doclinter test
 
 .PHONY: check
-check: style-check type-check doclinter
+check: style-check type-check locale-check doclinter
 
 .PHONY: clean
 clean: clean
@@ -55,6 +55,10 @@ format:
 .PHONY: type-check
 type-check:
 	@mypy
+
+.PHONY: locale-check
+locale-check:
+	@$(MAKE) -C sphinx/locale check
 
 .PHONY: doclinter
 doclinter:
