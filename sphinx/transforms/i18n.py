@@ -406,12 +406,13 @@ class Locale(SphinxTransform):
             # glossary terms update refid
             if isinstance(node, nodes.term):
                 for _id in node['ids']:
-                    parts = split_term_classifiers(msgstr)
+                    term, first_classifier = split_term_classifiers(msgstr)
                     patch = publish_msgstr(
-                        self.app, parts[0] or '', source, node.line, self.config, settings,  # type: ignore[arg-type]
+                        self.app, term or '', source, node.line, self.config, settings,  # type: ignore[arg-type]
                     )
                     updater.patch = make_glossary_term(
-                        self.env, patch, parts[1] or '', source, node.line, _id, self.document,  # type: ignore[arg-type]
+                        self.env, patch, first_classifier or '',
+                        source, node.line, _id, self.document,  # type: ignore[arg-type]
                     )
                     processed = True
 

@@ -22,7 +22,6 @@ from sphinx.util.nodes import (
     find_pending_xref_condition,
     make_id,
     make_refnode,
-    nested_parse_with_titles,
 )
 
 if TYPE_CHECKING:
@@ -417,10 +416,7 @@ class PyModule(SphinxDirective):
         no_index = 'no-index' in self.options or 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
 
-        content_node: Element = nodes.section()
-        # necessary so that the child nodes get the right source/line set
-        content_node.document = self.state.document
-        nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
+        content_nodes = self.parse_content_to_nodes()
 
         ret: list[Node] = []
         if not no_index:
@@ -444,7 +440,7 @@ class PyModule(SphinxDirective):
             # The node order is: index node first, then target node.
             ret.append(inode)
             ret.append(target)
-        ret.extend(content_node.children)
+        ret.extend(content_nodes)
         return ret
 
 

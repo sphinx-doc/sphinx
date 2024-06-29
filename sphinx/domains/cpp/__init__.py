@@ -763,10 +763,9 @@ class CPPAliasObject(ObjectDescription):
         for sig in signatures:
             node.append(AliasNode(sig, aliasOptions, env=self.env))
 
-        contentnode = addnodes.desc_content()
-        node.append(contentnode)
         self.before_content()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        content_node = addnodes.desc_content('', *self.parse_content_to_nodes())
+        node.append(content_node)
         self.env.temp_data['object'] = None
         self.after_content()
         return [node]

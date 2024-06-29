@@ -38,7 +38,7 @@ class TodoDirective(SphinxDirective):
 
         todo_node = todo('\n'.join(self.content))
         todo_node += nodes.title(_('Todo'), _('Todo'))
-        self.state.nested_parse(self.content, self.content_offset, todo_node)
+        todo_node += self.parse_content_to_nodes()
 
         if not hasattr(self.env, 'todo_all_todos'):
             self.env.todo_all_todos = []

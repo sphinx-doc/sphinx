@@ -22,6 +22,7 @@ from docutils.writers._html_base import HTMLTranslator
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.parsing import inliner_parse_text, nested_parse_to_nodes
 
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
@@ -425,6 +426,26 @@ class SphinxDirective(Directive):
     def get_location(self) -> str:
         """Get current location info for logging."""
         return ':'.join(str(s) for s in self.get_source_info())
+
+    def parse_content_to_nodes(self) -> list[Node]:
+        return nested_parse_to_nodes(self.state, self.content, offset=self.content_offset)
+
+    def parse_text_to_nodes(self, content: str = '', /, *, offset: int = -1) -> list[Node]:
+        if offset == -1:
+            offset = self.content_offset
+        return nested_parse_to_nodes(self.state, content, offset=offset)
+
+    def parse_inline(
+        self, text: str, *, lineno: int = -1,
+    ) -> tuple[list[Node], list[system_message]]:
+        """Parse *text* as inline nodes.
+
+        The text cannot contain any structural elements (headings, transitions,
+        directives, etc), so should be a simple line or paragraph of text.
+        """
+        if lineno == -1:
+            lineno = self.lineno
+        return inliner_parse_text(text, state=self.state, lineno=lineno)
 
 
 class SphinxRole:
