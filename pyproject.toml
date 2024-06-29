@@ -214,6 +214,7 @@ strict_optional = true
 warn_redundant_casts = true
 warn_unused_configs = true
 warn_unused_ignores = true
+warn_unreachable = true
 disallow_any_generics = true
 extra_checks = true
 enable_error_code = [
