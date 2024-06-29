@@ -428,6 +428,7 @@ class BuildEnvironment:
         containing document.
         """
         filename = os_path(filename)
+        filename = os.path.splitdrive(filename)[1]  # strip drive
         if filename.startswith(('/', os.sep)):
             rel_fn = filename[1:]
         else:
