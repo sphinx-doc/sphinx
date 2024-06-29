@@ -8,6 +8,7 @@ import pytest
 
 import sphinx.ext.apidoc
 from sphinx.ext.apidoc import main as apidoc_main
+from sphinx.testing.util import SphinxTestApp
 
 
 @pytest.fixture()
@@ -682,3 +683,24 @@ def test_remove_old_files(tmp_path: Path):
     apidoc_main(['--remove-old', '-o', str(gen_dir), str(module_dir)])
     assert set(gen_dir.iterdir()) == {gen_dir / 'modules.rst', gen_dir / 'example.rst'}
     assert (gen_dir / 'example.rst').stat().st_mtime == example_mtime
+
+
+@pytest.mark.sphinx(testroot='ext-apidoc')
+def test_sphinx_extension(app: SphinxTestApp):
+    """Test running apidoc as an extension."""
+    app.build()
+    assert app.warning.getvalue() == ''
+
+    assert set((app.srcdir / 'generated').iterdir()) == {
+        app.srcdir / 'generated' / 'modules.rst',
+        app.srcdir / 'generated' / 'my_package.rst',
+    }
+    assert 'show-inheritance' not in (app.srcdir / 'generated' / 'my_package.rst').read_text(encoding='utf8')
+    assert (app.outdir / 'generated' / 'my_package.html').is_file()
+
+    # test a re-build
+    app.build()
+    assert app.warning.getvalue() == ''
+
+    # TODO check nothing got re-built
+    # TODO test that old files are removed
