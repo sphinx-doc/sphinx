@@ -232,13 +232,14 @@ class _TypeParameterListParser(TokenProcessor):
         while current := self.fetch_token():
             if current == token.NAME:
                 tp_name = current.value.strip()
+                tp_kind: Parameter.kind
                 if self.previous and self.previous.match([token.OP, '*'], [token.OP, '**']):
                     if self.previous == [token.OP, '*']:
                         tp_kind = Parameter.VAR_POSITIONAL
                     else:
-                        tp_kind = Parameter.VAR_KEYWORD  # type: ignore[assignment]
+                        tp_kind = Parameter.VAR_KEYWORD
                 else:
-                    tp_kind = Parameter.POSITIONAL_OR_KEYWORD  # type: ignore[assignment]
+                    tp_kind = Parameter.POSITIONAL_OR_KEYWORD
 
                 tp_ann: Any = Parameter.empty
                 tp_default: Any = Parameter.empty
