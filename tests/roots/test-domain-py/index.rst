@@ -8,3 +8,4 @@ test-domain-py
     module_option
     abbr
     canonical
+    type_alias

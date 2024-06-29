@@ -64,3 +64,6 @@ module
 
 .. py:data:: test2
     :type: typing.Literal[-2]
+
+.. py:type:: MyType1
+    :canonical: list[int | str]

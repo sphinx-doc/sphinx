@@ -390,6 +390,46 @@ class PyProperty(PyObject):
         return _('%s (%s property)') % (attrname, clsname)
 
 
+class PyTypeAlias(PyObject):
+    """Description of a type alias."""
+
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
+    option_spec.update({
+        'canonical': directives.unchanged,
+    })
+
+    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
+        return [nodes.Text('type'), addnodes.desc_sig_space()]
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+
+        canonical = self.options.get('canonical')
+        if canonical:
+            annotations = _parse_annotation(canonical, self.env)
+            signode += addnodes.desc_annotation(canonical, '',
+                                                addnodes.desc_sig_space(),
+                                                addnodes.desc_sig_punctuation('', '='),
+                                                addnodes.desc_sig_space(),
+                                                *annotations)
+
+        return fullname, prefix
+
+    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
+        name, cls = name_cls
+        try:
+            clsname, attrname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = f'{modname}.{clsname}'
+        except ValueError:
+            if modname:
+                return _('%s (in module %s)') % (name, modname)
+            else:
+                return name
+
+        return _('%s (type alias in %s)') % (attrname, clsname)
+
+
 class PyModule(SphinxDirective):
     """
     Directive to mark description of a new module.
@@ -594,6 +634,7 @@ class PythonDomain(Domain):
         'staticmethod': ObjType(_('static method'), 'meth', 'obj'),
         'attribute':    ObjType(_('attribute'),     'attr', 'obj'),
         'property':     ObjType(_('property'),      'attr', '_prop', 'obj'),
+        'type':         ObjType(_('type alias'),    'type', 'obj'),
         'module':       ObjType(_('module'),        'mod', 'obj'),
     }
 
@@ -607,6 +648,7 @@ class PythonDomain(Domain):
         'staticmethod':    PyStaticMethod,
         'attribute':       PyAttribute,
         'property':        PyProperty,
+        'type':            PyTypeAlias,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,
@@ -619,6 +661,7 @@ class PythonDomain(Domain):
         'class': PyXRefRole(),
         'const': PyXRefRole(),
         'attr':  PyXRefRole(),
+        'type':  PyXRefRole(),
         'meth':  PyXRefRole(fix_parens=True),
         'mod':   PyXRefRole(),
         'obj':   PyXRefRole(),
