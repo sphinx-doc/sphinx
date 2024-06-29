@@ -140,7 +140,7 @@ class Sphinx:
                  buildername: str, confoverrides: dict | None = None,
                  status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
-                 tags: list[str] | None = None,
+                 tags: Sequence[str] = (),
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
                  pdb: bool = False) -> None:
         """Initialize the Sphinx application.
