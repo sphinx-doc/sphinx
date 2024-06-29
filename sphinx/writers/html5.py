@@ -325,6 +325,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['title'] = node['reftitle']
         if 'target' in node:
             atts['target'] = node['target']
+        if 'rel' in node:
+            atts['rel'] = node['rel']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
         if node.get('secnumber'):
