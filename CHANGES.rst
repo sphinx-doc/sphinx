@@ -61,6 +61,9 @@ Bugs fixed
 * #12459: Add valid-type arguments to the ``linkcheck_rate_limit_timeout``
   configuration setting.
   Patch by James Addison.
+* #11961: Omit anchor references from document title entries in the search index,
+  removing duplication of search results.
+  Patch by James Addison.
 
 Improvements
 ------------
