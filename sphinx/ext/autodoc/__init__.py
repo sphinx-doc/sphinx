@@ -2152,7 +2152,8 @@ class DataDocumenter(GenericAliasMixin,
         if not more_content:
             more_content = StringList()
 
-        self.update_content(more_content)
+        if not self.get_module_comment(self.objpath[-1]):
+            self.update_content(more_content)
         super().add_content(more_content)
 
 
@@ -2733,7 +2734,10 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
 
         if more_content is None:
             more_content = StringList()
-        self.update_content(more_content)
+
+        if not self.get_attribute_comment(self.parent, self.objpath[-1]):
+            self.update_content(more_content)
+
         super().add_content(more_content)
 
 

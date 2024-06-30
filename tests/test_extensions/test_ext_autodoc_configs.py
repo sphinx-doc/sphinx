@@ -1564,15 +1564,27 @@ def test_autodoc_typehints_format_fully_qualified_for_class_alias(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc',
                     confoverrides={'autodoc_typehints_format': "fully-qualified"})
 def test_autodoc_typehints_format_fully_qualified_for_generic_alias(app):
-    actual = do_autodoc(app, 'data', 'target.genericalias.L')
+    actual = do_autodoc(app, 'data', 'target.genericalias.L2')
     assert list(actual) == [
         '',
-        '.. py:data:: L',
+        '.. py:data:: L2',
+        '   :module: target.genericalias',
+        '',
+        '   alias of :py:class:`~typing.List`\\ [:py:class:`target.genericalias.Class`]',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc',
+                    confoverrides={'autodoc_typehints_format': "fully-qualified"})
+def test_autodoc_typehints_format_fully_qualified_for_generic_alias_having_doccomment(app):
+    actual = do_autodoc(app, 'data', 'target.genericalias.L1')
+    assert list(actual) == [
+        '',
+        '.. py:data:: L1',
         '   :module: target.genericalias',
         '',
         '   A list of Class',
-        '',
-        '   alias of :py:class:`~typing.List`\\ [:py:class:`target.genericalias.Class`]',
         '',
     ]
 
