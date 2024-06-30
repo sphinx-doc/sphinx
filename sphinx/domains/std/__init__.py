@@ -266,7 +266,7 @@ def split_term_classifiers(line: str) -> list[str | None]:
     return parts
 
 
-def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str,
+def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str | None,
                        source: str, lineno: int, node_id: str | None, document: nodes.document,
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
@@ -390,7 +390,7 @@ class Glossary(SphinxDirective):
 
                 # use first classifier as a index key
                 term = make_glossary_term(self.env, textnodes,
-                                          parts[1], source, lineno,  # type: ignore[arg-type]
+                                          parts[1], source, lineno,
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)

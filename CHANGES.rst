@@ -61,6 +61,9 @@ Bugs fixed
 * #12459: Add valid-type arguments to the ``linkcheck_rate_limit_timeout``
   configuration setting.
   Patch by James Addison.
+* #12494: Fix invalid genindex.html file produced with translated docs
+  (regression in 7.1.0).
+  Patch by Nicolas Peugnet.
 
 Improvements
 ------------
