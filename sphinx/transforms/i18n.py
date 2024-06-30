@@ -411,7 +411,8 @@ class Locale(SphinxTransform):
                         self.app, parts[0] or '', source, node.line, self.config, settings,  # type: ignore[arg-type]
                     )
                     updater.patch = make_glossary_term(
-                        self.env, patch, parts[1] or '', source, node.line, _id, self.document,  # type: ignore[arg-type]
+                        self.env, patch, parts[1] or None,
+                        source, node.line, _id, self.document,  # type: ignore[arg-type]
                     )
                     processed = True
 
