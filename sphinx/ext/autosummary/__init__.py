@@ -640,6 +640,9 @@ def import_by_name(
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
+        if prefix is not None and name.startswith(prefix):
+            # Catch and avoid module cycles (e.g., sphinx.ext.sphinx.ext...)
+            continue
         try:
             if prefix:
                 prefixed_name = f'{prefix}.{name}'
