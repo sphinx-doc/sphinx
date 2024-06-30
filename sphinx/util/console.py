@@ -93,7 +93,7 @@ def color_terminal() -> bool:
     if 'NO_COLOR' in os.environ:
         return False
     if sys.platform == 'win32' and colorama is not None:
-        colorama.init()
+        colorama.just_fix_windows_console()
         return True
     if 'FORCE_COLOR' in os.environ:
         return True
