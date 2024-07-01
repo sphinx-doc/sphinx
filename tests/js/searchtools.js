@@ -22,7 +22,8 @@ describe('Basic html theme search', function() {
         "",
         null,
         5,
-        "index.rst"
+        "index.rst",
+        "text"
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
@@ -39,7 +40,9 @@ describe('Basic html theme search', function() {
         '',
         null,
         15,
-        'index.rst']];
+        'index.rst',
+        'text'
+      ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
 
@@ -56,7 +59,8 @@ describe('Basic html theme search', function() {
         "",
         null,
         7,
-        "index.rst"
+        "index.rst",
+        "text"
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
@@ -78,7 +82,8 @@ describe('Basic html theme search', function() {
           '',
           null,
           15,
-          'index.rst'
+          'index.rst',
+          'text'
         ],
         [
           'index',
@@ -86,7 +91,8 @@ describe('Basic html theme search', function() {
           '#main-page',
           null,
           100,
-          'index.rst'
+          'index.rst',
+          'title'
         ]
       ];
       expect(Search._performSearch(...searchParameters)).toEqual(hits);
