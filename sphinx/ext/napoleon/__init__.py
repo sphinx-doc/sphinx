@@ -254,6 +254,9 @@ class Config:
           * To create a custom section that displays like the parameters or returns
             section, pass a tuple containing the custom section name and a string
             value, "params_style" or "returns_style".
+          * To create a custom section that displays according to a user defined function,
+            pass a tuple containing the custom section name and a function taking a
+            `self: sphinx.ext.napoleon.docstring.GoogleDocstring` and a `section: str`.
 
         If an entry is just a string, it is interpreted as a header for a generic
         section. If the entry is a tuple/list/indexed container, the first entry
