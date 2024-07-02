@@ -11,7 +11,7 @@ from docutils.statemachine import StringList, string2lines
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from docutils.parsers.rst.states import Inliner, RSTState, Struct
+    from docutils.parsers.rst.states import RSTState
 
 
 def nested_parse_to_nodes(
@@ -71,20 +71,6 @@ def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
         # reset title styles
         memo.title_styles = surrounding_title_styles
         memo.section_level = surrounding_section_level
-
-
-def inliner_parse_text(
-    text: str, *, state: RSTState, lineno: int = 1,
-) -> tuple[list[nodes.Node], list[nodes.system_message]]:
-    """Parse *text* as inline nodes.
-
-    The text cannot contain any structural elements (headings, transitions,
-    directives, etc), so should be a simple line or paragraph of text.
-    """
-    inliner: Inliner = state.inliner
-    memo: Struct = state.memo
-    parent: nodes.Element = state.parent
-    return inliner.parse(text, lineno, memo, parent)
 
 
 def _text_to_string_list(
