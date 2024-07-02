@@ -86,23 +86,6 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
       ``nested_parse``.
 
 
-ViewLists
-^^^^^^^^^
-
-Docutils represents document source lines in a class
-``docutils.statemachine.ViewList``.  This is a list with extended functionality
--- for one, slicing creates views of the original list, and also the list
-contains information about the source line numbers.
-
-The :attr:`Directive.content` attribute is a ViewList.  If you generate content
-to be parsed as ReST, you have to create a ViewList yourself.  Important for
-content generation are the following points:
-
-* The constructor takes a list of strings (lines) and a source (document) name.
-
-* The ``.append()`` method takes a line and a source name as well.
-
-
 Parsing directive content as ReST
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -143,6 +126,23 @@ Both APIs parse the content into a given node. They are used like this::
 
 If you don't need the wrapping node, you can use any concrete node type and
 return ``node.children`` from the Directive.
+
+
+ViewLists
+^^^^^^^^^
+
+Docutils represents document source lines in a class
+``docutils.statemachine.ViewList``.  This is a list with extended functionality
+-- for one, slicing creates views of the original list, and also the list
+contains information about the source line numbers.
+
+The :attr:`Directive.content` attribute is a ViewList.  If you generate content
+to be parsed as ReST, you have to create a ViewList yourself.  Important for
+content generation are the following points:
+
+* The constructor takes a list of strings (lines) and a source (document) name.
+
+* The ``.append()`` method takes a line and a source name as well.
 
 
 .. seealso::
