@@ -102,9 +102,9 @@ Parsing directive content as reStructuredText
 Many directives will contain more markup that must be parsed.
 To do this, use one of the following APIs from the :meth:`Directive.run` method:
 
-* :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_content_to_nodes()`
-* :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_text_to_nodes()`
-* :py:func:`~sphinx.util.parsing.nested_parse_to_nodes()`
+* :py:meth:`.SphinxDirective.parse_content_to_nodes()`
+* :py:meth:`.SphinxDirective.parse_text_to_nodes()`
+* :py:func:`sphinx.util.parsing.nested_parse_to_nodes()`
 
 The first method parses all the directive's content as markup,
 whilst the second only parses the given *text* string.
@@ -150,8 +150,6 @@ and does not contain any structural elements
 
       Until Sphinx 1.6, ``sphinx.ext.autodoc.AutodocReporter`` was used for this
       purpose.  It is replaced by ``switch_source_input()``.
-
-.. autofunction:: sphinx.util.parsing.nested_parse_to_nodes
 
 
 ViewLists
