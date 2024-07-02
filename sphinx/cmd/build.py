@@ -113,7 +113,7 @@ def jobs_argument(value: str) -> int:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
+        usage='%(prog)s [OPTIONS] [SOURCEDIR] [OUTPUTDIR] [FILENAMES...]',
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
@@ -136,12 +136,16 @@ files can be built by specifying individual filenames.
                         version=f'%(prog)s {__display_version__}')
 
     parser.add_argument('sourcedir', metavar='SOURCE_DIR',
-                        help=__('path to documentation source files'))
+                        nargs='?', default='.',
+                        help=__('path to documentation source files (default: .)'))
     parser.add_argument('outputdir', metavar='OUTPUT_DIR',
-                        help=__('path to output directory'))
+                        nargs='?', default="_build",
+                        help=__('path to output directory (default: _build)'))
     parser.add_argument('filenames', nargs='*',
                         help=__('(optional) a list of specific files to rebuild. '
-                                'Ignored if --write-all is specified'))
+                                'Ignored if --write-all is specified. To be able to pass '
+                                'this parameter, you must also pass sourcedir and '
+                                'outputdir explicitly before.'))
 
     group = parser.add_argument_group(__('general options'))
     group.add_argument('--builder', '-b', metavar='BUILDER', dest='builder',
