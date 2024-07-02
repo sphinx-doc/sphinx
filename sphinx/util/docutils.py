@@ -22,6 +22,7 @@ from docutils.writers._html_base import HTMLTranslator
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.parsing import inliner_parse_text, nested_parse_to_nodes
 
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
@@ -424,7 +425,48 @@ class SphinxDirective(Directive):
 
     def get_location(self) -> str:
         """Get current location info for logging."""
-        return ':'.join(str(s) for s in self.get_source_info())
+        source, line = self.get_source_info()
+        if source and line:
+            return f'{source}:{line}'
+        if source:
+            return f'{source}:'
+        if line:
+            return f'<unknown>:{line}'
+        return ''
+
+    def parse_content_to_nodes(self) -> list[Node]:
+        """Parse the directive's content into nodes."""
+        return nested_parse_to_nodes(self.state, self.content, offset=self.content_offset)
+
+    def parse_text_to_nodes(self, text: str = '', /, *, offset: int = -1) -> list[Node]:
+        """Parse *text* into nodes.
+
+        :param text:
+            Text, in string form. ``StringList`` is also accepted.
+        :param offset:
+            The offset of the content.
+        """
+        if offset == -1:
+            offset = self.content_offset
+        return nested_parse_to_nodes(self.state, text, offset=offset)
+
+    def parse_inline(
+        self, text: str, *, lineno: int = -1,
+    ) -> tuple[list[Node], list[system_message]]:
+        """Parse *text* as inline elements.
+
+        :param text:
+            The text to parse, which should be a single line or paragraph.
+            This cannot contain any structural elements (headings,
+            transitions, directives, etc).
+        :param lineno:
+            The line number where the interpreted text begins.
+        :returns:
+            A list of nodes (text and inline elements) and a list of system_messages.
+        """
+        if lineno == -1:
+            lineno = self.lineno
+        return inliner_parse_text(text, state=self.state, lineno=lineno)
 
 
 class SphinxRole:
@@ -494,7 +536,14 @@ class SphinxRole:
 
     def get_location(self) -> str:
         """Get current location info for logging."""
-        return ':'.join(str(s) for s in self.get_source_info())
+        source, line = self.get_source_info()
+        if source and line:
+            return f'{source}:{line}'
+        if source:
+            return f'{source}:'
+        if line:
+            return f'<unknown>:{line}'
+        return ''
 
 
 class ReferenceRole(SphinxRole):

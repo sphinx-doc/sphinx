@@ -405,7 +405,7 @@ percentage of nodes that have been translated on a per-document basis.
        for details on that software suite.
 .. [2] Because nobody expects the Spanish Inquisition!
 
-.. _`Transifex CLI tool`: https://https://github.com/transifex/cli/
+.. _`Transifex CLI tool`: https://github.com/transifex/cli/
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
 .. _Transifex: https://app.transifex.com/
 .. _Weblate's documentation: https://docs.weblate.org/en/latest/devel/sphinx.html
