@@ -274,3 +274,46 @@ This contains a GitLab CI workflow with one job of several steps:
 
 After that, if the pipeline is successful, you should be able to see your HTML
 at the designated URL.
+
+.. _gitlab_incremental_build:
+
+GitLab Pages (incremental build)
+................................
+
+If your project is large, rebuilding the whole documentation might take a long
+time. As such, we suggest using the following workflow based on our official
+`official Docker image`_ and `GitLab caching mechanism`_ to ensure that the
+HTML pages are updated incrementally.
+
+.. code-block:: yaml
+   :caption: .gitlab-ci.yml
+
+   stages:
+     - deploy
+
+   pages:
+     cache:
+       paths:
+         - docs/build
+     stage: deploy
+     image: sphinxdoc/sphinx
+     before_script:
+       - apt-get update
+       - apt-get install --no-install-recommends -y make git-restore-mtime
+     script:
+       - git restore-mtime
+       - cd docs && make html
+     after_script:
+       - cp -r docs/build/html/ ./public/
+     artifacts:
+       paths:
+       - public
+     rules:
+       - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+The `git-restore-mtime`_ command restores the modified timestamps from commits
+so that Sphinx correctly detects which files are to be rebuilt.
+
+.. _git-restore-mtime: https://github.com/MestreLion/git-tools
+.. _official Docker image: https://github.com/sphinx-doc/sphinx-docker-images
+.. _GitLab caching mechanism: https://docs.gitlab.com/ee/ci/caching/
