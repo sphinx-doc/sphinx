@@ -4,6 +4,8 @@ Docutils markup API
 This section describes the API for adding ReST markup elements (roles and
 directives).
 
+
+
 Roles
 -----
 
@@ -85,6 +87,12 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
       The state and state machine which controls the parsing.  Used for
       ``nested_parse``.
 
+.. seealso::
+
+   `Creating directives`_ HOWTO of the Docutils documentation
+
+   .. _Creating directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html
+
 
 Parsing directive content as ReST
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -143,10 +151,3 @@ content generation are the following points:
 * The constructor takes a list of strings (lines) and a source (document) name.
 
 * The ``.append()`` method takes a line and a source name as well.
-
-
-.. seealso::
-
-   `Creating directives`_ HOWTO of the Docutils documentation
-
-.. _Creating directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html
