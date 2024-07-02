@@ -186,6 +186,7 @@ nitpick_ignore = {
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
+    ('py:class', 'system_message'),  # sphinx.utils.docutils
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
     ('py:class', 'XRefRole'),  # sphinx.domains.Domain
     ('py:class', 'docutils.nodes.Element'),
