@@ -311,7 +311,7 @@ class JSModule(SphinxDirective):
         self.env.ref_context['js:module'] = mod_name
         no_index = 'no-index' in self.options or 'noindex' in self.options
 
-        content_nodes = self.parse_content_to_nodes(allow_titles=True)
+        content_nodes = self.parse_content_to_nodes(allow_section_headings=True)
 
         ret: list[Node] = []
         if not no_index:

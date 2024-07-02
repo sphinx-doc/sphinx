@@ -406,7 +406,7 @@ class Glossary(SphinxDirective):
             if definition:
                 offset = definition.items[0][1]
                 definition_nodes = nested_parse_to_nodes(
-                    self.state, definition, offset=offset, allow_titles=False,
+                    self.state, definition, offset=offset, allow_section_headings=False,
                 )
             else:
                 definition_nodes = []

@@ -278,7 +278,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             # needed for association of version{added,changed} directives
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
-        content_children = self.parse_content_to_nodes(allow_titles=True)
+        content_children = self.parse_content_to_nodes(allow_section_headings=True)
         content_node = addnodes.desc_content('', *content_children)
         node.append(content_node)
         self.transform_content(content_node)
