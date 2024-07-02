@@ -409,7 +409,7 @@ class Autosummary(SphinxDirective):
             for text in column_texts:
                 vl = StringList([text], f'{source}:{line}:<autosummary>')
                 with switch_source_input(self.state, vl):
-                    col_nodes = nested_parse_to_nodes(self.state, vl)
+                    col_nodes = nested_parse_to_nodes(self.state, vl, allow_titles=False)
                     if col_nodes and isinstance(col_nodes[0], nodes.paragraph):
                         node = col_nodes[0]
                     else:
