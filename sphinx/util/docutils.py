@@ -22,7 +22,7 @@ from docutils.writers._html_base import HTMLTranslator
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.parsing import inliner_parse_text, nested_parse_to_nodes
+from sphinx.util.parsing import nested_parse_to_nodes
 
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
@@ -466,7 +466,7 @@ class SphinxDirective(Directive):
         """
         if lineno == -1:
             lineno = self.lineno
-        return inliner_parse_text(text, state=self.state, lineno=lineno)
+        return self.state.inline_text(text, lineno)
 
 
 class SphinxRole:
