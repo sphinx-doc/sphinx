@@ -434,21 +434,49 @@ class SphinxDirective(Directive):
             return f'<unknown>:{line}'
         return ''
 
-    def parse_content_to_nodes(self) -> list[Node]:
-        """Parse the directive's content into nodes."""
-        return nested_parse_to_nodes(self.state, self.content, offset=self.content_offset)
+    def parse_content_to_nodes(self, allow_section_headings: bool = False) -> list[Node]:
+        """Parse the directive's content into nodes.
 
-    def parse_text_to_nodes(self, text: str = '', /, *, offset: int = -1) -> list[Node]:
+        :param allow_section_headings:
+            Are titles (sections) allowed in the directive's content?
+            Note that this option bypasses Docutils' usual checks on
+            doctree structure, and misuse of this option can lead to
+            an incoherent doctree. In Docutils, section nodes should
+            only be children of ``Structural`` nodes, which includes
+            ``document``, ``section``, and ``sidebar`` nodes.
+        """
+        return nested_parse_to_nodes(
+            self.state,
+            self.content,
+            offset=self.content_offset,
+            allow_section_headings=allow_section_headings,
+        )
+
+    def parse_text_to_nodes(
+        self, text: str = '', /, *, offset: int = -1, allow_section_headings: bool = False,
+    ) -> list[Node]:
         """Parse *text* into nodes.
 
         :param text:
             Text, in string form. ``StringList`` is also accepted.
+        :param allow_section_headings:
+            Are titles (sections) allowed in *text*?
+            Note that this option bypasses Docutils' usual checks on
+            doctree structure, and misuse of this option can lead to
+            an incoherent doctree. In Docutils, section nodes should
+            only be children of ``Structural`` nodes, which includes
+            ``document``, ``section``, and ``sidebar`` nodes.
         :param offset:
             The offset of the content.
         """
         if offset == -1:
             offset = self.content_offset
-        return nested_parse_to_nodes(self.state, text, offset=offset)
+        return nested_parse_to_nodes(
+            self.state,
+            text,
+            offset=offset,
+            allow_section_headings=allow_section_headings,
+        )
 
     def parse_inline(
         self, text: str, *, lineno: int = -1,

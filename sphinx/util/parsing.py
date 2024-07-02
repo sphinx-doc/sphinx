@@ -20,6 +20,7 @@ def nested_parse_to_nodes(
     *,
     source: str = '<generated text>',
     offset: int = 0,
+    allow_section_headings: bool = True,
     keep_title_context: bool = False,
 ) -> list[nodes.Node]:  # Element | nodes.Text
     """Parse *text* into nodes.
@@ -32,6 +33,13 @@ def nested_parse_to_nodes(
         The text's source, used when creating a new ``StringList``.
     :param offset:
         The offset of the content.
+    :param allow_section_headings:
+        Are titles (sections) allowed in *text*?
+        Note that this option bypasses Docutils' usual checks on
+        doctree structure, and misuse of this option can lead to
+        an incoherent doctree. In Docutils, section nodes should
+        only be children of ``Structural`` nodes, which includes
+        ``document``, ``section``, and ``sidebar`` nodes.
     :param keep_title_context:
         If this is False (the default), then *content* is parsed as if it were
         an independent document, meaning that title decorations (e.g. underlines)
@@ -49,10 +57,10 @@ def nested_parse_to_nodes(
     node.document = document
 
     if keep_title_context:
-        state.nested_parse(content, offset, node, match_titles=True)
+        state.nested_parse(content, offset, node, match_titles=allow_section_headings)
     else:
         with _fresh_title_style_context(state):
-            state.nested_parse(content, offset, node, match_titles=True)
+            state.nested_parse(content, offset, node, match_titles=allow_section_headings)
     return node.children
 
 

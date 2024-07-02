@@ -100,7 +100,7 @@ def test_sphinx_directive_parse_content_to_nodes():
     content = 'spam\n====\n\nEggs! *Lobster thermidor.*'
     directive.content = StringList(content.split('\n'), source='<source>')
 
-    parsed = directive.parse_content_to_nodes()
+    parsed = directive.parse_content_to_nodes(allow_section_headings=True)
     assert len(parsed) == 1
     node = parsed[0]
     assert isinstance(node, nodes.section)
@@ -115,7 +115,7 @@ def test_sphinx_directive_parse_text_to_nodes():
     directive = make_directive(env=SimpleNamespace())
     content = 'spam\n====\n\nEggs! *Lobster thermidor.*'
 
-    parsed = directive.parse_text_to_nodes(content)
+    parsed = directive.parse_text_to_nodes(content, allow_section_headings=True)
     assert len(parsed) == 1
     node = parsed[0]
     assert isinstance(node, nodes.section)
