@@ -2,19 +2,6 @@
 Getting Started
 ===============
 
-Sphinx is a *documentation generator* or a tool that translates a set of plain
-text source files into various output formats, automatically producing
-cross-references, indices, etc.  That is, if you have a directory containing a
-bunch of :doc:`/usage/restructuredtext/index` or :doc:`/usage/markdown`
-documents, Sphinx can generate a series of HTML files, a PDF file (via LaTeX),
-man pages and much more.
-
-Sphinx focuses on documentation, in particular handwritten documentation,
-however, Sphinx can also be used to generate blogs, homepages and even books.
-Much of Sphinx's power comes from the richness of its default plain-text markup
-format, :doc:`reStructuredText </usage/restructuredtext/index>`, along with
-its :doc:`significant extensibility capabilities </development/index>`.
-
 The goal of this document is to give you a quick taste of what Sphinx is and
 how you might use it. When you're done here, you can check out the
 :doc:`installation guide </usage/installation>` followed by the intro to the

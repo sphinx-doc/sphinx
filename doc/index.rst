@@ -5,6 +5,11 @@ Sphinx
 .. cssclass:: sphinx-tagline
 .. epigraph:: Create intelligent and beautiful documentation with ease
 
+Sphinx is a *documentation generator*. It translates plain text source files
+into various output formats (HTML, PDF, ePUB, man pages etc.). Sphinx focuses
+on technical documentation, but can also be used to generate blogs, homepages
+and books.
+
 .. container:: sphinx-features
 
    .. admonition:: 📝 Rich Text Formatting

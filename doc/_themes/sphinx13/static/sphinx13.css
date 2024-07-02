@@ -642,6 +642,7 @@ then for larger screens align them two per-row. */
     flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
+    margin-top: 2em;
 }
 .sphinx-feature {
     flex: 1 1 100%;
