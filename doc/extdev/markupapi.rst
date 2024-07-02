@@ -94,46 +94,64 @@ using :meth:`.Sphinx.add_directive` or :meth:`.Sphinx.add_directive_to_domain`.
    .. _Creating directives: https://docutils.sourceforge.io/docs/howto/rst-directives.html
 
 
-Parsing directive content as ReST
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _parsing-directive-content-as-rest:
 
-Many directives will contain more markup that must be parsed.  To do this, use
-one of the following APIs from the :meth:`Directive.run` method:
+Parsing directive content as reStructuredText
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* ``self.state.nested_parse``
-* :func:`sphinx.util.nodes.nested_parse_with_titles` -- this allows titles in
-  the parsed content.
+Many directives will contain more markup that must be parsed.
+To do this, use one of the following APIs from the :meth:`Directive.run` method:
 
-Both APIs parse the content into a given node. They are used like this::
+* :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_content_to_nodes()`
+* :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_text_to_nodes()`
+* :py:func:`~sphinx.util.parsing.nested_parse_to_nodes()`
 
-   node = docutils.nodes.paragraph()
-   # either
-   nested_parse_with_titles(self.state, self.result, node)
-   # or
-   self.state.nested_parse(self.result, 0, node)
+The first method parses all the directive's content as markup,
+whilst the second only parses the given *text* string.
+Both methods return the parsed Docutils nodes in a list.
+
+The methods are used as follows:
+
+.. code-block:: python
+
+   def run(self) -> list[Node]:
+       parsed = self.parse_content_to_nodes()
+       # or
+       parsed = self.parse_text_to_nodes('spam spam spam')
+       # or
+       parsed = nested_parse_to_nodes(self.state, 'spam spam spam')
+       return parsed
+
+To parse inline markup,
+use :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_inline()`.
+This must only be used for text which is a single line or paragraph,
+and does not contain any structural elements
+(headings, transitions, directives, etc).
 
 .. note::
 
-   ``sphinx.util.docutils.switch_source_input()`` allows to change a target file
-   during nested_parse.  It is useful to mixed contents.
-   For example, ``sphinx.ext.autodoc`` uses it to parse docstrings::
+   ``sphinx.util.docutils.switch_source_input()`` allows changing
+   the source (input) file during parsing content in a directive.
+   It is useful to parse mixed content, such as in ``sphinx.ext.autodoc``,
+   where it is used to parse docstrings.
 
-       from sphinx.util.docutils import switch_source_input
+   .. code-block:: python
 
-       # Switch source_input between parsing content.
-       # Inside this context, all parsing errors and warnings are reported as
-       # happened in new source_input (in this case, ``self.result``).
-       with switch_source_input(self.state, self.result):
-           node = docutils.nodes.paragraph()
-           self.state.nested_parse(self.result, 0, node)
+      from sphinx.util.docutils import switch_source_input
+      from sphinx.util.parsing import nested_parse_to_nodes
+
+      # Switch source_input between parsing content.
+      # Inside this context, all parsing errors and warnings are reported as
+      # happened in new source_input (in this case, ``self.result``).
+      with switch_source_input(self.state, self.result):
+          parsed = nested_parse_to_nodes(self.state, self.result)
 
    .. deprecated:: 1.7
 
       Until Sphinx 1.6, ``sphinx.ext.autodoc.AutodocReporter`` was used for this
       purpose.  It is replaced by ``switch_source_input()``.
 
-If you don't need the wrapping node, you can use any concrete node type and
-return ``node.children`` from the Directive.
+.. autofunction:: sphinx.util.parsing.nested_parse_to_nodes
 
 
 ViewLists
