@@ -425,7 +425,14 @@ class SphinxDirective(Directive):
 
     def get_location(self) -> str:
         """Get current location info for logging."""
-        return ':'.join(str(s) for s in self.get_source_info())
+        source, line = self.get_source_info()
+        if source and line:
+            return f'{source}:{line}'
+        if source:
+            return f'{source}:'
+        if line:
+            return f'<unknown>:{line}'
+        return ''
 
     def parse_content_to_nodes(self) -> list[Node]:
         """Parse the directive's content into nodes."""
@@ -529,7 +536,14 @@ class SphinxRole:
 
     def get_location(self) -> str:
         """Get current location info for logging."""
-        return ':'.join(str(s) for s in self.get_source_info())
+        source, line = self.get_source_info()
+        if source and line:
+            return f'{source}:{line}'
+        if source:
+            return f'{source}:'
+        if line:
+            return f'<unknown>:{line}'
+        return ''
 
 
 class ReferenceRole(SphinxRole):
