@@ -37,12 +37,12 @@ Features added
 * Add helper methods for parsing reStructuredText content into nodes from
   within a directive.
 
-  - :py:meth:`~SphinxDirective.parse_content_to_nodes()` parses the directive's
-    content and returns a list of Docutils nodes.
-  - :py:meth:`~SphinxDirective.parse_text_to_nodes()` parses the provided text
-     and returns a list of Docutils nodes.
-  - :py:meth:`~SphinxDirective.parse_inline()` parses the provided text
-     into inline elements and text nodes.
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_content_to_nodes()`
+    parses the directive's content and returns a list of Docutils nodes.
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_text_to_nodes()`
+    parses the provided text and returns a list of Docutils nodes.
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_inline()`
+    parses the provided text into inline elements and text nodes.
 
   Patch by Adam Turner.
 
