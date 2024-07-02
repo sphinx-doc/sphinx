@@ -438,7 +438,12 @@ class SphinxDirective(Directive):
         """Parse the directive's content into nodes.
 
         :param allow_section_headings:
-            Are titles allowed in the directive's content?
+            Are titles (sections) allowed in the directive's content?
+            Note that this option bypasses Docutils' usual checks on
+            doctree structure, and misuse of this option can lead to
+            an incoherent doctree. In Docutils, section nodes should
+            only be children of ``Structural`` nodes, which includes
+            ``document``, ``section``, and ``sidebar`` nodes.
         """
         return nested_parse_to_nodes(
             self.state,
@@ -455,7 +460,12 @@ class SphinxDirective(Directive):
         :param text:
             Text, in string form. ``StringList`` is also accepted.
         :param allow_section_headings:
-            Are titles allowed in *text*?
+            Are titles (sections) allowed in *text*?
+            Note that this option bypasses Docutils' usual checks on
+            doctree structure, and misuse of this option can lead to
+            an incoherent doctree. In Docutils, section nodes should
+            only be children of ``Structural`` nodes, which includes
+            ``document``, ``section``, and ``sidebar`` nodes.
         :param offset:
             The offset of the content.
         """
