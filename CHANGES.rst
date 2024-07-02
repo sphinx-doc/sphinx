@@ -34,7 +34,7 @@ Features added
   Patch by James Addison.
 * #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
   Patch by Hugo van Kemenade.
-* Add helper methods for parsing reStructuredText content into nodes from
+* #12492: Add helper methods for parsing reStructuredText content into nodes from
   within a directive.
 
   - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_content_to_nodes()`
