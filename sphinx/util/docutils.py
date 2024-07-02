@@ -434,21 +434,39 @@ class SphinxDirective(Directive):
             return f'<unknown>:{line}'
         return ''
 
-    def parse_content_to_nodes(self) -> list[Node]:
-        """Parse the directive's content into nodes."""
-        return nested_parse_to_nodes(self.state, self.content, offset=self.content_offset)
+    def parse_content_to_nodes(self, allow_titles: bool = False) -> list[Node]:
+        """Parse the directive's content into nodes.
 
-    def parse_text_to_nodes(self, text: str = '', /, *, offset: int = -1) -> list[Node]:
+        :param allow_titles:
+            Are titles allowed in the directive's content?
+        """
+        return nested_parse_to_nodes(
+            self.state,
+            self.content,
+            offset=self.content_offset,
+            allow_titles=allow_titles,
+        )
+
+    def parse_text_to_nodes(
+        self, text: str = '', /, *, offset: int = -1, allow_titles: bool = False,
+    ) -> list[Node]:
         """Parse *text* into nodes.
 
         :param text:
             Text, in string form. ``StringList`` is also accepted.
+        :param allow_titles:
+            Are titles allowed in *text*?
         :param offset:
             The offset of the content.
         """
         if offset == -1:
             offset = self.content_offset
-        return nested_parse_to_nodes(self.state, text, offset=offset)
+        return nested_parse_to_nodes(
+            self.state,
+            text,
+            offset=offset,
+            allow_titles=allow_titles,
+        )
 
     def parse_inline(
         self, text: str, *, lineno: int = -1,

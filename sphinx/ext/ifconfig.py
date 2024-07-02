@@ -47,7 +47,7 @@ class IfConfig(SphinxDirective):
         node.document = self.state.document
         self.set_source_info(node)
         node['expr'] = self.arguments[0]
-        node += self.parse_content_to_nodes()
+        node += self.parse_content_to_nodes(allow_titles=True)
         return [node]
 
 

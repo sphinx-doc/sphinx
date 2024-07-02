@@ -416,7 +416,7 @@ class PyModule(SphinxDirective):
         no_index = 'no-index' in self.options or 'noindex' in self.options
         self.env.ref_context['py:module'] = modname
 
-        content_nodes = self.parse_content_to_nodes()
+        content_nodes = self.parse_content_to_nodes(allow_titles=True)
 
         ret: list[Node] = []
         if not no_index:

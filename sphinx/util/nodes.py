@@ -334,7 +334,7 @@ def nested_parse_with_titles(state: RSTState, content: StringList, node: Node,
     context, such as docstrings.
 
     This function is retained for compatability and will be deprecated in
-    Sphinx 8. Prefer ``parse_block_text()``.
+    Sphinx 8. Prefer ``nested_parse_to_nodes()``.
     """
     with _fresh_title_style_context(state):
         ret = state.nested_parse(content, content_offset, node, match_titles=True)

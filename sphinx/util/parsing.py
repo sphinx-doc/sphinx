@@ -20,6 +20,7 @@ def nested_parse_to_nodes(
     *,
     source: str = '<generated text>',
     offset: int = 0,
+    allow_titles: bool = True,
     keep_title_context: bool = False,
 ) -> list[nodes.Node]:  # Element | nodes.Text
     """Parse *text* into nodes.
@@ -32,6 +33,8 @@ def nested_parse_to_nodes(
         The text's source, used when creating a new ``StringList``.
     :param offset:
         The offset of the content.
+    :param allow_titles:
+        Are titles allowed in *text*?
     :param keep_title_context:
         If this is False (the default), then *content* is parsed as if it were
         an independent document, meaning that title decorations (e.g. underlines)
@@ -49,10 +52,10 @@ def nested_parse_to_nodes(
     node.document = document
 
     if keep_title_context:
-        state.nested_parse(content, offset, node, match_titles=True)
+        state.nested_parse(content, offset, node, match_titles=allow_titles)
     else:
         with _fresh_title_style_context(state):
-            state.nested_parse(content, offset, node, match_titles=True)
+            state.nested_parse(content, offset, node, match_titles=allow_titles)
     return node.children
 
 
