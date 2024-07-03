@@ -25,7 +25,7 @@ They have to be registered by an extension using
        return elements, messages
 
 The *options* and *content* parameters are only used for custom roles
-created via the :rst:dir:`role` directive.
+created via the :dudir:`role` directive.
 The return value is a tuple of two lists,
 the first containing the text nodes and elements from the role,
 and the second containing any system messages generated.
