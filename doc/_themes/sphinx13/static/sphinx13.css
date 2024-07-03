@@ -430,6 +430,7 @@ details.admonition:not([open]) {
 details.admonition > summary.admonition-title {
     list-style: none;
     cursor: pointer;
+    padding-right: .5rem;
 }
 details.admonition > summary.admonition-title::after {
     background-color: currentcolor;
