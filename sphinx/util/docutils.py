@@ -444,6 +444,8 @@ class SphinxDirective(Directive):
             an incoherent doctree. In Docutils, section nodes should
             only be children of ``Structural`` nodes, which includes
             ``document``, ``section``, and ``sidebar`` nodes.
+
+        .. versionadded:: 7.4
         """
         return nested_parse_to_nodes(
             self.state,
@@ -468,6 +470,8 @@ class SphinxDirective(Directive):
             ``document``, ``section``, and ``sidebar`` nodes.
         :param offset:
             The offset of the content.
+
+        .. versionadded:: 7.4
         """
         if offset == -1:
             offset = self.content_offset
@@ -491,6 +495,8 @@ class SphinxDirective(Directive):
             The line number where the interpreted text begins.
         :returns:
             A list of nodes (text and inline elements) and a list of system_messages.
+
+        .. versionadded:: 7.4
         """
         if lineno == -1:
             lineno = self.lineno

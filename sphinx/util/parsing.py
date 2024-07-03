@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 from typing import TYPE_CHECKING
 
-from docutils import nodes
+from docutils.nodes import Element, Node
 from docutils.statemachine import StringList, string2lines
 
 if TYPE_CHECKING:
@@ -22,7 +22,7 @@ def nested_parse_to_nodes(
     offset: int = 0,
     allow_section_headings: bool = True,
     keep_title_context: bool = False,
-) -> list[nodes.Node]:  # Element | nodes.Text
+) -> list[Node]:  # Element | nodes.Text
     """Parse *text* into nodes.
 
     :param state:
@@ -47,13 +47,15 @@ def nested_parse_to_nodes(
         This is useful when the parsed content comes from
         a completely different context, such as docstrings.
         If this is True, then title underlines must match those in
-        the surrounding document, otherwise errors will occur. TODO: check!
+        the surrounding document, otherwise the behaviour is undefined.
+
+    .. versionadded:: 7.4
     """
     document = state.document
     content = _text_to_string_list(
         text, source=source, tab_width=document.settings.tab_width,
     )
-    node = nodes.Element()  # Anonymous container for parsing
+    node = Element()  # Anonymous container for parsing
     node.document = document
 
     if keep_title_context:
