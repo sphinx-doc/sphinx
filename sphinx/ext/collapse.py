@@ -12,15 +12,12 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
-    from docutils.parsers.rst.states import RSTState
-    from docutils.statemachine import StringList
-
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
 
 
-class collapsible(nodes.General, nodes.Element):
+class collapsible(nodes.Structural, nodes.Element):
     """Node for collapsible content.
 
     This is used by the :rst:dir:`collapse` directive.
@@ -75,28 +72,22 @@ class Collapsible(SphinxDirective):
         node.document = self.state.document
         self.set_source_info(node)
 
-        if len(self.arguments) > 0:
+        if self.arguments:
             # parse the argument as reST
-            trimmed_summary = self._prepare_argument_string(self.arguments[0].strip())
-            textnodes, messages = self.state.inline_text(trimmed_summary, self.lineno)
+            trimmed_summary = self._dedent_string(self.arguments[0].strip())
+            textnodes, messages = self.parse_inline(trimmed_summary, lineno=self.lineno)
             node.append(summary(trimmed_summary, '', *textnodes))
             node += messages
         else:
             label = 'Collapsed Content:'
             node.append(summary(label, label))
 
-        return self._parse_content(self.state, node, self.content, self.content_offset)
+        return self.parse_content_to_nodes(allow_section_headings=True)
 
     @staticmethod
-    def _prepare_argument_string(s: str) -> str:
-        """Prepare a directive argument string.
-
-        Remove common leading indentation, where the indentation of the first
-        line is ignored.
-
-        Return a list of lines usable for inserting into a docutils StringList.
-        """
-        lines = s.expandtabs().splitlines()
+    def _dedent_string(s: str) -> str:
+        """Remove common leading indentation."""
+        lines = s.expandtabs(4).splitlines()
 
         # Find minimum indentation of any non-blank lines after the first.
         # If your indent is larger than a million spaces, there's a problem…
@@ -112,58 +103,9 @@ class Collapsible(SphinxDirective):
 
         return '\n'.join(lines[:1] + [line[margin:] for line in lines[1:]])
 
-    @staticmethod
-    def _parse_content(
-        state: RSTState,
-        node: nodes.Element,
-        content: StringList,
-        offset: int,
-    ) -> list[nodes.Node]:
-        # Same as util.nested_parse_with_titles but try to handle nested
-        # sections which should be raised higher up the doctree.
-        memo = state.memo
-        surrounding_title_styles = memo.title_styles
-        surrounding_section_level = memo.section_level
-        memo.title_styles = []
-        memo.section_level = 0
-        try:
-            state.nested_parse(content, offset, node, match_titles=True)
-            title_styles = memo.title_styles
-            if (
-                not surrounding_title_styles
-                or not title_styles
-                or title_styles[0] not in surrounding_title_styles
-                or not state.parent
-            ):
-                # No nested sections so no special handling needed.
-                return [node]
-            # Calculate the depths of the current and nested sections.
-            current_depth = 0
-            parent = state.parent
-            while parent:
-                current_depth += 1
-                parent = parent.parent
-            current_depth -= 2
-            title_style = title_styles[0]
-            nested_depth = len(surrounding_title_styles)
-            if title_style in surrounding_title_styles:
-                nested_depth = surrounding_title_styles.index(title_style)
-            # Use these depths to determine where the nested sections should
-            # be placed in the doctree.
-            n_sects_to_raise = current_depth - nested_depth + 1
-            parent = state.parent
-            for _i in range(n_sects_to_raise):
-                if parent.parent:
-                    parent = parent.parent
-            parent.append(node)
-            return []
-        finally:
-            memo.title_styles = surrounding_title_styles
-            memo.section_level = surrounding_section_level
 
-
-# This constant can be modified by programmers that create their own
-# HTML builders outside the Sphinx core.
+#: This constant can be modified by programmers that create their own
+#: HTML builders outside the Sphinx core.
 HTML_5_BUILDERS = frozenset({'html', 'dirhtml'})
 
 
