@@ -2,6 +2,7 @@
 
 import os.path
 from collections import namedtuple
+from pathlib import Path
 
 import pytest
 
@@ -661,3 +662,23 @@ def test_no_duplicates(rootdir, tmp_path):
 
     finally:
         sphinx.ext.apidoc.PY_SUFFIXES = original_suffixes
+
+
+def test_remove_old_files(tmp_path: Path):
+    """Test that old files are removed when using the -r option.
+
+    Also ensure that pre-existing files are not re-written, if unchanged.
+    This is required to avoid unnecessary rebuilds.
+    """
+    module_dir = tmp_path / 'module'
+    module_dir.mkdir()
+    (module_dir / 'example.py').write_text('', encoding='utf8')
+    gen_dir = tmp_path / 'gen'
+    gen_dir.mkdir()
+    (gen_dir / 'other.rst').write_text('', encoding='utf8')
+    apidoc_main(['-o', str(gen_dir), str(module_dir)])
+    assert set(gen_dir.iterdir()) == {gen_dir / 'modules.rst', gen_dir / 'example.rst', gen_dir / 'other.rst'}
+    example_mtime = (gen_dir / 'example.rst').stat().st_mtime
+    apidoc_main(['--remove-old', '-o', str(gen_dir), str(module_dir)])
+    assert set(gen_dir.iterdir()) == {gen_dir / 'modules.rst', gen_dir / 'example.rst'}
+    assert (gen_dir / 'example.rst').stat().st_mtime == example_mtime

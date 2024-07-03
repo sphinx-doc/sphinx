@@ -11,6 +11,7 @@ import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
 from queue import Queue
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import docutils
@@ -20,6 +21,7 @@ from urllib3.poolmanager import PoolManager
 import sphinx.util.http_date
 from sphinx.builders.linkcheck import (
     CheckRequest,
+    CheckResult,
     Hyperlink,
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
@@ -32,6 +34,12 @@ from sphinx.util.console import strip_colors
 from tests.utils import CERT_FILE, serve_application
 
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from io import StringIO
+
+    from sphinx.application import Sphinx
 
 
 class DefaultsHandler(BaseHTTPRequestHandler):
@@ -101,7 +109,7 @@ class ConnectionMeasurement:
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
-def test_defaults(app):
+def test_defaults(app: Sphinx) -> None:
     with serve_application(app, DefaultsHandler) as address:
         with ConnectionMeasurement() as m:
             app.build()
@@ -146,7 +154,7 @@ def test_defaults(app):
         'info': '',
     }
 
-    def _missing_resource(filename: str, lineno: int):
+    def _missing_resource(filename: str, lineno: int) -> dict[str, str | int]:
         return {
             'filename': 'links.rst',
             'lineno': lineno,
@@ -178,7 +186,7 @@ def test_defaults(app):
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck', freshenv=True,
     confoverrides={'linkcheck_anchors': False})
-def test_check_link_response_only(app):
+def test_check_link_response_only(app: Sphinx) -> None:
     with serve_application(app, DefaultsHandler) as address:
         app.build()
 
@@ -192,7 +200,7 @@ def test_check_link_response_only(app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-too-many-retries', freshenv=True)
-def test_too_many_retries(app):
+def test_too_many_retries(app: Sphinx) -> None:
     with serve_application(app, DefaultsHandler) as address:
         app.build()
 
@@ -221,7 +229,7 @@ def test_too_many_retries(app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-raw-node', freshenv=True)
-def test_raw_node(app):
+def test_raw_node(app: Sphinx) -> None:
     with serve_application(app, OKHandler) as address:
         # write an index file that contains a link back to this webserver's root
         # URL.  docutils will replace the raw node with the contents retrieved..
@@ -254,7 +262,7 @@ def test_raw_node(app):
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-anchors-ignore', freshenv=True,
     confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"]})
-def test_anchors_ignored(app):
+def test_anchors_ignored(app: Sphinx) -> None:
     with serve_application(app, OKHandler):
         app.build()
 
@@ -282,9 +290,9 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True)
-def test_anchors_ignored_for_url(app):
+def test_anchors_ignored_for_url(app: Sphinx) -> None:
     with serve_application(app, AnchorsIgnoreForUrlHandler) as address:
-        app.config.linkcheck_anchors_ignore_for_url = [  # type: ignore[attr-defined]
+        app.config.linkcheck_anchors_ignore_for_url = [
             f'http://{address}/ignored',  # existing page
             f'http://{address}/invalid',  # unknown page
         ]
@@ -324,7 +332,7 @@ def test_anchors_ignored_for_url(app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
-def test_raises_for_invalid_status(app):
+def test_raises_for_invalid_status(app: Sphinx) -> None:
     class InternalServerErrorHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
@@ -353,24 +361,26 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
         expected_token = b64encode(":".join(valid_credentials).encode()).decode("utf-8")
         del valid_credentials
 
+    def authenticated(
+        method: Callable[[CustomHandler], None]
+    ) -> Callable[[CustomHandler], None]:
+        def method_if_authenticated(self):
+            if expected_token is None:
+                return method(self)
+            elif not self.headers["Authorization"]:
+                self.send_response(401, "Unauthorized")
+                self.end_headers()
+            elif self.headers["Authorization"] == f"Basic {expected_token}":
+                return method(self)
+            else:
+                self.send_response(403, "Forbidden")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+
+        return method_if_authenticated
+
     class CustomHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
-
-        def authenticated(method):
-            def method_if_authenticated(self):
-                if expected_token is None:
-                    return method(self)
-                elif not self.headers["Authorization"]:
-                    self.send_response(401, "Unauthorized")
-                    self.end_headers()
-                elif self.headers["Authorization"] == f"Basic {expected_token}":
-                    return method(self)
-                else:
-                    self.send_response(403, "Forbidden")
-                    self.send_header("Content-Length", "0")
-                    self.end_headers()
-
-            return method_if_authenticated
 
         @authenticated
         def do_HEAD(self):
@@ -390,9 +400,9 @@ def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
-def test_auth_header_uses_first_match(app):
+def test_auth_header_uses_first_match(app: Sphinx) -> None:
     with serve_application(app, custom_handler(valid_credentials=("user1", "password"))) as address:
-        app.config.linkcheck_auth = [  # type: ignore[attr-defined]
+        app.config.linkcheck_auth = [
             (r'^$', ('no', 'match')),
             (fr'^http://{re.escape(address)}/$', ('user1', 'password')),
             (r'.*local.*', ('user2', 'hunter2')),
@@ -409,7 +419,7 @@ def test_auth_header_uses_first_match(app):
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_allow_unauthorized': False})
-def test_unauthorized_broken(app):
+def test_unauthorized_broken(app: Sphinx) -> None:
     with serve_application(app, custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
@@ -423,7 +433,7 @@ def test_unauthorized_broken(app):
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
-def test_auth_header_no_match(app):
+def test_auth_header_no_match(app: Sphinx) -> None:
     with (
         serve_application(app, custom_handler(valid_credentials=("user1", "password"))),
         pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
@@ -439,14 +449,14 @@ def test_auth_header_no_match(app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
-def test_linkcheck_request_headers(app):
+def test_linkcheck_request_headers(app: Sphinx) -> None:
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
         return self.headers["Accept"] == "text/html"
 
     with serve_application(app, custom_handler(success_criteria=check_headers)) as address:
-        app.config.linkcheck_request_headers = {  # type: ignore[attr-defined]
+        app.config.linkcheck_request_headers = {
             f"http://{address}/": {"Accept": "text/html"},
             "*": {"X-Secret": "open sesami"},
         }
@@ -459,14 +469,14 @@ def test_linkcheck_request_headers(app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
-def test_linkcheck_request_headers_no_slash(app):
+def test_linkcheck_request_headers_no_slash(app: Sphinx) -> None:
     def check_headers(self):
         if "X-Secret" in self.headers:
             return False
         return self.headers["Accept"] == "application/json"
 
     with serve_application(app, custom_handler(success_criteria=check_headers)) as address:
-        app.config.linkcheck_request_headers = {  # type: ignore[attr-defined]
+        app.config.linkcheck_request_headers = {
             f"http://{address}": {"Accept": "application/json"},
             "*": {"X-Secret": "open sesami"},
         }
@@ -484,7 +494,7 @@ def test_linkcheck_request_headers_no_slash(app):
         "http://do.not.match.org": {"Accept": "application/json"},
         "*": {"X-Secret": "open sesami"},
     }})
-def test_linkcheck_request_headers_default(app):
+def test_linkcheck_request_headers_default(app: Sphinx) -> None:
     def check_headers(self):
         if self.headers["X-Secret"] != "open sesami":
             return False
@@ -567,9 +577,9 @@ def test_follows_redirects_on_GET(app, capsys, warning):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-warn-redirects')
-def test_linkcheck_allowed_redirects(app, warning):
+def test_linkcheck_allowed_redirects(app: Sphinx, warning: StringIO) -> None:
     with serve_application(app, make_redirect_handler(support_head=False)) as address:
-        app.config.linkcheck_allowed_redirects = {f'http://{address}/.*1': '.*'}  # type: ignore[attr-defined]
+        app.config.linkcheck_allowed_redirects = {f'http://{address}/.*1': '.*'}
         compile_linkcheck_allowed_redirects(app, app.config)
         app.build()
 
@@ -627,7 +637,7 @@ def test_invalid_ssl(get_request, app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_connect_to_selfsigned_fails(app):
+def test_connect_to_selfsigned_fails(app: Sphinx) -> None:
     with serve_application(app, OKHandler, tls_enabled=True) as address:
         app.build()
 
@@ -640,9 +650,9 @@ def test_connect_to_selfsigned_fails(app):
     assert "[SSL: CERTIFICATE_VERIFY_FAILED]" in content["info"]
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_connect_to_selfsigned_with_tls_verify_false(app):
-    app.config.tls_verify = False
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True,
+                    confoverrides={'tls_verify': False})
+def test_connect_to_selfsigned_with_tls_verify_false(app: Sphinx) -> None:
     with serve_application(app, OKHandler, tls_enabled=True) as address:
         app.build()
 
@@ -658,9 +668,9 @@ def test_connect_to_selfsigned_with_tls_verify_false(app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_connect_to_selfsigned_with_tls_cacerts(app):
-    app.config.tls_cacerts = CERT_FILE
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True,
+                    confoverrides={'tls_cacerts': CERT_FILE})
+def test_connect_to_selfsigned_with_tls_cacerts(app: Sphinx) -> None:
     with serve_application(app, OKHandler, tls_enabled=True) as address:
         app.build()
 
@@ -694,9 +704,9 @@ def test_connect_to_selfsigned_with_requests_env_var(monkeypatch, app):
     }
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True)
-def test_connect_to_selfsigned_nonexistent_cert_file(app):
-    app.config.tls_cacerts = "does/not/exist"
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-https', freshenv=True,
+                    confoverrides={'tls_cacerts': "does/not/exist"})
+def test_connect_to_selfsigned_nonexistent_cert_file(app: Sphinx) -> None:
     with serve_application(app, OKHandler, tls_enabled=True) as address:
         app.build()
 
@@ -864,7 +874,7 @@ def test_too_many_requests_retry_after_without_header(app, capsys):
         'linkcheck_timeout': 0.01,
     }
 )
-def test_requests_timeout(app):
+def test_requests_timeout(app: Sphinx) -> None:
     class DelayedResponseHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
@@ -883,9 +893,9 @@ def test_requests_timeout(app):
     assert content["status"] == "timeout"
 
 
-@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
-def test_too_many_requests_user_timeout(app):
-    app.config.linkcheck_rate_limit_timeout = 0.0
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True,
+                    confoverrides={'linkcheck_rate_limit_timeout': 0.0})
+def test_too_many_requests_user_timeout(app: Sphinx) -> None:
     with serve_application(app, make_retry_after_handler([(429, None)])) as address:
         app.build()
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -904,21 +914,21 @@ class FakeResponse:
     url = "http://localhost/"
 
 
-def test_limit_rate_default_sleep(app):
+def test_limit_rate_default_sleep(app: Sphinx) -> None:
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), {})
     with mock.patch('time.time', return_value=0.0):
         next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check == 60.0
 
 
-def test_limit_rate_user_max_delay(app):
-    app.config.linkcheck_rate_limit_timeout = 0.0
+@pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 0.0})
+def test_limit_rate_user_max_delay(app: Sphinx) -> None:
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), {})
     next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check is None
 
 
-def test_limit_rate_doubles_previous_wait_time(app):
+def test_limit_rate_doubles_previous_wait_time(app: Sphinx) -> None:
     rate_limits = {"localhost": RateLimit(60.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
     with mock.patch('time.time', return_value=0.0):
@@ -926,21 +936,23 @@ def test_limit_rate_doubles_previous_wait_time(app):
     assert next_check == 120.0
 
 
-def test_limit_rate_clips_wait_time_to_max_time(app):
-    app.config.linkcheck_rate_limit_timeout = 90.0
+@pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 90})
+def test_limit_rate_clips_wait_time_to_max_time(app: Sphinx, warning: StringIO) -> None:
     rate_limits = {"localhost": RateLimit(60.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
     with mock.patch('time.time', return_value=0.0):
         next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check == 90.0
+    assert warning.getvalue() == ''
 
 
-def test_limit_rate_bails_out_after_waiting_max_time(app):
-    app.config.linkcheck_rate_limit_timeout = 90.0
+@pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 90.0})
+def test_limit_rate_bails_out_after_waiting_max_time(app: Sphinx, warning: StringIO) -> None:
     rate_limits = {"localhost": RateLimit(90.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
     next_check = worker.limit_rate(FakeResponse.url, FakeResponse.headers.get("Retry-After"))
     assert next_check is None
+    assert warning.getvalue() == ''
 
 
 @mock.patch('sphinx.util.requests.requests.Session.get_adapter')
@@ -958,11 +970,13 @@ def test_connection_contention(get_adapter, app, capsys):
 
         # Place a workload into the linkcheck queue
         link_count = 10
-        rqueue, wqueue = Queue(), Queue()
+        wqueue: Queue[CheckRequest] = Queue()
+        rqueue: Queue[CheckResult] = Queue()
         for _ in range(link_count):
             wqueue.put(CheckRequest(0, Hyperlink(f"http://{address}", "test", "test.rst", 1)))
 
-        begin, checked = time.time(), []
+        begin = time.time()
+        checked: list[CheckResult] = []
         threads = [
             HyperlinkAvailabilityCheckWorker(
                 config=app.config,
@@ -998,7 +1012,7 @@ class ConnectionResetHandler(BaseHTTPRequestHandler):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)
-def test_get_after_head_raises_connection_error(app):
+def test_get_after_head_raises_connection_error(app: Sphinx) -> None:
     with serve_application(app, ConnectionResetHandler) as address:
         app.build()
     content = (app.outdir / 'output.txt').read_text(encoding='utf8')
@@ -1015,7 +1029,7 @@ def test_get_after_head_raises_connection_error(app):
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-documents_exclude', freshenv=True)
-def test_linkcheck_exclude_documents(app):
+def test_linkcheck_exclude_documents(app: Sphinx) -> None:
     with serve_application(app, DefaultsHandler):
         app.build()
 

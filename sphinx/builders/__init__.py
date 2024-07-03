@@ -6,7 +6,7 @@ import codecs
 import pickle
 import time
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, final
 
 from docutils import nodes
 from docutils.utils import DependencyList
@@ -71,9 +71,9 @@ class Builder:
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
     supported_image_types: list[str] = []
-    #: The builder supports remote images or not.
+    #: The builder can produce output documents that may fetch external images when opened.
     supported_remote_images = False
-    #: The builder supports data URIs or not.
+    #: The file format produced by the builder allows images to be embedded using data-URIs.
     supported_data_uri_images = False
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
@@ -92,8 +92,8 @@ class Builder:
         self.tags: Tags = app.tags
         self.tags.add(self.format)
         self.tags.add(self.name)
-        self.tags.add("format_%s" % self.format)
-        self.tags.add("builder_%s" % self.name)
+        self.tags.add(f'format_{self.format}')
+        self.tags.add(f'builder_{self.name}')
 
         # images that need to be copied over (source -> dest)
         self.images: dict[str, str] = {}
@@ -245,12 +245,14 @@ class Builder:
 
     # build methods
 
+    @final
     def build_all(self) -> None:
         """Build all source files."""
         self.compile_all_catalogs()
 
         self.build(None, summary=__('all source files'), method='all')
 
+    @final
     def build_specific(self, filenames: list[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
         docnames: list[str] = []
@@ -281,6 +283,7 @@ class Builder:
         self.build(docnames, method='specific',
                    summary=__('%d source files given on command line') % len(docnames))
 
+    @final
     def build_update(self) -> None:
         """Only rebuild what was changed or added since last build."""
         self.compile_update_catalogs()
@@ -294,13 +297,14 @@ class Builder:
                        summary=__('targets for %d source files that are out of date') %
                        len(to_build))
 
+    @final
     def build(
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
-        """Main build method.
+        """Main build method, usually called by a specific ``build_*`` method.
 
         First updates the environment, and then calls
         :meth:`!write`.
@@ -367,6 +371,7 @@ class Builder:
         # wait for all tasks
         self.finish_tasks.join()
 
+    @final
     def read(self) -> list[str]:
         """(Re-)read all files new or changed since last update.
 
@@ -473,6 +478,7 @@ class Builder:
         tasks.join()
         logger.info('')
 
+    @final
     def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
@@ -485,6 +491,7 @@ class Builder:
         filename = self.env.doc2path(docname)
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
+        self.env.temp_data['_parser'] = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
         publisher.settings.record_dependencies = DependencyList()
@@ -506,10 +513,11 @@ class Builder:
 
         self.write_doctree(docname, doctree, _cache=_cache)
 
+    @final
     def write_doctree(
         self, docname: str, doctree: nodes.document, *, _cache: bool = True,
     ) -> None:
-        """Write the doctree to a file."""
+        """Write the doctree to a file, to be used as a cache by re-builds."""
         # make it picklable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
@@ -536,8 +544,9 @@ class Builder:
         self,
         build_docnames: Iterable[str] | None,
         updated_docnames: Sequence[str],
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
+        """Write builder specific output files."""
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
@@ -558,7 +567,7 @@ class Builder:
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
 
-        with progress_message(__('copying assets')):
+        with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
         if self.parallel_ok:

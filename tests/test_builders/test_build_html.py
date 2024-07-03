@@ -222,7 +222,7 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' in result)
+            'aria-label="Main">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
     assert '<h3>Navigation</h3>' in result
     assert '<h3>Related Topics</h3>' in result
@@ -237,7 +237,7 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' in result)
+            'aria-label="Main">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' in result
@@ -251,7 +251,7 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' not in result)
+            'aria-label="Main">' not in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' not in result

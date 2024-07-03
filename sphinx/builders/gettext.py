@@ -7,7 +7,7 @@ import time
 from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from docutils import nodes
@@ -119,8 +119,8 @@ class GettextRenderer(SphinxRenderer):
 class I18nTags(Tags):
     """Dummy tags module for I18nBuilder.
 
-    To translate all text inside of only nodes, this class
-    always returns True value even if no tags are defined.
+    To ensure that all text inside ``only`` nodes is translated,
+    this class always returns ``True`` regardless the defined tags.
     """
 
     def eval_condition(self, condition: Any) -> bool:
@@ -257,11 +257,11 @@ class MessageCatalogBuilder(I18nBuilder):
                 msg = f'{template}: {exc!r}'
                 raise ThemeError(msg) from exc
 
-    def build(
+    def build(  # type: ignore[misc]
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)
@@ -299,9 +299,9 @@ def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
     gettext_compact = config.gettext_compact
     # Convert 0/1 from the command line to ``bool`` types
     if gettext_compact == '0':
-        config.gettext_compact = False  # type: ignore[attr-defined]
+        config.gettext_compact = False
     elif gettext_compact == '1':
-        config.gettext_compact = True  # type: ignore[attr-defined]
+        config.gettext_compact = True
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

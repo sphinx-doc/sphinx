@@ -803,3 +803,19 @@ def test_gettext_compact_command_line_str():
 
     # regression test for #8549 (-D gettext_compact=spam)
     assert config.gettext_compact == 'spam'
+
+
+def test_root_doc_and_master_doc_are_synchronized():
+    c = Config()
+    assert c.master_doc == 'index'
+    assert c.root_doc == c.master_doc
+
+    c = Config()
+    c.master_doc = '1234'
+    assert c.master_doc == '1234'
+    assert c.root_doc == c.master_doc
+
+    c = Config()
+    c.root_doc = '1234'
+    assert c.master_doc == '1234'
+    assert c.root_doc == c.master_doc

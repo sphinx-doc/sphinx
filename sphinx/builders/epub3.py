@@ -255,7 +255,7 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.epub_css_files = epub_css_files  # type: ignore[attr-defined]
+    config.epub_css_files = epub_css_files
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

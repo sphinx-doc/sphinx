@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
     from docutils import nodes
     from docutils.nodes import Node
+    from docutils.parsers import Parser
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -183,11 +184,21 @@ class BuildEnvironment:
         # docnames to re-read unconditionally on next build
         self.reread_always: set[str] = set()
 
-        # docname -> pickled doctree
         self._pickled_doctree_cache: dict[str, bytes] = {}
+        """In-memory cache for reading pickled doctrees from disk.
+        docname -> pickled doctree
 
-        # docname -> doctree
+        This cache is used in the ``get_doctree`` method to avoid reading the
+        doctree from disk multiple times.
+        """
+
         self._write_doc_doctree_cache: dict[str, nodes.document] = {}
+        """In-memory cache for unpickling doctrees from disk.
+        docname -> doctree
+
+        Items are added in ``Builder.write_doctree``, during the read phase,
+        then used only in the ``get_and_resolve_doctree`` method.
+        """
 
         # File metadata
         # docname -> dict of metadata items
@@ -264,10 +275,12 @@ class BuildEnvironment:
     def __getstate__(self) -> dict:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        __dict__.update(app=None, domains={}, events=None)  # clear unpickable attributes
-        # ensure that upon restoring the state, the most recent pickled files
+        # clear unpickable attributes
+        __dict__.update(app=None, domains={}, events=None)
+        # clear in-memory doctree caches, to reduce memory consumption and
+        # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
-        __dict__.update(_pickled_doctree_cache={})
+        __dict__.update(_pickled_doctree_cache={}, _write_doc_doctree_cache={})
         return __dict__
 
     def __setstate__(self, state: dict) -> None:
@@ -548,6 +561,11 @@ class BuildEnvironment:
     def docname(self) -> str:
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
+
+    @property
+    def parser(self) -> Parser:
+        """Returns the parser being used for to parse the current document."""
+        return self.temp_data['_parser']
 
     def new_serialno(self, category: str = '') -> int:
         """Return a serial number, e.g. for index entry targets.

@@ -255,6 +255,8 @@ def tail_check(check):
     ('extensions.html', ".//a[@href='https://python.org/dev/']", "https://python.org/dev/"),
     ('extensions.html', ".//a[@href='https://bugs.python.org/issue1000']", "issue 1000"),
     ('extensions.html', ".//a[@href='https://bugs.python.org/issue1042']", "explicit caption"),
+    ('extensions.html', ".//a[@class='extlink-pyurl reference external']", "https://python.org/dev/"),
+    ('extensions.html', ".//a[@class='extlink-issue reference external']", "issue 1000"),
 
     # index entries
     ('genindex.html', ".//a/strong", "Main"),
