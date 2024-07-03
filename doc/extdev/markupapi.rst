@@ -5,7 +5,6 @@ This section describes the API for adding ReST markup elements (roles and
 directives).
 
 
-
 Roles
 -----
 
