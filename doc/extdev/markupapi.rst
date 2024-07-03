@@ -170,18 +170,23 @@ and does not contain any structural elements
       purpose.  It is replaced by ``switch_source_input()``.
 
 
-ViewLists
-^^^^^^^^^
+.. _ViewLists:
 
-Docutils represents document source lines in a class
-``docutils.statemachine.ViewList``.  This is a list with extended functionality
--- for one, slicing creates views of the original list, and also the list
-contains information about the source line numbers.
+ViewLists and StringLists
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :attr:`Directive.content` attribute is a ViewList.  If you generate content
-to be parsed as ReST, you have to create a ViewList yourself.  Important for
-content generation are the following points:
+Docutils represents document source lines in a ``StringList`` class,
+which inherits from ``ViewList``, both in the ``docutils.statemachine`` module.
+This is a list with extended functionality,
+including that slicing creates views of the original list and
+that the list contains information about source line numbers.
 
-* The constructor takes a list of strings (lines) and a source (document) name.
+The :attr:`Directive.content` attribute is a ``StringList``.
+If you generate content to be parsed as reStructuredText,
+you have to create a ``StringList`` for the Docutils APIs.
+The utility functions provided by Sphinx handle this automatically.
+Important for content generation are the following points:
 
-* The ``.append()`` method takes a line and a source name as well.
+* The ``ViewList`` constructor takes a list of strings (lines)
+  and a source (document) name.
+* The ``ViewList.append()`` method takes a line and a source name as well.
