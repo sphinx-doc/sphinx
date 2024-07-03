@@ -345,13 +345,24 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     # overwritten
     def visit_admonition(self, node: Element, name: str = '') -> None:
-        self.body.append(self.starttag(
-            node, 'div', CLASS=('admonition ' + name)))
+        if node.get('collapsible'):
+            if node.get('open'):
+                self.body.append(
+                    self.starttag(node, 'details', CLASS=('admonition ' + name), open='open')
+                )
+            else:
+                self.body.append(self.starttag(node, 'details', CLASS=('admonition ' + name)))
+        else:
+            self.body.append(self.starttag(
+                node, 'div', CLASS=('admonition ' + name)))
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
     def depart_admonition(self, node: Element | None = None) -> None:
-        self.body.append('</div>\n')
+        if node and node.get('collapsible'):
+            self.body.append('</details>\n')
+        else:
+            self.body.append('</div>\n')
 
     def visit_seealso(self, node: Element) -> None:
         self.visit_admonition(node, 'seealso')
@@ -471,6 +482,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             self.body.append(self.starttag(node, 'p', '', CLASS='caption', ROLE='heading'))
             self.body.append('<span class="caption-text">')
             self.context.append('</span></p>\n')
+        elif isinstance(node.parent, nodes.Admonition) and node.parent.get("collapsible"):  # type: ignore[attr-defined]
+            self.body.append(self.starttag(node, 'summary', '', CLASS='admonition-title'))
+            self.context.append('</summary>\n')
         else:
             super().visit_title(node)
         self.add_secnumber(node)

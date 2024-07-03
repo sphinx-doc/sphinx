@@ -81,6 +81,7 @@ builtin_extensions: tuple[str, ...] = (
     'sphinx.domains.rst',
     'sphinx.domains.std',
     'sphinx.directives',
+    'sphinx.directives.admonitions',
     'sphinx.directives.code',
     'sphinx.directives.other',
     'sphinx.directives.patches',

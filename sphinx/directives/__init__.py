@@ -224,18 +224,21 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             'no-index' in self.options
             # xref RemovedInSphinx90Warning
             # deprecate noindex in Sphinx 9.0
-            or 'noindex' in self.options)
+            or 'noindex' in self.options
+        )
         node['no-index-entry'] = node['noindexentry'] = (
             'no-index-entry' in self.options
             # xref RemovedInSphinx90Warning
             # deprecate noindexentry in Sphinx 9.0
-            or 'noindexentry' in self.options)
+            or 'noindexentry' in self.options
+        )
         node['no-contents-entry'] = node['nocontentsentry'] = (
             'no-contents-entry' in self.options
             # xref RemovedInSphinx90Warning
             # deprecate nocontentsentry in Sphinx 9.0
-            or 'nocontentsentry' in self.options)
-        node['no-typesetting'] = ('no-typesetting' in self.options)
+            or 'nocontentsentry' in self.options
+        )
+        node['no-typesetting'] = 'no-typesetting' in self.options
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -282,8 +285,9 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         content_node = addnodes.desc_content('', *content_children)
         node.append(content_node)
         self.transform_content(content_node)
-        self.env.app.emit('object-description-transform',
-                          self.domain, self.objtype, content_node)
+        self.env.app.emit(
+            'object-description-transform', self.domain, self.objtype, content_node
+        )
         DocFieldTransformer(self).transform_all(content_node)
         self.env.temp_data['object'] = None
         self.after_content()
@@ -294,8 +298,11 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             # If ``:no-index:`` is set, or there are no ids on the node
             # or any of its children, then just return the index node,
             # as Docutils expects a target node to have at least one id.
-            if node_ids := [node_id for el in node.findall(nodes.Element)  # type: ignore[var-annotated]
-                            for node_id in el.get('ids', ())]:
+            if node_ids := [
+                node_id
+                for el in node.findall(nodes.Element)  # type: ignore[var-annotated]
+                for node_id in el.get('ids', ())
+            ]:
                 target_node = nodes.target(ids=node_ids)
                 self.set_source_info(target_node)
                 return [self.indexnode, target_node]
@@ -316,16 +323,20 @@ class DefaultRole(SphinxDirective):
             docutils.unregister_role('')
             return []
         role_name = self.arguments[0]
-        role, messages = roles.role(role_name, self.state_machine.language,
-                                    self.lineno, self.state.reporter)
+        role, messages = roles.role(
+            role_name, self.state_machine.language, self.lineno, self.state.reporter
+        )
         if role:
             docutils.register_role('', role)  # type: ignore[arg-type]
             self.env.temp_data['default_role'] = role_name
         else:
             literal_block = nodes.literal_block(self.block_text, self.block_text)
             reporter = self.state.reporter
-            error = reporter.error('Unknown interpreted text role "%s".' % role_name,
-                                   literal_block, line=self.lineno)
+            error = reporter.error(
+                'Unknown interpreted text role "%s".' % role_name,
+                literal_block,
+                line=self.lineno,
+            )
             messages += [error]
 
         return cast(list[nodes.Node], messages)
@@ -355,7 +366,7 @@ class DefaultDomain(SphinxDirective):
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value("strip_signature_backslash", False, 'env')
+    app.add_config_value('strip_signature_backslash', False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)
