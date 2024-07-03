@@ -284,6 +284,32 @@ units as well as normal text.
 
          This function is not suitable for sending spam e-mails.
 
+   Add a ``:collapsible:`` option to make the note collapsible.
+   This is useful for long notes that are not always relevant.
+   Example::
+
+      .. note::
+         :collapsible:
+
+         This note is collapsed.
+
+      .. note::
+         :collapsible:
+         :open:
+
+         This note is collapsible, but initially open.
+
+   .. note::
+      :collapsible:
+
+      This note is collapsed.
+
+   .. note::
+      :collapsible:
+      :open:
+
+      This note is collapsible, but initially open.
+
 .. rst:directive:: .. warning::
 
    An important bit of information about an API that a user should be very aware
