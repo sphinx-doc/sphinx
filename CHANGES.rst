@@ -73,6 +73,9 @@ Bugs fixed
 * #12459: Add valid-type arguments to the ``linkcheck_rate_limit_timeout``
   configuration setting.
   Patch by James Addison.
+* #12331: Resolve data-URI-image-extraction regression from v7.3.0 affecting
+  builders without native support for data-URIs in their output format.
+  Patch by James Addison.
 
 Improvements
 ------------
