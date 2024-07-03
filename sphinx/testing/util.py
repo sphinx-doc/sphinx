@@ -21,7 +21,7 @@ from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
     from pathlib import Path
     from typing import Any
     from xml.etree.ElementTree import ElementTree
@@ -112,7 +112,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
         confoverrides: dict[str, Any] | None = None,
         status: StringIO | None = None,
         warning: StringIO | None = None,
-        tags: list[str] | None = None,
+        tags: Sequence[str] = (),
         docutils_conf: str | None = None,  # extra constructor argument
         parallel: int = 0,
         # additional arguments at the end to keep the signature

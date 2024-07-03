@@ -589,12 +589,10 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 
 def get_node_location(node: Node) -> str | None:
     source, line = get_source_line(node)
-    if source:
-        source = abspath(source)
     if source and line:
-        return f"{source}:{line}"
+        return f"{abspath(source)}:{line}"
     if source:
-        return f"{source}:"
+        return f"{abspath(source)}:"
     if line:
         return f"<unknown>:{line}"
     return None
