@@ -108,7 +108,7 @@ def generate_latex_macro(image_format: str,
         template_name = 'template.tex'
 
     for template_dir in config.templates_path:
-        for template_suffix in ('_t', '.jinja'):
+        for template_suffix in ('.jinja', '_t'):
             template = path.join(confdir, template_dir, template_name + template_suffix)
             if path.exists(template):
                 return LaTeXRenderer().render(template, variables)
