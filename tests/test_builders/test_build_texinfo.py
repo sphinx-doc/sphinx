@@ -43,6 +43,7 @@ def test_texinfo_rubric(app, status, warning):
     output = (app.outdir / 'python.texi').read_text(encoding='utf8')
     assert '@heading This is a rubric' in output
     assert '@heading This is a multiline rubric' in output
+    assert '@heading A rubric with a heading level' in output
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-citation')

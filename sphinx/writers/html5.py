@@ -511,6 +511,20 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         super().depart_title(node)
 
     # overwritten
+    def visit_rubric(self, node: Element) -> None:
+        if level := node.get("level"):
+            self.body.append(self.starttag(node, f'h{level}', '', CLASS='rubric'))
+        else:
+            super().visit_rubric(node)
+
+    # overwritten
+    def depart_rubric(self, node: Element) -> None:
+        if level := node.get("level"):
+            self.body.append(f'</h{level}>\n')
+        else:
+            super().depart_rubric(node)
+
+    # overwritten
     def visit_literal_block(self, node: Element) -> None:
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight

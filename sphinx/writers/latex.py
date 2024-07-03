@@ -958,7 +958,14 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_rubric(self, node: Element) -> None:
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
-        self.body.append(r'\subsubsection*{')
+        tag = {
+            1: 'section',
+            2: 'subsection',
+            3: 'subsubsection',
+            4: 'paragraph',
+            5: 'subparagraph',
+        }.get(node.get('level', 0), 'subsubsection')
+        self.body.append(rf'\{tag}*{{')
         self.context.append('}' + CR)
         self.in_title = 1
 

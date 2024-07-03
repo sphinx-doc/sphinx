@@ -176,12 +176,38 @@ class MathDirective(SphinxDirective):
         ret.insert(0, target)
 
 
+class Rubric(SphinxDirective):
+    """A patch of the docutils' :rst:dir:`rubric` directive,
+    which adds a level option to specify the heading level of the rubric.
+    """
+
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {
+        'class': directives.class_option,
+        'name': directives.unchanged,
+        'level': lambda c: directives.choice(c, ('1', '2', '3', '4', '5')),
+    }
+
+    def run(self) -> list[Node]:
+        set_classes(self.options)
+        rubric_text = self.arguments[0]
+        textnodes, messages = self.parse_inline(rubric_text, lineno=self.lineno)
+        rubric = nodes.rubric(rubric_text, '', *textnodes, **self.options)
+        self.add_name(rubric)
+        if 'level' in self.options:
+            rubric['level'] = int(self.options['level'])
+        return [rubric, *messages]
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)
     directives.register_directive('code', Code)
     directives.register_directive('math', MathDirective)
+    directives.register_directive('rubric', Rubric)
 
     return {
         'version': 'builtin',

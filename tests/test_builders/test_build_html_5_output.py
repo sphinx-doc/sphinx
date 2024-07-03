@@ -275,3 +275,11 @@ def tail_check(check):
 def test_html5_output(app, cached_etree_parse, fname, path, check):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
+
+
+@pytest.mark.sphinx('html', testroot='markup-rubric')
+def test_html5_rubric(app):
+    app.build()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<p class="rubric">This is a rubric</p>' in content
+    assert '<h2 class="my-class rubric">A rubric with a heading level</h2>' in content
