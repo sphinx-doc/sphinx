@@ -1,12 +1,52 @@
 Docutils markup API
 ===================
 
-This section describes the API for adding ReST markup elements (roles and
-directives).
+This section describes the API for adding reStructuredText markup elements
+(roles and directives).
 
 
 Roles
 -----
+
+Roles follow the interface described below.
+They have to be registered by an extension using
+:meth:`.Sphinx.add_role` or :meth:`.Sphinx.add_role_to_domain`.
+
+
+.. code-block:: python
+
+   def role_function(
+       role_name: str, raw_source: str, text: str,
+       lineno: int, inliner: Inliner,
+       options: dict = {}, content: list = [],
+   ) -> tuple[list[Node], list[system_message]]:
+       elements = []
+       messages = []
+       return elements, messages
+
+The *options* and *content* parameters are only used for custom roles
+created via the :rst:dir:`role` directive.
+The return value is a tuple of two lists,
+the first containing the text nodes and elements from the role,
+and the second containing any system messages generated.
+For more information, see the `custom role overview`_ from Docutils.
+
+.. _custom role overview: https://docutils.sourceforge.io/docs/howto/rst-roles.html
+
+
+Creating custom roles
+^^^^^^^^^^^^^^^^^^^^^
+
+Sphinx provides two base classes for creating custom roles,
+:class:`~sphinx.util.docutils.SphinxRole` and :class:`~sphinx.util.docutils.ReferenceRole`.
+
+These provide a class-based interface for creating roles,
+where the main logic must be implemented in your ``run()`` method.
+The classes provide a number of useful methods and attributes,
+such as ``self.text``, ``self.config``, and ``self.env``.
+The ``ReferenceRole`` class implements Sphinx's ``title <target>`` logic,
+exposing ``self.target`` and ``self.title`` attributes.
+This is useful for creating cross-reference roles.
 
 
 Directives
