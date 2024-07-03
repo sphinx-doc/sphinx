@@ -1460,7 +1460,7 @@ def test_additional_targets_should_be_translated(app):
         """<span class="c1"># SYS IMPORTING</span>""")
     assert_count(expected_expr, result, 1)
 
-    # '#noqa' should remain in literal blocks.
+    # 'noqa' comments should remain in literal blocks.
     assert_count("#noqa", result, 1)
 
     # [raw.txt]
