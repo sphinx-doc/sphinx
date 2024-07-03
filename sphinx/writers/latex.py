@@ -524,6 +524,8 @@ class LaTeXTranslator(SphinxTranslator):
             elif template_name.endswith('.jinja'):
                 legacy_template = template[:-len('.jinja')] + '_t'
                 if path.exists(legacy_template):
+                    logger.warning(__('template %s not found; loading from legacy %s instead'),
+                                   template_name, legacy_template)
                     return renderer.render(legacy_template, variables)
 
         return renderer.render(template_name, variables)
