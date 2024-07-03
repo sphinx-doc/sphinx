@@ -100,11 +100,10 @@ Parsing directive content as reStructuredText
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Many directives will contain more markup that must be parsed.
-To do this, use one of the following APIs from the :meth:`Directive.run` method:
+To do this, use one of the following APIs from the :meth:`~Directive.run` method:
 
 * :py:meth:`.SphinxDirective.parse_content_to_nodes()`
 * :py:meth:`.SphinxDirective.parse_text_to_nodes()`
-* :py:func:`sphinx.util.parsing.nested_parse_to_nodes()`
 
 The first method parses all the directive's content as markup,
 whilst the second only parses the given *text* string.
@@ -115,12 +114,31 @@ The methods are used as follows:
 .. code-block:: python
 
    def run(self) -> list[Node]:
+       # either
        parsed = self.parse_content_to_nodes()
        # or
        parsed = self.parse_text_to_nodes('spam spam spam')
-       # or
-       parsed = nested_parse_to_nodes(self.state, 'spam spam spam')
        return parsed
+
+.. note::
+
+   The above utility methods were added in Sphinx 7.4.
+   Prior to Sphinx 7.4, the following methods should be used to parse content:
+
+   * ``self.state.nested_parse``
+   * :func:`sphinx.util.nodes.nested_parse_with_titles` -- this allows titles in
+     the parsed content.
+
+   .. code-block:: python
+
+      def run(self) -> list[Node]:
+          container = docutils.nodes.Element()
+          # either
+          nested_parse_with_titles(self.state, self.result, container)
+          # or
+          self.state.nested_parse(self.result, 0, container)
+          parsed = container.children
+          return parsed
 
 To parse inline markup,
 use :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_inline()`.

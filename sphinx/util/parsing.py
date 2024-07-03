@@ -48,6 +48,8 @@ def nested_parse_to_nodes(
         a completely different context, such as docstrings.
         If this is True, then title underlines must match those in
         the surrounding document, otherwise errors will occur. TODO: check!
+
+    .. versionadded:: 7.4
     """
     document = state.document
     content = _text_to_string_list(
