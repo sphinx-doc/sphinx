@@ -47,7 +47,7 @@ def nested_parse_to_nodes(
         This is useful when the parsed content comes from
         a completely different context, such as docstrings.
         If this is True, then title underlines must match those in
-        the surrounding document, otherwise errors will occur. TODO: check!
+        the surrounding document, otherwise the behaviour is undefined.
 
     .. versionadded:: 7.4
     """
