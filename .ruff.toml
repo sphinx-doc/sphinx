@@ -445,7 +445,7 @@ exclude = [
     "sphinx/builders/*",
     "sphinx/cmd/*",
     "sphinx/config.py",
-    "sphinx/directives/__init__.py ",
+    "sphinx/directives/__init__.py",
     "sphinx/directives/code.py",
     "sphinx/directives/other.py",
     "sphinx/directives/patches.py",
