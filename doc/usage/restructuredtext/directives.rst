@@ -284,6 +284,10 @@ units as well as normal text.
 
          This function is not suitable for sending spam e-mails.
 
+   .. note::
+
+      This function is not suitable for sending spam e-mails.
+
    Add a ``:collapsible:`` option to make the note collapsible.
    This is useful for long notes that are not always relevant.
    Example::
