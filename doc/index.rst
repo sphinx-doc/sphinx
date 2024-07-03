@@ -92,7 +92,7 @@ Sphinx
          :align: center
          :target: https://docs.python.org
 
-         Python Foundation
+         Python
 
       .. figure:: _static/linux-logo.png
          :alt: Linux Logo
