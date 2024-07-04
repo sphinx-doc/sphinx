@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 from docutils.nodes import Element, Node
 from docutils.statemachine import StringList, string2lines
@@ -14,8 +14,11 @@ if TYPE_CHECKING:
     from docutils.parsers.rst.states import RSTState
 
 
+_RSTContext = TypeVar("_RSTContext")
+
+
 def nested_parse_to_nodes(
-    state: RSTState,
+    state: RSTState[_RSTContext],
     text: str | StringList,
     *,
     source: str = '<generated text>',
@@ -67,7 +70,7 @@ def nested_parse_to_nodes(
 
 
 @contextlib.contextmanager
-def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
+def _fresh_title_style_context(state: RSTState[_RSTContext]) -> Iterator[None]:
     # hack around title style bookkeeping
     memo = state.memo
     surrounding_title_styles: list[str | tuple[str, str]] = memo.title_styles
