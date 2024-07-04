@@ -86,6 +86,9 @@ Bugs fixed
 * #12331: Resolve data-URI-image-extraction regression from v7.3.0 affecting
   builders without native support for data-URIs in their output format.
   Patch by James Addison.
+* #12494: Fix invalid genindex.html file produced with translated docs
+  (regression in 7.1.0).
+  Patch by Nicolas Peugnet.
 
 Testing
 -------
