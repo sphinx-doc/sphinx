@@ -13,14 +13,6 @@ Deprecated
 Features added
 --------------
 
-* #12456: Add :option:`sphinx-autogen --remove-old` option.
-  Patch by Chris Sewell.
-* #12448: Add :option:`sphinx-apidoc --remove-old` option.
-  Patch by Chris Sewell.
-* #12358: Add :attr:`.Sphinx.fresh_env_used`.
-  Patch by Chris Sewell.
-* #12361: Add :attr:`.BuildEnvironment.parser`.
-  Patch by Chris Sewell.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files.
   Patch by James Addison and Adam Turner
@@ -29,11 +21,41 @@ Features added
 * Flatten ``Union[Literal[T], Literal[U], ...]`` to ``Literal[T, U, ...]``
   when turning annotations into strings.
   Patch by Adam Turner.
+* #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
+  Patch by Hugo van Kemenade.
+* #12387: Improve CLI progress message, when copying assets.
+  Patch by INADA Nakoi and Bénédikt Tran.
+* #12361: Add :attr:`.BuildEnvironment.parser`.
+  Patch by Chris Sewell.
+* #12358: Add :attr:`.Sphinx.fresh_env_used`.
+  Patch by Chris Sewell.
 * #12329: Add detection of ambiguous ``std:label`` and ``std:term`` references during
   loading and resolution of Intersphinx targets.
   Patch by James Addison.
-* #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
-  Patch by Hugo van Kemenade.
+* #12422: Do not duplicate "navigation" in aria-label of built-in themes.
+  Patch by Thomas Weißschuh
+* #12421: Include project name in ``logo_alt`` of built-in themes.
+  Patch by Thomas Weißschuh
+* #12448: Add :option:`sphinx-apidoc --remove-old` option.
+  Patch by Chris Sewell.
+* #12456: Add :option:`sphinx-autogen --remove-old` option.
+  Patch by Chris Sewell.
+* #12479: Add warning subtype ``toc.no_title``.
+  Patch by Ondřej Navrátil.
+* #12492: Add helper methods for parsing reStructuredText content into nodes from
+  within a directive.
+
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_content_to_nodes()`
+    parses the directive's content and returns a list of Docutils nodes.
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_text_to_nodes()`
+    parses the provided text and returns a list of Docutils nodes.
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_inline()`
+    parses the provided text into inline elements and text nodes.
+
+  Patch by Adam Turner.
+
+* #12258: Support ``typing_extensions.Unpack``
+  Patch by Bénédikt Tran and Adam Turner.
 
 Bugs fixed
 ----------
@@ -61,19 +83,15 @@ Bugs fixed
 * #12459: Add valid-type arguments to the ``linkcheck_rate_limit_timeout``
   configuration setting.
   Patch by James Addison.
+* #12331: Resolve data-URI-image-extraction regression from v7.3.0 affecting
+  builders without native support for data-URIs in their output format.
+  Patch by James Addison.
+* #12494: Fix invalid genindex.html file produced with translated docs
+  (regression in 7.1.0).
+  Patch by Nicolas Peugnet.
 * #11961: Omit anchor references from document title entries in the search index,
   removing duplication of search results.
   Patch by James Addison.
-
-Improvements
-------------
-
-* #12387: Improve CLI progress message, when copying assets.
-  Patch by Bénédikt Tran.
-* #12422: Do not duplicate "navigation" in aria-label of built-in themes.
-  Patch by Thomas Weißschuh
-* #12421: Include project name in ``logo_alt`` of built-in themes.
-  Patch by Thomas Weißschuh
 
 Testing
 -------
