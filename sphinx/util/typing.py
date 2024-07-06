@@ -24,7 +24,7 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal
+    from typing import Final, Literal, Protocol
 
     from docutils.parsers.rst.states import RSTState as _RSTStateGeneric
     from typing_extensions import TypeAlias, TypeIs
@@ -95,10 +95,25 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[
-    [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
-    tuple[list[nodes.Node], list[nodes.system_message]],
-]
+if TYPE_CHECKING:
+    class RoleFunction(Protocol):
+        def __call__(
+            self,
+            name: str,
+            rawtext: str,
+            text: str,
+            lineno: int,
+            inliner: Inliner,
+            /,
+            options: dict[str, Any] | None = None,
+            content: Sequence[str] = (),
+        ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
+            ...
+else:
+    RoleFunction = Callable[
+        [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+        tuple[list[nodes.Node], list[nodes.system_message]],
+    ]
 
 # A option spec for directive
 OptionSpec = dict[str, Callable[[str], Any]]
