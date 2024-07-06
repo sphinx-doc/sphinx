@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.nodes import Element, Node
 from docutils.statemachine import StringList, string2lines
@@ -11,14 +11,11 @@ from docutils.statemachine import StringList, string2lines
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    # TODO(py312+):
-    # Attempt to improve on 'Any' generic type-arg, perhaps using the 'type' stmt
-    # Ref: https://github.com/sphinx-doc/sphinx/issues/10785#issuecomment-1897551241
-    from docutils.parsers.rst.states import RSTState
+    from sphinx.util.typing import _RSTState as RSTState
 
 
 def nested_parse_to_nodes(
-    state: RSTState[Any],
+    state: RSTState,
     text: str | StringList,
     *,
     source: str = '<generated text>',
@@ -70,7 +67,7 @@ def nested_parse_to_nodes(
 
 
 @contextlib.contextmanager
-def _fresh_title_style_context(state: RSTState[Any]) -> Iterator[None]:
+def _fresh_title_style_context(state: RSTState) -> Iterator[None]:
     # hack around title style bookkeeping
     memo = state.memo
     surrounding_title_styles: list[str | tuple[str, str]] = memo.title_styles

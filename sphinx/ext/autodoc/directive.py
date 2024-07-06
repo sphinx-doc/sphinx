@@ -13,7 +13,7 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
-    from docutils.parsers.rst.states import RSTState
+    from sphinx.util.typing import _RSTState as RSTState
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
