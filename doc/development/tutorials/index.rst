@@ -6,7 +6,7 @@ Tutorials
 .. toctree::
    :maxdepth: 2
 
-   helloworld
-   todo
-   recipe
+   extending_syntax
+   extending_build
+   adding_domain
    autodoc_ext

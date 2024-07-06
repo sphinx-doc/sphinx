@@ -20,6 +20,7 @@ from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
+from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -260,13 +261,18 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
-def split_term_classifiers(line: str) -> list[str | None]:
+_term_classifiers_re = re.compile(' +: +')
+
+
+def split_term_classifiers(line: str) -> tuple[str, str | None]:
     # split line into a term and classifiers. if no classifier, None is used..
-    parts: list[str | None] = [*re.split(' +: +', line), None]
-    return parts
+    parts = _term_classifiers_re.split(line)
+    term = parts[0]
+    first_classifier = parts[1] if len(parts) >= 2 else None
+    return term, first_classifier
 
 
-def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str,
+def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str | None,
                        source: str, lineno: int, node_id: str | None, document: nodes.document,
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
@@ -382,15 +388,14 @@ class Glossary(SphinxDirective):
             termnodes: list[Node] = []
             system_messages: list[Node] = []
             for line, source, lineno in terms:
-                parts = split_term_classifiers(line)
+                term_, first_classifier = split_term_classifiers(line)
                 # parse the term with inline markup
                 # classifiers (parts[1:]) will not be shown on doctree
-                textnodes, sysmsg = self.state.inline_text(parts[0],
-                                                           lineno)
+                textnodes, sysmsg = self.parse_inline(term_, lineno=lineno)
 
                 # use first classifier as a index key
                 term = make_glossary_term(self.env, textnodes,
-                                          parts[1], source, lineno,  # type: ignore[arg-type]
+                                          first_classifier, source, lineno,
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
@@ -398,11 +403,14 @@ class Glossary(SphinxDirective):
 
             termnodes.extend(system_messages)
 
-            defnode = nodes.definition()
             if definition:
-                self.state.nested_parse(definition, definition.items[0][1],
-                                        defnode)
-            termnodes.append(defnode)
+                offset = definition.items[0][1]
+                definition_nodes = nested_parse_to_nodes(
+                    self.state, definition, offset=offset, allow_section_headings=False,
+                )
+            else:
+                definition_nodes = []
+            termnodes.append(nodes.definition('', *definition_nodes))
             items.append(nodes.definition_list_item('', *termnodes))
 
         dlist = nodes.definition_list('', *items)

@@ -185,7 +185,10 @@ nitpick_ignore = {
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
+    ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
+    ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
+    ('py:class', 'system_message'),  # sphinx.utils.docutils.SphinxDirective
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
     ('py:class', 'XRefRole'),  # sphinx.domains.Domain
     ('py:class', 'docutils.nodes.Element'),
@@ -306,6 +309,9 @@ def build_redirects(app: Sphinx, exception: Exception | None) -> None:
         (('development', 'builders.html'), 'howtos/builders.html'),
         (('development', 'theming.html'), 'html_themes/index.html'),
         (('development', 'templating.html'), 'html_themes/templating.html'),
+        (('development', 'tutorials', 'helloworld.html'), 'extending_syntax.html'),
+        (('development', 'tutorials', 'todo.html'), 'extending_build.html'),
+        (('development', 'tutorials', 'recipe.html'), 'adding_domain.html'),
     ):
         path = app.outdir.joinpath(*page)
         if path.exists():

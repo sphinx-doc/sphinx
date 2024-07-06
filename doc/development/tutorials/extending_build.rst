@@ -1,14 +1,20 @@
-Developing a "TODO" extension
-=============================
+.. _tutorial-extend-build:
+
+Extending the build process
+===========================
 
 The objective of this tutorial is to create a more comprehensive extension than
-that created in :doc:`helloworld`. Whereas that guide just covered writing a
-custom :term:`directive`, this guide adds multiple directives, along with custom
-nodes, additional config values and custom event handlers. To this end, we will
-cover a ``todo`` extension that adds capabilities to include todo entries in the
-documentation, and to collect these in a central place. This is similar the
-``sphinxext.todo`` extension distributed with Sphinx.
+that created in :ref:`tutorial-extending-syntax`.
+Whereas that guide just covered writing
+a custom :term:`role` and :term:`directive`,
+this guide covers a more complex extension to the Sphinx build process;
+adding multiple directives,
+along with custom nodes, additional config values and custom event handlers.
 
+To this end, we will cover a ``todo`` extension
+that adds capabilities to include todo entries in the documentation,
+and to collect these in a central place.
+This is similar to the :mod:`sphinx.ext.todo` extension distributed with Sphinx.
 
 Overview
 --------
@@ -47,7 +53,8 @@ For that, we will need to add the following elements to Sphinx:
 Prerequisites
 -------------
 
-As with :doc:`helloworld`, we will not be distributing this plugin via PyPI so
+As with :ref:`tutorial-extending-syntax`,
+we will not be distributing this plugin via PyPI so
 once again we need a Sphinx project to call this from. You can use an existing
 project or create a new one using :program:`sphinx-quickstart`.
 
@@ -83,7 +90,8 @@ explain in detail shortly:
    :language: python
    :linenos:
 
-This is far more extensive extension than the one detailed in :doc:`helloworld`,
+This is far more extensive extension than the one detailed in
+:ref:`tutorial-extending-syntax`,
 however, we will will look at each piece step-by-step to explain what's
 happening.
 
@@ -250,7 +258,8 @@ ID as the anchor name.
 
 .. currentmodule:: sphinx.application
 
-As noted :doc:`previously <helloworld>`, the ``setup`` function is a requirement
+As noted :ref:`previously <tutorial-extending-syntax>`,
+the ``setup`` function is a requirement
 and is used to plug directives into Sphinx. However, we also use it to hook up
 the other parts of our extension. Let's look at our ``setup`` function:
 
@@ -360,6 +369,9 @@ Further reading
 
 For more information, refer to the `docutils`_ documentation and
 :doc:`/extdev/index`.
+
+If you wish to share your extension across multiple projects or with others,
+check out the :ref:`third-party-extensions` section.
 
 
 .. _docutils: https://docutils.sourceforge.io/docs/
