@@ -17,6 +17,7 @@ from typing import (
     TypedDict,
     TypeVar,
     Union,
+    Protocol,
 )
 
 from docutils import nodes
@@ -41,6 +42,7 @@ if TYPE_CHECKING:
         'fully-qualified',
         'smart',
     ]
+
 
 if sys.version_info >= (3, 10):
     from types import UnionType
@@ -95,10 +97,25 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[
-    [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
-    tuple[list[nodes.Node], list[nodes.system_message]],
-]
+if TYPE_CHECKING:
+    class RoleFunction(Protocol):
+        def __call__(
+            self,
+            name: str,
+            rawtext: str,
+            text: str,
+            lineno: int,
+            inliner: Inliner,
+            /,
+            options: dict[str, Any] | None = None,
+            content: Sequence[str] = (),
+        ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
+            ...
+else:
+    RoleFunction = Callable[
+        [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+        tuple[list[nodes.Node], list[nodes.system_message]],
+    ]
 
 # A option spec for directive
 OptionSpec = dict[str, Callable[[str], Any]]

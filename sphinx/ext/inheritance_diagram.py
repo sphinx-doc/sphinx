@@ -385,7 +385,7 @@ class InheritanceDiagram(SphinxDirective):
         # references to real URLs later.  These nodes will eventually be
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
-            refnodes, x = class_role(  # type: ignore[call-arg,misc]
+            refnodes, x = class_role(  # type: ignore[misc]
                 'class', ':class:`%s`' % name, name, 0, self.state.inliner)
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
