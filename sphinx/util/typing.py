@@ -14,7 +14,6 @@ from typing import (
     Any,
     Callable,
     ForwardRef,
-    Protocol,
     TypedDict,
     TypeVar,
     Union,
@@ -25,7 +24,7 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal
+    from typing import Final, Literal, Protocol
 
     from docutils.parsers.rst.states import RSTState as _RSTStateGeneric
     from typing_extensions import TypeAlias, TypeIs
