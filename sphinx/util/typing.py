@@ -14,10 +14,10 @@ from typing import (
     Any,
     Callable,
     ForwardRef,
+    Protocol,
     TypedDict,
     TypeVar,
     Union,
-    Protocol,
 )
 
 from docutils import nodes
