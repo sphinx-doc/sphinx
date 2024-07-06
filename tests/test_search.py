@@ -171,6 +171,10 @@ def test_IndexBuilder():
                              'docname2_1': 'title2_1', 'docname2_2': 'title2_2'}
     assert index._filenames == {'docname1_1': 'filename1_1', 'docname1_2': 'filename1_2',
                                 'docname2_1': 'filename2_1', 'docname2_2': 'filename2_2'}
+    # note: element iteration order (sort order) is important when the index
+    # is frozen (serialized) during build -- however, the _mapping-related
+    # dictionaries below may be iterated in arbitrary order by Python at
+    # runtime.
     assert index._mapping == {
         'ar': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'fermion': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
