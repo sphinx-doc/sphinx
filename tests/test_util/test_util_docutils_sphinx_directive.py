@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Any
 
 from docutils import nodes
 from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
@@ -16,12 +15,12 @@ def make_directive(*, env: SimpleNamespace, input_lines: StringList | None = Non
     return directive
 
 
-def make_directive_and_state(*, env: SimpleNamespace, input_lines: StringList | None = None) -> tuple[RSTState[Any], SphinxDirective]:
+def make_directive_and_state(*, env: SimpleNamespace, input_lines: StringList | None = None) -> tuple[RSTState[list[str]], SphinxDirective]:
     sm = RSTStateMachine(state_classes, initial_state='Body')
     sm.reporter = object()
     if input_lines is not None:
         sm.input_lines = input_lines
-    state: RSTState[Any] = RSTState(sm)
+    state: RSTState[list[str]] = RSTState(sm)
     state.document = new_document('<tests>')
     state.document.settings.env = env
     state.document.settings.tab_width = 4

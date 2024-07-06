@@ -13,10 +13,10 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
-    from sphinx.util.typing import _RSTState as RSTState
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import _RSTState as RSTState
 
 logger = logging.getLogger(__name__)
 

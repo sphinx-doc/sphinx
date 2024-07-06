@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
 
-    _RSTState: TypeAlias = _RSTStateGeneric[Any]
+    _RSTState: TypeAlias = _RSTStateGeneric[list[str]]
     _RestifyMode: TypeAlias = Literal[
         'fully-qualified-except-typing',
         'smart',
