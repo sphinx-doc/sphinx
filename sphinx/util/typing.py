@@ -42,7 +42,6 @@ if TYPE_CHECKING:
         'smart',
     ]
 
-
 if sys.version_info >= (3, 10):
     from types import UnionType
 else:
