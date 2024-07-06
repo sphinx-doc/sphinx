@@ -11,7 +11,7 @@ from docutils.statemachine import StringList, string2lines
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from docutils.parsers.rst.states import RSTState
+    from sphinx.util.typing import _RSTState as RSTState
 
 
 def nested_parse_to_nodes(

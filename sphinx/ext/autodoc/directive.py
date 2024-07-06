@@ -13,10 +13,10 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
-    from docutils.parsers.rst.states import RSTState
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import _RSTState as RSTState
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class AutodocDirective(SphinxDirective):
         reporter = self.state.document.reporter
 
         try:
-            source, lineno = reporter.get_source_and_line(
+            source, lineno = reporter.get_source_and_line(  # type: ignore[attr-defined]
                 self.lineno)
         except AttributeError:
             source, lineno = (None, None)
