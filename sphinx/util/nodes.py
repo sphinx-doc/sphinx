@@ -20,12 +20,13 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Element
     from docutils.parsers.rst import Directive
-    from docutils.parsers.rst.states import Inliner, RSTState
+    from docutils.parsers.rst.states import Inliner
     from docutils.statemachine import StringList
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
+    from sphinx.util.typing import _RSTState as RSTState
 
 logger = logging.getLogger(__name__)
 
