@@ -808,6 +808,26 @@ General configuration
 
    .. versionadded:: 5.1
 
+.. confval:: copyright_build_year_substitution
+
+   Default is ``True``.
+   When the `SOURCE_DATE_EPOCH`__ environment variable is set to a timestamp
+   in the past, this setting enables substitution of the current year by the
+   indicated build year.
+
+   .. attention::
+
+     Copyright year substitution is employed to support bit-for-bit identical
+     project builds despite :confval:`copyright` configuration that dynamically
+     refers to the current year.
+
+     For projects that require precise and controlled copyright notices, it is
+     recommended to configure copyright notices using static string values and
+     to disable this setting.
+
+   __ https://reproducible-builds.org/specs/source-date-epoch/
+
+   .. versionadded:: 7.4
 .. _intl-options:
 
 Options for internationalization
