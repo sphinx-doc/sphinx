@@ -1,14 +1,23 @@
 """Test copyright year adjustment"""
+from datetime import datetime, timedelta
+
 import pytest
+
+_LOCALTIME_YEAR = datetime.now().year  # NoQA: DTZ005
+_FUTURE_MOMENT = datetime.now() + timedelta(days=400)  # NoQA: DTZ005
+_FUTURE_TIMESTAMP = int(_FUTURE_MOMENT.timestamp())
+_FUTURE_YEAR = _FUTURE_MOMENT.year
 
 
 @pytest.fixture(
     params=[
         # test with SOURCE_DATE_EPOCH unset: no modification
-        (None, '2006-2009'),
-        # test with SOURCE_DATE_EPOCH set: copyright year should be updated
-        ('1293840000', '2006-2011'),
-        ('1293839999', '2006-2010'),
+        (None, f'2006-{_LOCALTIME_YEAR}'),
+        # test with past SOURCE_DATE_EPOCH set: copyright year should _not_ be updated
+        ('1293840000', f'2006-{_LOCALTIME_YEAR}'),
+        ('1293839999', f'2006-{_LOCALTIME_YEAR}'),
+        # test with +1yr SOURCE_DATE_EPOCH set: copyright year should be updated
+        (f'{_FUTURE_TIMESTAMP}', f'2006-{_FUTURE_YEAR}'),
     ],
 
 )

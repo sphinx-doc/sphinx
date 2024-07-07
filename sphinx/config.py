@@ -626,7 +626,7 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
 
 
 def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
-    """Replace the year in a single copyright line.
+    """Replace the current local calendar year when it appears in a single copyright line.
 
     Legal formats are:
 
@@ -638,17 +638,33 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
 
     The final year in the string is replaced with ``replace_year``.
     """
+    localtime_year = str(time.localtime().tm_year)
+
+    # The current year _is_ the replacement year, so replacement would be a no-op
+    if localtime_year == replace_year:
+        return copyright_line
+
+    # Do not replace the current year in a copyright notice with an earlier year
+    if int(replace_year) < int(localtime_year):
+        return copyright_line
+
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
         return copyright_line
 
     if copyright_line[4:5] in {'', ' ', ','}:
-        return replace_year + copyright_line[4:]
+        if copyright_line[0:4] == localtime_year:
+            return replace_year + copyright_line[4:]
+        else:
+            return copyright_line
 
     if copyright_line[4] != '-':
         return copyright_line
 
     if copyright_line[5:9].isdigit() and copyright_line[9:10] in {'', ' ', ','}:
-        return copyright_line[:5] + replace_year + copyright_line[9:]
+        if copyright_line[5:9] == localtime_year:
+            return copyright_line[:5] + replace_year + copyright_line[9:]
+        else:
+            return copyright_line
 
     return copyright_line
 

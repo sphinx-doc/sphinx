@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     CircularDict = dict[str, Union[int, 'CircularDict']]
 
 
+_LOCALTIME_YEAR = str(time.localtime().tm_year)
+
+
 def check_is_serializable(subject: object, *, circular: bool) -> None:
     assert is_serializable(subject)
 
@@ -712,14 +715,14 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 
-    if source_date_year is None:
+    if source_date_year is None or int(source_date_year) < int(_LOCALTIME_YEAR):
         # check the copyright footer line by line (empty lines ignored)
         assert '  &#169; Copyright 2006.<br/>\n' in content
         assert '  &#169; Copyright 2006-2009, Alice.<br/>\n' in content
         assert '  &#169; Copyright 2010-2013, Bob.<br/>\n' in content
         assert '  &#169; Copyright 2014-2017, Charlie.<br/>\n' in content
         assert '  &#169; Copyright 2018-2021, David.<br/>\n' in content
-        assert '  &#169; Copyright 2022-2025, Eve.' in content
+        assert f'  &#169; Copyright 2022-{_LOCALTIME_YEAR}, Eve.' in content
 
         # check the raw copyright footer block (empty lines included)
         assert (
@@ -733,45 +736,48 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
             '    \n'
             '      &#169; Copyright 2018-2021, David.<br/>\n'
             '    \n'
-            '      &#169; Copyright 2022-2025, Eve.'
+            f'      &#169; Copyright 2022-{_LOCALTIME_YEAR}, Eve.'
         ) in content
     else:
         # check the copyright footer line by line (empty lines ignored)
-        assert f'  &#169; Copyright {source_date_year}.<br/>\n' in content
-        assert f'  &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n' in content
-        assert f'  &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n' in content
-        assert f'  &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n' in content
-        assert f'  &#169; Copyright 2018-{source_date_year}, David.<br/>\n' in content
+        assert '  &#169; Copyright 2006.<br/>\n' in content
+        assert '  &#169; Copyright 2006-2009, Alice.<br/>\n' in content
+        assert '  &#169; Copyright 2010-2013, Bob.<br/>\n' in content
+        assert '  &#169; Copyright 2014-2017, Charlie.<br/>\n' in content
+        assert '  &#169; Copyright 2018-2021, David.<br/>\n' in content
         assert f'  &#169; Copyright 2022-{source_date_year}, Eve.' in content
 
         # check the raw copyright footer block (empty lines included)
         assert (
-            f'      &#169; Copyright {source_date_year}.<br/>\n'
+            f'      &#169; Copyright 2006.<br/>\n'
             f'    \n'
-            f'      &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n'
+            f'      &#169; Copyright 2006-2009, Alice.<br/>\n'
             f'    \n'
-            f'      &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n'
+            f'      &#169; Copyright 2010-2013, Bob.<br/>\n'
             f'    \n'
-            f'      &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n'
+            f'      &#169; Copyright 2014-2017, Charlie.<br/>\n'
             f'    \n'
-            f'      &#169; Copyright 2018-{source_date_year}, David.<br/>\n'
+            f'      &#169; Copyright 2018-2021, David.<br/>\n'
             f'    \n'
             f'      &#169; Copyright 2022-{source_date_year}, Eve.'
         ) in content
 
 
 @pytest.mark.parametrize(('conf_copyright', 'expected_copyright'), [
-    ('1970', '{current_year}'),
+    ('1970', '1970'),
+    (_LOCALTIME_YEAR, '{current_year}'),
+    ('1970-1990', '1970-1990'),
     # https://github.com/sphinx-doc/sphinx/issues/11913
-    ('1970-1990', '1970-{current_year}'),
-    ('1970-1990 Alice', '1970-{current_year} Alice'),
+    (f'1970-{_LOCALTIME_YEAR}', '1970-{current_year}'),
+    ('1970-1990 Alice', '1970-1990 Alice'),
+    (f'1970-{_LOCALTIME_YEAR} Alice', '1970-{current_year} Alice'),
 ])
 def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_year):
     config = Config({}, {'copyright': conf_copyright})
     correct_copyright_year(_app=None, config=config)
     actual_copyright = config['copyright']
 
-    if source_date_year is None:
+    if source_date_year is None or int(source_date_year) < int(_LOCALTIME_YEAR):
         expected_copyright = conf_copyright
     else:
         expected_copyright = expected_copyright.format(current_year=source_date_year)
