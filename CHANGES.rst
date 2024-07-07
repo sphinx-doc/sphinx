@@ -89,6 +89,9 @@ Bugs fixed
 * #12494: Fix invalid genindex.html file produced with translated docs
   (regression in 7.1.0).
   Patch by Nicolas Peugnet.
+* #12451: Add further preconditions and a ``copyright_build_year_substitution``
+  configuration setting check before copyright notice year substitution occurs.
+  Patch by James Addison.
 
 Testing
 -------
