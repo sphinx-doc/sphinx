@@ -3,12 +3,9 @@ from datetime import datetime, timedelta
 
 import pytest
 
-_LOCALTIME_YEAR = str(datetime.now().year)  # NoQA: DTZ005
-_ORIG_CONF_COPYRIGHT = f'2006-{_LOCALTIME_YEAR}'
-
+_ORIG_CONF_COPYRIGHT = f'2006-{datetime.now().year}'  # NoQA: DTZ005
 _FUTURE_MOMENT = datetime.now() + timedelta(days=400)  # NoQA: DTZ005
-_FUTURE_TIMESTAMP = int(_FUTURE_MOMENT.timestamp())
-_FUTURE_YEAR = str(_FUTURE_MOMENT.year)
+_FUTURE_TIMESTAMP = str(int(_FUTURE_MOMENT.timestamp()))
 
 
 @pytest.fixture(
@@ -19,7 +16,7 @@ _FUTURE_YEAR = str(_FUTURE_MOMENT.year)
         ('1293840000', '2006-2011'),
         ('1293839999', '2006-2010'),
         # test with +1yr SOURCE_DATE_EPOCH set: copyright year should _not_ be updated
-        (f'{_FUTURE_TIMESTAMP}', _ORIG_CONF_COPYRIGHT),
+        (_FUTURE_TIMESTAMP, _ORIG_CONF_COPYRIGHT),
     ],
 
 )

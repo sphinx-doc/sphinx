@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     CircularDict = dict[str, Union[int, 'CircularDict']]
 
 
-_LOCALTIME_YEAR = str(time.localtime().tm_year)
+_LOCALTIME_YEAR = time.localtime().tm_year
 
 
 def check_is_serializable(subject: object, *, circular: bool) -> None:
@@ -739,7 +739,7 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
             f'      &#169; Copyright 2022-{_LOCALTIME_YEAR}, Eve.'
         ) in content
     else:
-        expected_year = min(int(source_date_year), int(_LOCALTIME_YEAR))
+        expected_year = min(source_date_year, _LOCALTIME_YEAR)
 
         # check the copyright footer line by line (empty lines ignored)
         assert '  &#169; Copyright 2006.<br/>\n' in content
@@ -766,13 +766,14 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
 
 
 @pytest.mark.parametrize(('conf_copyright', 'expected_copyright'), [
+    # static copyright notices
     ('1970', '1970'),
-    (_LOCALTIME_YEAR, '{current_year}'),
     ('1970-1990', '1970-1990'),
+    ('1970-1990 Alice', '1970-1990 Alice'),
     # https://github.com/sphinx-doc/sphinx/issues/11913
     (f'1970-{_LOCALTIME_YEAR}', '1970-{current_year}'),
-    ('1970-1990 Alice', '1970-1990 Alice'),
     (f'1970-{_LOCALTIME_YEAR} Alice', '1970-{current_year} Alice'),
+    (f'{_LOCALTIME_YEAR}', '{current_year}'),
 ])
 def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_year):
     config = Config({}, {'copyright': conf_copyright})
@@ -782,7 +783,7 @@ def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_
     if source_date_year is None:
         expected_copyright = conf_copyright
     else:
-        expected_year = min(int(source_date_year), int(_LOCALTIME_YEAR))
+        expected_year = min(source_date_year, _LOCALTIME_YEAR)
         expected_copyright = expected_copyright.format(current_year=expected_year)
     assert actual_copyright == expected_copyright
 
