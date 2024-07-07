@@ -15,11 +15,11 @@ _FUTURE_YEAR = str(_FUTURE_MOMENT.year)
     params=[
         # test with SOURCE_DATE_EPOCH unset: no modification
         (None, _ORIG_CONF_COPYRIGHT),
-        # test with past SOURCE_DATE_EPOCH set: copyright year should _not_ be updated
-        ('1293840000', _ORIG_CONF_COPYRIGHT),
-        ('1293839999', _ORIG_CONF_COPYRIGHT),
-        # test with +1yr SOURCE_DATE_EPOCH set: copyright year should be updated
-        (f'{_FUTURE_TIMESTAMP}', _ORIG_CONF_COPYRIGHT.replace(_LOCALTIME_YEAR, _FUTURE_YEAR)),
+        # test with past SOURCE_DATE_EPOCH set: copyright year should be updated
+        ('1293840000', '2006-2011'),
+        ('1293839999', '2006-2010'),
+        # test with +1yr SOURCE_DATE_EPOCH set: copyright year should _not_ be updated
+        (f'{_FUTURE_TIMESTAMP}', _ORIG_CONF_COPYRIGHT),
     ],
 
 )

@@ -715,7 +715,7 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 
-    if source_date_year is None or int(source_date_year) < int(_LOCALTIME_YEAR):
+    if source_date_year is None:
         # check the copyright footer line by line (empty lines ignored)
         assert '  &#169; Copyright 2006.<br/>\n' in content
         assert '  &#169; Copyright 2006-2009, Alice.<br/>\n' in content
@@ -739,13 +739,15 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
             f'      &#169; Copyright 2022-{_LOCALTIME_YEAR}, Eve.'
         ) in content
     else:
+        expected_year = min(int(source_date_year), int(_LOCALTIME_YEAR))
+
         # check the copyright footer line by line (empty lines ignored)
         assert '  &#169; Copyright 2006.<br/>\n' in content
         assert '  &#169; Copyright 2006-2009, Alice.<br/>\n' in content
         assert '  &#169; Copyright 2010-2013, Bob.<br/>\n' in content
         assert '  &#169; Copyright 2014-2017, Charlie.<br/>\n' in content
         assert '  &#169; Copyright 2018-2021, David.<br/>\n' in content
-        assert f'  &#169; Copyright 2022-{source_date_year}, Eve.' in content
+        assert f'  &#169; Copyright 2022-{expected_year}, Eve.' in content
 
         # check the raw copyright footer block (empty lines included)
         assert (
@@ -759,7 +761,7 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
             f'    \n'
             f'      &#169; Copyright 2018-2021, David.<br/>\n'
             f'    \n'
-            f'      &#169; Copyright 2022-{source_date_year}, Eve.'
+            f'      &#169; Copyright 2022-{expected_year}, Eve.'
         ) in content
 
 
@@ -777,10 +779,11 @@ def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_
     correct_copyright_year(_app=None, config=config)
     actual_copyright = config['copyright']
 
-    if source_date_year is None or int(source_date_year) < int(_LOCALTIME_YEAR):
+    if source_date_year is None:
         expected_copyright = conf_copyright
     else:
-        expected_copyright = expected_copyright.format(current_year=source_date_year)
+        expected_year = min(int(source_date_year), int(_LOCALTIME_YEAR))
+        expected_copyright = expected_copyright.format(current_year=expected_year)
     assert actual_copyright == expected_copyright
 
 

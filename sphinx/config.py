@@ -648,8 +648,8 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     if localtime_year == replace_year:
         return copyright_line
 
-    # Do not replace the current year in a copyright notice with an earlier year
-    if int(replace_year) < int(localtime_year):
+    # Do not replace the current year in a copyright notice with a future year
+    if int(replace_year) > int(localtime_year):
         return copyright_line
 
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
