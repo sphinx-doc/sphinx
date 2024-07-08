@@ -89,6 +89,9 @@ Bugs fixed
 * #12494: Fix invalid genindex.html file produced with translated docs
   (regression in 7.1.0).
   Patch by Nicolas Peugnet.
+* #11961: Omit anchor references from document title entries in the search index,
+  removing duplication of search results.
+  Patch by James Addison.
 * #12391: Adjust scoring of matches during HTML search so that document main
   titles tend to rank more highly than subsection titles, and also to provide
   a gain to matches on the name of programming domain objects relative to

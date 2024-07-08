@@ -85,20 +85,11 @@ describe('Basic html theme search', function() {
 
       searchParameters = Search._parseQuery('main page');
 
-      // fixme: duplicate result due to https://github.com/sphinx-doc/sphinx/issues/11961
       hits = [
         [
           'index',
           'Main Page',
           '',
-          null,
-          15,
-          'index.rst'
-        ],
-        [
-          'index',
-          'Main Page',
-          '#main-page',
           null,
           16,
           'index.rst'
