@@ -8,9 +8,9 @@ describe('Basic html theme search', function() {
   }
 
   function checkRanking(expectedRanking, results) {
-    let [nextExpected, ...remainingItems] = expectedRanking.reverse();
+    let [nextExpected, ...remainingItems] = expectedRanking;
 
-    for (result of results) {
+    for (result of results.reverse()) {
       if (!nextExpected) break;
 
       let [expectedPage, expectedTitle, expectedTarget] = nextExpected;
