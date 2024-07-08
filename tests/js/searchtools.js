@@ -8,18 +8,18 @@ describe('Basic html theme search', function() {
   }
 
   function checkRanking(expectedRanking, results) {
-    nextExpected = expectedRanking.pop(0);
+    let [nextExpected, ...remainingItems] = expectedRanking.reverse();
 
     results.forEach(result => {
       let [expectedPage, expectedTitle, expectedTarget] = nextExpected;
       let [page, title, target] = result;
 
       if (page == expectedPage && title == expectedTitle && target == expectedTarget) {
-        nextExpected = expectedRanking.pop(0);
+        [nextExpected, ...remainingItems] = remainingItems;
       }
     });
 
-    expect(expectedRanking.length).toEqual(0);
+    expect(remainingItems.length).toEqual(0);
   }
 
   describe('terms search', function() {
