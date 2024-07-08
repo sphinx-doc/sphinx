@@ -10,6 +10,8 @@
 % At 7.4.0 it too now uses sphinxheavybox, and has the same associated
 % sphinxsetup CSS keys as admonitions do.
 %
+% - sphinxtodo environment added at 7.4.0.
+%
 % - sphinxadmonition (environment)
 %   This is a dispatch which formerly configured
 %
@@ -31,6 +33,12 @@
 % The sphinxlightbox environment is kept for backward compatiblity, for user
 % custom code which used it via custom definitions done in preamble or via
 % raw latex directive.
+% MEMO: here is for example how sphinxnote was formerly defined:
+% \newenvironment{sphinxnote}[1]
+%   {\begin{sphinxlightbox}\sphinxstylenotetitle{#1}}
+%   {\end{sphinxlightbox}}
+% Use this if you want to revert the 7.4.0 switch to usage of sphinxheavybox.
+
 %
 % Requires:
 \RequirePackage{sphinxpackageboxes}
@@ -89,7 +97,7 @@
 % the former \sphinxstrong{#1}<space> used a too generic \sphinxstrong.
 %
 % At 7.4.0, sphinxheavybox environment is default for all types of notices
-% and also for seealso directive.
+% and also for the seealso and todo directives.
 %
 % Code adapted from framed.sty's "snugshade" environment.
 % Nesting works (inner frames do not allow page breaks).
@@ -248,6 +256,17 @@
    \spx@seealso@TeXextras
   }
   {\end{sphinxheavybox}}
+% There was no sphinxtodo environment until 7.4.0 because sphinx.ext.todo
+% generated \begin{sphinxadmonition}{note}{Todo:} mark-up.
+\newcounter{sphinxtodo}% to provide targets from todolist directive output
+\newenvironment{sphinxtodo}[1]
+  {\refstepcounter{sphinxtodo}\def\spx@noticetype{todo}%
+   \begin{sphinxheavybox}\sphinxstyletodotitle{#1}%
+   \ifspx@todo@withtextcolor\color{sphinxtodoTextColor}\fi
+   \spx@todo@TeXextras
+  }
+  {\end{sphinxheavybox}}
+
 
 % the main dispatch for all types of notices
 \newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
@@ -335,6 +354,7 @@
 \newcommand\sphinxstyledangertitle   [1]{\sphinxdotitlerowwithicon{danger}{\sphinxremovefinalcolon{#1}}}
 \newcommand\sphinxstyleerrortitle    [1]{\sphinxdotitlerowwithicon{error}{\sphinxremovefinalcolon{#1}}}
 \newcommand\sphinxstyleseealsotitle  [1]{\sphinxdotitlerowwithicon{seealso}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyletodotitle     [1]{\sphinxdotitlerowwithicon{todo}{\sphinxremovefinalcolon{#1}}}
 %
 % A utility to remove a final colon.  Removing last token is not easy in
 % LaTeX, and there are additional complications:

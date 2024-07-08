@@ -1210,17 +1210,12 @@ which is then followed by an underscore, then the property name.
    :dudir:`note`, ``div.note``, ``sphinxnote``
    :dudir:`warning`, ``div.warning``, ``sphinxwarning``
    further admonition types ``<type>``, ``div.<type>``,  ``sphinx<type>``
-   :dudir:`seealso`, ``div.seealso``, ``sphinxseealso``
+   :rst:dir:`seealso`, ``div.seealso``, ``sphinxseealso``
+   :rst:dir:`todo`, ``div.todo``, ``sphinxtodo``
 
 
-.. versionadded:: 7.4.0  Customizability of the :rst:dir:`seealso` directive.
-
-.. todo::
-
-   Currently the ``todo`` directive from the eponymous extension is rendered
-   in LaTeX as if it were a :dudir:`note` directive with title ``Todo``.  In
-   future, it should acquire its independence via better mark-up in the LaTeX
-   output.
+.. versionadded:: 7.4.0  Customizability of the :rst:dir:`seealso` and
+   :rst:dir:`todo` directives.
 
 Here are now these options as well as their common defaults.
 Replace below ``<prefix>`` by the actual prefix as explained above.  Don't
@@ -1238,6 +1233,7 @@ forget the underscore separating the prefix from the property names.
   * ``0.4pt`` for :rst:dir:`code-block`,
   * ``0.5pt`` for :dudir:`topic` or contents_ directive,
   * ``0.5pt`` for :dudir:`note` and other "light" admonitions,
+  * ``0.5pt`` for :rst:dir:`seealso` and :rst:dir:`todo` directives,
   * ``1.5pt`` for  :dudir:`warning` and other "strong" admonitions except
     for :dudir:`error`: ``2pt`` for :dudir:`error`.
 
@@ -1260,7 +1256,8 @@ forget the underscore separating the prefix from the property names.
 
   * all four ``3pt`` for :rst:dir:`code-block`,
   * ``10pt``, ``12pt``, ``12pt``, ``12pt`` for :dudir:`topic` or contents_ directive,
-  * ``6pt``, ``12pt``, ``6pt``, ``12pt`` for all admonition types.
+  * ``6pt``, ``12pt``, ``6pt``, ``12pt`` for all admonition types as well
+    as :rst:dir:`seealso` and :rst:dir:`todo` directives.
 
   .. versionchanged:: 7.4.0
 
@@ -1569,6 +1566,7 @@ Macros
      ``\sphinxstyledangertitle``;      *similar*
      ``\sphinxstyleerrortitle``;       *similar*
      ``\sphinxstyleseealsotitle``;     *similar*
+     ``\sphinxstyleseetodotitle``;     *similar*
 
   .. note::
 
@@ -1789,6 +1787,11 @@ Environments
      Colon made part of the mark-up rather than being inserted by the
      environment for coherence with how admonitions are handled generally.
 
+- Environment for the :rst:dir:`todo` directive: ``sphinxtodo``.
+  It takes one argument which will be the localized string ``Todo``
+  followed with a colon.
+
+  .. versionadded:: 7.4.0
 - The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
 

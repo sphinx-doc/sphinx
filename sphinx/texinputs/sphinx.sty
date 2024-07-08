@@ -276,6 +276,7 @@
 %
 % seealso directive is also using "heavybox" at 7.4.0 acquiring the same
 % customizability as admonitions.
+% todo directive also.
 \definecolor{sphinx-admonition-bgcolor}      {RGB}{247, 247, 247}% #F7F7F7
 \definecolor{sphinx-admonition-bordercolor}  {RGB}{134, 152, 155}% #86989B
 \definecolor{sphinx-warning-bordercolor}     {RGB}{148, 0, 0}%     #940000
@@ -284,12 +285,14 @@
 \spx@DeclareColorOption[sphinx]{importantBorderColor}{sphinx-admonition-bordercolor}
 \spx@DeclareColorOption[sphinx]{tipBorderColor}      {sphinx-admonition-bordercolor}
 \spx@DeclareColorOption[sphinx]{seealsoBorderColor}  {sphinx-admonition-bordercolor}% 7.4.0
+\spx@DeclareColorOption[sphinx]{todoBorderColor}     {sphinx-admonition-bordercolor}% 7.4.0
 %
 \spx@DeclareColorOption[sphinx]{noteBgColor}     {sphinx-admonition-bgcolor}
 \spx@DeclareColorOption[sphinx]{hintBgColor}     {sphinx-admonition-bgcolor}
 \spx@DeclareColorOption[sphinx]{importantBgColor}{sphinx-admonition-bgcolor}
 \spx@DeclareColorOption[sphinx]{tipBgColor}      {sphinx-admonition-bgcolor}
 \spx@DeclareColorOption[sphinx]{seealsoBgColor}  {sphinx-admonition-bgcolor}% 7.4.0
+\spx@DeclareColorOption[sphinx]{todoBgColor}     {sphinx-admonition-bgcolor}% 7.4.0
 %
 \spx@DeclareColorOption[sphinx]{warningBorderColor}  {sphinx-warning-bordercolor}
 \spx@DeclareColorOption[sphinx]{cautionBorderColor}  {sphinx-warning-bordercolor}
@@ -343,7 +346,8 @@
 % legacy styles.  At 7.4.0, as a follow-up to the revamped styles of
 % admonitions in the HTML sphinx13 theme (PR #12439), it is decided to
 % apply similar styling for PDF output.  Also the seealso directive
-% is handled as an admonition with the same customizability.
+% is handled as an admonition with the same customizability. And the
+% todo directive.
 %
 \def\spxstring@none{none}
 \def\spxstring@clone{clone}
@@ -397,6 +401,7 @@
 \spx@tempa{spx@important@}{div.important_}{importantborder}{0.5pt}
 \spx@tempa{spx@tip@}      {div.tip_}      {tipborder}      {0.5pt}
 \spx@tempa{spx@seealso@}  {div.seealso_}  {seealsoborder}  {0.5pt}% new at 7.4.0
+\spx@tempa{spx@todo@}     {div.todo_}     {todoborder}     {0.5pt}% new at 7.4.0
 \spx@tempa{spx@warning@}  {div.warning_}  {warningborder}  {1.5pt}% mod. at 7.4.0
 \spx@tempa{spx@caution@}  {div.caution_}  {cautionborder}  {1.5pt}% mod. at 7.4.0
 \spx@tempa{spx@attention@}{div.attention_}{attentionborder}{1.5pt}% mod. at 7.4.0
@@ -447,6 +452,7 @@
 \spx@tempa{spx@important@}{div.important_}  {6pt}{12pt}{6pt}{12pt}
 \spx@tempa{spx@tip@}      {div.tip_}        {6pt}{12pt}{6pt}{12pt}
 \spx@tempa{spx@seealso@}  {div.seealso_}    {6pt}{12pt}{6pt}{12pt}
+\spx@tempa{spx@todo@}     {div.todo_}       {6pt}{12pt}{6pt}{12pt}
 \spx@tempa{spx@warning@}  {div.warning_}    {6pt}{11pt}{6pt}{11pt}
 \spx@tempa{spx@caution@}  {div.caution_}    {6pt}{11pt}{6pt}{11pt}
 \spx@tempa{spx@attention@}{div.attention_}  {6pt}{11pt}{6pt}{11pt}
@@ -492,6 +498,7 @@
 \spx@tempa{spx@important@}{div.important_}  \z@\z@\z@\z@
 \spx@tempa{spx@tip@}      {div.tip_}        {5pt}{5pt}{5pt}{5pt}
 \spx@tempa{spx@seealso@}  {div.seealso_}    \z@\z@\z@\z@
+\spx@tempa{spx@todo@}     {div.todo_}       \z@\z@\z@\z@
 \spx@tempa{spx@warning@}  {div.warning_}    \z@\z@\z@\z@
 \spx@tempa{spx@caution@}  {div.caution_}    \z@\z@\z@\z@
 \spx@tempa{spx@attention@}{div.attention_}  \z@\z@\z@\z@
@@ -519,6 +526,7 @@
 \spx@tempa{spx@important@}
 \spx@tempa{spx@tip@}
 \spx@tempa{spx@seealso@}% 7.4.0
+\spx@tempa{spx@todo@}% 7.4.0
 \spx@tempa{spx@warning@}
 \spx@tempa{spx@caution@}
 \spx@tempa{spx@attention@}
@@ -567,6 +575,7 @@
 \spx@tempa{spx@important@}{div.important_}
 \spx@tempa{spx@tip@}      {div.tip_}
 \spx@tempa{spx@seealso@}  {div.seealso_}
+\spx@tempa{spx@todo@}     {div.todo_}
 \spx@tempa{spx@warning@}  {div.warning_}
 \spx@tempa{spx@caution@}  {div.caution_}
 \spx@tempa{spx@attention@}{div.attention_}
@@ -633,6 +642,7 @@
 \spx@tempa{spx@important@}
 \spx@tempa{spx@tip@}
 \spx@tempa{spx@seealso@}
+\spx@tempa{spx@todo@}
 \spx@tempa{spx@warning@}
 \spx@tempa{spx@caution@}
 \spx@tempa{spx@attention@}
@@ -647,7 +657,7 @@
   \csname #1TeXextras\endcsname
 }
 % 7.4.0 adds options for a title.  They have an action only for admonitions,
-% and seealso.
+% seealso and todo directives.
 \def\spx@tempb#1#2#3#4#5{% #4 = option prefix, #5 = color name prefix
   \define@key{sphinx}{#4border-TeXcolor}%
      {\spx@defineorletcolor{#5BorderColor}##1\relax}%
@@ -685,6 +695,7 @@
 \spx@tempa{spx@important@}{div.important_}  {sphinximportant}
 \spx@tempa{spx@tip@}      {div.tip_}        {sphinxtip}
 \spx@tempa{spx@seealso@}  {div.seealso_}    {sphinxseealso}
+\spx@tempa{spx@todo@}     {div.todo_}       {sphinxtodo}
 \spx@tempa{spx@warning@}  {div.warning_}    {sphinxwarning}
 \spx@tempa{spx@caution@}  {div.caution_}    {sphinxcaution}
 \spx@tempa{spx@attention@}{div.attention_}  {sphinxattention}
@@ -755,15 +766,8 @@
 \definecolor{sphinx-success-title-fgcolor}   {RGB}{81,174,128}  % hsl(150, 36.7%, 50%);
 \definecolor{sphinx-error-title-bgcolor}     {RGB}{238,220,220} % hsl(0, 37%, 90%);
 \definecolor{sphinx-error-title-fgcolor}     {RGB}{174,80,80}   % hsl(0, 37%, 50%);
-%%
-%% TODO: support todo (sic).
-%% Currently the LaTeX mark-up is
-%% \begin{sphinxadmonition}{note}{Todo:} and actually even worse
-%% \begin{sphinxadmonition}{note}{\label{some tag}Todo:} but the \label
-%% can not work correctly as there is no target from a LaTeX counter.
-%%
-%%\definecolor{sphinx-todo-title-bgcolor}    {RGB}{226,204,254} % hsl(266.8, 100%, 90%);
-%%\definecolor{sphinx-todo-title-fgcolor}    {RGB}{113,0,255}   % hsl(266.8, 100%, 50%);
+\definecolor{sphinx-todo-title-bgcolor}      {RGB}{226,204,254} % hsl(266.8, 100%, 90%);
+\definecolor{sphinx-todo-title-fgcolor}      {RGB}{113,0,255}   % hsl(266.8, 100%, 50%);
 
 % Now use the above colours as default settings, following the choices
 % done in sphinx13.css
@@ -777,6 +781,8 @@
   div.tip_title-foreground-TeXcolor=sphinx-success-title-fgcolor,
   div.seealso_title-background-TeXcolor=sphinx-success-title-bgcolor,
   div.seealso_title-foreground-TeXcolor=sphinx-success-title-fgcolor,
+  div.todo_title-background-TeXcolor=sphinx-todo-title-bgcolor,
+  div.todo_title-foreground-TeXcolor=sphinx-todo-title-fgcolor,
 %
   div.important_title-background-TeXcolor=sphinx-warning-title-bgcolor,
   div.important_title-foreground-TeXcolor=sphinx-warning-title-fgcolor,
@@ -844,6 +850,9 @@
               \ifdefined\faicon@radiation\else
                    \let\faicon@radiation\faBolt
               \fi
+              \ifdefined\faicon@pen\else
+                   \let\faicon@pen\faPencil
+              \fi
           % if neither has been required, \spx@faIcon will simply swallow
           % its argument (and follwing space macro) and it is up to user
           % to set the keys appropriately.
@@ -864,6 +873,7 @@
   div.hint_title-icon      = \spx@faIcon[regular]{lightbulb},
   div.tip_title-icon       = \spx@faIcon[regular]{lightbulb},
   div.seealso_title-icon   = \spx@faIcon{share},
+  div.todo_title-icon      = \spx@faIcon{pen},
   div.important_title-icon = \spx@faIcon{pause-circle},
   div.caution_title-icon   = \spx@faIcon{radiation},
   div.warning_title-icon   = \spx@faIcon{exclamation-triangle},
