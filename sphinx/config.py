@@ -258,6 +258,7 @@ class Config:
         'math_number_all': _Opt(False, 'env', ()),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
         'math_numfig': _Opt(True, 'env', ()),
+        'math_numsep': _Opt(None, 'env', frozenset((str,))),
         'tls_verify': _Opt(True, 'env', ()),
         'tls_cacerts': _Opt(None, 'env', ()),
         'user_agent': _Opt(None, 'env', frozenset((str,))),

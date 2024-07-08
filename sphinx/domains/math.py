@@ -106,6 +106,8 @@ class MathDomain(Domain):
                 if docname in env.toc_fignumbers:
                     numbers = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
                     eqno = '.'.join(map(str, numbers))
+                    if env.config.math_numsep:
+                        eqno = env.config.math_numsep.join(eqno.rsplit('.',1))
                 else:
                     eqno = ''
             else:
