@@ -110,6 +110,19 @@ describe('Basic html theme search', function() {
       expectedRanking = [
         ['index', 'relevance', '#module-relevance'],  /* py:module documentation */
         ['relevance', 'Relevance', '#relevance'],  /* main title */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score an main-title match above a subheading-title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', '#relevance'],  /* main title */
         ['index', 'Main Page > Relevance', '#relevance'],  /* subsection heading title */
       ];
 
