@@ -266,7 +266,6 @@ class Config:
         'smartquotes_excludes': _Opt(
             {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', ()),
         'option_emphasise_placeholders': _Opt(False, 'env', ()),
-        'copyright_build_year_substitution': _Opt(True, 'env', ()),
     }
 
     def __init__(self, config: dict[str, Any] | None = None,
@@ -611,9 +610,6 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-    if not config['copyright_build_year_substitution']:
-        return
-
     if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is None:
         return
 
