@@ -10,14 +10,14 @@ describe('Basic html theme search', function() {
   function checkRanking(expectedRanking, results) {
     let [nextExpected, ...remainingItems] = expectedRanking.reverse();
 
-    results.forEach(result => {
+    for (result of results) {
       let [expectedPage, expectedTitle, expectedTarget] = nextExpected;
       let [page, title, target] = result;
 
       if (page == expectedPage && title == expectedTitle && target == expectedTarget) {
         [nextExpected, ...remainingItems] = remainingItems;
       }
-    });
+    }
 
     expect(remainingItems.length).toEqual(0);
   }
