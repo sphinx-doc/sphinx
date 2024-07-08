@@ -1236,13 +1236,14 @@ forget the underscore separating the prefix from the property names.
   The default is that all those dimensions are equal.  They are set to:
 
   * ``0.4pt`` for :rst:dir:`code-block`,
-  * ``0.4pt`` for :dudir:`topic` or contents_ directive,
-  * ``1.5pt`` for  :dudir:`warning` and other "strong" admonitions,
-  * ``2pt`` for :dudir:`error`,
-  * ``0.5pt`` for :dudir:`note` and other "light" admonitions.  The framing
-    style of the "lighbox" used for them in absence of usage of CSS-named
-    options will be emulated by the richer "heavybox" if setting
-    ``border-left-width`` and ``border-right-width`` both to ``0pt``.
+  * ``0.5pt`` for :dudir:`topic` or contents_ directive,
+  * ``0.5pt`` for :dudir:`note` and other "light" admonitions,
+  * ``1.5pt`` for  :dudir:`warning` and other "strong" admonitions except
+    for :dudir:`error`: ``2pt`` for :dudir:`error`.
+
+  .. versionchanged:: 7.4.0
+
+     Changed defaults for :dudir:`topic` and "strong" admonitions.
 
 - ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
   ``slice`` and configures the behavior at page breaks.
@@ -1255,11 +1256,15 @@ forget the underscore separating the prefix from the property names.
   | ``<prefix>_padding``.  The latter can (currently) be only a *single*
     dimension which then sets all four others.
 
-  The defaults (changed at 7.4.0 except for :rst:dir:`code-block`) are:
+  The defaults:
 
   * all four ``3pt`` for :rst:dir:`code-block`,
   * ``10pt``, ``12pt``, ``12pt``, ``12pt`` for :dudir:`topic` or contents_ directive,
   * ``6pt``, ``12pt``, ``6pt``, ``12pt`` for all admonition types.
+
+  .. versionchanged:: 7.4.0
+
+     All defaults were changed, except for :rst:dir:`code-block`.
 
 - | ``<prefix>_border-top-left-radius``,
   | ``<prefix>_border-top-right-radius``,
@@ -1269,7 +1274,7 @@ forget the underscore separating the prefix from the property names.
     its assigned value.  Each key value can be either a single, or *two*,
     dimensions which are then space separated.
 
-  The defaults (some were changed at 7.4.0) are:
+  The defaults:
 
   * ``3pt`` for :rst:dir:`code-block` (since 6.0.0) and all corners,
   * ``12pt`` for the bottom right corner of :dudir:`topic`, other corners are
@@ -1277,6 +1282,11 @@ forget the underscore separating the prefix from the property names.
   * all radii set to ``5pt`` for :dudir:`note`, :dudir:`hint` and
     :dudir:`tip`,
   * ``0pt``, i.e. straight corners for all other directives.
+
+  .. versionchanged:: 7.4.0
+
+     :dudir:`topic` and :dudir:`note`\ -like admontions acquire (at least one)
+     rounded corners.
 
   See a remark above about traps with spaces in LaTeX.
 - ``<prefix>_box-shadow`` is special in so far as it may be:
@@ -1324,9 +1334,9 @@ forget the underscore separating the prefix from the property names.
   reproduces the admonition type.
 
 
-The next keys, for admonitions only, were added at 7.4.0.  The default colors
-are the ones applying to the current HTML rendering of Sphinx own docs at
-https://www.sphinx-doc.org.
+The next keys, for admonitions only, were all three added at 7.4.0.  The
+default colors are the ones applying to the current HTML rendering of Sphinx
+own docs at https://www.sphinx-doc.org.
 
 - ``div.<type>_title-background-TeXcolor``: the background color for the title.
 
