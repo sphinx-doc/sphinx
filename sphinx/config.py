@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import ast
 import sys
 import time
 import traceback
 import types
 import warnings
+from itertools import chain
 from os import getenv, path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Union
 
@@ -271,9 +273,11 @@ class Config:
     def __init__(self, config: dict[str, Any] | None = None,
                  overrides: dict[str, Any] | None = None) -> None:
         raw_config: dict[str, Any] = config or {}
+        constants = raw_config.pop('__constants__', None) or frozenset()
         self._overrides = dict(overrides) if overrides is not None else {}
         self._options = Config.config_values.copy()
         self._raw_config = raw_config
+        self.__constants = constants
 
         for name in list(self._overrides.keys()):
             if '.' in name:
@@ -297,6 +301,10 @@ class Config:
     @property
     def overrides(self) -> dict[str, Any]:
         return self._overrides
+
+    @property
+    def _constants(self) -> frozenset[str]:
+        return self.__constants
 
     @classmethod
     def read(cls: type[Config], confdir: str | os.PathLike[str], overrides: dict | None = None,
@@ -514,7 +522,8 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
         # during executing config file, current dir is changed to ``confdir``.
         try:
             with open(filename, 'rb') as f:
-                code = compile(f.read(), filename.encode(fs_encoding), 'exec')
+                conf_py = f.read()
+                code = compile(conf_py, filename.encode(fs_encoding), 'exec')
                 exec(code, namespace)  # NoQA: S102
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
@@ -529,6 +538,24 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
         except Exception as exc:
             msg = __("There is a programmable error in your configuration file:\n\n%s")
             raise ConfigError(msg % traceback.format_exc()) from exc
+
+        try:
+            constant_assignments = [
+                node for node in ast.iter_child_nodes(ast.parse(conf_py))
+                if isinstance(node, ast.Assign)
+                and isinstance(node.value, ast.Constant)
+                and all(isinstance(target, ast.Name) for target in node.targets)
+            ]
+            namespace['__constants__'] = chain.from_iterable(
+                (
+                    target.id
+                    for target in name.targets
+                    if hasattr(target, 'id') and target.id in Config.config_values
+                )
+                for name in constant_assignments
+            )
+        except Exception:
+            logger.warning(__('Failed to identify constant assignments in conf.py'))
 
     return namespace
 
@@ -617,6 +644,9 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
 
     for k in ('copyright', 'epub_copyright'):
         if k in config:
+            # No need to perform substitutions on copyright notices declared as constants
+            if k in config._constants:
+                continue
             value: str | Sequence[str] = config[k]
             if isinstance(value, str):
                 config[k] = _substitute_copyright_year(value, source_date_epoch_year)

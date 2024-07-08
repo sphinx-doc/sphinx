@@ -819,3 +819,16 @@ def test_root_doc_and_master_doc_are_synchronized():
     c.root_doc = '1234'
     assert c.master_doc == '1234'
     assert c.root_doc == c.master_doc
+
+
+@pytest.mark.sphinx(testroot='config')
+def test_config_constants(app):
+    # constants
+    assert 'project' in app.config._constants
+    assert 'release' in app.config._constants
+
+    # dynamic values
+    assert 'copyright' not in app.config._constants
+
+    # non-config constant assignments
+    assert 'unrelated' not in app.config._constants
