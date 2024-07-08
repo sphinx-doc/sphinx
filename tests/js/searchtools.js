@@ -109,7 +109,7 @@ describe('Basic html theme search', function() {
 
       expectedRanking = [
         ['index', 'relevance', '#module-relevance'],  /* py:module documentation */
-        ['relevance', 'Relevance', '#relevance'],  /* main title */
+        ['relevance', 'Relevance', ''],  /* main title */
       ];
 
       searchParameters = Search._parseQuery('relevance');
@@ -122,7 +122,7 @@ describe('Basic html theme search', function() {
       eval(loadFixture("titles/searchindex.js"));
 
       expectedRanking = [
-        ['relevance', 'Relevance', '#relevance'],  /* main title */
+        ['relevance', 'Relevance', ''],  /* main title */
         ['index', 'Main Page > Relevance', '#relevance'],  /* subsection heading title */
       ];
 
