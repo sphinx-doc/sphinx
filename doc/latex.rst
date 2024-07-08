@@ -1282,7 +1282,7 @@ forget the underscore separating the prefix from the property names.
 
   .. versionchanged:: 7.4.0
 
-     :dudir:`topic` and :dudir:`note`\ -like admontions acquire (at least one)
+     :dudir:`topic` and :dudir:`note`\ -like admonitions acquire (at least one)
      rounded corners.
 
   See a remark above about traps with spaces in LaTeX.
