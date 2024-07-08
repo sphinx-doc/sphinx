@@ -11,6 +11,8 @@ describe('Basic html theme search', function() {
     let [nextExpected, ...remainingItems] = expectedRanking.reverse();
 
     for (result of results) {
+      if (!nextExpected) break;
+
       let [expectedPage, expectedTitle, expectedTarget] = nextExpected;
       let [page, title, target] = result;
 
