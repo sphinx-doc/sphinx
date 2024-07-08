@@ -34,10 +34,13 @@
 % custom code which used it via custom definitions done in preamble or via
 % raw latex directive.
 % MEMO: here is for example how sphinxnote was formerly defined:
-% \newenvironment{sphinxnote}[1]
-%   {\begin{sphinxlightbox}\sphinxstylenotetitle{#1}}
-%   {\end{sphinxlightbox}}
+% (where #1 is the localized string Note, followed with  a colon)
+%     \newenvironment{sphinxnote}[1]
+%       {\begin{sphinxlightbox}\sphinxstrong{#1} }
+%       {\end{sphinxlightbox}}
 % Use this if you want to revert the 7.4.0 switch to usage of sphinxheavybox.
+% (the 7.4.0 redefined \sphinxstylenotetitle will not work in sphinxlightbox,
+%  so \sphinxstrong{#1}<space> which was its former default is used above).
 
 %
 % Requires:
