@@ -1566,7 +1566,7 @@ Macros
      ``\sphinxstyledangertitle``;      *similar*
      ``\sphinxstyleerrortitle``;       *similar*
      ``\sphinxstyleseealsotitle``;     *similar*
-     ``\sphinxstyleseetodotitle``;     *similar*
+     ``\sphinxstyletodotitle``;        *similar*
 
   .. note::
 
