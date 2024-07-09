@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
-    from sphinx.util.typing import _RSTState as RSTState
+    from sphinx.util.typing import RSTState
 
 logger = logging.getLogger(__name__)
 
