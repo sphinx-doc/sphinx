@@ -137,6 +137,18 @@ def test_reversed_toctree(app):
 
 
 @pytest.mark.sphinx(testroot='toctree-glob')
+def test_toctree_class(app):
+    text = (".. toctree::\n"
+            "   :class: custom-toc\n"
+            "\n"
+            "   foo\n")
+    app.env.find_files(app.config, app.builder)
+    doctree = restructuredtext.parse(app, text, 'index')
+    assert_node(doctree, [nodes.document, nodes.compound, addnodes.toctree])
+    assert doctree[0].attributes['classes'] == ['toctree-wrapper', 'custom-toc']
+
+
+@pytest.mark.sphinx(testroot='toctree-glob')
 def test_toctree_twice(app):
     text = (".. toctree::\n"
             "\n"

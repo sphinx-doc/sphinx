@@ -12,7 +12,8 @@ Deprecated
 
 Features added
 --------------
-
+* #12524: Add ``class`` option to ``toctree`` directive.
+  Patch by Tim Hoffmann.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files.
   Patch by James Addison and Adam Turner

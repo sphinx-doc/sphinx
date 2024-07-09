@@ -125,6 +125,7 @@ extlinks = {
     ),
     'durole': ('https://docutils.sourceforge.io/docs/ref/rst/roles.html#%s', '%s'),
     'dudir': ('https://docutils.sourceforge.io/docs/ref/rst/directives.html#%s', '%s'),
+    'dudoctree': ('https://docutils.sourceforge.io/docs/ref/doctree.html#%s', '%s'),
 }
 
 man_pages = [
