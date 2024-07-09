@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from typing import Final, Literal, Protocol
 
-    from docutils.parsers.rst.states import RSTState
     from typing_extensions import TypeAlias, TypeIs
 
     from sphinx.application import Sphinx
