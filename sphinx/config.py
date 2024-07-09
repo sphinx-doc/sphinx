@@ -540,6 +540,10 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
             raise ConfigError(msg % traceback.format_exc()) from exc
 
         try:
+            # Identify simple constant-value assignments in the conf.py file.
+            # Known edge-cases that aren't yet handled:
+            # - Multi-line copyright declared using constant strings in a list.
+            # - Re-assignment to the identified variables by subsequent code.
             constant_assignments = [
                 node for node in ast.iter_child_nodes(ast.parse(conf_py))
                 if isinstance(node, ast.Assign)
