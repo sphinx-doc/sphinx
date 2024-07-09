@@ -104,6 +104,20 @@ describe('Basic html theme search', function() {
 
   describe('search result ranking', function() {
 
+    /*
+     * These tests should not proscribe precise expected ordering of search
+     * results; instead each test case should describe a single relevance rule
+     * that helps users to locate relevant information efficiently.
+     *
+     * If you think that one of the rules seems to be poorly-defined or is
+     * limiting the potential for search algorithm improvements, please check
+     * for existing discussion/bugreports related to it on GitHub[1] before
+     * creating one yourself. Suggestions for possible improvements are also
+     * welcome.
+     *
+     * [1] - https://github.com/sphinx-doc/sphinx.git/
+     */
+
     it('should score an object-name match above a page-title match', function() {
       eval(loadFixture("titles/searchindex.js"));
 
