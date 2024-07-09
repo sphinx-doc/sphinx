@@ -546,14 +546,14 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
                 and isinstance(node.value, ast.Constant)
                 and all(isinstance(target, ast.Name) for target in node.targets)
             ]
-            namespace['__constants__'] = chain.from_iterable(
+            namespace['__constants__'] = frozenset(chain.from_iterable(
                 (
                     target.id
                     for target in name.targets
                     if hasattr(target, 'id') and target.id in Config.config_values
                 )
                 for name in constant_assignments
-            )
+            ))
         except Exception:
             logger.warning(__('Failed to identify constant assignments in conf.py'))
 
