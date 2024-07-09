@@ -540,15 +540,20 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
             raise ConfigError(msg % traceback.format_exc()) from exc
 
         try:
-            # Identify simple constant-value assignments in the conf.py file.
-            # Known edge-cases that aren't yet handled:
-            # - Multi-line copyright declared using constant strings in a list.
-            # - Re-assignment to the identified variables by subsequent code.
+            # Attempt to identify simple constant-value assignments in the conf.py file.
+            # Truly constant variables don't exist in Python, so it is possible that
+            # subsequent code may re-assign to these names.
             constant_assignments = [
                 node for node in ast.iter_child_nodes(ast.parse(conf_py))
                 if isinstance(node, ast.Assign)
-                and isinstance(node.value, ast.Constant)
                 and all(isinstance(target, ast.Name) for target in node.targets)
+                and (
+                    isinstance(node.value, ast.Constant)
+                    or (
+                        isinstance(node.value, (ast.List, ast.Tuple))
+                        and all(isinstance(elt, ast.Constant) for elt in node.value.elts)
+                    )
+                )
             ]
             namespace['__constants__'] = frozenset(chain.from_iterable(
                 (
