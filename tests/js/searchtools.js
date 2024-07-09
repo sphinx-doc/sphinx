@@ -118,7 +118,7 @@ describe('Basic html theme search', function() {
       checkRanking(expectedRanking, results);
     });
 
-    it('should score an main-title match above a subheading-title match', function() {
+    it('should score a main-title match above a subheading-title match', function() {
       eval(loadFixture("titles/searchindex.js"));
 
       expectedRanking = [

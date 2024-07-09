@@ -93,9 +93,8 @@ Bugs fixed
   removing duplication of search results.
   Patch by James Addison.
 * #12391: Adjust scoring of matches during HTML search so that document main
-  titles tend to rank more highly than subsection titles, and also to provide
-  a gain to matches on the name of programming domain objects relative to
-  title/subtitle matches.
+  titles tend to rank higher than subsection titles. In addition, boost matches
+  on the name of programming domain objects relative to title/subtitle matches.
   Patch by James Addison and Will Lachance.
 
 Testing
