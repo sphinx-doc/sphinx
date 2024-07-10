@@ -56,9 +56,6 @@ Features added
 
 * #12258: Support ``typing_extensions.Unpack``
   Patch by Bénédikt Tran and Adam Turner.
-* #12523: Added configuration option, :confval:`math_numsep`, to define the
-  separator for math numbering.
-  Patch by Thomas Fanning
 * #12524: Add a ``class`` option to the :rst:dir:`toctree` directive.
   Patch by Tim Hoffmann.
 * #12536: Add the :rst:dir:`confval` directive.
@@ -71,6 +68,9 @@ Features added
   and :confval:`texinfo_domain_indices`,
   can now be a set of strings.
   Patch by Adam Turner.
+* #12523: Added configuration option, :confval:`math_numsep`, to define the
+  separator for math numbering.
+  Patch by Thomas Fanning
 
 Bugs fixed
 ----------
