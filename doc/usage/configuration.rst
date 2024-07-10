@@ -914,7 +914,7 @@ These options control maths markup and notation.
    and the equation number when :confval:`numfig` is enabled and
    :confval:`numfig_secnum_depth` is positive.
 
-   Example: :conf-py:`'-'` gets rendered as ``1.2-3``.
+   Example: :code-py:`'-'` gets rendered as ``1.2-3``.
 
    .. versionadded:: 7.4
 
