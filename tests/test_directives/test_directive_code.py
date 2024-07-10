@@ -330,7 +330,7 @@ def test_code_block_caption_html(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_caption_latex(app, status, warning):
     app.build(force_all=True)
-    latex = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id1}}}'
     link = '\\hyperref[\\detokenize{caption:name-test-rb}]' \
@@ -343,7 +343,7 @@ def test_code_block_caption_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_namedlink_latex(app, status, warning):
     app.build(force_all=True)
-    latex = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-rb}}}'
     link1 = '\\hyperref[\\detokenize{caption:name-test-rb}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
@@ -360,7 +360,7 @@ def test_code_block_namedlink_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_emphasize_latex(app, status, warning):
     app.build(filenames=[app.srcdir / 'emphasize.rst'])
-    latex = (app.outdir / 'python.tex').read_text(encoding='utf8').replace('\r\n', '\n')
+    latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8').replace('\r\n', '\n')
     includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
     assert includes in latex
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
@@ -424,7 +424,7 @@ def test_literal_include_linenos(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.build(force_all=True)
-    latex = (app.outdir / 'python.tex').read_text(encoding='utf8').replace('\r\n', '\n')
+    latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8').replace('\r\n', '\n')
     includes = (
         '\\begin{sphinxVerbatim}'
         '[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
@@ -450,7 +450,7 @@ def test_literalinclude_caption_html(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_caption_latex(app, status, warning):
     app.build(filenames='index')
-    latex = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id2}}}'
     link = '\\hyperref[\\detokenize{caption:name-test-py}]' \
@@ -463,7 +463,7 @@ def test_literalinclude_caption_latex(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_namedlink_latex(app, status, warning):
     app.build(filenames='index')
-    latex = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}}'
     link1 = '\\hyperref[\\detokenize{caption:name-test-py}]'\
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'

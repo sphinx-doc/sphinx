@@ -60,7 +60,7 @@ def test_process_doc(app):
                 caption=None, glob=False, hidden=True,
                 titlesonly=False, maxdepth=-1, numbered=0,
                 entries=[('Latest reference', 'https://sphinx-doc.org/latest/'),
-                         ('Python', 'https://python.org/')])
+                         ('Project name not set', 'https://python.org/')])
 
     assert_node(toctree[2][0],
                 [compact_paragraph, reference, "Indices and tables"])

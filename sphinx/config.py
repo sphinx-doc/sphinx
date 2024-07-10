@@ -327,8 +327,8 @@ class Config:
         if valid_types == Any:
             return value
         if (type(default) is bool
-              or (not isinstance(valid_types, ENUM)
-                  and len(valid_types) == 1 and bool in valid_types)):
+            or (not isinstance(valid_types, ENUM)
+                and len(valid_types) == 1 and bool in valid_types)):
             if isinstance(valid_types, ENUM) or len(valid_types) > 1:
                 # if valid_types are given, and non-bool valid types exist,
                 # return the value without coercing to a Boolean.

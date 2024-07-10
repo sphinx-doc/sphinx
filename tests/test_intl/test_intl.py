@@ -1147,7 +1147,7 @@ def test_xml_keep_external_links(app):
     # external link check
     assert_elem(
         para0[0],
-        ['EXTERNAL LINK TO', 'Python', '.'],
+        ['EXTERNAL LINK TO', 'Project name not set', '.'],
         ['https://python.org/index.html'])
 
     # internal link check
@@ -1184,7 +1184,7 @@ def test_xml_keep_external_links(app):
     para2 = secs[2].findall('paragraph')
     assert_elem(
         para2[0],
-        ['LINK TO', 'EXTERNAL LINKS', ',', 'Python', ',',
+        ['LINK TO', 'EXTERNAL LINKS', ',', 'Project name not set', ',',
          'THE SPHINX SITE', ',', 'UNNAMED', 'AND',
          'THE PYTHON SITE', '.'],
         ['i18n-with-external-links', 'https://python.org/index.html',
