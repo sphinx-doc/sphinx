@@ -5,7 +5,7 @@ import subprocess
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def _if_converter_found(app):
     image_converter = getattr(app.config, 'image_converter', '')
     try:
