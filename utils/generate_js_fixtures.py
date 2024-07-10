@@ -34,5 +34,5 @@ for directory in TEST_JS_ROOTS:
 
     print(f'Copying {searchindex} to {destination} ... ', end='')
     destination.parent.mkdir(exist_ok=True)
-    destination.write_bytes(searchindex.read_bytes())
+    shutil.copy2(searchindex, destination)
     print('done')
