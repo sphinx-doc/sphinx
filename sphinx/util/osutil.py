@@ -108,16 +108,15 @@ def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> No
             copytimes(source, dest)
 
 
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-project_suffix_re = re.compile(' Documentation$')
+_no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 
 def make_filename(string: str) -> str:
-    return no_fn_re.sub('', string) or 'sphinx'
+    return _no_fn_re.sub('', string) or 'sphinx'
 
 
 def make_filename_from_project(project: str) -> str:
-    return make_filename(project_suffix_re.sub('', project)).lower()
+    return make_filename(project.removesuffix(' Documentation')).lower()
 
 
 def relpath(path: str | os.PathLike[str],
