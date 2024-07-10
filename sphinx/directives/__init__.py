@@ -16,7 +16,8 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TCH001
 
 if TYPE_CHECKING:
-    from docutils.nodes import Node
+    from docutils.nodes import Node, system_message
+    from docutils.utils import SystemMessage
 
     from sphinx.application import Sphinx
 
@@ -316,16 +317,22 @@ class DefaultRole(SphinxDirective):
             docutils.unregister_role('')
             return []
         role_name = self.arguments[0]
-        role, messages = roles.role(role_name, self.state_machine.language,
+        messages: list[SystemMessage | system_message] = []
+        messages_: list[SystemMessage]
+        role, messages_ = roles.role(role_name, self.state_machine.language,
                                     self.lineno, self.state.reporter)
+        messages.extend(messages)
         if role:
             docutils.register_role('', role)  # type: ignore[arg-type]
             self.env.temp_data['default_role'] = role_name
         else:
             literal_block = nodes.literal_block(self.block_text, self.block_text)
             reporter = self.state.reporter
-            error = reporter.error('Unknown interpreted text role "%s".' % role_name,
-                                   literal_block, line=self.lineno)
+            error: system_message = reporter.error(
+                'Unknown interpreted text role "%s".' % role_name,
+                literal_block,
+                line=self.lineno,
+            )
             messages += [error]
 
         return cast(list[nodes.Node], messages)
