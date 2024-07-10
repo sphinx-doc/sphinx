@@ -380,6 +380,12 @@ Docutils supports the following directives:
        When the default domain contains a ``class`` directive, this directive
        will be shadowed.  Therefore, Sphinx re-exports it as ``rst-class``.
 
+    .. tip::
+
+       If you want to add a class to a directive,
+       you may consider the ``:class:`` :dudir:`option <common-options>` instead,
+       which is supported by most directives and allows for a more compact notation.
+
 * HTML specifics:
 
   - :dudir:`meta`

@@ -56,6 +56,8 @@ Features added
 
 * #12258: Support ``typing_extensions.Unpack``
   Patch by Bénédikt Tran and Adam Turner.
+* #12524: Add a ``class`` option to the :rst:dir:`toctree` directive.
+  Patch by Tim Hoffmann.
 
 Bugs fixed
 ----------
@@ -85,6 +87,12 @@ Bugs fixed
   Patch by James Addison.
 * #12331: Resolve data-URI-image-extraction regression from v7.3.0 affecting
   builders without native support for data-URIs in their output format.
+  Patch by James Addison.
+* #12494: Fix invalid genindex.html file produced with translated docs
+  (regression in 7.1.0).
+  Patch by Nicolas Peugnet.
+* #11961: Omit anchor references from document title entries in the search index,
+  removing duplication of search results.
   Patch by James Addison.
 * #12425: Remove early return in SVG processing for HTML.
   Patch by Tunç Başar Köse.
@@ -2032,13 +2040,13 @@ Features added
 
 4.0.0b2
 
-* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
+* #8818: autodoc: Super class having ``Any`` arguments causes nitpicky warning
 * #9095: autodoc: TypeError is raised on processing broken metaclass
 * #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
   py37+
 * #9098: html: copy-range protection for doctests doesn't work in Safari
 * #9103: LaTeX: imgconverter: conversion runs even if not needed
-* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
+* #8127: py domain: Ellipsis in info-field-list causes nitpicky warning
 * #9121: py domain: duplicated warning is emitted when both canonical and its
   alias objects are defined on the document
 * #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
