@@ -58,6 +58,8 @@ Features added
   Patch by Bénédikt Tran and Adam Turner.
 * #12524: Add a ``class`` option to the :rst:dir:`toctree` directive.
   Patch by Tim Hoffmann.
+* #12536: Add the :rst:dir:`confval` directive.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
