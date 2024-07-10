@@ -1067,6 +1067,16 @@ These options influence Math notations.
 
    .. versionadded:: 1.7
 
+.. confval:: math_numsep
+
+   A string that defines the separator between section numbers and
+   the equation number when :confval:`numfig` is enabled and
+   :confval:`numfig_secnum_depth` is positive. Default is ``'.'``.
+
+   Example: ``'-'`` gets rendered as ``1.2-3``.
+
+   .. versionadded:: 7.4
+
 
 .. _html-options:
 
