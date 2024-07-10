@@ -76,6 +76,7 @@ build:
 	test -d doc/_build/man && { ls doc/_build/man | fgrep .1 >/dev/null; }
 	mkdir -p data/share/man/man1
 	cp doc/_build/man/*.1 data/share/man/man1
+	rm -f data/share/man/man1/sphinx-all.1
 	@$(PYTHON) -m build .
 
 .PHONY: docs
