@@ -71,6 +71,8 @@ Features added
 * #12523: Added configuration option, :confval:`math_numsep`, to define the
   separator for math numbering.
   Patch by Thomas Fanning
+* #12542: Add the domain name and object type as CSS classes
+  for domain object decsriptions in the table of contents.
 
 Bugs fixed
 ----------

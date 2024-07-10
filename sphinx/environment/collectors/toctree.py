@@ -114,6 +114,10 @@ class TocTreeCollector(EnvironmentCollector):
                             note_toctree(app.env, docname, toctreenode)
                         # add object signatures within a section to the ToC
                         elif isinstance(toctreenode, addnodes.desc):
+                            desc_classes = list(filter(None, (
+                                toctreenode.get('domain', ''),
+                                toctreenode.get('objtype', ''),
+                            )))
                             for sig_node in toctreenode:
                                 if not isinstance(sig_node, addnodes.desc_signature):
                                     continue
@@ -132,7 +136,9 @@ class TocTreeCollector(EnvironmentCollector):
 
                                 reference = nodes.reference(
                                     '', '', nodes.literal('', sig_node['_toc_name']),
-                                    internal=True, refuri=docname, anchorname=anchorname)
+                                    internal=True, refuri=docname, anchorname=anchorname,
+                                    classes=desc_classes.copy(),
+                                )
                                 para = addnodes.compact_paragraph('', '', reference,
                                                                   skip_section_number=True)
                                 entry = nodes.list_item('', para)
