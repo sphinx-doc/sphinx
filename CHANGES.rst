@@ -56,7 +56,8 @@ Features added
 
 * #12258: Support ``typing_extensions.Unpack``
   Patch by Bénédikt Tran and Adam Turner.
-* Added configuration option, ``math_numsep``, to define separator for math numbering.
+* Added configuration option, ``math_numsep``, to define separator for
+  math numbering.
   Patch by Thomas Fanning
 
 Bugs fixed
