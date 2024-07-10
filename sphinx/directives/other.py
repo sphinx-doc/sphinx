@@ -80,7 +80,8 @@ class TocTree(SphinxDirective):
         subnode['titlesonly'] = 'titlesonly' in self.options
         self.set_source_info(subnode)
         wrappernode = nodes.compound(
-            classes=['toctree-wrapper', *self.options.get('class', [])])
+            classes=['toctree-wrapper', *self.options.get('class', ())],
+        )
         wrappernode.append(subnode)
         self.add_name(wrappernode)
 

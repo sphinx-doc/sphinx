@@ -382,9 +382,9 @@ Docutils supports the following directives:
 
     .. tip::
 
-       If you want to add a class to a directive, you may consider the
-       ``class`` :dudir:`option <common-options>` instead, which is supported
-       by most directives and allows for a more compact notation.
+       If you want to add a class to a directive,
+       you may consider the ``:class:`` :dudir:`option <common-options>` instead,
+       which is supported by most directives and allows for a more compact notation.
 
 * HTML specifics:
 

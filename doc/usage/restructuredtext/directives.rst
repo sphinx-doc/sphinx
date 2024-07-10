@@ -124,11 +124,13 @@ tables of contents.  The ``toctree`` directive is the central element.
 
          foo
 
-   As with :dudir:`most directives <common-options>`, you can use the ``class``
-   option to assign :dudoctree:`class attributes <classes>`::
+   As with :dudir:`most directives <common-options>`,
+   you can use the ``class`` option to assign `class attributes`_::
 
       .. toctree::
          :class: custom-toc
+
+   .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
 
    If you want only the titles of documents in the tree to show up, not other
    headings of the same level, you can use the ``titlesonly`` option::
