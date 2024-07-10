@@ -72,6 +72,10 @@ covertest:
 
 .PHONY: build
 build:
+	$(MAKE) -C doc man SPHINXBUILD=sphinx-build
+	test -d doc/_build/man && { ls doc/_build/man | fgrep .1 >/dev/null; }
+	mkdir -p data/share/man/man1
+	cp doc/_build/man/*.1 data/share/man/man1
 	@$(PYTHON) -m build .
 
 .PHONY: docs
