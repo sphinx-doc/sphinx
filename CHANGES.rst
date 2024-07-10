@@ -68,6 +68,9 @@ Features added
   and :confval:`texinfo_domain_indices`,
   can now be a set of strings.
   Patch by Adam Turner.
+* #12523: Added configuration option, :confval:`math_numsep`, to define the
+  separator for math numbering.
+  Patch by Thomas Fanning
 
 Bugs fixed
 ----------

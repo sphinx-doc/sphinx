@@ -906,6 +906,18 @@ These options control maths markup and notation.
 
    .. versionadded:: 1.7
 
+.. confval:: math_numsep
+   :type: :code-py:`str`
+   :default: :code-py:`'.'`
+
+   A string that defines the separator between section numbers
+   and the equation number when :confval:`numfig` is enabled and
+   :confval:`numfig_secnum_depth` is positive.
+
+   Example: :code-py:`'-'` gets rendered as ``1.2-3``.
+
+   .. versionadded:: 7.4
+
 
 Options for the nitpicky mode
 -----------------------------

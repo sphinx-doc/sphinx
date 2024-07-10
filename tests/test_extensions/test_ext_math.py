@@ -194,6 +194,24 @@ def test_mathjax_numfig_html(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'numfig': True,
+                                   'math_numfig': True,
+                                   'math_numsep': '-'})
+def test_mathjax_numsep_html(app, status, warning):
+    app.build(force_all=True)
+
+    content = (app.outdir / 'math.html').read_text(encoding='utf8')
+    html = ('<div class="math notranslate nohighlight" id="equation-math-0">\n'
+            '<span class="eqno">(1-2)')
+    assert html in content
+    html = ('<p>Referencing equation <a class="reference internal" '
+            'href="#equation-foo">(1-1)</a> and '
+            '<a class="reference internal" href="#equation-foo">(1-1)</a>.</p>')
+    assert html in content
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
                     confoverrides={'extensions': ['sphinx.ext.imgmath'],
                                    'numfig': True,
                                    'numfig_secnum_depth': 0,
