@@ -26,12 +26,10 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
     from typing import Final, Literal, Protocol
 
-    from docutils.parsers.rst.states import RSTState as _RSTStateGeneric
     from typing_extensions import TypeAlias, TypeIs
 
     from sphinx.application import Sphinx
 
-    _RSTState: TypeAlias = _RSTStateGeneric[list[str]]
     _RestifyMode: TypeAlias = Literal[
         'fully-qualified-except-typing',
         'smart',

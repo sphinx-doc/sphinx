@@ -311,7 +311,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
-    app.add_config_value('gettext_additional_targets', [], 'env')
+    app.add_config_value('gettext_additional_targets', [], 'env', types={set, list})
     app.add_config_value('gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext')
     app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
     app.connect('config-inited', _gettext_compact_validator, priority=800)
