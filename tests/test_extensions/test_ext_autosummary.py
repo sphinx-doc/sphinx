@@ -545,7 +545,7 @@ def test_autosummary_filename_map(app, status, warning):
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(status.getvalue())
     print(warning.getvalue())
     assert r'\begin{longtable}{\X{1}{2}\X{1}{2}}' in result

@@ -5,7 +5,7 @@ import os
 import re
 import time
 
-import sphinx
+from sphinx import __display_version__
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -27,8 +27,7 @@ exclude_patterns = ['_build']
 
 project = 'Sphinx'
 copyright = f'2007-{time.strftime("%Y")}, the Sphinx developers'
-version = sphinx.__display_version__
-release = version
+release = version = __display_version__
 show_authors = True
 nitpicky = True
 show_warning_types = True
@@ -156,7 +155,7 @@ texinfo_documents = [
         'Sphinx',
         'The Sphinx documentation builder.',
         'Documentation tools',
-        1,
+        True,
     ),
 ]
 
@@ -241,12 +240,12 @@ nitpick_ignore = {
 from sphinx import addnodes  # NoQA: E402
 from sphinx.application import Sphinx  # NoQA: E402, TCH001
 
-event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
+_event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
 
 def parse_event(env, sig, signode):
-    m = event_sig_re.match(sig)
-    if not m:
+    m = _event_sig_re.match(sig)
+    if m is None:
         signode += addnodes.desc_name(sig, sig)
         return sig
     name, args = m.groups()
@@ -330,5 +329,9 @@ def setup(app: Sphinx) -> None:
     app.connect('build-finished', build_redirects)
     fdesc = GroupedField('parameter', label='Parameters', names=['param'], can_collapse=True)
     app.add_object_type(
-        'event', 'event', 'pair: %s; event', parse_event, doc_field_types=[fdesc]
+        'event',
+        'event',
+        'pair: %s; event',
+        parse_event,
+        doc_field_types=[fdesc],
     )

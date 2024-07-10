@@ -497,20 +497,23 @@ class LaTeXTranslator(SphinxTranslator):
 
         ret = []
         # latex_domain_indices can be False/True or a list of index names
-        indices_config = self.config.latex_domain_indices
-        if indices_config:
-            for domain in self.builder.env.domains.values():
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
-                    if not content:
+        if indices_config := self.config.latex_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
+            for domain_name in sorted(self.builder.env.domains):
+                domain = self.builder.env.domains[domain_name]
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
                         continue
-                    ret.append(r'\renewcommand{\indexname}{%s}' % indexcls.localname + CR)
-                    generate(content, collapsed)
+                    content, collapsed = index_cls(domain).generate(
+                        self.builder.docnames)
+                    if content:
+                        ret.append(r'\renewcommand{\indexname}{%s}' % index_cls.localname + CR)
+                        generate(content, collapsed)
 
         return ''.join(ret)
 
