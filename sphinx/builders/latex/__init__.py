@@ -539,7 +539,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('latex_use_xindy', default_latex_use_xindy, '', bool)
     app.add_config_value('latex_toplevel_sectioning', None, '',
                          ENUM(None, 'part', 'chapter', 'section'))
-    app.add_config_value('latex_domain_indices', True, '', list)
+    app.add_config_value('latex_domain_indices', True, '', types={set, list})
     app.add_config_value('latex_show_urls', 'no', '')
     app.add_config_value('latex_show_pagerefs', False, '')
     app.add_config_value('latex_elements', {}, '')

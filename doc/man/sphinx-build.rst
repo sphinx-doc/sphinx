@@ -102,8 +102,10 @@ Options
 
 .. option:: -t tag, --tag tag
 
-   Define the tag *tag*.  This is relevant for :rst:dir:`only` directives that
-   only include their content if this tag is set.
+   Define the tag *tag*.
+   This is relevant for :rst:dir:`only` directives that
+   include their content only if certain tags are set.
+   See :ref:`including content based on tags <tags>` for further detail.
 
    .. versionadded:: 0.6
 
