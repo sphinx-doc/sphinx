@@ -131,6 +131,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_requires_re = re.compile(r'requires\b')
+
 
 class DefinitionParser(BaseParser):
     @property
@@ -1552,7 +1554,7 @@ class DefinitionParser(BaseParser):
                 if outer == 'function':
                     # Allow trailing requires on functions.
                     self.skip_ws()
-                    if re.compile(r'requires\b').match(self.definition, self.pos):
+                    if _requires_re.match(self.definition, self.pos):
                         mustEnd = False
                 if mustEnd:
                     self.assert_end(allowSemicolon=True)

@@ -142,6 +142,8 @@ from sphinx.domains.cpp._ast import (  # NoQA: F401
 
 logger = logging.getLogger(__name__)
 
+_id_re = re.compile(r'^[a-zA-Z0-9_]*$')
+
 
 def _make_phony_error_name() -> ASTNestedName:
     nne = ASTNestedNameElement(ASTIdentifier("PhonyNameDueToError"), None)
@@ -223,7 +225,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         ids.reverse()
         newestId = ids[0]
         assert newestId  # shouldn't be None
-        if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
+        if not _id_re.match(newestId):
             logger.warning('Index id generation for C++ object "%s" failed, please '
                            'report as bug (id=%s).', ast, newestId,
                            location=self.get_location())

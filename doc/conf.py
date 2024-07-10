@@ -258,6 +258,9 @@ def parse_event(env, sig, signode):
     return name
 
 
+_issue_number_re = re.compile(r'(?:PR)?#([0-9]+)\b')
+
+
 def linkify_issues_in_changelog(app, docname, source):
     """Linkify issue references like #123 in changelog to GitHub."""
     if docname == 'changes':
@@ -274,7 +277,7 @@ def linkify_issues_in_changelog(app, docname, source):
             url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
             return f'`{match[0]} <{url}>`_'
 
-        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
+        linkified_changelog = _issue_number_re.sub(linkify, changelog)
 
         source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
 

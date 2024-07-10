@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
+_dir_opt_sig_re = re.compile(r'\s*:\s+')
 
 
 class ReSTMarkup(ObjectDescription[str]):
@@ -149,7 +150,7 @@ class ReSTDirectiveOption(ReSTMarkup):
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         try:
-            name, argument = re.split(r'\s*:\s+', sig.strip(), maxsplit=1)
+            name, argument = _dir_opt_sig_re.split(sig.strip(), maxsplit=1)
         except ValueError:
             name, argument = sig, None
 
