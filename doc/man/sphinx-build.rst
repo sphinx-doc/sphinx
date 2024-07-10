@@ -192,7 +192,7 @@ Options
 
 .. option:: -n, --nitpicky
 
-   Run in nit-picky mode.  Currently, this generates warnings for all missing
+   Run in nitpicky mode.  Currently, this generates warnings for all missing
    references.  See the config value :confval:`nitpick_ignore` for a way to
    exclude some references as "known missing".
 
