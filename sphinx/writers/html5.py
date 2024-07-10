@@ -59,7 +59,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         self.highlighter = self.builder.highlighter
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
-        self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
