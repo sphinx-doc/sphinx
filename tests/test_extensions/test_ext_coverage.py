@@ -9,7 +9,7 @@ import pytest
 def test_build(app, status, warning):
     app.build(force_all=True)
 
-    py_undoc = (app.outdir / 'projectnamenotset.txt').read_text(encoding='utf8')
+    py_undoc = (app.outdir / 'python.txt').read_text(encoding='utf8')
     assert py_undoc.startswith('Undocumented Python objects\n'
                                '===========================\n')
     assert 'autodoc_target\n--------------\n' in py_undoc
@@ -46,7 +46,7 @@ def test_build(app, status, warning):
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
 def test_coverage_ignore_pyobjects(app, status, warning):
     app.build(force_all=True)
-    actual = (app.outdir / 'projectnamenotset.txt').read_text(encoding='utf8')
+    actual = (app.outdir / 'python.txt').read_text(encoding='utf8')
     expected = '''\
 Undocumented Python objects
 ===========================

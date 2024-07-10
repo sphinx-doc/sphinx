@@ -325,8 +325,9 @@ Options for figure numbering
    :type: :code-py:`dict[str, str]`
    :default: :code-py:`{}`
 
-   A dictionary mapping :code-py:`'figure'`, :code-py:`'table'`, :code-py:`'code-block'` and
-   :code-py:`'section'` to strings that are used for format of figure numbers.
+   A dictionary mapping :code-py:`'figure'`, :code-py:`'table'`,
+   :code-py:`'code-block'` and :code-py:`'section'` to strings
+   that are used for format of figure numbers.
    The marker ``%s`` will be replaced with the figure number.
 
    The defaults are:
@@ -1089,9 +1090,11 @@ Options for source files
 
    Example patterns:
 
-   * :code-py:`'**'` -- all files in the source directory and subdirectories, recursively
+   * :code-py:`'**'` -- all files in the source directory and subdirectories,
+     recursively
    * :code-py:`'library/xml'` -- just the ``library/xml`` directory
-   * :code-py:`'library/xml*'` -- all files and directories starting with ``library/xml``
+   * :code-py:`'library/xml*'` -- all files and directories starting with
+     ``library/xml``
    * :code-py:`'**/doc'` -- all ``doc`` directories (this might be useful if
      documentation is co-located with source files)
 
@@ -1318,7 +1321,7 @@ Options for warning control
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
-   Add the type of each warning as a suffix to the warning message if :code-py:`True`.
+   Add the type of each warning as a suffix to the warning message.
    For example, ``WARNING: [...] [index]`` or ``WARNING: [...] [toc.circular]``.
    This setting can be useful for determining which warnings types to include
    in a :confval:`suppress_warnings` list.
@@ -4102,8 +4105,8 @@ Options for the Python domain
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   If :code-py:`True`, doctest flags (comments looking like :code-py:`# doctest: FLAG, ...`)
-   at the ends of lines and ``<BLANKLINE>`` markers are removed for all code
+   Remove doctest flags (comments looking like :code-py:`# doctest: FLAG, ...`)
+   at the ends of lines and ``<BLANKLINE>`` markers for all code
    blocks showing interactive Python sessions (i.e. doctests).
    See the extension :mod:`~sphinx.ext.doctest` for more
    possibilities of including doctests.

@@ -28,7 +28,7 @@ def test_create_single_index(app):
     assert index[1] == ('D', [('docutils', [[('', '#index-0')], [], None])])
     assert index[2] == ('P', [('pip', [[], [('install', [('', '#index-2')]),
                                             ('upgrade', [('', '#index-3')])], None]),
-                              ('Project name not set', [[('', '#index-1')], [], None])])
+                              ('Python', [[('', '#index-1')], [], None])])
     assert index[3] == ('S', [('Sphinx', [[('', '#index-4')], [], None])])
     assert index[4] == ('Е',
                         [('ёлка', [[('', '#index-6')], [], None]),
@@ -56,8 +56,8 @@ def test_create_pair_index(app):
     assert index[1] == ('D',
                         [('documentation tool', [[], [('Sphinx', [('', '#index-2')])], None]),
                          ('docutils', [[], [('reStructuredText', [('', '#index-0')])], None])])
-    assert index[2] == ('I', [('interpreter', [[], [('Project name not set', [('', '#index-1')])], None])])
-    assert index[3] == ('P', [('Project name not set', [[], [('interpreter', [('', '#index-1')])], None])])
+    assert index[2] == ('I', [('interpreter', [[], [('Python', [('', '#index-1')])], None])])
+    assert index[3] == ('P', [('Python', [[], [('interpreter', [('', '#index-1')])], None])])
     assert index[4] == ('R',
                         [('reStructuredText', [[], [('docutils', [('', '#index-0')])], None])])
     assert index[5] == ('S',
@@ -82,7 +82,7 @@ def test_create_triple_index(app):
     assert index[0] == ('B', [('bar', [[], [('baz, foo', [('', '#index-0')])], None]),
                               ('baz', [[], [('foo bar', [('', '#index-0')])], None])])
     assert index[1] == ('F', [('foo', [[], [('bar baz', [('', '#index-0')])], None])])
-    assert index[2] == ('P', [('Project name not set', [[], [('Sphinx reST', [('', '#index-1')])], None])])
+    assert index[2] == ('P', [('Python', [[], [('Sphinx reST', [('', '#index-1')])], None])])
     assert index[3] == ('R', [('reST', [[], [('Python Sphinx', [('', '#index-1')])], None])])
     assert index[4] == ('S', [('Sphinx', [[], [('reST, Python', [('', '#index-1')])], None])])
 
@@ -96,7 +96,7 @@ def test_create_see_index(app):
     index = IndexEntries(app.env).create_index(app.builder)
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[], [('see reStructuredText', [])], None])])
-    assert index[1] == ('P', [('Project name not set', [[], [('see interpreter', [])], None])])
+    assert index[1] == ('P', [('Python', [[], [('see interpreter', [])], None])])
     assert index[2] == ('S', [('Sphinx', [[], [('see documentation tool', [])], None])])
 
 
@@ -109,7 +109,7 @@ def test_create_seealso_index(app):
     index = IndexEntries(app.env).create_index(app.builder)
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[], [('see also reStructuredText', [])], None])])
-    assert index[1] == ('P', [('Project name not set', [[], [('see also interpreter', [])], None])])
+    assert index[1] == ('P', [('Python', [[], [('see also interpreter', [])], None])])
     assert index[2] == ('S', [('Sphinx', [[], [('see also documentation tool', [])], None])])
 
 
@@ -141,7 +141,7 @@ def test_create_index_with_name(app):
     # check index is created correctly
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[('', '#ref1')], [], None])])
-    assert index[1] == ('P', [('Project name not set', [[('', '#ref2')], [], None])])
+    assert index[1] == ('P', [('Python', [[('', '#ref2')], [], None])])
     assert index[2] == ('S', [('Sphinx', [[('', '#index-0')], [], None])])
 
     # check the reference labels are created correctly
@@ -162,5 +162,5 @@ def test_create_index_by_key(app):
     index = IndexEntries(app.env).create_index(app.builder)
     assert len(index) == 3
     assert index[0] == ('D', [('docutils', [[('main', '#term-docutils')], [], None])])
-    assert index[1] == ('P', [('Project name not set', [[('main', '#term-Python')], [], None])])
+    assert index[1] == ('P', [('Python', [[('main', '#term-Python')], [], None])])
     assert index[2] == ('ス', [('スフィンクス', [[('main', '#term-0')], [], 'ス'])])
