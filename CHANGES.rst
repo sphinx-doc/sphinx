@@ -94,7 +94,7 @@ Bugs fixed
 * #11961: Omit anchor references from document title entries in the search index,
   removing duplication of search results.
   Patch by James Addison.
-* #12425: Remove early return in SVG processing for HTML.
+* #12425: Use Docutils' SVG processing in the HTML builder and remove internal workaround.
   Patch by Tunç Başar Köse.
 
 Testing
