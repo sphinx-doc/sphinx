@@ -1,0 +1,464 @@
+.\" Man page generated from reStructuredText.
+.
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.TH "SPHINX-BUILD" "1" "Jul 10, 2024" "7.4.0" "Sphinx"
+.SH NAME
+sphinx-build \- Sphinx documentation generator tool
+.SH SYNOPSIS
+.sp
+\fBsphinx\-build\fP [\fIoptions\fP] <\fIsourcedir\fP> <\fIoutputdir\fP> [\fIfilenames\fP ...]
+.SH DESCRIPTION
+.sp
+\fBsphinx\-build\fP generates documentation from the files in
+\fB<sourcedir>\fP and places it in the \fB<outputdir>\fP\&.
+.sp
+\fBsphinx\-build\fP looks for \fB<sourcedir>/conf.py\fP for the configuration
+settings.  \fBsphinx\-quickstart(1)\fP may be used to generate template
+files, including \fBconf.py\fP\&.
+.sp
+\fBsphinx\-build\fP can create documentation in different formats.  A
+format is selected by specifying the builder name on the command line; it
+defaults to HTML.  Builders can also perform other tasks related to
+documentation processing.  For a list of available builders, refer to
+\fI\%Builders\fP\&.
+.sp
+By default, everything that is outdated is built.  Output only for selected
+files can be built by specifying individual filenames.
+.SH OPTIONS
+.INDENT 0.0
+.TP
+.B \-M buildername
+Select a builder, using the \fImake\-mode\fP\&.
+See \fI\%Builders\fP for a list of all of Sphinx\(aqs built\-in builders.
+Extensions can add their own builders.
+.sp
+\fBIMPORTANT:\fP
+.INDENT 7.0
+.INDENT 3.5
+Sphinx only recognizes the \fB\-M\fP option if it is used first, along with
+the source and output directories, before any other options are passed.
+For example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.EX
+sphinx\-build \-M html ./source ./build \-W \-\-keep\-going
+.EE
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+The \fImake\-mode\fP provides the same build functionality as
+a default \fI\%Makefile or Make.bat\fP,
+and provides the following additional build pipelines:
+.INDENT 7.0
+.TP
+.B \fIlatexpdf\fP
+Build LaTeX files and run them through \fBpdflatex\fP, or as per
+\fI\%latex_engine\fP setting.
+If \fI\%language\fP is set to \fB\(aqja\(aq\fP, will use automatically
+the \fBplatex/dvipdfmx\fP latex to PDF pipeline.
+.TP
+.B \fIinfo\fP
+Build Texinfo files and run them through \fBmakeinfo\fP\&.
+.UNINDENT
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+The default output directory locations when using \fImake\-mode\fP
+differ from the defaults when using \fI\%\-b\fP\&.
+.INDENT 0.0
+.IP \(bu 2
+doctrees are saved to \fB<outputdir>/doctrees\fP
+.IP \(bu 2
+output files are saved to \fB<outputdir>/<builder name>\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.sp
+Added in version 1.2.1.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-b buildername, \-\-builder buildername
+Selects a builder.
+.sp
+See \fI\%Builders\fP for a list of all of Sphinx\(aqs built\-in builders.
+Extensions can add their own builders.
+.sp
+Changed in version 7.3: Add \fB\-\-builder\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-a, \-\-write\-all
+If given, always write all output files. The default is to only write output
+files for new and changed source files. (This may not apply to all
+builders.)
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+This option does not re\-read source files.
+To read and re\-process every file,
+use \fI\%\-\-fresh\-env\fP instead.
+.UNINDENT
+.UNINDENT
+.sp
+Changed in version 7.3: Add \fB\-\-write\-all\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-E, \-\-fresh\-env
+Don\(aqt use a saved \fI\%environment\fP (the structure caching all
+cross\-references), but rebuild it completely.  The default is to only read
+and parse source files that are new or have changed since the last run.
+.sp
+Changed in version 7.3: Add \fB\-\-fresh\-env\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-t tag, \-\-tag tag
+Define the tag \fItag\fP\&.  This is relevant for \fI\%only\fP directives that
+only include their content if this tag is set.
+.sp
+Added in version 0.6.
+
+.sp
+Changed in version 7.3: Add \fB\-\-tag\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-d path, \-\-doctree\-dir path
+Since Sphinx has to read and parse all source files before it can write an
+output file, the parsed source files are cached as \(dqdoctree pickles\(dq.
+Normally, these files are put in a directory called \fB\&.doctrees\fP under
+the build directory; with this option you can select a different cache
+directory (the doctrees can be shared between all builders).
+.sp
+Changed in version 7.3: Add \fB\-\-doctree\-dir\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-j N, \-\-jobs N
+Distribute the build over \fIN\fP processes in parallel, to make building on
+multiprocessor machines more effective.  Note that not all parts and not all
+builders of Sphinx can be parallelized.  If \fBauto\fP argument is given,
+Sphinx uses the number of CPUs as \fIN\fP\&. Defaults to 1.
+.sp
+Added in version 1.2: This option should be considered \fIexperimental\fP\&.
+
+.sp
+Changed in version 1.7: Support \fBauto\fP argument.
+
+.sp
+Changed in version 6.2: Add \fB\-\-jobs\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-c path, \-\-config\-dir path
+Don\(aqt look for the \fBconf.py\fP in the source directory, but use the given
+configuration directory instead.  Note that various other files and paths
+given by configuration values are expected to be relative to the
+configuration directory, so they will have to be present at this location
+too.
+.sp
+Added in version 0.3.
+
+.sp
+Changed in version 7.3: Add \fB\-\-config\-dir\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-C, \-\-isolated
+Don\(aqt look for a configuration file; only take options via the \fI\%\-\-define\fP option.
+.sp
+Added in version 0.5.
+
+.sp
+Changed in version 7.3: Add \fB\-\-isolated\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-D setting=value, \-\-define setting=value
+Override a configuration value set in the \fBconf.py\fP file.  The value
+must be a number, string, list or dictionary value.
+.sp
+For lists, you can separate elements with a comma like this: \fB\-D
+html_theme_path=path1,path2\fP\&.
+.sp
+For dictionary values, supply the setting name and key like this:
+\fB\-D latex_elements.docclass=scrartcl\fP\&.
+.sp
+For boolean values, use \fB0\fP or \fB1\fP as the value.
+.sp
+Changed in version 0.6: The value can now be a dictionary value.
+
+.sp
+Changed in version 1.3: The value can now also be a list value.
+
+.sp
+Changed in version 7.3: Add \fB\-\-define\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-A name=value, \-\-html\-define name=value
+Make the \fIname\fP assigned to \fIvalue\fP in the HTML templates.
+.sp
+Added in version 0.5.
+
+.sp
+Changed in version 7.3: Add \fB\-\-html\-define\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-n, \-\-nitpicky
+Run in nit\-picky mode.  Currently, this generates warnings for all missing
+references.  See the config value \fI\%nitpick_ignore\fP for a way to
+exclude some references as \(dqknown missing\(dq.
+.sp
+Changed in version 7.3: Add \fB\-\-nitpicky\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-N, \-\-no\-color
+Do not emit colored output.
+.sp
+Changed in version 1.6: Add \fB\-\-no\-color\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-color
+Emit colored output. Auto\-detected by default.
+.sp
+Added in version 1.6.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-v, \-\-verbose
+Increase verbosity (log\-level).  This option can be given up to three times
+to get more debug logging output.  It implies \fI\%\-T\fP\&.
+.sp
+Added in version 1.2.
+
+.sp
+Changed in version 7.3: Add \fB\-\-verbose\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-q, \-\-quiet
+Do not output anything on standard output, only write warnings and errors to
+standard error.
+.sp
+Changed in version 7.3: Add \fB\-\-quiet\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-Q, \-\-silent
+Do not output anything on standard output, also suppress warnings.  Only
+errors are written to standard error.
+.sp
+Changed in version 7.3: Add \fB\-\-silent\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-w file, \-\-warning\-file file
+Write warnings (and errors) to the given file, in addition to standard error.
+.sp
+Changed in version 7.3: ANSI control sequences are stripped when writing to \fIfile\fP\&.
+
+.sp
+Changed in version 7.3: Add \fB\-\-warning\-file\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-W, \-\-fail\-on\-warning
+Turn warnings into errors.  This means that the build stops at the first
+warning and \fBsphinx\-build\fP exits with exit status 1.
+.sp
+Changed in version 7.3: Add \fB\-\-fail\-on\-warning\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-\-keep\-going
+With \-W option, keep going processing when getting warnings to the end
+of build, and \fBsphinx\-build\fP exits with exit status 1.
+.sp
+Added in version 1.8.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-T, \-\-show\-traceback
+Display the full traceback when an unhandled exception occurs.  Otherwise,
+only a summary is displayed and the traceback information is saved to a file
+for further analysis.
+.sp
+Added in version 1.2.
+
+.sp
+Changed in version 7.3: Add \fB\-\-show\-traceback\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-P, \-\-pdb
+(Useful for debugging only.)  Run the Python debugger, \X'tty: link https://docs.python.org/3/library/pdb.html#module-pdb'\fI\%pdb\fP\X'tty: link', if an
+unhandled exception occurs while building.
+.sp
+Changed in version 7.3: Add \fB\-\-pdb\fP long option.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B \-h, \-\-help, \-\-version
+Display usage summary or Sphinx version.
+.sp
+Added in version 1.2.
+
+.UNINDENT
+.sp
+You can also give one or more filenames on the command line after the source
+and build directories. Sphinx will then try to build only these output files
+(and their dependencies).
+.SH ENVIRONMENT VARIABLES
+.sp
+The \fBsphinx\-build\fP refers following environment variables:
+.INDENT 0.0
+.TP
+.B MAKE
+A path to make command.  A command name is also allowed.
+\fBsphinx\-build\fP uses it to invoke sub\-build process on make\-mode.
+.UNINDENT
+.sp
+Makefile Options
+.sp
+The \fBMakefile\fP and \fBmake.bat\fP files created by
+\fBsphinx\-quickstart\fP usually run \fBsphinx\-build\fP only with the
+\fI\%\-b\fP and \fI\%\-d\fP options.  However, they support the following
+variables to customize behavior:
+.INDENT 0.0
+.TP
+.B PAPER
+This sets the \fB\(aqpapersize\(aq\fP key of \fI\%latex_elements\fP:
+i.e. \fBPAPER=a4\fP sets it to \fB\(aqa4paper\(aq\fP and \fBPAPER=letter\fP to
+\fB\(aqletterpaper\(aq\fP\&.
+.sp
+\fBNOTE:\fP
+.INDENT 7.0
+.INDENT 3.5
+Usage of this environment variable got broken at Sphinx 1.5 as
+\fBa4\fP or \fBletter\fP ended up as option to LaTeX document in
+place of the needed \fBa4paper\fP, resp. \fBletterpaper\fP\&.  Fixed at
+1.7.7.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B SPHINXBUILD
+The command to use instead of \fBsphinx\-build\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B BUILDDIR
+The build directory to use instead of the one chosen in
+\fBsphinx\-quickstart\fP\&.
+.UNINDENT
+.INDENT 0.0
+.TP
+.B SPHINXOPTS
+Additional options for \fBsphinx\-build\fP\&. These options can
+also be set via the shortcut variable \fBO\fP (capital \(aqo\(aq).
+.UNINDENT
+.INDENT 0.0
+.TP
+.B NO_COLOR
+When set (regardless of value), \fBsphinx\-build\fP  will not use color
+in terminal output. \fBNO_COLOR\fP takes precedence over \fBFORCE_COLOR\fP\&. See
+\X'tty: link https://no-color.org/'\fI\%no\-color.org\fP\X'tty: link' for other libraries supporting this
+community standard.
+.sp
+Added in version 4.5.0.
+
+.UNINDENT
+.INDENT 0.0
+.TP
+.B FORCE_COLOR
+When set (regardless of value), \fBsphinx\-build\fP will use color in
+terminal output. \fBNO_COLOR\fP takes precedence over \fBFORCE_COLOR\fP\&.
+.sp
+Added in version 4.5.0.
+
+.UNINDENT
+.SH DEPRECATION WARNINGS
+.sp
+If any deprecation warning like \fBRemovedInSphinxXXXWarning\fP are displayed
+when building a user\(aqs document, some Sphinx extension is using deprecated
+features. In that case, please report it to author of the extension.
+.sp
+To disable the deprecation warnings, please set \fBPYTHONWARNINGS=\fP environment
+variable to your environment. For example:
+.INDENT 0.0
+.IP \(bu 2
+\fBPYTHONWARNINGS= make html\fP (Linux/Mac)
+.IP \(bu 2
+\fBexport PYTHONWARNINGS=\fP and do \fBmake html\fP (Linux/Mac)
+.IP \(bu 2
+\fBset PYTHONWARNINGS=\fP and do \fBmake html\fP (Windows)
+.IP \(bu 2
+modify your Makefile/make.bat and set the environment variable
+.UNINDENT
+.SH SEE ALSO
+.sp
+\fBsphinx\-quickstart(1)\fP
+.SH COPYRIGHT
+2007-2024, the Sphinx developers
+.\" Generated by docutils manpage writer.
+.
