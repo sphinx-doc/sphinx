@@ -179,7 +179,7 @@ files can be built by specifying individual filenames.
                        dest='tags', default=[],
                        help=__('define tag: include "only" blocks with TAG'))
     group.add_argument('--nitpicky', '-n', action='store_true', dest='nitpicky',
-                       help=__('nit-picky mode: warn about all missing references'))
+                       help=__('nitpicky mode: warn about all missing references'))
 
     group = parser.add_argument_group(__('console output options'))
     group.add_argument('--verbose', '-v', action='count', dest='verbosity',

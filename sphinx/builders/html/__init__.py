@@ -963,7 +963,6 @@ class StandaloneHTMLBuilder(Builder):
             return any(char in pattern for char in '*?[')
 
         matched = None
-        customsidebar = None
 
         # default sidebars settings for selected theme
         sidebars = list(self.theme.sidebar_templates)
@@ -990,7 +989,6 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         ctx['sidebars'] = sidebars
-        ctx['customsidebar'] = customsidebar
 
     # --------- these are overwritten by the serialization builder
 

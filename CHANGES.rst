@@ -97,6 +97,9 @@ Bugs fixed
 * #11961: Omit anchor references from document title entries in the search index,
   removing duplication of search results.
   Patch by James Addison.
+* #12425: Use Docutils' SVG processing in the HTML builder
+  and remove Sphinx's custom logic.
+  Patch by Tunç Başar Köse.
 
 Testing
 -------
@@ -2041,13 +2044,13 @@ Features added
 
 4.0.0b2
 
-* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
+* #8818: autodoc: Super class having ``Any`` arguments causes nitpicky warning
 * #9095: autodoc: TypeError is raised on processing broken metaclass
 * #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
   py37+
 * #9098: html: copy-range protection for doctests doesn't work in Safari
 * #9103: LaTeX: imgconverter: conversion runs even if not needed
-* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
+* #8127: py domain: Ellipsis in info-field-list causes nitpicky warning
 * #9121: py domain: duplicated warning is emitted when both canonical and its
   alias objects are defined on the document
 * #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
