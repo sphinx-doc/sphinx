@@ -94,7 +94,8 @@ Bugs fixed
 * #11961: Omit anchor references from document title entries in the search index,
   removing duplication of search results.
   Patch by James Addison.
-* #12425: Use Docutils' SVG processing in the HTML builder and remove internal workaround.
+* #12425: Use Docutils' SVG processing in the HTML builder
+  and remove Sphinx's custom logic.
   Patch by Tunç Başar Köse.
 
 Testing
