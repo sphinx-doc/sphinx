@@ -118,12 +118,26 @@ describe('Basic html theme search', function() {
      * [1] - https://github.com/sphinx-doc/sphinx.git/
      */
 
-    it('should score an object-name match above a page-title match', function() {
+    it('should score a code module match above a page-title match', function() {
       eval(loadFixture("titles/searchindex.js"));
 
       expectedRanking = [
         ['index', 'relevance', '#module-relevance'],  /* py:module documentation */
         ['relevance', 'Relevance', ''],  /* main title */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a main-title match above an object member match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* main title */
+        ['index', 'relevance.Example.relevance', '#module-relevance'],  /* py:class attribute */
       ];
 
       searchParameters = Search._parseQuery('relevance');
