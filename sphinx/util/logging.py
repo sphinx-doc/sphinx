@@ -16,7 +16,7 @@ from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterator, Sequence, Set
 
     from docutils.nodes import Node
 
@@ -408,7 +408,7 @@ class InfoFilter(logging.Filter):
 
 
 def is_suppressed_warning(
-    warning_type: str, subtype: str, suppress_warnings: Sequence[str],
+    warning_type: str, sub_type: str, suppress_warnings: Set[str] | Sequence[str],
 ) -> bool:
     """Check whether the warning is suppressed or not."""
     if warning_type is None or len(suppress_warnings) == 0:
@@ -418,9 +418,7 @@ def is_suppressed_warning(
         return True
     if f'{warning_type}.*' in suppressed_warnings:
         return True
-    if f'{warning_type}.{subtype}' in suppressed_warnings:
-        return True
-    return False
+    return f'{warning_type}.{sub_type}' in suppressed_warnings
 
 
 class WarningSuppressor(logging.Filter):
