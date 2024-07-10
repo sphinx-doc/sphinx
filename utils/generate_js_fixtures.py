@@ -5,11 +5,11 @@ from pathlib import Path
 
 SPHINX_ROOT = Path(__file__).resolve().parent.parent
 TEST_JS_FIXTURES = SPHINX_ROOT / 'tests' / 'js' / 'fixtures'
-TEST_JS_ROOTS = list(
+TEST_JS_ROOTS = [
     directory
     for directory in (SPHINX_ROOT / 'tests' / 'js' / 'roots').iterdir()
     if (directory / 'conf.py').exists()
-)
+]
 
 
 def build(srcdir: Path) -> None:
