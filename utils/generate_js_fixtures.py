@@ -5,7 +5,11 @@ from pathlib import Path
 
 SPHINX_ROOT = Path(__file__).resolve().parent.parent
 TEST_JS_FIXTURES = SPHINX_ROOT / 'tests' / 'js' / 'fixtures'
-TEST_JS_ROOTS = SPHINX_ROOT / 'tests' / 'js' / 'roots'
+TEST_JS_ROOTS = list(
+    directory
+    for directory in (SPHINX_ROOT / 'tests' / 'js' / 'roots').iterdir()
+    if (directory / 'conf.py').exists()
+)
 
 
 def build(srcdir: Path) -> None:
@@ -20,7 +24,7 @@ def build(srcdir: Path) -> None:
     subprocess.run(cmd, check=True, capture_output=True)
 
 
-for directory in TEST_JS_ROOTS.iterdir():
+for directory in TEST_JS_ROOTS:
     searchindex = directory / '_build' / 'searchindex.js'
     destination = TEST_JS_FIXTURES / directory.name / 'searchindex.js'
 
@@ -28,7 +32,7 @@ for directory in TEST_JS_ROOTS.iterdir():
     build(directory)
     print('done')
 
-    print(f'Moving {searchindex} to {destination} ... ', end='')
+    print(f'Copying {searchindex} to {destination} ... ', end='')
     destination.parent.mkdir(exist_ok=True)
-    searchindex.replace(destination)
+    destination.write_bytes(searchindex.read_bytes())
     print('done')

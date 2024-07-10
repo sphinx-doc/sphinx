@@ -13,7 +13,11 @@ from sphinx.search import IndexBuilder
 
 from tests.utils import TESTS_ROOT
 
-JAVASCRIPT_TEST_ROOTS = list((TESTS_ROOT / 'js' / 'roots').iterdir())
+JAVASCRIPT_TEST_ROOTS = list(
+    directory
+    for directory in (TESTS_ROOT / 'js' / 'roots').iterdir()
+    if (directory / 'conf.py').exists()
+)
 
 
 class DummyEnvironment:
