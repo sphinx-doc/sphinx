@@ -328,12 +328,6 @@ def setup(app: Sphinx) -> None:
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.connect('source-read', linkify_issues_in_changelog)
     app.connect('build-finished', build_redirects)
-    app.add_object_type(
-        'confval',
-        'confval',
-        objname='configuration value',
-        indextemplate='pair: %s; configuration value',
-    )
     fdesc = GroupedField('parameter', label='Parameters', names=['param'], can_collapse=True)
     app.add_object_type(
         'event', 'event', 'pair: %s; event', parse_event, doc_field_types=[fdesc]
