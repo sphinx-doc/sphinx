@@ -403,7 +403,7 @@ def test_errors_if_setup_is_not_callable(tmp_path, make_app):
     assert 'callable' in str(excinfo.value)
 
 
-@pytest.fixture()
+@pytest.fixture
 def make_app_with_empty_project(make_app, tmp_path):
     (tmp_path / 'conf.py').write_text('', encoding='utf8')
 
