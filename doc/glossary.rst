@@ -26,9 +26,9 @@ Glossary
       Sphinx and custom extensions can add their own.  The basic directive
       syntax looks like this:
 
-      .. sourcecode:: rst
+      .. code-block:: rst
 
-         .. directivename:: argument ...
+         .. directive-name:: argument ...
             :option: value
 
             Content of the directive.

@@ -745,7 +745,7 @@ There are also config values that you can set:
 
    * ``'fully-qualified'`` -- Show the module name and its name of typehints
    * ``'short'`` -- Suppress the leading module names of the typehints
-     (ex. ``io.StringIO`` -> ``StringIO``)  (default)
+     (e.g. ``io.StringIO`` -> ``StringIO``)  (default)
 
    .. versionadded:: 4.4
 

@@ -465,19 +465,22 @@ class StandaloneHTMLBuilder(Builder):
         # determine the additional indices to include
         self.domain_indices = []
         # html_domain_indices can be False/True or a list of index names
-        indices_config = self.config.html_domain_indices
-        if indices_config:
+        if indices_config := self.config.html_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
             for domain_name in sorted(self.env.domains):
                 domain: Domain = self.env.domains[domain_name]
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapse = indexcls(domain).generate()
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
+                        continue
+                    content, collapse = index_cls(domain).generate()
                     if content:
                         self.domain_indices.append(
-                            (indexname, indexcls, content, collapse))
+                            (index_name, index_cls, content, collapse))
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
@@ -963,7 +966,6 @@ class StandaloneHTMLBuilder(Builder):
             return any(char in pattern for char in '*?[')
 
         matched = None
-        customsidebar = None
 
         # default sidebars settings for selected theme
         sidebars = list(self.theme.sidebar_templates)
@@ -990,7 +992,6 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         ctx['sidebars'] = sidebars
-        ctx['customsidebar'] = customsidebar
 
     # --------- these are overwritten by the serialization builder
 
@@ -1316,7 +1317,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_last_updated_fmt', None, 'html', str)
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_domain_indices', True, 'html', list)
+    app.add_config_value('html_domain_indices', True, 'html', types={set, list})
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
