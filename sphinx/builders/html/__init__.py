@@ -486,8 +486,8 @@ class StandaloneHTMLBuilder(Builder):
         # typically doesn't include the time of day
         last_updated: str | None
         if (lu_fmt := self.config.html_last_updated_fmt) is not None:
-            last_updated = format_date(lu_fmt or _('%b %d, %Y'),
-                                            language=self.config.language)
+            lu_fmt = lu_fmt or _('%b %d, %Y')
+            last_updated = format_date(lu_fmt, language=self.config.language)
         else:
             last_updated = None
 
