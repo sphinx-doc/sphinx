@@ -484,13 +484,12 @@ class StandaloneHTMLBuilder(Builder):
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
-        self.last_updated: str | None
-        lufmt = self.config.html_last_updated_fmt
-        if lufmt is not None:
-            self.last_updated = format_date(lufmt or _('%b %d, %Y'),
-                                            language=self.config.language)
+        last_updated: str | None
+        if (lu_fmt := self.config.html_last_updated_fmt) is not None:
+            lu_fmt = lu_fmt or _('%b %d, %Y')
+            last_updated = format_date(lu_fmt, language=self.config.language)
         else:
-            self.last_updated = None
+            last_updated = None
 
         # If the logo or favicon are urls, keep them as-is, otherwise
         # strip the relative path as the files will be copied into _static.
@@ -529,7 +528,7 @@ class StandaloneHTMLBuilder(Builder):
             'project': self.config.project,
             'release': return_codes_re.sub('', self.config.release),
             'version': self.config.version,
-            'last_updated': self.last_updated,
+            'last_updated': last_updated,
             'copyright': self.config.copyright,
             'master_doc': self.config.root_doc,
             'root_doc': self.config.root_doc,
