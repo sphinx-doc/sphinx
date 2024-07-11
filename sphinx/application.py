@@ -758,7 +758,7 @@ class Sphinx:
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        docutils.register_role(name, role)  # type: ignore[arg-type]
+        docutils.register_role(name, role)
 
     def add_domain(self, domain: type[Domain], override: bool = False) -> None:
         """Register a domain.
