@@ -70,13 +70,17 @@ test:
 covertest:
 	@$(PYTHON) -X dev -X warn_default_encoding -m pytest -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
-.PHONY: build
-build:
-	$(MAKE) -C doc man SPHINXBUILD=sphinx-build
-	test -d doc/_build/man && { ls doc/_build/man | fgrep .1 >/dev/null; }
+.PHONY: manpages
+manpages:
 	mkdir -p data/share/man/man1
-	cp doc/_build/man/*.1 data/share/man/man1
+	$(MAKE) -C doc man SPHINXBUILD=sphinx-build
+	if test -d doc/_build/man && { ls doc/_build/man | fgrep .1 >/dev/null; }; then \
+		cp doc/_build/man/*.1 data/share/man/man1; \
+	fi
 	rm -f data/share/man/man1/sphinx-all.1
+
+.PHONY: build
+build: manpages
 	@$(PYTHON) -m build .
 
 .PHONY: docs
