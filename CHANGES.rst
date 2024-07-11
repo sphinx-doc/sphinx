@@ -74,6 +74,9 @@ Features added
 * #11592: Add :confval:`coverage_modules` to the coverage builder
   to allow explicitly specifying which modules should be documented.
   Patch by Stephen Finucane.
+* #7896, #11989: Add a :rst:dir:`py:type` directiv for documenting type aliases,
+  and a :rst:role:`py:type` role for linking to them.
+  Patch by Ashley Whetter.
 
 Bugs fixed
 ----------
