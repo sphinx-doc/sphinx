@@ -71,6 +71,9 @@ Features added
 * #12523: Added configuration option, :confval:`math_numsep`, to define the
   separator for math numbering.
   Patch by Thomas Fanning
+* #11592: Add :confval:`coverage_modules` to the coverage builder
+  to allow explicitly specifying which modules should be documented.
+  Patch by Stephen Finucane.
 
 Bugs fixed
 ----------
