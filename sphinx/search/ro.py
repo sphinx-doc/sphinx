@@ -1,14 +1,8 @@
-"""
-    sphinx.search.ro
-    ~~~~~~~~~~~~~~~~
+"""Romanian search language: includes the JS Romanian stemmer."""
 
-    Romanian search language: includes the JS Romanian stemmer.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Dict, Set
+from typing import TYPE_CHECKING, Dict, Set
 
 import snowballstemmer
 
@@ -19,9 +13,9 @@ class SearchRomanian(SearchLanguage):
     lang = 'ro'
     language_name = 'Romanian'
     js_stemmer_rawcode = 'romanian-stemmer.js'
-    stopwords: Set[str] = set()
+    stopwords: set[str] = set()
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('romanian')
 
     def stem(self, word: str) -> str:

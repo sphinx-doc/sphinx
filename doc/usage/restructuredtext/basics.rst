@@ -239,16 +239,16 @@ as long as the text::
 
 Normally, there are no heading levels assigned to certain characters as the
 structure is determined from the succession of headings.  However, this
-convention is used in `Python's Style Guide for documenting
-<https://docs.python.org/devguide/documenting.html#style-guide>`_ which you may
+convention is used in `Python Developer's Guide for documenting
+<https://devguide.python.org/documentation/markup/#sections>`_ which you may
 follow:
 
 * ``#`` with overline, for parts
 * ``*`` with overline, for chapters
-* ``=``, for sections
-* ``-``, for subsections
-* ``^``, for subsubsections
-* ``"``, for paragraphs
+* ``=`` for sections
+* ``-`` for subsections
+* ``^`` for subsubsections
+* ``"`` for paragraphs
 
 Of course, you are free to use your own marker characters (see the reST
 documentation), and use a deeper nesting level, but keep in mind that most
@@ -289,7 +289,7 @@ information.
 Roles
 -----
 
-A role or "custom interpreted text role" (:duref:`ref <roles>`) is an inline
+A role or "custom interpreted text role" (:dupage:`ref <roles>`) is an inline
 piece of explicit markup. It signifies that the enclosed text should be
 interpreted in a specific way.  Sphinx uses this to provide semantic markup and
 cross-referencing of identifiers, as described in the appropriate section.  The
@@ -370,7 +370,21 @@ Docutils supports the following directives:
   - :dudir:`include` (include reStructuredText from another file) -- in Sphinx,
     when given an absolute include file path, this directive takes it as
     relative to the source directory
-  - :dudir:`class` (assign a class attribute to the next element) [1]_
+
+    .. _rstclass:
+
+  - :dudir:`class` (assign a class attribute to the next element)
+
+    .. note::
+
+       When the default domain contains a ``class`` directive, this directive
+       will be shadowed.  Therefore, Sphinx re-exports it as ``rst-class``.
+
+    .. tip::
+
+       If you want to add a class to a directive,
+       you may consider the ``:class:`` :dudir:`option <common-options>` instead,
+       which is supported by most directives and allows for a more compact notation.
 
 * HTML specifics:
 
@@ -410,7 +424,27 @@ following the arguments and indicated by the colons).  Options must be indented
 to the same level as the directive content.
 
 The directive content follows after a blank line and is indented relative to
-the directive start.
+the directive start or if options are present, by the same amount as the
+options.
+
+Be careful as the indent is not a fixed number of whitespace, e.g. three, but
+any number whitespace.  This can be surprising when a fixed indent is used
+throughout the document and can make a difference for directives which are
+sensitive to whitespace. Compare::
+
+   .. code-block::
+      :caption: A cool example
+
+          The output of this line starts with four spaces.
+
+   .. code-block::
+
+          The output of this line has no spaces at the beginning.
+
+In the first code block, the indent for the content was fixated by the option
+line to three spaces, consequently the content starts with four spaces.
+In the latter the indent was fixed by the content itself to seven spaces, thus
+it does not start with a space.
 
 
 Images
@@ -516,7 +550,7 @@ for details.
 If you want to use some substitutions for all documents, put them into
 :confval:`rst_prolog` or :confval:`rst_epilog` or put them into a separate file
 and include it into all documents you want to use them in, using the
-:rst:dir:`include` directive.  (Be sure to give the include file a file name
+:dudir:`include` directive.  (Be sure to give the include file a file name
 extension differing from that of other source files, to avoid Sphinx finding it
 as a standalone document.)
 
@@ -546,7 +580,7 @@ You can indent text after a comment start to form multiline comments::
 HTML Metadata
 -------------
 
-The :rst:dir:`meta` directive (:dudir:`ref <meta>`) allows specifying the HTML
+The :dudir:`meta` directive allows specifying the HTML
 `metadata element`_ of a Sphinx documentation page.  For example, the
 directive::
 
@@ -601,10 +635,3 @@ There are some problems one commonly runs into while authoring reST documents:
 
 * **No nested inline markup:** Something like ``*see :func:`foo`*`` is not
   possible.
-
-
-.. rubric:: Footnotes
-
-.. [1] When the default domain contains a :rst:dir:`class` directive, this
-       directive will be shadowed.  Therefore, Sphinx re-exports it as
-       :rst:dir:`rst-class`.

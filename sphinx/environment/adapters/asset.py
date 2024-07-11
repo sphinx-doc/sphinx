@@ -1,12 +1,4 @@
-"""
-    sphinx.environment.adapters.asset
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Assets adapter for sphinx.environment.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Assets adapter for sphinx.environment."""
 
 from sphinx.environment import BuildEnvironment
 

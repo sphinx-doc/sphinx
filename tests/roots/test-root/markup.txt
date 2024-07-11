@@ -274,6 +274,9 @@ Version markup
 .. deprecated:: 0.6
    Boring stuff.
 
+.. versionremoved:: 0.6
+   Goodbye boring stuff.
+
 .. versionadded:: 1.2
 
    First paragraph of versionadded.
@@ -308,7 +311,7 @@ Reference lookup underscore: [Ref_1]_
 
 .. seealso:: something, something else, something more
 
-   `Google <http://www.google.com>`_
+   `Google <https://www.google.com>`_
        For everything.
 
 .. hlist::
@@ -352,7 +355,7 @@ This tests :CLASS:`role names in uppercase`.
    über
       Gewisse
 
-   änhlich
+   ähnlich
       Dinge
 
 .. productionlist::
@@ -373,7 +376,6 @@ Index markup
    pair: entry; pair
    double: entry; double
    triple: index; entry; triple
-   keyword: with
    see: from; to
    seealso: fromalso; toalso
 

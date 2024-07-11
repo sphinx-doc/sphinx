@@ -1,29 +1,27 @@
-"""
-    sphinx.versioning
-    ~~~~~~~~~~~~~~~~~
+"""Implements the low-level algorithms Sphinx uses for versioning doctrees."""
 
-    Implements the low-level algorithms Sphinx uses for the versioning of
-    doctrees.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, Iterator
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
-
-from docutils.nodes import Node
 
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from docutils.nodes import Node
+
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 try:
-    import Levenshtein
+    import Levenshtein  # type: ignore[import-not-found]
+
     IS_SPEEDUP = True
 except ImportError:
     IS_SPEEDUP = False
@@ -42,7 +40,7 @@ def add_uids(doctree: Node, condition: Any) -> Iterator[Node]:
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    for node in doctree.traverse(condition):
+    for node in doctree.findall(condition):
         node.uid = uuid4().hex
         yield node
 
@@ -57,8 +55,8 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    old_iter = old.traverse(condition)
-    new_iter = new.traverse(condition)
+    old_iter = old.findall(condition)
+    new_iter = new.findall(condition)
     old_nodes = []
     new_nodes = []
     ratios = {}
@@ -96,7 +94,7 @@ def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     # choose the old node with the best ratio for each new node and set the uid
     # as long as the ratio is under a certain value, in which case we consider
     # them not changed but different
-    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore
+    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore[assignment]
     for (old_node, new_node), ratio in ratios:
         if new_node in seen:
             continue
@@ -149,6 +147,7 @@ def levenshtein_distance(a: str, b: str) -> int:
 
 class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
+
     default_priority = 880
 
     def apply(self, **kwargs: Any) -> None:
@@ -173,7 +172,7 @@ class UIDTransform(SphinxTransform):
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(UIDTransform)
 
     return {

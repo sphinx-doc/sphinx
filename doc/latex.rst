@@ -4,22 +4,42 @@ LaTeX customization
 .. module:: latex
    :synopsis: LaTeX specifics.
 
+.. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
+
 .. raw:: latex
 
    \begingroup
    \sphinxsetup{%
-         verbatimwithframe=false,
-         VerbatimColor={named}{OldLace},
          TitleColor={named}{DarkGoldenrod},
-         hintBorderColor={named}{LightCoral},
+         pre_border-width=2pt,
+         pre_border-right-width=8pt,
+         pre_padding=5pt,
+         pre_border-radius=5pt,
+         pre_background-TeXcolor={named}{OldLace},
+         pre_border-TeXcolor=Gold!90,
+         pre_box-shadow=6pt 6pt,
+         pre_box-shadow-TeXcolor=gray!20,
+         %
+         div.warning_border-width=3pt,
+         div.warning_padding=6pt,
+         div.warning_padding-right=18pt,
+         div.warning_padding-bottom=18pt,
+         div.warning_border-TeXcolor=DarkCyan,
+         div.warning_background-TeXcolor=LightCyan,
+         div.warning_box-shadow=-12pt -12pt inset,
+         div.warning_box-shadow-TeXcolor=Cyan,
+         %
          attentionborder=3pt,
-         attentionBorderColor={named}{Crimson},
-         attentionBgColor={named}{FloralWhite},
-         noteborder=2pt,
-         noteBorderColor={named}{Olive},
-         cautionborder=3pt,
-         cautionBorderColor={named}{Cyan},
-         cautionBgColor={named}{LightCyan}}
+         attentionBorderColor=Crimson,
+         attentionBgColor=FloralWhite,
+         %
+         noteborder=1pt,
+         noteBorderColor=Olive,
+         noteBgColor=Olive!10,
+         div.note_border-top-width=0pt,
+         div.note_border-bottom-width=0pt,
+         hintBorderColor=LightCoral,
+   }
    \relax
 
 Unlike :ref:`the HTML builders <html-themes>`, the ``latex`` builder does not
@@ -27,7 +47,7 @@ benefit from prepared themes. The :ref:`latex-options`, and particularly the
 :ref:`latex_elements <latex_elements_confval>` variable, provides much of the
 interface for customization. For example:
 
-.. code-block:: python
+.. code-block:: latex
 
    # inside conf.py
    latex_engine = 'xelatex'
@@ -62,7 +82,10 @@ The ``latex_elements`` configuration setting
 
 A dictionary that contains LaTeX snippets overriding those Sphinx usually puts
 into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
-:ref:`separately <latexsphinxsetup>`.
+:ref:`separately <latexsphinxsetup>`.  It allows also local configurations
+inserted in generated files, via :dudir:`raw` directives.  For example, in
+the PDF documentation this chapter is styled especially, as will be described
+later.
 
 Keys that you may want to override include:
 
@@ -121,7 +144,7 @@ Keys that you may want to override include:
 
    .. hint::
 
-      After modifiying a core LaTeX key like this one, clean up the LaTeX
+      After modifying a core LaTeX key like this one, clean up the LaTeX
       build repertory before next PDF build, else left-over auxiliary
       files are likely to break the build.
 
@@ -135,8 +158,18 @@ Keys that you may want to override include:
       ``'lualatex'`` uses same default setting as ``'xelatex'``
 
    .. versionchanged:: 1.7.6
-      For French, ``xelatex`` and ``lualatex`` default to using
-      ``babel``, not ``polyglossia``.
+      For French with ``xelatex`` (not ``lualatex``) the default is to use
+      ``babel``, not ``polyglossia``.  To let ``lualatex`` use ``babel``,
+      use this:
+
+      .. code-block:: python
+
+         latex_elements = {
+             'polyglossia': '',
+             'babel': r'\usepackage{babel}',
+         }
+
+      in file :file:`conf.py`.
 
 ``'fontpkg'``
    Font package inclusion. The default is::
@@ -196,6 +229,9 @@ Keys that you may want to override include:
 
       latex_additional_files = ["mystyle.sty"]
 
+   Do not use ``.tex`` as suffix, else the file is submitted itself to the PDF
+   build process, use ``.tex.txt`` or ``.sty`` as in the examples above.
+
    Default: ``''``
 
 ``'figure_align'``
@@ -219,10 +255,10 @@ Keys that you may want to override include:
 ``'extrapackages'``
    Additional LaTeX packages.  For example:
 
-   .. code-block:: python
+   .. code-block:: latex
 
        latex_elements = {
-           'packages': r'\usepackage{isodate}'
+           'extrapackages': r'\usepackage{isodate}'
        }
 
    The specified LaTeX packages will be loaded before
@@ -330,7 +366,7 @@ Keys that don't need to be overridden unless in special cases are:
 
    .. attention::
 
-      - Do not use this key for a :confval:`latex_engine` other than 
+      - Do not use this key for a :confval:`latex_engine` other than
         ``'pdflatex'``.
 
       - If Greek is main language, do not use this key.  Since Sphinx 2.2.1,
@@ -351,7 +387,7 @@ Keys that don't need to be overridden unless in special cases are:
    .. versionchanged:: 2.0
       ``'lualatex'`` executes
       ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
-      ligatures transforming `<<` and `>>` as escaping working with
+      ligatures transforming ``<<`` and ``>>`` as escaping working with
       ``pdflatex/xelatex`` failed with ``lualatex``.
 
    .. versionchanged:: 2.0
@@ -396,12 +432,16 @@ Keys that don't need to be overridden unless in special cases are:
 ``'geometry'``
    "geometry" package inclusion, the default definition is:
 
-     ``'\\usepackage{geometry}'``
+   .. code:: latex
+
+      '\\usepackage{geometry}'
 
    with an additional ``[dvipdfm]`` for Japanese documents.
    The Sphinx LaTeX style file executes:
 
-     ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
+   .. code:: latex
+
+      \PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}
 
    which can be customized via corresponding :ref:`'sphinxsetup' options
    <latexsphinxsetup>`.
@@ -454,7 +494,7 @@ Keys that don't need to be overridden unless in special cases are:
 
    .. versionchanged:: 1.8.3
       Original ``\maketitle`` from document class is not overwritten,
-      hence is re-usable as part of some custom setting for this key.
+      hence is reusable as part of some custom setting for this key.
 
    .. versionadded:: 1.8.3
       ``\sphinxbackoftitlepage`` optional macro.  It can also be defined
@@ -528,7 +568,7 @@ Keys that don't need to be overridden unless in special cases are:
       is adapted to the relative widths of the FreeFont family.
 
    .. versionchanged:: 4.0.0
-      Changed default for ``'pdflatex'``. Previously it was using 
+      Changed default for ``'pdflatex'``. Previously it was using
       ``'\\fvset{fontsize=\\small}'``.
 
    .. versionchanged:: 4.1.0
@@ -571,33 +611,87 @@ The colors used in the above are provided by the ``svgnames`` option of the
        'passoptionstopackages': r'\PassOptionsToPackage{svgnames}{xcolor}',
    }
 
-It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
-directly into the body of the document, via the help of the :rst:dir:`raw`
-directive. This chapter is styled in the PDF output using the following at the
-start of the chapter::
+It is possible to insert uses of the ``\sphinxsetup`` LaTeX macro directly
+into the body of the document, via the ``raw`` directive.  This chapter is
+styled in the PDF output using the following insertion at its start.  This
+uses keys described later in :ref:`additionalcss`.
 
-  .. raw:: latex
+.. code-block:: latex
 
-     \begingroup
-     \sphinxsetup{%
-           verbatimwithframe=false,
-           VerbatimColor={named}{OldLace},
-           TitleColor={named}{DarkGoldenrod},
-           hintBorderColor={named}{LightCoral},
-           attentionborder=3pt,
-           attentionBorderColor={named}{Crimson},
-           attentionBgColor={named}{FloralWhite},
-           noteborder=2pt,
-           noteBorderColor={named}{Olive},
-           cautionborder=3pt,
-           cautionBorderColor={named}{Cyan},
-           cautionBgColor={named}{LightCyan}}
+   .. raw:: latex
 
-The below is included at the end of the chapter::
+      \begingroup
+      \sphinxsetup{%
+         TitleColor={named}{DarkGoldenrod},
+         % pre_border-width is 5.1.0 alias for verbatimborder
+         pre_border-width=2pt,
+         pre_border-right-width=8pt,
+         % pre_padding is a 5.1.0 alias for verbatimsep
+         pre_padding=5pt,
+         % Rounded boxes are new at 5.1.0
+         pre_border-radius=5pt,
+         % TeXcolor reminds that syntax must be as for LaTeX \definecolor
+         pre_background-TeXcolor={named}{OldLace},
+         % ... and since 5.3.0 also xcolor \colorlet syntax is accepted and we
+         %     can thus drop the {named}{...} thing if xcolor is available!
+         pre_border-TeXcolor=Gold,
+         % ... and even take more advantage of xcolor syntax:
+         pre_border-TeXcolor=Gold!90,
+         % add a shadow to code-blocks
+         pre_box-shadow=6pt 6pt,
+         pre_box-shadow-TeXcolor=gray!20,
+         %
+         % This 5.1.0 CSS-named option is alias for warningborder
+         div.warning_border-width=3pt,
+         % Prior to 5.1.0, padding for admonitions was not customizable
+         div.warning_padding=6pt,
+         div.warning_padding-right=18pt,
+         div.warning_padding-bottom=18pt,
+         % Assume xcolor has been loaded with its svgnames option
+         div.warning_border-TeXcolor=DarkCyan,
+         div.warning_background-TeXcolor=LightCyan,
+         % This one is the only option with space separated input:
+         div.warning_box-shadow=-12pt -12pt inset,
+         div.warning_box-shadow-TeXcolor=Cyan,
+         %
+         % The 5.1.0 new name would be div.attention_border-width
+         attentionborder=3pt,
+         % The 5.1.0 name here would be div.attention_border-TeXcolor
+         attentionBorderColor=Crimson,
+         % The 5.1.0 name would be div.attention_background-TeXcolor
+         attentionBgColor=FloralWhite,
+         %
+         % For note/hint/important/tip, the CSS syntax was added at 6.2.0
+         % Legacy syntax still works
+         noteborder=1pt,
+         noteBorderColor=Olive,
+         % But setting a background color via the new noteBgColor means that
+         % it will be rendered using the same interface as warning type
+         noteBgColor=Olive!10,
+         % We can customize separately the four border-widths, and mimic
+         % the legacy "light" rendering, but now with a background color:
+         % div.note_border-left-width=0pt,
+         % div.note_border-right-width=0pt,
+         % Let's rather for variety use lateral borders:
+         div.note_border-top-width=0pt,
+         div.note_border-bottom-width=0pt,
+         %
+         % As long as only border width and border color are set, *and* using
+         % for this the old interface, the rendering will be the "light" one
+         hintBorderColor=LightCoral,
+         % but if we had used div.hint_border-TeXcolor or *any* CSS-named
+         % option we would have triggered the more complex "heavybox" code.
+      }
 
-  .. raw:: latex
 
-     \endgroup
+And this is placed at the end of the chapter source to end the scope of
+the configuration:
+
+.. code-block:: latex
+
+   .. raw:: latex
+
+      \endgroup
 
 LaTeX syntax for boolean keys requires *lowercase* ``true`` or ``false``
 e.g ``'sphinxsetup': "verbatimwrapslines=false"``.  If setting the
@@ -655,7 +749,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 ``verbatimwithframe``
     Boolean to specify if :rst:dir:`code-block`\ s and literal includes are
     framed. Setting it to ``false`` does not deactivate use of package
-    "framed", because it is still in use for the optional background colour.
+    "framed", because it is still in use for the optional background color.
 
     Default: ``true``.
 
@@ -664,7 +758,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     wrapped.
 
     If ``true``, line breaks may happen at spaces (the last space before the
-    line break will be rendered using a special symbol), and at ascii
+    line break will be rendered using a special symbol), and at ASCII
     punctuation characters (i.e. not at letters or digits). Whenever a long
     string has no break points, it is moved to next line. If its length is
     longer than the line width it will overflow.
@@ -728,7 +822,7 @@ Do not use quotes to enclose values, whether numerical or strings.
 
 ``verbatimhintsturnover``
     Boolean to specify if code-blocks display "continued on next page" and
-    "continued from previous page" hints in case of pagebreaks.
+    "continued from previous page" hints in case of page breaks.
 
     Default: ``true``
 
@@ -751,7 +845,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``true``
 
     .. versionadded:: 1.5.2
-       set this option value to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behavior.
 
 ``inlineliteralwraps``
     Boolean to specify if line breaks are allowed inside inline literals: but
@@ -763,7 +857,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     Default: ``true``
 
     .. versionadded:: 1.5
-       set this option value to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behavior.
 
     .. versionchanged:: 2.3.0
        added potential breakpoint at ``\`` characters.
@@ -785,37 +879,60 @@ Do not use quotes to enclose values, whether numerical or strings.
        definition of the continuation symbol was changed at 1.5 to accommodate
        various font sizes (e.g. code-blocks can be in footnotes).
 
+.. note::
+
+   Values for color keys must either:
+
+   - obey the syntax of the ``\definecolor`` LaTeX command, e.g. something
+     such as ``VerbatimColor={rgb}{0.2,0.3,0.5}`` or ``{RGB}{37,23,255}`` or
+     ``{gray}{0.75}`` or (only with package ``xcolor``) ``{HTML}{808080}`` or
+     ...
+
+   - or obey the syntax of the ``\colorlet`` command from package ``xcolor``
+     (which then must exist in the LaTeX installation),
+     e.g. ``VerbatimColor=red!10`` or ``red!50!green`` or ``-red!75`` or
+     ``MyPreviouslyDefinedColor`` or... Refer to xcolor_ documentation for
+     this syntax.
+
+   .. _xcolor: https://ctan.org/pkg/xcolor
+
+   .. versionchanged:: 5.3.0
+      Formerly only the ``\definecolor`` syntax was accepted.
+
 ``TitleColor``
-    The colour for titles (as configured via use of package "titlesec".)
+    The color for titles (as configured via use of package "titlesec".)
 
     Default: ``{rgb}{0.126,0.263,0.361}``
 
-    .. warning::
-
-       Colours set via ``'sphinxsetup'``  must obey the syntax of the
-       argument of the ``color/xcolor`` packages ``\definecolor`` command.
-
 ``InnerLinkColor``
-    A colour passed to ``hyperref`` as value of ``linkcolor``  and
+    A color passed to ``hyperref`` as value of ``linkcolor``  and
     ``citecolor``.
 
     Default: ``{rgb}{0.208,0.374,0.486}``.
 
 ``OuterLinkColor``
-    A colour passed to ``hyperref`` as value of ``filecolor``, ``menucolor``,
+    A color passed to ``hyperref`` as value of ``filecolor``, ``menucolor``,
     and ``urlcolor``.
 
     Default: ``{rgb}{0.216,0.439,0.388}``
 
 ``VerbatimColor``
-    The background colour for :rst:dir:`code-block`\ s.
+    The background color for :rst:dir:`code-block`\ s.
 
-    Default: ``{rgb}{1,1,1}`` (white)
+    Default: ``{gray}{0.95}``
+
+    .. versionchanged:: 6.0.0
+
+       Formerly, it was ``{rgb}{1,1,1}`` (white).
 
 ``VerbatimBorderColor``
     The frame color.
 
-    Default: ``{rgb}{0,0,0}`` (black)
+    Default: ``{RGB}{32,32,32}``
+
+    .. versionchanged:: 6.0.0
+
+       Formerly it was ``{rgb}{0,0,0}`` (black).
 
 ``VerbatimHighlightColor``
     The color for highlighted lines.
@@ -824,69 +941,163 @@ Do not use quotes to enclose values, whether numerical or strings.
 
     .. versionadded:: 1.6.6
 
-    .. note::
+.. _tablecolors:
 
-       Starting with this colour, and for all others following, the
-       names declared to "color" or "xcolor" are prefixed with "sphinx".
+``TableRowColorHeader``
+    Sets the background color for (all) the header rows of tables.
+
+    It will have an effect only if either the :confval:`latex_table_style`
+    contains ``'colorrows'`` or if the table is assigned the ``colorrows``
+    class.  It is ignored for tables with ``nocolorrows`` class.
+
+    As for the other ``'sphinxsetup'`` keys, it can also be set or modified
+    from a ``\sphinxsetup{...}`` LaTeX command inserted via the :dudir:`raw`
+    directive, or also from a LaTeX environment associated to a `container
+    class <latexcontainer_>`_ and using such ``\sphinxsetup{...}``.
+
+    Default: ``{gray}{0.86}``
+
+    There is also ``TableMergeColorHeader``.  If used, sets a specific color
+    for merged single-row cells in the header.
+
+    .. versionadded:: 5.3.0
+
+``TableRowColorOdd``
+    Sets the background color for odd rows in tables (the row count starts at
+    ``1`` at the first non-header row).  Has an effect only if the
+    :confval:`latex_table_style` contains ``'colorrows'`` or for specific
+    tables assigned the ``colorrows`` class.
+
+    Default: ``{gray}{0.92}``
+
+    There is also ``TableMergeColorOdd``.
+
+    .. versionadded:: 5.3.0
+
+``TableRowColorEven``
+    Sets the background color for even rows in tables.
+
+    Default ``{gray}{0.98}``
+
+    There is also ``TableMergeColorEven``.
+
+    .. versionadded:: 5.3.0
 
 ``verbatimsep``
     The separation between code lines and the frame.
 
+    See :ref:`additionalcss` for its alias  ``pre_padding`` and
+    additional keys.
+
     Default: ``\fboxsep``
 
 ``verbatimborder``
-    The width of the frame around :rst:dir:`code-block`\ s.
+    The width of the frame around :rst:dir:`code-block`\ s.  See also
+    :ref:`additionalcss` for ``pre_border-width``.
 
     Default: ``\fboxrule``
 
 ``shadowsep``
-    The separation between contents and frame for :dudir:`contents` and
+    The separation between contents and frame for contents_ and
     :dudir:`topic` boxes.
+
+    See :ref:`additionalcss` for the alias ``div.topic_padding``.
 
     Default: ``5pt``
 
 ``shadowsize``
-    The width of the lateral "shadow" to the right.
+    The width of the lateral "shadow" to the right and bottom.
+
+    See :ref:`additionalcss` for ``div.topic_box-shadow`` which allows to
+    configure separately the widths of the vertical and horizontal shadows.
 
     Default: ``4pt``
 
+    .. versionchanged:: 6.1.2
+       Fixed a regression introduced at ``5.1.0`` which modified unintentionally
+       the width of topic boxes and worse had made usage of this key break PDF
+       builds.
+
 ``shadowrule``
-    The width of the frame around :dudir:`topic` boxes.
+    The width of the frame around :dudir:`topic` boxes.  See also
+    :ref:`additionalcss` for ``div.topic_border-width``.
 
     Default: ``\fboxrule``
 
 |notebdcolors|
-    The colour for the two horizontal rules used by Sphinx in LaTeX for styling
+    The color for the two horizontal rules used by Sphinx in LaTeX for styling
     a :dudir:`note` type admonition.
 
     Default: ``{rgb}{0,0,0}`` (black)
 
+|notebgcolors|
+    The optional color for the background.  It is a priori set to white, but
+    is not used, unless it has been set explicitly, and doing this triggers
+    Sphinx into switching to the more complex LaTeX code which is employed
+    also for ``warning`` type admonitions.  There are then additional options
+    which are described in :ref:`additionalcss`.
+
+    Default: ``{rgb}{1,1,1}`` (white)
+
+    .. versionadded:: 6.2.0
+
+|notetextcolors|
+    The optional color for the contents.
+
+    Default: unset (uses ambient text color, a priori black)
+
+    .. versionadded:: 6.2.0
+
+       To be considered experimental until 7.0.0.  These options have aliases
+       ``div.note_TeXcolor`` (etc) described in :ref:`additionalcss`.  Using
+       the latter will let Sphinx switch to a more complex LaTeX code,
+       which supports the customizability described in :ref:`additionalcss`.
+
+|notetexextras|
+    Some extra LaTeX code (such as ``\bfseries``  or ``\footnotesize``)
+    to be executed at start of the contents.
+
+    Default: empty
+
+    .. versionadded:: 6.2.0
+
+       To be considered experimental until 7.0.0.  These options have aliases
+       ``div.note_TeXextras`` (etc) described in :ref:`additionalcss`.
+
 ``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
     The width of the two horizontal rules.
+
+    If the background color is set, or the alternative :ref:`additionalcss`
+    syntax is used (e.g. ``div.note_border-width=1pt`` in place of
+    ``noteborder=1pt``), or *any* option with a CSS-alike name is used, then
+    the border is a full frame and this parameter sets its width also for left
+    and right.
 
     Default: ``0.5pt``
 
 .. only:: not latex
 
    |warningbdcolors|
-       The colour for the admonition frame.
+       The color for the admonition frame.
 
    Default: ``{rgb}{0,0,0}`` (black)
 
 .. only:: latex
 
    |wgbdcolorslatex|
-       The colour for the admonition frame.
+       The color for the admonition frame.
 
    Default: ``{rgb}{0,0,0}`` (black)
 
 |warningbgcolors|
-    The background colours for the respective admonitions.
+    The background colors for the respective admonitions.
 
     Default: ``{rgb}{1,1,1}`` (white)
 
 |warningborders|
-    The width of the frame.
+    The width of the frame.  See
+    :ref:`additionalcss` for keys allowing to configure separately each
+    border width.
 
     Default: ``1pt``
 
@@ -911,11 +1122,20 @@ Do not use quotes to enclose values, whether numerical or strings.
 .. |notebdcolors| replace:: ``noteBorderColor``, ``hintBorderColor``,
                             ``importantBorderColor``, ``tipBorderColor``
 
+.. |notebgcolors| replace:: ``noteBgColor``, ``hintBgColor``,
+                            ``importantBgColor``, ``tipBgColor``
+
+.. |notetextcolors| replace:: ``noteTextColor``, ``hintTextColor``,
+                              ``importantTextColor``, ``tipTextColor``
+
+.. |notetexextras| replace:: ``noteTeXextras``, ``hintTeXextras``,
+                             ``importantTeXextras``, ``tipTeXextras``
+
 .. |warningbdcolors| replace:: ``warningBorderColor``, ``cautionBorderColor``,
                                ``attentionBorderColor``, ``dangerBorderColor``,
                                ``errorBorderColor``
 
-.. |wgbdcolorslatex| replace:: ``warningBorderColor``, and 
+.. |wgbdcolorslatex| replace:: ``warningBorderColor``, and
                                ``(caution|attention|danger|error)BorderColor``
 
 .. else latex goes into right margin, as it does not hyphenate the names
@@ -927,6 +1147,270 @@ Do not use quotes to enclose values, whether numerical or strings.
 .. |warningborders| replace:: ``warningborder``, ``cautionborder``,
                               ``attentionborder``, ``dangerborder``,
                               ``errorborder``
+
+.. _additionalcss:
+
+Additional  CSS-like ``'sphinxsetup'`` keys
+-------------------------------------------
+
+.. versionadded:: 5.1.0
+
+   For :rst:dir:`code-block`, :dudir:`topic` and contents_ directive,
+   and strong-type admonitions (:dudir:`warning`, :dudir:`error`, ...).
+
+.. versionadded:: 6.2.0
+
+   Also the :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip`
+   admonitions can be styled this way.  Using for them *any* of the listed
+   options will trigger usage of a more complex LaTeX code than the one used
+   per default (``sphinxheavybox`` vs ``sphinxlightbox``).  Setting the new
+   ``noteBgColor`` (or ``hintBgColor``, ...) also triggers usage of
+   ``sphinxheavybox`` for :dudir:`note` (or :dudir:`hint`, ...).
+
+Perhaps in future these 5.1.0 (and 6.2.0) novel settings will be optionally
+imported from some genuine CSS external file, but currently they have to be used
+via the ``'sphinxsetup'`` interface (or the ``\sphinxsetup`` LaTeX command
+inserted via the :dudir:`raw` directive) and the CSS syntax is only imitated.
+
+.. important:: Low-level LaTeX errors causing a build failure can happen if
+   the input syntax is not respected.
+
+   * In particular colors must be input as for the other color related options
+     previously described, i.e. either in the ``\definecolor`` syntax or, if
+     package ``xcolor`` is available (it is then automatically used) also the
+     ``\colorlet`` syntax::
+
+       ...<other options>
+       div.warning_border-TeXcolor={rgb}{1,0,0},% (always works)
+       div.error_background-TeXcolor=red!10,% (works only if xcolor is available)
+       ...<other options>
+
+   * A colon in place of the equal sign will break LaTeX.
+
+   * ``...border-width`` or ``...padding`` expect a *single* dimension: they can not
+     be used so far with space separated dimensions.
+
+   * ``...top-right-radius`` et al. values may be either a single or *two* space
+     separated dimensions.
+
+   * Dimension specifications must use TeX units such as ``pt`` or ``cm`` or
+     ``in``.  The ``px`` unit is recognized by ``pdflatex`` and ``lualatex``
+     but not by ``xelatex`` or ``platex``.
+
+   * It is allowed for such specifications to be so-called "dimensional
+     expressions", e.g. ``\fboxsep+2pt`` or ``0.5\baselineskip`` are valid
+     inputs.  The expressions will be evaluated only at the typesetting time.
+     Be careful though if using as in these examples TeX control sequences to
+     double the backslash or to employ a raw Python string for the value of
+     the :ref:`'sphinxsetup' <latexsphinxsetup>` key.
+
+   * As a rule, avoid inserting unneeded spaces in the key values: especially
+     for the radii an input such  ``2 pt 3pt`` will break LaTeX.  Beware also
+     that ``\fboxsep \fboxsep`` will not be seen as space separated in LaTeX.
+     You must use something such as ``{\fboxsep} \fboxsep``.  Or use
+     directly ``3pt 3pt`` which is a priori equivalent and simpler.
+
+The options are all named in a similar pattern which depends on a ``prefix``,
+which is then followed by an underscore, then the property name.
+
+.. csv-table::
+   :header: Directive, Option prefix, LaTeX environment
+
+   :rst:dir:`code-block`, ``pre``, ``sphinxVerbatim``
+   :dudir:`topic`, ``div.topic``, ``sphinxShadowBox``
+   contents_, ``div.topic``, ``sphinxShadowBox``
+   :dudir:`note`, ``div.note``, ``sphinxnote`` using ``sphinxheavybox``
+   :dudir:`warning`, ``div.warning``, ``sphinxwarning`` (uses ``sphinxheavybox``)
+   admonition type, ``div.<type>``,  ``sphinx<type>`` (using ``sphinxheavybox``)
+
+Here are now these options as well as their common defaults.
+Replace below ``<prefix>`` by the actual prefix as explained above.  Don't
+forget the underscore separating the prefix from the property names.
+
+- | ``<prefix>_border-top-width``,
+  | ``<prefix>_border-right-width``,
+  | ``<prefix>_border-bottom-width``,
+  | ``<prefix>_border-left-width``,
+  | ``<prefix>_border-width``.  The latter can (currently) be only a *single*
+    dimension which then sets all four others.
+
+  The default is that all those dimensions are equal.  They are set to:
+
+  * ``\fboxrule`` (i.e. a priori ``0.4pt``) for :rst:dir:`code-block`,
+  * ``\fboxrule`` for :dudir:`topic` or contents_ directive,
+  * ``1pt`` for  :dudir:`warning` and other "strong" admonitions,
+  * ``0.5pt`` for :dudir:`note` and other "light" admonitions.  The framing
+    style of the "lighbox" used for them in absence of usage of CSS-named
+    options will be emulated by the richer "heavybox" if setting
+    ``border-left-width`` and ``border-right-width`` both to ``0pt``.
+
+- ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
+  ``slice`` and configures the behavior at page breaks.
+  It defaults to ``slice`` for :rst:dir:`code-block` (i.e. for ``<prefix>=pre``)
+  since 6.0.0.  For other directives the default is ``clone``.
+- | ``<prefix>_padding-top``,
+  | ``<prefix>_padding-right``,
+  | ``<prefix>_padding-bottom``,
+  | ``<prefix>_padding-left``,
+  | ``<prefix>_padding``.  The latter can (currently) be only a *single*
+    dimension which then sets all four others.
+
+  The default is that all those dimensions are equal.  They are set to:
+
+  * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block`,
+  * ``5pt`` for :dudir:`topic` or contents_ directive,
+  * a special value for  :dudir:`warning` and other "strong" admonitions,
+    which ensures a backward compatible behavior.
+
+    .. important::
+
+       Prior to 5.1.0 there was no separate customizability of
+       padding for warning-type boxes in PDF via LaTeX output.  The sum of
+       padding and border-width (as set for example for :dudir:`warning` by
+       ``warningborder``, now also named ``div.warning_border-width``) was
+       kept to a certain constant value.  This limited the border-width
+       to small values else the border could overlap the text contents.
+       This behavior is kept as default.
+
+  * the same padding behavior is obeyed per default for :dudir:`note` or
+    other "light" admonitions when using ``sphinxheavybox``.
+- | ``<prefix>_border-top-left-radius``,
+  | ``<prefix>_border-top-right-radius``,
+  | ``<prefix>_border-bottom-right-radius``,
+  | ``<prefix>_border-bottom-left-radius``,
+  | ``<prefix>_border-radius``.  This last key sets the first four to
+    its assigned value.  Each key value can be either a single, or *two*,
+    dimensions which are then space separated.
+
+  The default is that all four corners are either circular or straight,
+  with common radii:
+
+  * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block` (since 6.0.0).
+  * ``0pt`` for all other directives; this means to use straight corners.
+
+  See a remark above about traps with spaces in LaTeX.
+- ``<prefix>_box-shadow`` is special in so far as it may be:
+
+  * the ``none`` keyword,
+  * or a single dimension (giving both x-offset and y-offset),
+  * or two dimensions (separated by a space),
+  * or two dimensions followed by the keyword ``inset``.
+
+  The x-offset and y-offset may be negative.  The default is ``none``,
+  *except* for the :dudir:`topic` or contents_ directives, for which it is
+  ``4pt 4pt``, i.e. the shadow has a width of ``4pt`` and extends to the right
+  and below the frame.  The lateral shadow then extends into the page right
+  margin.
+- | ``<prefix>_border-TeXcolor``,
+  | ``<prefix>_background-TeXcolor``,
+  | ``<prefix>_box-shadow-TeXcolor``,
+  | ``<prefix>_TeXcolor``.
+    These are colors.
+
+  The shadow color defaults in all cases to ``{rgb}{0,0,0}`` i.e. to black.
+
+  Since 6.0.0 the border color and background color of :rst:dir:`code-block`,
+  i.e. ``pre`` prefix, default respectively to ``{RGB}{32,32,32}`` and
+  ``{gray}{0.95}``.  They previously defaulted to black, respectively white.
+
+  For all other types, the border color defaults to black and the background
+  color to white.
+
+  The ``<prefix>_TeXcolor`` stands for the CSS property "color", i.e. it
+  influences the text color of the contents.  As for the three other options,
+  the naming ``TeXcolor`` is to stress that the input syntax is the TeX one
+  for colors not an HTML/CSS one.  If package ``xcolor`` is available in the
+  LaTeX installation, one can use directly named colors as key values.
+  Consider passing options such as ``dvipsnames``, ``svgnames`` or ``x11names``
+  to ``xcolor`` via ``'passoptionstopackages'`` key of :confval:`latex_elements`.
+
+  If ``<prefix>_TeXcolor`` is set, a ``\color`` command is inserted at
+  start of the directive contents; for admonitions, this happens after the
+  heading which reproduces the admonition type.
+
+- ``<prefix>_TeXextras``: if set, its value must be some LaTeX command or
+  commands, for example ``\itshape``.  These commands will be inserted at the
+  start of the contents; for admonitions, this happens after the heading which
+  reproduces the admonition type.
+
+.. note::
+
+   - All directives support ``box-decoration-break`` to be set to ``slice``.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly, only :rst:dir:`code-block` did.  The default remains
+        ``clone`` for all other directives, but this will probably change at
+        7.0.0.
+
+   - The corners of rounded boxes may be elliptical.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly, only circular rounded corners were supported and a rounded
+        corner forced the whole frame to use the same constant width from
+        ``<prefix>_border-width``.
+
+   - Inset shadows are incompatible with rounded corners.  In case
+     both are specified the inset shadow will simply be ignored.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly it was to the contrary the rounded corners which were ignored
+        in case an inset shadow was specified.
+
+   - ``<prefix>_TeXcolor`` and ``<prefix>_TeXextras`` are new with 6.2.0.
+
+     Usefulness is doubtful in the case of :rst:dir:`code-block`:
+
+     - ``pre_TeXcolor`` will influence only the few non-Pygments highlighted
+       tokens; it does color the line numbers, but if one wants to color
+       *only* them one has to go through the ``fancyvrb`` interface.
+
+     - ``pre_TeXextras=\footnotesize`` for example may be replaced by usage of
+       the :confval:`latex_elements` key ``'fvset'``.  For ``'lualatex'`` or
+       ``'xelatex'`` Sphinx includes in the preamble already
+       ``\fvset{fontsize=\small}`` and this induces ``fancyvrb`` into
+       overriding a ``\footnotesize`` coming from ``pre_TeXextras``.  One has
+       to use ``pre_TeXextras=\fvset{fontsize=\footnotesize}`` syntax.
+       Simpler to set directly the :confval:`latex_elements` key
+       ``'fvset'``...
+
+     Consider these options experimental and that some implementation details
+     may change.  For example if the ``pre_TeXextras`` LaTeX commands were put
+     by Sphinx in another location it could override the ``'fvset'`` effect,
+     perhaps this is what will be done in a future release.
+
+   - Rounded boxes are done using the pict2e_ interface to some basic PDF
+     graphics operations.  If this LaTeX package can not be found the build
+     will proceed and render all boxes with straight corners.
+
+   - Elliptic corners use the ellipse_ LaTeX package which extends pict2e_.
+     If this LaTeX package can not be found rounded corners will be circular
+     arcs (or straight if pict2e_ is not available).
+
+.. _pict2e: https://ctan.org/pkg/pict2e
+.. _ellipse: https://ctan.org/pkg/ellipse
+
+
+The following legacy behavior is currently not customizable:
+
+- For :rst:dir:`code-block`, padding and border-width and shadow (if one adds
+  one) will go into the margin; the code lines remain at the same place
+  independently of the values of the padding and border-width, except for
+  being shifted vertically of course to not overwrite other text due to the
+  width of the border or external shadow.
+
+- For :dudir:`topic` (and contents_) the shadow (if on right) goes into the
+  page margin, but the border and the extra padding are kept within the text
+  area.  Same for admonitions.
+
+- The contents_ and :dudir:`topic` directives are governed by the same options
+  with ``div.topic`` prefix: the Sphinx LaTeX mark-up uses for both directives
+  the same ``sphinxShadowBox`` environment which has currently no additional
+  branching, contrarily to the ``sphinxadmonition`` environment which branches
+  according to the admonition directive name, e.g. either to ``sphinxnote``
+  or ``sphinxwarning`` etc...
 
 
 LaTeX macros and environments
@@ -970,39 +1454,91 @@ Macros
 
 - Text styling commands:
 
-  - ``\sphinxstrong``,
-  - ``\sphinxbfcode``,
-  - ``\sphinxemail``,
-  - ``\sphinxtablecontinued``,
-  - ``\sphinxtitleref``,
-  - ``\sphinxmenuselection``,
-  - ``\sphinxaccelerator``,
-  - ``\sphinxcrossref``,
-  - ``\sphinxtermref``,
-  - ``\sphinxoptional``.
+  .. csv-table::
+     :header: Name, ``maps argument #1 to:``
+     :align: left
+     :class: longtable
+     :delim: ;
+
+     ``\sphinxstrong``;         ``\textbf{#1}``
+     ``\sphinxcode``;           ``\texttt{#1}``
+     ``\sphinxbfcode``;         ``\textbf{\sphinxcode{#1}}``
+     ``\sphinxemail``;          ``\textsf{#1}``
+     ``\sphinxtablecontinued``; ``\textsf{#1}``
+     ``\sphinxtitleref``;       ``\emph{#1}``
+     ``\sphinxmenuselection``;  ``\emph{#1}``
+     ``\sphinxguilabel``;       ``\emph{#1}``
+     ``\sphinxkeyboard``;       ``\sphinxcode{#1}``
+     ``\sphinxaccelerator``;    ``\underline{#1}``
+     ``\sphinxcrossref``;       ``\emph{#1}``
+     ``\sphinxtermref``;        ``\emph{#1}``
+     ``\sphinxsamedocref``;     ``\emph{#1}``
+     ``\sphinxparam``;          ``\emph{#1}``
+     ``\sphinxtypeparam``;      ``\emph{#1}``
+     ``\sphinxoptional``; ``[#1]`` with larger brackets, see source
 
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with LaTeX packages.
 
+  .. versionadded:: 1.8
+     ``\sphinxguilabel``
+
+  .. versionadded:: 3.0
+     ``\sphinxkeyboard``
+
+  .. versionadded:: 6.2.0
+     ``\sphinxparam``, ``\sphinxsamedocref``
+
+  .. versionadded:: 7.1.0
+     ``\sphinxparamcomma`` which defaults to a comma followed by a space and
+     ``\sphinxparamcommaoneperline`` which is used for one-parameter-per-line
+     signatures (see :confval:`maximum_signature_line_length`).  It defaults
+     to ``\texttt{,}`` to make these end-of-line separators more distinctive.
+
+     Signatures of Python functions are rendered as ``name<space>(parameters)``
+     or ``name<space>[type parameters]<space>(parameters)`` (see :pep:`695`)
+     where the length of ``<space>`` is set to ``0pt`` by default.
+     This can be changed via ``\setlength{\sphinxsignaturelistskip}{1ex}``
+     for instance.
+
 - More text styling:
 
-  - ``\sphinxstyleindexentry``,
-  - ``\sphinxstyleindexextra``,
-  - ``\sphinxstyleindexpageref``,
-  - ``\sphinxstyletopictitle``,
-  - ``\sphinxstylesidebartitle``,
-  - ``\sphinxstyleothertitle``,
-  - ``\sphinxstylesidebarsubtitle``,
-  - ``\sphinxstyletheadfamily``,
-  - ``\sphinxstyleemphasis``,
-  - ``\sphinxstyleliteralemphasis``,
-  - ``\sphinxstylestrong``,
-  - ``\sphinxstyleliteralstrong``,
-  - ``\sphinxstyleabbreviation``,
-  - ``\sphinxstyleliteralintitle``,
-  - ``\sphinxstylecodecontinued``,
-  - ``\sphinxstylecodecontinues``.
+  .. csv-table::
+     :header: Name, ``maps argument #1 to:``
+     :align: left
+     :class: longtable
+     :delim: ;
+
+     ``\sphinxstyleindexentry``;       ``\texttt{#1}``
+     ``\sphinxstyleindexextra``;       ``(\emph{#1})`` (with a space upfront)
+     ``\sphinxstyleindexpageref``;     ``, \pageref{#1}``
+     ``\sphinxstyleindexpagemain``;    ``\textbf{#1}``
+     ``\sphinxstyleindexlettergroup``; ``{\Large\sffamily#1}\nopagebreak\vspace{1mm}``
+     ``\sphinxstyleindexlettergroupDefault``; check source, too long for here
+     ``\sphinxstyletopictitle``;       ``\textbf{#1}\par\medskip``
+     ``\sphinxstylesidebartitle``;     ``\textbf{#1}\par\medskip``
+     ``\sphinxstyleothertitle``;       ``\textbf{#1}``
+     ``\sphinxstylesidebarsubtitle``;  ``~\\\textbf{#1} \smallskip``
+     ``\sphinxstyletheadfamily``;      ``\sffamily`` (*this one has no argument*)
+     ``\sphinxstyleemphasis``;         ``\emph{#1}``
+     ``\sphinxstyleliteralemphasis``;  ``\emph{\sphinxcode{#1}}``
+     ``\sphinxstylestrong``;           ``\textbf{#1}``
+     ``\sphinxstyleliteralstrong``;    ``\sphinxbfcode{#1}``
+     ``\sphinxstyleabbreviation``;     ``\textsc{#1}``
+     ``\sphinxstyleliteralintitle``;   ``\sphinxcode{#1}``
+     ``\sphinxstylecodecontinued``;    ``{\footnotesize(#1)}}``
+     ``\sphinxstylecodecontinues``;    ``{\footnotesize(#1)}}``
+     ``\sphinxstylenotetitle``;        ``\sphinxstrong{#1}<space>``
+     ``\sphinxstylehinttitle``;        *idem*
+     ``\sphinxstyleimportanttitle``;   *idem*
+     ``\sphinxstyletiptitle``;         *idem*
+     ``\sphinxstylewarningtitle``;     *idem*
+     ``\sphinxstylecautiontitle``;     *idem*
+     ``\sphinxstyleattentiontitle``;   *idem*
+     ``\sphinxstyledangertitle``;      *idem*
+     ``\sphinxstyleerrortitle``;       *idem*
+     ``\sphinxstyleseealsotitle``;     ``\sphinxstrong{#1}\par\nopagebreak``
 
   .. versionadded:: 1.5
      These macros were formerly hard-coded as non customizable ``\texttt``,
@@ -1015,8 +1551,29 @@ Macros
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
 
-  .. versionadded:: 3.0
-     ``\sphinxkeyboard``
+  .. versionadded:: 1.8
+     ``\sphinxstyleindexlettergroup``, ``\sphinxstyleindexlettergroupDefault``.
+
+  .. versionadded:: 6.2.0
+     ``\sphinxstylenotetitle`` et al.  The ``#1`` is the localized name of the
+     directive, with a final colon.  Wrap it as ``\sphinxremovefinalcolon{#1}``
+     if this final colon is to be removed.  Examples:
+
+     .. code-block:: latex
+
+        \renewcommand\sphinxstylewarningtitle[1]{%
+          \underline{\textbf{\sphinxremovefinalcolon{#1}}}\par
+        }
+        \renewcommand{\sphinxstylenotetitle}[1]{%
+          \textit{\textbf{\sphinxremovefinalcolon{#1}}}\par\nobreak
+          % LaTeX syntax is complex and we would be better off using \hrule.
+          {\parskip0pt\noindent}%
+          \raisebox{1ex}%
+           {\makebox[\linewidth]{\textcolor{sphinxnoteBorderColor}{\dotfill}}}
+          % It is complex to obtain nice vertical spacing for both a paragraph
+          % or a list following up; this set-up is better for a paragraph next.
+          \par\vskip-\parskip
+        }
 
 - ``\sphinxtableofcontents``: A wrapper (defined differently in
   :file:`sphinxhowto.cls` and in :file:`sphinxmanual.cls`) of standard
@@ -1031,6 +1588,12 @@ Macros
      done during loading of ``'manual'`` docclass are now executed later via
      ``\sphinxtableofcontentshook``.  This macro is also executed by the
      ``'howto'`` docclass, but defaults to empty with it.
+
+  .. hint::
+
+     If adding to preamble the loading of ``tocloft`` package, also add to
+     preamble ``\renewcommand\sphinxtableofcontentshook{}`` else it will reset
+     ``\l@section`` and ``\l@subsection`` cancelling ``tocloft`` customization.
 
 - ``\sphinxmaketitle``: Used as the default setting of the ``'maketitle'``
   :confval:`latex_elements` key.
@@ -1050,6 +1613,99 @@ Macros
   .. versionadded:: 1.8.3
 
 - ``\sphinxcite``: A wrapper of standard ``\cite`` for citation references.
+
+
+.. _sphinxbox:
+
+The ``\sphinxbox`` command
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 6.2.0
+
+The ``\sphinxbox[key=value,...]{inline text}`` command can be used to "box"
+inline text elements with all the customizability which has been described in
+:ref:`additionalcss`.  It is a LaTeX command with one optional argument, which
+is a comma-separated list of key=value pairs, as for :ref:`latexsphinxsetup`.
+Here is the complete list of keys.  They don't use any prefix.
+
+- ``border-width``,
+- ``border-top-width``, ``border-right-width``, ``border-bottom-width``,
+  ``border-left-width``,
+- ``padding``,
+- ``padding-top``, ``padding-right``, ``padding-bottom``, ``padding-left``,
+- ``border-radius``,
+- ``border-top-left-radius``, ``border-top-right-radius``,
+  ``border-bottom-right-radius``, ``border-bottom-left-radius``,
+- ``box-shadow``,
+- ``border-TeXcolor``, ``background-TeXcolor``, ``box-shadow-TeXcolor``,
+  ``TeXcolor``,
+- ``TeXextras``,
+- and ``addstrut`` which is a boolean key, i.e. to be used as ``addstrut=true``,
+  or ``addstrut`` alone where ``=true`` is omitted, or ``addstrut=false``.
+
+This last key is specific to ``\sphinxbox`` and it means to add a ``\strut``
+so that heights and depths are equalized across various instances on the same
+line with varying contents.  The default is ``addstrut=false``.
+
+.. important::
+
+   Perhaps the default will turn into ``addstrut=true`` at 7.0.0 depending on
+   feedback until then.
+
+The combination ``addstrut, padding-bottom=0pt, padding-top=1pt`` is often
+satisfactory.
+
+Refer to :ref:`additionalcss` for important syntax information regarding the
+other keys.  The default
+configuration uses no shadow, a border-width of ``\fboxrule``, a padding of
+``\fboxsep``, circular corners with radii ``\fboxsep`` and background and
+border colors as for the default rendering of code-blocks.
+
+When a ``\sphinxbox`` usage is nested within another one, it will ignore the
+options of the outer one: it first resets all options to their default state
+as they were prior to applying the outer box options, then it applies its own
+specific ones.
+
+One can modify these defaults via the command ``\sphinxboxsetup{key=value,...}``.
+The effect is cumulative, if one uses this command multiple times.  Here the
+options are a mandatory argument so are within curly braces, not square
+brackets.
+
+Here is some example of use:
+
+.. code-block:: latex
+
+   latex_elements = {
+       'preamble': r'''
+   % modify globally the defaults
+   \sphinxboxsetup{border-width=2pt,%
+                   border-radius=4pt,%
+                   background-TeXcolor=yellow!20}
+   % configure some styling element with some extra specific options:
+   \protected\def\sphinxkeyboard#1{\sphinxbox[border-TeXcolor=green]{\sphinxcode{#1}}}
+   ''',
+   }
+
+A utility ``\newsphinxbox`` is provided to create a new boxing macro, say
+``\foo`` which will act exactly like ``\sphinxbox`` but with a given extra
+configuration:
+
+.. code-block:: latex
+
+   % the specific options to \foo are within brackets
+   \newsphinxbox[border-radius=0pt, box-shadow=2pt 2pt]{\foo}
+   % then use this \foo, possibly with some extra options still:
+   \protected\def\sphinxguilabel#1{\foo{#1}}
+   \protected\def\sphinxmenuselection#1{\foo[box-shadow-TeXcolor=gray]{#1}}
+
+Boxes rendered with ``\foo`` obey as the ones using directly ``\sphinxbox``
+the current configuration as set possibly mid-way in document via
+``\sphinxboxsetup`` (from a :dudir:`raw` LaTeX mark-up), the only difference
+is that they have an initial additional set of default extras.
+
+In the above examples, you can probably use ``\renewcommand`` syntax if you
+prefer it to ``\protected\def`` (with ``[1]`` in place of ``#1`` then).
+
 
 Environments
 ~~~~~~~~~~~~
@@ -1079,7 +1735,7 @@ Environments
   of the notice, for example ``Warning:`` for :dudir:`warning` directive, if
   English is the document language). Their default definitions use either the
   *sphinxheavybox* (for the last 5 ones) or the *sphinxlightbox*
-  environments, configured to use the parameters (colours, border thickness)
+  environments, configured to use the parameters (colors, border thickness)
   specific to each type, which can be set via ``'sphinxsetup'`` string.
 
   .. versionchanged:: 1.5
@@ -1087,7 +1743,17 @@ Environments
      parameters, such as ``noteBorderColor``, ``noteborder``,
      ``warningBgColor``, ``warningBorderColor``, ``warningborder``, ...
 
-- The :dudir:`contents` directive (with ``:local:`` option) and the
+- Environment for the :rst:dir:`seealso` directive: ``sphinxseealso``.
+  It takes one argument which will be the localized string ``See also``
+  followed with a colon.
+
+  .. versionadded:: 6.1.0
+  .. versionchanged:: 6.2.0
+
+     Colon made part of the mark-up rather than being inserted by the
+     environment for coherence with how admonitions are handled generally.
+
+- The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
 
   .. versionadded:: 1.4.2
@@ -1100,7 +1766,7 @@ Environments
   implemented using ``sphinxVerbatim`` environment which is a wrapper of
   ``Verbatim`` environment from package ``fancyvrb.sty``. It adds the handling
   of the top caption and the wrapping of long lines, and a frame which allows
-  pagebreaks. Inside tables the used
+  page breaks. Inside tables the used
   environment is ``sphinxVerbatimintable`` (it does not draw a frame, but
   allows a caption).
 
@@ -1151,6 +1817,8 @@ Miscellany
      Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
 
+.. _latexcontainer:
+
 - Docutils :dudir:`container` directives are supported in LaTeX output: to
   let a container class with name ``foo`` influence the final PDF via LaTeX,
   it is only needed to define in the preamble an environment
@@ -1160,7 +1828,7 @@ Miscellany
 
      \newenvironment{sphinxclassred}{\color{red}}{}
 
-  Currently the class names must contain only ascii characters and avoid
+  Currently the class names must contain only ASCII characters and avoid
   characters special to LaTeX such as ``\``.
 
   .. versionadded:: 4.1.0
@@ -1168,15 +1836,20 @@ Miscellany
 .. hint::
 
    As an experimental feature, Sphinx can use user-defined template file for
-   LaTeX source if you have a file named ``_templates/latex.tex_t`` in your
+   LaTeX source if you have a file named ``_templates/latex.tex.jinja`` in your
    project.
 
-   Additional files ``longtable.tex_t``, ``tabulary.tex_t`` and
-   ``tabular.tex_t`` can be added to ``_templates/`` to configure some aspects
-   of table rendering (such as the caption position).
+   Additional files ``longtable.tex.jinja``, ``tabulary.tex.jinja`` and
+   ``tabular.tex.jinja`` can be added to ``_templates/`` to configure some
+   aspects of table rendering (such as the caption position).
 
    .. versionadded:: 1.6
       currently all template variables are unstable and undocumented.
+
+   .. versionchanged:: 7.4
+      Added support for the ``.jinja`` file extension, which is preferred.
+      The old file names remain supported.
+      (``latex.tex_t``, ``longtable.tex_t``, ``tabulary.tex_t``, and ``tabular.tex_t``)
 
 .. raw:: latex
 

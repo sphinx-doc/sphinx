@@ -26,9 +26,9 @@ Glossary
       Sphinx and custom extensions can add their own.  The basic directive
       syntax looks like this:
 
-      .. sourcecode:: rst
+      .. code-block:: rst
 
-         .. directivename:: argument ...
+         .. directive-name:: argument ...
             :option: value
 
             Content of the directive.
@@ -59,7 +59,7 @@ Glossary
       means that extensions that support the documentation of whole new
       languages are much easier to write.
 
-      For more information, refer to :doc:`/usage/restructuredtext/domains`.
+      For more information, refer to :doc:`/usage/domains/index`.
 
    environment
       A structure where information about all documents under the root is saved,
@@ -81,8 +81,8 @@ Glossary
 
    object
       The basic building block of Sphinx documentation.  Every "object
-      directive" (e.g. :rst:dir:`function` or :rst:dir:`object`) creates such a
-      block; and most objects can be cross-referenced to.
+      directive" (e.g. :rst:dir:`py:function` or :rst:dir:`object`) creates such
+      a block; and most objects can be cross-referenced to.
 
    RemoveInSphinxXXXWarning
       The feature which is warned will be removed in Sphinx-XXX version.

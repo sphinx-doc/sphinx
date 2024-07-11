@@ -4,5 +4,5 @@ Raw
 
 .. raw:: html
 
-   <iframe src="http://sphinx-doc.org"></iframe>
+   <iframe src="https://sphinx-doc.org"></iframe>
 

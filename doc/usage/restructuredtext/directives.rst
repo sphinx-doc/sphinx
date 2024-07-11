@@ -9,7 +9,7 @@ of explicit markup. While Docutils provides a number of directives, Sphinx
 provides many more and uses directives as one of the primary extension
 mechanisms.
 
-See :doc:`/usage/restructuredtext/domains` for roles added by domains.
+See :doc:`/usage/domains/index` for roles added by domains.
 
 .. seealso::
 
@@ -49,8 +49,8 @@ tables of contents.  The ``toctree`` directive is the central element.
    indicate the depth of the tree; by default, all levels are included. [#]_
 
    The representation of "TOC tree" is changed in each output format.  The
-   builders that output multiple files (ex. HTML) treat it as a collection of
-   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   builders that output multiple files (e.g. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (e.g.
    LaTeX, man page, etc.) replace it with the content of the documents on the
    TOC tree.
 
@@ -123,6 +123,14 @@ tables of contents.  The ``toctree`` directive is the central element.
          :name: mastertoc
 
          foo
+
+   As with :dudir:`most directives <common-options>`,
+   you can use the ``class`` option to assign `class attributes`_::
+
+      .. toctree::
+         :class: custom-toc
+
+   .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
 
    If you want only the titles of documents in the tree to show up, not other
    headings of the same level, you can use the ``titlesonly`` option::
@@ -323,6 +331,18 @@ units as well as normal text.
       .. deprecated:: 3.1
          Use :func:`spam` instead.
 
+.. rst:directive:: .. versionremoved:: version
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   An explanation may be provided to inform the reader what to use instead,
+   or why the feature was removed.
+   Example::
+
+      .. versionremoved:: 4.0
+         The :func:`spam` function is more flexible, and should be used instead.
+
+   .. versionadded:: 7.3
+
 .. rst:directive:: seealso
 
    Many sections include a list of references to module documentation or
@@ -341,7 +361,7 @@ units as well as normal text.
          Module :py:mod:`zipfile`
             Documentation of the :py:mod:`zipfile` standard module.
 
-         `GNU tar manual, Basic Tar Format <http://link>`_
+         `GNU tar manual, Basic Tar Format <https://link>`_
             Documentation for tar archive files, including GNU tar extensions.
 
    There's also a "short form" allowed that looks like this::
@@ -371,8 +391,9 @@ units as well as normal text.
       .. centered:: LICENSE AGREEMENT
 
    .. deprecated:: 1.1
-      This presentation-only directive is a legacy from older versions.  Use a
-      :rst:dir:`rst-class` directive instead and add an appropriate style.
+      This presentation-only directive is a legacy from older versions.
+      Use a :ref:`rst-class <rstclass>` directive instead and add an
+      appropriate style.
 
 .. rst:directive:: hlist
 
@@ -489,6 +510,7 @@ __ https://pygments.org/docs/lexers
       .. versionadded:: 2.1
 
 .. rst:directive:: .. code-block:: [language]
+                   .. sourcecode:: [language]
 
    Example::
 
@@ -499,8 +521,10 @@ __ https://pygments.org/docs/lexers
    The directive's alias name :rst:dir:`sourcecode` works as well.  This
    directive takes a language name as an argument.  It can be `any lexer alias
    supported by Pygments <https://pygments.org/docs/lexers/>`_.  If it is not
-   given, the setting of :rst:dir:`highlight` directive will be used.
-   If not set, :confval:`highlight_language` will be used.
+   given, the setting of :rst:dir:`highlight` directive will be used.  If not
+   set, :confval:`highlight_language` will be used.  To display a code example
+   *inline* within other text, rather than as a separate block, you can use the
+   :rst:role:`code` role instead.
 
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
@@ -540,9 +564,9 @@ __ https://pygments.org/docs/lexers
 
           def some_function():
               interesting = False
-              print 'This line is highlighted.'
-              print 'This one is not...'
-              print '...but this one is.'
+              print('This line is highlighted.')
+              print('This one is not...')
+              print('...but this one is.')
 
       .. versionadded:: 1.1
       .. versionchanged:: 1.6.6
@@ -572,7 +596,7 @@ __ https://pygments.org/docs/lexers
            :caption: this.py
            :name: this-py
 
-           print 'Explicit is better than implicit.'
+           print('Explicit is better than implicit.')
 
       In order to cross-reference a code-block using either the
       :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
@@ -590,6 +614,13 @@ __ https://pygments.org/docs/lexers
 
       .. versionadded:: 1.3
 
+   .. rst:directive:option:: class: class names
+      :type: a list of class names separated by spaces
+
+      The class name of the graph.
+
+      .. versionadded:: 1.4
+
    .. rst:directive:option:: dedent: number
       :type: number or no value
 
@@ -598,6 +629,7 @@ __ https://pygments.org/docs/lexers
       are removed via :func:`textwrap.dedent()`.  For example::
 
          .. code-block:: ruby
+            :linenos:
             :dedent: 4
 
                 some ruby code
@@ -706,7 +738,7 @@ __ https://pygments.org/docs/lexers
          var_in_third=true
 
       Useful cases of these option is working with tag comments.
-      ``:start-after: [initialized]`` and ``:end-before: [initialized]`` options
+      ``:start-after: [initialize]`` and ``:end-before: [initialized]`` options
       keep lines between comments:
 
       .. code-block:: py
@@ -714,7 +746,7 @@ __ https://pygments.org/docs/lexers
          if __name__ == "__main__":
              # [initialize]
              app.start(":8000")
-             # [initialize]
+             # [initialized]
 
 
    When lines have been selected in any of the ways described above, the line
@@ -754,6 +786,9 @@ __ https://pygments.org/docs/lexers
    .. versionchanged:: 1.3
       Added the ``diff``, ``lineno-match``, ``caption``, ``name``, and
       ``dedent`` options.
+
+   .. versionchanged:: 1.4
+      Added the ``class`` option.
 
    .. versionchanged:: 1.5
       Added the ``start-at``, and ``end-at`` options.
@@ -831,6 +866,9 @@ Glossary
    .. versionchanged:: 1.4
       Index key for glossary term should be considered *experimental*.
 
+   .. versionchanged:: 4.4
+      In internationalized documentation, the ``:sorted:`` flag sorts
+      according to translated terms.
 
 Meta-information markup
 -----------------------
@@ -863,7 +901,7 @@ Index-generating markup
 
 Sphinx automatically creates index entries from all object descriptions (like
 functions, classes or attributes) like discussed in
-:doc:`/usage/restructuredtext/domains`.
+:doc:`/usage/domains/index`.
 
 However, there is also explicit markup available, to make the index more
 comprehensive and enable index entries in documents where information is not
@@ -878,9 +916,10 @@ mainly contained in information units, such as the language reference.
 
       .. index::
          single: execution; context
-         module: __main__
-         module: sys
+         pair: module; __main__
+         pair: module; sys
          triple: module; search; path
+         seealso: scope
 
       The execution context
       ---------------------
@@ -898,25 +937,63 @@ mainly contained in information units, such as the language reference.
    The possible entry types are:
 
    single
-      Creates a single index entry.  Can be made a subentry by separating the
-      subentry text with a semicolon (this notation is also used below to
-      describe what entries are created).
+      Creates a single index entry.
+      Can be made a sub-entry by separating the sub-entry text with a semicolon
+      (this notation is also used below to describe what entries are created).
+      Examples:
+
+      .. code:: reStructuredText
+
+         .. index:: single: execution
+                    single: execution; context
+
+      - ``single: execution`` creates an index entry labelled ``execution``.
+      - ``single: execution; context`` creates an sub-entry of ``execution``
+        labelled ``context``.
    pair
-      ``pair: loop; statement`` is a shortcut that creates two index entries,
-      namely ``loop; statement`` and ``statement; loop``.
+      A shortcut to create two index entries.
+      The pair of values must be separated by a semicolon.
+      Example:
+
+      .. code:: reStructuredText
+
+         .. index:: pair: loop; statement
+
+      This would create two index entries; ``loop; statement`` and ``statement; loop``.
    triple
-      Likewise, ``triple: module; search; path`` is a shortcut that creates
-      three index entries, which are ``module; search path``, ``search; path,
-      module`` and ``path; module search``.
+      A shortcut to create three index entries.
+      All three values must be separated by a semicolon.
+      Example:
+
+      .. code:: reStructuredText
+
+         .. index:: triple: module; search; path
+
+      This would create three index entries; ``module; search path``,
+      ``search; path, module``, and ``path; module search``.
    see
-      ``see: entry; other`` creates an index entry that refers from ``entry`` to
-      ``other``.
+      A shortcut to create an index entry that refers to another entry.
+      Example:
+
+      .. code:: reStructuredText
+
+         .. index:: see: entry; other
+
+      This would create an index entry referring from ``entry`` to ``other``
+      (i.e. 'entry': See 'other').
    seealso
-      Like ``see``, but inserts "see also" instead of "see".
+      Like ``see``, but inserts 'see also' instead of 'see'.
    module, keyword, operator, object, exception, statement, builtin
-      These all create two index entries.  For example, ``module: hashlib``
-      creates the entries ``module; hashlib`` and ``hashlib; module``.  (These
-      are Python-specific and therefore deprecated.)
+      These **deprecated** shortcuts all create two index entries.
+      For example, ``module: hashlib`` creates the entries ``module; hashlib``
+      and ``hashlib; module``.
+
+      .. deprecated:: 1.0
+         These Python-specific entry types are deprecated.
+
+      .. versionchanged:: 7.1
+         Removal version set to Sphinx 9.0.
+         Using these entry types will now emit warnings with the ``index`` category.
 
    You can mark up "main" index entries by prefixing them with an exclamation
    mark.  The references to "main" entries are emphasized in the generated
@@ -983,10 +1060,11 @@ Including content based on tags
 
       .. only:: html and draft
 
-   Undefined tags are false, defined tags (via the ``-t`` command-line option or
-   within :file:`conf.py`, see :ref:`here <conf-tags>`) are true.  Boolean
-   expressions, also using parentheses (like ``html and (latex or draft)``) are
-   supported.
+   Undefined tags are false, defined tags are true
+   (tags can be defined via the :option:`--tag <sphinx-build --tag>`
+   command-line option or within :file:`conf.py`, see :ref:`here <conf-tags>`).
+   Boolean expressions (like ``(latex or html) and draft``) are supported
+   and may use parentheses.
 
    The *format* and the *name* of the current builder (``html``, ``latex`` or
    ``text``) are always set as a tag [#]_.  To make the distinction between
@@ -1029,114 +1107,78 @@ Use :ref:`reStructuredText tables <rst-tables>`, i.e. either
 The :dudir:`table` directive serves as optional wrapper of the *grid* and
 *simple* syntaxes.
 
-They work fine in HTML output, however there are some gotchas when using tables
-in LaTeX: the column width is hard to determine correctly automatically.  For
-this reason, the following directive exists:
+They work fine in HTML output, but rendering tables to LaTeX is complex.
+Check the :confval:`latex_table_style`.
+
+.. versionchanged:: 1.6
+   Merged cells (multi-row, multi-column, both) from grid tables containing
+   complex contents such as multiple paragraphs, blockquotes, lists, literal
+   blocks, will render correctly to LaTeX output.
 
 .. rst:directive:: .. tabularcolumns:: column spec
 
-   This directive gives a "column spec" for the next table occurring in the
-   source file.  The spec is the second argument to the LaTeX ``tabulary``
-   package's environment (which Sphinx uses to translate tables).  It can have
-   values like ::
+   This directive influences only the LaTeX output for the next table in
+   source.  The mandatory argument is a column specification (known as an
+   "alignment preamble" in LaTeX idiom).  Please refer to a LaTeX
+   documentation, such as the `wiki page`_, for basics of such a column
+   specification.
 
-      |l|l|l|
-
-   which means three left-adjusted, nonbreaking columns.  For columns with
-   longer text that should automatically be broken, use either the standard
-   ``p{width}`` construct, or tabulary's automatic specifiers:
-
-   +-----+------------------------------------------+
-   |``L``| flush left column with automatic width   |
-   +-----+------------------------------------------+
-   |``R``| flush right column with automatic width  |
-   +-----+------------------------------------------+
-   |``C``| centered column with automatic width     |
-   +-----+------------------------------------------+
-   |``J``| justified column with automatic width    |
-   +-----+------------------------------------------+
-
-   The automatic widths of the ``LRCJ`` columns are attributed by ``tabulary``
-   in proportion to the observed shares in a first pass where the table cells
-   are rendered at their natural "horizontal" widths.
-
-   By default, Sphinx uses a table layout with ``J`` for every column.
+   .. _wiki page: https://en.wikibooks.org/wiki/LaTeX/Tables
 
    .. versionadded:: 0.3
-
-   .. versionchanged:: 1.6
-      Merged cells may now contain multiple paragraphs and are much better
-      handled, thanks to custom Sphinx LaTeX macros. This novel situation
-      motivated the switch to ``J`` specifier and not ``L`` by default.
-
-   .. hint::
-
-      Sphinx actually uses ``T`` specifier having done ``\newcolumntype{T}{J}``.
-      To revert to previous default, insert ``\newcolumntype{T}{L}`` in the
-      LaTeX preamble (see :confval:`latex_elements`).
-
-      A frequent issue with tabulary is that columns with little contents are
-      "squeezed". The minimal column width is a tabulary parameter called
-      ``\tymin``. You may set it globally in the LaTeX preamble via
-      ``\setlength{\tymin}{40pt}`` for example.
-
-      Else, use the :rst:dir:`tabularcolumns` directive with an explicit
-      ``p{40pt}`` (for example) for that column. You may use also ``l``
-      specifier but this makes the task of setting column widths more difficult
-      if some merged cell intersects that column.
-
-   .. warning::
-
-      Tables with more than 30 rows are rendered using ``longtable``, not
-      ``tabulary``, in order to allow pagebreaks. The ``L``, ``R``, ...
-      specifiers do not work for these tables.
-
-      Tables that contain list-like elements such as object descriptions,
-      blockquotes or any kind of lists cannot be set out of the box with
-      ``tabulary``. They are therefore set with the standard LaTeX ``tabular``
-      (or ``longtable``) environment if you don't give a ``tabularcolumns``
-      directive.  If you do, the table will be set with ``tabulary`` but you
-      must use the ``p{width}`` construct (or Sphinx's ``\X`` and ``\Y``
-      specifiers described below) for the columns containing these elements.
-
-      Literal blocks do not work with ``tabulary`` at all, so tables containing
-      a literal block are always set with ``tabular``. The verbatim environment
-      used for literal blocks only works in ``p{width}`` (and ``\X`` or ``\Y``)
-      columns, hence Sphinx generates such column specs for tables containing
-      literal blocks.
-
-   Since Sphinx 1.5, the ``\X{a}{b}`` specifier is used (there *is* a backslash
-   in the specifier letter). It is like ``p{width}`` with the width set to a
-   fraction ``a/b`` of the current line width. You can use it in the
-   :rst:dir:`tabularcolumns` (it is not a problem if some LaTeX macro is also
-   called ``\X``.)
-
-   It is *not* needed for ``b`` to be the total number of columns, nor for the
-   sum of the fractions of the ``\X`` specifiers to add  up to one. For example
-   ``|\X{2}{5}|\X{1}{5}|\X{1}{5}|`` is legitimate and the table will occupy
-   80% of the line width, the first of its three columns having the same width
-   as the sum  of the next two.
-
-   This is used by the ``:widths:`` option of the :dudir:`table` directive.
-
-   Since Sphinx 1.6, there is also the ``\Y{f}`` specifier which admits a
-   decimal argument, such has ``\Y{0.15}``: this would have the same effect as
-   ``\X{3}{20}``.
-
-   .. versionchanged:: 1.6
-
-      Merged cells from complex grid tables (either multi-row, multi-column, or
-      both) now allow blockquotes, lists, literal blocks, ... as do regular
-      cells.
-
-      Sphinx's merged cells interact well with ``p{width}``, ``\X{a}{b}``,
-      ``\Y{f}`` and tabulary's columns.
 
    .. note::
 
       :rst:dir:`tabularcolumns` conflicts with ``:widths:`` option of table
       directives.  If both are specified, ``:widths:`` option will be ignored.
 
+   Sphinx will render tables with more than 30 rows with ``longtable``.
+   Besides the ``l``, ``r``, ``c`` and ``p{width}`` column specifiers, one can
+   also use ``\X{a}{b}`` (new in version 1.5) which configures the column
+   width to be a fraction ``a/b`` of the total line width and ``\Y{f}`` (new
+   in version 1.6) where ``f`` is a decimal: for example ``\Y{0.2}`` means that
+   the column will occupy ``0.2`` times the line width.
+
+   When this directive is used for a table with at most 30 rows, Sphinx will
+   render it with ``tabulary``.  One can then use specific column types ``L``
+   (left), ``R`` (right), ``C`` (centered) and ``J`` (justified).  They have
+   the effect of a ``p{width}`` (i.e. each cell is a LaTeX ``\parbox``) with
+   the specified internal text alignment and an automatically computed
+   ``width``.
+
+   .. warning::
+
+      - Cells that contain list-like elements such as object descriptions,
+        blockquotes or any kind of lists are not compatible with the ``LRCJ``
+        column types.  The column type must then be some ``p{width}`` with an
+        explicit ``width`` (or ``\X{a}{b}`` or ``\Y{f}``).
+
+      - Literal blocks do not work with ``tabulary`` at all.  Sphinx will
+        fall back to ``tabular`` or ``longtable`` environments and generate a
+        suitable column specification.
+
+In absence of the :rst:dir:`tabularcolumns` directive, and for a table with at
+most 30 rows and no problematic cells as described in the above warning,
+Sphinx uses ``tabulary`` and the ``J`` column-type for every column.
+
+.. versionchanged:: 1.6
+
+   Formerly, the ``L`` column-type was used (text is flushed-left).  To revert
+   to this, include ``\newcolumntype{T}{L}`` in the LaTeX preamble, as in fact
+   Sphinx uses ``T`` and sets it by default to be an alias of ``J``.
+
+.. hint::
+
+   A frequent issue with ``tabulary`` is that columns with little contents
+   appear to be "squeezed".  One can add to the LaTeX preamble for example
+   ``\setlength{\tymin}{40pt}`` to ensure a minimal column width of ``40pt``,
+   the ``tabulary`` default of ``10pt`` being too small.
+
+.. hint::
+
+   To force usage of the LaTeX ``longtable`` environment pass ``longtable`` as
+   a ``:class:`` option to :dudir:`table`, :dudir:`csv-table`, or
+   :dudir:`list-table`.  Use :ref:`rst-class <rstclass>` for other tables.
 
 Math
 ----

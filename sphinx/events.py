@@ -1,18 +1,14 @@
-"""
-    sphinx.events
-    ~~~~~~~~~~~~~
+"""Sphinx core events.
 
-    Sphinx core events.
-
-    Gracefully adapted from the TextPress system by Armin.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Gracefully adapted from the TextPress system by Armin.
 """
 
+from __future__ import annotations
+
+import contextlib
 from collections import defaultdict
 from operator import attrgetter
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, NamedTuple, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
@@ -42,6 +38,7 @@ core_events = {
     'env-before-read-docs': 'env, docnames',
     'env-check-consistency': 'env',
     'source-read': 'docname, source text',
+    'include-read': 'relative path, parent docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',
     'missing-reference': 'env, node, contnode',
@@ -55,10 +52,10 @@ core_events = {
 class EventManager:
     """Event manager for Sphinx."""
 
-    def __init__(self, app: "Sphinx") -> None:
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         self.events = core_events.copy()
-        self.listeners: Dict[str, List[EventListener]] = defaultdict(list)
+        self.listeners: dict[str, list[EventListener]] = defaultdict(list)
         self.next_listener_id = 0
 
     def add(self, name: str) -> None:
@@ -80,22 +77,21 @@ class EventManager:
     def disconnect(self, listener_id: int) -> None:
         """Disconnect a handler."""
         for listeners in self.listeners.values():
-            for listener in listeners[:]:
+            for listener in listeners.copy():
                 if listener.id == listener_id:
                     listeners.remove(listener)
 
-    def emit(self, name: str, *args: Any,
-             allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> List:
+    def emit(
+        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+    ) -> list:
         """Emit a Sphinx event."""
-        try:
+        # not every object likes to be repr()'d (think
+        # random stuff coming via autodoc)
+        with contextlib.suppress(Exception):
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
-        except Exception:
-            # not every object likes to be repr()'d (think
-            # random stuff coming via autodoc)
-            pass
 
         results = []
-        listeners = sorted(self.listeners[name], key=attrgetter("priority"))
+        listeners = sorted(self.listeners[name], key=attrgetter('priority'))
         for listener in listeners:
             try:
                 results.append(listener.handler(self.app, *args))
@@ -105,13 +101,21 @@ class EventManager:
             except SphinxError:
                 raise
             except Exception as exc:
+                if self.app.pdb:
+                    # Just pass through the error, so that it can be debugged.
+                    raise
                 modname = safe_getattr(listener.handler, '__module__', None)
-                raise ExtensionError(__("Handler %r for event %r threw an exception") %
-                                     (listener.handler, name), exc, modname=modname) from exc
+                raise ExtensionError(
+                    __('Handler %r for event %r threw an exception')
+                    % (listener.handler, name),
+                    exc,
+                    modname=modname,
+                ) from exc
         return results
 
-    def emit_firstresult(self, name: str, *args: Any,
-                         allowed_exceptions: Tuple[Type[Exception], ...] = ()) -> Any:
+    def emit_firstresult(
+        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+    ) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.

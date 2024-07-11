@@ -1,55 +1,60 @@
-"""
-    pytest config for sphinx/tests
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import os
-import shutil
+import sys
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import docutils
 import pytest
 
 import sphinx
-from sphinx.testing import comparer
-from sphinx.testing.path import path
+import sphinx.locale
+import sphinx.pycode
+from sphinx.testing.util import _clean_up_global_state
 
-pytest_plugins = 'sphinx.testing.fixtures'
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+
+def _init_console(
+    locale_dir: str | None = sphinx.locale._LOCALE_DIR, catalog: str = 'sphinx',
+) -> tuple[sphinx.locale.NullTranslations, bool]:
+    """Monkeypatch ``init_console`` to skip its action.
+
+    Some tests rely on warning messages in English. We don't want
+    CLI tests to bleed over those tests and make their warnings
+    translated.
+    """
+    return sphinx.locale.NullTranslations(), False
+
+
+sphinx.locale.init_console = _init_console
+
+pytest_plugins = ['sphinx.testing.fixtures']
 
 # Exclude 'roots' dirs for pytest test collector
 collect_ignore = ['roots']
 
+os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
+
 
 @pytest.fixture(scope='session')
-def rootdir():
-    return path(__file__).parent.abspath() / 'roots'
+def rootdir() -> Path:
+    return Path(__file__).parent.resolve() / 'roots'
 
 
-def pytest_report_header(config):
-    header = ("libraries: Sphinx-%s, docutils-%s" %
-              (sphinx.__display_version__, docutils.__version__))
+def pytest_report_header(config: pytest.Config) -> str:
+    header = f"libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}"
     if hasattr(config, '_tmp_path_factory'):
-        header += "\nbase tempdir: %s" % config._tmp_path_factory.getbasetemp()
-
+        header += f"\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}"
     return header
 
 
-def pytest_assertrepr_compare(op, left, right):
-    comparer.pytest_assertrepr_compare(op, left, right)
+@pytest.fixture(autouse=True)
+def _cleanup_docutils() -> Iterator[None]:
+    saved_path = sys.path
+    yield  # run the test
+    sys.path[:] = saved_path
 
-
-def _initialize_test_directory(session):
-    if 'SPHINX_TEST_TEMPDIR' in os.environ:
-        tempdir = os.path.abspath(os.getenv('SPHINX_TEST_TEMPDIR'))
-        print('Temporary files will be placed in %s.' % tempdir)
-
-        if os.path.exists(tempdir):
-            shutil.rmtree(tempdir)
-
-        os.makedirs(tempdir)
-
-
-def pytest_sessionstart(session):
-    _initialize_test_directory(session)
+    _clean_up_global_state()

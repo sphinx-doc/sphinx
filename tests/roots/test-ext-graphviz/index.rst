@@ -31,3 +31,13 @@ Hello |graph| graphviz world
    :align: center
 
    centered
+
+.. graphviz::
+   :align: center
+
+   digraph test {
+     foo [label="foo", URL="#graphviz", target="_parent"]
+     bar [label="bar", image="./_static/images/test.svg"]
+     baz [label="baz", URL="./_static/images/test.svg"]
+     foo -> bar -> baz
+   }
