@@ -321,7 +321,11 @@ The following directives are provided for module and class contents:
 
    Describe a :ref:`type alias <python:type-aliases>`.
 
-   This directive supports an optional description body, for example:
+   The type that the alias represents should be described
+   with the :rst:dir:`!canonical` option.
+   This directive supports an optional description body.
+
+   For example:
 
    .. code-block:: rst
 
@@ -329,20 +333,36 @@ The following directives are provided for module and class contents:
 
          Represent a 64-bit positive integer.
 
+   will be rendered as follows:
+
+   .. py:type:: UInt64
+      :no-contents-entry:
+      :no-index-entry:
+
+      Represent a 64-bit positive integer.
+
    .. rubric:: options
 
    .. rst:directive:option:: canonical
       :type: text
 
-      The canonical type represented by this alias, e.g.:
+      The canonical type represented by this alias, for example:
 
       .. code-block:: rst
 
          .. py:type:: StrPattern
-
             :canonical: str | re.Pattern[str]
 
             Represent a regular expression or a compiled pattern.
+
+      This is rendered as:
+
+      .. py:type:: StrPattern
+         :no-contents-entry:
+         :no-index-entry:
+         :canonical: str | re.Pattern[str]
+
+         Represent a regular expression or a compiled pattern.
 
    .. versionadded:: 7.4
 
