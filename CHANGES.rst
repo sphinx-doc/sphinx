@@ -119,6 +119,8 @@ Bugs fixed
   titles tend to rank higher than subsection titles. In addition, boost matches
   on the name of programming domain objects relative to title/subtitle matches.
   Patch by James Addison and Will Lachance.
+* #9634: Do not add a fallback language by stripping the country code.
+  Patch by Alvin Wong.
 
 Testing
 -------
