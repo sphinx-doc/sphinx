@@ -68,7 +68,7 @@ class SharedResult:
         }
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_params(
     request: Any,
     test_params: dict,
@@ -117,7 +117,7 @@ def app_params(
 _app_params = namedtuple('_app_params', 'args,kwargs')
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_params(request: Any) -> dict:
     """
     Test parameters that are specified by 'pytest.mark.test_params'
@@ -141,7 +141,7 @@ def test_params(request: Any) -> dict:
     return result
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(
     test_params: dict,
     app_params: tuple[dict, dict],
@@ -166,7 +166,7 @@ def app(
         shared_result.store(test_params['shared_result'], app_)
 
 
-@pytest.fixture()
+@pytest.fixture
 def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -174,7 +174,7 @@ def status(app: SphinxTestApp) -> StringIO:
     return app.status
 
 
-@pytest.fixture()
+@pytest.fixture
 def warning(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -182,7 +182,7 @@ def warning(app: SphinxTestApp) -> StringIO:
     return app.warning
 
 
-@pytest.fixture()
+@pytest.fixture
 def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
     """
     Provides make_app function to initialize SphinxTestApp instance.
@@ -208,7 +208,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
         app_.cleanup()
 
 
-@pytest.fixture()
+@pytest.fixture
 def shared_result() -> SharedResult:
     return SharedResult()
 
@@ -218,7 +218,7 @@ def _shared_result_cache() -> None:
     SharedResult.cache.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     """
     The test will be skipped when using 'if_graphviz_found' fixture and graphviz
@@ -242,7 +242,7 @@ def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
     return tmp_path_factory.getbasetemp()
 
 
-@pytest.fixture()
+@pytest.fixture
 def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules

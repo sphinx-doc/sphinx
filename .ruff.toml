@@ -222,7 +222,6 @@ select = [
 #    "PLR0912",  # Too many branches ({branches} > {max_branches})
 #    "PLR0913",  # Too many arguments to function call ({c_args} > {max_args})
 #    "PLR0915",  # Too many statements ({statements} > {max_statements})
-    "PLR1701",  # Merge `isinstance` calls: `{expr}`
     "PLR1711",  # Useless `return` statement at end of function
 #    "PLR1714",  # Consider merging multiple comparisons: `{expr}`. Use a `set` if the elements are hashable.
     "PLR1722",  # Use `sys.exit()` instead of `{name}`
@@ -373,6 +372,7 @@ select = [
 [lint.per-file-ignores]
 "doc/*" = [
     "ANN",  # documentation doesn't need annotations
+    "TCH001",  # documentation doesn't need type-checking blocks
 ]
 "doc/conf.py" = ["INP001", "W605"]
 "doc/development/tutorials/examples/*" = ["INP001"]

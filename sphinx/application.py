@@ -140,7 +140,7 @@ class Sphinx:
                  buildername: str, confoverrides: dict | None = None,
                  status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
-                 tags: list[str] | None = None,
+                 tags: Sequence[str] = (),
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
                  pdb: bool = False) -> None:
         """Initialize the Sphinx application.
@@ -758,7 +758,7 @@ class Sphinx:
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        docutils.register_role(name, role)  # type: ignore[arg-type]
+        docutils.register_role(name, role)
 
     def add_domain(self, domain: type[Domain], override: bool = False) -> None:
         """Register a domain.

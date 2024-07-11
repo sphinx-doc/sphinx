@@ -13,14 +13,6 @@ Deprecated
 Features added
 --------------
 
-* #12456: Add :option:`sphinx-autogen --remove-old` option.
-  Patch by Chris Sewell.
-* #12448: Add :option:`sphinx-apidoc --remove-old` option.
-  Patch by Chris Sewell.
-* #12358: Add :attr:`.Sphinx.fresh_env_used`.
-  Patch by Chris Sewell.
-* #12361: Add :attr:`.BuildEnvironment.parser`.
-  Patch by Chris Sewell.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files.
   Patch by James Addison and Adam Turner
@@ -29,11 +21,59 @@ Features added
 * Flatten ``Union[Literal[T], Literal[U], ...]`` to ``Literal[T, U, ...]``
   when turning annotations into strings.
   Patch by Adam Turner.
+* #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
+  Patch by Hugo van Kemenade.
+* #12387: Improve CLI progress message, when copying assets.
+  Patch by INADA Nakoi and Bénédikt Tran.
+* #12361: Add :attr:`.BuildEnvironment.parser`.
+  Patch by Chris Sewell.
+* #12358: Add :attr:`.Sphinx.fresh_env_used`.
+  Patch by Chris Sewell.
 * #12329: Add detection of ambiguous ``std:label`` and ``std:term`` references during
   loading and resolution of Intersphinx targets.
   Patch by James Addison.
-* #12319: ``sphinx.ext.extlinks``: Add ``extlink-{name}`` CSS class to links.
-  Patch by Hugo van Kemenade.
+* #12422: Do not duplicate "navigation" in aria-label of built-in themes.
+  Patch by Thomas Weißschuh
+* #12421: Include project name in ``logo_alt`` of built-in themes.
+  Patch by Thomas Weißschuh
+* #12448: Add :option:`sphinx-apidoc --remove-old` option.
+  Patch by Chris Sewell.
+* #12456: Add :option:`sphinx-autogen --remove-old` option.
+  Patch by Chris Sewell.
+* #12479: Add warning subtype ``toc.no_title``.
+  Patch by Ondřej Navrátil.
+* #12492: Add helper methods for parsing reStructuredText content into nodes from
+  within a directive.
+
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_content_to_nodes()`
+    parses the directive's content and returns a list of Docutils nodes.
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_text_to_nodes()`
+    parses the provided text and returns a list of Docutils nodes.
+  - :py:meth:`~sphinx.util.docutils.SphinxDirective.parse_inline()`
+    parses the provided text into inline elements and text nodes.
+
+  Patch by Adam Turner.
+
+* #12258: Support ``typing_extensions.Unpack``
+  Patch by Bénédikt Tran and Adam Turner.
+* #12524: Add a ``class`` option to the :rst:dir:`toctree` directive.
+  Patch by Tim Hoffmann.
+* #12536: Add the :rst:dir:`confval` directive.
+  Patch by Adam Turner.
+* #12537: :confval:`c_id_attributes`, :confval:`c_paren_attributes`,
+  :confval:`cpp_id_attributes`, and :confval:`cpp_paren_attributes`
+  can now be a tuple of strings.
+  :confval:`c_extra_keywords`, :confval:`gettext_additional_targets`,
+  :confval:`html_domain_indices`, :confval:`latex_domain_indices`,
+  and :confval:`texinfo_domain_indices`,
+  can now be a set of strings.
+  Patch by Adam Turner.
+* #12523: Added configuration option, :confval:`math_numsep`, to define the
+  separator for math numbering.
+  Patch by Thomas Fanning
+* #11592: Add :confval:`coverage_modules` to the coverage builder
+  to allow explicitly specifying which modules should be documented.
+  Patch by Stephen Finucane.
 
 Bugs fixed
 ----------
@@ -52,22 +92,26 @@ Bugs fixed
 * #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
   the current page number and the footnote does appear on that same page.
   Patch by Jean-François B.
-* #12416: :confval:`root_doc` is synchronized with :confval:`master_doc`
-  so that if either of the two values is modified, the other reflects that
-  modification. It is still recommended to use :confval:`root_doc`.
+* #12416: Ensure that configuration setting aliases are always synchronised
+  when one value or the other is modified.
   Patch by Bénédikt Tran.
 * #12220: Fix loading custom template translations for ``en`` locale.
   Patch by Nicolas Peugnet.
-
-Improvements
-------------
-
-* #12387: Improve CLI progress message, when copying assets.
-  Patch by Bénédikt Tran.
-* #12422: Do not duplicate "navigation" in aria-label of built-in themes.
-  Patch by Thomas Weißschuh
-* #12421: Include project name in ``logo_alt`` of built-in themes.
-  Patch by Thomas Weißschuh
+* #12459: Add valid-type arguments to the ``linkcheck_rate_limit_timeout``
+  configuration setting.
+  Patch by James Addison.
+* #12331: Resolve data-URI-image-extraction regression from v7.3.0 affecting
+  builders without native support for data-URIs in their output format.
+  Patch by James Addison.
+* #12494: Fix invalid genindex.html file produced with translated docs
+  (regression in 7.1.0).
+  Patch by Nicolas Peugnet.
+* #11961: Omit anchor references from document title entries in the search index,
+  removing duplication of search results.
+  Patch by James Addison.
+* #12425: Use Docutils' SVG processing in the HTML builder
+  and remove Sphinx's custom logic.
+  Patch by Tunç Başar Köse.
 
 Testing
 -------
@@ -2015,13 +2059,13 @@ Features added
 
 4.0.0b2
 
-* #8818: autodoc: Super class having ``Any`` arguments causes nit-picky warning
+* #8818: autodoc: Super class having ``Any`` arguments causes nitpicky warning
 * #9095: autodoc: TypeError is raised on processing broken metaclass
 * #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
   py37+
 * #9098: html: copy-range protection for doctests doesn't work in Safari
 * #9103: LaTeX: imgconverter: conversion runs even if not needed
-* #8127: py domain: Ellipsis in info-field-list causes nit-picky warning
+* #8127: py domain: Ellipsis in info-field-list causes nitpicky warning
 * #9121: py domain: duplicated warning is emitted when both canonical and its
   alias objects are defined on the document
 * #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
@@ -3800,7 +3844,7 @@ Deprecated
 * The arguments of ``Epub3Builder.build_navigation_doc()``
 * The config variables
 
-  - :confval:`html_experimental_html5_writer`
+  - :confval:`!html_experimental_html5_writer`
 
 * The ``encoding`` argument of ``autodoc.Documenter.get_doc()``,
   ``autodoc.DocstringSignatureMixin.get_doc()``,
@@ -3916,7 +3960,7 @@ Features added
 * #4611: epub: Show warning for duplicated ToC entries
 * #1851: Allow to omit an argument for :rst:dir:`code-block` directive.  If
   omitted, it follows :rst:dir:`highlight` or :confval:`highlight_language`
-* #4587: html: Add :confval:`html4_writer` to use old HTML4 writer
+* #4587: html: Add :confval:`!html4_writer` to use old HTML4 writer
 * #6016: HTML search: A placeholder for the search summary prevents search
   result links from changing their position when the search terminates.  This
   makes navigating search results easier.
@@ -4236,7 +4280,7 @@ Deprecated
 
 1.8.0b1
 
-* :confval:`source_parsers` is deprecated
+* :confval:`!source_parsers` is deprecated
 * :confval:`autodoc_default_flags` is deprecated
 * quickstart: ``--epub`` option becomes default, so it is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
@@ -6376,7 +6420,7 @@ Features added
 --------------
 
 * #1873, #1876, #2278: Add ``page_source_suffix`` html context variable. This
-  should be introduced with :confval:`source_parsers` feature. Thanks for Eric
+  should be introduced with :confval:`!source_parsers` feature. Thanks for Eric
   Holscher.
 
 
@@ -6443,7 +6487,7 @@ Bugs fixed
 * #2186: Fix LaTeX output of \mathbb in math
 * #1480, #2188: LaTeX: Support math in section titles
 * #2071: Fix same footnote in more than two section titles => LaTeX/PDF Bug
-* #2040: Fix UnicodeDecodeError in sphinx-apidoc when author contains non-ascii
+* #2040: Fix UnicodeDecodeError in sphinx-apidoc when author contains non-ASCII
   characters
 * #2193: Fix shutil.SameFileError if source directory and destination directory
   are same
@@ -6618,7 +6662,7 @@ Features added
 * The :confval:`source_suffix` config value can now be a list of multiple
   suffixes.
 * Add the ability to specify source parsers by source suffix with the
-  :confval:`source_parsers` config value.
+  :confval:`!source_parsers` config value.
 * #1675: A new builder, AppleHelpBuilder, has been added that builds Apple
   Help Books.
 

@@ -5,7 +5,7 @@ import subprocess
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def _if_converter_found(app):
     image_converter = getattr(app.config, 'image_converter', '')
     try:
@@ -24,7 +24,7 @@ def _if_converter_found(app):
 def test_ext_imgconverter(app, status, warning):
     app.build(force_all=True)
 
-    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     # supported image (not converted)
     assert '\\sphinxincludegraphics{{img}.pdf}' in content

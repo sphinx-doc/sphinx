@@ -196,11 +196,11 @@ class Config:
 
     config_values: dict[str, _Opt] = {
         # general options
-        'project': _Opt('Python', 'env', ()),
-        'author': _Opt('unknown', 'env', ()),
+        'project': _Opt('Project name not set', 'env', ()),
+        'author': _Opt('Author name not set', 'env', ()),
         'project_copyright': _Opt('', 'html', frozenset((str, tuple, list))),
         'copyright': _Opt(
-            lambda c: c.project_copyright, 'html', frozenset((str, tuple, list))),
+            lambda config: config.project_copyright, 'html', frozenset((str, tuple, list))),
         'version': _Opt('', 'env', ()),
         'release': _Opt('', 'env', ()),
         'today': _Opt('', 'env', ()),
@@ -258,6 +258,7 @@ class Config:
         'math_number_all': _Opt(False, 'env', ()),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
         'math_numfig': _Opt(True, 'env', ()),
+        'math_numsep': _Opt('.', 'env', frozenset((str,))),
         'tls_verify': _Opt(True, 'env', ()),
         'tls_cacerts': _Opt(None, 'env', ()),
         'user_agent': _Opt(None, 'env', frozenset((str,))),
@@ -326,34 +327,33 @@ class Config:
         valid_types = opt.valid_types
         if valid_types == Any:
             return value
-        elif (type(default) is bool
-              or (not isinstance(valid_types, ENUM)
-                  and len(valid_types) == 1 and bool in valid_types)):
+        if (type(default) is bool
+            or (not isinstance(valid_types, ENUM)
+                and len(valid_types) == 1 and bool in valid_types)):
             if isinstance(valid_types, ENUM) or len(valid_types) > 1:
                 # if valid_types are given, and non-bool valid types exist,
                 # return the value without coercing to a Boolean.
                 return value
             # given falsy string from a command line option
             return value not in {'0', ''}
-        elif isinstance(default, dict):
+        if isinstance(default, dict):
             raise ValueError(__('cannot override dictionary config setting %r, '
                                 'ignoring (use %r to set individual elements)') %
                              (name, f'{name}.key=value'))
-        elif isinstance(default, list):
+        if isinstance(default, list):
             return value.split(',')
-        elif isinstance(default, int):
+        if isinstance(default, int):
             try:
                 return int(value)
             except ValueError as exc:
                 raise ValueError(__('invalid number %r for config value %r, ignoring') %
                                  (value, name)) from exc
-        elif callable(default):
+        if callable(default):
             return value
-        elif default is not None and not isinstance(default, str):
-            raise ValueError(__('cannot override config setting %r with unsupported '
-                                'type, ignoring') % name)
-        else:
+        if isinstance(default, str) or default is None:
             return value
+        raise ValueError(__('cannot override config setting %r with unsupported '
+                            'type, ignoring') % name)
 
     @staticmethod
     def pre_init_values() -> None:
@@ -385,13 +385,16 @@ class Config:
             values.append(f"{opt_name}={opt_value!r}")
         return self.__class__.__qualname__ + '(' + ', '.join(values) + ')'
 
-    def __setattr__(self, key: str, value: Any) -> None:
-        # if someone is still using 'master_doc', we need to update 'root_doc'
-        if key in ('master_doc', 'root_doc'):
+    def __setattr__(self, key: str, value: object) -> None:
+        # Ensure aliases update their counterpart.
+        if key == 'master_doc':
             super().__setattr__('root_doc', value)
+        elif key == 'root_doc':
             super().__setattr__('master_doc', value)
-            return
-
+        elif key == 'copyright':
+            super().__setattr__('project_copyright', value)
+        elif key == 'project_copyright':
+            super().__setattr__('copyright', value)
         super().__setattr__(key, value)
 
     def __getattr__(self, name: str) -> Any:
@@ -570,10 +573,10 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         #
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
-        config.source_suffix = {source_suffix: None}
+        config.source_suffix = {source_suffix: 'restructuredtext'}
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
-        config.source_suffix = dict.fromkeys(source_suffix, None)
+        config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
     elif not isinstance(source_suffix, dict):
         logger.warning(__("The config value `source_suffix' expects "
                           "a string, list of strings, or dictionary. "
