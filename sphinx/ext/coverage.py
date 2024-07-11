@@ -24,7 +24,7 @@ from sphinx.util.console import red
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterable, Iterator, Sequence, Set
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
@@ -67,7 +67,7 @@ def _add_row(col_widths: list[int], columns: list[str], separator: str) -> Itera
     yield _add_line(col_widths, separator)
 
 
-def _load_modules(mod_name: str, ignored_module_exps: list[re.Pattern[str]]) -> set[str]:
+def _load_modules(mod_name: str, ignored_module_exps: Iterable[re.Pattern[str]]) -> Set[str]:
     """Recursively load all submodules.
 
     :param mod_name: The name of a module to load submodules for.
@@ -103,8 +103,8 @@ def _load_modules(mod_name: str, ignored_module_exps: list[re.Pattern[str]]) -> 
 
 def _determine_py_coverage_modules(
     coverage_modules: Sequence[str],
-    seen_modules: set[str],
-    ignored_module_exps: list[re.Pattern[str]],
+    seen_modules: Set[str],
+    ignored_module_exps: Iterable[re.Pattern[str]],
     py_undoc: dict[str, dict[str, Any]],
 ) -> list[str]:
     """Return a sorted list of modules to check for coverage.
@@ -122,11 +122,10 @@ def _determine_py_coverage_modules(
       modules that are documented will be noted. This will therefore identify both
       missing modules and missing objects, but it requires manual configuration.
     """
-
     if not coverage_modules:
         return sorted(seen_modules)
 
-    modules = set()
+    modules: set[str] = set()
     for mod_name in coverage_modules:
         try:
             modules |= _load_modules(mod_name, ignored_module_exps)
@@ -137,7 +136,7 @@ def _determine_py_coverage_modules(
             continue
 
     # if there are additional modules then we warn but continue scanning
-    if additional_modules := set(seen_modules) - modules:
+    if additional_modules := seen_modules - modules:
         logger.warning(
             __('the following modules are documented but were not specified '
                'in coverage_modules: %s'),
@@ -145,11 +144,11 @@ def _determine_py_coverage_modules(
         )
 
     # likewise, if there are missing modules we warn but continue scanning
-    if additional_modules := modules - set(seen_modules):
+    if missing_modules := modules - seen_modules:
         logger.warning(
             __('the following modules are specified in coverage_modules '
                'but were not documented'),
-            ', '.join(additional_modules),
+            ', '.join(missing_modules),
         )
 
     return sorted(modules)
@@ -195,12 +194,12 @@ class CoverageBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         self.py_undoc: dict[str, dict[str, Any]] = {}
-        self.py_undocumented: dict[str, set[str]] = {}
-        self.py_documented: dict[str, set[str]] = {}
+        self.py_undocumented: dict[str, Set[str]] = {}
+        self.py_documented: dict[str, Set[str]] = {}
         self.build_py_coverage()
         self.write_py_coverage()
 
-        self.c_undoc: dict[str, set[tuple[str, str]]] = {}
+        self.c_undoc: dict[str, Set[tuple[str, str]]] = {}
         self.build_c_coverage()
         self.write_c_coverage()
 
@@ -258,8 +257,8 @@ class CoverageBuilder(Builder):
         )
 
     def build_py_coverage(self) -> None:
-        seen_objects = set(self.env.domaindata['py']['objects'])
-        seen_modules = set(self.env.domaindata['py']['modules'])
+        seen_objects = frozenset(self.env.domaindata['py']['objects'])
+        seen_modules = frozenset(self.env.domaindata['py']['modules'])
 
         skip_undoc = self.config.coverage_skip_undoc_in_source
 
@@ -366,17 +365,16 @@ class CoverageBuilder(Builder):
     def _write_py_statistics(self, op: TextIO) -> None:
         """Outputs the table of ``op``."""
         all_modules = frozenset(self.py_documented.keys() | self.py_undocumented.keys())
-        all_objects: set[str] = set()
-        all_documented_objects: set[str] = set()
+        all_objects: Set[str] = set()
+        all_documented_objects: Set[str] = set()
         for module in all_modules:
-            all_module_objects = self.py_documented[module].union(self.py_undocumented[module])
-            all_objects = all_objects.union(all_module_objects)
-            all_documented_objects = all_documented_objects.union(self.py_documented[module])
+            all_objects |= self.py_documented[module] | self.py_undocumented[module]
+            all_documented_objects |= self.py_documented[module]
 
         # prepare tabular
         table = [['Module', 'Coverage', 'Undocumented']]
         for module in sorted(all_modules):
-            module_objects = self.py_documented[module].union(self.py_undocumented[module])
+            module_objects = self.py_documented[module] | self.py_undocumented[module]
             if len(module_objects):
                 value = 100.0 * len(self.py_documented[module]) / len(module_objects)
             else:
@@ -482,7 +480,7 @@ class CoverageBuilder(Builder):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CoverageBuilder)
-    app.add_config_value('coverage_modules', (), '', [tuple, list, set])
+    app.add_config_value('coverage_modules', (), '', types={tuple, list})
     app.add_config_value('coverage_ignore_modules', [], '')
     app.add_config_value('coverage_ignore_functions', [], '')
     app.add_config_value('coverage_ignore_classes', [], '')
