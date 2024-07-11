@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def _setup_test(app_params):
     assert isinstance(app_params.kwargs['srcdir'], Path)
     srcdir = app_params.kwargs['srcdir']

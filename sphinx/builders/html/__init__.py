@@ -465,29 +465,31 @@ class StandaloneHTMLBuilder(Builder):
         # determine the additional indices to include
         self.domain_indices = []
         # html_domain_indices can be False/True or a list of index names
-        indices_config = self.config.html_domain_indices
-        if indices_config:
+        if indices_config := self.config.html_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
             for domain_name in sorted(self.env.domains):
                 domain: Domain = self.env.domains[domain_name]
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapse = indexcls(domain).generate()
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
+                        continue
+                    content, collapse = index_cls(domain).generate()
                     if content:
                         self.domain_indices.append(
-                            (indexname, indexcls, content, collapse))
+                            (index_name, index_cls, content, collapse))
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
-        self.last_updated: str | None
-        lufmt = self.config.html_last_updated_fmt
-        if lufmt is not None:
-            self.last_updated = format_date(lufmt or _('%b %d, %Y'),
-                                            language=self.config.language)
+        last_updated: str | None
+        if (lu_fmt := self.config.html_last_updated_fmt) is not None:
+            lu_fmt = lu_fmt or _('%b %d, %Y')
+            last_updated = format_date(lu_fmt, language=self.config.language)
         else:
-            self.last_updated = None
+            last_updated = None
 
         # If the logo or favicon are urls, keep them as-is, otherwise
         # strip the relative path as the files will be copied into _static.
@@ -526,7 +528,7 @@ class StandaloneHTMLBuilder(Builder):
             'project': self.config.project,
             'release': return_codes_re.sub('', self.config.release),
             'version': self.config.version,
-            'last_updated': self.last_updated,
+            'last_updated': last_updated,
             'copyright': self.config.copyright,
             'master_doc': self.config.root_doc,
             'root_doc': self.config.root_doc,
@@ -552,6 +554,7 @@ class StandaloneHTMLBuilder(Builder):
             'builder': self.name,
             'parents': [],
             'logo_url': logo,
+            'logo_alt': _('Logo of %s') % self.config.project,
             'favicon_url': favicon,
             'html5_doctype': True,
         }
@@ -962,7 +965,6 @@ class StandaloneHTMLBuilder(Builder):
             return any(char in pattern for char in '*?[')
 
         matched = None
-        customsidebar = None
 
         # default sidebars settings for selected theme
         sidebars = list(self.theme.sidebar_templates)
@@ -989,7 +991,6 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         ctx['sidebars'] = sidebars
-        ctx['customsidebar'] = customsidebar
 
     # --------- these are overwritten by the serialization builder
 
@@ -1187,7 +1188,7 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.html_css_files = html_css_files  # type: ignore[attr-defined]
+    config.html_css_files = html_css_files
 
 
 def _format_modified_time(timestamp: float) -> str:
@@ -1210,7 +1211,7 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid js_file: %r, ignored'), entry)
                 continue
 
-    config.html_js_files = html_js_files  # type: ignore[attr-defined]
+    config.html_js_files = html_js_files
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
@@ -1273,7 +1274,7 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_logo)) and
             not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
-        config.html_logo = None  # type: ignore[attr-defined]
+        config.html_logo = None
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
@@ -1282,7 +1283,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_favicon)) and
             not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
-        config.html_favicon = None  # type: ignore[attr-defined]
+        config.html_favicon = None
 
 
 def error_on_html_4(_app: Sphinx, config: Config) -> None:
@@ -1315,7 +1316,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_last_updated_fmt', None, 'html', str)
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_domain_indices', True, 'html', list)
+    app.add_config_value('html_domain_indices', True, 'html', types={set, list})
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')

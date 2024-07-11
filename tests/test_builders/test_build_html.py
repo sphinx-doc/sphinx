@@ -131,24 +131,24 @@ def test_html_inventory(app):
                                                 'py-modindex',
                                                 'genindex',
                                                 'search'}
-    assert invdata['std:label']['modindex'] == ('Python',
+    assert invdata['std:label']['modindex'] == ('Project name not set',
                                                 '',
                                                 'https://www.google.com/py-modindex.html',
                                                 'Module Index')
-    assert invdata['std:label']['py-modindex'] == ('Python',
+    assert invdata['std:label']['py-modindex'] == ('Project name not set',
                                                    '',
                                                    'https://www.google.com/py-modindex.html',
                                                    'Python Module Index')
-    assert invdata['std:label']['genindex'] == ('Python',
+    assert invdata['std:label']['genindex'] == ('Project name not set',
                                                 '',
                                                 'https://www.google.com/genindex.html',
                                                 'Index')
-    assert invdata['std:label']['search'] == ('Python',
+    assert invdata['std:label']['search'] == ('Project name not set',
                                               '',
                                               'https://www.google.com/search.html',
                                               'Search Page')
     assert set(invdata['std:doc'].keys()) == {'index'}
-    assert invdata['std:doc']['index'] == ('Python',
+    assert invdata['std:doc']['index'] == ('Project name not set',
                                            '',
                                            'https://www.google.com/index.html',
                                            'The basic Sphinx documentation for testing')
@@ -222,8 +222,8 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' in result)
-    assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
+            'aria-label="Main">' in result)
+    assert '<h1 class="logo"><a href="#">Project name not set</a></h1>' in result
     assert '<h3>Navigation</h3>' in result
     assert '<h3>Related Topics</h3>' in result
     assert '<h3 id="searchlabel">Quick search</h3>' in result
@@ -237,7 +237,7 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' in result)
+            'aria-label="Main">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' in result
@@ -251,7 +251,7 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' not in result)
+            'aria-label="Main">' not in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' not in result

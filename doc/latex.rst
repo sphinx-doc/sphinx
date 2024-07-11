@@ -158,8 +158,18 @@ Keys that you may want to override include:
       ``'lualatex'`` uses same default setting as ``'xelatex'``
 
    .. versionchanged:: 1.7.6
-      For French, ``xelatex`` and ``lualatex`` default to using
-      ``babel``, not ``polyglossia``.
+      For French with ``xelatex`` (not ``lualatex``) the default is to use
+      ``babel``, not ``polyglossia``.  To let ``lualatex`` use ``babel``,
+      use this:
+
+      .. code-block:: python
+
+         latex_elements = {
+             'polyglossia': '',
+             'babel': r'\usepackage{babel}',
+         }
+
+      in file :file:`conf.py`.
 
 ``'fontpkg'``
    Font package inclusion. The default is::
@@ -748,7 +758,7 @@ Do not use quotes to enclose values, whether numerical or strings.
     wrapped.
 
     If ``true``, line breaks may happen at spaces (the last space before the
-    line break will be rendered using a special symbol), and at ascii
+    line break will be rendered using a special symbol), and at ASCII
     punctuation characters (i.e. not at letters or digits). Whenever a long
     string has no break points, it is moved to next line. If its length is
     longer than the line width it will overflow.
@@ -1818,7 +1828,7 @@ Miscellany
 
      \newenvironment{sphinxclassred}{\color{red}}{}
 
-  Currently the class names must contain only ascii characters and avoid
+  Currently the class names must contain only ASCII characters and avoid
   characters special to LaTeX such as ``\``.
 
   .. versionadded:: 4.1.0

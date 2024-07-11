@@ -563,7 +563,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         else:
             return 'redirected', response_url, 0
 
-    def limit_rate(self, response_url: str, retry_after: str) -> float | None:
+    def limit_rate(self, response_url: str, retry_after: str | None) -> float | None:
         delay = DEFAULT_DELAY
         next_check = None
         if retry_after:
@@ -708,7 +708,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
-    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
+    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
     app.add_config_value('linkcheck_allow_unauthorized', True, '')
     app.add_config_value('linkcheck_report_timeouts_as_broken', True, '', bool)
 

@@ -64,7 +64,7 @@ def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
     try:
         # clear rst_prolog temporarily
         rst_prolog = config.rst_prolog
-        config.rst_prolog = None  # type: ignore[attr-defined]
+        config.rst_prolog = None
 
         from sphinx.io import SphinxI18nReader
         reader = SphinxI18nReader()
@@ -81,7 +81,7 @@ def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
             return doc[0]
         return doc
     finally:
-        config.rst_prolog = rst_prolog  # type: ignore[attr-defined]
+        config.rst_prolog = rst_prolog
 
 
 def parse_noqa(source: str) -> tuple[str, bool]:
@@ -364,9 +364,9 @@ class Locale(SphinxTransform):
         for node, msg in extract_messages(self.document):
             msgstr = merged.get(msg, '')
 
-            # There is no point in having #noqa on literal blocks because
+            # There is no point in having noqa on literal blocks because
             # they cannot contain references.  Recognizing it would just
-            # completely prevent escaping the #noqa.  Outside of literal
+            # completely prevent escaping the noqa.  Outside of literal
             # blocks, one can always write \#noqa.
             if not isinstance(node, LITERAL_TYPE_NODES):
                 msgstr, _ = parse_noqa(msgstr)
@@ -406,12 +406,13 @@ class Locale(SphinxTransform):
             # glossary terms update refid
             if isinstance(node, nodes.term):
                 for _id in node['ids']:
-                    parts = split_term_classifiers(msgstr)
+                    term, first_classifier = split_term_classifiers(msgstr)
                     patch = publish_msgstr(
-                        self.app, parts[0] or '', source, node.line, self.config, settings,  # type: ignore[arg-type]
+                        self.app, term or '', source, node.line, self.config, settings,  # type: ignore[arg-type]
                     )
                     updater.patch = make_glossary_term(
-                        self.env, patch, parts[1] or '', source, node.line, _id, self.document,  # type: ignore[arg-type]
+                        self.env, patch, first_classifier,
+                        source, node.line, _id, self.document,  # type: ignore[arg-type]
                     )
                     processed = True
 
