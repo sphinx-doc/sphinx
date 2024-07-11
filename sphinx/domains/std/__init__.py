@@ -102,6 +102,76 @@ class EnvVarXRefRole(XRefRole):
         return [indexnode, targetnode, node], []
 
 
+class ConfigurationValue(ObjectDescription[str]):
+    index_template: str = _('%s; configuration value')
+    option_spec: ClassVar[OptionSpec] = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
+        'type': directives.unchanged_required,
+        'default': directives.unchanged_required,
+    }
+
+    def handle_signature(self, sig: str, sig_node: desc_signature) -> str:
+        sig_node.clear()
+        sig_node += addnodes.desc_name(sig, sig)
+        name = ws_re.sub(' ', sig)
+        sig_node['fullname'] = name
+        return name
+
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        return (sig_node['fullname'],)
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+        name, = sig_node['_toc_parts']
+        return name
+
+    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
+        node_id = make_id(self.env, self.state.document, self.objtype, name)
+        signode['ids'].append(node_id)
+        self.state.document.note_explicit_target(signode)
+        index_entry = self.index_template % name
+        self.indexnode['entries'].append(('pair', index_entry, node_id, '', None))
+        self.env.domains['std'].note_object(self.objtype, name, node_id, location=signode)
+
+    def transform_content(self, content_node: addnodes.desc_content) -> None:
+        """Insert *type* and *default* as a field list."""
+        field_list = nodes.field_list()
+        if 'type' in self.options:
+            field, msgs = self.format_type(self.options['type'])
+            field_list.append(field)
+            field_list += msgs
+        if 'default' in self.options:
+            field, msgs = self.format_default(self.options['default'])
+            field_list.append(field)
+            field_list += msgs
+        if len(field_list.children) > 0:
+            content_node.insert(0, field_list)
+
+    def format_type(self, type_: str) -> tuple[nodes.field, list[system_message]]:
+        """Formats the ``:type:`` option."""
+        parsed, msgs = self.parse_inline(type_, lineno=self.lineno)
+        field = nodes.field(
+            '',
+            nodes.field_name('', _('Type')),
+            nodes.field_body('', *parsed),
+        )
+        return field, msgs
+
+    def format_default(self, default: str) -> tuple[nodes.field, list[system_message]]:
+        """Formats the ``:default:`` option."""
+        parsed, msgs = self.parse_inline(default, lineno=self.lineno)
+        field = nodes.field(
+            '',
+            nodes.field_name('', _('Default')),
+            nodes.field_body('', *parsed),
+        )
+        return field, msgs
+
+
 class Target(SphinxDirective):
     """
     Generic target for user-defined cross-reference types.
@@ -272,7 +342,7 @@ def split_term_classifiers(line: str) -> tuple[str, str | None]:
     return term, first_classifier
 
 
-def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str,
+def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str | None,
                        source: str, lineno: int, node_id: str | None, document: nodes.document,
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
@@ -395,7 +465,7 @@ class Glossary(SphinxDirective):
 
                 # use first classifier as a index key
                 term = make_glossary_term(self.env, textnodes,
-                                          first_classifier, source, lineno,  # type: ignore[arg-type]
+                                          first_classifier, source, lineno,
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
@@ -527,6 +597,7 @@ class StandardDomain(Domain):
         'token': ObjType(_('grammar token'), 'token', searchprio=-1),
         'label': ObjType(_('reference label'), 'ref', 'keyword',
                          searchprio=-1),
+        'confval': ObjType('configuration value', 'confval'),
         'envvar': ObjType(_('environment variable'), 'envvar'),
         'cmdoption': ObjType(_('program option'), 'option'),
         'doc': ObjType(_('document'), 'doc', searchprio=-1),
@@ -536,12 +607,14 @@ class StandardDomain(Domain):
         'program': Program,
         'cmdoption': Cmdoption,  # old name for backwards compatibility
         'option': Cmdoption,
+        'confval': ConfigurationValue,
         'envvar': EnvVar,
         'glossary': Glossary,
         'productionlist': ProductionList,
     }
     roles: dict[str, RoleFunction | XRefRole] = {
         'option':  OptionXRefRole(warn_dangling=True),
+        'confval': XRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   TokenXRefRole(),
