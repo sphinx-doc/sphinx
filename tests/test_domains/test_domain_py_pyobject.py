@@ -363,7 +363,7 @@ def test_pyproperty(app):
     assert domain.objects['Class.prop2'] == ('index', 'Class.prop2', 'property', False)
 
 
-def test_pytypealias(app):
+def test_py_type_alias(app):
     text = (".. py:module:: example\n"
             ".. py:type:: Alias1\n"
             "   :canonical: list[str | int]\n"

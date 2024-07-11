@@ -402,16 +402,15 @@ class PyTypeAlias(PyObject):
 
     def handle_signature(self, sig: str, signode: desc_signature) -> tuple[str, str]:
         fullname, prefix = super().handle_signature(sig, signode)
-
-        canonical = self.options.get('canonical')
-        if canonical:
-            annotations = _parse_annotation(canonical, self.env)
-            signode += addnodes.desc_annotation(canonical, '',
-                                                addnodes.desc_sig_space(),
-                                                addnodes.desc_sig_punctuation('', '='),
-                                                addnodes.desc_sig_space(),
-                                                *annotations)
-
+        if canonical := self.options.get('canonical'):
+            canonical_annotations = _parse_annotation(canonical, self.env)
+            signode += addnodes.desc_annotation(
+                canonical, '',
+                addnodes.desc_sig_space(),
+                addnodes.desc_sig_punctuation('', '='),
+                addnodes.desc_sig_space(),
+                *canonical_annotations,
+            )
         return fullname, prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:

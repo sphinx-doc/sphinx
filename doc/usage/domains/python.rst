@@ -124,9 +124,9 @@ The following directives are provided for module and class contents:
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
-   as "defined constants."  Consider using :rst:dir:`py:type` for type
-   aliases instead and :rst:dir:`py:attribute` for class variables and
-   instance attributes.
+   as "defined constants."
+   Consider using :rst:dir:`py:type` for type aliases instead
+   and :rst:dir:`py:attribute` for class variables and instance attributes.
 
    .. rubric:: options
 
@@ -259,7 +259,8 @@ The following directives are provided for module and class contents:
 
    Describes an object data attribute.  The description should include
    information about the type of the data to be expected and whether it may be
-   changed directly.  Type aliases should be documented with :rst:dir:`py:type`.
+   changed directly.
+   Type aliases should be documented with :rst:dir:`py:type`.
 
    .. rubric:: options
 
@@ -320,7 +321,7 @@ The following directives are provided for module and class contents:
 
    Describe a :ref:`type alias <python:type-aliases>`.
 
-   This directive supports an optional description body, e.g.::
+   This directive supports an optional description body, for example:
 
    .. code-block:: rst
 
@@ -333,7 +334,7 @@ The following directives are provided for module and class contents:
    .. rst:directive:option:: canonical
       :type: text
 
-      The canonical type represented by this alias, e.g.::
+      The canonical type represented by this alias, e.g.:
 
       .. code-block:: rst
 
@@ -343,7 +344,7 @@ The following directives are provided for module and class contents:
 
             Represent a regular expression or a compiled pattern.
 
-   .. versionadded:: 7.3
+   .. versionadded:: 7.4
 
 .. rst:directive:: .. py:method:: name(parameters)
                    .. py:method:: name[type parameters](parameters)
