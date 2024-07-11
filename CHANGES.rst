@@ -112,6 +112,10 @@ Bugs fixed
 * #12425: Use Docutils' SVG processing in the HTML builder
   and remove Sphinx's custom logic.
   Patch by Tunç Başar Köse.
+* #12391: Adjust scoring of matches during HTML search so that document main
+  titles tend to rank higher than subsection titles. In addition, boost matches
+  on the name of programming domain objects relative to title/subtitle matches.
+  Patch by James Addison and Will Lachance.
 
 Testing
 -------
