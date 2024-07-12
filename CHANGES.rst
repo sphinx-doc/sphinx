@@ -13,7 +13,7 @@ Deprecated
 Features added
 --------------
 
-* Add optional `description` argument to
+* Add optional ``description`` argument to
   :meth:`~sphinx.application.Sphinx.add_config_value`.
   Patch by Chris Sewell.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
