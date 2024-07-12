@@ -565,7 +565,8 @@ class Sphinx:
            ``'env'``) to a string.  However, booleans are still accepted and
            converted internally.
 
-        .. versionadded:: 7.4 *description* parameter
+        .. versionadded:: 7.4
+           The *description* parameter.
         """
         logger.debug('[app] adding config value: %r', (name, default, rebuild, types))
         self.config.add(name, default, rebuild, types, description)
