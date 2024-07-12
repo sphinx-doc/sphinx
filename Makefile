@@ -72,12 +72,7 @@ covertest:
 
 .PHONY: manpages
 manpages:
-	mkdir -p data/share/man/man1
-	$(MAKE) -C doc man SPHINXBUILD=sphinx-build
-	if test -d doc/_build/man && { ls doc/_build/man | fgrep .1 >/dev/null; }; then \
-		cp doc/_build/man/*.1 data/share/man/man1; \
-	fi
-	rm -f data/share/man/man1/sphinx-all.1
+	tox run -e manpages
 
 .PHONY: build
 build: manpages
