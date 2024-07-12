@@ -77,6 +77,8 @@ Features added
 * #7896, #11989: Add a :rst:dir:`py:type` directiv for documenting type aliases,
   and a :rst:role:`py:type` role for linking to them.
   Patch by Ashley Whetter.
+* #6792: Prohibit module import cycles in :mod:`sphinx.ext.autosummary`.
+  Patch by Trevor Bekolay.
 
 Bugs fixed
 ----------

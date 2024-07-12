@@ -1383,6 +1383,7 @@ Options for warning control
    * ``autodoc.import_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
+   * ``autosummary.import_cycle``
    * ``intersphinx.external``
 
    You can choose from these types.  You can also give only the first
