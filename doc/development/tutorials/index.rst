@@ -1,12 +1,12 @@
-Extension tutorials
-===================
+.. _extension-tutorials-index:
 
-Refer to the following tutorials to get started with extension development.
+Tutorials
+=========
 
 .. toctree::
-   :caption: Directive tutorials
-   :maxdepth: 1
+   :maxdepth: 2
 
-   helloworld
-   todo
-   recipe
+   extending_syntax
+   extending_build
+   adding_domain
+   autodoc_ext

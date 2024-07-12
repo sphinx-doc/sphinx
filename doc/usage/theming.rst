@@ -1,7 +1,9 @@
 .. highlight:: python
 
-HTML
-====
+.. _html-themes:
+
+HTML Theming
+============
 
 Sphinx provides a number of builders for HTML and HTML-based formats.
 
@@ -19,7 +21,8 @@ Themes
 .. note::
 
    This section provides information about using pre-existing HTML themes. If
-   you wish to create your own theme, refer to :doc:`/theming`.
+   you wish to create your own theme, refer to
+   :ref:`extension-html-theme`.
 
 Sphinx supports changing the appearance of its HTML output via *themes*.  A
 theme is a collection of HTML templates, stylesheet(s) and other static files.
@@ -53,7 +56,7 @@ page's top and bottom), add the following :file:`conf.py`::
 
 If the theme does not come with Sphinx, it can be in two static forms or as a
 Python package. For the static forms, either a directory (containing
-:file:`theme.conf` and other needed files), or a zip file with the same
+:file:`theme.toml` and other needed files), or a zip file with the same
 contents is supported. The directory or zipfile must be put where Sphinx can
 find it; for this there is the config value :confval:`html_theme_path`. This
 can be a list of directories, relative to the directory containing
@@ -67,7 +70,7 @@ directory containing :file:`conf.py` and use this configuration::
 The third form is a Python package.  If a theme you want to use is distributed
 as a Python package, you can use it after installing
 
-.. code-block:: bash
+.. code-block:: console
 
     # installing theme package
     $ pip install sphinxjp.themes.dotted
@@ -78,14 +81,14 @@ zipfile-based theme::
     html_theme = "dotted"
 
 For more information on the design of themes, including information about
-writing your own themes, refer to :doc:`/theming`.
+writing your own themes, refer to :ref:`extension-html-theme`.
 
 .. _builtin-themes:
 
 Builtin themes
 ~~~~~~~~~~~~~~
 
-.. cssclass:: longtable
+.. cssclass:: longtable, standard
 
 +--------------------+--------------------+
 | **Theme overview** |                    |
@@ -124,6 +127,10 @@ Builtin themes
 
 Sphinx comes with a selection of themes to choose from.
 
+Note that from these themes only the Alabaster and Scrolls themes are
+mobile-optimated, the other themes resort to horizontal scrolling
+if the screen is too narrow.
+
 .. cssclass:: clear
 
 These themes are:
@@ -150,6 +157,40 @@ These themes are:
     This can be an int, which is interpreted as pixels or a valid CSS
     dimension string such as '70em' or '50%'. Use 'none' if you don't
     want a width limit. Defaults may depend on the theme (often 800px).
+
+  - **navigation_with_keys** (true or false): Allow navigating
+    with the following keyboard shortcuts:
+
+    - :kbd:`Left arrow`: previous page
+    - :kbd:`Right arrow`: next page
+
+    Defaults to ``False``.
+
+  - **enable_search_shortcuts** (true or false): Allow jumping to the search box
+    with :kbd:`/` and allow removal of search highlighting with :kbd:`Esc`.
+
+    Defaults to ``True``.
+
+  - **globaltoc_collapse** (true or false): Only expand subsections
+    of the current document in ``globaltoc.html``
+    (see :confval:`html_sidebars`).
+    Defaults to ``True``.
+
+    .. versionadded:: 3.1
+
+  - **globaltoc_includehidden** (true or false): Show even those
+    subsections in ``globaltoc.html`` (see :confval:`html_sidebars`)
+    which have been included with the ``:hidden:`` flag of the
+    :rst:dir:`toctree` directive.
+    Defaults to ``False``.
+
+    .. versionadded:: 3.1
+
+  - **globaltoc_maxdepth** (int): The maximum depth of the toctree in
+    ``globaltoc.html`` (see :confval:`html_sidebars`).  Set it to -1 to allow
+    unlimited depth. Defaults to the max depth selected in the toctree directive.
+
+    .. versionadded:: 3.2
 
 **alabaster**
   `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
@@ -220,7 +261,8 @@ These themes are:
 
 **scrolls**
   A more lightweight theme, based on `the Jinja documentation
-  <http://jinja.pocoo.org/>`_.  The following color options are available:
+  <https://jinja.palletsprojects.com/>`_.  The following color options are
+  available:
 
   - **headerbordercolor**
   - **subheadlinecolor**
@@ -283,10 +325,10 @@ These themes are:
   are supported:
 
   - **relbar1** (true or false, default ``True``): If this is true, the
-    `relbar1` block is inserted in the epub output, otherwise it is omitted.
+    ``relbar1`` block is inserted in the epub output, otherwise it is omitted.
 
   - **footer**  (true or false, default ``True``): If this is true, the
-    `footer` block is inserted in the epub output, otherwise it is omitted.
+    ``footer`` block is inserted in the epub output, otherwise it is omitted.
 
 **bizstyle**
   A simple bluish theme. The following options are supported
@@ -303,39 +345,20 @@ These themes are:
    available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
+.. _third-party-themes:
+
 Third Party Themes
 ~~~~~~~~~~~~~~~~~~
 
-.. cssclass:: longtable
+There are many third-party themes created for Sphinx. Some of these are for
+general use, while others are specific to an individual project.
 
-+--------------------+--------------------+
-| **Theme overview** |                    |
-+--------------------+--------------------+
-| |sphinx_rtd_theme| |                    |
-|                    |                    |
-| *sphinx_rtd_theme* |                    |
-+--------------------+--------------------+
+sphinx-themes.org__ is a gallery that showcases various themes for Sphinx,
+with demo documentation rendered under each theme. Themes can also be found
+on PyPI__ (using the classifier ``Framework :: Sphinx :: Theme``), GitHub__
+and GitLab__.
 
-.. |sphinx_rtd_theme| image:: /_static/themes/sphinx_rtd_theme.png
-
-There are many third-party themes available. Some of these are general use,
-while others are specific to an individual project. A section of third-party
-themes is listed below. Many more can be found on PyPI__, GitHub__ and
-sphinx-themes.org__.
-
-.. cssclass:: clear
-
-**sphinx_rtd_theme**
-  `Read the Docs Sphinx Theme`_.
-  This is a mobile-friendly sphinx theme that was made for readthedocs.org.
-  View a working demo over on readthedocs.org. You can get install and options
-  information at `Read the Docs Sphinx Theme`_ page.
-
-  .. _Read the Docs Sphinx Theme: https://pypi.org/project/sphinx_rtd_theme/
-
-  .. versionchanged:: 1.4
-     **sphinx_rtd_theme** has become optional.
-
-.. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
-.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme&type=
 .. __: https://sphinx-themes.org/
+.. __: https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
+.. __: https://github.com/search?utf8=%E2%9C%93&q=sphinx+theme
+.. __: https://gitlab.com/explore?name=sphinx+theme

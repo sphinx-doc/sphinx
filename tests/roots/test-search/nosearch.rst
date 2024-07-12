@@ -1,0 +1,7 @@
+:nosearch:
+
+nosearch
+========
+
+bat
+latex

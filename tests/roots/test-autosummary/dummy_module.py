@@ -3,6 +3,7 @@
 
    module_attr
    C.class_attr
+   C.instance_attr
    C.prop_attr1
    C.prop_attr2
    C.C2
@@ -50,6 +51,12 @@ class C:
     #:
     #: value is integer.
     class_attr = 42
+
+    def __init__(self):
+        #: This is an instance attribute
+        #:
+        #: value is a string
+        self.instance_attr = "42"
 
     def _prop_attr_get(self):
         """

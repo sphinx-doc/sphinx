@@ -1,5 +1,5 @@
-from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.html import HTML5Translator
 
 
-class ExtHTMLTranslator(HTMLTranslator):
+class ExtHTMLTranslator(HTML5Translator):
     pass

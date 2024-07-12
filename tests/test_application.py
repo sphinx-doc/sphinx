@@ -1,21 +1,51 @@
-"""
-    test_application
-    ~~~~~~~~~~~~~~~~
+"""Test the Sphinx class."""
+from __future__ import annotations
 
-    Test the Sphinx class.
-
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import shutil
+import sys
+from io import StringIO
+from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
 import pytest
 from docutils import nodes
 
+import sphinx.application
 from sphinx.errors import ExtensionError
-from sphinx.testing.util import strip_escseq
+from sphinx.testing.util import SphinxTestApp
 from sphinx.util import logging
+from sphinx.util.console import strip_colors
+
+if TYPE_CHECKING:
+    import os
+
+
+def test_instantiation(
+    tmp_path_factory: pytest.TempPathFactory,
+    rootdir: str | os.PathLike[str] | None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Given
+    src_dir = tmp_path_factory.getbasetemp() / 'root'
+
+    # special support for sphinx/tests
+    if rootdir and not src_dir.exists():
+        shutil.copytree(Path(str(rootdir)) / 'test-root', src_dir)
+
+    syspath = sys.path[:]
+
+    # When
+    app_ = SphinxTestApp(
+        srcdir=src_dir,
+        status=StringIO(),
+        warning=StringIO(),
+    )
+    sys.path[:] = syspath
+    app_.cleanup()
+
+    # Then
+    assert isinstance(app_, sphinx.application.Sphinx)
 
 
 def test_events(app, status, warning):
@@ -50,13 +80,13 @@ def test_emit_with_nonascii_name_node(app, status, warning):
 
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
-    warning = strip_escseq(warning.getvalue())
+    warning = strip_colors(warning.getvalue())
     assert "extension 'shutil' has no setup() function" in warning
 
 
 def test_extension_in_blacklist(app, status, warning):
     app.setup_extension('sphinxjp.themecore')
-    msg = strip_escseq(warning.getvalue())
+    msg = strip_colors(warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
@@ -66,7 +96,7 @@ def test_add_source_parser(app, status, warning):
 
     # .rst; only in :confval:`source_suffix`
     assert '.rst' not in app.registry.get_source_parsers()
-    assert app.registry.source_suffix['.rst'] is None
+    assert app.registry.source_suffix['.rst'] == 'restructuredtext'
 
     # .test; configured by API
     assert app.registry.source_suffix['.test'] == 'test'
@@ -98,6 +128,8 @@ def test_add_is_parallel_allowed(app, status, warning):
 
     app.setup_extension('read_serial')
     assert app.is_parallel_allowed('read') is False
+    assert "the read_serial extension is not safe for parallel reading" in warning.getvalue()
+    warning.truncate(0)  # reset warnings
     assert app.is_parallel_allowed('write') is True
     assert warning.getvalue() == ''
     app.extensions.pop('read_serial')
@@ -124,7 +156,7 @@ def test_build_specific(app):
                  app.srcdir / 'subdir/../subdir/excluded.txt']  # not normalized
     app.build(False, filenames)
 
-    expected = ['index', 'img.png', 'subdir/includes', 'subdir/excluded']
+    expected = ['index', 'subdir/includes', 'subdir/excluded']
     app.builder.build.assert_called_with(expected,
                                          method='specific',
-                                         summary='4 source files given on command line')
+                                         summary='3 source files given on command line')

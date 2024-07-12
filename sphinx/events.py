@@ -1,29 +1,31 @@
-"""
-    sphinx.events
-    ~~~~~~~~~~~~~
+"""Sphinx core events.
 
-    Sphinx core events.
-
-    Gracefully adapted from the TextPress system by Armin.
-
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+Gracefully adapted from the TextPress system by Armin.
 """
 
-import warnings
-from collections import OrderedDict, defaultdict
+from __future__ import annotations
 
-from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.errors import ExtensionError
+import contextlib
+from collections import defaultdict
+from operator import attrgetter
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple
+
+from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.inspect import safe_getattr
 
-if False:
-    # For type annotation
-    from typing import Any, Callable, Dict, List  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+
 
 logger = logging.getLogger(__name__)
+
+
+class EventListener(NamedTuple):
+    id: int
+    handler: Callable
+    priority: int
 
 
 # List of all known core events. Maps name to arguments description.
@@ -36,13 +38,13 @@ core_events = {
     'env-before-read-docs': 'env, docnames',
     'env-check-consistency': 'env',
     'source-read': 'docname, source text',
+    'include-read': 'relative path, parent docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',
     'missing-reference': 'env, node, contnode',
+    'warn-missing-reference': 'domain, node',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
-    'html-collect-pages': 'builder',
-    'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
 }
 
@@ -50,66 +52,75 @@ core_events = {
 class EventManager:
     """Event manager for Sphinx."""
 
-    def __init__(self, app=None):
-        # type: (Sphinx) -> None
-        if app is None:
-            warnings.warn('app argument is required for EventManager.',
-                          RemovedInSphinx40Warning)
+    def __init__(self, app: Sphinx) -> None:
         self.app = app
         self.events = core_events.copy()
-        self.listeners = defaultdict(OrderedDict)  # type: Dict[str, Dict[int, Callable]]
+        self.listeners: dict[str, list[EventListener]] = defaultdict(list)
         self.next_listener_id = 0
 
-    def add(self, name):
-        # type: (str) -> None
+    def add(self, name: str) -> None:
         """Register a custom Sphinx event."""
         if name in self.events:
             raise ExtensionError(__('Event %r already present') % name)
         self.events[name] = ''
 
-    def connect(self, name, callback):
-        # type: (str, Callable) -> int
+    def connect(self, name: str, callback: Callable, priority: int) -> int:
         """Connect a handler to specific event."""
         if name not in self.events:
             raise ExtensionError(__('Unknown event name: %s') % name)
 
         listener_id = self.next_listener_id
         self.next_listener_id += 1
-        self.listeners[name][listener_id] = callback
+        self.listeners[name].append(EventListener(listener_id, callback, priority))
         return listener_id
 
-    def disconnect(self, listener_id):
-        # type: (int) -> None
+    def disconnect(self, listener_id: int) -> None:
         """Disconnect a handler."""
-        for event in self.listeners.values():
-            event.pop(listener_id, None)
+        for listeners in self.listeners.values():
+            for listener in listeners.copy():
+                if listener.id == listener_id:
+                    listeners.remove(listener)
 
-    def emit(self, name, *args):
-        # type: (str, Any) -> List
+    def emit(
+        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+    ) -> list:
         """Emit a Sphinx event."""
-        try:
+        # not every object likes to be repr()'d (think
+        # random stuff coming via autodoc)
+        with contextlib.suppress(Exception):
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
-        except Exception:
-            # not every object likes to be repr()'d (think
-            # random stuff coming via autodoc)
-            pass
 
         results = []
-        for callback in self.listeners[name].values():
-            if self.app is None:
-                # for compatibility; RemovedInSphinx40Warning
-                results.append(callback(*args))
-            else:
-                results.append(callback(self.app, *args))
+        listeners = sorted(self.listeners[name], key=attrgetter('priority'))
+        for listener in listeners:
+            try:
+                results.append(listener.handler(self.app, *args))
+            except allowed_exceptions:
+                # pass through the errors specified as *allowed_exceptions*
+                raise
+            except SphinxError:
+                raise
+            except Exception as exc:
+                if self.app.pdb:
+                    # Just pass through the error, so that it can be debugged.
+                    raise
+                modname = safe_getattr(listener.handler, '__module__', None)
+                raise ExtensionError(
+                    __('Handler %r for event %r threw an exception')
+                    % (listener.handler, name),
+                    exc,
+                    modname=modname,
+                ) from exc
         return results
 
-    def emit_firstresult(self, name, *args):
-        # type: (str, Any) -> Any
+    def emit_firstresult(
+        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+    ) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.
         """
-        for result in self.emit(name, *args):
+        for result in self.emit(name, *args, allowed_exceptions=allowed_exceptions):
             if result is not None:
                 return result
         return None

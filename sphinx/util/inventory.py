@@ -1,37 +1,32 @@
-"""
-    sphinx.util.inventory
-    ~~~~~~~~~~~~~~~~~~~~~
+"""Inventory utility functions for Sphinx."""
+from __future__ import annotations
 
-    Inventory utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import os
 import re
 import zlib
-from typing import Callable, IO, Iterator
+from typing import IO, TYPE_CHECKING, Callable
 
+from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.typing import Inventory
-
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import Inventory, InventoryItem
 
 
 class InventoryFileReader:
-    """A file reader for inventory file.
+    """A file reader for an inventory file.
 
     This reader supports mixture of texts and compressed texts.
     """
 
-    def __init__(self, stream: IO) -> None:
+    def __init__(self, stream: IO[bytes]) -> None:
         self.stream = stream
         self.buffer = b''
         self.eof = False
@@ -83,7 +78,12 @@ class InventoryFileReader:
 
 class InventoryFile:
     @classmethod
-    def load(cls, stream: IO, uri: str, joinfunc: Callable) -> Inventory:
+    def load(
+        cls: type[InventoryFile],
+        stream: IO[bytes],
+        uri: str,
+        joinfunc: Callable[[str, str], str],
+    ) -> Inventory:
         reader = InventoryFileReader(stream)
         line = reader.readline().rstrip()
         if line == '# Sphinx inventory version 1':
@@ -94,8 +94,13 @@ class InventoryFile:
             raise ValueError('invalid inventory header: %s' % line)
 
     @classmethod
-    def load_v1(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
-        invdata = {}  # type: Inventory
+    def load_v1(
+        cls: type[InventoryFile],
+        stream: InventoryFileReader,
+        uri: str,
+        join: Callable[[str, str], str],
+    ) -> Inventory:
+        invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
         for line in stream.readlines():
@@ -112,36 +117,62 @@ class InventoryFile:
         return invdata
 
     @classmethod
-    def load_v2(cls, stream: InventoryFileReader, uri: str, join: Callable) -> Inventory:
-        invdata = {}  # type: Inventory
+    def load_v2(
+        cls: type[InventoryFile],
+        stream: InventoryFileReader,
+        uri: str,
+        join: Callable[[str, str], str],
+    ) -> Inventory:
+        invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
+        potential_ambiguities = set()
+        actual_ambiguities = set()
         line = stream.readline()
         if 'zlib' not in line:
             raise ValueError('invalid inventory header (not compressed): %s' % line)
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
-                         line.rstrip())
+            m = re.match(r'(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
+                         line.rstrip(), flags=re.VERBOSE)
             if not m:
                 continue
             name, type, prio, location, dispname = m.groups()
+            if ':' not in type:
+                # wrong type value. type should be in the form of "{domain}:{objtype}"
+                #
+                # Note: To avoid the regex DoS, this is implemented in python (refs: #8175)
+                continue
             if type == 'py:module' and type in invdata and name in invdata[type]:
                 # due to a bug in 1.1 and below,
                 # two inventory entries are created
                 # for Python modules, and the first
                 # one is correct
                 continue
+            if type in {'std:label', 'std:term'}:
+                # Some types require case insensitive matches:
+                # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
+                # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
+                definition = f"{type}:{name}"
+                if definition.lower() in potential_ambiguities:
+                    actual_ambiguities.add(definition)
+                else:
+                    potential_ambiguities.add(definition.lower())
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
-            invdata.setdefault(type, {})[name] = (projname, version,
-                                                  location, dispname)
+            inv_item: InventoryItem = projname, version, location, dispname
+            invdata.setdefault(type, {})[name] = inv_item
+        for ambiguity in actual_ambiguities:
+            logger.warning(__("inventory <%s> contains multiple definitions for %s"),
+                           uri, ambiguity, type='intersphinx',  subtype='external')
         return invdata
 
     @classmethod
-    def dump(cls, filename: str, env: "BuildEnvironment", builder: "Builder") -> None:
+    def dump(
+        cls: type[InventoryFile], filename: str, env: BuildEnvironment, builder: Builder,
+    ) -> None:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 

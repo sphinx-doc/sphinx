@@ -1,0 +1,10 @@
+i18n with toctree
+=================
+
+.. toctree::
+   :caption: caption
+
+   figure <figure>
+   table
+   https://www.sphinx-doc.org/
+   self

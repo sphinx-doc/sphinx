@@ -1,0 +1,75 @@
+name: Synchronise translations
+
+on:
+  schedule:
+  # 22:38 GMT, every Sunday. Chosen to be a random time.
+  - cron: "38 22 * * SUN"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    if: github.repository_owner == 'sphinx-doc'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Install transifex client
+      run: |
+        mkdir -p /tmp/tx_cli && cd $_
+        curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+      shell: bash
+    - name: Install dependencies
+      run: pip install --upgrade babel jinja2
+    - name: Extract translations from source code
+      run: python utils/babel_runner.py extract
+    - name: Push translations to transifex.com
+      run: |
+        cd sphinx/locale 
+        /tmp/tx_cli/tx push --source --use-git-timestamps --workers 10
+      env:
+        TX_TOKEN: ${{ secrets.TX_TOKEN }}
+
+  pull:
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to create branch
+      pull-requests: write  # for peter-evans/create-pull-request to create a PR
+    if: github.repository_owner == 'sphinx-doc'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Install transifex client
+      run: |
+        mkdir -p /tmp/tx_cli && cd $_
+        curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+      shell: bash
+    - name: Install dependencies
+      run: pip install --upgrade babel jinja2
+    - name: Extract translations from source code
+      run: python utils/babel_runner.py extract
+    - name: Pull translations from transifex.com
+      run: |
+        cd sphinx/locale 
+        /tmp/tx_cli/tx pull --translations --all --force --use-git-timestamps --workers 10
+      env:
+        TX_TOKEN: ${{ secrets.TX_TOKEN }}
+    - name: Compile message catalogs
+      run: python utils/babel_runner.py compile
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        commit-message: "[internationalisation] Update translations"
+        branch: bot/pull-translations
+        title: "[bot]: Update message catalogues"
+        labels: "internals:internationalisation"

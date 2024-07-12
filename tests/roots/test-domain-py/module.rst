@@ -18,6 +18,11 @@ module
 
     * Link to :py:meth:`module_a.submodule.ModTopLevel.mod_child_1`
 
+.. py:property:: ModTopLevel.prop
+
+   * Link to :py:attr:`prop attribute <.prop>`
+   * Link to :py:meth:`prop method <.prop>`
+
 .. py:currentmodule:: None
 
 .. py:class:: ModNoModule
@@ -45,3 +50,20 @@ module
 .. py:attribute:: attr2
 
    :type: :doc:`index`
+
+.. py:module:: exceptions
+
+.. py:exception:: Exception
+
+.. py:module:: object
+
+.. py:function:: sum()
+
+.. py:data:: test
+    :type: typing.Literal[2]
+
+.. py:data:: test2
+    :type: typing.Literal[-2]
+
+.. py:type:: MyType1
+    :canonical: list[int | str]

@@ -1,40 +1,66 @@
-"""
-    sphinx.util.i18n
-    ~~~~~~~~~~~~~~~~
+"""Builder superclass for all builders."""
 
-    Builder superclass for all builders.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-import gettext
 import os
 import re
-import warnings
-from collections import namedtuple
 from datetime import datetime, timezone
 from os import path
-from typing import Callable, Generator, List, Set, Tuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import babel.dates
 from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 
-from sphinx.deprecation import RemovedInSphinx40Warning
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.matching import Matcher
 from sphinx.util.osutil import SEP, canon_path, relpath
 
-if False:
-    # For type annotation
+if TYPE_CHECKING:
+    import datetime as dt
+    from collections.abc import Iterator
+    from typing import Protocol, Union
+
+    from babel.core import Locale
+
     from sphinx.environment import BuildEnvironment
 
+    class DateFormatter(Protocol):
+        def __call__(  # NoQA: E704
+            self,
+            date: dt.date | None = ...,
+            format: str = ...,
+            locale: str | Locale | None = ...,
+        ) -> str: ...
+
+    class TimeFormatter(Protocol):
+        def __call__(  # NoQA: E704
+            self,
+            time: dt.time | dt.datetime | float | None = ...,
+            format: str = ...,
+            tzinfo: dt.tzinfo | None = ...,
+            locale: str | Locale | None = ...,
+        ) -> str: ...
+
+    class DatetimeFormatter(Protocol):
+        def __call__(  # NoQA: E704
+            self,
+            datetime: dt.date | dt.time | float | None = ...,
+            format: str = ...,
+            tzinfo: dt.tzinfo | None = ...,
+            locale: str | Locale | None = ...,
+        ) -> str: ...
+
+    Formatter = Union[DateFormatter, TimeFormatter, DatetimeFormatter]
 
 logger = logging.getLogger(__name__)
 
-LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
+
+class LocaleFileInfoBase(NamedTuple):
+    base_dir: str
+    domain: str
+    charset: str
 
 
 class CatalogInfo(LocaleFileInfoBase):
@@ -60,7 +86,7 @@ class CatalogInfo(LocaleFileInfoBase):
             not path.exists(self.mo_path) or
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
-    def write_mo(self, locale: str) -> None:
+    def write_mo(self, locale: str, use_fuzzy: bool = False) -> None:
         with open(self.po_path, encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
@@ -70,7 +96,7 @@ class CatalogInfo(LocaleFileInfoBase):
 
         with open(self.mo_path, 'wb') as file_mo:
             try:
-                write_mo(file_mo, po)
+                write_mo(file_mo, po, use_fuzzy)
             except Exception as exc:
                 logger.warning(__('writing error: %s, %s'), self.mo_path, exc)
 
@@ -78,7 +104,7 @@ class CatalogInfo(LocaleFileInfoBase):
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str, locale_dirs: List[str],
+    def __init__(self, basedir: str | os.PathLike[str], locale_dirs: list[str],
                  language: str, encoding: str) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs
@@ -86,24 +112,26 @@ class CatalogRepository:
         self.encoding = encoding
 
     @property
-    def locale_dirs(self) -> Generator[str, None, None]:
+    def locale_dirs(self) -> Iterator[str]:
         if not self.language:
             return
 
         for locale_dir in self._locale_dirs:
             locale_dir = path.join(self.basedir, locale_dir)
-            if path.exists(path.join(locale_dir, self.language, 'LC_MESSAGES')):
+            locale_path = path.join(locale_dir, self.language, 'LC_MESSAGES')
+            if path.exists(locale_path):
                 yield locale_dir
+            else:
+                logger.verbose(__('locale_dir %s does not exist'), locale_path)
 
     @property
-    def pofiles(self) -> Generator[Tuple[str, str], None, None]:
+    def pofiles(self) -> Iterator[tuple[str, str]]:
         for locale_dir in self.locale_dirs:
             basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
             for root, dirnames, filenames in os.walk(basedir):
                 # skip dot-directories
-                for dirname in dirnames:
-                    if dirname.startswith('.'):
-                        dirnames.remove(dirname)
+                for dirname in [d for d in dirnames if d.startswith('.')]:
+                    dirnames.remove(dirname)
 
                 for filename in filenames:
                     if filename.endswith('.po'):
@@ -111,95 +139,23 @@ class CatalogRepository:
                         yield basedir, relpath(fullpath, basedir)
 
     @property
-    def catalogs(self) -> Generator[CatalogInfo, None, None]:
+    def catalogs(self) -> Iterator[CatalogInfo]:
         for basedir, filename in self.pofiles:
             domain = canon_path(path.splitext(filename)[0])
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
-def find_catalog(docname: str, compaction: bool) -> str:
-    warnings.warn('find_catalog() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    if compaction:
-        ret = docname.split(SEP, 1)[0]
-    else:
-        ret = docname
-
-    return ret
-
-
-def docname_to_domain(docname: str, compation: bool) -> str:
+def docname_to_domain(docname: str, compaction: bool | str) -> str:
     """Convert docname to domain for catalogs."""
-    if compation:
+    if isinstance(compaction, str):
+        return compaction
+    if compaction:
         return docname.split(SEP, 1)[0]
     else:
         return docname
 
 
-def find_catalog_files(docname: str, srcdir: str, locale_dirs: List[str],
-                       lang: str, compaction: bool) -> List[str]:
-    warnings.warn('find_catalog_files() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-    if not(lang and locale_dirs):
-        return []
-
-    domain = find_catalog(docname, compaction)
-    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
-             for dir_ in locale_dirs]
-    files = [relpath(f, srcdir) for f in files if f]
-    return files
-
-
-def find_catalog_source_files(locale_dirs: List[str], locale: str, domains: List[str] = None,
-                              charset: str = 'utf-8', force_all: bool = False,
-                              excluded: Matcher = Matcher([])) -> Set[CatalogInfo]:
-    """
-    :param list locale_dirs:
-       list of path as `['locale_dir1', 'locale_dir2', ...]` to find
-       translation catalogs. Each path contains a structure such as
-       `<locale>/LC_MESSAGES/domain.po`.
-    :param str locale: a language as `'en'`
-    :param list domains: list of domain names to get. If empty list or None
-       is specified, get all domain names. default is None.
-    :param boolean force_all:
-       Set True if you want to get all catalogs rather than updated catalogs.
-       default is False.
-    :return: [CatalogInfo(), ...]
-    """
-    warnings.warn('find_catalog_source_files() is deprecated.',
-                  RemovedInSphinx40Warning, stacklevel=2)
-
-    catalogs = set()  # type: Set[CatalogInfo]
-
-    if not locale:
-        return catalogs  # locale is not specified
-
-    for locale_dir in locale_dirs:
-        if not locale_dir:
-            continue  # skip system locale directory
-
-        base_dir = path.join(locale_dir, locale, 'LC_MESSAGES')
-
-        if not path.exists(base_dir):
-            continue  # locale path is not found
-
-        for dirpath, dirnames, filenames in os.walk(base_dir, followlinks=True):
-            filenames = [f for f in filenames if f.endswith('.po')]
-            for filename in filenames:
-                if excluded(path.join(relpath(dirpath, base_dir), filename)):
-                    continue
-                base = path.splitext(filename)[0]
-                domain = relpath(path.join(dirpath, base), base_dir).replace(path.sep, SEP)
-                if domains and domain not in domains:
-                    continue
-                cat = CatalogInfo(base_dir, domain, charset)
-                if force_all or cat.is_outdated():
-                    catalogs.add(cat)
-
-    return catalogs
-
-
-# date_format mappings: ustrftime() to bable.dates.format_datetime()
+# date_format mappings: ustrftime() to babel.dates.format_datetime()
 date_format_mappings = {
     '%a':  'EEE',     # Weekday as locale’s abbreviated name.
     '%A':  'EEEE',    # Weekday as locale’s full name.
@@ -234,7 +190,9 @@ date_format_mappings = {
     '%X':  'medium',  # Locale’s appropriate time representation.
     '%y':  'YY',      # Year without century as a zero-padded decimal number.
     '%Y':  'yyyy',    # Year with century as a decimal number.
-    '%Z':  'zzzz',    # Time zone name (no characters if no time zone exists).
+    '%Z':  'zzz',     # Time zone name (no characters if no time zone exists).
+    '%z':  'ZZZ',     # UTC offset in the form ±HHMM[SS[.ffffff]]
+                      # (empty string if the object is naive).
     '%%':  '%',
 }
 
@@ -242,10 +200,7 @@ date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
 def babel_format_date(date: datetime, format: str, locale: str,
-                      formatter: Callable = babel.dates.format_date) -> str:
-    if locale is None:
-        locale = 'en'
-
+                      formatter: Formatter = babel.dates.format_date) -> str:
     # Check if we have the tzinfo attribute. If not we cannot do any time
     # related formats.
     if not hasattr(date, 'tzinfo'):
@@ -262,15 +217,17 @@ def babel_format_date(date: datetime, format: str, locale: str,
         return format
 
 
-def format_date(format: str, date: datetime = None, language: str = None) -> str:
+def format_date(
+    format: str, *, date: datetime | None = None, language: str,
+) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
-            date = datetime.utcfromtimestamp(float(source_date_epoch))
+            date = datetime.fromtimestamp(float(source_date_epoch), tz=timezone.utc)
         else:
-            date = datetime.now(timezone.utc).astimezone()
+            date = datetime.now(tz=timezone.utc).astimezone()
 
     result = []
     tokens = date_format_re.split(format)
@@ -281,6 +238,7 @@ def format_date(format: str, date: datetime = None, language: str = None) -> str
             # Check if we have to use a different babel formatter then
             # format_datetime, because we only want to format a date
             # or a time.
+            function: Formatter
             if token == '%x':
                 function = babel.dates.format_date
             elif token == '%X':
@@ -296,32 +254,31 @@ def format_date(format: str, date: datetime = None, language: str = None) -> str
     return "".join(result)
 
 
-def get_image_filename_for_language(filename: str, env: "BuildEnvironment") -> str:
-    if not env.config.language:
-        return filename
-
-    filename_format = env.config.figure_language_filename
-    d = dict()
-    d['root'], d['ext'] = path.splitext(filename)
-    dirname = path.dirname(d['root'])
-    if dirname and not dirname.endswith(path.sep):
-        dirname += path.sep
-    d['path'] = dirname
-    d['basename'] = path.basename(d['root'])
-    d['language'] = env.config.language
+def get_image_filename_for_language(
+    filename: str | os.PathLike[str],
+    env: BuildEnvironment,
+) -> str:
+    root, ext = path.splitext(filename)
+    dirname = path.dirname(root)
+    docpath = path.dirname(env.docname)
     try:
-        return filename_format.format(**d)
+        return env.config.figure_language_filename.format(
+            root=root,
+            ext=ext,
+            path=dirname and dirname + SEP,
+            basename=path.basename(root),
+            docpath=docpath and docpath + SEP,
+            language=env.config.language,
+        )
     except KeyError as exc:
-        raise SphinxError('Invalid figure_language_filename: %r' % exc)
+        msg = f'Invalid figure_language_filename: {exc!r}'
+        raise SphinxError(msg) from exc
 
 
-def search_image_for_language(filename: str, env: "BuildEnvironment") -> str:
-    if not env.config.language:
-        return filename
-
+def search_image_for_language(filename: str, env: BuildEnvironment) -> str:
     translated = get_image_filename_for_language(filename, env)
-    dirname = path.dirname(env.docname)
-    if path.exists(path.join(env.srcdir, dirname, translated)):
+    _, abspath = env.relfn2path(translated)
+    if path.exists(abspath):
         return translated
     else:
         return filename

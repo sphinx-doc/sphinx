@@ -1,56 +1,43 @@
 .. _dev-extensions:
 
-Developing extensions for Sphinx
-================================
+Sphinx API
+==========
 
-Since many projects will need special features in their documentation, Sphinx is
-designed to be extensible on several levels.
+Since many projects will need special features in their documentation, Sphinx
+is designed to be extensible on several levels.
 
-This is what you can do in an extension: First, you can add new
-:term:`builder`\s to support new output formats or actions on the parsed
-documents.  Then, it is possible to register custom reStructuredText roles and
-directives, extending the markup.  And finally, there are so-called "hook
-points" at strategic places throughout the build process, where an extension can
-register a hook and run specialized code.
+Here are a few things you can do in an extension:
 
-An extension is simply a Python module.  When an extension is loaded, Sphinx
-imports this module and executes its ``setup()`` function, which in turn
-notifies Sphinx of everything the extension offers -- see the extension tutorial
-for examples.
+* Add new :term:`builder`\s to support new output formats or actions on the
+  parsed documents.
+* Register custom reStructuredText roles and directives, extending the markup
+  using the :doc:`markupapi`.
+* Add custom code to so-called "hook points" at strategic places throughout the
+  build process, allowing you to register a hook and run specialized code.
+  For example, see the :ref:`events`.
 
-The configuration file itself can be treated as an extension if it contains a
-``setup()`` function.  All other extensions to load must be listed in the
-:confval:`extensions` configuration value.
+An extension is simply a Python module with a ``setup()`` function. A user
+activates the extension by placing the extension's module name
+(or a sub-module) in their :confval:`extensions` configuration value.
 
-Discovery of builders by entry point
-------------------------------------
+When :program:`sphinx-build` is executed, Sphinx will attempt to import each
+module that is listed, and execute ``yourmodule.setup(app)``. This
+function is used to prepare the extension (e.g., by executing Python code),
+linking resources that Sphinx uses in the build process (like CSS or HTML
+files), and notifying Sphinx of everything the extension offers (such
+as directive or role definitions). The ``app`` argument is an instance of
+:class:`.Sphinx` and gives you control over most aspects of the Sphinx build.
 
-.. versionadded:: 1.6
+.. note::
 
-:term:`Builder` extensions can be discovered by means of `entry points`_ so
-that they do not have to be listed in the :confval:`extensions` configuration
-value.
+    The configuration file itself can be treated as an extension if it
+    contains a ``setup()`` function.  All other extensions to load must be
+    listed in the :confval:`extensions` configuration value.
 
-Builder extensions should define an entry point in the ``sphinx.builders``
-group. The name of the entry point needs to match your builder's
-:attr:`~.Builder.name` attribute, which is the name passed to the
-:option:`sphinx-build -b` option. The entry point value should equal the
-dotted name of the extension module. Here is an example of how an entry point
-for 'mybuilder' can be defined in the extension's ``setup.py``::
-
-    setup(
-        # ...
-        entry_points={
-            'sphinx.builders': [
-                'mybuilder = my.extension.module',
-            ],
-        }
-    )
-
-Note that it is still necessary to register the builder using
-:meth:`~.Sphinx.add_builder` in the extension's :func:`setup` function.
-
-.. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
+The rest of this page describes some high-level aspects of developing
+extensions and various parts of Sphinx's behavior that you can control.
+For some examples of how extensions can be built and used to control different
+parts of Sphinx, see the :ref:`extension-tutorials-index`.
 
 .. _important-objects:
 
@@ -98,7 +85,7 @@ extension. These are:
    The config is available as ``app.config`` or ``env.config``.
 
 To see an example of use of these objects, refer to
-:doc:`../development/tutorials/index`.
+:ref:`the tutorials <extension-tutorials-index>`.
 
 .. _build-phases:
 
@@ -110,49 +97,49 @@ in which a Sphinx project is built: this works in several phases.
 
 **Phase 0: Initialization**
 
-   In this phase, almost nothing of interest to us happens.  The source
-   directory is searched for source files, and extensions are initialized.
-   Should a stored build environment exist, it is loaded, otherwise a new one is
-   created.
+In this phase, almost nothing of interest to us happens.  The source
+directory is searched for source files, and extensions are initialized.
+Should a stored build environment exist, it is loaded, otherwise a new one is
+created.
 
 **Phase 1: Reading**
 
-   In Phase 1, all source files (and on subsequent builds, those that are new or
-   changed) are read and parsed.  This is the phase where directives and roles
-   are encountered by docutils, and the corresponding code is executed.  The
-   output of this phase is a *doctree* for each source file; that is a tree of
-   docutils nodes.  For document elements that aren't fully known until all
-   existing files are read, temporary nodes are created.
+In Phase 1, all source files (and on subsequent builds, those that are new or
+changed) are read and parsed.  This is the phase where directives and roles
+are encountered by docutils, and the corresponding code is executed.  The
+output of this phase is a *doctree* for each source file; that is a tree of
+docutils nodes.  For document elements that aren't fully known until all
+existing files are read, temporary nodes are created.
 
-   There are nodes provided by docutils, which are documented `in the docutils
-   documentation <http://docutils.sourceforge.net/docs/ref/doctree.html>`__.
-   Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
+There are nodes provided by docutils, which are documented `in the docutils
+documentation <https://docutils.sourceforge.io/docs/ref/doctree.html>`__.
+Additional nodes are provided by Sphinx and :ref:`documented here <nodes>`.
 
-   During reading, the build environment is updated with all meta- and cross
-   reference data of the read documents, such as labels, the names of headings,
-   described Python objects and index entries.  This will later be used to
-   replace the temporary nodes.
+During reading, the build environment is updated with all meta- and cross
+reference data of the read documents, such as labels, the names of headings,
+described Python objects and index entries.  This will later be used to
+replace the temporary nodes.
 
-   The parsed doctrees are stored on the disk, because it is not possible to
-   hold all of them in memory.
+The parsed doctrees are stored on the disk, because it is not possible to
+hold all of them in memory.
 
 **Phase 2: Consistency checks**
 
-   Some checking is done to ensure no surprises in the built documents.
+Some checking is done to ensure no surprises in the built documents.
 
 **Phase 3: Resolving**
 
-   Now that the metadata and cross-reference data of all existing documents is
-   known, all temporary nodes are replaced by nodes that can be converted into
-   output using components called transforms.  For example, links are created
-   for object references that exist, and simple literal nodes are created for
-   those that don't.
+Now that the metadata and cross-reference data of all existing documents is
+known, all temporary nodes are replaced by nodes that can be converted into
+output using components called transforms.  For example, links are created
+for object references that exist, and simple literal nodes are created for
+those that don't.
 
 **Phase 4: Writing**
 
-   This phase converts the resolved doctrees to the desired output format, such
-   as HTML or LaTeX.  This happens via a so-called docutils writer that visits
-   the individual nodes of each doctree and produces some output in the process.
+This phase converts the resolved doctrees to the desired output format, such
+as HTML or LaTeX.  This happens via a so-called docutils writer that visits
+the individual nodes of each doctree and produces some output in the process.
 
 .. note::
 
@@ -160,7 +147,7 @@ in which a Sphinx project is built: this works in several phases.
    that checks external links does not need anything more than the parsed
    doctrees and therefore does not have phases 2--4.
 
-To see an example of application, refer to :doc:`../development/tutorials/todo`.
+To see an example of application, refer to :ref:`tutorial-extend-build`.
 
 .. _ext-metadata:
 
@@ -184,18 +171,40 @@ as metadata of the extension.  Metadata keys currently recognized are:
   source files can be used when the extension is loaded.  It defaults to
   ``False``, i.e. you have to explicitly specify your extension to be
   parallel-read-safe after checking that it is.
+
+  .. note:: The *parallel-read-safe* extension must satisfy the following
+            conditions:
+
+            * The core logic of the extension is parallelly executable during
+              the reading phase.
+            * It has event handlers for :event:`env-merge-info` and
+              :event:`env-purge-doc` events if it stores data to the build
+              environment object (env) during the reading phase.
+
 * ``'parallel_write_safe'``: a boolean that specifies if parallel writing of
   output files can be used when the extension is loaded.  Since extensions
   usually don't negatively influence the process, this defaults to ``True``.
+
+  .. note:: The *parallel-write-safe* extension must satisfy the following
+            conditions:
+
+            * The core logic of the extension is parallelly executable during
+              the writing phase.
 
 
 APIs used for writing extensions
 --------------------------------
 
+These sections provide a more complete description of the tools at your
+disposal when developing Sphinx extensions. Some are core to Sphinx
+(such as the :doc:`appapi`) while others trigger specific behavior
+(such as the :doc:`i18n`)
+
 .. toctree::
    :maxdepth: 2
 
    appapi
+   event_callbacks
    projectapi
    envapi
    builderapi

@@ -1,0 +1,83 @@
+name: Bug report
+description: Something is not working correctly.
+labels: "type:bug"
+
+body:
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: >-
+        A clear and concise description of what the bug is, including the 
+        expected behaviour and what has gone wrong.
+        
+        Please include screenshots, if applicable.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: How to Reproduce
+      description: >-
+        Please provide steps to reproduce this bug, with the smallest possible
+        set of source files. For normal bugs this should ideally be one 
+        ``index.rst`` file, and for ``sphinx.ext.autodoc`` bugs, this should
+        ideally be a single ``index.rst`` file, and a single example Python 
+        module.
+      placeholder: |
+        Minimal method (you can also paste the contents of ``index.rst`` and
+        ``conf.py`` into this report):
+        ```bash
+        $ echo "Content demonstrating the bug..." > index.rst
+        $ echo "" > conf.py
+        $ sphinx-build -M html . _build
+        $ # open _build/html/index and see bla bla
+        ```
+        
+        ``git clone`` method (this is advised against, to help the Sphinx team):
+        ```bash
+        $ git clone https://github.com/.../some_project
+        $ cd some_project
+        $ pip install -r requirements.txt
+        $ cd docs
+        $ make html SPHINXOPTS="-D language=de"
+        $ # open _build/html/index and see bla bla
+        ```
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Environment info
+
+  - type: textarea
+    attributes:
+      label: Environment Information
+      render: text
+      description: >-
+        Install the latest Sphinx 
+        ``pip install -U "sphinx>=5.3"``
+        then run ``sphinx-build --bug-report`` or ``python -m sphinx --bug-report``.
+        and paste the output here.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Sphinx extensions
+      render: python
+      description: >-
+        Attempt to reproduce your error with the smallest set of extensions possible.
+        This makes it easier to determine where the problem you are encountering is.
+        
+        e.g. ``["sphinx.ext.autodoc", "recommonmark"]``
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: >-
+        Add any other context about the problem here, for example:
+        
+        * Any other tools used (Browser, TeX, etc) with versions
+        * Reference to another issue or pull request
+        * URL to some external resource

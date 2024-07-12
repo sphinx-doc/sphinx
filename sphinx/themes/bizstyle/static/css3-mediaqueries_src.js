@@ -4,15 +4,15 @@ css3-mediaqueries.js - CSS Helper and CSS3 Media Queries Enabler
 author: Wouter van der Graaf <wouter at dynora nl>
 version: 1.0 (20110330)
 license: MIT
-website: http://code.google.com/p/css3-mediaqueries-js/
+website: https://code.google.com/p/css3-mediaqueries-js/
 
-W3C spec: http://www.w3.org/TR/css3-mediaqueries/
+W3C spec: https://www.w3.org/TR/css3-mediaqueries/
 
 Note: use of embedded <style> is not recommended when using media queries, because IE  has no way of returning the raw literal css text from a <style> element.
 */
 
 
-// true prototypal inheritance (http://javascript.crockford.com/prototypal.html)
+// true prototypal inheritance (https://javascript.crockford.com/prototypal.html)
 if (typeof Object.create !== 'function') {
 	Object.create = function (o) {
 		function F() {}
@@ -1035,7 +1035,7 @@ domReady(function enableCssMediaQueries() {
 			var vpw = cssHelper.getViewportWidth();
 			var vph = cssHelper.getViewportHeight();
 			// check whether vp size has really changed, because IE also triggers resize event when body size changes
-			// 20px allowance to accomodate short appearance of scrollbars in IE in some cases
+			// 20px allowance to accommodate short appearance of scrollbars in IE in some cases
 			if (Math.abs(vpw - cvpw) > scrollbarWidth || Math.abs(vph - cvph) > scrollbarWidth) {
 				cvpw = vpw;
 				cvph = vph;

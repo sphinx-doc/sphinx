@@ -1,47 +1,36 @@
-"""
-    sphinx.io
-    ~~~~~~~~~
+"""Input/Output files"""
 
-    Input/Output files
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-import codecs
-import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+import docutils
+from docutils import nodes
 from docutils.core import Publisher
-from docutils.io import FileInput, NullOutput
-from docutils.parsers.rst import Parser as RSTParser
+from docutils.io import FileInput, Input, NullOutput
 from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
-from sphinx.deprecation import RemovedInSphinx40Warning
-from sphinx.transforms import (
-    AutoIndexUpgrader, DoctreeReadEvent, FigureAligner, SphinxTransformer
-)
+from sphinx import addnodes
+from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
 from sphinx.transforms.i18n import (
-    PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
+    Locale,
+    PreserveTranslatableMessages,
+    RemoveTranslatableInline,
 )
 from sphinx.transforms.references import SphinxDomains
 from sphinx.util import logging
-from sphinx.util import UnicodeDecodeErrorHandler
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
-if False:
-    # For type annotation
-    from typing import Dict, List, Tuple  # NOQA
-    from typing import Type  # for python3.5.1
-    from docutils import nodes  # NOQA
-    from docutils.frontend import Values  # NOQA
-    from docutils.io import Input  # NOQA
-    from docutils.parsers import Parser  # NOQA
-    from docutils.transforms import Transform  # NOQA
-    from sphinx.application import Sphinx  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
+if TYPE_CHECKING:
+    from docutils.frontend import Values
+    from docutils.parsers import Parser
+    from docutils.transforms import Transform
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)
@@ -54,11 +43,11 @@ class SphinxBaseReader(standalone.Reader):
     This replaces reporter by Sphinx's on generating document.
     """
 
-    transforms = []  # type: List[Type[Transform]]
+    transforms: list[type[Transform]] = []
 
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
+
         if len(args) > 0 and isinstance(args[0], Sphinx):
             self._app = args[0]
             self._env = self._app.env
@@ -66,27 +55,11 @@ class SphinxBaseReader(standalone.Reader):
 
         super().__init__(*args, **kwargs)
 
-    @property
-    def app(self):
-        # type: () -> Sphinx
-        warnings.warn('SphinxBaseReader.app is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self._app
-
-    @property
-    def env(self):
-        # type: () -> BuildEnvironment
-        warnings.warn('SphinxBaseReader.env is deprecated.',
-                      RemovedInSphinx40Warning, stacklevel=2)
-        return self._env
-
-    def setup(self, app):
-        # type: (Sphinx) -> None
-        self._app = app      # hold application object only for compatibility
+    def setup(self, app: Sphinx) -> None:
+        self._app = app  # hold application object only for compatibility
         self._env = app.env
 
-    def get_transforms(self):
-        # type: () -> List[Type[Transform]]
+    def get_transforms(self) -> list[type[Transform]]:
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx
@@ -97,12 +70,13 @@ class SphinxBaseReader(standalone.Reader):
 
         return transforms
 
-    def new_document(self):
-        # type: () -> nodes.document
-        """Creates a new document object which having a special reporter object good
+    def new_document(self) -> nodes.document:
+        """
+        Creates a new document object which has a special reporter object good
         for logging.
         """
         document = super().new_document()
+        document.__class__ = addnodes.document  # replace the class with patched version
 
         # substitute transformer
         document.transformer = SphinxTransformer(document)
@@ -120,23 +94,20 @@ class SphinxStandaloneReader(SphinxBaseReader):
     A basic document reader for Sphinx.
     """
 
-    def setup(self, app):
-        # type: (Sphinx) -> None
+    def setup(self, app: Sphinx) -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
         super().setup(app)
 
-    def read(self, source, parser, settings):
-        # type: (Input, Parser, Values) -> nodes.document
+    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
-        if not self.parser:
+        if not self.parser:  # type: ignore[has-type]
             self.parser = parser
         self.settings = settings
         self.input = self.read_source(settings.env)
         self.parse()
         return self.document
 
-    def read_source(self, env):
-        # type: (BuildEnvironment) -> str
+    def read_source(self, env: BuildEnvironment) -> str:
         """Read content from source and do post-process."""
         content = self.source.read()
 
@@ -155,14 +126,19 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    def setup(self, app):
-        # type: (Sphinx) -> None
+    def setup(self, app: Sphinx) -> None:
         super().setup(app)
 
         self.transforms = self.transforms + app.registry.get_transforms()
-        unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
-                  AutoIndexUpgrader, FigureAligner, SphinxDomains, DoctreeReadEvent,
-                  UIDTransform]
+        unused = [
+            PreserveTranslatableMessages,
+            Locale,
+            RemoveTranslatableInline,
+            AutoIndexUpgrader,
+            SphinxDomains,
+            DoctreeReadEvent,
+            UIDTransform,
+        ]
         for transform in unused:
             if transform in self.transforms:
                 self.transforms.remove(transform)
@@ -173,49 +149,27 @@ class SphinxDummyWriter(UnfilteredWriter):
 
     supported = ('html',)  # needed to keep "meta" nodes
 
-    def translate(self):
-        # type: () -> None
+    def translate(self) -> None:
         pass
 
 
-def SphinxDummySourceClass(source, *args, **kwargs):
-    # type: (Any, Any, Any) -> Any
+def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
     """Bypass source object as is to cheat Publisher."""
     return source
 
 
 class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
-    def __init__(self, *args, **kwargs):
-        # type: (Any, Any) -> None
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
 
 
-class FiletypeNotFoundError(Exception):
-    pass
-
-
-def get_filetype(source_suffix, filename):
-    # type: (Dict[str, str], str) -> str
-    for suffix, filetype in source_suffix.items():
-        if filename.endswith(suffix):
-            # If default filetype (None), considered as restructuredtext.
-            return filetype or 'restructuredtext'
-    else:
-        raise FiletypeNotFoundError
-
-
-def read_doc(app, env, filename):
-    # type: (Sphinx, BuildEnvironment, str) -> nodes.document
-    """Parse a document and convert to doctree."""
-    # set up error_handler for the target document
-    error_handler = UnicodeDecodeErrorHandler(env.docname)
-    codecs.register_error('sphinx', error_handler)  # type: ignore
-
+def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     reader = SphinxStandaloneReader()
     reader.setup(app)
-    filetype = get_filetype(app.config.source_suffix, filename)
+
     parser = app.registry.create_source_parser(app, filetype)
     if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
         # a workaround for recommonmark
@@ -223,29 +177,22 @@ def read_doc(app, env, filename):
         #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
         #   parser.  As a workaround, this copies settings_spec for RSTParser to the
         #   CommonMarkParser.
-        parser.settings_spec = RSTParser.settings_spec
+        from docutils.parsers.rst import Parser as RSTParser
 
-    input_class = app.registry.get_source_input(filetype)
-    if input_class:
-        # Sphinx-1.8 style
-        source = input_class(app, env, source=None, source_path=filename,  # type: ignore
-                             encoding=env.config.source_encoding)
-        pub = Publisher(reader=reader,
-                        parser=parser,
-                        writer=SphinxDummyWriter(),
-                        source_class=SphinxDummySourceClass,  # type: ignore
-                        destination=NullOutput())
-        pub.process_programmatic_settings(None, env.settings, None)
-        pub.set_source(source, filename)
+        parser.settings_spec = RSTParser.settings_spec  # type: ignore[misc]
+
+    pub = Publisher(
+        reader=reader,
+        parser=parser,
+        writer=SphinxDummyWriter(),
+        source_class=SphinxFileInput,
+        destination=NullOutput(),
+    )
+    # Propagate exceptions by default when used programmatically:
+    defaults = {'traceback': True, **app.env.settings}
+    # Set default settings
+    if docutils.__version_info__[:2] >= (0, 19):
+        pub.get_settings(**defaults)
     else:
-        # Sphinx-2.0 style
-        pub = Publisher(reader=reader,
-                        parser=parser,
-                        writer=SphinxDummyWriter(),
-                        source_class=SphinxFileInput,
-                        destination=NullOutput())
-        pub.process_programmatic_settings(None, env.settings, None)
-        pub.set_source(source_path=filename)
-
-    pub.publish()
-    return pub.document
+        pub.settings = pub.setup_option_parser(**defaults).get_default_values()
+    return pub

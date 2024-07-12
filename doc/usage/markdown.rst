@@ -8,13 +8,13 @@ Markdown
 
 `Markdown`__ is a lightweight markup language with a simplistic plain text
 formatting syntax.  It exists in many syntactically different *flavors*.  To
-support Markdown-based documentation, Sphinx can use `recommonmark`__.
-recommonmark is a Docutils bridge to `CommonMark-py`__, a Python package for
+support Markdown-based documentation, Sphinx can use `MyST-Parser`__.
+MyST-Parser is a Docutils bridge to `markdown-it-py`__, a Python package for
 parsing the `CommonMark`__ Markdown flavor.
 
 __ https://daringfireball.net/projects/markdown/
-__ https://recommonmark.readthedocs.io/en/latest/index.html
-__ https://github.com/rtfd/CommonMark-py
+__ https://myst-parser.readthedocs.io/en/latest/
+__ https://github.com/executablebooks/markdown-it-py
 __ https://commonmark.org/
 
 Configuration
@@ -22,23 +22,17 @@ Configuration
 
 To configure your Sphinx project for Markdown support, proceed as follows:
 
-#. Install the Markdown parser *recommonmark*::
+#. Install the Markdown parser *MyST-Parser*::
 
-      pip install --upgrade recommonmark
+      pip install --upgrade myst-parser
 
-   .. note::
-
-      The configuration as explained here requires recommonmark version
-      0.5.0 or later.
-
-#. Add *recommonmark* to the
+#. Add *myst_parser* to the
    :confval:`list of configured extensions <extensions>`::
 
-      extensions = ['recommonmark']
+      extensions = ['myst_parser']
 
-   .. versionchanged:: 1.8
-      Version 1.8 deprecates and version 3.0 removes the ``source_parsers``
-      configuration variable that was used by older *recommonmark* versions.
+   .. note::
+      MyST-Parser requires Sphinx 2.1 or newer.
 
 #. If you want to use Markdown files with extensions other than ``.md``, adjust
    the :confval:`source_suffix` variable.  The following example configures
@@ -51,8 +45,8 @@ To configure your Sphinx project for Markdown support, proceed as follows:
           '.md': 'markdown',
       }
 
-#. You can further configure *recommonmark* to allow custom syntax that
-   standard *CommonMark* doesn't support.  Read more in the `recommonmark
+#. You can further configure *MyST-Parser* to allow custom syntax that
+   standard *CommonMark* doesn't support.  Read more in the `MyST-Parser
    documentation`__.
 
-__ https://recommonmark.readthedocs.io/en/latest/auto_structify.html
+__ https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html

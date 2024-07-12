@@ -1,0 +1,178 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - ".github/workflows/main.yml"
+      - "sphinx/**"
+      - "tests/**"
+  pull_request:
+    paths:
+      - ".github/workflows/main.yml"
+      - "sphinx/**"
+      - "tests/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "1"
+  PYTHONDEVMODE: "1"  # -X dev
+  PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
+
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
+        - "3.13-dev"
+        docutils:
+        - "0.18"
+        - "0.21"
+        include:
+        # test every supported Docutils version for the latest supported Python
+        - python: "3.12"
+          docutils: "0.19"
+        - python: "3.12"
+          docutils: "0.20"
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v5
+      if: "!endsWith(matrix.python, '-dev')"
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Set up Python ${{ matrix.python }} (deadsnakes)
+      uses: deadsnakes/action@v3.1.0
+      if: "endsWith(matrix.python, '-dev')"
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+    - name: Install Docutils ${{ matrix.docutils }}
+      run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  windows:
+    runs-on: windows-2019
+    name: Windows
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  docutils-latest:
+    runs-on: ubuntu-latest
+    name: Docutils HEAD
+
+    steps:
+    - name: Install epubcheck
+      run: |
+        mkdir /tmp/epubcheck && cd /tmp/epubcheck
+        wget https://github.com/w3c/epubcheck/releases/download/v5.1.0/epubcheck-5.1.0.zip
+        unzip epubcheck-5.1.0.zip
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+    - name: Install Docutils' HEAD
+      run: python -m pip install git+https://repo.or.cz/docutils.git\#subdirectory=docutils
+    - name: Test with pytest
+      run: python -m pytest -vv
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        DO_EPUBCHECK: "1"
+        EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
+
+  latex:
+    runs-on: ubuntu-latest
+    name: LaTeX
+    container:
+      image: ghcr.io/sphinx-doc/sphinx-ci
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+        DO_EPUBCHECK: "1"
+
+  coverage:
+    if: github.event_name == 'push' && github.repository_owner == 'sphinx-doc'
+    runs-on: ubuntu-latest
+    name: Coverage
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test] pytest-cov
+    - name: Test with pytest
+      run: python -m pytest -vv --cov . --cov-append --cov-config pyproject.toml
+      env:
+        VIRTUALENV_SYSTEM_SITE_PACKAGES: "1"
+    - name: codecov
+      uses: codecov/codecov-action@v4

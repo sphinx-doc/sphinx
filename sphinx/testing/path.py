@@ -1,19 +1,32 @@
-"""
-    sphinx.testing.path
-    ~~~~~~~~~~~~~~~~~~~
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import builtins
 import os
 import shutil
 import sys
-from typing import Any, Callable, IO, List
+import warnings
+from typing import IO, TYPE_CHECKING, Any, Callable
 
+from sphinx.deprecation import RemovedInSphinx90Warning
+
+if TYPE_CHECKING:
+    import builtins
+
+warnings.warn("'sphinx.testing.path' is deprecated. "
+              "Use 'os.path' or 'pathlib' instead.",
+              RemovedInSphinx90Warning, stacklevel=2)
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
+
+
+def getumask() -> int:
+    """Get current umask value"""
+    umask = os.umask(0)  # Note: Change umask value temporarily to obtain it
+    os.umask(umask)
+
+    return umask
+
+
+UMASK = getumask()
 
 
 class path(str):
@@ -21,8 +34,10 @@ class path(str):
     Represents a path which behaves like a string.
     """
 
+    __slots__ = ()
+
     @property
-    def parent(self) -> "path":
+    def parent(self) -> path:
         """
         The name of the directory the file or directory is in.
         """
@@ -31,7 +46,7 @@ class path(str):
     def basename(self) -> str:
         return os.path.basename(self)
 
-    def abspath(self) -> "path":
+    def abspath(self) -> path:
         """
         Returns the absolute path.
         """
@@ -67,7 +82,7 @@ class path(str):
         """
         return os.path.ismount(self)
 
-    def rmtree(self, ignore_errors: bool = False, onerror: Callable = None) -> None:
+    def rmtree(self, ignore_errors: bool = False, onerror: Callable | None = None) -> None:
         """
         Removes the file or directory and any files or directories it may
         contain.
@@ -96,6 +111,16 @@ class path(str):
             pointed to by the symbolic links are copied.
         """
         shutil.copytree(self, destination, symlinks=symlinks)
+        if os.environ.get('SPHINX_READONLY_TESTDIR'):
+            # If source tree is marked read-only (e.g. because it is on a read-only
+            # filesystem), `shutil.copytree` will mark the destination as read-only
+            # as well.  To avoid failures when adding additional files/directories
+            # to the destination tree, ensure destination directories are not marked
+            # read-only.
+            for root, _dirs, files in os.walk(destination):
+                os.chmod(root, 0o755 & ~UMASK)
+                for name in files:
+                    os.chmod(os.path.join(root, name), 0o644 & ~UMASK)
 
     def movetree(self, destination: str) -> None:
         """
@@ -124,24 +149,24 @@ class path(str):
     def utime(self, arg: Any) -> None:
         os.utime(self, arg)
 
-    def open(self, mode: str = 'r', **kwargs) -> IO:
-        return open(self, mode, **kwargs)
+    def open(self, mode: str = 'r', **kwargs: Any) -> IO:
+        return open(self, mode, **kwargs)  # NoQA: SIM115
 
-    def write_text(self, text: str, encoding: str = 'utf-8', **kwargs) -> None:
+    def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
         """
         Writes the given `text` to the file.
         """
         with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
-    def text(self, encoding: str = 'utf-8', **kwargs) -> str:
+    def read_text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
         """
         Returns the text in the file.
         """
         with open(self, encoding=encoding, **kwargs) as f:
             return f.read()
 
-    def bytes(self) -> builtins.bytes:
+    def read_bytes(self) -> builtins.bytes:
         """
         Returns the bytes in the file.
         """
@@ -181,16 +206,16 @@ class path(str):
         """
         os.makedirs(self, mode, exist_ok=exist_ok)
 
-    def joinpath(self, *args) -> "path":
+    def joinpath(self, *args: Any) -> path:
         """
         Joins the path with the argument given and returns the result.
         """
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
-    def listdir(self) -> List[str]:
+    def listdir(self) -> list[str]:
         return os.listdir(self)
 
     __div__ = __truediv__ = joinpath
 
     def __repr__(self) -> str:
-        return '%s(%s)' % (self.__class__.__name__, super().__repr__())
+        return f'{self.__class__.__name__}({super().__repr__()})'

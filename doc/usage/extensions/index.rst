@@ -10,6 +10,8 @@ This chapter describes the extensions bundled with Sphinx.  For the API
 documentation on writing your own extension, refer to :ref:`dev-extensions`.
 
 
+.. _builtin-extensions:
+
 Built-in extensions
 -------------------
 
@@ -17,12 +19,14 @@ These extensions are built in and can be activated by respective entries in the
 :confval:`extensions` configuration value:
 
 .. toctree::
+   :maxdepth: 1
 
    autodoc
    autosectionlabel
    autosummary
    coverage
    doctest
+   duration
    extlinks
    githubpages
    graphviz
@@ -37,25 +41,27 @@ These extensions are built in and can be activated by respective entries in the
    viewcode
 
 
+.. _third-party-extensions:
+
 Third-party extensions
 ----------------------
 
-.. todo:: This should reference the GitHub organization now
+You can find several extensions contributed by users in the `sphinx-contrib`__
+organization. If you wish to include your extension in this organization,
+simply follow the instructions provided in the `github-administration`__
+project. This is optional and there are several extensions hosted elsewhere.
+The `awesome-sphinxdoc`__ and `sphinx-extensions`__ projects are both curated
+lists of Sphinx packages, and many packages use the
+`Framework :: Sphinx :: Extension`__ and
+`Framework :: Sphinx :: Theme`__ trove classifiers for Sphinx extensions and
+themes, respectively.
 
-You can find several extensions contributed by users in the `Sphinx Contrib`_
-repository.  It is open for anyone who wants to maintain an extension publicly;
-just send a short message asking for write permissions.
-
-There are also several extensions hosted elsewhere.  The `Sphinx extension
-survey <https://sphinxext-survey.readthedocs.io/>`__ and `awesome-sphinxdoc
-<https://github.com/yoloseem/awesome-sphinxdoc>`__ contains a comprehensive
-list.
-
-If you write an extension that you think others will find useful or you think
-should be included as a part of Sphinx, please write to the project mailing
-list (`join here <https://groups.google.com/forum/#!forum/sphinx-dev>`_).
-
-.. _Sphinx Contrib: https://bitbucket.org/birkenfeld/sphinx-contrib
+.. __: https://github.com/sphinx-contrib/
+.. __: https://github.com/sphinx-contrib/github-administration
+.. __: https://github.com/yoloseem/awesome-sphinxdoc
+.. __: https://sphinx-extensions.readthedocs.io/en/latest/
+.. __: https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Extension
+.. __: https://pypi.org/search/?c=Framework+%3A%3A+Sphinx+%3A%3A+Theme
 
 Where to put your own extensions?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

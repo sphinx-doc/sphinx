@@ -4,6 +4,7 @@ Subject: <short purpose of this pull request>
 <!-- please choose -->
 - Feature
 - Bugfix
+- Refactoring
 
 ### Purpose
 - <long purpose of this pull request>

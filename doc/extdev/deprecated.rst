@@ -10,11 +10,7 @@ major versions (for more details, please see :ref:`deprecation-policy`).
 
 The following is a list of deprecated interfaces.
 
-.. tabularcolumns:: |>{\raggedright}\Y{.4}|>{\centering}\Y{.1}|>{\centering}\Y{.12}|>{\raggedright\arraybackslash}\Y{.38}|
-
-.. |LaTeXHyphenate| raw:: latex
-
-                    \hspace{0pt}
+.. tabularcolumns:: >{\raggedright}\Y{.4}>{\centering}\Y{.1}>{\sphinxcolorblend{!95!red}\centering\noindent\bfseries\color{red}}\Y{.12}>{\raggedright\arraybackslash}\Y{.38}
 
 .. list-table:: deprecated APIs
    :header-rows: 1
@@ -22,9 +18,747 @@ The following is a list of deprecated interfaces.
    :widths: 40, 10, 10, 40
 
    * - Target
-     - |LaTeXHyphenate|\ Deprecated
-     - (will be) Removed
+     - Deprecated
+     - Removed
      - Alternatives
+
+   * - ``sphinx.testing.util.strip_escseq``
+     - 7.3
+     - 9.0
+     - ``sphinx.util.console.strip_colors``
+
+   * - Old-style Makefiles in ``sphinx-quickstart``
+       and the :option:`!-M`, :option:`!-m`, :option:`!--no-use-make-mode`,
+       and :option:`!--use-make-mode` options
+     - 7.3
+     - 9.0
+     - Vendoring the `old style Makefile templates`__
+
+       __ https://github.com/sphinx-doc/sphinx/blob/v7.0.0/sphinx/templates/quickstart/Makefile_t
+
+   * - ``sphinx.ext.autodoc.preserve_defaults.get_function_def()``
+     - 7.2
+     - 9.0
+     - N/A (replacement is private)
+
+   * - ``sphinx.builders.html.StandaloneHTMLBuilder.css_files``
+     - 7.2
+     - 9.0
+     - N/A
+
+   * - ``sphinx.builders.html.StandaloneHTMLBuilder.script_files``
+     - 7.2
+     - 9.0
+     - N/A
+
+   * - ``sphinx.builders.html.Stylesheet``
+     - 7.2
+     - 9.0
+     - ``sphinx.application.Sphinx.add_css_file()``
+
+   * - ``sphinx.builders.html.JavaScript``
+     - 7.2
+     - 9.0
+     - ``sphinx.application.Sphinx.add_js_file()``
+
+   * - ``sphinx.util.split_into``
+     - 7.2
+     - 9.0
+     - N/A
+
+   * - ``sphinx.util.split_index_msg``
+     - 7.2
+     - 9.0
+     - ``sphinx.util.index_entries.split_index_msg``
+
+   * - ``sphinx.testing.path``
+     - 7.2
+     - 9.0
+     - ``os.path`` or ``pathlib``
+
+   * - ``sphinx.util.md5``
+     - 7.2
+     - 9.0
+     - ``hashlib.md5``
+
+   * - ``sphinx.util.sha1``
+     - 7.2
+     - 9.0
+     - ``hashlib.sha1``
+
+   * - ``sphinx.util.osutil.cd``
+     - 6.2
+     - 8.0
+     - ``contextlib.chdir``
+
+   * - ``sphinx.util.save_traceback``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.exceptions.save_traceback``
+
+   * - ``sphinx.util.format_exception_cut_frames``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.exceptions.format_exception_cut_frames``
+
+   * - ``sphinx.util.epoch_to_rfc1123``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.epoch_to_rfc1123``
+
+   * - ``sphinx.util.rfc1123_to_epoch``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.http_date.rfc1123_to_epoch``
+
+   * - ``sphinx.util.status_iterator``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.status_iterator``
+
+   * - ``sphinx.util.display_chunk``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.display_chunk``
+
+   * - ``sphinx.util.SkipProgressMessage``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.SkipProgressMessage``
+
+   * - ``sphinx.util.progress_message``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.display.progress_message``
+
+   * - ``sphinx.util.typing.stringify``
+     - 6.1
+     - 8.0
+     - ``sphinx.util.typing.stringify_annotation``
+
+   * - HTML 4 support
+     - 5.2
+     - 7.0
+     - N/A
+
+   * - ``sphinx.util.path_stabilize``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.osutil.path_stabilize``
+
+   * - ``sphinx.util.get_matching_files``
+     - 5.1
+     - 7.0
+     - ``sphinx.util.matching.get_matching_files``
+
+   * - ``sphinx.ext.napoleon.iterators``
+     - 5.1
+     - 7.0
+     - ``pockets.iterators``
+
+   * - ``sphinx.util.stemmer``
+     - 5.1
+     - 7.0
+     - ``snowballstemmer``
+
+   * - ``sphinx.util.jsdump``
+     - 5.0
+     - 7.0
+     - The standard library ``json`` module.
+
+   * - The Setuptools integration (``setup.py build_sphinx``)
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - The ``language`` argument of ``sphinx.util.i18n:format_date()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.builders.html.html5_ready``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.io.read_doc()``
+     - 5.0
+     - 7.0
+     - ``sphinx.builders.Builder.read_doc()``
+
+   * - ``sphinx.util.docutils.__version_info__``
+     - 5.0
+     - 7.0
+     - ``docutils.__version_info__``
+
+   * - ``sphinx.util.docutils.is_html5_writer_available()``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXWriter.docclasses``
+     - 5.0
+     - 7.0
+     - N/A
+
+   * - ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
+     - 4.5
+     - 6.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
+     - 4.3
+     - 6.0
+     - N/A
+
+   * - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html.HTMLTranslator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html.HTMLTranslator._table_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._fieldlist_row_indices``
+
+   * - ``sphinx.writers.html5.HTML5Translator._table_row_index``
+     - 4.3
+     - 6.0
+     - ``sphinx.writers.html5.HTML5Translator._table_row_indices``
+
+   * - The optional argument ``app`` for ``sphinx.environment.BuildEnvironment``
+     - 4.1
+     - 6.0
+     - The required argument
+
+   * - ``sphinx.application.Sphinx.html_theme``
+     - 4.1
+     - 6.0
+     - ``sphinx.registry.SphinxComponentRegistry.html_themes``
+
+   * - ``sphinx.ext.autosummary._app``
+     - 4.1
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.docstrings.extract_metadata()``
+     - 4.1
+     - 6.0
+     - ``sphinx.util.docstrings.separate_metadata()``
+
+   * - ``favicon`` variable in HTML templates
+     - 4.0
+     - 6.0
+     - ``favicon_url``
+
+   * - ``logo`` variable in HTML templates
+     - 4.0
+     - 6.0
+     - ``logo_url``
+
+   * - ``sphinx.directives.patches.ListTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.directives.tables.ListSVTable``
+
+   * - ``sphinx.directives.patches.RSTTable``
+     - 4.0
+     - 6.0
+     - ``docutils.parsers.rst.directives.tables.RSTTable``
+
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.filename_set``
+     - 4.0
+     - 6.0
+     - ``sphinx.ext.autodoc.directive.DocumenterBridge.record_dependencies``
+
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.warn()``
+     - 4.0
+     - 6.0
+     - :ref:`logging-api`
+
+   * - ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.registry.SphinxComponentRegistry.source_inputs``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.transforms.FigureAligner``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.convert_with_2to3()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.pycompat.execfile_()``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - ``sphinx.util.smartypants``
+     - 4.0
+     - 6.0
+     - ``docutils.utils.smartquotes``
+
+   * - ``sphinx.util.typing.DirectiveOption``
+     - 4.0
+     - 6.0
+     - N/A
+
+   * - pending_xref node for viewcode extension
+     - 3.5
+     - 5.0
+     - ``sphinx.ext.viewcode.viewcode_anchor``
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.anchors_ignore``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.auth``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.rqueue``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.to_ignore``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.workers``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.wqueue``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.linkcheck.node_line_or_0()``
+     - 3.5
+     - 5.0
+     - ``sphinx.util.nodes.get_node_line()``
+
+   * - ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
+     - 3.5
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.importer.get_module_members()``
+     - 3.5
+     - 5.0
+     - ``sphinx.ext.autodoc.ModuleDocumenter.get_module_members()``
+
+   * - ``sphinx.ext.autosummary.generate._simple_info()``
+     - 3.5
+     - 5.0
+     - :ref:`logging-api`
+
+   * - ``sphinx.ext.autosummary.generate._simple_warn()``
+     - 3.5
+     - 5.0
+     - :ref:`logging-api`
+
+   * - ``sphinx.writers.html.HTMLTranslator.permalink_text``
+     - 3.5
+     - 5.0
+     - :confval:`html_permalinks_icon`
+
+   * - ``sphinx.writers.html5.HTML5Translator.permalink_text``
+     - 3.5
+     - 5.0
+     - :confval:`html_permalinks_icon`
+
+   * - The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+     - 3.4
+     - 5.0
+     - N/A
+
+   * - The ``no_docstring`` argument of
+       ``sphinx.ext.autodoc.Documenter.add_content()``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.Documenter.get_doc()``
+
+   * - ``sphinx.ext.autodoc.Documenter.get_object_members()``
+     - 3.4
+     - 6.0
+     - ``sphinx.ext.autodoc.ClassDocumenter.get_object_members()``
+
+   * - ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.DataDocumenter``
+
+   * - ``sphinx.ext.autodoc.GenericAliasDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.DataDocumenter``
+
+   * - ``sphinx.ext.autodoc.InstanceAttributeDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.AttributeDocumenter``
+
+   * - ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.AttributeDocumenter``
+
+   * - ``sphinx.ext.autodoc.TypeVarDocumenter``
+     - 3.4
+     - 5.0
+     - ``sphinx.ext.autodoc.DataDocumenter``
+
+   * - ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
+     - 3.5
+     - 5.0
+     - ``sphinx.util.logging``
+
+   * - ``sphinx.ext.autodoc.importer._getannotations()``
+     - 3.4
+     - 4.0
+     - ``sphinx.util.inspect.getannotations()``
+
+   * - ``sphinx.ext.autodoc.importer._getmro()``
+     - 3.4
+     - 4.0
+     - ``sphinx.util.inspect.getmro()``
+
+   * - ``sphinx.pycode.ModuleAnalyzer.parse()``
+     - 3.4
+     - 5.0
+     - ``sphinx.pycode.ModuleAnalyzer.analyze()``
+
+   * - ``sphinx.util.osutil.movefile()``
+     - 3.4
+     - 5.0
+     - ``os.replace()``
+
+   * - ``sphinx.util.requests.is_ssl_error()``
+     - 3.4
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.latex.LaTeXBuilder.usepackages``
+     - 3.3
+     - 5.0
+     - N/A
+
+   * - ``sphinx.builders.latex.LaTeXBuilder.usepackages_afger_hyperref``
+     - 3.3
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.SingledispatchFunctionDocumenter``
+     - 3.3
+     - 5.0
+     - ``sphinx.ext.autodoc.FunctionDocumenter``
+
+   * - ``sphinx.ext.autodoc.SingledispatchMethodDocumenter``
+     - 3.3
+     - 5.0
+     - ``sphinx.ext.autodoc.MethodDocumenter``
+
+   * - ``sphinx.ext.autodoc.members_set_option()``
+     - 3.2
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.merge_special_members_option()``
+     - 3.2
+     - 5.0
+     - ``sphinx.ext.autodoc.merge_members_option()``
+
+   * - ``sphinx.writers.texinfo.TexinfoWriter.desc``
+     - 3.2
+     - 5.0
+     - ``sphinx.writers.texinfo.TexinfoWriter.descs``
+
+   * - The first argument for
+       ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` has been changed
+       to Sphinx object
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.generate.AutosummaryRenderer`` takes an object
+       type as an argument
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``ignore`` argument of ``sphinx.ext.autodoc.Documenter.get_doc()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``template_dir`` argument of
+       ``sphinx.ext.autosummary.generate.AutosummaryRenderer``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``module`` argument of
+       ``sphinx.ext.autosummary.generate.find_autosummary_in_docstring()``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - The ``builder`` argument of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``template_dir`` argument of
+       ``sphinx.ext.autosummary.generate.generate_autosummary_docs()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autosummary.generate.AutosummaryRenderer.exists()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - The ``ignore`` argument of ``sphinx.util.docstring.prepare_docstring()``
+     - 3.1
+     - 5.0
+     - N/A
+
+   * - ``sphinx.util.rpartition()``
+     - 3.1
+     - 5.0
+     - ``str.rpartition()``
+
+   * - ``desc_signature['first']``
+     -
+     - 3.0
+     - N/A
+
+   * - ``sphinx.directives.DescDirective``
+     - 3.0
+     - 5.0
+     - ``sphinx.directives.ObjectDescription``
+
+   * - ``sphinx.domains.std.StandardDomain.add_object()``
+     - 3.0
+     - 5.0
+     - ``sphinx.domains.std.StandardDomain.note_object()``
+
+   * - ``sphinx.domains.python.PyDecoratorMixin``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``sphinx.ext.autodoc.get_documenters()``
+     - 3.0
+     - 5.0
+     - ``sphinx.registry.documenters``
+
+   * - ``sphinx.ext.autosummary.process_autosummary_toc()``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``sphinx.parsers.Parser.app``
+     - 3.0
+     - 5.0
+     - N/A
+
+   * - ``sphinx.testing.path.Path.text()``
+     - 3.0
+     - 5.0
+     - ``sphinx.testing.path.Path.read_text()``
+
+   * - ``sphinx.testing.path.Path.bytes()``
+     - 3.0
+     - 5.0
+     - ``sphinx.testing.path.Path.read_bytes()``
+
+   * - ``sphinx.util.inspect.getargspec()``
+     - 3.0
+     - 5.0
+     - ``inspect.getargspec()``
+
+   * - ``sphinx.writers.latex.LaTeXWriter.format_docclass()``
+     - 3.0
+     - 5.0
+     - LaTeX Themes
+
+   * - ``decode`` argument of ``sphinx.pycode.ModuleAnalyzer()``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.directives.other.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDirective``
+
+   * - ``sphinx.environment.temp_data['gloss_entries']``
+     - 2.4
+     - 4.0
+     - ``documents.nameids``
+
+   * - ``sphinx.environment.BuildEnvironment.indexentries``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDomain``
+
+   * - ``sphinx.environment.collectors.indexentries.IndexEntriesCollector``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexDomain``
+
+   * - ``sphinx.io.FiletypeNotFoundError``
+     - 2.4
+     - 4.0
+     - ``sphinx.errors.FiletypeNotFoundError``
+
+   * - ``sphinx.ext.apidoc.INITPY``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.ext.apidoc.shall_skip()``
+     - 2.4
+     - 4.0
+     - ``sphinx.ext.apidoc.is_skipped_package``
+
+   * - ``sphinx.io.get_filetype()``
+     - 2.4
+     - 4.0
+     - ``sphinx.util.get_filetype()``
+
+   * - ``sphinx.pycode.ModuleAnalyzer.encoding``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.roles.Index``
+     - 2.4
+     - 4.0
+     - ``sphinx.domains.index.IndexRole``
+
+   * - ``sphinx.util.detect_encoding()``
+     - 2.4
+     - 4.0
+     - ``tokenize.detect_encoding()``
+
+   * - ``sphinx.util.get_module_source()``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.util.inspect.Signature``
+     - 2.4
+     - 4.0
+     - ``sphinx.util.inspect.signature`` and
+       ``sphinx.util.inspect.stringify_signature()``
+
+   * - ``sphinx.util.inspect.safe_getmembers()``
+     - 2.4
+     - 4.0
+     - ``inspect.getmembers()``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.author``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.contentsname``
+     - 2.4
+     - 4.0
+     - ``document['contentsname']``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.docclass``
+     - 2.4
+     - 4.0
+     - ``document['docclass']``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.docname``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.settings.title``
+     - 2.4
+     - 4.0
+     - N/A
+
+   * - ``sphinx.writers.latex.ADDITIONAL_SETTINGS``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.ADDITIONAL_SETTINGS``
+
+   * - ``sphinx.writers.latex.DEFAULT_SETTINGS``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.DEFAULT_SETTINGS``
+
+   * - ``sphinx.writers.latex.LUALATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.LUALATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.PDFLATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.PDFLATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.XELATEX_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.XELATEX_DEFAULT_FONTPKG``
+
+   * - ``sphinx.writers.latex.XELATEX_GREEK_DEFAULT_FONTPKG``
+     - 2.4
+     - 4.0
+     - ``sphinx.builders.latex.constants.XELATEX_GREEK_DEFAULT_FONTPKG``
+
+   * - ``sphinx.builders.gettext.POHEADER``
+     - 2.3
+     - 4.0
+     - ``sphinx/templates/gettext/message.pot_t`` (template file)
 
    * - ``sphinx.io.SphinxStandaloneReader.app``
      - 2.3
@@ -35,6 +769,21 @@ The following is a list of deprecated interfaces.
      - 2.3
      - 4.0
      - ``sphinx.io.SphinxStandaloneReader.setup()``
+
+   * - ``sphinx.util.texescape.tex_escape_map``
+     - 2.3
+     - 4.0
+     - ``sphinx.util.texescape.escape()``
+
+   * - ``sphinx.util.texescape.tex_hl_escape_map_new``
+     - 2.3
+     - 4.0
+     - ``sphinx.util.texescape.hlescape()``
+
+   * - ``sphinx.writers.latex.LaTeXTranslator.no_contractions``
+     - 2.3
+     - 4.0
+     - N/A
 
    * - ``sphinx.domains.math.MathDomain.add_equation()``
      - 2.2
@@ -213,10 +962,16 @@ The following is a list of deprecated interfaces.
      - 4.0
      - ``sphinx.domains.std.StandardDomain.process_doc()``
 
+   * - ``sphinx.domains.js.JSObject.display_prefix``
+     -
+     - 4.3
+     - ``sphinx.domains.js.JSObject.get_display_prefix()``
+
    * - ``sphinx.environment.NoUri``
      - 2.1
-     - 4.0
+     - 3.0
      - ``sphinx.errors.NoUri``
+
    * - ``sphinx.ext.apidoc.format_directive()``
      - 2.1
      - 4.0
@@ -500,7 +1255,7 @@ The following is a list of deprecated interfaces.
 
    * - ``sphinx.util.force_decode()``
      - 2.0
-     - 4.0
+     - 5.0
      - N/A
 
    * - ``sphinx.util.get_matching_docs()``
@@ -664,17 +1419,17 @@ The following is a list of deprecated interfaces.
      - 4.0
      - N/A
 
-   * - :rst:dir:`highlightlang`
+   * - :rst:dir:`!highlightlang`
      - 1.8
      - 4.0
      - :rst:dir:`highlight`
 
-   * - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+   * - :meth:`!add_stylesheet`
      - 1.8
-     - 4.0
+     - 6.0
      - :meth:`~sphinx.application.Sphinx.add_css_file()`
 
-   * - :meth:`~sphinx.application.Sphinx.add_javascript()`
+   * - :meth:`!add_javascript()`
      - 1.8
      - 4.0
      - :meth:`~sphinx.application.Sphinx.add_js_file()`
@@ -776,7 +1531,7 @@ The following is a list of deprecated interfaces.
      - 3.0
      - ``sphinx.builders.latex.nodes.math_reference``
 
-   * - ``viewcode_import`` (config value)
+   * - :confval:`!viewcode_import` (config value)
      - 1.8
      - 3.0
      - :confval:`viewcode_follow_imported_members`
@@ -1014,7 +1769,7 @@ The following is a list of deprecated interfaces.
      - 3.0
      - ``warning()``
 
-   * - :confval:`source_parsers`
+   * - :confval:`!source_parsers`
      - 1.8
      - 3.0
      - :meth:`~sphinx.application.Sphinx.add_source_parser()`
@@ -1134,7 +1889,7 @@ The following is a list of deprecated interfaces.
    * - ``StandaloneHTMLBuilder.css_files``
      - 1.6
      - 2.0
-     - :meth:`~sphinx.application.Sphinx.add_stylesheet()`
+     - :meth:`!add_stylesheet`
 
    * - ``document.settings.gettext_compact``
      - 1.8

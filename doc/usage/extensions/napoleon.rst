@@ -26,7 +26,7 @@ Are you tired of writing docstrings that look like this::
     :rtype: BufferedFileStorage
 
 `reStructuredText`_ is great, but it creates visually dense, hard to read
-`docstrings`_. Compare the jumble above to the same thing rewritten
+:pep:`docstrings <287>`. Compare the jumble above to the same thing rewritten
 according to the `Google Python Style Guide`_::
 
     Args:
@@ -49,14 +49,13 @@ parse them. This happens in an intermediate step while Sphinx is processing
 the documentation, so it doesn't modify any of the docstrings in your actual
 source code files.
 
-.. _ReStructuredText: http://docutils.sourceforge.net/rst.html
-.. _docstrings: https://www.python.org/dev/peps/pep-0287/
+.. _ReStructuredText: https://docutils.sourceforge.io/rst.html
 .. _Google Python Style Guide:
    https://google.github.io/styleguide/pyguide.html
 .. _Google:
-   https://google.github.io/styleguide/pyguide.html#Comments
+   https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy:
-   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+   https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 .. _Khan Academy:
    https://github.com/Khan/style-guides/blob/master/style/python.md#docstrings
 
@@ -64,14 +63,14 @@ Getting Started
 ~~~~~~~~~~~~~~~
 
 1. After :doc:`setting up Sphinx </usage/quickstart>` to build your docs,
-   enable napoleon in the Sphinx `conf.py` file::
+   enable napoleon in the Sphinx ``conf.py`` file::
 
        # conf.py
 
        # Add napoleon to the extensions list
        extensions = ['sphinx.ext.napoleon']
 
-2. Use `sphinx-apidoc` to build your API documentation::
+2. Use ``sphinx-apidoc`` to build your API documentation::
 
        $ sphinx-apidoc -f -o docs/source projectdir
 
@@ -95,36 +94,38 @@ Docstring Sections
 
 All of the following section headers are supported:
 
-    * ``Args`` *(alias of Parameters)*
-    * ``Arguments`` *(alias of Parameters)*
-    * ``Attention``
-    * ``Attributes``
-    * ``Caution``
-    * ``Danger``
-    * ``Error``
-    * ``Example``
-    * ``Examples``
-    * ``Hint``
-    * ``Important``
-    * ``Keyword Args`` *(alias of Keyword Arguments)*
-    * ``Keyword Arguments``
-    * ``Methods``
-    * ``Note``
-    * ``Notes``
-    * ``Other Parameters``
-    * ``Parameters``
-    * ``Return`` *(alias of Returns)*
-    * ``Returns``
-    * ``Raises``
-    * ``References``
-    * ``See Also``
-    * ``Tip``
-    * ``Todo``
-    * ``Warning``
-    * ``Warnings`` *(alias of Warning)*
-    * ``Warns``
-    * ``Yield`` *(alias of Yields)*
-    * ``Yields``
+* ``Args`` *(alias of Parameters)*
+* ``Arguments`` *(alias of Parameters)*
+* ``Attention``
+* ``Attributes``
+* ``Caution``
+* ``Danger``
+* ``Error``
+* ``Example``
+* ``Examples``
+* ``Hint``
+* ``Important``
+* ``Keyword Args`` *(alias of Keyword Arguments)*
+* ``Keyword Arguments``
+* ``Methods``
+* ``Note``
+* ``Notes``
+* ``Other Parameters``
+* ``Parameters``
+* ``Return`` *(alias of Returns)*
+* ``Returns``
+* ``Raise`` *(alias of Raises)*
+* ``Raises``
+* ``References``
+* ``See Also``
+* ``Tip``
+* ``Todo``
+* ``Warning``
+* ``Warnings`` *(alias of Warning)*
+* ``Warn`` *(alias of Warns)*
+* ``Warns``
+* ``Yield`` *(alias of Yields)*
+* ``Yields``
 
 Google vs NumPy
 ~~~~~~~~~~~~~~~
@@ -135,7 +136,7 @@ separate sections, whereas NumPy uses underlines.
 
 Google style:
 
-.. code-block:: python3
+.. code-block:: python
 
     def func(arg1, arg2):
         """Summary line.
@@ -154,7 +155,7 @@ Google style:
 
 NumPy style:
 
-.. code-block:: python3
+.. code-block:: python
 
     def func(arg1, arg2):
         """Summary line.
@@ -181,8 +182,6 @@ tends to use more horizontal space. Google style tends to be easier to
 read for short and simple docstrings, whereas NumPy style tends be easier
 to read for long and in-depth docstrings.
 
-The `Khan Academy`_ recommends using Google style.
-
 The choice between styles is largely aesthetic, but the two styles should
 not be mixed. Choose one style for your project and be consistent with it.
 
@@ -197,11 +196,12 @@ not be mixed. Choose one style for your project and be consistent with it.
 Type Annotations
 ~~~~~~~~~~~~~~~~
 
-`PEP 484`_ introduced a standard way to express types in Python code.
+:pep:`484` introduced a standard way to express types in Python code.
 This is an alternative to expressing types directly in docstrings.
-One benefit of expressing types according to `PEP 484`_ is that
+One benefit of expressing types according to :pep:`484` is that
 type checkers and IDEs can take advantage of them for static code
-analysis.
+analysis. :pep:`484` was then extended by :pep:`526` which introduced
+a similar way to annotate variables (and attributes).
 
 Google style with Python 3 type annotations::
 
@@ -220,6 +220,19 @@ Google style with Python 3 type annotations::
         """
         return True
 
+    class Class:
+        """Summary line.
+
+        Extended description of class
+
+        Attributes:
+            attr1: Description of attr1
+            attr2: Description of attr2
+        """
+
+        attr1: int
+        attr2: str
+
 Google style with types in docstrings::
 
     def func(arg1, arg2):
@@ -237,23 +250,29 @@ Google style with types in docstrings::
         """
         return True
 
+    class Class:
+        """Summary line.
+
+        Extended description of class
+
+        Attributes:
+            attr1 (int): Description of attr1
+            attr2 (str): Description of attr2
+        """
+
 .. Note::
    `Python 2/3 compatible annotations`_ aren't currently
    supported by Sphinx and won't show up in the docs.
 
-.. _PEP 484:
-   https://www.python.org/dev/peps/pep-0484/
-
-.. _Python 2/3 compatible annotations:
-   https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
+.. _Python 2/3 compatible annotations: https://peps.python.org/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
 
 
 Configuration
 -------------
 
 Listed below are all the settings used by napoleon and their default
-values. These settings can be changed in the Sphinx `conf.py` file. Make
-sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
+values. These settings can be changed in the Sphinx ``conf.py`` file. Make
+sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
 
     # conf.py
 
@@ -272,11 +291,14 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
     napoleon_use_ivar = False
     napoleon_use_param = True
     napoleon_use_rtype = True
+    napoleon_preprocess_types = False
+    napoleon_type_aliases = None
+    napoleon_attr_annotations = True
 
 .. _Google style:
-   https://google.github.io/styleguide/pyguide.html
+   https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy style:
-   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+   https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 .. confval:: napoleon_google_docstring
 
@@ -298,9 +320,9 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    **If True**::
 
        def __init__(self):
-           \"\"\"
+           """
            This will be included in the docs because it has a docstring
-           \"\"\"
+           """
 
        def __init__(self):
            # This will NOT be included in the docs
@@ -376,7 +398,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. seealso::
 
-      :attr:`napoleon_use_admonition_for_examples`
+      :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_admonition_for_references
 
@@ -386,7 +408,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. seealso::
 
-      :attr:`napoleon_use_admonition_for_examples`
+      :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_ivar
 
@@ -433,7 +455,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
        :param arg1: Description of `arg1`
        :type arg1: str
        :param arg2: Description of `arg2`, defaults to 0
-       :type arg2: int, optional
+       :type arg2: :class:`int`, *optional*
 
    **If False**::
 
@@ -449,14 +471,14 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    keywords.
    *Defaults to True.*
 
-   This behaves similarly to  :attr:`napoleon_use_param`. Note unlike docutils,
+   This behaves similarly to :confval:`napoleon_use_param`. Note unlike docutils,
    ``:keyword:`` and ``:param:`` will not be treated the same way - there will
    be a separate "Keyword Arguments" section, rendered in the same fashion as
    "Parameters" section (type links created if possible)
 
    .. seealso::
 
-      :attr:`napoleon_use_param`
+      :confval:`napoleon_use_param`
 
 .. confval:: napoleon_use_rtype
 
@@ -478,3 +500,75 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    **If False**::
 
        :returns: *bool* -- True if successful, False otherwise
+
+.. confval:: napoleon_preprocess_types
+
+   True to convert the type definitions in the docstrings as references.
+   Defaults to *False*.
+
+   .. versionadded:: 3.2.1
+   .. versionchanged:: 3.5
+
+      Do preprocess the Google style docstrings also.
+
+.. confval:: napoleon_type_aliases
+
+   A mapping to translate type names to other names or references. Works
+   only when ``napoleon_use_param = True``. *Defaults to None.*
+
+   With::
+
+       napoleon_type_aliases = {
+           "CustomType": "mypackage.CustomType",
+           "dict-like": ":term:`dict-like <mapping>`",
+       }
+
+   This `NumPy style`_ snippet::
+
+       Parameters
+       ----------
+       arg1 : CustomType
+           Description of `arg1`
+       arg2 : dict-like
+           Description of `arg2`
+
+   becomes::
+
+       :param arg1: Description of `arg1`
+       :type arg1: mypackage.CustomType
+       :param arg2: Description of `arg2`
+       :type arg2: :term:`dict-like <mapping>`
+
+   .. versionadded:: 3.2
+
+.. confval:: napoleon_attr_annotations
+
+   True to allow using :pep:`526` attributes annotations in classes.
+   If an attribute is documented in the docstring without a type and
+   has an annotation in the class body, that type is used.
+
+   .. versionadded:: 3.4
+
+.. confval:: napoleon_custom_sections
+
+   Add a list of custom sections to include, expanding the list of parsed sections.
+   *Defaults to None.*
+
+   The entries can either be strings or tuples, depending on the intention:
+
+   * To create a custom "generic" section, just pass a string.
+   * To create an alias for an existing section, pass a tuple containing the
+     alias name and the original, in that order.
+   * To create a custom section that displays like the parameters or returns
+     section, pass a tuple containing the custom section name and a string
+     value, "params_style" or "returns_style".
+
+   If an entry is just a string, it is interpreted as a header for a generic
+   section. If the entry is a tuple/list/indexed container, the first entry
+   is the name of the section, the second is the section key to emulate. If the
+   second entry value is "params_style" or "returns_style", the custom section
+   will be displayed like the parameters section or returns section.
+
+   .. versionadded:: 1.8
+   .. versionchanged:: 3.5
+      Support ``params_style`` and ``returns_style``

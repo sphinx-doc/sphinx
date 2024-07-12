@@ -1,47 +1,40 @@
-"""
-    sphinx.pycode.parser
-    ~~~~~~~~~~~~~~~~~~~~
+"""Utilities parsing and analyzing Python code."""
 
-    Utilities parsing and analyzing Python code.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import ast
+import contextlib
+import functools
 import inspect
 import itertools
+import operator
 import re
-import sys
 import tokenize
-from token import NAME, NEWLINE, INDENT, DEDENT, NUMBER, OP, STRING
+from inspect import Signature
+from token import DEDENT, INDENT, NAME, NEWLINE, NUMBER, OP, STRING
 from tokenize import COMMENT, NL
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
+from sphinx.pycode.ast import unparse as ast_unparse
 
 comment_re = re.compile('^\\s*#: ?(.*)\r?\n?$')
 indent_re = re.compile('^\\s*$')
 emptyline_re = re.compile('^\\s*(#.*)?$')
 
 
-if sys.version_info >= (3, 6):
-    ASSIGN_NODES = (ast.Assign, ast.AnnAssign)
-else:
-    ASSIGN_NODES = (ast.Assign)
-
-
 def filter_whitespace(code: str) -> str:
     return code.replace('\f', ' ')  # replace FF (form feed) with whitespace
 
 
-def get_assign_targets(node: ast.AST) -> List[ast.expr]:
+def get_assign_targets(node: ast.AST) -> list[ast.expr]:
     """Get list of targets from Assign and AnnAssign node."""
     if isinstance(node, ast.Assign):
         return node.targets
     else:
-        return [node.target]  # type: ignore
+        return [node.target]  # type: ignore[attr-defined]
 
 
-def get_lvar_names(node: ast.AST, self: ast.arg = None) -> List[str]:
+def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     """Convert assignment-AST to variable names.
 
     This raises `TypeError` if the assignment does not create new variable::
@@ -54,31 +47,33 @@ def get_lvar_names(node: ast.AST, self: ast.arg = None) -> List[str]:
         self_id = self.arg
 
     node_name = node.__class__.__name__
-    if node_name in ('Index', 'Num', 'Slice', 'Str', 'Subscript'):
+    if node_name in ('Constant', 'Index', 'Slice', 'Subscript'):
         raise TypeError('%r does not create new variable' % node)
-    elif node_name == 'Name':
-        if self is None or node.id == self_id:  # type: ignore
-            return [node.id]  # type: ignore
+    if node_name == 'Name':
+        if self is None or node.id == self_id:  # type: ignore[attr-defined]
+            return [node.id]  # type: ignore[attr-defined]
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name in ('Tuple', 'List'):
         members = []
-        for elt in node.elts:  # type: ignore
-            try:
+        for elt in node.elts:  # type: ignore[attr-defined]
+            with contextlib.suppress(TypeError):
                 members.extend(get_lvar_names(elt, self))
-            except TypeError:
-                pass
+
         return members
     elif node_name == 'Attribute':
-        if node.value.__class__.__name__ == 'Name' and self and node.value.id == self_id:  # type: ignore  # NOQA
+        if (
+            node.value.__class__.__name__ == 'Name' and  # type: ignore[attr-defined]
+            self and node.value.id == self_id  # type: ignore[attr-defined]
+        ):
             # instance variable
-            return ["%s" % get_lvar_names(node.attr, self)[0]]  # type: ignore
+            return ["%s" % get_lvar_names(node.attr, self)[0]]  # type: ignore[attr-defined]
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name == 'str':
-        return [node]  # type: ignore
+        return [node]  # type: ignore[list-item]
     elif node_name == 'Starred':
-        return get_lvar_names(node.value, self)  # type: ignore
+        return get_lvar_names(node.value, self)  # type: ignore[attr-defined]
     else:
         raise NotImplementedError('Unexpected node name %r' % node_name)
 
@@ -91,13 +86,16 @@ def dedent_docstring(s: str) -> str:
 
     dummy.__doc__ = s
     docstring = inspect.getdoc(dummy)
-    return docstring.lstrip("\r\n").rstrip("\r\n")
+    if docstring:
+        return docstring.lstrip("\r\n").rstrip("\r\n")
+    else:
+        return ""
 
 
 class Token:
     """Better token wrapper for tokenize module."""
 
-    def __init__(self, kind: int, value: Any, start: Tuple[int, int], end: Tuple[int, int],
+    def __init__(self, kind: int, value: Any, start: tuple[int, int], end: tuple[int, int],
                  source: str) -> None:
         self.kind = kind
         self.value = value
@@ -117,28 +115,27 @@ class Token:
         else:
             raise ValueError('Unknown value: %r' % other)
 
-    def match(self, *conditions) -> bool:
+    def match(self, *conditions: Any) -> bool:
         return any(self == candidate for candidate in conditions)
 
     def __repr__(self) -> str:
-        return '<Token kind=%r value=%r>' % (tokenize.tok_name[self.kind],
-                                             self.value.strip())
+        return f'<Token kind={tokenize.tok_name[self.kind]!r} value={self.value.strip()!r}>'
 
 
 class TokenProcessor:
-    def __init__(self, buffers: List[str]) -> None:
+    def __init__(self, buffers: list[str]) -> None:
         lines = iter(buffers)
         self.buffers = buffers
         self.tokens = tokenize.generate_tokens(lambda: next(lines))
-        self.current = None     # type: Token
-        self.previous = None    # type: Token
+        self.current: Token | None = None
+        self.previous: Token | None = None
 
     def get_line(self, lineno: int) -> str:
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
-    def fetch_token(self) -> Token:
-        """Fetch a next token from source code.
+    def fetch_token(self) -> Token | None:
+        """Fetch the next token from source code.
 
         Returns ``None`` if sequence finished.
         """
@@ -150,53 +147,53 @@ class TokenProcessor:
 
         return self.current
 
-    def fetch_until(self, condition: Any) -> List[Token]:
+    def fetch_until(self, condition: Any) -> list[Token]:
         """Fetch tokens until specified token appeared.
 
         .. note:: This also handles parenthesis well.
         """
         tokens = []
-        while self.fetch_token():
-            tokens.append(self.current)
-            if self.current == condition:
+        while current := self.fetch_token():
+            tokens.append(current)
+            if current == condition:
                 break
-            elif self.current == [OP, '(']:
+            if current == [OP, '(']:
                 tokens += self.fetch_until([OP, ')'])
-            elif self.current == [OP, '{']:
+            elif current == [OP, '{']:
                 tokens += self.fetch_until([OP, '}'])
-            elif self.current == [OP, '[']:
+            elif current == [OP, '[']:
                 tokens += self.fetch_until([OP, ']'])
 
         return tokens
 
 
 class AfterCommentParser(TokenProcessor):
-    """Python source code parser to pick up comment after assignment.
+    """Python source code parser to pick up comments after assignments.
 
-    This parser takes a python code starts with assignment statement,
-    and returns the comments for variable if exists.
+    This parser takes code which starts with an assignment statement,
+    and returns the comment for the variable if one exists.
     """
 
-    def __init__(self, lines: List[str]) -> None:
+    def __init__(self, lines: list[str]) -> None:
         super().__init__(lines)
-        self.comment = None  # type: str
+        self.comment: str | None = None
 
-    def fetch_rvalue(self) -> List[Token]:
+    def fetch_rvalue(self) -> list[Token]:
         """Fetch right-hand value of assignment."""
         tokens = []
-        while self.fetch_token():
-            tokens.append(self.current)
-            if self.current == [OP, '(']:
+        while current := self.fetch_token():
+            tokens.append(current)
+            if current == [OP, '(']:
                 tokens += self.fetch_until([OP, ')'])
-            elif self.current == [OP, '{']:
+            elif current == [OP, '{']:
                 tokens += self.fetch_until([OP, '}'])
-            elif self.current == [OP, '[']:
+            elif current == [OP, '[']:
                 tokens += self.fetch_until([OP, ']'])
-            elif self.current == INDENT:
+            elif current == INDENT:
                 tokens += self.fetch_until(DEDENT)
-            elif self.current == [OP, ';']:
+            elif current == [OP, ';']:  # NoQA: SIM114
                 break
-            elif self.current.kind not in (OP, NAME, NUMBER, STRING):
+            elif current and current.kind not in {OP, NAME, NUMBER, STRING}:
                 break
 
         return tokens
@@ -204,96 +201,171 @@ class AfterCommentParser(TokenProcessor):
     def parse(self) -> None:
         """Parse the code and obtain comment after assignment."""
         # skip lvalue (or whole of AnnAssign)
-        while not self.fetch_token().match([OP, '='], NEWLINE, COMMENT):
-            assert self.current
+        while (tok := self.fetch_token()) and not tok.match([OP, '='], NEWLINE, COMMENT):
+            assert tok
+        assert tok is not None
 
         # skip rvalue (if exists)
-        if self.current == [OP, '=']:
+        if tok == [OP, '=']:
             self.fetch_rvalue()
+            tok = self.current
+            assert tok is not None
 
-        if self.current == COMMENT:
-            self.comment = self.current.value
+        if tok == COMMENT:
+            self.comment = tok.value
 
 
 class VariableCommentPicker(ast.NodeVisitor):
     """Python source code parser to pick up variable comments."""
 
-    def __init__(self, buffers: List[str], encoding: str) -> None:
+    def __init__(self, buffers: list[str], encoding: str) -> None:
         self.counter = itertools.count()
         self.buffers = buffers
         self.encoding = encoding
-        self.context = []               # type: List[str]
-        self.current_classes = []       # type: List[str]
-        self.current_function = None    # type: ast.FunctionDef
-        self.comments = {}              # type: Dict[Tuple[str, str], str]
-        self.previous = None            # type: ast.AST
-        self.deforders = {}             # type: Dict[str, int]
+        self.context: list[str] = []
+        self.current_classes: list[str] = []
+        self.current_function: ast.FunctionDef | None = None
+        self.comments: dict[tuple[str, str], str] = {}
+        self.annotations: dict[tuple[str, str], str] = {}
+        self.previous: ast.AST | None = None
+        self.deforders: dict[str, int] = {}
+        self.finals: list[str] = []
+        self.overloads: dict[str, list[Signature]] = {}
+        self.typing: str | None = None
+        self.typing_final: str | None = None
+        self.typing_overload: str | None = None
         super().__init__()
 
-    def add_entry(self, name: str) -> None:
+    def get_qualname_for(self, name: str) -> list[str] | None:
+        """Get qualified name for given object as a list of string(s)."""
         if self.current_function:
             if self.current_classes and self.context[-1] == "__init__":
                 # store variable comments inside __init__ method of classes
-                definition = self.context[:-1] + [name]
+                return self.context[:-1] + [name]
             else:
-                return
+                return None
         else:
-            definition = self.context + [name]
+            return [*self.context, name]
 
-        self.deforders[".".join(definition)] = next(self.counter)
+    def add_entry(self, name: str) -> None:
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            self.deforders[".".join(qualname)] = next(self.counter)
+
+    def add_final_entry(self, name: str) -> None:
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            self.finals.append(".".join(qualname))
+
+    def add_overload_entry(self, func: ast.FunctionDef) -> None:
+        # avoid circular import problem
+        from sphinx.util.inspect import signature_from_ast
+        qualname = self.get_qualname_for(func.name)
+        if qualname:
+            overloads = self.overloads.setdefault(".".join(qualname), [])
+            overloads.append(signature_from_ast(func))
 
     def add_variable_comment(self, name: str, comment: str) -> None:
-        if self.current_function:
-            if self.current_classes and self.context[-1] == "__init__":
-                # store variable comments inside __init__ method of classes
-                context = ".".join(self.context[:-1])
-            else:
-                return
-        else:
-            context = ".".join(self.context)
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            basename = ".".join(qualname[:-1])
+            self.comments[(basename, name)] = comment
 
-        self.comments[(context, name)] = comment
+    def add_variable_annotation(self, name: str, annotation: ast.AST) -> None:
+        qualname = self.get_qualname_for(name)
+        if qualname:
+            basename = ".".join(qualname[:-1])
+            self.annotations[(basename, name)] = ast_unparse(annotation)
 
-    def get_self(self) -> ast.arg:
-        """Returns the name of first argument if in function."""
+    def is_final(self, decorators: list[ast.expr]) -> bool:
+        final = []
+        if self.typing:
+            final.append('%s.final' % self.typing)
+        if self.typing_final:
+            final.append(self.typing_final)
+
+        for decorator in decorators:
+            try:
+                if ast_unparse(decorator) in final:
+                    return True
+            except NotImplementedError:
+                pass
+
+        return False
+
+    def is_overload(self, decorators: list[ast.expr]) -> bool:
+        overload = []
+        if self.typing:
+            overload.append('%s.overload' % self.typing)
+        if self.typing_overload:
+            overload.append(self.typing_overload)
+
+        for decorator in decorators:
+            try:
+                if ast_unparse(decorator) in overload:
+                    return True
+            except NotImplementedError:
+                pass
+
+        return False
+
+    def get_self(self) -> ast.arg | None:
+        """Returns the name of the first argument if in a function."""
         if self.current_function and self.current_function.args.args:
             return self.current_function.args.args[0]
-        else:
-            return None
+        if self.current_function and self.current_function.args.posonlyargs:
+            return self.current_function.args.posonlyargs[0]
+        return None
 
     def get_line(self, lineno: int) -> str:
         """Returns specified line."""
         return self.buffers[lineno - 1]
 
     def visit(self, node: ast.AST) -> None:
-        """Updates self.previous to ."""
+        """Updates self.previous to the given node."""
         super().visit(node)
         self.previous = node
 
     def visit_Import(self, node: ast.Import) -> None:
-        """Handles Import node and record it to definition orders."""
+        """Handles Import node and record the order of definitions."""
         for name in node.names:
-            if name.asname:
-                self.add_entry(name.asname)
-            else:
-                self.add_entry(name.name)
+            self.add_entry(name.asname or name.name)
 
-    def visit_ImportFrom(self, node: ast.Import) -> None:
-        """Handles Import node and record it to definition orders."""
+            if name.name == 'typing':
+                self.typing = name.asname or name.name
+            elif name.name == 'typing.final':
+                self.typing_final = name.asname or name.name
+            elif name.name == 'typing.overload':
+                self.typing_overload = name.asname or name.name
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        """Handles Import node and record the order of definitions."""
         for name in node.names:
-            if name.asname:
-                self.add_entry(name.asname)
-            else:
-                self.add_entry(name.name)
+            self.add_entry(name.asname or name.name)
+
+            if node.module == 'typing' and name.name == 'final':
+                self.typing_final = name.asname or name.name
+            elif node.module == 'typing' and name.name == 'overload':
+                self.typing_overload = name.asname or name.name
 
     def visit_Assign(self, node: ast.Assign) -> None:
         """Handles Assign node and pick up a variable comment."""
         try:
             targets = get_assign_targets(node)
-            varnames = sum([get_lvar_names(t, self=self.get_self()) for t in targets], [])  # type: List[str]  # NOQA
+            varnames: list[str] = functools.reduce(
+                operator.iadd, [get_lvar_names(t, self=self.get_self()) for t in targets], [])
             current_line = self.get_line(node.lineno)
         except TypeError:
             return  # this assignment is not new definition!
+
+        # record annotation
+        if hasattr(node, 'annotation') and node.annotation:
+            for varname in varnames:
+                self.add_variable_annotation(varname, node.annotation)
+        elif hasattr(node, 'type_comment') and node.type_comment:
+            for varname in varnames:
+                self.add_variable_annotation(
+                    varname, node.type_comment)  # type: ignore[arg-type]
 
         # check comments after assignment
         parser = AfterCommentParser([current_line[node.col_offset:]] +
@@ -326,21 +398,22 @@ class VariableCommentPicker(ast.NodeVisitor):
         for varname in varnames:
             self.add_entry(varname)
 
-    def visit_AnnAssign(self, node: ast.AST) -> None:  # Note: ast.AnnAssign not found in py35
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         """Handles AnnAssign node and pick up a variable comment."""
-        self.visit_Assign(node)  # type: ignore
+        self.visit_Assign(node)  # type: ignore[arg-type]
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
-        if (isinstance(self.previous, ASSIGN_NODES) and isinstance(node.value, ast.Str)):
+        if (isinstance(self.previous, (ast.Assign, ast.AnnAssign)) and
+                isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)):
             try:
                 targets = get_assign_targets(self.previous)
                 varnames = get_lvar_names(targets[0], self.get_self())
                 for varname in varnames:
-                    if isinstance(node.value.s, str):
-                        docstring = node.value.s
+                    if isinstance(node.value.value, str):
+                        docstring = node.value.value
                     else:
-                        docstring = node.value.s.decode(self.encoding or 'utf-8')
+                        docstring = node.value.value.decode(self.encoding or 'utf-8')
 
                     self.add_variable_comment(varname, dedent_docstring(docstring))
                     self.add_entry(varname)
@@ -361,6 +434,8 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles ClassDef node and set context."""
         self.current_classes.append(node.name)
         self.add_entry(node.name)
+        if self.is_final(node.decorator_list):
+            self.add_final_entry(node.name)
         self.context.append(node.name)
         self.previous = node
         for child in node.body:
@@ -372,6 +447,10 @@ class VariableCommentPicker(ast.NodeVisitor):
         """Handles FunctionDef node and set context."""
         if self.current_function is None:
             self.add_entry(node.name)  # should be called before setting self.current_function
+            if self.is_final(node.decorator_list):
+                self.add_final_entry(node.name)
+            if self.is_overload(node.decorator_list):
+                self.add_overload_entry(node)
             self.context.append(node.name)
             self.current_function = node
             for child in node.body:
@@ -381,7 +460,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """Handles AsyncFunctionDef node and set context."""
-        self.visit_FunctionDef(node)  # type: ignore
+        self.visit_FunctionDef(node)  # type: ignore[arg-type]
 
 
 class DefinitionFinder(TokenProcessor):
@@ -389,16 +468,16 @@ class DefinitionFinder(TokenProcessor):
     classes and methods.
     """
 
-    def __init__(self, lines: List[str]) -> None:
+    def __init__(self, lines: list[str]) -> None:
         super().__init__(lines)
-        self.decorator = None   # type: Token
-        self.context = []       # type: List[str]
-        self.indents = []       # type: List
-        self.definitions = {}   # type: Dict[str, Tuple[str, int, int]]
+        self.decorator: Token | None = None
+        self.context: list[str] = []
+        self.indents: list[tuple[str, str | None, int | None]] = []
+        self.definitions: dict[str, tuple[str, int, int]] = {}
 
-    def add_definition(self, name: str, entry: Tuple[str, int, int]) -> None:
+    def add_definition(self, name: str, entry: tuple[str, int, int]) -> None:
         """Add a location of definition."""
-        if self.indents and self.indents[-1][0] == 'def' and entry[0] == 'def':
+        if self.indents and self.indents[-1][0] == entry[0] == 'def':
             # ignore definition of inner function
             pass
         else:
@@ -410,7 +489,7 @@ class DefinitionFinder(TokenProcessor):
             token = self.fetch_token()
             if token is None:
                 break
-            elif token == COMMENT:
+            if token == COMMENT:
                 pass
             elif token == [OP, '@'] and (self.previous is None or
                                          self.previous.match(NEWLINE, NL, INDENT, DEDENT)):
@@ -428,22 +507,23 @@ class DefinitionFinder(TokenProcessor):
     def parse_definition(self, typ: str) -> None:
         """Parse AST of definition."""
         name = self.fetch_token()
-        self.context.append(name.value)
+        self.context.append(name.value)  # type: ignore[union-attr]
         funcname = '.'.join(self.context)
 
         if self.decorator:
             start_pos = self.decorator.start[0]
             self.decorator = None
         else:
-            start_pos = name.start[0]
+            start_pos = name.start[0]  # type: ignore[union-attr]
 
         self.fetch_until([OP, ':'])
-        if self.fetch_token().match(COMMENT, NEWLINE):
+        if self.fetch_token().match(COMMENT, NEWLINE):  # type: ignore[union-attr]
             self.fetch_until(INDENT)
             self.indents.append((typ, funcname, start_pos))
         else:
             # one-liner
-            self.add_definition(funcname, (typ, start_pos, name.end[0]))
+            self.add_definition(funcname,
+                                (typ, start_pos, name.end[0]))  # type: ignore[union-attr]
             self.context.pop()
 
     def finalize_block(self) -> None:
@@ -451,11 +531,11 @@ class DefinitionFinder(TokenProcessor):
         definition = self.indents.pop()
         if definition[0] != 'other':
             typ, funcname, start_pos = definition
-            end_pos = self.current.end[0] - 1
+            end_pos = self.current.end[0] - 1  # type: ignore[union-attr]
             while emptyline_re.match(self.get_line(end_pos)):
                 end_pos -= 1
 
-            self.add_definition(funcname, (typ, start_pos, end_pos))
+            self.add_definition(funcname, (typ, start_pos, end_pos))  # type: ignore[arg-type]
             self.context.pop()
 
 
@@ -468,9 +548,12 @@ class Parser:
     def __init__(self, code: str, encoding: str = 'utf-8') -> None:
         self.code = filter_whitespace(code)
         self.encoding = encoding
-        self.comments = {}          # type: Dict[Tuple[str, str], str]
-        self.deforders = {}         # type: Dict[str, int]
-        self.definitions = {}       # type: Dict[str, Tuple[str, int, int]]
+        self.annotations: dict[tuple[str, str], str] = {}
+        self.comments: dict[tuple[str, str], str] = {}
+        self.deforders: dict[str, int] = {}
+        self.definitions: dict[str, tuple[str, int, int]] = {}
+        self.finals: list[str] = []
+        self.overloads: dict[str, list[Signature]] = {}
 
     def parse(self) -> None:
         """Parse the source code."""
@@ -479,11 +562,14 @@ class Parser:
 
     def parse_comments(self) -> None:
         """Parse the code and pick up comments."""
-        tree = ast.parse(self.code.encode())
+        tree = ast.parse(self.code, type_comments=True)
         picker = VariableCommentPicker(self.code.splitlines(True), self.encoding)
         picker.visit(tree)
+        self.annotations = picker.annotations
         self.comments = picker.comments
         self.deforders = picker.deforders
+        self.finals = picker.finals
+        self.overloads = picker.overloads
 
     def parse_definition(self) -> None:
         """Parse the location of definitions from the code."""

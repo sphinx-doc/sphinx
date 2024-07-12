@@ -1,29 +1,28 @@
-"""
-    sphinx.transforms.post_transforms.code
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""transforms for code-blocks."""
 
-    transforms for code-blocks.
-
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import sys
-from typing import Any, Dict, List, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from docutils import nodes
-from docutils.nodes import Node
 from pygments.lexers import PythonConsoleLexer, guess_lexer
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
 from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
 
+if TYPE_CHECKING:
+    from docutils.nodes import Node, TextElement
 
-HighlightSetting = NamedTuple('HighlightSetting', [('language', str),
-                                                   ('force', bool),
-                                                   ('lineno_threshold', int)])
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
+
+
+class HighlightSetting(NamedTuple):
+    language: str
+    force: bool
+    lineno_threshold: int
 
 
 class HighlightLanguageTransform(SphinxTransform):
@@ -31,24 +30,25 @@ class HighlightLanguageTransform(SphinxTransform):
     Apply highlight_language to all literal_block nodes.
 
     This refers both :confval:`highlight_language` setting and
-    :rst:dir:`highlightlang` directive.  After processing, this transform
+    :rst:dir:`highlight` directive.  After processing, this transform
     removes ``highlightlang`` node from doctree.
     """
+
     default_priority = 400
 
-    def apply(self, **kwargs) -> None:
+    def apply(self, **kwargs: Any) -> None:
         visitor = HighlightLanguageVisitor(self.document,
                                            self.config.highlight_language)
         self.document.walkabout(visitor)
 
-        for node in self.document.traverse(addnodes.highlightlang):
+        for node in list(self.document.findall(addnodes.highlightlang)):
             node.parent.remove(node)
 
 
 class HighlightLanguageVisitor(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, default_language: str) -> None:
         self.default_setting = HighlightSetting(default_language, False, sys.maxsize)
-        self.settings = []  # type: List[HighlightSetting]
+        self.settings: list[HighlightSetting] = []
         super().__init__(document)
 
     def unknown_visit(self, node: Node) -> None:
@@ -90,21 +90,21 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
     see :confval:`trim_doctest_flags` for more information.
     """
+
     default_priority = HighlightLanguageTransform.default_priority + 1
 
-    def apply(self, **kwargs) -> None:
-        if not self.config.trim_doctest_flags:
-            return
-
-        for lbnode in self.document.traverse(nodes.literal_block):  # type: nodes.literal_block
+    def apply(self, **kwargs: Any) -> None:
+        for lbnode in self.document.findall(nodes.literal_block):
             if self.is_pyconsole(lbnode):
                 self.strip_doctest_flags(lbnode)
 
-        for dbnode in self.document.traverse(nodes.doctest_block):  # type: nodes.doctest_block
+        for dbnode in self.document.findall(nodes.doctest_block):
             self.strip_doctest_flags(dbnode)
 
-    @staticmethod
-    def strip_doctest_flags(node: Union[nodes.literal_block, nodes.doctest_block]) -> None:
+    def strip_doctest_flags(self, node: TextElement) -> None:
+        if not node.get('trim_flags', self.config.trim_doctest_flags):
+            return
+
         source = node.rawsource
         source = doctest.blankline_re.sub('', source)
         source = doctest.doctestopt_re.sub('', source)
@@ -117,9 +117,9 @@ class TrimDoctestFlagsTransform(SphinxTransform):
             return False  # skip parsed-literal node
 
         language = node.get('language')
-        if language in ('pycon', 'pycon3'):
+        if language in {'pycon', 'pycon3'}:
             return True
-        elif language in ('py', 'py3', 'python', 'python3', 'default'):
+        elif language in {'py', 'python', 'py3', 'python3', 'default'}:
             return node.rawsource.startswith('>>>')
         elif language == 'guess':
             try:
@@ -131,7 +131,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         return False
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(HighlightLanguageTransform)
     app.add_post_transform(TrimDoctestFlagsTransform)
 

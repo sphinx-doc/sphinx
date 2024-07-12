@@ -1,61 +1,86 @@
-"""
-    sphinx.highlighting
-    ~~~~~~~~~~~~~~~~~~~
+"""Highlight code blocks using Pygments."""
 
-    Highlight code blocks using Pygments.
-
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from functools import partial
 from importlib import import_module
+from typing import TYPE_CHECKING, Any
 
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
-from pygments.lexer import Lexer
-from pygments.lexers import get_lexer_by_name, guess_lexer
-from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
-    CLexer, TextLexer, RstLexer
+from pygments.lexers import (
+    CLexer,
+    PythonConsoleLexer,
+    PythonLexer,
+    RstLexer,
+    TextLexer,
+    get_lexer_by_name,
+    guess_lexer,
+)
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 
 from sphinx.locale import __
-from sphinx.pygments_styles import SphinxStyle, NoneStyle
-from sphinx.util import logging
-from sphinx.util.texescape import tex_hl_escape_map_new
+from sphinx.pygments_styles import NoneStyle, SphinxStyle
+from sphinx.util import logging, texescape
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NOQA
-    from pygments.formatter import Formatter  # NOQA
-    from pygments.style import Style  # NOQA
-
+if TYPE_CHECKING:
+    from pygments.formatter import Formatter
+    from pygments.lexer import Lexer
+    from pygments.style import Style
 
 logger = logging.getLogger(__name__)
 
-lexers = {}  # type: Dict[str, Lexer]
-lexer_classes = {
+lexers: dict[str, Lexer] = {}
+lexer_classes: dict[str, type[Lexer] | partial[Lexer]] = {
     'none': partial(TextLexer, stripnl=False),
     'python': partial(PythonLexer, stripnl=False),
-    'python3': partial(Python3Lexer, stripnl=False),
     'pycon': partial(PythonConsoleLexer, stripnl=False),
-    'pycon3': partial(PythonConsoleLexer, python3=True, stripnl=False),
     'rest': partial(RstLexer, stripnl=False),
     'c': partial(CLexer, stripnl=False),
-}  # type: Dict[str, Lexer]
+}
 
 
-escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
-                   ord('{'): '\\PYGZob{}',
-                   ord('}'): '\\PYGZcb{}'}
+escape_hl_chars = {ord('\\'): '\\PYGZbs{}', ord('{'): '\\PYGZob{}', ord('}'): '\\PYGZcb{}'}
 
 # used if Pygments is available
-# use textcomp quote to get a true single quote
-_LATEX_ADD_STYLES = r'''
-\renewcommand\PYGZsq{\textquotesingle}
-'''
+# MEMO: no use of \protected here to avoid having to do hyperref extras,
+# (if in future code highlighting in sectioning titles is activated):
+# the definitions here use only robust, protected or chardef tokens,
+# which are all known to the hyperref re-encoding for bookmarks.
+# The " is troublesome because we would like to use \text\textquotedbl
+# but \textquotedbl is *defined to raise an error* (!) if the font
+# encoding is OT1.  This however could happen from 'fontenc' key.
+# MEMO: the Pygments escapes with \char`\<char> syntax, if the document
+# uses old OT1 font encoding, work correctly only in monospace font.
+# MEMO: the Pygmentize output mark-up is always with a {} after.
+_LATEX_ADD_STYLES = r"""
+% Sphinx redefinitions
+% Originally to obtain a straight single quote via package textcomp, then
+% to fix problems for the 5.0.0 inline code highlighting (captions!).
+% The \text is from amstext, a dependency of sphinx.sty.  It is here only
+% to avoid build errors if for some reason expansion is in math mode.
+\def\PYGZbs{\text\textbackslash}
+\def\PYGZus{\_}
+\def\PYGZob{\{}
+\def\PYGZcb{\}}
+\def\PYGZca{\text\textasciicircum}
+\def\PYGZam{\&}
+\def\PYGZlt{\text\textless}
+\def\PYGZgt{\text\textgreater}
+\def\PYGZsh{\#}
+\def\PYGZpc{\%}
+\def\PYGZdl{\$}
+\def\PYGZhy{\sphinxhyphen}% defined in sphinxlatexstyletext.sty
+\def\PYGZsq{\text\textquotesingle}
+\def\PYGZdq{"}
+\def\PYGZti{\text\textasciitilde}
+\makeatletter
+% use \protected to allow syntax highlighting in captions
+\protected\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+{\PYG@do{#2}}}
+\makeatother
+"""
 
 
 class PygmentsBridge:
@@ -64,21 +89,22 @@ class PygmentsBridge:
     html_formatter = HtmlFormatter
     latex_formatter = LatexFormatter
 
-    def __init__(self, dest='html', stylename='sphinx'):
-        # type: (str, str) -> None
+    def __init__(
+        self, dest: str = 'html', stylename: str = 'sphinx', latex_engine: str | None = None
+    ) -> None:
         self.dest = dest
+        self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
-        self.formatter_args = {'style': style}  # type: Dict[str, Any]
+        self.formatter_args: dict[str, Any] = {'style': style}
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
-    def get_style(self, stylename):
-        # type: (str) -> Style
-        if stylename is None or stylename == 'sphinx':
+    def get_style(self, stylename: str) -> type[Style]:
+        if not stylename or stylename == 'sphinx':
             return SphinxStyle
         elif stylename == 'none':
             return NoneStyle
@@ -88,33 +114,30 @@ class PygmentsBridge:
         else:
             return get_style_by_name(stylename)
 
-    def get_formatter(self, **kwargs):
-        # type: (Any) -> Formatter
+    def get_formatter(self, **kwargs: Any) -> Formatter:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def get_lexer(self, source, lang, opts=None, force=False, location=None):
-        # type: (str, str, Dict, bool, Any) -> Lexer
+    def get_lexer(
+        self,
+        source: str,
+        lang: str,
+        opts: dict | None = None,
+        force: bool = False,
+        location: Any = None,
+    ) -> Lexer:
         if not opts:
             opts = {}
 
         # find out which lexer to use
-        if lang in ('py', 'python'):
+        if lang in {'py', 'python', 'py3', 'python3', 'default'}:
             if source.startswith('>>>'):
                 # interactive session
                 lang = 'pycon'
             else:
                 lang = 'python'
-        elif lang in ('py3', 'python3', 'default'):
-            if source.startswith('>>>'):
-                lang = 'pycon3'
-            else:
-                lang = 'python3'
-        elif lang == 'guess':
-            try:
-                lexer = guess_lexer(source)
-            except Exception:
-                lexer = lexers['none']
+        if lang == 'pycon3':
+            lang = 'pycon'
 
         if lang in lexers:
             # just return custom lexers here (without installing raiseonerror filter)
@@ -124,12 +147,13 @@ class PygmentsBridge:
         else:
             try:
                 if lang == 'guess':
-                    lexer = guess_lexer(lang, **opts)
+                    lexer = guess_lexer(source, **opts)
                 else:
                     lexer = get_lexer_by_name(lang, **opts)
             except ClassNotFound:
-                logger.warning(__('Pygments lexer name %r is not known'), lang,
-                               location=location)
+                logger.warning(
+                    __('Pygments lexer name %r is not known'), lang, location=location
+                )
                 lexer = lexer_classes['none'](**opts)
 
         if not force:
@@ -137,8 +161,15 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source, lang, opts=None, force=False, location=None, **kwargs):
-        # type: (str, str, Dict, bool, Any, Any) -> str
+    def highlight_block(
+        self,
+        source: str,
+        lang: str,
+        opts: dict | None = None,
+        force: bool = False,
+        location: Any = None,
+        **kwargs: Any,
+    ) -> str:
         if not isinstance(source, str):
             source = source.decode()
 
@@ -148,26 +179,38 @@ class PygmentsBridge:
         formatter = self.get_formatter(**kwargs)
         try:
             hlsource = highlight(source, lexer, formatter)
-        except ErrorToken:
+        except ErrorToken as err:
             # this is most probably not the selected language,
-            # so let it pass unhighlighted
+            # so let it pass un highlighted
             if lang == 'default':
-                pass  # automatic highlighting failed.
+                lang = 'none'  # automatic highlighting failed.
             else:
-                logger.warning(__('Could not lex literal_block as "%s". '
-                                  'Highlighting skipped.'), lang,
-                               type='misc', subtype='highlighting_failure',
-                               location=location)
-            lexer = self.get_lexer(source, 'none', opts, force, location)
+                logger.warning(
+                    __(
+                        'Lexing literal_block %r as "%s" resulted in an error at token: %r. '
+                        'Retrying in relaxed mode.'
+                    ),
+                    source,
+                    lang,
+                    str(err),
+                    type='misc',
+                    subtype='highlighting_failure',
+                    location=location,
+                )
+                if force:
+                    lang = 'none'
+                else:
+                    force = True
+            lexer = self.get_lexer(source, lang, opts, force, location)
             hlsource = highlight(source, lexer, formatter)
 
         if self.dest == 'html':
             return hlsource
         else:
-            return hlsource.translate(tex_hl_escape_map_new)
+            # MEMO: this is done to escape Unicode chars with non-Unicode engines
+            return texescape.hlescape(hlsource, self.latex_engine)
 
-    def get_stylesheet(self):
-        # type: () -> str
+    def get_stylesheet(self) -> str:
         formatter = self.get_formatter()
         if self.dest == 'html':
             return formatter.get_style_defs('.highlight')

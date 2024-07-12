@@ -1,8 +1,7 @@
 import enum
 from io import StringIO
 
-from sphinx.util import save_traceback  # NOQA
-
+from ._functions_to_import import function_to_be_imported
 
 __all__ = ['Class']
 
@@ -34,7 +33,7 @@ def _funky_classmethod(name, b, c, d, docstring=None):
     return classmethod(function)
 
 
-class Class(object):
+class Class:
     """Class to document."""
 
     def meth(self):
@@ -97,10 +96,10 @@ def function(foo, *args, **kwds):
     pass
 
 
-class Outer(object):
+class Outer:
     """Foo"""
 
-    class Inner(object):
+    class Inner:
         """Foo"""
 
         def meth(self):
@@ -110,7 +109,25 @@ class Outer(object):
     factory = dict
 
 
-class DocstringSig(object):
+class InnerChild(Outer.Inner):
+    """InnerChild docstring"""
+
+
+class DocstringSig:
+    def __new__(cls, *new_args, **new_kwargs):
+        """__new__(cls, d, e=1) -> DocstringSig
+First line of docstring
+
+        rest of docstring
+        """
+
+    def __init__(self, *init_args, **init_kwargs):
+        """__init__(self, a, b=1) -> None
+First line of docstring
+
+        rest of docstring
+        """
+
     def meth(self):
         """meth(FOO, BAR=1) -> BAZ
 First line of docstring
@@ -141,16 +158,18 @@ First line of docstring
 
 
 class StrRepr(str):
+    """docstring"""
+
     def __repr__(self):
         return self
 
 
-class AttCls(object):
+class AttCls:
     a1 = StrRepr('hello\nworld')
     a2 = None
 
 
-class InstAttCls(object):
+class InstAttCls:
     """Class with documented class and instance attributes."""
 
     #: Doc comment for class attribute InstAttCls.ca1.
@@ -170,7 +189,7 @@ class InstAttCls(object):
         """Docstring for instance attribute InstAttCls.ia2."""
 
 
-class CustomIter(object):
+class CustomIter:
     def __init__(self):
         """Create a new `CustomIter`."""
         self.values = range(10)

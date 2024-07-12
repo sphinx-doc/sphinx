@@ -32,7 +32,7 @@ footnotes in table
     :header-rows: 1
 
     * - name [#]_
-      - desription
+      - description
     * - VIDIOC_CROPCAP
       - Information about VIDIOC_CROPCAP [#]_
 

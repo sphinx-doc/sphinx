@@ -18,7 +18,7 @@
     </OBJECT>
     <UL>
       <LI>
-        {{ sitemap(short_title, master_doc)|indent(8) }}
+        {{ sitemap(short_title, root_doc)|indent(8) }}
       </LI>
       {%- for indexname, indexcls, content, collapse in domain_indices %}
       <LI>

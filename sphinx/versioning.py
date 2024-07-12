@@ -1,29 +1,27 @@
-"""
-    sphinx.versioning
-    ~~~~~~~~~~~~~~~~~
+"""Implements the low-level algorithms Sphinx uses for versioning doctrees."""
 
-    Implements the low-level algorithms Sphinx uses for the versioning of
-    doctrees.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
 import pickle
 from itertools import product, zip_longest
 from operator import itemgetter
 from os import path
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from sphinx.transforms import SphinxTransform
 
-if False:
-    # For type annotation
-    from typing import Any, Dict, Iterator  # NOQA
-    from docutils import nodes  # NOQA
-    from sphinx.application import Sphinx  # NOQA
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 try:
-    import Levenshtein
+    import Levenshtein  # type: ignore[import-not-found]
+
     IS_SPEEDUP = True
 except ImportError:
     IS_SPEEDUP = False
@@ -32,8 +30,7 @@ except ImportError:
 VERSIONING_RATIO = 65
 
 
-def add_uids(doctree, condition):
-    # type: (nodes.Node, Any) -> Iterator[nodes.Node]
+def add_uids(doctree: Node, condition: Any) -> Iterator[Node]:
     """Add a unique id to every node in the `doctree` which matches the
     condition and yield the nodes.
 
@@ -43,13 +40,12 @@ def add_uids(doctree, condition):
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    for node in doctree.traverse(condition):
+    for node in doctree.findall(condition):
         node.uid = uuid4().hex
         yield node
 
 
-def merge_doctrees(old, new, condition):
-    # type: (nodes.Node, nodes.Node, Any) -> Iterator[nodes.Node]
+def merge_doctrees(old: Node, new: Node, condition: Any) -> Iterator[Node]:
     """Merge the `old` doctree with the `new` one while looking at nodes
     matching the `condition`.
 
@@ -59,8 +55,8 @@ def merge_doctrees(old, new, condition):
     :param condition:
         A callable which returns either ``True`` or ``False`` for a given node.
     """
-    old_iter = old.traverse(condition)
-    new_iter = new.traverse(condition)
+    old_iter = old.findall(condition)
+    new_iter = new.findall(condition)
     old_nodes = []
     new_nodes = []
     ratios = {}
@@ -98,7 +94,7 @@ def merge_doctrees(old, new, condition):
     # choose the old node with the best ratio for each new node and set the uid
     # as long as the ratio is under a certain value, in which case we consider
     # them not changed but different
-    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore
+    ratios = sorted(ratios.items(), key=itemgetter(1))  # type: ignore[assignment]
     for (old_node, new_node), ratio in ratios:
         if new_node in seen:
             continue
@@ -116,9 +112,8 @@ def merge_doctrees(old, new, condition):
         yield new_node
 
 
-def get_ratio(old, new):
-    # type: (str, str) -> float
-    """Return a "similiarity ratio" (in percent) representing the similarity
+def get_ratio(old: str, new: str) -> float:
+    """Return a "similarity ratio" (in percent) representing the similarity
     between the two strings where 0 is equal and anything above less than equal.
     """
     if not all([old, new]):
@@ -130,8 +125,7 @@ def get_ratio(old, new):
         return levenshtein_distance(old, new) / (len(old) / 100.0)
 
 
-def levenshtein_distance(a, b):
-    # type: (str, str) -> int
+def levenshtein_distance(a: str, b: str) -> int:
     """Return the Levenshtein edit distance between two strings *a* and *b*."""
     if a == b:
         return 0
@@ -153,10 +147,10 @@ def levenshtein_distance(a, b):
 
 class UIDTransform(SphinxTransform):
     """Add UIDs to doctree for versioning."""
+
     default_priority = 880
 
-    def apply(self, **kwargs):
-        # type: (Any) -> None
+    def apply(self, **kwargs: Any) -> None:
         env = self.env
         old_doctree = None
         if not env.versioning_condition:
@@ -178,8 +172,7 @@ class UIDTransform(SphinxTransform):
             list(merge_doctrees(old_doctree, self.document, env.versioning_condition))
 
 
-def setup(app):
-    # type: (Sphinx) -> Dict[str, Any]
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(UIDTransform)
 
     return {

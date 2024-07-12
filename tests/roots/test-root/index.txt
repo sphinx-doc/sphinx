@@ -28,18 +28,15 @@ Contents:
    lists
    otherext
 
-   http://sphinx-doc.org/
-   Latest reference <http://sphinx-doc.org/latest/>
-   Python <http://python.org/>
-
-   self
+   https://sphinx-doc.org/
+   Latest reference <https://sphinx-doc.org/latest/>
+   Python <https://python.org/>
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
 
 References
 ==========

@@ -30,7 +30,7 @@ How do I...
    ``sidebartoc`` block.
 
 ... write my own extension?
-   See the :doc:`/development/tutorials/index`.
+   See the :ref:`extension-tutorials-index`.
 
 ... convert from my existing docs using MoinMoin markup?
    The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
@@ -40,7 +40,7 @@ How do I...
 For many more extensions and other contributed stuff, see the sphinx-contrib_
 repository.
 
-.. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
+.. _sphinx-contrib: https://github.com/sphinx-contrib/
 
 .. _usingwith:
 
@@ -63,7 +63,8 @@ Doxygen
 
 SCons
    Glenn Hutchings has written a SCons build script to build Sphinx
-   documentation; it is hosted here: https://bitbucket.org/zondo/sphinx-scons
+   documentation; it is hosted here:
+   https://bitbucket-archive.softwareheritage.org/projects/zo/zondo/sphinx-scons.html
 
 PyPI
    Jannis Leidel wrote a `setuptools command
@@ -77,8 +78,9 @@ GitHub Pages
    GitHub Pages on building HTML document automatically.
 
 MediaWiki
-   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by
-   Kevin Dunn.
+   See `sphinx-wiki`_, a project by Kevin Dunn.
+
+   .. _sphinx-wiki: https://bitbucket-archive.softwareheritage.org/projects/ke/kevindunn/sphinx-wiki.html
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
@@ -89,7 +91,7 @@ Google Analytics
 
       {%- block extrahead %}
       {{ super() }}
-      <script type="text/javascript">
+      <script>
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'XXX account number XXX']);
         _gaq.push(['_trackPageview']);
@@ -101,11 +103,11 @@ Google Analytics
       <div class="footer">This page uses <a href="https://analytics.google.com/">
       Google Analytics</a> to collect statistics. You can disable it by blocking
       the JavaScript coming from www.google-analytics.com.
-      <script type="text/javascript">
+      <script>
         (function() {
           var ga = document.createElement('script');
           ga.src = ('https:' == document.location.protocol ?
-                    'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                    'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
           ga.setAttribute('async', 'true');
           document.documentElement.firstChild.appendChild(ga);
         })();
@@ -132,7 +134,6 @@ Google Search
                (function() {
                   var cx = '......';
                   var gcse = document.createElement('script');
-                  gcse.type = 'text/javascript';
                   gcse.async = true;
                   gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
                   var s = document.getElementsByTagName('script')[0];
@@ -146,7 +147,44 @@ Google Search
 
 .. _Getting Started: https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html
 .. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
-.. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
+.. _xhtml to reST: https://docutils.sourceforge.io/sandbox/xhtml2rest/xhtml2rest.py
+
+
+Sphinx vs. Docutils
+-------------------
+
+tl;dr: *docutils* converts reStructuredText to multiple output formats. Sphinx
+builds upon docutils to allow construction of cross-referenced and indexed
+bodies of documentation.
+
+`docutils`__ is a text processing system for converting plain text
+documentation into other, richer formats. As noted in the `docutils
+documentation`__, docutils uses *readers* to read a document, *parsers* for
+parsing plain text formats into an internal tree representation made up of
+different types of *nodes*, and *writers* to output this tree in various
+document formats.  docutils provides parsers for one plain text format -
+`reStructuredText`__ - though other, *out-of-tree* parsers have been
+implemented including Sphinx's :doc:`Markdown parser </usage/markdown>`. On the
+other hand, it provides writers for many different formats including HTML,
+LaTeX, man pages, Open Document Format and XML.
+
+docutils exposes all of its functionality through a variety of `front-end
+tools`__, such as ``rst2html``, ``rst2odt`` and ``rst2xml``. Crucially though,
+all of these tools, and docutils itself, are concerned with individual
+documents.  They don't support concepts such as cross-referencing, indexing of
+documents, or the construction of a document hierarchy (typically manifesting
+in a table of contents).
+
+Sphinx builds upon docutils by harnessing docutils' readers and parsers and
+providing its own :doc:`/usage/builders/index`. As a result, Sphinx wraps some
+of the *writers* provided by docutils. This allows Sphinx to provide many
+features that would simply not be possible with docutils, such as those
+outlined above.
+
+__ https://docutils.sourceforge.io/
+__ https://docutils.sourceforge.io/docs/dev/hacking.html
+__ https://docutils.sourceforge.io/rst.html
+__ https://docutils.sourceforge.io/docs/user/tools.html
 
 
 .. _epub-faq:
@@ -223,7 +261,9 @@ The following list gives some hints for the creation of epub files:
 
      ``parent.xhtml`` -> ``child.xhtml`` -> ``parent.xhtml``
 
-  If you get the following error, fix your document structure::
+  If you get the following error, fix your document structure:
+
+  .. code-block:: none
 
      Error(prcgen):E24011: TOC section scope is not included in the parent chapter:(title)
      Error(prcgen):E24001: The table of content could not be built.
@@ -260,6 +300,10 @@ appear in the source.  Emacs, on the other-hand, will by default replace
 ``*note:`` with ``see`` and hide the ``target-id``.  For example:
 
     :ref:`texinfo-links`
+
+One can disable generation of the inline references in a document
+with :confval:`texinfo_cross_references`.  That makes
+an info file more readable with stand-alone reader (``info``).
 
 The exact behavior of how Emacs displays references is dependent on the variable
 ``Info-hide-note-references``.  If set to the value of ``hide``, Emacs will hide
@@ -308,19 +352,3 @@ The following notes may be helpful if you want to create Texinfo files:
   scheme ``info``.  For example::
 
      info:Texinfo#makeinfo_options
-
-- Inline markup
-
-  The standard formatting for ``*strong*`` and ``_emphasis_`` can
-  result in ambiguous output when used to markup parameter names and
-  other values.  Since this is a fairly common practice, the default
-  formatting has been changed so that ``emphasis`` and ``strong`` are
-  now displayed like ```literal'``\s.
-
-  The standard formatting can be re-enabled by adding the following to
-  your :file:`conf.py`::
-
-     texinfo_elements = {'preamble': """
-     @definfoenclose strong,*,*
-     @definfoenclose emph,_,_
-     """}

@@ -1,49 +1,53 @@
-.. highlight:: python
-
-.. _latex:
-
 LaTeX customization
 ===================
 
 .. module:: latex
    :synopsis: LaTeX specifics.
 
+.. _contents: https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents
+
 .. raw:: latex
 
    \begingroup
    \sphinxsetup{%
-         verbatimwithframe=false,
-         VerbatimColor={named}{OldLace},
          TitleColor={named}{DarkGoldenrod},
-         hintBorderColor={named}{LightCoral},
+         pre_border-width=2pt,
+         pre_border-right-width=8pt,
+         pre_padding=5pt,
+         pre_border-radius=5pt,
+         pre_background-TeXcolor={named}{OldLace},
+         pre_border-TeXcolor=Gold!90,
+         pre_box-shadow=6pt 6pt,
+         pre_box-shadow-TeXcolor=gray!20,
+         %
+         div.warning_border-width=3pt,
+         div.warning_padding=6pt,
+         div.warning_padding-right=18pt,
+         div.warning_padding-bottom=18pt,
+         div.warning_border-TeXcolor=DarkCyan,
+         div.warning_background-TeXcolor=LightCyan,
+         div.warning_box-shadow=-12pt -12pt inset,
+         div.warning_box-shadow-TeXcolor=Cyan,
+         %
          attentionborder=3pt,
-         attentionBorderColor={named}{Crimson},
-         attentionBgColor={named}{FloralWhite},
-         noteborder=2pt,
-         noteBorderColor={named}{Olive},
-         cautionborder=3pt,
-         cautionBorderColor={named}{Cyan},
-         cautionBgColor={named}{LightCyan}}
+         attentionBorderColor=Crimson,
+         attentionBgColor=FloralWhite,
+         %
+         noteborder=1pt,
+         noteBorderColor=Olive,
+         noteBgColor=Olive!10,
+         div.note_border-top-width=0pt,
+         div.note_border-bottom-width=0pt,
+         hintBorderColor=LightCoral,
+   }
    \relax
 
-The *latex* target does not benefit from prepared themes.
+Unlike :ref:`the HTML builders <html-themes>`, the ``latex`` builder does not
+benefit from prepared themes. The :ref:`latex-options`, and particularly the
+:ref:`latex_elements <latex_elements_confval>` variable, provides much of the
+interface for customization. For example:
 
-The :ref:`latex-options`, and particularly among them the
-:ref:`latex_elements <latex_elements_confval>` variable
-provides much of the interface for customization.
-
-For some details of the LaTeX/PDF builder command line
-invocation, refer to :py:class:`~sphinx.builders.latex.LaTeXBuilder`.
-
-.. _latex-basic:
-
-Example
--------
-
-Keep in mind that backslashes must be doubled in Python string literals to
-avoid interpretation as escape sequences, or use raw strings (as is done here).
-
-::
+.. code-block:: latex
 
    # inside conf.py
    latex_engine = 'xelatex'
@@ -65,407 +69,527 @@ avoid interpretation as escape sequences, or use raw strings (as is done here).
    }
    latex_show_urls = 'footnote'
 
-.. highlight:: latex
+.. note::
+
+   Keep in mind that backslashes must be doubled in Python string literals to
+   avoid interpretation as escape sequences. Alternatively, you may use raw
+   strings as is done above.
 
 .. _latex_elements_confval:
 
-The latex_elements configuration setting
-----------------------------------------
+The ``latex_elements`` configuration setting
+--------------------------------------------
 
 A dictionary that contains LaTeX snippets overriding those Sphinx usually puts
 into the generated ``.tex`` files.  Its ``'sphinxsetup'`` key is described
-:ref:`separately <latexsphinxsetup>`.
+:ref:`separately <latexsphinxsetup>`.  It allows also local configurations
+inserted in generated files, via :dudir:`raw` directives.  For example, in
+the PDF documentation this chapter is styled especially, as will be described
+later.
 
-* Keys that you may want to override include:
+Keys that you may want to override include:
 
-  ``'papersize'``
-     Paper size option of the document class (``'a4paper'`` or
-     ``'letterpaper'``), default ``'letterpaper'``.
+``'papersize'``
+   Paper size option of the document class (``'a4paper'`` or
+   ``'letterpaper'``)
 
-  ``'pointsize'``
-     Point size option of the document class (``'10pt'``, ``'11pt'`` or
-     ``'12pt'``), default ``'10pt'``.
+   Default: ``'letterpaper'``
 
-  ``'pxunit'``
-     the value of the ``px`` when used in image attributes ``width`` and
-     ``height``. The default value is ``'0.75bp'`` which achieves
-     ``96px=1in`` (in TeX ``1in = 72bp = 72.27pt``.) To obtain for
-     example ``100px=1in`` use ``'0.01in'`` or ``'0.7227pt'`` (the latter
-     leads to TeX computing a more precise value, due to the smaller unit
-     used in the specification); for ``72px=1in``, simply use ``'1bp'``; for
-     ``90px=1in``, use ``'0.8bp'`` or ``'0.803pt'``.
+``'pointsize'``
+   Point size option of the document class (``'10pt'``, ``'11pt'`` or
+   ``'12pt'``)
 
-     .. versionadded:: 1.5
+   Default: ``'10pt'``
 
-  ``'passoptionstopackages'``
-     A string which will be positioned early in the preamble, designed to
-     contain ``\\PassOptionsToPackage{options}{foo}`` commands. Default empty.
+``'pxunit'``
+   The value of the ``px`` when used in image attributes ``width`` and
+   ``height``. The default value is ``'0.75bp'`` which achieves
+   ``96px=1in`` (in TeX ``1in = 72bp = 72.27pt``.) To obtain for
+   example ``100px=1in`` use ``'0.01in'`` or ``'0.7227pt'`` (the latter
+   leads to TeX computing a more precise value, due to the smaller unit
+   used in the specification); for ``72px=1in``, simply use ``'1bp'``; for
+   ``90px=1in``, use ``'0.8bp'`` or ``'0.803pt'``.
 
-     .. versionadded:: 1.4
+   Default: ``'0.75bp'``
 
-  ``'babel'``
-     "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
-     suitable document language string is passed as class option, and
-     ``english`` is used if no language.) For Japanese documents, the
-     default is the empty string.
+   .. versionadded:: 1.5
 
-     With XeLaTeX and LuaLaTeX, Sphinx configures the LaTeX document to use
-     `polyglossia`_, but one should be aware that current `babel`_ has
-     improved its support for Unicode engines in recent years and for some
-     languages it may make sense to prefer ``babel`` over ``polyglossia``.
+``'passoptionstopackages'``
+   A string which will be positioned early in the preamble, designed to
+   contain ``\\PassOptionsToPackage{options}{foo}`` commands.
 
-     .. hint::
+   .. hint::
 
-        After modifiying a core LaTeX key like this one, clean up the LaTeX
-        build repertory before next PDF build, else left-over auxiliary
-        files are likely to break the build.
+      It may be also used for loading LaTeX packages very early in the
+      preamble.  For example package ``fancybox`` is incompatible with
+      being loaded via the ``'preamble'`` key, it must be loaded earlier.
 
-     .. _`polyglossia`: https://ctan.org/pkg/polyglossia
-     .. _`babel`: https://ctan.org/pkg/babel
+   Default: ``''``
 
-     .. versionchanged:: 1.5
-        For :confval:`latex_engine` set to ``'xelatex'``, the default
-        is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
-     .. versionchanged:: 1.6
-        ``'lualatex'`` uses same default setting as ``'xelatex'``
-     .. versionchanged:: 1.7.6
-        For French, ``xelatex`` and ``lualatex`` default to using
-        ``babel``, not ``polyglossia``.
+   .. versionadded:: 1.4
 
-  ``'fontpkg'``
-     Font package inclusion, the default is ``'\\usepackage{times}'`` which
-     uses Times for text, Helvetica for sans serif and Courier for monospace.
+``'babel'``
+   "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
+   suitable document language string is passed as class option, and
+   ``english`` is used if no language.) For Japanese documents, the
+   default is the empty string.
 
-     .. versionchanged:: 1.2
-        Defaults to ``''`` when the :confval:`language` uses the Cyrillic
-        script.
-     .. versionchanged:: 2.0
-        Support for individual Greek and Cyrillic letters:
+   With XeLaTeX and LuaLaTeX, Sphinx configures the LaTeX document to use
+   `polyglossia`_, but one should be aware that current `babel`_ has
+   improved its support for Unicode engines in recent years and for some
+   languages it may make sense to prefer ``babel`` over ``polyglossia``.
 
-        - In order to support occasional Cyrillic (физика частиц)
-          or Greek letters (Σωματιδιακή φυσική) in
-          a document whose language is English or a  Latin European
-          one, the default set-up is enhanced (only for ``'pdflatex'``
-          engine) to do:
+   .. _`polyglossia`: https://ctan.org/pkg/polyglossia
+   .. _`babel`: https://ctan.org/pkg/babel
 
-          .. code-block:: latex
+   .. hint::
 
-             \substitutefont{LGR}{\rmdefault}{cmr}
-             \substitutefont{LGR}{\sfdefault}{cmss}
-             \substitutefont{LGR}{\ttdefault}{cmtt}
-             \substitutefont{X2}{\rmdefault}{cmr}
-             \substitutefont{X2}{\sfdefault}{cmss}
-             \substitutefont{X2}{\ttdefault}{cmtt}
+      After modifying a core LaTeX key like this one, clean up the LaTeX
+      build repertory before next PDF build, else left-over auxiliary
+      files are likely to break the build.
 
-          but this is activated only under the condition that the
-          ``'fontenc'`` key is configured to load the ``LGR`` (Greek)
-          and/or ``X2`` (Cyrillic) pdflatex-font encodings (if the
-          :confval:`language` is set to a Cyrillic language, this
-          ``'fontpkg'`` key must be used as "times" package has no direct
-          support for it; then keep only ``LGR`` lines from the above,
-          if support is needed for Greek in the text).
+   Default:  ``'\\usepackage{babel}'`` (``''`` for Japanese documents)
 
-          The ``\substitutefont`` command is from the eponymous LaTeX
-          package, which is loaded by Sphinx if needed (on Ubuntu xenial it
-          is part of ``texlive-latex-extra`` which is a Sphinx
-          requirement).
+   .. versionchanged:: 1.5
+      For :confval:`latex_engine` set to ``'xelatex'``, the default
+      is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
 
-          Only if the document actually does contain Unicode Greek letters
-          (in text) or Cyrillic letters, will the above default set-up
-          cause additional requirements for the PDF build.  On Ubuntu
-          xenial, ``texlive-lang-greek``, ``texlive-lang-cyrillic``, and
-          (with the above choice of fonts) the ``cm-super`` (or
-          ``cm-super-minimal``) package.
+   .. versionchanged:: 1.6
+      ``'lualatex'`` uses same default setting as ``'xelatex'``
 
-        - For ``'xelatex'`` and ``'lualatex'``, the default is to
-          use the FreeFont family:  this OpenType font family
-          supports both Cyrillic and Greek scripts and is available as
-          separate Ubuntu xenial package ``fonts-freefont-otf``, it is not
-          needed to install the big package ``texlive-fonts-extra``.
+   .. versionchanged:: 1.7.6
+      For French with ``xelatex`` (not ``lualatex``) the default is to use
+      ``babel``, not ``polyglossia``.  To let ``lualatex`` use ``babel``,
+      use this:
 
-        - ``'platex'`` (Japanese documents) engine supports individual
-          Cyrillic and Greek letters with no need of extra user set-up.
+      .. code-block:: python
 
-  ``'fncychap'``
-     Inclusion of the "fncychap" package (which makes fancy chapter titles),
-     default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
-     (this option is slightly customized by Sphinx),
-     ``'\\usepackage[Sonny]{fncychap}'`` for internationalized docs (because
-     the "Bjarne" style uses numbers spelled out in English).  Other
-     "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
-     "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
+         latex_elements = {
+             'polyglossia': '',
+             'babel': r'\usepackage{babel}',
+         }
 
-     The default is ``''`` for Japanese documents.
+      in file :file:`conf.py`.
 
-  ``'preamble'``
-     Additional preamble content, default empty.  One may move all needed
-     macros into some file :file:`mystyle.tex.txt` of the project source
-     repertory, and get LaTeX to import it at run time::
+``'fontpkg'``
+   Font package inclusion. The default is::
 
-       'preamble': r'\input{mystyle.tex.txt}',
-       # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty
-       'preamble': r'\usepackage{mystyle}',
+      r"""\usepackage{tgtermes}
+      \usepackage{tgheros}
+      \renewcommand\ttdefault{txtt}
+      """
 
-     It is then needed to set appropriately
-     :confval:`latex_additional_files`, for example::
+   For ``'xelatex'`` and ``'lualatex'`` however the default is to use
+   the GNU FreeFont.
 
-        latex_additional_files = ["mystyle.sty"]
+   .. versionchanged:: 1.2
+      Defaults to ``''`` when the :confval:`language` uses the Cyrillic
+      script.
 
+   .. versionchanged:: 2.0
+      Incorporates some font substitution commands to help support occasional
+      Greek or Cyrillic in a document using ``'pdflatex'`` engine.
 
-  ``'figure_align'``
-     Latex figure float alignment, default 'htbp' (here, top, bottom, page).
-     Whenever an image doesn't fit into the current page, it will be
-     'floated' into the next page but may be preceded by any other text.
-     If you don't like this behavior, use 'H' which will disable floating
-     and position figures strictly in the order they appear in the source.
+   .. versionchanged:: 4.0.0
 
-     .. versionadded:: 1.3
+      - The font substitution commands added at ``2.0`` have been moved
+        to the ``'fontsubstitution'`` key, as their presence here made
+        it complicated for user to customize the value of ``'fontpkg'``.
+      - The default font setting has changed: it still uses Times and
+        Helvetica clones for serif and sans serif, but via better, more
+        complete TeX fonts and associated LaTeX packages.  The
+        monospace font has been changed to better match the Times clone.
 
-  ``'atendofbody'``
-     Additional document content (right before the indices), default empty.
+``'fncychap'``
+   Inclusion of the "fncychap" package (which makes fancy chapter titles),
+   default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
+   (this option is slightly customized by Sphinx),
+   ``'\\usepackage[Sonny]{fncychap}'`` for internationalized docs (because
+   the "Bjarne" style uses numbers spelled out in English).  Other
+   "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
+   "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
 
-     .. versionadded:: 1.5
+   Default: ``'\\usepackage[Bjarne]{fncychap}'`` for English documents,
+   ``'\\usepackage[Sonny]{fncychap}'`` for internationalized documents, and
+   ``''`` for Japanese documents.
 
-  ``'footer'``
-     Additional footer content (before the indices), default empty.
+``'preamble'``
+   Additional preamble content.  One may move all needed macros into some file
+   :file:`mystyle.tex.txt` of the project source repertory, and get LaTeX to
+   import it at run time::
 
-     .. deprecated:: 1.5
-        Use ``'atendofbody'`` key instead.
+     'preamble': r'\input{mystyle.tex.txt}',
+     # or, if the \ProvidesPackage LaTeX macro is used in a file mystyle.sty
+     'preamble': r'\usepackage{mystyle}',
 
-* Keys that don't need to be overridden unless in special cases are:
+   It is then needed to set appropriately :confval:`latex_additional_files`,
+   for example:
 
-  ``'extraclassoptions'``
-     The default is the empty string. Example: ``'extraclassoptions':
-     'openany'`` will allow chapters (for documents of the ``'manual'``
-     type) to start on any page.
+   .. code-block:: python
 
-     .. versionadded:: 1.2
-     .. versionchanged:: 1.6
-        Added this documentation.
+      latex_additional_files = ["mystyle.sty"]
 
-  ``'maxlistdepth'``
-     LaTeX allows by default at most 6 levels for nesting list and
-     quote-like environments, with at most 4 enumerated lists, and 4 bullet
-     lists. Setting this key for example to ``'10'`` (as a string) will
-     allow up to 10 nested levels (of all sorts). Leaving it to the empty
-     string means to obey the LaTeX default.
+   Do not use ``.tex`` as suffix, else the file is submitted itself to the PDF
+   build process, use ``.tex.txt`` or ``.sty`` as in the examples above.
 
-     .. warning::
+   Default: ``''``
 
-        - Using this key may prove incompatible with some LaTeX packages
-          or special document classes which do their own list customization.
+``'figure_align'``
+   Latex figure float alignment. Whenever an image doesn't fit into the current
+   page, it will be 'floated' into the next page but may be preceded by any
+   other text.  If you don't like this behavior, use 'H' which will disable
+   floating and position figures strictly in the order they appear in the
+   source.
 
-        - The key setting is silently *ignored* if ``\usepackage{enumitem}``
-          is executed inside the document preamble. Use then rather the
-          dedicated commands of this LaTeX package.
+   Default: ``'htbp'`` (here, top, bottom, page)
 
-     .. versionadded:: 1.5
+   .. versionadded:: 1.3
 
-  ``'inputenc'``
-     "inputenc" package inclusion, defaults to
-     ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
-     Otherwise empty.
+``'atendofbody'``
+   Additional document content (right before the indices).
 
-     .. versionchanged:: 1.4.3
-        Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
-        compilers.
+   Default: ``''``
 
-  ``'cmappkg'``
-     "cmap" package inclusion, default ``'\\usepackage{cmap}'``.
+   .. versionadded:: 1.5
 
-     .. versionadded:: 1.2
+``'extrapackages'``
+   Additional LaTeX packages.  For example:
 
-  ``'fontenc'``
-     "fontenc" package inclusion, defaults to
-     ``'\\usepackage[T1]{fontenc}'``.
+   .. code-block:: latex
 
-     If ``'pdflatex'`` is the :confval:`latex_engine`, one can add ``LGR``
-     for support of Greek letters in the document, and also ``X2`` (or
-     ``T2A``) for Cyrillic letters, like this:
+       latex_elements = {
+           'extrapackages': r'\usepackage{isodate}'
+       }
 
-     .. code-block:: latex
+   The specified LaTeX packages will be loaded before
+   hyperref package and packages loaded from Sphinx extensions.
 
-        r'\usepackage[LGR,X2,T1]{fontenc}'
+   .. hint::
+      If you'd like to load additional LaTeX packages after hyperref, use
+      ``'preamble'`` key instead.
 
-     .. attention::
+   Default: ``''``
 
-        If Greek is main language, do not use this key.  Since Sphinx 2.2.1,
+   .. versionadded:: 2.3
+
+``'footer'``
+   Additional footer content (before the indices).
+
+   Default: ``''``
+
+   .. deprecated:: 1.5
+      Use ``'atendofbody'`` key instead.
+
+Keys that don't need to be overridden unless in special cases are:
+
+``'extraclassoptions'``
+   The default is the empty string. Example: ``'extraclassoptions':
+   'openany'`` will allow chapters (for documents of the ``'manual'``
+   type) to start on any page.
+
+   Default: ``''``
+
+   .. versionadded:: 1.2
+
+   .. versionchanged:: 1.6
+      Added this documentation.
+
+``'maxlistdepth'``
+   LaTeX allows by default at most 6 levels for nesting list and
+   quote-like environments, with at most 4 enumerated lists, and 4 bullet
+   lists. Setting this key for example to ``'10'`` (as a string) will
+   allow up to 10 nested levels (of all sorts). Leaving it to the empty
+   string means to obey the LaTeX default.
+
+   .. warning::
+
+      - Using this key may prove incompatible with some LaTeX packages
+        or special document classes which do their own list customization.
+
+      - The key setting is silently *ignored* if ``\usepackage{enumitem}``
+        is executed inside the document preamble. Use then rather the
+        dedicated commands of this LaTeX package.
+
+   Default: ``6``
+
+   .. versionadded:: 1.5
+
+``'inputenc'``
+   "inputenc" package inclusion.
+
+   Default: ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex, else
+   ``''``.
+
+   .. note::
+
+      If using ``utf8x`` in place of ``utf8`` it is mandatory to extend the
+      LaTeX preamble with suitable ``\PreloadUnicodePage{<number>}`` commands,
+      as per the ``utf8x`` documentation (``texdoc ucs`` on a TeXLive based
+      TeX installation).  Else, unexpected and possibly hard-to-spot problems
+      (i.e. not causing a build crash) may arise in the PDF, in particular
+      regarding hyperlinks.
+
+      Even if these precautions are taken, PDF build via ``pdflatex`` engine
+      may crash due to upstream LaTeX not being fully compatible with
+      ``utf8x``.  For example, in certain circumstances related to
+      code-blocks, or attempting to include images whose filenames contain
+      Unicode characters.  Indeed, starting in 2015, upstream LaTeX with
+      ``pdflatex`` engine has somewhat enhanced native support for Unicode and
+      is becoming more and more incompatible with ``utf8x``.  In particular,
+      since the October 2019 LaTeX release, filenames can use Unicode
+      characters, and even spaces.  At Sphinx level this means e.g. that the
+      :dudir:`image` and :dudir:`figure` directives are now compatible with
+      such filenames for PDF via LaTeX output.  But this is broken if
+      ``utf8x`` is in use.
+
+   .. versionchanged:: 1.4.3
+      Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
+      compilers.
+
+``'cmappkg'``
+   "cmap" package inclusion.
+
+   Default: ``'\\usepackage{cmap}'``
+
+   .. versionadded:: 1.2
+
+``'fontenc'``
+   Customize this from its default ``'\\usepackage[T1]{fontenc}'`` to:
+
+   - ``'\\usepackage[X2,T1]{fontenc}'`` if you need occasional
+     Cyrillic letters (физика частиц),
+
+   - ``'\\usepackage[LGR,T1]{fontenc}'`` if you need occasional
+     Greek letters (Σωματιδιακή φυσική).
+
+   Use ``[LGR,X2,T1]`` rather if both are needed.
+
+   .. attention::
+
+      - Do not use this key for a :confval:`latex_engine` other than
+        ``'pdflatex'``.
+
+      - If Greek is main language, do not use this key.  Since Sphinx 2.2.1,
         ``xelatex`` will be used automatically as :confval:`latex_engine`.
-        Formerly, Sphinx did not support producing PDF via LaTeX with Greek as
-        main language.
 
-        Prior to 2.0, Unicode Greek letters were escaped to use LaTeX math
-        mark-up.  This is not the case anymore, and the above must be used
-        (only in case of ``'pdflatex'`` engine) if the source contains such
-        Unicode Greek.
+      - The TeX installation may need some extra packages. For example,
+        on Ubuntu xenial, packages ``texlive-lang-greek`` and ``cm-super``
+        are needed for ``LGR`` to work. And ``texlive-lang-cyrillic`` and
+        ``cm-super`` are needed for support of Cyrillic.
 
-        On Ubuntu xenial, packages ``texlive-lang-greek`` and ``cm-super``
-        (for the latter, only if the ``'fontpkg'`` setting is left to its
-        default) are needed for ``LGR`` to work.  In place of ``cm-super``
-        one can install smaller ``cm-super-minimal``, but it requires the
-        LaTeX document to execute ``\usepackage[10pt]{type1ec}`` before
-        loading ``fontenc``.  Thus, use this key with this extra at its
-        start if needed.
+   .. versionchanged:: 1.5
+      Defaults to ``'\\usepackage{fontspec}'`` when
+      :confval:`latex_engine` is ``'xelatex'``.
 
-     .. versionchanged:: 1.5
-        Defaults to ``'\\usepackage{fontspec}'`` when
-        :confval:`latex_engine` is ``'xelatex'``.
-     .. versionchanged:: 1.6
-        ``'lualatex'`` uses ``fontspec`` per default like ``'xelatex'``.
-     .. versionchanged:: 2.0
-        ``'lualatex'`` executes
-        ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
-        ligatures.
-     .. versionchanged:: 2.0
-        Detection of ``LGR``, ``T2A``, ``X2`` to trigger support of
-        occasional Greek or Cyrillic (``'pdflatex'`` only, as this support
-        is provided natively by ``'platex'`` and only requires suitable
-        font with ``'xelatex'/'lualatex'``).
+   .. versionchanged:: 1.6
+      ``'lualatex'`` uses ``fontspec`` per default like ``'xelatex'``.
 
-  ``'textgreek'``
-     The default (``'pdflatex'`` only) is
-     ``'\\usepackage{textalpha}'``, but only if ``'fontenc'`` was
-     modified by user to include ``LGR`` option.  If not, the key
-     value will be forced to be the empty string.
+   .. versionchanged:: 2.0
+      ``'lualatex'`` executes
+      ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` to disable TeX
+      ligatures transforming ``<<`` and ``>>`` as escaping working with
+      ``pdflatex/xelatex`` failed with ``lualatex``.
 
-     This is needed for ``pdfLaTeX`` to support Unicode input of Greek
-     letters such as φύσις.  Expert users may want to load the ``textalpha``
-     package with its option ``normalize-symbols``.
+   .. versionchanged:: 2.0
+      Detection of ``LGR``, ``T2A``, ``X2`` to trigger support of
+      occasional Greek or Cyrillic letters (``'pdflatex'``).
 
-     .. hint::
+   .. versionchanged:: 2.3.0
+      ``'xelatex'`` executes
+      ``\defaultfontfeatures[\rmfamily,\sffamily]{}`` in order to avoid
+      contractions of ``--`` into en-dash or transforms of straight quotes
+      into curly ones in PDF (in non-literal text paragraphs) despite
+      :confval:`smartquotes` being set to ``False``.
 
-        Unicode Greek (but no further Unicode symbols) in :rst:dir:`math`
-        can be supported by ``'pdflatex'`` from setting this key to
-        ``r'\usepackage{textalpha,alphabeta}'``.  Then ``:math:`α``` (U+03B1)
-        will render as :math:`\alpha`.  For wider Unicode support in math
-        input, see the discussion of :confval:`latex_engine`.
+``'fontsubstitution'``
+   Ignored if ``'fontenc'`` was not configured to use ``LGR`` or ``X2`` (or
+   ``T2A``).  In case ``'fontpkg'`` key is configured for usage with some
+   TeX fonts known to be available in the ``LGR`` or ``X2`` encodings, set
+   this one to be the empty string.  Else leave to its default.
 
-     With ``'platex'`` (Japanese),  ``'xelatex'`` or ``'lualatex'``, this
-     key is ignored.
+   Ignored with :confval:`latex_engine` other than ``'pdflatex'``.
 
-     .. versionadded:: 2.0
-  ``'geometry'``
-     "geometry" package inclusion, the default definition is:
+   .. versionadded:: 4.0.0
 
-       ``'\\usepackage{geometry}'``
+``'textgreek'``
+   For the support of occasional Greek letters.
 
-     with an additional ``[dvipdfm]`` for Japanese documents.
-     The Sphinx LaTeX style file executes:
+   It is ignored with ``'platex'``, ``'xelatex'`` or ``'lualatex'`` as
+   :confval:`latex_engine` and defaults to either the empty string or
+   to ``'\\usepackage{textalpha}'`` for ``'pdflatex'`` depending on
+   whether the ``'fontenc'`` key was used with ``LGR`` or not.  Only
+   expert LaTeX users may want to customize this key.
 
-       ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
+   It can also be used as ``r'\usepackage{textalpha,alphabeta}'`` to let
+   ``'pdflatex'`` support Greek Unicode input in :rst:dir:`math` context.
+   For example ``:math:`α``` (U+03B1) will render as :math:`\alpha`.
 
-     which can be customized via corresponding :ref:`'sphinxsetup' options
-     <latexsphinxsetup>`.
+   Default: ``'\\usepackage{textalpha}'`` or ``''`` if ``fontenc`` does not
+   include the ``LGR`` option.
 
-     .. versionadded:: 1.5
+   .. versionadded:: 2.0
 
-     .. versionchanged:: 1.5.2
-        ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
+``'geometry'``
+   "geometry" package inclusion, the default definition is:
 
-     .. versionadded:: 1.5.3
-        The :ref:`'sphinxsetup' keys for the margins
-        <latexsphinxsetuphmargin>`.
+   .. code:: latex
 
-     .. versionchanged:: 1.5.3
-        The location in the LaTeX file has been moved to after
-        ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
-        insertion of ``'fontpkg'`` key. This is in order to handle the paper
-        layout options in a special way for Japanese documents: the text
-        width will be set to an integer multiple of the *zenkaku* width, and
-        the text height to an integer multiple of the baseline. See the
-        :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
+      '\\usepackage{geometry}'
 
-  ``'hyperref'``
-     "hyperref" package inclusion; also loads package "hypcap" and issues
-     ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
-     loaded and before executing the contents of ``'preamble'`` key.
+   with an additional ``[dvipdfm]`` for Japanese documents.
+   The Sphinx LaTeX style file executes:
 
-     .. attention::
+   .. code:: latex
 
-        Loading of packages "hyperref" and "hypcap" is mandatory.
+      \PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}
 
-     .. versionadded:: 1.5
-        Previously this was done from inside :file:`sphinx.sty`.
+   which can be customized via corresponding :ref:`'sphinxsetup' options
+   <latexsphinxsetup>`.
 
-  ``'maketitle'``
-     "maketitle" call, default ``'\\sphinxmaketitle'``. Override
-     if you want to generate a differently styled title page.
+   Default: ``'\\usepackage{geometry}'`` (or
+   ``'\\usepackage[dvipdfm]{geometry}'`` for Japanese documents)
 
-     .. hint::
+   .. versionadded:: 1.5
 
-        If the key value is set to
-        ``r'\newcommand\sphinxbackoftitlepage{<Extra
-        material>}\sphinxmaketitle'``, then ``<Extra material>`` will be
-        typeset on back of title page (``'manual'`` docclass only).
+   .. versionchanged:: 1.5.2
+      ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
 
-     .. versionchanged:: 1.8.3
-        Original ``\maketitle`` from document class is not overwritten,
-        hence is re-usable as part of some custom setting for this key.
-     .. versionadded:: 1.8.3
-        ``\sphinxbackoftitlepage`` optional macro.  It can also be defined
-        inside ``'preamble'`` key rather than this one.
+   .. versionadded:: 1.5.3
+      The :ref:`'sphinxsetup' keys for the margins
+      <latexsphinxsetuphmargin>`.
 
-  ``'releasename'``
-     value that prefixes ``'release'`` element on title page, default
-     ``'Release'``. As for *title* and *author* used in the tuples of
-     :confval:`latex_documents`, it is inserted as LaTeX markup.
+   .. versionchanged:: 1.5.3
+      The location in the LaTeX file has been moved to after
+      ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
+      insertion of ``'fontpkg'`` key. This is in order to handle the paper
+      layout options in a special way for Japanese documents: the text
+      width will be set to an integer multiple of the *zenkaku* width, and
+      the text height to an integer multiple of the baseline. See the
+      :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
 
-  ``'tableofcontents'``
-     "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
-     wrapper of unmodified ``\tableofcontents``, which may itself be
-     customized by user loaded packages.)
-     Override if
-     you want to generate a different table of contents or put content
-     between the title page and the TOC.
+``'hyperref'``
+   "hyperref" package inclusion; also loads package "hypcap" and issues
+   ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
+   loaded and before executing the contents of ``'preamble'`` key.
 
-     .. versionchanged:: 1.5
-        Previously the meaning of ``\tableofcontents`` itself was modified
-        by Sphinx. This created an incompatibility with dedicated packages
-        modifying it also such as "tocloft" or "etoc".
+   .. attention::
 
-  ``'transition'``
-     Commands used to display transitions, default
-     ``'\n\n\\bigskip\\hrule\\bigskip\n\n'``.  Override if you want to
-     display transitions differently.
+      Loading of packages "hyperref" and "hypcap" is mandatory.
 
-     .. versionadded:: 1.2
-     .. versionchanged:: 1.6
-        Remove unneeded ``{}`` after ``\\hrule``.
+   .. versionadded:: 1.5
+      Previously this was done from inside :file:`sphinx.sty`.
 
-  ``'printindex'``
-     "printindex" call, the last thing in the file, default
-     ``'\\printindex'``.  Override if you want to generate the index
-     differently or append some content after the index. For example
-     ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
-     index is full of long entries.
+``'maketitle'``
+   "maketitle" call. Override if you want to generate a differently styled
+   title page.
 
-  ``'fvset'``
-     Customization of ``fancyvrb`` LaTeX package.  Sphinx does by default
-     ``'fvset': '\\fvset{fontsize=\\small}'``, to adjust for the large
-     character width of the monospace font, used in code-blocks.
-     You may need to modify this if you use custom fonts.
+   .. hint::
 
-     .. versionadded:: 1.8
-     .. versionchanged:: 2.0
-        Due to new default font choice for ``'xelatex'`` and ``'lualatex'``
-        (FreeFont), Sphinx does ``\\fvset{fontsize=\\small}`` also with these
-        engines (and not ``\\fvset{fontsize=auto}``).
+      If the key value is set to
+      ``r'\newcommand\sphinxbackoftitlepage{<Extra
+      material>}\sphinxmaketitle'``, then ``<Extra material>`` will be
+      typeset on back of title page (``'manual'`` docclass only).
 
-* Keys that are set by other options and therefore should not be overridden
-  are:
+   Default: ``'\\sphinxmaketitle'``
 
-  ``'docclass'``
-  ``'classoptions'``
-  ``'title'``
-  ``'release'``
-  ``'author'``
-  ``'makeindex'``
+   .. versionchanged:: 1.8.3
+      Original ``\maketitle`` from document class is not overwritten,
+      hence is reusable as part of some custom setting for this key.
+
+   .. versionadded:: 1.8.3
+      ``\sphinxbackoftitlepage`` optional macro.  It can also be defined
+      inside ``'preamble'`` key rather than this one.
+
+``'releasename'``
+   Value that prefixes ``'release'`` element on title page.  As for *title* and
+   *author* used in the tuples of :confval:`latex_documents`, it is inserted as
+   LaTeX markup.
+
+   Default: ``'Release'``
+
+``'tableofcontents'``
+   "tableofcontents" call. The default of ``'\\sphinxtableofcontents'`` is a
+   wrapper of unmodified ``\tableofcontents``, which may itself be customized
+   by user loaded packages. Override if you want to generate a different table
+   of contents or put content between the title page and the TOC.
+
+   Default: ``'\\sphinxtableofcontents'``
+
+   .. versionchanged:: 1.5
+      Previously the meaning of ``\tableofcontents`` itself was modified
+      by Sphinx. This created an incompatibility with dedicated packages
+      modifying it also such as "tocloft" or "etoc".
+
+``'transition'``
+   Commands used to display transitions. Override if you want to display
+   transitions differently.
+
+   Default: ``'\n\n\\bigskip\\hrule\\bigskip\n\n'``
+
+   .. versionadded:: 1.2
+
+   .. versionchanged:: 1.6
+      Remove unneeded ``{}`` after ``\\hrule``.
+
+``'makeindex'``
+   "makeindex" call, the last thing before ``\begin{document}``. With
+   ``'\\usepackage[columns=1]{idxlayout}\\makeindex'`` the index will use
+   only one column. You may have to install ``idxlayout`` LaTeX package.
+
+   Default: ``'\\makeindex'``
+
+``'printindex'``
+   "printindex" call, the last thing in the file. Override if you want to
+   generate the index differently, append some content after the index, or
+   change the font. As LaTeX uses two-column mode for the index it is
+   often advisable to set this key to
+   ``'\\footnotesize\\raggedright\\printindex'``. Or, to obtain a one-column
+   index, use ``'\\def\\twocolumn[#1]{#1}\\printindex'`` (this trick may fail
+   if using a custom document class; then try the ``idxlayout`` approach
+   described in the documentation of the ``'makeindex'`` key).
+
+   Default: ``'\\printindex'``
+
+``'fvset'``
+   Customization of ``fancyvrb`` LaTeX package.
+
+   The default value is ``'\\fvset{fontsize=auto}'`` which means that the
+   font size will adjust correctly if a code-block ends up in a footnote.
+   You may need to modify this if you use custom fonts:
+   ``'\\fvset{fontsize=\\small}'`` if the monospace font is Courier-like.
+
+   Default: ``'\\fvset{fontsize=auto}'``
+
+   .. versionadded:: 1.8
+
+   .. versionchanged:: 2.0
+      For ``'xelatex'`` and ``'lualatex'`` defaults to
+      ``'\\fvset{fontsize=\\small}'`` as this
+      is adapted to the relative widths of the FreeFont family.
+
+   .. versionchanged:: 4.0.0
+      Changed default for ``'pdflatex'``. Previously it was using
+      ``'\\fvset{fontsize=\\small}'``.
+
+   .. versionchanged:: 4.1.0
+      Changed default for Chinese documents to
+      ``'\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}'``
+
+Keys that are set by other options and therefore should not be overridden are:
+
+``'docclass'``
+``'classoptions'``
+``'title'``
+``'release'``
+``'author'``
 
 
 .. _latexsphinxsetup:
 
-\\'sphinxsetup\\' key
----------------------
+The ``sphinxsetup`` configuration setting
+-----------------------------------------
+
+.. versionadded:: 1.5
 
 The ``'sphinxsetup'`` key of :ref:`latex_elements <latex_elements_confval>`
 provides a LaTeX-type customization interface::
@@ -480,58 +604,118 @@ It defaults to empty.  If non-empty, it will be passed as argument to the
    \usepackage{sphinx}
    \sphinxsetup{key1=value1, key2=value2,...}
 
-.. versionadded:: 1.5
+The colors used in the above are provided by the ``svgnames`` option of the
+"xcolor" package::
 
-.. hint::
+   latex_elements = {
+       'passoptionstopackages': r'\PassOptionsToPackage{svgnames}{xcolor}',
+   }
 
-   It is possible to insert further uses of the ``\sphinxsetup`` LaTeX macro
-   directly into the body of the document, via the help of the :rst:dir:`raw`
-   directive.  Here is how this present chapter is styled in the PDF output::
+It is possible to insert uses of the ``\sphinxsetup`` LaTeX macro directly
+into the body of the document, via the ``raw`` directive.  This chapter is
+styled in the PDF output using the following insertion at its start.  This
+uses keys described later in :ref:`additionalcss`.
 
-     .. raw:: latex
+.. code-block:: latex
 
-        \begingroup
-        \sphinxsetup{%
-              verbatimwithframe=false,
-              VerbatimColor={named}{OldLace},
-              TitleColor={named}{DarkGoldenrod},
-              hintBorderColor={named}{LightCoral},
-              attentionborder=3pt,
-              attentionBorderColor={named}{Crimson},
-              attentionBgColor={named}{FloralWhite},
-              noteborder=2pt,
-              noteBorderColor={named}{Olive},
-              cautionborder=3pt,
-              cautionBorderColor={named}{Cyan},
-              cautionBgColor={named}{LightCyan}}
+   .. raw:: latex
 
-   at the start of the chapter and::
-
-     .. raw:: latex
-
-        \endgroup
-
-   at its end.
-
-   The colors used in the above are provided by the ``svgnames`` option of the
-   "xcolor" package::
-
-      latex_elements = {
-          'passoptionstopackages': r'\PassOptionsToPackage{svgnames}{xcolor}',
+      \begingroup
+      \sphinxsetup{%
+         TitleColor={named}{DarkGoldenrod},
+         % pre_border-width is 5.1.0 alias for verbatimborder
+         pre_border-width=2pt,
+         pre_border-right-width=8pt,
+         % pre_padding is a 5.1.0 alias for verbatimsep
+         pre_padding=5pt,
+         % Rounded boxes are new at 5.1.0
+         pre_border-radius=5pt,
+         % TeXcolor reminds that syntax must be as for LaTeX \definecolor
+         pre_background-TeXcolor={named}{OldLace},
+         % ... and since 5.3.0 also xcolor \colorlet syntax is accepted and we
+         %     can thus drop the {named}{...} thing if xcolor is available!
+         pre_border-TeXcolor=Gold,
+         % ... and even take more advantage of xcolor syntax:
+         pre_border-TeXcolor=Gold!90,
+         % add a shadow to code-blocks
+         pre_box-shadow=6pt 6pt,
+         pre_box-shadow-TeXcolor=gray!20,
+         %
+         % This 5.1.0 CSS-named option is alias for warningborder
+         div.warning_border-width=3pt,
+         % Prior to 5.1.0, padding for admonitions was not customizable
+         div.warning_padding=6pt,
+         div.warning_padding-right=18pt,
+         div.warning_padding-bottom=18pt,
+         % Assume xcolor has been loaded with its svgnames option
+         div.warning_border-TeXcolor=DarkCyan,
+         div.warning_background-TeXcolor=LightCyan,
+         % This one is the only option with space separated input:
+         div.warning_box-shadow=-12pt -12pt inset,
+         div.warning_box-shadow-TeXcolor=Cyan,
+         %
+         % The 5.1.0 new name would be div.attention_border-width
+         attentionborder=3pt,
+         % The 5.1.0 name here would be div.attention_border-TeXcolor
+         attentionBorderColor=Crimson,
+         % The 5.1.0 name would be div.attention_background-TeXcolor
+         attentionBgColor=FloralWhite,
+         %
+         % For note/hint/important/tip, the CSS syntax was added at 6.2.0
+         % Legacy syntax still works
+         noteborder=1pt,
+         noteBorderColor=Olive,
+         % But setting a background color via the new noteBgColor means that
+         % it will be rendered using the same interface as warning type
+         noteBgColor=Olive!10,
+         % We can customize separately the four border-widths, and mimic
+         % the legacy "light" rendering, but now with a background color:
+         % div.note_border-left-width=0pt,
+         % div.note_border-right-width=0pt,
+         % Let's rather for variety use lateral borders:
+         div.note_border-top-width=0pt,
+         div.note_border-bottom-width=0pt,
+         %
+         % As long as only border width and border color are set, *and* using
+         % for this the old interface, the rendering will be the "light" one
+         hintBorderColor=LightCoral,
+         % but if we had used div.hint_border-TeXcolor or *any* CSS-named
+         % option we would have triggered the more complex "heavybox" code.
       }
 
 
-LaTeX boolean keys require *lowercase* ``true`` or ``false`` values.
+And this is placed at the end of the chapter source to end the scope of
+the configuration:
+
+.. code-block:: latex
+
+   .. raw:: latex
+
+      \endgroup
+
+LaTeX syntax for boolean keys requires *lowercase* ``true`` or ``false``
+e.g ``'sphinxsetup': "verbatimwrapslines=false"``.  If setting the
+boolean key to ``true``, ``=true`` is optional.
 Spaces around the commas and equal signs are ignored, spaces inside LaTeX
 macros may be significant.
+Do not use quotes to enclose values, whether numerical or strings.
+
+``bookmarksdepth``
+    Controls the depth of the collapsible bookmarks panel in the PDF.
+    May be either a number (e.g. ``3``) or a LaTeX sectioning name (e.g.
+    ``subsubsection``, i.e. without backslash).
+    For details, refer to the ``hyperref`` LaTeX docs.
+
+    Default: ``5``
+
+    .. versionadded:: 4.0.0
 
 .. _latexsphinxsetuphmargin:
 
 ``hmargin, vmargin``
     The dimensions of the horizontal (resp. vertical) margins, passed as
-    ``hmargin`` (resp. ``vmargin``) option to
-    the ``geometry`` package. The default is ``1in``, which is equivalent to
-    ``{1in,1in}``. Example::
+    ``hmargin`` (resp. ``vmargin``) option to the ``geometry`` package.
+    Example::
 
       'sphinxsetup': 'hmargin={2in,1.5in}, vmargin={1.5in,2in}, marginpar=1in',
 
@@ -540,6 +724,8 @@ macros may be significant.
     to get the text width set to an exact multiple of the *zenkaku* width, and
     the text height set to an integer multiple of the baselineskip, with the
     closest fit for the margins.
+
+    Default: ``1in`` (equivalent to ``{1in,1in}``)
 
     .. hint::
 
@@ -553,63 +739,134 @@ macros may be significant.
     .. versionadded:: 1.5.3
 
 ``marginpar``
-    The ``\marginparwidth`` LaTeX dimension, defaults to ``0.5in``. For Japanese
-    documents, the value is modified to be the closest integer multiple of the
-    *zenkaku* width.
+    The ``\marginparwidth`` LaTeX dimension. For Japanese documents, the value
+    is modified to be the closest integer multiple of the *zenkaku* width.
+
+    Default: ``0.5in``
 
     .. versionadded:: 1.5.3
 
 ``verbatimwithframe``
-    default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
-    includes are framed. Setting it to ``false`` does not deactivate use of
-    package "framed", because it is still in use for the optional background
-    colour.
+    Boolean to specify if :rst:dir:`code-block`\ s and literal includes are
+    framed. Setting it to ``false`` does not deactivate use of package
+    "framed", because it is still in use for the optional background color.
+
+    Default: ``true``.
 
 ``verbatimwrapslines``
-    default ``true``. Tells whether long lines in :rst:dir:`code-block`\ 's
-    contents should wrap.
+    Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents are
+    wrapped.
 
-``literalblockcappos``
-    default ``t`` for "top". Decides the caption position. Alternative is
-    ``b`` ("bottom").
+    If ``true``, line breaks may happen at spaces (the last space before the
+    line break will be rendered using a special symbol), and at ASCII
+    punctuation characters (i.e. not at letters or digits). Whenever a long
+    string has no break points, it is moved to next line. If its length is
+    longer than the line width it will overflow.
 
-    .. versionadded:: 1.7
+    Default: ``true``
+
+.. _latexsphinxsetupforcewraps:
+
+``verbatimforcewraps``
+    Boolean to specify if long lines in :rst:dir:`code-block`\ 's contents
+    should be forcefully wrapped to never overflow due to long strings.
+
+    .. note::
+
+       It is assumed that the Pygments_ LaTeXFormatter has not been used with
+       its ``texcomments`` or similar options which allow additional
+       (arbitrary) LaTeX mark-up.
+
+       Also, in case of :confval:`latex_engine` set to ``'pdflatex'``, only
+       the default LaTeX handling of Unicode code points, i.e. ``utf8`` not
+       ``utf8x`` is allowed.
+
+    .. _Pygments: https://pygments.org/
+
+    Default: ``false``
+
+    .. versionadded:: 3.5.0
+
+``verbatimmaxoverfull``
+    A number. If an unbreakable long string has length larger than the total
+    linewidth plus this number of characters, and if ``verbatimforcewraps``
+    mode is on, the input line will be reset using the forceful algorithm
+    which applies breakpoints at each character.
+
+    Default: ``3``
+
+    .. versionadded:: 3.5.0
+
+``verbatimmaxunderfull``
+    A number. If ``verbatimforcewraps`` mode applies, and if after applying
+    the line wrapping at spaces and punctuation, the first part of the split
+    line is lacking at least that number of characters to fill the available
+    width, then the input line will be reset using the forceful algorithm.
+
+    As the default is set to a high value, the forceful algorithm is triggered
+    only in overfull case, i.e. in presence of a string longer than full
+    linewidth. Set this to ``0`` to force all input lines to be hard wrapped
+    at the current available linewidth::
+
+      latex_elements = {
+          'sphinxsetup': "verbatimforcewraps, verbatimmaxunderfull=0",
+      }
+
+    This can be done locally for a given code-block via the use of raw latex
+    directives to insert suitable ``\sphinxsetup`` (before and after) into the
+    latex file.
+
+    Default: ``100``
+
+    .. versionadded:: 3.5.0
 
 ``verbatimhintsturnover``
-    default ``true``. If ``true``, code-blocks display "continued on next
-    page", "continued from previous page" hints in case of pagebreaks.
+    Boolean to specify if code-blocks display "continued on next page" and
+    "continued from previous page" hints in case of page breaks.
+
+    Default: ``true``
 
     .. versionadded:: 1.6.3
     .. versionchanged:: 1.7
        the default changed from ``false`` to ``true``.
 
 ``verbatimcontinuedalign``, ``verbatimcontinuesalign``
-    default ``r``. Horizontal position relative to the framed contents:
-    either ``l`` (left aligned), ``r`` (right aligned) or ``c`` (centered).
+    Horizontal position relative to the framed contents: either ``l`` (left
+    aligned), ``r`` (right aligned) or ``c`` (centered).
+
+    Default: ``r``
 
     .. versionadded:: 1.7
 
 ``parsedliteralwraps``
-    default ``true``. Tells whether long lines in :dudir:`parsed-literal`\ 's
-    contents should wrap.
+    Boolean to specify if long lines in :dudir:`parsed-literal`\ 's contents
+    should wrap.
+
+    Default: ``true``
 
     .. versionadded:: 1.5.2
-       set this option value to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behavior.
 
 ``inlineliteralwraps``
-    default ``true``. Allows linebreaks inside inline literals: but extra
-    potential break-points (additionally to those allowed by LaTeX at spaces
-    or for hyphenation) are currently inserted only after the characters
-    ``. , ; ? ! /``. Due to TeX internals, white space in the line will be
-    stretched (or shrunk) in order to accomodate the linebreak.
+    Boolean to specify if line breaks are allowed inside inline literals: but
+    extra potential break-points (additionally to those allowed by LaTeX at
+    spaces or for hyphenation) are currently inserted only after the characters
+    ``. , ; ? ! /`` and ``\``. Due to TeX internals, white space in the line
+    will be stretched (or shrunk) in order to accommodate the linebreak.
+
+    Default: ``true``
 
     .. versionadded:: 1.5
-       set this option value to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behavior.
+
+    .. versionchanged:: 2.3.0
+       added potential breakpoint at ``\`` characters.
 
 ``verbatimvisiblespace``
-    default ``\textcolor{red}{\textvisiblespace}``. When a long code line is
-    split, the last space character from the source code line right before the
-    linebreak location is typeset using this.
+    When a long code line is split, the last space character from the source
+    code line right before the linebreak location is typeset using this.
+
+    Default: ``\textcolor{red}{\textvisiblespace}``
 
 ``verbatimcontinued``
     A LaTeX macro inserted at start of continuation code lines. Its
@@ -619,92 +876,242 @@ macros may be significant.
 
     .. versionchanged:: 1.5
        The breaking of long code lines was added at 1.4.2. The default
-       definition of the continuation symbol was changed at 1.5 to accomodate
+       definition of the continuation symbol was changed at 1.5 to accommodate
        various font sizes (e.g. code-blocks can be in footnotes).
-
-``TitleColor``
-    default ``{rgb}{0.126,0.263,0.361}``. The colour for titles (as configured
-    via use of package "titlesec".)
-
-.. warning::
-
-   Colours set via ``'sphinxsetup'``  must obey the syntax of the
-   argument of the ``color/xcolor`` packages ``\definecolor`` command.
-
-``InnerLinkColor``
-    default ``{rgb}{0.208,0.374,0.486}``. A colour passed to ``hyperref`` as
-    value of ``linkcolor``  and ``citecolor``.
-
-``OuterLinkColor``
-    default ``{rgb}{0.216,0.439,0.388}``. A colour passed to ``hyperref`` as
-    value of ``filecolor``, ``menucolor``, and ``urlcolor``.
-
-``VerbatimColor``
-    default ``{rgb}{1,1,1}``. The background colour for
-    :rst:dir:`code-block`\ s. The default is white.
-
-``VerbatimBorderColor``
-    default ``{rgb}{0,0,0}``. The frame color, defaults to black.
-
-``VerbatimHighlightColor``
-    default ``{rgb}{0.878,1,1}``. The color for highlighted lines.
-
-    .. versionadded:: 1.6.6
 
 .. note::
 
-   Starting with this colour key, and for all others coming next, the actual
-   names declared to "color" or "xcolor" are prefixed with "sphinx".
+   Values for color keys must either:
+
+   - obey the syntax of the ``\definecolor`` LaTeX command, e.g. something
+     such as ``VerbatimColor={rgb}{0.2,0.3,0.5}`` or ``{RGB}{37,23,255}`` or
+     ``{gray}{0.75}`` or (only with package ``xcolor``) ``{HTML}{808080}`` or
+     ...
+
+   - or obey the syntax of the ``\colorlet`` command from package ``xcolor``
+     (which then must exist in the LaTeX installation),
+     e.g. ``VerbatimColor=red!10`` or ``red!50!green`` or ``-red!75`` or
+     ``MyPreviouslyDefinedColor`` or... Refer to xcolor_ documentation for
+     this syntax.
+
+   .. _xcolor: https://ctan.org/pkg/xcolor
+
+   .. versionchanged:: 5.3.0
+      Formerly only the ``\definecolor`` syntax was accepted.
+
+``TitleColor``
+    The color for titles (as configured via use of package "titlesec".)
+
+    Default: ``{rgb}{0.126,0.263,0.361}``
+
+``InnerLinkColor``
+    A color passed to ``hyperref`` as value of ``linkcolor``  and
+    ``citecolor``.
+
+    Default: ``{rgb}{0.208,0.374,0.486}``.
+
+``OuterLinkColor``
+    A color passed to ``hyperref`` as value of ``filecolor``, ``menucolor``,
+    and ``urlcolor``.
+
+    Default: ``{rgb}{0.216,0.439,0.388}``
+
+``VerbatimColor``
+    The background color for :rst:dir:`code-block`\ s.
+
+    Default: ``{gray}{0.95}``
+
+    .. versionchanged:: 6.0.0
+
+       Formerly, it was ``{rgb}{1,1,1}`` (white).
+
+``VerbatimBorderColor``
+    The frame color.
+
+    Default: ``{RGB}{32,32,32}``
+
+    .. versionchanged:: 6.0.0
+
+       Formerly it was ``{rgb}{0,0,0}`` (black).
+
+``VerbatimHighlightColor``
+    The color for highlighted lines.
+
+    Default: ``{rgb}{0.878,1,1}``
+
+    .. versionadded:: 1.6.6
+
+.. _tablecolors:
+
+``TableRowColorHeader``
+    Sets the background color for (all) the header rows of tables.
+
+    It will have an effect only if either the :confval:`latex_table_style`
+    contains ``'colorrows'`` or if the table is assigned the ``colorrows``
+    class.  It is ignored for tables with ``nocolorrows`` class.
+
+    As for the other ``'sphinxsetup'`` keys, it can also be set or modified
+    from a ``\sphinxsetup{...}`` LaTeX command inserted via the :dudir:`raw`
+    directive, or also from a LaTeX environment associated to a `container
+    class <latexcontainer_>`_ and using such ``\sphinxsetup{...}``.
+
+    Default: ``{gray}{0.86}``
+
+    There is also ``TableMergeColorHeader``.  If used, sets a specific color
+    for merged single-row cells in the header.
+
+    .. versionadded:: 5.3.0
+
+``TableRowColorOdd``
+    Sets the background color for odd rows in tables (the row count starts at
+    ``1`` at the first non-header row).  Has an effect only if the
+    :confval:`latex_table_style` contains ``'colorrows'`` or for specific
+    tables assigned the ``colorrows`` class.
+
+    Default: ``{gray}{0.92}``
+
+    There is also ``TableMergeColorOdd``.
+
+    .. versionadded:: 5.3.0
+
+``TableRowColorEven``
+    Sets the background color for even rows in tables.
+
+    Default ``{gray}{0.98}``
+
+    There is also ``TableMergeColorEven``.
+
+    .. versionadded:: 5.3.0
 
 ``verbatimsep``
-    default ``\fboxsep``. The separation between code lines and the frame.
+    The separation between code lines and the frame.
+
+    See :ref:`additionalcss` for its alias  ``pre_padding`` and
+    additional keys.
+
+    Default: ``\fboxsep``
 
 ``verbatimborder``
-    default ``\fboxrule``. The width of the frame around
-    :rst:dir:`code-block`\ s.
+    The width of the frame around :rst:dir:`code-block`\ s.  See also
+    :ref:`additionalcss` for ``pre_border-width``.
+
+    Default: ``\fboxrule``
 
 ``shadowsep``
-    default ``5pt``. The separation between contents and frame for
-    :dudir:`contents` and :dudir:`topic` boxes.
+    The separation between contents and frame for contents_ and
+    :dudir:`topic` boxes.
+
+    See :ref:`additionalcss` for the alias ``div.topic_padding``.
+
+    Default: ``5pt``
 
 ``shadowsize``
-    default ``4pt``. The width of the lateral "shadow" to the right.
+    The width of the lateral "shadow" to the right and bottom.
+
+    See :ref:`additionalcss` for ``div.topic_box-shadow`` which allows to
+    configure separately the widths of the vertical and horizontal shadows.
+
+    Default: ``4pt``
+
+    .. versionchanged:: 6.1.2
+       Fixed a regression introduced at ``5.1.0`` which modified unintentionally
+       the width of topic boxes and worse had made usage of this key break PDF
+       builds.
 
 ``shadowrule``
-    default ``\fboxrule``. The width of the frame around :dudir:`topic` boxes.
+    The width of the frame around :dudir:`topic` boxes.  See also
+    :ref:`additionalcss` for ``div.topic_border-width``.
+
+    Default: ``\fboxrule``
 
 |notebdcolors|
-    default ``{rgb}{0,0,0}`` (black). The colour for the two horizontal rules
-    used by Sphinx in LaTeX for styling a :dudir:`note` type admonition.
+    The color for the two horizontal rules used by Sphinx in LaTeX for styling
+    a :dudir:`note` type admonition.
+
+    Default: ``{rgb}{0,0,0}`` (black)
+
+|notebgcolors|
+    The optional color for the background.  It is a priori set to white, but
+    is not used, unless it has been set explicitly, and doing this triggers
+    Sphinx into switching to the more complex LaTeX code which is employed
+    also for ``warning`` type admonitions.  There are then additional options
+    which are described in :ref:`additionalcss`.
+
+    Default: ``{rgb}{1,1,1}`` (white)
+
+    .. versionadded:: 6.2.0
+
+|notetextcolors|
+    The optional color for the contents.
+
+    Default: unset (uses ambient text color, a priori black)
+
+    .. versionadded:: 6.2.0
+
+       To be considered experimental until 7.0.0.  These options have aliases
+       ``div.note_TeXcolor`` (etc) described in :ref:`additionalcss`.  Using
+       the latter will let Sphinx switch to a more complex LaTeX code,
+       which supports the customizability described in :ref:`additionalcss`.
+
+|notetexextras|
+    Some extra LaTeX code (such as ``\bfseries``  or ``\footnotesize``)
+    to be executed at start of the contents.
+
+    Default: empty
+
+    .. versionadded:: 6.2.0
+
+       To be considered experimental until 7.0.0.  These options have aliases
+       ``div.note_TeXextras`` (etc) described in :ref:`additionalcss`.
 
 ``noteborder``, ``hintborder``, ``importantborder``, ``tipborder``
-    default ``0.5pt``. The width of the two horizontal rules.
+    The width of the two horizontal rules.
+
+    If the background color is set, or the alternative :ref:`additionalcss`
+    syntax is used (e.g. ``div.note_border-width=1pt`` in place of
+    ``noteborder=1pt``), or *any* option with a CSS-alike name is used, then
+    the border is a full frame and this parameter sets its width also for left
+    and right.
+
+    Default: ``0.5pt``
 
 .. only:: not latex
 
    |warningbdcolors|
-       default ``{rgb}{0,0,0}`` (black). The colour for the admonition frame.
+       The color for the admonition frame.
+
+   Default: ``{rgb}{0,0,0}`` (black)
 
 .. only:: latex
 
    |wgbdcolorslatex|
-       default ``{rgb}{0,0,0}`` (black). The colour for the admonition frame.
+       The color for the admonition frame.
+
+   Default: ``{rgb}{0,0,0}`` (black)
 
 |warningbgcolors|
-    default ``{rgb}{1,1,1}`` (white). The background colours for the respective
-    admonitions.
+    The background colors for the respective admonitions.
+
+    Default: ``{rgb}{1,1,1}`` (white)
 
 |warningborders|
-    default ``1pt``. The width of the frame.
+    The width of the frame.  See
+    :ref:`additionalcss` for keys allowing to configure separately each
+    border width.
+
+    Default: ``1pt``
 
 ``AtStartFootnote``
-    default ``\mbox{ }``. LaTeX macros inserted at the start of the footnote
-    text at bottom of page, after the footnote number.
+    LaTeX macros inserted at the start of the footnote text at bottom of page,
+    after the footnote number.
+
+    Default: ``\mbox{ }``
 
 ``BeforeFootnote``
-    default ``\leavevmode\unskip``. LaTeX macros inserted before the footnote
-    mark. The default removes possible space before it (else, TeX could insert
-    a linebreak there).
+    LaTeX macros inserted before the footnote mark. The default removes
+    possible space before it (else, TeX could insert a line break there).
+
+    Default: ``\leavevmode\unskip``
 
     .. versionadded:: 1.5
 
@@ -715,13 +1122,21 @@ macros may be significant.
 .. |notebdcolors| replace:: ``noteBorderColor``, ``hintBorderColor``,
                             ``importantBorderColor``, ``tipBorderColor``
 
+.. |notebgcolors| replace:: ``noteBgColor``, ``hintBgColor``,
+                            ``importantBgColor``, ``tipBgColor``
+
+.. |notetextcolors| replace:: ``noteTextColor``, ``hintTextColor``,
+                              ``importantTextColor``, ``tipTextColor``
+
+.. |notetexextras| replace:: ``noteTeXextras``, ``hintTeXextras``,
+                             ``importantTeXextras``, ``tipTeXextras``
+
 .. |warningbdcolors| replace:: ``warningBorderColor``, ``cautionBorderColor``,
                                ``attentionBorderColor``, ``dangerBorderColor``,
                                ``errorBorderColor``
 
-.. |wgbdcolorslatex| replace:: ``warningBorderColor``, ``cautionBorderColor``,
-                               ``attentionB..C..``, ``dangerB..C..``,
-                               ``errorB..C..``
+.. |wgbdcolorslatex| replace:: ``warningBorderColor``, and
+                               ``(caution|attention|danger|error)BorderColor``
 
 .. else latex goes into right margin, as it does not hyphenate the names
 
@@ -733,102 +1148,577 @@ macros may be significant.
                               ``attentionborder``, ``dangerborder``,
                               ``errorborder``
 
+.. _additionalcss:
+
+Additional  CSS-like ``'sphinxsetup'`` keys
+-------------------------------------------
+
+.. versionadded:: 5.1.0
+
+   For :rst:dir:`code-block`, :dudir:`topic` and contents_ directive,
+   and strong-type admonitions (:dudir:`warning`, :dudir:`error`, ...).
+
+.. versionadded:: 6.2.0
+
+   Also the :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip`
+   admonitions can be styled this way.  Using for them *any* of the listed
+   options will trigger usage of a more complex LaTeX code than the one used
+   per default (``sphinxheavybox`` vs ``sphinxlightbox``).  Setting the new
+   ``noteBgColor`` (or ``hintBgColor``, ...) also triggers usage of
+   ``sphinxheavybox`` for :dudir:`note` (or :dudir:`hint`, ...).
+
+Perhaps in future these 5.1.0 (and 6.2.0) novel settings will be optionally
+imported from some genuine CSS external file, but currently they have to be used
+via the ``'sphinxsetup'`` interface (or the ``\sphinxsetup`` LaTeX command
+inserted via the :dudir:`raw` directive) and the CSS syntax is only imitated.
+
+.. important:: Low-level LaTeX errors causing a build failure can happen if
+   the input syntax is not respected.
+
+   * In particular colors must be input as for the other color related options
+     previously described, i.e. either in the ``\definecolor`` syntax or, if
+     package ``xcolor`` is available (it is then automatically used) also the
+     ``\colorlet`` syntax::
+
+       ...<other options>
+       div.warning_border-TeXcolor={rgb}{1,0,0},% (always works)
+       div.error_background-TeXcolor=red!10,% (works only if xcolor is available)
+       ...<other options>
+
+   * A colon in place of the equal sign will break LaTeX.
+
+   * ``...border-width`` or ``...padding`` expect a *single* dimension: they can not
+     be used so far with space separated dimensions.
+
+   * ``...top-right-radius`` et al. values may be either a single or *two* space
+     separated dimensions.
+
+   * Dimension specifications must use TeX units such as ``pt`` or ``cm`` or
+     ``in``.  The ``px`` unit is recognized by ``pdflatex`` and ``lualatex``
+     but not by ``xelatex`` or ``platex``.
+
+   * It is allowed for such specifications to be so-called "dimensional
+     expressions", e.g. ``\fboxsep+2pt`` or ``0.5\baselineskip`` are valid
+     inputs.  The expressions will be evaluated only at the typesetting time.
+     Be careful though if using as in these examples TeX control sequences to
+     double the backslash or to employ a raw Python string for the value of
+     the :ref:`'sphinxsetup' <latexsphinxsetup>` key.
+
+   * As a rule, avoid inserting unneeded spaces in the key values: especially
+     for the radii an input such  ``2 pt 3pt`` will break LaTeX.  Beware also
+     that ``\fboxsep \fboxsep`` will not be seen as space separated in LaTeX.
+     You must use something such as ``{\fboxsep} \fboxsep``.  Or use
+     directly ``3pt 3pt`` which is a priori equivalent and simpler.
+
+The options are all named in a similar pattern which depends on a ``prefix``,
+which is then followed by an underscore, then the property name.
+
+.. csv-table::
+   :header: Directive, Option prefix, LaTeX environment
+
+   :rst:dir:`code-block`, ``pre``, ``sphinxVerbatim``
+   :dudir:`topic`, ``div.topic``, ``sphinxShadowBox``
+   contents_, ``div.topic``, ``sphinxShadowBox``
+   :dudir:`note`, ``div.note``, ``sphinxnote`` using ``sphinxheavybox``
+   :dudir:`warning`, ``div.warning``, ``sphinxwarning`` (uses ``sphinxheavybox``)
+   admonition type, ``div.<type>``,  ``sphinx<type>`` (using ``sphinxheavybox``)
+
+Here are now these options as well as their common defaults.
+Replace below ``<prefix>`` by the actual prefix as explained above.  Don't
+forget the underscore separating the prefix from the property names.
+
+- | ``<prefix>_border-top-width``,
+  | ``<prefix>_border-right-width``,
+  | ``<prefix>_border-bottom-width``,
+  | ``<prefix>_border-left-width``,
+  | ``<prefix>_border-width``.  The latter can (currently) be only a *single*
+    dimension which then sets all four others.
+
+  The default is that all those dimensions are equal.  They are set to:
+
+  * ``\fboxrule`` (i.e. a priori ``0.4pt``) for :rst:dir:`code-block`,
+  * ``\fboxrule`` for :dudir:`topic` or contents_ directive,
+  * ``1pt`` for  :dudir:`warning` and other "strong" admonitions,
+  * ``0.5pt`` for :dudir:`note` and other "light" admonitions.  The framing
+    style of the "lighbox" used for them in absence of usage of CSS-named
+    options will be emulated by the richer "heavybox" if setting
+    ``border-left-width`` and ``border-right-width`` both to ``0pt``.
+
+- ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
+  ``slice`` and configures the behavior at page breaks.
+  It defaults to ``slice`` for :rst:dir:`code-block` (i.e. for ``<prefix>=pre``)
+  since 6.0.0.  For other directives the default is ``clone``.
+- | ``<prefix>_padding-top``,
+  | ``<prefix>_padding-right``,
+  | ``<prefix>_padding-bottom``,
+  | ``<prefix>_padding-left``,
+  | ``<prefix>_padding``.  The latter can (currently) be only a *single*
+    dimension which then sets all four others.
+
+  The default is that all those dimensions are equal.  They are set to:
+
+  * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block`,
+  * ``5pt`` for :dudir:`topic` or contents_ directive,
+  * a special value for  :dudir:`warning` and other "strong" admonitions,
+    which ensures a backward compatible behavior.
+
+    .. important::
+
+       Prior to 5.1.0 there was no separate customizability of
+       padding for warning-type boxes in PDF via LaTeX output.  The sum of
+       padding and border-width (as set for example for :dudir:`warning` by
+       ``warningborder``, now also named ``div.warning_border-width``) was
+       kept to a certain constant value.  This limited the border-width
+       to small values else the border could overlap the text contents.
+       This behavior is kept as default.
+
+  * the same padding behavior is obeyed per default for :dudir:`note` or
+    other "light" admonitions when using ``sphinxheavybox``.
+- | ``<prefix>_border-top-left-radius``,
+  | ``<prefix>_border-top-right-radius``,
+  | ``<prefix>_border-bottom-right-radius``,
+  | ``<prefix>_border-bottom-left-radius``,
+  | ``<prefix>_border-radius``.  This last key sets the first four to
+    its assigned value.  Each key value can be either a single, or *two*,
+    dimensions which are then space separated.
+
+  The default is that all four corners are either circular or straight,
+  with common radii:
+
+  * ``\fboxsep`` (i.e. a priori ``3pt``) for :rst:dir:`code-block` (since 6.0.0).
+  * ``0pt`` for all other directives; this means to use straight corners.
+
+  See a remark above about traps with spaces in LaTeX.
+- ``<prefix>_box-shadow`` is special in so far as it may be:
+
+  * the ``none`` keyword,
+  * or a single dimension (giving both x-offset and y-offset),
+  * or two dimensions (separated by a space),
+  * or two dimensions followed by the keyword ``inset``.
+
+  The x-offset and y-offset may be negative.  The default is ``none``,
+  *except* for the :dudir:`topic` or contents_ directives, for which it is
+  ``4pt 4pt``, i.e. the shadow has a width of ``4pt`` and extends to the right
+  and below the frame.  The lateral shadow then extends into the page right
+  margin.
+- | ``<prefix>_border-TeXcolor``,
+  | ``<prefix>_background-TeXcolor``,
+  | ``<prefix>_box-shadow-TeXcolor``,
+  | ``<prefix>_TeXcolor``.
+    These are colors.
+
+  The shadow color defaults in all cases to ``{rgb}{0,0,0}`` i.e. to black.
+
+  Since 6.0.0 the border color and background color of :rst:dir:`code-block`,
+  i.e. ``pre`` prefix, default respectively to ``{RGB}{32,32,32}`` and
+  ``{gray}{0.95}``.  They previously defaulted to black, respectively white.
+
+  For all other types, the border color defaults to black and the background
+  color to white.
+
+  The ``<prefix>_TeXcolor`` stands for the CSS property "color", i.e. it
+  influences the text color of the contents.  As for the three other options,
+  the naming ``TeXcolor`` is to stress that the input syntax is the TeX one
+  for colors not an HTML/CSS one.  If package ``xcolor`` is available in the
+  LaTeX installation, one can use directly named colors as key values.
+  Consider passing options such as ``dvipsnames``, ``svgnames`` or ``x11names``
+  to ``xcolor`` via ``'passoptionstopackages'`` key of :confval:`latex_elements`.
+
+  If ``<prefix>_TeXcolor`` is set, a ``\color`` command is inserted at
+  start of the directive contents; for admonitions, this happens after the
+  heading which reproduces the admonition type.
+
+- ``<prefix>_TeXextras``: if set, its value must be some LaTeX command or
+  commands, for example ``\itshape``.  These commands will be inserted at the
+  start of the contents; for admonitions, this happens after the heading which
+  reproduces the admonition type.
+
+.. note::
+
+   - All directives support ``box-decoration-break`` to be set to ``slice``.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly, only :rst:dir:`code-block` did.  The default remains
+        ``clone`` for all other directives, but this will probably change at
+        7.0.0.
+
+   - The corners of rounded boxes may be elliptical.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly, only circular rounded corners were supported and a rounded
+        corner forced the whole frame to use the same constant width from
+        ``<prefix>_border-width``.
+
+   - Inset shadows are incompatible with rounded corners.  In case
+     both are specified the inset shadow will simply be ignored.
+
+     .. versionchanged:: 6.2.0
+
+        Formerly it was to the contrary the rounded corners which were ignored
+        in case an inset shadow was specified.
+
+   - ``<prefix>_TeXcolor`` and ``<prefix>_TeXextras`` are new with 6.2.0.
+
+     Usefulness is doubtful in the case of :rst:dir:`code-block`:
+
+     - ``pre_TeXcolor`` will influence only the few non-Pygments highlighted
+       tokens; it does color the line numbers, but if one wants to color
+       *only* them one has to go through the ``fancyvrb`` interface.
+
+     - ``pre_TeXextras=\footnotesize`` for example may be replaced by usage of
+       the :confval:`latex_elements` key ``'fvset'``.  For ``'lualatex'`` or
+       ``'xelatex'`` Sphinx includes in the preamble already
+       ``\fvset{fontsize=\small}`` and this induces ``fancyvrb`` into
+       overriding a ``\footnotesize`` coming from ``pre_TeXextras``.  One has
+       to use ``pre_TeXextras=\fvset{fontsize=\footnotesize}`` syntax.
+       Simpler to set directly the :confval:`latex_elements` key
+       ``'fvset'``...
+
+     Consider these options experimental and that some implementation details
+     may change.  For example if the ``pre_TeXextras`` LaTeX commands were put
+     by Sphinx in another location it could override the ``'fvset'`` effect,
+     perhaps this is what will be done in a future release.
+
+   - Rounded boxes are done using the pict2e_ interface to some basic PDF
+     graphics operations.  If this LaTeX package can not be found the build
+     will proceed and render all boxes with straight corners.
+
+   - Elliptic corners use the ellipse_ LaTeX package which extends pict2e_.
+     If this LaTeX package can not be found rounded corners will be circular
+     arcs (or straight if pict2e_ is not available).
+
+.. _pict2e: https://ctan.org/pkg/pict2e
+.. _ellipse: https://ctan.org/pkg/ellipse
+
+
+The following legacy behavior is currently not customizable:
+
+- For :rst:dir:`code-block`, padding and border-width and shadow (if one adds
+  one) will go into the margin; the code lines remain at the same place
+  independently of the values of the padding and border-width, except for
+  being shifted vertically of course to not overwrite other text due to the
+  width of the border or external shadow.
+
+- For :dudir:`topic` (and contents_) the shadow (if on right) goes into the
+  page margin, but the border and the extra padding are kept within the text
+  area.  Same for admonitions.
+
+- The contents_ and :dudir:`topic` directives are governed by the same options
+  with ``div.topic`` prefix: the Sphinx LaTeX mark-up uses for both directives
+  the same ``sphinxShadowBox`` environment which has currently no additional
+  branching, contrarily to the ``sphinxadmonition`` environment which branches
+  according to the admonition directive name, e.g. either to ``sphinxnote``
+  or ``sphinxwarning`` etc...
+
+
 LaTeX macros and environments
 -----------------------------
 
-Here are some macros from the package file :file:`sphinx.sty` and class files
-:file:`sphinxhowto.cls`, :file:`sphinxmanual.cls`, which have public names
-thus allowing redefinitions. Check the respective files for the defaults.
+The "LaTeX package" file :file:`sphinx.sty` loads various components
+providing support macros (aka commands), and environments, which are used in
+the mark-up produced on output from the ``latex`` builder, before conversion
+to ``pdf`` via the LaTeX toolchain.  Also the "LaTeX class" files
+:file:`sphinxhowto.cls` and :file:`sphinxmanual.cls` define or customize some
+environments.  All of these files can be found in the latex build repertory.
+
+Some of these provide facilities not available from pre-existing LaTeX
+packages and work around LaTeX limitations with lists, table cells, verbatim
+rendering, footnotes, etc...
+
+Others simply define macros with public names to make overwriting their
+defaults easy via user-added contents to the preamble.  We will survey most of
+those public names here, but defaults have to be looked at in their respective
+definition files.
+
+.. hint::
+
+   Sphinx LaTeX support code is split across multiple smaller-sized files.
+   Rather than adding code to the preamble via
+   `latex_elements <latex_elements_confval_>`_\ [``'preamble'``] it is
+   also possible to replace entirely one of the component files of Sphinx
+   LaTeX code with a custom version, simply by including a modified copy in
+   the project source and adding the filename to the
+   :confval:`latex_additional_files` list.  Check the LaTeX build repertory
+   for the filenames and contents.
+
+.. versionchanged:: 4.0.0
+   split of :file:`sphinx.sty` into multiple smaller units, to facilitate
+   customization of many aspects simultaneously.
 
 .. _latex-macros:
 
 Macros
 ~~~~~~
 
-- text styling commands:
+- Text styling commands:
 
-  - ``\sphinxstrong``,
-  - ``\sphinxbfcode``,
-  - ``\sphinxemail``,
-  - ``\sphinxtablecontinued``,
-  - ``\sphinxtitleref``,
-  - ``\sphinxmenuselection``,
-  - ``\sphinxaccelerator``,
-  - ``\sphinxcrossref``,
-  - ``\sphinxtermref``,
-  - ``\sphinxoptional``.
- 
+  .. csv-table::
+     :header: Name, ``maps argument #1 to:``
+     :align: left
+     :class: longtable
+     :delim: ;
+
+     ``\sphinxstrong``;         ``\textbf{#1}``
+     ``\sphinxcode``;           ``\texttt{#1}``
+     ``\sphinxbfcode``;         ``\textbf{\sphinxcode{#1}}``
+     ``\sphinxemail``;          ``\textsf{#1}``
+     ``\sphinxtablecontinued``; ``\textsf{#1}``
+     ``\sphinxtitleref``;       ``\emph{#1}``
+     ``\sphinxmenuselection``;  ``\emph{#1}``
+     ``\sphinxguilabel``;       ``\emph{#1}``
+     ``\sphinxkeyboard``;       ``\sphinxcode{#1}``
+     ``\sphinxaccelerator``;    ``\underline{#1}``
+     ``\sphinxcrossref``;       ``\emph{#1}``
+     ``\sphinxtermref``;        ``\emph{#1}``
+     ``\sphinxsamedocref``;     ``\emph{#1}``
+     ``\sphinxparam``;          ``\emph{#1}``
+     ``\sphinxtypeparam``;      ``\emph{#1}``
+     ``\sphinxoptional``; ``[#1]`` with larger brackets, see source
+
   .. versionadded:: 1.4.5
      Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with LaTeX packages.
-- more text styling:
 
-  - ``\sphinxstyleindexentry``,
-  - ``\sphinxstyleindexextra``,
-  - ``\sphinxstyleindexpageref``,
-  - ``\sphinxstyletopictitle``,
-  - ``\sphinxstylesidebartitle``,
-  - ``\sphinxstyleothertitle``,
-  - ``\sphinxstylesidebarsubtitle``,
-  - ``\sphinxstyletheadfamily``,
-  - ``\sphinxstyleemphasis``,
-  - ``\sphinxstyleliteralemphasis``,
-  - ``\sphinxstylestrong``,
-  - ``\sphinxstyleliteralstrong``,
-  - ``\sphinxstyleabbreviation``,
-  - ``\sphinxstyleliteralintitle``,
-  - ``\sphinxstylecodecontinued``,
-  - ``\sphinxstylecodecontinues``.
- 
+  .. versionadded:: 1.8
+     ``\sphinxguilabel``
+
+  .. versionadded:: 3.0
+     ``\sphinxkeyboard``
+
+  .. versionadded:: 6.2.0
+     ``\sphinxparam``, ``\sphinxsamedocref``
+
+  .. versionadded:: 7.1.0
+     ``\sphinxparamcomma`` which defaults to a comma followed by a space and
+     ``\sphinxparamcommaoneperline`` which is used for one-parameter-per-line
+     signatures (see :confval:`maximum_signature_line_length`).  It defaults
+     to ``\texttt{,}`` to make these end-of-line separators more distinctive.
+
+     Signatures of Python functions are rendered as ``name<space>(parameters)``
+     or ``name<space>[type parameters]<space>(parameters)`` (see :pep:`695`)
+     where the length of ``<space>`` is set to ``0pt`` by default.
+     This can be changed via ``\setlength{\sphinxsignaturelistskip}{1ex}``
+     for instance.
+
+- More text styling:
+
+  .. csv-table::
+     :header: Name, ``maps argument #1 to:``
+     :align: left
+     :class: longtable
+     :delim: ;
+
+     ``\sphinxstyleindexentry``;       ``\texttt{#1}``
+     ``\sphinxstyleindexextra``;       ``(\emph{#1})`` (with a space upfront)
+     ``\sphinxstyleindexpageref``;     ``, \pageref{#1}``
+     ``\sphinxstyleindexpagemain``;    ``\textbf{#1}``
+     ``\sphinxstyleindexlettergroup``; ``{\Large\sffamily#1}\nopagebreak\vspace{1mm}``
+     ``\sphinxstyleindexlettergroupDefault``; check source, too long for here
+     ``\sphinxstyletopictitle``;       ``\textbf{#1}\par\medskip``
+     ``\sphinxstylesidebartitle``;     ``\textbf{#1}\par\medskip``
+     ``\sphinxstyleothertitle``;       ``\textbf{#1}``
+     ``\sphinxstylesidebarsubtitle``;  ``~\\\textbf{#1} \smallskip``
+     ``\sphinxstyletheadfamily``;      ``\sffamily`` (*this one has no argument*)
+     ``\sphinxstyleemphasis``;         ``\emph{#1}``
+     ``\sphinxstyleliteralemphasis``;  ``\emph{\sphinxcode{#1}}``
+     ``\sphinxstylestrong``;           ``\textbf{#1}``
+     ``\sphinxstyleliteralstrong``;    ``\sphinxbfcode{#1}``
+     ``\sphinxstyleabbreviation``;     ``\textsc{#1}``
+     ``\sphinxstyleliteralintitle``;   ``\sphinxcode{#1}``
+     ``\sphinxstylecodecontinued``;    ``{\footnotesize(#1)}}``
+     ``\sphinxstylecodecontinues``;    ``{\footnotesize(#1)}}``
+     ``\sphinxstylenotetitle``;        ``\sphinxstrong{#1}<space>``
+     ``\sphinxstylehinttitle``;        *idem*
+     ``\sphinxstyleimportanttitle``;   *idem*
+     ``\sphinxstyletiptitle``;         *idem*
+     ``\sphinxstylewarningtitle``;     *idem*
+     ``\sphinxstylecautiontitle``;     *idem*
+     ``\sphinxstyleattentiontitle``;   *idem*
+     ``\sphinxstyledangertitle``;      *idem*
+     ``\sphinxstyleerrortitle``;       *idem*
+     ``\sphinxstyleseealsotitle``;     ``\sphinxstrong{#1}\par\nopagebreak``
+
   .. versionadded:: 1.5
-     these macros were formerly hard-coded as non customizable ``\texttt``,
+     These macros were formerly hard-coded as non customizable ``\texttt``,
      ``\emph``, etc...
+
   .. versionadded:: 1.6
      ``\sphinxstyletheadfamily`` which defaults to ``\sffamily`` and allows
      multiple paragraphs in header cells of tables.
+
   .. versionadded:: 1.6.3
      ``\sphinxstylecodecontinued`` and ``\sphinxstylecodecontinues``.
-- ``\sphinxtableofcontents``: it is a
-  wrapper (defined differently in :file:`sphinxhowto.cls` and in
-  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.  The macro
-  ``\sphinxtableofcontentshook`` is executed during its expansion right before
-  ``\tableofcontents`` itself.
+
+  .. versionadded:: 1.8
+     ``\sphinxstyleindexlettergroup``, ``\sphinxstyleindexlettergroupDefault``.
+
+  .. versionadded:: 6.2.0
+     ``\sphinxstylenotetitle`` et al.  The ``#1`` is the localized name of the
+     directive, with a final colon.  Wrap it as ``\sphinxremovefinalcolon{#1}``
+     if this final colon is to be removed.  Examples:
+
+     .. code-block:: latex
+
+        \renewcommand\sphinxstylewarningtitle[1]{%
+          \underline{\textbf{\sphinxremovefinalcolon{#1}}}\par
+        }
+        \renewcommand{\sphinxstylenotetitle}[1]{%
+          \textit{\textbf{\sphinxremovefinalcolon{#1}}}\par\nobreak
+          % LaTeX syntax is complex and we would be better off using \hrule.
+          {\parskip0pt\noindent}%
+          \raisebox{1ex}%
+           {\makebox[\linewidth]{\textcolor{sphinxnoteBorderColor}{\dotfill}}}
+          % It is complex to obtain nice vertical spacing for both a paragraph
+          % or a list following up; this set-up is better for a paragraph next.
+          \par\vskip-\parskip
+        }
+
+- ``\sphinxtableofcontents``: A wrapper (defined differently in
+  :file:`sphinxhowto.cls` and in :file:`sphinxmanual.cls`) of standard
+  ``\tableofcontents``.  The macro ``\sphinxtableofcontentshook`` is executed
+  during its expansion right before ``\tableofcontents`` itself.
 
   .. versionchanged:: 1.5
-     formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
+     Formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
+
   .. versionchanged:: 2.0
-     hard-coded redefinitions of ``\l@section`` and ``\l@subsection`` formerly
+     Hard-coded redefinitions of ``\l@section`` and ``\l@subsection`` formerly
      done during loading of ``'manual'`` docclass are now executed later via
      ``\sphinxtableofcontentshook``.  This macro is also executed by the
      ``'howto'`` docclass, but defaults to empty with it.
-- ``\sphinxmaketitle``: it is defined in the class files
-  :file:`sphinxmanual.cls` and :file:`sphinxhowto.cls` and is used as
-  default setting of ``'maketitle'`` :confval:`latex_elements` key.
+
+  .. hint::
+
+     If adding to preamble the loading of ``tocloft`` package, also add to
+     preamble ``\renewcommand\sphinxtableofcontentshook{}`` else it will reset
+     ``\l@section`` and ``\l@subsection`` cancelling ``tocloft`` customization.
+
+- ``\sphinxmaketitle``: Used as the default setting of the ``'maketitle'``
+  :confval:`latex_elements` key.
+  Defined in the class files :file:`sphinxmanual.cls` and
+  :file:`sphinxhowto.cls`.
 
   .. versionchanged:: 1.8.3
-     formerly, ``\maketitle`` from LaTeX document class was modified by
+     Formerly, ``\maketitle`` from LaTeX document class was modified by
      Sphinx.
-- ``\sphinxbackoftitlepage``: for ``'manual'`` docclass, and if it is
+
+- ``\sphinxbackoftitlepage``: For ``'manual'`` docclass, and if it is
   defined, it gets executed at end of ``\sphinxmaketitle``, before the final
   ``\clearpage``.  Use either the ``'maketitle'`` key or the ``'preamble'`` key
   of :confval:`latex_elements` to add a custom definition of
   ``\sphinxbackoftitlepage``.
 
   .. versionadded:: 1.8.3
-- ``\sphinxcite``: it is a wrapper of standard ``\cite`` for citation
-  references.
+
+- ``\sphinxcite``: A wrapper of standard ``\cite`` for citation references.
+
+
+.. _sphinxbox:
+
+The ``\sphinxbox`` command
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 6.2.0
+
+The ``\sphinxbox[key=value,...]{inline text}`` command can be used to "box"
+inline text elements with all the customizability which has been described in
+:ref:`additionalcss`.  It is a LaTeX command with one optional argument, which
+is a comma-separated list of key=value pairs, as for :ref:`latexsphinxsetup`.
+Here is the complete list of keys.  They don't use any prefix.
+
+- ``border-width``,
+- ``border-top-width``, ``border-right-width``, ``border-bottom-width``,
+  ``border-left-width``,
+- ``padding``,
+- ``padding-top``, ``padding-right``, ``padding-bottom``, ``padding-left``,
+- ``border-radius``,
+- ``border-top-left-radius``, ``border-top-right-radius``,
+  ``border-bottom-right-radius``, ``border-bottom-left-radius``,
+- ``box-shadow``,
+- ``border-TeXcolor``, ``background-TeXcolor``, ``box-shadow-TeXcolor``,
+  ``TeXcolor``,
+- ``TeXextras``,
+- and ``addstrut`` which is a boolean key, i.e. to be used as ``addstrut=true``,
+  or ``addstrut`` alone where ``=true`` is omitted, or ``addstrut=false``.
+
+This last key is specific to ``\sphinxbox`` and it means to add a ``\strut``
+so that heights and depths are equalized across various instances on the same
+line with varying contents.  The default is ``addstrut=false``.
+
+.. important::
+
+   Perhaps the default will turn into ``addstrut=true`` at 7.0.0 depending on
+   feedback until then.
+
+The combination ``addstrut, padding-bottom=0pt, padding-top=1pt`` is often
+satisfactory.
+
+Refer to :ref:`additionalcss` for important syntax information regarding the
+other keys.  The default
+configuration uses no shadow, a border-width of ``\fboxrule``, a padding of
+``\fboxsep``, circular corners with radii ``\fboxsep`` and background and
+border colors as for the default rendering of code-blocks.
+
+When a ``\sphinxbox`` usage is nested within another one, it will ignore the
+options of the outer one: it first resets all options to their default state
+as they were prior to applying the outer box options, then it applies its own
+specific ones.
+
+One can modify these defaults via the command ``\sphinxboxsetup{key=value,...}``.
+The effect is cumulative, if one uses this command multiple times.  Here the
+options are a mandatory argument so are within curly braces, not square
+brackets.
+
+Here is some example of use:
+
+.. code-block:: latex
+
+   latex_elements = {
+       'preamble': r'''
+   % modify globally the defaults
+   \sphinxboxsetup{border-width=2pt,%
+                   border-radius=4pt,%
+                   background-TeXcolor=yellow!20}
+   % configure some styling element with some extra specific options:
+   \protected\def\sphinxkeyboard#1{\sphinxbox[border-TeXcolor=green]{\sphinxcode{#1}}}
+   ''',
+   }
+
+A utility ``\newsphinxbox`` is provided to create a new boxing macro, say
+``\foo`` which will act exactly like ``\sphinxbox`` but with a given extra
+configuration:
+
+.. code-block:: latex
+
+   % the specific options to \foo are within brackets
+   \newsphinxbox[border-radius=0pt, box-shadow=2pt 2pt]{\foo}
+   % then use this \foo, possibly with some extra options still:
+   \protected\def\sphinxguilabel#1{\foo{#1}}
+   \protected\def\sphinxmenuselection#1{\foo[box-shadow-TeXcolor=gray]{#1}}
+
+Boxes rendered with ``\foo`` obey as the ones using directly ``\sphinxbox``
+the current configuration as set possibly mid-way in document via
+``\sphinxboxsetup`` (from a :dudir:`raw` LaTeX mark-up), the only difference
+is that they have an initial additional set of default extras.
+
+In the above examples, you can probably use ``\renewcommand`` syntax if you
+prefer it to ``\protected\def`` (with ``[1]`` in place of ``#1`` then).
+
 
 Environments
 ~~~~~~~~~~~~
 
-- a :dudir:`figure` may have an optional legend with arbitrary body
+- A :dudir:`figure` may have an optional legend with arbitrary body
   elements: they are rendered in a ``sphinxlegend`` environment. The default
   definition issues ``\small``, and ends with ``\par``.
 
   .. versionadded:: 1.5.6
-     formerly, the ``\small`` was hardcoded in LaTeX writer and the ending
+     Formerly, the ``\small`` was hardcoded in LaTeX writer and the ending
      ``\par`` was lacking.
-- environments associated with admonitions:
+
+- Environments associated with admonitions:
 
   - ``sphinxnote``,
   - ``sphinxhint``,
@@ -845,25 +1735,38 @@ Environments
   of the notice, for example ``Warning:`` for :dudir:`warning` directive, if
   English is the document language). Their default definitions use either the
   *sphinxheavybox* (for the last 5 ones) or the *sphinxlightbox*
-  environments, configured to use the parameters (colours, border thickness)
+  environments, configured to use the parameters (colors, border thickness)
   specific to each type, which can be set via ``'sphinxsetup'`` string.
 
   .. versionchanged:: 1.5
-     use of public environment names, separate customizability of the
+     Use of public environment names, separate customizability of the
      parameters, such as ``noteBorderColor``, ``noteborder``,
      ``warningBgColor``, ``warningBorderColor``, ``warningborder``, ...
-- the :dudir:`contents` directive (with ``:local:`` option) and the
+
+- Environment for the :rst:dir:`seealso` directive: ``sphinxseealso``.
+  It takes one argument which will be the localized string ``See also``
+  followed with a colon.
+
+  .. versionadded:: 6.1.0
+  .. versionchanged:: 6.2.0
+
+     Colon made part of the mark-up rather than being inserted by the
+     environment for coherence with how admonitions are handled generally.
+
+- The contents_ directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
 
   .. versionadded:: 1.4.2
-     former code refactored into an environment allowing page breaks.
+     Former code refactored into an environment allowing page breaks.
+
   .. versionchanged:: 1.5
-     options ``shadowsep``, ``shadowsize``,  ``shadowrule``.
-- the literal blocks (via ``::`` or :rst:dir:`code-block`), are
+     Options ``shadowsep``, ``shadowsize``,  ``shadowrule``.
+
+- The literal blocks (via ``::`` or :rst:dir:`code-block`), are
   implemented using ``sphinxVerbatim`` environment which is a wrapper of
   ``Verbatim`` environment from package ``fancyvrb.sty``. It adds the handling
   of the top caption and the wrapping of long lines, and a frame which allows
-  pagebreaks. Inside tables the used
+  page breaks. Inside tables the used
   environment is ``sphinxVerbatimintable`` (it does not draw a frame, but
   allows a caption).
 
@@ -871,51 +1774,82 @@ Environments
      ``Verbatim`` keeps exact same meaning as in ``fancyvrb.sty`` (also
      under the name ``OriginalVerbatim``); ``sphinxVerbatimintable`` is used
      inside tables.
+
   .. versionadded:: 1.5
-     options ``verbatimwithframe``, ``verbatimwrapslines``,
+     Options ``verbatimwithframe``, ``verbatimwrapslines``,
      ``verbatimsep``, ``verbatimborder``.
+
   .. versionadded:: 1.6.6
-     support for ``:emphasize-lines:`` option
+     Support for ``:emphasize-lines:`` option
+
   .. versionadded:: 1.6.6
-     easier customizability of the formatting via exposed to user LaTeX macros
+     Easier customizability of the formatting via exposed to user LaTeX macros
      such as ``\sphinxVerbatimHighlightLine``.
-- the bibliography uses ``sphinxthebibliography`` and the Python Module index
+
+- The bibliography uses ``sphinxthebibliography`` and the Python Module index
   as well as the general index both use ``sphinxtheindex``; these environments
   are wrappers of the ``thebibliography`` and respectively ``theindex``
   environments as provided by the document class (or packages).
 
   .. versionchanged:: 1.5
-     formerly, the original environments were modified by Sphinx.
+     Formerly, the original environments were modified by Sphinx.
 
 Miscellany
 ~~~~~~~~~~
 
-- the section, subsection, ...  headings are set using  *titlesec*'s
+- Every text paragraph in document body starts with ``\sphinxAtStartPar``.
+  Currently, this is used to insert a zero width horizontal skip which
+  is a trick to allow TeX hyphenation of the first word of a paragraph
+  in a narrow context (like a table cell). For ``'lualatex'`` which
+  does not need the trick, the ``\sphinxAtStartPar`` does nothing.
+
+  .. versionadded:: 3.5.0
+
+- The section, subsection, ... headings are set using  *titlesec*'s
   ``\titleformat`` command.
-- for the ``'manual'`` docclass, the chapter headings can be customized using
+
+- For the ``'manual'`` docclass, the chapter headings can be customized using
   *fncychap*'s commands ``\ChNameVar``, ``\ChNumVar``, ``\ChTitleVar``. File
   :file:`sphinx.sty` has custom re-definitions in case of *fncychap*
   option ``Bjarne``.
 
   .. versionchanged:: 1.5
-     formerly, use of *fncychap* with other styles than ``Bjarne`` was
+     Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
+
+.. _latexcontainer:
+
+- Docutils :dudir:`container` directives are supported in LaTeX output: to
+  let a container class with name ``foo`` influence the final PDF via LaTeX,
+  it is only needed to define in the preamble an environment
+  ``sphinxclassfoo``.  A simple example would be:
+
+  .. code-block:: latex
+
+     \newenvironment{sphinxclassred}{\color{red}}{}
+
+  Currently the class names must contain only ASCII characters and avoid
+  characters special to LaTeX such as ``\``.
+
+  .. versionadded:: 4.1.0
 
 .. hint::
 
    As an experimental feature, Sphinx can use user-defined template file for
-   LaTeX source if you have a file named ``_templates/latex.tex_t`` in your
+   LaTeX source if you have a file named ``_templates/latex.tex.jinja`` in your
    project.
 
-   .. versionadded:: 1.5
-      currently all template variables are unstable and undocumented.
-
-   Additional files ``longtable.tex_t``, ``tabulary.tex_t`` and
-   ``tabular.tex_t`` can be added to ``_templates/`` to configure some aspects
-   of table rendering (such as the caption position).
+   Additional files ``longtable.tex.jinja``, ``tabulary.tex.jinja`` and
+   ``tabular.tex.jinja`` can be added to ``_templates/`` to configure some
+   aspects of table rendering (such as the caption position).
 
    .. versionadded:: 1.6
       currently all template variables are unstable and undocumented.
+
+   .. versionchanged:: 7.4
+      Added support for the ``.jinja`` file extension, which is preferred.
+      The old file names remain supported.
+      (``latex.tex_t``, ``longtable.tex_t``, ``tabulary.tex_t``, and ``tabular.tex_t``)
 
 .. raw:: latex
 

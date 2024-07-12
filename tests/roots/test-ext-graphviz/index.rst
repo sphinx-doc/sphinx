@@ -14,8 +14,9 @@ Hello |graph| graphviz world
 
 .. digraph:: foo
    :graphviz_dot: neato
+   :class: neato_graph
 
-   bar -> baz
+   baz -> qux
 
 
 .. graphviz:: graph.dot
@@ -30,3 +31,13 @@ Hello |graph| graphviz world
    :align: center
 
    centered
+
+.. graphviz::
+   :align: center
+
+   digraph test {
+     foo [label="foo", URL="#graphviz", target="_parent"]
+     bar [label="bar", image="./_static/images/test.svg"]
+     baz [label="baz", URL="./_static/images/test.svg"]
+     foo -> bar -> baz
+   }
