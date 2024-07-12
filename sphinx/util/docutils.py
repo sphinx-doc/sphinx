@@ -330,11 +330,11 @@ class WarningStream:
     def write(self, text: str) -> None:
         matched = report_re.search(text)
         if not matched:
-            logger.warning(text.rstrip("\r\n"))
+            logger.warning(text.rstrip("\r\n"), type="docutils")
         else:
             location, type, level = matched.groups()
             message = report_re.sub('', text).rstrip()
-            logger.log(type, message, location=location)
+            logger.log(type, message, location=location, type="docutils")
 
 
 class LoggingReporter(Reporter):
