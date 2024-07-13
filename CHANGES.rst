@@ -5,7 +5,7 @@ Dependencies
 ------------
 
 * #12555: Drop Docutils 0.18.1 and Docutils 0.19 support.
-  Patch by Adam Turner
+  Patch by Adam Turner.
 
 Incompatible changes
 --------------------
