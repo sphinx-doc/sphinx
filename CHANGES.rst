@@ -103,6 +103,9 @@ Bugs fixed
 * #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
   the current page number and the footnote does appear on that same page.
   Patch by Jean-François B.
+* #12410: LaTeX: for French and ``'lualatex'`` as :confval:`latex_engine`
+  ``polyglossia`` and not ``babel`` is used (contrarily to ``'xelatex'``).
+  Patch by Jean-François B.
 * #12416: Ensure that configuration setting aliases are always synchronised
   when one value or the other is modified.
   Patch by Bénédikt Tran.
