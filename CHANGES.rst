@@ -69,7 +69,6 @@ Features added
     parses the provided text into inline elements and text nodes.
 
   Patch by Adam Turner.
-
 * #12258: Support ``typing_extensions.Unpack``
   Patch by Bénédikt Tran and Adam Turner.
 * #12524: Add a ``class`` option to the :rst:dir:`toctree` directive.
