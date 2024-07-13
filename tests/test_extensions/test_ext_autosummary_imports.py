@@ -15,7 +15,6 @@ def test_autosummary_import_cycle(app, warning):
     doctree = app.env.get_doctree('index')
     app.env.apply_post_transforms(doctree, 'index')
 
-    print(doctree.pformat('  '))
     assert len(list(doctree.findall(nodes.reference))) == 1
 
     assert_node(doctree,
