@@ -180,8 +180,11 @@ def test_text_inconsistency_warnings(app, warning):
         })
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
+    expected_citation_ref_warning_expr = (
+        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.')
+    assert re.search(expected_citation_ref_warning_expr, warnings), f'{expected_citation_ref_warning_expr!r} did not match {warnings!r}'
+
     expected_citation_warning_expr = (
-        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
     assert re.search(expected_citation_warning_expr, warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
 
@@ -286,7 +289,7 @@ VVV
 """)
     assert result == expect
     warnings = getwarning(warning)
-    assert 'term not in glossary' not in warnings
+    assert warnings.count('term not in glossary') == 1
 
 
 @sphinx_intl
@@ -298,7 +301,8 @@ def test_text_glossary_term_inconsistencies(app, warning):
     result = (app.outdir / 'glossary_terms_inconsistency.txt').read_text(encoding='utf8')
     expect = ("19. I18N WITH GLOSSARY TERMS INCONSISTENCY"
               "\n******************************************\n"
-              "\n1. LINK TO *SOME NEW TERM*.\n")
+              "\n1. LINK TO *SOME NEW TERM*.\n"
+              "\n2. LINK TO *TERM NOT IN GLOSSARY*.\n")
     assert result == expect
 
     warnings = getwarning(warning)
@@ -307,6 +311,10 @@ def test_text_glossary_term_inconsistencies(app, warning):
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\]\n")
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    expected_warning_expr = (
+        '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '
+        "WARNING: term not in glossary: 'TERM NOT IN GLOSSARY'")
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
@@ -729,7 +737,7 @@ class _MockUnixClock(_MockClock):
         time.sleep(ds)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_time_and_i18n(
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[pytest.MonkeyPatch, _MockClock]:
@@ -930,6 +938,16 @@ def test_html_index_entries(app):
         start_tag2 = "<%s[^>]*>" % childtag
         return fr"{start_tag1}\s*{keyword}\s*{start_tag2}"
     expected_exprs = [
+        wrap('h2', 'Symbols'),
+        wrap('h2', 'C'),
+        wrap('h2', 'E'),
+        wrap('h2', 'F'),
+        wrap('h2', 'M'),
+        wrap('h2', 'N'),
+        wrap('h2', 'R'),
+        wrap('h2', 'S'),
+        wrap('h2', 'T'),
+        wrap('h2', 'V'),
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
         wrap('a', 'RECIPIENTS LIST'),
@@ -1240,7 +1258,7 @@ def test_xml_warnings(app, warning):
     app.build()
     # warnings
     warnings = getwarning(warning)
-    assert 'term not in glossary' not in warnings
+    assert warnings.count('term not in glossary') == 1
     assert 'undefined label' not in warnings
     assert 'unknown document' not in warnings
 
@@ -1442,7 +1460,7 @@ def test_additional_targets_should_be_translated(app):
         """<span class="c1"># SYS IMPORTING</span>""")
     assert_count(expected_expr, result, 1)
 
-    # '#noqa' should remain in literal blocks.
+    # 'noqa' comments should remain in literal blocks.
     assert_count("#noqa", result, 1)
 
     # [raw.txt]

@@ -10,8 +10,10 @@ def test_build(app, status, warning):
     app.build(force_all=True)
 
     py_undoc = (app.outdir / 'python.txt').read_text(encoding='utf8')
-    assert py_undoc.startswith('Undocumented Python objects\n'
-                               '===========================\n')
+    assert py_undoc.startswith(
+        'Undocumented Python objects\n'
+        '===========================\n',
+    )
     assert 'autodoc_target\n--------------\n' in py_undoc
     assert ' * Class -- missing methods:\n' in py_undoc
     assert ' * raises\n' in py_undoc
@@ -23,8 +25,10 @@ def test_build(app, status, warning):
     assert "undocumented  py" not in status.getvalue()
 
     c_undoc = (app.outdir / 'c.txt').read_text(encoding='utf8')
-    assert c_undoc.startswith('Undocumented C API elements\n'
-                              '===========================\n')
+    assert c_undoc.startswith(
+        'Undocumented C API elements\n'
+        '===========================\n',
+    )
     assert 'api.h' in c_undoc
     assert ' * Py_SphinxTest' in c_undoc
 
@@ -54,16 +58,26 @@ Undocumented Python objects
 Statistics
 ----------
 
-+----------------------+----------+--------------+
-| Module               | Coverage | Undocumented |
-+======================+==========+==============+
-| coverage_not_ignored | 0.00%    | 2            |
-+----------------------+----------+--------------+
-| TOTAL                | 0.00%    | 2            |
-+----------------------+----------+--------------+
++---------------------------+----------+--------------+
+| Module                    | Coverage | Undocumented |
++===========================+==========+==============+
+| grog                      | 100.00%  | 0            |
++---------------------------+----------+--------------+
+| grog.coverage_missing     | 100.00%  | 0            |
++---------------------------+----------+--------------+
+| grog.coverage_not_ignored | 0.00%    | 2            |
++---------------------------+----------+--------------+
+| TOTAL                     | 0.00%    | 2            |
++---------------------------+----------+--------------+
 
-coverage_not_ignored
---------------------
+grog.coverage_missing
+---------------------
+
+Classes:
+ * Missing
+
+grog.coverage_not_ignored
+-------------------------
 
 Classes:
  * Documented -- missing methods:

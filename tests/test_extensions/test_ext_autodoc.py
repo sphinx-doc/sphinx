@@ -838,7 +838,7 @@ def test_autodoc_special_members(app):
         "special-members": None,
     }
     if sys.version_info >= (3, 13, 0, 'alpha', 5):
-        options["exclude-members"] = "__static_attributes__"
+        options["exclude-members"] = "__static_attributes__,__firstlineno__"
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
@@ -1479,7 +1479,7 @@ class _EnumFormatter:
         return self.entry(name, doc, role='attribute', indent=indent, **rst_options)
 
 
-@pytest.fixture()
+@pytest.fixture
 def autodoc_enum_options() -> dict[str, object]:
     """Default autodoc options to use when testing enum's documentation."""
     return {"members": None, "undoc-members": None}

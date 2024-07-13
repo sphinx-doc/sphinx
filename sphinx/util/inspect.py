@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from types import MethodType, ModuleType
     from typing import Final, Protocol, Union
 
-    from typing_extensions import TypeAlias, TypeGuard
+    from typing_extensions import TypeAlias, TypeIs
 
     class _SupportsGet(Protocol):
         def __get__(self, __instance: Any, __owner: type | None = ...) -> Any: ...  # NoQA: E704
@@ -213,12 +213,12 @@ def isNewType(obj: Any) -> bool:
     return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
 
 
-def isenumclass(x: Any) -> TypeGuard[type[enum.Enum]]:
+def isenumclass(x: Any) -> TypeIs[type[enum.Enum]]:
     """Check if the object is an :class:`enumeration class <enum.Enum>`."""
     return isclass(x) and issubclass(x, enum.Enum)
 
 
-def isenumattribute(x: Any) -> TypeGuard[enum.Enum]:
+def isenumattribute(x: Any) -> TypeIs[enum.Enum]:
     """Check if the object is an enumeration attribute."""
     return isinstance(x, enum.Enum)
 
@@ -235,7 +235,7 @@ def unpartial(obj: Any) -> Any:
     return obj
 
 
-def ispartial(obj: Any) -> TypeGuard[partial | partialmethod]:
+def ispartial(obj: Any) -> TypeIs[partial | partialmethod]:
     """Check if the object is a partial function or method."""
     return isinstance(obj, (partial, partialmethod))
 
@@ -244,7 +244,7 @@ def isclassmethod(
     obj: Any,
     cls: Any = None,
     name: str | None = None,
-) -> TypeGuard[classmethod]:
+) -> TypeIs[classmethod]:
     """Check if the object is a :class:`classmethod`."""
     if isinstance(obj, classmethod):
         return True
@@ -264,7 +264,7 @@ def isstaticmethod(
     obj: Any,
     cls: Any = None,
     name: str | None = None,
-) -> TypeGuard[staticmethod]:
+) -> TypeIs[staticmethod]:
     """Check if the object is a :class:`staticmethod`."""
     if isinstance(obj, staticmethod):
         return True
@@ -278,7 +278,7 @@ def isstaticmethod(
     return False
 
 
-def isdescriptor(x: Any) -> TypeGuard[_SupportsGet | _SupportsSet | _SupportsDelete]:
+def isdescriptor(x: Any) -> TypeIs[_SupportsGet | _SupportsSet | _SupportsDelete]:
     """Check if the object is a :external+python:term:`descriptor`."""
     return any(
         callable(safe_getattr(x, item, None)) for item in ('__get__', '__set__', '__delete__')
@@ -345,12 +345,12 @@ def is_singledispatch_function(obj: Any) -> bool:
     )
 
 
-def is_singledispatch_method(obj: Any) -> TypeGuard[singledispatchmethod]:
+def is_singledispatch_method(obj: Any) -> TypeIs[singledispatchmethod]:
     """Check if the object is a :class:`~functools.singledispatchmethod`."""
     return isinstance(obj, singledispatchmethod)
 
 
-def isfunction(obj: Any) -> TypeGuard[types.FunctionType]:
+def isfunction(obj: Any) -> TypeIs[types.FunctionType]:
     """Check if the object is a user-defined function.
 
     Partial objects are unwrapped before checking them.
@@ -360,7 +360,7 @@ def isfunction(obj: Any) -> TypeGuard[types.FunctionType]:
     return inspect.isfunction(unpartial(obj))
 
 
-def isbuiltin(obj: Any) -> TypeGuard[types.BuiltinFunctionType]:
+def isbuiltin(obj: Any) -> TypeIs[types.BuiltinFunctionType]:
     """Check if the object is a built-in function or method.
 
     Partial objects are unwrapped before checking them.
@@ -370,7 +370,7 @@ def isbuiltin(obj: Any) -> TypeGuard[types.BuiltinFunctionType]:
     return inspect.isbuiltin(unpartial(obj))
 
 
-def isroutine(obj: Any) -> TypeGuard[_RoutineType]:
+def isroutine(obj: Any) -> TypeIs[_RoutineType]:
     """Check if the object is a kind of function or method.
 
     Partial objects are unwrapped before checking them.
@@ -380,7 +380,7 @@ def isroutine(obj: Any) -> TypeGuard[_RoutineType]:
     return inspect.isroutine(unpartial(obj))
 
 
-def iscoroutinefunction(obj: Any) -> TypeGuard[Callable[..., types.CoroutineType]]:
+def iscoroutinefunction(obj: Any) -> TypeIs[Callable[..., types.CoroutineType]]:
     """Check if the object is a :external+python:term:`coroutine` function."""
     obj = unwrap_all(obj, stop=_is_wrapped_coroutine)
     return inspect.iscoroutinefunction(obj)
@@ -395,12 +395,12 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
     return hasattr(obj, '__wrapped__')
 
 
-def isproperty(obj: Any) -> TypeGuard[property | cached_property]:
+def isproperty(obj: Any) -> TypeIs[property | cached_property]:
     """Check if the object is property (possibly cached)."""
     return isinstance(obj, (property, cached_property))
 
 
-def isgenericalias(obj: Any) -> TypeGuard[types.GenericAlias]:
+def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
     """Check if the object is a generic alias."""
     return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
 

@@ -45,6 +45,8 @@ Build environment API
 
    .. autoattribute:: docname
 
+   .. autoattribute:: parser
+
    **Utility methods**
 
    .. automethod:: doc2path

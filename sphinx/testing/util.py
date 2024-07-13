@@ -11,7 +11,6 @@ from io import StringIO
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 
-from defusedxml.ElementTree import parse as xml_parse
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
@@ -22,7 +21,7 @@ from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
     from pathlib import Path
     from typing import Any
     from xml.etree.ElementTree import ElementTree
@@ -73,6 +72,8 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
 # keep this to restrict the API usage and to have a correct return type
 def etree_parse(path: str | os.PathLike[str]) -> ElementTree:
     """Parse a file into a (safe) XML element tree."""
+    from defusedxml.ElementTree import parse as xml_parse
+
     return xml_parse(path)
 
 
@@ -111,7 +112,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
         confoverrides: dict[str, Any] | None = None,
         status: StringIO | None = None,
         warning: StringIO | None = None,
-        tags: list[str] | None = None,
+        tags: Sequence[str] = (),
         docutils_conf: str | None = None,  # extra constructor argument
         parallel: int = 0,
         # additional arguments at the end to keep the signature

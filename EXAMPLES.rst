@@ -28,6 +28,7 @@ Documentation using the alabaster theme
 * `Invoke <https://docs.pyinvoke.org/>`__
 * `Jinja <https://jinja.palletsprojects.com/>`__
 * `Lino <https://www.lino-framework.org/>`__ (customized)
+* `Linux kernel <https://www.kernel.org/doc/html/latest/index.html>`__ (customized)
 * `marbl <https://getmarbl.readthedocs.io/>`__
 * `MeshPy <https://documen.tician.de/meshpy/>`__
 * `Molecule <https://molecule.readthedocs.io/>`__
@@ -63,7 +64,7 @@ Documentation using the classic theme
 * `DEAP <https://deap.readthedocs.io/>`__ (customized)
 * `Director <https://pythonhosted.org/director/>`__
 * `EZ-Draw <https://pageperso.lis-lab.fr/~edouard.thiel/ez-draw/doc/en/html/ez-manual.html>`__ (customized)
-* `Generic Mapping Tools (GMT) <https://gmt.soest.hawaii.edu/doc/latest/>`__ (customized)
+* `Generic Mapping Tools (GMT) <https://docs.generic-mapping-tools.org/latest/>`__ (customized)
 * `Genomedata <https://noble.gs.washington.edu/proj/genomedata/doc/1.3.3/>`__
 * `GetFEM <https://getfem.org/>`__ (customized)
 * `Glasgow Haskell Compiler <https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/>`__ (customized)
@@ -72,7 +73,7 @@ Documentation using the classic theme
 * `GSL Shell <https://www.nongnu.org/gsl-shell/>`__
 * `Hands-on Python Tutorial <http://anh.cs.luc.edu:80/python/hands-on/3.1/handsonHtml/>`__
 * `Kaa <https://freevo.github.io/kaa-base/>`__ (customized)
-* `Leo <https://leoeditor.com/>`__ (customized)
+* `Leo <https://leo-editor.github.io/leo-editor/>`__ (customized)
 * `Mayavi <https://docs.enthought.com/mayavi/mayavi/>`__ (customized)
 * `MediaGoblin <https://mediagoblin.readthedocs.io/>`__ (customized)
 * `mpmath <https://mpmath.org/doc/current/>`__
@@ -90,10 +91,10 @@ Documentation using the classic theme
 * `Python 2 <https://docs.python.org/2/>`__
 * `Python 3 <https://docs.python.org/3/>`__ (customized)
 * `Python Packaging Authority <https://www.pypa.io/>`__ (customized)
-* `Ring programming language <https://ring-lang.sourceforge.net/doc/>`__ (customized)
+* `Ring programming language <https://ring-lang.github.io/doc1.20/>`__ (customized)
 * `SageMath <https://doc.sagemath.org/>`__ (customized)
 * `Segway <https://noble.gs.washington.edu/proj/segway/doc/1.1.0/segway.html>`__
-* `simuPOP <https://simupop.sourceforge.net/manual_release/build/userGuide.html>`__ (customized)
+* `simuPOP <https://bopeng.github.io/simuPOP/>`__ (customized)
 * `SymPy <https://docs.sympy.org/>`__
 * `TurboGears <https://turbogears.readthedocs.io/>`__ (customized)
 * `tvtk <https://docs.enthought.com/mayavi/tvtk/>`__
@@ -119,7 +120,6 @@ Documentation using the sphinxdoc theme
 * `Python Wild Magic <https://vmlaker.github.io/pythonwildmagic/>`__ (customized)
 * `RDKit <https://www.rdkit.org/docs/>`__
 * `Reteisi <https://www.reteisi.org/contents.html>`__ (customized)
-* `Sqlkit <https://sqlkit.argolinux.org/>`__ (customized)
 * `Turbulenz <http://docs.turbulenz.com/>`__
 
 Documentation using the nature theme
@@ -182,7 +182,7 @@ Documentation using sphinx_rtd_theme
 * `DNF <https://dnf.readthedocs.io/>`__
 * `Distro Tracker <https://qa.pages.debian.net/distro-tracker/>`__
 * `Django-cas-ng <https://djangocas.dev/docs/>`__
-* `dj-stripe <https://dj-stripe.readthedocs.io/>`__
+* `dj-stripe <https://dj-stripe.github.io/dj-stripe/>`__
 * `edX <https://docs.edx.org/>`__
 * `Electrum <https://docs.electrum.org/>`__
 * `ESWP3 <https://eswp3.readthedocs.io/>`__
@@ -214,7 +214,6 @@ Documentation using sphinx_rtd_theme
 * `Learning Apache Spark with Python <https://runawayhorse001.github.io/LearningApacheSpark>`__
 * `LibCEED <https://libceed.readthedocs.io/>`__
 * `Linguistica <https://linguistica-uchicago.github.io/lxa5/>`__
-* `Linux kernel <https://www.kernel.org/doc/html/latest/index.html>`__
 * `Mailman <https://docs.list.org/>`__
 * `MathJax <https://docs.mathjax.org/>`__
 * `MDTraj <https://mdtraj.org/>`__ (customized)
@@ -262,7 +261,7 @@ Documentation using sphinx_rtd_theme
 * `Releases Sphinx extension <https://releases.readthedocs.io/>`__
 * `Qtile <https://docs.qtile.org/>`__
 * `Quex <https://quex.sourceforge.net/doc/html/main.html>`__
-* `QuTiP <https://qutip.org/docs/latest/>`__
+* `QuTiP <https://qutip.readthedocs.io/en/latest/>`__
 * `Sawtooth <https://sawtooth.splinter.dev/docs>`__
 * `Scapy <https://scapy.readthedocs.io/>`__
 * `SimGrid <https://simgrid.org/doc/latest/>`__

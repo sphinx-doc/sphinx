@@ -30,9 +30,12 @@ from types import (
     WrapperDescriptorType,
 )
 from typing import (
+    Annotated,
     Any,
     Dict,
+    ForwardRef,
     List,
+    Literal,
     NewType,
     Optional,
     Tuple,
@@ -184,6 +187,12 @@ def test_restify_type_hints_containers():
                                            "[:py:obj:`None`]")
 
 
+@pytest.mark.xfail(sys.version_info[:2] <= (3, 11), reason='Needs fixing.')
+def test_restify_Annotated():
+    assert restify(Annotated[str, "foo", "bar"]) == ':py:class:`~typing.Annotated`\\ [:py:class:`str`]'
+    assert restify(Annotated[str, "foo", "bar"], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`str`]'
+
+
 def test_restify_type_hints_Callable():
     assert restify(t.Callable) == ":py:class:`~typing.Callable`"
     assert restify(t.Callable[[str], int]) == (":py:class:`~typing.Callable`\\ "
@@ -284,7 +293,6 @@ def test_restify_type_hints_alias():
 
 
 def test_restify_type_ForwardRef():
-    from typing import ForwardRef  # type: ignore[attr-defined]
     assert restify(ForwardRef("MyInt")) == ":py:class:`MyInt`"
 
     assert restify(list[ForwardRef("MyInt")]) == ":py:class:`list`\\ [:py:class:`MyInt`]"
@@ -293,7 +301,6 @@ def test_restify_type_ForwardRef():
 
 
 def test_restify_type_Literal():
-    from typing import Literal  # type: ignore[attr-defined]
     assert restify(Literal[1, "2", "\r"]) == ":py:obj:`~typing.Literal`\\ [1, '2', '\\r']"
 
     assert restify(Literal[MyEnum.a], 'fully-qualified-except-typing') == ':py:obj:`~typing.Literal`\\ [:py:attr:`tests.test_util.test_util_typing.MyEnum.a`]'
@@ -323,6 +330,30 @@ def test_restify_pep_585():
                                                       ":py:class:`tests.test_util.test_util_typing.MyList`\\ "
                                                       "[:py:class:`list`\\ [:py:class:`int`]], "
                                                       ":py:class:`int`]")
+
+
+def test_restify_Unpack():
+    from typing_extensions import Unpack as UnpackCompat
+
+    class X(t.TypedDict):
+        x: int
+        y: int
+        label: str
+
+    # Unpack is considered as typing special form so we always have '~'
+    if sys.version_info[:2] >= (3, 12):
+        expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
+        assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
+        assert restify(UnpackCompat['X'], 'smart') == expect
+    else:
+        expect = r':py:obj:`~typing_extensions.Unpack`\ [:py:class:`X`]'
+        assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
+        assert restify(UnpackCompat['X'], 'smart') == expect
+
+    if sys.version_info[:2] >= (3, 11):
+        expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
+        assert restify(t.Unpack['X'], 'fully-qualified-except-typing') == expect
+        assert restify(t.Unpack['X'], 'smart') == expect
 
 
 @pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
@@ -469,9 +500,34 @@ def test_stringify_type_hints_pep_585():
 
 
 def test_stringify_Annotated():
-    from typing import Annotated  # type: ignore[attr-defined]
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str"
     assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "str"
+
+
+def test_stringify_Unpack():
+    from typing_extensions import Unpack as UnpackCompat
+
+    class X(t.TypedDict):
+        x: int
+        y: int
+        label: str
+
+    if sys.version_info[:2] >= (3, 11):
+        # typing.Unpack is introduced in 3.11 but typing_extensions.Unpack only
+        # uses typing.Unpack in 3.12+, so the objects are not synchronised with
+        # each other, but we will assume that users use typing.Unpack.
+        import typing
+
+        UnpackCompat = typing.Unpack  # NoQA: F811
+        assert stringify_annotation(UnpackCompat['X']) == 'Unpack[X]'
+        assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing.Unpack[X]'
+    else:
+        assert stringify_annotation(UnpackCompat['X']) == 'typing_extensions.Unpack[X]'
+        assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing_extensions.Unpack[X]'
+
+    if sys.version_info[:2] >= (3, 11):
+        assert stringify_annotation(t.Unpack['X']) == 'Unpack[X]'
+        assert stringify_annotation(t.Unpack['X'], 'smart') == '~typing.Unpack[X]'
 
 
 def test_stringify_type_hints_string():

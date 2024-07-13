@@ -24,9 +24,9 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal
+    from typing import Final, Literal, Protocol
 
-    from typing_extensions import TypeAlias, TypeGuard
+    from typing_extensions import TypeAlias, TypeIs
 
     from sphinx.application import Sphinx
 
@@ -93,10 +93,25 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[
-    [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
-    tuple[list[nodes.Node], list[nodes.system_message]],
-]
+if TYPE_CHECKING:
+    class RoleFunction(Protocol):
+        def __call__(
+            self,
+            name: str,
+            rawtext: str,
+            text: str,
+            lineno: int,
+            inliner: Inliner,
+            /,
+            options: dict[str, Any] | None = None,
+            content: Sequence[str] = (),
+        ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
+            ...
+else:
+    RoleFunction = Callable[
+        [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+        tuple[list[nodes.Node], list[nodes.system_message]],
+    ]
 
 # A option spec for directive
 OptionSpec = dict[str, Callable[[str], Any]]
@@ -173,9 +188,26 @@ def is_system_TypeVar(typ: Any) -> bool:
     return modname == 'typing' and isinstance(typ, TypeVar)
 
 
-def _is_annotated_form(obj: Any) -> TypeGuard[Annotated[Any, ...]]:
+def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
     """Check if *obj* is an annotated type."""
     return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
+
+
+def _is_unpack_form(obj: Any) -> bool:
+    """Check if the object is :class:`typing.Unpack` or equivalent."""
+    if sys.version_info >= (3, 11):
+        from typing import Unpack
+
+        # typing_extensions.Unpack != typing.Unpack for 3.11, but we assume
+        # that typing_extensions.Unpack should not be used in that case
+        return typing.get_origin(obj) is Unpack
+
+    # 3.9 and 3.10 require typing_extensions.Unpack
+    origin = typing.get_origin(obj)
+    return (
+        getattr(origin, '__module__', None) == 'typing_extensions'
+        and _typing_internal_name(origin) == 'Unpack'
+    )
 
 
 def _typing_internal_name(obj: Any) -> str | None:
@@ -185,7 +217,7 @@ def _typing_internal_name(obj: Any) -> str | None:
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
-    """Convert python class to a reST reference.
+    """Convert a type-like object to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
 
@@ -252,10 +284,13 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif inspect.isgenericalias(cls):
+            # A generic alias always has an __origin__, but it is difficult to
+            # use a type guard on inspect.isgenericalias()
+            # (ideally, we would use ``TypeIs`` introduced in Python 3.13).
             cls_name = _typing_internal_name(cls)
 
             if isinstance(cls.__origin__, typing._SpecialForm):
-                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard
+                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard; TypeIs
                 # Required/NotRequired
                 text = restify(cls.__origin__, mode)
             elif cls_name:
@@ -298,7 +333,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         elif isinstance(cls, ForwardRef):
             return f':py:class:`{cls.__forward_arg__}`'
         else:
-            # not a class (ex. TypeVar)
+            # not a class (ex. TypeVar) but should have a __name__
             return f':py:obj:`{module_prefix}{cls.__module__}.{cls.__name__}`'
     except (AttributeError, TypeError):
         return inspect.object_description(cls)
@@ -366,7 +401,8 @@ def stringify_annotation(
     annotation_module_is_typing = annotation_module == 'typing'
 
     # Extract the annotation's base type by considering formattable cases
-    if isinstance(annotation, TypeVar):
+    if isinstance(annotation, TypeVar) and not _is_unpack_form(annotation):
+        # typing_extensions.Unpack is incorrectly determined as a TypeVar
         if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
         return module_prefix + f'{annotation_module}.{annotation_name}'
@@ -391,6 +427,7 @@ def stringify_annotation(
         # PEP 585 generic
         if not args:  # Empty tuple, list, ...
             return repr(annotation)
+
         concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
         return f'{annotation_qualname}[{concatenated_args}]'
     else:
@@ -404,6 +441,8 @@ def stringify_annotation(
             module_prefix = f'~{module_prefix}'
         if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
             module_prefix = ''
+    elif _is_unpack_form(annotation) and annotation_module == 'typing_extensions':
+        module_prefix = '~' if mode == 'smart' else ''
     else:
         module_prefix = ''
 
@@ -412,9 +451,8 @@ def stringify_annotation(
             # handle ForwardRefs
             qualname = annotation_forward_arg
         else:
-            _name = getattr(annotation, '_name', '')
-            if _name:
-                qualname = _name
+            if internal_name := _typing_internal_name(annotation):
+                qualname = internal_name
             elif annotation_qualname:
                 qualname = annotation_qualname
             else:
@@ -439,6 +477,15 @@ def stringify_annotation(
     # They must be a list or a tuple, otherwise they are considered 'broken'.
     annotation_args = getattr(annotation, '__args__', ())
     if annotation_args and isinstance(annotation_args, (list, tuple)):
+        if (
+            qualname in {'Union', 'types.UnionType'}
+            and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)
+        ):
+            # special case to flatten a Union of Literals into a literal
+            flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]
+            args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
+                             for a in flattened_args)
+            return f'{module_prefix}Literal[{args}]'
         if qualname in {'Optional', 'Union', 'types.UnionType'}:
             return ' | '.join(stringify_annotation(a, mode) for a in annotation_args)
         elif qualname == 'Callable':
