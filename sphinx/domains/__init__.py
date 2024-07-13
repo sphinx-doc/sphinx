@@ -198,7 +198,7 @@ class Domain:
     #: data value for a fresh environment
     initial_data: dict = {}
     #: data value
-    data: dict
+    data: dict[str, Any]
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
