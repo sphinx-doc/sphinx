@@ -209,11 +209,7 @@ class StandaloneHTMLBuilder(Builder):
             source_class=DocTreeInput,
             destination=StringOutput(encoding='unicode'),
         )
-        if docutils.__version_info__[:2] >= (0, 19):
-            pub.get_settings(output_encoding='unicode', traceback=True)
-        else:
-            op = pub.setup_option_parser(output_encoding='unicode', traceback=True)
-            pub.settings = op.get_default_values()
+        pub.get_settings(output_encoding='unicode', traceback=True)
         self._publisher = pub
 
     def init(self) -> None:
