@@ -508,6 +508,8 @@ def stringify_annotation(
             args = stringify_annotation(annotation_args[0], mode)
             meta = ', '.join(map(repr, annotation.__metadata__))
             if sys.version_info[:2] <= (3, 11):
+                if mode == 'fully-qualified-except-typing':
+                    return f'Annotated[{args}, {meta}]'
                 module_prefix = module_prefix.replace('builtins', 'typing')
                 return f'{module_prefix}Annotated[{args}, {meta}]'
             return f'{module_prefix}Annotated[{args}, {meta}]'
