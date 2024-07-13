@@ -376,3 +376,34 @@ def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
 
     file = os.fsdecode(target)
     assert f'WARNING: cannot copy image file {file!r}: {file!s} does not exist' == ws[-1]
+
+
+@pytest.mark.sphinx('html', testroot='domain-py-python_maximum_signature_line_length',
+                    confoverrides={'python_maximum_signature_line_length': 1})
+def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
+    app.build()
+    fname = app.outdir / 'index.html'
+    etree = cached_etree_parse(fname)
+
+    class chk:
+        def __init__(self, expect):
+            self.expect = expect
+
+        def __call__(self, nodes):
+            assert len(nodes) == 1, nodes
+            objnode = ''.join(nodes[0].itertext()).replace('\n\n', '')
+            objnode = objnode.rstrip(chr(182))  # remove '¶' symbol
+            objnode = objnode.strip('\n')  # remove surrounding new lines
+            assert objnode == self.expect
+
+    # each signature has a dangling ',' at the end of its parameters lists
+    check_xpath(etree, fname, r'.//dt[@id="generic_foo"][1]',
+                chk('generic_foo[\nT,\n]()'))
+    check_xpath(etree, fname, r'.//dt[@id="generic_bar"][1]',
+                chk('generic_bar[\nT,\n](\nx: list[T],\n)'))
+    check_xpath(etree, fname, r'.//dt[@id="generic_ret"][1]',
+                chk('generic_ret[\nR,\n]() → R'))
+    check_xpath(etree, fname, r'.//dt[@id="MyGenericClass"][1]',
+                chk('class MyGenericClass[\nX,\n]'))
+    check_xpath(etree, fname, r'.//dt[@id="MyList"][1]',
+                chk('class MyList[\nT,\n](list[T])'))

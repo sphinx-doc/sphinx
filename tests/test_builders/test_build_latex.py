@@ -1759,3 +1759,25 @@ def test_one_parameter_per_line(app, status, warning):
     assert ('\\pysiglinewithargsret{\\sphinxbfcode{\\sphinxupquote{hello}}}' in result)
 
     assert ('\\pysigwithonelineperarg{\\sphinxbfcode{\\sphinxupquote{foo}}}' in result)
+
+    # generic_arg[T]
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_arg}}}'
+            '{\\sphinxtypeparam{\\DUrole{n}{T}}}{}{}' in result)
+
+    # generic_foo[T]()
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_foo}}}' in result)
+
+    # generic_bar[T](x: list[T])
+    assert ('\\pysigwithonelineperargwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_bar}}}' in result)
+
+    # generic_ret[R]() -> R
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_ret}}}'
+            '{\\sphinxtypeparam{\\DUrole{n}{R}}}{}{{ $\\rightarrow$ R}}' in result)
+
+    # MyGenericClass[X]
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
+            '}}}\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}' in result)
+
+    # MyList[T](list[T])
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
+            '}}}\\sphinxbfcode{\\sphinxupquote{MyList}}}' in result)
