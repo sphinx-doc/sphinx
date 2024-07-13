@@ -265,7 +265,7 @@ class _TypeParameterListParser(TokenProcessor):
         from itertools import chain, islice
 
         def triplewise(iterable: Iterable[Token]) -> Iterator[tuple[Token, ...]]:
-            # sliding_window('ABCDEFG', 4) --> ABCD BCDE CDEF DEFG
+            # triplewise('ABCDEFG') --> ABC BCD CDE DEF EFG
             it = iter(iterable)
             window = deque(islice(it, 3), maxlen=3)
             if len(window) == 3:
