@@ -94,7 +94,6 @@ class ENUM:
 
 
 _OptValidTypes = Union[tuple[()], tuple[type, ...], frozenset[type], ENUM]
-_DescriptionType = Union[str, None]
 
 
 class _Opt:
@@ -103,14 +102,14 @@ class _Opt:
     default: Any
     rebuild: _ConfigRebuild
     valid_types: _OptValidTypes
-    description: _DescriptionType
+    description: str
 
     def __init__(
         self,
         default: Any,
         rebuild: _ConfigRebuild,
         valid_types: _OptValidTypes,
-        description: _DescriptionType = None,
+        description: str = '',
     ) -> None:
         """Configuration option type for Sphinx.
 
@@ -163,11 +162,11 @@ class _Opt:
             raise TypeError(msg)
         super().__delattr__(key)
 
-    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes, _DescriptionType]:
+    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes, str]:
         return self.default, self.rebuild, self.valid_types, self.description
 
     def __setstate__(
-            self, state: tuple[Any, _ConfigRebuild, _OptValidTypes, _DescriptionType]) -> None:
+            self, state: tuple[Any, _ConfigRebuild, _OptValidTypes, str]) -> None:
         default, rebuild, valid_types, description = state
         super().__setattr__('default', default)
         super().__setattr__('rebuild', rebuild)
@@ -453,7 +452,7 @@ class Config:
 
     def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
             types: type | Collection[type] | ENUM,
-            description: str | None = None) -> None:
+            description: str = '') -> None:
         if name in self._options:
             raise ExtensionError(__('Config value %r already present') % name)
 
