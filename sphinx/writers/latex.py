@@ -724,7 +724,7 @@ class LaTeXTranslator(SphinxTranslator):
             return e.get('multi_line_parameter_list')
 
         self.has_tp_list = False
-        self.orphan_tplist = False
+        self.orphan_tp_list = False
 
         for child in node:
             if isinstance(child, addnodes.desc_type_parameter_list):
@@ -737,7 +737,7 @@ class LaTeXTranslator(SphinxTranslator):
                 else:
                     # orphan tp_list:    \macro{name}{tp_list}{}{retann}
                     # see: https://github.com/sphinx-doc/sphinx/issues/12543
-                    self.orphan_tplist = True
+                    self.orphan_tp_list = True
                     multi_arglist = False
 
                 if multi_tp_list:
@@ -860,7 +860,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         if self.has_tp_list:
-            if self.orphan_tplist:
+            if self.orphan_tp_list:
                 # close type parameters list (#2)
                 self.body.append('}{')
                 # empty parameters list argument (#3)
