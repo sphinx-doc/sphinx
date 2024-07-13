@@ -95,6 +95,9 @@ Features added
   Patch by Ashley Whetter.
 * #6792: Prohibit module import cycles in :mod:`sphinx.ext.autosummary`.
   Patch by Trevor Bekolay.
+* #12508: LaTeX: Revamped styling of all admonitions, with addition of a
+  title row with icon.
+  Patch by Jean-François B.
 
 Bugs fixed
 ----------
