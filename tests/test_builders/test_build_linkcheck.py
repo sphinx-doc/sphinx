@@ -405,7 +405,7 @@ def test_incomplete_html_anchor(app):
             self.end_headers()
             self.wfile.write(content)
 
-    with serve_application(app, IncompleteHTMLDocumentHandler) as address:
+    with serve_application(app, IncompleteHTMLDocumentHandler):
         app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
@@ -427,7 +427,7 @@ def test_decoding_error_anchor_ignored(app):
             self.end_headers()
             self.wfile.write(content)
 
-    with serve_application(app, NonASCIIHandler) as address:
+    with serve_application(app, NonASCIIHandler):
         app.build()
 
     content = (app.outdir / 'output.json').read_text(encoding='utf8')
