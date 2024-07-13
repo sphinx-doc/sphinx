@@ -89,6 +89,8 @@ Features added
 Bugs fixed
 ----------
 
+* #12543: Fix :pep:`695` formatting for LaTeX output.
+  Patch by Bénédikt Tran.
 * #12314: Properly format ``collections.abc.Callable`` in annotations.
   Patch by Adam Turner.
 * #12162: Fix a performance regression in the C domain that has
