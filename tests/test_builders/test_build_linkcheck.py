@@ -412,8 +412,7 @@ def test_incomplete_html_anchor(app):
     assert len(content.splitlines()) == 1
 
     row = json.loads(content)
-    assert row['status'] == 'broken'
-    assert row['info'] == 'encountered start tag "div" before a doctype declaration'
+    assert row['status'] == 'working'
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)

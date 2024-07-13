@@ -645,17 +645,8 @@ class AnchorCheckParser(HTMLParser):
 
         self.search_anchor = search_anchor
         self.found = False
-        self.errors: list[str] = []
-        self.decl: str | None = None
-
-    def handle_decl(self, decl: str) -> None:
-        self.decl = decl
 
     def handle_starttag(self, tag: Any, attrs: Any) -> None:
-        if self.errors:
-            return
-        if self.decl is None:
-            self.errors.append(f'encountered start tag "{tag}" before a doctype declaration')
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
