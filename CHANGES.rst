@@ -6,12 +6,22 @@ Dependencies
 
 * #12555: Drop Docutils 0.18.1 and Docutils 0.19 support.
   Patch by Adam Turner.
+* LaTeX: the ``xcolor`` package is now required (but is for example part of
+  Ubuntu ``texlive-latex-recommended`` which has always been required).
+* LaTeX: the ``fontawesome5`` LaTeX package is needed for the default choices
+  of icons now used in admonition titles in PDF output; but if unavailable the
+  PDF build will simply silently omit rendering such icons.  Check the
+  documentation of the ``iconpackage`` key of :ref:`'sphinxsetup'
+  <latexsphinxsetup>` for more.
 
 Incompatible changes
 --------------------
 
 Deprecated
 ----------
+
+* LaTeX: the ``sphinxlightbox`` environment is not used anymore, all types
+  of admonitions use (by default) only ``sphinxheavybox``.
 
 Features added
 --------------
@@ -85,6 +95,9 @@ Features added
   Patch by Ashley Whetter.
 * #6792: Prohibit module import cycles in :mod:`sphinx.ext.autosummary`.
   Patch by Trevor Bekolay.
+* #12508: LaTeX: Revamped styling of all admonitions, with addition of a
+  title row with icon.
+  Patch by Jean-François B.
 
 Bugs fixed
 ----------
