@@ -101,8 +101,8 @@ class TocTreeCollector(EnvironmentCollector):
                         entries.append(onlynode)
                 # check within the section for other node types
                 elif isinstance(sectionnode, nodes.Element):
-                    # cache of parents -> list item
-                    memo_parents: dict[nodes.Element, nodes.Element] = {}
+                    # cache of parent node -> list item
+                    memo_parents: dict[nodes.Element, nodes.list_item] = {}
                     toctreenode: nodes.Node
                     for toctreenode in sectionnode.findall():
                         if isinstance(toctreenode, nodes.section):
