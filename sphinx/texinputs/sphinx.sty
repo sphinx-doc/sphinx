@@ -443,22 +443,22 @@
 % are put inside the text area (i.e. do not go into the margins).
 % In order for perfect exact same vertical alignment of contents from all such
 % directives, the value of horizontal border-width+padding is kept constant
-% (equal to 12pt since 7.4.0).
+% (equal to 7.5pt since 7.4.0).
 %         #1 macro prefix #6 option prefix   top right bottom left
 \spx@tempa{spx@pre@}      {pre_}            {3pt}{3pt}{3pt}{3pt}
-\spx@tempa{spx@topic@}    {div.topic_}      {10pt}{12pt}{12pt}{12pt}
+\spx@tempa{spx@topic@}    {div.topic_}      {10pt}{7pt}{12pt}{7pt}
 % 7.4.0 drops legacy settings which linked strangely padding with border width
-\spx@tempa{spx@note@}     {div.note_}       {6pt}{12pt}{6pt}{12pt}
-\spx@tempa{spx@hint@}     {div.hint_}       {6pt}{12pt}{6pt}{12pt}
-\spx@tempa{spx@important@}{div.important_}  {6pt}{12pt}{6pt}{12pt}
-\spx@tempa{spx@tip@}      {div.tip_}        {6pt}{12pt}{6pt}{12pt}
-\spx@tempa{spx@seealso@}  {div.seealso_}    {6pt}{12pt}{6pt}{12pt}
-\spx@tempa{spx@todo@}     {div.todo_}       {6pt}{12pt}{6pt}{12pt}
-\spx@tempa{spx@warning@}  {div.warning_}    {6pt}{11.5pt}{6pt}{11.5pt}
-\spx@tempa{spx@caution@}  {div.caution_}    {6pt}{11.5pt}{6pt}{11.5pt}
-\spx@tempa{spx@attention@}{div.attention_}  {6pt}{11.5pt}{6pt}{11.5pt}
-\spx@tempa{spx@danger@}   {div.danger_}     {6pt}{11.5pt}{6pt}{11.5pt}
-\spx@tempa{spx@error@}    {div.error_}      {6pt}{11.25pt}{6pt}{11.25pt}
+\spx@tempa{spx@note@}     {div.note_}       {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@hint@}     {div.hint_}       {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@important@}{div.important_}  {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@tip@}      {div.tip_}        {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@seealso@}  {div.seealso_}    {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@todo@}     {div.todo_}       {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@warning@}  {div.warning_}    {6pt}{6.5pt}{6pt}{6.5pt}
+\spx@tempa{spx@caution@}  {div.caution_}    {6pt}{6.5pt}{6pt}{6.5pt}
+\spx@tempa{spx@attention@}{div.attention_}  {6pt}{6.5pt}{6pt}{6.5pt}
+\spx@tempa{spx@danger@}   {div.danger_}     {6pt}{6.5pt}{6pt}{6.5pt}
+\spx@tempa{spx@error@}    {div.error_}      {6pt}{6.25pt}{6pt}{6.25pt}
 \spx@tempa{spx@box@}      {box_}            {3pt}{3pt}{3pt}{3pt}
 % define legacy verbatimsep key as alias of pre_padding key
 \expandafter\let\expandafter\KV@sphinx@verbatimsep\csname KV@sphinx@pre_padding\endcsname

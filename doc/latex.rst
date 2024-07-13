@@ -1248,18 +1248,18 @@ forget the underscore separating the prefix from the property names.
   The defaults:
 
   * all four ``3pt`` for :rst:dir:`code-block`,
-  * ``10pt``, ``12pt``, ``12pt``, ``12pt`` for :dudir:`topic` or
+  * ``10pt``, ``7pt``, ``12pt``, ``7pt`` for :dudir:`topic` or
     contents_ directive,
-  * ``6pt``, ``12pt``, ``6pt``, ``12pt`` for all "light" admonitions as well
+  * ``6pt``, ``7pt``, ``6pt``, ``7pt`` for all "light" admonitions as well
     as the :rst:dir:`seealso` and :rst:dir:`todo` directives.
-  * ``6pt``, ``11.5pt``, ``6pt``, ``11.5pt`` for the strong admonition types
-    except :dudir:`error` which uses horizontal padding of ``11.25pt``.
+  * ``6pt``, ``6.5pt``, ``6pt``, ``6.5pt`` for the strong admonition types
+    except :dudir:`error` which uses horizontal padding of ``6.25pt``.
 
   .. versionchanged:: 7.4.0
 
      All defaults were changed, except for :rst:dir:`code-block`.  Admonitions
      are set-up so that left (or right) padding plus left (or right)
-     border-width add up always to ``12.5pt``, so contents align well
+     border-width add up always to ``7.5pt``, so contents align well
      vertically across admonition types on same page in PDF.  This is only a
      property of defaults, not a constraint on possible user choices.
 
