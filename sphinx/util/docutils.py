@@ -182,45 +182,11 @@ def using_user_docutils_conf(confdir: str | None) -> Iterator[None]:
 
 
 @contextmanager
-def du19_footnotes() -> Iterator[None]:
-    def visit_footnote(self: HTMLTranslator, node: Element) -> None:
-        label_style = self.settings.footnote_references
-        if not isinstance(node.previous_sibling(), type(node)):
-            self.body.append(f'<aside class="footnote-list {label_style}">\n')
-        self.body.append(self.starttag(node, 'aside',
-                                       classes=[node.tagname, label_style],
-                                       role="note"))
-
-    def depart_footnote(self: HTMLTranslator, node: Element) -> None:
-        self.body.append('</aside>\n')
-        if not isinstance(node.next_node(descend=False, siblings=True),
-                          type(node)):
-            self.body.append('</aside>\n')
-
-    old_visit_footnote = HTMLTranslator.visit_footnote
-    old_depart_footnote = HTMLTranslator.depart_footnote
-
-    # Only apply on Docutils 0.18 or 0.18.1, as 0.17 and earlier used a <dl> based
-    # approach, and 0.19 and later use the fixed approach by default.
-    if docutils.__version_info__[:2] == (0, 18):
-        HTMLTranslator.visit_footnote = visit_footnote  # type: ignore[method-assign]
-        HTMLTranslator.depart_footnote = depart_footnote  # type: ignore[method-assign]
-
-    try:
-        yield
-    finally:
-        if docutils.__version_info__[:2] == (0, 18):
-            HTMLTranslator.visit_footnote = old_visit_footnote  # type: ignore[method-assign]
-            HTMLTranslator.depart_footnote = old_depart_footnote  # type: ignore[method-assign]
-
-
-@contextmanager
 def patch_docutils(confdir: str | None = None) -> Iterator[None]:
     """Patch to docutils temporarily."""
     with patched_get_language(), \
          patched_rst_get_language(), \
-         using_user_docutils_conf(confdir), \
-         du19_footnotes():
+         using_user_docutils_conf(confdir):
         yield
 
 
