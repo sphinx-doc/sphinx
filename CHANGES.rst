@@ -5,9 +5,7 @@ Dependencies
 ------------
 
 * #12555: Drop Docutils 0.18.1 and Docutils 0.19 support.
-  Patch by Adam Turner
-* #12556: Require Babel 2.13 or greater.
-  Patch by Adam Turner
+  Patch by Adam Turner.
 
 Incompatible changes
 --------------------
