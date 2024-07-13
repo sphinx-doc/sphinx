@@ -132,7 +132,7 @@ def test_domain_objects(app):
 
     assert app.env.toc_num_entries['index'] == 0
     assert app.env.toc_num_entries['domains'] == 9
-    assert app.env.toctree_includes['index'] == ['domains']
+    assert app.env.toctree_includes['index'] == ['domains', 'document_scoping']
     assert 'index' in app.env.files_to_rebuild['domains']
     assert app.env.glob_toctrees == set()
     assert app.env.numbered_toctrees == {'index'}
