@@ -261,6 +261,11 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # evaluated before determining whether *cls* is a mocked object
             # or not; instead of two try-except blocks, we keep it here.
             return f':py:class:`{module_prefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
+        elif _is_annotated_form(cls):
+            args = restify(cls.__args__[0], mode)
+            meta = ', '.join(map(repr, cls.__metadata__))
+            return (f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
+                    fr'\ [{args}, {meta}]')
         elif inspect.isNewType(cls):
             if sys.version_info[:2] >= (3, 10):
                 # newtypes have correct module info since Python 3.10+
