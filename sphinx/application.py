@@ -530,7 +530,7 @@ class Sphinx:
     def add_config_value(
         self, name: str, default: Any, rebuild: _ConfigRebuild,
         types: type | Collection[type] | ENUM = (),
-        description: str | None = None,
+        description: str = '',
     ) -> None:
         """Register a configuration value.
 
