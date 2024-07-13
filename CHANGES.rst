@@ -71,7 +71,6 @@ Features added
     parses the provided text into inline elements and text nodes.
 
   Patch by Adam Turner.
-
 * #12258: Support ``typing_extensions.Unpack``
   Patch by Bénédikt Tran and Adam Turner.
 * #12524: Add a ``class`` option to the :rst:dir:`toctree` directive.
@@ -100,6 +99,9 @@ Features added
 * #12508: LaTeX: Revamped styling of all admonitions, with addition of a
   title row with icon.
   Patch by Jean-François B.
+* #11773: Display :py:class:`~typing.Annotated` annotations
+  with their metadata in the Python domain.
+  Patch by Adam Turner and David Stansby.
 
 Bugs fixed
 ----------
