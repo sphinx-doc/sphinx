@@ -259,7 +259,7 @@ General configuration
 
    A URL to cross-reference :rst:role:`manpage` roles.
    If this is defined to ``https://manpages.debian.org/{path}``,
-   the :literal:`:manpage:`man(1)` role will link to
+   the :literal:`:manpage:`man(1)`` role will link to
    <https://manpages.debian.org/man(1)>.
    The patterns available are:
 
@@ -1354,6 +1354,7 @@ Options for warning control
    * ``app.add_generic_role``
    * ``app.add_source_parser``
    * ``config.cache``
+   * ``docutils``
    * ``download.not_readable``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
@@ -1383,6 +1384,7 @@ Options for warning control
    * ``autodoc.import_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
+   * ``autosummary.import_cycle``
    * ``intersphinx.external``
 
    You can choose from these types.  You can also give only the first

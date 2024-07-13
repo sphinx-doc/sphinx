@@ -527,9 +527,11 @@ class Sphinx:
         """
         self.registry.add_builder(builder, override=override)
 
-    # TODO(stephenfin): Describe 'types' parameter
-    def add_config_value(self, name: str, default: Any, rebuild: _ConfigRebuild,
-                         types: type | Collection[type] | ENUM = ()) -> None:
+    def add_config_value(
+        self, name: str, default: Any, rebuild: _ConfigRebuild,
+        types: type | Collection[type] | ENUM = (),
+        description: str = '',
+    ) -> None:
         """Register a configuration value.
 
         This is necessary for Sphinx to recognize new values and set default
@@ -550,6 +552,7 @@ class Sphinx:
         :param types: The type of configuration value.  A list of types can be specified.  For
                       example, ``[str]`` is used to describe a configuration that takes string
                       value.
+        :param description: A short description of the configuration value.
 
         .. versionchanged:: 0.4
            If the *default* value is a callable, it will be called with the
@@ -561,9 +564,12 @@ class Sphinx:
            Changed *rebuild* from a simple boolean (equivalent to ``''`` or
            ``'env'``) to a string.  However, booleans are still accepted and
            converted internally.
+
+        .. versionadded:: 7.4
+           The *description* parameter.
         """
         logger.debug('[app] adding config value: %r', (name, default, rebuild, types))
-        self.config.add(name, default, rebuild, types)
+        self.config.add(name, default, rebuild, types, description)
 
     def add_event(self, name: str) -> None:
         """Register an event called *name*.
