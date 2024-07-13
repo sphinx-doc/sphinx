@@ -325,8 +325,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             map(re.compile, config.linkcheck_anchors_ignore))
         self.anchors_ignore_for_url: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_anchors_ignore_for_url))
-        self.parse_leniently: list[re.Pattern[str]] = list(
-            map(re.compile, config.linkcheck_parse_leniently))
         self.documents_exclude: list[re.Pattern[str]] = list(
             map(re.compile, config.linkcheck_exclude_documents))
         self.auth = [(re.compile(pattern), auth_info) for pattern, auth_info
@@ -438,8 +436,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         anchor = ''
                         break
             anchor = unquote(anchor)
-        if delimiter and anchor:
-            lenient = any(rex.match(req_url) for rex in self.parse_leniently)
 
         # handle non-ASCII URIs
         try:
@@ -477,7 +473,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if anchor and self.check_anchors and response.ok:
                         try:
-                            found = contains_anchor(response, anchor, lenient=lenient)
+                            found = contains_anchor(response, anchor)
                         except UnicodeDecodeError:
                             return 'ignored', 'unable to decode response content', 0
                         if not found:
@@ -625,7 +621,7 @@ def _get_request_headers(
     return {}
 
 
-def contains_anchor(response: Response, anchor: str, *, lenient: bool = False) -> bool:
+def contains_anchor(response: Response, anchor: str) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
     parser = AnchorCheckParser(anchor)
     # Read file in chunks. If we find a matching anchor, we break
@@ -638,10 +634,6 @@ def contains_anchor(response: Response, anchor: str, *, lenient: bool = False) -
         if parser.found:
             break
     parser.close()
-
-    if parser.errors and not lenient:
-        raise ValueError(parser.errors[0])
-
     return parser.found
 
 
@@ -729,7 +721,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
-    app.add_config_value('linkcheck_parse_leniently', (), '', (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
     app.add_config_value('linkcheck_allow_unauthorized', True, '')
     app.add_config_value('linkcheck_report_timeouts_as_broken', True, '', bool)

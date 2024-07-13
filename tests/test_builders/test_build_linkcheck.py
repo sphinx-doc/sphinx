@@ -340,9 +340,6 @@ def test_anchors_ignored_for_url(app: Sphinx) -> None:
             f'http://{address}/ignored',  # existing page
             f'http://{address}/invalid',  # unknown page
         ]
-        app.config.linkcheck_parse_leniently = [
-            re.compile(rf'http://{address}/valid'),  # incomplete HTML doc
-        ]
         app.build()
 
     assert (app.outdir / 'output.txt').exists()
