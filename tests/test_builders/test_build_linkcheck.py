@@ -288,7 +288,7 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
             yield chunk
             yield b'\r\n'
 
-        buffer = bytes()
+        buffer = b''
         for char in content:
             buffer += char.encode('utf-8')
             if len(buffer) >= max_chunk_size:
