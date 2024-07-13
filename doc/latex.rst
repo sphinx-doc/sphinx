@@ -1072,7 +1072,7 @@ The color used in the above example is available from having passed the
     :ref:`additionalcss` for keys allowing to configure separately each
     border width.
 
-    Default: ``1.5pt`` except for ``error`` which uses ``2pt``.
+    Default: ``1pt`` except for ``error`` which uses ``1.25pt``.
 
     .. versionchanged:: 7.4.0
 
@@ -1234,12 +1234,12 @@ forget the underscore separating the prefix from the property names.
   * ``0.5pt`` for :dudir:`topic` or contents_ directive,
   * ``0.5pt`` for :dudir:`note` and other "light" admonitions,
   * ``0.5pt`` for :rst:dir:`seealso` and :rst:dir:`todo` directives,
-  * ``1.5pt`` for  :dudir:`warning` and other "strong" admonitions except
-    for :dudir:`error`: ``2pt`` for :dudir:`error`.
+  * ``1pt`` for  :dudir:`warning` and other "strong" admonitions except
+    :dudir:`error` which uses ``1.25pt``.
 
   .. versionchanged:: 7.4.0
 
-     Changed defaults for :dudir:`topic` and "strong" admonitions.
+     Changed defaults for :dudir:`topic` and :dudir:`error`.
 
 - ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
   ``slice`` and configures the behavior at page breaks.
@@ -1255,13 +1255,20 @@ forget the underscore separating the prefix from the property names.
   The defaults:
 
   * all four ``3pt`` for :rst:dir:`code-block`,
-  * ``10pt``, ``12pt``, ``12pt``, ``12pt`` for :dudir:`topic` or contents_ directive,
-  * ``6pt``, ``12pt``, ``6pt``, ``12pt`` for all admonition types as well
-    as :rst:dir:`seealso` and :rst:dir:`todo` directives.
+  * ``10pt``, ``12pt``, ``12pt``, ``12pt`` for :dudir:`topic` or
+    contents_ directive,
+  * ``6pt``, ``12pt``, ``6pt``, ``12pt`` for all "light" admonitions as well
+    as the :rst:dir:`seealso` and :rst:dir:`todo` directives.
+  * ``6pt``, ``11.5pt``, ``6pt``, ``11.5pt`` for the strong admonition types
+    except :dudir:`error` which uses horizontal padding of ``11.25pt``.
 
   .. versionchanged:: 7.4.0
 
-     All defaults were changed, except for :rst:dir:`code-block`.
+     All defaults were changed, except for :rst:dir:`code-block`.  Admonitions
+     are set-up so that left (or right) padding plus left (or right)
+     border-width add up always to ``12.5pt``, so contents align well
+     vertically across admonition types on same page in PDF.  This is only a
+     property of defaults, not a constraint on possible user choices.
 
 - | ``<prefix>_border-top-left-radius``,
   | ``<prefix>_border-top-right-radius``,
