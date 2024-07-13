@@ -266,8 +266,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             meta = ', '.join(map(repr, cls.__metadata__))
             if sys.version_info[:2] <= (3, 11):
                 # Hardcoded to fix errors on Python 3.11 and earlier.
-                return (f':py:class:`{module_prefix}typing.Annotated`'
-                        fr'\ [{args}, {meta}]')
+                return fr':py:class:`~typing.Annotated`\ [{args}, {meta}]'
             return (f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
                     fr'\ [{args}, {meta}]')
         elif inspect.isNewType(cls):
@@ -509,7 +508,7 @@ def stringify_annotation(
             args = stringify_annotation(annotation_args[0], mode)
             meta = ', '.join(map(repr, annotation.__metadata__))
             if sys.version_info[:2] <= (3, 11):
-                module_prefix = module_prefix.removesuffix('builtins.')
+                module_prefix = module_prefix.replace('builtins', 'typing')
                 return f'{module_prefix}Annotated[{args}, {meta}]'
             return f'{module_prefix}Annotated[{args}, {meta}]'
         elif all(is_system_TypeVar(a) for a in annotation_args):
