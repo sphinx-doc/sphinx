@@ -5,7 +5,7 @@ on:
     paths:
       - ".github/workflows/nodejs.yml"
       - "sphinx/themes/**.js"
-      - "tests/js"
+      - "tests/js/**"
       - "karma.conf.js"
       - "package.json"
       - "package-lock.json"
@@ -13,7 +13,7 @@ on:
     paths:
       - ".github/workflows/nodejs.yml"
       - "sphinx/themes/**.js"
-      - "tests/js"
+      - "tests/js/**"
       - "karma.conf.js"
       - "package.json"
       - "package-lock.json"

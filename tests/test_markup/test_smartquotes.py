@@ -41,7 +41,7 @@ def test_text_builder(app, status, warning):
 def test_man_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.1').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
     assert r'\-\- \(dqSphinx\(dq is a tool that makes it easy ...' in content
 
 
@@ -49,7 +49,7 @@ def test_man_builder(app, status, warning):
 def test_latex_builder(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert '\\textendash{} “Sphinx” is a tool that makes it easy …' in content
 
 
@@ -94,5 +94,5 @@ def test_smartquotes_excludes_language(app, status, warning):
 def test_smartquotes_excludes_builders(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.1').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
     assert '– “Sphinx” is a tool that makes it easy …' in content

@@ -59,7 +59,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         self.highlighter = self.builder.highlighter
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
-        self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
@@ -325,6 +324,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['title'] = node['reftitle']
         if 'target' in node:
             atts['target'] = node['target']
+        if 'rel' in node:
+            atts['rel'] = node['rel']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
         if node.get('secnumber'):
@@ -693,24 +694,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                         node['width'] = str(size[0])
                     if 'height' not in node:
                         node['height'] = str(size[1])
-
-        uri = node['uri']
-        if uri.lower().endswith(('svg', 'svgz')):
-            atts = {'src': uri}
-            if 'width' in node:
-                atts['width'] = node['width']
-            if 'height' in node:
-                atts['height'] = node['height']
-            if 'scale' in node:
-                if 'width' in atts:
-                    atts['width'] = multiply_length(atts['width'], node['scale'])
-                if 'height' in atts:
-                    atts['height'] = multiply_length(atts['height'], node['scale'])
-            atts['alt'] = node.get('alt', uri)
-            if 'align' in node:
-                atts['class'] = 'align-%s' % node['align']
-            self.body.append(self.emptytag(node, 'img', '', **atts))
-            return
 
         super().visit_image(node)
 

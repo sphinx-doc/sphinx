@@ -43,6 +43,11 @@ Options
 
    Document exactly the members in a module's ``__all__`` attribute.
 
+.. option:: --remove-old
+
+   Remove existing files in the output directory
+   that are not generated anymore.
+
 Example
 -------
 

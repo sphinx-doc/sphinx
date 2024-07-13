@@ -26,6 +26,7 @@ class ImagemagickConverter(ImageConverter):
         ('image/gif', 'image/png'),
         ('application/pdf', 'image/png'),
         ('application/illustrator', 'image/png'),
+        ('image/webp', 'image/png'),
     ]
 
     def is_available(self) -> bool:

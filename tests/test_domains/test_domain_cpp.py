@@ -1046,19 +1046,21 @@ def test_domain_cpp_ast_attributes():
     check('enumerator', '{key}Foo [[attr1]] [[attr2]] = 42', {2: '3Foo'})
 
 
+def check_ast_xref_parsing(target):
+    class Config:
+        cpp_id_attributes = ["id_attr"]
+        cpp_paren_attributes = ["paren_attr"]
+
+    parser = DefinitionParser(target, location='', config=Config())
+    parser.parse_xref_object()
+    parser.assert_end()
+
+
 def test_domain_cpp_ast_xref_parsing():
-    def check(target):
-        class Config:
-            cpp_id_attributes = ["id_attr"]
-            cpp_paren_attributes = ["paren_attr"]
-        parser = DefinitionParser(target, location=None,
-                                  config=Config())
-        ast, isShorthand = parser.parse_xref_object()
-        parser.assert_end()
-    check('f')
-    check('f()')
-    check('void f()')
-    check('T f()')
+    check_ast_xref_parsing('f')
+    check_ast_xref_parsing('f()')
+    check_ast_xref_parsing('void f()')
+    check_ast_xref_parsing('T f()')
 
 
 @pytest.mark.parametrize(
@@ -1213,18 +1215,12 @@ def test_domain_cpp_build_misuse_of_roles(app, status, warning):
 def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, warning):
     app.build(force_all=True)
 
-    def check(spec, text, file):
-        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
-        res = re.search(pattern, text)
-        if not res:
-            print(f"Pattern\n\t{pattern}\nnot found in {file}")
-            raise AssertionError
     rolePatterns = [
-        ('', 'Sphinx'),
-        ('', 'Sphinx::version'),
-        ('', 'version'),
-        ('', 'List'),
-        ('', 'MyEnum'),
+        'Sphinx',
+        'Sphinx::version',
+        'version',
+        'List',
+        'MyEnum',
     ]
     parenPatterns = [
         ('ref function without parens ', r'paren_1\(\)'),
@@ -1237,35 +1233,33 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app, status, war
         ('ref op call with parens, explicit title ', 'paren_8_title'),
     ]
 
-    f = 'roles.html'
-    t = (app.outdir / f).read_text(encoding='utf8')
-    for s in rolePatterns:
-        check(s, t, f)
-    for s in parenPatterns:
-        check(s, t, f)
+    text = (app.outdir / 'roles.html').read_text(encoding='utf8')
+    for ref_text in rolePatterns:
+        pattern = f'<li><p><a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
+        match = re.search(pattern, text)
+        assert match is not None, f"Pattern not found in roles.html:\n\t{pattern}"
+    for (desc_text, ref_text) in parenPatterns:
+        pattern = f'<li><p>{desc_text}<a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
+        match = re.search(pattern, text)
+        assert match is not None, f"Pattern not found in roles.html:\n\t{pattern}"
 
-    f = 'any-role.html'
-    t = (app.outdir / f).read_text(encoding='utf8')
-    for s in parenPatterns:
-        check(s, t, f)
+    text = (app.outdir / 'any-role.html').read_text(encoding='utf8')
+    for (desc_text, ref_text) in parenPatterns:
+        pattern = f'<li><p>{desc_text}<a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
+        match = re.search(pattern, text)
+        assert match is not None, f"Pattern not found in any-role.html:\n\t{pattern}"
 
 
 @pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, warning):
     app.build(force_all=True)
 
-    def check(spec, text, file):
-        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
-        res = re.search(pattern, text)
-        if not res:
-            print(f"Pattern\n\t{pattern}\nnot found in {file}")
-            raise AssertionError
     rolePatterns = [
-        ('', 'Sphinx'),
-        ('', 'Sphinx::version'),
-        ('', 'version'),
-        ('', 'List'),
-        ('', 'MyEnum'),
+        'Sphinx',
+        'Sphinx::version',
+        'version',
+        'List',
+        'MyEnum',
     ]
     parenPatterns = [
         ('ref function without parens ', 'paren_1'),
@@ -1278,17 +1272,21 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app, status, wa
         ('ref op call with parens, explicit title ', 'paren_8_title'),
     ]
 
-    f = 'roles.html'
-    t = (app.outdir / f).read_text(encoding='utf8')
-    for s in rolePatterns:
-        check(s, t, f)
-    for s in parenPatterns:
-        check(s, t, f)
+    text = (app.outdir / 'roles.html').read_text(encoding='utf8')
+    for ref_text in rolePatterns:
+        pattern = f'<li><p><a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
+        match = re.search(pattern, text)
+        assert match is not None, f"Pattern not found in roles.html:\n\t{pattern}"
+    for (desc_text, ref_text) in parenPatterns:
+        pattern = f'<li><p>{desc_text}<a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
+        match = re.search(pattern, text)
+        assert match is not None, f"Pattern not found in roles.html:\n\t{pattern}"
 
-    f = 'any-role.html'
-    t = (app.outdir / f).read_text(encoding='utf8')
-    for s in parenPatterns:
-        check(s, t, f)
+    text = (app.outdir / 'any-role.html').read_text(encoding='utf8')
+    for (desc_text, ref_text) in parenPatterns:
+        pattern = f'<li><p>{desc_text}<a .*?><code .*?><span .*?>{ref_text}</span></code></a></p></li>'
+        match = re.search(pattern, text)
+        assert match is not None, f"Pattern not found in any-role.html:\n\t{pattern}"
 
 
 @pytest.mark.sphinx(testroot='domain-cpp')

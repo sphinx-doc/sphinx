@@ -179,7 +179,7 @@ class HTMLThemeFactory:
         for name, theme in themes.items():
             self._themes[name] = theme
 
-    def _load_additional_themes(self, theme_paths: str) -> None:
+    def _load_additional_themes(self, theme_paths: list[str]) -> None:
         """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
             abs_theme_path = path.abspath(path.join(self._app.confdir, theme_path))

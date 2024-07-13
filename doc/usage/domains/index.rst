@@ -1,5 +1,7 @@
 .. highlight:: rst
 
+.. _usage-domains:
+
 =======
 Domains
 =======

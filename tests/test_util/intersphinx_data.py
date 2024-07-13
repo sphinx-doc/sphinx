@@ -50,3 +50,13 @@ INVENTORY_V2_NO_VERSION: Final[bytes] = b'''\
 ''' + zlib.compress(b'''\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 ''')
+
+INVENTORY_V2_AMBIGUOUS_TERMS: Final[bytes] = b'''\
+# Sphinx inventory version 2
+# Project: foo
+# Version: 2.0
+# The remainder of this file is compressed with zlib.
+''' + zlib.compress(b'''\
+a term std:term -1 glossary.html#term-a-term -
+A term std:term -1 glossary.html#term-a-term -
+''')

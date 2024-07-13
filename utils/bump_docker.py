@@ -26,8 +26,8 @@ SPHINX_VERSION_PREFIX = 'Sphinx=='
 for file in DOCKERFILE_BASE, DOCKERFILE_LATEXPDF:
     content = file.read_text(encoding='utf-8')
     content = re.sub(
-        rf'{re.escape(OPENCONTAINERS_VERSION_PREFIX)} = "{VERSION_PATTERN}"',
-        rf'{OPENCONTAINERS_VERSION_PREFIX} = "{VERSION}"',
+        rf'{re.escape(OPENCONTAINERS_VERSION_PREFIX)}="{VERSION_PATTERN}"',
+        rf'{OPENCONTAINERS_VERSION_PREFIX}="{VERSION}"',
         content,
     )
     content = re.sub(
@@ -39,16 +39,13 @@ for file in DOCKERFILE_BASE, DOCKERFILE_LATEXPDF:
 
 
 def git(*args: str) -> None:
-    ret = subprocess.run(
+    subprocess.run(
         ('git', *args),
-        capture_output=True,
         cwd=DOCKER_ROOT,
         check=True,
         text=True,
         encoding='utf-8',
     )
-    print(ret.stdout)
-    print(ret.stderr, file=sys.stderr)
 
 
 git('checkout', 'master')

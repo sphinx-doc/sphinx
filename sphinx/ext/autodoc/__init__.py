@@ -2721,10 +2721,10 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
             # a docstring from the value which descriptor returns unexpectedly.
             # ref: https://github.com/sphinx-doc/sphinx/issues/7805
             orig = self.config.autodoc_inherit_docstrings
-            self.config.autodoc_inherit_docstrings = False  # type: ignore[attr-defined]
+            self.config.autodoc_inherit_docstrings = False
             return super().get_doc()
         finally:
-            self.config.autodoc_inherit_docstrings = orig  # type: ignore[attr-defined]
+            self.config.autodoc_inherit_docstrings = orig
 
     def add_content(self, more_content: StringList | None) -> None:
         # Disable analyzing attribute comment on Documenter.add_content() to control it on
@@ -2773,7 +2773,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
             obj = __dict__.get(self.objpath[-1])
             if isinstance(obj, classmethod) and inspect.isproperty(obj.__func__):
                 self.object = obj.__func__
-                self.isclassmethod = True
+                self.isclassmethod: bool = True
                 return True
             else:
                 return False
