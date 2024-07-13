@@ -158,18 +158,11 @@ Keys that you may want to override include:
       ``'lualatex'`` uses same default setting as ``'xelatex'``
 
    .. versionchanged:: 1.7.6
-      For French with ``xelatex`` (not ``lualatex``) the default is to use
-      ``babel``, not ``polyglossia``.  To let ``lualatex`` use ``babel``,
-      use this:
+      For French with ``'xelatex'`` (not ``'lualatex'``) the default is to
+      use ``babel``, not ``polyglossia``.
 
-      .. code-block:: python
-
-         latex_elements = {
-             'polyglossia': '',
-             'babel': r'\usepackage{babel}',
-         }
-
-      in file :file:`conf.py`.
+   .. versionchanged:: 7.4.0
+      For French with ``'lualatex'`` the default is to use ``babel``.
 
 ``'fontpkg'``
    Font package inclusion. The default is::

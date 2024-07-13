@@ -183,6 +183,11 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
     },
 
     # special settings for latex_engine + language_code
+    ('lualatex', 'fr'): {
+        # use babel instead of polyglossia by default
+        'polyglossia':  '',
+        'babel':        '\\usepackage{babel}',
+    },
     ('xelatex', 'fr'): {
         # use babel instead of polyglossia by default
         'polyglossia':  '',
