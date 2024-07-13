@@ -724,19 +724,21 @@ class LaTeXTranslator(SphinxTranslator):
             return e.get('multi_line_parameter_list')
 
         self.has_tp_list = False
+        self.orphan_tplist = False
 
         for child in node:
             if isinstance(child, addnodes.desc_type_parameter_list):
                 self.has_tp_list = True
-                # recall that return annotations must follow an argument list,
-                # so signatures of the form "foo[tp_list] -> retann" will not
-                # be encountered (if they should, the `domains.python.py_sig_re`
-                # pattern must be modified accordingly)
-                arglist = next_sibling(child)
-                assert isinstance(arglist, addnodes.desc_parameterlist)
-                # tp_list + arglist: \macro{name}{tp_list}{arglist}{return}
                 multi_tp_list = has_multi_line(child)
-                multi_arglist = has_multi_line(arglist)
+                arglist = next_sibling(child)
+                if isinstance(arglist, addnodes.desc_parameterlist):
+                    # tp_list + arglist: \macro{name}{tp_list}{arglist}{retann}
+                    multi_arglist = has_multi_line(arglist)
+                else:
+                    # orphan tp_list:    \macro{name}{tp_list}{}{retann}
+                    # see: https://github.com/sphinx-doc/sphinx/issues/12543
+                    self.orphan_tplist = True
+                    multi_arglist = False
 
                 if multi_tp_list:
                     if multi_arglist:
@@ -751,7 +753,7 @@ class LaTeXTranslator(SphinxTranslator):
                 break
 
             if isinstance(child, addnodes.desc_parameterlist):
-                # arglist only: \macro{name}{arglist}{return}
+                # arglist only: \macro{name}{arglist}{retann}
                 if has_multi_line(child):
                     self.body.append(CR + r'\pysigwithonelineperarg{')
                 else:
@@ -857,7 +859,13 @@ class LaTeXTranslator(SphinxTranslator):
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        if not self.has_tp_list:
+        if self.has_tp_list:
+            if self.orphan_tplist:
+                # close type parameters list (#2)
+                self.body.append('}{')
+                # empty parameters list argument (#3)
+                return
+        else:
             # close name argument (#1), open parameters list argument (#2)
             self.body.append('}{')
         self._visit_sig_parameter_list(node, addnodes.desc_parameter)
