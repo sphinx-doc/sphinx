@@ -10,7 +10,7 @@ import sphinx.ext.apidoc
 from sphinx.ext.apidoc import main as apidoc_main
 
 
-@pytest.fixture()
+@pytest.fixture
 def apidoc(rootdir, tmp_path, apidoc_params):
     _, kwargs = apidoc_params
     coderoot = rootdir / kwargs.get('coderoot', 'test-root')
@@ -21,7 +21,7 @@ def apidoc(rootdir, tmp_path, apidoc_params):
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
 
 
-@pytest.fixture()
+@pytest.fixture
 def apidoc_params(request):
     pargs = {}
     kwargs = {}

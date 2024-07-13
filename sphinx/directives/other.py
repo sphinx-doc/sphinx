@@ -53,6 +53,7 @@ class TocTree(SphinxDirective):
     option_spec = {
         'maxdepth': int,
         'name': directives.unchanged,
+        'class': directives.class_option,
         'caption': directives.unchanged_required,
         'glob': directives.flag,
         'hidden': directives.flag,
@@ -78,7 +79,9 @@ class TocTree(SphinxDirective):
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
         self.set_source_info(subnode)
-        wrappernode = nodes.compound(classes=['toctree-wrapper'])
+        wrappernode = nodes.compound(
+            classes=['toctree-wrapper', *self.options.get('class', ())],
+        )
         wrappernode.append(subnode)
         self.add_name(wrappernode)
 

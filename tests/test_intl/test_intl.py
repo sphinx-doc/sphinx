@@ -737,7 +737,7 @@ class _MockUnixClock(_MockClock):
         time.sleep(ds)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_time_and_i18n(
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[pytest.MonkeyPatch, _MockClock]:

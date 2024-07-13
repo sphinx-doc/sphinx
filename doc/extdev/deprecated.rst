@@ -1769,7 +1769,7 @@ The following is a list of deprecated interfaces.
      - 3.0
      - ``warning()``
 
-   * - :confval:`source_parsers`
+   * - :confval:`!source_parsers`
      - 1.8
      - 3.0
      - :meth:`~sphinx.application.Sphinx.add_source_parser()`

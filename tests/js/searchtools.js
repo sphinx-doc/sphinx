@@ -7,6 +7,23 @@ describe('Basic html theme search', function() {
       return req.responseText;
   }
 
+  function checkRanking(expectedRanking, results) {
+    let [nextExpected, ...remainingItems] = expectedRanking;
+
+    for (result of results.reverse()) {
+      if (!nextExpected) break;
+
+      let [expectedPage, expectedTitle, expectedTarget] = nextExpected;
+      let [page, title, target] = result;
+
+      if (page == expectedPage && title == expectedTitle && target == expectedTarget) {
+        [nextExpected, ...remainingItems] = remainingItems;
+      }
+    }
+
+    expect(remainingItems.length).toEqual(0);
+  }
+
   describe('terms search', function() {
 
     it('should find "C++" when in index', function() {
@@ -76,11 +93,71 @@ describe('Basic html theme search', function() {
           'Main Page',
           '',
           null,
-          100,
+          16,
           'index.rst'
         ]
       ];
       expect(Search._performSearch(...searchParameters)).toEqual(hits);
+    });
+
+  });
+
+  describe('search result ranking', function() {
+
+    /*
+     * These tests should not proscribe precise expected ordering of search
+     * results; instead each test case should describe a single relevance rule
+     * that helps users to locate relevant information efficiently.
+     *
+     * If you think that one of the rules seems to be poorly-defined or is
+     * limiting the potential for search algorithm improvements, please check
+     * for existing discussion/bugreports related to it on GitHub[1] before
+     * creating one yourself. Suggestions for possible improvements are also
+     * welcome.
+     *
+     * [1] - https://github.com/sphinx-doc/sphinx.git/
+     */
+
+    it('should score a code module match above a page-title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['index', 'relevance', '#module-relevance'],  /* py:module documentation */
+        ['relevance', 'Relevance', ''],  /* main title */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a main-title match above an object member match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* main title */
+        ['index', 'relevance.Example.relevance', '#module-relevance'],  /* py:class attribute */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a main-title match above a subheading-title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* main title */
+        ['index', 'Main Page > Relevance', '#relevance'],  /* subsection heading title */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
     });
 
   });
