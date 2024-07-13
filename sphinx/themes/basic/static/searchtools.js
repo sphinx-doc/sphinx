@@ -101,11 +101,8 @@ const _displayItem = (item, searchTerms, highlightTerms, exactSearchPhrases) => 
         // exclude results that don't contain exact phrases if we are searching for them
         if (data) {
           const lowercaseData = data.toLowerCase();
-          for (const exactSearchPhrase of exactSearchPhrases) {
-            if (lowercaseData.search(exactSearchPhrase) === -1) {
-              return;
-            }
-          }
+          const mismatch = (s) => lowercaseData.search(s) === -1;
+          if (exactSearchPhrases.some(mismatch)) return;
         }
 
         if (data)
