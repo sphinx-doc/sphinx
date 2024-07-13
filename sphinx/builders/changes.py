@@ -12,12 +12,13 @@ from sphinx.domains.changeset import ChangeSetDomain
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ class ChangesBuilder(Builder):
 
         changesets = domain.get_changesets_for(version)
         if not changesets:
-            logger.info(bold(__('no changes in version %s.') % version))
+            logger.info(bold(__('no changes in version %s.')), version)
             return
         logger.info(bold(__('writing summary file...')))
         for changeset in changesets:
@@ -139,7 +140,7 @@ class ChangesBuilder(Builder):
                 f.write(self.templates.render('changes/rstsource.html', ctx))
         themectx = {'theme_' + key: val for (key, val) in
                     self.theme.get_options({}).items()}
-        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css_t'),
+        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),  # NoQA: E501
                         self.outdir, context=themectx, renderer=self.templates)
         copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
                         self.outdir)
@@ -155,7 +156,7 @@ class ChangesBuilder(Builder):
         pass
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(ChangesBuilder)
 
     return {

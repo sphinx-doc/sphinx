@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatextables.sty}[2022/08/15 tables]%
+\ProvidesFile{sphinxlatextables.sty}[2024/07/01 v7.4.0 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -42,6 +42,11 @@
 % - \sphinxthistablewithnocolorrowsstyle
 % - \sphinxthistablewithvlinesstyle
 % - \sphinxthistablewithnovlinesstyle
+% 
+% Also provides user command (see docs)
+% - \sphixncolorblend
+%   (Sphinx 7.4.0 now requires xcolor, so \sphinxcolorblend does not check
+%    its availability anymore) 
 %
 % Executes \RequirePackage for:
 %
@@ -513,19 +518,6 @@
     \fi
 }
 \def\sphinxcolorblend#1{\gdef\spx@colorblendparam{{#1}}\spx@table@hackCT@colorblend}
-% Either xcolor.sty exists on user system and has been loaded by sphinx.sty,
-% or it does not exist, so we can use \@ifpackageloaded without delaying.
-\@ifpackageloaded{xcolor}%
-  {}%
-  {\def\sphinxcolorblend#1{%
-\PackageWarning{sphinx}{This table uses \string\sphinxcolorblend\space
-  but xcolor is not in\MessageBreak
-  the TeX/LaTeX installation, the command will be\MessageBreak
-  ignored in this and the next tables}%
-   \global\let\sphinxcolorblend\@gobble
-   \sphinxbuildwarning{colorblend}%
-   }%
-  }
 
 
 %%%%%%%%%%%%%%%%%%

@@ -22,12 +22,7 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util._io import TeeStripANSI
-from sphinx.util.console import (  # type: ignore[attr-defined]
-    color_terminal,
-    nocolor,
-    red,
-    terminal_safe,
-)
+from sphinx.util.console import color_terminal, nocolor, red, terminal_safe
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
 from sphinx.util.osutil import ensuredir
@@ -184,7 +179,7 @@ files can be built by specifying individual filenames.
                        dest='tags', default=[],
                        help=__('define tag: include "only" blocks with TAG'))
     group.add_argument('--nitpicky', '-n', action='store_true', dest='nitpicky',
-                       help=__('nit-picky mode: warn about all missing references'))
+                       help=__('nitpicky mode: warn about all missing references'))
 
     group = parser.add_argument_group(__('console output options'))
     group.add_argument('--verbose', '-v', action='count', dest='verbosity',

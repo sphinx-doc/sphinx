@@ -22,6 +22,7 @@ from sphinx.util.osutil import make_filename
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +194,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'), self.outdir,
+        copy_asset_file(path.join(self.template_dir, 'nav.xhtml.jinja'), self.outdir,
                         self.navigation_doc_metadata(navlist))
 
         # Add nav.xhtml to epub file
@@ -254,10 +255,10 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.epub_css_files = epub_css_files  # type: ignore[attr-defined]
+    config.epub_css_files = epub_css_files
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(Epub3Builder)
 
     # config values

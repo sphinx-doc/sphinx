@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ()
+
 import base64
 import contextlib
 import re
@@ -11,7 +13,7 @@ import tempfile
 from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -33,13 +35,12 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
     from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
 templates_path = path.join(package_dir, 'templates', 'imgmath')
-
-__all__ = ()
 
 
 class MathExtError(SphinxError):
@@ -102,16 +103,17 @@ def generate_latex_macro(image_format: str,
     }
 
     if config.imgmath_use_preview:
-        template_name = 'preview.tex_t'
+        template_name = 'preview.tex'
     else:
-        template_name = 'template.tex_t'
+        template_name = 'template.tex'
 
     for template_dir in config.templates_path:
-        template = path.join(confdir, template_dir, template_name)
-        if path.exists(template):
-            return LaTeXRenderer().render(template, variables)
+        for template_suffix in ('.jinja', '_t'):
+            template = path.join(confdir, template_dir, template_name + template_suffix)
+            if path.exists(template):
+                return LaTeXRenderer().render(template, variables)
 
-    return LaTeXRenderer(templates_path).render(template_name, variables)
+    return LaTeXRenderer(templates_path).render(template_name + '.jinja', variables)
 
 
 def ensure_tempdir(builder: Builder) -> str:
@@ -384,7 +386,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     raise nodes.SkipNode
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_html_math_renderer('imgmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

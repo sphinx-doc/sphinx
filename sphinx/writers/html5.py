@@ -59,7 +59,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         self.highlighter = self.builder.highlighter
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
-        self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
@@ -325,6 +324,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             atts['title'] = node['reftitle']
         if 'target' in node:
             atts['target'] = node['target']
+        if 'rel' in node:
+            atts['rel'] = node['rel']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
         if node.get('secnumber'):
@@ -338,7 +339,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.depart_reference(node)
 
     # overwritten -- we don't want source comments to show up in the HTML
-    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
+    def visit_comment(self, node: Element) -> None:
         raise nodes.SkipNode
 
     # overwritten
@@ -475,6 +476,17 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
             self.body.append('<span class="caption-text">')
+        # Partially revert https://sourceforge.net/p/docutils/code/9562/
+        if (
+                isinstance(node.parent, nodes.topic)
+                and self.settings.toc_backlinks
+                and 'contents' in node.parent['classes']
+                and self.body[-1].startswith('<a ')
+                # TODO: only remove for EPUB
+        ):
+            # remove <a class="reference internal" href="#top">
+            self.body.pop()
+            self.context[-1] = '</p>\n'
 
     def depart_title(self, node: Element) -> None:
         close_tag = self.context[-1]
@@ -589,10 +601,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:
@@ -684,24 +694,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                         node['width'] = str(size[0])
                     if 'height' not in node:
                         node['height'] = str(size[1])
-
-        uri = node['uri']
-        if uri.lower().endswith(('svg', 'svgz')):
-            atts = {'src': uri}
-            if 'width' in node:
-                atts['width'] = node['width']
-            if 'height' in node:
-                atts['height'] = node['height']
-            if 'scale' in node:
-                if 'width' in atts:
-                    atts['width'] = multiply_length(atts['width'], node['scale'])
-                if 'height' in atts:
-                    atts['height'] = multiply_length(atts['height'], node['scale'])
-            atts['alt'] = node.get('alt', uri)
-            if 'align' in node:
-                atts['class'] = 'align-%s' % node['align']
-            self.body.append(self.emptytag(node, 'img', '', **atts))
-            return
 
         super().visit_image(node)
 

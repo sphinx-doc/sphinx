@@ -20,7 +20,9 @@ def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) ->
 
         id = node['ids'][0]
         number = writer.builder.fignumbers.get(key, {}).get(id, ())
-        return '.'.join(map(str, number))
+        eqno = '.'.join(map(str, number))
+        eqno = writer.builder.config.math_numsep.join(eqno.rsplit('.', 1))
+        return eqno
     else:
         return node['number']
 
@@ -54,8 +56,7 @@ def wrap_displaymath(text: str, label: str | None, numbering: bool) -> str:
         else:
             begin = r'\begin{align*}%s\!\begin{aligned}' % labeldef
             end = r'\end{aligned}\end{align*}'
-        for part in parts:
-            equations.append('%s\\\\\n' % part.strip())
+        equations.extend('%s\\\\\n' % part.strip() for part in parts)
 
     concatenated_equations = ''.join(equations)
     return f'{begin}\n{concatenated_equations}{end}'

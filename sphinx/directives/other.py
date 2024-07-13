@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from os.path import abspath, relpath
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 glob_re = re.compile(r'.*[*?\[].*')
@@ -53,6 +53,7 @@ class TocTree(SphinxDirective):
     option_spec = {
         'maxdepth': int,
         'name': directives.unchanged,
+        'class': directives.class_option,
         'caption': directives.unchanged_required,
         'glob': directives.flag,
         'hidden': directives.flag,
@@ -78,7 +79,9 @@ class TocTree(SphinxDirective):
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
         self.set_source_info(subnode)
-        wrappernode = nodes.compound(classes=['toctree-wrapper'])
+        wrappernode = nodes.compound(
+            classes=['toctree-wrapper', *self.options.get('class', ())],
+        )
         wrappernode.append(subnode)
         self.add_name(wrappernode)
 
@@ -181,7 +184,7 @@ class Author(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         if not self.config.show_authors:
@@ -198,7 +201,7 @@ class Author(SphinxDirective):
         else:
             text = _('Author: ')
         emph += nodes.Text(text)
-        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
+        inodes, messages = self.parse_inline(self.arguments[0])
         emph.extend(inodes)
 
         ret: list[Node] = [para]
@@ -223,7 +226,7 @@ class TabularColumns(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         node = addnodes.tabular_col_spec()
@@ -241,13 +244,13 @@ class Centered(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         if not self.arguments:
             return []
         subnode: Element = addnodes.centered()
-        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
+        inodes, messages = self.parse_inline(self.arguments[0])
         subnode.extend(inodes)
 
         ret: list[Node] = [subnode]
@@ -264,18 +267,15 @@ class Acks(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        node = addnodes.acks()
-        node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node.children) != 1 or not isinstance(node.children[0],
-                                                     nodes.bullet_list):
+        children = self.parse_content_to_nodes()
+        if len(children) != 1 or not isinstance(children[0], nodes.bullet_list):
             logger.warning(__('.. acks content is not a list'),
                            location=(self.env.docname, self.lineno))
             return []
-        return [node]
+        return [addnodes.acks('', *children)]
 
 
 class HList(SphinxDirective):
@@ -287,21 +287,18 @@ class HList(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'columns': int,
     }
 
     def run(self) -> list[Node]:
         ncolumns = self.options.get('columns', 2)
-        node = nodes.paragraph()
-        node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node.children) != 1 or not isinstance(node.children[0],
-                                                     nodes.bullet_list):
+        children = self.parse_content_to_nodes()
+        if len(children) != 1 or not isinstance(children[0], nodes.bullet_list):
             logger.warning(__('.. hlist content is not a list'),
                            location=(self.env.docname, self.lineno))
             return []
-        fulllist = node.children[0]
+        fulllist = children[0]
         # create a hlist node where the items are distributed
         npercol, nmore = divmod(len(fulllist), ncolumns)
         index = 0
@@ -325,7 +322,7 @@ class Only(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         node = addnodes.only()
@@ -415,7 +412,7 @@ class Include(BaseInclude, SphinxDirective):
         # Only enable this patch if there are listeners for 'include-read'.
         if self.env.app.events.listeners.get('include-read'):
             # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
-            self.state_machine.insert_input = _insert_input  # type: ignore[assignment]
+            self.state_machine.insert_input = _insert_input
 
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
@@ -427,7 +424,7 @@ class Include(BaseInclude, SphinxDirective):
         return super().run()
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

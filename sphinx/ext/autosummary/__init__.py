@@ -58,7 +58,7 @@ import sys
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -87,6 +87,7 @@ from sphinx.util.docutils import (
 )
 from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
+from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -95,7 +96,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.extension import Extension
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html import HTML5Translator
 
 logger = logging.getLogger(__name__)
@@ -218,7 +219,7 @@ class Autosummary(SphinxDirective):
     optional_arguments = 0
     final_argument_whitespace = False
     has_content = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'caption': directives.unchanged_required,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
@@ -286,9 +287,9 @@ class Autosummary(SphinxDirective):
                     return import_ivar_by_name(name, prefixes)
                 except ImportError as exc2:
                     if exc2.__cause__:
-                        errors: list[BaseException] = exc.exceptions + [exc2.__cause__]
+                        errors: list[BaseException] = [*exc.exceptions, exc2.__cause__]
                     else:
-                        errors = exc.exceptions + [exc2]
+                        errors = [*exc.exceptions, exc2]
 
                     raise ImportExceptionGroup(exc.args[0], errors) from None
 
@@ -406,16 +407,14 @@ class Autosummary(SphinxDirective):
             row = nodes.row('')
             source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
-                node = nodes.paragraph('')
-                vl = StringList()
-                vl.append(text, '%s:%d:<autosummary>' % (source, line))
+                vl = StringList([text], f'{source}:{line}:<autosummary>')
                 with switch_source_input(self.state, vl):
-                    self.state.nested_parse(vl, 0, node)
-                    try:
-                        if isinstance(node[0], nodes.paragraph):
-                            node = node[0]
-                    except IndexError:
-                        pass
+                    col_nodes = nested_parse_to_nodes(self.state, vl,
+                                                      allow_section_headings=False)
+                    if col_nodes and isinstance(col_nodes[0], nodes.paragraph):
+                        node = col_nodes[0]
+                    else:
+                        node = nodes.paragraph('')
                     row.append(nodes.entry('', node))
             body.append(row)
 
@@ -593,7 +592,7 @@ def limited_join(sep: str, items: list[str], max_chars: int = 30,
         else:
             break
 
-    return sep.join(list(items[:n_items]) + [overflow_marker])
+    return sep.join([*list(items[:n_items]), overflow_marker])
 
 
 # -- Importing items -----------------------------------------------------------
@@ -605,7 +604,7 @@ class ImportExceptionGroup(Exception):
     It contains an error messages and a list of exceptions as its arguments.
     """
 
-    def __init__(self, message: str | None, exceptions: Sequence[BaseException]):
+    def __init__(self, message: str | None, exceptions: Sequence[BaseException]) -> None:
         super().__init__(message)
         self.exceptions = list(exceptions)
 
@@ -640,6 +639,13 @@ def import_by_name(
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
+        if prefix is not None and name.startswith(f'{prefix}.'):
+            # Catch and avoid module cycles (e.g., sphinx.ext.sphinx.ext...)
+            msg = __('Summarised items should not include the current module. '
+                     'Replace %r with %r.')
+            logger.warning(msg, name, name.removeprefix(f'{prefix}.'),
+                           type='autosummary', subtype='import_cycle')
+            continue
         try:
             if prefix:
                 prefixed_name = f'{prefix}.{name}'
@@ -770,7 +776,7 @@ class AutoLink(SphinxRole):
 
 def get_rst_suffix(app: Sphinx) -> str | None:
     def get_supported_format(suffix: str) -> tuple[str, ...]:
-        parser_class = app.registry.get_source_parsers().get(suffix)
+        parser_class = app.registry.get_source_parsers().get(suffix.removeprefix('.'))
         if parser_class is None:
             return ('restructuredtext',)
         return parser_class.supported
@@ -821,7 +827,7 @@ def process_generate_options(app: Sphinx) -> None:
                                   encoding=app.config.source_encoding)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     # I need autodoc
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,

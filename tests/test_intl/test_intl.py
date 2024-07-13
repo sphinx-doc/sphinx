@@ -15,7 +15,8 @@ from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
-from sphinx.testing.util import assert_node, etree_parse, strip_escseq
+from sphinx.testing.util import assert_node, etree_parse
+from sphinx.util.console import strip_colors
 from sphinx.util.nodes import NodeMatcher
 
 _CATALOG_LOCALE = 'xx'
@@ -179,8 +180,11 @@ def test_text_inconsistency_warnings(app, warning):
         })
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
+    expected_citation_ref_warning_expr = (
+        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.')
+    assert re.search(expected_citation_ref_warning_expr, warnings), f'{expected_citation_ref_warning_expr!r} did not match {warnings!r}'
+
     expected_citation_warning_expr = (
-        '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.\n' +
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3')
     assert re.search(expected_citation_warning_expr, warnings), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
 
@@ -285,7 +289,7 @@ VVV
 """)
     assert result == expect
     warnings = getwarning(warning)
-    assert 'term not in glossary' not in warnings
+    assert warnings.count('term not in glossary') == 1
 
 
 @sphinx_intl
@@ -297,7 +301,8 @@ def test_text_glossary_term_inconsistencies(app, warning):
     result = (app.outdir / 'glossary_terms_inconsistency.txt').read_text(encoding='utf8')
     expect = ("19. I18N WITH GLOSSARY TERMS INCONSISTENCY"
               "\n******************************************\n"
-              "\n1. LINK TO *SOME NEW TERM*.\n")
+              "\n1. LINK TO *SOME NEW TERM*.\n"
+              "\n2. LINK TO *TERM NOT IN GLOSSARY*.\n")
     assert result == expect
 
     warnings = getwarning(warning)
@@ -306,6 +311,10 @@ def test_text_glossary_term_inconsistencies(app, warning):
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\]\n")
+    assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
+    expected_warning_expr = (
+        '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '
+        "WARNING: term not in glossary: 'TERM NOT IN GLOSSARY'")
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
 
 
@@ -728,7 +737,7 @@ class _MockUnixClock(_MockClock):
         time.sleep(ds)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_time_and_i18n(
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[pytest.MonkeyPatch, _MockClock]:
@@ -929,6 +938,16 @@ def test_html_index_entries(app):
         start_tag2 = "<%s[^>]*>" % childtag
         return fr"{start_tag1}\s*{keyword}\s*{start_tag2}"
     expected_exprs = [
+        wrap('h2', 'Symbols'),
+        wrap('h2', 'C'),
+        wrap('h2', 'E'),
+        wrap('h2', 'F'),
+        wrap('h2', 'M'),
+        wrap('h2', 'N'),
+        wrap('h2', 'R'),
+        wrap('h2', 'S'),
+        wrap('h2', 'T'),
+        wrap('h2', 'V'),
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
         wrap('a', 'RECIPIENTS LIST'),
@@ -966,7 +985,7 @@ def test_html_versionchanges(app):
     assert expect1 == matched_content
 
     expect2 = (
-        """<p><span class="versionmodified added">New in version 1.0: </span>"""
+        """<p><span class="versionmodified added">Added in version 1.0: </span>"""
         """THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
     matched_content = get_content(result, "versionadded")
     assert expect2 == matched_content
@@ -1190,6 +1209,15 @@ def test_xml_role_xref(app):
         ['i18n-role-xref', 'index',
          'glossary_terms#term-Some-term'])
 
+    sec1_1, = sec1.findall('section')
+    title, = sec1_1.findall('title')
+    assert_elem(
+        title,
+        ['LINK TO', "I18N ROCK'N ROLE XREF", ',', 'CONTENTS', ',',
+         'SOME NEW TERM', '.'],
+        ['i18n-role-xref', 'index',
+         'glossary_terms#term-Some-term'])
+
     para2 = sec2.findall('paragraph')
     assert_elem(
         para2[0],
@@ -1230,7 +1258,7 @@ def test_xml_warnings(app, warning):
     app.build()
     # warnings
     warnings = getwarning(warning)
-    assert 'term not in glossary' not in warnings
+    assert warnings.count('term not in glossary') == 1
     assert 'undefined label' not in warnings
     assert 'unknown document' not in warnings
 
@@ -1290,6 +1318,19 @@ def test_xml_label_targets(app):
         ['label-bridged-target-section',
          'section-and-label',
          'section-and-label'])
+
+
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.test_params(shared_result='test_intl_basic')
+def test_xml_strange_markup(app):
+    app.build()
+    et = etree_parse(app.outdir / 'markup.xml')
+    secs = et.findall('section')
+
+    subsec1, = secs[0].findall('section')
+    title1, = subsec1.findall('title')
+    assert_elem(title1, ['1. TITLE STARTING WITH 1.'])
 
 
 @sphinx_intl
@@ -1376,6 +1417,15 @@ def test_additional_targets_should_be_translated(app):
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
 
+    # basic literal bloc should be translated
+    expected_expr = ('<span class="n">THIS</span> <span class="n">IS</span>\n'
+                     '<span class="n">LITERAL</span> <span class="n">BLOCK</span>')
+    assert_count(expected_expr, result, 1)
+
+    # literalinclude should be translated
+    expected_expr = '<span class="s2">&quot;HTTPS://SPHINX-DOC.ORG&quot;</span>'
+    assert_count(expected_expr, result, 1)
+
     # title should be translated
     expected_expr = 'CODE-BLOCKS'
     assert_count(expected_expr, result, 2)
@@ -1410,7 +1460,7 @@ def test_additional_targets_should_be_translated(app):
         """<span class="c1"># SYS IMPORTING</span>""")
     assert_count(expected_expr, result, 1)
 
-    # '#noqa' should remain in literal blocks.
+    # 'noqa' comments should remain in literal blocks.
     assert_count("#noqa", result, 1)
 
     # [raw.txt]
@@ -1593,7 +1643,7 @@ def test_image_glob_intl_using_figure_language_filename(app):
 
 
 def getwarning(warnings):
-    return strip_escseq(warnings.getvalue().replace(os.sep, '/'))
+    return strip_colors(warnings.getvalue().replace(os.sep, '/'))
 
 
 @pytest.mark.sphinx('html', testroot='basic',
@@ -1635,13 +1685,13 @@ def test_gettext_disallow_fuzzy_translations(app):
 
 
 @pytest.mark.sphinx('html', testroot='basic', confoverrides={'language': 'de'})
-def test_customize_system_message(make_app, app_params, sphinx_test_tempdir):
+def test_customize_system_message(make_app, app_params):
     try:
         # clear translators cache
         locale.translators.clear()
 
         # prepare message catalog (.po)
-        locale_dir = sphinx_test_tempdir / 'basic' / 'locales' / 'de' / 'LC_MESSAGES'
+        locale_dir = app_params.kwargs['srcdir'] / 'locales' / 'de' / 'LC_MESSAGES'
         locale_dir.mkdir(parents=True, exist_ok=True)
         with (locale_dir / 'sphinx.po').open('wb') as f:
             catalog = Catalog()

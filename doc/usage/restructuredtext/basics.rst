@@ -289,7 +289,7 @@ information.
 Roles
 -----
 
-A role or "custom interpreted text role" (:duref:`ref <roles>`) is an inline
+A role or "custom interpreted text role" (:dupage:`ref <roles>`) is an inline
 piece of explicit markup. It signifies that the enclosed text should be
 interpreted in a specific way.  Sphinx uses this to provide semantic markup and
 cross-referencing of identifiers, as described in the appropriate section.  The
@@ -379,6 +379,12 @@ Docutils supports the following directives:
 
        When the default domain contains a ``class`` directive, this directive
        will be shadowed.  Therefore, Sphinx re-exports it as ``rst-class``.
+
+    .. tip::
+
+       If you want to add a class to a directive,
+       you may consider the ``:class:`` :dudir:`option <common-options>` instead,
+       which is supported by most directives and allows for a more compact notation.
 
 * HTML specifics:
 

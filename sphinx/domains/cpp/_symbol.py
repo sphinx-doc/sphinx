@@ -17,7 +17,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
 
     from sphinx.environment import BuildEnvironment
 
@@ -155,6 +155,9 @@ class Symbol:
         # Do symbol addition after self._children has been initialised.
         self._add_template_and_function_params()
 
+    def __repr__(self) -> str:
+        return f'<Symbol {self.to_string(indent=0)!r}>'
+
     def _fill_empty(self, declaration: ASTDeclaration, docname: str, line: int) -> None:
         self._assert_invariants()
         assert self.declaration is None
@@ -237,7 +240,7 @@ class Symbol:
             yield from sChild.get_all_symbols()
 
     @property
-    def children_recurse_anon(self) -> Generator[Symbol, None, None]:
+    def children_recurse_anon(self) -> Iterator[Symbol]:
         for c in self._children:
             yield c
             if not c.identOrOp.is_anon():
@@ -347,7 +350,7 @@ class Symbol:
                     return False
             return True
 
-        def candidates() -> Generator[Symbol, None, None]:
+        def candidates() -> Iterator[Symbol]:
             s = self
             if Symbol.debug_lookup:
                 Symbol.debug_print("searching in self:")
@@ -1086,7 +1089,7 @@ class Symbol:
         return ''.join(res)
 
     def dump(self, indent: int) -> str:
-        res = [self.to_string(indent)]
-        for c in self._children:
-            res.append(c.dump(indent + 1))
-        return ''.join(res)
+        return ''.join([
+            self.to_string(indent),
+            *(c.dump(indent + 1) for c in self._children),
+        ])

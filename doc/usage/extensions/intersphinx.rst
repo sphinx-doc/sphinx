@@ -1,3 +1,5 @@
+.. _ext-intersphinx:
+
 :mod:`sphinx.ext.intersphinx` -- Link to other projects' documentation
 ======================================================================
 
@@ -218,6 +220,7 @@ The Intersphinx extension provides the following role.
      e.g., ``:external:py:class:`zipfile.ZipFile```, or
    - ``:external:reftype:`target```,
      e.g., ``:external:doc:`installation```.
+     With this shorthand, the domain is assumed to be ``std``.
 
    If you would like to constrain the lookup to a specific external project,
    then the key of the project, as specified in :confval:`intersphinx_mapping`,

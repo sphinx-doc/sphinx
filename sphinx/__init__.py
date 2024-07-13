@@ -1,5 +1,8 @@
 """The Sphinx documentation toolchain."""
 
+__version__ = '7.4.0'
+__display_version__ = __version__  # used for command line version
+
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it when packaging is impossible.)
 
@@ -13,11 +16,9 @@ from .deprecation import RemovedInNextVersionWarning
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
 if 'PYTHONWARNINGS' not in os.environ:
     warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
-warnings.filterwarnings('ignore', 'The frontend.Option class .*',
-                        DeprecationWarning, module='docutils.frontend')
-
-__version__ = '7.3.0'
-__display_version__ = __version__  # used for command line version
+warnings.filterwarnings(
+    'ignore', 'The frontend.Option class .*', DeprecationWarning, module='docutils.frontend'
+)
 
 #: Version info for better programmatic use.
 #:
@@ -27,7 +28,7 @@ __display_version__ = __version__  # used for command line version
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (7, 3, 0, 'beta', 0)
+version_info = (7, 4, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 

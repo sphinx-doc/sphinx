@@ -545,7 +545,7 @@ def test_autosummary_filename_map(app, status, warning):
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(status.getvalue())
     print(warning.getvalue())
     assert r'\begin{longtable}{\X{1}{2}\X{1}{2}}' in result
@@ -684,3 +684,17 @@ def test_autogen(rootdir, tmp_path):
         args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
         assert (tmp_path / 'sphinx.application.TemplateBridge.rst').exists()
+
+
+def test_autogen_remove_old(rootdir, tmp_path):
+    """Test the ``--remove-old`` option."""
+    tmp_path.joinpath('other.rst').write_text('old content')
+    with chdir(rootdir / 'test-templating'):
+        args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
+        autogen_main(args)
+        assert set(tmp_path.iterdir()) == {
+            tmp_path / 'sphinx.application.TemplateBridge.rst',
+            tmp_path / 'other.rst'
+        }
+        autogen_main([*args, '--remove-old'])
+        assert set(tmp_path.iterdir()) == {tmp_path / 'sphinx.application.TemplateBridge.rst'}

@@ -21,7 +21,7 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
     from docutils.nodes import Node, Text
 
@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 logger = logging.getLogger(__name__)
@@ -80,7 +81,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            super().apply_transforms()
+            super().apply_transforms()  # type: ignore[misc]
         else:
             # wrap the target node by document node during transforming
             try:
@@ -251,7 +252,7 @@ class AutoIndexUpgrader(SphinxTransform):
                 logger.warning(msg, location=node)
                 for i, entry in enumerate(node['entries']):
                     if len(entry) == 4:
-                        node['entries'][i] = entry + (None,)
+                        node['entries'][i] = (*entry, None)
 
 
 class ExtraTranslatableNodes(SphinxTransform):
@@ -375,7 +376,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
             for tag in normalize_language_tag(language)
         )
 
-    def get_tokens(self, txtnodes: list[Text]) -> Generator[tuple[str, str], None, None]:
+    def get_tokens(self, txtnodes: list[Text]) -> Iterator[tuple[str, str]]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
@@ -488,7 +489,7 @@ def _sort_key(node: nodes.Node) -> int:
     raise ValueError(msg)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)

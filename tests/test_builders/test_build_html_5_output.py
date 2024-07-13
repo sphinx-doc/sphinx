@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from tests.test_builders.test_build_html import check_xpath
+from tests.test_builders.xpath_util import check_xpath
 
 
 def tail_check(check):
@@ -25,6 +25,9 @@ def tail_check(check):
     ('images.html', ".//img[@src='_images/simg.png']", ''),
     ('images.html', ".//img[@src='_images/svgimg.svg']", ''),
     ('images.html', ".//a[@href='_sources/images.txt']", ''),
+    # Check svg options
+    ('images.html', ".//img[@src='_images/svgimg.svg'][@style='width: 2cm;']", ''),
+    ('images.html', ".//img[@src='_images/svgimg.svg'][@style='height: 2cm;']", ''),
 
     ('subdir/images.html', ".//img[@src='../_images/img1.png']", ''),
     ('subdir/images.html', ".//img[@src='../_images/rimg.png']", ''),
@@ -113,7 +116,7 @@ def tail_check(check):
     # abbreviations
     ('markup.html', ".//abbr[@title='abbreviation']", '^abbr$'),
     # version stuff
-    ('markup.html', ".//div[@class='versionadded']/p/span", 'New in version 0.6: '),
+    ('markup.html', ".//div[@class='versionadded']/p/span", 'Added in version 0.6: '),
     ('markup.html', ".//div[@class='versionadded']/p/span",
      tail_check('First paragraph of versionadded')),
     ('markup.html', ".//div[@class='versionchanged']/p/span",
@@ -128,7 +131,7 @@ def tail_check(check):
     # ``seealso`` directive
     ('markup.html', ".//div/p[@class='admonition-title']", 'See also'),
     # a ``hlist`` directive
-    ('markup.html', ".//table[@class='hlist']/tbody/tr/td/ul/li/p", '^This$'),
+    ('markup.html', ".//table[@class='hlist']/tr/td/ul/li/p", '^This$'),
     # a ``centered`` directive
     ('markup.html', ".//p[@class='centered']/strong", 'LICENSE'),
     # a glossary
@@ -255,6 +258,8 @@ def tail_check(check):
     ('extensions.html', ".//a[@href='https://python.org/dev/']", "https://python.org/dev/"),
     ('extensions.html', ".//a[@href='https://bugs.python.org/issue1000']", "issue 1000"),
     ('extensions.html', ".//a[@href='https://bugs.python.org/issue1042']", "explicit caption"),
+    ('extensions.html', ".//a[@class='extlink-pyurl reference external']", "https://python.org/dev/"),
+    ('extensions.html', ".//a[@class='extlink-issue reference external']", "issue 1000"),
 
     # index entries
     ('genindex.html', ".//a/strong", "Main"),
@@ -270,7 +275,6 @@ def tail_check(check):
 ])
 @pytest.mark.sphinx('html', tags=['testtag'],
                     confoverrides={'html_context.hckey_co': 'hcval_co'})
-@pytest.mark.test_params(shared_result='test_build_html_output')
 def test_html5_output(app, cached_etree_parse, fname, path, check):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)

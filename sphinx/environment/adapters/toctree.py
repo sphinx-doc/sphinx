@@ -73,9 +73,8 @@ def global_toctree_for_doc(
 
     This gives the global ToC, with all ancestors and their siblings.
     """
-    toctrees: list[Element] = []
-    for toctree_node in env.master_doctree.findall(addnodes.toctree):
-        if toctree := _resolve_toctree(
+    resolved = (
+        _resolve_toctree(
             env,
             docname,
             builder,
@@ -85,8 +84,13 @@ def global_toctree_for_doc(
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
-        ):
-            toctrees.append(toctree)
+        )
+        for toctree_node in env.master_doctree.findall(addnodes.toctree)
+    )
+    toctrees = [
+        toctree for toctree in resolved if toctree is not None
+    ]
+
     if not toctrees:
         return None
     result = toctrees[0]
@@ -247,7 +251,7 @@ def _entries_from_toctree(
                     included,
                     excluded,
                     sub_toc_node,
-                    [refdoc] + parents,
+                    [refdoc, *parents],
                     subtree=True,
                 ),
                 start=sub_toc_node.parent.index(sub_toc_node) + 1,
@@ -312,7 +316,7 @@ def _toctree_entry(
             # empty toc means: no titles will show up in the toctree
             logger.warning(__('toctree contains reference to document %r that '
                               "doesn't have a title: no link will be generated"),
-                           ref, location=toctreenode)
+                           ref, location=toctreenode, type='toc', subtype='no_title')
     except KeyError:
         # this is raised if the included file does not exist
         ref_path = env.doc2path(ref, False)

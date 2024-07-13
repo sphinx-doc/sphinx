@@ -23,11 +23,12 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from pathlib import Path
 
     from docutils import nodes
     from docutils.nodes import Node
+    from docutils.parsers import Parser
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -146,7 +147,7 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, app: Sphinx):
+    def __init__(self, app: Sphinx) -> None:
         self.app: Sphinx = app
         self.doctreedir: Path = app.doctreedir
         self.srcdir: Path = app.srcdir
@@ -183,11 +184,21 @@ class BuildEnvironment:
         # docnames to re-read unconditionally on next build
         self.reread_always: set[str] = set()
 
-        # docname -> pickled doctree
         self._pickled_doctree_cache: dict[str, bytes] = {}
+        """In-memory cache for reading pickled doctrees from disk.
+        docname -> pickled doctree
 
-        # docname -> doctree
+        This cache is used in the ``get_doctree`` method to avoid reading the
+        doctree from disk multiple times.
+        """
+
         self._write_doc_doctree_cache: dict[str, nodes.document] = {}
+        """In-memory cache for unpickling doctrees from disk.
+        docname -> doctree
+
+        Items are added in ``Builder.write_doctree``, during the read phase,
+        then used only in the ``get_and_resolve_doctree`` method.
+        """
 
         # File metadata
         # docname -> dict of metadata items
@@ -242,7 +253,7 @@ class BuildEnvironment:
         # search index data
 
         # docname -> title
-        self._search_index_titles: dict[str, str] = {}
+        self._search_index_titles: dict[str, str | None] = {}
         # docname -> filename
         self._search_index_filenames: dict[str, str] = {}
         # stemmed words -> set(docname)
@@ -250,7 +261,7 @@ class BuildEnvironment:
         # stemmed words in titles -> set(docname)
         self._search_index_title_mapping: dict[str, set[str]] = {}
         # docname -> all titles in document
-        self._search_index_all_titles: dict[str, list[tuple[str, str]]] = {}
+        self._search_index_all_titles: dict[str, list[tuple[str, str | None]]] = {}
         # docname -> list(index entry)
         self._search_index_index_entries: dict[str, list[tuple[str, str, str]]] = {}
         # objtype -> index
@@ -264,7 +275,12 @@ class BuildEnvironment:
     def __getstate__(self) -> dict:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
-        __dict__.update(app=None, domains={}, events=None)  # clear unpickable attributes
+        # clear unpickable attributes
+        __dict__.update(app=None, domains={}, events=None)
+        # clear in-memory doctree caches, to reduce memory consumption and
+        # ensure that, upon restoring the state, the most recent pickled files
+        # on the disk are used instead of those from a possibly outdated state
+        __dict__.update(_pickled_doctree_cache={}, _write_doc_doctree_cache={})
         return __dict__
 
     def __setstate__(self, state: dict) -> None:
@@ -521,7 +537,7 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def check_dependents(self, app: Sphinx, already: set[str]) -> Generator[str, None, None]:
+    def check_dependents(self, app: Sphinx, already: set[str]) -> Iterator[str]:
         to_rewrite: list[str] = []
         for docnames in self.events.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
@@ -545,6 +561,11 @@ class BuildEnvironment:
     def docname(self) -> str:
         """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
+
+    @property
+    def parser(self) -> Parser:
+        """Returns the parser being used for to parse the current document."""
+        return self.temp_data['_parser']
 
     def new_serialno(self, category: str = '') -> int:
         """Return a serial number, e.g. for index entry targets.

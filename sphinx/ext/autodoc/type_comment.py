@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +135,7 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
         logger.warning(__("Failed to parse type_comment for %r: %s"), obj, exc)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('autodoc-before-process-signature', update_annotations_using_type_comments)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

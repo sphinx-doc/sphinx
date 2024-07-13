@@ -109,16 +109,11 @@ The quickest way to upload an existing project to GitHub is to:
    sources, complicating your workflow.
 
 These steps do not require access to the command line or installing any
-additional software. To learn more, you can:
+additional software. To learn more, read `this quickstart tutorial`_ or
+consult the `official GitHub documentation`_
 
-- Follow `this interactive GitHub course`_ to learn more about how the GitHub
-  interface works.
-- Read `this quickstart tutorial`_ to install extra software on your machine
-  and have more flexibility. You can either use the Git command line, or the
-  GitHub Desktop application.
-
-.. _this interactive GitHub course: https://lab.github.com/githubtraining/introduction-to-github
 .. _this quickstart tutorial: https://docs.github.com/en/get-started/quickstart
+.. _official GitHub documentation: https://docs.github.com/en/get-started
 
 GitLab
 ~~~~~~
@@ -164,7 +159,7 @@ way of getting started is to follow :doc:`the RTD
 tutorial <readthedocs:tutorial/index>`, which is loosely based on this one.
 You can publish your sources on GitHub as explained :ref:`in the previous
 section <publishing-sources>`, then skip directly to
-:ref:`readthedocs:tutorial/index:Sign up for Read the Docs`.
+:ref:`readthedocs:tutorial/index:Creating a Read the Docs account`.
 If you choose GitLab instead, the process is similar.
 
 GitHub Pages

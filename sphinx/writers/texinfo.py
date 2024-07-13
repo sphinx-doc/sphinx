@@ -281,7 +281,7 @@ class TexinfoTranslator(SphinxTranslator):
                         for name, content in self.indices]
         # each section is also a node
         for section in self.document.findall(nodes.section):
-            title = cast(nodes.TextElement, section.next_node(nodes.Titular))
+            title = cast(nodes.TextElement, section.next_node(nodes.Titular))  # type: ignore[type-var]
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
 
@@ -476,20 +476,25 @@ class TexinfoTranslator(SphinxTranslator):
             ret.append('@end menu\n')
             return ''.join(ret)
 
-        indices_config = self.config.texinfo_domain_indices
-        if indices_config:
-            for domain in self.builder.env.domains.values():
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
-                    if not content:
+        if indices_config := self.config.texinfo_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
+            for domain_name in sorted(self.builder.env.domains):
+                domain = self.builder.env.domains[domain_name]
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
                         continue
-                    self.indices.append((indexcls.localname,
-                                         generate(content, collapsed)))
+                    content, collapsed = index_cls(domain).generate(
+                        self.builder.docnames)
+                    if content:
+                        self.indices.append((
+                            index_cls.localname,
+                            generate(content, collapsed),
+                        ))
         # only add the main Index if it's not empty
         domain = cast(IndexDomain, self.builder.env.get_domain('index'))
         for docname in self.builder.docnames:
@@ -691,7 +696,7 @@ class TexinfoTranslator(SphinxTranslator):
         # cases for the sake of appearance
         if isinstance(node.parent, (nodes.title, addnodes.desc_type)):
             return
-        if isinstance(node[0], nodes.image):
+        if len(node) != 0 and isinstance(node[0], nodes.image):
             return
         name = node.get('name', node.astext()).strip()
         uri = node.get('refuri', '')
@@ -1291,11 +1296,10 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.visit_literal_block(None)
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
+
         for production in productionlist:
             if production['tokenname']:
                 for id in production.get('ids'):

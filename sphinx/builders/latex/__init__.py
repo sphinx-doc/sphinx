@@ -20,7 +20,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.console import bold, darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import bold, darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 XINDY_LANG_OPTIONS = {
     # language codes from docutils.writers.latex2e.Babel
@@ -342,7 +343,7 @@ class LaTeXBuilder(Builder):
     def assemble_doctree(
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
-        self.docnames = set([indexfile] + appendices)
+        self.docnames = {indexfile, *appendices}
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
@@ -416,7 +417,7 @@ class LaTeXBuilder(Builder):
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
             staticdirname = path.join(package_dir, 'texinputs_win')
-            copy_asset_file(path.join(staticdirname, 'Makefile_t'),
+            copy_asset_file(path.join(staticdirname, 'Makefile.jinja'),
                             self.outdir, context=context)
 
     @progress_message(__('copying additional files'))
@@ -455,7 +456,7 @@ class LaTeXBuilder(Builder):
         if self.context['babel'] or self.context['polyglossia']:
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
-        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
+        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
 
@@ -463,7 +464,7 @@ def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
             msg = __("Unknown configure key: latex_elements[%r], ignored.")
-            logger.warning(msg % (key,))
+            logger.warning(msg, key)
             config.latex_elements.pop(key)
 
 
@@ -471,7 +472,7 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_theme_options):
         if key not in Theme.UPDATABLE_KEYS:
             msg = __("Unknown theme option: latex_theme_options[%r], ignored.")
-            logger.warning(msg % (key,))
+            logger.warning(msg, key)
             config.latex_theme_options.pop(key)
 
 
@@ -521,7 +522,7 @@ def default_latex_documents(config: Config) -> list[tuple[str, str, str, str, st
              config.latex_theme)]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.latex.transforms')
 
     app.add_builder(LaTeXBuilder)
@@ -538,7 +539,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('latex_use_xindy', default_latex_use_xindy, '', bool)
     app.add_config_value('latex_toplevel_sectioning', None, '',
                          ENUM(None, 'part', 'chapter', 'section'))
-    app.add_config_value('latex_domain_indices', True, '', list)
+    app.add_config_value('latex_domain_indices', True, '', types={set, list})
     app.add_config_value('latex_show_urls', 'no', '')
     app.add_config_value('latex_show_pagerefs', False, '')
     app.add_config_value('latex_elements', {}, '')

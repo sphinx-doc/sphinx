@@ -62,6 +62,7 @@ async def coroutinefunc():
 async def asyncgenerator():
     yield
 
+
 partial_func = functools.partial(func)
 partial_coroutinefunc = functools.partial(coroutinefunc)
 
@@ -222,169 +223,145 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from tests.test_util.typing_test_data import (
-        Node,
-        f0,
-        f1,
-        f2,
-        f3,
-        f4,
-        f5,
-        f6,
-        f7,
-        f8,
-        f9,
-        f10,
-        f11,
-        f12,
-        f13,
-        f14,
-        f15,
-        f16,
-        f17,
-        f18,
-        f19,
-        f20,
-        f21,
-        f22,
-        f23,
-        f24,
-        f25,
-    )
+    import tests.test_util.typing_test_data as mod
 
     # Class annotations
-    sig = inspect.signature(f0)
+    sig = inspect.signature(mod.f0)
     assert stringify_signature(sig) == '(x: int, y: numbers.Integral) -> None'
 
     # Generic types with concrete parameters
-    sig = inspect.signature(f1)
+    sig = inspect.signature(mod.f1)
     assert stringify_signature(sig) == '(x: list[int]) -> typing.List[int]'
 
     # TypeVars and generic types with TypeVars
-    sig = inspect.signature(f2)
+    sig = inspect.signature(mod.f2)
     assert stringify_signature(sig) == ('(x: typing.List[tests.test_util.typing_test_data.T],'
                                         ' y: typing.List[tests.test_util.typing_test_data.T_co],'
                                         ' z: tests.test_util.typing_test_data.T'
                                         ') -> typing.List[tests.test_util.typing_test_data.T_contra]')
 
     # Union types
-    sig = inspect.signature(f3)
+    sig = inspect.signature(mod.f3)
     assert stringify_signature(sig) == '(x: str | numbers.Integral) -> None'
 
     # Quoted annotations
-    sig = inspect.signature(f4)
+    sig = inspect.signature(mod.f4)
     assert stringify_signature(sig) == '(x: str, y: str) -> None'
 
     # Keyword-only arguments
-    sig = inspect.signature(f5)
+    sig = inspect.signature(mod.f5)
     assert stringify_signature(sig) == '(x: int, *, y: str, z: str) -> None'
 
     # Keyword-only arguments with varargs
-    sig = inspect.signature(f6)
+    sig = inspect.signature(mod.f6)
     assert stringify_signature(sig) == '(x: int, *args, y: str, z: str) -> None'
 
     # Space around '=' for defaults
-    sig = inspect.signature(f7)
+    sig = inspect.signature(mod.f7)
     if sys.version_info[:2] <= (3, 10):
         assert stringify_signature(sig) == '(x: int | None = None, y: dict = {}) -> None'
     else:
         assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
 
     # Callable types
-    sig = inspect.signature(f8)
+    sig = inspect.signature(mod.f8)
     assert stringify_signature(sig) == '(x: typing.Callable[[int, str], int]) -> None'
 
-    sig = inspect.signature(f9)
+    sig = inspect.signature(mod.f9)
     assert stringify_signature(sig) == '(x: typing.Callable) -> None'
 
     # Tuple types
-    sig = inspect.signature(f10)
+    sig = inspect.signature(mod.f10)
     assert stringify_signature(sig) == '(x: typing.Tuple[int, str], y: typing.Tuple[int, ...]) -> None'
 
     # Instance annotations
-    sig = inspect.signature(f11)
+    sig = inspect.signature(mod.f11)
     assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
 
     # tuple with more than two items
-    sig = inspect.signature(f12)
+    sig = inspect.signature(mod.f12)
     assert stringify_signature(sig) == '() -> typing.Tuple[int, str, int]'
 
     # optional
-    sig = inspect.signature(f13)
+    sig = inspect.signature(mod.f13)
     assert stringify_signature(sig) == '() -> str | None'
 
     # optional union
-    sig = inspect.signature(f20)
+    sig = inspect.signature(mod.f20)
     assert stringify_signature(sig) in ('() -> int | str | None',
                                         '() -> str | int | None')
 
     # Any
-    sig = inspect.signature(f14)
+    sig = inspect.signature(mod.f14)
     assert stringify_signature(sig) == '() -> typing.Any'
 
     # ForwardRef
-    sig = inspect.signature(f15)
+    sig = inspect.signature(mod.f15)
     assert stringify_signature(sig) == '(x: Unknown, y: int) -> typing.Any'
 
     # keyword only arguments (1)
-    sig = inspect.signature(f16)
+    sig = inspect.signature(mod.f16)
     assert stringify_signature(sig) == '(arg1, arg2, *, arg3=None, arg4=None)'
 
     # keyword only arguments (2)
-    sig = inspect.signature(f17)
+    sig = inspect.signature(mod.f17)
     assert stringify_signature(sig) == '(*, arg3, arg4)'
 
-    sig = inspect.signature(f18)
+    sig = inspect.signature(mod.f18)
     assert stringify_signature(sig) == ('(self, arg1: int | typing.Tuple = 10) -> '
                                         'typing.List[typing.Dict]')
 
     # annotations for variadic and keyword parameters
-    sig = inspect.signature(f19)
+    sig = inspect.signature(mod.f19)
     assert stringify_signature(sig) == '(*args: int, **kwargs: str)'
 
     # default value is inspect.Signature.empty
-    sig = inspect.signature(f21)
+    sig = inspect.signature(mod.f21)
     assert stringify_signature(sig) == "(arg1='whatever', arg2)"
 
     # type hints by string
-    sig = inspect.signature(Node.children)
+    sig = inspect.signature(mod.Node.children)
     assert stringify_signature(sig) == '(self) -> typing.List[tests.test_util.typing_test_data.Node]'
 
-    sig = inspect.signature(Node.__init__)
+    sig = inspect.signature(mod.Node.__init__)
     assert stringify_signature(sig) == '(self, parent: tests.test_util.typing_test_data.Node | None) -> None'
 
     # show_annotation is False
-    sig = inspect.signature(f7)
+    sig = inspect.signature(mod.f7)
     assert stringify_signature(sig, show_annotation=False) == '(x=None, y={})'
 
     # show_return_annotation is False
-    sig = inspect.signature(f7)
+    sig = inspect.signature(mod.f7)
     if sys.version_info[:2] <= (3, 10):
         assert stringify_signature(sig, show_return_annotation=False) == '(x: int | None = None, y: dict = {})'
     else:
         assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
 
     # unqualified_typehints is True
-    sig = inspect.signature(f7)
+    sig = inspect.signature(mod.f7)
     if sys.version_info[:2] <= (3, 10):
         assert stringify_signature(sig, unqualified_typehints=True) == '(x: int | None = None, y: dict = {}) -> None'
     else:
         assert stringify_signature(sig, unqualified_typehints=True) == '(x: int = None, y: dict = {}) -> None'
 
     # case: separator at head
-    sig = inspect.signature(f22)
+    sig = inspect.signature(mod.f22)
     assert stringify_signature(sig) == '(*, a, b)'
 
     # case: separator in the middle
-    sig = inspect.signature(f23)
+    sig = inspect.signature(mod.f23)
     assert stringify_signature(sig) == '(a, b, /, c, d)'
 
-    sig = inspect.signature(f24)
+    sig = inspect.signature(mod.f24)
     assert stringify_signature(sig) == '(a, /, *, b)'
 
     # case: separator at tail
-    sig = inspect.signature(f25)
+    sig = inspect.signature(mod.f25)
     assert stringify_signature(sig) == '(a, b, /)'
+
+    # collapse Literal types
+    sig = inspect.signature(mod.f26)
+    assert stringify_signature(sig) == "(x: typing.Literal[1, 2, 3] = 1, y: typing.Literal['a', 'b'] = 'a') -> None"
 
 
 def test_signature_from_str_basic():
@@ -689,7 +666,7 @@ def test_getslots():
         __slots__ = {'attr': 'docstring'}
 
     class Qux:
-        __slots__ = 'attr'
+        __slots__ = 'attr'  # NoQA: PLC0205
 
     assert inspect.getslots(Foo) is None
     assert inspect.getslots(Bar) == {'attr': None}

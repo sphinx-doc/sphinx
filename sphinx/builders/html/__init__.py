@@ -53,11 +53,13 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Node
+    from docutils.readers import Reader
 
     from sphinx.application import Sphinx
     from sphinx.config import _ConfigRebuild
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
+    from sphinx.util.typing import ExtensionMetadata
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -199,7 +201,7 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
-        reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
+        reader: Reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
         pub = Publisher(
             reader=reader,
             parser=reader.parser,
@@ -207,11 +209,7 @@ class StandaloneHTMLBuilder(Builder):
             source_class=DocTreeInput,
             destination=StringOutput(encoding='unicode'),
         )
-        if docutils.__version_info__[:2] >= (0, 19):
-            pub.get_settings(output_encoding='unicode', traceback=True)
-        else:
-            op = pub.setup_option_parser(output_encoding='unicode', traceback=True)
-            pub.settings = op.get_default_values()
+        pub.get_settings(output_encoding='unicode', traceback=True)
         self._publisher = pub
 
     def init(self) -> None:
@@ -263,8 +261,7 @@ class StandaloneHTMLBuilder(Builder):
         elif self.config.html_style is not None:
             yield from self.config.html_style
         elif self.theme:
-            stylesheet = self.theme.get_config('theme', 'stylesheet')
-            yield from map(str.strip, stylesheet.split(','))
+            yield from self.theme.stylesheets
         else:
             yield 'default.css'
 
@@ -284,13 +281,15 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
-            style = self.theme.get_config('theme', 'pygments_style', 'none')
+            # From the ``pygments_style`` theme setting
+            style = self.theme.pygments_style_default or 'none'
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
         if self.theme:
-            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+            # From the ``pygments_dark_style`` theme setting
+            dark_style = self.theme.pygments_style_dark
         else:
             dark_style = None
 
@@ -305,8 +304,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def css_files(self) -> list[_CascadingStyleSheet]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', '',
-                             remove=(9, 0))
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', remove=(9, 0))
         return self._css_files
 
     def init_css_files(self) -> None:
@@ -332,8 +330,8 @@ class StandaloneHTMLBuilder(Builder):
 
     @property
     def script_files(self) -> list[_JavaScript]:
-        _deprecation_warning(__name__, f'{self.__class__.__name__}.script_files', '',
-                             remove=(9, 0))
+        canonical_name = f'{self.__class__.__name__}.script_files'
+        _deprecation_warning(__name__, canonical_name, remove=(9, 0))
         return self._js_files
 
     def init_js_files(self) -> None:
@@ -436,7 +434,7 @@ class StandaloneHTMLBuilder(Builder):
         doc.append(node)
         self._publisher.set_source(doc)
         self._publisher.publish()
-        return self._publisher.writer.parts  # type: ignore[union-attr]
+        return self._publisher.writer.parts
 
     def prepare_writing(self, docnames: set[str]) -> None:
         # create the search indexer
@@ -463,29 +461,31 @@ class StandaloneHTMLBuilder(Builder):
         # determine the additional indices to include
         self.domain_indices = []
         # html_domain_indices can be False/True or a list of index names
-        indices_config = self.config.html_domain_indices
-        if indices_config:
+        if indices_config := self.config.html_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
             for domain_name in sorted(self.env.domains):
                 domain: Domain = self.env.domains[domain_name]
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapse = indexcls(domain).generate()
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
+                        continue
+                    content, collapse = index_cls(domain).generate()
                     if content:
                         self.domain_indices.append(
-                            (indexname, indexcls, content, collapse))
+                            (index_name, index_cls, content, collapse))
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
-        self.last_updated: str | None
-        lufmt = self.config.html_last_updated_fmt
-        if lufmt is not None:
-            self.last_updated = format_date(lufmt or _('%b %d, %Y'),
-                                            language=self.config.language)
+        last_updated: str | None
+        if (lu_fmt := self.config.html_last_updated_fmt) is not None:
+            lu_fmt = lu_fmt or _('%b %d, %Y')
+            last_updated = format_date(lu_fmt, language=self.config.language)
         else:
-            self.last_updated = None
+            last_updated = None
 
         # If the logo or favicon are urls, keep them as-is, otherwise
         # strip the relative path as the files will be copied into _static.
@@ -524,7 +524,7 @@ class StandaloneHTMLBuilder(Builder):
             'project': self.config.project,
             'release': return_codes_re.sub('', self.config.release),
             'version': self.config.version,
-            'last_updated': self.last_updated,
+            'last_updated': last_updated,
             'copyright': self.config.copyright,
             'master_doc': self.config.root_doc,
             'root_doc': self.config.root_doc,
@@ -550,6 +550,7 @@ class StandaloneHTMLBuilder(Builder):
             'builder': self.name,
             'parents': [],
             'logo_url': logo,
+            'logo_alt': _('Logo of %s') % self.config.project,
             'favicon_url': favicon,
             'html5_doctype': True,
         }
@@ -766,7 +767,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)  # type: ignore[arg-type]
+            return relative_path(self.srcdir, f)
 
         # copy downloadable files
         if self.env.dlfiles:
@@ -827,7 +828,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
 
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        excluded = Matcher([*self.config.exclude_patterns, '**/.*'])
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
@@ -959,13 +960,10 @@ class StandaloneHTMLBuilder(Builder):
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
-        sidebars = None
         matched = None
-        customsidebar = None
 
         # default sidebars settings for selected theme
-        if theme_default_sidebars := self.theme.get_config('theme', 'sidebars', None):
-            sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        sidebars = list(self.theme.sidebar_templates)
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
@@ -984,12 +982,11 @@ class StandaloneHTMLBuilder(Builder):
                 matched = pattern
                 sidebars = patsidebars
 
-        if sidebars is None:
+        if len(sidebars) == 0:
             # keep defaults
             pass
 
         ctx['sidebars'] = sidebars
-        ctx['customsidebar'] = customsidebar
 
     # --------- these are overwritten by the serialization builder
 
@@ -1032,9 +1029,7 @@ class StandaloneHTMLBuilder(Builder):
                 return True
             if name == 'search' and self.search:
                 return True
-            if name == 'genindex' and self.get_builder_config('use_index', 'html'):
-                return True
-            return False
+            return name == 'genindex' and self.get_builder_config('use_index', 'html')
         ctx['hasdoc'] = hasdoc
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
@@ -1052,7 +1047,9 @@ class StandaloneHTMLBuilder(Builder):
                      if value is not None]
             uri = pathto(os.fspath(css.filename), resource=True)
             # the EPUB format does not allow the use of query components
-            if self.name != 'epub':
+            # the Windows help compiler requires that css links
+            # don't have a query component
+            if self.name not in {'epub', 'htmlhelp'}:
                 if checksum := _file_checksum(outdir, css.filename):
                     uri += f'?v={checksum}'
             return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
@@ -1187,7 +1184,7 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.html_css_files = html_css_files  # type: ignore[attr-defined]
+    config.html_css_files = html_css_files
 
 
 def _format_modified_time(timestamp: float) -> str:
@@ -1210,7 +1207,7 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid js_file: %r, ignored'), entry)
                 continue
 
-    config.html_js_files = html_js_files  # type: ignore[attr-defined]
+    config.html_js_files = html_js_files
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
@@ -1273,7 +1270,7 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_logo)) and
             not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
-        config.html_logo = None  # type: ignore[attr-defined]
+        config.html_logo = None
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
@@ -1282,7 +1279,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_favicon)) and
             not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
-        config.html_favicon = None  # type: ignore[attr-defined]
+        config.html_favicon = None
 
 
 def error_on_html_4(_app: Sphinx, config: Config) -> None:
@@ -1294,7 +1291,7 @@ def error_on_html_4(_app: Sphinx, config: Config) -> None:
         ))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     # builders
     app.add_builder(StandaloneHTMLBuilder)
 
@@ -1315,7 +1312,7 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_last_updated_fmt', None, 'html', str)
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_domain_indices', True, 'html', list)
+    app.add_config_value('html_domain_indices', True, 'html', types={set, list})
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
@@ -1338,7 +1335,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx70Warning  # NoQA: E501
+    # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
@@ -1371,8 +1369,8 @@ def setup(app: Sphinx) -> dict[str, Any]:
     }
 
 
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
     'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
 }

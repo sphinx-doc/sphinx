@@ -1,5 +1,6 @@
 """Test the build process with LaTeX builder with the test root."""
 
+import http.server
 import os
 import re
 import subprocess
@@ -17,6 +18,8 @@ from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
+from tests.utils import http_server
+
 try:
     from contextlib import chdir
 except ImportError:
@@ -31,14 +34,14 @@ STYLEFILES = ['article.cls', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty',
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich'] + list(filenames), capture_output=True, check=True)
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
 
 
 # compile latex document with app.config.latex_engine
-def compile_latex_document(app, filename='python.tex', docclass='manual'):
+def compile_latex_document(app, filename='projectnamenotset.tex', docclass='manual'):
     # now, try to run latex over it
     try:
         with chdir(app.outdir):
@@ -79,6 +82,28 @@ def skip_if_stylefiles_notfound(testfunc):
         return testfunc
 
 
+class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+    def do_GET(self):
+        content, content_type = None, None
+        if self.path == "/sphinx.png":
+            with open("tests/roots/test-local-logo/images/img.png", "rb") as f:
+                content = f.read()
+                content_type = "image/png"
+
+        if content:
+            self.send_response(200, "OK")
+            self.send_header("Content-Length", str(len(content)))
+            self.send_header("Content-Type", content_type)
+            self.end_headers()
+            self.wfile.write(content)
+        else:
+            self.send_response(404, "Not Found")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+
+
 @skip_if_requested
 @skip_if_stylefiles_notfound
 @pytest.mark.parametrize(
@@ -112,7 +137,8 @@ def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_le
     load_mappings(app)
     app.builder.init()
     LaTeXTranslator.ignore_missing_images = True
-    app.build(force_all=True)
+    with http_server(RemoteImageHandler):
+        app.build(force_all=True)
 
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').is_file()
@@ -229,7 +255,7 @@ def test_latex_basic_howto_ja(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-theme')
 def test_latex_theme(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     assert r'\def\sphinxdocclass{book}' in result
     assert r'\documentclass[a4paper,12pt,english]{sphinxbook}' in result
@@ -240,7 +266,7 @@ def test_latex_theme(app, status, warning):
                                                       'pointsize': '9pt'}})
 def test_latex_theme_papersize(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     assert r'\def\sphinxdocclass{book}' in result
     assert r'\documentclass[b5paper,9pt,english]{sphinxbook}' in result
@@ -251,7 +277,7 @@ def test_latex_theme_papersize(app, status, warning):
                                                            'pointsize': '9pt'}})
 def test_latex_theme_options(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     assert r'\def\sphinxdocclass{book}' in result
     assert r'\documentclass[b5paper,9pt,english]{sphinxbook}' in result
@@ -304,7 +330,7 @@ def test_latex_release(app, status, warning):
                     confoverrides={'numfig': True})
 def test_numref(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -346,7 +372,7 @@ def test_numref(app, status, warning):
                                      'section': 'SECTION-%s'}})
 def test_numref_with_prefix1(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -394,7 +420,7 @@ def test_numref_with_prefix1(app, status, warning):
                                      'section': 'SECTION_%s_'}})
 def test_numref_with_prefix2(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -434,7 +460,7 @@ def test_numref_with_prefix2(app, status, warning):
     confoverrides={'numfig': True, 'language': 'ja'})
 def test_numref_with_language_ja(app, status, warning):
     app.build()
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -530,7 +556,7 @@ def test_latex_add_latex_package(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-babel')
 def test_babel_with_no_language_settings(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -555,7 +581,7 @@ def test_babel_with_no_language_settings(app, status, warning):
     confoverrides={'language': 'de'})
 def test_babel_with_language_de(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -580,7 +606,7 @@ def test_babel_with_language_de(app, status, warning):
     confoverrides={'language': 'ru'})
 def test_babel_with_language_ru(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -605,7 +631,7 @@ def test_babel_with_language_ru(app, status, warning):
     confoverrides={'language': 'tr'})
 def test_babel_with_language_tr(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -630,7 +656,7 @@ def test_babel_with_language_tr(app, status, warning):
     confoverrides={'language': 'ja'})
 def test_babel_with_language_ja(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -654,7 +680,7 @@ def test_babel_with_language_ja(app, status, warning):
     confoverrides={'language': 'unknown'})
 def test_babel_with_unknown_language(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -681,7 +707,7 @@ def test_babel_with_unknown_language(app, status, warning):
     confoverrides={'language': 'de', 'latex_engine': 'lualatex'})
 def test_polyglossia_with_language_de(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -707,7 +733,7 @@ def test_polyglossia_with_language_de(app, status, warning):
     confoverrides={'language': 'de-1901', 'latex_engine': 'lualatex'})
 def test_polyglossia_with_language_de_1901(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -760,7 +786,7 @@ def test_footnote(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='footnotes')
 def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -800,7 +826,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='footnotes')
 def test_footnote_referred_multiple_times(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -822,7 +848,7 @@ def test_footnote_referred_multiple_times(app, status, warning):
     confoverrides={'latex_show_urls': 'inline'})
 def test_latex_show_urls_is_inline(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -879,7 +905,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
     confoverrides={'latex_show_urls': 'footnote'})
 def test_latex_show_urls_is_footnote(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -941,7 +967,7 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     confoverrides={'latex_show_urls': 'no'})
 def test_latex_show_urls_is_no(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -996,7 +1022,7 @@ def test_latex_show_urls_footnote_and_substitutions(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='image-in-section')
 def test_image_in_section(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1019,7 +1045,7 @@ def test_latex_logo_if_not_found(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='toctree-maxdepth')
 def test_toctree_maxdepth_manual(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1031,12 +1057,12 @@ def test_toctree_maxdepth_manual(app, status, warning):
 @pytest.mark.sphinx(
     'latex', testroot='toctree-maxdepth',
     confoverrides={'latex_documents': [
-        ('index', 'python.tex', 'Sphinx Tests Documentation',
+        ('index', 'projectnamenotset.tex', 'Sphinx Tests Documentation',
          'Georg Brandl', 'howto'),
     ]})
 def test_toctree_maxdepth_howto(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1050,7 +1076,7 @@ def test_toctree_maxdepth_howto(app, status, warning):
     confoverrides={'root_doc': 'foo'})
 def test_toctree_not_found(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1064,7 +1090,7 @@ def test_toctree_not_found(app, status, warning):
     confoverrides={'root_doc': 'bar'})
 def test_toctree_without_maxdepth(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1077,7 +1103,7 @@ def test_toctree_without_maxdepth(app, status, warning):
     confoverrides={'root_doc': 'qux'})
 def test_toctree_with_deeper_maxdepth(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1090,7 +1116,7 @@ def test_toctree_with_deeper_maxdepth(app, status, warning):
     confoverrides={'latex_toplevel_sectioning': None})
 def test_latex_toplevel_sectioning_is_None(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1102,7 +1128,7 @@ def test_latex_toplevel_sectioning_is_None(app, status, warning):
     confoverrides={'latex_toplevel_sectioning': 'part'})
 def test_latex_toplevel_sectioning_is_part(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1115,12 +1141,12 @@ def test_latex_toplevel_sectioning_is_part(app, status, warning):
     'latex', testroot='toctree-maxdepth',
     confoverrides={'latex_toplevel_sectioning': 'part',
                    'latex_documents': [
-                       ('index', 'python.tex', 'Sphinx Tests Documentation',
+                       ('index', 'projectnamenotset.tex', 'Sphinx Tests Documentation',
                         'Georg Brandl', 'howto'),
                    ]})
 def test_latex_toplevel_sectioning_is_part_with_howto(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1134,7 +1160,7 @@ def test_latex_toplevel_sectioning_is_part_with_howto(app, status, warning):
     confoverrides={'latex_toplevel_sectioning': 'chapter'})
 def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1145,12 +1171,12 @@ def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     'latex', testroot='toctree-maxdepth',
     confoverrides={'latex_toplevel_sectioning': 'chapter',
                    'latex_documents': [
-                       ('index', 'python.tex', 'Sphinx Tests Documentation',
+                       ('index', 'projectnamenotset.tex', 'Sphinx Tests Documentation',
                         'Georg Brandl', 'howto'),
                    ]})
 def test_latex_toplevel_sectioning_is_chapter_with_howto(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1162,7 +1188,7 @@ def test_latex_toplevel_sectioning_is_chapter_with_howto(app, status, warning):
     confoverrides={'latex_toplevel_sectioning': 'section'})
 def test_latex_toplevel_sectioning_is_section(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
@@ -1173,11 +1199,11 @@ def test_latex_toplevel_sectioning_is_section(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='maxlistdepth')
 def test_maxlistdepth_at_ten(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    compile_latex_document(app, 'python.tex')
+    compile_latex_document(app, 'projectnamenotset.tex')
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
@@ -1185,7 +1211,7 @@ def test_maxlistdepth_at_ten(app, status, warning):
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
         sectname, content = chap.split('}', 1)
@@ -1256,7 +1282,7 @@ def test_latex_table_tabulars(app, status, warning):
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
         sectname, content = chap.split('}', 1)
@@ -1317,7 +1343,7 @@ def test_latex_table_longtable(app, status, warning):
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|renewcommand){', result)[1:]:
         sectname, content = chap.split('}', 1)
@@ -1347,7 +1373,7 @@ def test_latex_table_complex_tables(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-table')
 def test_latex_table_with_booktabs_and_colorrows(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert r'\PassOptionsToPackage{booktabs}{sphinx}' in result
     assert r'\PassOptionsToPackage{colorrows}{sphinx}' in result
     # tabularcolumns
@@ -1363,15 +1389,16 @@ def test_latex_table_with_booktabs_and_colorrows(app, status, warning):
                     confoverrides={'templates_path': ['_mytemplates/latex']})
 def test_latex_table_custom_template_caseA(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' in result
+    assert 'AU REVOIR, KANIGGETS' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-table',
                     confoverrides={'templates_path': ['_mytemplates']})
 def test_latex_table_custom_template_caseB(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' not in result
 
 
@@ -1379,14 +1406,14 @@ def test_latex_table_custom_template_caseB(app, status, warning):
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_custom_template_caseC(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' not in result
 
 
 @pytest.mark.sphinx('latex', testroot='directives-raw')
 def test_latex_raw_directive(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     # standard case
     assert 'standalone raw directive (HTML)' not in result
@@ -1400,18 +1427,19 @@ def test_latex_raw_directive(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='images')
 def test_latex_images(app, status, warning):
-    app.build(force_all=True)
+    with http_server(RemoteImageHandler, port=7777):
+        app.build(force_all=True)
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     # images are copied
-    assert '\\sphinxincludegraphics{{python-logo}.png}' in result
-    assert (app.outdir / 'python-logo.png').exists()
+    assert '\\sphinxincludegraphics{{sphinx}.png}' in result
+    assert (app.outdir / 'sphinx.png').exists()
 
     # not found images
     assert '\\sphinxincludegraphics{{NOT_EXIST}.PNG}' not in result
     assert ('WARNING: Could not fetch remote image: '
-            'https://www.google.com/NOT_EXIST.PNG [404]' in warning.getvalue())
+            'http://localhost:7777/NOT_EXIST.PNG [404]' in warning.getvalue())
 
     # an image having target
     assert ('\\sphinxhref{https://www.sphinx-doc.org/}'
@@ -1426,7 +1454,7 @@ def test_latex_images(app, status, warning):
 def test_latex_index(app, status, warning):
     app.build(force_all=True)
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert ('A \\index{famous@\\spxentry{famous}}famous '
             '\\index{equation@\\spxentry{equation}}equation:\n' in result)
     assert ('\n\\index{Einstein@\\spxentry{Einstein}}'
@@ -1440,7 +1468,7 @@ def test_latex_index(app, status, warning):
 def test_latex_equations(app, status, warning):
     app.build(force_all=True)
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     expected = (app.srcdir / 'expects' / 'latex-equations.tex').read_text(encoding='utf8').strip()
 
     assert expected in result
@@ -1450,7 +1478,7 @@ def test_latex_equations(app, status, warning):
 def test_latex_image_in_parsed_literal(app, status, warning):
     app.build(force_all=True)
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert ('{\\sphinxunactivateextrasandspace \\raisebox{-0.5\\height}'
             '{\\sphinxincludegraphics[height=2.00000cm]{{pic}.png}}'
             '}AFTER') in result
@@ -1460,7 +1488,7 @@ def test_latex_image_in_parsed_literal(app, status, warning):
 def test_latex_nested_enumerated_list(app, status, warning):
     app.build(force_all=True)
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert ('\\sphinxsetlistlabels{\\arabic}{enumi}{enumii}{}{.}%\n'
             '\\setcounter{enumi}{4}\n' in result)
     assert ('\\sphinxsetlistlabels{\\alph}{enumii}{enumiii}{}{.}%\n'
@@ -1477,7 +1505,7 @@ def test_latex_nested_enumerated_list(app, status, warning):
 def test_latex_thebibliography(app, status, warning):
     app.build(force_all=True)
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     assert ('\\begin{sphinxthebibliography}{AuthorYe}\n'
             '\\bibitem[AuthorYear]{index:authoryear}\n\\sphinxAtStartPar\n'
@@ -1490,7 +1518,7 @@ def test_latex_thebibliography(app, status, warning):
 def test_latex_glossary(app, status, warning):
     app.build(force_all=True)
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert (r'\sphinxlineitem{ähnlich\index{ähnlich@\spxentry{ähnlich}|spxpagem}'
             r'\phantomsection'
             r'\label{\detokenize{index:term-ahnlich}}}' in result)
@@ -1514,7 +1542,7 @@ def test_latex_glossary(app, status, warning):
 def test_latex_labels(app, status, warning):
     app.build(force_all=True)
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     # figures
     assert (r'\caption{labeled figure}'
@@ -1562,7 +1590,7 @@ def test_latex_labels(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-figure-in-admonition')
 def test_latex_figure_in_admonition(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert r'\begin{figure}[H]' in result
 
 
@@ -1592,7 +1620,7 @@ def test_includegraphics_oversized(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='index_on_title')
 def test_index_on_title(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert ('\\chapter{Test for index in top level title}\n'
             '\\label{\\detokenize{contents:test-for-index-in-top-level-title}}'
             '\\index{index@\\spxentry{index}}\n'
@@ -1603,7 +1631,7 @@ def test_index_on_title(app, status, warning):
                     confoverrides={'latex_engine': 'pdflatex'})
 def test_texescape_for_non_unicode_supported_engine(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     assert 'script small e: e' in result
     assert 'double struck italic small i: i' in result
@@ -1615,7 +1643,7 @@ def test_texescape_for_non_unicode_supported_engine(app, status, warning):
                     confoverrides={'latex_engine': 'xelatex'})
 def test_texescape_for_unicode_supported_engine(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(result)
     assert 'script small e: e' in result
     assert 'double struck italic small i: i' in result
@@ -1640,7 +1668,7 @@ def test_latex_nested_tables(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-container')
 def test_latex_container(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert r'\begin{sphinxuseclass}{classname}' in result
     assert r'\end{sphinxuseclass}' in result
 
@@ -1648,7 +1676,7 @@ def test_latex_container(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
     app.build()
-    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     common_content = (
         r'\PYG{k}{def} '
@@ -1681,8 +1709,9 @@ def test_copy_images(app, status, warning):
         image.name for image in test_dir.rglob('*')
         if image.suffix in {'.gif', '.pdf', '.png', '.svg'}
     }
-    images.discard('python-logo.png')
+    images.discard('sphinx.png')
     assert images == {
+        'ba30773957c3fe046897111afd65a80b81cad089.png',  # latex: image from data:image/png URI in source
         'img.pdf',
         'rimg.png',
         'testimäge.png',
@@ -1692,7 +1721,7 @@ def test_copy_images(app, status, warning):
 @pytest.mark.sphinx('latex', testroot='latex-labels-before-module')
 def test_duplicated_labels_before_module(app, status, warning):
     app.build()
-    content: str = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    content: str = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     def count_label(name):
         text = r'\phantomsection\label{\detokenize{%s}}' % name
@@ -1723,7 +1752,7 @@ def test_duplicated_labels_before_module(app, status, warning):
                     confoverrides={'python_maximum_signature_line_length': 23})
 def test_one_parameter_per_line(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     # TODO: should these asserts check presence or absence of a final \sphinxparamcomma?
     # signature of 23 characters is too short to trigger one-param-per-line mark-up

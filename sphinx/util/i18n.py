@@ -19,7 +19,7 @@ from sphinx.util.osutil import SEP, canon_path, relpath
 
 if TYPE_CHECKING:
     import datetime as dt
-    from collections.abc import Generator
+    from collections.abc import Iterator
     from typing import Protocol, Union
 
     from babel.core import Locale
@@ -112,7 +112,7 @@ class CatalogRepository:
         self.encoding = encoding
 
     @property
-    def locale_dirs(self) -> Generator[str, None, None]:
+    def locale_dirs(self) -> Iterator[str]:
         if not self.language:
             return
 
@@ -125,7 +125,7 @@ class CatalogRepository:
                 logger.verbose(__('locale_dir %s does not exist'), locale_path)
 
     @property
-    def pofiles(self) -> Generator[tuple[str, str], None, None]:
+    def pofiles(self) -> Iterator[tuple[str, str]]:
         for locale_dir in self.locale_dirs:
             basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
             for root, dirnames, filenames in os.walk(basedir):
@@ -139,7 +139,7 @@ class CatalogRepository:
                         yield basedir, relpath(fullpath, basedir)
 
     @property
-    def catalogs(self) -> Generator[CatalogInfo, None, None]:
+    def catalogs(self) -> Iterator[CatalogInfo]:
         for basedir, filename in self.pofiles:
             domain = canon_path(path.splitext(filename)[0])
             yield CatalogInfo(basedir, domain, self.encoding)

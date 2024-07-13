@@ -16,6 +16,8 @@ env:
   FORCE_COLOR: "1"
 
 jobs:
+  # If you update any of these commands, don't forget to update the equivalent
+  # tox environment
   ruff:
     runs-on: ubuntu-latest
 
@@ -29,10 +31,15 @@ jobs:
       run: python -m pip install --upgrade pip
 
     - name: Install Ruff
-      run: python -m pip install "ruff==0.2.0"
+      run: |
+          ruff_version=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
+          python -m pip install "ruff==${ruff_version}"
 
     - name: Lint with Ruff
-      run: ruff . --output-format github
+      run: ruff check . --output-format github
+
+    - name: Format with Ruff
+      run: ruff format . --diff
 
   flake8:
     runs-on: ubuntu-latest
@@ -80,16 +87,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade sphinx-lint
     - name: Lint documentation with sphinx-lint
-      run: >
-        sphinx-lint
-        --enable line-too-long
-        --max-line-length 85 
-        AUTHORS.rst
-        CHANGES.rst
-        CODE_OF_CONDUCT.rst
-        CONTRIBUTING.rst
-        README.rst
-        doc/
+      run: make doclinter
 
   twine:
     runs-on: ubuntu-latest
