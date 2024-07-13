@@ -1354,6 +1354,7 @@ Options for warning control
    * ``app.add_generic_role``
    * ``app.add_source_parser``
    * ``config.cache``
+   * ``docutils``
    * ``download.not_readable``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
