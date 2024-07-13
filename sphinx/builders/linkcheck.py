@@ -477,7 +477,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         except UnicodeDecodeError:
                             return 'ignored', 'unable to decode response content', 0
                         if not found:
-                            return 'broken', f'Anchor {quote(anchor)!r} not found', 0
+                            return 'broken', __("Anchor '%s' not found") % quote(anchor), 0
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
