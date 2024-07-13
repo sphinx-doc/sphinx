@@ -473,7 +473,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if (self.check_anchors and response.ok and anchor
                             and not contains_anchor(response, anchor)):
-                        raise Exception(__(f'Anchor {quote(anchor)!r} not found'))
+                        raise Exception(__("Anchor '%s' not found") % quote(anchor))
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
