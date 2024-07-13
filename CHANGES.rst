@@ -98,7 +98,7 @@ Features added
 * #12508: LaTeX: Revamped styling of all admonitions, with addition of a
   title row with icon.
   Patch by Jean-François B.
-* #11773: Display :py:class`~typing.Annotated` annotations
+* #11773: Display :py:class:`~typing.Annotated` annotations
   with their metadata in the Python domain.
   Patch by Adam Turner and David Stansby.
 
