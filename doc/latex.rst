@@ -148,7 +148,7 @@ Keys that you may want to override include:
       build repertory before next PDF build, else left-over auxiliary
       files are likely to break the build.
 
-   Default:  ``'\\usepackage{babel}'`` (``''`` for Japanese documents)
+   Default:  ``'\\usepackage{babel}'`` (for Japanese documents)
 
    .. versionchanged:: 1.5
       For :confval:`latex_engine` set to ``'xelatex'``, the default
