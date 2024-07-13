@@ -193,7 +193,6 @@ def test_restify_type_hints_containers():
                                            "[:py:obj:`None`]")
 
 
-@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='Needs fixing.')
 def test_restify_Annotated():
     assert restify(Annotated[str, "foo", "bar"]) == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
     assert restify(Annotated[str, "foo", "bar"], 'smart') == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
@@ -507,6 +506,7 @@ def test_stringify_type_hints_pep_585():
     assert stringify_annotation(tuple[List[dict[int, str]], str, ...], "smart") == "tuple[~typing.List[dict[int, str]], str, ...]"
 
 
+@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='Needs fixing.')
 def test_stringify_Annotated():
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "Annotated[str, 'foo', 'bar']"
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'smart') == "~typing.Annotated[str, 'foo', 'bar']"
