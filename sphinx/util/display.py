@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import functools
-from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
+from types import ParamSpec, TypeVar
+from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import logging
@@ -9,7 +10,7 @@ from sphinx.util.console import bold, color_terminal
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
-    from types import TracebackType
+    from types import Any, Callable, TracebackType
 
 logger = logging.getLogger(__name__)
 
