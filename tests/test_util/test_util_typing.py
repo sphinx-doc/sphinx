@@ -1,5 +1,6 @@
 """Tests util.typing functions."""
 
+import dataclasses
 import sys
 import typing as t
 from collections import abc
@@ -71,6 +72,11 @@ class MyList(List[T]):
 
 class BrokenType:
     __args__ = int
+
+
+@dataclasses.dataclass(frozen=True)
+class Gt:
+    gt: float
 
 
 def test_restify():
@@ -187,10 +193,11 @@ def test_restify_type_hints_containers():
                                            "[:py:obj:`None`]")
 
 
-@pytest.mark.xfail(sys.version_info[:2] <= (3, 11), reason='Needs fixing.')
 def test_restify_Annotated():
-    assert restify(Annotated[str, "foo", "bar"]) == ':py:class:`~typing.Annotated`\\ [:py:class:`str`]'
-    assert restify(Annotated[str, "foo", "bar"], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`str`]'
+    assert restify(Annotated[str, "foo", "bar"]) == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
+    assert restify(Annotated[str, "foo", "bar"], 'smart') == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
+    assert restify(Annotated[float, Gt(-10.0)]) == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, Gt(gt=-10.0)]'
+    assert restify(Annotated[float, Gt(-10.0)], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, Gt(gt=-10.0)]'
 
 
 def test_restify_type_hints_Callable():
@@ -499,9 +506,12 @@ def test_stringify_type_hints_pep_585():
     assert stringify_annotation(tuple[List[dict[int, str]], str, ...], "smart") == "tuple[~typing.List[dict[int, str]], str, ...]"
 
 
+@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='Needs fixing.')
 def test_stringify_Annotated():
-    assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "str"
-    assert stringify_annotation(Annotated[str, "foo", "bar"], "smart") == "str"
+    assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "Annotated[str, 'foo', 'bar']"
+    assert stringify_annotation(Annotated[str, "foo", "bar"], 'smart') == "~typing.Annotated[str, 'foo', 'bar']"
+    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'fully-qualified-except-typing') == "Annotated[float, Gt(gt=-10.0)]"
+    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'smart') == "~typing.Annotated[float, Gt(gt=-10.0)]"
 
 
 def test_stringify_Unpack():
@@ -662,7 +672,6 @@ def test_stringify_type_hints_alias():
 
 
 def test_stringify_type_Literal():
-    from typing import Literal  # type: ignore[attr-defined]
     assert stringify_annotation(Literal[1, "2", "\r"], 'fully-qualified-except-typing') == "Literal[1, '2', '\\r']"
     assert stringify_annotation(Literal[1, "2", "\r"], "fully-qualified") == "typing.Literal[1, '2', '\\r']"
     assert stringify_annotation(Literal[1, "2", "\r"], "smart") == "~typing.Literal[1, '2', '\\r']"
@@ -704,8 +713,6 @@ def test_stringify_mock():
 
 
 def test_stringify_type_ForwardRef():
-    from typing import ForwardRef  # type: ignore[attr-defined]
-
     assert stringify_annotation(ForwardRef("MyInt")) == "MyInt"
     assert stringify_annotation(ForwardRef("MyInt"), 'smart') == "MyInt"
 

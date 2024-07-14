@@ -373,8 +373,18 @@ units as well as normal text.
 
 .. rst:directive:: .. rubric:: title
 
-   This directive creates a paragraph heading that is not used to create a
-   table of contents node.
+   A rubric is like an informal heading that doesn't correspond to the document's structure,
+   i.e. it does not create a table of contents node.
+
+   .. rst:directive:option:: level: n
+      :type: number from 1 to 6
+
+      .. versionadded:: 7.4
+
+      Use this option to specify the heading level of the rubric.
+      In this case the rubric will be rendered as ``<h1>`` to ``<h6>`` for HTML output,
+      or as the corresponding non-numbered sectioning command for LaTeX
+      (see :confval:`latex_toplevel_sectioning`).
 
    .. note::
 

@@ -4,15 +4,35 @@ Release 7.4.0 (in development)
 Dependencies
 ------------
 
+* #12555: Drop Docutils 0.18.1 and Docutils 0.19 support.
+  Patch by Adam Turner.
+* LaTeX: the ``xcolor`` package is now required (but is for example part of
+  Ubuntu ``texlive-latex-recommended`` which has always been required).
+* LaTeX: the ``fontawesome5`` LaTeX package is needed for the default choices
+  of icons now used in admonition titles in PDF output; but if unavailable the
+  PDF build will simply silently omit rendering such icons.  Check the
+  documentation of the ``iconpackage`` key of :ref:`'sphinxsetup'
+  <latexsphinxsetup>` for more.
+
 Incompatible changes
 --------------------
 
 Deprecated
 ----------
 
+* LaTeX: the ``sphinxlightbox`` environment is not used anymore, all types
+  of admonitions use (by default) only ``sphinxheavybox``.
+
 Features added
 --------------
 
+.. rst-class:: compact
+
+* #12506 Add ``level`` option to :rst:dir:`rubric` directive.
+  Patch by Chris Sewell.
+* #12549 Add optional ``description`` argument to
+  :meth:`~sphinx.application.Sphinx.add_config_value`.
+  Patch by Chris Sewell.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files.
   Patch by James Addison and Adam Turner
@@ -53,7 +73,6 @@ Features added
     parses the provided text into inline elements and text nodes.
 
   Patch by Adam Turner.
-
 * #12258: Support ``typing_extensions.Unpack``
   Patch by Bénédikt Tran and Adam Turner.
 * #12524: Add a ``class`` option to the :rst:dir:`toctree` directive.
@@ -77,6 +96,14 @@ Features added
 * #7896, #11989: Add a :rst:dir:`py:type` directiv for documenting type aliases,
   and a :rst:role:`py:type` role for linking to them.
   Patch by Ashley Whetter.
+* #6792: Prohibit module import cycles in :mod:`sphinx.ext.autosummary`.
+  Patch by Trevor Bekolay.
+* #12508: LaTeX: Revamped styling of all admonitions, with addition of a
+  title row with icon.
+  Patch by Jean-François B.
+* #11773: Display :py:class:`~typing.Annotated` annotations
+  with their metadata in the Python domain.
+  Patch by Adam Turner and David Stansby.
 
 Bugs fixed
 ----------
@@ -94,6 +121,9 @@ Bugs fixed
   Patch by Benjamin Cabé.
 * #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
   the current page number and the footnote does appear on that same page.
+  Patch by Jean-François B.
+* #12410: LaTeX: for French and ``'lualatex'`` as :confval:`latex_engine`
+  ``polyglossia`` and not ``babel`` is used (contrarily to ``'xelatex'``).
   Patch by Jean-François B.
 * #12416: Ensure that configuration setting aliases are always synchronised
   when one value or the other is modified.
@@ -121,6 +151,13 @@ Bugs fixed
   Patch by James Addison and Will Lachance.
 * #9634: Do not add a fallback language by stripping the country code.
   Patch by Alvin Wong.
+* #12352: Add domain objects to the table of contents
+  in the same order as defined in the document.
+  Previously, each domain used language-specific nesting rules,
+  which removed control from document authors.
+  Patch by Jakob Lykke Andersen and Adam Turner.
+* #11041: linkcheck: Ignore URLs that respond with non-Unicode content.
+  Patch by James Addison.
 
 Testing
 -------

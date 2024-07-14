@@ -258,25 +258,17 @@ def parse_event(env, sig, signode):
     return name
 
 
-def linkify_issues_in_changelog(app, docname, source):
+def linkify_issues_in_changelog(app, path, docname, source):
     """Linkify issue references like #123 in changelog to GitHub."""
     if docname == 'changes':
-        changelog_path = os.path.join(os.path.dirname(__file__), '../CHANGES.rst')
-        # this path trickery is needed because this script can
-        # be invoked with different working directories:
-        # * running make in docs/
-        # * running tox -e docs in the repo root dir
-
-        with open(changelog_path, encoding='utf-8') as f:
-            changelog = f.read()
 
         def linkify(match):
             url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
             return f'`{match[0]} <{url}>`_'
 
-        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
+        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, source[0])
 
-        source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
+        source[0] = linkified_changelog
 
 
 REDIRECT_TEMPLATE = """
@@ -325,7 +317,7 @@ def setup(app: Sphinx) -> None:
     from sphinx.util.docfields import GroupedField
 
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
-    app.connect('source-read', linkify_issues_in_changelog)
+    app.connect('include-read', linkify_issues_in_changelog)
     app.connect('build-finished', build_redirects)
     fdesc = GroupedField('parameter', label='Parameters', names=['param'], can_collapse=True)
     app.add_object_type(

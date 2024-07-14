@@ -31,7 +31,7 @@ jobs:
       run: python utils/babel_runner.py extract
     - name: Push translations to transifex.com
       run: |
-        cd sphinx/locale 
+        cd sphinx/locale
         /tmp/tx_cli/tx push --source --use-git-timestamps --workers 10
       env:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
@@ -60,7 +60,7 @@ jobs:
       run: python utils/babel_runner.py extract
     - name: Pull translations from transifex.com
       run: |
-        cd sphinx/locale 
+        cd sphinx/locale
         /tmp/tx_cli/tx pull --translations --all --force --use-git-timestamps --workers 10
       env:
         TX_TOKEN: ${{ secrets.TX_TOKEN }}
@@ -69,7 +69,10 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v6
       with:
+        add-paths: |
+          sphinx/locale
         commit-message: "[internationalisation] Update translations"
         branch: bot/pull-translations
         title: "[bot]: Update message catalogues"
         labels: "internals:internationalisation"
+        body-path: babel_compile.txt

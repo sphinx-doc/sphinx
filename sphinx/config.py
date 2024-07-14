@@ -97,17 +97,19 @@ _OptValidTypes = Union[tuple[()], tuple[type, ...], frozenset[type], ENUM]
 
 
 class _Opt:
-    __slots__ = 'default', 'rebuild', 'valid_types'
+    __slots__ = 'default', 'rebuild', 'valid_types', 'description'
 
     default: Any
     rebuild: _ConfigRebuild
     valid_types: _OptValidTypes
+    description: str
 
     def __init__(
         self,
         default: Any,
         rebuild: _ConfigRebuild,
         valid_types: _OptValidTypes,
+        description: str = '',
     ) -> None:
         """Configuration option type for Sphinx.
 
@@ -120,52 +122,56 @@ class _Opt:
         super().__setattr__('default', default)
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
+        super().__setattr__('description', description)
 
     def __repr__(self) -> str:
         return (
             f'{self.__class__.__qualname__}('
             f'default={self.default!r}, '
             f'rebuild={self.rebuild!r}, '
-            f'valid_types={self.valid_types!r})'
+            f'valid_types={self.rebuild!r}, '
+            f'description={self.description!r})'
         )
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, _Opt):
-            self_tpl = (self.default, self.rebuild, self.valid_types)
-            other_tpl = (other.default, other.rebuild, other.valid_types)
+            self_tpl = (self.default, self.rebuild, self.valid_types, self.description)
+            other_tpl = (other.default, other.rebuild, other.valid_types, self.description)
             return self_tpl == other_tpl
         return NotImplemented
 
     def __lt__(self, other: _Opt) -> bool:
         if self.__class__ is other.__class__:
-            self_tpl = (self.default, self.rebuild, self.valid_types)
-            other_tpl = (other.default, other.rebuild, other.valid_types)
+            self_tpl = (self.default, self.rebuild, self.valid_types, self.description)
+            other_tpl = (other.default, other.rebuild, other.valid_types, self.description)
             return self_tpl > other_tpl
         return NotImplemented
 
     def __hash__(self) -> int:
-        return hash((self.default, self.rebuild, self.valid_types))
+        return hash((self.default, self.rebuild, self.valid_types, self.description))
 
     def __setattr__(self, key: str, value: Any) -> None:
-        if key in {'default', 'rebuild', 'valid_types'}:
+        if key in {'default', 'rebuild', 'valid_types', 'description'}:
             msg = f'{self.__class__.__name__!r} object does not support assignment to {key!r}'
             raise TypeError(msg)
         super().__setattr__(key, value)
 
     def __delattr__(self, key: str) -> None:
-        if key in {'default', 'rebuild', 'valid_types'}:
+        if key in {'default', 'rebuild', 'valid_types', 'description'}:
             msg = f'{self.__class__.__name__!r} object does not support deletion of {key!r}'
             raise TypeError(msg)
         super().__delattr__(key)
 
-    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes]:
-        return self.default, self.rebuild, self.valid_types
+    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes, str]:
+        return self.default, self.rebuild, self.valid_types, self.description
 
-    def __setstate__(self, state: tuple[Any, _ConfigRebuild, _OptValidTypes]) -> None:
-        default, rebuild, valid_types = state
+    def __setstate__(
+            self, state: tuple[Any, _ConfigRebuild, _OptValidTypes, str]) -> None:
+        default, rebuild, valid_types, description = state
         super().__setattr__('default', default)
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
+        super().__setattr__('description', description)
 
     def __getitem__(self, item: int | slice) -> Any:
         warnings.warn(
@@ -410,11 +416,12 @@ class Config:
                 except ValueError as exc:
                     logger.warning("%s", exc)
                 else:
-                    self.__dict__[name] = value
+                    self.__setattr__(name, value)
                     return value
             # then check values from 'conf.py'
             if name in self._raw_config:
-                self.__dict__[name] = value = self._raw_config[name]
+                value = self._raw_config[name]
+                self.__setattr__(name, value)
                 return value
             # finally, fall back to the default value
             default = self._options[name].default
@@ -445,7 +452,8 @@ class Config:
             yield ConfigValue(name, getattr(self, name), opt.rebuild)
 
     def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
-            types: type | Collection[type] | ENUM) -> None:
+            types: type | Collection[type] | ENUM,
+            description: str = '') -> None:
         if name in self._options:
             raise ExtensionError(__('Config value %r already present') % name)
 
@@ -455,7 +463,7 @@ class Config:
 
         # standardise valid_types
         valid_types = _validate_valid_types(types)
-        self._options[name] = _Opt(default, rebuild, valid_types)
+        self._options[name] = _Opt(default, rebuild, valid_types, description)
 
     def filter(self, rebuild: Set[_ConfigRebuild]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
