@@ -573,7 +573,8 @@ Info field lists
 
    meta fields are added.
 
-Inside Python object description directives, reST field lists with these fields
+Inside Python object description directives,
+reStructuredText field lists with these fields
 are recognized and formatted nicely:
 
 * ``param``, ``parameter``, ``arg``, ``argument``, ``key``, ``keyword``:

@@ -12,9 +12,10 @@ text will be the same as *target*.
 There are some additional facilities, however, that make cross-referencing
 roles more versatile:
 
-* You may supply an explicit title and reference target, like in reST direct
-  hyperlinks: ``:role:`title <target>``` will refer to *target*, but the link
-  text will be *title*.
+* You may supply an explicit title and reference target,
+  like in reStructuredText direct hyperlinks:
+  ``:role:`title <target>``` will refer to *target*,
+  but the link text will be *title*.
 
 * If you prefix the content with ``!``, no reference/hyperlink will be created.
 
@@ -89,10 +90,11 @@ Cross-referencing arbitrary locations
 
 .. rst:role:: ref
 
-   To support cross-referencing to arbitrary locations in any document, the
-   standard reST labels are used.  For this to work label names must be unique
-   throughout the entire documentation.  There are two ways in which you can
-   refer to labels:
+   To support cross-referencing to arbitrary locations in any document,
+   the standard reStructuredText labels are used.
+   For this to work label names must be unique
+   throughout the entire documentation.
+   There are two ways in which you can refer to labels:
 
    * If you place a label directly before a section title, you can reference to
      it with ``:ref:`label-name```.  For example::
@@ -165,8 +167,9 @@ Referencing downloadable files
 
 .. rst:role:: download
 
-   This role lets you link to files within your source tree that are not reST
-   documents that can be viewed, but files that can be downloaded.
+   This role lets you link to files within your source tree
+   that are not reStructuredText documents that can be viewed,
+   but files that can be downloaded.
 
    When you use this role, the referenced file is automatically marked for
    inclusion in the output when building (obviously, for HTML output only).
@@ -202,8 +205,9 @@ Cross-referencing figures by figure number
 
 .. rst:role:: numref
 
-   Link to the specified figures, tables, code-blocks and sections; the standard
-   reST labels are used.  When you use this role, it will insert a reference to
+   Link to the specified figures, tables, code-blocks and sections;
+   the standard reStructuredText labels are used.
+   When you use this role, it will insert a reference to
    the figure with link text by its figure number like "Fig. 1.1".
 
    If an explicit link text is given (as usual: ``:numref:`Image of Sphinx (Fig.

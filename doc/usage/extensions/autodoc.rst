@@ -328,7 +328,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      once by specifying the option to :rst:dir:`automodule` directive.
 
      Note: this will lead to markup errors if the inherited members come from a
-     module whose docstrings are not reST formatted.
+     module whose docstrings are not reStructuredText formatted.
 
      .. versionadded:: 0.3
 
@@ -873,8 +873,8 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
    .. versionadded:: 4.1
    .. versionchanged:: 4.3
 
-      ``bases`` can contain a string as a base class name.  It will be processed
-      as reST mark-up'ed text.
+      ``bases`` can contain a string as a base class name.
+      It will be processed as reStructuredText.
 
 
 Skipping members

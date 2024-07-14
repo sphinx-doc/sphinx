@@ -24,10 +24,11 @@ Table of contents
 
 .. index:: pair: table of; contents
 
-Since reST does not have facilities to interconnect several documents, or split
-documents into multiple output files, Sphinx uses a custom directive to add
-relations between the single files the documentation is made of, as well as
-tables of contents.  The ``toctree`` directive is the central element.
+Since reStructuredText does not have facilities to interconnect several documents,
+or split documents into multiple output files,
+Sphinx uses a custom directive to add relations between
+the single files the documentation is made of, as well as tables of contents.
+The ``toctree`` directive is the central element.
 
 .. note::
 
@@ -37,7 +38,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 .. note::
 
    To create table of contents for current document (.rst file), use the
-   standard reST :dudir:`contents directive <table-of-contents>`.
+   standard reStructuredText :dudir:`contents directive <table-of-contents>`.
 
 .. rst:directive:: toctree
 
@@ -79,7 +80,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    Document titles in the :rst:dir:`toctree` will be automatically read from the
    title of the referenced document. If that isn't what you want, you can
-   specify an explicit title and target using a similar syntax to reST
+   specify an explicit title and target using a similar syntax to reStructuredText
    hyperlinks (and Sphinx's :ref:`cross-referencing syntax <xref-syntax>`). This
    looks like::
 
@@ -353,7 +354,7 @@ units as well as normal text.
    any subsections.  For the HTML output, it is shown boxed off from the main
    flow of the text.
 
-   The content of the :rst:dir:`seealso` directive should be a reST definition
+   The content of the :rst:dir:`seealso` directive should be a reStructuredText definition
    list. Example::
 
       .. seealso::
@@ -437,8 +438,8 @@ Showing code examples
 There are multiple ways to show syntax-highlighted literal code blocks in
 Sphinx:
 
-* using :ref:`reST doctest blocks <rst-doctest-blocks>`;
-* using :ref:`reST literal blocks <rst-literal-blocks>`, optionally in
+* using :ref:`reStructuredText doctest blocks <rst-doctest-blocks>`;
+* using :ref:`reStructuredText literal blocks <rst-literal-blocks>`, optionally in
   combination with the :rst:dir:`highlight` directive;
 * using the :rst:dir:`code-block` directive;
 * and using the :rst:dir:`literalinclude` directive.
@@ -820,8 +821,8 @@ Glossary
 
 .. rst:directive:: .. glossary::
 
-   This directive must contain a reST definition-list-like markup with terms and
-   definitions.  The definitions will then be referenceable with the
+   This directive must contain a reStructuredText definition-list-like markup
+   with terms and definitions.  The definitions will then be referenceable with the
    :rst:role:`term` role.  Example::
 
       .. glossary::
@@ -1052,7 +1053,7 @@ mainly contained in information units, such as the language reference.
    case, the "target" part can be a full entry as described for the directive
    above.  For example::
 
-      This is a normal reST :index:`paragraph` that contains several
+      This is a normal reStructuredText :index:`paragraph` that contains several
       :index:`index entries <pair: index; entry>`.
 
    .. versionadded:: 1.1
@@ -1306,8 +1307,8 @@ the definition of the symbol.  There is this directive:
    an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
    or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
 
-   Note that no further reST parsing is done in the production, so that you
-   don't have to escape ``*`` or ``|`` characters.
+   Note that no further reStructuredText parsing is done in the production,
+   so that you don't have to escape ``*`` or ``|`` characters.
 
 The following is an example taken from the Python Reference Manual::
 

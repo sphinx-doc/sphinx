@@ -24,7 +24,7 @@ The C domain (name **c**) is suited for documentation of C API.
       .. c:function:: PyObject *PyType_GenericAlloc(PyTypeObject *type, Py_ssize_t nitems)
 
    Note that you don't have to backslash-escape asterisks in the signature, as
-   it is not parsed by the reST inliner.
+   it is not parsed by the reStructuredText inliner.
 
    In the description of a function you can use the following info fields
    (see also :ref:`info-field-lists`).

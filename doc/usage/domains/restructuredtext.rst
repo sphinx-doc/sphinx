@@ -10,9 +10,10 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
 .. rst:directive:: .. rst:directive:: name
 
-   Describes a reST directive.  The *name* can be a single directive name or
-   actual directive syntax (`..` prefix and `::` suffix) with arguments that
-   will be rendered differently.  For example::
+   Describes a reStructuredText directive.
+   The *name* can be a single directive name or actual directive syntax
+   (`..` prefix and `::` suffix) with arguments that will be rendered differently.
+   For example::
 
       .. rst:directive:: foo
 
@@ -38,7 +39,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
 .. rst:directive:: .. rst:directive:option:: name
 
-   Describes an option for reST directive.  The *name* can be a single option
+   Describes an option for reStructuredText directive.  The *name* can be a single option
    name or option name with arguments which separated with colon (``:``).
    For example::
 
@@ -77,7 +78,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
 .. rst:directive:: .. rst:role:: name
 
-   Describes a reST role.  For example::
+   Describes a reStructuredText role.  For example::
 
       .. rst:role:: foo
 
