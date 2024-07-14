@@ -91,7 +91,7 @@ The reStructuredText domain (name **rst**) provides the following directives:
 
       Foo description.
 
-.. _rst-roles:
+.. _rst-xref-roles:
 
 These roles are provided to refer to the described objects:
 

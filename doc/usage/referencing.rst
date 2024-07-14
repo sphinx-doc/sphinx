@@ -75,11 +75,11 @@ Cross-referencing objects
 
 These roles are described with their respective domains:
 
-* :ref:`Python <python-roles>`
-* :ref:`C <c-roles>`
-* :ref:`C++ <cpp-roles>`
-* :ref:`JavaScript <js-roles>`
-* :ref:`ReST <rst-roles>`
+* :ref:`Python <python-xref-roles>`
+* :ref:`C <c-xref-roles>`
+* :ref:`C++ <cpp-xref-roles>`
+* :ref:`JavaScript <js-xref-roles>`
+* :ref:`reStructuredText <rst-xref-roles>`
 
 
 .. _ref-role:

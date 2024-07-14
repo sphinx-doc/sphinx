@@ -655,7 +655,7 @@ word "or"::
    :vartype a_var: str or int
    :rtype: float or str
 
-.. _python-roles:
+.. _python-xref-roles:
 
 Cross-referencing Python objects
 --------------------------------

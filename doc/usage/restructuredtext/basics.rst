@@ -53,7 +53,7 @@ Be aware of some restrictions of this markup:
 These restrictions may be lifted in future versions of the docutils.
 
 It is also possible to replace or expand upon some of this inline markup with
-roles. Refer to :ref:`rst-roles-alt` for more information.
+roles. Refer to :ref:`rst-roles` for more information.
 
 
 Lists and Quote-like blocks
@@ -281,10 +281,7 @@ at the beginning of documents.  Refer to :doc:`field-lists` for more
 information.
 
 
-.. TODO This ref should be 'rst-roles', but that already exists. Rename the
-.. other ones
-
-.. _rst-roles-alt:
+.. _rst-roles:
 
 Roles
 -----

@@ -128,7 +128,7 @@ The C domain (name **c**) is suited for documentation of C API.
    Describes a C type, either as a typedef, or the alias for an unspecified
    type.
 
-.. _c-roles:
+.. _c-xref-roles:
 
 Cross-referencing C constructs
 ------------------------------
