@@ -396,6 +396,7 @@ table td, table th {
 }
 
 div.admonition, div.warning {
+    font-size: 0.9em;
     margin: 1em 0 1em 0;
     border: 1px solid #86989B;
     border-radius: var(--admonition-radius);
@@ -654,7 +655,6 @@ then for larger screens align them two per-row. */
     flex: 1 1 100%;
     margin: 0 !important;
     background-color: white !important;
-    font-size: 0.9em;
 }
 .sphinx-feature p {
     hyphens: none !important;
