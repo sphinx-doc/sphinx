@@ -377,7 +377,7 @@ units as well as normal text.
    i.e. it does not create a table of contents node.
 
    .. rst:directive:option:: level: n
-      :type: number from 1 to 6 
+      :type: number from 1 to 6
 
       .. versionadded:: 7.4
 
