@@ -3,9 +3,7 @@ from __future__ import annotations
 import functools
 from collections.abc import Iterable, Iterator
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
-
-from typing_extensions import ParamSpec
+from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
 
 from sphinx.locale import __
 from sphinx.util import logging
