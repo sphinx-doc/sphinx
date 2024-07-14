@@ -69,6 +69,8 @@ jobs:
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v6
       with:
+        add-paths: |
+          /sphinx/locale
         commit-message: "[internationalisation] Update translations"
         branch: bot/pull-translations
         title: "[bot]: Update message catalogues"
