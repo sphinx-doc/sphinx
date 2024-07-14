@@ -409,14 +409,14 @@ class Config:
             if name in self._overrides:
                 value = self._overrides[name]
                 if not isinstance(value, str):
-                    self.__setattr__(name, value)
+                    self.__dict__[name] = value
                     return value
                 try:
                     value = self.convert_overrides(name, value)
                 except ValueError as exc:
                     logger.warning("%s", exc)
                 else:
-                    self.__setattr__(name, value)
+                    self.__dict__[name] = value
                     return value
             # then check values from 'conf.py'
             if name in self._raw_config:
