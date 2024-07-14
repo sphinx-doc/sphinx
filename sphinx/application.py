@@ -26,12 +26,10 @@ from sphinx.config import ENUM, Config, _ConfigRebuild
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
-from sphinx.ext.autodoc import Documenter
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.search import SearchLanguage
 from sphinx.util import docutils, logging
 from sphinx.util._pathlib import _StrPath
 from sphinx.util.build_phase import BuildPhase
@@ -50,8 +48,10 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
+    from sphinx.ext.autodoc import Documenter
     from sphinx.extension import Extension
     from sphinx.roles import XRefRole
+    from sphinx.search import SearchLanguage
     from sphinx.theming import Theme
     from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -745,7 +745,9 @@ class Sphinx:
                            name, type='app', subtype='add_role')
         docutils.register_role(name, role)
 
-    def add_generic_role(self, name: str, nodeclass: type[nodes.Node], override: bool = False) -> None:
+    def add_generic_role(
+        self, name: str, nodeclass: type[nodes.Node], override: bool = False
+    ) -> None:
         """Register a generic Docutils role.
 
         Register a Docutils role that does nothing but wrap its contents in the
