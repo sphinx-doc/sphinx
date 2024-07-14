@@ -26,6 +26,8 @@ Deprecated
 Features added
 --------------
 
+.. rst-class:: compact
+
 * Add optional ``description`` argument to
   :meth:`~sphinx.application.Sphinx.add_config_value`.
   Patch by Chris Sewell.
@@ -69,7 +71,6 @@ Features added
     parses the provided text into inline elements and text nodes.
 
   Patch by Adam Turner.
-
 * #12258: Support ``typing_extensions.Unpack``
   Patch by Bénédikt Tran and Adam Turner.
 * #12524: Add a ``class`` option to the :rst:dir:`toctree` directive.
@@ -98,6 +99,9 @@ Features added
 * #12508: LaTeX: Revamped styling of all admonitions, with addition of a
   title row with icon.
   Patch by Jean-François B.
+* #11773: Display :py:class:`~typing.Annotated` annotations
+  with their metadata in the Python domain.
+  Patch by Adam Turner and David Stansby.
 
 Bugs fixed
 ----------
@@ -145,6 +149,11 @@ Bugs fixed
   Patch by James Addison and Will Lachance.
 * #9634: Do not add a fallback language by stripping the country code.
   Patch by Alvin Wong.
+* #12352: Add domain objects to the table of contents
+  in the same order as defined in the document.
+  Previously, each domain used language-specific nesting rules,
+  which removed control from document authors.
+  Patch by Jakob Lykke Andersen and Adam Turner.
 * #11041: linkcheck: Ignore URLs that respond with non-Unicode content.
   Patch by James Addison.
 
