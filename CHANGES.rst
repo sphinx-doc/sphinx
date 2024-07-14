@@ -145,7 +145,7 @@ Bugs fixed
   Patch by James Addison and Will Lachance.
 * #9634: Do not add a fallback language by stripping the country code.
   Patch by Alvin Wong.
-* #11041: linkcheck: ignore URLs that respond with non-unicode content.
+* #11041: linkcheck: Ignore URLs that respond with non-Unicode content.
   Patch by James Addison.
 
 Testing
