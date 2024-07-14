@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import functools
-from collections.abc import Iterable, Iterator
 from types import TracebackType
 from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
 
