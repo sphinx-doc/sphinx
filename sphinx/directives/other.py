@@ -53,6 +53,7 @@ class TocTree(SphinxDirective):
     option_spec = {
         'maxdepth': int,
         'name': directives.unchanged,
+        'class': directives.class_option,
         'caption': directives.unchanged_required,
         'glob': directives.flag,
         'hidden': directives.flag,
@@ -78,7 +79,9 @@ class TocTree(SphinxDirective):
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
         self.set_source_info(subnode)
-        wrappernode = nodes.compound(classes=['toctree-wrapper'])
+        wrappernode = nodes.compound(
+            classes=['toctree-wrapper', *self.options.get('class', ())],
+        )
         wrappernode.append(subnode)
         self.add_name(wrappernode)
 
@@ -198,7 +201,7 @@ class Author(SphinxDirective):
         else:
             text = _('Author: ')
         emph += nodes.Text(text)
-        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
+        inodes, messages = self.parse_inline(self.arguments[0])
         emph.extend(inodes)
 
         ret: list[Node] = [para]
@@ -247,7 +250,7 @@ class Centered(SphinxDirective):
         if not self.arguments:
             return []
         subnode: Element = addnodes.centered()
-        inodes, messages = self.state.inline_text(self.arguments[0], self.lineno)
+        inodes, messages = self.parse_inline(self.arguments[0])
         subnode.extend(inodes)
 
         ret: list[Node] = [subnode]
@@ -267,15 +270,12 @@ class Acks(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        node = addnodes.acks()
-        node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node.children) != 1 or not isinstance(node.children[0],
-                                                     nodes.bullet_list):
+        children = self.parse_content_to_nodes()
+        if len(children) != 1 or not isinstance(children[0], nodes.bullet_list):
             logger.warning(__('.. acks content is not a list'),
                            location=(self.env.docname, self.lineno))
             return []
-        return [node]
+        return [addnodes.acks('', *children)]
 
 
 class HList(SphinxDirective):
@@ -293,15 +293,12 @@ class HList(SphinxDirective):
 
     def run(self) -> list[Node]:
         ncolumns = self.options.get('columns', 2)
-        node = nodes.paragraph()
-        node.document = self.state.document
-        self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node.children) != 1 or not isinstance(node.children[0],
-                                                     nodes.bullet_list):
+        children = self.parse_content_to_nodes()
+        if len(children) != 1 or not isinstance(children[0], nodes.bullet_list):
             logger.warning(__('.. hlist content is not a list'),
                            location=(self.env.docname, self.lineno))
             return []
-        fulllist = node.children[0]
+        fulllist = children[0]
         # create a hlist node where the items are distributed
         npercol, nmore = divmod(len(fulllist), ncolumns)
         index = 0

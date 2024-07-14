@@ -1479,7 +1479,7 @@ class _EnumFormatter:
         return self.entry(name, doc, role='attribute', indent=indent, **rst_options)
 
 
-@pytest.fixture()
+@pytest.fixture
 def autodoc_enum_options() -> dict[str, object]:
     """Default autodoc options to use when testing enum's documentation."""
     return {"members": None, "undoc-members": None}

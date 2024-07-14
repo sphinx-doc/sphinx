@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.statemachine import StringList
 
 from sphinx import addnodes
 from sphinx.directives import optional_int
@@ -75,15 +74,13 @@ def container_wrapper(
 ) -> nodes.container:
     container_node = nodes.container('', literal_block=True,
                                      classes=['literal-block-wrapper'])
-    parsed = nodes.Element()
-    directive.state.nested_parse(StringList([caption], source=''),
-                                 directive.content_offset, parsed)
-    if isinstance(parsed[0], nodes.system_message):
-        msg = __('Invalid caption: %s' % parsed[0].astext())
+    parsed = directive.parse_text_to_nodes(caption, offset=directive.content_offset)
+    node = parsed[0]
+    if isinstance(node, nodes.system_message):
+        msg = __('Invalid caption: %s') % node.astext()
         raise ValueError(msg)
-    if isinstance(parsed[0], nodes.Element):
-        caption_node = nodes.caption(parsed[0].rawsource, '',
-                                     *parsed[0].children)
+    if isinstance(node, nodes.Element):
+        caption_node = nodes.caption(node.rawsource, '', *node.children)
         caption_node.source = literal_node.source
         caption_node.line = literal_node.line
         container_node += caption_node

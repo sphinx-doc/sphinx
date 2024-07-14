@@ -253,7 +253,7 @@ class BuildEnvironment:
         # search index data
 
         # docname -> title
-        self._search_index_titles: dict[str, str] = {}
+        self._search_index_titles: dict[str, str | None] = {}
         # docname -> filename
         self._search_index_filenames: dict[str, str] = {}
         # stemmed words -> set(docname)
@@ -261,7 +261,7 @@ class BuildEnvironment:
         # stemmed words in titles -> set(docname)
         self._search_index_title_mapping: dict[str, set[str]] = {}
         # docname -> all titles in document
-        self._search_index_all_titles: dict[str, list[tuple[str, str]]] = {}
+        self._search_index_all_titles: dict[str, list[tuple[str, str | None]]] = {}
         # docname -> list(index entry)
         self._search_index_index_entries: dict[str, list[tuple[str, str, str]]] = {}
         # objtype -> index

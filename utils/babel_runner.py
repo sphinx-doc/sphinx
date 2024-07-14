@@ -31,6 +31,7 @@ from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
+IS_CI = 'CI' in os.environ
 ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), '..', '..'))
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
@@ -185,11 +186,10 @@ def run_compile() -> None:
             log.info('catalog %s is marked as fuzzy, skipping', po_file)
             continue
 
+        locale_errors = 0
         for message, errors in catalog.check():
-            if locale not in total_errors:
-                total_errors[locale] = 0
             for error in errors:
-                total_errors[locale] += 1
+                locale_errors += 1
                 log.error(
                     'error: %s:%d: %s\nerror:     in message string: %r',
                     po_file,
@@ -197,6 +197,11 @@ def run_compile() -> None:
                     error,
                     message.string,
                 )
+
+        if locale_errors:
+            total_errors[locale] = locale_errors
+            log.info('%d errors encountered in %r locale, skipping', locale_errors, locale)
+            continue
 
         mo_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.mo')
         log.info('compiling catalog %s to %s', po_file, mo_file)
@@ -229,17 +234,13 @@ def run_compile() -> None:
             # to ensure lines end with ``\n`` rather than ``\r\n``:
             outfile.write(f'Documentation.addTranslations({obj});'.encode())
 
-    if 'ta' in total_errors:
-        # Tamil is a known failure.
-        err_count = total_errors.pop('ta')
-        log.error('%d errors encountered in %r locale.', err_count, 'ta')
-
-    if len(total_errors) > 0:
+    if total_errors:
+        _write_pr_body_line('## Babel catalogue errors')
+        _write_pr_body_line('')
         for locale, err_count in total_errors.items():
-            log.error('%d errors encountered in %r locale.', err_count, locale)
-        log.error('%d errors encountered.', sum(total_errors.values()))
-        print('Compiling failed.', file=sys.stderr)
-        raise SystemExit(2)
+            log.error('error: %d errors encountered in %r locale.', err_count, locale)
+            s = 's' if err_count != 1 else ''
+            _write_pr_body_line(f'* {locale}: {err_count} error{s}')
 
 
 def _get_logger():
@@ -249,6 +250,13 @@ def _get_logger():
     handler.setFormatter(logging.Formatter('%(message)s'))
     log.addHandler(handler)
     return log
+
+
+def _write_pr_body_line(message: str) -> None:
+    if not IS_CI:
+        return
+    with open('babel_compile.txt', 'a', encoding='utf-8') as f:
+        f.write(f'{message}\n')
 
 
 if __name__ == '__main__':

@@ -102,8 +102,10 @@ Options
 
 .. option:: -t tag, --tag tag
 
-   Define the tag *tag*.  This is relevant for :rst:dir:`only` directives that
-   only include their content if this tag is set.
+   Define the tag *tag*.
+   This is relevant for :rst:dir:`only` directives that
+   include their content only if certain tags are set.
+   See :ref:`including content based on tags <tags>` for further detail.
 
    .. versionadded:: 0.6
 
@@ -192,7 +194,7 @@ Options
 
 .. option:: -n, --nitpicky
 
-   Run in nit-picky mode.  Currently, this generates warnings for all missing
+   Run in nitpicky mode.  Currently, this generates warnings for all missing
    references.  See the config value :confval:`nitpick_ignore` for a way to
    exclude some references as "known missing".
 
