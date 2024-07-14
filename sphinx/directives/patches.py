@@ -187,7 +187,7 @@ class Rubric(SphinxDirective):
     option_spec = {
         'class': directives.class_option,
         'name': directives.unchanged,
-        'level': lambda c: directives.choice(c, ('1', '2', '3', '4', '5')),
+        'level': lambda c: directives.choice(c, ('1', '2', '3', '4', '5', '6')),
     }
 
     def run(self) -> list[Node]:
