@@ -416,7 +416,7 @@ class Config:
                 except ValueError as exc:
                     logger.warning("%s", exc)
                 else:
-                    self.__dict__[name] = value
+                    self.__setattr__(name, value)
                     return value
             # then check values from 'conf.py'
             if name in self._raw_config:
