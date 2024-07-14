@@ -4054,7 +4054,7 @@ Options for the Python domain
 
    The examples below use the following :rst:dir:`py:function` directive:
 
-   .. code-block:: reStructuredText
+   .. code-block:: rst
 
       .. py:function:: serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
 

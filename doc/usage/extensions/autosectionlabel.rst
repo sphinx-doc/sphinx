@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.autosectionlabel` -- Allow reference sections using its title
 ==============================================================================

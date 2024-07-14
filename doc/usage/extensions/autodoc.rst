@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 .. _ext-autodoc:
 

@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.doctest` -- Test snippets in the documentation
 ===============================================================

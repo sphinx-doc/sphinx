@@ -953,7 +953,7 @@ mainly contained in information units, such as the language reference.
       (this notation is also used below to describe what entries are created).
       Examples:
 
-      .. code:: reStructuredText
+      .. code:: rst
 
          .. index:: single: execution
                     single: execution; context
@@ -966,7 +966,7 @@ mainly contained in information units, such as the language reference.
       The pair of values must be separated by a semicolon.
       Example:
 
-      .. code:: reStructuredText
+      .. code:: rst
 
          .. index:: pair: loop; statement
 
@@ -976,7 +976,7 @@ mainly contained in information units, such as the language reference.
       All three values must be separated by a semicolon.
       Example:
 
-      .. code:: reStructuredText
+      .. code:: rst
 
          .. index:: triple: module; search; path
 
@@ -986,7 +986,7 @@ mainly contained in information units, such as the language reference.
       A shortcut to create an index entry that refers to another entry.
       Example:
 
-      .. code:: reStructuredText
+      .. code:: rst
 
          .. index:: see: entry; other
 
