@@ -52,21 +52,25 @@ Below is an overview of the core event that happens during a build.
 
    10. event.env-updated(app, env)
    11. event.env-get-updated(app, env)
-   12. event.env-check-consistency(app, env)
+
+   if environment is written to disk:
+      12. event.env-check-consistency(app, env)
+
+   13. event.write-started(app, builder)
 
    # The updated-docs list can be builder dependent, but generally includes all new/changed documents,
    # plus any output from `env-get-updated`, and then all "parent" documents in the ToC tree
    # For builders that output a single page, they are first joined into a single doctree before post-transforms
    # or the doctree-resolved event is emitted
    for docname in updated-docs:
-      13. apply post-transforms (by priority): docutils.document -> docutils.document
-      14. event.doctree-resolved(app, doctree, docname)
+      14. apply post-transforms (by priority): docutils.document -> docutils.document
+      15. event.doctree-resolved(app, doctree, docname)
           - In the event that any reference nodes fail to resolve, the following may emit:
           - event.missing-reference(env, node, contnode)
           - event.warn-missing-reference(domain, node)
 
-   15. Generate output files
-   16. event.build-finished(app, exception)
+   16. Generate output files
+   17. event.build-finished(app, exception)
 
 Here is also a flow diagram of the events,
 within the context of the Sphinx build process:
@@ -321,6 +325,16 @@ Here is a more detailed list of these events.
    metadata for whole of documents.
 
    .. versionadded:: 1.6
+
+.. event:: write-started (app, builder)
+
+   :param app: :class:`.Sphinx`
+   :param builder: :class:`.Builder`
+
+   Emitted before the builder starts to
+   resolve and write documents.
+
+   .. versionadded:: 7.4
 
 .. event:: build-finished (app, exception)
 
