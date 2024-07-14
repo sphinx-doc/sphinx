@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import functools
-from types import ParamSpec, TypeVar
+from types import TypeVar
 from typing import TYPE_CHECKING
+
+from typing_extensions import ParamSpec
 
 from sphinx.locale import __
 from sphinx.util import logging
