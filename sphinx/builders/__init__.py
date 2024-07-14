@@ -364,7 +364,7 @@ class Builder:
         self.finish_tasks = SerialTasks()
 
         # write all "normal" documents (or everything for some builders)
-        self.app.emit('write-starting', self)
+        self.app.emit('write-started', self)
         self.write(docnames, list(updated_docnames), method)
 
         # finish (write static files etc.)

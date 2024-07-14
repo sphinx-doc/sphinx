@@ -56,7 +56,8 @@ Below is an overview of the core event that happens during a build.
    if environment is written to disk:
       12. event.env-check-consistency(app, env)
 
-   13. event.write-starting(app, builder)
+   13. event.write-started(app, builder)
+       - this is called app.parallel_ok is determined and set
 
    # The updated-docs list can be builder dependent, but generally includes all new/changed documents,
    # plus any output from `env-get-updated`, and then all "parent" documents in the ToC tree
@@ -326,7 +327,7 @@ Here is a more detailed list of these events.
 
    .. versionadded:: 1.6
 
-.. event:: write-starting (app, builder)
+.. event:: write-started (app, builder)
 
    :param app: :class:`.Sphinx`
    :param builder: :class:`.Builder`
