@@ -331,6 +331,20 @@ class IndexBuilder:
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 
+    def merge_other(self, other: IndexBuilder) -> None:
+        """Merge another frozen index into this one."""
+        # TODO test this
+        self._all_titles |= other._all_titles
+        self._filenames |= other._filenames
+        self._index_entries |= other._index_entries
+        self._mapping |= other._mapping
+        self._title_mapping |= other._title_mapping
+        self._titles |= other._titles
+
+    def __getstate__(self):
+        # TODO improve this
+        return {k: v for k, v in self.__dict__.items() if k != 'env'}
+
     def get_objects(self, fn2index: dict[str, int]
                     ) -> dict[str, list[tuple[int, int, int, str, str]]]:
         rv: dict[str, list[tuple[int, int, int, str, str]]] = {}

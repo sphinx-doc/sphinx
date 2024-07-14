@@ -38,7 +38,6 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.events import EventManager
     from sphinx.util.tags import Tags
-    from sphinx.util.typing import NoneType
 
 
 logger = logging.getLogger(__name__)
@@ -621,10 +620,6 @@ class Builder:
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames: Sequence[str], nproc: int) -> None:
-        def write_process(docs: list[tuple[str, nodes.document]]) -> None:
-            self.app.phase = BuildPhase.WRITING
-            for docname, doctree in docs:
-                self.write_doc(docname, doctree)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
@@ -642,17 +637,69 @@ class Builder:
         progress = status_iterator(chunks, __('writing output... '), "darkgreen",
                                    len(chunks), self.app.verbosity)
 
-        def on_chunk_done(args: list[tuple[str, NoneType]], result: NoneType) -> None:
-            next(progress)
-
         self.app.phase = BuildPhase.RESOLVING
-        for chunk in chunks:
-            arg = []
-            for docname in chunk:
-                doctree = self.env.get_and_resolve_doctree(docname, self)
-                self.write_doc_serialized(docname, doctree)
-                arg.append((docname, doctree))
-            tasks.add_task(write_process, arg, on_chunk_done)
+
+        if not self.config.parallel_post_transform:
+
+            # This is the "original" parallel write logic:
+            # only the final writing of the output is parallelised,
+            # not the application of post-transforms, etc
+            # The `write_doc` method should not add/modify any data
+            # required by the parent process
+
+            def _write_doc(docs: list[tuple[str, nodes.document]]) -> None:
+                self.app.phase = BuildPhase.WRITING
+                for docname, doctree in docs:
+                    self.write_doc(docname, doctree)
+
+            def _on_chunk_done(args: list[tuple[str, None]], result: None) -> None:
+                next(progress)
+
+            for chunk in chunks:
+                arg = []
+                for docname in chunk:
+                    doctree = self.env.get_and_resolve_doctree(docname, self)
+                    self.write_doc_serialized(docname, doctree)
+                    arg.append((docname, doctree))
+                tasks.add_task(_write_doc, arg, _on_chunk_done)
+
+        else:
+
+            # This is the "new"  parallel write logic;
+            # The entire logic is performed in parallel.
+            # However, certain data during this phase must be parsed back from child processes,
+            # to be used by the main process in the final build steps.
+            # This is achieved by allowing the builder and any subscribers to the events below,
+            # to (1) add data to a context, within the child process,
+            # (2) moving that context back to the parent process, via pickling, and
+            # (3) merge the data from context into the required location on the parent process
+
+            logger.warning(
+                "parallel_post_transform is experimental "
+                "(add 'config.experimental' to suppress_warnings)",
+                type="config",
+                subtype="experimental"
+            )
+
+            def _write(docnames: list[str]) -> bytes:
+                for docname in docnames:
+                    doctree = self.env.get_and_resolve_doctree(docname, self)
+                    self.write_doc_serialized(docname, doctree)
+                    self.app.phase = BuildPhase.WRITING
+                    self.write_doc(docname, doctree)
+                context: dict[str, Any] = {}
+                self.parallel_write_data_retrieve(context, docnames)
+                self.events.emit('write-data-retrieve', self, context, docnames)
+                return pickle.dumps(context, pickle.HIGHEST_PROTOCOL)
+
+            def _merge(docnames: list[str], context_bytes: bytes) -> None:
+                context: dict[str, Any] = pickle.loads(context_bytes)
+                self.parallel_write_data_merge(context, docnames)
+                self.events.emit('write-data-merge', self, context, docnames)
+                next(progress)
+
+            for docnames in chunks:
+                tasks.add_task(_write, docnames, _merge)
 
         # make sure all threads have finished
         tasks.join()
@@ -675,6 +722,24 @@ class Builder:
         if parallel build is active.
         """
         pass
+
+    def parallel_write_data_retrieve(
+            self, context: dict[str, Any], docnames: list[str]
+    ) -> None:
+        """Retrieve data from child process of parallel write,
+        to be passed back to main process.
+
+        :param context: Add data here to be passed back.
+            All data must be picklable.
+        :docnames: List of docnames that were written in the child process.
+        """
+
+    def parallel_write_data_merge(self, context: dict[str, Any], docnames: list[str]) -> None:
+        """Merge data from child process of parallel write into main process.
+
+        :param context: Data from the child process.
+        :docnames: List of docnames that were written in the child process.
+        """
 
     def finish(self) -> None:
         """Finish the building process.
