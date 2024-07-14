@@ -1766,4 +1766,4 @@ def test_latex_rubric(app):
     app.build()
     content = (app.outdir / 'test.tex').read_text(encoding='utf8')
     assert r'\subsubsection*{This is a rubric}' in content
-    assert r'\subsection*{A rubric with a heading level}' in content
+    assert r'\subsection*{A rubric with a heading level 2}' in content

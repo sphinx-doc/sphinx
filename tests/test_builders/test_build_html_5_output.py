@@ -283,6 +283,7 @@ def test_html5_output(app, cached_etree_parse, fname, path, check):
 @pytest.mark.sphinx('html', testroot='markup-rubric')
 def test_html5_rubric(app):
     app.build()
+    assert '"7" unknown' in app.warning.getvalue()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<p class="rubric">This is a rubric</p>' in content
-    assert '<h2 class="my-class rubric">A rubric with a heading level</h2>' in content
+    assert '<h2 class="myclass rubric">A rubric with a heading level 2</h2>' in content
