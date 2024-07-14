@@ -522,6 +522,7 @@ __ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. code-block:: [language]
                    .. sourcecode:: [language]
+                   .. code:: [language]
 
    Example::
 
@@ -953,7 +954,7 @@ mainly contained in information units, such as the language reference.
       (this notation is also used below to describe what entries are created).
       Examples:
 
-      .. code:: rst
+      .. code-block:: rst
 
          .. index:: single: execution
                     single: execution; context
@@ -966,7 +967,7 @@ mainly contained in information units, such as the language reference.
       The pair of values must be separated by a semicolon.
       Example:
 
-      .. code:: rst
+      .. code-block:: rst
 
          .. index:: pair: loop; statement
 
@@ -976,7 +977,7 @@ mainly contained in information units, such as the language reference.
       All three values must be separated by a semicolon.
       Example:
 
-      .. code:: rst
+      .. code-block:: rst
 
          .. index:: triple: module; search; path
 
@@ -986,7 +987,7 @@ mainly contained in information units, such as the language reference.
       A shortcut to create an index entry that refers to another entry.
       Example:
 
-      .. code:: rst
+      .. code-block:: rst
 
          .. index:: see: entry; other
 

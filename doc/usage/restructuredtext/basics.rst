@@ -589,7 +589,7 @@ directive::
 
 will generate the following HTML output:
 
-.. code:: html
+.. code-block:: html
 
    <meta name="description" content="The Sphinx documentation builder">
    <meta name="keywords" content="Sphinx, documentation, builder">

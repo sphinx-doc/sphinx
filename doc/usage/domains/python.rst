@@ -545,7 +545,7 @@ It is customary to put the opening bracket before the comma.
 Python 3.12 introduced *type parameters*, which are type variables
 declared directly  within the class or function definition:
 
-.. code:: python
+.. code-block:: python
 
    class AnimalList[AnimalT](list[AnimalT]):
       ...
@@ -555,7 +555,7 @@ declared directly  within the class or function definition:
 
 The corresponding reStructuredText documentation would be:
 
-.. code:: rst
+.. code-block:: rst
 
    .. py:class:: AnimalList[AnimalT]
 

@@ -123,7 +123,7 @@ This is particularly useful for literate programming:
    .. py:function:: spam(eggs)
       :no-typesetting:
 
-   .. code::
+   .. code:: python
 
       def spam(eggs):
           pass
