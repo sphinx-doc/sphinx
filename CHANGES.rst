@@ -149,6 +149,11 @@ Bugs fixed
   Patch by James Addison and Will Lachance.
 * #9634: Do not add a fallback language by stripping the country code.
   Patch by Alvin Wong.
+* #12352: Add domain objects to the table of contents
+  in the same order as defined in the document.
+  Previously, each domain used language-specific nesting rules,
+  which removed control from document authors.
+  Patch by Jakob Lykke Andersen and Adam Turner.
 
 Testing
 -------
