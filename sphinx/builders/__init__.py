@@ -364,6 +364,7 @@ class Builder:
         self.finish_tasks = SerialTasks()
 
         # write all "normal" documents (or everything for some builders)
+        self.app.emit('write-starting', self)
         self.write(docnames, list(updated_docnames), method)
 
         # finish (write static files etc.)
@@ -579,8 +580,6 @@ class Builder:
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         """Write builder specific output files."""
-        self.app.emit("write-started", self)
-
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
