@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import codecs
 import pickle
+import re
 import time
 from os import path
 from typing import TYPE_CHECKING, Any, Literal, final
@@ -21,7 +22,7 @@ from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
-from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
+from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
 
 # side effect: registers roles and directives
@@ -423,9 +424,40 @@ class Builder:
         else:
             self._read_serial(docnames)
 
-        if self.config.root_doc not in self.env.all_docs:
-            raise SphinxError('root file %s not found' %
-                              self.env.doc2path(self.config.root_doc))
+        if self.config.master_doc not in self.env.all_docs:
+            from sphinx.project import EXCLUDE_PATHS
+            from sphinx.util.matching import _translate_pattern
+
+            master_doc_path = self.env.doc2path(self.config.master_doc)
+            master_doc_canon = canon_path(master_doc_path)
+            for pat in EXCLUDE_PATHS:
+                if not re.match(_translate_pattern(pat), master_doc_canon):
+                    continue
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it matches a built-in exclude pattern %r. '
+                         'Please move your master document to a different location.')
+                raise SphinxError(msg % (master_doc_path, pat))
+            for pat in self.config.exclude_patterns:
+                if not re.match(_translate_pattern(pat), master_doc_canon):
+                    continue
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it matches an exclude pattern specified '
+                         'in conf.py, %r. '
+                         'Please remove this pattern from conf.py.')
+                raise SphinxError(msg % (master_doc_path, pat))
+            if set(self.config.include_patterns) != {'**'} and not any(
+                re.match(_translate_pattern(pat), master_doc_canon)
+                for pat in self.config.include_patterns
+            ):
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it is not included in the custom include_patterns = %r. '
+                         'Ensure that a pattern in include_patterns matches the '
+                         'master document.')
+                raise SphinxError(msg % (master_doc_path, self.config.include_patterns))
+            msg = __('Sphinx is unable to load the master document (%s). '
+                     'The master document must be within the source directory '
+                     'or a subdirectory of it.')
+            raise SphinxError(msg % master_doc_path)
 
         for retval in self.events.emit('env-updated', self.env):
             if retval is not None:

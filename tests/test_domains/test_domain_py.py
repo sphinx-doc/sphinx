@@ -92,19 +92,21 @@ def test_domain_py_xrefs(app, status, warning):
     refnodes = list(doctree.findall(pending_xref))
     assert_refnode(refnodes[0], None, None, 'TopLevel', 'class')
     assert_refnode(refnodes[1], None, None, 'top_level', 'meth')
-    assert_refnode(refnodes[2], None, 'NestedParentA', 'child_1', 'meth')
-    assert_refnode(refnodes[3], None, 'NestedParentA', 'NestedChildA.subchild_2', 'meth')
-    assert_refnode(refnodes[4], None, 'NestedParentA', 'child_2', 'meth')
-    assert_refnode(refnodes[5], False, 'NestedParentA', 'any_child', domain='')
-    assert_refnode(refnodes[6], None, 'NestedParentA', 'NestedChildA', 'class')
-    assert_refnode(refnodes[7], None, 'NestedParentA.NestedChildA', 'subchild_2', 'meth')
-    assert_refnode(refnodes[8], None, 'NestedParentA.NestedChildA',
+    assert_refnode(refnodes[2], None, None, 'TopLevelType', 'type')
+    assert_refnode(refnodes[3], None, 'NestedParentA', 'child_1', 'meth')
+    assert_refnode(refnodes[4], None, 'NestedParentA', 'NestedChildA.subchild_2', 'meth')
+    assert_refnode(refnodes[5], None, 'NestedParentA', 'child_2', 'meth')
+    assert_refnode(refnodes[6], False, 'NestedParentA', 'any_child', domain='')
+    assert_refnode(refnodes[7], None, 'NestedParentA', 'NestedChildA', 'class')
+    assert_refnode(refnodes[8], None, 'NestedParentA.NestedChildA', 'subchild_2', 'meth')
+    assert_refnode(refnodes[9], None, 'NestedParentA.NestedChildA',
                    'NestedParentA.child_1', 'meth')
-    assert_refnode(refnodes[9], None, 'NestedParentA', 'NestedChildA.subchild_1', 'meth')
-    assert_refnode(refnodes[10], None, 'NestedParentB', 'child_1', 'meth')
-    assert_refnode(refnodes[11], None, 'NestedParentB', 'NestedParentB', 'class')
-    assert_refnode(refnodes[12], None, None, 'NestedParentA.NestedChildA', 'class')
-    assert len(refnodes) == 13
+    assert_refnode(refnodes[10], None, 'NestedParentA', 'NestedChildA.subchild_1', 'meth')
+    assert_refnode(refnodes[11], None, 'NestedParentB', 'child_1', 'meth')
+    assert_refnode(refnodes[12], None, 'NestedParentB', 'NestedParentB', 'class')
+    assert_refnode(refnodes[13], None, None, 'NestedParentA.NestedChildA', 'class')
+    assert_refnode(refnodes[14], None, None, 'NestedParentA.NestedTypeA', 'type')
+    assert len(refnodes) == 15
 
     doctree = app.env.get_doctree('module')
     refnodes = list(doctree.findall(pending_xref))
@@ -135,7 +137,10 @@ def test_domain_py_xrefs(app, status, warning):
     assert_refnode(refnodes[15], False, False, 'index', 'doc', domain='std')
     assert_refnode(refnodes[16], False, False, 'typing.Literal', 'obj', domain='py')
     assert_refnode(refnodes[17], False, False, 'typing.Literal', 'obj', domain='py')
-    assert len(refnodes) == 18
+    assert_refnode(refnodes[18], False, False, 'list', 'class', domain='py')
+    assert_refnode(refnodes[19], False, False, 'int', 'class', domain='py')
+    assert_refnode(refnodes[20], False, False, 'str', 'class', domain='py')
+    assert len(refnodes) == 21
 
     doctree = app.env.get_doctree('module_option')
     refnodes = list(doctree.findall(pending_xref))
@@ -191,7 +196,9 @@ def test_domain_py_objects(app, status, warning):
 
     assert objects['TopLevel'][2] == 'class'
     assert objects['top_level'][2] == 'method'
+    assert objects['TopLevelType'][2] == 'type'
     assert objects['NestedParentA'][2] == 'class'
+    assert objects['NestedParentA.NestedTypeA'][2] == 'type'
     assert objects['NestedParentA.child_1'][2] == 'method'
     assert objects['NestedParentA.any_child'][2] == 'method'
     assert objects['NestedParentA.NestedChildA'][2] == 'class'
@@ -233,6 +240,9 @@ def test_domain_py_find_obj(app, status, warning):
     assert (find_obj(None, None, 'NONEXISTANT', 'class') == [])
     assert (find_obj(None, None, 'NestedParentA', 'class') ==
             [('NestedParentA', ('roles', 'NestedParentA', 'class', False))])
+    assert (find_obj(None, None, 'NestedParentA.NestedTypeA', 'type') ==
+            [('NestedParentA.NestedTypeA',
+              ('roles', 'NestedParentA.NestedTypeA', 'type', False))])
     assert (find_obj(None, None, 'NestedParentA.NestedChildA', 'class') ==
             [('NestedParentA.NestedChildA',
               ('roles', 'NestedParentA.NestedChildA', 'class', False))])

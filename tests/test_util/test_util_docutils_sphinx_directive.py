@@ -11,7 +11,7 @@ from sphinx.util.docutils import SphinxDirective, new_document
 
 
 def make_directive(*, env: SimpleNamespace, input_lines: StringList | None = None) -> SphinxDirective:
-    state, directive = make_directive_and_state(env=env, input_lines=input_lines)
+    _, directive = make_directive_and_state(env=env, input_lines=input_lines)
     return directive
 
 

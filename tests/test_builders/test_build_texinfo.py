@@ -40,7 +40,7 @@ def test_texinfo(app, status, warning):
 def test_texinfo_rubric(app, status, warning):
     app.build()
 
-    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
+    output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
     assert '@heading This is a rubric' in output
     assert '@heading This is a multiline rubric' in output
     assert '@heading A rubric with a heading level' in output
@@ -50,7 +50,7 @@ def test_texinfo_rubric(app, status, warning):
 def test_texinfo_citation(app, status, warning):
     app.build(force_all=True)
 
-    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
+    output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
     assert 'This is a citation ref; @ref{1,,[CITE1]} and @ref{2,,[CITE2]}.' in output
     assert ('@anchor{index cite1}@anchor{1}@w{(CITE1)} \n'
             'This is a citation\n') in output
@@ -88,7 +88,7 @@ def test_texinfo_escape_id(app, status, warning):
 def test_texinfo_footnote(app, status, warning):
     app.build(force_all=True)
 
-    output = (app.outdir / 'python.texi').read_text(encoding='utf8')
+    output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
     assert 'First footnote: @footnote{\nFirst\n}' in output
 
 
@@ -121,7 +121,7 @@ def test_texinfo_samp_with_variable(app, status, warning):
 def test_copy_images(app, status, warning):
     app.build()
 
-    images_dir = Path(app.outdir) / 'python-figures'
+    images_dir = Path(app.outdir) / 'projectnamenotset-figures'
     images = {image.name for image in images_dir.rglob('*')}
     images.discard('python-logo.png')
     assert images == {

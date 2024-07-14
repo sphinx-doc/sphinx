@@ -437,7 +437,7 @@ class LaTeXTranslator(SphinxTranslator):
             'body': ''.join(self.body),
             'indices': self.generate_indices(),
         })
-        return self.render('latex.tex_t', self.elements)
+        return self.render('latex.tex.jinja', self.elements)
 
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
         if withdoc:
@@ -497,20 +497,23 @@ class LaTeXTranslator(SphinxTranslator):
 
         ret = []
         # latex_domain_indices can be False/True or a list of index names
-        indices_config = self.config.latex_domain_indices
-        if indices_config:
-            for domain in self.builder.env.domains.values():
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
-                    if not content:
+        if indices_config := self.config.latex_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
+            for domain_name in sorted(self.builder.env.domains):
+                domain = self.builder.env.domains[domain_name]
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
                         continue
-                    ret.append(r'\renewcommand{\indexname}{%s}' % indexcls.localname + CR)
-                    generate(content, collapsed)
+                    content, collapsed = index_cls(domain).generate(
+                        self.builder.docnames)
+                    if content:
+                        ret.append(r'\renewcommand{\indexname}{%s}' % index_cls.localname + CR)
+                        generate(content, collapsed)
 
         return ''.join(ret)
 
@@ -521,6 +524,12 @@ class LaTeXTranslator(SphinxTranslator):
                                  template_name)
             if path.exists(template):
                 return renderer.render(template, variables)
+            elif template.endswith('.jinja'):
+                legacy_template = template.removesuffix('.jinja') + '_t'
+                if path.exists(legacy_template):
+                    logger.warning(__('template %s not found; loading from legacy %s instead'),
+                                   template_name, legacy_template)
+                    return renderer.render(legacy_template, variables)
 
         return renderer.render(template_name, variables)
 
@@ -1046,7 +1055,7 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
-        table = self.render(table_type + '.tex_t',
+        table = self.render(table_type + '.tex.jinja',
                             {'table': self.table, 'labels': labels})
         self.body.append(BLANKLINE)
         self.body.append(table)

@@ -114,7 +114,7 @@ def create_module_file(
         template_path = [user_template_dir, template_dir]
     else:
         template_path = [template_dir]
-    text = ReSTRenderer(template_path).render('module.rst_t', context)
+    text = ReSTRenderer(template_path).render('module.rst.jinja', context)
     return write_file(qualname, text, opts)
 
 
@@ -172,7 +172,7 @@ def create_package_file(
 
     written: list[Path] = []
 
-    text = ReSTRenderer(template_path).render('package.rst_t', context)
+    text = ReSTRenderer(template_path).render('package.rst.jinja', context)
     written.append(write_file(pkgname, text, opts))
 
     if submodules and opts.separatemodules:
@@ -209,7 +209,7 @@ def create_modules_toc_file(
         template_path = [user_template_dir, template_dir]
     else:
         template_path = [template_dir]
-    text = ReSTRenderer(template_path).render('toc.rst_t', context)
+    text = ReSTRenderer(template_path).render('toc.rst.jinja', context)
     return write_file(name, text, opts)
 
 

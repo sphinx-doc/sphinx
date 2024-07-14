@@ -25,6 +25,9 @@ def tail_check(check):
     ('images.html', ".//img[@src='_images/simg.png']", ''),
     ('images.html', ".//img[@src='_images/svgimg.svg']", ''),
     ('images.html', ".//a[@href='_sources/images.txt']", ''),
+    # Check svg options
+    ('images.html', ".//img[@src='_images/svgimg.svg'][@style='width: 2cm;']", ''),
+    ('images.html', ".//img[@src='_images/svgimg.svg'][@style='height: 2cm;']", ''),
 
     ('subdir/images.html', ".//img[@src='../_images/img1.png']", ''),
     ('subdir/images.html', ".//img[@src='../_images/rimg.png']", ''),

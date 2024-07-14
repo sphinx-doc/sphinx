@@ -49,12 +49,12 @@ Bump to next development version
 for stable and major releases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``python utils/bump_version.py --in-develop X.Y.Z+1b0`` (ex. 1.5.3b0)
+* ``python utils/bump_version.py --in-develop X.Y.Z+1b0`` (e.g. 1.5.3b0)
 
 for beta releases
 ~~~~~~~~~~~~~~~~~
 
-* ``python utils/bump_version.py --in-develop X.Y.0bN+1`` (ex. 1.6.0b2)
+* ``python utils/bump_version.py --in-develop X.Y.0bN+1`` (e.g. 1.6.0b2)
 
 Commit version bump
 -------------------

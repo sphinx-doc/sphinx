@@ -49,8 +49,8 @@ tables of contents.  The ``toctree`` directive is the central element.
    indicate the depth of the tree; by default, all levels are included. [#]_
 
    The representation of "TOC tree" is changed in each output format.  The
-   builders that output multiple files (ex. HTML) treat it as a collection of
-   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   builders that output multiple files (e.g. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (e.g.
    LaTeX, man page, etc.) replace it with the content of the documents on the
    TOC tree.
 
@@ -123,6 +123,14 @@ tables of contents.  The ``toctree`` directive is the central element.
          :name: mastertoc
 
          foo
+
+   As with :dudir:`most directives <common-options>`,
+   you can use the ``class`` option to assign `class attributes`_::
+
+      .. toctree::
+         :class: custom-toc
+
+   .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
 
    If you want only the titles of documents in the tree to show up, not other
    headings of the same level, you can use the ``titlesonly`` option::
@@ -1060,10 +1068,11 @@ Including content based on tags
 
       .. only:: html and draft
 
-   Undefined tags are false, defined tags (via the ``-t`` command-line option or
-   within :file:`conf.py`, see :ref:`here <conf-tags>`) are true.  Boolean
-   expressions, also using parentheses (like ``(latex or html) and draft``) are
-   supported.
+   Undefined tags are false, defined tags are true
+   (tags can be defined via the :option:`--tag <sphinx-build --tag>`
+   command-line option or within :file:`conf.py`, see :ref:`here <conf-tags>`).
+   Boolean expressions (like ``(latex or html) and draft``) are supported
+   and may use parentheses.
 
    The *format* and the *name* of the current builder (``html``, ``latex`` or
    ``text``) are always set as a tag [#]_.  To make the distinction between

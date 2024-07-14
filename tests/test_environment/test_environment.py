@@ -34,7 +34,7 @@ def test_config_status(make_app, app_params):
     assert app3.env.config_status == CONFIG_CHANGED
     app3.build()
     shutil.move(fname[:-4] + 'x.rst', fname)
-    assert "[config changed ('root_doc')] 1 added" in app3._status.getvalue()
+    assert "[config changed ('master_doc')] 1 added" in app3._status.getvalue()
 
     # incremental build (extension changed)
     app4 = make_app(*args, confoverrides={'extensions': ['sphinx.ext.autodoc']}, **kwargs)

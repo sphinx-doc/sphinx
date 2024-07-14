@@ -24,7 +24,7 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal
+    from typing import Final, Literal, Protocol
 
     from typing_extensions import TypeAlias, TypeIs
 
@@ -93,10 +93,25 @@ NoneType = type(None)
 PathMatcher = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[
-    [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
-    tuple[list[nodes.Node], list[nodes.system_message]],
-]
+if TYPE_CHECKING:
+    class RoleFunction(Protocol):
+        def __call__(
+            self,
+            name: str,
+            rawtext: str,
+            text: str,
+            lineno: int,
+            inliner: Inliner,
+            /,
+            options: dict[str, Any] | None = None,
+            content: Sequence[str] = (),
+        ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
+            ...
+else:
+    RoleFunction = Callable[
+        [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+        tuple[list[nodes.Node], list[nodes.system_message]],
+    ]
 
 # A option spec for directive
 OptionSpec = dict[str, Callable[[str], Any]]
@@ -246,6 +261,14 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # evaluated before determining whether *cls* is a mocked object
             # or not; instead of two try-except blocks, we keep it here.
             return f':py:class:`{module_prefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
+        elif _is_annotated_form(cls):
+            args = restify(cls.__args__[0], mode)
+            meta = ', '.join(map(repr, cls.__metadata__))
+            if sys.version_info[:2] <= (3, 11):
+                # Hardcoded to fix errors on Python 3.11 and earlier.
+                return fr':py:class:`~typing.Annotated`\ [{args}, {meta}]'
+            return (f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
+                    fr'\ [{args}, {meta}]')
         elif inspect.isNewType(cls):
             if sys.version_info[:2] >= (3, 10):
                 # newtypes have correct module info since Python 3.10+
@@ -482,7 +505,14 @@ def stringify_annotation(
                              for a in annotation_args)
             return f'{module_prefix}Literal[{args}]'
         elif _is_annotated_form(annotation):  # for py39+
-            return stringify_annotation(annotation_args[0], mode)
+            args = stringify_annotation(annotation_args[0], mode)
+            meta = ', '.join(map(repr, annotation.__metadata__))
+            if sys.version_info[:2] <= (3, 11):
+                if mode == 'fully-qualified-except-typing':
+                    return f'Annotated[{args}, {meta}]'
+                module_prefix = module_prefix.replace('builtins', 'typing')
+                return f'{module_prefix}Annotated[{args}, {meta}]'
+            return f'{module_prefix}Annotated[{args}, {meta}]'
         elif all(is_system_TypeVar(a) for a in annotation_args):
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
             return module_prefix + qualname

@@ -417,7 +417,7 @@ class LaTeXBuilder(Builder):
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
             staticdirname = path.join(package_dir, 'texinputs_win')
-            copy_asset_file(path.join(staticdirname, 'Makefile_t'),
+            copy_asset_file(path.join(staticdirname, 'Makefile.jinja'),
                             self.outdir, context=context)
 
     @progress_message(__('copying additional files'))
@@ -456,7 +456,7 @@ class LaTeXBuilder(Builder):
         if self.context['babel'] or self.context['polyglossia']:
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
-        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
+        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
 
@@ -539,7 +539,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('latex_use_xindy', default_latex_use_xindy, '', bool)
     app.add_config_value('latex_toplevel_sectioning', None, '',
                          ENUM(None, 'part', 'chapter', 'section'))
-    app.add_config_value('latex_domain_indices', True, '', list)
+    app.add_config_value('latex_domain_indices', True, '', types={set, list})
     app.add_config_value('latex_show_urls', 'no', '')
     app.add_config_value('latex_show_pagerefs', False, '')
     app.add_config_value('latex_elements', {}, '')

@@ -112,7 +112,7 @@ class AutodocDirective(SphinxDirective):
         reporter = self.state.document.reporter
 
         try:
-            source, lineno = reporter.get_source_and_line(
+            source, lineno = reporter.get_source_and_line(  # type: ignore[attr-defined]
                 self.lineno)
         except AttributeError:
             source, lineno = (None, None)

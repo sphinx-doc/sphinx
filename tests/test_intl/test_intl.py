@@ -737,7 +737,7 @@ class _MockUnixClock(_MockClock):
         time.sleep(ds)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_time_and_i18n(
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[pytest.MonkeyPatch, _MockClock]:
@@ -938,6 +938,16 @@ def test_html_index_entries(app):
         start_tag2 = "<%s[^>]*>" % childtag
         return fr"{start_tag1}\s*{keyword}\s*{start_tag2}"
     expected_exprs = [
+        wrap('h2', 'Symbols'),
+        wrap('h2', 'C'),
+        wrap('h2', 'E'),
+        wrap('h2', 'F'),
+        wrap('h2', 'M'),
+        wrap('h2', 'N'),
+        wrap('h2', 'R'),
+        wrap('h2', 'S'),
+        wrap('h2', 'T'),
+        wrap('h2', 'V'),
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
         wrap('a', 'RECIPIENTS LIST'),
