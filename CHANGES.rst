@@ -28,6 +28,8 @@ Features added
 
 .. rst-class:: compact
 
+* Add ``level`` option to :rst:dir:`rubric` directive.
+  Patch by Chris Sewell.
 * Add optional ``description`` argument to
   :meth:`~sphinx.application.Sphinx.add_config_value`.
   Patch by Chris Sewell.
