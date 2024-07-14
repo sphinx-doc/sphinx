@@ -154,6 +154,8 @@ Bugs fixed
   Previously, each domain used language-specific nesting rules,
   which removed control from document authors.
   Patch by Jakob Lykke Andersen and Adam Turner.
+* #11041: linkcheck: Ignore URLs that respond with non-Unicode content.
+  Patch by James Addison.
 
 Testing
 -------
