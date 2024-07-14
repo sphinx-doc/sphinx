@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import functools
-from types import TracebackType
 from typing import TYPE_CHECKING, Any, Callable, ParamSpec, TypeVar
 
 from sphinx.locale import __
