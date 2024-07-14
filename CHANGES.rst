@@ -28,9 +28,9 @@ Features added
 
 .. rst-class:: compact
 
-* Add ``level`` option to :rst:dir:`rubric` directive.
+* #12506 Add ``level`` option to :rst:dir:`rubric` directive.
   Patch by Chris Sewell.
-* Add optional ``description`` argument to
+* #12549 Add optional ``description`` argument to
   :meth:`~sphinx.application.Sphinx.add_config_value`.
   Patch by Chris Sewell.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
