@@ -8,3 +8,4 @@ class Bar(Foo):
     def __init__(self):
         self.attr2 = None  #: docstring bar
         self.attr3 = None  #: docstring bar
+        self.attr4 = None

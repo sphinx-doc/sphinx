@@ -1,22 +1,18 @@
-"""
-    sphinx.builders.latex.theming
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Theming support for LaTeX builder."""
 
-    Theming support for LaTeX builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import configparser
 from os import path
-from typing import Dict
+from typing import TYPE_CHECKING
 
-from sphinx.application import Sphinx
-from sphinx.config import Config
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +77,7 @@ class UserTheme(Theme):
     def __init__(self, name: str, filename: str) -> None:
         super().__init__(name)
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(filename))
+        self.config.read(path.join(filename), encoding='utf-8')
 
         for key in self.REQUIRED_CONFIG_KEYS:
             try:
@@ -106,7 +102,7 @@ class ThemeFactory:
     """A factory class for LaTeX Themes."""
 
     def __init__(self, app: Sphinx) -> None:
-        self.themes: Dict[str, Theme] = {}
+        self.themes: dict[str, Theme] = {}
         self.theme_paths = [path.join(app.srcdir, p) for p in app.config.latex_theme_path]
         self.config = app.config
         self.load_builtin_themes(app.config)
@@ -121,14 +117,12 @@ class ThemeFactory:
         if name in self.themes:
             theme = self.themes[name]
         else:
-            theme = self.find_user_theme(name)
-            if not theme:
-                theme = Theme(name)
+            theme = self.find_user_theme(name) or Theme(name)
 
         theme.update(self.config)
         return theme
 
-    def find_user_theme(self, name: str) -> Theme:
+    def find_user_theme(self, name: str) -> Theme | None:
         """Find a theme named as *name* from latex_theme_path."""
         for theme_path in self.theme_paths:
             config_path = path.join(theme_path, name, 'theme.conf')

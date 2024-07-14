@@ -1,5 +1,7 @@
 .. highlight:: rest
 
+.. _ext-autodoc:
+
 :mod:`sphinx.ext.autodoc` -- Include documentation from docstrings
 ==================================================================
 
@@ -11,13 +13,6 @@
 
 This extension can import the modules you are documenting, and pull in
 documentation from docstrings in a semi-automatic way.
-
-.. note::
-
-   For Sphinx (actually, the Python interpreter that executes Sphinx) to find
-   your module, it must be importable.  That means that the module or the
-   package must be in one of the directories on :data:`sys.path` -- adapt your
-   :data:`sys.path` in the configuration file accordingly.
 
 .. warning::
 
@@ -40,9 +35,71 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 :mod:`napoleon <sphinx.ext.napoleon>` is a preprocessor that converts your
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
-.. _Google: https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
-.. _NumPy: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _Google: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
+.. _NumPy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
+Getting started
+---------------
+
+Setup
+.....
+Activate the plugin by adding ``'sphinx.ext.autodoc'`` to the :confval:`extensions`
+in your :file:`conf.py`::
+
+   extensions = [
+       ...
+       'sphinx.ext.autodoc',
+   ]
+
+Ensuring the code can be imported
+.................................
+
+:mod:`~sphinx.ext.autodoc` analyses the code and docstrings by introspection after
+importing the modules. For importing to work, you have to make sure that your
+modules can be found by Sphinx and that dependencies can be resolved (if your
+module does ``import foo``, but ``foo`` is not available in the python environment
+that Sphinx runs in, your module import will fail).
+
+There are two ways to ensure this:
+
+1. Use an environment that contains your package and Sphinx. This can e.g. be your
+   local dev environment (with an editable install), or an environment in CI in
+   which you install Sphinx and your package. The regular installation process
+   ensures that your package can be found by Sphinx and that all dependencies are
+   available.
+
+2. It is alternatively possible to patch the Sphinx run so that it can operate
+   directly on the sources; e.g. if you want to be able to do a Sphinx build from a
+   source checkout.
+
+   - Patch :data:`sys.path` in your Sphinx :file:`conf.py` to include the folder of
+     your sources. E.g. if you have a repository structure with :file:`doc/conf.py`
+     and your package is at :file:`src/mypackage`, then you should add::
+
+        sys.path.insert(0, os.path.abspath('../src'))
+
+     to your :file:`conf.py`.
+
+   - To cope with missing dependencies, specify the missing modules in
+     :confval:`autodoc_mock_imports`.
+
+Usage
+.....
+
+You can now use the :ref:`autodoc-directives` to add formatted documentation for
+Python code elements like functions, classes, modules, etc. For example, to document
+the function ``io.open()``, reading its signature and docstring from the source file,
+you'd write ::
+
+   .. autofunction:: io.open
+
+You can also document whole classes or even modules automatically, using member
+options for the auto directives, like ::
+
+   .. automodule:: io
+      :members:
+
+.. _autodoc-directives:
 
 Directives
 ----------
@@ -266,6 +323,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      ``__str__`` will be documented as in the past, but other special method
      that are not implemented in your class ``Foo``.
 
+     Since v5.0, it can take a comma separated list of ancestor classes.  It
+     allows to suppress inherited members of several classes on the module at
+     once by specifying the option to :rst:dir:`automodule` directive.
+
      Note: this will lead to markup errors if the inherited members come from a
      module whose docstrings are not reST formatted.
 
@@ -274,6 +335,10 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      .. versionchanged:: 3.0
 
         It takes an ancestor class name as an argument.
+
+     .. versionchanged:: 5.0
+
+        It takes a comma separated list of ancestor class names.
 
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
@@ -295,7 +360,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 0.4
 
-   * All autodoc directives support the ``noindex`` flag option that has the
+   * All autodoc directives support the ``no-index`` flag option that has the
      same effect as for standard :rst:dir:`py:function` etc. directives: no
      index entries are generated for the documented object (and all
      autodocumented members).
@@ -343,12 +408,17 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
         .. autoclass:: module.name::Noodle
 
+   * :rst:dir:`autoclass` also recognizes the ``class-doc-from`` option that
+     can be used to override the global value of :confval:`autoclass_content`.
+
+     .. versionadded:: 4.1
 
 .. rst:directive:: autofunction
                    autodecorator
                    autodata
                    automethod
                    autoattribute
+                   autoproperty
 
    These work exactly like :rst:dir:`autoclass` etc.,
    but do not offer the options used for automatic member documentation.
@@ -418,6 +488,8 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       option.
    .. versionchanged:: 2.0
       :rst:dir:`autodecorator` added.
+   .. versionchanged:: 2.1
+      :rst:dir:`autoproperty` added.
    .. versionchanged:: 3.4
       :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``no-value``
       option.
@@ -458,6 +530,20 @@ There are also config values that you can set:
    it is used instead.
 
    .. versionadded:: 1.4
+
+.. confval:: autodoc_class_signature
+
+   This value selects how the signature will be displayed for the class defined
+   by :rst:dir:`autoclass` directive.  The possible values are:
+
+   ``"mixed"``
+      Display the signature with the class name.
+   ``"separated"``
+      Display the signature as a method.
+
+   The default is ``"mixed"``.
+
+   .. versionadded:: 4.1
 
 .. confval:: autodoc_member_order
 
@@ -507,7 +593,8 @@ There are also config values that you can set:
    The supported options are ``'members'``, ``'member-order'``,
    ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
    ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
-   ``'imported-members'`` and ``'exclude-members'``.
+   ``'imported-members'``, ``'exclude-members'``, ``'class-doc-from'`` and
+   ``'no-value'``.
 
    .. versionadded:: 1.8
 
@@ -516,6 +603,12 @@ There are also config values that you can set:
 
    .. versionchanged:: 2.1
       Added ``'imported-members'``.
+
+   .. versionchanged:: 4.1
+      Added ``'class-doc-from'``.
+
+   .. versionchanged:: 4.5
+      Added ``'no-value'``.
 
 .. confval:: autodoc_docstring_signature
 
@@ -529,14 +622,18 @@ There are also config values that you can set:
    looks like a signature, use the line as the signature and remove it from the
    docstring content.
 
-   If the signature line ends with backslash, autodoc considers the function has
-   multiple signatures and look at the next line of the docstring.  It is useful
-   for overloaded function.
+   autodoc will continue to look for multiple signature lines,
+   stopping at the first line that does not look like a signature.
+   This is useful for declaring overloaded function signatures.
 
    .. versionadded:: 1.1
    .. versionchanged:: 3.1
 
       Support overloaded signatures
+
+   .. versionchanged:: 4.0
+
+      Overloaded signatures do not need to be separated by a backslash
 
 .. confval:: autodoc_mock_imports
 
@@ -559,17 +656,50 @@ There are also config values that you can set:
 
 .. confval:: autodoc_typehints
 
-   This value controls how to represents typehints.  The setting takes the
+   This value controls how to represent typehints.  The setting takes the
    following values:
 
-   * ``'signature'`` -- Show typehints as its signature (default)
-   * ``'description'`` -- Show typehints as content of function or method
+   * ``'signature'`` -- Show typehints in the signature (default)
+   * ``'description'`` -- Show typehints as content of the function or method
+     The typehints of overloaded functions or methods will still be represented
+     in the signature.
    * ``'none'`` -- Do not show typehints
+   * ``'both'`` -- Show typehints in the signature and as content of
+     the function or method
+
+   Overloaded functions or methods will not have typehints included in the
+   description because it is impossible to accurately represent all possible
+   overloads as a list of parameters.
 
    .. versionadded:: 2.1
    .. versionadded:: 3.0
 
       New option ``'description'`` is added.
+
+   .. versionadded:: 4.1
+
+      New option ``'both'`` is added.
+
+.. confval:: autodoc_typehints_description_target
+
+   This value controls whether the types of undocumented parameters and return
+   values are documented when ``autodoc_typehints`` is set to ``description``.
+
+   The default value is ``"all"``, meaning that types are documented for all
+   parameters and return values, whether they are documented or not.
+
+   When set to ``"documented"``, types will only be documented for a parameter
+   or a return value that is already documented by the docstring.
+
+   With ``"documented_params"``, parameter types will only be annotated if the
+   parameter is documented in the docstring. The return type is always
+   annotated (except if it is ``None``).
+
+   .. versionadded:: 4.0
+
+   .. versionadded:: 5.0
+
+      New option ``'documented_params'`` is added.
 
 .. confval:: autodoc_type_aliases
 
@@ -577,8 +707,8 @@ There are also config values that you can set:
    full-qualified object name.  It is used to keep type aliases not evaluated in
    the document.  Defaults to empty (``{}``).
 
-   The type aliases are only available if your program enables `Postponed
-   Evaluation of Annotations (PEP 563)`__ feature via ``from __future__ import
+   The type aliases are only available if your program enables :pep:`Postponed
+   Evaluation of Annotations (PEP 563) <563>` feature via ``from __future__ import
    annotations``.
 
    For example, there is code using a type alias::
@@ -605,9 +735,23 @@ There are also config values that you can set:
 
         ...
 
-   .. __: https://www.python.org/dev/peps/pep-0563/
    .. __: https://mypy.readthedocs.io/en/latest/kinds_of_types.html#type-aliases
    .. versionadded:: 3.3
+
+.. confval:: autodoc_typehints_format
+
+   This value controls the format of typehints.  The setting takes the
+   following values:
+
+   * ``'fully-qualified'`` -- Show the module name and its name of typehints
+   * ``'short'`` -- Suppress the leading module names of the typehints
+     (e.g. ``io.StringIO`` -> ``StringIO``)  (default)
+
+   .. versionadded:: 4.4
+
+   .. versionchanged:: 5.0
+
+      The default setting was changed to ``'short'``
 
 .. confval:: autodoc_preserve_defaults
 
@@ -637,7 +781,7 @@ There are also config values that you can set:
    .. versionadded:: 1.7
 
 .. confval:: suppress_warnings
-   :noindex:
+   :no-index:
 
    :mod:`autodoc` supports to suppress warning messages via
    :confval:`suppress_warnings`.  It allows following warnings types in
@@ -668,7 +812,7 @@ autodoc provides the following additional events:
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``noindex`` that are true if the flag option of same name was given to the
+      ``no-index`` that are true if the flag option of same name was given to the
       auto directive
    :param lines: the lines of the docstring, see above
 
@@ -699,7 +843,7 @@ autodoc provides the following additional events:
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``noindex`` that are true if the flag option of same name was given to the
+      ``no-index`` that are true if the flag option of same name was given to the
       auto directive
    :param signature: function signature, as a string of the form
       ``"(parameter_1, parameter_2)"``, or ``None`` if introspection didn't
@@ -712,6 +856,25 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
 
 .. autofunction:: cut_lines
 .. autofunction:: between
+
+.. event:: autodoc-process-bases (app, name, obj, options, bases)
+
+   Emitted when autodoc has read and processed a class to determine the
+   base-classes.  *bases* is a list of classes that the event handler can
+   modify **in place** to change what Sphinx puts into the output.  It's
+   emitted only if ``show-inheritance`` option given.
+
+   :param app: the Sphinx application object
+   :param name: the fully qualified name of the object
+   :param obj: the object itself
+   :param options: the options given to the class directive
+   :param bases: the list of base classes signature. see above.
+
+   .. versionadded:: 4.1
+   .. versionchanged:: 4.3
+
+      ``bases`` can contain a string as a base class name.  It will be processed
+      as reST mark-up'ed text.
 
 
 Skipping members
@@ -743,5 +906,5 @@ member should be included in the documentation by using the following event:
       user handler does not override the decision
    :param options: the options given to the directive: an object with attributes
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
-      ``noindex`` that are true if the flag option of same name was given to the
+      ``no-index`` that are true if the flag option of same name was given to the
       auto directive

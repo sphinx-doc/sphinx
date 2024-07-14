@@ -1,5 +1,5 @@
 %
-% sphinxhowto.cls for Sphinx (http://sphinx-doc.org/)
+% sphinxhowto.cls for Sphinx (https://www.sphinx-doc.org/)
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
@@ -42,7 +42,7 @@
 % ``Bjarne'' style a bit better.
 %
 \newcommand{\sphinxmaketitle}{%
-  \noindent\rule{\textwidth}{1pt}\par
+  \noindent\rule{\linewidth}{1pt}\par
     \begingroup % for PDF information dictionary
        \def\endgraf{ }\def\and{\& }%
        \pdfstringdefDisableCommands{\def\\{, }}% overwrite hyperref setup
@@ -74,7 +74,7 @@
     \sphinxtableofcontentshook
     \tableofcontents
   \endgroup
-  \noindent\rule{\textwidth}{1pt}\par
+  \noindent\rule{\linewidth}{1pt}\par
   \vspace{12pt}%
 }
 \newcommand\sphinxtableofcontentshook{}

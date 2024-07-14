@@ -1,23 +1,16 @@
-"""
-    sphinx.directives.patches
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import os
-import warnings
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from docutils import nodes
-from docutils.nodes import Node, make_id, system_message
+from docutils.nodes import Node, make_id
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives import html, images, tables
+from docutils.parsers.rst.directives import images, tables
+from docutils.parsers.rst.directives.misc import Meta
+from docutils.parsers.rst.roles import set_classes
 
-from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx60Warning
 from sphinx.directives import optional_int
 from sphinx.domains.math import MathDomain
 from sphinx.locale import __
@@ -25,10 +18,10 @@ from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import SEP, os_path, relpath
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +32,7 @@ class Figure(images.Figure):
     instead of the image node.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         name = self.options.pop('name', None)
         result = super().run()
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
@@ -60,47 +53,12 @@ class Figure(images.Figure):
         return [figure_node]
 
 
-class Meta(html.Meta, SphinxDirective):
-    def run(self) -> List[Node]:
-        result = super().run()
-        for node in result:
-            if (isinstance(node, nodes.pending) and
-               isinstance(node.details['nodes'][0], html.MetaBody.meta)):
-                meta = node.details['nodes'][0]
-                meta.source = self.env.doc2path(self.env.docname)
-                meta.line = self.lineno
-                meta.rawcontent = meta['content']  # type: ignore
-
-                # docutils' meta nodes aren't picklable because the class is nested
-                meta.__class__ = addnodes.meta  # type: ignore
-
-        return result
-
-
-class RSTTable(tables.RSTTable):
-    """The table directive which sets source and line information to its caption.
-
-    Only for docutils-0.13 or older version."""
-
-    def run(self) -> List[Node]:
-        warnings.warn('RSTTable is deprecated.',
-                      RemovedInSphinx60Warning)
-        return super().run()
-
-    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
-        title, message = super().make_title()
-        if title:
-            set_source_info(self, title)
-
-        return title, message
-
-
 class CSVTable(tables.CSVTable):
     """The csv-table directive which searches a CSV file from Sphinx project's source
     directory when an absolute path is given via :file: option.
     """
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
             env = self.state.document.settings.env
             filename = self.options['file']
@@ -117,31 +75,14 @@ class CSVTable(tables.CSVTable):
         return super().run()
 
 
-class ListTable(tables.ListTable):
-    """The list-table directive which sets source and line information to its caption.
-
-    Only for docutils-0.13 or older version."""
-
-    def run(self) -> List[Node]:
-        warnings.warn('ListTable is deprecated.',
-                      RemovedInSphinx60Warning)
-        return super().run()
-
-    def make_title(self) -> Tuple[nodes.title, List[system_message]]:
-        title, message = super().make_title()
-        if title:
-            set_source_info(self, title)
-
-        return title, message
-
-
 class Code(SphinxDirective):
     """Parse and mark up content of a code block.
 
     This is compatible with docutils' :rst:dir:`code` directive.
     """
+
     optional_arguments = 1
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'class': directives.class_option,
         'force': directives.flag,
         'name': directives.unchanged,
@@ -149,9 +90,10 @@ class Code(SphinxDirective):
     }
     has_content = True
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         self.assert_has_content()
 
+        set_classes(self.options)
         code = '\n'.join(self.content)
         node = nodes.literal_block(code, code,
                                    classes=self.options.get('classes', []),
@@ -185,14 +127,14 @@ class MathDirective(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,
         'nowrap': directives.flag,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
@@ -206,11 +148,11 @@ class MathDirective(SphinxDirective):
         self.add_name(node)
         self.set_source_info(node)
 
-        ret: List[Node] = [node]
+        ret: list[Node] = [node]
         self.add_target(ret)
         return ret
 
-    def add_target(self, ret: List[Node]) -> None:
+    def add_target(self, ret: list[Node]) -> None:
         node = cast(nodes.math_block, ret[0])
 
         # assign label automatically if math_number_all enabled
@@ -234,7 +176,7 @@ class MathDirective(SphinxDirective):
         ret.insert(0, target)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)

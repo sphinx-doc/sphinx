@@ -139,7 +139,7 @@ Special directives
 
 .. testcleanup:: *
 
-   from tests import test_ext_doctest
+   from tests.test_extensions import test_ext_doctest
    test_ext_doctest.cleanup_call()
 
 non-ASCII result

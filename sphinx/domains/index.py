@@ -1,29 +1,27 @@
-"""
-    sphinx.domains.index
-    ~~~~~~~~~~~~~~~~~~~~
+"""The index domain."""
 
-    The index domain.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
-from docutils.nodes import Node, system_message
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.domains import Domain
-from sphinx.environment import BuildEnvironment
-from sphinx.util import logging, split_index_msg
+from sphinx.util import logging
 from sphinx.util.docutils import ReferenceRole, SphinxDirective
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import process_index_entry
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from docutils.nodes import Node, system_message
+
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -31,27 +29,28 @@ logger = logging.getLogger(__name__)
 
 class IndexDomain(Domain):
     """Mathematics domain."""
+
     name = 'index'
     label = 'index'
 
     @property
-    def entries(self) -> Dict[str, List[Tuple[str, str, str, str, str]]]:
+    def entries(self) -> dict[str, list[tuple[str, str, str, str, str | None]]]:
         return self.data.setdefault('entries', {})
 
     def clear_doc(self, docname: str) -> None:
         self.entries.pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: Dict) -> None:
+    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
         for docname in docnames:
             self.entries[docname] = otherdata['entries'][docname]
 
     def process_doc(self, env: BuildEnvironment, docname: str, document: Node) -> None:
         """Process a document after it is read by the environment."""
         entries = self.entries.setdefault(env.docname, [])
-        for node in document.traverse(addnodes.index):
+        for node in list(document.findall(addnodes.index)):
             try:
-                for entry in node['entries']:
-                    split_index_msg(entry[0], entry[1])
+                for (entry_type, value, _target_id, _main, _category_key) in node['entries']:
+                    split_index_msg(entry_type, value)
             except ValueError as exc:
                 logger.warning(str(exc), location=node)
                 node.parent.remove(node)
@@ -64,15 +63,16 @@ class IndexDirective(SphinxDirective):
     """
     Directive to add entries to the index.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'name': directives.unchanged,
     }
 
-    def run(self) -> List[Node]:
+    def run(self) -> list[Node]:
         arguments = self.arguments[0].split('\n')
 
         if 'name' in self.options:
@@ -93,7 +93,7 @@ class IndexDirective(SphinxDirective):
 
 
 class IndexRole(ReferenceRole):
-    def run(self) -> Tuple[List[Node], List[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
         if self.has_explicit_title:
             # if an explicit target is given, process it as a full entry
@@ -110,12 +110,12 @@ class IndexRole(ReferenceRole):
 
         index = addnodes.index(entries=entries)
         target = nodes.target('', '', ids=[target_id])
-        text = nodes.Text(title, title)
+        text = nodes.Text(title)
         self.set_source_info(index)
         return [index, target, text], []
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(IndexDomain)
     app.add_directive('index', IndexDirective)
     app.add_role('index', IndexRole())

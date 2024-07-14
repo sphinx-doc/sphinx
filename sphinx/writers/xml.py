@@ -1,25 +1,24 @@
-"""
-    sphinx.writers.xml
-    ~~~~~~~~~~~~~~~~~~
+"""Docutils-native XML and pseudo-XML writers."""
 
-    Docutils-native XML and pseudo-XML writers.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
-from sphinx.builders import Builder
+if TYPE_CHECKING:
+    from sphinx.builders import Builder
 
 
 class XMLWriter(BaseXMLWriter):
+    output: str
+
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
-        self.translator_class = self.builder.get_translator_class()
+
+        # A lambda function to generate translator lazily
+        self.translator_class = lambda document: self.builder.create_translator(document)
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
         self.document.settings.newlines = \
@@ -38,7 +37,7 @@ class PseudoXMLWriter(BaseXMLWriter):
     config_section = 'pseudoxml writer'
     config_section_dependencies = ('writers',)
 
-    output = None
+    output: str
     """Final translated form of `document`."""
 
     def __init__(self, builder: Builder) -> None:
@@ -49,5 +48,5 @@ class PseudoXMLWriter(BaseXMLWriter):
         self.output = self.document.pformat()
 
     def supports(self, format: str) -> bool:
-        """This writer supports all format-specific elements."""
+        """All format-specific elements are supported."""
         return True

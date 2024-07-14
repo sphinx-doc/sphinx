@@ -6,14 +6,14 @@ i18n with docfields
 .. single TypedField
 
 .. class:: Cls1
-   :noindex:
+   :no-index:
 
    :param param: description of parameter param
 
 .. grouped TypedFields
 
 .. class:: Cls2
-   :noindex:
+   :no-index:
 
    :param foo: description of parameter foo
    :param bar: description of parameter bar
@@ -22,14 +22,14 @@ i18n with docfields
 .. single GroupedField
 
 .. class:: Cls3(values)
-   :noindex:
+   :no-index:
 
    :raises ValueError: if the values are out of range
 
 .. grouped GroupedFields
 
 .. class:: Cls4(values)
-   :noindex:
+   :no-index:
 
    :raises TypeError: if the values are not valid
    :raises ValueError: if the values are out of range
@@ -38,7 +38,7 @@ i18n with docfields
 .. single Field
 
 .. class:: Cls5
-   :noindex:
+   :no-index:
 
    :returns: a new :class:`Cls3` instance
 

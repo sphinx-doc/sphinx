@@ -1,12 +1,4 @@
-"""
-    test_toctree
-    ~~~~~~~~~~~~
-
-    Test the HTML builder and check output against XPath.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Test the HTML builder and check output against XPath."""
 import re
 
 import pytest
@@ -14,7 +6,7 @@ import pytest
 
 @pytest.mark.sphinx(testroot='toctree-glob')
 def test_relations(app, status, warning):
-    app.builder.build_all()
+    app.build(force_all=True)
     assert app.builder.relations['index'] == [None, None, 'foo']
     assert app.builder.relations['foo'] == ['index', 'index', 'bar/index']
     assert app.builder.relations['bar/index'] == ['index', 'foo', 'bar/bar_1']
@@ -31,7 +23,7 @@ def test_relations(app, status, warning):
 
 @pytest.mark.sphinx('singlehtml', testroot='toctree-empty')
 def test_singlehtml_toctree(app, status, warning):
-    app.builder.build_all()
+    app.build(force_all=True)
     try:
         app.builder._get_local_toctree('index')
     except AttributeError:
@@ -41,7 +33,7 @@ def test_singlehtml_toctree(app, status, warning):
 @pytest.mark.sphinx(testroot='toctree', srcdir="numbered-toctree")
 def test_numbered_toctree(app, status, warning):
     # give argument to :numbered: option
-    index = (app.srcdir / 'index.rst').read_text()
+    index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
     index = re.sub(':numbered:.*', ':numbered: 1', index)
-    (app.srcdir / 'index.rst').write_text(index)
-    app.builder.build_all()
+    (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
+    app.build(force_all=True)

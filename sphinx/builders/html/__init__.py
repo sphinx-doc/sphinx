@@ -1,59 +1,65 @@
-"""
-    sphinx.builders.html
-    ~~~~~~~~~~~~~~~~~~~~
+"""Several HTML builders."""
 
-    Several HTML builders.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
+import contextlib
+import hashlib
 import html
 import os
 import posixpath
 import re
 import sys
-from datetime import datetime
+import time
+import types
+import warnings
 from os import path
-from typing import IO, Any, Dict, Iterable, Iterator, List, Set, Tuple, Type
+from typing import IO, TYPE_CHECKING, Any
 from urllib.parse import quote
 
+import docutils.readers.doctree
 from docutils import nodes
-from docutils.core import publish_parts
+from docutils.core import Publisher
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
-from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
-from sphinx.application import Sphinx
+from sphinx import version_info as sphinx_version
 from sphinx.builders import Builder
+from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
 from sphinx.config import ENUM, Config
+from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.environment.adapters.indexentries import IndexEntries
-from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.adapters.toctree import document_toc, global_toctree_for_doc
 from sphinx.errors import ConfigError, ThemeError
 from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import isurl, logging, md5, progress_message, status_iterator
-from sphinx.util.docutils import is_html5_writer_available, new_document
+from sphinx.util import isurl, logging
+from sphinx.util.display import progress_message, status_iterator
+from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
-from sphinx.util.osutil import copyfile, ensuredir, os_path, relative_uri
-from sphinx.util.tags import Tags
-from sphinx.writers.html import HTMLTranslator, HTMLWriter
+from sphinx.util.osutil import SEP, copyfile, ensuredir, os_path, relative_uri
+from sphinx.writers.html import HTMLWriter
+from sphinx.writers.html5 import HTML5Translator
 
-# HTML5 Writer is available or not
-if is_html5_writer_available():
-    from sphinx.writers.html5 import HTML5Translator
-    html5_ready = True
-else:
-    html5_ready = False
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Set
+
+    from docutils.nodes import Node
+    from docutils.readers import Reader
+
+    from sphinx.application import Sphinx
+    from sphinx.config import _ConfigRebuild
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.tags import Tags
+    from sphinx.util.typing import ExtensionMetadata
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -61,64 +67,44 @@ INVENTORY_FILENAME = 'objects.inv'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
+DOMAIN_INDEX_TYPE = tuple[
+    # Index name (e.g. py-modindex)
+    str,
+    # Index class
+    type[Index],
+    # list of (heading string, list of index entries) pairs.
+    list[tuple[str, list[IndexEntry]]],
+    # whether sub-entries should start collapsed
+    bool,
+]
 
-def get_stable_hash(obj: Any) -> str:
-    """
-    Return a stable hash for a Python data structure.  We can't just use
-    the md5 of str(obj) since for example dictionary items are enumerated
-    in unpredictable order due to hash randomization in newer Pythons.
+
+def _stable_hash(obj: Any) -> str:
+    """Return a stable hash for a Python data structure.
+
+    We can't just use the md5 of str(obj) as the order of collections
+    may be random.
     """
     if isinstance(obj, dict):
-        return get_stable_hash(list(obj.items()))
-    elif isinstance(obj, (list, tuple)):
-        obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(str(obj).encode()).hexdigest()
+        obj = sorted(map(_stable_hash, obj.items()))
+    if isinstance(obj, (list, tuple, set, frozenset)):
+        obj = sorted(map(_stable_hash, obj))
+    elif isinstance(obj, (type, types.FunctionType)):
+        # The default repr() of functions includes the ID, which is not ideal.
+        # We use the fully qualified name instead.
+        obj = f'{obj.__module__}.{obj.__qualname__}'
+    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
 
 
-class Stylesheet(str):
-    """A metadata of stylesheet.
+def convert_locale_to_language_tag(locale: str | None) -> str | None:
+    """Convert a locale string to a language tag (ex. en_US -> en-US).
 
-    To keep compatibility with old themes, an instance of stylesheet behaves as
-    its filename (str).
+    refs: BCP 47 (:rfc:`5646`)
     """
-
-    attributes: Dict[str, str] = None
-    filename: str = None
-    priority: int = None
-
-    def __new__(cls, filename: str, *args: str, priority: int = 500, **attributes: Any
-                ) -> "Stylesheet":
-        self = str.__new__(cls, filename)
-        self.filename = filename
-        self.priority = priority
-        self.attributes = attributes
-        self.attributes.setdefault('rel', 'stylesheet')
-        self.attributes.setdefault('type', 'text/css')
-        if args:  # old style arguments (rel, title)
-            self.attributes['rel'] = args[0]
-            self.attributes['title'] = args[1]
-
-        return self
-
-
-class JavaScript(str):
-    """A metadata of javascript file.
-
-    To keep compatibility with old themes, an instance of javascript behaves as
-    its filename (str).
-    """
-
-    attributes: Dict[str, str] = None
-    filename: str = None
-    priority: int = None
-
-    def __new__(cls, filename: str, priority: int = 500, **attributes: str) -> "JavaScript":
-        self = str.__new__(cls, filename)
-        self.filename = filename
-        self.priority = priority
-        self.attributes = attributes
-
-        return self
+    if locale:
+        return locale.replace('_', '-')
+    else:
+        return None
 
 
 class BuildInfo:
@@ -129,7 +115,7 @@ class BuildInfo:
     """
 
     @classmethod
-    def load(cls, f: IO) -> "BuildInfo":
+    def load(cls: type[BuildInfo], f: IO) -> BuildInfo:
         try:
             lines = f.readlines()
             assert lines[0].rstrip() == '# Sphinx build info version 1'
@@ -143,18 +129,23 @@ class BuildInfo:
         except Exception as exc:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
 
-    def __init__(self, config: Config = None, tags: Tags = None, config_categories: List[str] = []) -> None:  # NOQA
+    def __init__(
+        self,
+        config: Config | None = None,
+        tags: Tags | None = None,
+        config_categories: Set[_ConfigRebuild] = frozenset(),
+    ) -> None:
         self.config_hash = ''
         self.tags_hash = ''
 
         if config:
             values = {c.name: c.value for c in config.filter(config_categories)}
-            self.config_hash = get_stable_hash(values)
+            self.config_hash = _stable_hash(values)
 
         if tags:
-            self.tags_hash = get_stable_hash(sorted(tags))
+            self.tags_hash = _stable_hash(sorted(tags))
 
-    def __eq__(self, other: "BuildInfo") -> bool:  # type: ignore
+    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
@@ -171,10 +162,12 @@ class StandaloneHTMLBuilder(Builder):
     """
     Builds standalone HTML docs.
     """
+
     name = 'html'
     format = 'html'
     epilog = __('The HTML pages are in %(outdir)s.')
 
+    default_translator_class = HTML5Translator
     copysource = True
     allow_parallel = True
     out_suffix = '.html'
@@ -195,26 +188,38 @@ class StandaloneHTMLBuilder(Builder):
     use_index = False
     download_support = True  # enable download role
 
-    imgpath: str = None
-    domain_indices: List[Tuple[str, Type[Index], List[Tuple[str, List[IndexEntry]]], bool]] = []  # NOQA
+    imgpath: str = ''
+    domain_indices: list[DOMAIN_INDEX_TYPE] = []
 
-    def __init__(self, app: Sphinx) -> None:
-        super().__init__(app)
+    def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
+        super().__init__(app, env)
 
         # CSS files
-        self.css_files: List[Dict[str, str]] = []
+        self._css_files: list[_CascadingStyleSheet] = []
 
         # JS files
-        self.script_files: List[JavaScript] = []
+        self._js_files: list[_JavaScript] = []
+
+        # Cached Publisher for writing doctrees to HTML
+        reader: Reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
+        pub = Publisher(
+            reader=reader,
+            parser=reader.parser,
+            writer=HTMLWriter(self),
+            source_class=DocTreeInput,
+            destination=StringOutput(encoding='unicode'),
+        )
+        pub.get_settings(output_encoding='unicode', traceback=True)
+        self._publisher = pub
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
         # basename of images directory
         self.imagedir = '_images'
         # section numbers for headings in the currently visited document
-        self.secnumbers: Dict[str, Tuple[int, ...]] = {}
+        self.secnumbers: dict[str, tuple[int, ...]] = {}
         # currently written docname
-        self.current_docname: str = None
+        self.current_docname: str = ''
 
         self.init_templates()
         self.init_highlighter()
@@ -234,7 +239,7 @@ class StandaloneHTMLBuilder(Builder):
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def create_build_info(self) -> BuildInfo:
-        return BuildInfo(self.config, self.tags, ['html'])
+        return BuildInfo(self.config, self.tags, frozenset({'html'}))
 
     def _get_translations_js(self) -> str:
         candidates = [path.join(dir, self.config.language,
@@ -248,24 +253,26 @@ class StandaloneHTMLBuilder(Builder):
         for jsfile in candidates:
             if path.isfile(jsfile):
                 return jsfile
-        return None
+        return ''
 
-    def _get_style_filename(self) -> str:
-        if self.config.html_style is not None:
-            return self.config.html_style
+    def _get_style_filenames(self) -> Iterator[str]:
+        if isinstance(self.config.html_style, str):
+            yield self.config.html_style
+        elif self.config.html_style is not None:
+            yield from self.config.html_style
         elif self.theme:
-            return self.theme.get_config('theme', 'stylesheet')
+            yield from self.theme.stylesheets
         else:
-            return 'default.css'
+            yield 'default.css'
 
-    def get_theme_config(self) -> Tuple[str, Dict]:
+    def get_theme_config(self) -> tuple[str, dict]:
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self) -> None:
         theme_factory = HTMLThemeFactory(self.app)
-        themename, themeoptions = self.get_theme_config()
-        self.theme = theme_factory.create(themename)
-        self.theme_options = themeoptions.copy()
+        theme_name, theme_options = self.get_theme_config()
+        self.theme = theme_factory.create(theme_name)
+        self.theme_options = theme_options
         self.create_template_bridge()
         self.templates.init(self, self.theme)
 
@@ -274,27 +281,38 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
         elif self.theme:
-            style = self.theme.get_config('theme', 'pygments_style', 'none')
+            # From the ``pygments_style`` theme setting
+            style = self.theme.pygments_style_default or 'none'
         else:
             style = 'sphinx'
         self.highlighter = PygmentsBridge('html', style)
 
         if self.theme:
-            dark_style = self.theme.get_config('theme', 'pygments_dark_style', None)
+            # From the ``pygments_dark_style`` theme setting
+            dark_style = self.theme.pygments_style_dark
         else:
             dark_style = None
 
+        self.dark_highlighter: PygmentsBridge | None
         if dark_style is not None:
             self.dark_highlighter = PygmentsBridge('html', dark_style)
-            self.add_css_file('pygments_dark.css',
-                              media='(prefers-color-scheme: dark)',
-                              id='pygments_dark_css')
+            self.app.add_css_file('pygments_dark.css',
+                                  media='(prefers-color-scheme: dark)',
+                                  id='pygments_dark_css')
         else:
             self.dark_highlighter = None
 
+    @property
+    def css_files(self) -> list[_CascadingStyleSheet]:
+        _deprecation_warning(__name__, f'{self.__class__.__name__}.css_files', remove=(9, 0))
+        return self._css_files
+
     def init_css_files(self) -> None:
+        self._css_files = []
         self.add_css_file('pygments.css', priority=200)
-        self.add_css_file(self._get_style_filename(), priority=200)
+
+        for filename in self._get_style_filenames():
+            self.add_css_file(filename, priority=200)
 
         for filename, attrs in self.app.registry.css_files:
             self.add_css_file(filename, **attrs)
@@ -307,40 +325,40 @@ class StandaloneHTMLBuilder(Builder):
         if '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.css_files.append(Stylesheet(filename, **kwargs))  # type: ignore
+        if (asset := _CascadingStyleSheet(filename, **kwargs)) not in self._css_files:
+            self._css_files.append(asset)
+
+    @property
+    def script_files(self) -> list[_JavaScript]:
+        canonical_name = f'{self.__class__.__name__}.script_files'
+        _deprecation_warning(__name__, canonical_name, remove=(9, 0))
+        return self._js_files
 
     def init_js_files(self) -> None:
-        self.add_js_file('documentation_options.js', id="documentation_options",
-                         data_url_root='', priority=200)
-        self.add_js_file('jquery.js', priority=200)
-        self.add_js_file('underscore.js', priority=200)
+        self._js_files = []
+        self.add_js_file('documentation_options.js', priority=200)
         self.add_js_file('doctools.js', priority=200)
+        self.add_js_file('sphinx_highlight.js', priority=200)
 
         for filename, attrs in self.app.registry.js_files:
-            self.add_js_file(filename, **attrs)
+            self.add_js_file(filename or '', **attrs)
 
         for filename, attrs in self.get_builder_config('js_files', 'html'):
             attrs.setdefault('priority', 800)  # User's JSs are loaded after extensions'
-            self.add_js_file(filename, **attrs)
+            self.add_js_file(filename or '', **attrs)
 
-        if self.config.language and self._get_translations_js():
+        if self._get_translations_js():
             self.add_js_file('translations.js')
 
     def add_js_file(self, filename: str, **kwargs: Any) -> None:
         if filename and '://' not in filename:
             filename = posixpath.join('_static', filename)
 
-        self.script_files.append(JavaScript(filename, **kwargs))
+        if (asset := _JavaScript(filename, **kwargs)) not in self._js_files:
+            self._js_files.append(asset)
 
     @property
-    def default_translator_class(self) -> "Type[nodes.NodeVisitor]":  # type: ignore
-        if not html5_ready or self.config.html4_writer:
-            return HTMLTranslator
-        else:
-            return HTML5Translator
-
-    @property
-    def math_renderer_name(self) -> str:
+    def math_renderer_name(self) -> str | None:
         name = self.get_builder_config('math_renderer', 'html')
         if name is not None:
             # use given name
@@ -361,7 +379,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_outdated_docs(self) -> Iterator[str]:
         try:
-            with open(path.join(self.outdir, '.buildinfo')) as fp:
+            with open(path.join(self.outdir, '.buildinfo'), encoding="utf-8") as fp:
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
@@ -389,109 +407,124 @@ class StandaloneHTMLBuilder(Builder):
             except Exception:
                 targetmtime = 0
             try:
-                srcmtime = max(path.getmtime(self.env.doc2path(docname)),
-                               template_mtime)
+                srcmtime = max(path.getmtime(self.env.doc2path(docname)), template_mtime)
                 if srcmtime > targetmtime:
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        datetime.utcfromtimestamp(targetmtime),
-                        datetime.utcfromtimestamp(template_mtime),
+                        _format_modified_time(targetmtime),
+                        _format_modified_time(template_mtime),
                         docname,
-                        datetime.utcfromtimestamp(path.getmtime(self.env.doc2path(docname))),
+                        _format_modified_time(path.getmtime(self.env.doc2path(docname))),
                     )
                     yield docname
             except OSError:
                 # source doesn't exist anymore
                 pass
 
-    def get_asset_paths(self) -> List[str]:
+    def get_asset_paths(self) -> list[str]:
         return self.config.html_extra_path + self.config.html_static_path
 
-    def render_partial(self, node: Node) -> Dict[str, str]:
+    def render_partial(self, node: Node | None) -> dict[str, str]:
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
+
         doc = new_document('<partial node>')
         doc.append(node)
+        self._publisher.set_source(doc)
+        self._publisher.publish()
+        return self._publisher.writer.parts
 
-        writer = HTMLWriter(self)
-        return publish_parts(reader_name='doctree',
-                             writer=writer,
-                             source_class=DocTreeInput,
-                             settings_overrides={'output_encoding': 'unicode'},
-                             source=doc)
-
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: set[str]) -> None:
         # create the search indexer
         self.indexer = None
         if self.search:
             from sphinx.search import IndexBuilder
             lang = self.config.html_search_language or self.config.language
-            if not lang:
-                lang = 'en'
             self.indexer = IndexBuilder(self.env, lang,
                                         self.config.html_search_options,
                                         self.config.html_search_scorer)
             self.load_indexer(docnames)
 
         self.docwriter = HTMLWriter(self)
-        self.docsettings: Any = OptionParser(
-            defaults=self.env.settings,
-            components=(self.docwriter,),
-            read_config_files=True).get_default_values()
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            # DeprecationWarning: The frontend.OptionParser class will be replaced
+            # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+            self.docsettings: Any = OptionParser(
+                defaults=self.env.settings,
+                components=(self.docwriter,),
+                read_config_files=True).get_default_values()
         self.docsettings.compact_lists = bool(self.config.html_compact_lists)
 
         # determine the additional indices to include
         self.domain_indices = []
         # html_domain_indices can be False/True or a list of index names
-        indices_config = self.config.html_domain_indices
-        if indices_config:
+        if indices_config := self.config.html_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
             for domain_name in sorted(self.env.domains):
                 domain: Domain = self.env.domains[domain_name]
-                for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapse = indexcls(domain).generate()
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
+                        continue
+                    content, collapse = index_cls(domain).generate()
                     if content:
                         self.domain_indices.append(
-                            (indexname, indexcls, content, collapse))
+                            (index_name, index_cls, content, collapse))
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
-        lufmt = self.config.html_last_updated_fmt
-        if lufmt is not None:
-            self.last_updated = format_date(lufmt or _('%b %d, %Y'),
-                                            language=self.config.language)
+        last_updated: str | None
+        if (lu_fmt := self.config.html_last_updated_fmt) is not None:
+            lu_fmt = lu_fmt or _('%b %d, %Y')
+            last_updated = format_date(lu_fmt, language=self.config.language)
         else:
-            self.last_updated = None
+            last_updated = None
 
-        logo = path.basename(self.config.html_logo) if self.config.html_logo else ''
-        favicon = path.basename(self.config.html_favicon) if self.config.html_favicon else ''
+        # If the logo or favicon are urls, keep them as-is, otherwise
+        # strip the relative path as the files will be copied into _static.
+        logo = self.config.html_logo or ''
+        favicon = self.config.html_favicon or ''
+
+        if not isurl(logo):
+            logo = path.basename(logo)
+        if not isurl(favicon):
+            favicon = path.basename(favicon)
 
         self.relations = self.env.collect_relations()
 
-        rellinks: List[Tuple[str, str, str, str]] = []
+        rellinks: list[tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for indexname, indexcls, content, collapse in self.domain_indices:
+        for indexname, indexcls, _content, _collapse in self.domain_indices:
             # if it has a short name
             if indexcls.shortname:
                 rellinks.append((indexname, indexcls.localname,
                                  '', indexcls.shortname))
 
-        # back up script_files and css_files to allow adding JS/CSS files to a specific page.
-        self._script_files = list(self.script_files)
-        self._css_files = list(self.css_files)
+        # add assets registered after ``Builder.init()``.
+        for css_filename, attrs in self.app.registry.css_files:
+            self.add_css_file(css_filename, **attrs)
+        for js_filename, attrs in self.app.registry.js_files:
+            self.add_js_file(js_filename or '', **attrs)
+
+        # back up _css_files and _js_files to allow adding CSS/JS files to a specific page.
+        self._orig_css_files = list(dict.fromkeys(self._css_files))
+        self._orig_js_files = list(dict.fromkeys(self._js_files))
+        styles = list(self._get_style_filenames())
 
         self.globalcontext = {
             'embedded': self.embedded,
             'project': self.config.project,
             'release': return_codes_re.sub('', self.config.release),
             'version': self.config.version,
-            'last_updated': self.last_updated,
+            'last_updated': last_updated,
             'copyright': self.config.copyright,
             'master_doc': self.config.root_doc,
             'root_doc': self.config.root_doc,
@@ -499,31 +532,36 @@ class StandaloneHTMLBuilder(Builder):
             'docstitle': self.config.html_title,
             'shorttitle': self.config.html_short_title,
             'show_copyright': self.config.html_show_copyright,
+            'show_search_summary': self.config.html_show_search_summary,
             'show_sphinx': self.config.html_show_sphinx,
             'has_source': self.config.html_copy_source,
             'show_source': self.config.html_show_sourcelink,
             'sourcelink_suffix': self.config.html_sourcelink_suffix,
             'file_suffix': self.out_suffix,
             'link_suffix': self.link_suffix,
-            'script_files': self.script_files,
-            'language': self.config.language,
-            'css_files': self.css_files,
+            'script_files': self._js_files,
+            'language': convert_locale_to_language_tag(self.config.language),
+            'css_files': self._css_files,
             'sphinx_version': __display_version__,
-            'style': self._get_style_filename(),
+            'sphinx_version_tuple': sphinx_version,
+            'docutils_version_info': docutils.__version_info__[:5],
+            'styles': styles,
             'rellinks': rellinks,
             'builder': self.name,
             'parents': [],
-            'logo': logo,
-            'favicon': favicon,
-            'html5_doctype': html5_ready and not self.config.html4_writer,
+            'logo_url': logo,
+            'logo_alt': _('Logo of %s') % self.config.project,
+            'favicon_url': favicon,
+            'html5_doctype': True,
         }
         if self.theme:
-            self.globalcontext.update(
-                ('theme_' + key, val) for (key, val) in
-                self.theme.get_options(self.theme_options).items())
-        self.globalcontext.update(self.config.html_context)
+            self.globalcontext |= {
+                f'theme_{key}': val for key, val in
+                self.theme.get_options(self.theme_options).items()
+            }
+        self.globalcontext |= self.config.html_context
 
-    def get_doc_context(self, docname: str, body: str, metatags: str) -> Dict[str, Any]:
+    def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         """Collect items for the template context of a page."""
         # find out relations
         prev = next = None
@@ -535,7 +573,7 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 next = {
                     'link': self.get_relative_uri(docname, related[2]),
-                    'title': self.render_partial(titles[related[2]])['title']
+                    'title': self.render_partial(titles[related[2]])['title'],
                 }
                 rellinks.append((related[2], next['title'], 'N', _('next')))
             except KeyError:
@@ -544,7 +582,7 @@ class StandaloneHTMLBuilder(Builder):
             try:
                 prev = {
                     'link': self.get_relative_uri(docname, related[1]),
-                    'title': self.render_partial(titles[related[1]])['title']
+                    'title': self.render_partial(titles[related[1]])['title'],
                 }
                 rellinks.append((related[1], prev['title'], 'P', _('previous')))
             except KeyError:
@@ -552,12 +590,11 @@ class StandaloneHTMLBuilder(Builder):
                 # that gracefully
                 prev = None
         while related and related[0]:
-            try:
+            with contextlib.suppress(KeyError):
                 parents.append(
                     {'link': self.get_relative_uri(docname, related[0]),
                      'title': self.render_partial(titles[related[0]])['title']})
-            except KeyError:
-                pass
+
             related = self.relations.get(related[0])
         if parents:
             # remove link to the master file; we have a generic
@@ -584,7 +621,7 @@ class StandaloneHTMLBuilder(Builder):
         meta = self.env.metadata.get(docname)
 
         # local TOC and global TOC tree
-        self_toc = TocTree(self.env).get_toc_for(docname, self)
+        self_toc = document_toc(self.env, docname, self.tags)
         toc = self.render_partial(self_toc)['fragment']
 
         return {
@@ -602,6 +639,12 @@ class StandaloneHTMLBuilder(Builder):
             'display_toc': (self.env.toc_num_entries[docname] > 1),
             'page_source_suffix': source_suffix,
         }
+
+    def copy_assets(self) -> None:
+        self.finish_tasks.add_task(self.copy_download_files)
+        self.finish_tasks.add_task(self.copy_static_files)
+        self.finish_tasks.add_task(self.copy_extra_files)
+        self.finish_tasks.join()
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         destination = StringOutput(encoding='utf-8')
@@ -632,9 +675,6 @@ class StandaloneHTMLBuilder(Builder):
         self.finish_tasks.add_task(self.gen_pages_from_extensions)
         self.finish_tasks.add_task(self.gen_additional_pages)
         self.finish_tasks.add_task(self.copy_image_files)
-        self.finish_tasks.add_task(self.copy_download_files)
-        self.finish_tasks.add_task(self.copy_static_files)
-        self.finish_tasks.add_task(self.copy_extra_files)
         self.finish_tasks.add_task(self.write_buildinfo)
 
         # dump the search index
@@ -677,10 +717,8 @@ class StandaloneHTMLBuilder(Builder):
         # the total count of lines for each index letter, used to distribute
         # the entries into two columns
         genindex = IndexEntries(self.env).create_index(self)
-        indexcounts = []
-        for _k, entries in genindex:
-            indexcounts.append(sum(1 + len(subitems)
-                                   for _, (_, subitems, _) in entries))
+        indexcounts = [sum(1 + len(subitems) for _, (_, subitems, _) in entries)
+                       for _k, entries in genindex]
 
         genindexcontext = {
             'genindexentries': genindex,
@@ -746,20 +784,21 @@ class StandaloneHTMLBuilder(Builder):
                                    path.join(self.srcdir, src), err)
 
     def create_pygments_style_file(self) -> None:
-        """create a style file for pygments."""
-        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
+        """Create a style file for pygments."""
+        with open(path.join(self.outdir, '_static', 'pygments.css'), 'w',
+                  encoding="utf-8") as f:
             f.write(self.highlighter.get_stylesheet())
 
         if self.dark_highlighter:
-            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w') as f:
+            with open(path.join(self.outdir, '_static', 'pygments_dark.css'), 'w',
+                      encoding="utf-8") as f:
                 f.write(self.dark_highlighter.get_stylesheet())
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
-        if self.config.language is not None:
-            jsfile = self._get_translations_js()
-            if jsfile:
-                copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
+        jsfile = self._get_translations_js()
+        if jsfile:
+            copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
 
     def copy_stemmer_js(self) -> None:
         """Copy a JavaScript file for stemmer."""
@@ -768,28 +807,28 @@ class StandaloneHTMLBuilder(Builder):
                 for jsfile in self.indexer.get_js_stemmer_rawcodes():
                     copyfile(jsfile, path.join(self.outdir, '_static', path.basename(jsfile)))
             else:
-                jsfile = self.indexer.get_js_stemmer_rawcode()
-                if jsfile:
-                    copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+                if js_stemmer_rawcode := self.indexer.get_js_stemmer_rawcode():
+                    copyfile(js_stemmer_rawcode,
+                             path.join(self.outdir, '_static', '_stemmer.js'))
 
-    def copy_theme_static_files(self, context: Dict) -> None:
+    def copy_theme_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
 
         if self.theme:
-            for entry in self.theme.get_theme_dirs()[::-1]:
+            for entry in reversed(self.theme.get_theme_dirs()):
                 copy_asset(path.join(entry, 'static'),
                            path.join(self.outdir, '_static'),
                            excluded=DOTFILES, context=context,
                            renderer=self.templates, onerror=onerror)
 
-    def copy_html_static_files(self, context: Dict) -> None:
+    def copy_html_static_files(self, context: dict) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
 
-        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        excluded = Matcher([*self.config.exclude_patterns, '**/.*'])
         for entry in self.config.html_static_path:
             copy_asset(path.join(self.confdir, entry),
                        path.join(self.outdir, '_static'),
@@ -826,7 +865,7 @@ class StandaloneHTMLBuilder(Builder):
             logger.warning(__('cannot copy static file %r'), err)
 
     def copy_extra_files(self) -> None:
-        """copy html_extra_path files."""
+        """Copy html_extra_path files."""
         try:
             with progress_message(__('copying extra files')):
                 excluded = Matcher(self.config.exclude_patterns)
@@ -838,7 +877,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def write_buildinfo(self) -> None:
         try:
-            with open(path.join(self.outdir, '.buildinfo'), 'w') as fp:
+            with open(path.join(self.outdir, '.buildinfo'), 'w', encoding="utf-8") as fp:
                 self.build_info.dump(fp)
         except OSError as exc:
             logger.warning(__('Failed to write build info file: %r'), exc)
@@ -846,24 +885,24 @@ class StandaloneHTMLBuilder(Builder):
     def cleanup(self) -> None:
         # clean up theme stuff
         if self.theme:
-            self.theme.cleanup()
+            self.theme._cleanup()
 
     def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for an image and link down-scaled images to
         their high res version.
         """
-        Builder.post_process_images(self, doctree)
+        super().post_process_images(doctree)
 
         if self.config.html_scaled_image_link and self.html_scaled_image_link:
-            for node in doctree.traverse(nodes.image):
-                if not any((key in node) for key in ['scale', 'width', 'height']):
+            for node in doctree.findall(nodes.image):
+                if not any((key in node) for key in ('scale', 'width', 'height')):
                     # resizing options are not given. scaled image link is available
                     # only for resized images.
                     continue
-                elif isinstance(node.parent, nodes.reference):
+                if isinstance(node.parent, nodes.reference):
                     # A image having hyperlink target
                     continue
-                elif 'no-scaled-link' in node['classes']:
+                if 'no-scaled-link' in node['classes']:
                     # scaled image link is disabled for this node
                     continue
 
@@ -878,6 +917,7 @@ class StandaloneHTMLBuilder(Builder):
                 reference.append(node)
 
     def load_indexer(self, docnames: Iterable[str]) -> None:
+        assert self.indexer is not None
         keep = set(self.env.all_docs) - set(docnames)
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
@@ -889,7 +929,7 @@ class StandaloneHTMLBuilder(Builder):
                     self.indexer.load(fb, self.indexer_format)
         except (OSError, ValueError):
             if keep:
-                logger.warning(__('search index couldn\'t be loaded, but not all '
+                logger.warning(__("search index couldn't be loaded, but not all "
                                   'documents will be built: the index will be '
                                   'incomplete.'))
         # delete all entries for files that will be rebuilt
@@ -898,9 +938,9 @@ class StandaloneHTMLBuilder(Builder):
     def index_page(self, pagename: str, doctree: nodes.document, title: str) -> None:
         # only index pages with title
         if self.indexer is not None and title:
-            filename = self.env.doc2path(pagename, base=None)
+            filename = self.env.doc2path(pagename, base=False)
             metadata = self.env.metadata.get(pagename, {})
-            if 'nosearch' in metadata:
+            if 'no-search' in metadata or 'nosearch' in metadata:
                 self.indexer.feed(pagename, filename, '', new_document(''))
             else:
                 self.indexer.feed(pagename, filename, title, doctree)
@@ -910,37 +950,20 @@ class StandaloneHTMLBuilder(Builder):
             kwargs['includehidden'] = False
         if kwargs.get('maxdepth') == '':
             kwargs.pop('maxdepth')
-        return self.render_partial(TocTree(self.env).get_toctree_for(
-            docname, self, collapse, **kwargs))['fragment']
+        toctree = global_toctree_for_doc(self.env, docname, self, collapse=collapse, **kwargs)
+        return self.render_partial(toctree)['fragment']
 
     def get_outfilename(self, pagename: str) -> str:
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
 
-    def add_sidebars(self, pagename: str, ctx: Dict) -> None:
+    def add_sidebars(self, pagename: str, ctx: dict) -> None:
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
-        sidebars = None
         matched = None
-        customsidebar = None
 
         # default sidebars settings for selected theme
-        if self.theme.name == 'alabaster':
-            # provide default settings for alabaster (for compatibility)
-            # Note: this will be removed before Sphinx-2.0
-            try:
-                # get default sidebars settings from alabaster (if defined)
-                theme_default_sidebars = self.theme.config.get('theme', 'sidebars')
-                if theme_default_sidebars:
-                    sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
-            except Exception:
-                # fallback to better default settings
-                sidebars = ['about.html', 'navigation.html', 'relations.html',
-                            'searchbox.html', 'donate.html']
-        else:
-            theme_default_sidebars = self.theme.get_config('theme', 'sidebars', None)
-            if theme_default_sidebars:
-                sidebars = [name.strip() for name in theme_default_sidebars.split(',')]
+        sidebars = list(self.theme.sidebar_templates)
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
@@ -959,20 +982,19 @@ class StandaloneHTMLBuilder(Builder):
                 matched = pattern
                 sidebars = patsidebars
 
-        if sidebars is None:
+        if len(sidebars) == 0:
             # keep defaults
             pass
 
         ctx['sidebars'] = sidebars
-        ctx['customsidebar'] = customsidebar
 
     # --------- these are overwritten by the serialization builder
 
-    def get_target_uri(self, docname: str, typ: str = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return quote(docname) + self.link_suffix
 
-    def handle_page(self, pagename: str, addctx: Dict, templatename: str = 'page.html',
-                    outfilename: str = None, event_arg: Any = None) -> None:
+    def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
+                    outfilename: str | None = None, event_arg: Any = None) -> None:
         ctx = self.globalcontext.copy()
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
@@ -988,7 +1010,9 @@ class StandaloneHTMLBuilder(Builder):
         else:
             ctx['pageurl'] = None
 
-        def pathto(otheruri: str, resource: bool = False, baseuri: str = default_baseuri) -> str:  # NOQA
+        def pathto(
+            otheruri: str, resource: bool = False, baseuri: str = default_baseuri,
+        ) -> str:
             if resource and '://' in otheruri:
                 # allow non-local resources given by scheme
                 return otheruri
@@ -1000,33 +1024,73 @@ class StandaloneHTMLBuilder(Builder):
             return uri
         ctx['pathto'] = pathto
 
-        def css_tag(css: Stylesheet) -> str:
-            attrs = []
-            for key in sorted(css.attributes):
-                value = css.attributes[key]
-                if value is not None:
-                    attrs.append('%s="%s"' % (key, html.escape(value, True)))
-            attrs.append('href="%s"' % pathto(css.filename, resource=True))
-            return '<link %s />' % ' '.join(attrs)
-        ctx['css_tag'] = css_tag
-
         def hasdoc(name: str) -> bool:
             if name in self.env.all_docs:
                 return True
-            elif name == 'search' and self.search:
+            if name == 'search' and self.search:
                 return True
-            elif name == 'genindex' and self.get_builder_config('use_index', 'html'):
-                return True
-            return False
+            return name == 'genindex' and self.get_builder_config('use_index', 'html')
         ctx['hasdoc'] = hasdoc
 
         ctx['toctree'] = lambda **kwargs: self._get_local_toctree(pagename, **kwargs)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
-        # revert script_files and css_files
-        self.script_files[:] = self._script_files
-        self.css_files[:] = self.css_files
+        # 'blah.html' should have content_root = './' not ''.
+        ctx['content_root'] = (f'..{SEP}' * default_baseuri.count(SEP)) or f'.{SEP}'
+
+        outdir = self.app.outdir
+
+        def css_tag(css: _CascadingStyleSheet) -> str:
+            attrs = [f'{key}="{html.escape(value, quote=True)}"'
+                     for key, value in css.attributes.items()
+                     if value is not None]
+            uri = pathto(os.fspath(css.filename), resource=True)
+            # the EPUB format does not allow the use of query components
+            # the Windows help compiler requires that css links
+            # don't have a query component
+            if self.name not in {'epub', 'htmlhelp'}:
+                if checksum := _file_checksum(outdir, css.filename):
+                    uri += f'?v={checksum}'
+            return f'<link {" ".join(sorted(attrs))} href="{uri}" />'
+
+        ctx['css_tag'] = css_tag
+
+        def js_tag(js: _JavaScript | str) -> str:
+            if not isinstance(js, _JavaScript):
+                # str value (old styled)
+                return f'<script src="{pathto(js, resource=True)}"></script>'
+
+            body = js.attributes.get('body', '')
+            attrs = [f'{key}="{html.escape(value, quote=True)}"'
+                     for key, value in js.attributes.items()
+                     if key != 'body' and value is not None]
+
+            if not js.filename:
+                if attrs:
+                    return f'<script {" ".join(sorted(attrs))}>{body}</script>'
+                return f'<script>{body}</script>'
+
+            uri = pathto(os.fspath(js.filename), resource=True)
+            if 'MathJax.js?' in os.fspath(js.filename):
+                # MathJax v2 reads a ``?config=...`` query parameter,
+                # special case this and just skip adding the checksum.
+                # https://docs.mathjax.org/en/v2.7-latest/configuration.html#considerations-for-using-combined-configuration-files
+                # https://github.com/sphinx-doc/sphinx/issues/11658
+                pass
+            # the EPUB format does not allow the use of query components
+            elif self.name != 'epub':
+                if checksum := _file_checksum(outdir, js.filename):
+                    uri += f'?v={checksum}'
+            if attrs:
+                return f'<script {" ".join(sorted(attrs))} src="{uri}"></script>'
+            return f'<script src="{uri}"></script>'
+
+        ctx['js_tag'] = js_tag
+
+        # revert _css_files and _js_files
+        self._css_files[:] = self._orig_css_files
+        self._js_files[:] = self._orig_js_files
 
         self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
@@ -1035,9 +1099,9 @@ class StandaloneHTMLBuilder(Builder):
             templatename = newtmpl
 
         # sort JS/CSS before rendering HTML
-        try:
+        try:  # NoQA: SIM105
             # Convert script_files to list to support non-list script_files (refs: #8889)
-            ctx['script_files'] = sorted(list(ctx['script_files']), key=lambda js: js.priority)
+            ctx['script_files'] = sorted(ctx['script_files'], key=lambda js: js.priority)
         except AttributeError:
             # Skip sorting if users modifies script_files directly (maybe via `html_context`).
             # refs: #8885
@@ -1045,10 +1109,8 @@ class StandaloneHTMLBuilder(Builder):
             # Note: priority sorting feature will not work in this case.
             pass
 
-        try:
-            ctx['css_files'] = sorted(list(ctx['css_files']), key=lambda css: css.priority)
-        except AttributeError:
-            pass
+        with contextlib.suppress(AttributeError):
+            ctx['css_files'] = sorted(ctx['css_files'], key=lambda css: css.priority)
 
         try:
             output = self.templates.render(templatename, ctx)
@@ -1079,12 +1141,11 @@ class StandaloneHTMLBuilder(Builder):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def update_page_context(self, pagename: str, templatename: str,
-                            ctx: Dict, event_arg: Any) -> None:
+                            ctx: dict, event_arg: Any) -> None:
         pass
 
     def handle_finish(self) -> None:
-        if self.indexer:
-            self.finish_tasks.add_task(self.dump_search_index)
+        self.finish_tasks.add_task(self.dump_search_index)
         self.finish_tasks.add_task(self.dump_inventory)
 
     @progress_message(__('dumping object inventory'))
@@ -1092,6 +1153,9 @@ class StandaloneHTMLBuilder(Builder):
         InventoryFile.dump(path.join(self.outdir, INVENTORY_FILENAME), self.env, self)
 
     def dump_search_index(self) -> None:
+        if self.indexer is None:
+            return
+
         with progress_message(__('dumping search index in %s') % self.indexer.label()):
             self.indexer.prune(self.env.all_docs)
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
@@ -1107,8 +1171,8 @@ class StandaloneHTMLBuilder(Builder):
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled html_css_files to tuple styled one."""
-    html_css_files: List[Tuple[str, Dict]] = []
+    """Convert string styled html_css_files to tuple styled one."""
+    html_css_files: list[tuple[str, dict]] = []
     for entry in config.html_css_files:
         if isinstance(entry, str):
             html_css_files.append((entry, {}))
@@ -1120,12 +1184,18 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.html_css_files = html_css_files  # type: ignore
+    config.html_css_files = html_css_files
+
+
+def _format_modified_time(timestamp: float) -> str:
+    """Return an RFC 3339 formatted string representing the given timestamp."""
+    seconds, fraction = divmod(timestamp, 1)
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction:.3f}'
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled html_js_files to tuple styled one."""
-    html_js_files: List[Tuple[str, Dict]] = []
+    """Convert string styled html_js_files to tuple styled one."""
+    html_js_files: list[tuple[str, dict]] = []
     for entry in config.html_js_files:
         if isinstance(entry, str):
             html_js_files.append((entry, {}))
@@ -1137,69 +1207,34 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid js_file: %r, ignored'), entry)
                 continue
 
-    config.html_js_files = html_js_files  # type: ignore
-
-
-def setup_js_tag_helper(app: Sphinx, pagename: str, templatename: str,
-                        context: Dict, doctree: Node) -> None:
-    """Set up js_tag() template helper.
-
-    .. note:: This set up function is added to keep compatibility with webhelper.
-    """
-    pathto = context.get('pathto')
-
-    def js_tag(js: JavaScript) -> str:
-        attrs = []
-        body = ''
-        if isinstance(js, JavaScript):
-            for key in sorted(js.attributes):
-                value = js.attributes[key]
-                if value is not None:
-                    if key == 'body':
-                        body = value
-                    elif key == 'data_url_root':
-                        attrs.append('data-url_root="%s"' % pathto('', resource=True))
-                    else:
-                        attrs.append('%s="%s"' % (key, html.escape(value, True)))
-            if js.filename:
-                attrs.append('src="%s"' % pathto(js.filename, resource=True))
-        else:
-            # str value (old styled)
-            attrs.append('src="%s"' % pathto(js, resource=True))
-        return '<script %s>%s</script>' % (' '.join(attrs), body)
-
-    context['js_tag'] = js_tag
+    config.html_js_files = html_js_files
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
-                         context: Dict, doctree: Node) -> None:
+                         context: dict, doctree: Node) -> None:
     """Set up relative resource paths."""
-    pathto = context.get('pathto')
+    pathto = context['pathto']
 
     # favicon_url
-    favicon = context.get('favicon')
-    if favicon and not isurl(favicon):
-        context['favicon_url'] = pathto('_static/' + favicon, resource=True)
-    else:
-        context['favicon_url'] = favicon
+    favicon_url = context.get('favicon_url')
+    if favicon_url and not isurl(favicon_url):
+        context['favicon_url'] = pathto('_static/' + favicon_url, resource=True)
 
     # logo_url
-    logo = context.get('logo')
-    if logo and not isurl(logo):
-        context['logo_url'] = pathto('_static/' + logo, resource=True)
-    else:
-        context['logo_url'] = logo
+    logo_url = context.get('logo_url')
+    if logo_url and not isurl(logo_url):
+        context['logo_url'] = pathto('_static/' + logo_url, resource=True)
 
 
 def validate_math_renderer(app: Sphinx) -> None:
     if app.builder.format != 'html':
         return
 
-    name = app.builder.math_renderer_name  # type: ignore
+    name = app.builder.math_renderer_name  # type: ignore[attr-defined]
     if name is None:
         raise ConfigError(__('Many math_renderers are registered. '
                              'But no math_renderer is selected.'))
-    elif name not in app.registry.html_inline_math_renderers:
+    if name not in app.registry.html_inline_math_renderers:
         raise ConfigError(__('Unknown math_renderer %r is given.') % name)
 
 
@@ -1211,7 +1246,7 @@ def validate_html_extra_path(app: Sphinx, config: Config) -> None:
             logger.warning(__('html_extra_path entry %r does not exist'), entry)
             config.html_extra_path.remove(entry)
         elif (path.splitdrive(app.outdir)[0] == path.splitdrive(extra_path)[0] and
-              path.commonpath([app.outdir, extra_path]) == app.outdir):
+              path.commonpath((app.outdir, extra_path)) == path.normpath(app.outdir)):
             logger.warning(__('html_extra_path entry %r is placed inside outdir'), entry)
             config.html_extra_path.remove(entry)
 
@@ -1224,7 +1259,7 @@ def validate_html_static_path(app: Sphinx, config: Config) -> None:
             logger.warning(__('html_static_path entry %r does not exist'), entry)
             config.html_static_path.remove(entry)
         elif (path.splitdrive(app.outdir)[0] == path.splitdrive(static_path)[0] and
-              path.commonpath([app.outdir, static_path]) == app.outdir):
+              path.commonpath((app.outdir, static_path)) == path.normpath(app.outdir)):
             logger.warning(__('html_static_path entry %r is placed inside outdir'), entry)
             config.html_static_path.remove(entry)
 
@@ -1235,7 +1270,7 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_logo)) and
             not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
-        config.html_logo = None  # type: ignore
+        config.html_logo = None
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
@@ -1244,43 +1279,19 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_favicon)) and
             not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
-        config.html_favicon = None  # type: ignore
+        config.html_favicon = None
 
 
-class _stable_repr_object():
-
-    def __repr__(self):
-        return '<object>'
-
-
-UNSET = _stable_repr_object()
-
-
-def migrate_html_add_permalinks(app: Sphinx, config: Config) -> None:
-    """Migrate html_add_permalinks to html_permalinks*."""
-    html_add_permalinks = config.html_add_permalinks
-    if html_add_permalinks is UNSET:
-        return
-
-    # RemovedInSphinx60Warning
-    logger.warning(__('html_add_permalinks has been deprecated since v3.5.0. '
-                      'Please use html_permalinks and html_permalinks_icon instead.'))
-    if not html_add_permalinks:
-        config.html_permalinks = False  # type: ignore[attr-defined]
-        return
-
-    config.html_permalinks_icon = html.escape(  # type: ignore[attr-defined]
-        html_add_permalinks
-    )
-
-# for compatibility
-import sphinxcontrib.serializinghtml  # NOQA
-
-import sphinx.builders.dirhtml  # NOQA
-import sphinx.builders.singlehtml  # NOQA
+def error_on_html_4(_app: Sphinx, config: Config) -> None:
+    """Error on HTML 4."""
+    if config.html4_writer:
+        raise ConfigError(_(
+            'HTML 4 is no longer supported by Sphinx. '
+            '("html4_writer=True" detected in configuration options)',
+        ))
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     # builders
     app.add_builder(StandaloneHTMLBuilder)
 
@@ -1288,22 +1299,20 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_theme', 'alabaster', 'html')
     app.add_config_value('html_theme_path', [], 'html')
     app.add_config_value('html_theme_options', {}, 'html')
-    app.add_config_value('html_title',
-                         lambda self: _('%s %s documentation') % (self.project, self.release),
-                         'html', [str])
+    app.add_config_value(
+        'html_title', lambda c: _('%s %s documentation') % (c.project, c.release), 'html', str)
     app.add_config_value('html_short_title', lambda self: self.html_title, 'html')
-    app.add_config_value('html_style', None, 'html', [str])
-    app.add_config_value('html_logo', None, 'html', [str])
-    app.add_config_value('html_favicon', None, 'html', [str])
+    app.add_config_value('html_style', None, 'html', {list, str})
+    app.add_config_value('html_logo', None, 'html', str)
+    app.add_config_value('html_favicon', None, 'html', str)
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
-    app.add_config_value('html_last_updated_fmt', None, 'html', [str])
+    app.add_config_value('html_last_updated_fmt', None, 'html', str)
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_domain_indices', True, 'html', [list])
-    app.add_config_value('html_add_permalinks', UNSET, 'html')
+    app.add_config_value('html_domain_indices', True, 'html', types={set, list})
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
@@ -1312,20 +1321,22 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_config_value('html_show_sourcelink', True, 'html')
     app.add_config_value('html_sourcelink_suffix', '.txt', 'html')
     app.add_config_value('html_use_opensearch', '', 'html')
-    app.add_config_value('html_file_suffix', None, 'html', [str])
-    app.add_config_value('html_link_suffix', None, 'html', [str])
+    app.add_config_value('html_file_suffix', None, 'html', str)
+    app.add_config_value('html_link_suffix', None, 'html', str)
     app.add_config_value('html_show_copyright', True, 'html')
+    app.add_config_value('html_show_search_summary', True, 'html')
     app.add_config_value('html_show_sphinx', True, 'html')
     app.add_config_value('html_context', {}, 'html')
     app.add_config_value('html_output_encoding', 'utf-8', 'html')
     app.add_config_value('html_compact_lists', True, 'html')
     app.add_config_value('html_secnumber_suffix', '. ', 'html')
-    app.add_config_value('html_search_language', None, 'html', [str])
+    app.add_config_value('html_search_language', None, 'html', str)
     app.add_config_value('html_search_options', {}, 'html')
-    app.add_config_value('html_search_scorer', '', None)
+    app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
-    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',  # RemovedInSphinx60Warning  # NOQA
+    # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
+    app.add_config_value('html_codeblock_linenos_style', 'inline', 'html',
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
@@ -1337,13 +1348,12 @@ def setup(app: Sphinx) -> Dict[str, Any]:
     # event handlers
     app.connect('config-inited', convert_html_css_files, priority=800)
     app.connect('config-inited', convert_html_js_files, priority=800)
-    app.connect('config-inited', migrate_html_add_permalinks, priority=800)
     app.connect('config-inited', validate_html_extra_path, priority=800)
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
+    app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
-    app.connect('html-page-context', setup_js_tag_helper)
     app.connect('html-page-context', setup_resource_paths)
 
     # load default math renderer
@@ -1357,3 +1367,22 @@ def setup(app: Sphinx) -> Dict[str, Any]:
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
+
+
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
+    'Stylesheet': (_CascadingStyleSheet, 'sphinx.builders.html._assets._CascadingStyleSheet', (9, 0)),  # NoQA: E501
+    'JavaScript': (_JavaScript, 'sphinx.builders.html._assets._JavaScript', (9, 0)),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name not in _DEPRECATED_OBJECTS:
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
+    return deprecated_object

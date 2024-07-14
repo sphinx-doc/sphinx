@@ -7,8 +7,8 @@ feature requests, writing new documentation or submitting patches for new or
 fixed behavior. This guide serves to illustrate how you can get started with
 this.
 
-Getting help
-------------
+Get help
+--------
 
 The Sphinx community maintains a number of mailing lists and IRC channels.
 
@@ -21,7 +21,7 @@ sphinx-users <sphinx-users@googlegroups.com>
 sphinx-dev <sphinx-dev@googlegroups.com>
     Mailing list for development related discussions.
 
-#sphinx-doc on irc.freenode.net
+#sphinx-doc on irc.libera.chat
     IRC channel for development questions and user support.
 
 .. _python-sphinx: https://stackoverflow.com/questions/tagged/python-sphinx
@@ -46,8 +46,8 @@ and post that instead.
 .. _`sphinx-dev`: mailto:sphinx-dev@googlegroups.com
 
 
-Writing code
-------------
+Contribute code
+---------------
 
 The Sphinx source code is managed using Git and is hosted on `GitHub`__.  The
 recommended way for new contributors to submit code to Sphinx is to fork this
@@ -56,6 +56,8 @@ The pull request will then need to be approved by one of the core developers
 before it is merged into the main repository.
 
 .. __: https://github.com/sphinx-doc/sphinx
+
+.. _contribute-get-started:
 
 Getting started
 ~~~~~~~~~~~~~~~
@@ -112,7 +114,7 @@ These are the basic steps needed to start developing on Sphinx.
    Write your code along with tests that shows that the bug was fixed or that
    the feature works as expected.
 
-#. Add a bullet point to :file:`CHANGES` if the fix or feature is not trivial
+#. Add a bullet point to :file:`CHANGES.rst` if the fix or feature is not trivial
    (small doc updates, typo fixes), then commit::
 
        git commit -m '#42: Add useful new feature that does this.'
@@ -140,7 +142,7 @@ Please follow these guidelines when writing code for Sphinx:
 
 * Try to use the same code style as used in the rest of the project.
 
-* For non-trivial changes, please update the :file:`CHANGES` file.  If your
+* For non-trivial changes, please update the :file:`CHANGES.rst` file.  If your
   changes alter existing behavior, please document this.
 
 * New features should be documented.  Include examples and use cases where
@@ -152,10 +154,10 @@ Please follow these guidelines when writing code for Sphinx:
 
 * Add appropriate unit tests.
 
-Style and type checks can be run using ``tox``::
+Style and type checks can be run as follows::
 
-    tox -e mypy
-    tox -e flake8
+    ruff check .
+    mypy sphinx/
 
 Unit tests
 ~~~~~~~~~~
@@ -172,19 +174,19 @@ of targets and allows testing against multiple different Python environments:
 
       tox -av
 
-* To run unit tests for a specific Python version, such as Python 3.6::
+* To run unit tests for a specific Python version, such as Python 3.10::
 
-      tox -e py36
+      tox -e py310
 
 * To run unit tests for a specific Python version and turn on deprecation
-  warnings on so they're shown in the test output::
+  warnings so they're shown in the test output::
 
-      PYTHONWARNINGS=all tox -e py36
+      PYTHONWARNINGS=error tox -e py310
 
-* Arguments to ``pytest`` can be passed via ``tox``, e.g. in order to run a
+* Arguments to ``pytest`` can be passed via ``tox``, e.g., in order to run a
   particular test::
 
-      tox -e py36 tests/test_module.py::test_new_feature
+      tox -e py310 tests/test_module.py::test_new_feature
 
 You can also test by installing dependencies in your local environment::
 
@@ -194,6 +196,14 @@ To run JavaScript tests, use ``npm``::
 
     npm install
     npm run test
+
+.. tip::
+
+  ``karma`` requires a Firefox binary to use as a test browser.
+
+  For Unix-based systems, you can specify the path to the Firefox binary using::
+
+    FIREFOX_BIN="/Applications/Firefox.app/Contents/MacOS/firefox" npm test
 
 New unit tests should be included in the ``tests`` directory where
 necessary:
@@ -222,7 +232,7 @@ necessary:
 
 Utility functions and pytest fixtures for testing are provided in
 ``sphinx.testing``. If you are a developer of Sphinx extensions, you can write
-unit tests with using pytest. At this time, ``sphinx.testing`` will help your
+unit tests by using pytest. At this time, ``sphinx.testing`` will help your
 test implementation.
 
 How to use pytest fixtures that are provided by ``sphinx.testing``?  You can
@@ -232,17 +242,36 @@ files like this::
    pytest_plugins = 'sphinx.testing.fixtures'
 
 If you want to know more detailed usage, please refer to ``tests/conftest.py``
-and other ``test_*.py`` files under ``tests`` directory.
+and other ``test_*.py`` files under the ``tests`` directory.
 
 
-Writing documentation
----------------------
+Contribute documentation
+------------------------
+
+Contributing to documentation involves modifying the source files found in the
+``doc/`` folder. To get started, you should first follow :ref:`contribute-get-started`,
+and then take the steps below to work with the documentation.
+
+The following sections describe how to get started with contributing
+documentation, as well as key aspects of a few different tools that we use.
 
 .. todo:: Add a more extensive documentation contribution guide.
 
-You can build documentation using ``tox``::
+Build the documentation
+~~~~~~~~~~~~~~~~~~~~~~~
 
-    tox -e docs
+To build the documentation, run the following command::
+
+    sphinx-build -M html ./doc ./build/sphinx -W --keep-going
+
+This will parse the Sphinx documentation's source files and generate HTML for
+you to preview in ``build/sphinx/html``.
+
+You can also build a **live version of the documentation** that you can preview
+in the browser. It will detect changes and reload the page any time you make
+edits. To do so, run the following command::
+
+    sphinx-autobuild ./doc ./build/sphinx/
 
 Translations
 ~~~~~~~~~~~~
@@ -251,18 +280,20 @@ The parts of messages in Sphinx that go into builds are translated into several
 locales.  The translations are kept as gettext ``.po`` files translated from the
 master template :file:`sphinx/locale/sphinx.pot`.
 
-Sphinx uses `Babel <http://babel.pocoo.org/en/latest/>`_ to extract messages
-and maintain the catalog files.  It is integrated in ``setup.py``:
+Sphinx uses `Babel <https://babel.pocoo.org/en/latest/>`_ to extract messages
+and maintain the catalog files.  The ``utils`` directory contains a helper
+script, ``babel_runner.py``.
 
-* Use ``python setup.py extract_messages`` to update the ``.pot`` template.
-* Use ``python setup.py update_catalog`` to update all existing language
+* Use ``python babel_runner.py extract`` to update the ``.pot`` template.
+* Use ``python babel_runner.py update`` to update all existing language
   catalogs in ``sphinx/locale/*/LC_MESSAGES`` with the current messages in the
   template file.
-* Use ``python setup.py compile_catalog`` to compile the ``.po`` files to binary
+* Use ``python babel_runner.py compile`` to compile the ``.po`` files to binary
   ``.mo`` files and ``.js`` files.
 
-When an updated ``.po`` file is submitted, run compile_catalog to commit both
-the source and the compiled catalogs.
+When an updated ``.po`` file is submitted, run
+``python babel_runner.py compile`` to commit both the source and the compiled
+catalogs.
 
 When a new locale is submitted, add a new directory with the ISO 639-1 language
 identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
@@ -273,9 +304,9 @@ The Sphinx core messages can also be translated on `Transifex
 which is provided by the ``transifex_client`` Python package, can be used to
 pull translations in ``.po`` format from Transifex.  To do this, go to
 ``sphinx/locale`` and then run ``tx pull -f -l LANG`` where ``LANG`` is an
-existing language identifier.  It is good practice to run ``python setup.py
-update_catalog`` afterwards to make sure the ``.po`` file has the canonical
-Babel formatting.
+existing language identifier.  It is good practice to run
+``python babel_runner.py update`` afterwards to make sure the ``.po`` file has the
+canonical Babel formatting.
 
 
 Debugging tips
@@ -297,14 +328,19 @@ Debugging tips
   will complain about references without a known target.
 
 * Set the debugging options in the `Docutils configuration file
-  <http://docutils.sourceforge.net/docs/user/config.html>`_.
+  <https://docutils.sourceforge.io/docs/user/config.html>`_.
 
-* JavaScript stemming algorithms in ``sphinx/search/*.py`` (except ``en.py``)
-  are generated by this `modified snowballcode generator
-  <https://github.com/shibukawa/snowball>`_.  Generated `JSX
-  <https://jsx.github.io/>`_ files are in `this repository
-  <https://github.com/shibukawa/snowball-stemmer.jsx>`_.  You can get the
-  resulting JavaScript files using the following command::
+* JavaScript stemming algorithms in ``sphinx/search/non-minified-js/*.js``
+  are generated using `snowball <https://github.com/snowballstem/snowball>`_
+  by cloning the repository, executing ``make dist_libstemmer_js`` and then
+  unpacking the tarball which is generated in ``dist`` directory.
 
-      npm install
-      node_modules/.bin/grunt build # -> dest/*.global.js
+  Minified files in ``sphinx/search/minified-js/*.js`` are generated from
+  non-minified ones using ``uglifyjs`` (installed via npm), with ``-m``
+  option to enable mangling.
+
+* The ``searchindex.js`` files found in the ``tests/js/fixtures/*`` directories
+  are generated by using the standard Sphinx HTML builder on the corresponding
+  input projects found in ``tests/js/roots/*``.  The fixtures provide test data
+  used by the Sphinx JavaScript unit tests, and can be regenerated by running
+  the ``utils/generate_js_fixtures.py`` script.

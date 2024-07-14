@@ -10,4 +10,6 @@
 
 .. autofunction:: target.typehints.incr
 
+.. autofunction:: target.overload.sum
+
 .. autofunction:: target.typehints.tuple_args

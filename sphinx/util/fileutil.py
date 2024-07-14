@@ -1,28 +1,36 @@
-"""
-    sphinx.util.fileutil
-    ~~~~~~~~~~~~~~~~~~~~
+"""File utility functions for Sphinx."""
 
-    File utility functions for Sphinx.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import os
 import posixpath
-from typing import TYPE_CHECKING, Callable, Dict
+from typing import TYPE_CHECKING, Any, Callable
 
 from docutils.utils import relative_path
 
 from sphinx.util.osutil import copyfile, ensuredir
-from sphinx.util.typing import PathMatcher
 
 if TYPE_CHECKING:
     from sphinx.util.template import BaseRenderer
+    from sphinx.util.typing import PathMatcher
 
 
-def copy_asset_file(source: str, destination: str,
-                    context: Dict = None, renderer: "BaseRenderer" = None) -> None:
+def _template_basename(filename: str | os.PathLike[str]) -> str | None:
+    """Given an input filename:
+    If the input looks like a template, then return the filename output should
+    be written to.  Otherwise, return no result (None).
+    """
+    basename = os.path.basename(filename)
+    if basename.lower().endswith('_t'):
+        return str(filename)[:-2]
+    elif basename.lower().endswith('.jinja'):
+        return str(filename)[:-6]
+    return None
+
+
+def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLike[str],
+                    context: dict[str, Any] | None = None,
+                    renderer: BaseRenderer | None = None) -> None:
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -39,24 +47,26 @@ def copy_asset_file(source: str, destination: str,
     if os.path.isdir(destination):
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
+    else:
+        destination = str(destination)
 
-    if source.lower().endswith('_t') and context is not None:
+    if _template_basename(source) and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
-            if destination.lower().endswith('_t'):
-                destination = destination[:-2]
+            destination = _template_basename(destination) or destination
             with open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
         copyfile(source, destination)
 
 
-def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda path: False,
-               context: Dict = None, renderer: "BaseRenderer" = None,
-               onerror: Callable[[str, Exception], None] = None) -> None:
+def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[str],
+               excluded: PathMatcher = lambda path: False,
+               context: dict[str, Any] | None = None, renderer: BaseRenderer | None = None,
+               onerror: Callable[[str, Exception], None] | None = None) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and
@@ -83,7 +93,7 @@ def copy_asset(source: str, destination: str, excluded: PathMatcher = lambda pat
 
     for root, dirs, files in os.walk(source, followlinks=True):
         reldir = relative_path(source, root)
-        for dir in dirs[:]:
+        for dir in dirs.copy():
             if excluded(posixpath.join(reldir, dir)):
                 dirs.remove(dir)
             else:

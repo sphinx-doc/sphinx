@@ -1,39 +1,29 @@
-"""
-    sphinx.util.parallel
-    ~~~~~~~~~~~~~~~~~~~~
+"""Parallel building utilities."""
 
-    Parallel building utilities.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import os
-import platform
-import sys
 import time
 import traceback
 from math import sqrt
-from typing import Any, Callable, Dict, List, Sequence
+from typing import TYPE_CHECKING, Any, Callable
 
 try:
     import multiprocessing
+    HAS_MULTIPROCESSING = True
 except ImportError:
-    multiprocessing = None
+    HAS_MULTIPROCESSING = False
 
 from sphinx.errors import SphinxParallelError
 from sphinx.util import logging
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 logger = logging.getLogger(__name__)
 
-
 # our parallel functionality only works for the forking Process
-#
-# Note: "fork" is not recommended on macOS and py38+.
-#       see https://bugs.python.org/issue33725
-parallel_available = (multiprocessing and
-                      (os.name == 'posix') and
-                      not (sys.version_info > (3, 8) and platform.system() == 'Darwin'))
+parallel_available = multiprocessing and os.name == 'posix'
 
 
 class SerialTasks:
@@ -42,7 +32,9 @@ class SerialTasks:
     def __init__(self, nproc: int = 1) -> None:
         pass
 
-    def add_task(self, task_func: Callable, arg: Any = None, result_func: Callable = None) -> None:  # NOQA
+    def add_task(
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
+    ) -> None:
         if arg is not None:
             res = task_func(arg)
         else:
@@ -60,15 +52,15 @@ class ParallelTasks:
     def __init__(self, nproc: int) -> None:
         self.nproc = nproc
         # (optional) function performed by each task on the result of main task
-        self._result_funcs: Dict[int, Callable] = {}
+        self._result_funcs: dict[int, Callable] = {}
         # task arguments
-        self._args: Dict[int, List[Any]] = {}
+        self._args: dict[int, list[Any] | None] = {}
         # list of subprocesses (both started and waiting)
-        self._procs: Dict[int, multiprocessing.Process] = {}
+        self._procs: dict[int, Any] = {}
         # list of receiving pipe connections of running subprocesses
-        self._precvs: Dict[int, Any] = {}
+        self._precvs: dict[int, Any] = {}
         # list of receiving pipe connections of waiting subprocesses
-        self._precvsWaiting: Dict[int, Any] = {}
+        self._precvsWaiting: dict[int, Any] = {}
         # number of working subprocesses
         self._pworking = 0
         # task number of each subprocess
@@ -90,26 +82,33 @@ class ParallelTasks:
         logging.convert_serializable(collector.logs)
         pipe.send((failed, collector.logs, ret))
 
-    def add_task(self, task_func: Callable, arg: Any = None, result_func: Callable = None) -> None:  # NOQA
+    def add_task(
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
+    ) -> None:
         tid = self._taskid
         self._taskid += 1
         self._result_funcs[tid] = result_func or (lambda arg, result: None)
         self._args[tid] = arg
         precv, psend = multiprocessing.Pipe(False)
-        proc = multiprocessing.Process(target=self._process,
-                                       args=(psend, task_func, arg))
+        context: Any = multiprocessing.get_context('fork')
+        proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
         self._precvsWaiting[tid] = precv
-        self._join_one()
+        try:
+            self._join_one()
+        except Exception:
+            # shutdown other child processes on failure
+            # (e.g. OSError: Failed to allocate memory)
+            self.terminate()
 
     def join(self) -> None:
         try:
             while self._pworking:
-                self._join_one()
-        except Exception:
+                if not self._join_one():
+                    time.sleep(0.02)
+        finally:
             # shutdown other child processes on failure
             self.terminate()
-            raise
 
     def terminate(self) -> None:
         for tid in list(self._precvs):
@@ -119,7 +118,8 @@ class ParallelTasks:
             self._precvs.pop(tid)
             self._pworking -= 1
 
-    def _join_one(self) -> None:
+    def _join_one(self) -> bool:
+        joined_any = False
         for tid, pipe in self._precvs.items():
             if pipe.poll():
                 exc, logs, result = pipe.recv()
@@ -131,17 +131,19 @@ class ParallelTasks:
                 self._procs[tid].join()
                 self._precvs.pop(tid)
                 self._pworking -= 1
+                joined_any = True
                 break
-        else:
-            time.sleep(0.02)
+
         while self._precvsWaiting and self._pworking < self.nproc:
             newtid, newprecv = self._precvsWaiting.popitem()
             self._precvs[newtid] = newprecv
             self._procs[newtid].start()
             self._pworking += 1
 
+        return joined_any
 
-def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> List[Any]:
+
+def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> list[Any]:
     # determine how many documents to read in one go
     nargs = len(arguments)
     chunksize = nargs // nproc

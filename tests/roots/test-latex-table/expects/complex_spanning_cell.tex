@@ -14,10 +14,12 @@ consecutive multirow at end of row (1\sphinxhyphen{}4 and 1\sphinxhyphen{}5)
 
 
 \begin{savenotes}\sphinxattablestart
+\sphinxthistablewithglobalstyle
+\sphinxthistablewithstandardstyle
 \centering
 \begin{tabulary}{\linewidth}[t]{|T|T|T|T|T|}
-\hline
-\sphinxmultirow{3}{1}{%
+\sphinxtoprule
+\sphinxtableatstartofbodyhook\sphinxmultirow{3}{1}{%
 \begin{varwidth}[t]{\sphinxcolwidth{1}{5}}
 \sphinxAtStartPar
 cell1\sphinxhyphen{}1
@@ -49,7 +51,7 @@ cell1\sphinxhyphen{}5
 \vskip-\baselineskip\vbox{\hbox{\strut}}\end{varwidth}%
 }%
 \\
-\cline{3-3}\sphinxtablestrut{1}&\sphinxtablestrut{2}&\sphinxmultirow{2}{6}{%
+\sphinxvlinecrossing{1}\sphinxcline{3-3}\sphinxvlinecrossing{4}\sphinxfixclines{5}\sphinxtablestrut{1}&\sphinxtablestrut{2}&\sphinxmultirow{2}{6}{%
 \begin{varwidth}[t]{\sphinxcolwidth{1}{5}}
 \sphinxAtStartPar
 cell2\sphinxhyphen{}3
@@ -57,11 +59,11 @@ cell2\sphinxhyphen{}3
 \vskip-\baselineskip\vbox{\hbox{\strut}}\end{varwidth}%
 }%
 &\sphinxtablestrut{4}&\sphinxtablestrut{5}\\
-\cline{5-5}\sphinxtablestrut{1}&\sphinxtablestrut{2}&\sphinxtablestrut{6}&\sphinxtablestrut{4}&
+\sphinxvlinecrossing{1}\sphinxvlinecrossing{2}\sphinxvlinecrossing{3}\sphinxcline{5-5}\sphinxfixclines{5}\sphinxtablestrut{1}&\sphinxtablestrut{2}&\sphinxtablestrut{6}&\sphinxtablestrut{4}&
 \sphinxAtStartPar
 cell3\sphinxhyphen{}5
 \\
-\hline
+\sphinxbottomrule
 \end{tabulary}
-\par
+\sphinxtableafterendhook\par
 \sphinxattableend\end{savenotes}

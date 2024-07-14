@@ -1,33 +1,26 @@
+"""Custom docutils writer for LaTeX.
+
+Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
+docutils sandbox.
 """
-    sphinx.writers.latex
-    ~~~~~~~~~~~~~~~~~~~~
 
-    Custom docutils writer for LaTeX.
-
-    Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
-    docutils sandbox.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import re
-import warnings
 from collections import defaultdict
+from collections.abc import Iterable
 from os import path
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Tuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
 
 from sphinx import addnodes, highlighting
-from sphinx.deprecation import RemovedInSphinx50Warning
-from sphinx.domains import IndexEntry
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __, admonitionlabels
-from sphinx.util import logging, split_into, texescape
+from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxTranslator
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
@@ -35,12 +28,15 @@ from sphinx.util.texescape import tex_replace_map
 try:
     from docutils.utils.roman import toRoman
 except ImportError:
-    # In Debain/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore
+    # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
+    from roman import toRoman  # type: ignore[no-redef, import-not-found]
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node, Text
+
     from sphinx.builders.latex import LaTeXBuilder
     from sphinx.builders.latex.theming import Theme
+    from sphinx.domains import IndexEntry
 
 
 logger = logging.getLogger(__name__)
@@ -79,23 +75,16 @@ class LaTeXWriter(writers.Writer):
         ('Document class', ['--docclass'], {'default': 'manual'}),
         ('Author', ['--author'], {'default': ''}),
     ))
-    settings_defaults: Dict = {}
+    settings_defaults: dict[str, Any] = {}
 
-    output = None
+    theme: Theme
 
-    def __init__(self, builder: "LaTeXBuilder") -> None:
+    def __init__(self, builder: LaTeXBuilder) -> None:
         super().__init__()
         self.builder = builder
-        self.theme: Theme = None
 
     def translate(self) -> None:
-        try:
-            visitor = self.builder.create_translator(self.document, self.builder, self.theme)
-        except TypeError:
-            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning, stacklevel=2)
-            visitor = self.builder.create_translator(self.document, self.builder)
-
+        visitor = self.builder.create_translator(self.document, self.builder, self.theme)
         self.document.walkabout(visitor)
         self.output = cast(LaTeXTranslator, visitor).astext()
 
@@ -106,25 +95,42 @@ class Table:
     """A table data"""
 
     def __init__(self, node: Element) -> None:
-        self.header: List[str] = []
-        self.body: List[str] = []
+        self.header: list[str] = []
+        self.body: list[str] = []
         self.align = node.get('align', 'default')
-        self.classes: List[str] = node.get('classes', [])
+        self.classes: list[str] = node.get('classes', [])
+        self.styles: list[str] = []
+        if 'standard' in self.classes:
+            self.styles.append('standard')
+        elif 'borderless' in self.classes:
+            self.styles.append('borderless')
+        elif 'booktabs' in self.classes:
+            self.styles.append('booktabs')
+        if 'nocolorrows' in self.classes:
+            self.styles.append('nocolorrows')
+        elif 'colorrows' in self.classes:
+            self.styles.append('colorrows')
         self.colcount = 0
-        self.colspec: str = None
-        self.colwidths: List[int] = []
+        self.colspec: str = ''
+        if 'booktabs' in self.styles or 'borderless' in self.styles:
+            self.colsep: str | None = ''
+        elif 'standard' in self.styles:
+            self.colsep = '|'
+        else:
+            self.colsep = None
+        self.colwidths: list[int] = []
         self.has_problematic = False
         self.has_oldproblematic = False
         self.has_verbatim = False
-        self.caption: List[str] = None
-        self.stubs: List[int] = []
+        self.caption: list[str] = []
+        self.stubs: list[int] = []
 
         # current position
         self.col = 0
         self.row = 0
 
-        # A mapping a table location to the cell_id (cell = rectangular area)
-        self.cells: Dict[Tuple[int, int], int] = defaultdict(int)
+        # A dict mapping a table location to a cell_id (cell = rectangular area)
+        self.cells: dict[tuple[int, int], int] = defaultdict(int)
         self.cell_id = 0  # last assigned cell_id
 
     def is_longtable(self) -> bool:
@@ -152,27 +158,35 @@ class Table:
             return 'tabulary'
 
     def get_colspec(self) -> str:
-        """Returns a column spec of table.
+        r"""Returns a column spec of table.
 
         This is what LaTeX calls the 'preamble argument' of the used table environment.
 
-        .. note:: the ``\\X`` and ``T`` column type specifiers are defined in ``sphinx.sty``.
+        .. note::
+
+           The ``\\X`` and ``T`` column type specifiers are defined in
+           ``sphinxlatextables.sty``.
         """
         if self.colspec:
             return self.colspec
-        elif self.colwidths and 'colwidths-given' in self.classes:
+
+        _colsep = self.colsep
+        assert _colsep is not None
+        if self.colwidths and 'colwidths-given' in self.classes:
             total = sum(self.colwidths)
             colspecs = [r'\X{%d}{%d}' % (width, total) for width in self.colwidths]
-            return '{|%s|}' % '|'.join(colspecs) + CR
+            return f'{{{_colsep}{_colsep.join(colspecs)}{_colsep}}}' + CR
         elif self.has_problematic:
-            return r'{|*{%d}{\X{1}{%d}|}}' % (self.colcount, self.colcount) + CR
+            return r'{%s*{%d}{\X{1}{%d}%s}}' % (_colsep, self.colcount,
+                                                self.colcount, _colsep) + CR
         elif self.get_table_type() == 'tabulary':
             # sphinx.sty sets T to be J by default.
-            return '{|' + ('T|' * self.colcount) + '}' + CR
+            return '{' + _colsep + (('T' + _colsep) * self.colcount) + '}' + CR
         elif self.has_oldproblematic:
-            return r'{|*{%d}{\X{1}{%d}|}}' % (self.colcount, self.colcount) + CR
+            return r'{%s*{%d}{\X{1}{%d}%s}}' % (_colsep, self.colcount,
+                                                self.colcount, _colsep) + CR
         else:
-            return '{|' + ('l|' * self.colcount) + '}' + CR
+            return '{' + _colsep + (('l' + _colsep) * self.colcount) + '}' + CR
 
     def add_cell(self, height: int, width: int) -> None:
         """Adds a new cell to a table.
@@ -185,7 +199,9 @@ class Table:
                 assert self.cells[(self.row + row, self.col + col)] == 0
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
-    def cell(self, row: int = None, col: int = None) -> "TableCell":
+    def cell(
+        self, row: int | None = None, col: int | None = None,
+    ) -> TableCell | None:
         """Returns a cell object (i.e. rectangular area) containing given position.
 
         If no option arguments: ``row`` or ``col`` are given, the current position;
@@ -202,7 +218,7 @@ class Table:
 
 
 class TableCell:
-    """A cell data of tables."""
+    """Data of a cell in a table."""
 
     def __init__(self, table: Table, row: int, col: int) -> None:
         if table.cells[(row, col)] == 0:
@@ -265,29 +281,22 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
         elif unit == "%":
             res = r"%.5f\linewidth" % (amount_float / 100.0)
         else:
-            res = "%.5f%s" % (amount_float, unit)
+            res = f"{amount_float:.5f}{unit}"
     return res
 
 
 class LaTeXTranslator(SphinxTranslator):
-    builder: "LaTeXBuilder" = None
+    builder: LaTeXBuilder
 
     secnumdepth = 2  # legacy sphinxhowto.cls uses this, whereas article.cls
     # default is originally 3. For book/report, 2 is already LaTeX default.
     ignore_missing_images = False
 
-    # sphinx specific document classes
-    docclasses = ('howto', 'manual')
-
-    def __init__(self, document: nodes.document, builder: "LaTeXBuilder",
-                 theme: "Theme" = None) -> None:
+    def __init__(self, document: nodes.document, builder: LaTeXBuilder,
+                 theme: Theme) -> None:
         super().__init__(document, builder)
-        self.body: List[str] = []
+        self.body: list[str] = []
         self.theme = theme
-
-        if theme is None:
-            warnings.warn('LaTeXTranslator now takes 3rd argument; "theme".',
-                          RemovedInSphinx50Warning, stacklevel=2)
 
         # flags
         self.in_title = 0
@@ -304,6 +313,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_parsed_literal = 0
         self.compact_list = 0
         self.first_param = 0
+        self.in_desc_signature = False
 
         sphinxpkgoptions = []
 
@@ -311,31 +321,9 @@ class LaTeXTranslator(SphinxTranslator):
         self.elements = self.builder.context.copy()
 
         # initial section names
-        self.sectionnames = LATEXSECTIONNAMES[:]
-
-        if self.theme:
-            # new style: control sectioning via theme's setting
-            #
-            # .. note:: template variables(elements) are already assigned in builder
-            docclass = self.theme.docclass
-            if self.theme.toplevel_sectioning == 'section':
-                self.sectionnames.remove('chapter')
-        else:
-            # old style: sectioning control is hard-coded
-            # but some have other interface in config file
-            self.elements['wrapperclass'] = self.format_docclass(self.settings.docclass)
-
-            # we assume LaTeX class provides \chapter command except in case
-            # of non-Japanese 'howto' case
-            if document.get('docclass') == 'howto':
-                docclass = self.config.latex_docclass.get('howto', 'article')
-                if docclass[0] == 'j':  # Japanese class...
-                    pass
-                else:
-                    self.sectionnames.remove('chapter')
-            else:
-                docclass = self.config.latex_docclass.get('manual', 'report')
-            self.elements['docclass'] = docclass
+        self.sectionnames = LATEXSECTIONNAMES.copy()
+        if self.theme.toplevel_sectioning == 'section':
+            self.sectionnames.remove('chapter')
 
         # determine top section level
         self.top_sectionlevel = 1
@@ -344,8 +332,8 @@ class LaTeXTranslator(SphinxTranslator):
                 self.top_sectionlevel = \
                     self.sectionnames.index(self.config.latex_toplevel_sectioning)
             except ValueError:
-                logger.warning(__('unknown %r toplevel_sectioning for class %r') %
-                               (self.config.latex_toplevel_sectioning, docclass))
+                logger.warning(__('unknown %r toplevel_sectioning for class %r'),
+                               self.config.latex_toplevel_sectioning, self.theme.docclass)
 
         if self.config.numfig:
             self.numfig_secnum_depth = self.config.numfig_secnum_depth
@@ -368,7 +356,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.config.numfig and self.config.math_numfig:
             sphinxpkgoptions.append('mathnumfig')
 
-        if (self.config.language not in {None, 'en', 'ja'} and
+        if (self.config.language not in {'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
             # use Sonny style if any language specified (except English)
             self.elements['fncychap'] = (r'\usepackage[Sonny]{fncychap}' + CR +
@@ -376,7 +364,7 @@ class LaTeXTranslator(SphinxTranslator):
                                          r'\ChTitleVar{\Large\normalfont\sffamily}')
 
         self.babel = self.builder.babel
-        if self.config.language and not self.babel.is_supported_language():
+        if not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
             logger.warning(__('no Babel option known for language %r'),
@@ -425,40 +413,31 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style,
                                                        latex_engine=self.config.latex_engine)
-        self.context: List[Any] = []
-        self.descstack: List[str] = []
-        self.tables: List[Table] = []
-        self.next_table_colspec: str = None
-        self.bodystack: List[List[str]] = []
-        self.footnote_restricted: Element = None
-        self.pending_footnotes: List[nodes.footnote_reference] = []
-        self.curfilestack: List[str] = []
-        self.handled_abbrs: Set[str] = set()
+        self.context: list[Any] = []
+        self.descstack: list[str] = []
+        self.tables: list[Table] = []
+        self.next_table_colspec: str | None = None
+        self.bodystack: list[list[str]] = []
+        self.footnote_restricted: Element | None = None
+        self.pending_footnotes: list[nodes.footnote_reference] = []
+        self.curfilestack: list[str] = []
+        self.handled_abbrs: set[str] = set()
 
-    def pushbody(self, newbody: List[str]) -> None:
+    def pushbody(self, newbody: list[str]) -> None:
         self.bodystack.append(self.body)
         self.body = newbody
 
-    def popbody(self) -> List[str]:
+    def popbody(self) -> list[str]:
         body = self.body
         self.body = self.bodystack.pop()
         return body
 
-    def format_docclass(self, docclass: str) -> str:
-        """ prepends prefix to sphinx document classes
-        """
-        warnings.warn('LaTeXWriter.format_docclass() is deprecated.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        if docclass in self.docclasses:
-            docclass = 'sphinx' + docclass
-        return docclass
-
     def astext(self) -> str:
         self.elements.update({
             'body': ''.join(self.body),
-            'indices': self.generate_indices()
+            'indices': self.generate_indices(),
         })
-        return self.render('latex.tex_t', self.elements)
+        return self.render('latex.tex.jinja', self.elements)
 
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
         if withdoc:
@@ -494,10 +473,10 @@ class LaTeXTranslator(SphinxTranslator):
             prefix = ''
             suffix = ''
 
-        return r'%s\renewcommand{%s}{%s}%s' % (prefix, command, definition, suffix) + CR
+        return fr'{prefix}\renewcommand{{{command}}}{{{definition}}}{suffix}' + CR
 
     def generate_indices(self) -> str:
-        def generate(content: List[Tuple[str, List[IndexEntry]]], collapsed: bool) -> None:
+        def generate(content: list[tuple[str, list[IndexEntry]]], collapsed: bool) -> None:
             ret.append(r'\begin{sphinxtheindex}' + CR)
             ret.append(r'\let\bigletter\sphinxstyleindexlettergroup' + CR)
             for i, (letter, entries) in enumerate(content):
@@ -518,35 +497,44 @@ class LaTeXTranslator(SphinxTranslator):
 
         ret = []
         # latex_domain_indices can be False/True or a list of index names
-        indices_config = self.config.latex_domain_indices
-        if indices_config:
-            for domain in self.builder.env.domains.values():
-                for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
-                    if not content:
+        if indices_config := self.config.latex_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
+            for domain_name in sorted(self.builder.env.domains):
+                domain = self.builder.env.domains[domain_name]
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
                         continue
-                    ret.append(r'\renewcommand{\indexname}{%s}' % indexcls.localname + CR)
-                    generate(content, collapsed)
+                    content, collapsed = index_cls(domain).generate(
+                        self.builder.docnames)
+                    if content:
+                        ret.append(r'\renewcommand{\indexname}{%s}' % index_cls.localname + CR)
+                        generate(content, collapsed)
 
         return ''.join(ret)
 
-    def render(self, template_name: str, variables: Dict) -> str:
+    def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
             template = path.join(self.builder.confdir, template_dir,
                                  template_name)
             if path.exists(template):
                 return renderer.render(template, variables)
+            elif template.endswith('.jinja'):
+                legacy_template = template.removesuffix('.jinja') + '_t'
+                if path.exists(legacy_template):
+                    logger.warning(__('template %s not found; loading from legacy %s instead'),
+                                   template_name, legacy_template)
+                    return renderer.render(legacy_template, variables)
 
         return renderer.render(template_name, variables)
 
     @property
-    def table(self) -> Table:
+    def table(self) -> Table | None:
         """Get current table."""
         if self.tables:
             return self.tables[-1]
@@ -572,6 +560,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_start_of_file(self, node: Element) -> None:
         self.curfilestack.append(node['docname'])
+        self.body.append(CR + r'\sphinxstepscope' + CR)
 
     def depart_start_of_file(self, node: Element) -> None:
         self.curfilestack.pop()
@@ -638,7 +627,7 @@ class LaTeXTranslator(SphinxTranslator):
         if isinstance(parent, addnodes.seealso):
             # the environment already handles this
             raise nodes.SkipNode
-        elif isinstance(parent, nodes.section):
+        if isinstance(parent, nodes.section):
             if self.this_is_the_title:
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
@@ -650,17 +639,16 @@ class LaTeXTranslator(SphinxTranslator):
                     self.elements['title'] = self.escape(node.astext())
                 self.this_is_the_title = 0
                 raise nodes.SkipNode
-            else:
-                short = ''
-                if node.traverse(nodes.image):
-                    short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
+            short = ''
+            if any(node.findall(nodes.image)):
+                short = ('[%s]' % self.escape(' '.join(clean_astext(node).split())))
 
-                try:
-                    self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
-                except IndexError:
-                    # just use "subparagraph", it's not numbered anyway
-                    self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
-                self.context.append('}' + CR + self.hypertarget_to(node.parent))
+            try:
+                self.body.append(fr'\{self.sectionnames[self.sectionlevel]}{short}{{')
+            except IndexError:
+                # just use "subparagraph", it's not numbered anyway
+                self.body.append(fr'\{self.sectionnames[-1]}{short}{{')
+            self.context.append('}' + CR + self.hypertarget_to(node.parent))
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}' + CR)
@@ -684,6 +672,7 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_title(self, node: Element) -> None:
         self.in_title = 0
         if isinstance(node.parent, nodes.table):
+            assert self.table is not None
             self.table.caption = self.popbody()
         else:
             self.body.append(self.context.pop())
@@ -698,6 +687,13 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_subtitle(self, node: Element) -> None:
         self.body.append(self.context.pop())
 
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
+
     def visit_desc(self, node: Element) -> None:
         if self.config.latex_show_urls == 'footnote':
             self.body.append(BLANKLINE)
@@ -709,46 +705,115 @@ class LaTeXTranslator(SphinxTranslator):
             self.table.has_problematic = True
 
     def depart_desc(self, node: Element) -> None:
+        if self.in_desc_signature:
+            self.body.append(CR + r'\pysigstopsignatures')
+            self.in_desc_signature = False
         if self.config.latex_show_urls == 'footnote':
             self.body.append(CR + r'\end{fulllineitems}\end{savenotes}' + BLANKLINE)
         else:
             self.body.append(CR + r'\end{fulllineitems}' + BLANKLINE)
 
     def _visit_signature_line(self, node: Element) -> None:
+        def next_sibling(e: Node) -> Node | None:
+            try:
+                return e.parent[e.parent.index(e) + 1]
+            except (AttributeError, IndexError):
+                return None
+
+        def has_multi_line(e: Element) -> bool:
+            return e.get('multi_line_parameter_list')
+
+        self.has_tp_list = False
+
         for child in node:
+            if isinstance(child, addnodes.desc_type_parameter_list):
+                self.has_tp_list = True
+                # recall that return annotations must follow an argument list,
+                # so signatures of the form "foo[tp_list] -> retann" will not
+                # be encountered (if they should, the `domains.python.py_sig_re`
+                # pattern must be modified accordingly)
+                arglist = next_sibling(child)
+                assert isinstance(arglist, addnodes.desc_parameterlist)
+                # tp_list + arglist: \macro{name}{tp_list}{arglist}{return}
+                multi_tp_list = has_multi_line(child)
+                multi_arglist = has_multi_line(arglist)
+
+                if multi_tp_list:
+                    if multi_arglist:
+                        self.body.append(CR + r'\pysigwithonelineperargwithonelinepertparg{')
+                    else:
+                        self.body.append(CR + r'\pysiglinewithargsretwithonelinepertparg{')
+                else:
+                    if multi_arglist:
+                        self.body.append(CR + r'\pysigwithonelineperargwithtypelist{')
+                    else:
+                        self.body.append(CR + r'\pysiglinewithargsretwithtypelist{')
+                break
+
             if isinstance(child, addnodes.desc_parameterlist):
-                self.body.append(r'\pysiglinewithargsret{')
+                # arglist only: \macro{name}{arglist}{return}
+                if has_multi_line(child):
+                    self.body.append(CR + r'\pysigwithonelineperarg{')
+                else:
+                    self.body.append(CR + r'\pysiglinewithargsret{')
                 break
         else:
-            self.body.append(r'\pysigline{')
+            # no tp_list, no arglist: \macro{name}
+            self.body.append(CR + r'\pysigline{')
 
     def _depart_signature_line(self, node: Element) -> None:
         self.body.append('}')
 
     def visit_desc_signature(self, node: Element) -> None:
+        hyper = ''
         if node.parent['objtype'] != 'describe' and node['ids']:
-            hyper = self.hypertarget(node['ids'][0])
-        else:
-            hyper = ''
+            for id in node['ids']:
+                hyper += self.hypertarget(id)
         self.body.append(hyper)
+        if not self.in_desc_signature:
+            self.in_desc_signature = True
+            self.body.append(CR + r'\pysigstartsignatures')
         if not node.get('is_multiline'):
             self._visit_signature_line(node)
         else:
-            self.body.append('%' + CR)
-            self.body.append(r'\pysigstartmultiline' + CR)
+            self.body.append(CR + r'\pysigstartmultiline')
 
     def depart_desc_signature(self, node: Element) -> None:
         if not node.get('is_multiline'):
             self._depart_signature_line(node)
         else:
-            self.body.append('%' + CR)
-            self.body.append(r'\pysigstopmultiline')
+            self.body.append(CR + r'\pysigstopmultiline')
 
     def visit_desc_signature_line(self, node: Element) -> None:
         self._visit_signature_line(node)
 
     def depart_desc_signature_line(self, node: Element) -> None:
         self._depart_signature_line(node)
+
+    def visit_desc_content(self, node: Element) -> None:
+        assert self.in_desc_signature
+        self.body.append(CR + r'\pysigstopsignatures')
+        self.in_desc_signature = False
+
+    def depart_desc_content(self, node: Element) -> None:
+        pass
+
+    def visit_desc_inline(self, node: Element) -> None:
+        self.body.append(r'\sphinxcode{\sphinxupquote{')
+
+    def depart_desc_inline(self, node: Element) -> None:
+        self.body.append('}}')
+
+    # Nodes for high-level structure in signatures
+    ##############################################
+
+    def visit_desc_name(self, node: Element) -> None:
+        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
+        self.literal_whitespace += 1
+
+    def depart_desc_name(self, node: Element) -> None:
+        self.body.append('}}')
+        self.literal_whitespace -= 1
 
     def visit_desc_addname(self, node: Element) -> None:
         self.body.append(r'\sphinxcode{\sphinxupquote{')
@@ -770,40 +835,117 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_returns(self, node: Element) -> None:
         self.body.append(r'}')
 
-    def visit_desc_name(self, node: Element) -> None:
-        self.body.append(r'\sphinxbfcode{\sphinxupquote{')
-        self.literal_whitespace += 1
+    def _visit_sig_parameter_list(self, node: Element, parameter_group: type[Element]) -> None:
+        """Visit a signature parameters or type parameters list.
 
-    def depart_desc_name(self, node: Element) -> None:
-        self.body.append('}}')
-        self.literal_whitespace -= 1
+        The *parameter_group* value is the type of a child node acting as a required parameter
+        or as a set of contiguous optional parameters.
+
+        The caller is responsible for closing adding surrounding LaTeX macro argument start
+        and stop tokens.
+        """
+        self.is_first_param = True
+        self.optional_param_level = 0
+        self.params_left_at_level = 0
+        self.param_group_index = 0
+        # Counts as what we call a parameter group either a required parameter, or a
+        # set of contiguous optional ones.
+        self.list_is_required_param = [isinstance(c, parameter_group) for c in node.children]
+        # How many required parameters are left.
+        self.required_params_left = sum(self.list_is_required_param)
+        self.param_separator = r'\sphinxparamcomma '
+        self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        # close name, open parameterlist
-        self.body.append('}{')
-        self.first_param = 1
+        if not self.has_tp_list:
+            # close name argument (#1), open parameters list argument (#2)
+            self.body.append('}{')
+        self._visit_sig_parameter_list(node, addnodes.desc_parameter)
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
         self.body.append('}{')
 
-    def visit_desc_parameter(self, node: Element) -> None:
-        if not self.first_param:
-            self.body.append(', ')
-        else:
-            self.first_param = 0
-        if not node.hasattr('noemph'):
-            self.body.append(r'\emph{')
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        # close name argument (#1), open type parameters list argument (#2)
+        self.body.append('}{')
+        self._visit_sig_parameter_list(node, addnodes.desc_type_parameter)
 
-    def depart_desc_parameter(self, node: Element) -> None:
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        # close type parameters list, open parameters list argument (#3)
+        self.body.append('}{')
+
+    def _visit_sig_parameter(self, node: Element, parameter_macro: str) -> None:
+        if self.is_first_param:
+            self.is_first_param = False
+        elif not self.multi_line_parameter_list and not self.required_params_left:
+            self.body.append(self.param_separator)
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
+        else:
+            self.params_left_at_level -= 1
+        if not node.hasattr('noemph'):
+            self.body.append(parameter_macro)
+
+    def _depart_sig_parameter(self, node: Element) -> None:
         if not node.hasattr('noemph'):
             self.body.append('}')
+        is_required = self.list_is_required_param[self.param_group_index]
+        if self.multi_line_parameter_list:
+            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            next_is_required = (
+                not is_last_group
+                and self.list_is_required_param[self.param_group_index + 1]
+            )
+            opt_param_left_at_level = self.params_left_at_level > 0
+            if opt_param_left_at_level or is_required and (is_last_group or next_is_required):
+                self.body.append(self.param_separator)
+
+        elif self.required_params_left:
+            self.body.append(self.param_separator)
+
+        if is_required:
+            self.param_group_index += 1
+
+    def visit_desc_parameter(self, node: Element) -> None:
+        self._visit_sig_parameter(node, r'\sphinxparam{')
+
+    def depart_desc_parameter(self, node: Element) -> None:
+        self._depart_sig_parameter(node)
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self._visit_sig_parameter(node, r'\sphinxtypeparam{')
+
+    def depart_desc_type_parameter(self, node: Element) -> None:
+        self._depart_sig_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
-        self.body.append(r'\sphinxoptional{')
+        self.params_left_at_level = sum(isinstance(c, addnodes.desc_parameter)
+                                        for c in node.children)
+        self.optional_param_level += 1
+        self.max_optional_param_level = self.optional_param_level
+        if self.multi_line_parameter_list:
+            if self.is_first_param:
+                self.body.append(r'\sphinxoptional{')
+            elif self.required_params_left:
+                self.body.append(self.param_separator)
+                self.body.append(r'\sphinxoptional{')
+            else:
+                self.body.append(r'\sphinxoptional{')
+                self.body.append(self.param_separator)
+        else:
+            self.body.append(r'\sphinxoptional{')
 
     def depart_desc_optional(self, node: Element) -> None:
+        self.optional_param_level -= 1
+        if self.multi_line_parameter_list:
+            # If it's the first time we go down one level, add the separator before the
+            # bracket.
+            if self.optional_param_level == self.max_optional_param_level - 1:
+                self.body.append(self.param_separator)
         self.body.append('}')
+        if self.optional_param_level == 0:
+            self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:
         self.body.append(r'\sphinxbfcode{\sphinxupquote{')
@@ -811,20 +953,15 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         self.body.append('}}')
 
-    def visit_desc_content(self, node: Element) -> None:
-        if node.children and not isinstance(node.children[0], nodes.paragraph):
-            # avoid empty desc environment which causes a formatting bug
-            self.body.append('~')
-
-    def depart_desc_content(self, node: Element) -> None:
-        pass
+    ##############################################
 
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
-        self.body.append(r'\sphinxstrong{%s:}' % admonitionlabels['seealso'] + CR)
-        self.body.append(r'\nopagebreak' + BLANKLINE)
+        self.body.append(r'\begin{sphinxseealso}{%s:}' % admonitionlabels['seealso'] + CR)
 
     def depart_seealso(self, node: Element) -> None:
+        self.body.append(BLANKLINE)
+        self.body.append(r'\end{sphinxseealso}')
         self.body.append(BLANKLINE)
 
     def visit_rubric(self, node: Element) -> None:
@@ -841,16 +978,14 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnote(self, node: Element) -> None:
         self.in_footnote += 1
         label = cast(nodes.label, node[0])
-        if 'auto' not in node:
-            self.body.append(r'\sphinxstepexplicit ')
         if self.in_parsed_literal:
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
         else:
             self.body.append('%' + CR)
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
-        if 'auto' not in node:
-            self.body.append(r'\phantomsection'
-                             r'\label{\thesphinxscope.%s}%%' % label.astext() + CR)
+        if 'referred' in node:
+            # TODO: in future maybe output a latex macro with backrefs here
+            pass
         self.body.append(r'\sphinxAtStartFootnote' + CR)
 
     def depart_footnote(self, node: Element) -> None:
@@ -870,32 +1005,45 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_table(self, node: Element) -> None:
         if len(self.tables) == 1:
+            assert self.table is not None
             if self.table.get_table_type() == 'longtable':
                 raise UnsupportedError(
                     '%s:%s: longtable does not support nesting a table.' %
                     (self.curfilestack[-1], node.line or ''))
-            else:
-                # change type of parent table to tabular
-                # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
-                self.table.has_problematic = True
+            # change type of parent table to tabular
+            # see https://groups.google.com/d/msg/sphinx-users/7m3NeOBixeo/9LKP2B4WBQAJ
+            self.table.has_problematic = True
         elif len(self.tables) > 2:
             raise UnsupportedError(
                 '%s:%s: deeply nested tables are not implemented.' %
                 (self.curfilestack[-1], node.line or ''))
 
-        self.tables.append(Table(node))
+        table = Table(node)
+        self.tables.append(table)
+        if table.colsep is None:
+            table.colsep = '|' * (
+                'booktabs' not in self.builder.config.latex_table_style
+                and 'borderless' not in self.builder.config.latex_table_style
+            )
         if self.next_table_colspec:
-            self.table.colspec = '{%s}' % self.next_table_colspec + CR
+            table.colspec = '{%s}' % self.next_table_colspec + CR
+            if '|' in table.colspec:
+                table.styles.append('vlines')
+                table.colsep = '|'
+            else:
+                table.styles.append('novlines')
+                table.colsep = ''
             if 'colwidths-given' in node.get('classes', []):
                 logger.info(__('both tabularcolumns and :widths: option are given. '
                                ':widths: is ignored.'), location=node)
         self.next_table_colspec = None
 
     def depart_table(self, node: Element) -> None:
+        assert self.table is not None
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
-        table = self.render(table_type + '.tex_t',
-                            dict(table=self.table, labels=labels))
+        table = self.render(table_type + '.tex.jinja',
+                            {'table': self.table, 'labels': labels})
         self.body.append(BLANKLINE)
         self.body.append(table)
         self.body.append(CR)
@@ -903,6 +1051,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.tables.pop()
 
     def visit_colspec(self, node: Element) -> None:
+        assert self.table is not None
         self.table.colcount += 1
         if 'colwidth' in node:
             self.table.colwidths.append(node['colwidth'])
@@ -919,67 +1068,91 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_thead(self, node: Element) -> None:
+        assert self.table is not None
         # Redirect head output until header is finished.
         self.pushbody(self.table.header)
 
     def depart_thead(self, node: Element) -> None:
+        if self.body and self.body[-1] == r'\sphinxhline':
+            self.body.pop()
         self.popbody()
 
     def visit_tbody(self, node: Element) -> None:
+        assert self.table is not None
         # Redirect body output until table is finished.
         self.pushbody(self.table.body)
 
     def depart_tbody(self, node: Element) -> None:
+        if self.body and self.body[-1] == r'\sphinxhline':
+            self.body.pop()
         self.popbody()
 
     def visit_row(self, node: Element) -> None:
+        assert self.table is not None
         self.table.col = 0
-
+        _colsep = self.table.colsep
         # fill columns if the row starts with the bottom of multirow cell
         while True:
             cell = self.table.cell(self.table.row, self.table.col)
             if cell is None:  # not a bottom of multirow cell
                 break
-            else:  # a bottom of multirow cell
-                self.table.col += cell.width
-                if cell.col:
-                    self.body.append('&')
-                if cell.width == 1:
-                    # insert suitable strut for equalizing row heights in given multirow
-                    self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
-                else:  # use \multicolumn for wide multirow cell
-                    self.body.append(r'\multicolumn{%d}{|l|}\sphinxtablestrut{%d}}' %
-                                     (cell.width, cell.cell_id))
+            # a bottom of multirow cell
+            self.table.col += cell.width
+            if cell.col:
+                self.body.append('&')
+            if cell.width == 1:
+                # insert suitable strut for equalizing row heights in given multirow
+                self.body.append(r'\sphinxtablestrut{%d}' % cell.cell_id)
+            else:  # use \multicolumn for wide multirow cell
+                self.body.append(r'\multicolumn{%d}{%sl%s}{\sphinxtablestrut{%d}}' %
+                                 (cell.width, _colsep, _colsep, cell.cell_id))
 
     def depart_row(self, node: Element) -> None:
+        assert self.table is not None
         self.body.append(r'\\' + CR)
         cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
-        underlined = [cell.row + cell.height == self.table.row + 1 for cell in cells]
+        underlined = [cell.row + cell.height == self.table.row + 1  # type: ignore[union-attr]
+                      for cell in cells]
         if all(underlined):
-            self.body.append(r'\hline')
+            self.body.append(r'\sphinxhline')
         else:
             i = 0
             underlined.extend([False])  # sentinel
-            while i < len(underlined):
-                if underlined[i] is True:
-                    j = underlined[i:].index(False)
-                    self.body.append(r'\cline{%d-%d}' % (i + 1, i + j))
-                    i += j
+            if underlined[0] is False:
+                i = 1
+                while i < self.table.colcount and underlined[i] is False:
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
+                        self.body.append(r'\sphinxvlinecrossing{%d}' % i)
+                    i += 1
+            while i < self.table.colcount:
+                # each time here underlined[i] is True
+                j = underlined[i:].index(False)
+                self.body.append(r'\sphinxcline{%d-%d}' % (i + 1, i + j))
+                i += j
                 i += 1
+                while i < self.table.colcount and underlined[i] is False:
+                    if cells[i - 1].cell_id != cells[i].cell_id:  # type: ignore[union-attr]
+                        self.body.append(r'\sphinxvlinecrossing{%d}' % i)
+                    i += 1
+            self.body.append(r'\sphinxfixclines{%d}' % self.table.colcount)
         self.table.row += 1
 
     def visit_entry(self, node: Element) -> None:
+        assert self.table is not None
         if self.table.col > 0:
             self.body.append('&')
         self.table.add_cell(node.get('morerows', 0) + 1, node.get('morecols', 0) + 1)
         cell = self.table.cell()
+        assert cell is not None
         context = ''
+        _colsep = self.table.colsep
         if cell.width > 1:
             if self.config.latex_use_latex_multicolumn:
                 if self.table.col == 0:
-                    self.body.append(r'\multicolumn{%d}{|l|}{%%' % cell.width + CR)
+                    self.body.append(r'\multicolumn{%d}{%sl%s}{%%' %
+                                     (cell.width, _colsep, _colsep) + CR)
                 else:
-                    self.body.append(r'\multicolumn{%d}{l|}{%%' % cell.width + CR)
+                    self.body.append(r'\multicolumn{%d}{l%s}{%%' % (cell.width, _colsep) + CR)
                 context = '}%' + CR
             else:
                 self.body.append(r'\sphinxstartmulticolumn{%d}%%' % cell.width + CR)
@@ -994,7 +1167,7 @@ class LaTeXTranslator(SphinxTranslator):
             context = (r'\par' + CR + r'\vskip-\baselineskip'
                        r'\vbox{\hbox{\strut}}\end{varwidth}%' + CR + context)
             self.needs_linetrimming = 1
-        if len(node.traverse(nodes.paragraph)) >= 2:
+        if len(list(node.findall(nodes.paragraph))) >= 2:
             self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead) or (cell.col in self.table.stubs):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
@@ -1017,25 +1190,28 @@ class LaTeXTranslator(SphinxTranslator):
 
         self.body.append(self.context.pop())
 
+        assert self.table is not None
         cell = self.table.cell()
+        assert cell is not None
         self.table.col += cell.width
+        _colsep = self.table.colsep
 
         # fill columns if next ones are a bottom of wide-multirow cell
         while True:
             nextcell = self.table.cell()
             if nextcell is None:  # not a bottom of multirow cell
                 break
-            else:  # a bottom part of multirow cell
-                self.table.col += nextcell.width
-                self.body.append('&')
-                if nextcell.width == 1:
-                    # insert suitable strut for equalizing row heights in multirow
-                    # they also serve to clear colour panels which would hide the text
-                    self.body.append(r'\sphinxtablestrut{%d}' % nextcell.cell_id)
-                else:
-                    # use \multicolumn for wide multirow cell
-                    self.body.append(r'\multicolumn{%d}{l|}{\sphinxtablestrut{%d}}' %
-                                     (nextcell.width, nextcell.cell_id))
+            # a bottom part of multirow cell
+            self.body.append('&')
+            if nextcell.width == 1:
+                # insert suitable strut for equalizing row heights in multirow
+                # they also serve to clear colour panels which would hide the text
+                self.body.append(r'\sphinxtablestrut{%d}' % nextcell.cell_id)
+            else:
+                # use \multicolumn for not first row of wide multirow cell
+                self.body.append(r'\multicolumn{%d}{l%s}{\sphinxtablestrut{%d}}' %
+                                 (nextcell.width, _colsep, nextcell.cell_id))
+            self.table.col += nextcell.width
 
     def visit_acks(self, node: Element) -> None:
         # this is a list in the source, but should be rendered as a
@@ -1060,7 +1236,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_enumerated_list(self, node: Element) -> None:
         def get_enumtype(node: Element) -> str:
             enumtype = node.get('enumtype', 'arabic')
-            if 'alpha' in enumtype and 26 < node.get('start', 0) + len(node):
+            if 'alpha' in enumtype and (node.get('start', 0) + len(node)) > 26:
                 # fallback to arabic if alphabet counter overflows
                 enumtype = 'arabic'
 
@@ -1120,8 +1296,8 @@ class LaTeXTranslator(SphinxTranslator):
             ctx = r'\phantomsection'
             for node_id in node['ids']:
                 ctx += self.hypertarget(node_id, anchor=False)
-        ctx += r'}] \leavevmode'
-        self.body.append(r'\item[{')
+        ctx += r'}'
+        self.body.append(r'\sphinxlineitem{')
         self.context.append(ctx)
 
     def depart_term(self, node: Element) -> None:
@@ -1193,7 +1369,7 @@ class LaTeXTranslator(SphinxTranslator):
         ncolumns = node['ncolumns']
         if self.compact_list > 1:
             self.body.append(r'\setlength{\multicolsep}{0pt}' + CR)
-        self.body.append(r'\begin{multicols}{' + ncolumns + '}\raggedright' + CR)
+        self.body.append(r'\begin{multicols}{' + ncolumns + r'}\raggedright' + CR)
         self.body.append(r'\begin{itemize}\setlength{\itemsep}{0pt}'
                          r'\setlength{\parskip}{0pt}' + CR)
         if self.table:
@@ -1207,14 +1383,14 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def depart_hlistcol(self, node: Element) -> None:
-        # \columnbreak would guarantee same columns as in html ouput.  But
+        # \columnbreak would guarantee same columns as in html output.  But
         # some testing with long items showed that columns may be too uneven.
         # And in case only of short items, the automatic column breaks should
         # match the ones pre-computed by the hlist() directive.
         # self.body.append(r'\columnbreak\n')
         pass
 
-    def latex_image_length(self, width_str: str, scale: int = 100) -> str:
+    def latex_image_length(self, width_str: str, scale: int = 100) -> str | None:
         try:
             return rstdim_to_latexdim(width_str, scale)
         except ValueError:
@@ -1226,8 +1402,8 @@ class LaTeXTranslator(SphinxTranslator):
         return isinstance(node.parent, nodes.TextElement)
 
     def visit_image(self, node: Element) -> None:
-        pre: List[str] = []  # in reverse order
-        post: List[str] = []
+        pre: list[str] = []  # in reverse order
+        post: list[str] = []
         include_graphics_options = []
         has_hyperlink = isinstance(node.parent, nodes.reference)
         if has_hyperlink:
@@ -1294,14 +1470,17 @@ class LaTeXTranslator(SphinxTranslator):
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
+
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
-            # the options of \sphinxincludegraphics unexpectly (ex. WIDTH=...).
-            self.body.append(r'\lowercase{\sphinxincludegraphics%s}{{%s}%s}' %
-                             (options, base, ext))
+            # the options of \sphinxincludegraphics unexpectedly (ex. WIDTH=...).
+            cmd = fr'\lowercase{{\sphinxincludegraphics{options}}}{{{{{base}}}{ext}}}'
         else:
-            self.body.append(r'\sphinxincludegraphics%s{{%s}%s}' %
-                             (options, base, ext))
+            cmd = fr'\sphinxincludegraphics{options}{{{{{base}}}{ext}}}'
+        # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
+        if '#' in base:
+            cmd = r'{\catcode`\#=12' + cmd + '}'
+        self.body.append(cmd)
         self.body.extend(post)
 
     def depart_image(self, node: Element) -> None:
@@ -1330,12 +1509,16 @@ class LaTeXTranslator(SphinxTranslator):
                 length = self.latex_image_length(node['width'])
             elif isinstance(node[0], nodes.image) and 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
-            self.body.append(BLANKLINE)     # Insert a blank line to prevent infinite loop
-                                            # https://github.com/sphinx-doc/sphinx/issues/7059
+            # Insert a blank line to prevent an infinite loop
+            # https://github.com/sphinx-doc/sphinx/issues/7059
+            self.body.append(BLANKLINE)
             self.body.append(r'\begin{wrapfigure}{%s}{%s}' %
                              ('r' if node['align'] == 'right' else 'l', length or '0pt') + CR)
             self.body.append(r'\centering')
-            self.context.append(r'\end{wrapfigure}' + CR)
+            self.context.append(r'\end{wrapfigure}' +
+                                BLANKLINE +
+                                r'\mbox{}\par\vskip-\dimexpr\baselineskip+\parskip\relax' +
+                                CR)  # avoid disappearance if no text next issues/11079
         elif self.in_minipage:
             self.body.append(CR + r'\begin{center}')
             self.context.append(r'\end{center}' + CR)
@@ -1445,7 +1628,7 @@ class LaTeXTranslator(SphinxTranslator):
         domain = cast(StandardDomain, self.builder.env.get_domain('std'))
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
-        elif domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
+        if domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
             return
 
         if 'refuri' in node:
@@ -1459,7 +1642,26 @@ class LaTeXTranslator(SphinxTranslator):
                 pass
             else:
                 add_target(node['refid'])
-        for id in node['ids']:
+        # Temporary fix for https://github.com/sphinx-doc/sphinx/issues/11093
+        # TODO: investigate if a more elegant solution exists (see comments of #11093)
+        if node.get('ismod', False):
+            # Detect if the previous nodes are label targets. If so, remove
+            # the refid thereof from node['ids'] to avoid duplicated ids.
+            def has_dup_label(sib: Node | None) -> bool:
+                return isinstance(sib, nodes.target) and sib.get('refid') in node['ids']
+
+            prev = get_prev_node(node)
+            if has_dup_label(prev):
+                ids = node['ids'][:]  # copy to avoid side-effects
+                while has_dup_label(prev):
+                    ids.remove(prev['refid'])  # type: ignore[index]
+                    prev = get_prev_node(prev)  # type: ignore[arg-type]
+            else:
+                ids = iter(node['ids'])  # read-only iterator
+        else:
+            ids = iter(node['ids'])  # read-only iterator
+
+        for id in ids:
             add_target(id)
 
     def depart_target(self, node: Element) -> None:
@@ -1493,43 +1695,38 @@ class LaTeXTranslator(SphinxTranslator):
         if not node.get('inline', True):
             self.body.append(CR)
         entries = node['entries']
-        for type, string, tid, ismain, key_ in entries:
+        for type, string, _tid, ismain, _key in entries:
             m = ''
             if ismain:
                 m = '|spxpagem'
             try:
+                parts = tuple(map(escape, split_index_msg(type, string)))
+                styled = tuple(map(style, parts))
                 if type == 'single':
                     try:
-                        p1, p2 = [escape(x) for x in split_into(2, 'single', string)]
-                        P1, P2 = style(p1), style(p2)
-                        self.body.append(r'\index{%s@%s!%s@%s%s}' % (p1, P1, p2, P2, m))
+                        p1, p2 = parts
+                        P1, P2 = styled
+                        self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}')
                     except ValueError:
-                        p = escape(split_into(1, 'single', string)[0])
-                        P = style(p)
-                        self.body.append(r'\index{%s@%s%s}' % (p, P, m))
+                        p, = parts
+                        P, = styled
+                        self.body.append(fr'\index{{{p}@{P}{m}}}')
                 elif type == 'pair':
-                    p1, p2 = [escape(x) for x in split_into(2, 'pair', string)]
-                    P1, P2 = style(p1), style(p2)
-                    self.body.append(r'\index{%s@%s!%s@%s%s}\index{%s@%s!%s@%s%s}' %
-                                     (p1, P1, p2, P2, m, p2, P2, p1, P1, m))
+                    p1, p2 = parts
+                    P1, P2 = styled
+                    self.body.append(fr'\index{{{p1}@{P1}!{p2}@{P2}{m}}}'
+                                     fr'\index{{{p2}@{P2}!{p1}@{P1}{m}}}')
                 elif type == 'triple':
-                    p1, p2, p3 = [escape(x) for x in split_into(3, 'triple', string)]
-                    P1, P2, P3 = style(p1), style(p2), style(p3)
+                    p1, p2, p3 = parts
+                    P1, P2, P3 = styled
                     self.body.append(
-                        r'\index{%s@%s!%s %s@%s %s%s}'
-                        r'\index{%s@%s!%s, %s@%s, %s%s}'
-                        r'\index{%s@%s!%s %s@%s %s%s}' %
-                        (p1, P1, p2, p3, P2, P3, m,
-                         p2, P2, p3, p1, P3, P1, m,
-                         p3, P3, p1, p2, P1, P2, m))
-                elif type == 'see':
-                    p1, p2 = [escape(x) for x in split_into(2, 'see', string)]
-                    P1 = style(p1)
-                    self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
-                elif type == 'seealso':
-                    p1, p2 = [escape(x) for x in split_into(2, 'seealso', string)]
-                    P1 = style(p1)
-                    self.body.append(r'\index{%s@%s|see{%s}}' % (p1, P1, p2))
+                        fr'\index{{{p1}@{P1}!{p2} {p3}@{P2} {P3}{m}}}'
+                        fr'\index{{{p2}@{P2}!{p3}, {p1}@{P3}, {P1}{m}}}'
+                        fr'\index{{{p3}@{P3}!{p1} {p2}@{P1} {P2}{m}}}')
+                elif type in {'see', 'seealso'}:
+                    p1, p2 = parts
+                    P1, _P2 = styled
+                    self.body.append(fr'\index{{{p1}@{P1}|see{{{p2}}}}}')
                 else:
                     logger.warning(__('unknown index entry type %s found'), type)
             except ValueError as err:
@@ -1563,7 +1760,7 @@ class LaTeXTranslator(SphinxTranslator):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
-            self.body.append(r'\emph{')
+            self.body.append(r'\sphinxsamedocref{')
             if self.config.latex_show_pagerefs and not \
                     self.in_production_list:
                 self.context.append('}}} (%s)' % self.hyperpageref(id))
@@ -1623,7 +1820,7 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             # old style format (cf. "Fig.%{number}")
             text = escape_abbr(title) % (r'\ref{%s}' % self.idescape(id))
-        hyperref = r'\hyperref[%s]{%s}' % (self.idescape(id), text)
+        hyperref = fr'\hyperref[{self.idescape(id)}]{{{text}}}'
         self.body.append(hyperref)
 
         raise nodes.SkipNode
@@ -1705,8 +1902,8 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_citation(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
-        self.body.append(r'\bibitem[%s]{%s:%s}' % (self.encode(label.astext()),
-                                                   node['docname'], node['ids'][0]))
+        self.body.append(fr'\bibitem[{self.encode(label.astext())}]'
+                         fr'{{{node["docname"]}:{node["ids"][0]}}}')
 
     def depart_citation(self, node: Element) -> None:
         pass
@@ -1715,7 +1912,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.in_title:
             pass
         else:
-            self.body.append(r'\sphinxcite{%s:%s}' % (node['docname'], node['refname']))
+            self.body.append(fr'\sphinxcite{{{node["docname"]}:{node["refname"]}}}')
             raise nodes.SkipNode
 
     def depart_citation_reference(self, node: Element) -> None:
@@ -1724,10 +1921,22 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if self.in_title:
             self.body.append(r'\sphinxstyleliteralintitle{\sphinxupquote{')
+            return
         elif 'kbd' in node['classes']:
             self.body.append(r'\sphinxkeyboard{\sphinxupquote{')
-        else:
+            return
+        lang = node.get("language", None)
+        if 'code' not in node['classes'] or not lang:
             self.body.append(r'\sphinxcode{\sphinxupquote{')
+            return
+
+        opts = self.config.highlight_options.get(lang, {})
+        hlcode = self.highlighter.highlight_block(
+            node.astext(), lang, opts=opts, location=node, nowrap=True)
+        self.body.append(r'\sphinxcode{\sphinxupquote{%' + CR
+                         + hlcode.rstrip() + '%' + CR
+                         + '}}')
+        raise nodes.SkipNode
 
     def depart_literal(self, node: Element) -> None:
         self.body.append('}}')
@@ -1744,9 +1953,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_footnotetext(self, node: Element) -> None:
         label = cast(nodes.label, node[0])
         self.body.append('%' + CR)
-        self.body.append(r'\begin{footnotetext}[%s]'
-                         r'\phantomsection\label{\thesphinxscope.%s}%%'
-                         % (label.astext(), label.astext()) + CR)
+        self.body.append(r'\begin{footnotetext}[%s]' % label.astext())
         self.body.append(r'\sphinxAtStartFootnote' + CR)
 
     def depart_footnotetext(self, node: Element) -> None:
@@ -1780,7 +1987,7 @@ class LaTeXTranslator(SphinxTranslator):
 
             hlcode = self.highlighter.highlight_block(
                 node.rawsource, lang, opts=opts, linenos=linenos,
-                location=node, **highlight_args
+                location=node, **highlight_args,
             )
             if self.in_footnote:
                 self.body.append(CR + r'\sphinxSetupCodeBlockInFootnote')
@@ -1842,8 +2049,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list) or \
-                    isinstance(child, nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -1854,8 +2060,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, nodes.bullet_list) or \
-                    isinstance(child, nodes.enumerated_list):
+            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)
@@ -1872,7 +2077,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.context[-1] += 1
 
     def visit_option_argument(self, node: Element) -> None:
-        """The delimiter betweeen an option and its argument."""
+        """The delimiter between an option and its argument."""
         self.body.append(node.get('delimiter', ' '))
 
     def depart_option_argument(self, node: Element) -> None:
@@ -1925,14 +2130,14 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}}$')
 
     def visit_inline(self, node: Element) -> None:
-        classes = node.get('classes', [])
-        if classes in [['menuselection']]:
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
+        if classes == ['menuselection']:
             self.body.append(r'\sphinxmenuselection{')
             self.context.append('}')
-        elif classes in [['guilabel']]:
+        elif classes == ['guilabel']:
             self.body.append(r'\sphinxguilabel{')
             self.context.append('}')
-        elif classes in [['accelerator']]:
+        elif classes == ['accelerator']:
             self.body.append(r'\sphinxaccelerator{')
             self.context.append('}')
         elif classes and not self.in_title:
@@ -1957,10 +2162,14 @@ class LaTeXTranslator(SphinxTranslator):
         pass
 
     def visit_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
+        for c in classes:
+            self.body.append('\n\\begin{sphinxuseclass}{%s}' % c)
 
     def depart_container(self, node: Element) -> None:
-        pass
+        classes = node.get('classes', [])  # type: ignore[var-annotated]
+        for _c in classes:
+            self.body.append('\n\\end{sphinxuseclass}')
 
     def visit_decoration(self, node: Element) -> None:
         pass
@@ -2027,7 +2236,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_math_block(self, node: Element) -> None:
         if node.get('label'):
-            label = "equation:%s:%s" % (node['docname'], node['label'])
+            label = f"equation:{node['docname']}:{node['label']}"
         else:
             label = None
 
@@ -2042,7 +2251,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
-        label = "equation:%s:%s" % (node['docname'], node['target'])
+        label = f"equation:{node['docname']}:{node['target']}"
         eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:
@@ -2058,12 +2267,9 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_math_reference(self, node: Element) -> None:
         pass
 
-    def unknown_visit(self, node: Node) -> None:
-        raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
 
 # FIXME: Workaround to avoid circular import
 # refs: https://github.com/sphinx-doc/sphinx/issues/5433
-from sphinx.builders.latex.nodes import ( # NOQA isort:skip
+from sphinx.builders.latex.nodes import (  # NoQA: E402  # isort:skip
     HYPERLINK_SUPPORT_NODES, captioned_literal_block, footnotetext,
 )

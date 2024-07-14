@@ -37,8 +37,8 @@ module_level_variable1 : int
     with it.
 
 
-.. _NumPy Documentation HOWTO:
-   https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _NumPy docstring standard:
+   https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 """
 
@@ -55,7 +55,7 @@ on the first line, separated by a colon.
 def function_with_types_in_docstring(param1, param2):
     """Example function with types documented in the docstring.
 
-    `PEP 484`_ type annotations are supported. If attribute, parameter, and
+    :pep:`484` type annotations are supported. If attribute, parameter, and
     return types are annotated according to `PEP 484`_, they do not need to be
     included in the docstring:
 
@@ -70,10 +70,6 @@ def function_with_types_in_docstring(param1, param2):
     -------
     bool
         True if successful, False otherwise.
-
-    .. _PEP 484:
-        https://www.python.org/dev/peps/pep-0484/
-
     """
 
 
@@ -184,8 +180,7 @@ def example_generator(n):
     [0, 1, 2, 3]
 
     """
-    for i in range(n):
-        yield i
+    yield from range(n)
 
 
 class ExampleError(Exception):
@@ -271,7 +266,7 @@ class ExampleClass:
         self.attr3 = param3  #: Doc comment *inline* with attribute
 
         #: list(str): Doc comment *before* attribute, with type specified
-        self.attr4 = ["attr4"]
+        self.attr4 = ['attr4']
 
         self.attr5 = None
         """str: Docstring *after* attribute, with type specified."""
@@ -279,7 +274,7 @@ class ExampleClass:
     @property
     def readonly_property(self):
         """str: Properties should be documented in their getter method."""
-        return "readonly_property"
+        return 'readonly_property'
 
     @property
     def readwrite_property(self):
@@ -289,7 +284,7 @@ class ExampleClass:
         If the setter method contains notable behavior, it should be
         mentioned here.
         """
-        return ["readwrite_property"]
+        return ['readwrite_property']
 
     @readwrite_property.setter
     def readwrite_property(self, value):

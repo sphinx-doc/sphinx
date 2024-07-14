@@ -1,17 +1,18 @@
-"""
-    sphinx.pygments_styles
-    ~~~~~~~~~~~~~~~~~~~~~~
-
-    Sphinx theme specific highlighting styles.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Sphinx theme specific highlighting styles."""
 
 from pygments.style import Style
 from pygments.styles.friendly import FriendlyStyle
-from pygments.token import (Comment, Error, Generic, Keyword, Name, Number, Operator, String,
-                            Whitespace)
+from pygments.token import (
+    Comment,
+    Error,
+    Generic,
+    Keyword,
+    Name,
+    Number,
+    Operator,
+    String,
+    Whitespace,
+)
 
 
 class NoneStyle(Style):
@@ -91,5 +92,5 @@ class PyramidStyle(Style):
         Generic.Output:            "#888",
         Generic.Traceback:         "#04D",
 
-        Error:                     "#a40000 bg:#fbe3e4"
+        Error:                     "#a40000 bg:#fbe3e4",
     }

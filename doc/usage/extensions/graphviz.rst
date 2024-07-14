@@ -66,7 +66,7 @@ It adds these directives:
    .. rst:directive:option:: layout: layout type of the graph
       :type: text
 
-      The layout of the graph (ex. ``dot``, ``neato`` and so on).  A path to the
+      The layout of the graph (e.g. ``dot``, ``neato`` and so on).  A path to the
       graphviz commands are also allowed.  By default, :confval:`graphviz_dot`
       is used.
 
@@ -83,7 +83,7 @@ It adds these directives:
       .. versionadded:: 1.6
 
    .. rst:directive:option:: class: class names
-      :type: a list of class names separeted by spaces
+      :type: a list of class names separated by spaces
 
       The class name of the graph.
 
@@ -139,7 +139,7 @@ It adds these directives:
       .. versionadded:: 1.6
 
    .. rst:directive:option:: class: class names
-      :type: a list of class names separeted by spaces
+      :type: a list of class names separated by spaces
 
       The class name of the graph.
 
@@ -191,7 +191,7 @@ It adds these directives:
       .. versionadded:: 1.6
 
    .. rst:directive:option:: class: class names
-      :type: a list of class names separeted by spaces
+      :type: a list of class names separated by spaces
 
       The class name of the graph.
 
@@ -211,7 +211,7 @@ There are also these config values:
    :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
    option should be preferable, like this::
 
-      sphinx-build -b html -D graphviz_dot=C:\graphviz\bin\dot.exe . _build/html
+      sphinx-build -M html -D graphviz_dot=C:\graphviz\bin\dot.exe . _build
 
 .. confval:: graphviz_dot_args
 
@@ -227,13 +227,13 @@ There are also these config values:
    attribute must be set, such as ``"_top"`` and ``"_blank"``. For example, the
    link in the following graph should work in the svg output: ::
 
-       .. graphviz::
+     .. graphviz::
 
-            digraph example {
-                a [label="sphinx", href="http://sphinx-doc.org", target="_top"];
-                b [label="other"];
-                a -> b;
-            }
+          digraph example {
+              a [label="sphinx", href="https://www.sphinx-doc.org/", target="_top"];
+              b [label="other"];
+              a -> b;
+          }
 
    .. versionadded:: 1.0
       Previously, output always was PNG.

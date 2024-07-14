@@ -1,26 +1,16 @@
-"""
-    sphinx.writers.texinfo
-    ~~~~~~~~~~~~~~~~~~~~~~
+"""Custom docutils writer for Texinfo."""
 
-    Custom docutils writer for Texinfo.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import re
 import textwrap
-import warnings
+from collections.abc import Iterable, Iterator
 from os import path
-from typing import (TYPE_CHECKING, Any, Dict, Iterable, Iterator, List, Optional, Pattern, Set,
-                    Tuple, Union, cast)
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
-from docutils.nodes import Element, Node, Text
 
 from sphinx import __display_version__, addnodes
-from sphinx.deprecation import RemovedInSphinx50Warning
-from sphinx.domains import IndexEntry
 from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __, admonitionlabels
@@ -30,7 +20,10 @@ from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
+    from docutils.nodes import Element, Node, Text
+
     from sphinx.builders.texinfo import TexinfoBuilder
+    from sphinx.domains import IndexEntry
 
 
 logger = logging.getLogger(__name__)
@@ -60,8 +53,6 @@ TEMPLATE = """\
 @exampleindent %(exampleindent)s
 @finalout
 %(direntry)s
-@definfoenclose strong,`,'
-@definfoenclose emph,`,'
 @c %%**end of header
 
 @copying
@@ -91,21 +82,22 @@ TEMPLATE = """\
 """
 
 
-def find_subsections(section: Element) -> List[nodes.section]:
+def find_subsections(section: Element) -> list[nodes.section]:
     """Return a list of subsections for the given ``section``."""
     result = []
     for child in section:
         if isinstance(child, nodes.section):
             result.append(child)
             continue
-        elif isinstance(child, nodes.Element):
+        if isinstance(child, nodes.Element):
             result.extend(find_subsections(child))
     return result
 
 
-def smart_capwords(s: str, sep: str = None) -> str:
+def smart_capwords(s: str, sep: str | None = None) -> str:
     """Like string.capwords() but does not capitalize words that already
-    contain a capital letter."""
+    contain a capital letter.
+    """
     words = s.split(sep)
     for i, word in enumerate(words):
         if all(x.islower() for x in word):
@@ -115,9 +107,10 @@ def smart_capwords(s: str, sep: str = None) -> str:
 
 class TexinfoWriter(writers.Writer):
     """Texinfo writer for generating Texinfo documents."""
+
     supported = ('texinfo', 'texi')
 
-    settings_spec: Tuple[str, Any, Tuple[Tuple[str, List[str], Dict[str, str]], ...]] = (
+    settings_spec: tuple[str, Any, tuple[tuple[str, list[str], dict[str, str]], ...]] = (
         'Texinfo Specific Options', None, (
             ("Name of the Info file", ['--texinfo-filename'], {'default': ''}),
             ('Dir entry', ['--texinfo-dir-entry'], {'default': ''}),
@@ -125,13 +118,13 @@ class TexinfoWriter(writers.Writer):
             ('Category', ['--texinfo-dir-category'], {'default':
                                                       'Miscellaneous'})))
 
-    settings_defaults: Dict = {}
+    settings_defaults: dict[str, Any] = {}
 
-    output: str = None
+    output: str
 
     visitor_attributes = ('output', 'fragment')
 
-    def __init__(self, builder: "TexinfoBuilder") -> None:
+    def __init__(self, builder: TexinfoBuilder) -> None:
         super().__init__()
         self.builder = builder
 
@@ -146,8 +139,8 @@ class TexinfoWriter(writers.Writer):
 
 class TexinfoTranslator(SphinxTranslator):
 
-    builder: "TexinfoBuilder" = None
     ignore_missing_images = False
+    builder: TexinfoBuilder
 
     default_elements = {
         'author': '',
@@ -164,38 +157,39 @@ class TexinfoTranslator(SphinxTranslator):
         'title': '',
     }
 
-    def __init__(self, document: nodes.document, builder: "TexinfoBuilder") -> None:
+    def __init__(self, document: nodes.document, builder: TexinfoBuilder) -> None:
         super().__init__(document, builder)
         self.init_settings()
 
-        self.written_ids: Set[str] = set()          # node names and anchors in output
+        self.written_ids: set[str] = set()          # node names and anchors in output
         # node names and anchors that should be in output
-        self.referenced_ids: Set[str] = set()
-        self.indices: List[Tuple[str, str]] = []    # (node name, content)
-        self.short_ids: Dict[str, str] = {}         # anchors --> short ids
-        self.node_names: Dict[str, str] = {}        # node name --> node's name to display
-        self.node_menus: Dict[str, List[str]] = {}  # node name --> node's menu entries
-        self.rellinks: Dict[str, List[str]] = {}    # node name --> (next, previous, up)
+        self.referenced_ids: set[str] = set()
+        self.indices: list[tuple[str, str]] = []    # (node name, content)
+        self.short_ids: dict[str, str] = {}         # anchors --> short ids
+        self.node_names: dict[str, str] = {}        # node name --> node's name to display
+        self.node_menus: dict[str, list[str]] = {}  # node name --> node's menu entries
+        self.rellinks: dict[str, list[str]] = {}    # node name --> (next, previous, up)
 
         self.collect_indices()
         self.collect_node_names()
         self.collect_node_menus()
         self.collect_rellinks()
 
-        self.body: List[str] = []
-        self.context: List[str] = []
-        self.descs: List[addnodes.desc] = []
-        self.previous_section: nodes.section = None
+        self.body: list[str] = []
+        self.context: list[str] = []
+        self.descs: list[addnodes.desc] = []
+        self.previous_section: nodes.section | None = None
         self.section_level = 0
         self.seen_title = False
-        self.next_section_ids: Set[str] = set()
+        self.next_section_ids: set[str] = set()
         self.escape_newlines = 0
         self.escape_hyphens = 0
-        self.curfilestack: List[str] = []
-        self.footnotestack: List[Dict[str, List[Union[collected_footnote, bool]]]] = []  # NOQA
+        self.curfilestack: list[str] = []
+        self.footnotestack: list[dict[str, list[collected_footnote | bool]]] = []
         self.in_footnote = 0
-        self.handled_abbrs: Set[str] = set()
-        self.colwidths: List[int] = None
+        self.in_samp = 0
+        self.handled_abbrs: set[str] = set()
+        self.colwidths: list[int] = []
 
     def finish(self) -> None:
         if self.previous_section is None:
@@ -204,13 +198,13 @@ class TexinfoTranslator(SphinxTranslator):
             name, content = index
             pointers = tuple([name] + self.rellinks[name])
             self.body.append('\n@node %s,%s,%s,%s\n' % pointers)
-            self.body.append('@unnumbered %s\n\n%s\n' % (name, content))
+            self.body.append(f'@unnumbered {name}\n\n{content}\n')
 
         while self.referenced_ids:
             # handle xrefs with missing anchors
             r = self.referenced_ids.pop()
             if r not in self.written_ids:
-                self.body.append('@anchor{%s}@w{%s}\n' % (r, ' ' * 30))
+                self.body.append('@anchor{{{}}}@w{{{}}}\n'.format(r, ' ' * 30))
         self.ensure_eol()
         self.fragment = ''.join(self.body)
         self.elements['body'] = self.fragment
@@ -231,7 +225,7 @@ class TexinfoTranslator(SphinxTranslator):
             'copyright': self.escape(self.config.copyright),
             'date': self.escape(self.config.today or
                                 format_date(self.config.today_fmt or _('%b %d, %Y'),
-                                            language=self.config.language))
+                                            language=self.config.language)),
         })
         # title
         title: str = self.settings.title
@@ -242,9 +236,9 @@ class TexinfoTranslator(SphinxTranslator):
         # filename
         if not elements['filename']:
             elements['filename'] = self.document.get('source') or 'untitled'
-            if elements['filename'][-4:] in ('.txt', '.rst'):  # type: ignore
-                elements['filename'] = elements['filename'][:-4]  # type: ignore
-            elements['filename'] += '.info'  # type: ignore
+            if elements['filename'][-4:] in ('.txt', '.rst'):  # type: ignore[index]
+                elements['filename'] = elements['filename'][:-4]  # type: ignore[index]
+            elements['filename'] += '.info'  # type: ignore[operator]
         # direntry
         if self.settings.texinfo_dir_entry:
             entry = self.format_menu_entry(
@@ -263,7 +257,8 @@ class TexinfoTranslator(SphinxTranslator):
     def collect_node_names(self) -> None:
         """Generates a unique id for each section.
 
-        Assigns the attribute ``node_name`` to each section."""
+        Assigns the attribute ``node_name`` to each section.
+        """
 
         def add_node_name(name: str) -> str:
             node_id = self.escape_id(name)
@@ -285,18 +280,18 @@ class TexinfoTranslator(SphinxTranslator):
         self.indices = [(add_node_name(name), content)
                         for name, content in self.indices]
         # each section is also a node
-        for section in self.document.traverse(nodes.section):
-            title = cast(nodes.TextElement, section.next_node(nodes.Titular))
+        for section in self.document.findall(nodes.section):
+            title = cast(nodes.TextElement, section.next_node(nodes.Titular))  # type: ignore[type-var]
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
 
     def collect_node_menus(self) -> None:
         """Collect the menu entries for each "node" section."""
         node_menus = self.node_menus
-        targets: List[Element] = [self.document]
-        targets.extend(self.document.traverse(nodes.section))
+        targets: list[Element] = [self.document]
+        targets.extend(self.document.findall(nodes.section))
         for node in targets:
-            assert 'node_name' in node and node['node_name']
+            assert node.get('node_name', False)
             entries = [s['node_name'] for s in find_subsections(node)]
             node_menus[node['node_name']] = entries
         # try to find a suitable "Top" node
@@ -311,7 +306,7 @@ class TexinfoTranslator(SphinxTranslator):
             del node_menus[top['node_name']]
             top['node_name'] = 'Top'
         # handle the indices
-        for name, content in self.indices:
+        for name, _content in self.indices:
             node_menus[name] = []
             node_menus['Top'].append(name)
 
@@ -319,7 +314,7 @@ class TexinfoTranslator(SphinxTranslator):
         """Collect the relative links (next, previous, up) for each "node"."""
         rellinks = self.rellinks
         node_menus = self.node_menus
-        for id, entries in node_menus.items():
+        for id in node_menus:
             rellinks[id] = ['', '', '']
         # up's
         for id, entries in node_menus.items():
@@ -360,7 +355,8 @@ class TexinfoTranslator(SphinxTranslator):
 
     def escape_arg(self, s: str) -> str:
         """Return an escaped string suitable for use as an argument
-        to a Texinfo command."""
+        to a Texinfo command.
+        """
         s = self.escape(s)
         # commas are the argument delimiters
         s = s.replace(',', '@comma{}')
@@ -393,16 +389,19 @@ class TexinfoTranslator(SphinxTranslator):
 
     def format_menu_entry(self, name: str, node_name: str, desc: str) -> str:
         if name == node_name:
-            s = '* %s:: ' % (name,)
+            s = f'* {name}:: '
         else:
-            s = '* %s: %s. ' % (name, node_name)
+            s = f'* {name}: {node_name}. '
         offset = max((24, (len(name) + 4) % 78))
         wdesc = '\n'.join(' ' * offset + l for l in
                           textwrap.wrap(desc, width=78 - offset))
         return s + wdesc.strip() + '\n'
 
-    def add_menu_entries(self, entries: List[str], reg: Pattern = re.compile(r'\s+---?\s+')
-                         ) -> None:
+    def add_menu_entries(
+        self,
+        entries: list[str],
+        reg: re.Pattern[str] = re.compile(r'\s+---?\s+'),
+    ) -> None:
         for entry in entries:
             name = self.node_names[entry]
             # special formatting for entries that are divided by an em-dash
@@ -435,7 +434,7 @@ class TexinfoTranslator(SphinxTranslator):
             entries = self.node_menus[name]
             if not entries:
                 return
-            self.body.append('\n%s\n\n' % (self.escape(self.node_names[name],)))
+            self.body.append(f'\n{self.escape(self.node_names[name])}\n\n')
             self.add_menu_entries(entries)
             for subentry in entries:
                 _add_detailed_menu(subentry)
@@ -463,34 +462,39 @@ class TexinfoTranslator(SphinxTranslator):
         return res
 
     def collect_indices(self) -> None:
-        def generate(content: List[Tuple[str, List[IndexEntry]]], collapsed: bool) -> str:
+        def generate(content: list[tuple[str, list[IndexEntry]]], collapsed: bool) -> str:
             ret = ['\n@menu\n']
-            for letter, entries in content:
+            for _letter, entries in content:
                 for entry in entries:
                     if not entry[3]:
                         continue
                     name = self.escape_menu(entry[0])
-                    sid = self.get_short_id('%s:%s' % (entry[2], entry[3]))
+                    sid = self.get_short_id(f'{entry[2]}:{entry[3]}')
                     desc = self.escape_arg(entry[6])
                     me = self.format_menu_entry(name, sid, desc)
                     ret.append(me)
             ret.append('@end menu\n')
             return ''.join(ret)
 
-        indices_config = self.config.texinfo_domain_indices
-        if indices_config:
-            for domain in self.builder.env.domains.values():
-                for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
-                    if not content:
+        if indices_config := self.config.texinfo_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
+            for domain_name in sorted(self.builder.env.domains):
+                domain = self.builder.env.domains[domain_name]
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
                         continue
-                    self.indices.append((indexcls.localname,
-                                         generate(content, collapsed)))
+                    content, collapsed = index_cls(domain).generate(
+                        self.builder.docnames)
+                    if content:
+                        self.indices.append((
+                            index_cls.localname,
+                            generate(content, collapsed),
+                        ))
         # only add the main Index if it's not empty
         domain = cast(IndexDomain, self.builder.env.get_domain('index'))
         for docname in self.builder.docnames:
@@ -501,7 +505,9 @@ class TexinfoTranslator(SphinxTranslator):
     # this is copied from the latex writer
     # TODO: move this to sphinx.util
 
-    def collect_footnotes(self, node: Element) -> Dict[str, List[Union[collected_footnote, bool]]]:  # NOQA
+    def collect_footnotes(
+        self, node: Element,
+    ) -> dict[str, list[collected_footnote | bool]]:
         def footnotes_under(n: Element) -> Iterator[nodes.footnote]:
             if isinstance(n, nodes.footnote):
                 yield n
@@ -511,7 +517,7 @@ class TexinfoTranslator(SphinxTranslator):
                         continue
                     elif isinstance(c, nodes.Element):
                         yield from footnotes_under(c)
-        fnotes: Dict[str, List[Union[collected_footnote, bool]]] = {}
+        fnotes: dict[str, list[collected_footnote | bool]] = {}
         for fn in footnotes_under(node):
             label = cast(nodes.label, fn[0])
             num = label.astext().strip()
@@ -527,7 +533,7 @@ class TexinfoTranslator(SphinxTranslator):
         try:
             sid = self.short_ids[id]
         except KeyError:
-            sid = hex(len(self.short_ids))[2:]
+            sid = f'{len(self.short_ids):x}'
             self.short_ids[id] = sid
         return sid
 
@@ -545,9 +551,12 @@ class TexinfoTranslator(SphinxTranslator):
     def add_xref(self, id: str, name: str, node: Node) -> None:
         name = self.escape_menu(name)
         sid = self.get_short_id(id)
-        self.body.append('@ref{%s,,%s}' % (sid, name))
-        self.referenced_ids.add(sid)
-        self.referenced_ids.add(self.escape_id(id))
+        if self.config.texinfo_cross_references:
+            self.body.append(f'@ref{{{sid},,{name}}}')
+            self.referenced_ids.add(sid)
+            self.referenced_ids.add(self.escape_id(id))
+        else:
+            self.body.append(name)
 
     # -- Visiting
 
@@ -618,7 +627,7 @@ class TexinfoTranslator(SphinxTranslator):
             return
         if isinstance(parent, (nodes.Admonition, nodes.sidebar, nodes.topic)):
             raise nodes.SkipNode
-        elif not isinstance(parent, nodes.section):
+        if not isinstance(parent, nodes.section):
             logger.warning(__('encountered title node not in section, topic, table, '
                               'admonition or sidebar'),
                            location=node)
@@ -687,7 +696,7 @@ class TexinfoTranslator(SphinxTranslator):
         # cases for the sake of appearance
         if isinstance(node.parent, (nodes.title, addnodes.desc_type)):
             return
-        if isinstance(node[0], nodes.image):
+        if len(node) != 0 and isinstance(node[0], nodes.image):
             return
         name = node.get('name', node.astext()).strip()
         uri = node.get('refuri', '')
@@ -701,7 +710,7 @@ class TexinfoTranslator(SphinxTranslator):
             if not name or name == uri:
                 self.body.append('@email{%s}' % uri)
             else:
-                self.body.append('@email{%s,%s}' % (uri, name))
+                self.body.append(f'@email{{{uri},{name}}}')
         elif uri.startswith('#'):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
@@ -726,9 +735,9 @@ class TexinfoTranslator(SphinxTranslator):
             id = self.escape_id(id)
             name = self.escape_menu(name)
             if name == id:
-                self.body.append('@ref{%s,,,%s}' % (id, uri))
+                self.body.append(f'@ref{{{id},,,{uri}}}')
             else:
-                self.body.append('@ref{%s,,%s,%s}' % (id, name, uri))
+                self.body.append(f'@ref{{{id},,{name},{uri}}}')
         else:
             uri = self.escape_arg(uri)
             name = self.escape_arg(name)
@@ -738,11 +747,11 @@ class TexinfoTranslator(SphinxTranslator):
             if not name or uri == name:
                 self.body.append('@indicateurl{%s}' % uri)
             elif show_urls == 'inline':
-                self.body.append('@uref{%s,%s}' % (uri, name))
+                self.body.append(f'@uref{{{uri},{name}}}')
             elif show_urls == 'no':
-                self.body.append('@uref{%s,,%s}' % (uri, name))
+                self.body.append(f'@uref{{{uri},,{name}}}')
             else:
-                self.body.append('%s@footnote{%s}' % (name, uri))
+                self.body.append(f'{name}@footnote{{{uri}}}')
         raise nodes.SkipNode
 
     def depart_reference(self, node: Element) -> None:
@@ -773,10 +782,10 @@ class TexinfoTranslator(SphinxTranslator):
         self.ensure_eol()
         self.body.append('@end quotation\n')
 
-    def visit_literal_block(self, node: Element) -> None:
+    def visit_literal_block(self, node: Element | None) -> None:
         self.body.append('\n@example\n')
 
-    def depart_literal_block(self, node: Element) -> None:
+    def depart_literal_block(self, node: Element | None) -> None:
         self.ensure_eol()
         self.body.append('@end example\n')
 
@@ -803,21 +812,33 @@ class TexinfoTranslator(SphinxTranslator):
     # -- Inline
 
     def visit_strong(self, node: Element) -> None:
-        self.body.append('@strong{')
+        self.body.append('`')
 
     def depart_strong(self, node: Element) -> None:
-        self.body.append('}')
+        self.body.append("'")
 
     def visit_emphasis(self, node: Element) -> None:
-        self.body.append('@emph{')
+        if self.in_samp:
+            self.body.append('@var{')
+            self.context.append('}')
+        else:
+            self.body.append('`')
+            self.context.append("'")
 
     def depart_emphasis(self, node: Element) -> None:
-        self.body.append('}')
+        self.body.append(self.context.pop())
+
+    def is_samp(self, node: Element) -> bool:
+        return 'samp' in node['classes']
 
     def visit_literal(self, node: Element) -> None:
+        if self.is_samp(node):
+            self.in_samp += 1
         self.body.append('@code{')
 
     def depart_literal(self, node: Element) -> None:
+        if self.is_samp(node):
+            self.in_samp -= 1
         self.body.append('}')
 
     def visit_superscript(self, node: Element) -> None:
@@ -852,7 +873,7 @@ class TexinfoTranslator(SphinxTranslator):
         except (KeyError, IndexError) as exc:
             raise nodes.SkipNode from exc
         # footnotes are repeated for each reference
-        footnode.walkabout(self)  # type: ignore
+        footnode.walkabout(self)  # type: ignore[union-attr]
         raise nodes.SkipChildren
 
     def visit_citation(self, node: Element) -> None:
@@ -1006,7 +1027,7 @@ class TexinfoTranslator(SphinxTranslator):
         if len(self.colwidths) != self.n_cols:
             return
         self.body.append('\n\n@multitable ')
-        for i, n in enumerate(self.colwidths):
+        for n in self.colwidths:
             self.body.append('{%s} ' % ('x' * (n + 2)))
 
     def depart_colspec(self, node: Element) -> None:
@@ -1042,7 +1063,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.entry_sep = '@tab'
 
     def depart_entry(self, node: Element) -> None:
-        for i in range(node.get('morecols', 0)):
+        for _i in range(node.get('morecols', 0)):
             self.body.append('\n@tab\n')
 
     # -- Field Lists
@@ -1203,7 +1224,7 @@ class TexinfoTranslator(SphinxTranslator):
         width = self.tex_image_length(node.get('width', ''))
         height = self.tex_image_length(node.get('height', ''))
         alt = self.escape_arg(node.get('alt', ''))
-        filename = "%s-figures/%s" % (self.elements['filename'][:-5], name)  # type: ignore
+        filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore[index]
         self.body.append('\n@image{%s,%s,%s,%s,%s}\n' %
                          (filename, width, height, alt, ext[1:]))
 
@@ -1223,6 +1244,9 @@ class TexinfoTranslator(SphinxTranslator):
         self.depart_topic(node)
 
     def visit_label(self, node: Element) -> None:
+        # label numbering is automatically generated by Texinfo
+        if self.in_footnote:
+            raise nodes.SkipNode
         self.body.append('@w{(')
 
     def depart_label(self, node: Element) -> None:
@@ -1265,10 +1289,6 @@ class TexinfoTranslator(SphinxTranslator):
         logger.warning(__("unimplemented node type: %r"), node,
                        location=node)
 
-    def unknown_visit(self, node: Node) -> None:
-        logger.warning(__("unknown node type: %r"), node,
-                       location=node)
-
     def unknown_departure(self, node: Node) -> None:
         pass
 
@@ -1276,11 +1296,10 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.visit_literal_block(None)
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
+
         for production in productionlist:
             if production['tokenname']:
                 for id in production.get('ids'):
@@ -1317,9 +1336,8 @@ class TexinfoTranslator(SphinxTranslator):
             self.ensure_eol()
         else:
             self.body.append('\n')
-        for entry in node['entries']:
-            typ, text, tid, text2, key_ = entry
-            text = self.escape_menu(text)
+        for (_entry_type, value, _target_id, _main, _category_key) in node['entries']:
+            text = self.escape_menu(value)
             self.body.append('@geindex %s\n' % text)
 
     def visit_versionmodified(self, node: Element) -> None:
@@ -1367,7 +1385,12 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n')
         raise nodes.SkipNode
 
-    # -- Desc
+    #############################################################
+    # Domain-specific object descriptions
+    #############################################################
+
+    # Top-level nodes for descriptions
+    ##################################
 
     def visit_desc(self, node: addnodes.desc) -> None:
         self.descs.append(node)
@@ -1393,9 +1416,9 @@ class TexinfoTranslator(SphinxTranslator):
             name = objtype
         # by convention, the deffn category should be capitalized like a title
         category = self.escape_arg(smart_capwords(name))
-        self.body.append('\n%s {%s} ' % (self.at_deffnx, category))
+        self.body.append(f'\n{self.at_deffnx} {{{category}}} ')
         self.at_deffnx = '@deffnx'
-        self.desc_type_name = name
+        self.desc_type_name: str | None = name
 
     def depart_desc_signature(self, node: Element) -> None:
         self.body.append("\n")
@@ -1407,6 +1430,21 @@ class TexinfoTranslator(SphinxTranslator):
 
     def depart_desc_signature_line(self, node: Element) -> None:
         pass
+
+    def visit_desc_content(self, node: Element) -> None:
+        pass
+
+    def depart_desc_content(self, node: Element) -> None:
+        pass
+
+    def visit_desc_inline(self, node: Element) -> None:
+        pass
+
+    def depart_desc_inline(self, node: Element) -> None:
+        pass
+
+    # Nodes for high-level structure in signatures
+    ##############################################
 
     def visit_desc_name(self, node: Element) -> None:
         pass
@@ -1439,6 +1477,13 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, node: Element) -> None:
         self.body.append(')')
 
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append(' [')
+        self.first_param = 1
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
+        self.body.append(']')
+
     def visit_desc_parameter(self, node: Element) -> None:
         if not self.first_param:
             self.body.append(', ')
@@ -1449,6 +1494,9 @@ class TexinfoTranslator(SphinxTranslator):
         text = text.replace(' ', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.visit_desc_parameter(node)
 
     def visit_desc_optional(self, node: Element) -> None:
         self.body.append('[')
@@ -1470,11 +1518,7 @@ class TexinfoTranslator(SphinxTranslator):
     def depart_desc_annotation(self, node: Element) -> None:
         pass
 
-    def visit_desc_content(self, node: Element) -> None:
-        pass
-
-    def depart_desc_content(self, node: Element) -> None:
-        pass
+    ##############################################
 
     def visit_inline(self, node: Element) -> None:
         pass
@@ -1534,11 +1578,3 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n@example\n%s\n@end example\n\n' %
                          self.escape_arg(node.astext()))
         raise nodes.SkipNode
-
-    @property
-    def desc(self) -> Optional[addnodes.desc]:
-        warnings.warn('TexinfoWriter.desc is deprecated.', RemovedInSphinx50Warning)
-        if len(self.descs):
-            return self.descs[-1]
-        else:
-            return None

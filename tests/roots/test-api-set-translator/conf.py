@@ -5,7 +5,7 @@
 
 from docutils.writers.docutils_xml import XMLTranslator
 
-from sphinx.writers.html import HTMLTranslator
+from sphinx.writers.html import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator
 from sphinx.writers.manpage import ManualPageTranslator
 from sphinx.writers.texinfo import TexinfoTranslator
@@ -14,23 +14,23 @@ from sphinx.writers.text import TextTranslator
 project = 'test'
 
 
-class ConfHTMLTranslator(HTMLTranslator):
+class ConfHTMLTranslator(HTML5Translator):
     pass
 
 
-class ConfDirHTMLTranslator(HTMLTranslator):
+class ConfDirHTMLTranslator(HTML5Translator):
     pass
 
 
-class ConfSingleHTMLTranslator(HTMLTranslator):
+class ConfSingleHTMLTranslator(HTML5Translator):
     pass
 
 
-class ConfPickleTranslator(HTMLTranslator):
+class ConfPickleTranslator(HTML5Translator):
     pass
 
 
-class ConfJsonTranslator(HTMLTranslator):
+class ConfJsonTranslator(HTML5Translator):
     pass
 
 
