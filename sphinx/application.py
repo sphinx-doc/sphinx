@@ -13,7 +13,7 @@ from collections import deque
 from collections.abc import Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable, Literal
+from typing import IO, TYPE_CHECKING, Any, Callable, Literal, cast
 
 from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
@@ -26,10 +26,12 @@ from sphinx.config import ENUM, Config, _ConfigRebuild
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
+from sphinx.ext.autodoc import Documenter
 from sphinx.highlighting import lexer_classes
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
+from sphinx.search import SearchLanguage
 from sphinx.util import docutils, logging
 from sphinx.util._pathlib import _StrPath
 from sphinx.util.build_phase import BuildPhase
@@ -138,7 +140,7 @@ class Sphinx:
     def __init__(self, srcdir: str | os.PathLike[str], confdir: str | os.PathLike[str] | None,
                  outdir: str | os.PathLike[str], doctreedir: str | os.PathLike[str],
                  buildername: str, confoverrides: dict | None = None,
-                 status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
+                 status: IO[str] | None = sys.stdout, warning: IO[str] | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
                  tags: Sequence[str] = (),
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
@@ -190,14 +192,14 @@ class Sphinx:
         self.parallel = parallel
 
         if status is None:
-            self._status: IO = StringIO()
+            self._status: IO[str] = StringIO()
             self.quiet: bool = True
         else:
             self._status = status
             self.quiet = False
 
         if warning is None:
-            self._warning: IO = StringIO()
+            self._warning: IO[str] = StringIO()
         else:
             self._warning = warning
         self._warncount = 0
@@ -743,7 +745,7 @@ class Sphinx:
                            name, type='app', subtype='add_role')
         docutils.register_role(name, role)
 
-    def add_generic_role(self, name: str, nodeclass: Any, override: bool = False) -> None:
+    def add_generic_role(self, name: str, nodeclass: type[nodes.Node], override: bool = False) -> None:
         """Register a generic Docutils role.
 
         Register a Docutils role that does nothing but wrap its contents in the
@@ -820,7 +822,7 @@ class Sphinx:
         """
         self.registry.add_role_to_domain(domain, name, role, override=override)
 
-    def add_index_to_domain(self, domain: str, index: type[Index], override: bool = False,
+    def add_index_to_domain(self, domain: str, index: type[Index], _override: bool = False,
                             ) -> None:
         """Register a custom index for a domain.
 
@@ -1165,7 +1167,7 @@ class Sphinx:
         logger.debug('[app] adding lexer: %r', (alias, lexer))
         lexer_classes[alias] = lexer
 
-    def add_autodocumenter(self, cls: Any, override: bool = False) -> None:
+    def add_autodocumenter(self, cls: type[Documenter], override: bool = False) -> None:
         """Register a new documenter class for the autodoc extension.
 
         Add *cls* as a new documenter class for the :mod:`sphinx.ext.autodoc`
@@ -1203,7 +1205,7 @@ class Sphinx:
         logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
         self.registry.add_autodoc_attrgetter(typ, getter)
 
-    def add_search_language(self, cls: Any) -> None:
+    def add_search_language(self, cls: type[SearchLanguage]) -> None:
         """Register a new language for the HTML search index.
 
         Add *cls*, which must be a subclass of
@@ -1215,9 +1217,9 @@ class Sphinx:
         .. versionadded:: 1.1
         """
         logger.debug('[app] adding search language: %r', cls)
-        from sphinx.search import SearchLanguage, languages
-        assert issubclass(cls, SearchLanguage)
-        languages[cls.lang] = cls
+        from sphinx.search import languages
+        lang = cast(str, cls.lang)  # SearchLanguage subclasses must set 'lang' to a str
+        languages[lang] = cls
 
     def add_source_suffix(self, suffix: str, filetype: str, override: bool = False) -> None:
         """Register a suffix of source files.
