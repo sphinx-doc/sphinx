@@ -273,7 +273,6 @@ module = [
     "sphinx.testing.path",
     "sphinx.testing.util",
     "sphinx.util",
-    "sphinx.util.display",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
     "sphinx.util.i18n",
