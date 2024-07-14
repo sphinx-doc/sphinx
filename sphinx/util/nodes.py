@@ -5,20 +5,22 @@ from __future__ import annotations
 import contextlib
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, cast
 
 from docutils import nodes
+from docutils.nodes import Node
 
 from sphinx import addnodes
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util.parsing import _fresh_title_style_context
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Iterator
 
-    from docutils.nodes import Element, Node
+    from docutils.nodes import Element
     from docutils.parsers.rst import Directive
-    from docutils.parsers.rst.states import Inliner
+    from docutils.parsers.rst.states import Inliner, RSTState
     from docutils.statemachine import StringList
 
     from sphinx.builders import Builder
@@ -33,7 +35,10 @@ explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<([^<]*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
-class NodeMatcher:
+N = TypeVar("N", bound=Node)
+
+
+class NodeMatcher(Generic[N]):
     """A helper class for Node.findall().
 
     It checks that the given node is an instance of the specified node-classes and
@@ -43,20 +48,18 @@ class NodeMatcher:
     and ``reftype`` attributes::
 
         matcher = NodeMatcher(nodes.reference, refdomain='std', reftype='citation')
-        doctree.findall(matcher)
+        matcher.findall(doctree)
         # => [<reference ...>, <reference ...>, ...]
 
     A special value ``typing.Any`` matches any kind of node-attributes.  For example,
     following example searches ``reference`` node having ``refdomain`` attributes::
 
-        from __future__ import annotations
-from typing import TYPE_CHECKING, Any
         matcher = NodeMatcher(nodes.reference, refdomain=Any)
-        doctree.findall(matcher)
+        matcher.findall(doctree)
         # => [<reference ...>, <reference ...>, ...]
     """
 
-    def __init__(self, *node_classes: type[Node], **attrs: Any) -> None:
+    def __init__(self, *node_classes: type[N], **attrs: Any) -> None:
         self.classes = node_classes
         self.attrs = attrs
 
@@ -85,6 +88,15 @@ from typing import TYPE_CHECKING, Any
     def __call__(self, node: Node) -> bool:
         return self.match(node)
 
+    def findall(self, node: Node) -> Iterator[N]:
+        """An alternative to `Node.findall` with improved type safety.
+
+        While the `NodeMatcher` object can be used as an argument to `Node.findall`, doing so
+        confounds type checkers' ability to determine the return type of the iterator.
+        """
+        for found in node.findall(self):
+            yield cast(N, found)
+
 
 def get_full_module_name(node: Node) -> str:
     """
@@ -99,7 +111,7 @@ def get_full_module_name(node: Node) -> str:
 def repr_domxml(node: Node, length: int = 80) -> str:
     """
     return DOM XML representation of the specified node like:
-    '<paragraph translatable="False"><inline classes="versionmodified">New in version...'
+    '<paragraph translatable="False"><inline classes="versionadded">Added in version...'
 
     :param nodes.Node node: target node
     :param int length:
@@ -127,7 +139,7 @@ def apply_source_workaround(node: Element) -> None:
                      get_full_module_name(node), repr_domxml(node))
         definition_list_item = node.parent
         node.source = definition_list_item.source
-        node.line = definition_list_item.line - 1
+        node.line = definition_list_item.line - 1  # type: ignore[operator]
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     elif isinstance(node, nodes.classifier) and not node.source:
         # docutils-0.15 fills in rawsource attribute, but not in source.
@@ -220,16 +232,13 @@ def is_translatable(node: Node) -> bool:
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
-        if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
+        if isinstance(node, nodes.field_name) and (node.children[0] == 'orphan'):
             logger.debug('[i18n] SKIP %r because orphan node: %s',
                          get_full_module_name(node), repr_domxml(node))
             return False
         return True
 
-    if isinstance(node, nodes.meta):  # type: ignore[attr-defined]
-        return True
-
-    return False
+    return isinstance(node, nodes.meta)
 
 
 LITERAL_TYPE_NODES = (
@@ -245,10 +254,10 @@ IMAGE_TYPE_NODES = (
 
 def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
     """Extract translatable messages from a document tree."""
-    for node in doctree.findall(is_translatable):  # type: Element
+    for node in doctree.findall(is_translatable):
         if isinstance(node, addnodes.translatable):
             for msg in node.extract_original_messages():
-                yield node, msg
+                yield node, msg  # type: ignore[misc]
             continue
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
@@ -262,14 +271,14 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
                 msg = f'.. image:: {image_uri}'
             else:
                 msg = ''
-        elif isinstance(node, nodes.meta):  # type: ignore[attr-defined]
+        elif isinstance(node, nodes.meta):
             msg = node["content"]
         else:
-            msg = node.rawsource.replace('\n', ' ').strip()
+            msg = node.rawsource.replace('\n', ' ').strip()  # type: ignore[attr-defined]
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
-            yield node, msg
+            yield node, msg  # type: ignore[misc]
 
 
 def get_node_source(node: Element) -> str:
@@ -308,7 +317,7 @@ def traverse_translatable_index(
 ) -> Iterable[tuple[Element, list[tuple[str, str, str, str, str | None]]]]:
     """Traverse translatable index node from a document tree."""
     matcher = NodeMatcher(addnodes.index, inline=False)
-    for node in doctree.findall(matcher):  # type: addnodes.index
+    for node in matcher.findall(doctree):
         if 'raw_entries' in node:
             entries = node['raw_entries']
         else:
@@ -316,24 +325,20 @@ def traverse_translatable_index(
         yield node, entries
 
 
-def nested_parse_with_titles(state: Any, content: StringList, node: Node,
+def nested_parse_with_titles(state: RSTState, content: StringList, node: Node,
                              content_offset: int = 0) -> str:
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
     This is useful when the parsed content comes from a completely different
     context, such as docstrings.
+
+    This function is retained for compatability and will be deprecated in
+    Sphinx 8. Prefer ``nested_parse_to_nodes()``.
     """
-    # hack around title style bookkeeping
-    surrounding_title_styles = state.memo.title_styles
-    surrounding_section_level = state.memo.section_level
-    state.memo.title_styles = []
-    state.memo.section_level = 0
-    try:
-        return state.nested_parse(content, content_offset, node, match_titles=1)
-    finally:
-        state.memo.title_styles = surrounding_title_styles
-        state.memo.section_level = surrounding_section_level
+    with _fresh_title_style_context(state):
+        ret = state.nested_parse(content, content_offset, node, match_titles=True)
+    return ret
 
 
 def clean_astext(node: Element) -> str:
@@ -402,9 +407,14 @@ def process_index_entry(entry: str, targetid: str,
     return indexentries
 
 
-def inline_all_toctrees(builder: Builder, docnameset: set[str], docname: str,
-                        tree: nodes.document, colorfunc: Callable, traversed: list[str],
-                        ) -> nodes.document:
+def inline_all_toctrees(
+    builder: Builder,
+    docnameset: set[str],
+    docname: str,
+    tree: nodes.document,
+    colorfunc: Callable[[str], str],
+    traversed: list[str],
+) -> nodes.document:
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -600,10 +610,7 @@ def is_smartquotable(node: Node) -> bool:
         if pnode.get('support_smartquotes', None) is False:
             return False
 
-    if getattr(node, 'support_smartquotes', None) is False:
-        return False
-
-    return True
+    return getattr(node, 'support_smartquotes', None) is not False
 
 
 def process_only_nodes(document: Node, tags: Tags) -> None:

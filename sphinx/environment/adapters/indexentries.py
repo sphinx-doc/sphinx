@@ -129,7 +129,7 @@ def _add_entry(word: str, subword: str, main: str | None, *,
 
 
 def _key_func_0(entry: tuple[str, str]) -> tuple[bool, str]:
-    """sort the index entries for same keyword."""
+    """Sort the index entries for same keyword."""
     main, uri = entry
     return not main, uri  # show main entries at first
 
@@ -156,7 +156,7 @@ def _key_func_1(entry: tuple[str, list]) -> tuple[tuple[int, str], str]:
 
 
 def _key_func_2(entry: tuple[str, list]) -> str:
-    """sort the sub-index entries"""
+    """Sort the sub-index entries"""
     key = unicodedata.normalize('NFD', entry[0].lower())
     if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
         key = key[1:]

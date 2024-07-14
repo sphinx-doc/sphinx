@@ -17,7 +17,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 template_dir = os.path.join(package_dir, 'templates', 'texinfo')
@@ -41,6 +42,7 @@ class TexinfoBuilder(Builder):
     """
     Builds Texinfo output to create Info documentation.
     """
+
     name = 'texinfo'
     format = 'texinfo'
     epilog = __('The Texinfo files are in %(outdir)s.')
@@ -133,7 +135,7 @@ class TexinfoBuilder(Builder):
     def assemble_doctree(
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
-        self.docnames = set([indexfile] + appendices)
+        self.docnames = {indexfile, *appendices}
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
@@ -165,9 +167,11 @@ class TexinfoBuilder(Builder):
             newnodes: list[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in ')))
-                    newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')'))
+                    newnodes.extend((
+                        nodes.Text(_(' (in ')),
+                        nodes.emphasis(title, title),
+                        nodes.Text(')'),
+                    ))
                     break
             else:
                 pass
@@ -205,22 +209,22 @@ class TexinfoBuilder(Builder):
 def default_texinfo_documents(
     config: Config,
 ) -> list[tuple[str, str, str, str, str, str, str]]:
-    """ Better default texinfo_documents settings. """
+    """Better default texinfo_documents settings."""
     filename = make_filename_from_project(config.project)
     return [(config.root_doc, filename, config.project, config.author, filename,
              'One line description of project', 'Miscellaneous')]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TexinfoBuilder)
 
-    app.add_config_value('texinfo_documents', default_texinfo_documents, False)
-    app.add_config_value('texinfo_appendices', [], False)
-    app.add_config_value('texinfo_elements', {}, False)
-    app.add_config_value('texinfo_domain_indices', True, False, [list])
-    app.add_config_value('texinfo_show_urls', 'footnote', False)
-    app.add_config_value('texinfo_no_detailmenu', False, False)
-    app.add_config_value('texinfo_cross_references', True, False)
+    app.add_config_value('texinfo_documents', default_texinfo_documents, '')
+    app.add_config_value('texinfo_appendices', [], '')
+    app.add_config_value('texinfo_elements', {}, '')
+    app.add_config_value('texinfo_domain_indices', True, '', types={set, list})
+    app.add_config_value('texinfo_show_urls', 'footnote', '')
+    app.add_config_value('texinfo_no_detailmenu', False, '')
+    app.add_config_value('texinfo_cross_references', True, '')
 
     return {
         'version': 'builtin',

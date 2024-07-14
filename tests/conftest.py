@@ -1,13 +1,25 @@
+from __future__ import annotations
+
+import os
+import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import docutils
 import pytest
 
 import sphinx
 import sphinx.locale
+import sphinx.pycode
+from sphinx.testing.util import _clean_up_global_state
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
-def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
+def _init_console(
+    locale_dir: str | None = sphinx.locale._LOCALE_DIR, catalog: str = 'sphinx',
+) -> tuple[sphinx.locale.NullTranslations, bool]:
     """Monkeypatch ``init_console`` to skip its action.
 
     Some tests rely on warning messages in English. We don't want
@@ -19,19 +31,30 @@ def _init_console(locale_dir=sphinx.locale._LOCALE_DIR, catalog='sphinx'):
 
 sphinx.locale.init_console = _init_console
 
-pytest_plugins = 'sphinx.testing.fixtures'
+pytest_plugins = ['sphinx.testing.fixtures']
 
 # Exclude 'roots' dirs for pytest test collector
 collect_ignore = ['roots']
 
+os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
+
 
 @pytest.fixture(scope='session')
-def rootdir():
-    return Path(__file__).parent.absolute() / 'roots'
+def rootdir() -> Path:
+    return Path(__file__).parent.resolve() / 'roots'
 
 
-def pytest_report_header(config):
+def pytest_report_header(config: pytest.Config) -> str:
     header = f"libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}"
     if hasattr(config, '_tmp_path_factory'):
         header += f"\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}"
     return header
+
+
+@pytest.fixture(autouse=True)
+def _cleanup_docutils() -> Iterator[None]:
+    saved_path = sys.path
+    yield  # run the test
+    sys.path[:] = saved_path
+
+    _clean_up_global_state()

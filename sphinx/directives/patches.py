@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import os
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
-from docutils.parsers.rst.directives.misc import Meta  # type: ignore[attr-defined]
+from docutils.parsers.rst.directives.misc import Meta
 from docutils.parsers.rst.roles import set_classes
 
 from sphinx.directives import optional_int
@@ -21,7 +21,7 @@ from sphinx.util.osutil import SEP, os_path, relpath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -80,8 +80,9 @@ class Code(SphinxDirective):
 
     This is compatible with docutils' :rst:dir:`code` directive.
     """
+
     optional_arguments = 1
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'class': directives.class_option,
         'force': directives.flag,
         'name': directives.unchanged,
@@ -126,7 +127,7 @@ class MathDirective(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,
@@ -175,7 +176,7 @@ class MathDirective(SphinxDirective):
         ret.insert(0, target)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)

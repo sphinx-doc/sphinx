@@ -15,9 +15,13 @@ class EnvironmentCollector:
     """An EnvironmentCollector is a specific data collector from each document.
 
     It gathers data and stores :py:class:`BuildEnvironment
-    <sphinx.environment.BuildEnvironment>` as a database.  Examples of specific
-    data would be images, download files, section titles, metadatas, index
+    <sphinx.environment.BuildEnvironment>` as a database.
+    Examples of specific data would be images, download files, section titles, metadatas, index
     entries and toctrees, etc.
+
+    .. note::
+
+        This class essentially wraps a sub-set of :ref:`Sphinx event callbacks <events>`.
     """
 
     listener_ids: dict[str, int] | None = None
@@ -41,25 +45,36 @@ class EnvironmentCollector:
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         """Remove specified data of a document.
 
-        This method is called on the removal of the document."""
+        This method is called on the removal of the document.
+
+        .. seealso:: :event:`env-purge-doc`
+        """
         raise NotImplementedError
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment,
                     docnames: set[str], other: BuildEnvironment) -> None:
         """Merge in specified data regarding docnames from a different `BuildEnvironment`
-        object which coming from a subprocess in parallel builds."""
+        object which coming from a subprocess in parallel builds.
+
+        .. seealso:: :event:`env-merge-info`
+        """
         raise NotImplementedError
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process a document and gather specific data from it.
 
-        This method is called after the document is read."""
+        This method is called after the document is read.
+
+        .. seealso:: :event:`doctree-read`
+        """
         raise NotImplementedError
 
     def get_updated_docs(self, app: Sphinx, env: BuildEnvironment) -> list[str]:
         """Return a list of docnames to re-read.
 
-        This methods is called after reading the whole of documents (experimental).
+        This method is called after reading the whole of documents.
+
+        .. seealso:: :event:`env-get-updated`
         """
         return []
 
@@ -67,6 +82,8 @@ class EnvironmentCollector:
                           added: set[str], changed: set[str], removed: set[str]) -> list[str]:
         """Return a list of docnames to re-read.
 
-        This methods is called before reading the documents.
+        This method is called before reading the documents.
+
+        .. seealso:: :event:`env-get-outdated`
         """
         return []

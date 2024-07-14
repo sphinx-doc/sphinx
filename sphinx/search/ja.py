@@ -1,28 +1,28 @@
 """Japanese search language: includes routine to split words."""
 
 # Python Version of TinySegmenter
-# (http://chasen.org/~taku/software/TinySegmenter/)
+# (https://chasen.org/~taku/software/TinySegmenter/)
 # TinySegmenter is super compact Japanese tokenizer.
 #
 # TinySegmenter was originally developed by Taku Kudo <taku(at)chasen.org>.
 # Python Version was developed by xnights <programming.magic(at)gmail.com>.
-# For details, see http://programming-magic.com/?id=170
+# For details, see https://programming-magic.com/?id=170
 
 from __future__ import annotations
 
 import os
 import re
 import sys
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import Any
 
 try:
-    import MeCab
+    import MeCab  # type: ignore[import-not-found]
     native_module = True
 except ImportError:
     native_module = False
 
 try:
-    import janome.tokenizer
+    import janome.tokenizer  # type: ignore[import-not-found]
     janome_module = True
 except ImportError:
     janome_module = False
@@ -33,7 +33,7 @@ from sphinx.util import import_object
 
 
 class BaseSplitter:
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
         self.options = options
 
     def split(self, input: str) -> list[str]:
@@ -46,7 +46,7 @@ class BaseSplitter:
 
 
 class MecabSplitter(BaseSplitter):
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
         super().__init__(options)
         self.ctypes_libmecab: Any = None
         self.ctypes_mecab: Any = None
@@ -64,14 +64,14 @@ class MecabSplitter(BaseSplitter):
                 self.ctypes_mecab, input.encode(self.dict_encode))
         return result.split(' ')
 
-    def init_native(self, options: dict) -> None:
+    def init_native(self, options: dict[str, str]) -> None:
         param = '-Owakati'
         dict = options.get('dict')
         if dict:
             param += ' -d %s' % dict
         self.native = MeCab.Tagger(param)
 
-    def init_ctypes(self, options: dict) -> None:
+    def init_ctypes(self, options: dict[str, str]) -> None:
         import ctypes.util
 
         lib = options.get('lib')
@@ -113,7 +113,7 @@ class MecabSplitter(BaseSplitter):
 
 
 class JanomeSplitter(BaseSplitter):
-    def __init__(self, options: dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
         super().__init__(options)
         self.user_dict = options.get('user_dic')
         self.user_dict_enc = options.get('user_dic_enc', 'utf8')
@@ -418,17 +418,8 @@ class DefaultSplitter(BaseSplitter):
             return []
 
         result = []
-        seg = ['B3', 'B2', 'B1']
-        ctype = ['O', 'O', 'O']
-        for t in input:
-            seg.append(t)
-            ctype.append(self.ctype_(t))
-        seg.append('E1')
-        seg.append('E2')
-        seg.append('E3')
-        ctype.append('O')
-        ctype.append('O')
-        ctype.append('O')
+        seg = ['B3', 'B2', 'B1', *input, 'E1', 'E2', 'E3']
+        ctype = ['O', 'O', 'O', *map(self.ctype_, input), 'O', 'O', 'O']
         word = seg[3]
         p1 = 'U'
         p2 = 'U'
@@ -513,7 +504,7 @@ class SearchJapanese(SearchLanguage):
     lang = 'ja'
     language_name = 'Japanese'
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         dotted_path = options.get('type', 'sphinx.search.ja.DefaultSplitter')
         try:
             self.splitter = import_object(dotted_path)(options)

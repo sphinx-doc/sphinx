@@ -7,38 +7,36 @@ import json
 import re
 import socket
 import time
+import warnings
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import TYPE_CHECKING, NamedTuple, cast
-from urllib.parse import unquote, urlparse, urlsplit, urlunparse
+from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
 from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
+from requests.exceptions import Timeout as RequestTimeout
 
 from sphinx.builders.dummy import DummyBuilder
+from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
-from sphinx.util.console import (  # type: ignore[attr-defined]
-    darkgray,
-    darkgreen,
-    purple,
-    red,
-    turquoise,
-)
+from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise
 from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterator
+    from collections.abc import Iterator
     from typing import Any, Callable
 
     from requests import Response
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -56,15 +54,36 @@ class CheckExternalLinksBuilder(DummyBuilder):
     """
     Checks for broken external links.
     """
+
     name = 'linkcheck'
     epilog = __('Look for any errors in the above output or in '
                 '%(outdir)s/output.txt')
 
     def init(self) -> None:
         self.broken_hyperlinks = 0
+        self.timed_out_hyperlinks = 0
         self.hyperlinks: dict[str, Hyperlink] = {}
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
+
+        if not self.config.linkcheck_allow_unauthorized:
+            deprecation_msg = (
+                "The default value for 'linkcheck_allow_unauthorized' will change "
+                "from `True` in Sphinx 7.3+ to `False`, meaning that HTTP 401 "
+                "unauthorized responses will be reported as broken by default. "
+                "See https://github.com/sphinx-doc/sphinx/issues/11433 for details."
+            )
+            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
+
+        if self.config.linkcheck_report_timeouts_as_broken:
+            deprecation_msg = (
+                "The default value for 'linkcheck_report_timeouts_as_broken' will change "
+                'to False in Sphinx 8, meaning that request timeouts '
+                "will be reported with a new 'timeout' status, instead of as 'broken'. "
+                'This is intended to provide more detail as to the failure mode. '
+                'See https://github.com/sphinx-doc/sphinx/issues/11868 for details.'
+            )
+            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
 
     def finish(self) -> None:
         checker = HyperlinkAvailabilityChecker(self.config)
@@ -77,7 +96,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             for result in checker.check(self.hyperlinks):
                 self.process_result(result)
 
-        if self.broken_hyperlinks:
+        if self.broken_hyperlinks or self.timed_out_hyperlinks:
             self.app.statuscode = 1
 
     def process_result(self, result: CheckResult) -> None:
@@ -104,6 +123,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
             self.write_entry('local', result.docname, filename, result.lineno, result.uri)
         elif result.status == 'working':
             logger.info(darkgreen('ok        ') + result.uri + result.message)
+        elif result.status == 'timeout':
+            if self.app.quiet or self.app.warningiserror:
+                logger.warning('timeout   ' + result.uri + result.message,
+                               location=(result.docname, result.lineno))
+            else:
+                logger.info(red('timeout   ') + result.uri + red(' - ' + result.message))
+            self.write_entry('timeout', result.docname, filename, result.lineno,
+                             result.uri + ': ' + result.message)
+            self.timed_out_hyperlinks += 1
         elif result.status == 'broken':
             if self.app.quiet or self.app.warningiserror:
                 logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
@@ -150,41 +178,67 @@ class HyperlinkCollector(SphinxPostTransform):
     default_priority = 800
 
     def run(self, **kwargs: Any) -> None:
+        for node in self.document.findall():
+            if uri := self.find_uri(node):
+                self._add_uri(uri, node)
+
+    def find_uri(self, node: nodes.Element) -> str | None:
+        """Find a URI for a given node.
+
+        This call can be used to retrieve a URI from a provided node. If no
+        URI exists for a provided node, this call will return ``None``.
+
+        This method can be useful for extension developers who wish to
+        easily inject hyperlinks into a builder by only needing to override
+        this method.
+
+        :param node: A node class
+        :returns: URI of the node
+        """
+        # reference nodes
+        if isinstance(node, nodes.reference):
+            if 'refuri' in node:
+                return node['refuri']
+
+        # image nodes
+        if isinstance(node, nodes.image):
+            uri = node['candidates'].get('?')
+            if uri and '://' in uri:
+                return uri
+
+        # raw nodes
+        if isinstance(node, nodes.raw):
+            uri = node.get('source')
+            if uri and '://' in uri:
+                return uri
+
+        return None
+
+    def _add_uri(self, uri: str, node: nodes.Element) -> None:
+        """Registers a node's URI into a builder's collection of hyperlinks.
+
+        Provides the ability to register a URI value determined from a node
+        into the linkcheck's builder. URI's processed through this call can
+        be manipulated through a ``linkcheck-process-uri`` event before the
+        builder attempts to validate.
+
+        :param uri: URI to add
+        :param node: A node class where the URI was found
+        """
         builder = cast(CheckExternalLinksBuilder, self.app.builder)
         hyperlinks = builder.hyperlinks
         docname = self.env.docname
 
-        # reference nodes
-        for refnode in self.document.findall(nodes.reference):
-            if 'refuri' in refnode:
-                uri = refnode['refuri']
-                _add_uri(self.app, uri, refnode, hyperlinks, docname)
+        if newuri := self.app.emit_firstresult('linkcheck-process-uri', uri):
+            uri = newuri
 
-        # image nodes
-        for imgnode in self.document.findall(nodes.image):
-            uri = imgnode['candidates'].get('?')
-            if uri and '://' in uri:
-                _add_uri(self.app, uri, imgnode, hyperlinks, docname)
+        try:
+            lineno = get_node_line(node)
+        except ValueError:
+            lineno = -1
 
-        # raw nodes
-        for rawnode in self.document.findall(nodes.raw):
-            uri = rawnode.get('source')
-            if uri and '://' in uri:
-                _add_uri(self.app, uri, rawnode, hyperlinks, docname)
-
-
-def _add_uri(app: Sphinx, uri: str, node: nodes.Element,
-             hyperlinks: dict[str, Hyperlink], docname: str) -> None:
-    if newuri := app.emit_firstresult('linkcheck-process-uri', uri):
-        uri = newuri
-
-    try:
-        lineno = get_node_line(node)
-    except ValueError:
-        lineno = -1
-
-    if uri not in hyperlinks:
-        hyperlinks[uri] = Hyperlink(uri, docname, app.env.doc2path(docname), lineno)
+        if uri not in hyperlinks:
+            hyperlinks[uri] = Hyperlink(uri, docname, self.env.doc2path(docname), lineno)
 
 
 class Hyperlink(NamedTuple):
@@ -206,7 +260,7 @@ class HyperlinkAvailabilityChecker:
         self.to_ignore: list[re.Pattern[str]] = list(map(re.compile,
                                                          self.config.linkcheck_ignore))
 
-    def check(self, hyperlinks: dict[str, Hyperlink]) -> Generator[CheckResult, None, None]:
+    def check(self, hyperlinks: dict[str, Hyperlink]) -> Iterator[CheckResult]:
         self.invoke_threads()
 
         total_links = 0
@@ -283,6 +337,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.allowed_redirects = config.linkcheck_allowed_redirects
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
+        self._allow_unauthorized = config.linkcheck_allow_unauthorized
+        if config.linkcheck_report_timeouts_as_broken:
+            self._timeout_status = 'broken'
+        else:
+            self._timeout_status = 'timeout'
 
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
@@ -376,6 +435,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     if rex.match(req_url):
                         anchor = ''
                         break
+            anchor = unquote(anchor)
 
         # handle non-ASCII URIs
         try:
@@ -384,7 +444,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             req_url = encode_uri(req_url)
 
         # Get auth info, if any
-        for pattern, auth_info in self.auth:  # noqa: B007 (false positive)
+        for pattern, auth_info in self.auth:  # NoQA: B007 (false positive)
             if pattern.match(uri):
                 break
         else:
@@ -413,7 +473,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if (self.check_anchors and response.ok and anchor
                             and not contains_anchor(response, anchor)):
-                        raise Exception(__(f'Anchor {anchor!r} not found'))
+                        raise Exception(__("Anchor '%s' not found") % quote(anchor))
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
@@ -423,6 +483,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 response.raise_for_status()
                 del response
                 break
+
+            except RequestTimeout as err:
+                return self._timeout_status, str(err), 0
 
             except SSLError as err:
                 # SSL failure; report that the link is broken.
@@ -437,9 +500,31 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             except HTTPError as err:
                 error_message = str(err)
 
-                # Unauthorised: the reference probably exists
+                # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
-                    return 'working', 'unauthorized', 0
+                    if self._allow_unauthorized:
+                        deprecation_msg = (
+                            "\n---\n"
+                            "The linkcheck builder encountered an HTTP 401 "
+                            "(unauthorized) response, and will report it as "
+                            "'working' in this version of Sphinx to maintain "
+                            "backwards-compatibility."
+                            "\n"
+                            "This logic will change in Sphinx 8.0 which will "
+                            "report the hyperlink as 'broken'."
+                            "\n"
+                            "To explicitly continue treating unauthorized "
+                            "hyperlink responses as 'working', set the "
+                            "'linkcheck_allow_unauthorized' config option to "
+                            "``True``."
+                            "\n"
+                            "See https://github.com/sphinx-doc/sphinx/issues/11433 "
+                            "for details."
+                            "\n---"
+                        )
+                        warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
+                    status = 'working' if self._allow_unauthorized else 'broken'
+                    return status, 'unauthorized', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
                 if status_code == 429:
@@ -478,7 +563,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         else:
             return 'redirected', response_url, 0
 
-    def limit_rate(self, response_url: str, retry_after: str) -> float | None:
+    def limit_rate(self, response_url: str, retry_after: str | None) -> float | None:
         delay = DEFAULT_DELAY
         next_check = None
         if retry_after:
@@ -534,8 +619,7 @@ def _get_request_headers(
 
 def contains_anchor(response: Response, anchor: str) -> bool:
     """Determine if an anchor is contained within an HTTP response."""
-
-    parser = AnchorCheckParser(unquote(anchor))
+    parser = AnchorCheckParser(anchor)
     # Read file in chunks. If we find a matching anchor, we break
     # the loop early in hopes not to have to download the whole thing.
     for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
@@ -607,24 +691,26 @@ def compile_linkcheck_allowed_redirects(app: Sphinx, config: Config) -> None:
             app.config.linkcheck_allowed_redirects.pop(url)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CheckExternalLinksBuilder)
     app.add_post_transform(HyperlinkCollector)
 
-    app.add_config_value('linkcheck_ignore', [], False)
-    app.add_config_value('linkcheck_exclude_documents', [], False)
-    app.add_config_value('linkcheck_allowed_redirects', {}, False)
-    app.add_config_value('linkcheck_auth', [], False)
-    app.add_config_value('linkcheck_request_headers', {}, False)
-    app.add_config_value('linkcheck_retries', 1, False)
-    app.add_config_value('linkcheck_timeout', None, False, [int, float])
-    app.add_config_value('linkcheck_workers', 5, False)
-    app.add_config_value('linkcheck_anchors', True, False)
+    app.add_config_value('linkcheck_ignore', [], '')
+    app.add_config_value('linkcheck_exclude_documents', [], '')
+    app.add_config_value('linkcheck_allowed_redirects', {}, '')
+    app.add_config_value('linkcheck_auth', [], '')
+    app.add_config_value('linkcheck_request_headers', {}, '')
+    app.add_config_value('linkcheck_retries', 1, '')
+    app.add_config_value('linkcheck_timeout', 30, '', (int, float))
+    app.add_config_value('linkcheck_workers', 5, '')
+    app.add_config_value('linkcheck_anchors', True, '')
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
-    app.add_config_value('linkcheck_anchors_ignore', ['^!'], False)
-    app.add_config_value('linkcheck_anchors_ignore_for_url', (), False, (tuple, list))
-    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, False)
+    app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
+    app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
+    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
+    app.add_config_value('linkcheck_allow_unauthorized', True, '')
+    app.add_config_value('linkcheck_report_timeouts_as_broken', True, '', bool)
 
     app.add_event('linkcheck-process-uri')
 

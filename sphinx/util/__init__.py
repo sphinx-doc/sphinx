@@ -20,8 +20,8 @@ from sphinx.util import index_entries as _index_entries
 from sphinx.util import logging
 from sphinx.util import osutil as _osutil
 from sphinx.util.console import strip_colors  # NoQA: F401
-from sphinx.util.matching import patfilter  # noqa: F401
-from sphinx.util.nodes import (  # noqa: F401
+from sphinx.util.matching import patfilter  # NoQA: F401
+from sphinx.util.nodes import (  # NoQA: F401
     caption_ref_re,
     explicit_title_re,
     nested_parse_with_titles,
@@ -30,7 +30,7 @@ from sphinx.util.nodes import (  # noqa: F401
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
-from sphinx.util.osutil import (  # noqa: F401
+from sphinx.util.osutil import (  # NoQA: F401
     SEP,
     copyfile,
     copytimes,
@@ -68,6 +68,7 @@ class FilenameUniqDict(dict):
     interpreted as filenames, and keeps track of a set of docnames they
     appear in.  Used for images and downloadable files in the environment.
     """
+
     def __init__(self) -> None:
         self._existing: set[str] = set()
 
@@ -104,7 +105,7 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-def _md5(data=b'', **_kw):
+def _md5(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
     """Deprecated wrapper around hashlib.md5
 
     To be removed in Sphinx 9.0
@@ -112,7 +113,7 @@ def _md5(data=b'', **_kw):
     return hashlib.md5(data, usedforsecurity=False)
 
 
-def _sha1(data=b'', **_kw):
+def _sha1(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
     """Deprecated wrapper around hashlib.sha1
 
     To be removed in Sphinx 9.0
@@ -178,6 +179,7 @@ class Tee:
     """
     File-like object writing to two streams.
     """
+
     def __init__(self, stream1: IO, stream2: IO) -> None:
         self.stream1 = stream1
         self.stream2 = stream2
@@ -202,7 +204,7 @@ def parselinenos(spec: str, total: int) -> list[int]:
     for part in parts:
         try:
             begend = part.strip().split('-')
-            if ['', ''] == begend:
+            if begend == ['', '']:
                 raise ValueError
             if len(begend) == 1:
                 items.append(int(begend[0]) - 1)
@@ -256,7 +258,7 @@ def isurl(url: str) -> bool:
     return bool(url) and '://' in url
 
 
-def _xml_name_checker():
+def _xml_name_checker() -> re.Pattern[str]:
     # to prevent import cycles
     from sphinx.builders.epub3 import _XML_NAME_PATTERN
 
@@ -264,7 +266,7 @@ def _xml_name_checker():
 
 
 # deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS = {
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str] | tuple[Any, str, tuple[int, int]]] = {
     'path_stabilize': (_osutil.path_stabilize, 'sphinx.util.osutil.path_stabilize'),
     'display_chunk': (_display.display_chunk, 'sphinx.util.display.display_chunk'),
     'status_iterator': (_display.status_iterator, 'sphinx.util.display.status_iterator'),
@@ -285,13 +287,15 @@ _DEPRECATED_OBJECTS = {
 }
 
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
     if name not in _DEPRECATED_OBJECTS:
         msg = f'module {__name__!r} has no attribute {name!r}'
         raise AttributeError(msg)
 
     from sphinx.deprecation import _deprecation_warning
 
-    deprecated_object, canonical_name = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=(8, 0))
+    info = _DEPRECATED_OBJECTS[name]
+    deprecated_object, canonical_name = info[:2]
+    remove = info[2] if len(info) == 3 else (8, 0)
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
     return deprecated_object

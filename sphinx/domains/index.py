@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 class IndexDomain(Domain):
     """Mathematics domain."""
+
     name = 'index'
     label = 'index'
 
@@ -62,11 +63,12 @@ class IndexDirective(SphinxDirective):
     """
     Directive to add entries to the index.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'name': directives.unchanged,
     }
 
@@ -113,7 +115,7 @@ class IndexRole(ReferenceRole):
         return [index, target, text], []
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(IndexDomain)
     app.add_directive('index', IndexDirective)
     app.add_role('index', IndexRole())

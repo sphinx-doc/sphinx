@@ -213,7 +213,7 @@ class SearchEnglish(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('porter')
 
     def stem(self, word: str) -> str:

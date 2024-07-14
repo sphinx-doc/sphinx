@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 _LAMBDA_NAME = (lambda: None).__name__
@@ -96,7 +97,7 @@ def _get_arguments(obj: Any, /) -> ast.arguments | None:
     return _get_arguments_inner(subject)
 
 
-def _is_lambda(x, /):
+def _is_lambda(x: Any, /) -> bool:
     return isinstance(x, types.LambdaType) and x.__name__ == _LAMBDA_NAME
 
 
@@ -108,7 +109,7 @@ def _get_arguments_inner(x: Any, /) -> ast.arguments | None:
     return None
 
 
-def get_default_value(lines: list[str], position: ast.AST) -> str | None:
+def get_default_value(lines: list[str], position: ast.expr) -> str | None:
     try:
         if position.lineno == position.end_lineno:
             line = lines[position.lineno - 1]
@@ -189,8 +190,8 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
         logger.warning(__("Failed to parse a default argument value for %r: %s"), obj, exc)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
-    app.add_config_value('autodoc_preserve_defaults', False, True)
+def setup(app: Sphinx) -> ExtensionMetadata:
+    app.add_config_value('autodoc_preserve_defaults', False, 'env')
     app.connect('autodoc-before-process-signature', update_defvalue)
 
     return {

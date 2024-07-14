@@ -19,6 +19,7 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class ImageDownloader(BaseImageConverter):
     default_priority = 100
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_image_types == []:
+        if not self.app.builder.supported_image_types:
             return False
         if self.app.builder.supported_remote_images:
             return False
@@ -61,24 +62,26 @@ class ImageDownloader(BaseImageConverter):
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
                 basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
-            basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
+            basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
-            dirname = node['uri'].replace('://', '/').translate({ord("?"): "/",
-                                                                 ord("&"): "/"})
-            if len(dirname) > MAX_FILENAME_LEN:
-                dirname = sha1(dirname.encode(), usedforsecurity=False).hexdigest()
-            ensuredir(os.path.join(self.imagedir, dirname))
-            path = os.path.join(self.imagedir, dirname, basename)
+            uri_hash = sha1(node['uri'].encode(), usedforsecurity=False).hexdigest()
+            ensuredir(os.path.join(self.imagedir, uri_hash))
+            path = os.path.join(self.imagedir, uri_hash, basename)
 
             headers = {}
             if os.path.exists(path):
                 timestamp: float = ceil(os.stat(path).st_mtime)
                 headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
-            r = requests.get(node['uri'], headers=headers)
+            config = self.app.config
+            r = requests.get(
+                node['uri'], headers=headers,
+                _user_agent=config.user_agent,
+                _tls_info=(config.tls_verify, config.tls_cacerts),
+            )
             if r.status_code >= 400:
-                logger.warning(__('Could not fetch remote image: %s [%d]') %
-                               (node['uri'], r.status_code))
+                logger.warning(__('Could not fetch remote image: %s [%d]'),
+                               node['uri'], r.status_code)
             else:
                 self.app.env.original_image_uri[path] = node['uri']
 
@@ -95,7 +98,7 @@ class ImageDownloader(BaseImageConverter):
                 if mimetype != '*' and os.path.splitext(basename)[1] == '':
                     # append a suffix if URI does not contain suffix
                     ext = get_image_extension(mimetype)
-                    newpath = os.path.join(self.imagedir, dirname, basename + ext)
+                    newpath = os.path.join(self.imagedir, uri_hash, basename + ext)
                     os.replace(path, newpath)
                     self.app.env.original_image_uri.pop(path)
                     self.app.env.original_image_uri[newpath] = node['uri']
@@ -105,17 +108,15 @@ class ImageDownloader(BaseImageConverter):
                 node['uri'] = path
                 self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:
-            logger.warning(__('Could not fetch remote image: %s [%s]') % (node['uri'], exc))
+            logger.warning(__('Could not fetch remote image: %s [%s]'), node['uri'], exc)
 
 
 class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
     def match(self, node: nodes.image) -> bool:
-        if self.app.builder.supported_remote_images == []:
-            return False
         if self.app.builder.supported_data_uri_images is True:
-            return False
+            return False  # do not transform the image; data URIs are valid in the build output
         return node['uri'].startswith('data:')
 
     def handle(self, node: nodes.image) -> None:
@@ -143,7 +144,7 @@ class DataURIExtractor(BaseImageConverter):
 
 def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
-    basename = re.sub(CRITICAL_PATH_CHAR_RE, "_", basename)
+    basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
     return os.path.splitext(basename)[0] + (get_image_extension(mimetype) or '')
 
 
@@ -168,6 +169,7 @@ class ImageConverter(BaseImageConverter):
     3. Register your image converter to Sphinx using
        :py:meth:`.Sphinx.add_post_transform`
     """
+
     default_priority = 200
 
     #: The converter is available or not.  Will be filled at the first call of
@@ -187,9 +189,6 @@ class ImageConverter(BaseImageConverter):
     #:         ('application/pdf', 'image/png'),
     #:     ]
     conversion_rules: list[tuple[str, str]] = []
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     def match(self, node: nodes.image) -> bool:
         if not self.app.builder.supported_image_types:
@@ -228,10 +227,12 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError
 
     def guess_mimetypes(self, node: nodes.image) -> list[str]:
+        # The special key ? is set for nonlocal URIs.
         if '?' in node['candidates']:
             return []
         elif '*' in node['candidates']:
-            guessed = guess_mimetype(node['uri'])
+            path = os.path.join(self.app.srcdir, node['uri'])
+            guessed = guess_mimetype(path)
             return [guessed] if guessed is not None else []
         else:
             return node['candidates'].keys()
@@ -269,7 +270,7 @@ class ImageConverter(BaseImageConverter):
         raise NotImplementedError
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(ImageDownloader)
     app.add_post_transform(DataURIExtractor)
 

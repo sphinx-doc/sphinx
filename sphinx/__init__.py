@@ -1,5 +1,8 @@
 """The Sphinx documentation toolchain."""
 
+__version__ = '7.4.0'
+__display_version__ = __version__  # used for command line version
+
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it when packaging is impossible.)
 
@@ -13,14 +16,9 @@ from .deprecation import RemovedInNextVersionWarning
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
 if 'PYTHONWARNINGS' not in os.environ:
     warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
-# docutils.io using mode='rU' for open
-warnings.filterwarnings('ignore', "'U' mode is deprecated",
-                        DeprecationWarning, module='docutils.io')
-warnings.filterwarnings('ignore', 'The frontend.Option class .*',
-                        DeprecationWarning, module='docutils.frontend')
-
-__version__ = '7.2.5'
-__display_version__ = __version__  # used for command line version
+warnings.filterwarnings(
+    'ignore', 'The frontend.Option class .*', DeprecationWarning, module='docutils.frontend'
+)
 
 #: Version info for better programmatic use.
 #:
@@ -30,11 +28,11 @@ __display_version__ = __version__  # used for command line version
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (7, 2, 5, 'final', 0)
+version_info = (7, 4, 0, 'beta', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
-_in_development = False
+_in_development = True
 if _in_development:
     # Only import subprocess if needed
     import subprocess
@@ -44,6 +42,7 @@ if _in_development:
             ['git', 'rev-parse', '--short', 'HEAD'],
             cwd=package_dir,
             capture_output=True,
+            check=False,
             encoding='ascii',
             errors='surrogateescape',
         ).stdout:

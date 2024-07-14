@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
 
-import sphinx.builders.latex.nodes  # noqa: F401,E501  # Workaround: import this before writer to avoid ImportError
+import sphinx.builders.latex.nodes  # NoQA: F401,E501  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
 from sphinx.builders import Builder
 from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, SHORTHANDOFF
@@ -20,7 +20,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.console import bold, darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import bold, darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 XINDY_LANG_OPTIONS = {
     # language codes from docutils.writers.latex2e.Babel
@@ -108,6 +109,7 @@ class LaTeXBuilder(Builder):
     """
     Builds LaTeX output to create PDF.
     """
+
     name = 'latex'
     format = 'latex'
     epilog = __('The LaTeX files are in %(outdir)s.')
@@ -215,15 +217,18 @@ class LaTeXBuilder(Builder):
         if self.context['latex_engine'] == 'pdflatex':
             if not self.babel.uses_cyrillic():
                 if 'X2' in self.context['fontenc']:
-                    self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                    self.context['substitutefont'] = ('\\usepackage'
+                                                      '{sphinxpackagesubstitutefont}')
                     self.context['textcyrillic'] = ('\\usepackage[Xtwo]'
                                                     '{sphinxpackagecyrillic}')
                 elif 'T2A' in self.context['fontenc']:
-                    self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                    self.context['substitutefont'] = ('\\usepackage'
+                                                      '{sphinxpackagesubstitutefont}')
                     self.context['textcyrillic'] = ('\\usepackage[TtwoA]'
                                                     '{sphinxpackagecyrillic}')
             if 'LGR' in self.context['fontenc']:
-                self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                self.context['substitutefont'] = ('\\usepackage'
+                                                  '{sphinxpackagesubstitutefont}')
             else:
                 self.context['textgreek'] = ''
             if self.context['substitutefont'] == '':
@@ -338,7 +343,7 @@ class LaTeXBuilder(Builder):
     def assemble_doctree(
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
-        self.docnames = set([indexfile] + appendices)
+        self.docnames = {indexfile, *appendices}
         logger.info(darkgreen(indexfile) + " ", nonl=True)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
@@ -371,9 +376,11 @@ class LaTeXBuilder(Builder):
             newnodes: list[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in ')))
-                    newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')'))
+                    newnodes.extend((
+                        nodes.Text(_(' (in ')),
+                        nodes.emphasis(title, title),
+                        nodes.Text(')'),
+                    ))
                     break
             else:
                 pass
@@ -386,7 +393,7 @@ class LaTeXBuilder(Builder):
 
     @progress_message(__('copying TeX support files'))
     def copy_support_files(self) -> None:
-        """copy TeX support files from texinputs."""
+        """Copy TeX support files from texinputs."""
         # configure usage of xindy (impacts Makefile and latexmkrc)
         # FIXME: convert this rather to a confval with suitable default
         #        according to language ? but would require extra documentation
@@ -410,7 +417,7 @@ class LaTeXBuilder(Builder):
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
             staticdirname = path.join(package_dir, 'texinputs_win')
-            copy_asset_file(path.join(staticdirname, 'Makefile_t'),
+            copy_asset_file(path.join(staticdirname, 'Makefile.jinja'),
                             self.outdir, context=context)
 
     @progress_message(__('copying additional files'))
@@ -449,7 +456,7 @@ class LaTeXBuilder(Builder):
         if self.context['babel'] or self.context['polyglossia']:
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
-        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
+        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja')
         copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
 
 
@@ -457,7 +464,7 @@ def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
             msg = __("Unknown configure key: latex_elements[%r], ignored.")
-            logger.warning(msg % (key,))
+            logger.warning(msg, key)
             config.latex_elements.pop(key)
 
 
@@ -465,7 +472,7 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_theme_options):
         if key not in Theme.UPDATABLE_KEYS:
             msg = __("Unknown theme option: latex_theme_options[%r], ignored.")
-            logger.warning(msg % (key,))
+            logger.warning(msg, key)
             config.latex_theme_options.pop(key)
 
 
@@ -476,7 +483,7 @@ def install_packages_for_ja(app: Sphinx) -> None:
 
 
 def default_latex_engine(config: Config) -> str:
-    """ Better default latex_engine settings for specific languages. """
+    """Better default latex_engine settings for specific languages."""
     if config.language == 'ja':
         return 'uplatex'
     if config.language.startswith('zh'):
@@ -487,7 +494,7 @@ def default_latex_engine(config: Config) -> str:
 
 
 def default_latex_docclass(config: Config) -> dict[str, str]:
-    """ Better default latex_docclass settings for specific languages. """
+    """Better default latex_docclass settings for specific languages."""
     if config.language == 'ja':
         if config.latex_engine == 'uplatex':
             return {'manual': 'ujbook',
@@ -500,12 +507,12 @@ def default_latex_docclass(config: Config) -> dict[str, str]:
 
 
 def default_latex_use_xindy(config: Config) -> bool:
-    """ Better default latex_use_xindy settings for specific engines. """
+    """Better default latex_use_xindy settings for specific engines."""
     return config.latex_engine in {'xelatex', 'lualatex'}
 
 
 def default_latex_documents(config: Config) -> list[tuple[str, str, str, str, str]]:
-    """ Better default latex_documents settings. """
+    """Better default latex_documents settings."""
     project = texescape.escape(config.project, config.latex_engine)
     author = texescape.escape(config.author, config.latex_engine)
     return [(config.root_doc,
@@ -515,7 +522,7 @@ def default_latex_documents(config: Config) -> list[tuple[str, str, str, str, st
              config.latex_theme)]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.latex.transforms')
 
     app.add_builder(LaTeXBuilder)
@@ -523,26 +530,26 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', validate_latex_theme_options, priority=800)
     app.connect('builder-inited', install_packages_for_ja)
 
-    app.add_config_value('latex_engine', default_latex_engine, False,
+    app.add_config_value('latex_engine', default_latex_engine, '',
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
-    app.add_config_value('latex_documents', default_latex_documents, False)
-    app.add_config_value('latex_logo', None, False, [str])
-    app.add_config_value('latex_appendices', [], False)
-    app.add_config_value('latex_use_latex_multicolumn', False, False)
-    app.add_config_value('latex_use_xindy', default_latex_use_xindy, False, [bool])
-    app.add_config_value('latex_toplevel_sectioning', None, False,
+    app.add_config_value('latex_documents', default_latex_documents, '')
+    app.add_config_value('latex_logo', None, '', str)
+    app.add_config_value('latex_appendices', [], '')
+    app.add_config_value('latex_use_latex_multicolumn', False, '')
+    app.add_config_value('latex_use_xindy', default_latex_use_xindy, '', bool)
+    app.add_config_value('latex_toplevel_sectioning', None, '',
                          ENUM(None, 'part', 'chapter', 'section'))
-    app.add_config_value('latex_domain_indices', True, False, [list])
-    app.add_config_value('latex_show_urls', 'no', False)
-    app.add_config_value('latex_show_pagerefs', False, False)
-    app.add_config_value('latex_elements', {}, False)
-    app.add_config_value('latex_additional_files', [], False)
-    app.add_config_value('latex_table_style', ['booktabs', 'colorrows'], False, [list])
-    app.add_config_value('latex_theme', 'manual', False, [str])
-    app.add_config_value('latex_theme_options', {}, False)
-    app.add_config_value('latex_theme_path', [], False, [list])
+    app.add_config_value('latex_domain_indices', True, '', types={set, list})
+    app.add_config_value('latex_show_urls', 'no', '')
+    app.add_config_value('latex_show_pagerefs', False, '')
+    app.add_config_value('latex_elements', {}, '')
+    app.add_config_value('latex_additional_files', [], '')
+    app.add_config_value('latex_table_style', ['booktabs', 'colorrows'], '', list)
+    app.add_config_value('latex_theme', 'manual', '', str)
+    app.add_config_value('latex_theme_options', {}, '')
+    app.add_config_value('latex_theme_path', [], '', list)
 
-    app.add_config_value('latex_docclass', default_latex_docclass, False)
+    app.add_config_value('latex_docclass', default_latex_docclass, '')
 
     return {
         'version': 'builtin',

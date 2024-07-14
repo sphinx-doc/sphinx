@@ -1,4 +1,5 @@
 """Test the search index builder."""
+from __future__ import annotations
 
 import json
 import warnings
@@ -9,6 +10,14 @@ from docutils import frontend, utils
 from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
+
+from tests.utils import TESTS_ROOT
+
+JAVASCRIPT_TEST_ROOTS = [
+    directory
+    for directory in (TESTS_ROOT / 'js' / 'roots').iterdir()
+    if (directory / 'conf.py').exists()
+]
 
 
 class DummyEnvironment:
@@ -66,13 +75,16 @@ section_title
 
 .. test that comments are not indexed: boson
 
+another_title
+=============
+
 test that non-comments are indexed: fermion
 '''
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode')
 def test_objects_are_escaped(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
     for item in index.get('objects').get(''):
         if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
@@ -83,7 +95,7 @@ def test_objects_are_escaped(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_meta_keys_are_handled_for_language_en(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
@@ -96,7 +108,7 @@ def test_meta_keys_are_handled_for_language_en(app):
 
 @pytest.mark.sphinx(testroot='search', confoverrides={'html_search_language': 'de'}, freshenv=True)
 def test_meta_keys_are_handled_for_language_de(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'thisnoteith')
     assert is_registered_term(searchindex, 'thisonetoo')
@@ -109,14 +121,14 @@ def test_meta_keys_are_handled_for_language_de(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_stemmer_does_not_remove_short_words(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     assert 'bat' in searchindex
 
 
 @pytest.mark.sphinx(testroot='search')
 def test_stemmer(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     print(searchindex)
     assert is_registered_term(searchindex, 'findthisstemmedkei')
@@ -125,7 +137,7 @@ def test_stemmer(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_heading_and_section(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
@@ -136,7 +148,7 @@ def test_term_in_heading_and_section(app):
 
 @pytest.mark.sphinx(testroot='search')
 def test_term_in_raw_directive(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
     assert not is_registered_term(searchindex, 'raw')
     assert is_registered_term(searchindex, 'rawword')
@@ -157,12 +169,16 @@ def test_IndexBuilder():
     index = IndexBuilder(env, 'en', {}, None)
     index.feed('docname1_1', 'filename1_1', 'title1_1', doc)
     index.feed('docname1_2', 'filename1_2', 'title1_2', doc)
-    index.feed('docname2_1', 'filename2_1', 'title2_1', doc)
     index.feed('docname2_2', 'filename2_2', 'title2_2', doc)
+    index.feed('docname2_1', 'filename2_1', 'title2_1', doc)
     assert index._titles == {'docname1_1': 'title1_1', 'docname1_2': 'title1_2',
                              'docname2_1': 'title2_1', 'docname2_2': 'title2_2'}
     assert index._filenames == {'docname1_1': 'filename1_1', 'docname1_2': 'filename1_2',
                                 'docname2_1': 'filename2_1', 'docname2_2': 'filename2_2'}
+    # note: element iteration order (sort order) is important when the index
+    # is frozen (serialized) during build -- however, the _mapping-related
+    # dictionaries below may be iterated in arbitrary order by Python at
+    # runtime.
     assert index._mapping == {
         'ar': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'fermion': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
@@ -171,7 +187,10 @@ def test_IndexBuilder():
         'index': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'test': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
     }
-    assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}}
+    assert index._title_mapping == {
+        'another_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+        'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+    }
     assert index._objtypes == {}
     assert index._objnames == {}
 
@@ -191,8 +210,14 @@ def test_IndexBuilder():
                   'non': [0, 1, 2, 3],
                   'test': [0, 1, 2, 3]},
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1, 2, 3]},
-        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'), (2, 'section-title'), (3, 'section-title')]},
+        'titleterms': {
+            'another_titl': [0, 1, 2, 3],
+            'section_titl': [0, 1, 2, 3],
+        },
+        'alltitles': {
+            'another_title': [(0, 'another-title'), (1, 'another-title'), (2, 'another-title'), (3, 'another-title')],
+            'section_title': [(0, None), (1, None), (2, None), (3, None)],
+        },
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -233,7 +258,10 @@ def test_IndexBuilder():
         'index': {'docname1_2', 'docname2_2'},
         'test': {'docname1_2', 'docname2_2'},
     }
-    assert index._title_mapping == {'section_titl': {'docname1_2', 'docname2_2'}}
+    assert index._title_mapping == {
+        'another_titl': {'docname1_2', 'docname2_2'},
+        'section_titl': {'docname1_2', 'docname2_2'},
+    }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
     assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')}
 
@@ -252,8 +280,14 @@ def test_IndexBuilder():
                   'non': [0, 1],
                   'test': [0, 1]},
         'titles': ('title1_2', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1]},
-        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title')]},
+        'titleterms': {
+            'another_titl': [0, 1],
+            'section_titl': [0, 1],
+        },
+        'alltitles': {
+            'another_title': [(0, 'another-title'), (1, 'another-title')],
+            'section_title': [(0, None), (1, None)],
+        },
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -279,7 +313,7 @@ def test_IndexBuilder_lookup():
     srcdir='search_zh',
 )
 def test_search_index_gen_zh(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert 'chinesetest ' not in index['terms']
     assert 'chinesetest' in index['terms']
@@ -304,3 +338,57 @@ def test_parallel(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
+
+
+@pytest.mark.sphinx(testroot='search')
+def test_search_index_is_deterministic(app):
+    app.build(force_all=True)
+    index = load_searchindex(app.outdir / 'searchindex.js')
+    # Pretty print the index. Only shown by pytest on failure.
+    print(f'searchindex.js contents:\n\n{json.dumps(index, indent=2)}')
+    assert_is_sorted(index, '')
+
+
+def is_title_tuple_type(item: list[int | str]):
+    """
+    In the search index, titles inside .alltitles are stored as a tuple of
+    (document_idx, title_anchor). Tuples are represented as lists in JSON,
+    but their contents must not be sorted. We cannot sort them anyway, as
+    document_idx is an int and title_anchor is a str.
+    """
+    return len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], str)
+
+
+def assert_is_sorted(item, path: str):
+    lists_not_to_sort = {
+        # Each element of .titles is related to the element of .docnames in the same position.
+        # The ordering is deterministic because .docnames is sorted.
+        '.titles',
+        # Each element of .filenames is related to the element of .docnames in the same position.
+        # The ordering is deterministic because .docnames is sorted.
+        '.filenames',
+    }
+
+    err_path = path or '<root>'
+    if isinstance(item, dict):
+        assert list(item.keys()) == sorted(item.keys()), f'{err_path} is not sorted'
+        for key, value in item.items():
+            assert_is_sorted(value, f'{path}.{key}')
+    elif isinstance(item, list):
+        if not is_title_tuple_type(item) and path not in lists_not_to_sort:
+            # sort nulls last; http://stackoverflow.com/questions/19868767/
+            assert item == sorted(item, key=lambda x: (x is None, x)), f'{err_path} is not sorted'
+        for i, child in enumerate(item):
+            assert_is_sorted(child, f'{path}[{i}]')
+
+
+@pytest.mark.parametrize('directory', JAVASCRIPT_TEST_ROOTS)
+def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
+    app = make_app('html', srcdir=directory, builddir=sphinx_test_tempdir / directory.name)
+    app.build()
+
+    fresh_searchindex = (app.outdir / 'searchindex.js')
+    existing_searchindex = (TESTS_ROOT / 'js' / 'fixtures' / directory.name / 'searchindex.js')
+
+    msg = f"Search index fixture {existing_searchindex} does not match regenerated copy."
+    assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg

@@ -10,6 +10,7 @@ from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class SphinxDanglingReferences(DanglingReferences):
@@ -29,6 +30,7 @@ class SphinxDanglingReferences(DanglingReferences):
 
 class SphinxDomains(SphinxTransform):
     """Collect objects to Sphinx domains for cross references."""
+
     default_priority = 850
 
     def apply(self, **kwargs: Any) -> None:
@@ -36,7 +38,7 @@ class SphinxDomains(SphinxTransform):
             domain.process_doc(self.env, self.env.docname, self.document)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(SphinxDanglingReferences)
     app.add_transform(SphinxDomains)
 

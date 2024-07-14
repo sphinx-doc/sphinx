@@ -22,6 +22,7 @@ from sphinx.util.osutil import make_filename
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +76,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
     an epub file.
     """
+
     name = 'epub'
     epilog = __('The ePub file is in %(outdir)s.')
 
@@ -192,7 +194,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'), self.outdir,
+        copy_asset_file(path.join(self.template_dir, 'nav.xhtml.jinja'), self.outdir,
                         self.navigation_doc_metadata(navlist))
 
         # Add nav.xhtml to epub file
@@ -240,7 +242,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled epub_css_files to tuple styled one."""
+    """Convert string styled epub_css_files to tuple styled one."""
     epub_css_files: list[tuple[str, dict[str, Any]]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
@@ -253,14 +255,14 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.epub_css_files = epub_css_files  # type: ignore[attr-defined]
+    config.epub_css_files = epub_css_files
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(Epub3Builder)
 
     # config values
-    app.add_config_value('epub_basename', lambda self: make_filename(self.project), False)
+    app.add_config_value('epub_basename', lambda self: make_filename(self.project), '')
     app.add_config_value('epub_version', 3.0, 'epub')  # experimental
     app.add_config_value('epub_theme', 'epub', 'epub')
     app.add_config_value('epub_theme_options', {}, 'epub')

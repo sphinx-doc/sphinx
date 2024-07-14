@@ -12,6 +12,7 @@ from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class KeyboardTransform(SphinxPostTransform):
@@ -31,6 +32,7 @@ class KeyboardTransform(SphinxPostTransform):
             <literal class="kbd">
                 x
     """
+
     default_priority = 400
     formats = ('html',)
     pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')
@@ -46,7 +48,7 @@ class KeyboardTransform(SphinxPostTransform):
         matcher = NodeMatcher(nodes.literal, classes=["kbd"])
         # this list must be pre-created as during iteration new nodes
         # are added which match the condition in the NodeMatcher.
-        for node in list(self.document.findall(matcher)):  # type: nodes.literal
+        for node in list(matcher.findall(self.document)):
             parts = self.pattern.split(node[-1].astext())
             if len(parts) == 1 or self.is_multiwords_key(parts):
                 continue
@@ -76,7 +78,7 @@ class KeyboardTransform(SphinxPostTransform):
             return False
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(KeyboardTransform)
 
     return {

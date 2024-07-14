@@ -30,7 +30,7 @@ How do I...
    ``sidebartoc`` block.
 
 ... write my own extension?
-   See the :doc:`/development/tutorials/index`.
+   See the :ref:`extension-tutorials-index`.
 
 ... convert from my existing docs using MoinMoin markup?
    The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
@@ -107,7 +107,7 @@ Google Analytics
         (function() {
           var ga = document.createElement('script');
           ga.src = ('https:' == document.location.protocol ?
-                    'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                    'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
           ga.setAttribute('async', 'true');
           document.documentElement.firstChild.appendChild(ga);
         })();

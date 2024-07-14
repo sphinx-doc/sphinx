@@ -17,7 +17,10 @@ jsmath_path = 'dummy.js'
 
 templates_path = ['_templates']
 
-source_suffix = ['.txt', '.add', '.foo']
+source_suffix = {
+    '.txt': 'restructuredtext',
+    '.foo': 'foo',
+}
 
 project = 'Sphinx <Tests>'
 copyright = '1234-6789, copyright text credits'
@@ -68,7 +71,7 @@ latex_elements = {
   shadowrule=1pt,
   shadowsep=10pt,
   shadowsize=10pt,
-  div.topic_border-width=2pt,% alias to shadowrule 
+  div.topic_border-width=2pt,% alias to shadowrule
   div.topic_padding=6pt,% alias to shadowsep
   div.topic_box-shadow=5pt,% overrides/alias shadowsize
 %
@@ -114,8 +117,8 @@ latex_elements = {
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
-extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue %s'),
-            'pyurl': ('http://python.org/%s', None)}
+extlinks = {'issue': ('https://bugs.python.org/issue%s', 'issue %s'),
+            'pyurl': ('https://python.org/%s', None)}
 
 # modify tags from conf.py
 tags.add('confpytag')

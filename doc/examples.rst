@@ -2,4 +2,4 @@
 
 .. _examples:
 
-.. include:: ../EXAMPLES
+.. include:: ../EXAMPLES.rst

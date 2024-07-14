@@ -31,7 +31,8 @@ from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
-ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), "..", ".."))
+IS_CI = 'CI' in os.environ
+ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), '..', '..'))
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
     'variable_end_string': '%>',
@@ -42,7 +43,9 @@ METHOD_MAP = [
     # Extraction from Python source files
     ('**.py', extract_python),
     # Extraction from Jinja2 template files
+    ('**/templates/latex/**.tex.jinja', extract_jinja2),
     ('**/templates/latex/**.tex_t', extract_jinja2),
+    ('**/templates/latex/**.sty.jinja', extract_jinja2),
     ('**/templates/latex/**.sty_t', extract_jinja2),
     # Extraction from Jinja2 HTML templates
     ('**/themes/**.html', extract_jinja2),
@@ -50,6 +53,7 @@ METHOD_MAP = [
     ('**/themes/**.xml', extract_jinja2),
     # Extraction from JavaScript files
     ('**.js', extract_javascript),
+    ('**.js.jinja', extract_javascript),
     ('**.js_t', extract_javascript),
 ]
 OPTIONS_MAP = {
@@ -58,7 +62,9 @@ OPTIONS_MAP = {
         'encoding': 'utf-8',
     },
     # Extraction from Jinja2 template files
+    '**/templates/latex/**.tex.jinja': TEX_DELIMITERS.copy(),
     '**/templates/latex/**.tex_t': TEX_DELIMITERS.copy(),
+    '**/templates/latex/**.sty.jinja': TEX_DELIMITERS.copy(),
     '**/templates/latex/**.sty_t': TEX_DELIMITERS.copy(),
     # Extraction from Jinja2 HTML templates
     '**/themes/**.html': {
@@ -70,7 +76,7 @@ OPTIONS_MAP = {
 KEYWORDS = {**DEFAULT_KEYWORDS, '_': None, '__': None}
 
 
-def run_extract():
+def run_extract() -> None:
     """Message extraction function."""
     log = _get_logger()
 
@@ -100,12 +106,15 @@ def run_extract():
                         options = opt_dict
                 with open(os.path.join(root, filename), 'rb') as fileobj:
                     for lineno, message, comments, context in extract(
-                        method, fileobj, KEYWORDS, options=options,
+                        method, fileobj, KEYWORDS, options=options
                     ):
                         filepath = os.path.join(input_path, relative_name)
                         catalogue.add(
-                            message, None, [(filepath, lineno)],
-                            auto_comments=comments, context=context,
+                            message,
+                            None,
+                            [(filepath, lineno)],
+                            auto_comments=comments,
+                            context=context,
                         )
                 break
 
@@ -115,9 +124,8 @@ def run_extract():
         write_po(outfile, catalogue)
 
 
-def run_update():
+def run_update() -> None:
     """Catalog merging command."""
-
     log = _get_logger()
 
     domain = 'sphinx'
@@ -138,7 +146,8 @@ def run_update():
 
         catalog.update(template)
         tmp_name = os.path.join(
-            os.path.dirname(filename), tempfile.gettempprefix() + os.path.basename(filename),
+            os.path.dirname(filename),
+            tempfile.gettempprefix() + os.path.basename(filename),
         )
         try:
             with open(tmp_name, 'wb') as tmpfile:
@@ -150,7 +159,7 @@ def run_update():
         os.replace(tmp_name, filename)
 
 
-def run_compile():
+def run_compile() -> None:
     """
     Catalog compilation command.
 
@@ -160,11 +169,10 @@ def run_compile():
     Unfortunately, babel's setup command isn't built very extensible, so
     most of the run() code is duplicated here.
     """
-
     log = _get_logger()
 
     directory = os.path.join('sphinx', 'locale')
-    total_errors = 0
+    total_errors = {}
 
     for locale in os.listdir(directory):
         po_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.po')
@@ -178,11 +186,22 @@ def run_compile():
             log.info('catalog %s is marked as fuzzy, skipping', po_file)
             continue
 
+        locale_errors = 0
         for message, errors in catalog.check():
             for error in errors:
-                total_errors += 1
-                log.error('error: %s:%d: %s\nerror:     in message string: %s',
-                          po_file, message.lineno, error, message.string)
+                locale_errors += 1
+                log.error(
+                    'error: %s:%d: %s\nerror:     in message string: %r',
+                    po_file,
+                    message.lineno,
+                    error,
+                    message.string,
+                )
+
+        if locale_errors:
+            total_errors[locale] = locale_errors
+            log.info('%d errors encountered in %r locale, skipping', locale_errors, locale)
+            continue
 
         mo_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.mo')
         log.info('compiling catalog %s to %s', po_file, mo_file)
@@ -194,27 +213,34 @@ def run_compile():
         js_catalogue = {}
         for message in catalog:
             if any(
-                    x[0].endswith(('.js', '.js.jinja', '.js_t', '.html'))
-                    for x in message.locations
+                x[0].endswith(('.js', '.js.jinja', '.js_t', '.html'))
+                for x in message.locations
             ):
                 msgid = message.id
                 if isinstance(msgid, (list, tuple)):
                     msgid = msgid[0]
                 js_catalogue[msgid] = message.string
 
-        obj = json.dumps({
-            'messages': js_catalogue,
-            'plural_expr': catalog.plural_expr,
-            'locale': str(catalog.locale),
-        }, sort_keys=True, indent=4)
+        obj = json.dumps(
+            {
+                'messages': js_catalogue,
+                'plural_expr': catalog.plural_expr,
+                'locale': str(catalog.locale),
+            },
+            sort_keys=True,
+            indent=4,
+        )
         with open(js_file, 'wb') as outfile:
             # to ensure lines end with ``\n`` rather than ``\r\n``:
             outfile.write(f'Documentation.addTranslations({obj});'.encode())
 
-    if total_errors > 0:
-        log.error('%d errors encountered.', total_errors)
-        print("Compiling failed.", file=sys.stderr)
-        raise SystemExit(2)
+    if total_errors:
+        _write_pr_body_line('## Babel catalogue errors')
+        _write_pr_body_line('')
+        for locale, err_count in total_errors.items():
+            log.error('error: %d errors encountered in %r locale.', err_count, locale)
+            s = 's' if err_count != 1 else ''
+            _write_pr_body_line(f'* {locale}: {err_count} error{s}')
 
 
 def _get_logger():
@@ -226,6 +252,13 @@ def _get_logger():
     return log
 
 
+def _write_pr_body_line(message: str) -> None:
+    if not IS_CI:
+        return
+    with open('babel_compile.txt', 'a', encoding='utf-8') as f:
+        f.write(f'{message}\n')
+
+
 if __name__ == '__main__':
     try:
         action = sys.argv[1].lower()
@@ -234,17 +267,17 @@ if __name__ == '__main__':
         raise SystemExit(2) from None
 
     os.chdir(ROOT)
-    if action == "extract":
-        raise SystemExit(run_extract())
-    if action == "update":
-        raise SystemExit(run_update())
-    if action == "compile":
-        raise SystemExit(run_compile())
-    if action == "all":
-        exit_code = run_extract()
-        if exit_code:
-            raise SystemExit(exit_code)
-        exit_code = run_update()
-        if exit_code:
-            raise SystemExit(exit_code)
-        raise SystemExit(run_compile())
+    if action == 'extract':
+        run_extract()
+    elif action == 'update':
+        run_update()
+    elif action == 'compile':
+        run_compile()
+    elif action == 'all':
+        run_extract()
+        run_update()
+        run_compile()
+    else:
+        msg = f"invalid action: '{action}'"
+        raise ValueError(msg)
+    raise SystemExit

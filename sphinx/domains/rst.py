@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils.parsers.rst import directives
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,8 @@ class ReSTMarkup(ObjectDescription[str]):
     """
     Description of generic reST markup.
     """
-    option_spec: OptionSpec = {
+
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -112,6 +113,7 @@ class ReSTDirective(ReSTMarkup):
     """
     Description of a reST directive.
     """
+
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         name, args = parse_directive(sig)
         desc_name = f'.. {name}::'
@@ -139,7 +141,8 @@ class ReSTDirectiveOption(ReSTMarkup):
     """
     Description of an option for reST directive.
     """
-    option_spec: OptionSpec = ReSTMarkup.option_spec.copy()
+
+    option_spec: ClassVar[OptionSpec] = ReSTMarkup.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
     })
@@ -165,8 +168,8 @@ class ReSTDirectiveOption(ReSTMarkup):
 
         directive_name = self.current_directive
         if directive_name:
-            prefix = '-'.join([self.objtype, directive_name])
-            objname = ':'.join([directive_name, name])
+            prefix = f'{self.objtype}-{directive_name}'
+            objname = f'{directive_name}:{name}'
         else:
             prefix = self.objtype
             objname = name
@@ -199,6 +202,7 @@ class ReSTRole(ReSTMarkup):
     """
     Description of a reST role.
     """
+
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         desc_name = f':{sig}:'
         signode['fullname'] = sig.strip()
@@ -211,6 +215,7 @@ class ReSTRole(ReSTMarkup):
 
 class ReSTDomain(Domain):
     """ReStructuredText domain."""
+
     name = 'rst'
     label = 'reStructuredText'
 
@@ -239,8 +244,8 @@ class ReSTDomain(Domain):
     def note_object(self, objtype: str, name: str, node_id: str, location: Any = None) -> None:
         if (objtype, name) in self.objects:
             docname, node_id = self.objects[objtype, name]
-            logger.warning(__('duplicate description of %s %s, other instance in %s') %
-                           (objtype, name, docname), location=location)
+            logger.warning(__('duplicate description of %s %s, other instance in %s'),
+                           objtype, name, docname, location=location)
 
         self.objects[objtype, name] = (self.env.docname, node_id)
 
@@ -288,7 +293,7 @@ class ReSTDomain(Domain):
             yield name, name, typ, docname, node_id, 1
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(ReSTDomain)
 
     return {

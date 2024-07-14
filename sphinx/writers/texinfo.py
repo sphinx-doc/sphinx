@@ -96,7 +96,8 @@ def find_subsections(section: Element) -> list[nodes.section]:
 
 def smart_capwords(s: str, sep: str | None = None) -> str:
     """Like string.capwords() but does not capitalize words that already
-    contain a capital letter."""
+    contain a capital letter.
+    """
     words = s.split(sep)
     for i, word in enumerate(words):
         if all(x.islower() for x in word):
@@ -106,6 +107,7 @@ def smart_capwords(s: str, sep: str | None = None) -> str:
 
 class TexinfoWriter(writers.Writer):
     """Texinfo writer for generating Texinfo documents."""
+
     supported = ('texinfo', 'texi')
 
     settings_spec: tuple[str, Any, tuple[tuple[str, list[str], dict[str, str]], ...]] = (
@@ -255,7 +257,8 @@ class TexinfoTranslator(SphinxTranslator):
     def collect_node_names(self) -> None:
         """Generates a unique id for each section.
 
-        Assigns the attribute ``node_name`` to each section."""
+        Assigns the attribute ``node_name`` to each section.
+        """
 
         def add_node_name(name: str) -> str:
             node_id = self.escape_id(name)
@@ -278,7 +281,7 @@ class TexinfoTranslator(SphinxTranslator):
                         for name, content in self.indices]
         # each section is also a node
         for section in self.document.findall(nodes.section):
-            title = cast(nodes.TextElement, section.next_node(nodes.Titular))
+            title = cast(nodes.TextElement, section.next_node(nodes.Titular))  # type: ignore[type-var]
             name = title.astext() if title else '<untitled>'
             section['node_name'] = add_node_name(name)
 
@@ -288,7 +291,7 @@ class TexinfoTranslator(SphinxTranslator):
         targets: list[Element] = [self.document]
         targets.extend(self.document.findall(nodes.section))
         for node in targets:
-            assert 'node_name' in node and node['node_name']  # NoQA: PT018
+            assert node.get('node_name', False)
             entries = [s['node_name'] for s in find_subsections(node)]
             node_menus[node['node_name']] = entries
         # try to find a suitable "Top" node
@@ -352,7 +355,8 @@ class TexinfoTranslator(SphinxTranslator):
 
     def escape_arg(self, s: str) -> str:
         """Return an escaped string suitable for use as an argument
-        to a Texinfo command."""
+        to a Texinfo command.
+        """
         s = self.escape(s)
         # commas are the argument delimiters
         s = s.replace(',', '@comma{}')
@@ -430,7 +434,7 @@ class TexinfoTranslator(SphinxTranslator):
             entries = self.node_menus[name]
             if not entries:
                 return
-            self.body.append(f'\n{self.escape(self.node_names[name], )}\n\n')
+            self.body.append(f'\n{self.escape(self.node_names[name])}\n\n')
             self.add_menu_entries(entries)
             for subentry in entries:
                 _add_detailed_menu(subentry)
@@ -472,20 +476,25 @@ class TexinfoTranslator(SphinxTranslator):
             ret.append('@end menu\n')
             return ''.join(ret)
 
-        indices_config = self.config.texinfo_domain_indices
-        if indices_config:
-            for domain in self.builder.env.domains.values():
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
-                    if not content:
+        if indices_config := self.config.texinfo_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
+            for domain_name in sorted(self.builder.env.domains):
+                domain = self.builder.env.domains[domain_name]
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
                         continue
-                    self.indices.append((indexcls.localname,
-                                         generate(content, collapsed)))
+                    content, collapsed = index_cls(domain).generate(
+                        self.builder.docnames)
+                    if content:
+                        self.indices.append((
+                            index_cls.localname,
+                            generate(content, collapsed),
+                        ))
         # only add the main Index if it's not empty
         domain = cast(IndexDomain, self.builder.env.get_domain('index'))
         for docname in self.builder.docnames:
@@ -524,7 +533,7 @@ class TexinfoTranslator(SphinxTranslator):
         try:
             sid = self.short_ids[id]
         except KeyError:
-            sid = hex(len(self.short_ids))[2:]
+            sid = f'{len(self.short_ids):x}'
             self.short_ids[id] = sid
         return sid
 
@@ -687,7 +696,7 @@ class TexinfoTranslator(SphinxTranslator):
         # cases for the sake of appearance
         if isinstance(node.parent, (nodes.title, addnodes.desc_type)):
             return
-        if isinstance(node[0], nodes.image):
+        if len(node) != 0 and isinstance(node[0], nodes.image):
             return
         name = node.get('name', node.astext()).strip()
         uri = node.get('refuri', '')
@@ -1287,11 +1296,10 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.visit_literal_block(None)
-        names = []
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
+
         for production in productionlist:
             if production['tokenname']:
                 for id in production.get('ids'):

@@ -117,9 +117,11 @@ Date        Python
 05 Apr 2024 3.10+
 ----------- ------
 04 Apr 2025 3.11+
+----------- ------
+24 Apr 2026 3.12+
 =========== ======
 
 Release procedures
 ------------------
 
-The release procedures are listed in ``utils/release-checklist``.
+The release procedures are listed in :file:`utils/release-checklist.rst`.

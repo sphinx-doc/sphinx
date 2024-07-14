@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from itertools import starmap
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
     from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
     from sphinx.domains import Domain
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,7 @@ class SphinxPostTransform(SphinxTransform):
     They resolve references, convert images, do special transformation for each output
     formats and so on.  This class helps to implement these post transforms.
     """
+
     builders: tuple[str, ...] = ()
     formats: tuple[str, ...] = ()
 
@@ -44,10 +47,7 @@ class SphinxPostTransform(SphinxTransform):
         """Check this transform working for current builder."""
         if self.builders and self.app.builder.name not in self.builders:
             return False
-        if self.formats and self.app.builder.format not in self.formats:
-            return False
-
-        return True
+        return not self.formats or self.app.builder.format in self.formats
 
     def run(self, **kwargs: Any) -> None:
         """Main method of post transforms.
@@ -81,7 +81,7 @@ class ReferencesResolver(SphinxPostTransform):
             domain = None
 
             try:
-                if 'refdomain' in node and node['refdomain']:
+                if node.get('refdomain', False):
                     # let the domain try to resolve the reference
                     try:
                         domain = self.env.domains[node['refdomain']]
@@ -98,7 +98,7 @@ class ReferencesResolver(SphinxPostTransform):
                                                         node, contnode,
                                                         allowed_exceptions=(NoUri,))
                     # still not found? warn if node wishes to be warned about or
-                    # we are in nit-picky mode
+                    # we are in nitpicky mode
                     if newnode is None:
                         self.warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:
@@ -154,7 +154,7 @@ class ReferencesResolver(SphinxPostTransform):
             def stringify(name: str, node: Element) -> str:
                 reftitle = node.get('reftitle', node.astext())
                 return f':{name}:`{reftitle}`'
-            candidates = ' or '.join(stringify(name, role) for name, role in results)
+            candidates = ' or '.join(starmap(stringify, results))
             logger.warning(__("more than one target found for 'any' cross-"
                               'reference %r: could be %s'), target, candidates,
                            location=node)
@@ -234,6 +234,7 @@ class OnlyNodeTransform(SphinxPostTransform):
 
 class SigElementFallbackTransform(SphinxPostTransform):
     """Fallback various desc_* nodes to inline if translator does not support them."""
+
     default_priority = 200
 
     def run(self, **kwargs: Any) -> None:
@@ -276,6 +277,7 @@ class SigElementFallbackTransform(SphinxPostTransform):
 
 class PropagateDescDomain(SphinxPostTransform):
     """Add the domain name of the parent node as a class in each desc_signature node."""
+
     default_priority = 200
 
     def run(self, **kwargs: Any) -> None:
@@ -284,7 +286,7 @@ class PropagateDescDomain(SphinxPostTransform):
                 node['classes'].append(node.parent['domain'])
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(ReferencesResolver)
     app.add_post_transform(OnlyNodeTransform)
     app.add_post_transform(SigElementFallbackTransform)

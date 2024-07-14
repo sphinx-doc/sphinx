@@ -21,19 +21,19 @@ from sphinx import __display_version__
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
-from sphinx.util import Tee
-from sphinx.util.console import (  # type: ignore[attr-defined]
-    color_terminal,
-    nocolor,
-    red,
-    terminal_safe,
-)
+from sphinx.util._io import TeeStripANSI
+from sphinx.util.console import color_terminal, nocolor, red, terminal_safe
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Protocol
+
+    class SupportsWrite(Protocol):
+        def write(self, text: str, /) -> int | None:
+            ...
 
 
 def handle_exception(
@@ -133,75 +133,79 @@ files can be built by specifying individual filenames.
 """))
 
     parser.add_argument('--version', action='version', dest='show_version',
-                        version='%%(prog)s %s' % __display_version__)
+                        version=f'%(prog)s {__display_version__}')
 
-    parser.add_argument('sourcedir',
+    parser.add_argument('sourcedir', metavar='SOURCE_DIR',
                         help=__('path to documentation source files'))
-    parser.add_argument('outputdir',
+    parser.add_argument('outputdir', metavar='OUTPUT_DIR',
                         help=__('path to output directory'))
     parser.add_argument('filenames', nargs='*',
-                        help=__('a list of specific files to rebuild. Ignored '
-                                'if -a is specified'))
+                        help=__('(optional) a list of specific files to rebuild. '
+                                'Ignored if --write-all is specified'))
 
     group = parser.add_argument_group(__('general options'))
-    group.add_argument('-b', metavar='BUILDER', dest='builder',
+    group.add_argument('--builder', '-b', metavar='BUILDER', dest='builder',
                        default='html',
-                       help=__('builder to use (default: html)'))
-    group.add_argument('-a', action='store_true', dest='force_all',
+                       help=__("builder to use (default: 'html')"))
+    group.add_argument('--jobs', '-j', metavar='N', default=1, type=jobs_argument,
+                       dest='jobs',
+                       help=__('run in parallel with N processes, when possible. '
+                               "'auto' uses the number of CPU cores"))
+    group.add_argument('--write-all', '-a', action='store_true', dest='force_all',
                        help=__('write all files (default: only write new and '
                                'changed files)'))
-    group.add_argument('-E', action='store_true', dest='freshenv',
+    group.add_argument('--fresh-env', '-E', action='store_true', dest='freshenv',
                        help=__("don't use a saved environment, always read "
                                'all files'))
-    group.add_argument('-d', metavar='PATH', dest='doctreedir',
-                       help=__('path for the cached environment and doctree '
-                               'files (default: OUTPUTDIR/.doctrees)'))
-    group.add_argument('-j', '--jobs', metavar='N', default=1, type=jobs_argument,
-                       dest='jobs',
-                       help=__('build in parallel with N processes where '
-                               'possible (special value "auto" will set N to cpu-count)'))
+
+    group = parser.add_argument_group(__('path options'))
+    group.add_argument('--doctree-dir', '-d', metavar='PATH', dest='doctreedir',
+                       help=__('directory for doctree and environment files '
+                               '(default: OUTPUT_DIR/.doctrees)'))
+    group.add_argument('--conf-dir', '-c', metavar='PATH', dest='confdir',
+                       help=__('directory for the configuration file (conf.py) '
+                               '(default: SOURCE_DIR)'))
+
     group = parser.add_argument_group('build configuration options')
-    group.add_argument('-c', metavar='PATH', dest='confdir',
-                       help=__('path where configuration file (conf.py) is '
-                               'located (default: same as SOURCEDIR)'))
-    group.add_argument('-C', action='store_true', dest='noconfig',
-                       help=__('use no config file at all, only -D options'))
-    group.add_argument('-D', metavar='setting=value', action='append',
+    group.add_argument('--isolated', '-C', action='store_true', dest='noconfig',
+                       help=__('use no configuration file, only use settings from -D options'))
+    group.add_argument('--define', '-D', metavar='setting=value', action='append',
                        dest='define', default=[],
                        help=__('override a setting in configuration file'))
-    group.add_argument('-A', metavar='name=value', action='append',
+    group.add_argument('--html-define', '-A', metavar='name=value', action='append',
                        dest='htmldefine', default=[],
                        help=__('pass a value into HTML templates'))
-    group.add_argument('-t', metavar='TAG', action='append',
+    group.add_argument('--tag', '-t', metavar='TAG', action='append',
                        dest='tags', default=[],
                        help=__('define tag: include "only" blocks with TAG'))
-    group.add_argument('-n', action='store_true', dest='nitpicky',
-                       help=__('nit-picky mode, warn about all missing '
-                               'references'))
+    group.add_argument('--nitpicky', '-n', action='store_true', dest='nitpicky',
+                       help=__('nitpicky mode: warn about all missing references'))
 
     group = parser.add_argument_group(__('console output options'))
-    group.add_argument('-v', action='count', dest='verbosity', default=0,
+    group.add_argument('--verbose', '-v', action='count', dest='verbosity',
+                       default=0,
                        help=__('increase verbosity (can be repeated)'))
-    group.add_argument('-q', action='store_true', dest='quiet',
+    group.add_argument('--quiet', '-q', action='store_true', dest='quiet',
                        help=__('no output on stdout, just warnings on stderr'))
-    group.add_argument('-Q', action='store_true', dest='really_quiet',
+    group.add_argument('--silent', '-Q', action='store_true', dest='really_quiet',
                        help=__('no output at all, not even warnings'))
-    group.add_argument('--color', action='store_const', const='yes',
-                       default='auto',
+    group.add_argument('--color', action='store_const', dest='color',
+                       const='yes', default='auto',
                        help=__('do emit colored output (default: auto-detect)'))
-    group.add_argument('-N', '--no-color', dest='color', action='store_const',
+    group.add_argument('--no-color', '-N', action='store_const', dest='color',
                        const='no',
-                       help=__('do not emit colored output (default: '
-                               'auto-detect)'))
-    group.add_argument('-w', metavar='FILE', dest='warnfile',
+                       help=__('do not emit colored output (default: auto-detect)'))
+
+    group = parser.add_argument_group(__('warning control options'))
+    group.add_argument('--warning-file', '-w', metavar='FILE', dest='warnfile',
                        help=__('write warnings (and errors) to given file'))
-    group.add_argument('-W', action='store_true', dest='warningiserror',
+    group.add_argument('--fail-on-warning', '-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("with -W, keep going when getting warnings"))
-    group.add_argument('-T', action='store_true', dest='traceback',
+                       help=__("with --fail-on-warning, keep going when getting warnings"))
+    group.add_argument('--show-traceback', '-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
-    group.add_argument('-P', action='store_true', dest='pdb',
+    group.add_argument('--pdb', '-P', action='store_true', dest='pdb',
                        help=__('run Pdb on exception'))
 
     return parser
@@ -213,58 +217,86 @@ def make_main(argv: Sequence[str]) -> int:
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
-    parser = get_parser()
+def _parse_arguments(parser: argparse.ArgumentParser,
+                     argv: Sequence[str]) -> argparse.Namespace:
     args = parser.parse_args(argv)
+    return args
 
-    if args.noconfig:
-        args.confdir = None
-    elif not args.confdir:
-        args.confdir = args.sourcedir
 
-    if not args.doctreedir:
-        args.doctreedir = os.path.join(args.outputdir, '.doctrees')
+def _parse_confdir(noconfig: bool, confdir: str, sourcedir: str) -> str | None:
+    if noconfig:
+        return None
+    elif not confdir:
+        return sourcedir
+    return confdir
 
-    if args.force_all and args.filenames:
+
+def _parse_doctreedir(doctreedir: str, outputdir: str) -> str:
+    if doctreedir:
+        return doctreedir
+    return os.path.join(outputdir, '.doctrees')
+
+
+def _validate_filenames(
+    parser: argparse.ArgumentParser, force_all: bool, filenames: list[str],
+) -> None:
+    if force_all and filenames:
         parser.error(__('cannot combine -a option and filenames'))
 
-    if args.color == 'no' or (args.color == 'auto' and not color_terminal()):
+
+def _validate_colour_support(colour: str) -> None:
+    if colour == 'no' or (colour == 'auto' and not color_terminal()):
         nocolor()
 
+
+def _parse_logging(
+    parser: argparse.ArgumentParser,
+    quiet: bool,
+    really_quiet: bool,
+    warnfile: str | None,
+) -> tuple[TextIO | None, TextIO | None, TextIO, TextIO | None]:
     status: TextIO | None = sys.stdout
     warning: TextIO | None = sys.stderr
     error = sys.stderr
 
-    if args.quiet:
+    if quiet:
         status = None
 
-    if args.really_quiet:
+    if really_quiet:
         status = warning = None
 
-    if warning and args.warnfile:
+    warnfp = None
+    if warning and warnfile:
         try:
-            warnfile = path.abspath(args.warnfile)
+            warnfile = path.abspath(warnfile)
             ensuredir(path.dirname(warnfile))
-            warnfp = open(args.warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
+            # the caller is responsible for closing this file descriptor
+            warnfp = open(warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
         except Exception as exc:
             parser.error(__('cannot open warning file %r: %s') % (
-                args.warnfile, exc))
-        warning = Tee(warning, warnfp)  # type: ignore[assignment]
+                warnfile, exc))
+        warning = TeeStripANSI(warning, warnfp)  # type: ignore[assignment]
         error = warning
 
-    args.status = status
-    args.warning = warning
-    args.error = error
+    return status, warning, error, warnfp
 
-    confoverrides = {}
-    for val in args.define:
+
+def _parse_confoverrides(
+    parser: argparse.ArgumentParser,
+    define: list[str],
+    htmldefine: list[str],
+    nitpicky: bool,
+) -> dict[str, Any]:
+    confoverrides: dict[str, Any] = {}
+    val: Any
+    for val in define:
         try:
             key, val = val.split('=', 1)
         except ValueError:
             parser.error(__('-D option argument must be in the form name=value'))
         confoverrides[key] = val
 
-    for val in args.htmldefine:
+    for val in htmldefine:
         try:
             key, val = val.split('=')
         except ValueError:
@@ -272,19 +304,26 @@ def _parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
         with contextlib.suppress(ValueError):
             val = int(val)
 
-        confoverrides['html_context.%s' % key] = val
+        confoverrides[f'html_context.{key}'] = val
 
-    if args.nitpicky:
+    if nitpicky:
         confoverrides['nitpicky'] = True
 
-    args.confoverrides = confoverrides
-
-    return args
+    return confoverrides
 
 
 def build_main(argv: Sequence[str]) -> int:
     """Sphinx build "main" command-line entry."""
-    args = _parse_arguments(argv)
+    parser = get_parser()
+    args = _parse_arguments(parser, argv)
+    args.confdir = _parse_confdir(args.noconfig, args.confdir, args.sourcedir)
+    args.doctreedir = _parse_doctreedir(args.doctreedir, args.outputdir)
+    _validate_filenames(parser, args.force_all, args.filenames)
+    _validate_colour_support(args.color)
+    args.status, args.warning, args.error, warnfp = _parse_logging(
+        parser, args.quiet, args.really_quiet, args.warnfile)
+    args.confoverrides = _parse_confoverrides(
+        parser, args.define, args.htmldefine, args.nitpicky)
 
     app = None
     try:
@@ -300,6 +339,10 @@ def build_main(argv: Sequence[str]) -> int:
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, args, exc, args.error)
         return 2
+    finally:
+        if warnfp is not None:
+            # close the file descriptor for the warnings file opened by Sphinx
+            warnfp.close()
 
 
 def _bug_report_info() -> int:

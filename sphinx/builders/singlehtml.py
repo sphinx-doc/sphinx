@@ -11,7 +11,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import global_toctree_for_doc
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen  # type: ignore[attr-defined]
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     A StandaloneHTMLBuilder subclass that puts the whole document tree on one
     HTML page.
     """
+
     name = 'singlehtml'
     epilog = __('The HTML page is in %(outdir)s.')
 
@@ -39,8 +41,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         if docname in self.env.all_docs:
             # all references are on the same page...
-            return self.config.root_doc + self.out_suffix + \
-                '#document-' + docname
+            return '#document-' + docname
         else:
             # chances are this is a html_additional_page
             return docname + self.out_suffix
@@ -189,7 +190,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(SingleFileHTMLBuilder)

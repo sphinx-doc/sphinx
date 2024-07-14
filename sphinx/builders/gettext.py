@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import operator
 import time
 from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from docutils import nodes
@@ -16,7 +17,7 @@ from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import CatalogInfo, docname_to_domain
 from sphinx.util.index_entries import split_index_msg
@@ -27,18 +28,21 @@ from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Generator, Iterable
+    from collections.abc import Iterable, Iterator
 
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
 
 class Message:
     """An entry of translatable message."""
-    def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]):
+
+    def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]) -> None:
         self.text = text
         self.locations = locations
         self.uuids = uuids
@@ -64,9 +68,9 @@ class Catalog:
         line = origin.line
         if line is None:
             line = -1
-        self.metadata[msg].append((origin.source, line, origin.uid))
+        self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore[arg-type]
 
-    def __iter__(self) -> Generator[Message, None, None]:
+    def __iter__(self) -> Iterator[Message]:
         for message in self.messages:
             positions = sorted({(source, line) for source, line, uuid
                                in self.metadata[message]})
@@ -115,9 +119,10 @@ class GettextRenderer(SphinxRenderer):
 class I18nTags(Tags):
     """Dummy tags module for I18nBuilder.
 
-    To translate all text inside of only nodes, this class
-    always returns True value even if no tags are defined.
+    To ensure that all text inside ``only`` nodes is translated,
+    this class always returns ``True`` regardless the defined tags.
     """
+
     def eval_condition(self, condition: Any) -> bool:
         return True
 
@@ -126,6 +131,7 @@ class I18nBuilder(Builder):
     """
     General i18n builder.
     """
+
     name = 'i18n'
     versioning_method = 'text'
     use_message_catalog = False
@@ -211,6 +217,7 @@ class MessageCatalogBuilder(I18nBuilder):
     """
     Builds gettext-style message catalogs (.pot files).
     """
+
     name = 'gettext'
     epilog = __('The message catalogs are in %(outdir)s.')
 
@@ -233,7 +240,7 @@ class MessageCatalogBuilder(I18nBuilder):
     def _extract_from_template(self) -> None:
         files = list(self._collect_templates())
         files.sort()
-        logger.info(bold(__('building [%s]: ') % self.name), nonl=True)
+        logger.info(bold(__('building [%s]: ')), self.name,  nonl=True)
         logger.info(__('targets for %d template files'), len(files))
 
         extract_translations = self.templates.environment.extract_translations
@@ -250,11 +257,11 @@ class MessageCatalogBuilder(I18nBuilder):
                 msg = f'{template}: {exc!r}'
                 raise ThemeError(msg) from exc
 
-    def build(
+    def build(  # type: ignore[misc]
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)
@@ -275,12 +282,12 @@ class MessageCatalogBuilder(I18nBuilder):
                                                    __("writing message catalogs... "),
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,
-                                                   lambda textdomain__: textdomain__[0]):
+                                                   operator.itemgetter(0)):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer(outdir=self.outdir).render('message.pot_t', context)
+            content = GettextRenderer(outdir=self.outdir).render('message.pot.jinja', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):
@@ -288,16 +295,26 @@ class MessageCatalogBuilder(I18nBuilder):
                     pofile.write(content)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
+    gettext_compact = config.gettext_compact
+    # Convert 0/1 from the command line to ``bool`` types
+    if gettext_compact == '0':
+        config.gettext_compact = False
+    elif gettext_compact == '1':
+        config.gettext_compact = True
+
+
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext', {bool, str})
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
-    app.add_config_value('gettext_additional_targets', [], 'env')
+    app.add_config_value('gettext_additional_targets', [], 'env', types={set, list})
     app.add_config_value('gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext')
     app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
+    app.connect('config-inited', _gettext_compact_validator, priority=800)
 
     return {
         'version': 'builtin',

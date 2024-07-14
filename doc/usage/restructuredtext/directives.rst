@@ -9,7 +9,7 @@ of explicit markup. While Docutils provides a number of directives, Sphinx
 provides many more and uses directives as one of the primary extension
 mechanisms.
 
-See :doc:`/usage/restructuredtext/domains` for roles added by domains.
+See :doc:`/usage/domains/index` for roles added by domains.
 
 .. seealso::
 
@@ -49,8 +49,8 @@ tables of contents.  The ``toctree`` directive is the central element.
    indicate the depth of the tree; by default, all levels are included. [#]_
 
    The representation of "TOC tree" is changed in each output format.  The
-   builders that output multiple files (ex. HTML) treat it as a collection of
-   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   builders that output multiple files (e.g. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (e.g.
    LaTeX, man page, etc.) replace it with the content of the documents on the
    TOC tree.
 
@@ -123,6 +123,14 @@ tables of contents.  The ``toctree`` directive is the central element.
          :name: mastertoc
 
          foo
+
+   As with :dudir:`most directives <common-options>`,
+   you can use the ``class`` option to assign `class attributes`_::
+
+      .. toctree::
+         :class: custom-toc
+
+   .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
 
    If you want only the titles of documents in the tree to show up, not other
    headings of the same level, you can use the ``titlesonly`` option::
@@ -323,6 +331,18 @@ units as well as normal text.
       .. deprecated:: 3.1
          Use :func:`spam` instead.
 
+.. rst:directive:: .. versionremoved:: version
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   An explanation may be provided to inform the reader what to use instead,
+   or why the feature was removed.
+   Example::
+
+      .. versionremoved:: 4.0
+         The :func:`spam` function is more flexible, and should be used instead.
+
+   .. versionadded:: 7.3
+
 .. rst:directive:: seealso
 
    Many sections include a list of references to module documentation or
@@ -341,7 +361,7 @@ units as well as normal text.
          Module :py:mod:`zipfile`
             Documentation of the :py:mod:`zipfile` standard module.
 
-         `GNU tar manual, Basic Tar Format <http://link>`_
+         `GNU tar manual, Basic Tar Format <https://link>`_
             Documentation for tar archive files, including GNU tar extensions.
 
    There's also a "short form" allowed that looks like this::
@@ -544,9 +564,9 @@ __ https://pygments.org/docs/lexers
 
           def some_function():
               interesting = False
-              print 'This line is highlighted.'
-              print 'This one is not...'
-              print '...but this one is.'
+              print('This line is highlighted.')
+              print('This one is not...')
+              print('...but this one is.')
 
       .. versionadded:: 1.1
       .. versionchanged:: 1.6.6
@@ -576,7 +596,7 @@ __ https://pygments.org/docs/lexers
            :caption: this.py
            :name: this-py
 
-           print 'Explicit is better than implicit.'
+           print('Explicit is better than implicit.')
 
       In order to cross-reference a code-block using either the
       :rst:role:`ref` or the :rst:role:`numref` role, it is necessary
@@ -881,7 +901,7 @@ Index-generating markup
 
 Sphinx automatically creates index entries from all object descriptions (like
 functions, classes or attributes) like discussed in
-:doc:`/usage/restructuredtext/domains`.
+:doc:`/usage/domains/index`.
 
 However, there is also explicit markup available, to make the index more
 comprehensive and enable index entries in documents where information is not
@@ -1040,10 +1060,11 @@ Including content based on tags
 
       .. only:: html and draft
 
-   Undefined tags are false, defined tags (via the ``-t`` command-line option or
-   within :file:`conf.py`, see :ref:`here <conf-tags>`) are true.  Boolean
-   expressions, also using parentheses (like ``html and (latex or draft)``) are
-   supported.
+   Undefined tags are false, defined tags are true
+   (tags can be defined via the :option:`--tag <sphinx-build --tag>`
+   command-line option or within :file:`conf.py`, see :ref:`here <conf-tags>`).
+   Boolean expressions (like ``(latex or html) and draft``) are supported
+   and may use parentheses.
 
    The *format* and the *name* of the current builder (``html``, ``latex`` or
    ``text``) are always set as a tag [#]_.  To make the distinction between

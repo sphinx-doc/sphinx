@@ -11,12 +11,15 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import _deprecation_warning
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
+    from types import TracebackType
+    from typing import Any
 
 # SEP separates path elements in the canonical file names
 #
@@ -36,7 +39,7 @@ def canon_path(native_path: str | os.PathLike[str], /) -> str:
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
-    "Normalize path separator and unicode string"
+    """Normalize path separator and unicode string"""
     new_path = canon_path(filepath)
     return unicodedata.normalize('NFC', new_path)
 
@@ -88,7 +91,16 @@ def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> N
 def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file and its modification times, if possible.
 
-    Note: ``copyfile`` skips copying if the file has not been changed"""
+    :param source: An existing source to copy.
+    :param dest: The destination path.
+    :raise FileNotFoundError: The *source* does not exist.
+
+    .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
+    """
+    if not path.exists(source):
+        msg = f'{os.fsdecode(source)} does not exist'
+        raise FileNotFoundError(msg)
+
     if not path.exists(dest) or not filecmp.cmp(source, dest):
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
@@ -96,16 +108,15 @@ def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> No
             copytimes(source, dest)
 
 
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-project_suffix_re = re.compile(' Documentation$')
+_no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 
 def make_filename(string: str) -> str:
-    return no_fn_re.sub('', string) or 'sphinx'
+    return _no_fn_re.sub('', string) or 'sphinx'
 
 
 def make_filename_from_project(project: str) -> str:
-    return make_filename(project_suffix_re.sub('', project)).lower()
+    return make_filename(project.removesuffix(' Documentation')).lower()
 
 
 def relpath(path: str | os.PathLike[str],
@@ -131,15 +142,22 @@ abspath = path.abspath
 
 class _chdir:
     """Remove this fall-back once support for Python 3.10 is removed."""
-    def __init__(self, target_dir: str, /):
+
+    def __init__(self, target_dir: str, /) -> None:
         self.path = target_dir
         self._dirs: list[str] = []
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self._dirs.append(os.getcwd())
         os.chdir(self.path)
 
-    def __exit__(self, _exc_type, _exc_value, _traceback, /):
+    def __exit__(
+        self,
+        type: type[BaseException] | None,
+        value: BaseException | None,
+        traceback: TracebackType | None,
+        /,
+    ) -> None:
         os.chdir(self._dirs.pop())
 
 
@@ -163,7 +181,8 @@ class FileAvoidWrite:
 
     Objects can be used as context managers.
     """
-    def __init__(self, path: str) -> None:
+
+    def __init__(self, path: str | Path) -> None:
         self._path = path
         self._io: StringIO | None = None
 

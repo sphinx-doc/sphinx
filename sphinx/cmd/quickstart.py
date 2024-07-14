@@ -31,13 +31,7 @@ from docutils.utils import column_width
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.locale import __
-from sphinx.util.console import (  # type: ignore[attr-defined]
-    bold,
-    color_terminal,
-    colorize,
-    nocolor,
-    red,
-)
+from sphinx.util.console import bold, color_terminal, colorize, nocolor, red
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
@@ -211,7 +205,6 @@ def ask_user(d: dict[str, Any]) -> None:
     * makefile:  make Makefile
     * batchfile: make command file
     """
-
     print(bold(__('Welcome to the Sphinx %s quickstart utility.')) % __display_version__)
     print()
     print(__('Please enter values for the following settings (just press Enter to\n'
@@ -246,9 +239,9 @@ def ask_user(d: dict[str, Any]) -> None:
 
     if 'dot' not in d:
         print()
-        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # noqa: E501
-                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # noqa: E501
-                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # noqa: E501
+        print(__('Inside the root directory, two more directories will be created; "_templates"\n'      # NoQA: E501
+                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'    # NoQA: E501
+                 'files. You can enter another prefix (such as ".") to replace the underscore.'))       # NoQA: E501
         d['dot'] = do_prompt(__('Name prefix for templates and static dir'), '_', ok)
 
     if 'project' not in d:
@@ -379,29 +372,32 @@ def generate(
             if 'quiet' not in d:
                 print(__('File %s already exists, skipping.') % fpath)
 
-    conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
+    conf_path = os.path.join(templatedir, 'conf.py.jinja') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
-        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
+        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py.jinja')
     with open(conf_path, encoding="utf-8") as f:
         conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    if template._has_custom_template('quickstart/master_doc.rst_t'):
-        msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
-               '`root_doc.rst_t`.  Please rename it on your project too.')
+    if template._has_custom_template('quickstart/master_doc.rst.jinja'):
+        msg = ('A custom template `master_doc.rst.jinja` found. It has been renamed to '
+               '`root_doc.rst.jinja`.  Please rename it on your project too.')
         print(colorize('red', msg))
-        write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
+        write_file(masterfile, template.render('quickstart/master_doc.rst.jinja', d))
     else:
-        write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
+        write_file(masterfile, template.render('quickstart/root_doc.rst.jinja', d))
 
-    if d.get('make_mode') is True:
-        makefile_template = 'quickstart/Makefile.new_t'
-        batchfile_template = 'quickstart/make.bat.new_t'
+    if d.get('make_mode'):
+        makefile_template = 'quickstart/Makefile.new.jinja'
+        batchfile_template = 'quickstart/make.bat.new.jinja'
     else:
-        makefile_template = 'quickstart/Makefile_t'
-        batchfile_template = 'quickstart/make.bat_t'
+        # xref RemovedInSphinx80Warning
+        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
+        print(colorize('red', msg))
+        makefile_template = 'quickstart/Makefile.jinja'
+        batchfile_template = 'quickstart/make.bat.jinja'
 
     if d['makefile'] is True:
         d['rsrcdir'] = 'source' if d['sep'] else '.'
@@ -432,6 +428,10 @@ def generate(
     print(__('where "builder" is one of the supported builders, '
              'e.g. html, latex or linkcheck.'))
     print()
+    if not d.get('make_mode'):
+        # xref RemovedInSphinx80Warning
+        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
+        print(colorize('red', msg))
 
 
 def valid_dir(d: dict) -> bool:
@@ -457,10 +457,7 @@ def valid_dir(d: dict) -> bool:
         d['dot'] + 'templates',
         d['master'] + d['suffix'],
     ]
-    if set(reserved_names) & set(os.listdir(dir)):
-        return False
-
-    return True
+    return not set(reserved_names) & set(os.listdir(dir))
 
 
 def get_parser() -> argparse.ArgumentParser:

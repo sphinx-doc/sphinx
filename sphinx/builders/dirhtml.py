@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import logging
@@ -11,6 +11,7 @@ from sphinx.util.osutil import SEP, os_path
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
     a directory given by their pagename, so that generated URLs don't have
     ``.html`` in them.
     """
+
     name = 'dirhtml'
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
@@ -41,7 +43,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         return outfilename
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.html')
 
     app.add_builder(DirectoryHTMLBuilder)
