@@ -473,7 +473,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 ) as response:
                     if (self.check_anchors and response.ok and anchor
                             and not contains_anchor(response, anchor)):
-                        raise Exception(__(f'Anchor {quote(anchor)!r} not found'))
+                        raise Exception(__("Anchor '%s' not found") % quote(anchor))
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
@@ -708,7 +708,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
-    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
+    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
     app.add_config_value('linkcheck_allow_unauthorized', True, '')
     app.add_config_value('linkcheck_report_timeouts_as_broken', True, '', bool)
 

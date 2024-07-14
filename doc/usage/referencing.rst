@@ -222,6 +222,13 @@ Cross-referencing other items of interest
 The following roles do possibly create a cross-reference, but do not refer to
 objects:
 
+.. rst:role:: confval
+
+   A configuration value or setting.
+   Index entries are generated.
+   Also generates a link to the matching :rst:dir:`confval` directive,
+   if it exists.
+
 .. rst:role:: envvar
 
    An environment variable.  Index entries are generated.  Also generates a link

@@ -119,8 +119,8 @@ class GettextRenderer(SphinxRenderer):
 class I18nTags(Tags):
     """Dummy tags module for I18nBuilder.
 
-    To translate all text inside of only nodes, this class
-    always returns True value even if no tags are defined.
+    To ensure that all text inside ``only`` nodes is translated,
+    this class always returns ``True`` regardless the defined tags.
     """
 
     def eval_condition(self, condition: Any) -> bool:
@@ -287,7 +287,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer(outdir=self.outdir).render('message.pot_t', context)
+            content = GettextRenderer(outdir=self.outdir).render('message.pot.jinja', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):
@@ -311,7 +311,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
-    app.add_config_value('gettext_additional_targets', [], 'env')
+    app.add_config_value('gettext_additional_targets', [], 'env', types={set, list})
     app.add_config_value('gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext')
     app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
     app.connect('config-inited', _gettext_compact_validator, priority=800)

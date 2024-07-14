@@ -237,12 +237,20 @@ The most common builders are:
 
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
+   * ``texlive-fonts-extra`` (needed for ``fontawesome5``, see the 7.4.0
+     change notice below)
    * ``tex-gyre`` (if :confval:`latex_engine` left to default)
    * ``texlive-latex-extra``
    * ``latexmk``
 
    .. versionchanged:: 4.0.0
       TeX Gyre fonts now required for ``'pdflatex'`` engine (default).
+
+   .. versionchanged:: 7.4.0
+      LaTeX package ``xcolor`` is now required (it is part of Ubuntu
+      ``texlive-latex-recommended`` anyhow).  The LaTeX package
+      ``fontawesome5`` is recommended.  See the :ref:`'sphinxsetup'
+      <latexsphinxsetup>` ``iconpackage`` key for more.
 
    Additional packages are needed in some circumstances:
 

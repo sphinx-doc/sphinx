@@ -96,7 +96,7 @@ def test_add_source_parser(app, status, warning):
 
     # .rst; only in :confval:`source_suffix`
     assert '.rst' not in app.registry.get_source_parsers()
-    assert app.registry.source_suffix['.rst'] is None
+    assert app.registry.source_suffix['.rst'] == 'restructuredtext'
 
     # .test; configured by API
     assert app.registry.source_suffix['.test'] == 'test'

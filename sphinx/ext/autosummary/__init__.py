@@ -87,6 +87,7 @@ from sphinx.util.docutils import (
 )
 from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
+from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -406,16 +407,14 @@ class Autosummary(SphinxDirective):
             row = nodes.row('')
             source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
-                node = nodes.paragraph('')
-                vl = StringList()
-                vl.append(text, '%s:%d:<autosummary>' % (source, line))
+                vl = StringList([text], f'{source}:{line}:<autosummary>')
                 with switch_source_input(self.state, vl):
-                    self.state.nested_parse(vl, 0, node)
-                    try:
-                        if isinstance(node[0], nodes.paragraph):
-                            node = node[0]
-                    except IndexError:
-                        pass
+                    col_nodes = nested_parse_to_nodes(self.state, vl,
+                                                      allow_section_headings=False)
+                    if col_nodes and isinstance(col_nodes[0], nodes.paragraph):
+                        node = col_nodes[0]
+                    else:
+                        node = nodes.paragraph('')
                     row.append(nodes.entry('', node))
             body.append(row)
 
@@ -640,6 +639,13 @@ def import_by_name(
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
+        if prefix is not None and name.startswith(f'{prefix}.'):
+            # Catch and avoid module cycles (e.g., sphinx.ext.sphinx.ext...)
+            msg = __('Summarised items should not include the current module. '
+                     'Replace %r with %r.')
+            logger.warning(msg, name, name.removeprefix(f'{prefix}.'),
+                           type='autosummary', subtype='import_cycle')
+            continue
         try:
             if prefix:
                 prefixed_name = f'{prefix}.{name}'
