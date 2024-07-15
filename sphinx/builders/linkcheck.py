@@ -102,9 +102,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat: dict[str, str | int] = {'filename': filename, 'lineno': result.lineno,
-                    'status': result.status, 'code': result.code, 'uri': result.uri,
-                    'info': result.message}
+        linkstat: dict[str, str | int] = {
+            'filename': filename, 'lineno': result.lineno,
+            'status': result.status, 'code': result.code,
+            'uri': result.uri, 'info': result.message,
+        }
         self.write_linkstat(linkstat)
 
         if result.status == 'unchecked':
