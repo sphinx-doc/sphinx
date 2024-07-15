@@ -4,6 +4,9 @@ Release 7.4.3 (in development)
 Bugs fixed
 ----------
 
+* #12582: Restore support for list-styled :confval:`source_suffix` values
+  with extensions that register parsers.
+  Patch by Adam Turner.
 
 Release 7.4.2 (released Jul 15, 2024)
 =====================================
