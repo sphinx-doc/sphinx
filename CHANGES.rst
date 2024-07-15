@@ -28,11 +28,6 @@ Features added
 
 .. rst-class:: compact
 
-* #12506 Add ``level`` option to :rst:dir:`rubric` directive.
-  Patch by Chris Sewell.
-* #12549 Add optional ``description`` argument to
-  :meth:`~sphinx.application.Sphinx.add_config_value`.
-  Patch by Chris Sewell.
 * #11165: Support the `officially recommended`_ ``.jinja`` suffix for template
   files.
   Patch by James Addison and Adam Turner
@@ -96,6 +91,9 @@ Features added
 * #7896, #11989: Add a :rst:dir:`py:type` directiv for documenting type aliases,
   and a :rst:role:`py:type` role for linking to them.
   Patch by Ashley Whetter.
+* #12549 Add optional ``description`` argument to
+  :meth:`~sphinx.application.Sphinx.add_config_value`.
+  Patch by Chris Sewell.
 * #6792: Prohibit module import cycles in :mod:`sphinx.ext.autosummary`.
   Patch by Trevor Bekolay.
 * #12508: LaTeX: Revamped styling of all admonitions, with addition of a
@@ -104,6 +102,8 @@ Features added
 * #11773: Display :py:class:`~typing.Annotated` annotations
   with their metadata in the Python domain.
   Patch by Adam Turner and David Stansby.
+* #12506 Add ``level`` option to :rst:dir:`rubric` directive.
+  Patch by Chris Sewell.
 
 Bugs fixed
 ----------
