@@ -251,7 +251,11 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     assert rn.astext() == 'The Julia Domain'
 
 
-def test_ambiguous_reference_warning(tmp_path, app, warning):
+@pytest.mark.parametrize(('term', 'is_ambiguous'), [
+    ('A TERM', False),
+    ('B TERM', True),
+])
+def test_ambiguous_reference_handling(term, is_ambiguous, tmp_path, app, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
     set_config(app, {
@@ -263,10 +267,11 @@ def test_ambiguous_reference_warning(tmp_path, app, warning):
     load_mappings(app)
 
     # term reference (case insensitive)
-    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
+    node, contnode = fake_node('std', 'term', term, term)
     missing_reference(app, app.env, node, contnode)
 
-    assert 'multiple matches found for std:term:A TERM' in warning.getvalue()
+    reported_ambiguous = f'multiple matches found for std:term:{term}' in warning.getvalue()
+    assert is_ambiguous is reported_ambiguous
 
 
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
