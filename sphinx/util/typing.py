@@ -212,7 +212,11 @@ def _is_unpack_form(obj: Any) -> bool:
 
 def _typing_internal_name(obj: Any) -> str | None:
     if sys.version_info[:2] >= (3, 10):
-        return obj.__name__
+        try:
+            return obj.__name__
+        except AttributeError:
+            # e.g. ParamSpecArgs, ParamSpecKwargs
+            return ''
     return getattr(obj, '_name', None)
 
 
@@ -237,7 +241,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         raise ValueError(msg)
 
     # things that are not types
-    if cls in {None, NoneType}:
+    if cls is None or cls == NoneType:
         return ':py:obj:`None`'
     if cls is Ellipsis:
         return '...'
@@ -388,7 +392,7 @@ def stringify_annotation(
         raise ValueError(msg)
 
     # things that are not types
-    if annotation in {None, NoneType}:
+    if annotation is None or annotation == NoneType:
         return 'None'
     if annotation is Ellipsis:
         return '...'
