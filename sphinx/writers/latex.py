@@ -972,12 +972,12 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(r'\end{sphinxseealso}')
         self.body.append(BLANKLINE)
 
-    def visit_rubric(self, node: Element) -> None:
+    def visit_rubric(self, node: nodes.rubric) -> None:
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
         tag = 'subsubsection'
-        if "level" in node:
-            level = node["level"]
+        if 'heading-level' in node:
+            level = node['heading-level']
             try:
                 tag = self.sectionnames[self.top_sectionlevel - 1 + level]
             except Exception:
@@ -992,7 +992,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.context.append('}' + CR)
         self.in_title = 1
 
-    def depart_rubric(self, node: Element) -> None:
+    def depart_rubric(self, node: nodes.rubric) -> None:
         self.in_title = 0
         self.body.append(self.context.pop())
 

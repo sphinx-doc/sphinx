@@ -510,10 +510,10 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         super().depart_title(node)
 
     # overwritten
-    def visit_rubric(self, node: Element) -> None:
-        if "level" in node:
-            level = node["level"]
-            if level in (1, 2, 3, 4, 5, 6):
+    def visit_rubric(self, node: nodes.rubric) -> None:
+        if 'heading-level' in node:
+            level = node['heading-level']
+            if level in {1, 2, 3, 4, 5, 6}:
                 self.body.append(self.starttag(node, f'h{level}', '', CLASS='rubric'))
             else:
                 logger.warning(
@@ -527,8 +527,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
             super().visit_rubric(node)
 
     # overwritten
-    def depart_rubric(self, node: Element) -> None:
-        if level := node.get("level"):
+    def depart_rubric(self, node: nodes.rubric) -> None:
+        if (level := node.get('heading-level')) in {1, 2, 3, 4, 5, 6}:
             self.body.append(f'</h{level}>\n')
         else:
             super().depart_rubric(node)

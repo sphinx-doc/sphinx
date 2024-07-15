@@ -16,6 +16,9 @@ Features added
 Bugs fixed
 ----------
 
+* Fix invalid HTML when a rubric node with invalid ``heading-level`` is used.
+  Patch by Adam Turner.
+
 Testing
 -------
 
@@ -120,7 +123,7 @@ Features added
 * #11773: Display :py:class:`~typing.Annotated` annotations
   with their metadata in the Python domain.
   Patch by Adam Turner and David Stansby.
-* #12506: Add ``level`` option to :rst:dir:`rubric` directive.
+* #12506: Add ``heading-level`` option to :rst:dir:`rubric` directive.
   Patch by Chris Sewell.
 * #12567: Add the :event:`write-started` event.
   Patch by Chris Sewell.

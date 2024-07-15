@@ -187,17 +187,17 @@ class Rubric(SphinxDirective):
     option_spec = {
         'class': directives.class_option,
         'name': directives.unchanged,
-        'level': lambda c: directives.choice(c, ('1', '2', '3', '4', '5', '6')),
+        'heading-level': lambda c: directives.choice(c, ('1', '2', '3', '4', '5', '6')),
     }
 
-    def run(self) -> list[Node]:
+    def run(self) -> list[nodes.rubric | nodes.system_message]:
         set_classes(self.options)
         rubric_text = self.arguments[0]
         textnodes, messages = self.parse_inline(rubric_text, lineno=self.lineno)
+        if 'heading-level' in self.options:
+            self.options['heading-level'] = int(self.options['heading-level'])
         rubric = nodes.rubric(rubric_text, '', *textnodes, **self.options)
         self.add_name(rubric)
-        if 'level' in self.options:
-            rubric['level'] = int(self.options['level'])
         return [rubric, *messages]
 
 

@@ -544,10 +544,10 @@ Presentational
    A rubric is like an informal heading that doesn't correspond to the document's structure,
    i.e. it does not create a table of contents node.
 
-   .. rst:directive:option:: level: n
+   .. rst:directive:option:: heading-level: n
       :type: number from 1 to 6
 
-      .. versionadded:: 7.4
+      .. versionadded:: 7.4.1
 
       Use this option to specify the heading level of the rubric.
       In this case the rubric will be rendered as ``<h1>`` to ``<h6>`` for HTML output,
