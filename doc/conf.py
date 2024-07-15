@@ -187,6 +187,7 @@ nitpick_ignore = {
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
+    ('py:class', 'SearchLanguage'),  # sphinx.application.Sphinx.add_search_language
     ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'system_message'),  # sphinx.utils.docutils.SphinxDirective
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
@@ -234,7 +235,6 @@ nitpick_ignore = {
     ('std:confval', 'globaltoc_includehidden'),
     ('std:confval', 'globaltoc_maxdepth'),
 }
-
 
 # -- Extension interface -------------------------------------------------------
 
