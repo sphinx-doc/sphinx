@@ -4,6 +4,9 @@ Release 7.4.4 (in development)
 Bugs fixed
 ----------
 
+* #12585, #12586: Do not warn when an intersphinx inventory contains
+  case-insensitively ambiguous duplicate items.
+  Patch by James Addison.
 
 Release 7.4.3 (released Jul 15, 2024)
 =====================================
