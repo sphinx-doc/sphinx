@@ -18,6 +18,8 @@ Bugs fixed
 
 * Fix invalid HTML when a rubric node with invalid ``heading-level`` is used.
   Patch by Adam Turner.
+* #12579, #12581: Restore support for ``typing.ParamSpec`` in autodoc.
+  Patch by Adam Turner.
 
 Testing
 -------
