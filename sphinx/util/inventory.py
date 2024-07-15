@@ -126,7 +126,7 @@ class InventoryFile:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
-        potential_ambiguities = {}
+        potential_ambiguities: dict[str, tuple[str, str, str]] = {}
         actual_ambiguities = set()
         line = stream.readline()
         if 'zlib' not in line:
@@ -154,7 +154,7 @@ class InventoryFile:
                 # Some types require case insensitive matches:
                 # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
                 # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
-                definition, content = f"{type}:{name}", {prio, location, dispname}
+                definition, content = f"{type}:{name}", (prio, location, dispname)
                 lowercase_definition = definition.lower()
                 if lowercase_definition in potential_ambiguities:
                     if potential_ambiguities[lowercase_definition] != content:
