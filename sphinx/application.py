@@ -1220,8 +1220,7 @@ class Sphinx:
         """
         logger.debug('[app] adding search language: %r', cls)
         from sphinx.search import languages
-        lang = cast(str, cls.lang)  # SearchLanguage subclasses must set 'lang' to a str
-        languages[lang] = cls
+        languages[cls.lang] = cls
 
     def add_source_suffix(self, suffix: str, filetype: str, override: bool = False) -> None:
         """Register a suffix of source files.
