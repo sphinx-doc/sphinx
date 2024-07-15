@@ -196,10 +196,12 @@ def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_: Any = SphinxTestApp(*args, **kwargs)
-        apps.append(app_)
+        app_: SphinxTestApp
         if test_params['shared_result']:
-            app_ = SphinxTestAppWrapperForSkipBuilding(app_)
+            app_ = SphinxTestAppWrapperForSkipBuilding(*args, **kwargs)
+        else:
+            app_ = SphinxTestApp(*args, **kwargs)
+        apps.append(app_)
         return app_
     yield make
 
