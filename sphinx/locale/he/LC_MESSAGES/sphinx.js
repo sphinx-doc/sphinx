@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u05dc\u05da",
         "Hide Search Matches": "\u05d4\u05e1\u05ea\u05e8 \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05d7\u05d9\u05e4\u05d5\u05e9",
         "Index": "\u05d0\u05d9\u05e0\u05d3\u05e7\u05e1",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\u05e2\u05de\u05d5\u05d3\u05d9 \u05d0\u05d9\u05e0\u05d3\u05e7\u05e1 \u05dc\u05e4\u05d9 \u05d0\u05d5\u05ea\u05d9\u05d5\u05ea",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "\u05e2\u05d5\u05d3\u05db\u05df \u05dc\u05d0\u05d7\u05e8\u05d5\u05e0\u05d4 \u05d1 %(last_updated)s.",
