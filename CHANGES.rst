@@ -160,6 +160,8 @@ Bugs fixed
   Patch by Jakob Lykke Andersen and Adam Turner.
 * #11041: linkcheck: Ignore URLs that respond with non-Unicode content.
   Patch by James Addison.
+* #12543: Fix :pep:`695` formatting for LaTeX output.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
