@@ -1,18 +1,21 @@
 from __future__ import annotations
 
 import functools
-from types import TypeVar
-from typing import TYPE_CHECKING
-
-from typing_extensions import ParamSpec
 
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold, color_terminal
 
-if TYPE_CHECKING:
+if False:
     from collections.abc import Iterable, Iterator
-    from types import Any, Callable, TracebackType
+    from types import TracebackType
+    from typing import Any, Callable, TypeVar
+
+    from typing_extensions import ParamSpec
+
+    T = TypeVar('T')
+    P = ParamSpec('P')
+    R = TypeVar('R')
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +26,6 @@ def display_chunk(chunk: Any) -> str:
             return str(chunk[0])
         return f'{chunk[0]} .. {chunk[-1]}'
     return str(chunk)
-
-
-T = TypeVar('T')
-P = ParamSpec('P')
-R = TypeVar('R')
 
 
 def status_iterator(
@@ -94,8 +92,8 @@ class progress_message:
         return False
 
     def __call__(self, f: Callable[P, R]) -> Callable[P, R]:
-        @functools.wraps(f)  # type: ignore[return]
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        @functools.wraps(f)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]
             with self:
                 return f(*args, **kwargs)
 
