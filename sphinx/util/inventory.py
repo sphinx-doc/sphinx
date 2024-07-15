@@ -126,7 +126,7 @@ class InventoryFile:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
-        potential_ambiguities = set()
+        potential_ambiguities = {}
         actual_ambiguities = set()
         line = stream.readline()
         if 'zlib' not in line:
@@ -154,11 +154,16 @@ class InventoryFile:
                 # Some types require case insensitive matches:
                 # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
                 # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
-                definition = f"{type}:{name}"
-                if definition.lower() in potential_ambiguities:
-                    actual_ambiguities.add(definition)
+                definition, content = f"{type}:{name}", {prio, location, dispname}
+                lowercase_definition = definition.lower()
+                if lowercase_definition in potential_ambiguities:
+                    if potential_ambiguities[lowercase_definition] != content:
+                        actual_ambiguities.add(definition)
+                    else:
+                        logger.debug(__("inventory <%s> contains duplicate definitions of %s"),
+                                     uri, definition, type='intersphinx',  subtype='external')
                 else:
-                    potential_ambiguities.add(definition.lower())
+                    potential_ambiguities[lowercase_definition] = content
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
