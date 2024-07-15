@@ -237,7 +237,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         raise ValueError(msg)
 
     # things that are not types
-    if cls in {None, NoneType}:
+    if cls is None or cls == NoneType:
         return ':py:obj:`None`'
     if cls is Ellipsis:
         return '...'
@@ -388,7 +388,7 @@ def stringify_annotation(
         raise ValueError(msg)
 
     # things that are not types
-    if annotation in {None, NoneType}:
+    if annotation is None or annotation == NoneType:
         return 'None'
     if annotation is Ellipsis:
         return '...'
