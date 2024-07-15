@@ -271,7 +271,6 @@ module = [
     "sphinx.search",
     "sphinx.testing.fixtures",
     "sphinx.testing.path",
-    "sphinx.testing.util",
     "sphinx.util",
     "sphinx.util.display",
     "sphinx.util.docfields",
