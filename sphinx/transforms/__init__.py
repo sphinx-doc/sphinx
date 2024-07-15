@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from docutils.nodes import Node, Text
-    from typing_extensions import TypeIs, TypeAlias
+    from typing_extensions import TypeAlias, TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
