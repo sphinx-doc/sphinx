@@ -101,7 +101,7 @@ const _displayItem = (item, searchTerms, highlightTerms, exactSearchPhrases) => 
         // exclude results that don't contain exact phrases if we are searching for them
         if (data) {
           const lowercaseData = data.toLowerCase();
-          const mismatch = (s) => lowercaseData.search(s) === -1;
+          const mismatch = (s) => !lowercaseData.includes(s);
           if (exactSearchPhrases.some(mismatch)) return;
         }
 
@@ -288,12 +288,9 @@ const Search = {
     // prepare the exact phrase search feature
     const exactSearchPhrases = [];
     const exactSearchPattern = /"([^"]+?)"/g;
-    while (true) {
-      const exactSearchPhrase = exactSearchPattern.exec(query);
-      if (exactSearchPhrase === null) {
-        break;
-      }
-      exactSearchPhrases.push(exactSearchPhrase[1].toLowerCase());
+    let match;
+    while (match = exactSearchPattern.exec(query)) {
+      exactSearchPhrases.push(match[1].toLowerCase());
     }
 
     splitQuery(query.trim()).forEach((queryTerm) => {
