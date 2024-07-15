@@ -1,3 +1,24 @@
+Release 7.4.1 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+-------
+
 Release 7.4.0 (released Jul 15, 2024)
 =====================================
 
