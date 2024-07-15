@@ -160,8 +160,8 @@ section describe an easy way to translate with *sphinx-intl*.
       "FILL HERE BY TARGET LANGUAGE FILL HERE BY TARGET LANGUAGE FILL HERE "
       "BY TARGET LANGUAGE :ref:`EXTENSIONS <extensions>` FILL HERE."
 
-   Please be careful not to break reST notation.  Most po-editors will help you
-   with that.
+   Please be careful not to break reStructuredText notation.
+   Most po-editors will help you with that.
 
 #. Build translated document.
 

@@ -24,10 +24,11 @@ Table of contents
 
 .. index:: pair: table of; contents
 
-Since reST does not have facilities to interconnect several documents, or split
-documents into multiple output files, Sphinx uses a custom directive to add
-relations between the single files the documentation is made of, as well as
-tables of contents.  The ``toctree`` directive is the central element.
+Since reStructuredText does not have facilities to interconnect several documents,
+or split documents into multiple output files,
+Sphinx uses a custom directive to add relations between
+the single files the documentation is made of, as well as tables of contents.
+The ``toctree`` directive is the central element.
 
 .. note::
 
@@ -37,7 +38,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 .. note::
 
    To create table of contents for current document (.rst file), use the
-   standard reST :dudir:`contents directive <table-of-contents>`.
+   standard reStructuredText :dudir:`contents directive <table-of-contents>`.
 
 .. rst:directive:: toctree
 
@@ -79,7 +80,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    Document titles in the :rst:dir:`toctree` will be automatically read from the
    title of the referenced document. If that isn't what you want, you can
-   specify an explicit title and target using a similar syntax to reST
+   specify an explicit title and target using a similar syntax to reStructuredText
    hyperlinks (and Sphinx's :ref:`cross-referencing syntax <xref-syntax>`). This
    looks like::
 
@@ -231,150 +232,327 @@ tables of contents.  The ``toctree`` directive is the central element.
 Special names
 ^^^^^^^^^^^^^
 
+.. index:: pair: genindex; toctree
+           pair: modindex; toctree
+           pair: search; toctree
+
 Sphinx reserves some document names for its own use; you should not try to
 create documents with these names -- it will cause problems.
 
 The special document names (and pages generated for them) are:
 
-* ``genindex``, ``modindex``, ``search``
+* ``genindex``
 
-  These are used for the general index, the Python module index, and the search
-  page, respectively.
+  This is used for the general index,
+  which is populated with entries from :rst:dir:`index` directives
+  and all index-generating :ref:`object descriptions <basic-domain-markup>`.
+  For example, see Sphinx's :ref:`genindex`.
 
-  The general index is populated with entries from modules, all
-  index-generating :ref:`object descriptions <basic-domain-markup>`, and from
-  :rst:dir:`index` directives.
+* ``modindex``
 
-  The Python module index contains one entry per :rst:dir:`py:module`
-  directive.
+  This is used for the Python module index,
+  which contains one entry per :rst:dir:`py:module` directive.
+  For example, see Sphinx's :ref:`py-modindex`.
 
-  The search page contains a form that uses the generated JSON search index and
-  JavaScript to full-text search the generated documents for search words; it
-  should work on every major browser that supports modern JavaScript.
+* ``search``
 
-* every name beginning with ``_``
+  This is used for the search page,
+  which contains a form that uses the generated JSON search index and JavaScript
+  to full-text search the generated documents for search words;
+  it works on every major browser.
+  For example, see Sphinx's :ref:`search`.
 
-  Though few such names are currently used by Sphinx, you should not
-  create documents or document-containing directories with such names.  (Using
-  ``_`` as a prefix for a custom template directory is fine.)
+* Every name beginning with ``_``
+
+  Though few such names are currently used by Sphinx,
+  you should not create documents or document-containing directories with such names.
+  (Using ``_`` as a prefix for a custom template directory is fine.)
 
 .. warning::
 
-   Be careful with unusual characters in filenames.  Some formats may interpret
-   these characters in unexpected ways:
+   Be careful with unusual characters in filenames.
+   Some formats may interpret these characters in unexpected ways:
 
-   * Do not use the colon ``:`` for HTML based formats.  Links to other parts
-     may not work.
-
-   * Do not use the plus ``+`` for the ePub format.  Some resources may not be
-     found.
+   * Do not use the colon ``:`` for HTML based formats.
+     Links to other parts may not work.
+   * Do not use the plus ``+`` for the ePub format.
+     Some resources may not be found.
 
 
 Paragraph-level markup
 ----------------------
 
-.. index:: note, warning
-           pair: changes; in version
-
 These directives create short paragraphs and can be used inside information
 units as well as normal text.
 
+
+Admonitions, messages, and warnings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: admonition, admonitions
+           pair: attention; admonition
+           pair: caution; admonition
+           pair: danger; admonition
+           pair: error; admonition
+           pair: hint; admonition
+           pair: important; admonition
+           pair: note; admonition
+           pair: tip; admonition
+           pair: warning; admonition
+
+The admonition directives create 'admonition' elements,
+a standardised system of communicating different types of information,
+from a helpful :rst:dir:`tip` to matters of paramount :rst:dir:`danger`.
+These directives can be used anywhere an ordinary body element can,
+and can contain arbitrary body elements.
+There are nine specific named admonitions
+and the generic :rst:dir:`admonition` directive.
+
+.. rst:directive:: .. attention::
+
+   Information that requires the reader's attention.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. attention::
+
+      Please may I have your attention.
+
+.. rst:directive:: .. caution::
+
+   Information with regard to which the reader should exercise care.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. caution::
+
+      Exercise due caution.
+
+.. rst:directive:: .. danger::
+
+   Information which may lead to near and present danger if not heeded.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. danger::
+
+      Let none think to fly the danger for soon or late love is his own avenger.
+
+.. rst:directive:: .. error::
+
+   Information relating to failure modes of some description.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. error::
+
+      ERROR 418: I'm a teapot.
+
+.. rst:directive:: .. hint::
+
+   Information that is helpful to the reader.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. hint::
+
+      Look under the flowerpot.
+
+.. rst:directive:: .. important::
+
+   Information that is of paramount importance
+   and which the reader must not ignore.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. important::
+
+      This is a statement of paramount importance.
+
 .. rst:directive:: .. note::
 
-   An especially important bit of information about an API that a user should be
-   aware of when using whatever bit of API the note pertains to.  The content of
-   the directive should be written in complete sentences and include all
-   appropriate punctuation.
+   An especially important bit of information that the reader should know.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
 
-   Example::
+   Example:
 
-      .. note::
+   .. note::
 
-         This function is not suitable for sending spam e-mails.
+      This function is not suitable for sending tins of spam.
+
+.. rst:directive:: .. tip::
+
+   Some useful tidbit of information for the reader.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. tip::
+
+      Remember your sun cream!
 
 .. rst:directive:: .. warning::
 
-   An important bit of information about an API that a user should be very aware
-   of when using whatever bit of API the warning pertains to.  The content of
-   the directive should be written in complete sentences and include all
-   appropriate punctuation. This differs from :rst:dir:`note` in that it is
-   recommended over :rst:dir:`note` for information regarding security.
+   An important bit of information that the reader should be very aware of.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
 
-.. rst:directive:: .. versionadded:: version
+   Example:
 
-   This directive documents the version of the project which added the described
-   feature to the library or C API. When this applies to an entire module, it
-   should be placed at the top of the module section before any prose.
+   .. warning::
+
+      Beware of the dog.
+
+.. rst:directive:: .. admonition:: title
+
+   A generic admonition, with an optional title.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. admonition:: This is a title
+
+      This is the content of the admonition.
+
+
+.. rst:directive:: seealso
+
+   Many sections include a list of references to module documentation or
+   external documents.
+   These lists are created using the :rst:dir:`seealso` directive.
+
+   The :rst:dir:`!seealso` directive is typically placed in a section
+   just before any subsections.
+   The content of the :rst:dir:`seealso` directive should be
+   either a single line or a reStructuredText `definition list`_.
+
+   .. _definition list: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#definition-lists
+
+   Example::
+
+      .. seealso::
+
+         Python's :py:mod:`zipfile` module
+            Documentation of Python's standard :py:mod:`zipfile` module.
+
+         `GNU tar manual, Basic Tar Format <https://example.org>`_
+            Documentation for tar archive files, including GNU tar extensions.
+
+   .. seealso::
+
+      Module :py:mod:`zipfile`
+         Documentation of the :py:mod:`zipfile` standard module.
+
+      `GNU tar manual, Basic Tar Format <https://example.org>`_
+         Documentation for tar archive files, including GNU tar extensions.
+
+
+Describing changes between versions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: pair: added; in version
+           pair: changes; in version
+           pair: removed; in version
+
+.. rst:directive:: .. versionadded:: version [brief explanation]
+
+   This directive documents the version of the project
+   which added the described feature.
+   When this applies to an entire module or component,
+   it should be placed at the top of the relevant section before any prose.
 
    The first argument must be given and is the version in question; you can add
    a second argument consisting of a *brief* explanation of the change.
+
+   .. attention::
+      There must be no blank line between the directive head and the explanation;
+      this is to make these blocks visually continuous in the markup.
 
    Example::
 
       .. versionadded:: 2.5
          The *spam* parameter.
 
-   Note that there must be no blank line between the directive head and the
-   explanation; this is to make these blocks visually continuous in the markup.
+   .. versionadded:: 2.5
+      The *spam* parameter.
 
-.. rst:directive:: .. versionchanged:: version
+.. rst:directive:: .. versionchanged:: version [brief explanation]
 
    Similar to :rst:dir:`versionadded`, but describes when and what changed in
    the named feature in some way (new parameters, changed side effects, etc.).
 
-.. rst:directive:: .. deprecated:: version
-
-   Similar to :rst:dir:`versionchanged`, but describes when the feature was
-   deprecated.  An explanation can also be given, for example to inform the
-   reader what should be used instead.  Example::
-
-      .. deprecated:: 3.1
-         Use :func:`spam` instead.
-
-.. rst:directive:: .. versionremoved:: version
-
-   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
-   An explanation may be provided to inform the reader what to use instead,
-   or why the feature was removed.
    Example::
 
-      .. versionremoved:: 4.0
-         The :func:`spam` function is more flexible, and should be used instead.
+      .. versionchanged:: 2.8
+         The *spam* parameter is now of type *boson*.
+
+   .. versionchanged:: 2.8
+      The *spam* parameter is now of type *boson*.
+
+.. rst:directive:: .. deprecated:: version [brief explanation]
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was
+   deprecated.
+   A *brief* explanation can also be given,
+   for example to tell the reader what to use instead.
+
+   Example::
+
+      .. deprecated:: 3.1
+         Use :py:func:`spam` instead.
+
+   .. deprecated:: 3.1
+      Use :py:func:`!spam` instead.
+
+.. rst:directive:: .. versionremoved:: version [brief explanation]
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   An explanation may be provided to tell the reader what to use instead,
+   or why the feature was removed.
 
    .. versionadded:: 7.3
 
-.. rst:directive:: seealso
+   Example::
 
-   Many sections include a list of references to module documentation or
-   external documents.  These lists are created using the :rst:dir:`seealso`
-   directive.
+      .. versionremoved:: 4.0
+         The :py:func:`spam` function is more flexible, and should be used instead.
 
-   The :rst:dir:`seealso` directive is typically placed in a section just before
-   any subsections.  For the HTML output, it is shown boxed off from the main
-   flow of the text.
+   .. versionremoved:: 4.0
+      The :py:func:`!spam` function is more flexible, and should be used instead.
 
-   The content of the :rst:dir:`seealso` directive should be a reST definition
-   list. Example::
 
-      .. seealso::
-
-         Module :py:mod:`zipfile`
-            Documentation of the :py:mod:`zipfile` standard module.
-
-         `GNU tar manual, Basic Tar Format <https://link>`_
-            Documentation for tar archive files, including GNU tar extensions.
-
-   There's also a "short form" allowed that looks like this::
-
-      .. seealso:: modules :py:mod:`zipfile`, :py:mod:`tarfile`
-
-   .. versionadded:: 0.5
-      The short form.
+Presentational
+^^^^^^^^^^^^^^
 
 .. rst:directive:: .. rubric:: title
 
-   This directive creates a paragraph heading that is not used to create a
-   table of contents node.
+   A rubric is like an informal heading that doesn't correspond to the document's structure,
+   i.e. it does not create a table of contents node.
+
+   .. rst:directive:option:: level: n
+      :type: number from 1 to 6
+
+      .. versionadded:: 7.4
+
+      Use this option to specify the heading level of the rubric.
+      In this case the rubric will be rendered as ``<h1>`` to ``<h6>`` for HTML output,
+      or as the corresponding non-numbered sectioning command for LaTeX
+      (see :confval:`latex_toplevel_sectioning`).
 
    .. note::
 
@@ -385,10 +563,7 @@ units as well as normal text.
 
 .. rst:directive:: centered
 
-   This directive creates a centered boldfaced line of text.  Use it as
-   follows::
-
-      .. centered:: LICENSE AGREEMENT
+   This directive creates a centered boldfaced line of text.
 
    .. deprecated:: 1.1
       This presentation-only directive is a legacy from older versions.
@@ -427,8 +602,8 @@ Showing code examples
 There are multiple ways to show syntax-highlighted literal code blocks in
 Sphinx:
 
-* using :ref:`reST doctest blocks <rst-doctest-blocks>`;
-* using :ref:`reST literal blocks <rst-literal-blocks>`, optionally in
+* using :ref:`reStructuredText doctest blocks <rst-doctest-blocks>`;
+* using :ref:`reStructuredText literal blocks <rst-literal-blocks>`, optionally in
   combination with the :rst:dir:`highlight` directive;
 * using the :rst:dir:`code-block` directive;
 * and using the :rst:dir:`literalinclude` directive.
@@ -511,6 +686,7 @@ __ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. code-block:: [language]
                    .. sourcecode:: [language]
+                   .. code:: [language]
 
    Example::
 
@@ -810,8 +986,8 @@ Glossary
 
 .. rst:directive:: .. glossary::
 
-   This directive must contain a reST definition-list-like markup with terms and
-   definitions.  The definitions will then be referenceable with the
+   This directive must contain a reStructuredText definition-list-like markup
+   with terms and definitions.  The definitions will then be referenceable with the
    :rst:role:`term` role.  Example::
 
       .. glossary::
@@ -942,7 +1118,7 @@ mainly contained in information units, such as the language reference.
       (this notation is also used below to describe what entries are created).
       Examples:
 
-      .. code:: reStructuredText
+      .. code-block:: rst
 
          .. index:: single: execution
                     single: execution; context
@@ -955,7 +1131,7 @@ mainly contained in information units, such as the language reference.
       The pair of values must be separated by a semicolon.
       Example:
 
-      .. code:: reStructuredText
+      .. code-block:: rst
 
          .. index:: pair: loop; statement
 
@@ -965,7 +1141,7 @@ mainly contained in information units, such as the language reference.
       All three values must be separated by a semicolon.
       Example:
 
-      .. code:: reStructuredText
+      .. code-block:: rst
 
          .. index:: triple: module; search; path
 
@@ -975,7 +1151,7 @@ mainly contained in information units, such as the language reference.
       A shortcut to create an index entry that refers to another entry.
       Example:
 
-      .. code:: reStructuredText
+      .. code-block:: rst
 
          .. index:: see: entry; other
 
@@ -1042,7 +1218,7 @@ mainly contained in information units, such as the language reference.
    case, the "target" part can be a full entry as described for the directive
    above.  For example::
 
-      This is a normal reST :index:`paragraph` that contains several
+      This is a normal reStructuredText :index:`paragraph` that contains several
       :index:`index entries <pair: index; entry>`.
 
    .. versionadded:: 1.1
@@ -1296,8 +1472,8 @@ the definition of the symbol.  There is this directive:
    an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
    or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
 
-   Note that no further reST parsing is done in the production, so that you
-   don't have to escape ``*`` or ``|`` characters.
+   Note that no further reStructuredText parsing is done in the production,
+   so that you don't have to escape ``*`` or ``|`` characters.
 
 The following is an example taken from the Python Reference Manual::
 

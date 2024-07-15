@@ -975,7 +975,20 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_rubric(self, node: Element) -> None:
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
-        self.body.append(r'\subsubsection*{')
+        tag = 'subsubsection'
+        if "level" in node:
+            level = node["level"]
+            try:
+                tag = self.sectionnames[self.top_sectionlevel - 1 + level]
+            except Exception:
+                logger.warning(
+                    __('unsupported rubric heading level: %s'),
+                    level,
+                    type='latex',
+                    location=node
+                )
+
+        self.body.append(rf'\{tag}*{{')
         self.context.append('}' + CR)
         self.in_title = 1
 

@@ -573,7 +573,7 @@ See the documentation on :ref:`intl` for details.
    .. note::
       The :option:`-v option to sphinx-build <sphinx-build -v>`
       is useful to check the :confval:`!locale_dirs` setting is working as expected.
-      If the message catalog directory not found, debug messages are emmitted.
+      If the message catalog directory not found, debug messages are emitted.
 
    .. versionadded:: 0.5
 
@@ -4054,7 +4054,7 @@ Options for the Python domain
 
    The examples below use the following :rst:dir:`py:function` directive:
 
-   .. code-block:: reStructuredText
+   .. code-block:: rst
 
       .. py:function:: serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
 

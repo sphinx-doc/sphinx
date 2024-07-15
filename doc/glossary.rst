@@ -36,9 +36,10 @@ Glossary
       See :ref:`rst-directives` for more information.
 
    document name
-      Since reST source files can have different extensions (some people like
-      ``.txt``, some like ``.rst`` -- the extension can be configured with
-      :confval:`source_suffix`) and different OSes have different path
+      Since reStructuredText source files can have different extensions
+      (some people like ``.txt``, some like ``.rst`` -- the extension can be
+      configured with :confval:`source_suffix`)
+      and different OSes have different path
       separators, Sphinx abstracts them: :dfn:`document names` are always
       relative to the :term:`source directory`, the extension is stripped, and
       path separators are converted to slashes.  All values, parameters and such

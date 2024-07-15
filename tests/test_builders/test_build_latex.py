@@ -1781,3 +1781,11 @@ def test_one_parameter_per_line(app, status, warning):
     # MyList[T](list[T])
     assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
             '}}}\\sphinxbfcode{\\sphinxupquote{MyList}}}' in result)
+
+
+@pytest.mark.sphinx('latex', testroot='markup-rubric')
+def test_latex_rubric(app):
+    app.build()
+    content = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    assert r'\subsubsection*{This is a rubric}' in content
+    assert r'\subsection*{A rubric with a heading level 2}' in content
