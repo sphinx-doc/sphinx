@@ -7,9 +7,10 @@ import html
 import json
 import pickle
 import re
+from collections import defaultdict
 from importlib import import_module
 from os import path
-from typing import IO, TYPE_CHECKING, Any
+from typing import IO, TYPE_CHECKING, Any, Union
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -20,6 +21,8 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from typing_extensions import TypeAlias
 
 
 class SearchLanguage:
@@ -250,6 +253,9 @@ class IndexBuilder:
         'pickle':   pickle
     }
 
+    _TRIE_CONTENTS = ""  # serializable sentinel value
+    _TrieNode: TypeAlias = dict[str, Union["_TrieNode", list]]
+
     def __init__(self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str) -> None:
         self.env = env
         # docname -> title
@@ -387,12 +393,68 @@ class IndexBuilder:
                     rv[k] = sorted(fn2index[fn] for fn in v if fn in fn2index)
         return rvs
 
+    @staticmethod
+    def _terms_ngrams(terms: dict[str, Any]) -> dict[str, list[str]]:
+        """Extract unique ngrams (currently, trigrams) from the input search terms."""
+        ngrams: dict[str, list[str]] = defaultdict(list)
+        for term in terms:
+            if len(term) >= 3:
+                for i in range(len(term) - 2):
+                    ngrams[term[i:i + 3]].append(term)
+        return {ngram: sorted(set(terms)) for ngram, terms in ngrams.items()}
+
+    @classmethod
+    def _ngrams_trie(cls, ngrams: dict[str, list[str]]) -> _TrieNode:
+        """
+        Given a dictionary of terms and a mapping of ngrams to those terms, compress the
+        mapping into a trie, using an empty-string key to notate the contents (terms
+        containing the ngram) at each node.
+        """
+        root: IndexBuilder._TrieNode = {}
+        for ngram, terms in ngrams.items():
+            location = root
+            for char in ngram:
+                location = location.setdefault(char, {})  # type: ignore[assignment]
+            location[cls._TRIE_CONTENTS] = terms
+        return root
+
+    @classmethod
+    def _minify_trie(cls, trie: _TrieNode, term_offsets: dict[str, int]) -> _TrieNode:
+        """Minify the representation of an ngram-to-terms trie datastructure."""
+        for key, subnode in trie.copy().items():
+            if not isinstance(subnode, dict):
+                continue
+
+            # Replace the string values of terms with their numeric termlist offset.
+            if node_terms := subnode.get(cls._TRIE_CONTENTS, []):
+                offsets = [term_offsets[term] for term in node_terms]
+                # Replace single-valued contents with integers instead of list values.
+                subnode[cls._TRIE_CONTENTS] = offsets[0] if len(offsets) == 1 else offsets  # type: ignore[assignment]
+
+            # Replace single-leaf content nodes (dictionaries) with their (list) contents.
+            if len(subnode) == 1 and cls._TRIE_CONTENTS in subnode:
+                trie[key] = subnode[cls._TRIE_CONTENTS]
+                continue
+
+            # Abbreviate unambiguous paths; (a.empty -> b.empty -> c) becomes (abc).
+            trie[key] = IndexBuilder._minify_trie(subnode, term_offsets)
+            if len(trie[key]) == 1 and cls._TRIE_CONTENTS not in trie[key]:
+                subkey, subnode = trie.pop(key).popitem()  # type: ignore[union-attr]
+                trie[key + subkey] = subnode
+
+        return trie
+
     def freeze(self) -> dict[str, Any]:
         """Create a usable data structure for serializing."""
         docnames, titles = zip(*sorted(self._titles.items()))
         filenames = [self._filenames.get(docname) for docname in docnames]
         fn2index = {f: i for (i, f) in enumerate(docnames)}
         terms, title_terms = self.get_terms(fn2index)
+        term_offsets = {term: idx for idx, term in enumerate(sorted(terms))}
+
+        terms_ngrams_mapping = self._terms_ngrams(terms)
+        terms_ngrams_trie = self._ngrams_trie(terms_ngrams_mapping)  # compress into a trie
+        terms_ngrams = self._minify_trie(terms_ngrams_trie, term_offsets)  # remove redundancy
 
         objects = self.get_objects(fn2index)  # populates _objtypes
         objtypes = {v: k[0] + ':' + k[1] for (k, v) in self._objtypes.items()}
@@ -411,7 +473,8 @@ class IndexBuilder:
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
                     titleterms=title_terms, envversion=self.env.version,
-                    alltitles=alltitles, indexentries=index_entries)
+                    alltitles=alltitles, indexentries=index_entries,
+                    termsngrams=terms_ngrams)
 
     def label(self) -> str:
         return f"{self.lang.language_name} (code: {self.lang.lang})"

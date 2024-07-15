@@ -209,6 +209,32 @@ def test_IndexBuilder():
                   'index': [0, 1, 2, 3],
                   'non': [0, 1, 2, 3],
                   'test': [0, 1, 2, 3]},
+        'termsngrams': {
+            'com': 1,
+            'dex': 3,
+            'e': {
+                'nt': 1,
+                'rm': 2,
+                'st': 5,
+            },
+            'fer': 2,
+            'i': {
+                'nd': 3,
+                'on': 2,
+            },
+            'm': {
+                'en': 1,
+                'io': 2,
+                'me': 1,
+            },
+            'n': {
+                'de': 3,
+                'on': 4,
+            },
+            'omm': 1,
+            'rmi': 2,
+            'tes': 5,
+        },
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
         'titleterms': {
             'another_titl': [0, 1, 2, 3],
@@ -279,6 +305,32 @@ def test_IndexBuilder():
                   'index': [0, 1],
                   'non': [0, 1],
                   'test': [0, 1]},
+        'termsngrams': {
+            'com': 1,
+            'dex': 3,
+            'e': {
+                'nt': 1,
+                'rm': 2,
+                'st': 5,
+            },
+            'fer': 2,
+            'i': {
+                'nd': 3,
+                'on': 2,
+            },
+            'm': {
+                'en': 1,
+                'io': 2,
+                'me': 1,
+            },
+            'n': {
+                'de': 3,
+                'on': 4,
+            },
+            'omm': 1,
+            'rmi': 2,
+            'tes': 5,
+        },
         'titles': ('title1_2', 'title2_2'),
         'titleterms': {
             'another_titl': [0, 1],
@@ -305,6 +357,130 @@ def test_IndexBuilder_lookup():
     # zh_CN
     index = IndexBuilder(env, 'zh_CN', {}, None)
     assert index.lang.lang == 'zh'
+
+
+def test_IndexBuilder_extract_ngrams():
+    input_terms = {
+        'Aab': 3,
+        'b': 0,
+        'aaa': 0,
+        'ccdd': [1, 2],
+        'aaab': 0,
+        'bbbb': [0, 1],
+        'abcd': [3, 4, 5],
+    }
+
+    expected_ngrams = {
+        'Aab': ['Aab'],
+        # 'b': ['b'],
+        'aaa': ['aaa', 'aaab'],
+        'aab': ['aaab'],
+        'abc': ['abcd'],
+        'bbb': ['bbbb'],
+        'bcd': ['abcd'],
+        'ccd': ['ccdd'],
+        'cdd': ['ccdd'],
+    }
+
+    actual_ngrams = IndexBuilder._terms_ngrams(input_terms)
+    assert expected_ngrams == actual_ngrams
+
+
+def test_IndexBuilder_build_trie():
+    input_ngrams = {
+        'Aab': ['Aab'],
+        'b': ['b'],
+        'aaa': ['aaa', 'aaab'],
+        'aab': ['aaab'],
+        'abc': ['abcd'],
+        'bbb': ['bbbb'],
+        'bcd': ['abcd'],
+        'ccd': ['ccdd'],
+        'cdd': ['ccdd'],
+    }
+
+    CONTAINS = ''  # empty-string is used to denote node contents
+
+    expected_trie = {
+        'A': {'a': {'b': {CONTAINS: ['Aab']}}},
+        'a': {
+            'a': {
+                'a': {CONTAINS: ['aaa', 'aaab']},
+                'b': {CONTAINS: ['aaab']},
+            },
+            'b': {'c': {CONTAINS: ['abcd']}},
+        },
+        'b': {
+            CONTAINS: ['b'],
+            'b': {'b': {CONTAINS: ['bbbb']}},
+            'c': {'d': {CONTAINS: ['abcd']}},
+        },
+        'c': {
+            'c': {'d': {CONTAINS: ['ccdd']}},
+            'd': {'d': {CONTAINS: ['ccdd']}},
+        },
+    }
+
+    assert expected_trie == IndexBuilder._ngrams_trie(input_ngrams)
+
+
+def test_IndexBuilder_minify_trie():
+    input_terms = {
+        'Aab': 1,
+        'aaa': 0,
+        'aaab': 0,
+        'abcd': [3, 4, 5],
+        'b': 0,
+        'bbbb': [0, 1],
+        'ccdd': [1, 2],
+    }
+
+    CONTAINS = ''  # empty-string is used to denote node contents
+
+    input_trie = {
+        'A': {'a': {'b': {CONTAINS: ['Aab']}}},
+        'a': {
+            'a': {
+                'a': {CONTAINS: ['aaa', 'aaab']},
+                'b': {CONTAINS: ['aaab']},
+            },
+            'b': {
+                'c': {CONTAINS: ['abcd']},
+            },
+        },
+        'b': {
+            CONTAINS: ['b'],
+            'b': {'b': {CONTAINS: ['bbbb']}},
+            'c': {'d': {CONTAINS: ['abcd']}},
+        },
+        'c': {
+            'c': {'d': {CONTAINS: ['ccdd']}},
+            'd': {'d': {CONTAINS: ['ccdd']}},
+        },
+    }
+
+    expected_trie = {
+        'Aab': 0,  # Aab
+        'a': {
+            'a': {
+                'a': [1, 2],  # aaa, aaab
+                'b': 2,  # aaab
+            },
+            'bc': 3,  # abcd
+        },
+        'b': {
+            CONTAINS: 4,
+            'bb': 5,  # bbbb
+            'cd': 3,  # abcd
+        },
+        'c': {
+            'cd': 6,  # ccdd
+            'dd': 6,  # ccdd
+        },
+    }
+
+    term_offsets = {term: idx for idx, term in enumerate(input_terms)}
+    assert expected_trie == IndexBuilder._minify_trie(input_trie, term_offsets)
 
 
 @pytest.mark.sphinx(
