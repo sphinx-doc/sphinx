@@ -145,7 +145,7 @@ linking:
 
    Example:
 
-   .. code:: python
+   .. code-block:: python
 
       intersphinx_mapping = {'https://docs.python.org/': None}
 

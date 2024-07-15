@@ -75,7 +75,7 @@ Cross-referencing Python objects
 
 By default, most of these directives generate entities that can be
 cross-referenced from any part of the documentation by using
-:ref:`a corresponding role <python-roles>`. For the case of functions,
+:ref:`a corresponding role <python-xref-roles>`. For the case of functions,
 you can use :rst:role:`py:func` for that, as follows:
 
 .. code-block:: rst

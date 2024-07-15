@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 Application API
 ===============

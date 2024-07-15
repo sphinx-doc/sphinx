@@ -429,14 +429,14 @@ Keys that don't need to be overridden unless in special cases are:
 ``'geometry'``
    "geometry" package inclusion, the default definition is:
 
-   .. code:: latex
+   .. code-block:: latex
 
       '\\usepackage{geometry}'
 
    with an additional ``[dvipdfm]`` for Japanese documents.
    The Sphinx LaTeX style file executes:
 
-   .. code:: latex
+   .. code-block:: latex
 
       \PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}
 
