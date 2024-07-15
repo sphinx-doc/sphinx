@@ -71,7 +71,7 @@ class SharedResult:
 @pytest.fixture
 def app_params(
     request: Any,
-    test_params: dict,
+    test_params: dict[str, Any],
     shared_result: SharedResult,
     sphinx_test_tempdir: str,
     rootdir: str,
@@ -118,7 +118,7 @@ _app_params = namedtuple('_app_params', 'args,kwargs')
 
 
 @pytest.fixture
-def test_params(request: Any) -> dict:
+def test_params(request: Any) -> dict[str, Any]:
     """
     Test parameters that are specified by 'pytest.mark.test_params'
 
@@ -143,9 +143,9 @@ def test_params(request: Any) -> dict:
 
 @pytest.fixture
 def app(
-    test_params: dict,
-    app_params: tuple[dict, dict],
-    make_app: Callable,
+    test_params: dict[str, Any],
+    app_params: _app_params,
+    make_app: Callable[[], SphinxTestApp],
     shared_result: SharedResult,
 ) -> Iterator[SphinxTestApp]:
     """
@@ -159,8 +159,8 @@ def app(
     print('# builder:', app_.builder.name)
     print('# srcdir:', app_.srcdir)
     print('# outdir:', app_.outdir)
-    print('# status:', '\n' + app_._status.getvalue())
-    print('# warning:', '\n' + app_._warning.getvalue())
+    print('# status:', '\n' + app_.status.getvalue())
+    print('# warning:', '\n' + app_.warning.getvalue())
 
     if test_params['shared_result']:
         shared_result.store(test_params['shared_result'], app_)
@@ -183,7 +183,7 @@ def warning(app: SphinxTestApp) -> StringIO:
 
 
 @pytest.fixture
-def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
+def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp]]:
     """
     Provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
@@ -196,10 +196,12 @@ def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_: Any = SphinxTestApp(*args, **kwargs)
-        apps.append(app_)
+        app_: SphinxTestApp
         if test_params['shared_result']:
-            app_ = SphinxTestAppWrapperForSkipBuilding(app_)
+            app_ = SphinxTestAppWrapperForSkipBuilding(*args, **kwargs)
+        else:
+            app_ = SphinxTestApp(*args, **kwargs)
+        apps.append(app_)
         return app_
     yield make
 

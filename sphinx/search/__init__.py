@@ -52,11 +52,11 @@ class SearchLanguage:
        This class is used to preprocess search word which Sphinx HTML readers
        type, before searching index. Default implementation does nothing.
     """
-    lang: str | None = None
-    language_name: str | None = None
+    lang: str = ''
+    language_name: str = ''
     stopwords: set[str] = set()
     js_splitter_code: str = ""
-    js_stemmer_rawcode: str | None = None
+    js_stemmer_rawcode: str = ''
     js_stemmer_code = """
 /**
  * Dummy stemmer for languages without stemming rules.

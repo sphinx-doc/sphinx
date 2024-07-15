@@ -241,6 +241,7 @@ div.footer a {
 
 p {
     margin: 0.8em 0 0.5em 0;
+    line-height: 1.5;
 }
 
 a {
@@ -451,6 +452,7 @@ p.admonition-title::before {
     content: "";
     height: 1rem;
     left: .5rem;
+    top: .5rem;
     position: absolute;
     width: 1rem;
     background-color: #5f5f5f;
@@ -516,9 +518,15 @@ div.warning > p.admonition-title::before {
     -webkit-mask-image: var(--icon-warning);
     mask-image: var(--icon-warning);
 }
-
+div.caution,
+div.important,
 div.warning {
-    border: 1px solid #940000;
+    border-color: var(--colour-warning-fg);
+}
+div.attention,
+div.danger,
+div.error {
+    border-color: var(--colour-error-fg);
 }
 
 div.admonition > ul,

@@ -102,9 +102,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat = {'filename': filename, 'lineno': result.lineno,
-                    'status': result.status, 'code': result.code, 'uri': result.uri,
-                    'info': result.message}
+        linkstat: dict[str, str | int] = {
+            'filename': filename, 'lineno': result.lineno,
+            'status': result.status, 'code': result.code,
+            'uri': result.uri, 'info': result.message,
+        }
         self.write_linkstat(linkstat)
 
         if result.status == 'unchecked':
@@ -164,7 +166,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         else:
             raise ValueError('Unknown status %s.' % result.status)
 
-    def write_linkstat(self, data: dict) -> None:
+    def write_linkstat(self, data: dict[str, str | int]) -> None:
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
@@ -416,9 +418,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         return status, info, code
 
-    def _retrieval_methods(self,
-                           check_anchors: bool,
-                           anchor: str) -> Iterator[tuple[Callable, dict]]:
+    def _retrieval_methods(
+        self,
+        check_anchors: bool,
+        anchor: str,
+    ) -> Iterator[tuple[Callable[..., Response], dict[str, bool]]]:
         if not check_anchors or not anchor:
             yield self._session.head, {'allow_redirects': True}
         yield self._session.get, {'stream': True}
@@ -482,7 +486,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
                 redirect_status_code = response.history[-1].status_code if response.history else None  # NoQA: E501
-                retry_after = response.headers.get('Retry-After')
+                retry_after = response.headers.get('Retry-After', '')
                 response_url = f'{response.url}'
                 response.raise_for_status()
                 del response
