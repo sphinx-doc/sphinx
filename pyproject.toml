@@ -264,7 +264,6 @@ module = [
     "sphinx.registry",
     "sphinx.search",
     "sphinx.util",
-    "sphinx.util.display",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
     "sphinx.util.i18n",
