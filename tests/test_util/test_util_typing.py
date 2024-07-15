@@ -755,4 +755,3 @@ def test_stringify_type_hints_paramspec():
     assert stringify_annotation(P.kwargs, 'fully-qualified') == "typing.~P"
     assert stringify_annotation(P.kwargs, 'fully-qualified-except-typing') == "~P"
     assert stringify_annotation(P.kwargs, "smart") == "~typing.~P"
-
