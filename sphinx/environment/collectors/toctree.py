@@ -187,7 +187,10 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_secnumbers = {}
 
         def _walk_toc(
-            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None,
+            node: Element,
+            secnums: dict[str, tuple[int, ...]],
+            depth: int,
+            titlenode: nodes.title | None = None,
         ) -> None:
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
@@ -216,7 +219,7 @@ class TocTreeCollector(EnvironmentCollector):
                         secnums[reference['anchorname']] = tuple(numstack)
                     else:
                         number = None
-                        secnums[reference['anchorname']] = None
+                        secnums[reference['anchorname']] = ()
                     reference['secnumber'] = number
                     if titlenode:
                         titlenode['secnumber'] = number
