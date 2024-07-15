@@ -81,10 +81,16 @@ def _resolve_reference_in_domain_by_target(
             insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
                                               inventory[objtype].keys()))
             if len(insensitive_matches) > 1:
+                data_items = {inventory[objtype][match] for match in insensitive_matches}
                 inv_descriptor = inv_name or 'main_inventory'
-                LOGGER.warning(__("inventory '%s': multiple matches found for %s:%s"),
-                               inv_descriptor, objtype, target,
-                               type='intersphinx',  subtype='external', location=node)
+                if len(data_items) == 1:  # these are duplicates; relatively innocuous
+                    LOGGER.debug(__("inventory '%s': duplicate matches found for %s:%s"),
+                                 inv_descriptor, objtype, target,
+                                 type='intersphinx',  subtype='external', location=node)
+                else:
+                    LOGGER.warning(__("inventory '%s': multiple matches found for %s:%s"),
+                                   inv_descriptor, objtype, target,
+                                   type='intersphinx',  subtype='external', location=node)
             if insensitive_matches:
                 data = inventory[objtype][insensitive_matches[0]]
             else:
