@@ -582,13 +582,17 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
         config.source_suffix = {source_suffix: 'restructuredtext'}
+        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
+                    source_suffix, config.source_suffix)
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
         config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
+        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
+                    source_suffix, config.source_suffix)
     elif not isinstance(source_suffix, dict):
-        logger.warning(__("The config value `source_suffix' expects "
-                          "a string, list of strings, or dictionary. "
-                          "But `%r' is given." % source_suffix))
+        msg = __("The config value `source_suffix' expects a dictionary,"
+                 "a string, or a list of strings. Got `%r' instead (type %s).")
+        raise ConfigError(msg % (source_suffix, type(source_suffix)))
 
 
 def convert_highlight_options(app: Sphinx, config: Config) -> None:
