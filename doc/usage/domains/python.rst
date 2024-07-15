@@ -545,7 +545,7 @@ It is customary to put the opening bracket before the comma.
 Python 3.12 introduced *type parameters*, which are type variables
 declared directly  within the class or function definition:
 
-.. code:: python
+.. code-block:: python
 
    class AnimalList[AnimalT](list[AnimalT]):
       ...
@@ -555,7 +555,7 @@ declared directly  within the class or function definition:
 
 The corresponding reStructuredText documentation would be:
 
-.. code:: rst
+.. code-block:: rst
 
    .. py:class:: AnimalList[AnimalT]
 
@@ -573,7 +573,8 @@ Info field lists
 
    meta fields are added.
 
-Inside Python object description directives, reST field lists with these fields
+Inside Python object description directives,
+reStructuredText field lists with these fields
 are recognized and formatted nicely:
 
 * ``param``, ``parameter``, ``arg``, ``argument``, ``key``, ``keyword``:
@@ -655,7 +656,7 @@ word "or"::
    :vartype a_var: str or int
    :rtype: float or str
 
-.. _python-roles:
+.. _python-xref-roles:
 
 Cross-referencing Python objects
 --------------------------------

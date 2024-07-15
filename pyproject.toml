@@ -83,7 +83,7 @@ docs = [
 ]
 lint = [
     "flake8>=6.0",
-    "ruff==0.5.1",
+    "ruff==0.5.2",
     "mypy==1.10.1",
     "sphinx-lint>=0.9",
     "types-docutils==0.21.0.20240711",
@@ -244,17 +244,11 @@ strict_optional = false
 [[tool.mypy.overrides]]
 module = [
     "sphinx.application",
-    "sphinx.builders._epub_base",
-    "sphinx.builders.html",
-    "sphinx.builders.linkcheck",
     "sphinx.cmd.quickstart",
     "sphinx.config",
     "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.environment",
-    "sphinx.environment.adapters.indexentries",
-    "sphinx.environment.collectors.toctree",
     "sphinx.events",
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.directive",
@@ -269,9 +263,6 @@ module = [
     "sphinx.jinja2glue",
     "sphinx.registry",
     "sphinx.search",
-    "sphinx.testing.fixtures",
-    "sphinx.testing.path",
-    "sphinx.testing.util",
     "sphinx.util",
     "sphinx.util.docfields",
     "sphinx.util.docutils",

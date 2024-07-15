@@ -205,23 +205,17 @@ class SphinxTestApp(sphinx.application.Sphinx):
         super().build(force_all, filenames)
 
 
-class SphinxTestAppWrapperForSkipBuilding:
+class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
     """A wrapper for SphinxTestApp.
 
     This class is used to speed up the test by skipping ``app.build()``
     if it has already been built and there are any output files.
     """
 
-    def __init__(self, app_: SphinxTestApp) -> None:
-        self.app = app_
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self.app, name)
-
-    def build(self, *args: Any, **kwargs: Any) -> None:
-        if not os.listdir(self.app.outdir):
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        if not os.listdir(self.outdir):
             # if listdir is empty, do build.
-            self.app.build(*args, **kwargs)
+            super().build(force_all, filenames)
             # otherwise, we can use built cache
 
 

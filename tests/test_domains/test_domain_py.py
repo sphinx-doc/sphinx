@@ -753,7 +753,7 @@ def test_function_pep_695(app):
         S,\
         T: int,\
         U: (int, str),\
-        R: int | int,\
+        R: int | str,\
         A: int | Annotated[int, ctype("char")],\
         *V,\
         **P\
@@ -795,7 +795,7 @@ def test_function_pep_695(app):
                             desc_sig_space,
                             [desc_sig_punctuation, '|'],
                             desc_sig_space,
-                            [pending_xref, 'int'],
+                            [pending_xref, 'str'],
                         )],
                     )],
                     [desc_type_parameter, (
