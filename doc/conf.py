@@ -180,6 +180,7 @@ nitpick_ignore = {
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
     ('py:class', 'Element'),  # sphinx.domains.Domain
+    ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
