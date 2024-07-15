@@ -59,4 +59,6 @@ INVENTORY_V2_AMBIGUOUS_TERMS: Final[bytes] = b'''\
 ''' + zlib.compress(b'''\
 a term std:term -1 glossary.html#term-a-term -
 A term std:term -1 glossary.html#term-a-term -
+b term std:term -1 document.html#id5 -
+B term std:term -1 document.html#B -
 ''')

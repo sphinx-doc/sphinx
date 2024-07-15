@@ -53,7 +53,8 @@ def test_ambiguous_definition_warning(warning):
     f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
     InventoryFile.load(f, '/util', posixpath.join)
 
-    assert 'contains multiple definitions for std:term:a' in warning.getvalue().lower()
+    assert 'contains multiple definitions for std:term:a' not in warning.getvalue().lower()
+    assert 'contains multiple definitions for std:term:b' in warning.getvalue().lower()
 
 
 def _write_appconfig(dir, language, prefix=None):
