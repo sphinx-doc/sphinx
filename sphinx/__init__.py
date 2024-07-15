@@ -8,13 +8,12 @@ __display_version__ = __version__  # used for command line version
 
 import os
 import warnings
-from os import path
-
-from .deprecation import RemovedInNextVersionWarning
 
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
 if 'PYTHONWARNINGS' not in os.environ:
+    from sphinx.deprecation import RemovedInNextVersionWarning
+
     warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
 warnings.filterwarnings(
     'ignore', 'The frontend.Option class .*', DeprecationWarning, module='docutils.frontend'
@@ -30,7 +29,7 @@ warnings.filterwarnings(
 #:    Before version 1.2, check the string ``sphinx.__version__``.
 version_info = (7, 4, 0, 'beta', 0)
 
-package_dir = path.abspath(path.dirname(__file__))
+package_dir = os.path.abspath(os.path.dirname(__file__))
 
 _in_development = True
 if _in_development:
