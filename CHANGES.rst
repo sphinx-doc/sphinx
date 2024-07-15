@@ -1,5 +1,5 @@
-Release 7.4.0 (in development)
-==============================
+Release 7.4.0 (released Jul 15, 2024)
+=====================================
 
 Dependencies
 ------------
@@ -13,9 +13,6 @@ Dependencies
   PDF build will simply silently omit rendering such icons.  Check the
   documentation of the ``iconpackage`` key of :ref:`'sphinxsetup'
   <latexsphinxsetup>` for more.
-
-Incompatible changes
---------------------
 
 Deprecated
 ----------
