@@ -1,17 +1,5 @@
-Release 7.4.1 (in development)
-==============================
-
-Dependencies
-------------
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 7.4.1 (released Jul 15, 2024)
+=====================================
 
 Bugs fixed
 ----------
@@ -20,9 +8,6 @@ Bugs fixed
   Patch by Adam Turner.
 * #12579, #12581: Restore support for ``typing.ParamSpec`` in autodoc.
   Patch by Adam Turner.
-
-Testing
--------
 
 Release 7.4.0 (released Jul 15, 2024)
 =====================================
