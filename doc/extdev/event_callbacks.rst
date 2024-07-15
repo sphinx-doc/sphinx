@@ -43,6 +43,8 @@ Below is an overview of the core event that happens during a build.
          6. source-read(app, docname, source)
          7. run source parsers: text -> docutils.document
             - parsers can be added with the app.add_source_parser() API
+            - event.include-read(app, relative_path, parent_docname, content)
+              is called for each include directive
          8. apply transforms based on priority: docutils.document -> docutils.document
             - event.doctree-read(app, doctree) is called in the middle of transforms,
               transforms come before/after this event depending on their priority.

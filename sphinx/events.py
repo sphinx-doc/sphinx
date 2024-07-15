@@ -30,22 +30,22 @@ class EventListener(NamedTuple):
 
 # List of all known core events. Maps name to arguments description.
 core_events = {
-    'builder-inited': '',
     'config-inited': 'config',
+    'builder-inited': '',
     'env-get-outdated': 'env, added, changed, removed',
-    'env-get-updated': 'env',
-    'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
-    'env-check-consistency': 'env',
+    'env-purge-doc': 'env, docname',
     'source-read': 'docname, source text',
     'include-read': 'relative path, parent docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',
+    'env-updated': 'env',
+    'env-get-updated': 'env',
+    'env-check-consistency': 'env',
+    'write-started': 'builder',
+    'doctree-resolved': 'doctree, docname',
     'missing-reference': 'env, node, contnode',
     'warn-missing-reference': 'domain, node',
-    'doctree-resolved': 'doctree, docname',
-    'env-updated': 'env',
-    'write-started': 'builder',
     'build-finished': 'exception',
 }
 
