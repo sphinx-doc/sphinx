@@ -13,7 +13,7 @@ from collections import deque
 from collections.abc import Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable, Literal, cast
+from typing import IO, TYPE_CHECKING, Any, Callable, Literal
 
 from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
@@ -42,7 +42,7 @@ from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
     from docutils import nodes
-    from docutils.nodes import Element
+    from docutils.nodes import Element, Node
     from docutils.parsers import Parser
 
     from sphinx.builders import Builder
@@ -746,7 +746,8 @@ class Sphinx:
         docutils.register_role(name, role)
 
     def add_generic_role(
-        self, name: str, nodeclass: type[nodes.Node], override: bool = False
+        self, name: str, nodeclass: type[Node], override: bool = False
+
     ) -> None:
         """Register a generic Docutils role.
 
