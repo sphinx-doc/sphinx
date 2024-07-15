@@ -115,7 +115,7 @@ class BuildInfo:
     """
 
     @classmethod
-    def load(cls: type[BuildInfo], f: IO) -> BuildInfo:
+    def load(cls: type[BuildInfo], f: IO[str]) -> BuildInfo:
         try:
             lines = f.readlines()
             assert lines[0].rstrip() == '# Sphinx build info version 1'
@@ -149,7 +149,7 @@ class BuildInfo:
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
-    def dump(self, f: IO) -> None:
+    def dump(self, f: IO[str]) -> None:
         f.write('# Sphinx build info version 1\n'
                 '# This file hashes the configuration used when building these files.'
                 ' When it is not found, a full rebuild will be done.\n'
@@ -201,7 +201,9 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
-        reader: Reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
+        reader: Reader[DocTreeInput] = docutils.readers.doctree.Reader(
+            parser_name='restructuredtext'
+        )
         pub = Publisher(
             reader=reader,
             parser=reader.parser,
@@ -265,7 +267,7 @@ class StandaloneHTMLBuilder(Builder):
         else:
             yield 'default.css'
 
-    def get_theme_config(self) -> tuple[str, dict]:
+    def get_theme_config(self) -> tuple[str, dict[str, str | int | bool]]:
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self) -> None:
@@ -823,7 +825,7 @@ class StandaloneHTMLBuilder(Builder):
                            excluded=DOTFILES, context=context,
                            renderer=self.templates, onerror=onerror)
 
-    def copy_html_static_files(self, context: dict) -> None:
+    def copy_html_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
@@ -956,7 +958,7 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename: str) -> str:
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
 
-    def add_sidebars(self, pagename: str, ctx: dict) -> None:
+    def add_sidebars(self, pagename: str, ctx: dict[str, Any]) -> None:
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
@@ -993,8 +995,13 @@ class StandaloneHTMLBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return quote(docname) + self.link_suffix
 
-    def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
-                    outfilename: str | None = None, event_arg: Any = None) -> None:
+    def handle_page(
+        self, pagename: str,
+        addctx: dict[str, Any],
+        templatename: str = 'page.html',
+        outfilename: str | None = None,
+        event_arg: Any = None,
+    ) -> None:
         ctx = self.globalcontext.copy()
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
@@ -1141,7 +1148,7 @@ class StandaloneHTMLBuilder(Builder):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def update_page_context(self, pagename: str, templatename: str,
-                            ctx: dict, event_arg: Any) -> None:
+                            ctx: dict[str, Any], event_arg: Any) -> None:
         pass
 
     def handle_finish(self) -> None:
@@ -1172,7 +1179,7 @@ class StandaloneHTMLBuilder(Builder):
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
     """Convert string styled html_css_files to tuple styled one."""
-    html_css_files: list[tuple[str, dict]] = []
+    html_css_files: list[tuple[str, dict[str, str]]] = []
     for entry in config.html_css_files:
         if isinstance(entry, str):
             html_css_files.append((entry, {}))
@@ -1195,7 +1202,7 @@ def _format_modified_time(timestamp: float) -> str:
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
     """Convert string styled html_js_files to tuple styled one."""
-    html_js_files: list[tuple[str, dict]] = []
+    html_js_files: list[tuple[str, dict[str, str]]] = []
     for entry in config.html_js_files:
         if isinstance(entry, str):
             html_js_files.append((entry, {}))
@@ -1211,7 +1218,7 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
-                         context: dict, doctree: Node) -> None:
+                         context: dict[str, Any], doctree: Node) -> None:
     """Set up relative resource paths."""
     pathto = context['pathto']
 
