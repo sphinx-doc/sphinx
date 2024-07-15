@@ -891,7 +891,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for an image and link down-scaled images to
-        their high res version.
+        their high resolution version.
         """
         super().post_process_images(doctree)
 
