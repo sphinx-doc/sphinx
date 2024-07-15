@@ -579,6 +579,9 @@ class Builder:
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         """Write builder specific output files."""
+        # Allow any extensions to perform setup for writing
+        self.events.emit('write-started', self)
+
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs

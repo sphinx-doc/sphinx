@@ -104,6 +104,8 @@ Features added
   Patch by Adam Turner and David Stansby.
 * #12506 Add ``level`` option to :rst:dir:`rubric` directive.
   Patch by Chris Sewell.
+* #12567: Add the :event:`write-started` event.
+  Patch by Chris Sewell.
 
 Bugs fixed
 ----------
