@@ -4,6 +4,9 @@ Release 7.4.2 (in development)
 Bugs fixed
 ----------
 
+* #12580, #12583: Resolve failures with the C domain on incremental builds
+  with Sphinx 7.3.7 and earlier.
+  Patch by Adam Turner.
 
 Release 7.4.1 (released Jul 15, 2024)
 =====================================
