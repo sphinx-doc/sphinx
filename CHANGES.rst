@@ -4,6 +4,10 @@ Release 7.4.5 (in development)
 Bugs fixed
 ----------
 
+* #12593, #12600: Revert coercing the type of selected :confval:`html_sidebars`
+  values to a list.
+  Log an error message when string values are detected.
+  Patch by Adam Turner.
 
 Release 7.4.4 (released Jul 15, 2024)
 =====================================
