@@ -982,11 +982,10 @@ class StandaloneHTMLBuilder(Builder):
                 matched = pattern
                 sidebars = pat_sidebars
 
-        if len(sidebars) == 0:
-            # keep defaults
-            pass
-
-        ctx['sidebars'] = list(sidebars)
+        # See error_on_html_sidebars_string_values.
+        # Replace with simple list coercion in Sphinx 8.0
+        # xref: RemovedInSphinx80Warning
+        ctx['sidebars'] = sidebars
 
     # --------- these are overwritten by the serialization builder
 
@@ -1287,6 +1286,25 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None
 
 
+def error_on_html_sidebars_string_values(app: Sphinx, config: Config) -> None:
+    """Support removed in Sphinx 2."""
+    errors = {}
+    for pattern, pat_sidebars in config.html_sidebars.items():
+        if isinstance(pat_sidebars, str):
+            errors[pattern] = [pat_sidebars]
+    if not errors:
+        return
+    msg = __("Values in 'html_sidebars' must be a list of strings. "
+             f"At least one pattern has a string value: %s. "
+             f"Change to `html_sidebars = %r`.")
+    bad_patterns = ', '.join(map(repr, errors))
+    fixed = config.html_sidebars | errors
+    logger.error(msg % (bad_patterns, fixed))
+    # Enable hard error in next major version.
+    # xref: RemovedInSphinx80Warning
+    # raise ConfigError(msg % (bad_patterns, fixed))
+
+
 def error_on_html_4(_app: Sphinx, config: Config) -> None:
     """Error on HTML 4."""
     if config.html4_writer:
@@ -1357,6 +1375,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
+    app.connect('config-inited', error_on_html_sidebars_string_values, priority=800)
     app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_resource_paths)
