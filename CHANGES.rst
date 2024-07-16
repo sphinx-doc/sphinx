@@ -1,3 +1,14 @@
+Release 7.4.5
+=============
+
+Bugs fixed
+----------
+
+* #12594: LaTeX: since 7.4.0, :rst:dir:`seealso` and other "light" admonitions
+  now break PDF builds if they contain a :dudir:`figure` directive; and also
+  if they are contained in a table cell (rendered by ``tabulary``).
+  Patch by Jean-François B.
+
 Release 7.4.4 (released Jul 15, 2024)
 =====================================
 
@@ -7,10 +18,6 @@ Bugs fixed
 * #12585, #12586: Do not warn when an intersphinx inventory contains
   case-insensitively ambiguous duplicate items.
   Patch by James Addison.
-* #12594: LaTeX: since 7.4.0, :rst:dir:`seealso` and other "light" admonitions
-  now break PDF builds if they contain a :dudir:`figure` directive; and also
-  if they are contained in a table cell (rendered by ``tabulary``).
-  Patch by Jean-François B.
 
 Release 7.4.3 (released Jul 15, 2024)
 =====================================
