@@ -1,9 +1,13 @@
-Release 7.4.5
-=============
+Release 7.4.5 (in development)
+==============================
 
 Bugs fixed
 ----------
 
+* #12593, #12600: Revert coercing the type of selected :confval:`html_sidebars`
+  values to a list.
+  Log an error message when string values are detected.
+  Patch by Adam Turner.
 * #12594: LaTeX: since 7.4.0, :rst:dir:`seealso` and other "light" admonitions
   now break PDF builds if they contain a :dudir:`figure` directive; and also
   if they are contained in a table cell (rendered by ``tabulary``).
