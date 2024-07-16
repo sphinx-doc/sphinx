@@ -306,6 +306,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_term = 0
         self.needs_linetrimming = 0
         self.in_minipage = 0
+        # only used by figure inside an admonition
         self.no_latex_floats = 0
         self.first_document = 1
         self.this_is_the_title = 1
@@ -966,11 +967,15 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
         self.body.append(r'\begin{sphinxseealso}{%s:}' % admonitionlabels['seealso'] + CR)
+        self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
         self.body.append(r'\end{sphinxseealso}')
         self.body.append(BLANKLINE)
+        self.no_latex_floats -= 1
 
     def visit_rubric(self, node: nodes.rubric) -> None:
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
@@ -1512,6 +1517,8 @@ class LaTeXTranslator(SphinxTranslator):
         if self.no_latex_floats:
             align = "H"
         if self.table:
+            # Blank line is needed if text precedes
+            self.body.append(BLANKLINE)
             # TODO: support align option
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
@@ -1580,6 +1587,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_admonition(self, node: Element) -> None:
         self.body.append(CR + r'\begin{sphinxadmonition}{note}')
         self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
 
     def depart_admonition(self, node: Element) -> None:
         self.body.append(r'\end{sphinxadmonition}' + CR)
@@ -1590,6 +1599,8 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(CR + r'\begin{sphinxadmonition}{%s}{%s:}' %
                          (node.tagname, label))
         self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
 
     def _depart_named_admonition(self, node: Element) -> None:
         self.body.append(r'\end{sphinxadmonition}' + CR)
