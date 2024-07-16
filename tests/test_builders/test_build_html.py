@@ -1,4 +1,5 @@
 """Test the HTML builder and check output against XPath."""
+
 import contextlib
 import os
 import posixpath
