@@ -8,6 +8,10 @@ Bugs fixed
   values to a list.
   Log an error message when string values are detected.
   Patch by Adam Turner.
+* #12594: LaTeX: since 7.4.0, :rst:dir:`seealso` and other "light" admonitions
+  now break PDF builds if they contain a :dudir:`figure` directive; and also
+  if they are contained in a table cell (rendered by ``tabulary``).
+  Patch by Jean-François B.
 
 Release 7.4.4 (released Jul 15, 2024)
 =====================================
