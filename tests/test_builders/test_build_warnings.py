@@ -41,12 +41,12 @@ TEXINFO_WARNINGS = ENV_WARNINGS + """\
 """
 
 
-def _check_warnings(app, expected_warnings: str, warning: str) -> None:
+def _check_warnings(expected_warnings: str, warning: str) -> None:
     warnings = strip_colors(re.sub(re.escape(os.sep) + '{1,2}', '/', warning))
     assert re.match(f'{expected_warnings}$', warnings), (
         "Warnings don't match:\n"
-        + f'--- Expected (regex):\n{expected_warnings.replace(re.escape(app.srcdir.as_posix()), "")}\n'
-        + f'--- Got:\n{warning.replace(app.srcdir.as_posix(), "")}'
+        + f'--- Expected (regex):\n{expected_warnings}\n'
+        + f'--- Got:\n{warnings}'
     )
     sys.modules.pop('autodoc_fodder', None)
 
@@ -55,21 +55,21 @@ def _check_warnings(app, expected_warnings: str, warning: str) -> None:
 def test_html_warnings(app, warning):
     app.build(force_all=True)
     warnings_exp = HTML_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
-    _check_warnings(app, warnings_exp, warning.getvalue())
+    _check_warnings(warnings_exp, warning.getvalue())
 
 
 @pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
 def test_latex_warnings(app, warning):
     app.build(force_all=True)
     warnings_exp = LATEX_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
-    _check_warnings(app, warnings_exp, warning.getvalue())
+    _check_warnings(warnings_exp, warning.getvalue())
 
 
 @pytest.mark.sphinx('texinfo', testroot='warnings', freshenv=True)
 def test_texinfo_warnings(app, warning):
     app.build(force_all=True)
     warnings_exp = TEXINFO_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
-    _check_warnings(app, warnings_exp, warning.getvalue())
+    _check_warnings(warnings_exp, warning.getvalue())
 
 
 def test_uncacheable_config_warning(make_app, tmp_path):
