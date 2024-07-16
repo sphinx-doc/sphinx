@@ -1295,11 +1295,11 @@ def error_on_html_sidebars_string_values(app: Sphinx, config: Config) -> None:
     if not errors:
         return
     msg = __("Values in 'html_sidebars' must be a list of strings. "
-             f"At least one pattern has a string value: %s. "
-             f"Change to `html_sidebars = %r`.")
+             "At least one pattern has a string value: %s. "
+             "Change to `html_sidebars = %r`.")
     bad_patterns = ', '.join(map(repr, errors))
     fixed = config.html_sidebars | errors
-    logger.error(msg % (bad_patterns, fixed))
+    logger.error(msg, bad_patterns, fixed)
     # Enable hard error in next major version.
     # xref: RemovedInSphinx80Warning
     # raise ConfigError(msg % (bad_patterns, fixed))
