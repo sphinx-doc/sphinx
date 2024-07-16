@@ -158,21 +158,21 @@ def test_writer(app, status, warning):
 
     assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
-            '\\caption{figure with align option}\\label{\\detokenize{markup:id9}}'
+            '\\caption{figure with align option}\\label{\\detokenize{markup:id10}}'
             '\\end{wrapfigure}\n\n'
             '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
             '\\caption{figure with align \\& figwidth option}'
-            '\\label{\\detokenize{markup:id10}}'
+            '\\label{\\detokenize{markup:id11}}'
             '\\end{wrapfigure}\n\n'
             '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
             '\\caption{figure with align \\& width option}'
-            '\\label{\\detokenize{markup:id11}}'
+            '\\label{\\detokenize{markup:id12}}'
             '\\end{wrapfigure}\n\n'
             '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
