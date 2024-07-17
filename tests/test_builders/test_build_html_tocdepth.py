@@ -1,4 +1,6 @@
 """Test the HTML builder and check output against XPath."""
+from collections.abc import Sequence
+from xml.etree.ElementTree import Element
 
 import pytest
 
@@ -52,9 +54,15 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
 
+def _intradocument(nodes: Sequence[Element]):
+    for node in nodes:
+        assert 'href' in node.attrib
+        assert node.attrib['href'].startswith('#')
+
+
 @pytest.mark.parametrize("expect", [
-    (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
-    (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
+    (".//li[@class='toctree-l3']/a[.='1.1.1. Foo A1']", _intradocument),
+    (".//li[@class='toctree-l3']/a[.='1.2.1. Foo B1']", _intradocument),
     (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
     (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
 
