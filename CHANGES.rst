@@ -5,8 +5,8 @@ Bugs fixed
 ----------
 
 * #12605: Use single-character zero/one literals instead of ``true`` and
-  ``false`` literals to represent search inde ``indexentries`` bools.  Provides
-  a small reduction in size for ``searchindex.js`` files.
+  ``false`` literals to represent search index ``indexentries`` bools.
+  Provides a small reduction in size for ``searchindex.js`` files.
   Patch by James Addison.
 
 Release 7.4.5 (released Jul 16, 2024)
