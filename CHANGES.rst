@@ -4,6 +4,8 @@ Release 7.4.6 (in development)
 Bugs fixed
 ----------
 
+* #12096: Warn when files are overwritten in the build directory.
+  Patch by Adam Turner.
 
 Release 7.4.5 (released Jul 16, 2024)
 =====================================
