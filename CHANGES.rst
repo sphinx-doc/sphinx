@@ -4,6 +4,9 @@ Release 7.4.6 (in development)
 Bugs fixed
 ----------
 
+* #12859, #9743, #12609: autosummary: Do not add the package prefix when
+  generating autosummary directives for modules within a package.
+  Patch by Adam Turner.
 
 Release 7.4.5 (released Jul 16, 2024)
 =====================================
