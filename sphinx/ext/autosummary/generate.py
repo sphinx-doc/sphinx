@@ -475,10 +475,11 @@ def _get_modules(
         fullname = f'{name}.{modname}'
         try:
             module = import_module(fullname)
-            if module and hasattr(module, '__sphinx_mock__'):
-                continue
         except ImportError:
             pass
+        else:
+            if module and hasattr(module, '__sphinx_mock__'):
+                continue
 
         items.append(modname)
         if public_members is not None:
