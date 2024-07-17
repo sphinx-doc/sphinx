@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import os
 from glob import glob
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.locale import __
@@ -24,7 +25,7 @@ class Project:
 
     def __init__(self, srcdir: str | os.PathLike[str], source_suffix: Iterable[str]) -> None:
         #: Source directory.
-        self.srcdir = srcdir
+        self.srcdir = Path(srcdir)
 
         #: source_suffix. Same as :confval:`source_suffix`.
         self.source_suffix = tuple(source_suffix)
