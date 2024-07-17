@@ -54,7 +54,7 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
 
-def _intradocument(nodes: Sequence[Element]):
+def _intradocument(nodes: Sequence[Element]) -> None:
     for node in nodes:
         assert 'href' in node.attrib
         assert node.attrib['href'].startswith('#')
