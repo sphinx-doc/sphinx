@@ -639,6 +639,13 @@ def import_by_name(
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
+        if prefix is not None and name.startswith(f'{prefix}.'):
+            # Catch and avoid module cycles (e.g., sphinx.ext.sphinx.ext...)
+            msg = __('Summarised items should not include the current module. '
+                     'Replace %r with %r.')
+            logger.warning(msg, name, name.removeprefix(f'{prefix}.'),
+                           type='autosummary', subtype='import_cycle')
+            continue
         try:
             if prefix:
                 prefixed_name = f'{prefix}.{name}'

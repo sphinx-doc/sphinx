@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Izpild\u012bt",
         "Hide Search Matches": "Pasl\u0113pt atlases v\u0101rdus",
         "Index": "Indekss",
-        "Index &ndash; %(key)s": "Indekss &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Lappu\u0161u indekss p\u0113c burtiem",
         "Indices and tables:": "Indeksi un tabulas:",
         "Last updated on %(last_updated)s.": "P\u0113d\u0113jas izmai\u0146as %(last_updated)s.",

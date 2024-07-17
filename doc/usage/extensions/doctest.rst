@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.doctest` -- Test snippets in the documentation
 ===============================================================
@@ -344,12 +344,12 @@ The doctest extension uses the following configuration values:
 
 .. confval:: doctest_test_doctest_blocks
 
-   If this is a nonempty string (the default is ``'default'``), standard reST
-   doctest blocks will be tested too.  They will be assigned to the group name
-   given.
+   If this is a nonempty string (the default is ``'default'``),
+   standard reStructuredText doctest blocks will be tested too.
+   They will be assigned to the group name given.
 
-   reST doctest blocks are simply doctests put into a paragraph of their own,
-   like so::
+   reStructuredText doctest blocks are simply doctests
+   put into a paragraph of their own, like so::
 
       Some documentation text.
 
@@ -378,8 +378,8 @@ The doctest extension uses the following configuration values:
    with the :mod:`~sphinx.ext.autodoc` extension without marking them up with a
    special directive.
 
-   Note though that you can't have blank lines in reST doctest blocks.  They
-   will be interpreted as one block ending and another one starting.  Also,
-   removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
+   Note though that you can't have blank lines in reStructuredText doctest blocks.
+   They will be interpreted as one block ending and another one starting.
+   Also, removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
    :rst:dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags`
    to achieve that in all code blocks with Python console content.

@@ -573,7 +573,7 @@ See the documentation on :ref:`intl` for details.
    .. note::
       The :option:`-v option to sphinx-build <sphinx-build -v>`
       is useful to check the :confval:`!locale_dirs` setting is working as expected.
-      If the message catalog directory not found, debug messages are emmitted.
+      If the message catalog directory not found, debug messages are emitted.
 
    .. versionadded:: 0.5
 
@@ -1354,6 +1354,7 @@ Options for warning control
    * ``app.add_generic_role``
    * ``app.add_source_parser``
    * ``config.cache``
+   * ``docutils``
    * ``download.not_readable``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
@@ -1383,6 +1384,7 @@ Options for warning control
    * ``autodoc.import_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
+   * ``autosummary.import_cycle``
    * ``intersphinx.external``
 
    You can choose from these types.  You can also give only the first
@@ -4052,7 +4054,7 @@ Options for the Python domain
 
    The examples below use the following :rst:dir:`py:function` directive:
 
-   .. code-block:: reStructuredText
+   .. code-block:: rst
 
       .. py:function:: serve_food(item: Literal["egg", "spam", "lobster thermidor"]) -> None
 

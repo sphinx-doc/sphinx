@@ -94,7 +94,6 @@ class ENUM:
 
 
 _OptValidTypes = Union[tuple[()], tuple[type, ...], frozenset[type], ENUM]
-_DescriptionType = Union[str, None]
 
 
 class _Opt:
@@ -103,14 +102,14 @@ class _Opt:
     default: Any
     rebuild: _ConfigRebuild
     valid_types: _OptValidTypes
-    description: _DescriptionType
+    description: str
 
     def __init__(
         self,
         default: Any,
         rebuild: _ConfigRebuild,
         valid_types: _OptValidTypes,
-        description: _DescriptionType = None,
+        description: str = '',
     ) -> None:
         """Configuration option type for Sphinx.
 
@@ -163,11 +162,11 @@ class _Opt:
             raise TypeError(msg)
         super().__delattr__(key)
 
-    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes, _DescriptionType]:
+    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes, str]:
         return self.default, self.rebuild, self.valid_types, self.description
 
     def __setstate__(
-            self, state: tuple[Any, _ConfigRebuild, _OptValidTypes, _DescriptionType]) -> None:
+            self, state: tuple[Any, _ConfigRebuild, _OptValidTypes, str]) -> None:
         default, rebuild, valid_types, description = state
         super().__setattr__('default', default)
         super().__setattr__('rebuild', rebuild)
@@ -417,11 +416,12 @@ class Config:
                 except ValueError as exc:
                     logger.warning("%s", exc)
                 else:
-                    self.__dict__[name] = value
+                    self.__setattr__(name, value)
                     return value
             # then check values from 'conf.py'
             if name in self._raw_config:
-                self.__dict__[name] = value = self._raw_config[name]
+                value = self._raw_config[name]
+                self.__setattr__(name, value)
                 return value
             # finally, fall back to the default value
             default = self._options[name].default
@@ -453,7 +453,7 @@ class Config:
 
     def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
             types: type | Collection[type] | ENUM,
-            description: str | None = None) -> None:
+            description: str = '') -> None:
         if name in self._options:
             raise ExtensionError(__('Config value %r already present') % name)
 
@@ -582,13 +582,17 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
         config.source_suffix = {source_suffix: 'restructuredtext'}
+        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
+                    source_suffix, config.source_suffix)
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
         config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
+        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
+                    source_suffix, config.source_suffix)
     elif not isinstance(source_suffix, dict):
-        logger.warning(__("The config value `source_suffix' expects "
-                          "a string, list of strings, or dictionary. "
-                          "But `%r' is given." % source_suffix))
+        msg = __("The config value `source_suffix' expects a dictionary,"
+                 "a string, or a list of strings. Got `%r' instead (type %s).")
+        raise ConfigError(msg % (source_suffix, type(source_suffix)))
 
 
 def convert_highlight_options(app: Sphinx, config: Config) -> None:

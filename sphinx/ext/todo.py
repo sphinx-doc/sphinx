@@ -209,19 +209,23 @@ def depart_todo_node(self: HTML5Translator, node: todo_node) -> None:
 
 def latex_visit_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     if self.config.todo_include_todos:
-        self.body.append('\n\\begin{sphinxadmonition}{note}{')
+        self.body.append('\n\\begin{sphinxtodo}{')
         self.body.append(self.hypertarget_to(node))
 
         title_node = cast(nodes.title, node[0])
         title = texescape.escape(title_node.astext(), self.config.latex_engine)
         self.body.append('%s:}' % title)
+        self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
         node.pop(0)
     else:
         raise nodes.SkipNode
 
 
 def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
-    self.body.append('\\end{sphinxadmonition}\n')
+    self.body.append('\\end{sphinxtodo}\n')
+    self.no_latex_floats -= 1
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
