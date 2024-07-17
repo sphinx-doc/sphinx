@@ -4,6 +4,10 @@ Release 7.4.6 (in development)
 Bugs fixed
 ----------
 
+* #11970: singlehtml builder: make target URIs to be same-document references in
+  the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
+  becomes ``#foo``. (note: continuation of a partial fix added in v7.3.0)
+  Patch by Eric Norige, James Addison.
 
 Release 7.4.5 (released Jul 16, 2024)
 =====================================
