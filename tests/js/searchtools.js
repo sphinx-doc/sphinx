@@ -147,6 +147,20 @@ describe('Basic html theme search', function() {
       checkRanking(expectedRanking, results);
     });
 
+    it('should score a main-title match above an index entry match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* main title */
+        ['index', 'Main Page', '#index-1'],  /* index entry */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
     it('should score a main-title match above a subheading-title match', function() {
       eval(loadFixture("titles/searchindex.js"));
 
