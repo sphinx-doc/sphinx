@@ -22,6 +22,7 @@ describe('Basic html theme search', function() {
     }
 
     expect(remainingItems.length).toEqual(0);
+    expect(nextExpected).toEqual(undefined);
   }
 
   describe('terms search', function() {
