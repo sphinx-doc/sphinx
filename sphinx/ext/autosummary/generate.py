@@ -330,10 +330,6 @@ def generate_autosummary_content(
                     doc, app, obj, {'module'}, imported=True
                 )
                 skip += all_imported_modules
-                imported_modules = [name + '.' + modname for modname in imported_modules]
-                all_imported_modules = [
-                    name + '.' + modname for modname in all_imported_modules
-                ]
                 public_members = getall(obj)
             else:
                 imported_modules, all_imported_modules = [], []
@@ -476,7 +472,7 @@ def _get_modules(
         if modname in skip:
             # module was overwritten in __init__.py, so not accessible
             continue
-        fullname = name + '.' + modname
+        fullname = f'{name}.{modname}'
         try:
             module = import_module(fullname)
             if module and hasattr(module, '__sphinx_mock__'):
@@ -484,13 +480,13 @@ def _get_modules(
         except ImportError:
             pass
 
-        items.append(fullname)
+        items.append(modname)
         if public_members is not None:
             if modname in public_members:
-                public.append(fullname)
+                public.append(modname)
         else:
             if not modname.startswith('_'):
-                public.append(fullname)
+                public.append(modname)
     return public, items
 
 
