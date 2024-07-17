@@ -253,7 +253,6 @@ module = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.directive",
     "sphinx.ext.autodoc.importer",
-    "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
