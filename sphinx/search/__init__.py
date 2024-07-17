@@ -426,7 +426,7 @@ class IndexBuilder:
                 continue
 
             # Replace the string values of terms with their numeric termlist offset.
-            if node_terms := subnode.get(cls._TRIE_CONTENTS, []):
+            if node_terms := subnode.get(cls._TRIE_CONTENTS):
                 offsets = [term_offsets[term] for term in node_terms]
                 # Replace single-valued contents with integers instead of list values.
                 subnode[cls._TRIE_CONTENTS] = offsets[0] if len(offsets) == 1 else offsets  # type: ignore[assignment]
