@@ -52,6 +52,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     def fix_refuris(self, tree: Node) -> None:
         # fix refuris with double anchor
+        fname = self.config.root_doc + self.out_suffix
         for refnode in tree.findall(nodes.reference):
             if 'refuri' not in refnode:
                 continue
@@ -61,8 +62,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 continue
             hashindex = refuri.find('#', hashindex + 1)
             if hashindex >= 0:
-                # all references are on the same page...
-                refnode['refuri'] = refuri[hashindex:]
+                refnode['refuri'] = fname + refuri[hashindex:]
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if isinstance(includehidden := kwargs.get('includehidden'), str):
