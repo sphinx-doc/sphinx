@@ -406,7 +406,7 @@ class IndexBuilder:
         index_entries: dict[str, list[tuple[int, str, bool]]] = {}
         for docname, entries in self._index_entries.items():
             for entry, entry_id, main_entry in entries:
-                index_entries.setdefault(entry.lower(), []).append((fn2index[docname], entry_id, main_entry == "main"))
+                index_entries.setdefault(entry.lower(), []).append((fn2index[docname], entry_id, int(main_entry == "main")))
 
         return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
