@@ -138,7 +138,7 @@ describe('Basic html theme search', function() {
 
       expectedRanking = [
         ['relevance', 'Relevance', ''],  /* main title */
-        ['index', 'relevance.Example.relevance', '#module-relevance'],  /* py:class attribute */
+        ['index', 'relevance.Example.relevance', '#relevance.Example.relevance'],  /* py:class attribute */
       ];
 
       searchParameters = Search._parseQuery('relevance');
