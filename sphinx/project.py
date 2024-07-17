@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.matching import get_matching_files
-from sphinx.util.osutil import path_stabilize, relpath
+from sphinx.util.osutil import os_path, path_stabilize, relpath
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -114,6 +114,7 @@ class Project:
             # Backwards compatibility: the document does not exist
             filename = docname + self._first_source_suffix
 
+        filename = os_path(filename)
         if absolute:
             return os.path.join(self.srcdir, filename)
         return filename
