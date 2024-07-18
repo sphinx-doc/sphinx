@@ -62,8 +62,6 @@ class Deque(collections.deque[T]):
     The `.Deque.get` and `.Deque.next` methods are added.
     """
 
-    sentinel = None
-
     def get(self, n: int) -> T | None:
         """
         Return the nth element of the stack, or ``None`` if n is
@@ -510,7 +508,7 @@ class GoogleDocstring:
 
     def _get_current_indent(self, peek_ahead: int = 0) -> int:
         line = self._lines.get(peek_ahead)
-        while line is not self._lines.sentinel:
+        while line is not None:
             if line:
                 return self._get_indent(line)
             peek_ahead += 1
