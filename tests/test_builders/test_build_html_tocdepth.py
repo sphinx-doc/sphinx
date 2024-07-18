@@ -55,6 +55,7 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
 
 
 def _intradocument_check(nodes: Sequence[Element]) -> None:
+    assert nodes
     for node in nodes:
         assert 'href' in node.attrib, "Node is missing an href attribute"
         msg = f"Node href {node.attrib['href']} does not begin with URI fragment identifier"
