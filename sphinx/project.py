@@ -5,13 +5,12 @@ from __future__ import annotations
 import contextlib
 import os
 from glob import glob
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.matching import get_matching_files
-from sphinx.util.osutil import os_path, path_stabilize, relpath
+from sphinx.util.osutil import path_stabilize, relpath
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -25,7 +24,7 @@ class Project:
 
     def __init__(self, srcdir: str | os.PathLike[str], source_suffix: Iterable[str]) -> None:
         #: Source directory.
-        self.srcdir = Path(srcdir)
+        self.srcdir = srcdir
 
         #: source_suffix. Same as :confval:`source_suffix`.
         self.source_suffix = tuple(source_suffix)
@@ -115,7 +114,6 @@ class Project:
             # Backwards compatibility: the document does not exist
             filename = docname + self._first_source_suffix
 
-        filename = os_path(filename)
         if absolute:
             return os.path.join(self.srcdir, filename)
         return filename
