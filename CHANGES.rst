@@ -7,6 +7,10 @@ Bugs fixed
 * #12859, #9743, #12609: autosummary: Do not add the package prefix when
   generating autosummary directives for modules within a package.
   Patch by Adam Turner.
+* #12587: Do not warn when potential ambiguity detected during Intersphinx
+  resolution occurs due to duplicate targets that differ case-insensitively.
+  Patch by James Addison.
+
 
 Release 7.4.5 (released Jul 16, 2024)
 =====================================
