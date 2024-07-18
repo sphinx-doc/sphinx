@@ -8,7 +8,7 @@ import inspect
 import re
 from functools import partial
 from itertools import starmap
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 from sphinx.locale import _, __
 from sphinx.util import logging
@@ -52,23 +52,26 @@ _default_regex = re.compile(
 _SINGLETONS = ("None", "True", "False", "Ellipsis")
 
 
-class Deque(collections.deque):
+T = TypeVar('T')
+
+
+class Deque(collections.deque[T]):
     """
     A subclass of deque that mimics ``pockets.iterators.modify_iter``.
 
     The `.Deque.get` and `.Deque.next` methods are added.
     """
 
-    sentinel = object()
+    sentinel = None
 
-    def get(self, n: int) -> Any:
+    def get(self, n: int) -> T | None:
         """
-        Return the nth element of the stack, or ``self.sentinel`` if n is
+        Return the nth element of the stack, or ``None`` if n is
         greater than the stack size.
         """
-        return self[n] if n < len(self) else self.sentinel
+        return self[n] if n < len(self) else None
 
-    def next(self) -> Any:
+    def next(self) -> T:
         if self:
             return super().popleft()
         else:
@@ -195,7 +198,7 @@ class GoogleDocstring:
         if not hasattr(self, '_directive_sections'):
             self._directive_sections: list[str] = []
         if not hasattr(self, '_sections'):
-            self._sections: dict[str, Callable] = {
+            self._sections: dict[str, Callable[[str], list[str]]] = {
                 'args': self._parse_parameters_section,
                 'arguments': self._parse_parameters_section,
                 'attention': partial(self._parse_admonition, 'attention'),
@@ -564,7 +567,7 @@ class GoogleDocstring:
         return next_indent > indent
 
     def _is_section_header(self) -> bool:
-        section = self._lines.get(0).lower()
+        section = self._lines[0].lower()
         match = _google_section_regex.match(section)
         if match and section.strip(':') in self._sections:
             header_indent = self._get_indent(section)
@@ -579,10 +582,10 @@ class GoogleDocstring:
 
     def _is_section_break(self) -> bool:
         line = self._lines.get(0)
-        return (not self._lines or
-                self._is_section_header() or
+        if not line:
+            return True
+        return (self._is_section_header() or
                 (self._is_in_section and
-                    line and
                     not self._is_indented(line, self._section_indent)))
 
     def _load_custom_sections(self) -> None:
@@ -1023,7 +1026,7 @@ def _token_type(token: str, location: str | None = None) -> str:
 
 
 def _convert_numpy_type_spec(
-    _type: str, location: str | None = None, translations: dict | None = None,
+    _type: str, location: str | None = None, translations: dict[str, str] | None = None,
 ) -> str:
     if translations is None:
         translations = {}
@@ -1234,15 +1237,15 @@ class NumpyDocstring(GoogleDocstring):
 
     def _is_section_break(self) -> bool:
         line1, line2 = self._lines.get(0), self._lines.get(1)
-        return (not self._lines or
-                self._is_section_header() or
+        if line1 is None:
+            return True
+        return (self._is_section_header() or
                 (line1 == line2 == '') or
                 (self._is_in_section and
-                    line1 and
                     not self._is_indented(line1, self._section_indent)))
 
     def _is_section_header(self) -> bool:
-        section, underline = self._lines.get(0), self._lines.get(1)
+        section, underline = self._lines[0], self._lines.get(1)
         section = section.lower()
         if section in self._sections and isinstance(underline, str):
             return bool(_numpy_section_regex.match(underline))
