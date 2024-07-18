@@ -512,7 +512,7 @@ const Search = {
         const escapedWord = _escapeRegExp(word);
         if (!terms.hasOwnProperty(word)) {
           const termOffsets = Object.keys(terms);
-          let ngramTerms = function (ngram) {
+          const ngramTerms = function (ngram) {
             let [node, path] = [termsNgrams, ""];
             for (const step of ngram) {
               if ((path += step) in node) [node, path] = [node[path], ""];
