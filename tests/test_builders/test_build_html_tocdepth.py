@@ -1,10 +1,8 @@
 """Test the HTML builder and check output against XPath."""
-from collections.abc import Sequence
-from xml.etree.ElementTree import Element
 
 import pytest
 
-from tests.test_builders.xpath_util import check_xpath
+from tests.test_builders.xpath_util import _intradocument_hyperlink_check, check_xpath
 
 
 @pytest.mark.parametrize(("fname", "path", "check", "be_found"), [
@@ -52,15 +50,6 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
     app.build()
     # issue #1251
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
-
-
-def _intradocument_hyperlink_check(nodes: Sequence[Element]) -> None:
-    assert nodes
-    for node in nodes:
-        assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
-        empty_href = ('href' not in node.attrib) or (node.attrib['href'] == '')
-        same_document_href = not empty_href and node.attrib['href'].startswith('#')
-        assert (empty_href or same_document_href), 'Hyperlink failed same-document check'
 
 
 @pytest.mark.parametrize("expect", [

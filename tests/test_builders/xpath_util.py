@@ -3,12 +3,12 @@ from __future__ import annotations
 import re
 import textwrap
 from typing import TYPE_CHECKING
-from xml.etree.ElementTree import tostring
+from xml.etree.ElementTree import Element, tostring
 
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterable, Sequence
-    from xml.etree.ElementTree import Element, ElementTree
+    from xml.etree.ElementTree import ElementTree
 
 
 def _get_text(node: Element) -> str:
@@ -25,6 +25,15 @@ def _prettify(nodes: Iterable[Element]) -> str:
         return tostring(node, encoding='unicode', method='html')
 
     return ''.join(f'(i={index}) {pformat(node)}\n' for index, node in enumerate(nodes))
+
+
+def _intradocument_hyperlink_check(nodes: Sequence[Element]) -> None:
+    assert nodes
+    for node in nodes:
+        assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
+        empty_href = ('href' not in node.attrib) or (node.attrib['href'] == '')
+        same_document_href = not empty_href and node.attrib['href'].startswith('#')
+        assert (empty_href or same_document_href), 'Hyperlink failed same-document check'
 
 
 def check_xpath(

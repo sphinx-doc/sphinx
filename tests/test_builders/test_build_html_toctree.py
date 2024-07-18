@@ -3,6 +3,8 @@ import re
 
 import pytest
 
+from tests.test_builders.xpath_util import _intradocument_hyperlink_check, check_xpath
+
 
 @pytest.mark.sphinx(testroot='toctree-glob')
 def test_relations(app, status, warning):
@@ -37,3 +39,14 @@ def test_numbered_toctree(app, status, warning):
     index = re.sub(':numbered:.*', ':numbered: 1', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
     app.build(force_all=True)
+
+
+@pytest.mark.parametrize("expect", [
+    # internal references should be same-document; external should not
+    ("//a[@class='reference internal']", _intradocument_hyperlink_check),
+    ("//a[@class='reference external']", r'https?://'),
+])
+@pytest.mark.sphinx('singlehtml', testroot='toctree')
+def test_singlehtml_hyperlinks(app, cached_etree_parse, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
