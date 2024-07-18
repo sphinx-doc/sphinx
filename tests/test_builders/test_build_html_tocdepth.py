@@ -57,9 +57,10 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
 def _intradocument_check(nodes: Sequence[Element]) -> None:
     assert nodes
     for node in nodes:
-        assert 'href' in node.attrib, "Node is missing an href attribute"
-        msg = f"Node href {node.attrib['href']} does not begin with URI fragment identifier"
-        assert node.attrib['href'].startswith('#'), msg
+        assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
+        empty_href = ('href' not in node.attrib) or (node.attrib['href'] == '')
+        same_document_href = not empty_href and node.attrib['href'].startswith('#')
+        assert (empty_href or same_document_href), f'Hyperlink failed same-document check'
 
 
 @pytest.mark.parametrize("expect", [
@@ -97,6 +98,9 @@ def _intradocument_check(nodes: Sequence[Element]) -> None:
     # baz.rst
     (".//h4", 'Baz A', True),
     (".//h4//span[@class='section-number']", '2.1.1. ', True),
+
+    # in the absence of external hyperlinks, all content hrefs should be same-document
+    ("//div[@class='document']//a", _intradocument_check),
 ])
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
