@@ -8,6 +8,9 @@ Bugs fixed
   Patch by Adam Turner.
 * #12620: Ensure that old-style object description options are respected.
   Patch by Adam Turner.
+* #12601, #12625: Support callable objects in :py:class:`~typing.Annotated` type
+  metadata in the Python domain.
+  Patch by Adam Turner.
 
 Release 7.4.6 (released Jul 18, 2024)
 =====================================
