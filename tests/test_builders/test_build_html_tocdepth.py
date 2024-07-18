@@ -60,7 +60,7 @@ def _intradocument_hyperlink_check(nodes: Sequence[Element]) -> None:
         assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
         empty_href = ('href' not in node.attrib) or (node.attrib['href'] == '')
         same_document_href = not empty_href and node.attrib['href'].startswith('#')
-        assert (empty_href or same_document_href), f'Hyperlink failed same-document check'
+        assert (empty_href or same_document_href), 'Hyperlink failed same-document check'
 
 
 @pytest.mark.parametrize("expect", [
