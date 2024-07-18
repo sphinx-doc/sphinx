@@ -186,11 +186,13 @@ Bugs fixed
   Patch by Matthias Geier.
 * #12224: Properly detect WebP files.
   Patch by Benjamin Cabé.
-* #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
-  the current page number and the footnote does appear on that same page.
+* #12380: LaTeX: Avoid footnote markers ``Page N`` when ``N`` is already
+  the current page number.
   Patch by Jean-François B.
 * #12410: LaTeX: for French and ``'lualatex'`` as :confval:`latex_engine`
-  ``polyglossia`` and not ``babel`` is used (contrarily to ``'xelatex'``).
+  use ``babel`` as with ``'xelatex'`` (and not ``polyglossia``).
+  Patch by Jean-François B.
+* #12520: LaTeX: let :rst:dir:`todolist` produce correct hyperlinks in PDF.
   Patch by Jean-François B.
 * #12416: Ensure that configuration setting aliases are always synchronised
   when one value or the other is modified.
