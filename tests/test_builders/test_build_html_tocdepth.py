@@ -63,10 +63,11 @@ def _intradocument_check(nodes: Sequence[Element]) -> None:
 
 
 @pytest.mark.parametrize("expect", [
-    (".//li[@class='toctree-l3']/a[.='1.1.1. Foo A1']", _intradocument_check),
-    (".//li[@class='toctree-l3']/a[.='1.2.1. Foo B1']", _intradocument_check),
+    (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
+    (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
     (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
     (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+    (".//ul/li[@class='toctree-l1']/..//a", _intradocument_check),
 
     # index.rst
     (".//h1", 'test-tocdepth', True),
