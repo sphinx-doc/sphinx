@@ -4,6 +4,9 @@ Release 7.4.6 (in development)
 Bugs fixed
 ----------
 
+* #12859, #9743, #12609: autosummary: Do not add the package prefix when
+  generating autosummary directives for modules within a package.
+  Patch by Adam Turner.
 * #11970: singlehtml builder: make target URIs to be same-document references in
   the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
   becomes ``#foo``. (note: continuation of a partial fix added in v7.3.0)
