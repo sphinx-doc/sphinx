@@ -7,6 +7,8 @@ Bugs fixed
 * #12859, #9743, #12609: autosummary: Do not add the package prefix when
   generating autosummary directives for modules within a package.
   Patch by Adam Turner.
+* #12613: Reduce log severity for ambiguity detection during inventory loading.
+  Patch by James Addison.
 
 Release 7.4.5 (released Jul 16, 2024)
 =====================================
