@@ -54,7 +54,7 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 
 
-def _intradocument_check(nodes: Sequence[Element]) -> None:
+def _intradocument_hyperlink_check(nodes: Sequence[Element]) -> None:
     assert nodes
     for node in nodes:
         assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
@@ -68,7 +68,7 @@ def _intradocument_check(nodes: Sequence[Element]) -> None:
     (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
     (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
     (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
-    (".//ul/li[@class='toctree-l1']/..//a", _intradocument_check),
+    (".//ul/li[@class='toctree-l1']/..//a", _intradocument_hyperlink_check),
 
     # index.rst
     (".//h1", 'test-tocdepth', True),
@@ -100,7 +100,7 @@ def _intradocument_check(nodes: Sequence[Element]) -> None:
     (".//h4//span[@class='section-number']", '2.1.1. ', True),
 
     # in the absence of external hyperlinks, all content hrefs should be same-document
-    ("//div[@class='document']//a", _intradocument_check),
+    ("//div[@class='document']//a", _intradocument_hyperlink_check),
 ])
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
