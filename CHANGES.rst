@@ -1,9 +1,37 @@
-Release 7.4.4 (in development)
+Release 7.4.6 (in development)
 ==============================
 
 Bugs fixed
 ----------
 
+* #12859, #9743, #12609: autosummary: Do not add the package prefix when
+  generating autosummary directives for modules within a package.
+  Patch by Adam Turner.
+
+Release 7.4.5 (released Jul 16, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12593, #12600: Revert coercing the type of selected :confval:`html_sidebars`
+  values to a list.
+  Log an error message when string values are detected.
+  Patch by Adam Turner.
+* #12594: LaTeX: since 7.4.0, :rst:dir:`seealso` and other "light" admonitions
+  now break PDF builds if they contain a :dudir:`figure` directive; and also
+  if they are contained in a table cell (rendered by ``tabulary``).
+  Patch by Jean-François B.
+
+Release 7.4.4 (released Jul 15, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12585, #12586: Do not warn when an intersphinx inventory contains
+  case-insensitively ambiguous duplicate items.
+  Patch by James Addison.
 
 Release 7.4.3 (released Jul 15, 2024)
 =====================================

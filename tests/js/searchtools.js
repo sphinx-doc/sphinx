@@ -22,6 +22,7 @@ describe('Basic html theme search', function() {
     }
 
     expect(remainingItems.length).toEqual(0);
+    expect(nextExpected).toEqual(undefined);
   }
 
   describe('terms search', function() {
@@ -137,7 +138,7 @@ describe('Basic html theme search', function() {
 
       expectedRanking = [
         ['relevance', 'Relevance', ''],  /* main title */
-        ['index', 'relevance.Example.relevance', '#module-relevance'],  /* py:class attribute */
+        ['index', 'relevance.Example.relevance', '#relevance.Example.relevance'],  /* py:class attribute */
       ];
 
       searchParameters = Search._parseQuery('relevance');
