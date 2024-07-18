@@ -31,9 +31,11 @@ def _intradocument_hyperlink_check(nodes: Sequence[Element]) -> None:
     assert nodes
     for node in nodes:
         assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
-        empty_href = ('href' not in node.attrib) or (node.attrib['href'] == '')
-        same_document_href = not empty_href and node.attrib['href'].startswith('#')
-        assert (empty_href or same_document_href), 'Hyperlink failed same-document check'
+        href = node.attrib.get('href')
+        # Allow Sphinx index and table hyperlinks to be non-same-document, as exceptions.
+        if href in {'genindex.html', 'py-modindex.html', 'search.html'}:
+            continue
+        assert (not href or href.startswith('#')), 'Hyperlink failed same-document check'
 
 
 def check_xpath(
