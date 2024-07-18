@@ -49,12 +49,13 @@ def test_read_inventory_v2_not_having_version():
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
 
 
-def test_ambiguous_definition_warning(warning):
+def test_ambiguous_definition_warning(status):
     f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
     InventoryFile.load(f, '/util', posixpath.join)
 
-    assert 'contains multiple definitions for std:term:a' not in warning.getvalue().lower()
-    assert 'contains multiple definitions for std:term:b' in warning.getvalue().lower()
+    # was warning-level; reduced to info-level - see https://github.com/sphinx-doc/sphinx/issues/12613
+    assert 'contains multiple definitions for std:term:a' not in status.getvalue().lower()
+    assert 'contains multiple definitions for std:term:b' in status.getvalue().lower()
 
 
 def _write_appconfig(dir, language, prefix=None):
