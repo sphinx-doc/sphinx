@@ -326,7 +326,10 @@ def ask_user(d: dict[str, Any]) -> None:
 
 
 def generate(
-    d: dict, overwrite: bool = True, silent: bool = False, templatedir: str | None = None,
+    d: dict[str, Any],
+    overwrite: bool = True,
+    silent: bool = False,
+    templatedir: str | None = None,
 ) -> None:
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir or '')
@@ -434,7 +437,7 @@ def generate(
         print(colorize('red', msg))
 
 
-def valid_dir(d: dict) -> bool:
+def valid_dir(d: dict[str, Any]) -> bool:
     dir = d['path']
     if not path.exists(dir):
         return True

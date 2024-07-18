@@ -244,7 +244,7 @@ strict_optional = false
 [[tool.mypy.overrides]]
 module = [
     "sphinx.application",
-    "sphinx.cmd.quickstart",
+    #"sphinx.cmd.quickstart",
     "sphinx.config",
     "sphinx.domains",
     "sphinx.domains.c",
