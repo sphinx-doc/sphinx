@@ -98,7 +98,7 @@ class PygmentsBridge:
         style = self.get_style(stylename)
         self.formatter_args: dict[str, Any] = {'style': style}
         if dest == 'html':
-            self.formatter = self.html_formatter
+            self.formatter: type[Formatter] = self.html_formatter
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'

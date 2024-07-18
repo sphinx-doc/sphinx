@@ -27,8 +27,9 @@ if TYPE_CHECKING:
 
 try:
     from PIL import Image
+    IMAGE = True
 except ImportError:
-    Image = None
+    IMAGE = False
 
 
 logger = logging.getLogger(__name__)
@@ -440,7 +441,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         if self.images:
             if self.config.epub_fix_images or self.config.epub_max_image_width:
-                if not Image:
+                if not IMAGE:
                     logger.warning(__('Pillow not found - copying image files'))
                     super().copy_image_files()
                 else:
