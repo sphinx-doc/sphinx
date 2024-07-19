@@ -1,5 +1,19 @@
-Release 7.4.6 (in development)
+Release 7.4.7 (in development)
 ==============================
+
+Bugs fixed
+----------
+
+* #12096: Warn when files are overwritten in the build directory.
+  Patch by Adam Turner.
+* #12620: Ensure that old-style object description options are respected.
+  Patch by Adam Turner.
+* #12587: Do not warn when potential ambiguity detected during Intersphinx
+  resolution occurs due to duplicate targets that differ case-insensitively.
+  Patch by James Addison.
+
+Release 7.4.6 (released Jul 18, 2024)
+=====================================
 
 Bugs fixed
 ----------
@@ -8,9 +22,6 @@ Bugs fixed
   generating autosummary directives for modules within a package.
   Patch by Adam Turner.
 * #12613: Reduce log severity for ambiguity detection during inventory loading.
-  Patch by James Addison.
-* #12587: Do not warn when potential ambiguity detected during Intersphinx
-  resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
 
 Release 7.4.5 (released Jul 16, 2024)
