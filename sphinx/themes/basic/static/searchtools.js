@@ -522,12 +522,10 @@ const Search = {
             return node;
           };
 
-          const candidateTerms = new Set(ngramTerms(word.substring(0, 3)));
+          let candidateTerms = ngramTerms(word.substring(0, 3));
           for (let end = word.length; candidateTerms.size && end > 3; end -= 2) {
             const subsequentTerms = new Set(ngramTerms(word.substring(end - 3, end)));
-            for (const candidateTerm of candidateTerms) {
-              if (!subsequentTerms.has(candidateTerm)) candidateTerms.delete(candidateTerm);
-            }
+            candidateTerms = candidateTerms.filter(term => subsequentTerms.has(term))
           }
 
           candidateTerms.forEach((termOffset) => {
