@@ -220,22 +220,25 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
+
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # deprecate noindex, noindexentry, and nocontentsentry in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+        if 'no-index-entry' not in self.options and 'noindexentry' in self.options:
+            self.options['no-index-entry'] = self.options['noindexentry']
+        if 'no-contents-entry' not in self.options and 'nocontentsentry' in self.options:
+            self.options['no-contents-entry'] = self.options['nocontentsentry']
+
         node['no-index'] = node['noindex'] = no_index = (
-            'no-index' in self.options
-            # xref RemovedInSphinx90Warning
-            # deprecate noindex in Sphinx 9.0
-            or 'noindex' in self.options)
+            'no-index' in self.options)
         node['no-index-entry'] = node['noindexentry'] = (
-            'no-index-entry' in self.options
-            # xref RemovedInSphinx90Warning
-            # deprecate noindexentry in Sphinx 9.0
-            or 'noindexentry' in self.options)
+            'no-index-entry' in self.options)
         node['no-contents-entry'] = node['nocontentsentry'] = (
-            'no-contents-entry' in self.options
-            # xref RemovedInSphinx90Warning
-            # deprecate nocontentsentry in Sphinx 9.0
-            or 'nocontentsentry' in self.options)
-        node['no-typesetting'] = ('no-typesetting' in self.options)
+            'no-contents-entry' in self.options)
+
+        node['no-typesetting'] = 'no-typesetting' in self.options
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])

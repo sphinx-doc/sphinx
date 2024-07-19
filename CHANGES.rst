@@ -4,6 +4,8 @@ Release 7.4.7 (in development)
 Bugs fixed
 ----------
 
+* #12620: Ensure that old-style object description options are respected.
+  Patch by Adam Turner.
 
 Release 7.4.6 (released Jul 18, 2024)
 =====================================
