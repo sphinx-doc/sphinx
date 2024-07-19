@@ -1,4 +1,4 @@
-Release 7.4.6 (in development)
+Release 7.4.7 (in development)
 ==============================
 
 Bugs fixed
@@ -6,6 +6,18 @@ Bugs fixed
 
 * #12096: Warn when files are overwritten in the build directory.
   Patch by Adam Turner.
+
+Release 7.4.6 (released Jul 18, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12859, #9743, #12609: autosummary: Do not add the package prefix when
+  generating autosummary directives for modules within a package.
+  Patch by Adam Turner.
+* #12613: Reduce log severity for ambiguity detection during inventory loading.
+  Patch by James Addison.
 
 Release 7.4.5 (released Jul 16, 2024)
 =====================================
@@ -183,11 +195,13 @@ Bugs fixed
   Patch by Matthias Geier.
 * #12224: Properly detect WebP files.
   Patch by Benjamin Cabé.
-* #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
-  the current page number and the footnote does appear on that same page.
+* #12380: LaTeX: Avoid footnote markers ``Page N`` when ``N`` is already
+  the current page number.
   Patch by Jean-François B.
 * #12410: LaTeX: for French and ``'lualatex'`` as :confval:`latex_engine`
-  ``polyglossia`` and not ``babel`` is used (contrarily to ``'xelatex'``).
+  use ``babel`` as with ``'xelatex'`` (and not ``polyglossia``).
+  Patch by Jean-François B.
+* #12520: LaTeX: let :rst:dir:`todolist` produce correct hyperlinks in PDF.
   Patch by Jean-François B.
 * #12416: Ensure that configuration setting aliases are always synchronised
   when one value or the other is modified.
