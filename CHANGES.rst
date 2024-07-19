@@ -4,6 +4,8 @@ Release 7.4.7 (in development)
 Bugs fixed
 ----------
 
+* #12096: Warn when files are overwritten in the build directory.
+  Patch by Adam Turner.
 * #12620: Ensure that old-style object description options are respected.
   Patch by Adam Turner.
 
