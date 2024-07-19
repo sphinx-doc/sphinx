@@ -517,7 +517,7 @@ const Search = {
             for (const step of ngram) {
               if ((path += step) in node) [node, path] = [node[path], ""];
             }
-            if (!node) return [];
+            if (path || !node) return [];
             if (node.length === undefined) node = [node];
             return node.map(offset => termOffsets[offset]);
           };
