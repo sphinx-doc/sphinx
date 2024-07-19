@@ -116,8 +116,8 @@ def copyfile(
             msg = ('Copying the source path %s to %s will overwrite data, '
                    'as a file already exists at the destination path '
                    'and the content does not match.')
-            logger.warning(msg, os.fsdecode(source), os.fsdecode(dest),
-                           type='misc', subtype='copy_overwrite')
+            logger.info(msg, os.fsdecode(source), os.fsdecode(dest),
+                        type='misc', subtype='copy_overwrite')
 
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
