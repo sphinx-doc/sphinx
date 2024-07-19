@@ -232,13 +232,15 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             self.options['no-contents-entry'] = self.options['nocontentsentry']
 
         node['no-index'] = node['noindex'] = no_index = (
-            'no-index' in self.options)
+            'no-index' in self.options
+        )
         node['no-index-entry'] = node['noindexentry'] = (
-            'no-index-entry' in self.options)
+            'no-index-entry' in self.options
+        )
         node['no-contents-entry'] = node['nocontentsentry'] = (
-            'no-contents-entry' in self.options)
-
-        node['no-typesetting'] = 'no-typesetting' in self.options
+            'no-contents-entry' in self.options
+        )
+        node['no-typesetting'] = ('no-typesetting' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
