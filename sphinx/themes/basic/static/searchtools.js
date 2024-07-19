@@ -519,7 +519,7 @@ const Search = {
             }
             if (path || !node) return [];
             if (node.length === undefined) node = [node];
-            return node.map(offset => termOffsets[offset]);
+            return node;
           };
 
           const candidateTerms = new Set(ngramTerms(word.substring(0, 3)));
@@ -530,7 +530,8 @@ const Search = {
             }
           }
 
-          candidateTerms.forEach((term) => {
+          candidateTerms.forEach((termOffset) => {
+            const term = termOffsets[termOffset];
             if (term.match(escapedWord))
               arr.push({ files: terms[term], score: Scorer.partialTerm });
           });
