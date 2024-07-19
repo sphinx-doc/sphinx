@@ -2,7 +2,10 @@
 
 from unittest import mock
 
+import pytest
+
 from sphinx.jinja2glue import BuiltinTemplateLoader
+from sphinx.util import strip_colors
 from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
 
 
@@ -101,6 +104,20 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_static' / 'basic.css').exists()
     assert (destdir / '_templates' / 'layout.html').exists()
     assert not (destdir / '_templates' / 'sidebar.html').exists()
+
+
+@pytest.mark.xfail(reason='Filesystem chicanery(?)')
+@pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
+def test_copy_asset_overwrite(app):
+    app.build()
+    warnings = strip_colors(app.warning.getvalue())
+    src = app.srcdir / 'myext_static' / 'custom-styles.css'
+    dst = app.outdir / '_static' / 'custom-styles.css'
+    assert warnings == (
+        f'WARNING: Copying the source path {src} to {dst} will overwrite data, '
+        'as a file already exists at the destination path '
+        'and the content does not match.\n'
+    )
 
 
 def test_template_basename():

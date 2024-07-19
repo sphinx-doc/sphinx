@@ -1,3 +1,17 @@
+Release 7.4.7 (in development)
+==============================
+
+Bugs fixed
+----------
+
+* #12096: Warn when files are overwritten in the build directory.
+  Patch by Adam Turner.
+* #12620: Ensure that old-style object description options are respected.
+  Patch by Adam Turner.
+* #12605: Use single-character zero/one literals instead of ``true`` and
+  ``false`` literals to represent search index ``indexentries`` bools.
+  Provides a small reduction in size for ``searchindex.js`` files.
+
 Release 7.4.6 (released Jul 18, 2024)
 =====================================
 
@@ -9,9 +23,6 @@ Bugs fixed
   Patch by Adam Turner.
 * #12613: Reduce log severity for ambiguity detection during inventory loading.
   Patch by James Addison.
-* #12605: Use single-character zero/one literals instead of ``true`` and
-  ``false`` literals to represent search index ``indexentries`` bools.
-  Provides a small reduction in size for ``searchindex.js`` files.
 
 Release 7.4.5 (released Jul 16, 2024)
 =====================================

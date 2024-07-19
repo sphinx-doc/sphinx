@@ -88,7 +88,12 @@ def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> N
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
-def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
+def copyfile(
+    source: str | os.PathLike[str],
+    dest: str | os.PathLike[str],
+    *,
+    __overwrite_warning__: bool = True,
+) -> None:
     """Copy a file and its modification times, if possible.
 
     :param source: An existing source to copy.
@@ -101,7 +106,19 @@ def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> No
         msg = f'{os.fsdecode(source)} does not exist'
         raise FileNotFoundError(msg)
 
-    if not path.exists(dest) or not filecmp.cmp(source, dest):
+    if not (dest_exists := path.exists(dest)) or not filecmp.cmp(source, dest):
+        if __overwrite_warning__ and dest_exists:
+            # sphinx.util.logging imports sphinx.util.osutil,
+            # so use a local import to avoid circular imports
+            from sphinx.util import logging
+            logger = logging.getLogger(__name__)
+
+            msg = ('Copying the source path %s to %s will overwrite data, '
+                   'as a file already exists at the destination path '
+                   'and the content does not match.')
+            logger.info(msg, os.fsdecode(source), os.fsdecode(dest),
+                        type='misc', subtype='copy_overwrite')
+
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
