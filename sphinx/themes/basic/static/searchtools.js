@@ -523,8 +523,8 @@ const Search = {
           };
 
           const candidateTerms = new Set(ngramTerms(word.substring(0, 3)));
-          for (let start = 1; candidateTerms.size && start + 3 <= word.length; start++) {
-            const subsequentTerms = new Set(ngramTerms(word.substring(start, start + 3)));
+          for (let end = word.length; candidateTerms.size && end > 3; end -= 2) {
+            const subsequentTerms = new Set(ngramTerms(word.substring(end - 3, end)));
             for (const candidateTerm of candidateTerms) {
               if (!subsequentTerms.has(candidateTerm)) candidateTerms.delete(candidateTerm);
             }
