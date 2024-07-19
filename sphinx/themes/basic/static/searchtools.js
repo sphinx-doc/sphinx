@@ -531,7 +531,8 @@ const Search = {
           }
 
           candidateTerms.forEach((term) => {
-            arr.push({ files: terms[term], score: Scorer.partialTerm });
+            if (term.match(escapedWord))
+              arr.push({ files: terms[term], score: Scorer.partialTerm });
           });
         }
         if (!titleTerms.hasOwnProperty(word)) {
