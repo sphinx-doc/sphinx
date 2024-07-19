@@ -20,7 +20,6 @@ Bugs fixed
 Release 7.4.6 (released Jul 18, 2024)
 =====================================
 
-
 Bugs fixed
 ----------
 
