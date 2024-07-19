@@ -815,8 +815,8 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_theme_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
-            logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
-                           filename, error)
+            msg = __("Failed to copy a file in the theme's 'static' directory: %s: %r")
+            logger.warning(msg, filename, error)
 
         if self.theme:
             for entry in reversed(self.theme.get_theme_dirs()):
@@ -1142,7 +1142,8 @@ class StandaloneHTMLBuilder(Builder):
             source_name = path.join(self.outdir, '_sources',
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
-            copyfile(self.env.doc2path(pagename), source_name)
+            copyfile(self.env.doc2path(pagename), source_name,
+                     __overwrite_warning__=False)
 
     def update_page_context(self, pagename: str, templatename: str,
                             ctx: dict[str, Any], event_arg: Any) -> None:

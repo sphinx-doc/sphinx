@@ -1,5 +1,5 @@
-Release 7.4.6 (released Jul 18, 2024)
-=====================================
+Release 7.4.7 (in development)
+==============================
 
 Features added
 --------------
@@ -8,6 +8,17 @@ Features added
   Results are unaffected compared to the previous brute-force approach, but
   performance should be much more consistent (especially for large datasets).
   Patch by James Addison.
+
+Bugs fixed
+----------
+
+* #12096: Warn when files are overwritten in the build directory.
+  Patch by Adam Turner.
+* #12620: Ensure that old-style object description options are respected.
+  Patch by Adam Turner.
+
+Release 7.4.6 (released Jul 18, 2024)
+=====================================
 
 
 Bugs fixed
