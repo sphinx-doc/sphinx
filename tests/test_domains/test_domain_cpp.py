@@ -1138,7 +1138,13 @@ def test_domain_cpp_build_backslash_ok_true(app, status, warning):
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(
+    testroot='domain-cpp',
+    confoverrides={
+        'nitpicky': True,
+        'include_patterns': ['index.rst', 'semicolon.rst'],
+    },
+)
 def test_domain_cpp_build_semicolon(app, status, warning):
     app.build(force_all=True)
     ws = filter_warnings(warning, "semicolon")
