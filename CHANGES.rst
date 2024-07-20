@@ -43,6 +43,12 @@ Incompatible changes
   Patch by Adam Turner.
 * #12593: Raise an error in :py:func:`!Theme.get_config` for invalid sections.
   Patch by Adam Turner.
+* #11693: Remove support for old-style :file:`Makefile` and :file:`make.bat`
+  output in :program:`sphinx-quickstart`.
+* #11693: Remove the :option:`!--no-use-make-mode`, :option:`!-M`,
+  :option:`!--use-make-mode`, and :option:`!-m` options
+  from :program:`sphinx-quickstart`.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
