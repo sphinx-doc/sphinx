@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Git",
         "Hide Search Matches": "Arama E\u015fle\u015fmelerini Gizle",
         "Index": "Dizin",
-        "Index &ndash; %(key)s": "Dizin &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Harfe g\u00f6re dizin sayfalar\u0131",
         "Indices and tables:": "Dizinler ve tablolar:",
         "Last updated on %(last_updated)s.": "Son g\u00fcncelleme: %(last_updated)s.",

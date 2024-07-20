@@ -82,7 +82,11 @@ class path(str):
         """
         return os.path.ismount(self)
 
-    def rmtree(self, ignore_errors: bool = False, onerror: Callable | None = None) -> None:
+    def rmtree(
+        self,
+        ignore_errors: bool = False,
+        onerror:  Callable[[Callable[..., Any], str, Any], object] | None = None,
+    ) -> None:
         """
         Removes the file or directory and any files or directories it may
         contain.
@@ -149,7 +153,7 @@ class path(str):
     def utime(self, arg: Any) -> None:
         os.utime(self, arg)
 
-    def open(self, mode: str = 'r', **kwargs: Any) -> IO:
+    def open(self, mode: str = 'r', **kwargs: Any) -> IO[str]:
         return open(self, mode, **kwargs)  # NoQA: SIM115
 
     def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:

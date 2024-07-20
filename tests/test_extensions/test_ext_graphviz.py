@@ -105,7 +105,7 @@ def test_graphviz_svg_html(app, status, warning):
 def test_graphviz_latex(app, status, warning):
     app.build(force_all=True)
 
-    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
              '\\\\sphinxincludegraphics\\[\\]{graphviz-\\w+.pdf}\n'
              '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')

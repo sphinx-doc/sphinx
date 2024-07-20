@@ -289,8 +289,8 @@ in the future.
 
 .. data:: has_source
 
-   True if the reST document sources are copied (if :confval:`html_copy_source`
-   is ``True``).
+   True if the reStructuredText document sources are copied
+   (if :confval:`html_copy_source` is ``True``).
 
 .. data:: language
 
@@ -326,8 +326,8 @@ in the future.
 .. data:: pagename
 
    The "page name" of the current file, i.e. either the document name if the
-   file is generated from a reST source, or the equivalent hierarchical name
-   relative to the output directory
+   file is generated from a reStructuredText source,
+   or the equivalent hierarchical name relative to the output directory
    (``[directory/]filename_without_extension``).
 
 .. data:: project

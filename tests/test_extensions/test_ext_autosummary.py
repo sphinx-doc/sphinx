@@ -506,12 +506,20 @@ def test_autosummary_recursive(app, status, warning):
 
     # Check content of recursively generated stub-files
     content = (app.srcdir / 'generated' / 'package.rst').read_text(encoding='utf8')
-    assert 'package.module' in content
-    assert 'package.package' in content
-    assert 'package.module_importfail' in content
+    assert 'module' in content
+    assert 'package' in content
+    assert 'module_importfail' in content
+    # we no longer generate fully-qualified module names.
+    assert 'package.module' not in content
+    assert 'package.package' not in content
+    assert 'package.module_importfail' not in content
 
     content = (app.srcdir / 'generated' / 'package.package.rst').read_text(encoding='utf8')
-    assert 'package.package.module' in content
+    assert 'module' in content
+    assert 'package.package.module' not in content
+
+    warnings = app.warning.getvalue()
+    assert 'Summarised items should not include the current module.' not in warnings
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive',
@@ -545,7 +553,7 @@ def test_autosummary_filename_map(app, status, warning):
 @pytest.mark.sphinx('latex', **default_kw)
 def test_autosummary_latex_table_colspec(app, status, warning):
     app.build(force_all=True)
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     print(status.getvalue())
     print(warning.getvalue())
     assert r'\begin{longtable}{\X{1}{2}\X{1}{2}}' in result
@@ -599,11 +607,11 @@ def test_autosummary_imported_members(app, status, warning):
         assert ('   .. autosummary::\n'
                 '   \n'
                 '      Bar\n'
-                '   \n' in module)
+                '   ' in module)
         assert ('   .. autosummary::\n'
                 '   \n'
                 '      foo\n'
-                '   \n' in module)
+                '   ' in module)
     finally:
         sys.modules.pop('autosummary_dummy_package', None)
 
@@ -627,7 +635,7 @@ def test_autosummary_module_all(app, status, warning):
         assert ('.. autosummary::\n'
                 '   :toctree:\n'
                 '   :recursive:\n\n'
-                '   autosummary_dummy_package_all.extra_dummy_module\n\n' in module)
+                '   extra_dummy_module\n' in module)
     finally:
         sys.modules.pop('autosummary_dummy_package_all', None)
 
@@ -684,3 +692,17 @@ def test_autogen(rootdir, tmp_path):
         args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)
         assert (tmp_path / 'sphinx.application.TemplateBridge.rst').exists()
+
+
+def test_autogen_remove_old(rootdir, tmp_path):
+    """Test the ``--remove-old`` option."""
+    tmp_path.joinpath('other.rst').write_text('old content')
+    with chdir(rootdir / 'test-templating'):
+        args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
+        autogen_main(args)
+        assert set(tmp_path.iterdir()) == {
+            tmp_path / 'sphinx.application.TemplateBridge.rst',
+            tmp_path / 'other.rst'
+        }
+        autogen_main([*args, '--remove-old'])
+        assert set(tmp_path.iterdir()) == {tmp_path / 'sphinx.application.TemplateBridge.rst'}

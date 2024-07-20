@@ -89,7 +89,7 @@ class TestSigElementFallbackTransform:
         """Fixture returning an ordered view on the original value of :data:`!sphinx.addnodes.SIG_ELEMENTS`."""
         return self._builtin_sig_elements
 
-    @pytest.fixture()
+    @pytest.fixture
     def document(
         self, app: SphinxTestApp, builtin_sig_elements: tuple[type[addnodes.desc_sig_element], ...],
     ) -> nodes.document:
@@ -103,13 +103,13 @@ class TestSigElementFallbackTransform:
         doc += addnodes.desc_inline('py')
         return doc
 
-    @pytest.fixture()
+    @pytest.fixture
     def with_desc_sig_elements(self, value: Any) -> bool:
         """Dynamic fixture acting as the identity on booleans."""
         assert isinstance(value, bool)
         return value
 
-    @pytest.fixture()
+    @pytest.fixture
     def add_visitor_method_for(self, value: Any) -> list[str]:
         """Dynamic fixture acting as the identity on a list of strings."""
         assert isinstance(value, list)
