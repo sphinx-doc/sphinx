@@ -57,6 +57,9 @@ Incompatible changes
   * :confval:`linkcheck_report_timeouts_as_broken` is now ``False`` by default.
 
   Patch by James Addison.
+* #12597: Change the default of :confval:`show_warning_types`
+  from ``False``to ``True``.
+  Patch by Chris Sewell.
 
 Deprecated
 ----------
