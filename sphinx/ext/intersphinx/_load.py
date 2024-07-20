@@ -172,7 +172,6 @@ def fetch_inventory_group(
     for location in invs:
         inv: str = location or posixpath.join(uri, INVENTORY_FILENAME)
         if not should_store(uri, inv):
-            print("nope", uri, inv)
             continue
 
         safe_inv_url = _get_safe_url(inv)
