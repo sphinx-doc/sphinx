@@ -495,7 +495,9 @@ def _format_literal_arg_restify(arg: Any, /, *, mode: RenderMode) -> str:
 
 
 def stringify_annotation(
-    annotation: Any, /, mode: _StringifyMode = RenderMode.fully_qualified_except_typing
+    annotation: Any,
+    /,
+    mode: _StringifyMode = RenderMode.fully_qualified_except_typing,
 ) -> str:
     """Stringify type annotation object.
 

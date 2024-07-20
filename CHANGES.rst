@@ -15,6 +15,8 @@ Bugs fixed
   ``sphinx.ext.autodoc``,
   especially when using :mod:`dataclasses` as type metadata.
   Patch by Adam Turner.
+* #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
+  Patch by Bénédikt Tran.
 
 Release 7.4.6 (released Jul 18, 2024)
 =====================================
@@ -246,9 +248,6 @@ Bugs fixed
 * #11041: linkcheck: Ignore URLs that respond with non-Unicode content.
   Patch by James Addison.
 * #12543: Fix :pep:`695` formatting for LaTeX output.
-  Patch by Bénédikt Tran.
-
-* #11995: autodoc: add support for :confval:`python_display_short_literal_types`.
   Patch by Bénédikt Tran.
 
 Testing
