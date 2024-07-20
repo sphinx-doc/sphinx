@@ -675,7 +675,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
     app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
-    app.add_config_value('linkcheck_allow_unauthorized', False, '', bool)
+    app.add_config_value('linkcheck_allow_unauthorized', False, '')
     app.add_config_value('linkcheck_report_timeouts_as_broken', False, '', bool)
 
     app.add_event('linkcheck-process-uri')
