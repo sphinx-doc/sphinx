@@ -3714,20 +3714,17 @@ and the number of workers to use.
 
 .. confval:: linkcheck_allow_unauthorized
    :type: :code-py:`bool`
-   :default: :code-py:`True`
+   :default: :code-py:`False`
 
    When a webserver responds with an HTTP 401 (unauthorised) response,
    the current default behaviour of the *linkcheck* builder is
-   to treat the link as "working".
-   To change that behaviour, set this option to :code-py:`False`.
+   to treat the link as "broken".
+   To change that behaviour, set this option to :code-py:`True`.
 
-   .. attention::
-      The default value for this option will be changed in Sphinx 8.0;
-      from that version onwards,
-      HTTP 401 responses to checked hyperlinks will be treated
-      as "broken" by default.
-
-     .. xref RemovedInSphinx80Warning
+   .. versionchanged:: 8.0
+      The default value for this option changed to :code-py:`False`,
+      meaning HTTP 401 responses to checked hyperlinks
+      are treated as "broken" by default.
 
    .. versionadded:: 7.3
 
@@ -3755,20 +3752,19 @@ and the number of workers to use.
 
 .. confval:: linkcheck_report_timeouts_as_broken
    :type: :code-py:`bool`
-   :default: :code-py:`True`
+   :default: :code-py:`False`
 
    When an HTTP response is not received from a webserver before the configured
    :confval:`linkcheck_timeout` expires,
    the current default behaviour of the *linkcheck* builder is
-   to treat the link as 'broken'.
-   To report timeouts using a distinct report code of ``timeout``,
-   set :confval:`linkcheck_report_timeouts_as_broken` to :code-py:`False`.
+   to put the link in a special category, ``timeout``.
+   To report timeouts using the 'broken' report code,
+   set :confval:`linkcheck_report_timeouts_as_broken` to :code-py:`True`.
 
-   .. attention::
-      From Sphinx 8.0 onwards, timeouts that occur while checking hyperlinks
+   .. versionchanged:: 8.0
+      The default value for this option changed to :code-py:`False`,
+      meaning timeouts that occur while checking hyperlinks
       will be reported using the new 'timeout' status code.
-
-     .. xref RemovedInSphinx80Warning
 
    .. versionadded:: 7.3
 
