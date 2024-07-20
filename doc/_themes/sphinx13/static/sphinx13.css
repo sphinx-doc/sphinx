@@ -222,10 +222,6 @@ div.sphinxsidebar #searchbox input[type="text"] {
     border-radius: var(--admonition-radius) 0 0 var(--admonition-radius);
 }
 
-div.sphinxsidebar #searchbox input[type="text"] {
-    border-radius: var(--admonition-radius) 0 0 var(--admonition-radius);
-}
-
 div.sphinxsidebar #searchbox input[type="submit"] {
     border-radius: 0 var(--admonition-radius) var(--admonition-radius) 0;
   color: white;
