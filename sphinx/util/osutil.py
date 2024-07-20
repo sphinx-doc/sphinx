@@ -13,8 +13,6 @@ from io import StringIO
 from os import path
 from typing import TYPE_CHECKING
 
-from sphinx.deprecation import _deprecation_warning
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
@@ -88,7 +86,12 @@ def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> N
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
-def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
+def copyfile(
+    source: str | os.PathLike[str],
+    dest: str | os.PathLike[str],
+    *,
+    __overwrite_warning__: bool = True,
+) -> None:
     """Copy a file and its modification times, if possible.
 
     :param source: An existing source to copy.
@@ -101,7 +104,24 @@ def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> No
         msg = f'{os.fsdecode(source)} does not exist'
         raise FileNotFoundError(msg)
 
-    if not path.exists(dest) or not filecmp.cmp(source, dest):
+    if (
+        not (dest_exists := path.exists(dest)) or
+        # comparison must be done using shallow=False since
+        # two different files might have the same size
+        not filecmp.cmp(source, dest, shallow=False)
+    ):
+        if __overwrite_warning__ and dest_exists:
+            # sphinx.util.logging imports sphinx.util.osutil,
+            # so use a local import to avoid circular imports
+            from sphinx.util import logging
+            logger = logging.getLogger(__name__)
+
+            msg = ('Copying the source path %s to %s will overwrite data, '
+                   'as a file already exists at the destination path '
+                   'and the content does not match.')
+            logger.info(msg, os.fsdecode(source), os.fsdecode(dest),
+                        type='misc', subtype='copy_overwrite')
+
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
@@ -161,12 +181,8 @@ class _chdir:
         os.chdir(self._dirs.pop())
 
 
-@contextlib.contextmanager
-def cd(target_dir: str) -> Iterator[None]:
-    if sys.version_info[:2] >= (3, 11):
-        _deprecation_warning(__name__, 'cd', 'contextlib.chdir', remove=(8, 0))
-    with _chdir(target_dir):
-        yield
+if sys.version_info[:2] < (3, 11):
+    cd = _chdir
 
 
 class FileAvoidWrite:

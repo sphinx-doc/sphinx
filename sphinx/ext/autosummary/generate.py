@@ -145,7 +145,7 @@ class AutosummaryRenderer:
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
             self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]
 
-    def render(self, template_name: str, context: dict) -> str:
+    def render(self, template_name: str, context: dict[str, Any]) -> str:
         """Render a template file."""
         try:
             template = self.env.get_template(template_name)
@@ -282,7 +282,7 @@ def generate_autosummary_content(
     imported_members: bool,
     app: Any,
     recursive: bool,
-    context: dict,
+    context: dict[str, Any],
     modname: str | None = None,
     qualname: str | None = None,
 ) -> str:
@@ -330,10 +330,6 @@ def generate_autosummary_content(
                     doc, app, obj, {'module'}, imported=True
                 )
                 skip += all_imported_modules
-                imported_modules = [name + '.' + modname for modname in imported_modules]
-                all_imported_modules = [
-                    name + '.' + modname for modname in all_imported_modules
-                ]
                 public_members = getall(obj)
             else:
                 imported_modules, all_imported_modules = [], []
@@ -476,21 +472,22 @@ def _get_modules(
         if modname in skip:
             # module was overwritten in __init__.py, so not accessible
             continue
-        fullname = name + '.' + modname
+        fullname = f'{name}.{modname}'
         try:
             module = import_module(fullname)
-            if module and hasattr(module, '__sphinx_mock__'):
-                continue
         except ImportError:
             pass
+        else:
+            if module and hasattr(module, '__sphinx_mock__'):
+                continue
 
-        items.append(fullname)
+        items.append(modname)
         if public_members is not None:
             if modname in public_members:
-                public.append(fullname)
+                public.append(modname)
         else:
             if not modname.startswith('_'):
-                public.append(fullname)
+                public.append(modname)
     return public, items
 
 

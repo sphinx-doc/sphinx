@@ -370,6 +370,27 @@ def test_parse_annotation(app):
                           [desc_sig_punctuation, "]"]))
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="typing.Literal")
 
+    # Annotated type with callable gets parsed
+    doctree = _parse_annotation("Annotated[Optional[str], annotated_types.MaxLen(max_length=10)]", app.env)
+    assert_node(doctree, (
+        [pending_xref, 'Annotated'],
+        [desc_sig_punctuation, '['],
+        [pending_xref, 'str'],
+        [desc_sig_space, ' '],
+        [desc_sig_punctuation, '|'],
+        [desc_sig_space, ' '],
+        [pending_xref, 'None'],
+        [desc_sig_punctuation, ','],
+        [desc_sig_space, ' '],
+        [pending_xref, 'annotated_types.MaxLen'],
+        [desc_sig_punctuation, '('],
+        [desc_sig_name, 'max_length'],
+        [desc_sig_operator, '='],
+        [desc_sig_literal_number, '10'],
+        [desc_sig_punctuation, ')'],
+        [desc_sig_punctuation, ']'],
+    ))
+
 
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation("~typing.Dict[str, str]", app.env)
@@ -802,7 +823,22 @@ def test_function_pep_695(app):
                         [desc_sig_name, 'A'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
-                        [desc_sig_name, ([pending_xref, 'int | Annotated[int, ctype("char")]'])],
+                        [desc_sig_name, (
+                            [pending_xref, 'int'],
+                            [desc_sig_space, ' '],
+                            [desc_sig_punctuation, '|'],
+                            [desc_sig_space, ' '],
+                            [pending_xref, 'Annotated'],
+                            [desc_sig_punctuation, '['],
+                            [pending_xref, 'int'],
+                            [desc_sig_punctuation, ','],
+                            [desc_sig_space, ' '],
+                            [pending_xref, 'ctype'],
+                            [desc_sig_punctuation, '('],
+                            [desc_sig_literal_string, "'char'"],
+                            [desc_sig_punctuation, ')'],
+                            [desc_sig_punctuation, ']'],
+                        )],
                     )],
                     [desc_type_parameter, (
                         [desc_sig_operator, '*'],
@@ -987,7 +1023,7 @@ def test_class_def_pep_696(app):
     ('[T:(*Ts)|int]', '[T: (*Ts) | int]'),
     ('[T:(int|(*Ts))]', '[T: (int | (*Ts))]'),
     ('[T:((*Ts)|int)]', '[T: ((*Ts) | int)]'),
-    ('[T:Annotated[int,ctype("char")]]', '[T: Annotated[int, ctype("char")]]'),
+    ("[T:Annotated[int,ctype('char')]]", "[T: Annotated[int, ctype('char')]]"),
 ])
 def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'

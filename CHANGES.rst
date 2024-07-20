@@ -1,3 +1,122 @@
+Release 8.0.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+.. rst-class:: compact
+
+* Remove deprecated functions from ``sphinx.util``:
+
+  * Removed ``sphinx.util.path_stabilize``
+    (use ``sphinx.util.osutil.path_stabilize``).
+  * Removed ``sphinx.util.display_chunk``
+    (use ``sphinx.util.display.display_chunk``).
+  * Removed ``sphinx.util.status_iterator``
+    (use ``sphinx.util.display.status_iterator``).
+  * Removed ``sphinx.util.SkipProgressMessage``
+    (use ``sphinx.util.display.SkipProgressMessage``).
+  * Removed ``sphinx.util.progress_message``
+    (use ``sphinx.util.display.progress_message``).
+  * Removed ``sphinx.util.epoch_to_rfc1123``
+    (use ``sphinx.http_date.epoch_to_rfc1123``).
+  * Removed ``sphinx.util.rfc1123_to_epoch``
+    (use ``sphinx.http_date.rfc1123_to_epoch``).
+  * Removed ``sphinx.util.save_traceback``
+    (use ``sphinx.exceptions.save_traceback``).
+  * Removed ``sphinx.util.format_exception_cut_frames``
+    (use ``sphinx.exceptions.format_exception_cut_frames``).
+  * Removed ``sphinx.util.xmlname_checker``
+    (use ``sphinx.builders.epub3._XML_NAME_PATTERN``).
+
+  Patch by Adam Turner.
+* Removed :py:func:`!sphinx.util.osutil.cd`
+  (use :py:func:`contextlib.chdir`).
+  Patch by Adam Turner.
+* Removed :py:func:`!sphinx.util.typing.stringify`
+  (use :py:func:`!sphinx.util.typing.stringify_annotation`).
+  Patch by Adam Turner.
+* #12593: Raise an error for invalid :confval:`html_sidebars` values.
+  Patch by Adam Turner.
+* #12593: Raise an error in :py:func:`!Theme.get_config` for invalid sections.
+  Patch by Adam Turner.
+* #11693: Remove support for old-style :file:`Makefile` and :file:`make.bat`
+  output in :program:`sphinx-quickstart`.
+* #11693: Remove the :option:`!--no-use-make-mode`, :option:`!-M`,
+  :option:`!--use-make-mode`, and :option:`!-m` options
+  from :program:`sphinx-quickstart`.
+  Patch by Adam Turner.
+* Removed the tuple interface to :py:class:`!sphinx.ext.autodoc.ObjectMember`.
+  Patch by Adam Turner.
+* #12630: Sphinx 8 makes two changes to the ``linkcheck`` configuration defaults:
+
+  * :confval:`linkcheck_allow_unauthorized` is now ``False`` by default.
+  * :confval:`linkcheck_report_timeouts_as_broken` is now ``False`` by default.
+
+  Patch by James Addison.
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+-------
+
+Release 7.4.7 (released Jul 20, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12096: Warn when files are overwritten in the build directory.
+  Patch by Adam Turner and Bénédikt Tran.
+* #12620: Ensure that old-style object description options are respected.
+  Patch by Adam Turner.
+* #12601, #12625: Support callable objects in :py:class:`~typing.Annotated` type
+  metadata in the Python domain.
+  Patch by Adam Turner.
+* #12601, #12622: Resolve :py:class:`~typing.Annotated` warnings with
+  ``sphinx.ext.autodoc``,
+  especially when using :mod:`dataclasses` as type metadata.
+  Patch by Adam Turner.
+* #12589, #12626: autosummary: Fix warnings with :rst:role:`!autolink`.
+  Patch by Adam Turner.
+
+Release 7.4.6 (released Jul 18, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12589, #9743, #12609: autosummary: Do not add the package prefix when
+  generating autosummary directives for modules within a package.
+  Patch by Adam Turner.
+* #12613: Reduce log severity for ambiguity detection during inventory loading.
+  Patch by James Addison.
+
+Release 7.4.5 (released Jul 16, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #12593, #12600: Revert coercing the type of selected :confval:`html_sidebars`
+  values to a list.
+  Log an error message when string values are detected.
+  Patch by Adam Turner.
+* #12594: LaTeX: since 7.4.0, :rst:dir:`seealso` and other "light" admonitions
+  now break PDF builds if they contain a :dudir:`figure` directive; and also
+  if they are contained in a table cell (rendered by ``tabulary``).
+  Patch by Jean-François B.
+
 Release 7.4.4 (released Jul 15, 2024)
 =====================================
 
@@ -159,11 +278,13 @@ Bugs fixed
   Patch by Matthias Geier.
 * #12224: Properly detect WebP files.
   Patch by Benjamin Cabé.
-* #12380: LaTeX: Footnote mark sometimes indicates ``Page N`` where ``N`` is
-  the current page number and the footnote does appear on that same page.
+* #12380: LaTeX: Avoid footnote markers ``Page N`` when ``N`` is already
+  the current page number.
   Patch by Jean-François B.
 * #12410: LaTeX: for French and ``'lualatex'`` as :confval:`latex_engine`
-  ``polyglossia`` and not ``babel`` is used (contrarily to ``'xelatex'``).
+  use ``babel`` as with ``'xelatex'`` (and not ``polyglossia``).
+  Patch by Jean-François B.
+* #12520: LaTeX: let :rst:dir:`todolist` produce correct hyperlinks in PDF.
   Patch by Jean-François B.
 * #12416: Ensure that configuration setting aliases are always synchronised
   when one value or the other is modified.

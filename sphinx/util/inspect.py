@@ -652,7 +652,7 @@ def signature(
     try:
         # Resolve annotations using ``get_type_hints()`` and type_aliases.
         localns = TypeAliasNamespace(type_aliases)
-        annotations = typing.get_type_hints(subject, None, localns)
+        annotations = typing.get_type_hints(subject, None, localns, include_extras=True)
         for i, param in enumerate(parameters):
             if param.name in annotations:
                 annotation = annotations[param.name]

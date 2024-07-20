@@ -16,6 +16,21 @@ from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
 
 
+def test_html_sidebars_error(make_app, tmp_path):
+    (tmp_path / 'conf.py').touch()
+    with pytest.raises(
+        ConfigError,
+        match="Values in 'html_sidebars' must be a list of strings. "
+              "At least one pattern has a string value: 'index'. "
+              r"Change to `html_sidebars = \{'index': \['searchbox.html'\]\}`.",
+    ):
+        make_app(
+            buildername='html',
+            srcdir=tmp_path,
+            confoverrides={'html_sidebars': {'index': 'searchbox.html'}},
+        )
+
+
 def test_html4_error(make_app, tmp_path):
     (tmp_path / 'conf.py').write_text('', encoding='utf-8')
     with pytest.raises(

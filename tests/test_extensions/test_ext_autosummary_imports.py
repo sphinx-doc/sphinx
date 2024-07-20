@@ -38,3 +38,12 @@ def test_autosummary_import_cycle(app, warning):
         "Replace 'spam.eggs.Ham' with 'Ham'."
     )
     assert expected in app.warning.getvalue()
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_prefix')
+@pytest.mark.usefixtures("rollback_sysmodules")
+def test_autosummary_generate_prefixes(app, warning):
+    app.build()
+    warnings = app.warning.getvalue()
+    assert 'Summarised items should not include the current module.' not in warnings
+    assert warnings == ''
