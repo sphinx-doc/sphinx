@@ -11,13 +11,15 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import _deprecation_warning
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
     from types import TracebackType
+    from typing import Any
 
 # SEP separates path elements in the canonical file names
 #
@@ -86,28 +88,52 @@ def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> N
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
-def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
+def copyfile(
+    source: str | os.PathLike[str],
+    dest: str | os.PathLike[str],
+    *,
+    __overwrite_warning__: bool = True,
+) -> None:
     """Copy a file and its modification times, if possible.
 
-    Note: ``copyfile`` skips copying if the file has not been changed
+    :param source: An existing source to copy.
+    :param dest: The destination path.
+    :raise FileNotFoundError: The *source* does not exist.
+
+    .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
     """
-    if not path.exists(dest) or not filecmp.cmp(source, dest):
+    if not path.exists(source):
+        msg = f'{os.fsdecode(source)} does not exist'
+        raise FileNotFoundError(msg)
+
+    if not (dest_exists := path.exists(dest)) or not filecmp.cmp(source, dest):
+        if __overwrite_warning__ and dest_exists:
+            # sphinx.util.logging imports sphinx.util.osutil,
+            # so use a local import to avoid circular imports
+            from sphinx.util import logging
+            logger = logging.getLogger(__name__)
+
+            msg = ('Copying the source path %s to %s will overwrite data, '
+                   'as a file already exists at the destination path '
+                   'and the content does not match.')
+            logger.info(msg, os.fsdecode(source), os.fsdecode(dest),
+                        type='misc', subtype='copy_overwrite')
+
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
             copytimes(source, dest)
 
 
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-project_suffix_re = re.compile(' Documentation$')
+_no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 
 def make_filename(string: str) -> str:
-    return no_fn_re.sub('', string) or 'sphinx'
+    return _no_fn_re.sub('', string) or 'sphinx'
 
 
 def make_filename_from_project(project: str) -> str:
-    return make_filename(project_suffix_re.sub('', project)).lower()
+    return make_filename(project.removesuffix(' Documentation')).lower()
 
 
 def relpath(path: str | os.PathLike[str],
@@ -173,7 +199,7 @@ class FileAvoidWrite:
     Objects can be used as context managers.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str | Path) -> None:
         self._path = path
         self._io: StringIO | None = None
 

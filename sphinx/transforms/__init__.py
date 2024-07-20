@@ -21,24 +21,34 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
+    from typing import Literal
 
     from docutils.nodes import Node, Text
+    from typing_extensions import TypeAlias, TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.domains.std import StandardDomain
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
+
+    _DEFAULT_SUBSTITUTION_NAMES: TypeAlias = Literal[
+        'version',
+        'release',
+        'today',
+        'translation progress',
+    ]
 
 
 logger = logging.getLogger(__name__)
 
-default_substitutions = {
+_DEFAULT_SUBSTITUTIONS = frozenset({
     'version',
     'release',
     'today',
     'translation progress',
-}
+})
 
 
 class SphinxTransform(Transform):
@@ -80,7 +90,7 @@ class SphinxTransformer(Transformer):
             if not hasattr(self.document.settings, 'env') and self.env:
                 self.document.settings.env = self.env
 
-            super().apply_transforms()
+            super().apply_transforms()  # type: ignore[misc]
         else:
             # wrap the target node by document node during transforming
             try:
@@ -104,20 +114,25 @@ class DefaultSubstitutions(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         # only handle those not otherwise defined in the document
-        to_handle = default_substitutions - set(self.document.substitution_defs)
+        to_handle = _DEFAULT_SUBSTITUTIONS - set(self.document.substitution_defs)
         for ref in self.document.findall(nodes.substitution_reference):
-            refname = ref['refname']
-            if refname in to_handle:
-                if refname == 'translation progress':
-                    # special handling: calculate translation progress
-                    text = _calculate_translation_progress(self.document)
-                else:
-                    text = self.config[refname]
-                if refname == 'today' and not text:
-                    # special handling: can also specify a strftime format
-                    text = format_date(self.config.today_fmt or _('%b %d, %Y'),
-                                       language=self.config.language)
-                ref.replace_self(nodes.Text(text))
+            if (name := ref['refname']) in to_handle:
+                ref.replace_self(self._handle_default_substitution(name))
+
+    def _handle_default_substitution(self, name: _DEFAULT_SUBSTITUTION_NAMES) -> nodes.Text:
+        if name == 'translation progress':
+            # special handling: calculate translation progress
+            return nodes.Text(_calculate_translation_progress(self.document))
+        if name == 'today':
+            if text := self.config.today:
+                return nodes.Text(text)
+            # special handling: can also specify a strftime format
+            return nodes.Text(format_date(
+                self.config.today_fmt or _('%b %d, %Y'),
+                language=self.config.language,
+            ))
+        # config.version and config.release
+        return nodes.Text(getattr(self.config, name))
 
 
 def _calculate_translation_progress(document: nodes.document) -> str:
@@ -262,15 +277,15 @@ class ExtraTranslatableNodes(SphinxTransform):
     default_priority = 10
 
     def apply(self, **kwargs: Any) -> None:
-        targets = self.config.gettext_additional_targets
-        target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
+        targets = frozenset(self.config.gettext_additional_targets)
+        target_nodes = tuple(v for k, v in TRANSLATABLE_NODES.items() if k in targets)
         if not target_nodes:
             return
 
-        def is_translatable_node(node: Node) -> bool:
-            return isinstance(node, tuple(target_nodes))
+        def is_translatable_node(node: Node) -> TypeIs[nodes.Element]:
+            return isinstance(node, target_nodes)
 
-        for node in self.document.findall(is_translatable_node):  # type: nodes.Element
+        for node in self.document.findall(is_translatable_node):
             node['translatable'] = True
 
 
@@ -375,7 +390,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
             for tag in normalize_language_tag(language)
         )
 
-    def get_tokens(self, txtnodes: list[Text]) -> Generator[tuple[str, str], None, None]:
+    def get_tokens(self, txtnodes: list[Text]) -> Iterator[tuple[str, str]]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
         # of "Text" nodes (interface to ``smartquotes.educate_tokens()``).
         for txtnode in txtnodes:
@@ -488,7 +503,7 @@ def _sort_key(node: nodes.Node) -> int:
     raise ValueError(msg)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(ApplySourceWorkaround)
     app.add_transform(ExtraTranslatableNodes)
     app.add_transform(DefaultSubstitutions)

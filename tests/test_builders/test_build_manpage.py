@@ -7,6 +7,8 @@ from sphinx.builders.manpage import default_man_pages
 from sphinx.config import Config
 
 
+@pytest.mark.xfail(docutils.__version_info__[:2] > (0, 21),
+                   reason='Docutils has removed the reference key in master')
 @pytest.mark.sphinx('man')
 def test_all(app, status, warning):
     app.build(force_all=True)
@@ -44,13 +46,15 @@ def test_man_pages_empty_description(app, status, warning):
                     confoverrides={'man_make_section_directory': True})
 def test_man_make_section_directory(app, status, warning):
     app.build()
-    assert (app.outdir / 'man1' / 'python.1').exists()
+    assert (app.outdir / 'man1' / 'projectnamenotset.1').exists()
 
 
+@pytest.mark.xfail(docutils.__version_info__[:2] > (0, 21),
+                   reason='Docutils has removed the reference key in master')
 @pytest.mark.sphinx('man', testroot='directive-code')
 def test_captioned_code_block(app, status, warning):
     app.build(force_all=True)
-    content = (app.outdir / 'python.1').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
 
     if docutils.__version_info__[:2] < (0, 21):
         expected = """\
@@ -100,5 +104,5 @@ def test_default_man_pages():
 @pytest.mark.sphinx('man', testroot='markup-rubric')
 def test_rubric(app, status, warning):
     app.build()
-    content = (app.outdir / 'python.1').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
     assert 'This is a rubric\n' in content

@@ -116,8 +116,8 @@ const _finishSearch = (resultCount) => {
     );
   else
     Search.status.innerText = _(
-      `Search finished, found ${resultCount} page(s) matching the search query.`
-    );
+      "Search finished, found ${resultCount} page(s) matching the search query."
+    ).replace('${resultCount}', resultCount);
 };
 const _displayNextItem = (
   results,
@@ -136,6 +136,22 @@ const _displayNextItem = (
   }
   // search finished, update title and status message
   else _finishSearch(resultCount);
+};
+// Helper function used by query() to order search results.
+// Each input is an array of [docname, title, anchor, descr, score, filename].
+// Order the results by score (in opposite order of appearance, since the
+// `_displayNextItem` function uses pop() to retrieve items) and then alphabetically.
+const _orderResultsByScoreThenName = (a, b) => {
+  const leftScore = a[4];
+  const rightScore = b[4];
+  if (leftScore === rightScore) {
+    // same score: sort alphabetically
+    const leftTitle = a[1].toLowerCase();
+    const rightTitle = b[1].toLowerCase();
+    if (leftTitle === rightTitle) return 0;
+    return leftTitle > rightTitle ? -1 : 1; // inverted is intentional
+  }
+  return leftScore > rightScore ? 1 : -1;
 };
 
 /**
@@ -162,7 +178,7 @@ const Search = {
 
   htmlToText: (htmlString, anchor) => {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
-    for (const removalQuery of [".headerlinks", "script", "style"]) {
+    for (const removalQuery of [".headerlink", "script", "style"]) {
       htmlElement.querySelectorAll(removalQuery).forEach((el) => { el.remove() });
     }
     if (anchor) {
@@ -252,16 +268,7 @@ const Search = {
     else Search.deferQuery(query);
   },
 
-  /**
-   * execute search (requires search index to be loaded)
-   */
-  query: (query) => {
-    const filenames = Search._index.filenames;
-    const docNames = Search._index.docnames;
-    const titles = Search._index.titles;
-    const allTitles = Search._index.alltitles;
-    const indexEntries = Search._index.indexentries;
-
+  _parseQuery: (query) => {
     // stem the search terms and add them to the correct list
     const stemmer = new Stemmer();
     const searchTerms = new Set();
@@ -297,21 +304,38 @@ const Search = {
     // console.info("required: ", [...searchTerms]);
     // console.info("excluded: ", [...excludedTerms]);
 
-    // array of [docname, title, anchor, descr, score, filename]
-    let results = [];
+    return [query, searchTerms, excludedTerms, highlightTerms, objectTerms];
+  },
+
+  /**
+   * execute search (requires search index to be loaded)
+   */
+  _performSearch: (query, searchTerms, excludedTerms, highlightTerms, objectTerms) => {
+    const filenames = Search._index.filenames;
+    const docNames = Search._index.docnames;
+    const titles = Search._index.titles;
+    const allTitles = Search._index.alltitles;
+    const indexEntries = Search._index.indexentries;
+
+    // Collect multiple result groups to be sorted separately and then ordered.
+    // Each is an array of [docname, title, anchor, descr, score, filename].
+    const normalResults = [];
+    const nonMainIndexResults = [];
+
     _removeChildren(document.getElementById("search-progress"));
 
     const queryLower = query.toLowerCase().trim();
     for (const [title, foundTitles] of Object.entries(allTitles)) {
       if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
-          let score = Math.round(100 * queryLower.length / title.length)
-          results.push([
+          const score = Math.round(Scorer.title * queryLower.length / title.length);
+          const boost = titles[file] === title ? 1 : 0;  // add a boost for document titles
+          normalResults.push([
             docNames[file],
             titles[file] !== title ? `${titles[file]} > ${title}` : title,
             id !== null ? "#" + id : "",
             null,
-            score,
+            score + boost,
             filenames[file],
           ]);
         }
@@ -321,46 +345,47 @@ const Search = {
     // search for explicit entries in index directives
     for (const [entry, foundEntries] of Object.entries(indexEntries)) {
       if (entry.includes(queryLower) && (queryLower.length >= entry.length/2)) {
-        for (const [file, id] of foundEntries) {
-          let score = Math.round(100 * queryLower.length / entry.length)
-          results.push([
+        for (const [file, id, isMain] of foundEntries) {
+          const score = Math.round(100 * queryLower.length / entry.length);
+          const result = [
             docNames[file],
             titles[file],
             id ? "#" + id : "",
             null,
             score,
             filenames[file],
-          ]);
+          ];
+          if (isMain) {
+            normalResults.push(result);
+          } else {
+            nonMainIndexResults.push(result);
+          }
         }
       }
     }
 
     // lookup as object
     objectTerms.forEach((term) =>
-      results.push(...Search.performObjectSearch(term, objectTerms))
+      normalResults.push(...Search.performObjectSearch(term, objectTerms))
     );
 
     // lookup as search terms in fulltext
-    results.push(...Search.performTermsSearch(searchTerms, excludedTerms));
+    normalResults.push(...Search.performTermsSearch(searchTerms, excludedTerms));
 
     // let the scorer override scores with a custom scoring function
-    if (Scorer.score) results.forEach((item) => (item[4] = Scorer.score(item)));
+    if (Scorer.score) {
+      normalResults.forEach((item) => (item[4] = Scorer.score(item)));
+      nonMainIndexResults.forEach((item) => (item[4] = Scorer.score(item)));
+    }
 
-    // now sort the results by score (in opposite order of appearance, since the
-    // display function below uses pop() to retrieve items) and then
-    // alphabetically
-    results.sort((a, b) => {
-      const leftScore = a[4];
-      const rightScore = b[4];
-      if (leftScore === rightScore) {
-        // same score: sort alphabetically
-        const leftTitle = a[1].toLowerCase();
-        const rightTitle = b[1].toLowerCase();
-        if (leftTitle === rightTitle) return 0;
-        return leftTitle > rightTitle ? -1 : 1; // inverted is intentional
-      }
-      return leftScore > rightScore ? 1 : -1;
-    });
+    // Sort each group of results by score and then alphabetically by name.
+    normalResults.sort(_orderResultsByScoreThenName);
+    nonMainIndexResults.sort(_orderResultsByScoreThenName);
+
+    // Combine the result groups in (reverse) order.
+    // Non-main index entries are typically arbitrary cross-references,
+    // so display them after other results.
+    let results = [...nonMainIndexResults, ...normalResults];
 
     // remove duplicate search results
     // note the reversing of results, so that in the case of duplicates, the highest-scoring entry is kept
@@ -374,7 +399,12 @@ const Search = {
       return acc;
     }, []);
 
-    results = results.reverse();
+    return results.reverse();
+  },
+
+  query: (query) => {
+    const [searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms] = Search._parseQuery(query);
+    const results = Search._performSearch(searchQuery, searchTerms, excludedTerms, highlightTerms, objectTerms);
 
     // for debugging
     //Search.lastresults = results.slice();  // a copy
@@ -488,7 +518,7 @@ const Search = {
         if (!titleTerms.hasOwnProperty(word)) {
           Object.keys(titleTerms).forEach((term) => {
             if (term.match(escapedWord))
-              arr.push({ files: titleTerms[word], score: Scorer.partialTitle });
+              arr.push({ files: titleTerms[term], score: Scorer.partialTitle });
           });
         }
       }

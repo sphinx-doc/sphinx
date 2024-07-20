@@ -2,8 +2,10 @@
 max-line-length = 95
 ignore =
     E116,
+    E203,
     E241,
     E251,
+    E501,
     E741,
     W503,
     W504,
@@ -22,10 +24,14 @@ exclude =
     .git,
     .tox,
     .venv,
+    venv,
+    node_modules/*,
     tests/roots/*,
     build/*,
     doc/_build/*,
     sphinx/search/*,
     doc/usage/extensions/example*.py,
 per-file-ignores =
-    tests/*: E501
+    doc/conf.py:W605
+    tests/test_extensions/ext_napoleon_pep526_data_google.py:MLL001,
+    tests/test_extensions/ext_napoleon_pep526_data_numpy.py:MLL001,

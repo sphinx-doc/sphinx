@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
+__all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
+
 import contextlib
 import os
-import re
 import sys
-import warnings
 from io import StringIO
 from types import MappingProxyType
 from typing import TYPE_CHECKING
-from xml.etree import ElementTree
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -18,16 +17,16 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
+from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
     from pathlib import Path
     from typing import Any
+    from xml.etree.ElementTree import ElementTree
 
     from docutils.nodes import Node
-
-__all__ = 'SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding'
 
 
 def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
@@ -70,10 +69,12 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
 
 
-def etree_parse(path: str) -> Any:
-    with warnings.catch_warnings(record=False):
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        return ElementTree.parse(path)  # NoQA: S314  # using known data in tests
+# keep this to restrict the API usage and to have a correct return type
+def etree_parse(path: str | os.PathLike[str]) -> ElementTree:
+    """Parse a file into a (safe) XML element tree."""
+    from defusedxml.ElementTree import parse as xml_parse
+
+    return xml_parse(path)
 
 
 class SphinxTestApp(sphinx.application.Sphinx):
@@ -111,7 +112,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
         confoverrides: dict[str, Any] | None = None,
         status: StringIO | None = None,
         warning: StringIO | None = None,
-        tags: list[str] | None = None,
+        tags: Sequence[str] = (),
         docutils_conf: str | None = None,  # extra constructor argument
         parallel: int = 0,
         # additional arguments at the end to keep the signature
@@ -204,28 +205,18 @@ class SphinxTestApp(sphinx.application.Sphinx):
         super().build(force_all, filenames)
 
 
-class SphinxTestAppWrapperForSkipBuilding:
+class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
     """A wrapper for SphinxTestApp.
 
     This class is used to speed up the test by skipping ``app.build()``
     if it has already been built and there are any output files.
     """
 
-    def __init__(self, app_: SphinxTestApp) -> None:
-        self.app = app_
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self.app, name)
-
-    def build(self, *args: Any, **kwargs: Any) -> None:
-        if not os.listdir(self.app.outdir):
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        if not os.listdir(self.outdir):
             # if listdir is empty, do build.
-            self.app.build(*args, **kwargs)
+            super().build(force_all, filenames)
             # otherwise, we can use built cache
-
-
-def strip_escseq(text: str) -> str:
-    return re.sub('\x1b.*?m', '', text)
 
 
 def _clean_up_global_state() -> None:
@@ -244,3 +235,21 @@ def _clean_up_global_state() -> None:
 
     # clean up autodoc global state
     sphinx.pycode.ModuleAnalyzer.cache.clear()
+
+
+# deprecated name -> (object to return, canonical path or '', removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
+    'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name not in _DEPRECATED_OBJECTS:
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
+    return deprecated_object

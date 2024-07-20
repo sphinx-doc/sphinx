@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.inheritance_diagram` -- Include inheritance diagrams
 =====================================================================

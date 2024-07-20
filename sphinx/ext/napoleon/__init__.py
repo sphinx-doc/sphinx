@@ -11,6 +11,7 @@ from sphinx.util import inspect
 
 if TYPE_CHECKING:
     from sphinx.config import _ConfigRebuild
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class Config:
@@ -292,7 +293,7 @@ class Config:
             setattr(self, name, value)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     """Sphinx extension setup function.
 
     When the extension is loaded, Sphinx imports this module and executes

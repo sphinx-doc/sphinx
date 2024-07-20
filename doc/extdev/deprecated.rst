@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.testing.util.strip_escseq``
+     - 7.3
+     - 9.0
+     - ``sphinx.util.console.strip_colors``
+
    * - Old-style Makefiles in ``sphinx-quickstart``
        and the :option:`!-M`, :option:`!-m`, :option:`!--no-use-make-mode`,
        and :option:`!--use-make-mode` options
@@ -1764,7 +1769,7 @@ The following is a list of deprecated interfaces.
      - 3.0
      - ``warning()``
 
-   * - :confval:`source_parsers`
+   * - :confval:`!source_parsers`
      - 1.8
      - 3.0
      - :meth:`~sphinx.application.Sphinx.add_source_parser()`

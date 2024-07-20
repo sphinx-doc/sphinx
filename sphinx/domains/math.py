@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 logger = logging.getLogger(__name__)
@@ -59,8 +60,8 @@ class MathDomain(Domain):
     def note_equation(self, docname: str, labelid: str, location: Any = None) -> None:
         if labelid in self.equations:
             other = self.equations[labelid][0]
-            logger.warning(__('duplicate label of equation %s, other instance in %s') %
-                           (labelid, other), location=location)
+            logger.warning(__('duplicate label of equation %s, other instance in %s'),
+                           labelid, other, location=location)
 
         self.equations[labelid] = (docname, self.env.new_serialno('eqno') + 1)
 
@@ -105,6 +106,7 @@ class MathDomain(Domain):
                 if docname in env.toc_fignumbers:
                     numbers = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
                     eqno = '.'.join(map(str, numbers))
+                    eqno = env.config.math_numsep.join(eqno.rsplit('.', 1))
                 else:
                     eqno = ''
             else:
@@ -144,7 +146,7 @@ class MathDomain(Domain):
         )
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(MathDomain)
     app.add_role('eq', MathReferenceRole(warn_dangling=True))
 

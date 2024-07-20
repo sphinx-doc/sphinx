@@ -1,15 +1,21 @@
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, TypeVar
 
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold, color_terminal  # type: ignore[attr-defined]
+from sphinx.util.console import bold, color_terminal
 
 if False:
     from collections.abc import Iterable, Iterator
     from types import TracebackType
+    from typing import Any, Callable, TypeVar
+
+    from typing_extensions import ParamSpec
+
+    T = TypeVar('T')
+    P = ParamSpec('P')
+    R = TypeVar('R')
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +26,6 @@ def display_chunk(chunk: Any) -> str:
             return str(chunk[0])
         return f'{chunk[0]} .. {chunk[-1]}'
     return str(chunk)
-
-
-T = TypeVar('T')
 
 
 def status_iterator(
@@ -62,11 +65,12 @@ class SkipProgressMessage(Exception):
 
 
 class progress_message:
-    def __init__(self, message: str) -> None:
+    def __init__(self, message: str, *, nonl: bool = True) -> None:
         self.message = message
+        self.nonl = nonl
 
     def __enter__(self) -> None:
-        logger.info(bold(self.message + '... '), nonl=True)
+        logger.info(bold(self.message + '... '), nonl=self.nonl)
 
     def __exit__(
         self,
@@ -74,21 +78,22 @@ class progress_message:
         val: BaseException | None,
         tb: TracebackType | None,
     ) -> bool:
+        prefix = "" if self.nonl else bold(self.message + ': ')
         if isinstance(val, SkipProgressMessage):
-            logger.info(__('skipped'))
+            logger.info(prefix + __('skipped'))
             if val.args:
                 logger.info(*val.args)
             return True
         elif val:
-            logger.info(__('failed'))
+            logger.info(prefix + __('failed'))
         else:
-            logger.info(__('done'))
+            logger.info(prefix + __('done'))
 
         return False
 
-    def __call__(self, f: Callable) -> Callable:
+    def __call__(self, f: Callable[P, R]) -> Callable[P, R]:
         @functools.wraps(f)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]
             with self:
                 return f(*args, **kwargs)
 

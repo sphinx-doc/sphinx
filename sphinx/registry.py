@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Callable
 if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
 else:
-    from importlib_metadata import entry_points  # type: ignore[import-not-found]
+    from importlib_metadata import entry_points
 
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
@@ -40,9 +40,9 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
     from sphinx.util.typing import (
+        ExtensionMetadata,
         RoleFunction,
         TitleGetter,
-        _ExtensionMetadata,
         _ExtensionSetupFunc,
     )
 
@@ -460,7 +460,7 @@ class SphinxComponentRegistry:
             if setup is None:
                 logger.warning(__('extension %r has no setup() function; is it really '
                                   'a Sphinx extension module?'), extname)
-                metadata: _ExtensionMetadata = {}
+                metadata: ExtensionMetadata = {}
             else:
                 try:
                     metadata = setup(app)
@@ -504,16 +504,20 @@ def merge_source_suffix(app: Sphinx, config: Config) -> None:
     for suffix, filetype in app.registry.source_suffix.items():
         if suffix not in app.config.source_suffix:  # NoQA: SIM114
             app.config.source_suffix[suffix] = filetype
-        elif app.config.source_suffix[suffix] is None:
-            # filetype is not specified (default filetype).
+        elif app.config.source_suffix[suffix] == 'restructuredtext':
+            # The filetype is not specified (default filetype).
             # So it overrides default filetype by extensions setting.
+            app.config.source_suffix[suffix] = filetype
+        elif app.config.source_suffix[suffix] is None:
+            msg = __('`None` is not a valid filetype for %r.') % suffix
+            logger.warning(msg)
             app.config.source_suffix[suffix] = filetype
 
     # copy config.source_suffix to registry
     app.registry.source_suffix = app.config.source_suffix
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', merge_source_suffix, priority=800)
 
     return {

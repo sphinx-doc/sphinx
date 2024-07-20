@@ -2,7 +2,7 @@ Documentation.addTranslations({
     "locale": "zh_Hant_TW",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; %(copyright_prefix)s %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "&#169; %(copyright_prefix)s %(copyright)s.",
         ", in ": "\uff0c\u65bc ",
         "About these documents": "\u95dc\u65bc\u9019\u4e9b\u6587\u4ef6",
         "Automatically generated list of changes in version %(version)s": "\u81ea\u52d5\u7522\u751f\u7684 %(version)s \u7248\u8b8a\u66f4\u5217\u8868",
@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u524d\u5f80",
         "Hide Search Matches": "\u96b1\u85cf\u7b26\u5408\u641c\u5c0b",
         "Index": "\u7d22\u5f15",
-        "Index &ndash; %(key)s": "\u7d22\u5f15 &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\u6309\u5b57\u6bcd\u7d22\u5f15\u9801\u9762",
         "Indices and tables:": "\u7d22\u5f15\u8207\u8868\u683c\uff1a",
         "Last updated on %(last_updated)s.": "\u6700\u5f8c\u66f4\u65b0\u65bc %(last_updated)s\u3002",

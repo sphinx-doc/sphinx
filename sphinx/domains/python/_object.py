@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -76,18 +76,22 @@ class PyXrefMixin:
                 result['reftarget'] = reftarget
 
                 result.clear()
-                result += innernode(reftitle, reftitle)
+                result += innernode(reftitle, reftitle)  # type: ignore[call-arg]
             elif env.config.python_use_unqualified_type_names:
                 children = result.children
                 result.clear()
 
                 shortname = target.split('.')[-1]
-                textnode = innernode('', shortname)
+                textnode = innernode('', shortname)  # type: ignore[call-arg]
                 contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
                              pending_xref_condition('', '', *children, condition='*')]
                 result.extend(contnodes)
 
         return result
+
+    _delimiters_re = re.compile(
+        r'(\s*[\[\]\(\),](?:\s*o[rf]\s)?\s*|\s+o[rf]\s+|\s*\|\s*|\.\.\.)'
+    )
 
     def make_xrefs(
         self,
@@ -100,9 +104,7 @@ class PyXrefMixin:
         inliner: Inliner | None = None,
         location: Node | None = None,
     ) -> list[Node]:
-        delims = r'(\s*[\[\]\(\),](?:\s*o[rf]\s)?\s*|\s+o[rf]\s+|\s*\|\s*|\.\.\.)'
-        delims_re = re.compile(delims)
-        sub_targets = re.split(delims, target)
+        sub_targets = self._delimiters_re.split(target)
 
         split_contnode = bool(contnode and contnode.astext() == target)
 
@@ -112,13 +114,13 @@ class PyXrefMixin:
             if split_contnode:
                 contnode = nodes.Text(sub_target)
 
-            if in_literal or delims_re.match(sub_target):
-                results.append(contnode or innernode(sub_target, sub_target))
+            if in_literal or self._delimiters_re.match(sub_target):
+                results.append(contnode or innernode(sub_target, sub_target))  # type: ignore[call-arg]
             else:
                 results.append(self.make_xref(rolename, domain, sub_target,
                                               innernode, contnode, env, inliner, location))
 
-            if sub_target in ('Literal', 'typing.Literal', '~typing.Literal'):
+            if sub_target in {'Literal', 'typing.Literal', '~typing.Literal'}:
                 in_literal = True
 
         return results
@@ -144,7 +146,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     :vartype allow_nesting: bool
     """
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,

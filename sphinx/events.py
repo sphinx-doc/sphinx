@@ -30,21 +30,22 @@ class EventListener(NamedTuple):
 
 # List of all known core events. Maps name to arguments description.
 core_events = {
-    'builder-inited': '',
     'config-inited': 'config',
+    'builder-inited': '',
     'env-get-outdated': 'env, added, changed, removed',
-    'env-get-updated': 'env',
-    'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
-    'env-check-consistency': 'env',
+    'env-purge-doc': 'env, docname',
     'source-read': 'docname, source text',
     'include-read': 'relative path, parent docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',
+    'env-updated': 'env',
+    'env-get-updated': 'env',
+    'env-check-consistency': 'env',
+    'write-started': 'builder',
+    'doctree-resolved': 'doctree, docname',
     'missing-reference': 'env, node, contnode',
     'warn-missing-reference': 'domain, node',
-    'doctree-resolved': 'doctree, docname',
-    'env-updated': 'env',
     'build-finished': 'exception',
 }
 
@@ -81,8 +82,9 @@ class EventManager:
                 if listener.id == listener_id:
                     listeners.remove(listener)
 
-    def emit(self, name: str, *args: Any,
-             allowed_exceptions: tuple[type[Exception], ...] = ()) -> list:
+    def emit(
+        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+    ) -> list:
         """Emit a Sphinx event."""
         # not every object likes to be repr()'d (think
         # random stuff coming via autodoc)
@@ -90,7 +92,7 @@ class EventManager:
             logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
 
         results = []
-        listeners = sorted(self.listeners[name], key=attrgetter("priority"))
+        listeners = sorted(self.listeners[name], key=attrgetter('priority'))
         for listener in listeners:
             try:
                 results.append(listener.handler(self.app, *args))
@@ -104,12 +106,17 @@ class EventManager:
                     # Just pass through the error, so that it can be debugged.
                     raise
                 modname = safe_getattr(listener.handler, '__module__', None)
-                raise ExtensionError(__("Handler %r for event %r threw an exception") %
-                                     (listener.handler, name), exc, modname=modname) from exc
+                raise ExtensionError(
+                    __('Handler %r for event %r threw an exception')
+                    % (listener.handler, name),
+                    exc,
+                    modname=modname,
+                ) from exc
         return results
 
-    def emit_firstresult(self, name: str, *args: Any,
-                         allowed_exceptions: tuple[type[Exception], ...] = ()) -> Any:
+    def emit_firstresult(
+        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+    ) -> Any:
         """Emit a Sphinx event and returns first result.
 
         This returns the result of the first handler that doesn't return ``None``.

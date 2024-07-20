@@ -14,7 +14,7 @@ import sphinx.pycode
 from sphinx.testing.util import _clean_up_global_state
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
 
 def _init_console(
@@ -52,7 +52,7 @@ def pytest_report_header(config: pytest.Config) -> str:
 
 
 @pytest.fixture(autouse=True)
-def _cleanup_docutils() -> Generator[None, None, None]:
+def _cleanup_docutils() -> Iterator[None]:
     saved_path = sys.path
     yield  # run the test
     sys.path[:] = saved_path

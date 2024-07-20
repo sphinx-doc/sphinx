@@ -7,14 +7,14 @@ import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.testing.util import SphinxTestApp, SphinxTestAppWrapperForSkipBuilding
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
+    from collections.abc import Callable, Iterator
     from pathlib import Path
     from typing import Any
 
@@ -68,10 +68,10 @@ class SharedResult:
         }
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_params(
     request: Any,
-    test_params: dict,
+    test_params: dict[str, Any],
     shared_result: SharedResult,
     sphinx_test_tempdir: str,
     rootdir: str,
@@ -117,8 +117,8 @@ def app_params(
 _app_params = namedtuple('_app_params', 'args,kwargs')
 
 
-@pytest.fixture()
-def test_params(request: Any) -> dict:
+@pytest.fixture
+def test_params(request: Any) -> dict[str, Any]:
     """
     Test parameters that are specified by 'pytest.mark.test_params'
 
@@ -141,13 +141,13 @@ def test_params(request: Any) -> dict:
     return result
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(
-    test_params: dict,
-    app_params: tuple[dict, dict],
-    make_app: Callable,
+    test_params: dict[str, Any],
+    app_params: _app_params,
+    make_app: Callable[[], SphinxTestApp],
     shared_result: SharedResult,
-) -> Generator[SphinxTestApp, None, None]:
+) -> Iterator[SphinxTestApp]:
     """
     Provides the 'sphinx.application.Sphinx' object
     """
@@ -159,14 +159,14 @@ def app(
     print('# builder:', app_.builder.name)
     print('# srcdir:', app_.srcdir)
     print('# outdir:', app_.outdir)
-    print('# status:', '\n' + app_._status.getvalue())
-    print('# warning:', '\n' + app_._warning.getvalue())
+    print('# status:', '\n' + app_.status.getvalue())
+    print('# warning:', '\n' + app_.warning.getvalue())
 
     if test_params['shared_result']:
         shared_result.store(test_params['shared_result'], app_)
 
 
-@pytest.fixture()
+@pytest.fixture
 def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -174,7 +174,7 @@ def status(app: SphinxTestApp) -> StringIO:
     return app.status
 
 
-@pytest.fixture()
+@pytest.fixture
 def warning(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -182,8 +182,8 @@ def warning(app: SphinxTestApp) -> StringIO:
     return app.warning
 
 
-@pytest.fixture()
-def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, None]:
+@pytest.fixture
+def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp]]:
     """
     Provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
@@ -196,10 +196,12 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_: Any = SphinxTestApp(*args, **kwargs)
-        apps.append(app_)
+        app_: SphinxTestApp
         if test_params['shared_result']:
-            app_ = SphinxTestAppWrapperForSkipBuilding(app_)
+            app_ = SphinxTestAppWrapperForSkipBuilding(*args, **kwargs)
+        else:
+            app_ = SphinxTestApp(*args, **kwargs)
+        apps.append(app_)
         return app_
     yield make
 
@@ -208,7 +210,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Generator[Callable, None, N
         app_.cleanup()
 
 
-@pytest.fixture()
+@pytest.fixture
 def shared_result() -> SharedResult:
     return SharedResult()
 
@@ -218,7 +220,7 @@ def _shared_result_cache() -> None:
     SharedResult.cache.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     """
     The test will be skipped when using 'if_graphviz_found' fixture and graphviz
@@ -236,60 +238,14 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     pytest.skip('graphviz "dot" is not available')
 
 
-_HOST_ONLINE_ERROR = pytest.StashKey[Optional[str]]()
-
-
-def _query(address: tuple[str, int]) -> str | None:
-    import socket
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        try:
-            sock.settimeout(5)
-            sock.connect(address)
-        except OSError as exc:
-            # other type of errors are propagated
-            return str(exc)
-        return None
-
-
-@pytest.fixture(scope='session')
-def sphinx_remote_query_address() -> tuple[str, int]:
-    """Address to which a query is made to check that the host is online.
-
-    By default, onlineness is tested by querying the DNS server ``1.1.1.1``
-    but users concerned about privacy might change it in ``conftest.py``.
-    """
-    return ('1.1.1.1', 80)
-
-
-@pytest.fixture(scope='session')
-def if_online(  # NoQA: PT004
-    request: pytest.FixtureRequest,
-    sphinx_remote_query_address: tuple[str, int],
-) -> None:
-    """Skip the test if the host has no connection.
-
-    Usage::
-
-        @pytest.mark.usefixtures('if_online')
-        def test_if_host_is_online(): ...
-    """
-    if _HOST_ONLINE_ERROR not in request.session.stash:
-        # do not use setdefault() to avoid creating a socket connection
-        lookup_error = _query(sphinx_remote_query_address)
-        request.session.stash[_HOST_ONLINE_ERROR] = lookup_error
-    if (error := request.session.stash[_HOST_ONLINE_ERROR]) is not None:
-        pytest.skip('host appears to be offline (%s)' % error)
-
-
 @pytest.fixture(scope='session')
 def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
     """Temporary directory."""
     return tmp_path_factory.getbasetemp()
 
 
-@pytest.fixture()
-def rollback_sysmodules() -> Generator[None, None, None]:  # NoQA: PT004
+@pytest.fixture
+def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.

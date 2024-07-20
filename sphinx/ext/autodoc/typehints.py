@@ -11,7 +11,7 @@ from docutils import nodes
 import sphinx
 from sphinx import addnodes
 from sphinx.util import inspect
-from sphinx.util.typing import stringify_annotation
+from sphinx.util.typing import ExtensionMetadata, stringify_annotation
 
 if TYPE_CHECKING:
     from docutils.nodes import Element
@@ -35,9 +35,9 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
-                    annotation[param.name] = stringify_annotation(param.annotation, mode)
+                    annotation[param.name] = stringify_annotation(param.annotation, mode)  # type: ignore[arg-type]
             if sig.return_annotation is not sig.empty:
-                annotation['return'] = stringify_annotation(sig.return_annotation, mode)
+                annotation['return'] = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
     except (TypeError, ValueError):
         pass
 
@@ -209,7 +209,7 @@ def augment_descriptions_with_types(
             node += field
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('autodoc-process-signature', record_typehints)
     app.connect('object-description-transform', merge_typehints)
 

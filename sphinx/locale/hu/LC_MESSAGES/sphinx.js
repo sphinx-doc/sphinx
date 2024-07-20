@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Ok",
         "Hide Search Matches": "Keres\u00e9si Tal\u00e1latok Elrejt\u00e9se",
         "Index": "T\u00e1rgymutat\u00f3",
-        "Index &ndash; %(key)s": "T\u00e1rgymutat\u00f3 &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Oldalak ABC sorrendben",
         "Indices and tables:": "T\u00e1rgymutat\u00f3 \u00e9s t\u00e1bl\u00e1zatok",
         "Last updated on %(last_updated)s.": "Utols\u00f3 friss\u00edt\u00e9s %(last_updated)s.",

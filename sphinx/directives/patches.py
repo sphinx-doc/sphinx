@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import os
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node, make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
-from docutils.parsers.rst.directives.misc import Meta  # type: ignore[attr-defined]
+from docutils.parsers.rst.directives.misc import Meta
 from docutils.parsers.rst.roles import set_classes
 
 from sphinx.directives import optional_int
@@ -21,7 +21,7 @@ from sphinx.util.osutil import SEP, os_path, relpath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class Code(SphinxDirective):
     """
 
     optional_arguments = 1
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'class': directives.class_option,
         'force': directives.flag,
         'name': directives.unchanged,
@@ -127,7 +127,7 @@ class MathDirective(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,
@@ -176,12 +176,38 @@ class MathDirective(SphinxDirective):
         ret.insert(0, target)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+class Rubric(SphinxDirective):
+    """A patch of the docutils' :rst:dir:`rubric` directive,
+    which adds a level option to specify the heading level of the rubric.
+    """
+
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {
+        'class': directives.class_option,
+        'name': directives.unchanged,
+        'heading-level': lambda c: directives.choice(c, ('1', '2', '3', '4', '5', '6')),
+    }
+
+    def run(self) -> list[nodes.rubric | nodes.system_message]:
+        set_classes(self.options)
+        rubric_text = self.arguments[0]
+        textnodes, messages = self.parse_inline(rubric_text, lineno=self.lineno)
+        if 'heading-level' in self.options:
+            self.options['heading-level'] = int(self.options['heading-level'])
+        rubric = nodes.rubric(rubric_text, '', *textnodes, **self.options)
+        self.add_name(rubric)
+        return [rubric, *messages]
+
+
+def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)
     directives.register_directive('code', Code)
     directives.register_directive('math', MathDirective)
+    directives.register_directive('rubric', Rubric)
 
     return {
         'version': 'builtin',

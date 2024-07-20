@@ -2,7 +2,7 @@ Documentation.addTranslations({
     "locale": "sq",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; %(copyright_prefix)s %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "&#169; %(copyright_prefix)s %(copyright)s.",
         ", in ": ", n\u00eb ",
         "About these documents": "Mbi k\u00ebto dokumente",
         "Automatically generated list of changes in version %(version)s": "List\u00eb ndryshime n\u00eb versionin %(version)s e prodhuar automatikisht",
@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Shko",
         "Hide Search Matches": "Fshih P\u00ebrputhje K\u00ebrkimi",
         "Index": "Tregues",
-        "Index &ndash; %(key)s": "Tregues &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "Tregues &#x2013; %(key)s",
         "Index pages by letter": "Faqe treguesi sipas shkronjash",
         "Indices and tables:": "Tregues dhe tabela:",
         "Last updated on %(last_updated)s.": "P\u00ebrdit\u00ebsuar s\u00eb fundi m\u00eb %(last_updated)s.",

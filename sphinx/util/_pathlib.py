@@ -28,7 +28,7 @@ if sys.platform == 'win32':
             # replace exists in both Path and str;
             # in Path it makes filesystem changes, so we use the safer str version
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
-            return self.__str__().replace(old, new, count)
+            return self.__str__().replace(old, new, count)  # NoQA:  PLC2801
 
         def __getattr__(self, item: str) -> Any:
             if item in _STR_METHODS:
@@ -77,7 +77,7 @@ else:
             # replace exists in both Path and str;
             # in Path it makes filesystem changes, so we use the safer str version
             warnings.warn(_MSG, RemovedInSphinx80Warning, stacklevel=2)
-            return self.__str__().replace(old, new, count)
+            return self.__str__().replace(old, new, count)  # NoQA:  PLC2801
 
         def __getattr__(self, item: str) -> Any:
             if item in _STR_METHODS:
