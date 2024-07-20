@@ -36,7 +36,7 @@ sphinx.locale.init_console = _init_console
 
 # For now, we do not enable the 'xdist' plugin but we
 # need the 'pytester' plugin declared in the top-level
-# conftest.py file
+# conftest.py file.
 #
 # See https://docs.pytest.org/en/stable/deprecations.html#pytest-plugins-in-non-top-level-conftest-files.
 pytest_plugins = ['sphinx.testing.fixtures', 'pytester']
