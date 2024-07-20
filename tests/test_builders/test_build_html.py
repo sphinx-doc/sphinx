@@ -1,6 +1,5 @@
 """Test the HTML builder and check output against XPath."""
 
-import contextlib
 import os
 import posixpath
 import re
@@ -9,7 +8,7 @@ import pytest
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.deprecation import RemovedInSphinx80Warning
-from sphinx.errors import ConfigError, ThemeError
+from sphinx.errors import ConfigError
 from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
 
@@ -19,27 +18,17 @@ from tests.test_builders.xpath_util import check_xpath
 
 def test_html_sidebars_error(make_app, tmp_path):
     (tmp_path / 'conf.py').touch()
-    (tmp_path / 'index.rst').touch()
-    app = make_app(
-        buildername='html',
-        srcdir=tmp_path,
-        confoverrides={'html_sidebars': {'index': 'searchbox.html'}},
-    )
-
-    # Test that the error is logged
-    warnings = app.warning.getvalue()
-    assert ("ERROR: Values in 'html_sidebars' must be a list of strings. "
-            "At least one pattern has a string value: 'index'. "
-            "Change to `html_sidebars = {'index': ['searchbox.html']}`.") in warnings
-
-    # But that the value is unchanged.
-    # (Remove this bit of the test in Sphinx 8)
-    def _html_context_hook(app, pagename, templatename, context, doctree):
-        assert context["sidebars"] == 'searchbox.html'
-    app.connect('html-page-context', _html_context_hook)
-    with contextlib.suppress(ThemeError):
-        # ignore template rendering issues (ThemeError).
-        app.build()
+    with pytest.raises(
+        ConfigError,
+        match="Values in 'html_sidebars' must be a list of strings. "
+              "At least one pattern has a string value: 'index'. "
+              r"Change to `html_sidebars = \{'index': \['searchbox.html'\]\}`.",
+    ):
+        make_app(
+            buildername='html',
+            srcdir=tmp_path,
+            confoverrides={'html_sidebars': {'index': 'searchbox.html'}},
+        )
 
 
 def test_html4_error(make_app, tmp_path):

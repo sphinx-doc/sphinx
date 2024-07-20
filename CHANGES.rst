@@ -39,6 +39,8 @@ Incompatible changes
 * Removed :py:func:`!sphinx.util.typing.stringify`
   (use :py:func:`!sphinx.util.typing.stringify_annotation`).
   Patch by Adam Turner.
+* #12593: Raise an error for invalid :confval:`html_sidebars` values.
+  Patch by Adam Turner.
 
 Deprecated
 ----------

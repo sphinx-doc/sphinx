@@ -982,10 +982,7 @@ class StandaloneHTMLBuilder(Builder):
                 matched = pattern
                 sidebars = pat_sidebars
 
-        # See error_on_html_sidebars_string_values.
-        # Replace with simple list coercion in Sphinx 8.0
-        # xref: RemovedInSphinx80Warning
-        ctx['sidebars'] = sidebars
+        ctx['sidebars'] = list(sidebars)
 
     # --------- these are overwritten by the serialization builder
 
@@ -1300,10 +1297,7 @@ def error_on_html_sidebars_string_values(app: Sphinx, config: Config) -> None:
              "Change to `html_sidebars = %r`.")
     bad_patterns = ', '.join(map(repr, errors))
     fixed = config.html_sidebars | errors
-    logger.error(msg, bad_patterns, fixed)
-    # Enable hard error in next major version.
-    # xref: RemovedInSphinx80Warning
-    # raise ConfigError(msg % (bad_patterns, fixed))
+    raise ConfigError(msg % (bad_patterns, fixed))
 
 
 def error_on_html_4(_app: Sphinx, config: Config) -> None:
