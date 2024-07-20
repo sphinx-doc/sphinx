@@ -109,7 +109,7 @@ def copyfile(
     if (
         not (dest_exists := path.exists(dest)) or
         # comparison must be done using shallow=False since
-        # two different files might have the same bytes size
+        # two different files might have the same size
         not filecmp.cmp(source, dest, shallow=False)
     ):
         if __overwrite_warning__ and dest_exists:
@@ -121,8 +121,8 @@ def copyfile(
             msg = ('Copying the source path %s to %s will overwrite data, '
                    'as a file already exists at the destination path '
                    'and the content does not match.')
-            logger.warning(msg, os.fsdecode(source), os.fsdecode(dest),
-                           type='misc', subtype='copy_overwrite')
+            logger.info(msg, os.fsdecode(source), os.fsdecode(dest),
+                        type='misc', subtype='copy_overwrite')
 
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
