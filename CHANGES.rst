@@ -9,7 +9,7 @@ Incompatible changes
 
 Deprecated
 ----------
-* #12630: Two ``linkcheck`` defaults are updated from deprecated legacy values:
+* #12630: Sphinx 8.x makes two changes to the ``linkcheck`` configuration defaults:
 
    * :confval:`linkcheck_allow_unauthorized` is now ``False`` by default.
    * :confval:`linkcheck_report_timeouts_as_broken` is now ``True`` by default.
