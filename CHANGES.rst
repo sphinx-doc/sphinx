@@ -36,6 +36,9 @@ Incompatible changes
 * Removed :py:func:`!sphinx.util.osutil.cd`
   (use :py:func:`contextlib.chdir`).
   Patch by Adam Turner.
+* Removed :py:func:`!sphinx.util.typing.stringify`
+  (use :py:func:`!sphinx.util.typing.stringify_annotation`).
+  Patch by Adam Turner.
 
 Deprecated
 ----------
