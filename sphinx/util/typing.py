@@ -539,6 +539,11 @@ def stringify_annotation(
                 else:
                     meta_args.append(repr(m))
             meta = ', '.join(meta_args)
+            if sys.version_info[:2] <= (3, 9):
+                if mode == 'smart':
+                    return f'~typing.Annotated[{args}, {meta}]'
+                if mode == 'fully-qualified':
+                    return f'typing.Annotated[{args}, {meta}]'
             if sys.version_info[:2] <= (3, 11):
                 if mode == 'fully-qualified-except-typing':
                     return f'Annotated[{args}, {meta}]'
