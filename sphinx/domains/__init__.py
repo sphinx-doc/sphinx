@@ -9,7 +9,7 @@ from __future__ import annotations
 import copy
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, NamedTuple, Optional, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils.nodes import Element, Node, system_message
 
@@ -154,7 +154,7 @@ class Index(ABC):
         raise NotImplementedError
 
 
-TitleGetter = Callable[[Node], Optional[str]]
+TitleGetter = Callable[[Node], str | None]
 
 
 class Domain:

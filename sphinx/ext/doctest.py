@@ -420,12 +420,12 @@ Doctest summary
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node: Node) -> bool:
-                return (isinstance(node, (nodes.literal_block, nodes.comment)) and
+                return (isinstance(node, nodes.literal_block | nodes.comment) and
                         'testnodetype' in node) or \
                     isinstance(node, nodes.doctest_block)
         else:
             def condition(node: Node) -> bool:
-                return isinstance(node, (nodes.literal_block, nodes.comment)) \
+                return isinstance(node, nodes.literal_block | nodes.comment) \
                     and 'testnodetype' in node
         for node in doctree.findall(condition):
             if self.skipped(node):  # type: ignore[arg-type]

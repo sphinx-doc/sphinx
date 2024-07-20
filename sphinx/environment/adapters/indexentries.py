@@ -13,14 +13,14 @@ from sphinx.util import logging
 from sphinx.util.index_entries import _split_into
 
 if TYPE_CHECKING:
-    from typing import Literal, Optional, TypeAlias, Union
+    from typing import Literal, TypeAlias
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
 
-    _IndexEntryTarget: TypeAlias = tuple[Optional[str], Union[str, Literal[False]]]
+    _IndexEntryTarget: TypeAlias = tuple[str | None, str | Literal[False]]
     _IndexEntryTargets: TypeAlias = list[_IndexEntryTarget]
-    _IndexEntryCategoryKey: TypeAlias = Optional[str]
+    _IndexEntryCategoryKey: TypeAlias = str | None
     _IndexEntrySubItems: TypeAlias = dict[
         str,
         tuple[_IndexEntryTargets, _IndexEntryCategoryKey],

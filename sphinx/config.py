@@ -8,7 +8,7 @@ import traceback
 import types
 import warnings
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
@@ -66,7 +66,7 @@ def is_serializable(obj: object, *, _seen: frozenset[int] = frozenset()) -> bool
             is_serializable(key, _seen=seen) and is_serializable(value, _seen=seen)
             for key, value in obj.items()
         )
-    elif isinstance(obj, (list, tuple, set, frozenset)):
+    elif isinstance(obj, list | tuple | set | frozenset):
         seen = _seen | {id(obj)}
         return all(is_serializable(item, _seen=seen) for item in obj)
 
@@ -87,13 +87,13 @@ class ENUM:
         self.candidates = candidates
 
     def match(self, value: str | list | tuple) -> bool:
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list | tuple):
             return all(item in self.candidates for item in value)
         else:
             return value in self.candidates
 
 
-_OptValidTypes = Union[tuple[()], tuple[type, ...], frozenset[type], ENUM]
+_OptValidTypes = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
 
 
 class _Opt:
@@ -549,7 +549,7 @@ def _validate_valid_types(
 ) -> tuple[()] | tuple[type, ...] | frozenset[type] | ENUM:
     if not valid_types:
         return ()
-    if isinstance(valid_types, (frozenset, ENUM)):
+    if isinstance(valid_types, frozenset | ENUM):
         return valid_types
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
@@ -584,7 +584,7 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         config.source_suffix = {source_suffix: 'restructuredtext'}
         logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
                     source_suffix, config.source_suffix)
-    elif isinstance(source_suffix, (list, tuple)):
+    elif isinstance(source_suffix, list | tuple):
         # if list, considers as all of them are default filetype
         config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
         logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),

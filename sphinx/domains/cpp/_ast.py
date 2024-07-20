@@ -30,7 +30,6 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
-
     from docutils.nodes import Element, TextElement
 
     from sphinx.addnodes import desc_signature

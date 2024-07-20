@@ -130,7 +130,7 @@ class _UnparseVisitor(ast.NodeVisitor):
     def visit_Constant(self, node: ast.Constant) -> str:
         if node.value is Ellipsis:
             return "..."
-        elif isinstance(node.value, (int, float, complex)):
+        elif isinstance(node.value, int | float | complex):
             if self.code:
                 return ast.get_source_segment(self.code, node) or repr(node.value)
             else:

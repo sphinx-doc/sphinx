@@ -53,7 +53,6 @@ from sphinx.domains.c._ast import (
     ASTTypeWithInit,
     ASTUnaryOpExpr,
     ASTUnion,
-    DeclarationType,
 )
 from sphinx.domains.c._ids import (
     _expression_assignment_ops,
@@ -81,6 +80,8 @@ from sphinx.util.cfamily import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+
+    from sphinx.domains.c._ast import DeclarationType
 
 
 class DefinitionParser(BaseParser):

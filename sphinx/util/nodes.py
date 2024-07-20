@@ -178,12 +178,12 @@ def apply_source_workaround(node: Element) -> None:
         return
 
     # workaround: some docutils nodes doesn't have source, line.
-    if (isinstance(node, (
-            nodes.rubric,  # #1305 rubric directive
-            nodes.line,  # #1477 line node
-            nodes.image,  # #3093 image directive in substitution
-            nodes.field_name,  # #3335 field list syntax
-    ))):
+    if isinstance(node, (
+        nodes.rubric  # #1305 rubric directive
+        | nodes.line  # #1477 line node
+        | nodes.image  # #3093 image directive in substitution
+        | nodes.field_name  # #3335 field list syntax
+    )):
         logger.debug('[i18n] PATCH: %r to have source and line: %s',
                      get_full_module_name(node), repr_domxml(node))
         try:

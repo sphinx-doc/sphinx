@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Final, Protocol, TypeAlias, Union
+    from typing import Final, Protocol, TypeAlias
 
     from typing_extensions import TypeIs
 
@@ -42,21 +42,17 @@ if TYPE_CHECKING:
         # instance is contravariant but we do not need that precision
         def __delete__(self, __instance: Any) -> None: ...  # NoQA: E704
 
-    _RoutineType: TypeAlias = Union[
-        types.FunctionType,
-        types.LambdaType,
-        types.MethodType,
-        types.BuiltinFunctionType,
-        types.BuiltinMethodType,
-        types.WrapperDescriptorType,
-        types.MethodDescriptorType,
-        types.ClassMethodDescriptorType,
-    ]
-    _SignatureType: TypeAlias = Union[
-        Callable[..., Any],
-        staticmethod,
-        classmethod,
-    ]
+    _RoutineType: TypeAlias = (
+        types.FunctionType
+        | types.LambdaType
+        | types.MethodType
+        | types.BuiltinFunctionType
+        | types.BuiltinMethodType
+        | types.WrapperDescriptorType
+        | types.MethodDescriptorType
+        | types.ClassMethodDescriptorType
+    )
+    _SignatureType: TypeAlias = Callable[..., Any] | staticmethod | classmethod
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +124,7 @@ def getall(obj: Any) -> Sequence[str] | None:
     __all__ = safe_getattr(obj, '__all__', None)
     if __all__ is None:
         return None
-    if isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__):
+    if isinstance(__all__, list | tuple) and all(isinstance(e, str) for e in __all__):
         return __all__
     raise ValueError(__all__)
 
@@ -192,7 +188,7 @@ def getslots(obj: Any) -> dict[str, Any] | dict[str, None] | None:
         return __slots__
     elif isinstance(__slots__, str):
         return {__slots__: None}
-    elif isinstance(__slots__, (list, tuple)):
+    elif isinstance(__slots__, list | tuple):
         return dict.fromkeys(__slots__)
     else:
         raise ValueError
@@ -227,7 +223,7 @@ def unpartial(obj: Any) -> Any:
 
 def ispartial(obj: Any) -> TypeIs[partial | partialmethod]:
     """Check if the object is a partial function or method."""
-    return isinstance(obj, (partial, partialmethod))
+    return isinstance(obj, partial | partialmethod)
 
 
 def isclassmethod(
@@ -387,12 +383,12 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> TypeIs[property | cached_property]:
     """Check if the object is property (possibly cached)."""
-    return isinstance(obj, (property, cached_property))
+    return isinstance(obj, property | cached_property)
 
 
 def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
     """Check if the object is a generic alias."""
-    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
+    return isinstance(obj, types.GenericAlias | typing._BaseGenericAlias)  # type: ignore[attr-defined]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:

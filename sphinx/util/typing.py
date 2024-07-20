@@ -9,7 +9,6 @@ import typing
 from collections.abc import Callable, Sequence
 from contextvars import Context, ContextVar, Token
 from struct import Struct
-from types import UnionType
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -81,7 +80,7 @@ def is_invalid_builtin_class(obj: Any) -> bool:
 
 
 # Text like nodes which are initialized with text and rawsource
-TextlikeNode = Union[nodes.Text, nodes.TextElement]
+TextlikeNode = nodes.Text | nodes.TextElement
 
 # type of None
 NoneType = type(None)
@@ -287,7 +286,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         elif inspect.isNewType(cls):
             # newtypes have correct module info since Python 3.10+
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-        elif isinstance(cls, UnionType):
+        elif isinstance(cls, types.UnionType):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
             return ' | '.join(restify(a, mode) for a in cls.__args__)
@@ -484,7 +483,7 @@ def stringify_annotation(
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
         qualname = stringify_annotation(annotation.__origin__, mode)
-    elif isinstance(annotation, UnionType):
+    elif isinstance(annotation, types.UnionType):
         qualname = 'types.UnionType'
     else:
         # we weren't able to extract the base type, appending arguments would
@@ -494,7 +493,7 @@ def stringify_annotation(
     # Process the generic arguments (if any).
     # They must be a list or a tuple, otherwise they are considered 'broken'.
     annotation_args = getattr(annotation, '__args__', ())
-    if annotation_args and isinstance(annotation_args, (list, tuple)):
+    if annotation_args and isinstance(annotation_args, list | tuple):
         if (
             qualname in {'Union', 'types.UnionType'}
             and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)

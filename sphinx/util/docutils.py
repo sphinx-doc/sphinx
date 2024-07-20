@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import (
-    Sequence,  # NoQA: TCH003
-)
+from collections.abc import Sequence  # NoQA: TCH003
 from contextlib import contextmanager
 from copy import copy
 from os import path
@@ -29,10 +27,7 @@ logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        Callable,  # NoQA: TCH003
-        Iterator,
-    )
+    from collections.abc import Callable, Iterator  # NoQA: TCH003
     from types import ModuleType
 
     from docutils.frontend import Values
