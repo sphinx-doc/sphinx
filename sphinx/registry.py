@@ -504,9 +504,13 @@ def merge_source_suffix(app: Sphinx, config: Config) -> None:
     for suffix, filetype in app.registry.source_suffix.items():
         if suffix not in app.config.source_suffix:  # NoQA: SIM114
             app.config.source_suffix[suffix] = filetype
-        elif app.config.source_suffix[suffix] is None:
-            # filetype is not specified (default filetype).
+        elif app.config.source_suffix[suffix] == 'restructuredtext':
+            # The filetype is not specified (default filetype).
             # So it overrides default filetype by extensions setting.
+            app.config.source_suffix[suffix] = filetype
+        elif app.config.source_suffix[suffix] is None:
+            msg = __('`None` is not a valid filetype for %r.') % suffix
+            logger.warning(msg)
             app.config.source_suffix[suffix] = filetype
 
     # copy config.source_suffix to registry

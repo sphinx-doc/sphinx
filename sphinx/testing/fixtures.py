@@ -240,7 +240,7 @@ def __app_params_fixture(
     return AppParams(args, kwargs)
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_params(
     request: pytest.FixtureRequest,
     test_params: TestParams,
@@ -401,7 +401,7 @@ def __app_fixture(
         module_cache.store(shared_result, app)
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(
     request: pytest.FixtureRequest,
     app_params: AnyAppParams,  # xref RemovedInSphinx90Warning: update type
@@ -563,7 +563,7 @@ def if_online(  # NoQA: PT004
         pytest.skip('host appears to be offline (%s)' % error)
 
 
-@pytest.fixture()
+@pytest.fixture
 def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules

@@ -62,15 +62,14 @@ class VersionChange(SphinxDirective):
         node['version'] = self.arguments[0]
         text = versionlabels[self.name] % self.arguments[0]
         if len(self.arguments) == 2:
-            inodes, messages = self.state.inline_text(self.arguments[1],
-                                                      self.lineno + 1)
+            inodes, messages = self.parse_inline(self.arguments[1], lineno=self.lineno + 1)
             para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
             self.set_source_info(para)
             node.append(para)
         else:
             messages = []
         if self.content:
-            self.state.nested_parse(self.content, self.content_offset, node)
+            node += self.parse_content_to_nodes()
         classes = ['versionmodified', versionlabel_classes[self.name]]
         if len(node) > 0 and isinstance(node[0], nodes.paragraph):
             # the contents start with a paragraph
@@ -111,7 +110,7 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data: dict[str, Any] = {
+    initial_data: dict[str, dict[str, list[ChangeSet]]] = {
         'changes': {},      # version -> list of ChangeSet
     }
 

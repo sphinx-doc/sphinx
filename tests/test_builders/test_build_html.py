@@ -1,5 +1,6 @@
 """Test the HTML builder and check output against XPath."""
 
+import contextlib
 import os
 import posixpath
 import re
@@ -8,12 +9,37 @@ import pytest
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.deprecation import RemovedInSphinx80Warning
-from sphinx.errors import ConfigError
+from sphinx.errors import ConfigError, ThemeError
 from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
+
+
+def test_html_sidebars_error(make_app, tmp_path):
+    (tmp_path / 'conf.py').touch()
+    (tmp_path / 'index.rst').touch()
+    app = make_app(
+        buildername='html',
+        srcdir=tmp_path,
+        confoverrides={'html_sidebars': {'index': 'searchbox.html'}},
+    )
+
+    # Test that the error is logged
+    warnings = app.warning.getvalue()
+    assert ("ERROR: Values in 'html_sidebars' must be a list of strings. "
+            "At least one pattern has a string value: 'index'. "
+            "Change to `html_sidebars = {'index': ['searchbox.html']}`.") in warnings
+
+    # But that the value is unchanged.
+    # (Remove this bit of the test in Sphinx 8)
+    def _html_context_hook(app, pagename, templatename, context, doctree):
+        assert context["sidebars"] == 'searchbox.html'
+    app.connect('html-page-context', _html_context_hook)
+    with contextlib.suppress(ThemeError):
+        # ignore template rendering issues (ThemeError).
+        app.build()
 
 
 def test_html4_error(make_app, tmp_path):
@@ -131,24 +157,24 @@ def test_html_inventory(app):
                                                 'py-modindex',
                                                 'genindex',
                                                 'search'}
-    assert invdata['std:label']['modindex'] == ('Python',
+    assert invdata['std:label']['modindex'] == ('Project name not set',
                                                 '',
                                                 'https://www.google.com/py-modindex.html',
                                                 'Module Index')
-    assert invdata['std:label']['py-modindex'] == ('Python',
+    assert invdata['std:label']['py-modindex'] == ('Project name not set',
                                                    '',
                                                    'https://www.google.com/py-modindex.html',
                                                    'Python Module Index')
-    assert invdata['std:label']['genindex'] == ('Python',
+    assert invdata['std:label']['genindex'] == ('Project name not set',
                                                 '',
                                                 'https://www.google.com/genindex.html',
                                                 'Index')
-    assert invdata['std:label']['search'] == ('Python',
+    assert invdata['std:label']['search'] == ('Project name not set',
                                               '',
                                               'https://www.google.com/search.html',
                                               'Search Page')
     assert set(invdata['std:doc'].keys()) == {'index'}
-    assert invdata['std:doc']['index'] == ('Python',
+    assert invdata['std:doc']['index'] == ('Project name not set',
                                            '',
                                            'https://www.google.com/index.html',
                                            'The basic Sphinx documentation for testing')
@@ -222,8 +248,8 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' in result)
-    assert '<h1 class="logo"><a href="#">Python</a></h1>' in result
+            'aria-label="Main">' in result)
+    assert '<h1 class="logo"><a href="#">Project name not set</a></h1>' in result
     assert '<h3>Navigation</h3>' in result
     assert '<h3>Related Topics</h3>' in result
     assert '<h3 id="searchlabel">Quick search</h3>' in result
@@ -237,7 +263,7 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' in result)
+            'aria-label="Main">' in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' in result
@@ -251,7 +277,7 @@ def test_html_sidebar(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<div class="sphinxsidebar" role="navigation" '
-            'aria-label="main navigation">' not in result)
+            'aria-label="Main">' not in result)
     assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
     assert '<h3>Navigation</h3>' not in result
     assert '<h3>Related Topics</h3>' not in result
@@ -377,3 +403,34 @@ def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
 
     file = os.fsdecode(target)
     assert f'WARNING: cannot copy image file {file!r}: {file!s} does not exist' == ws[-1]
+
+
+@pytest.mark.sphinx('html', testroot='domain-py-python_maximum_signature_line_length',
+                    confoverrides={'python_maximum_signature_line_length': 1})
+def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
+    app.build()
+    fname = app.outdir / 'index.html'
+    etree = cached_etree_parse(fname)
+
+    class chk:
+        def __init__(self, expect):
+            self.expect = expect
+
+        def __call__(self, nodes):
+            assert len(nodes) == 1, nodes
+            objnode = ''.join(nodes[0].itertext()).replace('\n\n', '')
+            objnode = objnode.rstrip(chr(182))  # remove '¶' symbol
+            objnode = objnode.strip('\n')  # remove surrounding new lines
+            assert objnode == self.expect
+
+    # each signature has a dangling ',' at the end of its parameters lists
+    check_xpath(etree, fname, r'.//dt[@id="generic_foo"][1]',
+                chk('generic_foo[\nT,\n]()'))
+    check_xpath(etree, fname, r'.//dt[@id="generic_bar"][1]',
+                chk('generic_bar[\nT,\n](\nx: list[T],\n)'))
+    check_xpath(etree, fname, r'.//dt[@id="generic_ret"][1]',
+                chk('generic_ret[\nR,\n]() → R'))
+    check_xpath(etree, fname, r'.//dt[@id="MyGenericClass"][1]',
+                chk('class MyGenericClass[\nX,\n]'))
+    check_xpath(etree, fname, r'.//dt[@id="MyList"][1]',
+                chk('class MyList[\nT,\n](list[T])'))

@@ -11,7 +11,10 @@ class DummyTestParser(Parser):
 
 
 extensions = ['source_parser']
-source_suffix = ['.rst', '.test']
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.test': 'restructuredtext',
+}
 source_parsers = {
     '.test': DummyTestParser
 }

@@ -14,7 +14,7 @@ All subcommand modules must define three attributes:
   returning the exit status.
 
 The entire ``sphinx._cli`` namespace is private, only the command line interface
-has backwards-compatability guarantees.
+has backwards-compatibility guarantees.
 """
 
 from __future__ import annotations

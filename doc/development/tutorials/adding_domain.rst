@@ -1,5 +1,7 @@
-Developing a "recipe" extension
-===============================
+.. _tutorial-adding-domain:
+
+Adding a reference domain
+=========================
 
 The objective of this tutorial is to illustrate roles, directives and domains.
 Once complete, we will be able to use this extension to describe a recipe and
@@ -41,7 +43,9 @@ For that, we will need to add the following elements to Sphinx:
 Prerequisites
 -------------
 
-We need the same setup as in :doc:`the previous extensions <todo>`. This time,
+We need the same setup as in
+:ref:`the previous extensions <tutorial-extend-build>`.
+This time,
 we will be putting out extension in a file called :file:`recipe.py`.
 
 Here is an example of the folder structure you might obtain:
@@ -77,7 +81,8 @@ The first thing to examine is the ``RecipeDirective`` directive:
    :linenos:
    :pyobject: RecipeDirective
 
-Unlike :doc:`helloworld` and :doc:`todo`, this directive doesn't derive from
+Unlike :ref:`tutorial-extending-syntax` and :ref:`tutorial-extend-build`,
+this directive doesn't derive from
 :class:`docutils.parsers.rst.Directive` and doesn't define a ``run`` method.
 Instead, it derives from :class:`sphinx.directives.ObjectDescription` and
 defines  ``handle_signature`` and ``add_target_and_index`` methods. This is
@@ -90,9 +95,10 @@ for this node.
 
 We also see that this directive defines ``has_content``, ``required_arguments``
 and ``option_spec``. Unlike the ``TodoDirective`` directive added in the
-:doc:`previous tutorial <todo>`, this directive takes a single argument, the
-recipe name, and an option, ``contains``, in addition to the nested
-reStructuredText in the body.
+:ref:`previous tutorial <tutorial-extend-build>`,
+this directive takes a single argument,
+the recipe name, and an option, ``contains``,
+in addition to the nested reStructuredText in the body.
 
 .. rubric:: The index classes
 
@@ -167,7 +173,8 @@ indices and our cross-referencing code use this feature.
 
 .. currentmodule:: sphinx.application
 
-:doc:`As always <todo>`, the ``setup`` function is a requirement and is used to
+:ref:`As always <tutorial-extend-build>`,
+the ``setup`` function is a requirement and is used to
 hook the various parts of our extension into Sphinx. Let's look at the
 ``setup`` function for this extension.
 
@@ -223,5 +230,8 @@ Further reading
 
 For more information, refer to the `docutils`_ documentation and
 :doc:`/extdev/index`.
+
+If you wish to share your extension across multiple projects or with others,
+check out the :ref:`third-party-extensions` section.
 
 .. _docutils: https://docutils.sourceforge.io/docs/

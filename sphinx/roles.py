@@ -374,7 +374,7 @@ class Manpage(ReferenceRole):
         inner: nodes.Node
         text = self.title[1:] if self.disabled else self.title
         if not self.disabled and self.config.manpages_url:
-            uri = self.config.manpages_url.format(**info)
+            uri = self.config.manpages_url.format_map(info)
             inner = nodes.reference('', text, classes=[self.name], refuri=uri)
         else:
             inner = nodes.Text(text)

@@ -115,7 +115,7 @@ class BuildInfo:
     """
 
     @classmethod
-    def load(cls: type[BuildInfo], f: IO) -> BuildInfo:
+    def load(cls: type[BuildInfo], f: IO[str]) -> BuildInfo:
         try:
             lines = f.readlines()
             assert lines[0].rstrip() == '# Sphinx build info version 1'
@@ -149,7 +149,7 @@ class BuildInfo:
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
-    def dump(self, f: IO) -> None:
+    def dump(self, f: IO[str]) -> None:
         f.write('# Sphinx build info version 1\n'
                 '# This file hashes the configuration used when building these files.'
                 ' When it is not found, a full rebuild will be done.\n'
@@ -201,7 +201,9 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files: list[_JavaScript] = []
 
         # Cached Publisher for writing doctrees to HTML
-        reader: Reader = docutils.readers.doctree.Reader(parser_name='restructuredtext')
+        reader: Reader[DocTreeInput] = docutils.readers.doctree.Reader(
+            parser_name='restructuredtext'
+        )
         pub = Publisher(
             reader=reader,
             parser=reader.parser,
@@ -209,11 +211,7 @@ class StandaloneHTMLBuilder(Builder):
             source_class=DocTreeInput,
             destination=StringOutput(encoding='unicode'),
         )
-        if docutils.__version_info__[:2] >= (0, 19):
-            pub.get_settings(output_encoding='unicode', traceback=True)
-        else:
-            op = pub.setup_option_parser(output_encoding='unicode', traceback=True)
-            pub.settings = op.get_default_values()
+        pub.get_settings(output_encoding='unicode', traceback=True)
         self._publisher = pub
 
     def init(self) -> None:
@@ -269,7 +267,7 @@ class StandaloneHTMLBuilder(Builder):
         else:
             yield 'default.css'
 
-    def get_theme_config(self) -> tuple[str, dict]:
+    def get_theme_config(self) -> tuple[str, dict[str, str | int | bool]]:
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self) -> None:
@@ -465,29 +463,31 @@ class StandaloneHTMLBuilder(Builder):
         # determine the additional indices to include
         self.domain_indices = []
         # html_domain_indices can be False/True or a list of index names
-        indices_config = self.config.html_domain_indices
-        if indices_config:
+        if indices_config := self.config.html_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
             for domain_name in sorted(self.env.domains):
                 domain: Domain = self.env.domains[domain_name]
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapse = indexcls(domain).generate()
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
+                        continue
+                    content, collapse = index_cls(domain).generate()
                     if content:
                         self.domain_indices.append(
-                            (indexname, indexcls, content, collapse))
+                            (index_name, index_cls, content, collapse))
 
         # format the "last updated on" string, only once is enough since it
         # typically doesn't include the time of day
-        self.last_updated: str | None
-        lufmt = self.config.html_last_updated_fmt
-        if lufmt is not None:
-            self.last_updated = format_date(lufmt or _('%b %d, %Y'),
-                                            language=self.config.language)
+        last_updated: str | None
+        if (lu_fmt := self.config.html_last_updated_fmt) is not None:
+            lu_fmt = lu_fmt or _('%b %d, %Y')
+            last_updated = format_date(lu_fmt, language=self.config.language)
         else:
-            self.last_updated = None
+            last_updated = None
 
         # If the logo or favicon are urls, keep them as-is, otherwise
         # strip the relative path as the files will be copied into _static.
@@ -526,7 +526,7 @@ class StandaloneHTMLBuilder(Builder):
             'project': self.config.project,
             'release': return_codes_re.sub('', self.config.release),
             'version': self.config.version,
-            'last_updated': self.last_updated,
+            'last_updated': last_updated,
             'copyright': self.config.copyright,
             'master_doc': self.config.root_doc,
             'root_doc': self.config.root_doc,
@@ -552,6 +552,7 @@ class StandaloneHTMLBuilder(Builder):
             'builder': self.name,
             'parents': [],
             'logo_url': logo,
+            'logo_alt': _('Logo of %s') % self.config.project,
             'favicon_url': favicon,
             'html5_doctype': True,
         }
@@ -814,8 +815,8 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_theme_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
-            logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
-                           filename, error)
+            msg = __("Failed to copy a file in the theme's 'static' directory: %s: %r")
+            logger.warning(msg, filename, error)
 
         if self.theme:
             for entry in reversed(self.theme.get_theme_dirs()):
@@ -824,7 +825,7 @@ class StandaloneHTMLBuilder(Builder):
                            excluded=DOTFILES, context=context,
                            renderer=self.templates, onerror=onerror)
 
-    def copy_html_static_files(self, context: dict) -> None:
+    def copy_html_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
             logger.warning(__('Failed to copy a file in html_static_file: %s: %r'),
                            filename, error)
@@ -890,7 +891,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def post_process_images(self, doctree: Node) -> None:
         """Pick the best candidate for an image and link down-scaled images to
-        their high res version.
+        their high resolution version.
         """
         super().post_process_images(doctree)
 
@@ -957,47 +958,47 @@ class StandaloneHTMLBuilder(Builder):
     def get_outfilename(self, pagename: str) -> str:
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
 
-    def add_sidebars(self, pagename: str, ctx: dict) -> None:
+    def add_sidebars(self, pagename: str, ctx: dict[str, Any]) -> None:
         def has_wildcard(pattern: str) -> bool:
             return any(char in pattern for char in '*?[')
 
         matched = None
-        customsidebar = None
 
         # default sidebars settings for selected theme
         sidebars = list(self.theme.sidebar_templates)
 
         # user sidebar settings
         html_sidebars = self.get_builder_config('sidebars', 'html')
-        for pattern, patsidebars in html_sidebars.items():
+        msg = __('page %s matches two patterns in html_sidebars: %r and %r')
+        for pattern, pat_sidebars in html_sidebars.items():
             if patmatch(pagename, pattern):
-                if matched:
-                    if has_wildcard(pattern):
-                        # warn if both patterns contain wildcards
-                        if has_wildcard(matched):
-                            logger.warning(__('page %s matches two patterns in '
-                                              'html_sidebars: %r and %r'),
-                                           pagename, matched, pattern)
-                        # else the already matched pattern is more specific
-                        # than the present one, because it contains no wildcard
-                        continue
+                if matched and has_wildcard(pattern):
+                    # warn if both patterns contain wildcards
+                    if has_wildcard(matched):
+                        logger.warning(msg, pagename, matched)
+                    # else the already matched pattern is more specific
+                    # than the present one, because it contains no wildcard
+                    continue
                 matched = pattern
-                sidebars = patsidebars
+                sidebars = pat_sidebars
 
-        if len(sidebars) == 0:
-            # keep defaults
-            pass
-
+        # See error_on_html_sidebars_string_values.
+        # Replace with simple list coercion in Sphinx 8.0
+        # xref: RemovedInSphinx80Warning
         ctx['sidebars'] = sidebars
-        ctx['customsidebar'] = customsidebar
 
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return quote(docname) + self.link_suffix
 
-    def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
-                    outfilename: str | None = None, event_arg: Any = None) -> None:
+    def handle_page(
+        self, pagename: str,
+        addctx: dict[str, Any],
+        templatename: str = 'page.html',
+        outfilename: str | None = None,
+        event_arg: Any = None,
+    ) -> None:
         ctx = self.globalcontext.copy()
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
@@ -1141,10 +1142,11 @@ class StandaloneHTMLBuilder(Builder):
             source_name = path.join(self.outdir, '_sources',
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
-            copyfile(self.env.doc2path(pagename), source_name)
+            copyfile(self.env.doc2path(pagename), source_name,
+                     __overwrite_warning__=False)
 
     def update_page_context(self, pagename: str, templatename: str,
-                            ctx: dict, event_arg: Any) -> None:
+                            ctx: dict[str, Any], event_arg: Any) -> None:
         pass
 
     def handle_finish(self) -> None:
@@ -1175,7 +1177,7 @@ class StandaloneHTMLBuilder(Builder):
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
     """Convert string styled html_css_files to tuple styled one."""
-    html_css_files: list[tuple[str, dict]] = []
+    html_css_files: list[tuple[str, dict[str, str]]] = []
     for entry in config.html_css_files:
         if isinstance(entry, str):
             html_css_files.append((entry, {}))
@@ -1187,7 +1189,7 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.html_css_files = html_css_files  # type: ignore[attr-defined]
+    config.html_css_files = html_css_files
 
 
 def _format_modified_time(timestamp: float) -> str:
@@ -1198,7 +1200,7 @@ def _format_modified_time(timestamp: float) -> str:
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:
     """Convert string styled html_js_files to tuple styled one."""
-    html_js_files: list[tuple[str, dict]] = []
+    html_js_files: list[tuple[str, dict[str, str]]] = []
     for entry in config.html_js_files:
         if isinstance(entry, str):
             html_js_files.append((entry, {}))
@@ -1210,11 +1212,11 @@ def convert_html_js_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid js_file: %r, ignored'), entry)
                 continue
 
-    config.html_js_files = html_js_files  # type: ignore[attr-defined]
+    config.html_js_files = html_js_files
 
 
 def setup_resource_paths(app: Sphinx, pagename: str, templatename: str,
-                         context: dict, doctree: Node) -> None:
+                         context: dict[str, Any], doctree: Node) -> None:
     """Set up relative resource paths."""
     pathto = context['pathto']
 
@@ -1273,7 +1275,7 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_logo)) and
             not isurl(config.html_logo)):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
-        config.html_logo = None  # type: ignore[attr-defined]
+        config.html_logo = None
 
 
 def validate_html_favicon(app: Sphinx, config: Config) -> None:
@@ -1282,7 +1284,26 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
             not path.isfile(path.join(app.confdir, config.html_favicon)) and
             not isurl(config.html_favicon)):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
-        config.html_favicon = None  # type: ignore[attr-defined]
+        config.html_favicon = None
+
+
+def error_on_html_sidebars_string_values(app: Sphinx, config: Config) -> None:
+    """Support removed in Sphinx 2."""
+    errors = {}
+    for pattern, pat_sidebars in config.html_sidebars.items():
+        if isinstance(pat_sidebars, str):
+            errors[pattern] = [pat_sidebars]
+    if not errors:
+        return
+    msg = __("Values in 'html_sidebars' must be a list of strings. "
+             "At least one pattern has a string value: %s. "
+             "Change to `html_sidebars = %r`.")
+    bad_patterns = ', '.join(map(repr, errors))
+    fixed = config.html_sidebars | errors
+    logger.error(msg, bad_patterns, fixed)
+    # Enable hard error in next major version.
+    # xref: RemovedInSphinx80Warning
+    # raise ConfigError(msg % (bad_patterns, fixed))
 
 
 def error_on_html_4(_app: Sphinx, config: Config) -> None:
@@ -1315,7 +1336,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_last_updated_fmt', None, 'html', str)
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_domain_indices', True, 'html', list)
+    app.add_config_value('html_domain_indices', True, 'html', types={set, list})
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
@@ -1355,6 +1376,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
+    app.connect('config-inited', error_on_html_sidebars_string_values, priority=800)
     app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
     app.connect('html-page-context', setup_resource_paths)
