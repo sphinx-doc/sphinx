@@ -11,7 +11,6 @@ import functools
 import operator
 import re
 import sys
-import warnings
 from inspect import Parameter, Signature
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar
 
@@ -19,7 +18,6 @@ from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.config import ENUM, Config
-from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
@@ -267,13 +265,6 @@ class ObjectMember:
 
     This is used for the result of `Documenter.get_module_members()` to
     represent each member of the object.
-
-    .. Note::
-
-       An instance of this class behaves as a tuple of (name, object)
-       for compatibility to old Sphinx.  The behavior will be dropped
-       in the future.  Therefore extensions should not use the tuple
-       interface.
     """
 
     def __init__(self, name: str, obj: Any, *, docstring: str | None = None,
@@ -283,12 +274,6 @@ class ObjectMember:
         self.docstring = docstring
         self.skipped = skipped
         self.class_ = class_
-
-    def __getitem__(self, index: int) -> Any:
-        warnings.warn('The tuple interface of ObjectMember is deprecated. '
-                      'Use (obj.__name__, obj.object) instead.',
-                      RemovedInSphinx80Warning, stacklevel=2)
-        return (self.__name__, self.object)[index]
 
 
 class Documenter:
@@ -684,21 +669,8 @@ class Documenter:
 
         # process members and determine which to skip
         for obj in members:
-            try:
-                membername = obj.__name__
-                member = obj.object
-            except AttributeError:
-                if isinstance(obj, ObjectMember):
-                    raise
-                # To be removed, retained for compatibility.
-                # See https://github.com/sphinx-doc/sphinx/issues/11631
-                membername, member = obj
-                warnings.warn(
-                    'Returning tuples of (name, object) as '
-                    'the second return value from get_object_members() is deprecated. '
-                    'Return ObjectMember(name, object) instances instead.',
-                    RemovedInSphinx80Warning, stacklevel=2,
-                )
+            membername = obj.__name__
+            member = obj.object
 
             # if isattr is True, the member is documented as an attribute
             isattr = member is INSTANCEATTR or (namespace, membername) in attr_docs

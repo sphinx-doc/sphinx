@@ -11,6 +11,51 @@ Incompatible changes
    * :confval:`linkcheck_allow_unauthorized` is now ``False`` by default.
    * :confval:`linkcheck_report_timeouts_as_broken` is now ``False`` by default.
 
+.. rst-class:: compact
+
+* Remove deprecated functions from ``sphinx.util``:
+
+  * Removed ``sphinx.util.path_stabilize``
+    (use ``sphinx.util.osutil.path_stabilize``).
+  * Removed ``sphinx.util.display_chunk``
+    (use ``sphinx.util.display.display_chunk``).
+  * Removed ``sphinx.util.status_iterator``
+    (use ``sphinx.util.display.status_iterator``).
+  * Removed ``sphinx.util.SkipProgressMessage``
+    (use ``sphinx.util.display.SkipProgressMessage``).
+  * Removed ``sphinx.util.progress_message``
+    (use ``sphinx.util.display.progress_message``).
+  * Removed ``sphinx.util.epoch_to_rfc1123``
+    (use ``sphinx.http_date.epoch_to_rfc1123``).
+  * Removed ``sphinx.util.rfc1123_to_epoch``
+    (use ``sphinx.http_date.rfc1123_to_epoch``).
+  * Removed ``sphinx.util.save_traceback``
+    (use ``sphinx.exceptions.save_traceback``).
+  * Removed ``sphinx.util.format_exception_cut_frames``
+    (use ``sphinx.exceptions.format_exception_cut_frames``).
+  * Removed ``sphinx.util.xmlname_checker``
+    (use ``sphinx.builders.epub3._XML_NAME_PATTERN``).
+
+  Patch by Adam Turner.
+* Removed :py:func:`!sphinx.util.osutil.cd`
+  (use :py:func:`contextlib.chdir`).
+  Patch by Adam Turner.
+* Removed :py:func:`!sphinx.util.typing.stringify`
+  (use :py:func:`!sphinx.util.typing.stringify_annotation`).
+  Patch by Adam Turner.
+* #12593: Raise an error for invalid :confval:`html_sidebars` values.
+  Patch by Adam Turner.
+* #12593: Raise an error in :py:func:`!Theme.get_config` for invalid sections.
+  Patch by Adam Turner.
+* #11693: Remove support for old-style :file:`Makefile` and :file:`make.bat`
+  output in :program:`sphinx-quickstart`.
+* #11693: Remove the :option:`!--no-use-make-mode`, :option:`!-M`,
+  :option:`!--use-make-mode`, and :option:`!-m` options
+  from :program:`sphinx-quickstart`.
+  Patch by Adam Turner.
+* Removed the tuple interface to :py:class:`!sphinx.ext.autodoc.ObjectMember`.
+  Patch by Adam Turner.
+
 Deprecated
 ----------
 

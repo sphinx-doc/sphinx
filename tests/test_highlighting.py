@@ -20,7 +20,7 @@ class MyLexer(RegexLexer):
     }
 
 
-class MyFormatter(HtmlFormatter):
+class MyFormatter(HtmlFormatter[str]):
     def format(self, tokensource, outfile):
         for tok in tokensource:
             outfile.write(tok[1])
