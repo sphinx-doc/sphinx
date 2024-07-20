@@ -13,8 +13,6 @@ from io import StringIO
 from os import path
 from typing import TYPE_CHECKING
 
-from sphinx.deprecation import _deprecation_warning
-
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
@@ -183,12 +181,8 @@ class _chdir:
         os.chdir(self._dirs.pop())
 
 
-@contextlib.contextmanager
-def cd(target_dir: str) -> Iterator[None]:
-    if sys.version_info[:2] >= (3, 11):
-        _deprecation_warning(__name__, 'cd', 'contextlib.chdir', remove=(8, 0))
-    with _chdir(target_dir):
-        yield
+if sys.version_info[:2] < (3, 11):
+    cd = _chdir
 
 
 class FileAvoidWrite:

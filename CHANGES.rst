@@ -33,6 +33,9 @@ Incompatible changes
     (use ``sphinx.builders.epub3._XML_NAME_PATTERN``).
 
   Patch by Adam Turner.
+* Removed :py:func:`!sphinx.util.osutil.cd`
+  (use :py:func:`contextlib.chdir`).
+  Patch by Adam Turner.
 
 Deprecated
 ----------
