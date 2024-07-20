@@ -2009,7 +2009,8 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
                 with mock(self.config.autodoc_mock_imports):
                     parent = import_module(self.modname, self.config.autodoc_warningiserror)
                     annotations = get_type_hints(parent, None,
-                                                 self.config.autodoc_type_aliases)
+                                                 self.config.autodoc_type_aliases,
+                                                 include_extras=True)
                     if self.objpath[-1] in annotations:
                         self.object = UNINITIALIZED_ATTR
                         self.parent = parent
@@ -2098,7 +2099,8 @@ class DataDocumenter(GenericAliasMixin,
             if self.config.autodoc_typehints != 'none':
                 # obtain annotation for this data
                 annotations = get_type_hints(self.parent, None,
-                                             self.config.autodoc_type_aliases)
+                                             self.config.autodoc_type_aliases,
+                                             include_extras=True)
                 if self.objpath[-1] in annotations:
                     if self.config.autodoc_typehints_format == "short":
                         objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
@@ -2542,7 +2544,8 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
 
     def is_uninitialized_instance_attribute(self, parent: Any) -> bool:
         """Check the subject is an annotation only attribute."""
-        annotations = get_type_hints(parent, None, self.config.autodoc_type_aliases)
+        annotations = get_type_hints(parent, None, self.config.autodoc_type_aliases,
+                                     include_extras=True)
         return self.objpath[-1] in annotations
 
     def import_object(self, raiseerror: bool = False) -> bool:
@@ -2674,7 +2677,8 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
             if self.config.autodoc_typehints != 'none':
                 # obtain type annotation for this attribute
                 annotations = get_type_hints(self.parent, None,
-                                             self.config.autodoc_type_aliases)
+                                             self.config.autodoc_type_aliases,
+                                             include_extras=True)
                 if self.objpath[-1] in annotations:
                     if self.config.autodoc_typehints_format == "short":
                         objrepr = stringify_annotation(annotations.get(self.objpath[-1]),
@@ -2722,10 +2726,10 @@ class AttributeDocumenter(GenericAliasMixin, SlotsMixin,  # type: ignore[misc]
             # a docstring from the value which descriptor returns unexpectedly.
             # ref: https://github.com/sphinx-doc/sphinx/issues/7805
             orig = self.config.autodoc_inherit_docstrings
-            self.config.autodoc_inherit_docstrings = False  # type: ignore[attr-defined]
+            self.config.autodoc_inherit_docstrings = False
             return super().get_doc()
         finally:
-            self.config.autodoc_inherit_docstrings = orig  # type: ignore[attr-defined]
+            self.config.autodoc_inherit_docstrings = orig
 
     def add_content(self, more_content: StringList | None) -> None:
         # Disable analyzing attribute comment on Documenter.add_content() to control it on

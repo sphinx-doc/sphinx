@@ -34,7 +34,7 @@ def test_trim_doctest_flags_disabled(app, status, warning):
 def test_trim_doctest_flags_latex(app, status, warning):
     app.build()
 
-    result = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert 'FOO' not in result
     assert 'BAR' in result
     assert 'BAZ' not in result

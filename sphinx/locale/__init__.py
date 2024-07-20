@@ -114,11 +114,7 @@ def init(
         translator = None
 
     if language:
-        if '_' in language:
-            # for language having country code (like "de_AT")
-            languages: list[str] | None = [language, language.split('_')[0]]
-        else:
-            languages = [language]
+        languages: list[str] | None = [language]
     else:
         languages = None
 

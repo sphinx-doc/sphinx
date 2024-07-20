@@ -132,7 +132,7 @@ def test_domain_objects(app):
 
     assert app.env.toc_num_entries['index'] == 0
     assert app.env.toc_num_entries['domains'] == 9
-    assert app.env.toctree_includes['index'] == ['domains']
+    assert app.env.toctree_includes['index'] == ['domains', 'document_scoping']
     assert 'index' in app.env.files_to_rebuild['domains']
     assert app.env.glob_toctrees == set()
     assert app.env.numbered_toctrees == {'index'}
@@ -159,6 +159,41 @@ def test_domain_objects(app):
 
     assert_node(toctree[0][1][1][1][3],
                 [list_item, ([compact_paragraph, reference, literal, "HelloWorldPrinter.print()"])])
+
+
+@pytest.mark.sphinx('dummy', testroot='toctree-domain-objects')
+def test_domain_objects_document_scoping(app):
+    app.build()
+
+    # tocs
+    toctree = app.env.tocs['document_scoping']
+    assert_node(
+        toctree,
+        [bullet_list, list_item, (
+            compact_paragraph,  # [0][0]
+            [bullet_list, (  # [0][1]
+                [list_item, compact_paragraph, reference, literal, 'ClassLevel1a'],  # [0][1][0]
+                [list_item, (  # [0][1][1]
+                    [compact_paragraph, reference, literal, 'ClassLevel1b'],  # [0][1][1][0]
+                    [bullet_list, list_item, compact_paragraph, reference, literal, 'ClassLevel1b.f()'],  # [0][1][1][1][0]
+                )],
+                [list_item, compact_paragraph, reference, literal, 'ClassLevel1a.g()'],  # [0][1][2]
+                [list_item, compact_paragraph, reference, literal, 'ClassLevel1b.g()'],  # [0][1][3]
+                [list_item, (  # [0][1][4]
+                    [compact_paragraph, reference, 'Level 2'],  # [0][1][4][0]
+                    [bullet_list, (  # [0][1][4][1]
+                        [list_item, compact_paragraph, reference, literal, 'ClassLevel2a'],  # [0][1][4][1][0]
+                        [list_item, (  # [0][1][4][1][1]
+                            [compact_paragraph, reference, literal, 'ClassLevel2b'],  # [0][1][4][1][1][0]
+                            [bullet_list, list_item, compact_paragraph, reference, literal, 'ClassLevel2b.f()'],  # [0][1][4][1][1][1][0]
+                        )],
+                        [list_item, compact_paragraph, reference, literal, 'ClassLevel2a.g()'],  # [0][1][4][1][2]
+                        [list_item, compact_paragraph, reference, literal, 'ClassLevel2b.g()'],  # [0][1][4][1][3]
+                    )],
+                )],
+            )],
+        )],
+    )
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')

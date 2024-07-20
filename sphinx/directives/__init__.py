@@ -13,7 +13,6 @@ from sphinx.addnodes import desc_signature  # NoQA: TCH001
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TCH001
 
 if TYPE_CHECKING:
@@ -127,7 +126,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         """
         pass
 
-    def transform_content(self, contentnode: addnodes.desc_content) -> None:
+    def transform_content(self, content_node: addnodes.desc_content) -> None:
         """
         Called after creating the content through nested parsing,
         but before the ``object-description-transform`` event is emitted,
@@ -221,21 +220,26 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         node['domain'] = self.domain
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
+
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # deprecate noindex, noindexentry, and nocontentsentry in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+        if 'no-index-entry' not in self.options and 'noindexentry' in self.options:
+            self.options['no-index-entry'] = self.options['noindexentry']
+        if 'no-contents-entry' not in self.options and 'nocontentsentry' in self.options:
+            self.options['no-contents-entry'] = self.options['nocontentsentry']
+
         node['no-index'] = node['noindex'] = no_index = (
             'no-index' in self.options
-            # xref RemovedInSphinx90Warning
-            # deprecate noindex in Sphinx 9.0
-            or 'noindex' in self.options)
+        )
         node['no-index-entry'] = node['noindexentry'] = (
             'no-index-entry' in self.options
-            # xref RemovedInSphinx90Warning
-            # deprecate noindexentry in Sphinx 9.0
-            or 'noindexentry' in self.options)
+        )
         node['no-contents-entry'] = node['nocontentsentry'] = (
             'no-contents-entry' in self.options
-            # xref RemovedInSphinx90Warning
-            # deprecate nocontentsentry in Sphinx 9.0
-            or 'nocontentsentry' in self.options)
+        )
         node['no-typesetting'] = ('no-typesetting' in self.options)
         if self.domain:
             node['classes'].append(self.domain)
@@ -275,18 +279,17 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
                     # description of the object with this name in this desc block
                     self.add_target_and_index(name, sig, signode)
 
-        contentnode = addnodes.desc_content()
-        node.append(contentnode)
-
         if self.names:
             # needed for association of version{added,changed} directives
             self.env.temp_data['object'] = self.names[0]
         self.before_content()
-        nested_parse_with_titles(self.state, self.content, contentnode, self.content_offset)
-        self.transform_content(contentnode)
+        content_children = self.parse_content_to_nodes(allow_section_headings=True)
+        content_node = addnodes.desc_content('', *content_children)
+        node.append(content_node)
+        self.transform_content(content_node)
         self.env.app.emit('object-description-transform',
-                          self.domain, self.objtype, contentnode)
-        DocFieldTransformer(self).transform_all(contentnode)
+                          self.domain, self.objtype, content_node)
+        DocFieldTransformer(self).transform_all(content_node)
         self.env.temp_data['object'] = None
         self.after_content()
 

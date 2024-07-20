@@ -1,3 +1,5 @@
+.. _extension-html-theme:
+
 HTML theme development
 ======================
 
@@ -112,7 +114,7 @@ Theme configuration (``theme.conf``)
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
 Python :mod:`configparser` module) and has the following structure:
 
-.. sourcecode:: ini
+.. code-block:: ini
 
     [theme]
     inherit = base theme
@@ -221,6 +223,11 @@ If your theme package contains two or more themes, please call
 
 Templating
 ----------
+
+.. toctree::
+   :hidden:
+
+   templating
 
 The :doc:`guide to templating <templating>` is helpful if you want to write your
 own templates.  What is important to keep in mind is the order in which Sphinx
