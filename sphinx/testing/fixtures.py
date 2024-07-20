@@ -97,7 +97,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 @pytest.hookimpl()
 def pytest_runtest_makereport(
-    item: pytest.Item, call: pytest.CallInfo
+    item: pytest.Item, call: pytest.CallInfo[None]
 ) -> pytest.TestReport | None:
     if call.when != 'teardown' or _APP_INFO_KEY not in item.stash:
         return None
@@ -114,7 +114,7 @@ def pytest_runtest_makereport(
 ###############################################################################
 
 
-@pytest.fixture()
+@pytest.fixture
 def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
     """If true, use the legacy implementation of fixtures.
 
@@ -132,13 +132,13 @@ def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return tmp_path_factory.getbasetemp()
 
 
-@pytest.fixture()
+@pytest.fixture
 def sphinx_builder(request: pytest.FixtureRequest) -> str:
     """Fixture for the default builder name."""
     return getattr(request, 'param', 'html')
 
 
-@pytest.fixture()
+@pytest.fixture
 def sphinx_isolation() -> IsolationPolicy:
     """Fixture for the default isolation policy.
 
@@ -147,13 +147,13 @@ def sphinx_isolation() -> IsolationPolicy:
     return False
 
 
-@pytest.fixture()
+@pytest.fixture
 def rootdir() -> str | os.PathLike[str] | None:
     """Fixture for the directory containing the testroot directories."""
     return None
 
 
-@pytest.fixture()
+@pytest.fixture
 def testroot_prefix() -> str | None:
     """Fixture for the testroot directories prefix.
 
@@ -162,7 +162,7 @@ def testroot_prefix() -> str | None:
     return 'test-'
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_testroot() -> str | None:
     """Dynamic fixture for the default testroot ID.
 
@@ -171,7 +171,7 @@ def default_testroot() -> str | None:
     return 'root'
 
 
-@pytest.fixture()
+@pytest.fixture
 def testroot_finder(
     rootdir: str | os.PathLike[str] | None,
     testroot_prefix: str | None,
@@ -277,7 +277,7 @@ def app_params(
 ###############################################################################
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_params(request: pytest.FixtureRequest) -> TestParams:
     """Test parameters that are specified by ``pytest.mark.test_params``.
 
@@ -356,7 +356,7 @@ def _app_info_context(
         print('\n', _cleanup_app_info(text), sep='', end='')  # NoQA: T201
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_info_extras(
     request: pytest.FixtureRequest,
     # ``app`` is not used but is marked as a dependency so that
@@ -429,19 +429,19 @@ def app(
 ###############################################################################
 
 
-@pytest.fixture()
+@pytest.fixture
 def status(app: AnySphinxTestApp) -> StringIO:  # xref RemovedInSphinx90Warning: narrow type
     """Fixture for the :func:`~sphinx.testing.plugin.app` status stream."""
     return app.status
 
 
-@pytest.fixture()
+@pytest.fixture
 def warning(app: AnySphinxTestApp) -> StringIO:  # xref RemovedInSphinx90Warning: narrow type
     """Fixture for the :func:`~sphinx.testing.plugin.app` warning stream."""
     return app.warning
 
 
-@pytest.fixture()
+@pytest.fixture
 def make_app(
     test_params: TestParams,
     sphinx_use_legacy_plugin: bool,  # xref RemovedInSphinx90Warning
@@ -478,7 +478,7 @@ def make_app(
 _MODULE_CACHE_STASH_KEY: pytest.StashKey[ModuleCache] = pytest.StashKey()
 
 
-@pytest.fixture()
+@pytest.fixture
 def module_cache(request: pytest.FixtureRequest) -> ModuleCache:
     """A :class:`ModuleStorage` object."""
     module = find_context(request.node, 'module')
@@ -497,7 +497,7 @@ def _module_cache_clear(request: pytest.FixtureRequest) -> None:
         cache.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 # xref RemovedInSphinx90Warning: update type
 def if_graphviz_found(app: AnySphinxTestApp) -> None:  # NoQA: PT004
     """
@@ -643,7 +643,7 @@ def __app_fixture_legacy(  # xref RemovedInSphinx90Warning
         shared_result.store(test_params['shared_result'], app)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shared_result(  # xref RemovedInSphinx90Warning
     request: pytest.FixtureRequest,
     sphinx_use_legacy_plugin: bool,
