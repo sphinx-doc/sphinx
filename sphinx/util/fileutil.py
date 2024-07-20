@@ -75,8 +75,8 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
             msg = ('Copying the rendered template %s to %s will overwrite data, '
                    'as a file already exists at the destination path '
                    'and the content does not match.')
-            logger.info(msg, os.fsdecode(source), os.fsdecode(destination),
-                        type='misc', subtype='copy_overwrite')
+            logger.warning(msg, os.fsdecode(source), os.fsdecode(destination),
+                           type='misc', subtype='copy_overwrite')
 
         destination = _template_basename(destination) or destination
         with open(destination, 'w', encoding='utf-8') as fdst:

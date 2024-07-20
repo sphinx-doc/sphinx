@@ -106,7 +106,12 @@ def copyfile(
         msg = f'{os.fsdecode(source)} does not exist'
         raise FileNotFoundError(msg)
 
-    if not (dest_exists := path.exists(dest)) or not filecmp.cmp(source, dest):
+    if (
+        not (dest_exists := path.exists(dest)) or
+        # comparison must be done using shallow=False since
+        # two different files might have the same bytes size
+        not filecmp.cmp(source, dest, shallow=False)
+    ):
         if __overwrite_warning__ and dest_exists:
             # sphinx.util.logging imports sphinx.util.osutil,
             # so use a local import to avoid circular imports
@@ -116,8 +121,8 @@ def copyfile(
             msg = ('Copying the source path %s to %s will overwrite data, '
                    'as a file already exists at the destination path '
                    'and the content does not match.')
-            logger.info(msg, os.fsdecode(source), os.fsdecode(dest),
-                        type='misc', subtype='copy_overwrite')
+            logger.warning(msg, os.fsdecode(source), os.fsdecode(dest),
+                           type='misc', subtype='copy_overwrite')
 
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):

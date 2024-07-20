@@ -106,7 +106,6 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_templates' / 'sidebar.html').exists()
 
 
-@pytest.mark.xfail(reason='Filesystem chicanery(?)')
 @pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
 def test_copy_asset_overwrite(app):
     app.build()
