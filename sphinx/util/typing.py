@@ -9,6 +9,7 @@ import typing
 from collections.abc import Sequence
 from contextvars import Context, ContextVar, Token
 from struct import Struct
+from types import UnionType
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -41,10 +42,6 @@ if TYPE_CHECKING:
         'smart',
     ]
 
-if sys.version_info >= (3, 10):
-    from types import UnionType
-else:
-    UnionType = None
 
 # classes that have an incorrect .__module__ attribute
 _INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
@@ -206,7 +203,7 @@ def _is_unpack_form(obj: Any) -> bool:
         # that typing_extensions.Unpack should not be used in that case
         return typing.get_origin(obj) is Unpack
 
-    # 3.9 and 3.10 require typing_extensions.Unpack
+    # Python 3.10 requires typing_extensions.Unpack
     origin = typing.get_origin(obj)
     return (
         getattr(origin, '__module__', None) == 'typing_extensions'
@@ -215,13 +212,11 @@ def _is_unpack_form(obj: Any) -> bool:
 
 
 def _typing_internal_name(obj: Any) -> str | None:
-    if sys.version_info[:2] >= (3, 10):
-        try:
-            return obj.__name__
-        except AttributeError:
-            # e.g. ParamSpecArgs, ParamSpecKwargs
-            return ''
-    return getattr(obj, '_name', None)
+    try:
+        return obj.__name__
+    except AttributeError:
+        # e.g. ParamSpecArgs, ParamSpecKwargs
+        return ''
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
@@ -291,11 +286,9 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return (f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
                     fr'\ [{args}, {meta}]')
         elif inspect.isNewType(cls):
-            if sys.version_info[:2] >= (3, 10):
-                # newtypes have correct module info since Python 3.10+
-                return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-            return f':py:class:`{cls.__name__}`'
-        elif UnionType and isinstance(cls, UnionType):
+            # newtypes have correct module info since Python 3.10+
+            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
+        elif isinstance(cls, UnionType):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
             return ' | '.join(restify(a, mode) for a in cls.__args__)
@@ -436,17 +429,14 @@ def stringify_annotation(
             return annotation_name
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif isNewType(annotation):
-        if sys.version_info[:2] >= (3, 10):
-            # newtypes have correct module info since Python 3.10+
-            return module_prefix + f'{annotation_module}.{annotation_name}'
-        return annotation_name
+        return module_prefix + f'{annotation_module}.{annotation_name}'
     elif ismockmodule(annotation):
         return module_prefix + annotation_name
     elif ismock(annotation):
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif is_invalid_builtin_class(annotation):
         return module_prefix + _INVALID_BUILTIN_CLASSES[annotation]
-    elif _is_annotated_form(annotation):  # for py39+
+    elif _is_annotated_form(annotation):  # for py310+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
         args = getattr(annotation, '__args__', None)
@@ -495,7 +485,7 @@ def stringify_annotation(
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
         qualname = stringify_annotation(annotation.__origin__, mode)
-    elif UnionType and isinstance(annotation, UnionType):  # types.UnionType (for py3.10+)
+    elif isinstance(annotation, UnionType):
         qualname = 'types.UnionType'
     else:
         # we weren't able to extract the base type, appending arguments would
@@ -525,7 +515,7 @@ def stringify_annotation(
             args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
                              for a in annotation_args)
             return f'{module_prefix}Literal[{args}]'
-        elif _is_annotated_form(annotation):  # for py39+
+        elif _is_annotated_form(annotation):  # for py310+
             args = stringify_annotation(annotation_args[0], mode)
             meta_args = []
             for m in annotation.__metadata__:
@@ -541,11 +531,6 @@ def stringify_annotation(
                 else:
                     meta_args.append(repr(m))
             meta = ', '.join(meta_args)
-            if sys.version_info[:2] <= (3, 9):
-                if mode == 'smart':
-                    return f'~typing.Annotated[{args}, {meta}]'
-                if mode == 'fully-qualified':
-                    return f'typing.Annotated[{args}, {meta}]'
             if sys.version_info[:2] <= (3, 11):
                 if mode == 'fully-qualified-except-typing':
                     return f'Annotated[{args}, {meta}]'

@@ -10,6 +10,7 @@ import os
 import shutil
 import sys
 import tempfile
+from importlib.metadata import entry_points
 from os import path
 from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
@@ -26,10 +27,6 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
 
 if TYPE_CHECKING:
     from collections.abc import Callable

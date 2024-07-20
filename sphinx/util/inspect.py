@@ -135,13 +135,7 @@ def getall(obj: Any) -> Sequence[str] | None:
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
     """Safely get the ``__annotations__`` attribute of an object."""
-    if sys.version_info >= (3, 10, 0) or not isinstance(obj, type):
-        __annotations__ = safe_getattr(obj, '__annotations__', None)
-    else:
-        # Workaround for bugfix not available until python 3.10 as recommended by docs
-        # https://docs.python.org/3.10/howto/annotations.html#accessing-the-annotations-dict-of-an-object-in-python-3-9-and-older
-        __dict__ = safe_getattr(obj, '__dict__', {})
-        __annotations__ = __dict__.get('__annotations__', None)
+    __annotations__ = safe_getattr(obj, '__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
     return {}
@@ -206,11 +200,7 @@ def getslots(obj: Any) -> dict[str, Any] | dict[str, None] | None:
 
 def isNewType(obj: Any) -> bool:
     """Check the if object is a kind of :class:`~typing.NewType`."""
-    if sys.version_info[:2] >= (3, 10):
-        return isinstance(obj, typing.NewType)
-    __module__ = safe_getattr(obj, '__module__', None)
-    __qualname__ = safe_getattr(obj, '__qualname__', None)
-    return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
+    return isinstance(obj, typing.NewType)
 
 
 def isenumclass(x: Any) -> TypeIs[type[enum.Enum]]:

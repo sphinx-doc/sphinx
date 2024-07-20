@@ -106,7 +106,10 @@ def run_extract() -> None:
                         options = opt_dict
                 with open(os.path.join(root, filename), 'rb') as fileobj:
                     for lineno, message, comments, context in extract(
-                        method, fileobj, KEYWORDS, options=options
+                        method,  # type: ignore[arg-type]
+                        fileobj,
+                        KEYWORDS,
+                        options=options,
                     ):
                         filepath = os.path.join(input_path, relative_name)
                         catalogue.add(

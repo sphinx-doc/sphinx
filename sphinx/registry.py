@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import sys
 import traceback
 from importlib import import_module
+from importlib.metadata import entry_points
 from types import MethodType
 from typing import TYPE_CHECKING, Any, Callable
-
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
 
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target

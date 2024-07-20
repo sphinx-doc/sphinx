@@ -79,10 +79,10 @@ a comma-separated list of group names.
 
    * ``pyversion``, a string option, can be used to specify the required Python
      version for the example to be tested. For instance, in the following case
-     the example will be tested only for Python versions greater than 3.10::
+     the example will be tested only for Python versions greater than 3.12::
 
          .. doctest::
-            :pyversion: > 3.10
+            :pyversion: > 3.12
 
      The following operands are supported:
 
