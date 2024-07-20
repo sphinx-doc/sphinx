@@ -1,4 +1,4 @@
-target-version = "py39"  # Pin Ruff to Python 3.9
+target-version = "py310"  # Pin Ruff to Python 3.10
 line-length = 95
 output-format = "full"
 
