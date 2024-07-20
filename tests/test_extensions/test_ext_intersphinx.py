@@ -178,7 +178,7 @@ def set_config(app, mapping):
 
 
 # TODO(picnixz): investigate why 'caplog' fixture does not work
-@mock.patch("sphinx.ext.intersphinx.LOGGER")
+@mock.patch("sphinx.ext.intersphinx._load.LOGGER")
 def test_normalize_intersphinx_mapping(logger):
     app = mock.Mock()
     app.config.intersphinx_mapping = {
@@ -646,15 +646,16 @@ def test_load_mappings_cache_update(make_app, app_params):
     DOMAIN_NAME = 'py'
     OBJECT_TYPE = 'module'
     REFTYPE = f'{DOMAIN_NAME}:{OBJECT_TYPE}'
+    PORT = 7777
 
-    PROJECT_NAME, PROJECT_BASEURL = 'foo', 'http://localhost:7777'
+    PROJECT_NAME, PROJECT_BASEURL = 'foo', f'http://localhost:{PORT}'
     old_project = IntersphinxProject(PROJECT_NAME, 1337, PROJECT_BASEURL, 'old')
     assert old_project.name == PROJECT_NAME
-    assert old_project.url == 'http://localhost:7777/old'
+    assert old_project.url == f'http://localhost:{PORT}/old'
 
     new_project = IntersphinxProject(PROJECT_NAME, 1701, PROJECT_BASEURL, 'new')
     assert new_project.name == PROJECT_NAME
-    assert new_project.url == 'http://localhost:7777/new'
+    assert new_project.url == f'http://localhost:{PORT}/new'
 
     def make_entry(project: IntersphinxProject) -> InventoryEntry:
         name = f'{ITEM_NAME}_{project.version}'
@@ -687,7 +688,7 @@ def test_load_mappings_cache_update(make_app, app_params):
 
     baseconfig = {'extensions': ['sphinx.ext.intersphinx']}
 
-    with http_server(InventoryHandler):
+    with http_server(InventoryHandler, port=PORT):
         confoverrides1 = baseconfig | {'intersphinx_mapping': old_project.record}
         app1 = make_app(*args, confoverrides=confoverrides1, **kwargs)
         app1.build()

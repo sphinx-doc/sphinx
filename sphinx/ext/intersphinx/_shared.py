@@ -2,15 +2,41 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final, Union
+from typing import TYPE_CHECKING
 
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from typing import Final, Optional
+
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory
 
-    InventoryCacheEntry = tuple[Union[str, None], int, Inventory]
+    #: The inventory project URL to which links are resolved.
+    #:
+    #: This value is unique in :confval:`intersphinx_mapping`.
+    InventoryURI = str
+
+    #: The inventory (non-empty) name.
+    #:
+    #: It is unique and in bijection with an inventory remote URL.
+    InventoryName = str
+
+    #: A target (local or remote) containing the inventory data to fetch.
+    #:
+    #: Empty strings are not expected and ``None`` indicates the default
+    #: inventory file name :data:`~sphinx.builder.html.INVENTORY_FILENAME`.
+    InventoryLocation = Optional[str]
+
+    #: Inventory cache entry. The integer field is the cache expiration time.
+    InventoryCacheEntry = tuple[InventoryName, int, Inventory]
+
+    #: The type of :confval:`intersphinx_mapping` *after* normalization.
+    IntersphinxMapping = dict[
+        InventoryName,
+        tuple[InventoryName, tuple[InventoryURI, tuple[InventoryLocation, ...]]],
+    ]
+
 
 LOGGER: Final[logging.SphinxLoggerAdapter] = logging.getLogger('sphinx.ext.intersphinx')
 
