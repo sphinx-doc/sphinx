@@ -15,7 +15,7 @@ Bugs fixed
   ``sphinx.ext.autodoc``,
   especially when using :mod:`dataclasses` as type metadata.
   Patch by Adam Turner.
-* #12589, #12623: autosummary: Fix warnings with :rst:role:`!autolink`.
+* #12589, #12626: autosummary: Fix warnings with :rst:role:`!autolink`.
   Patch by Adam Turner.
 
 Release 7.4.6 (released Jul 18, 2024)
