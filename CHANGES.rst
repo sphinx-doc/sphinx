@@ -9,8 +9,10 @@ Incompatible changes
 
 Deprecated
 ----------
-* #12630: Configuration defaults for ``linkcheck_allow_unauthorized`` and
-  ``linkcheck_report_timeouts_as_broken`` have been updated.
+* #12630: Two ``linkcheck`` defaults are updated from deprecated legacy values:
+
+   * :confval:`linkcheck_allow_unauthorized` is now ``False`` by default.
+   * :confval:`linkcheck_report_timeouts_as_broken` is now ``True`` by default.
 
 Features added
 --------------
