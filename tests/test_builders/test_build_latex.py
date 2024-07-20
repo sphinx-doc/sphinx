@@ -158,21 +158,21 @@ def test_writer(app, status, warning):
 
     assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
-            '\\caption{figure with align option}\\label{\\detokenize{markup:id9}}'
+            '\\caption{figure with align option}\\label{\\detokenize{markup:id10}}'
             '\\end{wrapfigure}\n\n'
             '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
             '\\caption{figure with align \\& figwidth option}'
-            '\\label{\\detokenize{markup:id10}}'
+            '\\label{\\detokenize{markup:id11}}'
             '\\end{wrapfigure}\n\n'
             '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
             '\\caption{figure with align \\& width option}'
-            '\\label{\\detokenize{markup:id11}}'
+            '\\label{\\detokenize{markup:id12}}'
             '\\end{wrapfigure}\n\n'
             '\\mbox{}\\par\\vskip-\\dimexpr\\baselineskip+\\parskip\\relax' in result)
 
@@ -1591,7 +1591,9 @@ def test_latex_labels(app, status, warning):
 def test_latex_figure_in_admonition(app, status, warning):
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
-    assert r'\begin{figure}[H]' in result
+    assert 'tabulary' not in result
+    for type in ('caution', 'note', 'seealso', 'todo'):
+        assert f'{type} directive.\n\n\\begin{{figure}}[H]' in result
 
 
 def test_default_latex_documents():
@@ -1759,3 +1761,33 @@ def test_one_parameter_per_line(app, status, warning):
     assert ('\\pysiglinewithargsret{\\sphinxbfcode{\\sphinxupquote{hello}}}' in result)
 
     assert ('\\pysigwithonelineperarg{\\sphinxbfcode{\\sphinxupquote{foo}}}' in result)
+
+    # generic_arg[T]
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_arg}}}'
+            '{\\sphinxtypeparam{\\DUrole{n}{T}}}{}{}' in result)
+
+    # generic_foo[T]()
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_foo}}}' in result)
+
+    # generic_bar[T](x: list[T])
+    assert ('\\pysigwithonelineperargwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_bar}}}' in result)
+
+    # generic_ret[R]() -> R
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_ret}}}'
+            '{\\sphinxtypeparam{\\DUrole{n}{R}}}{}{{ $\\rightarrow$ R}}' in result)
+
+    # MyGenericClass[X]
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
+            '}}}\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}' in result)
+
+    # MyList[T](list[T])
+    assert ('\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
+            '}}}\\sphinxbfcode{\\sphinxupquote{MyList}}}' in result)
+
+
+@pytest.mark.sphinx('latex', testroot='markup-rubric')
+def test_latex_rubric(app):
+    app.build()
+    content = (app.outdir / 'test.tex').read_text(encoding='utf8')
+    assert r'\subsubsection*{This is a rubric}' in content
+    assert r'\subsection*{A rubric with a heading level 2}' in content

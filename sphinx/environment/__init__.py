@@ -59,7 +59,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 61
+ENV_VERSION = 62
 
 # config status
 CONFIG_UNSET = -1
@@ -75,7 +75,7 @@ CONFIG_CHANGED_REASON = {
 }
 
 
-versioning_conditions: dict[str, bool | Callable] = {
+versioning_conditions: dict[str, Literal[False] | Callable[[Node], bool]] = {
     'none': False,
     'text': is_translatable,
 }
@@ -159,7 +159,7 @@ class BuildEnvironment:
         self.version: dict[str, int] = app.registry.get_envversion(app)
 
         # the method of doctree versioning; see set_versioning_method
-        self.versioning_condition: bool | Callable | None = None
+        self.versioning_condition: Literal[False] | Callable[[Node], bool] | None = None
         self.versioning_compare: bool | None = None
 
         # all the registered domains, set by the application
@@ -233,7 +233,7 @@ class BuildEnvironment:
 
         # domain-specific inventories, here to be pickled
         # domainname -> domain-specific dict
-        self.domaindata: dict[str, dict] = {}
+        self.domaindata: dict[str, dict[str, Any]] = {}
 
         # these map absolute path -> (docnames, unique filename)
         self.images: FilenameUniqDict = FilenameUniqDict()
@@ -272,7 +272,7 @@ class BuildEnvironment:
         # set up environment
         self.setup(app)
 
-    def __getstate__(self) -> dict:
+    def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
         # clear unpickable attributes
@@ -283,7 +283,7 @@ class BuildEnvironment:
         __dict__.update(_pickled_doctree_cache={}, _write_doc_doctree_cache={})
         return __dict__
 
-    def __setstate__(self, state: dict) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         self.__dict__.update(state)
 
     def setup(self, app: Sphinx) -> None:
@@ -353,7 +353,9 @@ class BuildEnvironment:
         # Allow to disable by 3rd party extension (workaround)
         self.settings.setdefault('smart_quotes', True)
 
-    def set_versioning_method(self, method: str | Callable, compare: bool) -> None:
+    def set_versioning_method(
+        self, method: str | Callable[[Node], bool], compare: bool
+    ) -> None:
         """Set the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
@@ -361,7 +363,7 @@ class BuildEnvironment:
         raise an exception if the user tries to use an environment with an
         incompatible versioning method.
         """
-        condition: bool | Callable
+        condition: Literal[False] | Callable[[Node], bool]
         if callable(method):
             condition = method
         else:
@@ -369,7 +371,7 @@ class BuildEnvironment:
                 raise ValueError('invalid versioning method: %r' % method)
             condition = versioning_conditions[method]
 
-        if self.versioning_condition not in (None, condition):
+        if self.versioning_condition not in {None, condition}:
             raise SphinxError(__('This environment is incompatible with the '
                                  'selected builder, please choose another '
                                  'doctree directory.'))

@@ -429,14 +429,14 @@ Keys that don't need to be overridden unless in special cases are:
 ``'geometry'``
    "geometry" package inclusion, the default definition is:
 
-   .. code:: latex
+   .. code-block:: latex
 
       '\\usepackage{geometry}'
 
    with an additional ``[dvipdfm]`` for Japanese documents.
    The Sphinx LaTeX style file executes:
 
-   .. code:: latex
+   .. code-block:: latex
 
       \PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}
 
@@ -1304,14 +1304,24 @@ forget the underscore separating the prefix from the property names.
   | ``<prefix>_TeXcolor``.
     These are colors.
 
-  The shadow color defaults in all cases to ``{rgb}{0,0,0}`` i.e. to black.
+  Since 6.0.0 the border and background colors of :rst:dir:`code-block`,
+  default respectively to ``{RGB}{32,32,32}`` (i.e. ``{HTML}{202020}``), and
+  ``{RGB}{242,242,242}`` (i.e. ``{gray}{0.95}`` or ``{HTML}{F2F2F2}``).
 
-  Since 6.0.0 the border color and background color of :rst:dir:`code-block`,
-  i.e. ``pre`` prefix, default respectively to ``{RGB}{32,32,32}`` and
-  ``{gray}{0.95}``.  They previously defaulted to black, respectively white.
+  At 7.4.0 other directives acquire non-black/white default border and
+  background colors.  Here they are using ``xcolor`` hexadecimal notation
+  (which requires always 6 hexadecimal digits):
 
-  For all other types, the border color defaults to black and the background
-  color to white.
+  - ``{HTML}{F7F7F7}`` serves as background color to all.
+  - ``{HTML}{86989B}`` is border color of light admonitions (inclusive of
+    :rst:dir:`seealso` and :rst:dir:`todo`) as well as of :dudir:`topic` and
+    contents_ directives.
+  - ``{HTML}{940000}`` is border color or :dudir:`warning`-type admonitions,
+    except :dudir:`error` which uses ``{HTML}{B40000}``.
+
+  The only directives displaying a shadow per default are :dudir:`topic` and
+  contents_ (handled identically at LaTeX level) and their shadow color is
+  ``{HTML}{6C6C6C}``.  For all others the default shadow color is black.
 
   The ``<prefix>_TeXcolor`` stands for the CSS property "color", i.e. it
   influences the text color of the contents.  As for the three other options,
@@ -1329,7 +1339,6 @@ forget the underscore separating the prefix from the property names.
   commands, for example ``\itshape``.  These commands will be inserted at the
   start of the contents; for admonitions, this happens after the heading which
   reproduces the admonition type.
-
 
 The next keys, for admonitions only, were all three added at 7.4.0.  The
 default colors are the ones applying to the current HTML rendering of Sphinx

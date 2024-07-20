@@ -230,6 +230,19 @@ Tables with multirow and multicol:
 
           figure in table
 
+   * - .. warning::
+
+          warning in table
+
+   * - .. seealso::
+
+          figure in a seealso in a table
+
+          .. figure:: img.png
+
+             with a caption
+
+             and a legend
 
 Figures
 -------

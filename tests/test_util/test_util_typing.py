@@ -196,8 +196,8 @@ def test_restify_type_hints_containers():
 def test_restify_Annotated():
     assert restify(Annotated[str, "foo", "bar"]) == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
     assert restify(Annotated[str, "foo", "bar"], 'smart') == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
-    assert restify(Annotated[float, Gt(-10.0)]) == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, Gt(gt=-10.0)]'
-    assert restify(Annotated[float, Gt(-10.0)], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, Gt(gt=-10.0)]'
+    assert restify(Annotated[float, Gt(-10.0)]) == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`tests.test_util.test_util_typing.Gt`\\ (gt=\\ -10.0)]'
+    assert restify(Annotated[float, Gt(-10.0)], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`~tests.test_util.test_util_typing.Gt`\\ (gt=\\ -10.0)]'
 
 
 def test_restify_type_hints_Callable():
@@ -385,6 +385,21 @@ def test_restify_mock():
         assert restify(unknown.secret.Class, "smart") == ':py:class:`~unknown.secret.Class`'
 
 
+@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='ParamSpec not supported in Python 3.9.')
+def test_restify_type_hints_paramspec():
+    from typing import ParamSpec
+    P = ParamSpec('P')
+
+    assert restify(P) == ":py:obj:`tests.test_util.test_util_typing.P`"
+    assert restify(P, "smart") == ":py:obj:`~tests.test_util.test_util_typing.P`"
+
+    assert restify(P.args) == "P.args"
+    assert restify(P.args, "smart") == "P.args"
+
+    assert restify(P.kwargs) == "P.kwargs"
+    assert restify(P.kwargs, "smart") == "P.kwargs"
+
+
 def test_stringify_annotation():
     assert stringify_annotation(int, 'fully-qualified-except-typing') == "int"
     assert stringify_annotation(int, "smart") == "int"
@@ -506,12 +521,11 @@ def test_stringify_type_hints_pep_585():
     assert stringify_annotation(tuple[List[dict[int, str]], str, ...], "smart") == "tuple[~typing.List[dict[int, str]], str, ...]"
 
 
-@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='Needs fixing.')
 def test_stringify_Annotated():
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "Annotated[str, 'foo', 'bar']"
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'smart') == "~typing.Annotated[str, 'foo', 'bar']"
-    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'fully-qualified-except-typing') == "Annotated[float, Gt(gt=-10.0)]"
-    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'smart') == "~typing.Annotated[float, Gt(gt=-10.0)]"
+    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'fully-qualified-except-typing') == "Annotated[float, tests.test_util.test_util_typing.Gt(gt=-10.0)]"
+    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'smart') == "~typing.Annotated[float, ~tests.test_util.test_util_typing.Gt(gt=-10.0)]"
 
 
 def test_stringify_Unpack():
@@ -722,3 +736,21 @@ def test_stringify_type_ForwardRef():
     assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]]) == "Tuple[dict[MyInt, str], list[List[int]]]"  # type: ignore[attr-defined]
     assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]], 'fully-qualified-except-typing') == "Tuple[dict[MyInt, str], list[List[int]]]"  # type: ignore[attr-defined]
     assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]], 'smart') == "~typing.Tuple[dict[MyInt, str], list[~typing.List[int]]]"  # type: ignore[attr-defined]
+
+
+@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='ParamSpec not supported in Python 3.9.')
+def test_stringify_type_hints_paramspec():
+    from typing import ParamSpec
+    P = ParamSpec('P')
+
+    assert stringify_annotation(P, 'fully-qualified') == "~P"
+    assert stringify_annotation(P, 'fully-qualified-except-typing') == "~P"
+    assert stringify_annotation(P, "smart") == "~P"
+
+    assert stringify_annotation(P.args, 'fully-qualified') == "typing.~P"
+    assert stringify_annotation(P.args, 'fully-qualified-except-typing') == "~P"
+    assert stringify_annotation(P.args, "smart") == "~typing.~P"
+
+    assert stringify_annotation(P.kwargs, 'fully-qualified') == "typing.~P"
+    assert stringify_annotation(P.kwargs, 'fully-qualified-except-typing') == "~P"
+    assert stringify_annotation(P.kwargs, "smart") == "~typing.~P"
