@@ -11,8 +11,6 @@ if TYPE_CHECKING:
     from _pytest.config import Config
     from _pytest.pytester import Pytester
 
-pytest_plugins = ['pytester']
-
 
 # change this fixture when the rest of the test suite is changed
 @pytest.fixture(scope='package')

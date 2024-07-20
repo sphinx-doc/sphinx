@@ -34,8 +34,12 @@ def _init_console(
 
 sphinx.locale.init_console = _init_console
 
-# for now, we do not enable the 'xdist' plugin
-pytest_plugins = ['sphinx.testing.fixtures']
+# For now, we do not enable the 'xdist' plugin but we
+# need the 'pytester' plugin declared in the top-level
+# conftest.py file
+#
+# See https://docs.pytest.org/en/stable/deprecations.html#pytest-plugins-in-non-top-level-conftest-files.
+pytest_plugins = ['sphinx.testing.fixtures', 'pytester']
 
 # Exclude resource directories for pytest test collector
 collect_ignore = ['certs', 'roots']
