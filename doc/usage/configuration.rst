@@ -1331,7 +1331,7 @@ Options for warning control
 
 .. confval:: show_warning_types
    :type: :code-py:`bool`
-   :default: :code-py:`False`
+   :default: :code-py:`True`
 
    Add the type of each warning as a suffix to the warning message.
    For example, ``WARNING: [...] [index]`` or ``WARNING: [...] [toc.circular]``.
@@ -1339,6 +1339,8 @@ Options for warning control
    in a :confval:`suppress_warnings` list.
 
    .. versionadded:: 7.3.0
+   .. versionchanged:: 8.0.0
+      The default is now :code-py:`True`.
 
 .. confval:: suppress_warnings
    :type: :code-py:`Sequence[str]`
