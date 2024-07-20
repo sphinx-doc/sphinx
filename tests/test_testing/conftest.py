@@ -15,13 +15,14 @@ if TYPE_CHECKING:
 
 collect_ignore: list[str] = ['_templates']
 
+
 # change this fixture when the rest of the test suite is changed
 @pytest.fixture(scope='package')
 def default_testroot() -> str:
     return 'minimal'
 
 
-@pytest.fixture()
+@pytest.fixture
 def e2e(pytester: Pytester) -> E2E:
     return E2E(pytester)
 

@@ -30,7 +30,7 @@ def test_print_2(): print("YAY")
         res.stdout.fnmatch_lines_random(['*YAY*'])
 
 
-@pytest.mark.serial()
+@pytest.mark.serial
 def test_magic_buffer_can_intercept_data(request, e2e):
     e2e.makepyfile(f"""
 def test_data_1({MAGICO}):
@@ -61,7 +61,7 @@ def test_data_2({MAGICO}):
     assert output.findall('b', nodeid='*::test_data_2', t=int) == [-3, -4]
 
 
-@pytest.mark.serial()
+@pytest.mark.serial
 def test_magic_buffer_can_intercept_text(e2e):
     e2e.makepyfile(f"""
 def test_text_1({MAGICO}): {MAGICO}.text("YAY1")
@@ -74,7 +74,7 @@ def test_text_2({MAGICO}): {MAGICO}.text("YAY2")
     assert output.message(nodeid='*::test_text_2') == 'YAY2'
 
 
-@pytest.mark.serial()
+@pytest.mark.serial
 def test_magic_buffer_e2e(e2e):
     TEST_DUMP_DATA = f"""
 def test_data({MAGICO}):
@@ -99,7 +99,7 @@ def test_text({MAGICO}):
 
 
 class TestTeardownSectionParser:
-    @pytest.fixture()
+    @pytest.fixture
     def lines(cls) -> list[str]:
         def data(nodeid: str) -> Sequence[str]:
             writer = DataWriter()

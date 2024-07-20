@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     GroupPolicy = Literal['native', 'sphinx', 123]
 
 
-@pytest.mark.serial()
+@pytest.mark.serial
 def test_framework_no_xdist(pytester):
     pytester.makepyfile(f"""
 from sphinx.testing._internal.pytest_xdist import get_xdist_policy
@@ -34,7 +34,7 @@ def test_check_setup(pytestconfig):
     assert E2E(pytester).run(passed=1)
 
 
-@pytest.mark.serial()
+@pytest.mark.serial
 def test_framework_with_xdist(pytester):
     pytester.makepyfile(f"""
 from sphinx.testing._internal.pytest_xdist import get_xdist_policy
@@ -200,7 +200,7 @@ def _check_same_policy(group: GroupPolicy, suites: Sequence[Sequence[_ExtractInf
             assert group_name == str(group), suite
 
 
-@pytest.mark.serial()
+@pytest.mark.serial
 class TestParallelTestingModule:
     @staticmethod
     def run(e2e: E2E, *, parametrized: bool, **groups: GroupPolicy) -> MagicOutput:
@@ -285,7 +285,7 @@ class TestParallelTestingModule:
             _check_same_policy(group, [foo, bar])
 
 
-@pytest.mark.serial()
+@pytest.mark.serial
 class TestParallelTestingPackage:
     """Same as :class:`TestParallelTestingModule` but with tests in different files."""
 

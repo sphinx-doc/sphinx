@@ -8,7 +8,7 @@ from ._const import MAGICO
 from ._util import SourceInfo
 
 
-@pytest.fixture()
+@pytest.fixture
 def random_uuid() -> str:
     return uuid.uuid4().hex
 
