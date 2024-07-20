@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import sys
 import types
 import typing
@@ -157,6 +158,7 @@ def get_type_hints(
     obj: Any,
     globalns: dict[str, Any] | None = None,
     localns: dict[str, Any] | None = None,
+    include_extras: bool = False,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -167,7 +169,7 @@ def get_type_hints(
     from sphinx.util.inspect import safe_getattr  # lazy loading
 
     try:
-        return typing.get_type_hints(obj, globalns, localns)
+        return typing.get_type_hints(obj, globalns, localns, include_extras=include_extras)
     except NameError:
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
@@ -267,7 +269,20 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return f':py:class:`{module_prefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
         elif _is_annotated_form(cls):
             args = restify(cls.__args__[0], mode)
-            meta = ', '.join(map(repr, cls.__metadata__))
+            meta_args = []
+            for m in cls.__metadata__:
+                if isinstance(m, type):
+                    meta_args.append(restify(m, mode))
+                elif dataclasses.is_dataclass(m):
+                    # use restify for the repr of field values rather than repr
+                    d_fields = ', '.join([
+                        fr"{f.name}=\ {restify(getattr(m, f.name), mode)}"
+                        for f in dataclasses.fields(m) if f.repr
+                    ])
+                    meta_args.append(fr'{restify(type(m), mode)}\ ({d_fields})')
+                else:
+                    meta_args.append(repr(m))
+            meta = ', '.join(meta_args)
             if sys.version_info[:2] <= (3, 11):
                 # Hardcoded to fix errors on Python 3.11 and earlier.
                 return fr':py:class:`~typing.Annotated`\ [{args}, {meta}]'
@@ -510,7 +525,25 @@ def stringify_annotation(
             return f'{module_prefix}Literal[{args}]'
         elif _is_annotated_form(annotation):  # for py39+
             args = stringify_annotation(annotation_args[0], mode)
-            meta = ', '.join(map(repr, annotation.__metadata__))
+            meta_args = []
+            for m in annotation.__metadata__:
+                if isinstance(m, type):
+                    meta_args.append(stringify_annotation(m, mode))
+                elif dataclasses.is_dataclass(m):
+                    # use stringify_annotation for the repr of field values rather than repr
+                    d_fields = ', '.join([
+                        f"{f.name}={stringify_annotation(getattr(m, f.name), mode)}"
+                        for f in dataclasses.fields(m) if f.repr
+                    ])
+                    meta_args.append(f'{stringify_annotation(type(m), mode)}({d_fields})')
+                else:
+                    meta_args.append(repr(m))
+            meta = ', '.join(meta_args)
+            if sys.version_info[:2] <= (3, 9):
+                if mode == 'smart':
+                    return f'~typing.Annotated[{args}, {meta}]'
+                if mode == 'fully-qualified':
+                    return f'typing.Annotated[{args}, {meta}]'
             if sys.version_info[:2] <= (3, 11):
                 if mode == 'fully-qualified-except-typing':
                     return f'Annotated[{args}, {meta}]'
