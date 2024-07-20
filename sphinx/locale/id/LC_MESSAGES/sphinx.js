@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Go",
         "Hide Search Matches": "Sembunyikan Hasil Pencarian",
         "Index": "Indeks",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Index halaman berdasarkan huruf",
         "Indices and tables:": "Indeks dan tabel:",
         "Last updated on %(last_updated)s.": "Terakhir diperbarui pada %(last_updated)s.",

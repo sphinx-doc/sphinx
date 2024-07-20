@@ -1,3 +1,5 @@
+.. _ext-intersphinx:
+
 :mod:`sphinx.ext.intersphinx` -- Link to other projects' documentation
 ======================================================================
 

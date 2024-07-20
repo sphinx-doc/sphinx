@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u0dba\u0db1\u0dca\u0db1",
         "Hide Search Matches": "",
         "Index": "",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "",

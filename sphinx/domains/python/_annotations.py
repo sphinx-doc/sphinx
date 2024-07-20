@@ -161,7 +161,29 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
                           addnodes.desc_sig_punctuation('', ')')]
 
             return result
-        raise SyntaxError  # unsupported syntax
+        if isinstance(node, ast.Call):
+            # Call nodes can be used in Annotated type metadata,
+            # for example Annotated[str, ArbitraryTypeValidator(str, len=10)]
+            args = []
+            for arg in node.args:
+                args += unparse(arg)
+                args.append(addnodes.desc_sig_punctuation('', ','))
+                args.append(addnodes.desc_sig_space())
+            for kwd in node.keywords:
+                args.append(addnodes.desc_sig_name(kwd.arg, kwd.arg))  # type: ignore[arg-type]
+                args.append(addnodes.desc_sig_operator('', '='))
+                args += unparse(kwd.value)
+                args.append(addnodes.desc_sig_punctuation('', ','))
+                args.append(addnodes.desc_sig_space())
+            result = [
+                *unparse(node.func),
+                addnodes.desc_sig_punctuation('', '('),
+                *args[:-2],  # skip the final comma and space
+                addnodes.desc_sig_punctuation('', ')'),
+            ]
+            return result
+        msg = f'unsupported syntax: {node}'
+        raise SyntaxError(msg)  # unsupported syntax
 
     def _unparse_pep_604_annotation(node: ast.Subscript) -> list[Node]:
         subscript = node.slice

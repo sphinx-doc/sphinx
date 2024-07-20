@@ -85,7 +85,7 @@ introduction paragraph in ``index.rst``:
 
    Check out the :doc:`usage` section for further information.
 
-The :rst:role:`doc` :ref:`role <rst-roles-alt>` you used automatically
+The :rst:role:`doc` :ref:`role <rst-roles>` you used automatically
 references a specific document in the project, in this case the ``usage.rst``
 you created earlier.
 

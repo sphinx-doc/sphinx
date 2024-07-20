@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Pirmyn",
         "Hide Search Matches": "Pasl\u0117pti paie\u0161kos rezultatus",
         "Index": "Indeksas",
-        "Index &ndash; %(key)s": "Indeksas &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indekso puslapiai pagal raid\u0119",
         "Indices and tables:": "Indeksai ir lentel\u0117s:",
         "Last updated on %(last_updated)s.": "Paskutinis atnaujinimas %(last_updated)s.",
