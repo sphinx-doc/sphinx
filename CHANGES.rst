@@ -41,6 +41,8 @@ Incompatible changes
   Patch by Adam Turner.
 * #12593: Raise an error for invalid :confval:`html_sidebars` values.
   Patch by Adam Turner.
+* #12593: Raise an error in :py:func:`!Theme.get_config` for invalid sections.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
