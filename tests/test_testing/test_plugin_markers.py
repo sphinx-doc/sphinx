@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 
-@pytest.mark.sphinx()
+@pytest.mark.sphinx
 def test_mark_sphinx_use_default_builder(app_params):
     args, kwargs = app_params
     assert not args
@@ -46,7 +46,7 @@ def test_mark_sphinx_with_isolation(app_params, sphinx_isolation, policy):
 
 
 @pytest.mark.sphinx('dummy')
-@pytest.mark.test_params()
+@pytest.mark.test_params
 def test_mark_sphinx_with_implicit_shared_result(app_params, test_params):
     shared_result = app_params.kwargs['shared_result']
     assert shared_result == test_params['shared_result']

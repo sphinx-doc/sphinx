@@ -74,7 +74,7 @@ def pytest_report_header(config: Config) -> str:
 ###############################################################################
 
 
-@pytest.fixture()
+@pytest.fixture
 def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
     return False  # use the new implementation
 
