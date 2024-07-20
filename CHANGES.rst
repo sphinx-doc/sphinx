@@ -6,10 +6,6 @@ Dependencies
 
 Incompatible changes
 --------------------
-* #12630: Sphinx 8.x makes two changes to the ``linkcheck`` configuration defaults:
-
-   * :confval:`linkcheck_allow_unauthorized` is now ``False`` by default.
-   * :confval:`linkcheck_report_timeouts_as_broken` is now ``False`` by default.
 
 .. rst-class:: compact
 
@@ -55,6 +51,12 @@ Incompatible changes
   Patch by Adam Turner.
 * Removed the tuple interface to :py:class:`!sphinx.ext.autodoc.ObjectMember`.
   Patch by Adam Turner.
+* #12630: Sphinx 8 makes two changes to the ``linkcheck`` configuration defaults:
+
+  * :confval:`linkcheck_allow_unauthorized` is now ``False`` by default.
+  * :confval:`linkcheck_report_timeouts_as_broken` is now ``False`` by default.
+
+  Patch by James Addison.
 
 Deprecated
 ----------
