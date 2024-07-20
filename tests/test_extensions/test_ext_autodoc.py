@@ -2342,7 +2342,7 @@ def test_autodoc_Annotated(app):
         '   Type alias for a validated string.',
         '',
         '   alias of :py:class:`~typing.Annotated`\\ [:py:class:`str`, '
-        '~target.annotated.FuncValidator(func=:py:class:`~target.annotated.validate`)]',
+        ':py:class:`~target.annotated.FuncValidator`\\ (func=\\ :py:class:`~target.annotated.validate`)]',
         '',
         '',
         ".. py:function:: hello(name: ~typing.Annotated[str, 'attribute']) -> None",

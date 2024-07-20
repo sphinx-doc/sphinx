@@ -196,8 +196,8 @@ def test_restify_type_hints_containers():
 def test_restify_Annotated():
     assert restify(Annotated[str, "foo", "bar"]) == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
     assert restify(Annotated[str, "foo", "bar"], 'smart') == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
-    assert restify(Annotated[float, Gt(-10.0)]) == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`tests.test_util.test_util_typing.Gt`\\ (gt=-10.0)]'
-    assert restify(Annotated[float, Gt(-10.0)], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`~tests.test_util.test_util_typing.Gt`\\ (gt=-10.0)]'
+    assert restify(Annotated[float, Gt(-10.0)]) == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`tests.test_util.test_util_typing.Gt`\\ (gt=\ -10.0)]'
+    assert restify(Annotated[float, Gt(-10.0)], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`~tests.test_util.test_util_typing.Gt`\\ (gt=\ -10.0)]'
 
 
 def test_restify_type_hints_Callable():
