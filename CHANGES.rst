@@ -5,7 +5,7 @@ Bugs fixed
 ----------
 
 * #12096: Warn when files are overwritten in the build directory.
-  Patch by Adam Turner.
+  Patch by Adam Turner and Bénédikt Tran.
 * #12620: Ensure that old-style object description options are respected.
   Patch by Adam Turner.
 * #12601, #12625: Support callable objects in :py:class:`~typing.Annotated` type
