@@ -49,6 +49,8 @@ Incompatible changes
   :option:`!--use-make-mode`, and :option:`!-m` options
   from :program:`sphinx-quickstart`.
   Patch by Adam Turner.
+* Removed the tuple interface to :py:class:`!sphinx.ext.autodoc.ObjectMember`.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
