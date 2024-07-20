@@ -3754,11 +3754,9 @@ and the number of workers to use.
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
-   When an HTTP response is not received from a webserver before the configured
-   :confval:`linkcheck_timeout` expires,
-   the current default behaviour of the *linkcheck* builder is
-   to put the link in a special category, ``timeout``.
-   To report timeouts using the 'broken' report code,
+   If :confval:`linkcheck_timeout` expires while waiting for a response from
+   a hyperlink, the *linkcheck* builder will report the link as a ``timeout``
+   by default.  To report timeouts as ``broken`` instead, you can
    set :confval:`linkcheck_report_timeouts_as_broken` to :code-py:`True`.
 
    .. versionchanged:: 8.0
