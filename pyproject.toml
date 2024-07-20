@@ -251,7 +251,6 @@ module = [
     "sphinx.domains.cpp",
     "sphinx.events",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autodoc.directive",
     "sphinx.ext.autodoc.importer",
     "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
