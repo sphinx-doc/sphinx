@@ -76,7 +76,7 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
                    'as a file already exists at the destination path '
                    'and the content does not match.')
             # See https://github.com/sphinx-doc/sphinx/pull/12627#issuecomment-2241144330
-            # for the rational for logger.info().
+            # for the rationale for logger.info().
             logger.info(msg, os.fsdecode(source), os.fsdecode(destination),
                         type='misc', subtype='copy_overwrite')
 
