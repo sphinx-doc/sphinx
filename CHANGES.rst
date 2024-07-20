@@ -9,6 +9,8 @@ Incompatible changes
 
 Deprecated
 ----------
+* #12630: Configuration defaults for ``linkcheck_allow_unauthorized`` and
+  ``linkcheck_report_timeouts_as_broken`` have been updated.
 
 Features added
 --------------
