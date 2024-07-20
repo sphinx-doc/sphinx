@@ -11,7 +11,7 @@ import functools
 import operator
 import re
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 
 from docutils.statemachine import StringList
 
@@ -39,7 +39,7 @@ from sphinx.util.typing import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
 
     from sphinx.application import Sphinx

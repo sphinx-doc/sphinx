@@ -22,10 +22,10 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Literal
+    from typing import Literal, TypeAlias
 
     from docutils.nodes import Node, Text
-    from typing_extensions import TypeAlias, TypeIs
+    from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.config import Config

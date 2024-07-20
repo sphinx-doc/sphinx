@@ -7,9 +7,9 @@ from sphinx.util import logging
 from sphinx.util.console import bold, color_terminal
 
 if False:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
-    from typing import Any, Callable, TypeVar
+    from typing import Any, TypeVar
 
     from typing_extensions import ParamSpec
 

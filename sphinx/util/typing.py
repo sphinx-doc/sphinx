@@ -6,7 +6,7 @@ import dataclasses
 import sys
 import types
 import typing
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from contextvars import Context, ContextVar, Token
 from struct import Struct
 from types import UnionType
@@ -14,7 +14,6 @@ from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     ForwardRef,
     TypedDict,
     TypeVar,
@@ -26,9 +25,9 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal, Protocol
+    from typing import Final, Literal, Protocol, TypeAlias
 
-    from typing_extensions import TypeAlias, TypeIs
+    from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
 

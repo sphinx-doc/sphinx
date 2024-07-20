@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Final, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -23,7 +23,7 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder

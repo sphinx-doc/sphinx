@@ -9,7 +9,7 @@ import time
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 from sphinx import addnodes
 from sphinx.environment.adapters import toctree as toctree_adapters
@@ -23,7 +23,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
     from pathlib import Path
 
     from docutils import nodes

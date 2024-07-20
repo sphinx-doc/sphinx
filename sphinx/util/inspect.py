@@ -27,9 +27,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Final, Protocol, Union
+    from typing import Final, Protocol, TypeAlias, Union
 
-    from typing_extensions import TypeAlias, TypeIs
+    from typing_extensions import TypeIs
 
     class _SupportsGet(Protocol):
         def __get__(self, __instance: Any, __owner: type | None = ...) -> Any: ...  # NoQA: E704

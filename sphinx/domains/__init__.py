@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, cast
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, NamedTuple, Optional, cast
 
 from docutils.nodes import Element, Node, system_message
 

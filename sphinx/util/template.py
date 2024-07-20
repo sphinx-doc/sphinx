@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from functools import partial
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from jinja2 import TemplateNotFound
 from jinja2.loaders import BaseLoader
@@ -17,7 +17,7 @@ from sphinx.locale import get_translator
 from sphinx.util import rst, texescape
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from jinja2.environment import Environment
 

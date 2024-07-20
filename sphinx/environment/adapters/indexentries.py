@@ -13,9 +13,7 @@ from sphinx.util import logging
 from sphinx.util.index_entries import _split_into
 
 if TYPE_CHECKING:
-    from typing import Literal, Optional, Union
-
-    from typing_extensions import TypeAlias
+    from typing import Literal, Optional, TypeAlias, Union
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
