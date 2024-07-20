@@ -58,7 +58,7 @@ Incompatible changes
 
   Patch by James Addison.
 * #12597: Change the default of :confval:`show_warning_types`
-  from ``False``to ``True``.
+  from ``False`` to ``True``.
   Patch by Chris Sewell.
 
 Deprecated
