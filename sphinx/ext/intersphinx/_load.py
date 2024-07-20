@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.ext.intersphinx._shared import (
+        IntersphinxMapping,
         InventoryCacheEntry,
         InventoryLocation,
         InventoryName,
@@ -109,7 +110,7 @@ def load_mappings(app: Sphinx) -> None:
     now = int(time.time())
     inventories = InventoryAdapter(app.builder.env)
     intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
-    intersphinx_mapping = app.config.intersphinx_mapping
+    intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
 
     expected_uris = {uri for uri, _invs in app.config.intersphinx_mapping.values()}
 
