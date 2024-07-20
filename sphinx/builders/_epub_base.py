@@ -170,7 +170,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, frozenset({'html', 'epub'}))
 
-    def get_theme_config(self) -> tuple[str, dict]:
+    def get_theme_config(self) -> tuple[str, dict[str, str | int | bool]]:
         return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
@@ -451,8 +451,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def copy_download_files(self) -> None:
         pass
 
-    def handle_page(self, pagename: str, addctx: dict, templatename: str = 'page.html',
-                    outfilename: str | None = None, event_arg: Any = None) -> None:
+    def handle_page(
+        self,
+        pagename: str,
+        addctx: dict[str, Any],
+        templatename: str = 'page.html',
+        outfilename: str | None = None,
+        event_arg: Any = None,
+    ) -> None:
         """Create a rendered page.
 
         This method is overwritten for genindex pages in order to fix href link
@@ -615,7 +621,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                             html.escape(self.refnodes[0]['refuri'])))
 
         # write the project file
-        copy_asset_file(path.join(self.template_dir, 'content.opf_t'), self.outdir, metadata)
+        copy_asset_file(path.join(self.template_dir, 'content.opf.jinja'), self.outdir, metadata)  # NoQA: E501
 
     def new_navpoint(self, node: dict[str, Any], level: int, incr: bool = True) -> NavPoint:
         """Create a new entry in the toc from the node at given level."""
@@ -698,7 +704,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        copy_asset_file(path.join(self.template_dir, 'toc.ncx_t'), self.outdir,
+        copy_asset_file(path.join(self.template_dir, 'toc.ncx.jinja'), self.outdir,
                         self.toc_metadata(level, navpoints))
 
     def build_epub(self) -> None:

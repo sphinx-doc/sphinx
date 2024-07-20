@@ -71,9 +71,9 @@ The most common builders are:
 .. class:: StandaloneHTMLBuilder
 
    This is the standard HTML builder.  Its output is a directory with HTML
-   files, complete with style sheets and optionally the reST sources.  There are
-   quite a few configuration values that customize the output of this builder,
-   see the chapter :ref:`html-options` for details.
+   files, complete with style sheets and optionally the reStructuredText sources.
+   There are quite a few configuration values that customize
+   the output of this builder, see the chapter :ref:`html-options` for details.
 
    .. autoattribute:: name
 
@@ -237,12 +237,20 @@ The most common builders are:
 
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
+   * ``texlive-fonts-extra`` (needed for ``fontawesome5``, see the 7.4.0
+     change notice below)
    * ``tex-gyre`` (if :confval:`latex_engine` left to default)
    * ``texlive-latex-extra``
    * ``latexmk``
 
    .. versionchanged:: 4.0.0
       TeX Gyre fonts now required for ``'pdflatex'`` engine (default).
+
+   .. versionchanged:: 7.4.0
+      LaTeX package ``xcolor`` is now required (it is part of Ubuntu
+      ``texlive-latex-recommended`` anyhow).  The LaTeX package
+      ``fontawesome5`` is recommended.  See the :ref:`'sphinxsetup'
+      <latexsphinxsetup>` ``iconpackage`` key for more.
 
    Additional packages are needed in some circumstances:
 
@@ -298,9 +306,9 @@ name is ``rinoh``. Refer to the `rinohtype manual`_ for details.
 .. module:: sphinx.builders.text
 .. class:: TextBuilder
 
-   This builder produces a text file for each reST file -- this is almost the
-   same as the reST source, but with much of the markup stripped for better
-   readability.
+   This builder produces a text file for each reStructuredText file.
+   This is almost the same as the reStructuredText source,
+   but with much of the markup stripped for better readability.
 
    .. autoattribute:: name
 
@@ -540,8 +548,8 @@ Serialization builder details
 -----------------------------
 
 All serialization builders outputs one file per source file and a few special
-files.  They also copy the reST source files in the directory ``_sources``
-under the output directory.
+files.  They also copy the reStructuredText source files
+to the ``_sources`` directory under the output directory.
 
 The :class:`.PickleHTMLBuilder` is a builtin subclass that implements the pickle
 serialization interface.

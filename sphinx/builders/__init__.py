@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import codecs
 import pickle
+import re
 import time
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, final
 
 from docutils import nodes
 from docutils.utils import DependencyList
@@ -21,7 +22,7 @@ from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
-from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
+from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
 
 # side effect: registers roles and directives
@@ -71,9 +72,9 @@ class Builder:
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
     supported_image_types: list[str] = []
-    #: The builder supports remote images or not.
+    #: The builder can produce output documents that may fetch external images when opened.
     supported_remote_images = False
-    #: The builder supports data URIs or not.
+    #: The file format produced by the builder allows images to be embedded using data-URIs.
     supported_data_uri_images = False
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
@@ -92,8 +93,8 @@ class Builder:
         self.tags: Tags = app.tags
         self.tags.add(self.format)
         self.tags.add(self.name)
-        self.tags.add("format_%s" % self.format)
-        self.tags.add("builder_%s" % self.name)
+        self.tags.add(f'format_{self.format}')
+        self.tags.add(f'builder_{self.name}')
 
         # images that need to be copied over (source -> dest)
         self.images: dict[str, str] = {}
@@ -245,12 +246,14 @@ class Builder:
 
     # build methods
 
+    @final
     def build_all(self) -> None:
         """Build all source files."""
         self.compile_all_catalogs()
 
         self.build(None, summary=__('all source files'), method='all')
 
+    @final
     def build_specific(self, filenames: list[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
         docnames: list[str] = []
@@ -281,6 +284,7 @@ class Builder:
         self.build(docnames, method='specific',
                    summary=__('%d source files given on command line') % len(docnames))
 
+    @final
     def build_update(self) -> None:
         """Only rebuild what was changed or added since last build."""
         self.compile_update_catalogs()
@@ -294,13 +298,14 @@ class Builder:
                        summary=__('targets for %d source files that are out of date') %
                        len(to_build))
 
+    @final
     def build(
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
-        """Main build method.
+        """Main build method, usually called by a specific ``build_*`` method.
 
         First updates the environment, and then calls
         :meth:`!write`.
@@ -367,6 +372,7 @@ class Builder:
         # wait for all tasks
         self.finish_tasks.join()
 
+    @final
     def read(self) -> list[str]:
         """(Re-)read all files new or changed since last update.
 
@@ -418,9 +424,40 @@ class Builder:
         else:
             self._read_serial(docnames)
 
-        if self.config.root_doc not in self.env.all_docs:
-            raise SphinxError('root file %s not found' %
-                              self.env.doc2path(self.config.root_doc))
+        if self.config.master_doc not in self.env.all_docs:
+            from sphinx.project import EXCLUDE_PATHS
+            from sphinx.util.matching import _translate_pattern
+
+            master_doc_path = self.env.doc2path(self.config.master_doc)
+            master_doc_canon = canon_path(master_doc_path)
+            for pat in EXCLUDE_PATHS:
+                if not re.match(_translate_pattern(pat), master_doc_canon):
+                    continue
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it matches a built-in exclude pattern %r. '
+                         'Please move your master document to a different location.')
+                raise SphinxError(msg % (master_doc_path, pat))
+            for pat in self.config.exclude_patterns:
+                if not re.match(_translate_pattern(pat), master_doc_canon):
+                    continue
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it matches an exclude pattern specified '
+                         'in conf.py, %r. '
+                         'Please remove this pattern from conf.py.')
+                raise SphinxError(msg % (master_doc_path, pat))
+            if set(self.config.include_patterns) != {'**'} and not any(
+                re.match(_translate_pattern(pat), master_doc_canon)
+                for pat in self.config.include_patterns
+            ):
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it is not included in the custom include_patterns = %r. '
+                         'Ensure that a pattern in include_patterns matches the '
+                         'master document.')
+                raise SphinxError(msg % (master_doc_path, self.config.include_patterns))
+            msg = __('Sphinx is unable to load the master document (%s). '
+                     'The master document must be within the source directory '
+                     'or a subdirectory of it.')
+            raise SphinxError(msg % master_doc_path)
 
         for retval in self.events.emit('env-updated', self.env):
             if retval is not None:
@@ -473,6 +510,7 @@ class Builder:
         tasks.join()
         logger.info('')
 
+    @final
     def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
@@ -507,10 +545,11 @@ class Builder:
 
         self.write_doctree(docname, doctree, _cache=_cache)
 
+    @final
     def write_doctree(
         self, docname: str, doctree: nodes.document, *, _cache: bool = True,
     ) -> None:
-        """Write the doctree to a file."""
+        """Write the doctree to a file, to be used as a cache by re-builds."""
         # make it picklable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
@@ -537,8 +576,12 @@ class Builder:
         self,
         build_docnames: Iterable[str] | None,
         updated_docnames: Sequence[str],
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
+        """Write builder specific output files."""
+        # Allow any extensions to perform setup for writing
+        self.events.emit('write-started', self)
+
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs

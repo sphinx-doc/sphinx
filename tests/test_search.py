@@ -11,6 +11,14 @@ from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 
+from tests.utils import TESTS_ROOT
+
+JAVASCRIPT_TEST_ROOTS = [
+    directory
+    for directory in (TESTS_ROOT / 'js' / 'roots').iterdir()
+    if (directory / 'conf.py').exists()
+]
+
 
 class DummyEnvironment:
     def __init__(self, version, domains):
@@ -66,6 +74,9 @@ section_title
 =============
 
 .. test that comments are not indexed: boson
+
+another_title
+=============
 
 test that non-comments are indexed: fermion
 '''
@@ -164,6 +175,10 @@ def test_IndexBuilder():
                              'docname2_1': 'title2_1', 'docname2_2': 'title2_2'}
     assert index._filenames == {'docname1_1': 'filename1_1', 'docname1_2': 'filename1_2',
                                 'docname2_1': 'filename2_1', 'docname2_2': 'filename2_2'}
+    # note: element iteration order (sort order) is important when the index
+    # is frozen (serialized) during build -- however, the _mapping-related
+    # dictionaries below may be iterated in arbitrary order by Python at
+    # runtime.
     assert index._mapping == {
         'ar': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'fermion': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
@@ -172,7 +187,10 @@ def test_IndexBuilder():
         'index': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
         'test': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
     }
-    assert index._title_mapping == {'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'}}
+    assert index._title_mapping == {
+        'another_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+        'section_titl': {'docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'},
+    }
     assert index._objtypes == {}
     assert index._objnames == {}
 
@@ -192,8 +210,14 @@ def test_IndexBuilder():
                   'non': [0, 1, 2, 3],
                   'test': [0, 1, 2, 3]},
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1, 2, 3]},
-        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title'), (2, 'section-title'), (3, 'section-title')]},
+        'titleterms': {
+            'another_titl': [0, 1, 2, 3],
+            'section_titl': [0, 1, 2, 3],
+        },
+        'alltitles': {
+            'another_title': [(0, 'another-title'), (1, 'another-title'), (2, 'another-title'), (3, 'another-title')],
+            'section_title': [(0, None), (1, None), (2, None), (3, None)],
+        },
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -234,7 +258,10 @@ def test_IndexBuilder():
         'index': {'docname1_2', 'docname2_2'},
         'test': {'docname1_2', 'docname2_2'},
     }
-    assert index._title_mapping == {'section_titl': {'docname1_2', 'docname2_2'}}
+    assert index._title_mapping == {
+        'another_titl': {'docname1_2', 'docname2_2'},
+        'section_titl': {'docname1_2', 'docname2_2'},
+    }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
     assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')}
 
@@ -253,8 +280,14 @@ def test_IndexBuilder():
                   'non': [0, 1],
                   'test': [0, 1]},
         'titles': ('title1_2', 'title2_2'),
-        'titleterms': {'section_titl': [0, 1]},
-        'alltitles': {'section_title': [(0, 'section-title'), (1, 'section-title')]},
+        'titleterms': {
+            'another_titl': [0, 1],
+            'section_titl': [0, 1],
+        },
+        'alltitles': {
+            'another_title': [(0, 'another-title'), (1, 'another-title')],
+            'section_title': [(0, None), (1, None)],
+        },
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
@@ -343,6 +376,19 @@ def assert_is_sorted(item, path: str):
             assert_is_sorted(value, f'{path}.{key}')
     elif isinstance(item, list):
         if not is_title_tuple_type(item) and path not in lists_not_to_sort:
-            assert item == sorted(item), f'{err_path} is not sorted'
+            # sort nulls last; http://stackoverflow.com/questions/19868767/
+            assert item == sorted(item, key=lambda x: (x is None, x)), f'{err_path} is not sorted'
         for i, child in enumerate(item):
             assert_is_sorted(child, f'{path}[{i}]')
+
+
+@pytest.mark.parametrize('directory', JAVASCRIPT_TEST_ROOTS)
+def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
+    app = make_app('html', srcdir=directory, builddir=sphinx_test_tempdir / directory.name)
+    app.build()
+
+    fresh_searchindex = (app.outdir / 'searchindex.js')
+    existing_searchindex = (TESTS_ROOT / 'js' / 'fixtures' / directory.name / 'searchindex.js')
+
+    msg = f"Search index fixture {existing_searchindex} does not match regenerated copy."
+    assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg
