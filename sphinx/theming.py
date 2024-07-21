@@ -121,17 +121,11 @@ class Theme:
         elif section == 'options':
             value = self._options.get(name, default)
         else:
-            # https://github.com/sphinx-doc/sphinx/issues/12305
-            # For backwards compatibility when attempting to read a value
-            # from an unsupported configuration section.
-            # xref: RemovedInSphinx80Warning
             msg = __(
                 'Theme configuration sections other than [theme] and [options] '
-                'are not supported, returning the default value instead '
-                '(tried to get a value from %r)'
+                'are not supported (tried to get a value from %r).'
             )
-            logger.info(msg, section)
-            value = default
+            raise ThemeError(msg)
         if value is _NO_DEFAULT:
             msg = __('setting %s.%s occurs in none of the searched theme configs') % (
                 section,
@@ -179,7 +173,7 @@ class HTMLThemeFactory:
         for name, theme in themes.items():
             self._themes[name] = theme
 
-    def _load_additional_themes(self, theme_paths: str) -> None:
+    def _load_additional_themes(self, theme_paths: list[str]) -> None:
         """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
             abs_theme_path = path.abspath(path.join(self._app.confdir, theme_path))

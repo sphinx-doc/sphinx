@@ -97,17 +97,19 @@ _OptValidTypes = Union[tuple[()], tuple[type, ...], frozenset[type], ENUM]
 
 
 class _Opt:
-    __slots__ = 'default', 'rebuild', 'valid_types'
+    __slots__ = 'default', 'rebuild', 'valid_types', 'description'
 
     default: Any
     rebuild: _ConfigRebuild
     valid_types: _OptValidTypes
+    description: str
 
     def __init__(
         self,
         default: Any,
         rebuild: _ConfigRebuild,
         valid_types: _OptValidTypes,
+        description: str = '',
     ) -> None:
         """Configuration option type for Sphinx.
 
@@ -120,52 +122,56 @@ class _Opt:
         super().__setattr__('default', default)
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
+        super().__setattr__('description', description)
 
     def __repr__(self) -> str:
         return (
             f'{self.__class__.__qualname__}('
             f'default={self.default!r}, '
             f'rebuild={self.rebuild!r}, '
-            f'valid_types={self.valid_types!r})'
+            f'valid_types={self.rebuild!r}, '
+            f'description={self.description!r})'
         )
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, _Opt):
-            self_tpl = (self.default, self.rebuild, self.valid_types)
-            other_tpl = (other.default, other.rebuild, other.valid_types)
+            self_tpl = (self.default, self.rebuild, self.valid_types, self.description)
+            other_tpl = (other.default, other.rebuild, other.valid_types, self.description)
             return self_tpl == other_tpl
         return NotImplemented
 
     def __lt__(self, other: _Opt) -> bool:
         if self.__class__ is other.__class__:
-            self_tpl = (self.default, self.rebuild, self.valid_types)
-            other_tpl = (other.default, other.rebuild, other.valid_types)
+            self_tpl = (self.default, self.rebuild, self.valid_types, self.description)
+            other_tpl = (other.default, other.rebuild, other.valid_types, self.description)
             return self_tpl > other_tpl
         return NotImplemented
 
     def __hash__(self) -> int:
-        return hash((self.default, self.rebuild, self.valid_types))
+        return hash((self.default, self.rebuild, self.valid_types, self.description))
 
     def __setattr__(self, key: str, value: Any) -> None:
-        if key in {'default', 'rebuild', 'valid_types'}:
+        if key in {'default', 'rebuild', 'valid_types', 'description'}:
             msg = f'{self.__class__.__name__!r} object does not support assignment to {key!r}'
             raise TypeError(msg)
         super().__setattr__(key, value)
 
     def __delattr__(self, key: str) -> None:
-        if key in {'default', 'rebuild', 'valid_types'}:
+        if key in {'default', 'rebuild', 'valid_types', 'description'}:
             msg = f'{self.__class__.__name__!r} object does not support deletion of {key!r}'
             raise TypeError(msg)
         super().__delattr__(key)
 
-    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes]:
-        return self.default, self.rebuild, self.valid_types
+    def __getstate__(self) -> tuple[Any, _ConfigRebuild, _OptValidTypes, str]:
+        return self.default, self.rebuild, self.valid_types, self.description
 
-    def __setstate__(self, state: tuple[Any, _ConfigRebuild, _OptValidTypes]) -> None:
-        default, rebuild, valid_types = state
+    def __setstate__(
+            self, state: tuple[Any, _ConfigRebuild, _OptValidTypes, str]) -> None:
+        default, rebuild, valid_types, description = state
         super().__setattr__('default', default)
         super().__setattr__('rebuild', rebuild)
         super().__setattr__('valid_types', valid_types)
+        super().__setattr__('description', description)
 
     def __getitem__(self, item: int | slice) -> Any:
         warnings.warn(
@@ -196,11 +202,11 @@ class Config:
 
     config_values: dict[str, _Opt] = {
         # general options
-        'project': _Opt('Python', 'env', ()),
-        'author': _Opt('unknown', 'env', ()),
+        'project': _Opt('Project name not set', 'env', ()),
+        'author': _Opt('Author name not set', 'env', ()),
         'project_copyright': _Opt('', 'html', frozenset((str, tuple, list))),
         'copyright': _Opt(
-            lambda c: c.project_copyright, 'html', frozenset((str, tuple, list))),
+            lambda config: config.project_copyright, 'html', frozenset((str, tuple, list))),
         'version': _Opt('', 'env', ()),
         'release': _Opt('', 'env', ()),
         'today': _Opt('', 'env', ()),
@@ -238,7 +244,7 @@ class Config:
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
         'keep_warnings': _Opt(False, 'env', ()),
         'suppress_warnings': _Opt([], 'env', ()),
-        'show_warning_types': _Opt(False, 'env', frozenset((bool,))),
+        'show_warning_types': _Opt(True, 'env', frozenset((bool,))),
         'modindex_common_prefix': _Opt([], 'html', ()),
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
@@ -258,6 +264,7 @@ class Config:
         'math_number_all': _Opt(False, 'env', ()),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
         'math_numfig': _Opt(True, 'env', ()),
+        'math_numsep': _Opt('.', 'env', frozenset((str,))),
         'tls_verify': _Opt(True, 'env', ()),
         'tls_cacerts': _Opt(None, 'env', ()),
         'user_agent': _Opt(None, 'env', frozenset((str,))),
@@ -326,34 +333,33 @@ class Config:
         valid_types = opt.valid_types
         if valid_types == Any:
             return value
-        elif (type(default) is bool
-              or (not isinstance(valid_types, ENUM)
-                  and len(valid_types) == 1 and bool in valid_types)):
+        if (type(default) is bool
+            or (not isinstance(valid_types, ENUM)
+                and len(valid_types) == 1 and bool in valid_types)):
             if isinstance(valid_types, ENUM) or len(valid_types) > 1:
                 # if valid_types are given, and non-bool valid types exist,
                 # return the value without coercing to a Boolean.
                 return value
             # given falsy string from a command line option
             return value not in {'0', ''}
-        elif isinstance(default, dict):
+        if isinstance(default, dict):
             raise ValueError(__('cannot override dictionary config setting %r, '
                                 'ignoring (use %r to set individual elements)') %
                              (name, f'{name}.key=value'))
-        elif isinstance(default, list):
+        if isinstance(default, list):
             return value.split(',')
-        elif isinstance(default, int):
+        if isinstance(default, int):
             try:
                 return int(value)
             except ValueError as exc:
                 raise ValueError(__('invalid number %r for config value %r, ignoring') %
                                  (value, name)) from exc
-        elif callable(default):
+        if callable(default):
             return value
-        elif default is not None and not isinstance(default, str):
-            raise ValueError(__('cannot override config setting %r with unsupported '
-                                'type, ignoring') % name)
-        else:
+        if isinstance(default, str) or default is None:
             return value
+        raise ValueError(__('cannot override config setting %r with unsupported '
+                            'type, ignoring') % name)
 
     @staticmethod
     def pre_init_values() -> None:
@@ -385,13 +391,16 @@ class Config:
             values.append(f"{opt_name}={opt_value!r}")
         return self.__class__.__qualname__ + '(' + ', '.join(values) + ')'
 
-    def __setattr__(self, key: str, value: Any) -> None:
-        # if someone is still using 'master_doc', we need to update 'root_doc'
-        if key in ('master_doc', 'root_doc'):
+    def __setattr__(self, key: str, value: object) -> None:
+        # Ensure aliases update their counterpart.
+        if key == 'master_doc':
             super().__setattr__('root_doc', value)
+        elif key == 'root_doc':
             super().__setattr__('master_doc', value)
-            return
-
+        elif key == 'copyright':
+            super().__setattr__('project_copyright', value)
+        elif key == 'project_copyright':
+            super().__setattr__('copyright', value)
         super().__setattr__(key, value)
 
     def __getattr__(self, name: str) -> Any:
@@ -407,11 +416,12 @@ class Config:
                 except ValueError as exc:
                     logger.warning("%s", exc)
                 else:
-                    self.__dict__[name] = value
+                    self.__setattr__(name, value)
                     return value
             # then check values from 'conf.py'
             if name in self._raw_config:
-                self.__dict__[name] = value = self._raw_config[name]
+                value = self._raw_config[name]
+                self.__setattr__(name, value)
                 return value
             # finally, fall back to the default value
             default = self._options[name].default
@@ -442,7 +452,8 @@ class Config:
             yield ConfigValue(name, getattr(self, name), opt.rebuild)
 
     def add(self, name: str, default: Any, rebuild: _ConfigRebuild,
-            types: type | Collection[type] | ENUM) -> None:
+            types: type | Collection[type] | ENUM,
+            description: str = '') -> None:
         if name in self._options:
             raise ExtensionError(__('Config value %r already present') % name)
 
@@ -452,7 +463,7 @@ class Config:
 
         # standardise valid_types
         valid_types = _validate_valid_types(types)
-        self._options[name] = _Opt(default, rebuild, valid_types)
+        self._options[name] = _Opt(default, rebuild, valid_types, description)
 
     def filter(self, rebuild: Set[_ConfigRebuild]) -> Iterator[ConfigValue]:
         if isinstance(rebuild, str):
@@ -570,14 +581,18 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         #
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
-        config.source_suffix = {source_suffix: None}
+        config.source_suffix = {source_suffix: 'restructuredtext'}
+        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
+                    source_suffix, config.source_suffix)
     elif isinstance(source_suffix, (list, tuple)):
         # if list, considers as all of them are default filetype
-        config.source_suffix = dict.fromkeys(source_suffix, None)
+        config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
+        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
+                    source_suffix, config.source_suffix)
     elif not isinstance(source_suffix, dict):
-        logger.warning(__("The config value `source_suffix' expects "
-                          "a string, list of strings, or dictionary. "
-                          "But `%r' is given." % source_suffix))
+        msg = __("The config value `source_suffix' expects a dictionary,"
+                 "a string, or a list of strings. Got `%r' instead (type %s).")
+        raise ConfigError(msg % (source_suffix, type(source_suffix)))
 
 
 def convert_highlight_options(app: Sphinx, config: Config) -> None:

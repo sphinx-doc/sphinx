@@ -27,7 +27,6 @@ from sphinx.builders.linkcheck import (
     RateLimit,
     compile_linkcheck_allowed_redirects,
 )
-from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.util import requests
 from sphinx.util.console import strip_colors
 
@@ -36,7 +35,7 @@ from tests.utils import CERT_FILE, serve_application
 ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable
     from io import StringIO
 
     from sphinx.application import Sphinx
@@ -274,6 +273,43 @@ def test_anchors_ignored(app: Sphinx) -> None:
 
 
 class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
+    protocol_version = 'HTTP/1.1'
+
+    def _chunk_content(self, content: str, *, max_chunk_size: int) -> Iterable[bytes]:
+
+        def _encode_chunk(chunk: bytes) -> Iterable[bytes]:
+            """Encode a bytestring into a format suitable for HTTP chunked-transfer.
+
+            https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding
+            """
+            yield f'{len(chunk):X}'.encode('ascii')
+            yield b'\r\n'
+            yield chunk
+            yield b'\r\n'
+
+        buffer = b''
+        for char in content:
+            buffer += char.encode('utf-8')
+            if len(buffer) >= max_chunk_size:
+                chunk, buffer = buffer[:max_chunk_size], buffer[max_chunk_size:]
+                yield from _encode_chunk(chunk)
+
+        # Flush remaining bytes, if any
+        if buffer:
+            yield from _encode_chunk(buffer)
+
+        # Emit a final empty chunk to close the stream
+        yield from _encode_chunk(b'')
+
+    def _send_chunked(self, content: str) -> bool:
+        for chunk in self._chunk_content(content, max_chunk_size=20):
+            try:
+                self.wfile.write(chunk)
+            except (BrokenPipeError, ConnectionResetError) as e:
+                self.log_message(str(e))
+                return False
+        return True
+
     def do_HEAD(self):
         if self.path in {'/valid', '/ignored'}:
             self.send_response(200, "OK")
@@ -282,11 +318,18 @@ class AnchorsIgnoreForUrlHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        self.do_HEAD()
         if self.path == '/valid':
-            self.wfile.write(b"<h1 id='valid-anchor'>valid anchor</h1>\n")
+            self.send_response(200, 'OK')
+            content = "<h1 id='valid-anchor'>valid anchor</h1>\n"
         elif self.path == '/ignored':
-            self.wfile.write(b"no anchor but page exists\n")
+            self.send_response(200, 'OK')
+            content = 'no anchor but page exists\n'
+        else:
+            self.send_response(404, 'Not Found')
+            content = 'not found\n'
+        self.send_header('Transfer-Encoding', 'chunked')
+        self.end_headers()
+        self._send_chunked(content)
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-anchors-ignore-for-url', freshenv=True)
@@ -347,6 +390,50 @@ def test_raises_for_invalid_status(app: Sphinx) -> None:
         "500 Server Error: Internal Server Error "
         f"for url: http://{address}/\n"
     )
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
+def test_incomplete_html_anchor(app):
+    class IncompleteHTMLDocumentHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_GET(self):
+            content = b'this is <div id="anchor">not</div> a valid HTML document'
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+    with serve_application(app, IncompleteHTMLDocumentHandler):
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    assert len(content.splitlines()) == 1
+
+    row = json.loads(content)
+    assert row['status'] == 'working'
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver-anchor', freshenv=True)
+def test_decoding_error_anchor_ignored(app):
+    class NonASCIIHandler(BaseHTTPRequestHandler):
+        protocol_version = 'HTTP/1.1'
+
+        def do_GET(self):
+            content = b'\x80\x00\x80\x00'  # non-ASCII byte-string
+            self.send_response(200, 'OK')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+    with serve_application(app, NonASCIIHandler):
+        app.build()
+
+    content = (app.outdir / 'output.json').read_text(encoding='utf8')
+    assert len(content.splitlines()) == 1
+
+    row = json.loads(content)
+    assert row['status'] == 'ignored'
 
 
 def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
@@ -415,7 +502,6 @@ def test_auth_header_uses_first_match(app: Sphinx) -> None:
     assert content["status"] == "working"
 
 
-@pytest.mark.filterwarnings('ignore::sphinx.deprecation.RemovedInSphinx80Warning')
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_allow_unauthorized': False})
@@ -434,18 +520,14 @@ def test_unauthorized_broken(app: Sphinx) -> None:
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app: Sphinx) -> None:
-    with (
-        serve_application(app, custom_handler(valid_credentials=("user1", "password"))),
-        pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
-    ):
+    with serve_application(app, custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
 
-    # This link is considered working based on the default linkcheck_allow_unauthorized=true
     assert content["info"] == "unauthorized"
-    assert content["status"] == "working"
+    assert content["status"] == "broken"
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)

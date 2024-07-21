@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Ewch",
         "Hide Search Matches": "Cuddio Canlyniadau Chwilio",
         "Index": "Indecs",
-        "Index &ndash; %(key)s": "Indecs &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indecs tudalennau gan lythyren",
         "Indices and tables:": "Indecsau a tablau:",
         "Last updated on %(last_updated)s.": "Diweddarwyd yn ddiwethaf ar %(last_updated)s.",

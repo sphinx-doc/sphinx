@@ -2,7 +2,10 @@
 
 from unittest import mock
 
+import pytest
+
 from sphinx.jinja2glue import BuiltinTemplateLoader
+from sphinx.util import strip_colors
 from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
 
 
@@ -28,9 +31,9 @@ def test_copy_asset_file(tmp_path):
     assert src.read_text(encoding='utf8') == dest.read_text(encoding='utf8')
 
     # copy template file
-    src = (tmp_path / 'asset.txt_t')
+    src = (tmp_path / 'asset.txt.jinja')
     src.write_text('# {{var1}} data', encoding='utf8')
-    dest = (tmp_path / 'output.txt_t')
+    dest = (tmp_path / 'output.txt.jinja')
 
     copy_asset_file(str(src), str(dest), {'var1': 'template'}, renderer)
     assert not dest.exists()
@@ -38,7 +41,7 @@ def test_copy_asset_file(tmp_path):
     assert (tmp_path / 'output.txt').read_text(encoding='utf8') == '# template data'
 
     # copy template file to subdir
-    src = (tmp_path / 'asset.txt_t')
+    src = (tmp_path / 'asset.txt.jinja')
     src.write_text('# {{var1}} data', encoding='utf8')
     subdir1 = (tmp_path / 'subdir')
     subdir1.mkdir(parents=True, exist_ok=True)
@@ -48,14 +51,14 @@ def test_copy_asset_file(tmp_path):
     assert (subdir1 / 'asset.txt').read_text(encoding='utf8') == '# template data'
 
     # copy template file without context
-    src = (tmp_path / 'asset.txt_t')
+    src = (tmp_path / 'asset.txt.jinja')
     subdir2 = (tmp_path / 'subdir2')
     subdir2.mkdir(parents=True, exist_ok=True)
 
     copy_asset_file(src, subdir2)
     assert not (subdir2 / 'asset.txt').exists()
-    assert (subdir2 / 'asset.txt_t').exists()
-    assert (subdir2 / 'asset.txt_t').read_text(encoding='utf8') == '# {{var1}} data'
+    assert (subdir2 / 'asset.txt.jinja').exists()
+    assert (subdir2 / 'asset.txt.jinja').read_text(encoding='utf8') == '# {{var1}} data'
 
 
 def test_copy_asset(tmp_path):
@@ -65,12 +68,12 @@ def test_copy_asset(tmp_path):
     source = (tmp_path / 'source')
     source.mkdir(parents=True, exist_ok=True)
     (source / 'index.rst').write_text('index.rst', encoding='utf8')
-    (source / 'foo.rst_t').write_text('{{var1}}.rst', encoding='utf8')
+    (source / 'foo.rst.jinja').write_text('{{var1}}.rst', encoding='utf8')
     (source / '_static').mkdir(parents=True, exist_ok=True)
     (source / '_static' / 'basic.css').write_text('basic.css', encoding='utf8')
     (source / '_templates').mkdir(parents=True, exist_ok=True)
     (source / '_templates' / 'layout.html').write_text('layout.html', encoding='utf8')
-    (source / '_templates' / 'sidebar.html_t').write_text('sidebar: {{var2}}', encoding='utf8')
+    (source / '_templates' / 'sidebar.html.jinja').write_text('sidebar: {{var2}}', encoding='utf8')
 
     # copy a single file
     assert not (tmp_path / 'test1').exists()
@@ -101,6 +104,18 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_static' / 'basic.css').exists()
     assert (destdir / '_templates' / 'layout.html').exists()
     assert not (destdir / '_templates' / 'sidebar.html').exists()
+
+
+@pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
+def test_copy_asset_overwrite(app):
+    app.build()
+    src = app.srcdir / 'myext_static' / 'custom-styles.css'
+    dst = app.outdir / '_static' / 'custom-styles.css'
+    assert (
+        f'Copying the source path {src} to {dst} will overwrite data, '
+        'as a file already exists at the destination path '
+        'and the content does not match.\n'
+    ) in strip_colors(app.status.getvalue())
 
 
 def test_template_basename():

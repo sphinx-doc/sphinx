@@ -42,14 +42,16 @@ from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
     from docutils import nodes
-    from docutils.nodes import Element
+    from docutils.nodes import Element, Node
     from docutils.parsers import Parser
 
     from sphinx.builders import Builder
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
+    from sphinx.ext.autodoc import Documenter
     from sphinx.extension import Extension
     from sphinx.roles import XRefRole
+    from sphinx.search import SearchLanguage
     from sphinx.theming import Theme
     from sphinx.util.typing import RoleFunction, TitleGetter
 
@@ -138,7 +140,7 @@ class Sphinx:
     def __init__(self, srcdir: str | os.PathLike[str], confdir: str | os.PathLike[str] | None,
                  outdir: str | os.PathLike[str], doctreedir: str | os.PathLike[str],
                  buildername: str, confoverrides: dict | None = None,
-                 status: IO | None = sys.stdout, warning: IO | None = sys.stderr,
+                 status: IO[str] | None = sys.stdout, warning: IO[str] | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
                  tags: Sequence[str] = (),
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
@@ -190,14 +192,14 @@ class Sphinx:
         self.parallel = parallel
 
         if status is None:
-            self._status: IO = StringIO()
+            self._status: IO[str] = StringIO()
             self.quiet: bool = True
         else:
             self._status = status
             self.quiet = False
 
         if warning is None:
-            self._warning: IO = StringIO()
+            self._warning: IO[str] = StringIO()
         else:
             self._warning = warning
         self._warncount = 0
@@ -527,9 +529,11 @@ class Sphinx:
         """
         self.registry.add_builder(builder, override=override)
 
-    # TODO(stephenfin): Describe 'types' parameter
-    def add_config_value(self, name: str, default: Any, rebuild: _ConfigRebuild,
-                         types: type | Collection[type] | ENUM = ()) -> None:
+    def add_config_value(
+        self, name: str, default: Any, rebuild: _ConfigRebuild,
+        types: type | Collection[type] | ENUM = (),
+        description: str = '',
+    ) -> None:
         """Register a configuration value.
 
         This is necessary for Sphinx to recognize new values and set default
@@ -550,6 +554,7 @@ class Sphinx:
         :param types: The type of configuration value.  A list of types can be specified.  For
                       example, ``[str]`` is used to describe a configuration that takes string
                       value.
+        :param description: A short description of the configuration value.
 
         .. versionchanged:: 0.4
            If the *default* value is a callable, it will be called with the
@@ -561,9 +566,12 @@ class Sphinx:
            Changed *rebuild* from a simple boolean (equivalent to ``''`` or
            ``'env'``) to a string.  However, booleans are still accepted and
            converted internally.
+
+        .. versionadded:: 7.4
+           The *description* parameter.
         """
         logger.debug('[app] adding config value: %r', (name, default, rebuild, types))
-        self.config.add(name, default, rebuild, types)
+        self.config.add(name, default, rebuild, types, description)
 
     def add_event(self, name: str) -> None:
         """Register an event called *name*.
@@ -737,7 +745,10 @@ class Sphinx:
                            name, type='app', subtype='add_role')
         docutils.register_role(name, role)
 
-    def add_generic_role(self, name: str, nodeclass: Any, override: bool = False) -> None:
+    def add_generic_role(
+        self, name: str, nodeclass: type[Node], override: bool = False
+
+    ) -> None:
         """Register a generic Docutils role.
 
         Register a Docutils role that does nothing but wrap its contents in the
@@ -758,7 +769,7 @@ class Sphinx:
             logger.warning(__('role %r is already registered, it will be overridden'),
                            name, type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
-        docutils.register_role(name, role)  # type: ignore[arg-type]
+        docutils.register_role(name, role)
 
     def add_domain(self, domain: type[Domain], override: bool = False) -> None:
         """Register a domain.
@@ -814,7 +825,7 @@ class Sphinx:
         """
         self.registry.add_role_to_domain(domain, name, role, override=override)
 
-    def add_index_to_domain(self, domain: str, index: type[Index], override: bool = False,
+    def add_index_to_domain(self, domain: str, index: type[Index], _override: bool = False,
                             ) -> None:
         """Register a custom index for a domain.
 
@@ -1159,7 +1170,7 @@ class Sphinx:
         logger.debug('[app] adding lexer: %r', (alias, lexer))
         lexer_classes[alias] = lexer
 
-    def add_autodocumenter(self, cls: Any, override: bool = False) -> None:
+    def add_autodocumenter(self, cls: type[Documenter], override: bool = False) -> None:
         """Register a new documenter class for the autodoc extension.
 
         Add *cls* as a new documenter class for the :mod:`sphinx.ext.autodoc`
@@ -1197,7 +1208,7 @@ class Sphinx:
         logger.debug('[app] adding autodoc attrgetter: %r', (typ, getter))
         self.registry.add_autodoc_attrgetter(typ, getter)
 
-    def add_search_language(self, cls: Any) -> None:
+    def add_search_language(self, cls: type[SearchLanguage]) -> None:
         """Register a new language for the HTML search index.
 
         Add *cls*, which must be a subclass of
@@ -1209,8 +1220,7 @@ class Sphinx:
         .. versionadded:: 1.1
         """
         logger.debug('[app] adding search language: %r', cls)
-        from sphinx.search import SearchLanguage, languages
-        assert issubclass(cls, SearchLanguage)
+        from sphinx.search import languages
         languages[cls.lang] = cls
 
     def add_source_suffix(self, suffix: str, filetype: str, override: bool = False) -> None:

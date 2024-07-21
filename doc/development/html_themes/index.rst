@@ -114,7 +114,7 @@ Theme configuration (``theme.conf``)
 The :file:`theme.conf` file is in INI format [1]_ (readable by the standard
 Python :mod:`configparser` module) and has the following structure:
 
-.. sourcecode:: ini
+.. code-block:: ini
 
     [theme]
     inherit = base theme

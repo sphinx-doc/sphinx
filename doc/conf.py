@@ -5,7 +5,7 @@ import os
 import re
 import time
 
-import sphinx
+from sphinx import __display_version__
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -27,8 +27,7 @@ exclude_patterns = ['_build']
 
 project = 'Sphinx'
 copyright = f'2007-{time.strftime("%Y")}, the Sphinx developers'
-version = sphinx.__display_version__
-release = version
+release = version = __display_version__
 show_authors = True
 nitpicky = True
 show_warning_types = True
@@ -156,7 +155,7 @@ texinfo_documents = [
         'Sphinx',
         'The Sphinx documentation builder.',
         'Documentation tools',
-        1,
+        True,
     ),
 ]
 
@@ -181,11 +180,16 @@ nitpick_ignore = {
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
     ('py:class', 'Element'),  # sphinx.domains.Domain
+    ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
+    ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
+    ('py:class', 'SearchLanguage'),  # sphinx.application.Sphinx.add_search_language
+    ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
+    ('py:class', 'system_message'),  # sphinx.utils.docutils.SphinxDirective
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
     ('py:class', 'XRefRole'),  # sphinx.domains.Domain
     ('py:class', 'docutils.nodes.Element'),
@@ -238,12 +242,12 @@ nitpick_ignore = {
 from sphinx import addnodes  # NoQA: E402
 from sphinx.application import Sphinx  # NoQA: E402, TCH001
 
-event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
+_event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
 
 def parse_event(env, sig, signode):
-    m = event_sig_re.match(sig)
-    if not m:
+    m = _event_sig_re.match(sig)
+    if m is None:
         signode += addnodes.desc_name(sig, sig)
         return sig
     name, args = m.groups()
@@ -256,25 +260,17 @@ def parse_event(env, sig, signode):
     return name
 
 
-def linkify_issues_in_changelog(app, docname, source):
+def linkify_issues_in_changelog(app, path, docname, source):
     """Linkify issue references like #123 in changelog to GitHub."""
     if docname == 'changes':
-        changelog_path = os.path.join(os.path.dirname(__file__), '../CHANGES.rst')
-        # this path trickery is needed because this script can
-        # be invoked with different working directories:
-        # * running make in docs/
-        # * running tox -e docs in the repo root dir
-
-        with open(changelog_path, encoding='utf-8') as f:
-            changelog = f.read()
 
         def linkify(match):
             url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
             return f'`{match[0]} <{url}>`_'
 
-        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, changelog)
+        linkified_changelog = re.sub(r'(?:PR)?#([0-9]+)\b', linkify, source[0])
 
-        source[0] = source[0].replace('.. include:: ../CHANGES.rst', linkified_changelog)
+        source[0] = linkified_changelog
 
 
 REDIRECT_TEMPLATE = """
@@ -323,15 +319,13 @@ def setup(app: Sphinx) -> None:
     from sphinx.util.docfields import GroupedField
 
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
-    app.connect('source-read', linkify_issues_in_changelog)
+    app.connect('include-read', linkify_issues_in_changelog)
     app.connect('build-finished', build_redirects)
-    app.add_object_type(
-        'confval',
-        'confval',
-        objname='configuration value',
-        indextemplate='pair: %s; configuration value',
-    )
     fdesc = GroupedField('parameter', label='Parameters', names=['param'], can_collapse=True)
     app.add_object_type(
-        'event', 'event', 'pair: %s; event', parse_event, doc_field_types=[fdesc]
+        'event',
+        'event',
+        'pair: %s; event',
+        parse_event,
+        doc_field_types=[fdesc],
     )

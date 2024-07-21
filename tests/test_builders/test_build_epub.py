@@ -67,7 +67,7 @@ def test_build_epub(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').read_text(encoding='utf8'))
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Project name not set'
 
     # toc.ncx / head
     meta = list(toc.find("./ncx:head"))
@@ -91,11 +91,11 @@ def test_build_epub(app):
     # content.opf / metadata
     metadata = opf.find("./idpf:metadata")
     assert metadata.find("./dc:language").text == 'en'
-    assert metadata.find("./dc:title").text == 'Python'
+    assert metadata.find("./dc:title").text == 'Project name not set'
     assert metadata.find("./dc:description").text == 'unknown'
-    assert metadata.find("./dc:creator").text == 'unknown'
+    assert metadata.find("./dc:creator").text == 'Author name not set'
     assert metadata.find("./dc:contributor").text == 'unknown'
-    assert metadata.find("./dc:publisher").text == 'unknown'
+    assert metadata.find("./dc:publisher").text == 'Author name not set'
     assert metadata.find("./dc:rights").text is None
     assert metadata.find("./idpf:meta[@property='ibooks:version']").text is None
     assert metadata.find("./idpf:meta[@property='ibooks:specified-fonts']").text == 'true'
@@ -171,7 +171,7 @@ def test_nested_toc(app):
 
     # toc.ncx
     toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').read_bytes())
-    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python'
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Project name not set'
 
     # toc.ncx / navPoint
     def navinfo(elem):
@@ -409,6 +409,7 @@ def test_copy_images(app, status, warning):
     images = {image.name for image in images_dir.rglob('*')}
     images.discard('python-logo.png')
     assert images == {
+        # 'ba30773957c3fe046897111afd65a80b81cad089.png',  # epub: image from data:image/png URI in source
         'img.png',
         'rimg.png',
         'rimg1.png',
