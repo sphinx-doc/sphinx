@@ -591,11 +591,11 @@ def test_linkcheck_request_headers_default(app: Sphinx) -> None:
     assert content["status"] == "working"
 
 
-def make_redirect_handler(*, support_head):
+def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]:
     class RedirectOnceHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
-        def do_HEAD(self):
+        def do_HEAD(self) -> None:
             if support_head:
                 self.do_GET()
             else:
@@ -603,7 +603,7 @@ def make_redirect_handler(*, support_head):
                 self.send_header("Content-Length", "0")
                 self.end_headers()
 
-        def do_GET(self):
+        def do_GET(self) -> None:
             if self.path == "/?redirected=1":
                 self.send_response(204, "No content")
             else:
