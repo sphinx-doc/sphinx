@@ -111,12 +111,16 @@ const _finishSearch = (resultCount) => {
   Search.stopPulse();
   Search.title.innerText = _("Search Results");
   if (!resultCount)
-    Search.status.innerText = Documentation.gettext(
+    Search.status.innerText = _(
       "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
+    );
+  else if (resultCount === 1)
+    Search.status.innerText = _(
+      "Search finished, found 1 page matching the search query."
     );
   else
     Search.status.innerText = _(
-      "Search finished, found ${resultCount} page(s) matching the search query."
+      "Search finished, found ${resultCount} pages matching the search query."
     ).replace('${resultCount}', resultCount);
 };
 const _displayNextItem = (
