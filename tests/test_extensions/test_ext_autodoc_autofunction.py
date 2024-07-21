@@ -113,11 +113,11 @@ def test_singledispatch(app):
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
     assert list(actual) == [
         '',
-        '.. py:function:: func(arg, kwarg=None)',
-        '                 func(arg: float, kwarg=None)',
-        '                 func(arg: int, kwarg=None)',
-        '                 func(arg: str, kwarg=None)',
-        '                 func(arg: dict, kwarg=None)',
+        '.. py:function:: func(arg, kwarg=None) -> None',
+        '                 func(arg: float, kwarg=None) -> None',
+        '                 func(arg: int, kwarg=None) -> None',
+        '                 func(arg: str, kwarg=None) -> None',
+        '                 func(arg: dict, kwarg=None) -> None',
         '   :module: target.singledispatch',
         '',
         '   A function for general use.',
