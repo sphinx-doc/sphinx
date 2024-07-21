@@ -124,7 +124,7 @@ if TYPE_CHECKING:
         def __getitem__(self, key: Literal["todo"]) -> TodoDomain: ...  # NoQA: E704
         @overload
         def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
-        def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
+        def __getitem__(self, _key: str) -> Domain: raise NotImplementedError  # NoQA: E704
         def __setitem__(  # NoQA: E301,E704
             self, key: str, value: Domain,
         ) -> NoReturn: raise NotImplementedError
