@@ -151,7 +151,7 @@
   </head>
   {%- block body_tag %}<body>{% endblock %}
 
-{%- block skip_to_main_content %}<a id="sphinx-skip-link" href="#sphinx-skip-target">Skip to main content</a>{% endblock %}
+{%- block skiplink %}<a id="skiplink" class="system-message" href="#main">Skip to main content</a>{% endblock %}
 
 {%- block header %}{% endblock %}
 
@@ -165,8 +165,7 @@
       {%- if render_sidebar %}
         <div class="bodywrapper">
       {%- endif %}
-          <span id="sphinx-skip-target"></span>
-          <div class="body" role="main">
+          <div class="body" role="main" id="main">
             {% block body %} {% endblock %}
             <div class="clearer"></div>
           </div>

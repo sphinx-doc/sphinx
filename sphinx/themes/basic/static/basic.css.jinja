@@ -311,19 +311,6 @@ img.align-default, figure.align-default, .figure.align-default {
     text-align: right;
 }
 
-#sphinx-skip-link {
-  position: absolute;
-  top: -1000%;
-  left: -1000%;
-  background-color: #fda;
-  padding: 1em;
-}
-
-#sphinx-skip-link:focus {
-  top: 10px;
-  left: 10px;
-}
-
 /* -- sidebars -------------------------------------------------------------- */
 
 div.sidebar,
@@ -773,6 +760,18 @@ abbr, acronym {
     background-color: rgba(255, 207, 207, 0.2)
 }
 
+#skiplink {
+  position: absolute;
+  top: -1000%;
+  left: -1000%;
+  padding: 1em;
+}
+
+#skiplink:focus {
+  top: 10px;
+  left: 10px;
+}
+
 /* -- code displays --------------------------------------------------------- */
 
 pre {
@@ -932,6 +931,7 @@ div.math:hover a.headerlink {
     div.sphinxsidebar,
     div.related,
     div.footer,
+    #skiplink,
     #top-link {
         display: none;
     }
