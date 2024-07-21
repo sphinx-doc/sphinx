@@ -128,7 +128,7 @@ InventoryItem = tuple[
     str,  # display name
 ]
 
-# referencable role => (reference name => inventory item)
+# referencable role -> (reference name -> inventory item)
 Inventory = dict[str, dict[str, InventoryItem]]
 
 
