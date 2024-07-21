@@ -8,6 +8,7 @@ from unittest import mock
 import pytest
 from docutils import nodes
 
+from sphinx.application import Sphinx
 from sphinx.cmd.build import build_main
 from sphinx.errors import SphinxError
 
@@ -68,7 +69,7 @@ def test_root_doc_not_found(tmp_path, make_app):
 
 
 @pytest.mark.sphinx(buildername='text', testroot='circular')
-def test_circular_toctree(app, status, warning):
+def test_circular_toctree(app, warning: str):
     app.build(force_all=True)
     warnings = warning.getvalue()
     assert (
@@ -92,7 +93,7 @@ def test_numbered_circular_toctree(app, status, warning):
 
 
 @pytest.mark.sphinx(buildername='dummy', testroot='images')
-def test_image_glob(app, status, warning):
+def test_image_glob(app: Sphinx):
     app.build(force_all=True)
 
     # index.rst

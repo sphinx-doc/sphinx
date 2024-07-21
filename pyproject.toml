@@ -219,6 +219,7 @@ warn_redundant_casts = true
 warn_unused_configs = true
 warn_unused_ignores = true
 disallow_any_generics = true
+disallow_untyped_defs = true
 extra_checks = true
 enable_error_code = [
     "type-arg",
