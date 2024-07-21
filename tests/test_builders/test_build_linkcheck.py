@@ -11,7 +11,7 @@ import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
 from queue import Queue
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 import docutils
@@ -37,6 +37,8 @@ ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
     from io import StringIO
+
+    from urllib3 import HTTPConnectionPool
 
     from sphinx.application import Sphinx
 
@@ -77,8 +79,8 @@ class DefaultsHandler(BaseHTTPRequestHandler):
 class ConnectionMeasurement:
     """Measure the number of distinct host connections created during linkchecking"""
 
-    def __init__(self):
-        self.connections = set()
+    def __init__(self) -> None:
+        self.connections: set[HTTPConnectionPool] = set()
         self.urllib3_connection_from_url = PoolManager.connection_from_url
         self.patcher = mock.patch.object(
             target=PoolManager,
@@ -86,7 +88,7 @@ class ConnectionMeasurement:
             new=self._collect_connections(),
         )
 
-    def _collect_connections(self):
+    def _collect_connections(self) -> Callable[[object, str], HTTPConnectionPool]:
         def connection_collector(obj, url):
             connection = self.urllib3_connection_from_url(obj, url)
             self.connections.add(connection)
@@ -436,7 +438,7 @@ def test_decoding_error_anchor_ignored(app):
     assert row['status'] == 'ignored'
 
 
-def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
+def custom_handler(valid_credentials: tuple[str, str] | None = None, success_criteria: Callable[[Any], bool] = lambda _: True) -> type[BaseHTTPRequestHandler]:
     """
     Returns an HTTP request handler that authenticates the client and then determines
     an appropriate HTTP response code, based on caller-provided credentials and optional
@@ -843,7 +845,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
     }
 
 
-def make_retry_after_handler(responses):
+def make_retry_after_handler(responses: list[tuple[int, str | None]]) -> type[BaseHTTPRequestHandler]:
     class RetryAfterHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
