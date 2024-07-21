@@ -61,8 +61,8 @@ Bugs fixed
 * #12459: Add valid-type arguments to the ``linkcheck_rate_limit_timeout``
   configuration setting.
   Patch by James Addison.
-* #12484: autodoc: Do not add an 'alias of ...' line using the autodata and
-  autoattribute directives for generic aliases having docstrings.
+* #12484: autodoc: Do not add an 'alias of ...' line using the :rst:dir:`autodata`
+  and :rst:dir:`autoattribute` directives for generic aliases having docstrings.
 
 Improvements
 ------------
