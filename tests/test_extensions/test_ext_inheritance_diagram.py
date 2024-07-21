@@ -154,7 +154,7 @@ def test_inheritance_diagram_png_html(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(external_inventory)
     app.config.intersphinx_mapping = {
-        'https://example.org': str(inv_file),
+        'example': ("https://example.org", str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
     normalize_intersphinx_mapping(app, app.config)
