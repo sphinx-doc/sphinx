@@ -607,14 +607,14 @@ def test_intersphinx_role(app, warning):
     warnings = strip_colors(warning.getvalue()).splitlines()
     index_path = app.srcdir / 'index.rst'
     assert warnings == [
-        f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope'",
-        f"{index_path}:28: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'nope'",
-        f"{index_path}:39: WARNING: inventory for external cross-reference not found: 'invNope'",
-        f"{index_path}:44: WARNING: role for external cross-reference not found in domain 'c': 'function' (perhaps you meant one of: 'func', 'identifier', 'type')",
-        f"{index_path}:45: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'function' (perhaps you meant one of: 'cpp:func', 'cpp:identifier', 'cpp:type')",
-        f'{index_path}:9: WARNING: external py:mod reference target not found: module3',
-        f'{index_path}:14: WARNING: external py:mod reference target not found: module10',
-        f'{index_path}:19: WARNING: external py:meth reference target not found: inv:Foo.bar',
+        f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope' [intersphinx.external]",
+        f"{index_path}:28: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'nope' [intersphinx.external]",
+        f"{index_path}:39: WARNING: inventory for external cross-reference not found: 'invNope' [intersphinx.external]",
+        f"{index_path}:44: WARNING: role for external cross-reference not found in domain 'c': 'function' (perhaps you meant one of: 'func', 'identifier', 'type') [intersphinx.external]",
+        f"{index_path}:45: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'function' (perhaps you meant one of: 'cpp:func', 'cpp:identifier', 'cpp:type') [intersphinx.external]",
+        f'{index_path}:9: WARNING: external py:mod reference target not found: module3 [ref.mod]',
+        f'{index_path}:14: WARNING: external py:mod reference target not found: module10 [ref.mod]',
+        f'{index_path}:19: WARNING: external py:meth reference target not found: inv:Foo.bar [ref.meth]',
     ]
 
     html = '<a class="reference external" href="https://example.org/{}" title="(in foo v2.0)">'

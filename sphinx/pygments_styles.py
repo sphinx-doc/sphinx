@@ -28,12 +28,12 @@ class SphinxStyle(Style):
     background_color = '#eeffcc'
     default_style = ''
 
-    styles = FriendlyStyle.styles
-    styles.update({
+    styles = {
+        **FriendlyStyle.styles,
         Generic.Output: '#333',
         Comment: 'italic #408090',
         Number: '#208050',
-    })
+    }
 
 
 class PyramidStyle(Style):
