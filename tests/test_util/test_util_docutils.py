@@ -3,7 +3,9 @@
 import os
 
 from docutils import nodes
+from docutils.nodes import document
 
+from sphinx.builders import Builder
 from sphinx.util.docutils import (
     SphinxFileOutput,
     SphinxTranslator,
@@ -66,9 +68,9 @@ def test_SphinxTranslator(app):
         pass
 
     class MyTranslator(SphinxTranslator):
-        def __init__(self, *args):
-            self.called = []
-            super().__init__(*args)
+        def __init__(self, document: document, builder: Builder):
+            self.called: list[str] = []
+            super().__init__(document, builder)
 
         def visit_document(self, node):
             pass

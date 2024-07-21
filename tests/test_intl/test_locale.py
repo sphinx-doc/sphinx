@@ -1,5 +1,8 @@
 """Test locale."""
 
+from collections.abc import Callable
+from pathlib import Path
+
 import pytest
 
 from sphinx import locale
@@ -57,7 +60,7 @@ def test_add_message_catalog(app, rootdir):
     assert _('Hello reST') == 'Hello reST'
 
 
-def _empty_language_translation(rootdir):
+def _empty_language_translation(rootdir: Path) -> Callable[[str], str]:
     locale_dirs, catalog = [rootdir / 'test-locale' / 'locale1'], 'myext'
     locale.translators.clear()
     locale.init(locale_dirs, language=None, catalog=catalog)

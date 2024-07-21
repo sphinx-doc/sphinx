@@ -1,6 +1,9 @@
 """Test the HTML builder and check output against XPath."""
 
 import re
+from collections.abc import Callable, Iterable
+from typing import Literal
+from xml.etree.ElementTree import Element
 
 import pytest
 from docutils import nodes
@@ -8,10 +11,10 @@ from docutils import nodes
 from tests.test_builders.xpath_util import check_xpath
 
 
-def tail_check(check):
+def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
     rex = re.compile(check)
 
-    def checker(nodes):
+    def checker(nodes: Iterable[Element]) -> Literal[True]:
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True

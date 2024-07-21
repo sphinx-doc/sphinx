@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
+    from pathlib import Path
     from typing import Any
 
 
@@ -98,7 +99,7 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: Iterable[str | None],
+    locale_dirs: Iterable[str | Path | None],
     language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
