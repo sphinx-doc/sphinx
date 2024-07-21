@@ -420,7 +420,8 @@ def test_normalize_intersphinx_mapping_warnings(app, warning):
         '':                 ('789.example', None),     # invalid project name (value)
         12345:              ('456.example', None),     # invalid project name (type)
         None:               ('123.example', None),     # invalid project name (type)
-        'https://example/': 'inventory',               # Sphinx 0.x style value
+        'https://example/': 'inventory',               # Sphinx 0.x style value (str)
+        'https://server/':  None,                      # Sphinx 0.x style value (None)
         'bad-dict-item':    0,                         # invalid dict item type
         'unpack-except-1':  [0],                       # invalid dict item size (native ValueError)
         'unpack-except-2':  FakeList(),                # invalid dict item size (custom exception)
@@ -442,28 +443,29 @@ def test_normalize_intersphinx_mapping_warnings(app, warning):
     # normalise the inventory and check if it's done correctly
     with pytest.raises(
         ConfigError,
-        match=r'Invalid `intersphinx_mapping` configuration \(15 errors\).',
+        match=r'Invalid `intersphinx_mapping` configuration \(16 errors\).',
     ):
         normalize_intersphinx_mapping(app, app.config)
     warnings = strip_colors(warning.getvalue()).splitlines()
     assert len(warnings) == len(bad_intersphinx_mapping) - 3
-    assert list(enumerate(warnings)) == list(enumerate((
-        "ERROR: Invalid value '' in intersphinx_mapping['']: expected an intersphinx project identifier",
-        "ERROR: Invalid value 12345 in intersphinx_mapping[12345]: project identifier must be a string",
-        "ERROR: Invalid value None in intersphinx_mapping[None]: project identifier must be a string",
-        "ERROR: Invalid value 'inventory' in intersphinx_mapping['https://example/']: expected a tuple or a list",
-        "ERROR: Invalid value 0 in intersphinx_mapping['bad-dict-item']: expected a tuple or a list",
-        "ERROR: Invalid value [0] in intersphinx_mapping['unpack-except-1']: values must be a (target URI, inventory locations) pair",
-        "ERROR: Invalid value [] in intersphinx_mapping['unpack-except-2']: values must be a (target URI, inventory locations) pair",
-        "ERROR: Invalid value 123456789 in intersphinx_mapping['bad-uri-type-1']: target URI must be a non-empty string",
-        "ERROR: Invalid value None in intersphinx_mapping['bad-uri-type-2']: target URI must be a non-empty string",
-        "ERROR: Invalid value '' in intersphinx_mapping['bad-uri-value']: target URI must be a non-empty string",
-        "ERROR: Invalid value 'example.org' in intersphinx_mapping['dedup-good']: target URI must be unique (other instance in `intersphinx_mapping['good']`)",
-        "ERROR: Invalid value 1 in intersphinx_mapping['bad-location-1']: inventory location must be a non-empty string or None",
-        "ERROR: Invalid value '' in intersphinx_mapping['bad-location-2']: inventory location must be a non-empty string or None",
-        "ERROR: Invalid value 2 in intersphinx_mapping['bad-location-3']: inventory location must be a non-empty string or None",
-        "ERROR: Invalid value '' in intersphinx_mapping['bad-location-4']: inventory location must be a non-empty string or None",
-    )))
+    assert warnings == [
+        "ERROR: Invalid intersphinx project identifier `''` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid intersphinx project identifier `12345` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid intersphinx project identifier `None` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid value `'inventory'` in intersphinx_mapping['https://example/']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `None` in intersphinx_mapping['https://server/']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `0` in intersphinx_mapping['bad-dict-item']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `[0]` in intersphinx_mapping['unpack-except-1']. Values must be a (target URI, inventory locations) pair.",
+        "ERROR: Invalid value `[]` in intersphinx_mapping['unpack-except-2']. Values must be a (target URI, inventory locations) pair.",
+        "ERROR: Invalid target URI value `123456789` in intersphinx_mapping['bad-uri-type-1'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `None` in intersphinx_mapping['bad-uri-type-2'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `''` in intersphinx_mapping['bad-uri-value'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `'example.org'` in intersphinx_mapping['dedup-good'][0]. Target URIs must be unique (other instance in intersphinx_mapping['good']).",
+        "ERROR: Invalid inventory location value `1` in intersphinx_mapping['bad-location-1'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `''` in intersphinx_mapping['bad-location-2'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `2` in intersphinx_mapping['bad-location-3'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `''` in intersphinx_mapping['bad-location-4'][1]. Inventory locations must be non-empty strings or None."
+    ]
 
 
 def test_load_mappings_fallback(tmp_path, app, status, warning):
