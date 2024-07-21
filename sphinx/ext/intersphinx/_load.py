@@ -92,7 +92,7 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
         config.intersphinx_mapping[name] = (name, (uri, tuple(targets)))
 
     if len(errors) > 0:
-        for (msg, name, value) in errors:
+        for msg, name, value in errors:
             error_msg = __('Invalid value %r in intersphinx_mapping[%r]: %s')
             LOGGER.error(error_msg % (value, name, msg))
         msg = __('Invalid `intersphinx_mapping` configuration (%s errors).')
