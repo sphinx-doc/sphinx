@@ -66,7 +66,7 @@ class UnsupportedError(SphinxError):
     category = 'Markup is unsupported in LaTeX'
 
 
-class LaTeXWriter(writers.Writer):
+class LaTeXWriter(writers.Writer):  # type: ignore[misc]
 
     supported = ('sphinxlatex',)
 

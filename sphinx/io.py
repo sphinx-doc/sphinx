@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class SphinxBaseReader(standalone.Reader):
+class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
     """
     A base class of readers for Sphinx.
 
@@ -143,7 +143,7 @@ class SphinxI18nReader(SphinxBaseReader):
                 self.transforms.remove(transform)
 
 
-class SphinxDummyWriter(UnfilteredWriter):
+class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[misc]
     """Dummy writer module used for generating doctree."""
 
     supported = ('html',)  # needed to keep "meta" nodes

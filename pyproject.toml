@@ -211,6 +211,7 @@ exclude = [
 ]
 check_untyped_defs = true
 disallow_incomplete_defs = true
+disallow_subclassing_any = true
 python_version = "3.9"
 show_column_numbers = true
 show_error_context = true

@@ -105,7 +105,7 @@ def smart_capwords(s: str, sep: str | None = None) -> str:
     return (sep or ' ').join(words)
 
 
-class TexinfoWriter(writers.Writer):
+class TexinfoWriter(writers.Writer):  # type: ignore[misc]
     """Texinfo writer for generating Texinfo documents."""
 
     supported = ('texinfo', 'texi')

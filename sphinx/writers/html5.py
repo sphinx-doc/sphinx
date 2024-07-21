@@ -43,7 +43,7 @@ def multiply_length(length: str, scale: int) -> str:
     return f"{int(result)}{unit}"
 
 
-class HTML5Translator(SphinxTranslator, BaseTranslator):
+class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     """
     Our custom HTML translator.
     """
