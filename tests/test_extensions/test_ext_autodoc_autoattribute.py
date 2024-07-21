@@ -138,10 +138,10 @@ def test_autoattribute_slots_variable_str(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_GenericAlias(app):
-    actual = do_autodoc(app, 'attribute', 'target.genericalias.Class.T2')
+    actual = do_autodoc(app, 'attribute', 'target.genericalias.Class.T3')
     assert list(actual) == [
         '',
-        '.. py:attribute:: Class.T2',
+        '.. py:attribute:: Class.T3',
         '   :module: target.genericalias',
         '',
         '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
@@ -158,6 +158,16 @@ def test_autoattribute_GenericAlias_having_doccomment(app):
         '   :module: target.genericalias',
         '',
         '   A list of int',
+        '',
+    ]
+
+    actual = do_autodoc(app, 'attribute', 'target.genericalias.Class.T2')
+    assert list(actual) == [
+        '',
+        '.. py:attribute:: Class.T2',
+        '   :module: target.genericalias',
+        '',
+        '   Another list of int.',
         '',
     ]
 
