@@ -52,22 +52,13 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
     errors = 0
     for name, value in config.intersphinx_mapping.copy().items():
         # ensure that intersphinx projects are always named
-        if not isinstance(name, str):
+        if not isinstance(name, str) or not name:
             errors += 1
             msg = __(
                 'Invalid intersphinx project identifier `%r` in intersphinx_mapping. '
                 'Project identifiers must be non-empty strings.'
             )
-            LOGGER.error(msg % name)
-            del config.intersphinx_mapping[name]
-            continue
-        if not name:
-            errors += 1
-            msg = __(
-                'Invalid intersphinx project identifier `%r` in intersphinx_mapping. '
-                'Project identifiers must be non-empty strings.'
-            )
-            LOGGER.error(msg % name)
+            LOGGER.error(msg, name)
             del config.intersphinx_mapping[name]
             continue
 
@@ -78,18 +69,18 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
                 'Expected a two-element tuple or list.'
             )
-            LOGGER.error(msg % (value, name))
+            LOGGER.error(msg, value, name)
             del config.intersphinx_mapping[name]
             continue
         try:
             uri, inv = value
-        except (TypeError, ValueError, Exception):
+        except Exception:
             errors += 1
             msg = __(
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
                 'Values must be a (target URI, inventory locations) pair.'
             )
-            LOGGER.error(msg % (value, name))
+            LOGGER.error(msg, value, name)
             del config.intersphinx_mapping[name]
             continue
 
@@ -98,7 +89,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             errors += 1
             msg = __('Invalid target URI value `%r` in intersphinx_mapping[%r][0]. '
                      'Target URIs must be unique non-empty strings.')
-            LOGGER.error(msg % (uri, name))
+            LOGGER.error(msg, uri, name)
             del config.intersphinx_mapping[name]
             continue
         if uri in seen:
@@ -107,7 +98,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 'Invalid target URI value `%r` in intersphinx_mapping[%r][0]. '
                 'Target URIs must be unique (other instance in intersphinx_mapping[%r]).'
             )
-            LOGGER.error(msg % (uri, name, seen[uri]))
+            LOGGER.error(msg, uri, name, seen[uri])
             del config.intersphinx_mapping[name]
             continue
         seen[uri] = name
@@ -123,7 +114,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                     'Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. '
                     'Inventory locations must be non-empty strings or None.'
                 )
-                LOGGER.error(msg % (target, name))
+                LOGGER.error(msg, target, name)
                 del config.intersphinx_mapping[name]
                 continue
 
