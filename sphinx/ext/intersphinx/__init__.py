@@ -20,8 +20,6 @@ from __future__ import annotations
 
 __all__ = (
     'InventoryAdapter',
-    'fetch_inventory',
-    'fetch_inventory_group',
     'load_mappings',
     'validate_intersphinx_mapping',
     'IntersphinxRoleResolver',
@@ -41,8 +39,6 @@ from typing import TYPE_CHECKING
 import sphinx
 from sphinx.ext.intersphinx._cli import inspect_main
 from sphinx.ext.intersphinx._load import (
-    fetch_inventory,
-    fetch_inventory_group,
     load_mappings,
     validate_intersphinx_mapping,
 )
