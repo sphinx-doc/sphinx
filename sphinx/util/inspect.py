@@ -198,8 +198,9 @@ def getslots(obj: Any) -> dict[str, Any] | dict[str, None] | None:
         raise ValueError
 
 
-def isNewType(obj: Any) -> bool:
+def _is_new_type(obj: Any) -> bool:
     """Check the if object is a kind of :class:`~typing.NewType`."""
+    # xref RemovedInSphinx10Warning
     return isinstance(obj, typing.NewType)
 
 
@@ -937,3 +938,21 @@ def _getdoc_internal(
     if isinstance(doc, str):
         return doc
     return None
+
+
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
+    'isNewType': (_is_new_type, '', (10, 0)),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name not in _DEPRECATED_OBJECTS:
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
+    return deprecated_object

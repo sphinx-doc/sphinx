@@ -14,6 +14,7 @@ from typing import (
     Annotated,
     Any,
     ForwardRef,
+    NewType,
     TypedDict,
     TypeVar,
     Union,
@@ -229,7 +230,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                      Show the name of the annotation.
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
-    from sphinx.util import inspect  # lazy loading
+    from sphinx.util.inspect import isgenericalias, object_description  # lazy loading
 
     valid_modes = {'fully-qualified-except-typing', 'smart'}
     if mode not in valid_modes:
@@ -283,7 +284,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 return fr':py:class:`~typing.Annotated`\ [{args}, {meta}]'
             return (f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
                     fr'\ [{args}, {meta}]')
-        elif inspect.isNewType(cls):
+        elif isinstance(cls, NewType):
             # newtypes have correct module info since Python 3.10+
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
         elif isinstance(cls, types.UnionType):
@@ -298,14 +299,14 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             return f':py:class:`{cls.__name__}`'
-        elif (inspect.isgenericalias(cls)
+        elif (isgenericalias(cls)
               and cls_module_is_typing
               and cls.__origin__ is Union):
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
-        elif inspect.isgenericalias(cls):
+        elif isgenericalias(cls):
             # A generic alias always has an __origin__, but it is difficult to
-            # use a type guard on inspect.isgenericalias()
+            # use a type guard on ``isgenericalias()``
             # (ideally, we would use ``TypeIs`` introduced in Python 3.13).
             cls_name = _typing_internal_name(cls)
 
@@ -356,7 +357,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # not a class (ex. TypeVar) but should have a __name__
             return f':py:obj:`{module_prefix}{cls.__module__}.{cls.__name__}`'
     except (AttributeError, TypeError):
-        return inspect.object_description(cls)
+        return object_description(cls)
 
 
 def _format_literal_arg_restify(arg: Any, /, *, mode: str) -> str:
@@ -391,7 +392,6 @@ def stringify_annotation(
                      Show the module name and qualified name of the annotation.
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
-    from sphinx.util.inspect import isNewType  # lazy loading
 
     valid_modes = {'fully-qualified-except-typing', 'fully-qualified', 'smart'}
     if mode not in valid_modes:
@@ -426,7 +426,7 @@ def stringify_annotation(
         if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
         return module_prefix + f'{annotation_module}.{annotation_name}'
-    elif isNewType(annotation):
+    elif isinstance(annotation, NewType):
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif ismockmodule(annotation):
         return module_prefix + annotation_name
