@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from docutils.utils import relative_path
 
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import copyfile, ensuredir
 
@@ -70,17 +71,11 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
             and os.path.exists(destination)
             and template_content != rendered_template
         ):
-            # Consider raising an error in Sphinx 8.
-            # Certainly make overwriting user content opt-in.
-            # xref: RemovedInSphinx80Warning
+            # Consider raising an error in Sphinx 9. (xref: RemovedInSphinx90Warning)
             # xref: https://github.com/sphinx-doc/sphinx/issues/12096
-            msg = ('Copying the rendered template %s to %s will overwrite data, '
-                   'as a file already exists at the destination path '
-                   'and the content does not match.')
-            # See https://github.com/sphinx-doc/sphinx/pull/12627#issuecomment-2241144330
-            # for the rationale for logger.info().
-            logger.info(msg, os.fsdecode(source), os.fsdecode(destination),
-                        type='misc', subtype='copy_overwrite')
+            msg = __('Overwriting an existing file at %s with a rendered template from %s.')
+            logger.warning(msg, os.fsdecode(destination), os.fsdecode(source),
+                           type='misc', subtype='copy_overwrite')
 
         destination = _template_basename(destination) or destination
         with open(destination, 'w', encoding='utf-8') as fdst:

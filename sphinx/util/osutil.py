@@ -13,6 +13,8 @@ from io import StringIO
 from os import path
 from typing import TYPE_CHECKING
 
+from sphinx.locale import __
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
@@ -116,11 +118,11 @@ def copyfile(
             from sphinx.util import logging
             logger = logging.getLogger(__name__)
 
-            msg = ('Copying the source path %s to %s will overwrite data, '
-                   'as a file already exists at the destination path '
-                   'and the content does not match.')
-            logger.info(msg, os.fsdecode(source), os.fsdecode(dest),
-                        type='misc', subtype='copy_overwrite')
+            # Consider raising an error in Sphinx 9. (xref: RemovedInSphinx90Warning)
+            # xref: https://github.com/sphinx-doc/sphinx/issues/12096
+            msg = __('Overwriting an existing file at %s with new file from %s.')
+            logger.warning(msg, os.fsdecode(dest), os.fsdecode(source),
+                           type='misc', subtype='copy_overwrite')
 
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):

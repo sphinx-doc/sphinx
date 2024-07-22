@@ -65,6 +65,8 @@ Incompatible changes
 * #12083: Remove support for the old (2008--2010) Sphinx 0.5 and Sphinx 0.6
   :confval:`intersphinx_mapping` format.
   Patch by Bénédikt Tran and Adam Turner.
+* #12096: Emit a warning when copying files will overwrite data.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
