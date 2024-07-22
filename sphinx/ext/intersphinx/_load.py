@@ -196,7 +196,7 @@ def fetch_inventory_group(
         # decide whether the inventory must be read:
         # always read local files; remote ones only if the cache time is expired
         if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
-            LOGGER.info(__("loading intersphinx inventory '%s' from %s..."),
+            LOGGER.info(__("loading intersphinx inventory '%s' from %s ..."),
                         name, _get_safe_url(inv))
 
             try:
