@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
 
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx._shared import LOGGER, InventoryAdapter
 from sphinx.locale import __
 from sphinx.util import requests
@@ -21,55 +22,123 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
-    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
+    from sphinx.ext.intersphinx._shared import (
+        IntersphinxMapping,
+        InventoryCacheEntry,
+        InventoryLocation,
+        InventoryName,
+        InventoryURI,
+    )
     from sphinx.util.typing import Inventory
 
 
 def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
-    for key, value in config.intersphinx_mapping.copy().items():
-        try:
-            if isinstance(value, (list, tuple)):
-                # new format
-                name, (uri, inv) = key, value
-                if not isinstance(name, str):
-                    LOGGER.warning(__('intersphinx identifier %r is not string. Ignored'),
-                                   name)
-                    config.intersphinx_mapping.pop(key)
-                    continue
-            else:
-                # old format, no name
-                # xref RemovedInSphinx80Warning
-                name, uri, inv = None, key, value
-                msg = (
-                    "The pre-Sphinx 1.0 'intersphinx_mapping' format is "
-                    'deprecated and will be removed in Sphinx 8. Update to the '
-                    'current format as described in the documentation. '
-                    f"Hint: `intersphinx_mapping = {{'<name>': {(uri, inv)!r}}}`."
-                    'https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping'  # NoQA: E501
-                )
-                LOGGER.warning(msg)
+    # URIs should NOT be duplicated, otherwise different builds may use
+    # different project names (and thus, the build are no more reproducible)
+    # depending on which one is inserted last in the cache.
+    seen: dict[InventoryURI, InventoryName] = {}
 
-            if not isinstance(inv, tuple):
-                config.intersphinx_mapping[key] = (name, (uri, (inv,)))
+    errors = 0
+    for name, value in config.intersphinx_mapping.copy().items():
+        # ensure that intersphinx projects are always named
+        if not isinstance(name, str):
+            errors += 1
+            msg = __(
+                'Invalid intersphinx project identifier `%r` in intersphinx_mapping. '
+                'Project identifiers must be non-empty strings.'
+            )
+            LOGGER.error(msg % name)
+            del config.intersphinx_mapping[name]
+            continue
+        if not name:
+            errors += 1
+            msg = __(
+                'Invalid intersphinx project identifier `%r` in intersphinx_mapping. '
+                'Project identifiers must be non-empty strings.'
+            )
+            LOGGER.error(msg % name)
+            del config.intersphinx_mapping[name]
+            continue
+
+        # ensure values are properly formatted
+        if not isinstance(value, (tuple, list)):
+            errors += 1
+            msg = __(
+                'Invalid value `%r` in intersphinx_mapping[%r]. '
+                'Expected a two-element tuple or list.'
+            )
+            LOGGER.error(msg % (value, name))
+            del config.intersphinx_mapping[name]
+            continue
+        try:
+            uri, inv = value
+        except (TypeError, ValueError, Exception):
+            errors += 1
+            msg = __(
+                'Invalid value `%r` in intersphinx_mapping[%r]. '
+                'Values must be a (target URI, inventory locations) pair.'
+            )
+            LOGGER.error(msg % (value, name))
+            del config.intersphinx_mapping[name]
+            continue
+
+        # ensure target URIs are non-empty and unique
+        if not uri or not isinstance(uri, str):
+            errors += 1
+            msg = __('Invalid target URI value `%r` in intersphinx_mapping[%r][0]. '
+                     'Target URIs must be unique non-empty strings.')
+            LOGGER.error(msg % (uri, name))
+            del config.intersphinx_mapping[name]
+            continue
+        if uri in seen:
+            errors += 1
+            msg = __(
+                'Invalid target URI value `%r` in intersphinx_mapping[%r][0]. '
+                'Target URIs must be unique (other instance in intersphinx_mapping[%r]).'
+            )
+            LOGGER.error(msg % (uri, name, seen[uri]))
+            del config.intersphinx_mapping[name]
+            continue
+        seen[uri] = name
+
+        # ensure inventory locations are None or non-empty
+        targets: list[InventoryLocation] = []
+        for target in (inv if isinstance(inv, (tuple, list)) else (inv,)):
+            if target is None or target and isinstance(target, str):
+                targets.append(target)
             else:
-                config.intersphinx_mapping[key] = (name, (uri, inv))
-        except Exception as exc:
-            LOGGER.warning(__('Failed to read intersphinx_mapping[%s], ignored: %r'), key, exc)
-            config.intersphinx_mapping.pop(key)
+                errors += 1
+                msg = __(
+                    'Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. '
+                    'Inventory locations must be non-empty strings or None.'
+                )
+                LOGGER.error(msg % (target, name))
+                del config.intersphinx_mapping[name]
+                continue
+
+        config.intersphinx_mapping[name] = (name, (uri, tuple(targets)))
+
+    if errors == 1:
+        msg = __('Invalid `intersphinx_mapping` configuration (1 error).')
+        raise ConfigError(msg)
+    if errors > 1:
+        msg = __('Invalid `intersphinx_mapping` configuration (%s errors).')
+        raise ConfigError(msg % errors)
 
 
 def load_mappings(app: Sphinx) -> None:
-    """Load all intersphinx mappings into the environment."""
+    """Load all intersphinx mappings into the environment.
+
+    The intersphinx mappings are expected to be normalized.
+    """
     now = int(time.time())
     inventories = InventoryAdapter(app.builder.env)
-    intersphinx_cache: dict[str, InventoryCacheEntry] = inventories.cache
+    intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
+    intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = []
-        name: str | None
-        uri: str
-        invs: tuple[str | None, ...]
-        for name, (uri, invs) in app.config.intersphinx_mapping.values():
+        for name, (uri, invs) in intersphinx_mapping.values():
             futures.append(pool.submit(
                 fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now,
             ))
@@ -100,10 +169,10 @@ def load_mappings(app: Sphinx) -> None:
 
 
 def fetch_inventory_group(
-    name: str | None,
-    uri: str,
-    invs: tuple[str | None, ...],
-    cache: dict[str, InventoryCacheEntry],
+    name: InventoryName,
+    uri: InventoryURI,
+    invs: tuple[InventoryLocation, ...],
+    cache: dict[InventoryURI, InventoryCacheEntry],
     app: Sphinx,
     now: int,
 ) -> bool:
@@ -130,7 +199,7 @@ def fetch_inventory_group(
                     return True
         return False
     finally:
-        if failures == []:
+        if not failures:
             pass
         elif len(failures) < len(invs):
             LOGGER.info(__('encountered some issues with some of the inventories,'
@@ -143,7 +212,7 @@ def fetch_inventory_group(
                               'with the following issues:') + '\n' + issues)
 
 
-def fetch_inventory(app: Sphinx, uri: str, inv: str) -> Inventory:
+def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
