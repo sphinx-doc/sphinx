@@ -1139,8 +1139,7 @@ class StandaloneHTMLBuilder(Builder):
             source_name = path.join(self.outdir, '_sources',
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
-            copyfile(self.env.doc2path(pagename), source_name,
-                     __overwrite_warning__=False)
+            copyfile(self.env.doc2path(pagename), source_name, force=True)
 
     def update_page_context(self, pagename: str, templatename: str,
                             ctx: dict[str, Any], event_arg: Any) -> None:
