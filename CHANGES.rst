@@ -68,6 +68,10 @@ Incompatible changes
 * #12096: Do not overwrite user-supplied files when copying assets
   unless forced with ``force=True``.
   Patch by Adam Turner.
+* #12650: Remove support for string methods on :py:class:`~pathlib.Path` objects.
+  Use :py:func:`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
+  or :py:class:`~pathlib.Path`'s methods to work with path objects.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
