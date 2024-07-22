@@ -198,11 +198,6 @@ def getslots(obj: Any) -> dict[str, Any] | dict[str, None] | None:
         raise ValueError
 
 
-def isNewType(obj: Any) -> bool:
-    """Check the if object is a kind of :class:`~typing.NewType`."""
-    return isinstance(obj, typing.NewType)
-
-
 def isenumclass(x: Any) -> TypeIs[type[enum.Enum]]:
     """Check if the object is an :class:`enumeration class <enum.Enum>`."""
     return isclass(x) and issubclass(x, enum.Enum)
