@@ -46,7 +46,7 @@ def test_copy_asset_file(tmp_path):
     subdir1 = (tmp_path / 'subdir')
     subdir1.mkdir(parents=True, exist_ok=True)
 
-    copy_asset_file(src, subdir1, {'var1': 'template'}, renderer)
+    copy_asset_file(src, subdir1, context={'var1': 'template'}, renderer=renderer)
     assert (subdir1 / 'asset.txt').exists()
     assert (subdir1 / 'asset.txt').read_text(encoding='utf8') == '# template data'
 

@@ -92,12 +92,13 @@ def copyfile(
     source: str | os.PathLike[str],
     dest: str | os.PathLike[str],
     *,
-    __overwrite_warning__: bool = True,
+    force: bool = False,
 ) -> None:
     """Copy a file and its modification times, if possible.
 
     :param source: An existing source to copy.
     :param dest: The destination path.
+    :param bool force: Overwrite the destination file even if it exists.
     :raise FileNotFoundError: The *source* does not exist.
 
     .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
@@ -112,17 +113,17 @@ def copyfile(
         # two different files might have the same size
         not filecmp.cmp(source, dest, shallow=False)
     ):
-        if __overwrite_warning__ and dest_exists:
+        if not force and dest_exists:
             # sphinx.util.logging imports sphinx.util.osutil,
             # so use a local import to avoid circular imports
             from sphinx.util import logging
             logger = logging.getLogger(__name__)
 
-            # Consider raising an error in Sphinx 9. (xref: RemovedInSphinx90Warning)
-            # xref: https://github.com/sphinx-doc/sphinx/issues/12096
-            msg = __('Overwriting an existing file at %s with new file from %s.')
-            logger.warning(msg, os.fsdecode(dest), os.fsdecode(source),
+            msg = __('Aborted attempted copy from %s to %s '
+                     '(the destination path has existing data).')
+            logger.warning(msg, os.fsdecode(source), os.fsdecode(dest),
                            type='misc', subtype='copy_overwrite')
+            return
 
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
