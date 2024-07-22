@@ -139,7 +139,7 @@ def load_mappings(app: Sphinx) -> None:
     intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
     intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
 
-    expected_uris = {uri for uri, _invs in app.config.intersphinx_mapping.values()}
+    expected_uris = {uri for _name, (uri, _invs) in intersphinx_mapping.values()}
 
     # If the current cache contains some (project, uri) pair
     # say ("foo", "foo.com") and if the new intersphinx dict
@@ -183,34 +183,29 @@ def fetch_inventory_group(
 ) -> bool:
     cache_time = now - app.config.intersphinx_cache_limit * 86400
 
-    def should_store(uri: str, inv: str) -> bool:
-        # decide whether the inventory must be read: always read local
-        # files; remote ones only if the cache time is expired
-        return '://' not in inv or uri not in cache or cache[uri][1] < cache_time
-
     updated = False
     failures = []
 
     for location in invs:
         inv: str = location or posixpath.join(uri, INVENTORY_FILENAME)
-        if not should_store(uri, inv):
-            continue
+        # decide whether the inventory must be read: always read local
+        # files; remote ones only if the cache time is expired
+        if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
+            safe_inv_url = _get_safe_url(inv)
+            inv_descriptor = name or 'main_inventory'
+            LOGGER.info(__("loading intersphinx inventory '%s' from %s..."),
+                        inv_descriptor, safe_inv_url)
 
-        safe_inv_url = _get_safe_url(inv)
-        inv_descriptor = name or 'main_inventory'
-        LOGGER.info(__("loading intersphinx inventory '%s' from %s..."),
-                    inv_descriptor, safe_inv_url)
+            try:
+                invdata = fetch_inventory(app, uri, inv)
+            except Exception as err:
+                failures.append(err.args)
+                continue
 
-        try:
-            invdata = fetch_inventory(app, uri, inv)
-        except Exception as err:
-            failures.append(err.args)
-            continue
-
-        if invdata:
-            cache[uri] = name, now, invdata
-            updated = True
-            break
+            if invdata:
+                cache[uri] = name, now, invdata
+                updated = True
+                break
 
     if not failures:
         pass
