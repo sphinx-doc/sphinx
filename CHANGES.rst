@@ -70,6 +70,9 @@ Features added
 Bugs fixed
 ----------
 
+* #12639: Fix singular and plural search results text.
+  Patch by Hugo van Kemenade.
+
 Testing
 -------
 
