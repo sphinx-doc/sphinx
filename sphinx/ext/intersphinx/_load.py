@@ -128,7 +128,10 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
 
 
 def load_mappings(app: Sphinx) -> None:
-    """Load the (normalized) intersphinx mappings into the environment."""
+    """Load all intersphinx mappings into the environment.
+
+    The intersphinx mappings are expected to be normalized.
+    """
     now = int(time.time())
     inventories = InventoryAdapter(app.builder.env)
     intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache

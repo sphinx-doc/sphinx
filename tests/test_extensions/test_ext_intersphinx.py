@@ -569,8 +569,8 @@ def test_normalize_intersphinx_mapping_warnings(app, warning):
         '':                 ('789.example', None),     # invalid project name (value)
         12345:              ('456.example', None),     # invalid project name (type)
         None:               ('123.example', None),     # invalid project name (type)
-        'https://example/': None,                      # Sphinx 0.x style value (None)
-        'https://server/':  'inventory',               # Sphinx 0.x style value (str)
+        'https://example/': None,                      # Sphinx 0.5 style value (None)
+        'https://server/':  'inventory',               # Sphinx 0.5 style value (str)
         'bad-dict-item':    0,                         # invalid dict item type
         'unpack-except-1':  [0],                       # invalid dict item size (native ValueError)
         'unpack-except-2':  FakeList(),                # invalid dict item size (custom exception)
