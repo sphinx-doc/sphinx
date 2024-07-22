@@ -285,8 +285,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return (f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
                     fr'\ [{args}, {meta}]')
         elif isinstance(cls, NewType):
-            # newtypes have correct module info since Python 3.10+
-            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
+            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif isinstance(cls, types.UnionType):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
