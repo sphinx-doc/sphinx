@@ -74,7 +74,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             continue
         try:
             uri, inv = value
-        except Exception:
+        except (TypeError, ValueError, Exception):
             errors += 1
             msg = __(
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
