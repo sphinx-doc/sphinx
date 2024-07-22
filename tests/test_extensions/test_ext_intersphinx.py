@@ -21,7 +21,7 @@ from sphinx.ext.intersphinx import (
     inspect_main,
     load_mappings,
     missing_reference,
-    normalize_intersphinx_mapping,
+    validate_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx._load import _get_safe_url, _strip_basic_auth
@@ -239,7 +239,7 @@ def test_missing_reference(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
     inv = app.env.intersphinx_inventory
 
@@ -314,7 +314,7 @@ def test_missing_reference_pydomain(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -344,7 +344,7 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -394,7 +394,7 @@ def test_ambiguous_reference_warning(tmp_path, app, warning):
     })
 
     # load the inventory
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # term reference (case insensitive)
@@ -413,7 +413,7 @@ def test_missing_reference_cppdomain(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build()
@@ -439,7 +439,7 @@ def test_missing_reference_jsdomain(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -463,7 +463,7 @@ def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     def case(*, term, doc, py):
@@ -525,7 +525,7 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     rn = reference_check(app, 'py', 'mod', 'module1', 'foo')
@@ -535,8 +535,8 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     assert rn[0].astext() == 'Long Module desc'
 
 
-def test_normalize_intersphinx_mapping_warnings(app, warning):
-    """Check warnings in :func:`sphinx.ext.intersphinx.normalize_intersphinx_mapping`."""
+def test_validate_intersphinx_mapping_warnings(app, warning):
+    """Check warnings in :func:`sphinx.ext.intersphinx.validate_intersphinx_mapping`."""
     bad_intersphinx_mapping = {
         # fmt: off
         '':                 ('789.example', None),     # invalid project name (value)
@@ -567,7 +567,7 @@ def test_normalize_intersphinx_mapping_warnings(app, warning):
         ConfigError,
         match=r'^Invalid `intersphinx_mapping` configuration \(16 errors\).$',
     ):
-        normalize_intersphinx_mapping(app, app.config)
+        validate_intersphinx_mapping(app, app.config)
     warnings = strip_colors(warning.getvalue()).splitlines()
     assert len(warnings) == len(bad_intersphinx_mapping) - 3
     assert warnings == [
@@ -599,7 +599,7 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
     app.config.intersphinx_mapping = {
         'fallback': ('https://docs.python.org/py3k/', '/invalid/inventory/path'),
     }
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert "failed to reach any of the inventories" in warning.getvalue()
 
@@ -615,7 +615,7 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
         'fallback': ('https://docs.python.org/py3k/', ('/invalid/inventory/path',
                                                        str(inv_file))),
     }
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert "encountered some issues with some of the inventories" in status.getvalue()
     assert warning.getvalue() == ""
@@ -818,7 +818,7 @@ def test_intersphinx_role(app, warning):
     app.config.nitpicky = True
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build()

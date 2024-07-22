@@ -23,7 +23,7 @@ from sphinx.addnodes import (
 from sphinx.domains.cpp._ids import _id_prefix, _max_id
 from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol
-from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError, NoOldIdError
@@ -1428,7 +1428,7 @@ _var cpp:member 1 index.html#_CPPv44$ -
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build(force_all=True)

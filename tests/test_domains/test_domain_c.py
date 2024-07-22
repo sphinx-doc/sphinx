@@ -22,7 +22,7 @@ from sphinx.addnodes import (
 from sphinx.domains.c._ids import _id_prefix, _macroKeywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol
-from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError
@@ -775,7 +775,7 @@ _var c:member 1 index.html#c.$ -
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build(force_all=True)
