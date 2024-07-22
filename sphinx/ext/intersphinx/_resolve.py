@@ -203,11 +203,10 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
                               False, node, contnode)
 
 
-def resolve_reference_any_inventory(
-    env: BuildEnvironment,
-    honor_disabled_refs: bool,
-    node: pending_xref, contnode: TextElement,
-) -> nodes.reference | None:
+def resolve_reference_any_inventory(env: BuildEnvironment,
+                                    honor_disabled_refs: bool,
+                                    node: pending_xref, contnode: TextElement,
+                                    ) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried with the target as is in any inventory.
@@ -217,9 +216,9 @@ def resolve_reference_any_inventory(
                               node, contnode)
 
 
-def resolve_reference_detect_inventory(
-    env: BuildEnvironment, node: pending_xref, contnode: TextElement,
-) -> nodes.reference | None:
+def resolve_reference_detect_inventory(env: BuildEnvironment,
+                                       node: pending_xref, contnode: TextElement,
+                                       ) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried first with the target as is in any inventory.
@@ -245,9 +244,8 @@ def resolve_reference_detect_inventory(
     return res_inv
 
 
-def missing_reference(
-    app: Sphinx, env: BuildEnvironment, node: pending_xref, contnode: TextElement,
-) -> nodes.reference | None:
+def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
+                      contnode: TextElement) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references."""
     return resolve_reference_detect_inventory(env, node, contnode)
 
