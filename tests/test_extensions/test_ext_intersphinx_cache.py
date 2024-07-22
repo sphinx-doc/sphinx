@@ -9,7 +9,8 @@ from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 from typing import TYPE_CHECKING
 
-import pytest
+from sphinx.ext.intersphinx import InventoryAdapter
+from sphinx.testing.util import SphinxTestApp
 
 from tests.utils import http_server
 
@@ -17,8 +18,12 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import BinaryIO
 
-    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
     from sphinx.util.typing import InventoryItem
+
+BASE_CONFIG = {
+    'extensions': ['sphinx.ext.intersphinx'],
+    'intersphinx_timeout': 0.1,
+}
 
 
 class InventoryEntry:
@@ -66,7 +71,8 @@ class InventoryEntry:
 class IntersphinxProject:
     def __init__(
         self,
-        name: str = 'foo',
+        *,
+        name: str = 'spam',
         version: str | int = 1,
         baseurl: str = '',
         baseuri: str = '',
@@ -82,9 +88,9 @@ class IntersphinxProject:
         #: The escaped project version.
         self.safe_version = re.sub(r'\\s+', ' ', version)
 
-        #: The project base URL (e.g., http://localhost:7777).
+        #: The project base URL (e.g., http://localhost:9341).
         self.baseurl = baseurl
-        #: The project base URI, relative to *baseurl* (e.g., 'foo').
+        #: The project base URI, relative to *baseurl* (e.g., 'spam').
         self.uri = baseuri
         #: The project URL, as specified in :confval:`intersphinx_mapping`.
         self.url = posixpath.join(baseurl, baseuri)
@@ -96,7 +102,7 @@ class IntersphinxProject:
         """The :confval:`intersphinx_mapping` record for this project."""
         return {self.name: (self.url, self.file)}
 
-    def normalize(self, entry: InventoryEntry) -> tuple[str, InventoryItem]:
+    def normalise(self, entry: InventoryEntry) -> tuple[str, InventoryItem]:
         """Format an inventory entry as if it were part of this project."""
         url = posixpath.join(self.url, entry.uri)
         return entry.name, (self.safe_name, self.safe_version, url, entry.display_name)
@@ -108,7 +114,7 @@ class FakeInventory:
     def __init__(self, project: IntersphinxProject | None = None) -> None:
         self.project = project or IntersphinxProject()
 
-    def serialize(self, entries: Iterable[InventoryEntry] | None = None) -> bytes:
+    def serialise(self, entries: Iterable[InventoryEntry] | None = None) -> bytes:
         buffer = BytesIO()
         self._write_headers(buffer)
         entries = entries or [InventoryEntry()]
@@ -138,23 +144,28 @@ class FakeInventoryV2(FakeInventory):
 
 
 class SingleEntryProject(IntersphinxProject):
-    name = 'foo'
-    port = 7777  # needd since otherwise it's an automatic port
+    name = 'spam'
+    port = 9341  # needed since otherwise it's an automatic port
 
     def __init__(
         self,
         version: int,
         route: str,
         *,
-        item_name: str = 'bar',
+        item_name: str = 'ham',
         domain_name: str = 'py',
         object_type: str = 'module'
     ) -> None:
+        super().__init__(
+            name=self.name,
+            version=version,
+            baseurl=f'http://localhost:{self.port}',
+            baseuri=route,
+        )
         self.item_name = item_name
         self.domain_name = domain_name
         self.object_type = object_type
         self.reftype = f'{domain_name}:{object_type}'
-        super().__init__(self.name, version, f'http://localhost:{self.port}', route)
 
     def make_entry(self) -> InventoryEntry:
         """Get an inventory entry for this project."""
@@ -176,7 +187,7 @@ def make_inventory_handler(*projects: SingleEntryProject) -> type[BaseHTTPReques
                 # create the data to return depending on the endpoint
                 if self.path.startswith(f'/{project.uri}/'):
                     entry = project.make_entry()
-                    data = FakeInventoryV2(project).serialize([entry])
+                    data = FakeInventoryV2(project).serialise([entry])
                     break
 
             self.send_header('Content-Length', str(len(data)))
@@ -192,84 +203,96 @@ def make_inventory_handler(*projects: SingleEntryProject) -> type[BaseHTTPReques
 def test_intersphinx_project_fixture():
     # check that our fixture class is correct
     project = SingleEntryProject(1, 'route')
-    assert project.url == 'http://localhost:7777/route'
+    assert project.url == 'http://localhost:9341/route'
 
 
-@pytest.mark.sphinx('dummy', testroot='basic', freshenv=True)
-def test_load_mappings_cache(make_app, app_params):
+def test_load_mappings_cache(tmp_path):
+    tmp_path.joinpath('conf.py').touch()
+    tmp_path.joinpath('index.rst').touch()
     project = SingleEntryProject(1, 'a')
-    # clean build
-    args, kwargs = app_params
-    confoverrides = {'extensions': ['sphinx.ext.intersphinx'],
-                     'intersphinx_mapping': project.record}
 
     InventoryHandler = make_inventory_handler(project)
     with http_server(InventoryHandler, port=project.port):
-        app = make_app(*args, confoverrides=confoverrides, **kwargs)
+        # clean build
+        confoverrides = BASE_CONFIG | {'intersphinx_mapping': project.record}
+        app = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides)
         app.build()
+        app.cleanup()
 
     # the inventory when querying the 'old' URL
     entry = project.make_entry()
-    item = dict([project.normalize(entry)])
-    assert list(app.env.intersphinx_cache) == ['http://localhost:7777/a']
-    e: InventoryCacheEntry = app.env.intersphinx_cache['http://localhost:7777/a']
-    assert (e[0], e[2]) == ('foo', {'py:module': item})
-    assert app.env.intersphinx_named_inventory == {'foo': {'py:module': item}}
+    item = dict((project.normalise(entry),))
+    inventories = InventoryAdapter(app.env)
+    assert list(inventories.cache) == ['http://localhost:9341/a']
+    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/a']
+    assert e_name == 'spam'
+    assert e_inv == {'py:module': item}
+    assert inventories.named_inventory == {'spam': {'py:module': item}}
 
 
-@pytest.mark.sphinx('dummy', testroot='basic', freshenv=True)
-def test_load_mappings_cache_update(make_app, app_params):
+def test_load_mappings_cache_update(tmp_path):
+    tmp_path.joinpath('conf.py').touch()
+    tmp_path.joinpath('index.rst').touch()
     old_project = SingleEntryProject(1337, 'old')
     new_project = SingleEntryProject(1701, 'new')
 
-    args, kwargs = app_params
-    baseconfig = {'extensions': ['sphinx.ext.intersphinx']}
     InventoryHandler = make_inventory_handler(old_project, new_project)
     with http_server(InventoryHandler, port=SingleEntryProject.port):
         # build normally to create an initial cache
-        confoverrides1 = baseconfig | {'intersphinx_mapping': old_project.record}
-        _ = make_app(*args, confoverrides=confoverrides1, **kwargs)
-        _.build()
+        confoverrides1 = BASE_CONFIG | {'intersphinx_mapping': old_project.record}
+        app1 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides1)
+        app1.build()
+        app1.cleanup()
+
         # switch to new url and assert that the old URL is no more stored
-        confoverrides2 = baseconfig | {'intersphinx_mapping': new_project.record}
-        app = make_app(*args, confoverrides=confoverrides2, **kwargs)
-        app.build()
+        confoverrides2 = BASE_CONFIG | {'intersphinx_mapping': new_project.record}
+        app2 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides2)
+        app2.build()
+        app2.cleanup()
 
     entry = new_project.make_entry()
-    item = dict([new_project.normalize(entry)])
+    item = dict((new_project.normalise(entry),))
+    inventories = InventoryAdapter(app2.env)
     # check that the URLs were changed accordingly
-    assert list(app.env.intersphinx_cache) == ['http://localhost:7777/new']
-    e: InventoryCacheEntry = app.env.intersphinx_cache['http://localhost:7777/new']
-    assert (e[0], e[2]) == ('foo', {'py:module': item})
-    assert app.env.intersphinx_named_inventory == {'foo': {'py:module': item}}
+    assert list(inventories.cache) == ['http://localhost:9341/new']
+    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/new']
+    assert e_name == 'spam'
+    assert e_inv == {'py:module': item}
+    assert inventories.named_inventory == {'spam': {'py:module': item}}
 
 
-@pytest.mark.sphinx('dummy', testroot='basic', freshenv=True)
-def test_load_mappings_cache_revert_update(make_app, app_params):
+def test_load_mappings_cache_revert_update(tmp_path):
+    tmp_path.joinpath('conf.py').touch()
+    tmp_path.joinpath('index.rst').touch()
     old_project = SingleEntryProject(1337, 'old')
     new_project = SingleEntryProject(1701, 'new')
 
-    args, kwargs = app_params
-    baseconfig = {'extensions': ['sphinx.ext.intersphinx']}
     InventoryHandler = make_inventory_handler(old_project, new_project)
     with http_server(InventoryHandler, port=SingleEntryProject.port):
         # build normally to create an initial cache
-        confoverrides1 = baseconfig | {'intersphinx_mapping': old_project.record}
-        _ = make_app(*args, confoverrides=confoverrides1, **kwargs)
-        _.build()
+        confoverrides1 = BASE_CONFIG | {'intersphinx_mapping': old_project.record}
+        app1 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides1)
+        app1.build()
+        app1.cleanup()
+
         # switch to new url and build
-        confoverrides2 = baseconfig | {'intersphinx_mapping': new_project.record}
-        _ = make_app(*args, confoverrides=confoverrides2, **kwargs)
-        _.build()
+        confoverrides2 = BASE_CONFIG | {'intersphinx_mapping': new_project.record}
+        app2 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides2)
+        app2.build()
+        app2.cleanup()
+
         # switch back to old url (re-use 'old_item')
-        confoverrides3 = baseconfig | {'intersphinx_mapping': old_project.record}
-        app = make_app(*args, confoverrides=confoverrides3, **kwargs)
-        app.build()
+        confoverrides3 = BASE_CONFIG | {'intersphinx_mapping': old_project.record}
+        app3 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides3)
+        app3.build()
+        app3.cleanup()
 
     entry = old_project.make_entry()
-    item = dict([old_project.normalize(entry)])
+    item = dict((old_project.normalise(entry),))
+    inventories = InventoryAdapter(app3.env)
     # check that the URLs were changed accordingly
-    assert list(app.env.intersphinx_cache) == ['http://localhost:7777/old']
-    e: InventoryCacheEntry = app.env.intersphinx_cache['http://localhost:7777/old']
-    assert (e[0], e[2]) == ('foo', {'py:module': item})
-    assert app.env.intersphinx_named_inventory == {'foo': {'py:module': item}}
+    assert list(inventories.cache) == ['http://localhost:9341/old']
+    e_name, e_time, e_inv = inventories.cache['http://localhost:9341/old']
+    assert e_name == 'spam'
+    assert e_inv == {'py:module': item}
+    assert inventories.named_inventory == {'spam': {'py:module': item}}

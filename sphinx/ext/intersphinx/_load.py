@@ -193,8 +193,8 @@ def fetch_inventory_group(
         # location is either None or a non-empty string
         inv = f'{uri}/{INVENTORY_FILENAME}' if location is None else location
 
-        # decide whether the inventory must be read:
-        # always read local files; remote ones only if the cache time is expired
+        # decide whether the inventory must be read: always read local
+        # files; remote ones only if the cache time is expired
         if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
             LOGGER.info(__("loading intersphinx inventory '%s' from %s ..."),
                         name, _get_safe_url(inv))
