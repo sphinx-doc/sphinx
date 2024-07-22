@@ -102,7 +102,7 @@ class IntersphinxProject:
         #: The escaped project version.
         self.safe_version = re.sub(r'\\s+', ' ', version)
 
-        #: The project base URL (e.g., http://localhost:8080).
+        #: The project base URL (e.g., http://localhost:7777).
         self.baseurl = baseurl
         #: The project base URI, relative to *baseurl* (e.g., 'foo').
         self.uri = baseuri
@@ -630,7 +630,7 @@ def test_load_mappings_cache_update(make_app, app_params):
     DOMAIN_NAME = 'py'
     OBJECT_TYPE = 'module'
     REFTYPE = f'{DOMAIN_NAME}:{OBJECT_TYPE}'
-    PORT = 7777
+    PORT = 7777  # needd since otherwise it's an automatic port
 
     PROJECT_NAME, PROJECT_BASEURL = 'foo', f'http://localhost:{PORT}'
     old_project = IntersphinxProject(PROJECT_NAME, 1337, PROJECT_BASEURL, 'old')
