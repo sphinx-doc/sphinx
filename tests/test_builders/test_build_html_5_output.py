@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import nodes
@@ -11,6 +11,7 @@ from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
+    from typing import Literal
     from xml.etree.ElementTree import Element
 
 

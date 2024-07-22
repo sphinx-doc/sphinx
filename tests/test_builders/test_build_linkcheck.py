@@ -11,7 +11,7 @@ import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
 from queue import Queue
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import docutils
@@ -37,6 +37,7 @@ ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
     from io import StringIO
+    from typing import Any
 
     from urllib3 import HTTPConnectionPool
 
