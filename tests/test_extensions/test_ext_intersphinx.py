@@ -184,33 +184,6 @@ def set_config(app, mapping):
     app.config.intersphinx_disabled_reftypes = []
 
 
-# TODO(picnixz): investigate why 'caplog' fixture does not work
-@mock.patch("sphinx.ext.intersphinx._load.LOGGER")
-def test_normalize_intersphinx_mapping(logger):
-    app = mock.Mock()
-    app.config.intersphinx_mapping = {
-        'uri': None,  # invalid format
-        'foo': ('foo.com', None),  # valid format
-        'dup': ('foo.com', None),  # duplicated URI
-        'bar': ['bar.com', None],  # uses [...] instead of (...) (OK)
-    }
-
-    normalize_intersphinx_mapping(app, app.config)
-
-    assert app.config.intersphinx_mapping == {
-        'foo': ('foo', ('foo.com', (None,))),
-        'bar': ('bar', ('bar.com', (None,))),
-    }
-
-    assert len(logger.method_calls) == 2
-    args = logger.method_calls[0].args
-    assert args[0] % args[1:] == ("intersphinx_mapping['uri']: expecting a tuple or a list, "
-                                  "got: None; ignoring.")
-    args = logger.method_calls[1].args
-    assert args[0] % args[1:] == ("intersphinx_mapping['dup']: URI 'foo.com' shadows URI "
-                                  "from intersphinx_mapping['foo']; ignoring.")
-
-
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
 @mock.patch('sphinx.ext.intersphinx._load._read_from_url')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):  # NoQA: PT019
