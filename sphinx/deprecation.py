@@ -5,15 +5,15 @@ from __future__ import annotations
 import warnings
 
 
-class RemovedInSphinx80Warning(DeprecationWarning):
+class RemovedInSphinx90Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx90Warning(PendingDeprecationWarning):
+class RemovedInSphinx10Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx80Warning
+RemovedInNextVersionWarning = RemovedInSphinx90Warning
 
 
 def _deprecation_warning(
@@ -40,7 +40,7 @@ def _deprecation_warning(
 
        # deprecated name -> (object to return, canonical path or empty string, removal version)
        _DEPRECATED_OBJECTS = {
-           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name', (8, 0)),
+           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name', (9, 0)),
        }
 
 
@@ -55,10 +55,10 @@ def _deprecation_warning(
            _deprecation_warning(__name__, name, canonical_name, remove=remove)
            return deprecated_object
     """
-    if remove == (8, 0):
-        warning_class: type[Warning] = RemovedInSphinx80Warning
-    elif remove == (9, 0):
-        warning_class = RemovedInSphinx90Warning
+    if remove == (9, 0):
+        warning_class: type[Warning] = RemovedInSphinx90Warning
+    elif remove == (10, 0):
+        warning_class = RemovedInSphinx10Warning
     else:
         msg = f'removal version {remove!r} is invalid!'
         raise RuntimeError(msg)

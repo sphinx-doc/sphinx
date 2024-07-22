@@ -13,6 +13,7 @@ from collections import deque
 from collections.abc import Callable, Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, Literal
 
 from docutils.nodes import TextElement  # NoQA: TCH002
@@ -31,7 +32,6 @@ from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils, logging
-from sphinx.util._pathlib import _StrPath
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message
@@ -173,9 +173,9 @@ class Sphinx:
         self.registry = SphinxComponentRegistry()
 
         # validate provided directories
-        self.srcdir = _StrPath(srcdir).resolve()
-        self.outdir = _StrPath(outdir).resolve()
-        self.doctreedir = _StrPath(doctreedir).resolve()
+        self.srcdir = Path(srcdir).resolve()
+        self.outdir = Path(outdir).resolve()
+        self.doctreedir = Path(doctreedir).resolve()
 
         if not path.isdir(self.srcdir):
             raise ApplicationError(__('Cannot find source directory (%s)') %
@@ -231,7 +231,7 @@ class Sphinx:
             self.confdir = self.srcdir
             self.config = Config({}, confoverrides or {})
         else:
-            self.confdir = _StrPath(confdir).resolve()
+            self.confdir = Path(confdir).resolve()
             self.config = Config.read(self.confdir, confoverrides or {}, self.tags)
 
         # set up translation infrastructure
