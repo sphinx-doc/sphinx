@@ -72,6 +72,8 @@ Incompatible changes
   Use :py:func:`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
   or :py:class:`~pathlib.Path`'s methods to work with path objects.
   Patch by Adam Turner.
+* #12646: Remove :py:func:`!sphinx.util.inspect.isNewType`.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
