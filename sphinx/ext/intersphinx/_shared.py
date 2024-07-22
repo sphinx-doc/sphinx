@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from typing import Final
-
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory
 
