@@ -1,4 +1,5 @@
 """Test the intersphinx extension."""
+
 from __future__ import annotations
 
 import http.server
@@ -14,6 +15,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx import (
     fetch_inventory,
     inspect_main,
@@ -154,6 +156,11 @@ class FakeInventoryV2(FakeInventory):
         buffer.write(compressor.flush())
 
 
+class FakeList(list):
+    def __iter__(self) -> NoReturn:
+        raise NotImplementedError
+
+
 def fake_node(domain, type, target, content, **attrs):
     contnode = nodes.emphasis(content, content)
     node = addnodes.pending_xref('')
@@ -172,7 +179,7 @@ def reference_check(app, *args, **kwds):
 
 def set_config(app, mapping):
     # copy *mapping* so that normalization does not alter it
-    app.config.intersphinx_mapping = dict(mapping)
+    app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
 
@@ -555,55 +562,59 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     assert rn[0].astext() == 'Long Module desc'
 
 
-def test_normalize_intersphinx_mapping_warnings(tmp_path, app, warning):
+def test_normalize_intersphinx_mapping_warnings(app, warning):
     """Check warnings in :func:`sphinx.ext.intersphinx.normalize_intersphinx_mapping`."""
-    inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(INVENTORY_V2)
-    targets = (str(inv_file),)
-
-    class FakeList(list):
-        def __iter__(self) -> NoReturn:
-            raise NotImplementedError
-
-    set_config(app, bad_intersphinx_mapping := {
+    bad_intersphinx_mapping = {
         # fmt: off
-        '':                 ('67890.net', targets),  # invalid project name (value)
-        12345:              ('12345.net', targets),  # invalid project name (type)
-        'bad-dict-item':    0,                       # invalid dict item type
-        'unpack-except-1':  [0],                     # invalid dict item size (native ValueError)
-        'unpack-except-2':  FakeList(),              # invalid dict item size (custom exception)
-        'bad-uri-type-1':   (123456789, targets),    # invalid URI type
-        'bad-uri-type-2':   (None, targets),         # invalid URI type
-        'bad-uri-value':    ('', targets),           # invalid URI value
-        'good':             ('foo.com', targets),    # duplicated URI (good entry)
-        'dedup-good':       ('foo.com', targets),    # duplicated URI
-        'bad-target-1':     ('a.com', 1),            # invalid URI type (single input, bad type)
-        'bad-target-2':     ('b.com', ''),           # invalid URI type (single input, bad string)
-        'bad-target-3':     ('c.com', [2, 'x']),     # invalid URI type (sequence input, bad type)
-        'bad-target-4':     ('d.com', ['y', '']),    # invalid URI type (sequence input, bad string)
+        '':                 ('789.example', None),     # invalid project name (value)
+        12345:              ('456.example', None),     # invalid project name (type)
+        None:               ('123.example', None),     # invalid project name (type)
+        'https://example/': None,                      # Sphinx 0.x style value (None)
+        'https://server/':  'inventory',               # Sphinx 0.x style value (str)
+        'bad-dict-item':    0,                         # invalid dict item type
+        'unpack-except-1':  [0],                       # invalid dict item size (native ValueError)
+        'unpack-except-2':  FakeList(),                # invalid dict item size (custom exception)
+        'bad-uri-type-1':   (123456789, None),         # invalid target URI type
+        'bad-uri-type-2':   (None, None),              # invalid target URI type
+        'bad-uri-value':    ('', None),                # invalid target URI value
+        'good':             ('example.org', None),     # duplicated target URI (good entry)
+        'dedup-good':       ('example.org', None),     # duplicated target URI
+        'bad-location-1':   ('a.example', 1),          # invalid inventory location (single input, bad type)
+        'bad-location-2':   ('b.example', ''),         # invalid inventory location (single input, bad string)
+        'bad-location-3':   ('c.example', [2, 'x']),   # invalid inventory location (sequence input, bad type)
+        'bad-location-4':   ('d.example', ['y', '']),  # invalid inventory location (sequence input, bad string)
+        'good-target-1':    ('e.example', None),       # valid inventory location (None)
+        'good-target-2':    ('f.example', ('x',)),     # valid inventory location (sequence input)
         # fmt: on
-    })
+    }
+    set_config(app, bad_intersphinx_mapping)
 
-    # normalize the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    # normalise the inventory and check if it's done correctly
+    with pytest.raises(
+        ConfigError,
+        match=r'^Invalid `intersphinx_mapping` configuration \(16 errors\).$',
+    ):
+        normalize_intersphinx_mapping(app, app.config)
     warnings = strip_colors(warning.getvalue()).splitlines()
-    assert len(warnings) == len(bad_intersphinx_mapping) - 1
-    for index, messages in enumerate((
-        "ignoring empty intersphinx identifier",
-        'intersphinx identifier 12345 is not string. Ignored',
-        "intersphinx_mapping['bad-dict-item']: expecting a tuple or a list, got: 0; ignoring.",
-        "Failed to read intersphinx_mapping[unpack-except-1], ignored: ValueError('not enough values to unpack (expected 2, got 1)')",
-        "Failed to read intersphinx_mapping[unpack-except-2], ignored: NotImplementedError()",
-        "intersphinx_mapping['bad-uri-type-1']: URI must be a non-empty string, got: 123456789; ignoring.",
-        "intersphinx_mapping['bad-uri-type-2']: URI must be a non-empty string, got: None; ignoring.",
-        "intersphinx_mapping['bad-uri-value']: URI must be a non-empty string, got: ''; ignoring.",
-        "intersphinx_mapping['dedup-good']: URI 'foo.com' shadows URI from intersphinx_mapping['good']; ignoring.",
-        "intersphinx_mapping['bad-target-1']: inventory location must be a non-empty string or None, got: 1; ignoring.",
-        "intersphinx_mapping['bad-target-2']: inventory location must be a non-empty string or None, got: ''; ignoring.",
-        "intersphinx_mapping['bad-target-3']: inventory location must be a non-empty string or None, got: 2; ignoring.",
-        "intersphinx_mapping['bad-target-4']: inventory location must be a non-empty string or None, got: ''; ignoring.",
-    )):
-        assert messages in warnings[index]
+    assert len(warnings) == len(bad_intersphinx_mapping) - 3
+    assert warnings == [
+        "ERROR: Invalid intersphinx project identifier `''` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid intersphinx project identifier `12345` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid intersphinx project identifier `None` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid value `None` in intersphinx_mapping['https://example/']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `'inventory'` in intersphinx_mapping['https://server/']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `0` in intersphinx_mapping['bad-dict-item']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `[0]` in intersphinx_mapping['unpack-except-1']. Values must be a (target URI, inventory locations) pair.",
+        "ERROR: Invalid value `[]` in intersphinx_mapping['unpack-except-2']. Values must be a (target URI, inventory locations) pair.",
+        "ERROR: Invalid target URI value `123456789` in intersphinx_mapping['bad-uri-type-1'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `None` in intersphinx_mapping['bad-uri-type-2'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `''` in intersphinx_mapping['bad-uri-value'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `'example.org'` in intersphinx_mapping['dedup-good'][0]. Target URIs must be unique (other instance in intersphinx_mapping['good']).",
+        "ERROR: Invalid inventory location value `1` in intersphinx_mapping['bad-location-1'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `''` in intersphinx_mapping['bad-location-2'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `2` in intersphinx_mapping['bad-location-3'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `''` in intersphinx_mapping['bad-location-4'][1]. Inventory locations must be non-empty strings or None."
+    ]
 
 
 def test_load_mappings_fallback(tmp_path, app, status, warning):
@@ -842,14 +853,14 @@ def test_intersphinx_role(app, warning):
     warnings = strip_colors(warning.getvalue()).splitlines()
     index_path = app.srcdir / 'index.rst'
     assert warnings == [
-        f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope'",
-        f"{index_path}:28: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'nope'",
-        f"{index_path}:39: WARNING: inventory for external cross-reference not found: 'invNope'",
-        f"{index_path}:44: WARNING: role for external cross-reference not found in domain 'c': 'function' (perhaps you meant one of: 'func', 'identifier', 'type')",
-        f"{index_path}:45: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'function' (perhaps you meant one of: 'cpp:func', 'cpp:identifier', 'cpp:type')",
-        f'{index_path}:9: WARNING: external py:mod reference target not found: module3',
-        f'{index_path}:14: WARNING: external py:mod reference target not found: module10',
-        f'{index_path}:19: WARNING: external py:meth reference target not found: inv:Foo.bar',
+        f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope' [intersphinx.external]",
+        f"{index_path}:28: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'nope' [intersphinx.external]",
+        f"{index_path}:39: WARNING: inventory for external cross-reference not found: 'invNope' [intersphinx.external]",
+        f"{index_path}:44: WARNING: role for external cross-reference not found in domain 'c': 'function' (perhaps you meant one of: 'func', 'identifier', 'type') [intersphinx.external]",
+        f"{index_path}:45: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'function' (perhaps you meant one of: 'cpp:func', 'cpp:identifier', 'cpp:type') [intersphinx.external]",
+        f'{index_path}:9: WARNING: external py:mod reference target not found: module3 [ref.mod]',
+        f'{index_path}:14: WARNING: external py:mod reference target not found: module10 [ref.mod]',
+        f'{index_path}:19: WARNING: external py:meth reference target not found: inv:Foo.bar [ref.meth]',
     ]
 
     html = '<a class="reference external" href="https://example.org/{}" title="(in foo v2.0)">'

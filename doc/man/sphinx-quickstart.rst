@@ -133,6 +133,10 @@ Options
    .. versionchanged:: 7.3
       Support for disabling the make-mode will be removed in Sphinx 8.
 
+   .. versionremoved:: 8.0
+      The :option:`!--no-use-make-mode` option.
+      The :option:`!--use-make-mode` now has no effect.
+
 .. option:: --makefile, --no-makefile
 
    Create (or not create) makefile.

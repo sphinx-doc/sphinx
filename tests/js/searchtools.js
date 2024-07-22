@@ -31,8 +31,6 @@ describe('Basic html theme search', function() {
       eval(loadFixture("cpp/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('C++');
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -42,15 +40,13 @@ describe('Basic html theme search', function() {
         5,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
     it('should be able to search for multiple terms', function() {
       eval(loadFixture("multiterm/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('main page');
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
       hits = [[
         'index',
         'Main Page',
@@ -58,15 +54,13 @@ describe('Basic html theme search', function() {
         null,
         15,
         'index.rst']];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
     it('should partially-match "sphinx" when in title index', function() {
       eval(loadFixture("partial/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('sphinx');
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -76,7 +70,7 @@ describe('Basic html theme search', function() {
         7,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
   });

@@ -128,7 +128,7 @@ InventoryItem = tuple[
     str,  # display name
 ]
 
-# referencable role => (reference name => inventory item)
+# referencable role -> (reference name -> inventory item)
 Inventory = dict[str, dict[str, InventoryItem]]
 
 
@@ -577,7 +577,6 @@ def _format_literal_arg_stringify(arg: Any, /, *, mode: str) -> str:
 
 # deprecated name -> (object to return, canonical path or empty string, removal version)
 _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'stringify': (stringify_annotation, 'sphinx.util.typing.stringify_annotation', (8, 0)),
 }
 
 

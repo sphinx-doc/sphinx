@@ -96,7 +96,7 @@ def test_text_emit_warnings(app, warning):
     # test warnings in translation
     warnings = getwarning(warning)
     warning_expr = ('.*/warnings.txt:4:<translated>:1: '
-                    'WARNING: Inline literal start-string without end-string.\n')
+                    'WARNING: Inline literal start-string without end-string. \\[docutils\\]\n')
     assert re.search(warning_expr, warnings), f'{warning_expr!r} did not match {warnings!r}'
 
 
@@ -156,7 +156,7 @@ def test_text_inconsistency_warnings(app, warning):
     warnings = getwarning(warning)
     warning_fmt = ('.*/refs_inconsistency.txt:\\d+: '
                    'WARNING: inconsistent %(reftype)s in translated message.'
-                   ' original: %(original)s, translated: %(translated)s\n')
+                   ' original: %(original)s, translated: %(translated)s \\[i18n.inconsistent_references\\]\n')
     expected_warning_expr = (
         warning_fmt % {
             'reftype': 'footnote references',
@@ -310,7 +310,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
         '.*/glossary_terms_inconsistency.txt:\\d+: '
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
-        " translated: \\[':term:`SOME NEW TERM`'\\]\n")
+        " translated: \\[':term:`SOME NEW TERM`'\\] \\[i18n.inconsistent_references\\]\n")
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
     expected_warning_expr = (
         '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '

@@ -72,6 +72,9 @@ def test_theme_api(app, status, warning):
     assert theme.get_config('theme', 'foobar', 'def') == 'def'
     with pytest.raises(ThemeError):
         theme.get_config('theme', 'foobar')
+    # nonexisting section
+    with pytest.raises(ThemeError):
+        theme.get_config('foobar', 'foobar')
 
     # options API
 

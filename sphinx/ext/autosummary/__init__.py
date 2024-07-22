@@ -765,7 +765,14 @@ class AutoLink(SphinxRole):
         try:
             # try to import object by name
             prefixes = get_import_prefixes_from_env(self.env)
-            import_by_name(pending_xref['reftarget'], prefixes)
+            name = pending_xref['reftarget']
+            prefixes = [
+                prefix
+                for prefix in prefixes
+                if prefix is None
+                or not (name.startswith(f'{prefix}.') or name == prefix)
+            ]
+            import_by_name(name, prefixes)
         except ImportExceptionGroup:
             literal = cast(nodes.literal, pending_xref[0])
             objects[0] = nodes.emphasis(self.rawtext, literal.astext(),
