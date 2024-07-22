@@ -57,7 +57,7 @@ def reference_check(app, *args, **kwds):
 
 def set_config(app, mapping):
     # copy *mapping* so that normalization does not alter it
-    app.config.intersphinx_mapping = dict(mapping)
+    app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
 
@@ -443,7 +443,7 @@ def test_normalize_intersphinx_mapping_warnings(app, warning):
     # normalise the inventory and check if it's done correctly
     with pytest.raises(
         ConfigError,
-        match=r'Invalid `intersphinx_mapping` configuration \(16 errors\).',
+        match=r'^Invalid `intersphinx_mapping` configuration \(16 errors\).$',
     ):
         normalize_intersphinx_mapping(app, app.config)
     warnings = strip_colors(warning.getvalue()).splitlines()
