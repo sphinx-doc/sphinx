@@ -51,7 +51,7 @@
 \ifnum\spx@opt@numfigreset>0
     \ltx@ifundefined{c@chapter}
       {}
-      {\g@addto@macro\spx@preAthefigure{\ifnum\c@chapter>\z@\arabic{chapter}.}%
+      {\g@addto@macro\spx@preAthefigure{\ifnum\c@chapter>\z@\arabic{chapter}}%
        \g@addto@macro\spx@preBthefigure{\fi}}%
 \fi
 \ifnum\spx@opt@numfigreset>1
@@ -61,7 +61,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{section}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@.\arabic{section}}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>2
@@ -71,7 +71,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsection}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@.\arabic{subsection}}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>3
@@ -81,7 +81,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsubsection}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@.\arabic{subsubsection}}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>4
@@ -91,7 +91,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{paragraph}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@.\arabic{subparagraph}}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>5
@@ -101,7 +101,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subparagraph}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@.\arabic{subsubparagraph}}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \expandafter\g@addto@macro
@@ -109,12 +109,12 @@
 \let\thefigure\spx@preAthefigure
 \let\thetable\spx@preAthefigure
 \let\theliteralblock\spx@preAthefigure
-\g@addto@macro\thefigure{\arabic{figure}}%
-\g@addto@macro\thetable{\arabic{table}}%
-\g@addto@macro\theliteralblock{\arabic{literalblock}}%
+\g@addto@macro\thefigure{.\arabic{figure}}%
+\g@addto@macro\thetable{.\arabic{table}}%
+\g@addto@macro\theliteralblock{.\arabic{literalblock}}%
   \ifspx@opt@mathnumfig
     \let\theequation\spx@preAthefigure
-    \g@addto@macro\theequation{\arabic{equation}}%
+    \g@addto@macro\theequation{\spx@opt@mathnumsep\arabic{equation}}%
   \fi
 \fi
 }% end of big \AtBeginDocument
