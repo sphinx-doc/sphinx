@@ -141,13 +141,14 @@ def load_mappings(app: Sphinx) -> None:
 
     expected_uris = {uri for _name, (uri, _invs) in intersphinx_mapping.values()}
 
-    # If the current cache contains some (project, uri) pair
-    # say ("foo", "foo.com") and if the new intersphinx dict
-    # contains the pair ("foo", "bar.com"), we need to remove
-    # the ("foo", "foo.com") entry and use ("foo", "bar.com").
     for uri in frozenset(intersphinx_cache):
-        if intersphinx_cache[uri][0] not in intersphinx_mapping or uri not in expected_uris:
-            # remove a cached inventory if the latter is no more used by intersphinx
+        if intersphinx_cache[uri][0] not in intersphinx_mapping:
+            # Remove all cached entries that are no longer in `intersphinx_mapping`.
+            del intersphinx_cache[uri]
+        if uri not in expected_uris:
+            # Remove cached entries with a different target URI
+            # than the one in `intersphinx_mapping`.
+            # This happens when the URI in `intersphinx_mapping` is changed.
             del intersphinx_cache[uri]
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
@@ -162,9 +163,11 @@ def load_mappings(app: Sphinx) -> None:
         inventories.clear()
 
         # Duplicate values in different inventories will shadow each
-        # other and which one will override which varies between builds.
+        # other; which one will override which can vary between builds.
         #
-        # We can however order the cache by (NAME, EXPIRY) for reproducibility.
+        # In an attempt to make this more consistent,
+        # we sort the named inventories in the cache
+        # by their name and expiry time ``(NAME, EXPIRY)``.
         by_name_and_time = itemgetter(0, 1)  # 0: name, 1: expiry
         cache_values = sorted(intersphinx_cache.values(), key=by_name_and_time)
         for name, _expiry, invdata in cache_values:
@@ -187,14 +190,14 @@ def fetch_inventory_group(
     failures = []
 
     for location in invs:
-        inv: str = location or posixpath.join(uri, INVENTORY_FILENAME)
-        # decide whether the inventory must be read: always read local
-        # files; remote ones only if the cache time is expired
+        # location is either None or a non-empty string
+        inv = f'{uri}/{INVENTORY_FILENAME}' if location is None else location
+
+        # decide whether the inventory must be read:
+        # always read local files; remote ones only if the cache time is expired
         if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
-            safe_inv_url = _get_safe_url(inv)
-            inv_descriptor = name or 'main_inventory'
             LOGGER.info(__("loading intersphinx inventory '%s' from %s..."),
-                        inv_descriptor, safe_inv_url)
+                        name, _get_safe_url(inv))
 
             try:
                 invdata = fetch_inventory(app, uri, inv)
@@ -210,14 +213,14 @@ def fetch_inventory_group(
     if not failures:
         pass
     elif len(failures) < len(invs):
-        LOGGER.info(__("encountered some issues with some of the inventories,"
-                       " but they had working alternatives:"))
+        LOGGER.info(__('encountered some issues with some of the inventories,'
+                       ' but they had working alternatives:'))
         for fail in failures:
             LOGGER.info(*fail)
     else:
         issues = '\n'.join(f[0] % f[1:] for f in failures)
-        LOGGER.warning(__("failed to reach any of the inventories "
-                          "with the following issues:") + "\n" + issues)
+        LOGGER.warning(__('failed to reach any of the inventories '
+                          'with the following issues:') + '\n' + issues)
     return updated
 
 
