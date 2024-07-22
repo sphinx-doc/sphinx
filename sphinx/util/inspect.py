@@ -52,7 +52,11 @@ if TYPE_CHECKING:
         | types.MethodDescriptorType
         | types.ClassMethodDescriptorType
     )
-    _SignatureType: TypeAlias = Callable[..., Any] | staticmethod | classmethod
+    _SignatureType: TypeAlias = (
+        Callable[..., Any]
+        | staticmethod
+        | classmethod
+    )
 
 logger = logging.getLogger(__name__)
 
