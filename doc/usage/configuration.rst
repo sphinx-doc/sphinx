@@ -1372,6 +1372,7 @@ Options for warning control
    * ``ref.footnote``
    * ``ref.doc``
    * ``ref.python``
+   * ``misc.copy_overwrite``
    * ``misc.highlighting_failure``
    * ``toc.circular``
    * ``toc.excluded``
@@ -1423,6 +1424,9 @@ Options for warning control
 
    .. versionadded:: 7.3
       Added ``toc.no_title``.
+
+   .. versionadded:: 8.0
+      Added ``misc.copy_overwrite``.
 
 
 Builder options
