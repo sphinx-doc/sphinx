@@ -22,6 +22,7 @@ describe('Basic html theme search', function() {
     }
 
     expect(remainingItems.length).toEqual(0);
+    expect(nextExpected).toEqual(undefined);
   }
 
   describe('terms search', function() {
@@ -30,8 +31,6 @@ describe('Basic html theme search', function() {
       eval(loadFixture("cpp/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('C++');
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -41,15 +40,13 @@ describe('Basic html theme search', function() {
         5,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
     it('should be able to search for multiple terms', function() {
       eval(loadFixture("multiterm/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('main page');
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
       hits = [[
         'index',
         'Main Page',
@@ -57,15 +54,13 @@ describe('Basic html theme search', function() {
         null,
         15,
         'index.rst']];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
     it('should partially-match "sphinx" when in title index', function() {
       eval(loadFixture("partial/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('sphinx');
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -75,7 +70,7 @@ describe('Basic html theme search', function() {
         7,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
   });
@@ -137,7 +132,7 @@ describe('Basic html theme search', function() {
 
       expectedRanking = [
         ['relevance', 'Relevance', ''],  /* main title */
-        ['index', 'relevance.Example.relevance', '#module-relevance'],  /* py:class attribute */
+        ['index', 'relevance.Example.relevance', '#relevance.Example.relevance'],  /* py:class attribute */
       ];
 
       searchParameters = Search._parseQuery('relevance');

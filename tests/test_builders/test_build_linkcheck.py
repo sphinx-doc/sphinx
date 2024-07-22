@@ -27,7 +27,6 @@ from sphinx.builders.linkcheck import (
     RateLimit,
     compile_linkcheck_allowed_redirects,
 )
-from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.util import requests
 from sphinx.util.console import strip_colors
 
@@ -503,7 +502,6 @@ def test_auth_header_uses_first_match(app: Sphinx) -> None:
     assert content["status"] == "working"
 
 
-@pytest.mark.filterwarnings('ignore::sphinx.deprecation.RemovedInSphinx80Warning')
 @pytest.mark.sphinx(
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_allow_unauthorized': False})
@@ -522,18 +520,14 @@ def test_unauthorized_broken(app: Sphinx) -> None:
     'linkcheck', testroot='linkcheck-localserver', freshenv=True,
     confoverrides={'linkcheck_auth': [(r'^$', ('user1', 'password'))]})
 def test_auth_header_no_match(app: Sphinx) -> None:
-    with (
-        serve_application(app, custom_handler(valid_credentials=("user1", "password"))),
-        pytest.warns(RemovedInSphinx80Warning, match='linkcheck builder encountered an HTTP 401'),
-    ):
+    with serve_application(app, custom_handler(valid_credentials=("user1", "password"))):
         app.build()
 
     with open(app.outdir / "output.json", encoding="utf-8") as fp:
         content = json.load(fp)
 
-    # This link is considered working based on the default linkcheck_allow_unauthorized=true
     assert content["info"] == "unauthorized"
-    assert content["status"] == "working"
+    assert content["status"] == "broken"
 
 
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver', freshenv=True)

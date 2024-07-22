@@ -309,7 +309,7 @@ class JSModule(SphinxDirective):
     def run(self) -> list[Node]:
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
-        no_index = 'no-index' in self.options or 'noindex' in self.options
+        no_index = 'no-index' in self.options
 
         content_nodes = self.parse_content_to_nodes(allow_section_headings=True)
 

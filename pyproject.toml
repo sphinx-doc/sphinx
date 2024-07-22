@@ -83,10 +83,13 @@ docs = [
 ]
 lint = [
     "flake8>=6.0",
-    "ruff==0.5.2",
+    "ruff==0.5.4",
     "mypy==1.10.1",
     "sphinx-lint>=0.9",
+    "types-colorama==0.4.15.20240311",
     "types-docutils==0.21.0.20240711",
+    "types-Pillow==10.2.0.20240520",
+    "types-Pygments==2.18.0.20240506",
     "types-requests>=2.30.0",  # align with requests
     "importlib-metadata>=6.0",  # for mypy (Python<=3.9)
     "tomli>=2",  # for mypy (Python<=3.10)
@@ -224,9 +227,6 @@ enable_error_code = [
     "ignore-without-code",
     "unused-awaitable",
 ]
-disable_error_code = [
-    "import-untyped",
-]
 
 [[tool.mypy.overrides]]
 module = [
@@ -244,16 +244,13 @@ strict_optional = false
 [[tool.mypy.overrides]]
 module = [
     "sphinx.application",
-    "sphinx.cmd.quickstart",
     "sphinx.config",
     "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
     "sphinx.events",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autodoc.directive",
     "sphinx.ext.autodoc.importer",
-    "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
@@ -273,6 +270,14 @@ module = [
     "sphinx.util.template",
 ]
 disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = [
+    "defusedxml.ElementTree",
+    "imagesize",
+    "snowballstemmer",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
