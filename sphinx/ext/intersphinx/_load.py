@@ -164,9 +164,10 @@ def load_mappings(app: Sphinx) -> None:
         # Duplicate values in different inventories will shadow each
         # other and which one will override which varies between builds.
         #
-        # We can however order the cache by URIs for reproducibility.
-        intersphinx_cache_values = sorted(intersphinx_cache.values(), key=itemgetter(0, 1))
-        for name, _timeout, invdata in intersphinx_cache_values:
+        # We can however order the cache by (NAME, EXPIRY) for reproducibility.
+        by_name_and_time = itemgetter(0, 1)  # 0: name, 1: expiry
+        cache_values = sorted(intersphinx_cache.values(), key=by_name_and_time)
+        for name, _expiry, invdata in cache_values:
             inventories.named_inventory[name] = invdata
             for objtype, objects in invdata.items():
                 inventories.main_inventory.setdefault(objtype, {}).update(objects)
