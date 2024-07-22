@@ -8,7 +8,7 @@ from __future__ import annotations
 import contextlib
 from collections import defaultdict
 from operator import attrgetter
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
@@ -16,6 +16,8 @@ from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sphinx.application import Sphinx
 
 

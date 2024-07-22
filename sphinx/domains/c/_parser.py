@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from sphinx.domains.c._ast import (
     ASTAlignofExpr,
@@ -53,7 +53,6 @@ from sphinx.domains.c._ast import (
     ASTTypeWithInit,
     ASTUnaryOpExpr,
     ASTUnion,
-    DeclarationType,
 )
 from sphinx.domains.c._ids import (
     _expression_assignment_ops,
@@ -80,7 +79,9 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
+
+    from sphinx.domains.c._ast import DeclarationType
 
 
 class DefinitionParser(BaseParser):

@@ -87,9 +87,9 @@ def _stable_hash(obj: Any) -> str:
     """
     if isinstance(obj, dict):
         obj = sorted(map(_stable_hash, obj.items()))
-    if isinstance(obj, (list, tuple, set, frozenset)):
+    if isinstance(obj, list | tuple | set | frozenset):
         obj = sorted(map(_stable_hash, obj))
-    elif isinstance(obj, (type, types.FunctionType)):
+    elif isinstance(obj, type | types.FunctionType):
         # The default repr() of functions includes the ID, which is not ideal.
         # We use the fully qualified name instead.
         obj = f'{obj.__module__}.{obj.__qualname__}'
@@ -734,7 +734,7 @@ class StandaloneHTMLBuilder(Builder):
                              'genindex-split.html')
             self.handle_page('genindex-all', genindexcontext,
                              'genindex.html')
-            for (key, entries), count in zip(genindex, indexcounts):
+            for (key, entries), count in zip(genindex, indexcounts, strict=True):
                 ctx = {'key': key, 'entries': entries, 'count': count,
                        'genindexentries': genindex}
                 self.handle_page('genindex-' + key, ctx,

@@ -4,6 +4,8 @@ Release 8.0.0 (in development)
 Dependencies
 ------------
 
+* #12633: Drop Python 3.9 support.
+
 Incompatible changes
 --------------------
 

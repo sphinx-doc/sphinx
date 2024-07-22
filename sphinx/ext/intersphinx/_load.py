@@ -64,7 +64,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             continue
 
         # ensure values are properly formatted
-        if not isinstance(value, (tuple, list)):
+        if not isinstance(value, (tuple | list)):
             errors += 1
             msg = __(
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
@@ -106,7 +106,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
 
         # ensure inventory locations are None or non-empty
         targets: list[InventoryLocation] = []
-        for target in (inv if isinstance(inv, (tuple, list)) else (inv,)):
+        for target in (inv if isinstance(inv, (tuple | list)) else (inv,)):
             if target is None or target and isinstance(target, str):
                 targets.append(target)
             else:

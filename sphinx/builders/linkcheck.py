@@ -27,8 +27,8 @@ from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from typing import Any, Callable
+    from collections.abc import Callable, Iterator
+    from typing import Any
 
     from requests import Response
 

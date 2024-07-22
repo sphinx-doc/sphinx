@@ -10,9 +10,8 @@ from __future__ import annotations
 import functools
 import operator
 import re
-import sys
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
 
 from docutils.statemachine import StringList
 
@@ -40,7 +39,7 @@ from sphinx.util.typing import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
 
     from sphinx.application import Sphinx
@@ -612,7 +611,7 @@ class Documenter:
 
         # add additional content (e.g. from document), if present
         if more_content:
-            for line, src in zip(more_content.data, more_content.items):
+            for line, src in zip(more_content.data, more_content.items, strict=True):
                 self.add_line(line, src[0], src[1])
 
     def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
@@ -975,7 +974,7 @@ class ModuleDocumenter(Documenter):
         super().add_content(None)
         self.indent = old_indent
         if more_content:
-            for line, src in zip(more_content.data, more_content.items):
+            for line, src in zip(more_content.data, more_content.items, strict=True):
                 self.add_line(line, src[0], src[1])
 
     @classmethod
@@ -1450,7 +1449,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     # Must be higher than FunctionDocumenter, ClassDocumenter, and
     # AttributeDocumenter as NewType can be an attribute and is a class
-    # after Python 3.10. Before 3.10 it is a kind of function object
+    # after Python 3.10.
     priority = 15
 
     _signature_class: Any = None
@@ -1740,24 +1739,6 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if isinstance(self.object, TypeVar):
             if self.object.__doc__ == TypeVar.__doc__:
                 return []
-        if sys.version_info[:2] < (3, 10):
-            if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
-                parts = self.modname.strip('.').split('.')
-                orig_objpath = self.objpath
-                for i in range(len(parts)):
-                    new_modname = '.'.join(parts[:len(parts) - i])
-                    new_objpath = parts[len(parts) - i:] + orig_objpath
-                    try:
-                        analyzer = ModuleAnalyzer.for_module(new_modname)
-                        analyzer.analyze()
-                        key = ('', new_objpath[-1])
-                        comment = list(analyzer.attr_docs.get(key, []))
-                        if comment:
-                            self.objpath = new_objpath
-                            self.modname = new_modname
-                            return [comment]
-                    except PycodeError:
-                        pass
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
             if self.get_variable_comment():

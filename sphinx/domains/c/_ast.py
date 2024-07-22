@@ -18,13 +18,12 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
-
     from docutils.nodes import Element, Node, TextElement
 
     from sphinx.domains.c._symbol import Symbol
     from sphinx.environment import BuildEnvironment
 
-DeclarationType = Union[
+DeclarationType = Union[  # NoQA: UP007
     "ASTStruct", "ASTUnion", "ASTEnum", "ASTEnumerator",
     "ASTType", "ASTTypeWithInit", "ASTMacro",
 ]
