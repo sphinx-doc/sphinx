@@ -40,7 +40,7 @@ def _deprecation_warning(
 
        # deprecated name -> (object to return, canonical path or empty string, removal version)
        _DEPRECATED_OBJECTS = {
-           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name', (8, 0)),
+           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name', (9, 0)),
        }
 
 
