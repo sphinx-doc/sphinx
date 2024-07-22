@@ -22,10 +22,10 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Literal
+    from typing import Literal, TypeAlias
 
     from docutils.nodes import Node, Text
-    from typing_extensions import TypeAlias, TypeIs
+    from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -247,7 +247,7 @@ class ApplySourceWorkaround(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall():  # type: Node
-            if isinstance(node, (nodes.TextElement, nodes.image, nodes.topic)):
+            if isinstance(node, nodes.TextElement | nodes.image | nodes.topic):
                 apply_source_workaround(node)
 
 
@@ -477,7 +477,7 @@ def _reorder_index_target_nodes(start_node: nodes.target) -> None:
     # as we want *consecutive* target & index nodes.
     node: nodes.Node
     for node in start_node.findall(descend=False, siblings=True):
-        if isinstance(node, (nodes.target, addnodes.index)):
+        if isinstance(node, nodes.target | addnodes.index):
             nodes_to_reorder.append(node)
             continue
         break  # must be a consecutive run of target or index nodes

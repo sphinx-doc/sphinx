@@ -228,13 +228,13 @@ class TestSigElementFallbackTransform:
 
         if ignore_sig_element_fallback_transform:
             # desc_sig_element is implemented or desc_sig_* nodes are properly handled (and left untouched)
-            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1]):
+            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1], strict=True):
                 assert_node(node, node_type)
                 assert not node.hasattr('_sig_node_type')
                 assert mess == f'mark: {node_type.__name__!r}'
         else:
             # desc_sig_* nodes are converted into inline nodes
-            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1]):
+            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1], strict=True):
                 assert_node(node, nodes.inline, _sig_node_type=node_type.__name__)
                 assert mess == f'generic visit: {nodes.inline.__name__!r}'
 

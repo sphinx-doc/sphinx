@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import posixpath
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from docutils.utils import relative_path
 
@@ -12,6 +12,8 @@ from sphinx.util import logging
 from sphinx.util.osutil import copyfile, ensuredir
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sphinx.util.template import BaseRenderer
     from sphinx.util.typing import PathMatcher
 

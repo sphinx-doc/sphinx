@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.nodes import Node
@@ -16,7 +16,7 @@ from sphinx.util import logging
 from sphinx.util.parsing import _fresh_title_style_context
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
 
     from docutils.nodes import Element
     from docutils.parsers.rst import Directive
@@ -178,12 +178,12 @@ def apply_source_workaround(node: Element) -> None:
         return
 
     # workaround: some docutils nodes doesn't have source, line.
-    if (isinstance(node, (
-            nodes.rubric,  # #1305 rubric directive
-            nodes.line,  # #1477 line node
-            nodes.image,  # #3093 image directive in substitution
-            nodes.field_name,  # #3335 field list syntax
-    ))):
+    if isinstance(node, (
+        nodes.rubric  # #1305 rubric directive
+        | nodes.line  # #1477 line node
+        | nodes.image  # #3093 image directive in substitution
+        | nodes.field_name  # #3335 field list syntax
+    )):
         logger.debug('[i18n] PATCH: %r to have source and line: %s',
                      get_full_module_name(node), repr_domxml(node))
         try:

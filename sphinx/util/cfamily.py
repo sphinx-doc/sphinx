@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 

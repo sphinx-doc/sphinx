@@ -10,10 +10,10 @@ import os
 import pickle
 import sys
 from collections import deque
-from collections.abc import Collection, Sequence  # NoQA: TCH003
+from collections.abc import Callable, Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable, Literal
+from typing import IO, TYPE_CHECKING, Any, Literal
 
 from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles

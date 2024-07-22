@@ -153,7 +153,7 @@ def test_get_items_summary(make_app, app_params):
 
     def new_get_items(self, names, *args, **kwargs):
         results = orig_get_items(self, names, *args, **kwargs)
-        for name, result in zip(names, results):
+        for name, result in zip(names, results, strict=True):
             autosummary_items[name] = result  # NoQA: PERF403
         return results
 

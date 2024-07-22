@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING, Final
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from typing import Optional
-
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory
 
@@ -26,7 +24,7 @@ if TYPE_CHECKING:
     #:
     #: Empty strings are not expected and ``None`` indicates the default
     #: inventory file name :data:`~sphinx.builder.html.INVENTORY_FILENAME`.
-    InventoryLocation = Optional[str]
+    InventoryLocation = str | None
 
     #: Inventory cache entry. The integer field is the cache expiration time.
     InventoryCacheEntry = tuple[InventoryName, int, Inventory]
