@@ -43,13 +43,19 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
         # ensure that intersphinx projects are always named
         if not isinstance(name, str):
             errors += 1
-            msg = __('Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project identifiers must be non-empty strings.')
+            msg = __(
+                'Invalid intersphinx project identifier `%r` in intersphinx_mapping. '
+                'Project identifiers must be non-empty strings.'
+            )
             LOGGER.error(msg % name)
             del config.intersphinx_mapping[name]
             continue
         if not name:
             errors += 1
-            msg = __('Invalid intersphinx project identifier `%r` in intersphinx_mapping. Project identifiers must be non-empty strings.')
+            msg = __(
+                'Invalid intersphinx project identifier `%r` in intersphinx_mapping. '
+                'Project identifiers must be non-empty strings.'
+            )
             LOGGER.error(msg % name)
             del config.intersphinx_mapping[name]
             continue
@@ -57,7 +63,10 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
         # ensure values are properly formatted
         if not isinstance(value, (tuple, list)):
             errors += 1
-            msg = __('Invalid value `%r` in intersphinx_mapping[%r]. Expected a two-element tuple or list.')
+            msg = __(
+                'Invalid value `%r` in intersphinx_mapping[%r]. '
+                'Expected a two-element tuple or list.'
+            )
             LOGGER.error(msg % (value, name))
             del config.intersphinx_mapping[name]
             continue
@@ -65,7 +74,10 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             uri, inv = value
         except (TypeError, ValueError, Exception):
             errors += 1
-            msg = __('Invalid value `%r` in intersphinx_mapping[%r]. Values must be a (target URI, inventory locations) pair.')
+            msg = __(
+                'Invalid value `%r` in intersphinx_mapping[%r]. '
+                'Values must be a (target URI, inventory locations) pair.'
+            )
             LOGGER.error(msg % (value, name))
             del config.intersphinx_mapping[name]
             continue
@@ -73,16 +85,21 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
         # ensure target URIs are non-empty and unique
         if not uri or not isinstance(uri, str):
             errors += 1
-            msg = __('Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs must be unique non-empty strings.')
+            msg = __('Invalid target URI value `%r` in intersphinx_mapping[%r][0]. '
+                     'Target URIs must be unique non-empty strings.')
             LOGGER.error(msg % (uri, name))
             del config.intersphinx_mapping[name]
             continue
-        if (name_for_uri := seen.setdefault(uri, name)) != name:
+        if uri in seen:
             errors += 1
-            msg = __('Invalid target URI value `%r` in intersphinx_mapping[%r][0]. Target URIs must be unique (other instance in intersphinx_mapping[%r]).')
-            LOGGER.error(msg % (uri, name, name_for_uri))
+            msg = __(
+                'Invalid target URI value `%r` in intersphinx_mapping[%r][0]. '
+                'Target URIs must be unique (other instance in intersphinx_mapping[%r]).'
+            )
+            LOGGER.error(msg % (uri, name, seen[uri]))
             del config.intersphinx_mapping[name]
             continue
+        seen[uri] = name
 
         # ensure inventory locations are None or non-empty
         targets: list[InventoryLocation] = []
@@ -91,7 +108,10 @@ def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 targets.append(target)
             else:
                 errors += 1
-                msg = __('Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. Inventory locations must be non-empty strings or None.')
+                msg = __(
+                    'Invalid inventory location value `%r` in intersphinx_mapping[%r][1]. '
+                    'Inventory locations must be non-empty strings or None.'
+                )
                 LOGGER.error(msg % (target, name))
                 del config.intersphinx_mapping[name]
                 continue

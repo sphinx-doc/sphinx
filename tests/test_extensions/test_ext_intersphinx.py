@@ -420,8 +420,8 @@ def test_normalize_intersphinx_mapping_warnings(app, warning):
         '':                 ('789.example', None),     # invalid project name (value)
         12345:              ('456.example', None),     # invalid project name (type)
         None:               ('123.example', None),     # invalid project name (type)
-        'https://example/': 'inventory',               # Sphinx 0.x style value (str)
-        'https://server/':  None,                      # Sphinx 0.x style value (None)
+        'https://example/': None,                      # Sphinx 0.x style value (None)
+        'https://server/':  'inventory',               # Sphinx 0.x style value (str)
         'bad-dict-item':    0,                         # invalid dict item type
         'unpack-except-1':  [0],                       # invalid dict item size (native ValueError)
         'unpack-except-2':  FakeList(),                # invalid dict item size (custom exception)
@@ -452,8 +452,8 @@ def test_normalize_intersphinx_mapping_warnings(app, warning):
         "ERROR: Invalid intersphinx project identifier `''` in intersphinx_mapping. Project identifiers must be non-empty strings.",
         "ERROR: Invalid intersphinx project identifier `12345` in intersphinx_mapping. Project identifiers must be non-empty strings.",
         "ERROR: Invalid intersphinx project identifier `None` in intersphinx_mapping. Project identifiers must be non-empty strings.",
-        "ERROR: Invalid value `'inventory'` in intersphinx_mapping['https://example/']. Expected a two-element tuple or list.",
-        "ERROR: Invalid value `None` in intersphinx_mapping['https://server/']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `None` in intersphinx_mapping['https://example/']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `'inventory'` in intersphinx_mapping['https://server/']. Expected a two-element tuple or list.",
         "ERROR: Invalid value `0` in intersphinx_mapping['bad-dict-item']. Expected a two-element tuple or list.",
         "ERROR: Invalid value `[0]` in intersphinx_mapping['unpack-except-1']. Values must be a (target URI, inventory locations) pair.",
         "ERROR: Invalid value `[]` in intersphinx_mapping['unpack-except-2']. Values must be a (target URI, inventory locations) pair.",
