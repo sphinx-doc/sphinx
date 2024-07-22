@@ -143,7 +143,6 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
                                                   full_qualified_name, node, contnode)
 
 
-
 def _resolve_reference(env: BuildEnvironment,
                        inv_name: InventoryName | None, inventory: Inventory,
                        honor_disabled_refs: bool,
