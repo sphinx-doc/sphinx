@@ -67,6 +67,11 @@ Incompatible changes
 Deprecated
 ----------
 
+* #12643: Renamed ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
+  to ``sphinx.ext.intersphinx.validate_intersphinx_mapping``.
+  The old name will be removed in Sphinx 10.
+  Patch by Adam Turner.
+
 Features added
 --------------
 

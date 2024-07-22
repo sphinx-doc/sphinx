@@ -32,7 +32,18 @@ if TYPE_CHECKING:
     from sphinx.util.typing import Inventory
 
 
-def normalize_intersphinx_mapping(app: Sphinx, config: Config) -> None:
+def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
+    """Validate and normalise :confval:`intersphinx_mapping`.
+
+    Ensure that:
+
+    * Keys are non-empty strings.
+    * Values are two-element tuples or lists.
+    * The first element of each value pair (the target URI)
+      is a non-empty string.
+    * The second element of each value pair (inventory locations)
+      is a tuple of non-empty strings or None.
+    """
     # URIs should NOT be duplicated, otherwise different builds may use
     # different project names (and thus, the build are no more reproducible)
     # depending on which one is inserted last in the cache.

@@ -10,7 +10,7 @@ from unittest import mock
 
 import pytest
 
-from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (
     GoogleDocstring,
@@ -2679,7 +2679,7 @@ list py:class 1 list.html -
 int py:class 1 int.html -
 '''))  # NoQA: W291
     app.config.intersphinx_mapping = {'python': ('127.0.0.1:5555', str(inv_file))}
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build(force_all=True)
