@@ -79,7 +79,7 @@ Features added
 
 Bugs fixed
 ----------
-* #12643: Correctly support custom gettext output templates.
+* #12645: Correctly support custom gettext output templates.
   Patch by Jeremy Bowman.
 
 Testing
