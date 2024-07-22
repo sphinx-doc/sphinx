@@ -37,7 +37,6 @@ if TYPE_CHECKING:
         tuple[InventoryName, tuple[InventoryURI, tuple[InventoryLocation, ...]]],
     ]
 
-
 LOGGER: Final[logging.SphinxLoggerAdapter] = logging.getLogger('sphinx.ext.intersphinx')
 
 
