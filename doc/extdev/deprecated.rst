@@ -22,11 +22,6 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
-   * - ``sphinx.util.inspect.isNewType``
-     - 8.0
-     - 10.0
-     - ``isinstance(obj, typing.NewType)``
-
    * - ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
      - 8.0
      - 10.0

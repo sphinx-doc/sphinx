@@ -1475,7 +1475,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any,
     ) -> bool:
         return isinstance(member, type) or (
-            isattr and (isinstance(member, NewType | TypeVar)))
+            isattr and isinstance(member, NewType | TypeVar))
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
