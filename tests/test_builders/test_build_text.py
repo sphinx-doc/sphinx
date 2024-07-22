@@ -1,12 +1,18 @@
 """Test the build process with Text builder with the test root."""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils.utils import column_width
 
 from sphinx.writers.text import MAXWIDTH, Cell, Table
 
+if TYPE_CHECKING:
+    from typing import Any
 
-def with_text_app(*args, **kw):
+
+def with_text_app(*args: Any, **kw: Any) -> pytest.MarkDecorator:
     default_kw = {
         'buildername': 'text',
         'testroot': 'build-text',

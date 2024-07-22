@@ -1,7 +1,10 @@
 """Test inventory util functions."""
+from __future__ import annotations
+
 import os
 import posixpath
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 import sphinx.locale
 from sphinx.testing.util import SphinxTestApp
@@ -13,6 +16,9 @@ from tests.test_util.intersphinx_data import (
     INVENTORY_V2_AMBIGUOUS_TERMS,
     INVENTORY_V2_NO_VERSION,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_read_inventory_v1():
@@ -67,7 +73,7 @@ def test_ambiguous_definition_warning(warning, status):
     assert mult_defs_b in status.getvalue().lower()
 
 
-def _write_appconfig(dir, language, prefix=None):
+def _write_appconfig(dir: Path, language: str, prefix: str | None = None) -> Path:
     prefix = prefix or language
     os.makedirs(dir / prefix, exist_ok=True)
     (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
@@ -77,7 +83,7 @@ def _write_appconfig(dir, language, prefix=None):
     return dir / prefix
 
 
-def _build_inventory(srcdir):
+def _build_inventory(srcdir: Path) -> Path:
     app = SphinxTestApp(srcdir=srcdir)
     app.build()
     sphinx.locale.translators.clear()
