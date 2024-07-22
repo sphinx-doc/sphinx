@@ -1,10 +1,11 @@
 """Tests util.utils functions."""
+from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
-from sphinx.builders import Builder
 from sphinx.util.docutils import (
     SphinxFileOutput,
     SphinxTranslator,
@@ -12,6 +13,9 @@ from sphinx.util.docutils import (
     new_document,
     register_node,
 )
+
+if TYPE_CHECKING:
+    from sphinx.builders import Builder
 
 
 def test_register_node():
