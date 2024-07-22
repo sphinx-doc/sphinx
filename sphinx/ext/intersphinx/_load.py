@@ -145,7 +145,7 @@ def load_mappings(app: Sphinx) -> None:
         if intersphinx_cache[uri][0] not in intersphinx_mapping:
             # Remove all cached entries that are no longer in `intersphinx_mapping`.
             del intersphinx_cache[uri]
-        if uri not in expected_uris:
+        elif uri not in expected_uris:
             # Remove cached entries with a different target URI
             # than the one in `intersphinx_mapping`.
             # This happens when the URI in `intersphinx_mapping` is changed.
