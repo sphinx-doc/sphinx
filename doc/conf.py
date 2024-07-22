@@ -32,8 +32,6 @@ show_authors = True
 nitpicky = True
 show_warning_types = True
 
-# html_theme = 'basic'
-# html_theme_path = ['../sphinx/themes']
 html_theme = 'sphinx13'
 html_theme_path = ['_themes']
 html_css_files = [
