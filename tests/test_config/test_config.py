@@ -25,9 +25,10 @@ from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import TypeAlias
 
-    CircularList = list[int | 'CircularList']
-    CircularDict = dict[str, int | 'CircularDict']
+    CircularList: TypeAlias = list[int | 'CircularList']
+    CircularDict: TypeAlias = dict[str, int | 'CircularDict']
 
 
 def check_is_serializable(subject: object, *, circular: bool) -> None:
