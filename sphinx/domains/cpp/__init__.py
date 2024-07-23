@@ -23,7 +23,7 @@ from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol, _DuplicateSymbolError
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.roles import SphinxRole, XRefRole
+from sphinx.roles import XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
@@ -33,7 +33,7 @@ from sphinx.util.cfamily import (
     anon_identifier_re,
 )
 from sphinx.util.docfields import Field, GroupedField
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, SphinxRole
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
@@ -763,10 +763,9 @@ class CPPAliasObject(ObjectDescription):
         for sig in signatures:
             node.append(AliasNode(sig, aliasOptions, env=self.env))
 
-        contentnode = addnodes.desc_content()
-        node.append(contentnode)
         self.before_content()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        content_node = addnodes.desc_content('', *self.parse_content_to_nodes())
+        node.append(content_node)
         self.env.temp_data['object'] = None
         self.after_content()
         return [node]
@@ -1158,8 +1157,8 @@ class CPPDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
     app.add_config_value("cpp_index_common_prefix", [], 'env')
-    app.add_config_value("cpp_id_attributes", [], 'env')
-    app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_config_value("cpp_id_attributes", [], 'env', types={list, tuple})
+    app.add_config_value("cpp_paren_attributes", [], 'env', types={list, tuple})
     app.add_config_value("cpp_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 

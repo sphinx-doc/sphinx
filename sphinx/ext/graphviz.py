@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 
 import sphinx
 from sphinx.errors import SphinxError
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
     from sphinx.writers.manpage import ManualPageTranslator
     from sphinx.writers.texinfo import TexinfoTranslator
@@ -91,12 +91,12 @@ class graphviz(nodes.General, nodes.Inline, nodes.Element):
     pass
 
 
-def figure_wrapper(directive: Directive, node: graphviz, caption: str) -> nodes.figure:
+def figure_wrapper(directive: SphinxDirective, node: graphviz, caption: str) -> nodes.figure:
     figure_node = nodes.figure('', node)
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')
 
-    inodes, messages = directive.state.inline_text(caption, directive.lineno)
+    inodes, messages = directive.parse_inline(caption)
     caption_node = nodes.caption(caption, '', *inodes)
     caption_node.extend(messages)
     set_source_info(directive, caption_node)

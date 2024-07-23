@@ -89,7 +89,7 @@ class TestSigElementFallbackTransform:
         """Fixture returning an ordered view on the original value of :data:`!sphinx.addnodes.SIG_ELEMENTS`."""
         return self._builtin_sig_elements
 
-    @pytest.fixture()
+    @pytest.fixture
     def document(
         self, app: SphinxTestApp, builtin_sig_elements: tuple[type[addnodes.desc_sig_element], ...],
     ) -> nodes.document:
@@ -103,13 +103,13 @@ class TestSigElementFallbackTransform:
         doc += addnodes.desc_inline('py')
         return doc
 
-    @pytest.fixture()
+    @pytest.fixture
     def with_desc_sig_elements(self, value: Any) -> bool:
         """Dynamic fixture acting as the identity on booleans."""
         assert isinstance(value, bool)
         return value
 
-    @pytest.fixture()
+    @pytest.fixture
     def add_visitor_method_for(self, value: Any) -> list[str]:
         """Dynamic fixture acting as the identity on a list of strings."""
         assert isinstance(value, list)
@@ -228,13 +228,13 @@ class TestSigElementFallbackTransform:
 
         if ignore_sig_element_fallback_transform:
             # desc_sig_element is implemented or desc_sig_* nodes are properly handled (and left untouched)
-            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1]):
+            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1], strict=True):
                 assert_node(node, node_type)
                 assert not node.hasattr('_sig_node_type')
                 assert mess == f'mark: {node_type.__name__!r}'
         else:
             # desc_sig_* nodes are converted into inline nodes
-            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1]):
+            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1], strict=True):
                 assert_node(node, nodes.inline, _sig_node_type=node_type.__name__)
                 assert mess == f'generic visit: {nodes.inline.__name__!r}'
 

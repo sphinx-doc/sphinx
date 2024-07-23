@@ -12,7 +12,7 @@ from sphinx.ext.mathjax import MATHJAX_URL
 from sphinx.testing.util import assert_node
 
 
-def has_binary(binary):
+def has_binary(binary: str) -> bool:
     try:
         subprocess.check_output([binary])
     except FileNotFoundError:
@@ -127,7 +127,7 @@ def test_math_number_all_mathjax(app, status, warning):
 def test_math_number_all_latex(app, status, warning):
     app.build()
 
-    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     macro = (r'\\begin{equation\*}\s*'
              r'\\begin{split}a\^2\+b\^2=c\^2\\end{split}\s*'
              r'\\end{equation\*}')
@@ -170,7 +170,7 @@ def test_math_eqref_format_html(app, status, warning):
 def test_math_eqref_format_latex(app, status, warning):
     app.build(force_all=True)
 
-    content = (app.outdir / 'python.tex').read_text(encoding='utf8')
+    content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     macro = (r'Referencing equation Eq.\\ref{equation:math:foo} and '
              r'Eq.\\ref{equation:math:foo}.')
     assert re.search(macro, content, re.DOTALL)
@@ -190,6 +190,24 @@ def test_mathjax_numfig_html(app, status, warning):
     html = ('<p>Referencing equation <a class="reference internal" '
             'href="#equation-foo">(1.1)</a> and '
             '<a class="reference internal" href="#equation-foo">(1.1)</a>.</p>')
+    assert html in content
+
+
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax'],
+                                   'numfig': True,
+                                   'math_numfig': True,
+                                   'math_numsep': '-'})
+def test_mathjax_numsep_html(app, status, warning):
+    app.build(force_all=True)
+
+    content = (app.outdir / 'math.html').read_text(encoding='utf8')
+    html = ('<div class="math notranslate nohighlight" id="equation-math-0">\n'
+            '<span class="eqno">(1-2)')
+    assert html in content
+    html = ('<p>Referencing equation <a class="reference internal" '
+            'href="#equation-foo">(1-1)</a> and '
+            '<a class="reference internal" href="#equation-foo">(1-1)</a>.</p>')
     assert html in content
 
 

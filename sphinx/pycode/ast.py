@@ -130,7 +130,7 @@ class _UnparseVisitor(ast.NodeVisitor):
     def visit_Constant(self, node: ast.Constant) -> str:
         if node.value is Ellipsis:
             return "..."
-        elif isinstance(node.value, (int, float, complex)):
+        elif isinstance(node.value, int | float | complex):
             if self.code:
                 return ast.get_source_segment(self.code, node) or repr(node.value)
             else:
@@ -141,7 +141,7 @@ class _UnparseVisitor(ast.NodeVisitor):
     def visit_Dict(self, node: ast.Dict) -> str:
         keys = (self.visit(k) for k in node.keys if k is not None)
         values = (self.visit(v) for v in node.values)
-        items = (k + ": " + v for k, v in zip(keys, values))
+        items = (k + ": " + v for k, v in zip(keys, values, strict=True))
         return "{" + ", ".join(items) + "}"
 
     def visit_Lambda(self, node: ast.Lambda) -> str:

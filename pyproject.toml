@@ -13,7 +13,7 @@ urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
 license.text = "BSD-2-Clause"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 # Classifiers list: https://pypi.org/classifiers/
 classifiers = [
@@ -30,7 +30,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -62,18 +61,17 @@ dependencies = [
     "sphinxcontrib-htmlhelp>=2.0.0",
     "sphinxcontrib-serializinghtml>=1.1.9",
     "sphinxcontrib-qthelp",
-    "Jinja2>=3.0",
-    "Pygments>=2.14",
-    "docutils>=0.18.1,<0.22",
-    "snowballstemmer>=2.0",
-    "babel>=2.9",
+    "Jinja2>=3.1",
+    "Pygments>=2.17",
+    "docutils>=0.20,<0.22",
+    "snowballstemmer>=2.2",
+    "babel>=2.13",
     "alabaster~=0.7.14",
     "imagesize>=1.3",
-    "requests>=2.25.0",
-    "packaging>=21.0",
-    "importlib-metadata>=4.8; python_version < '3.10'",
+    "requests>=2.30.0",
+    "packaging>=23.0",
     "tomli>=2; python_version < '3.11'",
-    "colorama>=0.4.5; sys_platform == 'win32'",
+    "colorama>=0.4.6; sys_platform == 'win32'",
 ]
 dynamic = ["version"]
 
@@ -82,21 +80,24 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "flake8>=3.5.0",
-    "ruff==0.4.4",
-    "mypy==1.10.0",
-    "sphinx-lint",
-    "types-docutils",
-    "types-requests",
-    "importlib_metadata",  # for mypy (Python<=3.9)
-    "tomli",  # for mypy (Python<=3.10)
+    "flake8>=6.0",
+    "ruff==0.5.4",
+    "mypy==1.11.0",
+    "sphinx-lint>=0.9",
+    "types-colorama==0.4.15.20240311",
+    "types-docutils==0.21.0.20240711",
+    "types-Pillow==10.2.0.20240520",
+    "types-Pygments==2.18.0.20240506",
+    "types-requests>=2.30.0",  # align with requests
+    "tomli>=2",  # for mypy (Python<=3.10)
     "pytest>=6.0",
 ]
 test = [
-    "pytest>=6.0",
+    "pytest>=8.0",
     "defusedxml>=0.7.1", # for secure XML/HTML parsing
     "cython>=3.0",
-    "setuptools>=67.0",  # for Cython compilation
+    "setuptools>=70.0",  # for Cython compilation
+    "typing_extensions>=4.9",  # for typing_extensions.Unpack
 ]
 
 [[project.authors]]
@@ -206,8 +207,7 @@ exclude = [
     # tests/test_writers
 ]
 check_untyped_defs = true
-disallow_incomplete_defs = true
-python_version = "3.9"
+python_version = "3.10"
 show_column_numbers = true
 show_error_context = true
 strict_optional = true
@@ -215,6 +215,12 @@ warn_redundant_casts = true
 warn_unused_configs = true
 warn_unused_ignores = true
 disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+no_implicit_reexport = true
 extra_checks = true
 enable_error_code = [
     "type-arg",
@@ -222,9 +228,6 @@ enable_error_code = [
     "truthy-iterable",
     "ignore-without-code",
     "unused-awaitable",
-]
-disable_error_code = [
-    "import-untyped",
 ]
 
 [[tool.mypy.overrides]]
@@ -243,22 +246,13 @@ strict_optional = false
 [[tool.mypy.overrides]]
 module = [
     "sphinx.application",
-    "sphinx.builders._epub_base",
-    "sphinx.builders.html",
-    "sphinx.builders.linkcheck",
-    "sphinx.cmd.quickstart",
     "sphinx.config",
     "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.environment",
-    "sphinx.environment.adapters.indexentries",
-    "sphinx.environment.collectors.toctree",
     "sphinx.events",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autodoc.directive",
     "sphinx.ext.autodoc.importer",
-    "sphinx.ext.autosummary.generate",
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
@@ -268,11 +262,7 @@ module = [
     "sphinx.jinja2glue",
     "sphinx.registry",
     "sphinx.search",
-    "sphinx.testing.fixtures",
-    "sphinx.testing.path",
-    "sphinx.testing.util",
     "sphinx.util",
-    "sphinx.util.display",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
     "sphinx.util.i18n",
@@ -282,6 +272,20 @@ module = [
     "sphinx.util.template",
 ]
 disallow_any_generics = false
+
+[[tool.mypy.overrides]]
+module = [
+    "defusedxml.ElementTree",
+    "imagesize",
+    "snowballstemmer",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+]
+disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 minversion = "6.0"

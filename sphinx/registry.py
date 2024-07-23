@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import sys
 import traceback
 from importlib import import_module
+from importlib.metadata import entry_points
 from types import MethodType
-from typing import TYPE_CHECKING, Any, Callable
-
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
+from typing import TYPE_CHECKING, Any
 
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
@@ -25,7 +20,7 @@ from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
 
     from docutils import nodes
     from docutils.core import Publisher
@@ -504,9 +499,13 @@ def merge_source_suffix(app: Sphinx, config: Config) -> None:
     for suffix, filetype in app.registry.source_suffix.items():
         if suffix not in app.config.source_suffix:  # NoQA: SIM114
             app.config.source_suffix[suffix] = filetype
-        elif app.config.source_suffix[suffix] is None:
-            # filetype is not specified (default filetype).
+        elif app.config.source_suffix[suffix] == 'restructuredtext':
+            # The filetype is not specified (default filetype).
             # So it overrides default filetype by extensions setting.
+            app.config.source_suffix[suffix] = filetype
+        elif app.config.source_suffix[suffix] is None:
+            msg = __('`None` is not a valid filetype for %r.') % suffix
+            logger.warning(msg)
             app.config.source_suffix[suffix] = filetype
 
     # copy config.source_suffix to registry

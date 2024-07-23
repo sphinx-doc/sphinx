@@ -22,10 +22,10 @@ from sphinx.util.math import get_node_equation_number
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
 
 # more information for mathjax secure url is here:
-# https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
+# https://docs.mathjax.org/en/latest/web/start.html#using-mathjax-from-a-content-delivery-network-cdn
 MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 logger = sphinx.util.logging.getLogger(__name__)

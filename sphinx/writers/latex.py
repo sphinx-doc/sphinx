@@ -66,7 +66,7 @@ class UnsupportedError(SphinxError):
     category = 'Markup is unsupported in LaTeX'
 
 
-class LaTeXWriter(writers.Writer):
+class LaTeXWriter(writers.Writer):  # type: ignore[misc]
 
     supported = ('sphinxlatex',)
 
@@ -306,6 +306,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.in_term = 0
         self.needs_linetrimming = 0
         self.in_minipage = 0
+        # only used by figure inside an admonition
         self.no_latex_floats = 0
         self.first_document = 1
         self.this_is_the_title = 1
@@ -437,7 +438,7 @@ class LaTeXTranslator(SphinxTranslator):
             'body': ''.join(self.body),
             'indices': self.generate_indices(),
         })
-        return self.render('latex.tex_t', self.elements)
+        return self.render('latex.tex.jinja', self.elements)
 
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
         if withdoc:
@@ -497,20 +498,23 @@ class LaTeXTranslator(SphinxTranslator):
 
         ret = []
         # latex_domain_indices can be False/True or a list of index names
-        indices_config = self.config.latex_domain_indices
-        if indices_config:
-            for domain in self.builder.env.domains.values():
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
-                    if not content:
+        if indices_config := self.config.latex_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
+            for domain_name in sorted(self.builder.env.domains):
+                domain = self.builder.env.domains[domain_name]
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
                         continue
-                    ret.append(r'\renewcommand{\indexname}{%s}' % indexcls.localname + CR)
-                    generate(content, collapsed)
+                    content, collapsed = index_cls(domain).generate(
+                        self.builder.docnames)
+                    if content:
+                        ret.append(r'\renewcommand{\indexname}{%s}' % index_cls.localname + CR)
+                        generate(content, collapsed)
 
         return ''.join(ret)
 
@@ -521,6 +525,12 @@ class LaTeXTranslator(SphinxTranslator):
                                  template_name)
             if path.exists(template):
                 return renderer.render(template, variables)
+            elif template.endswith('.jinja'):
+                legacy_template = template.removesuffix('.jinja') + '_t'
+                if path.exists(legacy_template):
+                    logger.warning(__('template %s not found; loading from legacy %s instead'),
+                                   template_name, legacy_template)
+                    return renderer.render(legacy_template, variables)
 
         return renderer.render(template_name, variables)
 
@@ -715,19 +725,21 @@ class LaTeXTranslator(SphinxTranslator):
             return e.get('multi_line_parameter_list')
 
         self.has_tp_list = False
+        self.orphan_tp_list = False
 
         for child in node:
             if isinstance(child, addnodes.desc_type_parameter_list):
                 self.has_tp_list = True
-                # recall that return annotations must follow an argument list,
-                # so signatures of the form "foo[tp_list] -> retann" will not
-                # be encountered (if they should, the `domains.python.py_sig_re`
-                # pattern must be modified accordingly)
-                arglist = next_sibling(child)
-                assert isinstance(arglist, addnodes.desc_parameterlist)
-                # tp_list + arglist: \macro{name}{tp_list}{arglist}{return}
                 multi_tp_list = has_multi_line(child)
-                multi_arglist = has_multi_line(arglist)
+                arglist = next_sibling(child)
+                if isinstance(arglist, addnodes.desc_parameterlist):
+                    # tp_list + arglist: \macro{name}{tp_list}{arglist}{retann}
+                    multi_arglist = has_multi_line(arglist)
+                else:
+                    # orphan tp_list:    \macro{name}{tp_list}{}{retann}
+                    # see: https://github.com/sphinx-doc/sphinx/issues/12543
+                    self.orphan_tp_list = True
+                    multi_arglist = False
 
                 if multi_tp_list:
                     if multi_arglist:
@@ -742,7 +754,7 @@ class LaTeXTranslator(SphinxTranslator):
                 break
 
             if isinstance(child, addnodes.desc_parameterlist):
-                # arglist only: \macro{name}{arglist}{return}
+                # arglist only: \macro{name}{arglist}{retann}
                 if has_multi_line(child):
                     self.body.append(CR + r'\pysigwithonelineperarg{')
                 else:
@@ -848,7 +860,13 @@ class LaTeXTranslator(SphinxTranslator):
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        if not self.has_tp_list:
+        if self.has_tp_list:
+            if self.orphan_tp_list:
+                # close type parameters list (#2)
+                self.body.append('}{')
+                # empty parameters list argument (#3)
+                return
+        else:
             # close name argument (#1), open parameters list argument (#2)
             self.body.append('}{')
         self._visit_sig_parameter_list(node, addnodes.desc_parameter)
@@ -949,20 +967,37 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
         self.body.append(r'\begin{sphinxseealso}{%s:}' % admonitionlabels['seealso'] + CR)
+        self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
 
     def depart_seealso(self, node: Element) -> None:
         self.body.append(BLANKLINE)
         self.body.append(r'\end{sphinxseealso}')
         self.body.append(BLANKLINE)
+        self.no_latex_floats -= 1
 
-    def visit_rubric(self, node: Element) -> None:
+    def visit_rubric(self, node: nodes.rubric) -> None:
         if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
-        self.body.append(r'\subsubsection*{')
+        tag = 'subsubsection'
+        if 'heading-level' in node:
+            level = node['heading-level']
+            try:
+                tag = self.sectionnames[self.top_sectionlevel - 1 + level]
+            except Exception:
+                logger.warning(
+                    __('unsupported rubric heading level: %s'),
+                    level,
+                    type='latex',
+                    location=node
+                )
+
+        self.body.append(rf'\{tag}*{{')
         self.context.append('}' + CR)
         self.in_title = 1
 
-    def depart_rubric(self, node: Element) -> None:
+    def depart_rubric(self, node: nodes.rubric) -> None:
         self.in_title = 0
         self.body.append(self.context.pop())
 
@@ -1033,7 +1068,7 @@ class LaTeXTranslator(SphinxTranslator):
         assert self.table is not None
         labels = self.hypertarget_to(node)
         table_type = self.table.get_table_type()
-        table = self.render(table_type + '.tex_t',
+        table = self.render(table_type + '.tex.jinja',
                             {'table': self.table, 'labels': labels})
         self.body.append(BLANKLINE)
         self.body.append(table)
@@ -1241,8 +1276,8 @@ class LaTeXTranslator(SphinxTranslator):
             else:
                 return get_nested_level(node.parent)
 
-        enum = "enum%s" % toRoman(get_nested_level(node)).lower()
-        enumnext = "enum%s" % toRoman(get_nested_level(node) + 1).lower()
+        enum = "enum%s" % toRoman(get_nested_level(node)).lower()  # type: ignore[no-untyped-call]
+        enumnext = "enum%s" % toRoman(get_nested_level(node) + 1).lower()  # type: ignore[no-untyped-call]
         style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
         prefix = node.get('prefix', '')
         suffix = node.get('suffix', '.')
@@ -1334,7 +1369,7 @@ class LaTeXTranslator(SphinxTranslator):
                 not isinstance(node.parent[index - 1], nodes.compound)):
             # insert blank line, if the paragraph follows a non-paragraph node in a compound
             self.body.append(r'\noindent' + CR)
-        elif index == 1 and isinstance(node.parent, (nodes.footnote, footnotetext)):
+        elif index == 1 and isinstance(node.parent, nodes.footnote | footnotetext):
             # don't insert blank line, if the paragraph is second child of a footnote
             # (first one is label node)
             pass
@@ -1482,6 +1517,8 @@ class LaTeXTranslator(SphinxTranslator):
         if self.no_latex_floats:
             align = "H"
         if self.table:
+            # Blank line is needed if text precedes
+            self.body.append(BLANKLINE)
             # TODO: support align option
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
@@ -1550,6 +1587,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_admonition(self, node: Element) -> None:
         self.body.append(CR + r'\begin{sphinxadmonition}{note}')
         self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
 
     def depart_admonition(self, node: Element) -> None:
         self.body.append(r'\end{sphinxadmonition}' + CR)
@@ -1560,6 +1599,8 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(CR + r'\begin{sphinxadmonition}{%s}{%s:}' %
                          (node.tagname, label))
         self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
 
     def _depart_named_admonition(self, node: Element) -> None:
         self.body.append(r'\end{sphinxadmonition}' + CR)
@@ -2040,7 +2081,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
+            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -2051,7 +2092,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
+            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)

@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -103,16 +103,17 @@ def generate_latex_macro(image_format: str,
     }
 
     if config.imgmath_use_preview:
-        template_name = 'preview.tex_t'
+        template_name = 'preview.tex'
     else:
-        template_name = 'template.tex_t'
+        template_name = 'template.tex'
 
     for template_dir in config.templates_path:
-        template = path.join(confdir, template_dir, template_name)
-        if path.exists(template):
-            return LaTeXRenderer().render(template, variables)
+        for template_suffix in ('.jinja', '_t'):
+            template = path.join(confdir, template_dir, template_name + template_suffix)
+            if path.exists(template):
+                return LaTeXRenderer().render(template, variables)
 
-    return LaTeXRenderer(templates_path).render(template_name, variables)
+    return LaTeXRenderer(templates_path).render(template_name + '.jinja', variables)
 
 
 def ensure_tempdir(builder: Builder) -> str:

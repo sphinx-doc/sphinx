@@ -75,16 +75,10 @@ def test_format_date():
     format = '%x'
     assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016'
     format = '%X'
-    if BABEL_VERSION >= (2, 12):
-        assert i18n.format_date(format, date=datet, language='en') == '5:11:17\u202fAM'
-    else:
-        assert i18n.format_date(format, date=datet, language='en') == '5:11:17 AM'
+    assert i18n.format_date(format, date=datet, language='en') == '5:11:17\u202fAM'
     assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
     format = '%c'
-    if BABEL_VERSION >= (2, 12):
-        assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016, 5:11:17\u202fAM'
-    else:
-        assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016, 5:11:17 AM'
+    assert i18n.format_date(format, date=datet, language='en') == 'Feb 7, 2016, 5:11:17\u202fAM'
     assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
 
     # timezone

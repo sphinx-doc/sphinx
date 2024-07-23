@@ -1,7 +1,7 @@
 .. _autodoc_ext_tutorial:
 
-Developing autodoc extension for IntEnum
-========================================
+Developing autodoc extensions
+=============================
 
 The objective of this tutorial is to create an extension that adds
 support for new type for autodoc. This autodoc extension will format
@@ -27,8 +27,10 @@ We want to add following to autodoc:
 Prerequisites
 -------------
 
-We need the same setup as in :doc:`the previous extensions <todo>`. This time,
-we will be putting out extension in a file called :file:`autodoc_intenum.py`.
+We need the same setup as in
+:ref:`the previous extensions <tutorial-extend-build>`.
+This time, we will be putting out extension
+in a file called :file:`autodoc_intenum.py`.
 The :file:`my_enums.py` will contain the sample enums we will document.
 
 Here is an example of the folder structure you might obtain:
@@ -139,3 +141,9 @@ This will be the documentation file with auto-documentation directive:
    :caption: index.rst
 
    .. autointenum:: my_enums.Colors
+
+Further reading
+---------------
+
+If you wish to share your extension across multiple projects or with others,
+check out the :ref:`third-party-extensions` section.

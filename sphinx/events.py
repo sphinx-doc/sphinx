@@ -8,7 +8,7 @@ from __future__ import annotations
 import contextlib
 from collections import defaultdict
 from operator import attrgetter
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
@@ -16,6 +16,8 @@ from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sphinx.application import Sphinx
 
 
@@ -30,21 +32,22 @@ class EventListener(NamedTuple):
 
 # List of all known core events. Maps name to arguments description.
 core_events = {
-    'builder-inited': '',
     'config-inited': 'config',
+    'builder-inited': '',
     'env-get-outdated': 'env, added, changed, removed',
-    'env-get-updated': 'env',
-    'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
-    'env-check-consistency': 'env',
+    'env-purge-doc': 'env, docname',
     'source-read': 'docname, source text',
     'include-read': 'relative path, parent docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'env-merge-info': 'env, read docnames, other env instance',
+    'env-updated': 'env',
+    'env-get-updated': 'env',
+    'env-check-consistency': 'env',
+    'write-started': 'builder',
+    'doctree-resolved': 'doctree, docname',
     'missing-reference': 'env, node, contnode',
     'warn-missing-reference': 'domain, node',
-    'doctree-resolved': 'doctree, docname',
-    'env-updated': 'env',
     'build-finished': 'exception',
 }
 

@@ -17,7 +17,7 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
+from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -309,12 +309,9 @@ class JSModule(SphinxDirective):
     def run(self) -> list[Node]:
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
-        no_index = 'no-index' in self.options or 'noindex' in self.options
+        no_index = 'no-index' in self.options
 
-        content_node: Element = nodes.section()
-        # necessary so that the child nodes get the right source/line set
-        content_node.document = self.state.document
-        nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
+        content_nodes = self.parse_content_to_nodes(allow_section_headings=True)
 
         ret: list[Node] = []
         if not no_index:
@@ -334,7 +331,7 @@ class JSModule(SphinxDirective):
             target = nodes.target('', '', ids=[node_id], ismod=True)
             self.state.document.note_explicit_target(target)
             ret.append(target)
-        ret.extend(content_node.children)
+        ret.extend(content_nodes)
         return ret
 
 

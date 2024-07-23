@@ -417,7 +417,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.unrestrict(node)
 
     def visit_title(self, node: nodes.title) -> None:
-        if isinstance(node.parent, (nodes.section, nodes.table)):
+        if isinstance(node.parent, nodes.section | nodes.table):
             self.restrict(node)
 
     def depart_title(self, node: nodes.title) -> None:

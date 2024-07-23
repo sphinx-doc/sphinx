@@ -9,8 +9,9 @@ from os import path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from typing import Any, Callable
+    import os
+    from collections.abc import Callable, Iterable
+    from typing import Any
 
 
 class _TranslationProxy:
@@ -98,7 +99,7 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: Iterable[str | None],
+    locale_dirs: Iterable[str | os.PathLike[str] | None],
     language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
@@ -114,11 +115,7 @@ def init(
         translator = None
 
     if language:
-        if '_' in language:
-            # for language having country code (like "de_AT")
-            languages: list[str] | None = [language, language.split('_')[0]]
-        else:
-            languages = [language]
+        languages: list[str] | None = [language]
     else:
         languages = None
 

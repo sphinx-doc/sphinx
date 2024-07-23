@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
+import dataclasses
 import sys
 import types
 import typing
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from contextvars import Context, ContextVar, Token
 from struct import Struct
 from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    Callable,
     ForwardRef,
+    NewType,
     TypedDict,
     TypeVar,
     Union,
@@ -24,9 +25,9 @@ from docutils.parsers.rst.states import Inliner
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from typing import Final, Literal
+    from typing import Final, Literal, Protocol, TypeAlias
 
-    from typing_extensions import TypeAlias, TypeIs
+    from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
 
@@ -40,10 +41,6 @@ if TYPE_CHECKING:
         'smart',
     ]
 
-if sys.version_info >= (3, 10):
-    from types import UnionType
-else:
-    UnionType = None
 
 # classes that have an incorrect .__module__ attribute
 _INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
@@ -84,34 +81,46 @@ def is_invalid_builtin_class(obj: Any) -> bool:
 
 
 # Text like nodes which are initialized with text and rawsource
-TextlikeNode = Union[nodes.Text, nodes.TextElement]
-
-# type of None
-NoneType = type(None)
+TextlikeNode: TypeAlias = nodes.Text | nodes.TextElement
 
 # path matcher
-PathMatcher = Callable[[str], bool]
+PathMatcher: TypeAlias = Callable[[str], bool]
 
 # common role functions
-RoleFunction = Callable[
-    [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
-    tuple[list[nodes.Node], list[nodes.system_message]],
-]
+if TYPE_CHECKING:
+    class RoleFunction(Protocol):
+        def __call__(
+            self,
+            name: str,
+            rawtext: str,
+            text: str,
+            lineno: int,
+            inliner: Inliner,
+            /,
+            options: dict[str, Any] | None = None,
+            content: Sequence[str] = (),
+        ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
+            ...
+else:
+    RoleFunction: TypeAlias = Callable[
+        [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
+        tuple[list[nodes.Node], list[nodes.system_message]],
+    ]
 
 # A option spec for directive
-OptionSpec = dict[str, Callable[[str], Any]]
+OptionSpec: TypeAlias = dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
-TitleGetter = Callable[[nodes.Node], str]
+TitleGetter: TypeAlias = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryItem = tuple[
+InventoryItem: TypeAlias = tuple[
     str,  # project name
     str,  # project version
     str,  # URL
     str,  # display name
 ]
-Inventory = dict[str, dict[str, InventoryItem]]
+Inventory: TypeAlias = dict[str, dict[str, InventoryItem]]
 
 
 class ExtensionMetadata(TypedDict, total=False):
@@ -135,13 +144,14 @@ class ExtensionMetadata(TypedDict, total=False):
 
 
 if TYPE_CHECKING:
-    _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]
+    _ExtensionSetupFunc: TypeAlias = Callable[[Sphinx], ExtensionMetadata]
 
 
 def get_type_hints(
     obj: Any,
     globalns: dict[str, Any] | None = None,
     localns: dict[str, Any] | None = None,
+    include_extras: bool = False,
 ) -> dict[str, Any]:
     """Return a dictionary containing type hints for a function, method, module or class
     object.
@@ -152,7 +162,7 @@ def get_type_hints(
     from sphinx.util.inspect import safe_getattr  # lazy loading
 
     try:
-        return typing.get_type_hints(obj, globalns, localns)
+        return typing.get_type_hints(obj, globalns, localns, include_extras=include_extras)
     except NameError:
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
@@ -178,14 +188,33 @@ def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
     return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
 
 
+def _is_unpack_form(obj: Any) -> bool:
+    """Check if the object is :class:`typing.Unpack` or equivalent."""
+    if sys.version_info >= (3, 11):
+        from typing import Unpack
+
+        # typing_extensions.Unpack != typing.Unpack for 3.11, but we assume
+        # that typing_extensions.Unpack should not be used in that case
+        return typing.get_origin(obj) is Unpack
+
+    # Python 3.10 requires typing_extensions.Unpack
+    origin = typing.get_origin(obj)
+    return (
+        getattr(origin, '__module__', None) == 'typing_extensions'
+        and _typing_internal_name(origin) == 'Unpack'
+    )
+
+
 def _typing_internal_name(obj: Any) -> str | None:
-    if sys.version_info[:2] >= (3, 10):
+    try:
         return obj.__name__
-    return getattr(obj, '_name', None)
+    except AttributeError:
+        # e.g. ParamSpecArgs, ParamSpecKwargs
+        return ''
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
-    """Convert python class to a reST reference.
+    """Convert a type-like object to a reST reference.
 
     :param mode: Specify a method how annotations will be stringified.
 
@@ -196,7 +225,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                      Show the name of the annotation.
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
-    from sphinx.util import inspect  # lazy loading
+    from sphinx.util.inspect import isgenericalias, object_description  # lazy loading
 
     valid_modes = {'fully-qualified-except-typing', 'smart'}
     if mode not in valid_modes:
@@ -205,7 +234,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         raise ValueError(msg)
 
     # things that are not types
-    if cls in {None, NoneType}:
+    if cls is None or cls == types.NoneType:
         return ':py:obj:`None`'
     if cls is Ellipsis:
         return '...'
@@ -229,12 +258,30 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # evaluated before determining whether *cls* is a mocked object
             # or not; instead of two try-except blocks, we keep it here.
             return f':py:class:`{module_prefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
-        elif inspect.isNewType(cls):
-            if sys.version_info[:2] >= (3, 10):
-                # newtypes have correct module info since Python 3.10+
-                return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-            return f':py:class:`{cls.__name__}`'
-        elif UnionType and isinstance(cls, UnionType):
+        elif _is_annotated_form(cls):
+            args = restify(cls.__args__[0], mode)
+            meta_args = []
+            for m in cls.__metadata__:
+                if isinstance(m, type):
+                    meta_args.append(restify(m, mode))
+                elif dataclasses.is_dataclass(m):
+                    # use restify for the repr of field values rather than repr
+                    d_fields = ', '.join([
+                        fr"{f.name}=\ {restify(getattr(m, f.name), mode)}"
+                        for f in dataclasses.fields(m) if f.repr
+                    ])
+                    meta_args.append(fr'{restify(type(m), mode)}\ ({d_fields})')
+                else:
+                    meta_args.append(repr(m))
+            meta = ', '.join(meta_args)
+            if sys.version_info[:2] <= (3, 11):
+                # Hardcoded to fix errors on Python 3.11 and earlier.
+                return fr':py:class:`~typing.Annotated`\ [{args}, {meta}]'
+            return (f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
+                    fr'\ [{args}, {meta}]')
+        elif isinstance(cls, NewType):
+            return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
+        elif isinstance(cls, types.UnionType):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
             return ' | '.join(restify(a, mode) for a in cls.__args__)
@@ -246,12 +293,15 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
                 return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             return f':py:class:`{cls.__name__}`'
-        elif (inspect.isgenericalias(cls)
+        elif (isgenericalias(cls)
               and cls_module_is_typing
               and cls.__origin__ is Union):
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
-        elif inspect.isgenericalias(cls):
+        elif isgenericalias(cls):
+            # A generic alias always has an __origin__, but it is difficult to
+            # use a type guard on ``isgenericalias()``
+            # (ideally, we would use ``TypeIs`` introduced in Python 3.13).
             cls_name = _typing_internal_name(cls)
 
             if isinstance(cls.__origin__, typing._SpecialForm):
@@ -298,10 +348,10 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         elif isinstance(cls, ForwardRef):
             return f':py:class:`{cls.__forward_arg__}`'
         else:
-            # not a class (ex. TypeVar)
+            # not a class (ex. TypeVar) but should have a __name__
             return f':py:obj:`{module_prefix}{cls.__module__}.{cls.__name__}`'
     except (AttributeError, TypeError):
-        return inspect.object_description(cls)
+        return object_description(cls)
 
 
 def _format_literal_arg_restify(arg: Any, /, *, mode: str) -> str:
@@ -336,7 +386,6 @@ def stringify_annotation(
                      Show the module name and qualified name of the annotation.
     """
     from sphinx.ext.autodoc.mock import ismock, ismockmodule  # lazy loading
-    from sphinx.util.inspect import isNewType  # lazy loading
 
     valid_modes = {'fully-qualified-except-typing', 'fully-qualified', 'smart'}
     if mode not in valid_modes:
@@ -345,7 +394,7 @@ def stringify_annotation(
         raise ValueError(msg)
 
     # things that are not types
-    if annotation in {None, NoneType}:
+    if annotation is None or annotation == types.NoneType:
         return 'None'
     if annotation is Ellipsis:
         return '...'
@@ -366,22 +415,20 @@ def stringify_annotation(
     annotation_module_is_typing = annotation_module == 'typing'
 
     # Extract the annotation's base type by considering formattable cases
-    if isinstance(annotation, TypeVar):
+    if isinstance(annotation, TypeVar) and not _is_unpack_form(annotation):
+        # typing_extensions.Unpack is incorrectly determined as a TypeVar
         if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
             return annotation_name
         return module_prefix + f'{annotation_module}.{annotation_name}'
-    elif isNewType(annotation):
-        if sys.version_info[:2] >= (3, 10):
-            # newtypes have correct module info since Python 3.10+
-            return module_prefix + f'{annotation_module}.{annotation_name}'
-        return annotation_name
+    elif isinstance(annotation, NewType):
+        return module_prefix + f'{annotation_module}.{annotation_name}'
     elif ismockmodule(annotation):
         return module_prefix + annotation_name
     elif ismock(annotation):
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif is_invalid_builtin_class(annotation):
         return module_prefix + _INVALID_BUILTIN_CLASSES[annotation]
-    elif _is_annotated_form(annotation):  # for py39+
+    elif _is_annotated_form(annotation):  # for py310+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
         args = getattr(annotation, '__args__', None)
@@ -391,6 +438,7 @@ def stringify_annotation(
         # PEP 585 generic
         if not args:  # Empty tuple, list, ...
             return repr(annotation)
+
         concatenated_args = ', '.join(stringify_annotation(arg, mode) for arg in args)
         return f'{annotation_qualname}[{concatenated_args}]'
     else:
@@ -404,6 +452,8 @@ def stringify_annotation(
             module_prefix = f'~{module_prefix}'
         if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
             module_prefix = ''
+    elif _is_unpack_form(annotation) and annotation_module == 'typing_extensions':
+        module_prefix = '~' if mode == 'smart' else ''
     else:
         module_prefix = ''
 
@@ -412,9 +462,8 @@ def stringify_annotation(
             # handle ForwardRefs
             qualname = annotation_forward_arg
         else:
-            _name = getattr(annotation, '_name', '')
-            if _name:
-                qualname = _name
+            if internal_name := _typing_internal_name(annotation):
+                qualname = internal_name
             elif annotation_qualname:
                 qualname = annotation_qualname
             else:
@@ -428,7 +477,7 @@ def stringify_annotation(
     elif hasattr(annotation, '__origin__'):
         # instantiated generic provided by a user
         qualname = stringify_annotation(annotation.__origin__, mode)
-    elif UnionType and isinstance(annotation, UnionType):  # types.UnionType (for py3.10+)
+    elif isinstance(annotation, types.UnionType):
         qualname = 'types.UnionType'
     else:
         # we weren't able to extract the base type, appending arguments would
@@ -438,7 +487,7 @@ def stringify_annotation(
     # Process the generic arguments (if any).
     # They must be a list or a tuple, otherwise they are considered 'broken'.
     annotation_args = getattr(annotation, '__args__', ())
-    if annotation_args and isinstance(annotation_args, (list, tuple)):
+    if annotation_args and isinstance(annotation_args, list | tuple):
         if (
             qualname in {'Union', 'types.UnionType'}
             and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)
@@ -458,8 +507,28 @@ def stringify_annotation(
             args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
                              for a in annotation_args)
             return f'{module_prefix}Literal[{args}]'
-        elif _is_annotated_form(annotation):  # for py39+
-            return stringify_annotation(annotation_args[0], mode)
+        elif _is_annotated_form(annotation):  # for py310+
+            args = stringify_annotation(annotation_args[0], mode)
+            meta_args = []
+            for m in annotation.__metadata__:
+                if isinstance(m, type):
+                    meta_args.append(stringify_annotation(m, mode))
+                elif dataclasses.is_dataclass(m):
+                    # use stringify_annotation for the repr of field values rather than repr
+                    d_fields = ', '.join([
+                        f"{f.name}={stringify_annotation(getattr(m, f.name), mode)}"
+                        for f in dataclasses.fields(m) if f.repr
+                    ])
+                    meta_args.append(f'{stringify_annotation(type(m), mode)}({d_fields})')
+                else:
+                    meta_args.append(repr(m))
+            meta = ', '.join(meta_args)
+            if sys.version_info[:2] <= (3, 11):
+                if mode == 'fully-qualified-except-typing':
+                    return f'Annotated[{args}, {meta}]'
+                module_prefix = module_prefix.replace('builtins', 'typing')
+                return f'{module_prefix}Annotated[{args}, {meta}]'
+            return f'{module_prefix}Annotated[{args}, {meta}]'
         elif all(is_system_TypeVar(a) for a in annotation_args):
             # Suppress arguments if all system defined TypeVars (ex. Dict[KT, VT])
             return module_prefix + qualname
@@ -485,7 +554,6 @@ def _format_literal_arg_stringify(arg: Any, /, *, mode: str) -> str:
 
 # deprecated name -> (object to return, canonical path or empty string, removal version)
 _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'stringify': (stringify_annotation, 'sphinx.util.typing.stringify_annotation', (8, 0)),
 }
 
 

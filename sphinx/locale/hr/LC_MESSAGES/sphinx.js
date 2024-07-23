@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Tra\u017ei",
         "Hide Search Matches": "Sakrij rezultate pretrage",
         "Index": "Abecedni popis",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indeksiraj stranice po slovu",
         "Indices and tables:": "Kazala i tablice:",
         "Last updated on %(last_updated)s.": "Zadnji put a\u017eurirano %(last_updated)s.",

@@ -1,7 +1,11 @@
 """Test inventory util functions."""
+
+from __future__ import annotations
+
 import os
 import posixpath
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 import sphinx.locale
 from sphinx.testing.util import SphinxTestApp
@@ -10,8 +14,12 @@ from sphinx.util.inventory import InventoryFile
 from tests.test_util.intersphinx_data import (
     INVENTORY_V1,
     INVENTORY_V2,
+    INVENTORY_V2_AMBIGUOUS_TERMS,
     INVENTORY_V2_NO_VERSION,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_read_inventory_v1():
@@ -48,7 +56,25 @@ def test_read_inventory_v2_not_having_version():
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
 
 
-def _write_appconfig(dir, language, prefix=None):
+def test_ambiguous_definition_warning(warning, status):
+    f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
+    InventoryFile.load(f, '/util', posixpath.join)
+
+    def _multiple_defs_notice_for(entity: str) -> str:
+        return f'contains multiple definitions for {entity}'
+
+    # was warning-level; reduced to info-level - see https://github.com/sphinx-doc/sphinx/issues/12613
+    mult_defs_a, mult_defs_b = (
+        _multiple_defs_notice_for('std:term:a'),
+        _multiple_defs_notice_for('std:term:b'),
+    )
+    assert mult_defs_a not in warning.getvalue().lower()
+    assert mult_defs_a not in status.getvalue().lower()
+    assert mult_defs_b not in warning.getvalue().lower()
+    assert mult_defs_b in status.getvalue().lower()
+
+
+def _write_appconfig(dir: Path, language: str, prefix: str | None = None) -> Path:
     prefix = prefix or language
     os.makedirs(dir / prefix, exist_ok=True)
     (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
@@ -58,7 +84,7 @@ def _write_appconfig(dir, language, prefix=None):
     return dir / prefix
 
 
-def _build_inventory(srcdir):
+def _build_inventory(srcdir: Path) -> Path:
     app = SphinxTestApp(srcdir=srcdir)
     app.build()
     sphinx.locale.translators.clear()

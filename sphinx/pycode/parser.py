@@ -108,7 +108,7 @@ class Token:
             return self.kind == other
         elif isinstance(other, str):
             return self.value == other
-        elif isinstance(other, (list, tuple)):
+        elif isinstance(other, list | tuple):
             return [self.kind, self.value] == list(other)
         elif other is None:
             return False
@@ -404,7 +404,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
     def visit_Expr(self, node: ast.Expr) -> None:
         """Handles Expr node and pick up a comment if string."""
-        if (isinstance(self.previous, (ast.Assign, ast.AnnAssign)) and
+        if (isinstance(self.previous, ast.Assign | ast.AnnAssign) and
                 isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)):
             try:
                 targets = get_assign_targets(self.previous)

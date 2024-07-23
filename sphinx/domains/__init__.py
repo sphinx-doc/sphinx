@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, cast
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from docutils.nodes import Element, Node, system_message
 
@@ -17,6 +18,7 @@ from sphinx.locale import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+    from typing import TypeAlias
 
     from docutils import nodes
     from docutils.parsers.rst import Directive
@@ -153,7 +155,7 @@ class Index(ABC):
         raise NotImplementedError
 
 
-TitleGetter = Callable[[Node], Optional[str]]
+TitleGetter: TypeAlias = Callable[[Node], str | None]
 
 
 class Domain:
@@ -198,7 +200,7 @@ class Domain:
     #: data value for a fresh environment
     initial_data: dict = {}
     #: data value
-    data: dict
+    data: dict[str, Any]
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 

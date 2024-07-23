@@ -96,7 +96,7 @@ def test_text_emit_warnings(app, warning):
     # test warnings in translation
     warnings = getwarning(warning)
     warning_expr = ('.*/warnings.txt:4:<translated>:1: '
-                    'WARNING: Inline literal start-string without end-string.\n')
+                    'WARNING: Inline literal start-string without end-string. \\[docutils\\]\n')
     assert re.search(warning_expr, warnings), f'{warning_expr!r} did not match {warnings!r}'
 
 
@@ -156,7 +156,7 @@ def test_text_inconsistency_warnings(app, warning):
     warnings = getwarning(warning)
     warning_fmt = ('.*/refs_inconsistency.txt:\\d+: '
                    'WARNING: inconsistent %(reftype)s in translated message.'
-                   ' original: %(original)s, translated: %(translated)s\n')
+                   ' original: %(original)s, translated: %(translated)s \\[i18n.inconsistent_references\\]\n')
     expected_warning_expr = (
         warning_fmt % {
             'reftype': 'footnote references',
@@ -310,7 +310,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
         '.*/glossary_terms_inconsistency.txt:\\d+: '
         'WARNING: inconsistent term references in translated message.'
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
-        " translated: \\[':term:`SOME NEW TERM`'\\]\n")
+        " translated: \\[':term:`SOME NEW TERM`'\\] \\[i18n.inconsistent_references\\]\n")
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
     expected_warning_expr = (
         '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '
@@ -737,7 +737,7 @@ class _MockUnixClock(_MockClock):
         time.sleep(ds)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_time_and_i18n(
     monkeypatch: pytest.MonkeyPatch,
 ) -> tuple[pytest.MonkeyPatch, _MockClock]:
@@ -938,6 +938,16 @@ def test_html_index_entries(app):
         start_tag2 = "<%s[^>]*>" % childtag
         return fr"{start_tag1}\s*{keyword}\s*{start_tag2}"
     expected_exprs = [
+        wrap('h2', 'Symbols'),
+        wrap('h2', 'C'),
+        wrap('h2', 'E'),
+        wrap('h2', 'F'),
+        wrap('h2', 'M'),
+        wrap('h2', 'N'),
+        wrap('h2', 'R'),
+        wrap('h2', 'S'),
+        wrap('h2', 'T'),
+        wrap('h2', 'V'),
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
         wrap('a', 'RECIPIENTS LIST'),
@@ -1453,7 +1463,7 @@ def test_additional_targets_should_be_translated(app):
         """<span class="c1"># SYS IMPORTING</span>""")
     assert_count(expected_expr, result, 1)
 
-    # '#noqa' should remain in literal blocks.
+    # 'noqa' comments should remain in literal blocks.
     assert_count("#noqa", result, 1)
 
     # parsed literal should be translated

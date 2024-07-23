@@ -7,7 +7,6 @@ import json
 import re
 import socket
 import time
-import warnings
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
@@ -20,7 +19,6 @@ from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRed
 from requests.exceptions import Timeout as RequestTimeout
 
 from sphinx.builders.dummy import DummyBuilder
-from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
@@ -29,8 +27,8 @@ from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from typing import Any, Callable
+    from collections.abc import Callable, Iterator
+    from typing import Any
 
     from requests import Response
 
@@ -66,25 +64,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
 
-        if not self.config.linkcheck_allow_unauthorized:
-            deprecation_msg = (
-                "The default value for 'linkcheck_allow_unauthorized' will change "
-                "from `True` in Sphinx 7.3+ to `False`, meaning that HTTP 401 "
-                "unauthorized responses will be reported as broken by default. "
-                "See https://github.com/sphinx-doc/sphinx/issues/11433 for details."
-            )
-            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
-
-        if self.config.linkcheck_report_timeouts_as_broken:
-            deprecation_msg = (
-                "The default value for 'linkcheck_report_timeouts_as_broken' will change "
-                'to False in Sphinx 8, meaning that request timeouts '
-                "will be reported with a new 'timeout' status, instead of as 'broken'. "
-                'This is intended to provide more detail as to the failure mode. '
-                'See https://github.com/sphinx-doc/sphinx/issues/11868 for details.'
-            )
-            warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
-
     def finish(self) -> None:
         checker = HyperlinkAvailabilityChecker(self.config)
         logger.info('')
@@ -102,9 +81,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat = {'filename': filename, 'lineno': result.lineno,
-                    'status': result.status, 'code': result.code, 'uri': result.uri,
-                    'info': result.message}
+        linkstat: dict[str, str | int] = {
+            'filename': filename, 'lineno': result.lineno,
+            'status': result.status, 'code': result.code,
+            'uri': result.uri, 'info': result.message,
+        }
         self.write_linkstat(linkstat)
 
         if result.status == 'unchecked':
@@ -164,7 +145,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         else:
             raise ValueError('Unknown status %s.' % result.status)
 
-    def write_linkstat(self, data: dict) -> None:
+    def write_linkstat(self, data: dict[str, str | int]) -> None:
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
@@ -416,9 +397,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         return status, info, code
 
-    def _retrieval_methods(self,
-                           check_anchors: bool,
-                           anchor: str) -> Iterator[tuple[Callable, dict]]:
+    def _retrieval_methods(
+        self,
+        check_anchors: bool,
+        anchor: str,
+    ) -> Iterator[tuple[Callable[..., Response], dict[str, bool]]]:
         if not check_anchors or not anchor:
             yield self._session.head, {'allow_redirects': True}
         yield self._session.get, {'stream': True}
@@ -471,14 +454,18 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     _user_agent=self.user_agent,
                     _tls_info=(self.tls_verify, self.tls_cacerts),
                 ) as response:
-                    if (self.check_anchors and response.ok and anchor
-                            and not contains_anchor(response, anchor)):
-                        raise Exception(__(f'Anchor {quote(anchor)!r} not found'))
+                    if anchor and self.check_anchors and response.ok:
+                        try:
+                            found = contains_anchor(response, anchor)
+                        except UnicodeDecodeError:
+                            return 'ignored', 'unable to decode response content', 0
+                        if not found:
+                            return 'broken', __("Anchor '%s' not found") % quote(anchor), 0
 
                 # Copy data we need from the (closed) response
                 status_code = response.status_code
                 redirect_status_code = response.history[-1].status_code if response.history else None  # NoQA: E501
-                retry_after = response.headers.get('Retry-After')
+                retry_after = response.headers.get('Retry-After', '')
                 response_url = f'{response.url}'
                 response.raise_for_status()
                 del response
@@ -502,27 +489,6 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
                 # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
-                    if self._allow_unauthorized:
-                        deprecation_msg = (
-                            "\n---\n"
-                            "The linkcheck builder encountered an HTTP 401 "
-                            "(unauthorized) response, and will report it as "
-                            "'working' in this version of Sphinx to maintain "
-                            "backwards-compatibility."
-                            "\n"
-                            "This logic will change in Sphinx 8.0 which will "
-                            "report the hyperlink as 'broken'."
-                            "\n"
-                            "To explicitly continue treating unauthorized "
-                            "hyperlink responses as 'working', set the "
-                            "'linkcheck_allow_unauthorized' config option to "
-                            "``True``."
-                            "\n"
-                            "See https://github.com/sphinx-doc/sphinx/issues/11433 "
-                            "for details."
-                            "\n---"
-                        )
-                        warnings.warn(deprecation_msg, RemovedInSphinx80Warning, stacklevel=1)
                     status = 'working' if self._allow_unauthorized else 'broken'
                     return status, 'unauthorized', 0
 
@@ -708,9 +674,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
     app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
-    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '')
-    app.add_config_value('linkcheck_allow_unauthorized', True, '')
-    app.add_config_value('linkcheck_report_timeouts_as_broken', True, '', bool)
+    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
+    app.add_config_value('linkcheck_allow_unauthorized', False, '')
+    app.add_config_value('linkcheck_report_timeouts_as_broken', False, '', bool)
 
     app.add_event('linkcheck-process-uri')
 

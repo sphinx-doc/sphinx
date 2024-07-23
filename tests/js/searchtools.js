@@ -1,20 +1,36 @@
 describe('Basic html theme search', function() {
 
+  function loadFixture(name) {
+      req = new XMLHttpRequest();
+      req.open("GET", `base/tests/js/fixtures/${name}`, false);
+      req.send(null);
+      return req.responseText;
+  }
+
+  function checkRanking(expectedRanking, results) {
+    let [nextExpected, ...remainingItems] = expectedRanking;
+
+    for (result of results.reverse()) {
+      if (!nextExpected) break;
+
+      let [expectedPage, expectedTitle, expectedTarget] = nextExpected;
+      let [page, title, target] = result;
+
+      if (page == expectedPage && title == expectedTitle && target == expectedTarget) {
+        [nextExpected, ...remainingItems] = remainingItems;
+      }
+    }
+
+    expect(remainingItems.length).toEqual(0);
+    expect(nextExpected).toEqual(undefined);
+  }
+
   describe('terms search', function() {
 
     it('should find "C++" when in index', function() {
-      index = {
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{'c++':0},
-        titles:["&lt;no title&gt;"],
-        titleterms:{}
-      }
-      Search.setIndex(index);
-      searchterms = ['c++'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      eval(loadFixture("cpp/searchindex.js"));
+
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('C++');
 
       hits = [[
         "index",
@@ -24,26 +40,13 @@ describe('Basic html theme search', function() {
         5,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
     it('should be able to search for multiple terms', function() {
-      index = {
-        alltitles: {
-          'Main Page': [[0, 'main-page']],
-        },
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{main:0, page:0},
-        titles:["Main Page"],
-        titleterms:{ main:0, page:0 }
-      }
-      Search.setIndex(index);
+      eval(loadFixture("multiterm/searchindex.js"));
 
-      searchterms = ['main', 'page'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('main page');
       hits = [[
         'index',
         'Main Page',
@@ -51,22 +54,13 @@ describe('Basic html theme search', function() {
         null,
         15,
         'index.rst']];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
     it('should partially-match "sphinx" when in title index', function() {
-      index = {
-        docnames:["index"],
-        filenames:["index.rst"],
-        terms:{'useful': 0, 'utilities': 0},
-        titles:["sphinx_utils module"],
-        titleterms:{'sphinx_utils': 0}
-      }
-      Search.setIndex(index);
-      searchterms = ['sphinx'];
-      excluded = [];
-      terms = index.terms;
-      titleterms = index.titleterms;
+      eval(loadFixture("partial/searchindex.js"));
+
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('sphinx');
 
       hits = [[
         "index",
@@ -76,7 +70,89 @@ describe('Basic html theme search', function() {
         7,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
+    });
+
+  });
+
+  describe('aggregation of search results', function() {
+
+    it('should combine document title and document term matches', function() {
+      eval(loadFixture("multiterm/searchindex.js"));
+
+      searchParameters = Search._parseQuery('main page');
+
+      hits = [
+        [
+          'index',
+          'Main Page',
+          '',
+          null,
+          16,
+          'index.rst'
+        ]
+      ];
+      expect(Search._performSearch(...searchParameters)).toEqual(hits);
+    });
+
+  });
+
+  describe('search result ranking', function() {
+
+    /*
+     * These tests should not proscribe precise expected ordering of search
+     * results; instead each test case should describe a single relevance rule
+     * that helps users to locate relevant information efficiently.
+     *
+     * If you think that one of the rules seems to be poorly-defined or is
+     * limiting the potential for search algorithm improvements, please check
+     * for existing discussion/bugreports related to it on GitHub[1] before
+     * creating one yourself. Suggestions for possible improvements are also
+     * welcome.
+     *
+     * [1] - https://github.com/sphinx-doc/sphinx.git/
+     */
+
+    it('should score a code module match above a page-title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['index', 'relevance', '#module-relevance'],  /* py:module documentation */
+        ['relevance', 'Relevance', ''],  /* main title */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a main-title match above an object member match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* main title */
+        ['index', 'relevance.Example.relevance', '#relevance.Example.relevance'],  /* py:class attribute */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a main-title match above a subheading-title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* main title */
+        ['index', 'Main Page > Relevance', '#relevance'],  /* subsection heading title */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
     });
 
   });

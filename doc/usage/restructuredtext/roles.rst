@@ -268,7 +268,7 @@ The following roles generate external links:
    For example: :rfc:`2324`
 
 Note that there are no special roles for including hyperlinks as you can use
-the standard reST markup for that purpose.
+the standard reStructuredText markup for that purpose.
 
 
 .. _default-substitutions:

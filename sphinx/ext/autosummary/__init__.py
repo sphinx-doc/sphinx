@@ -69,13 +69,14 @@ import sphinx
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc import INSTANCEATTR, Documenter
-from sphinx.ext.autodoc.directive import DocumenterBridge, Options
+from sphinx.errors import PycodeError
+from sphinx.ext.autodoc import INSTANCEATTR, Documenter, Options
+from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.project import Project
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util.docutils import (
@@ -87,6 +88,7 @@ from sphinx.util.docutils import (
 )
 from sphinx.util.inspect import getmro, signature_from_str
 from sphinx.util.matching import Matcher
+from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -96,7 +98,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.extension import Extension
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -406,16 +408,14 @@ class Autosummary(SphinxDirective):
             row = nodes.row('')
             source, line = self.state_machine.get_source_and_line()
             for text in column_texts:
-                node = nodes.paragraph('')
-                vl = StringList()
-                vl.append(text, '%s:%d:<autosummary>' % (source, line))
+                vl = StringList([text], f'{source}:{line}:<autosummary>')
                 with switch_source_input(self.state, vl):
-                    self.state.nested_parse(vl, 0, node)
-                    try:
-                        if isinstance(node[0], nodes.paragraph):
-                            node = node[0]
-                    except IndexError:
-                        pass
+                    col_nodes = nested_parse_to_nodes(self.state, vl,
+                                                      allow_section_headings=False)
+                    if col_nodes and isinstance(col_nodes[0], nodes.paragraph):
+                        node = col_nodes[0]
+                    else:
+                        node = nodes.paragraph('')
                     row.append(nodes.entry('', node))
             body.append(row)
 
@@ -640,6 +640,13 @@ def import_by_name(
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
+        if prefix is not None and name.startswith(f'{prefix}.'):
+            # Catch and avoid module cycles (e.g., sphinx.ext.sphinx.ext...)
+            msg = __('Summarised items should not include the current module. '
+                     'Replace %r with %r.')
+            logger.warning(msg, name, name.removeprefix(f'{prefix}.'),
+                           type='autosummary', subtype='import_cycle')
+            continue
         try:
             if prefix:
                 prefixed_name = f'{prefix}.{name}'
@@ -759,7 +766,14 @@ class AutoLink(SphinxRole):
         try:
             # try to import object by name
             prefixes = get_import_prefixes_from_env(self.env)
-            import_by_name(pending_xref['reftarget'], prefixes)
+            name = pending_xref['reftarget']
+            prefixes = [
+                prefix
+                for prefix in prefixes
+                if prefix is None
+                or not (name.startswith(f'{prefix}.') or name == prefix)
+            ]
+            import_by_name(name, prefixes)
         except ImportExceptionGroup:
             literal = cast(nodes.literal, pending_xref[0])
             objects[0] = nodes.emphasis(self.rawtext, literal.astext(),

@@ -59,7 +59,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
     from sphinx.writers.texinfo import TexinfoTranslator
 
@@ -378,15 +378,15 @@ class InheritanceDiagram(SphinxDirective):
                 aliases=self.config.inheritance_alias,
                 top_classes=node['top-classes'])
         except InheritanceException as err:
-            return [node.document.reporter.warning(err, line=self.lineno)]  # type: ignore[union-attr]
+            return [node.document.reporter.warning(err, line=self.lineno)]
 
         # Create xref nodes for each target of the graph's image map and
         # add them to the doc tree so that Sphinx can resolve the
         # references to real URLs later.  These nodes will eventually be
         # removed from the doctree after we're done with them.
         for name in graph.get_all_class_names():
-            refnodes, x = class_role(  # type: ignore[call-arg,misc]
-                'class', ':class:`%s`' % name, name, 0, self.state)
+            refnodes, x = class_role(  # type: ignore[misc]
+                'class', ':class:`%s`' % name, name, 0, self.state.inliner)
             node.extend(refnodes)
         # Store the graph object so we can use it to generate the
         # dot file later

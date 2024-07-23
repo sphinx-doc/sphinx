@@ -13,10 +13,11 @@ from io import StringIO
 from os import path
 from typing import TYPE_CHECKING
 
-from sphinx.deprecation import _deprecation_warning
+from sphinx.locale import __
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
     from types import TracebackType
     from typing import Any
 
@@ -50,7 +51,7 @@ def relative_uri(base: str, to: str) -> str:
     b2 = base.split('#')[0].split(SEP)
     t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
-    for x, y in zip(b2[:-1], t2[:-1]):
+    for x, y in zip(b2[:-1], t2[:-1], strict=False):
         if x != y:
             break
         b2.pop(0)
@@ -87,11 +88,17 @@ def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> N
         os.utime(dest, (st.st_atime, st.st_mtime))
 
 
-def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
+def copyfile(
+    source: str | os.PathLike[str],
+    dest: str | os.PathLike[str],
+    *,
+    force: bool = False,
+) -> None:
     """Copy a file and its modification times, if possible.
 
     :param source: An existing source to copy.
     :param dest: The destination path.
+    :param bool force: Overwrite the destination file even if it exists.
     :raise FileNotFoundError: The *source* does not exist.
 
     .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
@@ -100,23 +107,39 @@ def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> No
         msg = f'{os.fsdecode(source)} does not exist'
         raise FileNotFoundError(msg)
 
-    if not path.exists(dest) or not filecmp.cmp(source, dest):
+    if (
+        not (dest_exists := path.exists(dest)) or
+        # comparison must be done using shallow=False since
+        # two different files might have the same size
+        not filecmp.cmp(source, dest, shallow=False)
+    ):
+        if not force and dest_exists:
+            # sphinx.util.logging imports sphinx.util.osutil,
+            # so use a local import to avoid circular imports
+            from sphinx.util import logging
+            logger = logging.getLogger(__name__)
+
+            msg = __('Aborted attempted copy from %s to %s '
+                     '(the destination path has existing data).')
+            logger.warning(msg, os.fsdecode(source), os.fsdecode(dest),
+                           type='misc', subtype='copy_overwrite')
+            return
+
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
             copytimes(source, dest)
 
 
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-project_suffix_re = re.compile(' Documentation$')
+_no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 
 def make_filename(string: str) -> str:
-    return no_fn_re.sub('', string) or 'sphinx'
+    return _no_fn_re.sub('', string) or 'sphinx'
 
 
 def make_filename_from_project(project: str) -> str:
-    return make_filename(project_suffix_re.sub('', project)).lower()
+    return make_filename(project.removesuffix(' Documentation')).lower()
 
 
 def relpath(path: str | os.PathLike[str],
@@ -161,12 +184,8 @@ class _chdir:
         os.chdir(self._dirs.pop())
 
 
-@contextlib.contextmanager
-def cd(target_dir: str) -> Iterator[None]:
-    if sys.version_info[:2] >= (3, 11):
-        _deprecation_warning(__name__, 'cd', 'contextlib.chdir', remove=(8, 0))
-    with _chdir(target_dir):
-        yield
+if sys.version_info[:2] < (3, 11):
+    cd = _chdir
 
 
 class FileAvoidWrite:
@@ -182,7 +201,7 @@ class FileAvoidWrite:
     Objects can be used as context managers.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str | Path) -> None:
         self._path = path
         self._io: StringIO | None = None
 

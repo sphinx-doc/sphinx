@@ -11,8 +11,9 @@ import typing
 from enum import Enum
 from typing import TYPE_CHECKING, NamedTuple
 
+from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.mock import ismock, undecorate
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import logging
 from sphinx.util.inspect import (
     getannotations,

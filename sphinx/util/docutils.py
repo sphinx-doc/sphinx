@@ -8,7 +8,7 @@ from collections.abc import Sequence  # NoQA: TCH003
 from contextlib import contextmanager
 from copy import copy
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable, cast
+from typing import IO, TYPE_CHECKING, Any, cast
 
 import docutils
 from docutils import nodes
@@ -17,17 +17,17 @@ from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.states import Inliner  # NoQA: TCH002
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
-from docutils.writers._html_base import HTMLTranslator
 
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
+from sphinx.util.parsing import nested_parse_to_nodes
 
 logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator  # NoQA: TCH003
     from types import ModuleType
 
     from docutils.frontend import Values
@@ -181,45 +181,11 @@ def using_user_docutils_conf(confdir: str | None) -> Iterator[None]:
 
 
 @contextmanager
-def du19_footnotes() -> Iterator[None]:
-    def visit_footnote(self: HTMLTranslator, node: Element) -> None:
-        label_style = self.settings.footnote_references
-        if not isinstance(node.previous_sibling(), type(node)):
-            self.body.append(f'<aside class="footnote-list {label_style}">\n')
-        self.body.append(self.starttag(node, 'aside',
-                                       classes=[node.tagname, label_style],
-                                       role="note"))
-
-    def depart_footnote(self: HTMLTranslator, node: Element) -> None:
-        self.body.append('</aside>\n')
-        if not isinstance(node.next_node(descend=False, siblings=True),
-                          type(node)):
-            self.body.append('</aside>\n')
-
-    old_visit_footnote = HTMLTranslator.visit_footnote
-    old_depart_footnote = HTMLTranslator.depart_footnote
-
-    # Only apply on Docutils 0.18 or 0.18.1, as 0.17 and earlier used a <dl> based
-    # approach, and 0.19 and later use the fixed approach by default.
-    if docutils.__version_info__[:2] == (0, 18):
-        HTMLTranslator.visit_footnote = visit_footnote  # type: ignore[method-assign]
-        HTMLTranslator.depart_footnote = depart_footnote  # type: ignore[method-assign]
-
-    try:
-        yield
-    finally:
-        if docutils.__version_info__[:2] == (0, 18):
-            HTMLTranslator.visit_footnote = old_visit_footnote  # type: ignore[method-assign]
-            HTMLTranslator.depart_footnote = old_depart_footnote  # type: ignore[method-assign]
-
-
-@contextmanager
 def patch_docutils(confdir: str | None = None) -> Iterator[None]:
     """Patch to docutils temporarily."""
     with patched_get_language(), \
          patched_rst_get_language(), \
-         using_user_docutils_conf(confdir), \
-         du19_footnotes():
+         using_user_docutils_conf(confdir):
         yield
 
 
@@ -329,11 +295,11 @@ class WarningStream:
     def write(self, text: str) -> None:
         matched = report_re.search(text)
         if not matched:
-            logger.warning(text.rstrip("\r\n"))
+            logger.warning(text.rstrip("\r\n"), type="docutils")
         else:
             location, type, level = matched.groups()
             message = report_re.sub('', text).rstrip()
-            logger.log(type, message, location=location)
+            logger.log(type, message, location=location, type="docutils")
 
 
 class LoggingReporter(Reporter):
@@ -400,37 +366,131 @@ class SphinxDirective(Directive):
 
     This class provides helper methods for Sphinx directives.
 
+    .. versionadded:: 1.8
+
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
 
     @property
     def env(self) -> BuildEnvironment:
-        """Reference to the :class:`.BuildEnvironment` object."""
+        """Reference to the :class:`.BuildEnvironment` object.
+
+        .. versionadded:: 1.8
+        """
         return self.state.document.settings.env
 
     @property
     def config(self) -> Config:
-        """Reference to the :class:`.Config` object."""
+        """Reference to the :class:`.Config` object.
+
+        .. versionadded:: 1.8
+        """
         return self.env.config
 
     def get_source_info(self) -> tuple[str, int]:
-        """Get source and line number."""
+        """Get source and line number.
+
+        .. versionadded:: 3.0
+        """
         return self.state_machine.get_source_and_line(self.lineno)
 
     def set_source_info(self, node: Node) -> None:
-        """Set source and line number to the node."""
+        """Set source and line number to the node.
+
+        .. versionadded:: 2.1
+        """
         node.source, node.line = self.get_source_info()
 
     def get_location(self) -> str:
-        """Get current location info for logging."""
-        return ':'.join(str(s) for s in self.get_source_info())
+        """Get current location info for logging.
+
+        .. versionadded:: 4.2
+        """
+        source, line = self.get_source_info()
+        if source and line:
+            return f'{source}:{line}'
+        if source:
+            return f'{source}:'
+        if line:
+            return f'<unknown>:{line}'
+        return ''
+
+    def parse_content_to_nodes(self, allow_section_headings: bool = False) -> list[Node]:
+        """Parse the directive's content into nodes.
+
+        :param allow_section_headings:
+            Are titles (sections) allowed in the directive's content?
+            Note that this option bypasses Docutils' usual checks on
+            doctree structure, and misuse of this option can lead to
+            an incoherent doctree. In Docutils, section nodes should
+            only be children of ``Structural`` nodes, which includes
+            ``document``, ``section``, and ``sidebar`` nodes.
+
+        .. versionadded:: 7.4
+        """
+        return nested_parse_to_nodes(
+            self.state,
+            self.content,
+            offset=self.content_offset,
+            allow_section_headings=allow_section_headings,
+        )
+
+    def parse_text_to_nodes(
+        self, text: str = '', /, *, offset: int = -1, allow_section_headings: bool = False,
+    ) -> list[Node]:
+        """Parse *text* into nodes.
+
+        :param text:
+            Text, in string form. ``StringList`` is also accepted.
+        :param allow_section_headings:
+            Are titles (sections) allowed in *text*?
+            Note that this option bypasses Docutils' usual checks on
+            doctree structure, and misuse of this option can lead to
+            an incoherent doctree. In Docutils, section nodes should
+            only be children of ``Structural`` nodes, which includes
+            ``document``, ``section``, and ``sidebar`` nodes.
+        :param offset:
+            The offset of the content.
+
+        .. versionadded:: 7.4
+        """
+        if offset == -1:
+            offset = self.content_offset
+        return nested_parse_to_nodes(
+            self.state,
+            text,
+            offset=offset,
+            allow_section_headings=allow_section_headings,
+        )
+
+    def parse_inline(
+        self, text: str, *, lineno: int = -1,
+    ) -> tuple[list[Node], list[system_message]]:
+        """Parse *text* as inline elements.
+
+        :param text:
+            The text to parse, which should be a single line or paragraph.
+            This cannot contain any structural elements (headings,
+            transitions, directives, etc).
+        :param lineno:
+            The line number where the interpreted text begins.
+        :returns:
+            A list of nodes (text and inline elements) and a list of system_messages.
+
+        .. versionadded:: 7.4
+        """
+        if lineno == -1:
+            lineno = self.lineno
+        return self.state.inline_text(text, lineno)
 
 
 class SphinxRole:
     """A base class for Sphinx roles.
 
     This class provides helper methods for Sphinx roles.
+
+    .. versionadded:: 2.0
 
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
@@ -476,25 +536,43 @@ class SphinxRole:
 
     @property
     def env(self) -> BuildEnvironment:
-        """Reference to the :class:`.BuildEnvironment` object."""
+        """Reference to the :class:`.BuildEnvironment` object.
+
+        .. versionadded:: 2.0
+        """
         return self.inliner.document.settings.env
 
     @property
     def config(self) -> Config:
-        """Reference to the :class:`.Config` object."""
+        """Reference to the :class:`.Config` object.
+
+        .. versionadded:: 2.0
+        """
         return self.env.config
 
     def get_source_info(self, lineno: int | None = None) -> tuple[str, int]:
+        # .. versionadded:: 3.0
         if lineno is None:
             lineno = self.lineno
         return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore[attr-defined]
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
+        # .. versionadded:: 2.0
         node.source, node.line = self.get_source_info(lineno)
 
     def get_location(self) -> str:
-        """Get current location info for logging."""
-        return ':'.join(str(s) for s in self.get_source_info())
+        """Get current location info for logging.
+
+        .. versionadded:: 4.2
+        """
+        source, line = self.get_source_info()
+        if source and line:
+            return f'{source}:{line}'
+        if source:
+            return f'{source}:'
+        if line:
+            return f'<unknown>:{line}'
+        return ''
 
 
 class ReferenceRole(SphinxRole):
@@ -503,6 +581,8 @@ class ReferenceRole(SphinxRole):
     The reference roles can accept ``link title <target>`` style as a text for
     the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
+
+    .. versionadded:: 2.0
     """
 
     has_explicit_title: bool    #: A boolean indicates the role has explicit title or not.
@@ -542,6 +622,8 @@ class SphinxTranslator(nodes.NodeVisitor):
     if visitor/departure method for node class is not found.
 
     It also provides helper methods for Sphinx translators.
+
+    .. versionadded:: 2.0
 
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.

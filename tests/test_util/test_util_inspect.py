@@ -91,7 +91,7 @@ def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
     assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'example'
 
-    alias = Optional[alias]
+    alias = Optional[alias]  # NoQA: UP007
     assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'example | None'
 
 
@@ -775,7 +775,7 @@ def test_isproperty():
 def test_isgenericalias():
     #: A list of int
     T = List[int]  # NoQA: UP006
-    S = list[Union[str, None]]
+    S = list[Union[str, None]]  # NoQA: UP006, UP007
 
     C = Callable[[int], None]  # a generic alias not having a doccomment
 

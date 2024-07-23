@@ -52,11 +52,11 @@ class SearchLanguage:
        This class is used to preprocess search word which Sphinx HTML readers
        type, before searching index. Default implementation does nothing.
     """
-    lang: str | None = None
-    language_name: str | None = None
+    lang: str = ''
+    language_name: str = ''
     stopwords: set[str] = set()
     js_splitter_code: str = ""
-    js_stemmer_rawcode: str | None = None
+    js_stemmer_rawcode: str = ''
     js_stemmer_code = """
 /**
  * Dummy stemmer for languages without stemming rules.
@@ -198,7 +198,7 @@ def _is_meta_keywords(
 @dataclasses.dataclass
 class WordStore:
     words: list[str] = dataclasses.field(default_factory=list)
-    titles: list[tuple[str, str]] = dataclasses.field(default_factory=list)
+    titles: list[tuple[str, str | None]] = dataclasses.field(default_factory=list)
     title_words: list[str] = dataclasses.field(default_factory=list)
 
 
@@ -253,7 +253,7 @@ class IndexBuilder:
     def __init__(self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str) -> None:
         self.env = env
         # docname -> title
-        self._titles: dict[str, str] = env._search_index_titles
+        self._titles: dict[str, str | None] = env._search_index_titles
         # docname -> filename
         self._filenames: dict[str, str] = env._search_index_filenames
         # stemmed words -> set(docname)
@@ -261,7 +261,7 @@ class IndexBuilder:
         # stemmed words in titles -> set(docname)
         self._title_mapping: dict[str, set[str]] = env._search_index_title_mapping
         # docname -> all titles in document
-        self._all_titles: dict[str, list[tuple[str, str]]] = env._search_index_all_titles
+        self._all_titles: dict[str, list[tuple[str, str | None]]] = env._search_index_all_titles
         # docname -> list(index entry)
         self._index_entries: dict[str, list[tuple[str, str, str]]] = env._search_index_index_entries
         # objtype -> index
@@ -369,6 +369,13 @@ class IndexBuilder:
         return rv
 
     def get_terms(self, fn2index: dict[str, int]) -> tuple[dict[str, list[int] | int], dict[str, list[int] | int]]:
+        """
+        Return a mapping of document and title terms to their corresponding sorted document IDs.
+
+        When a term is only found within a single document, then the value for that term will be
+        an integer value.  When a term is found within multiple documents, the value will be a list
+        of integers.
+        """
         rvs: tuple[dict[str, list[int] | int], dict[str, list[int] | int]] = ({}, {})
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
             for k, v in mapping.items():
@@ -391,7 +398,7 @@ class IndexBuilder:
         objtypes = {v: k[0] + ':' + k[1] for (k, v) in self._objtypes.items()}
         objnames = self._objnames
 
-        alltitles: dict[str, list[tuple[int, str]]] = {}
+        alltitles: dict[str, list[tuple[int, str | None]]] = {}
         for docname, titlelist in sorted(self._all_titles.items()):
             for title, titleid in titlelist:
                 alltitles.setdefault(title, []).append((fn2index[docname], titleid))
@@ -480,7 +487,7 @@ class IndexBuilder:
         self._index_entries[docname] = sorted(_index_entries)
 
     def _word_collector(self, doctree: nodes.document) -> WordStore:
-        def _visit_nodes(node):
+        def _visit_nodes(node: nodes.Node) -> None:
             if isinstance(node, nodes.comment):
                 return
             elif isinstance(node, nodes.raw):
@@ -502,9 +509,10 @@ class IndexBuilder:
             elif isinstance(node, nodes.Text):
                 word_store.words.extend(split(node.astext()))
             elif isinstance(node, nodes.title):
-                title = node.astext()
+                title, is_main_title = node.astext(), len(word_store.titles) == 0
                 ids = node.parent['ids']
-                word_store.titles.append((title, ids[0] if ids else None))
+                title_node_id = None if is_main_title else ids[0] if ids else None
+                word_store.titles.append((title, title_node_id))
                 word_store.title_words.extend(split(title))
             for child in node.children:
                 _visit_nodes(child)

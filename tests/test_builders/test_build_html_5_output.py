@@ -1,16 +1,25 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
 
 import pytest
+from docutils import nodes
 
 from tests.test_builders.xpath_util import check_xpath
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from typing import Literal
+    from xml.etree.ElementTree import Element
 
-def tail_check(check):
+
+def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
     rex = re.compile(check)
 
-    def checker(nodes):
+    def checker(nodes: Iterable[Element]) -> Literal[True]:
         for node in nodes:
             if node.tail and rex.search(node.tail):
                 return True
@@ -25,6 +34,9 @@ def tail_check(check):
     ('images.html', ".//img[@src='_images/simg.png']", ''),
     ('images.html', ".//img[@src='_images/svgimg.svg']", ''),
     ('images.html', ".//a[@href='_sources/images.txt']", ''),
+    # Check svg options
+    ('images.html', ".//img[@src='_images/svgimg.svg'][@style='width: 2cm;']", ''),
+    ('images.html', ".//img[@src='_images/svgimg.svg'][@style='height: 2cm;']", ''),
 
     ('subdir/images.html', ".//img[@src='../_images/img1.png']", ''),
     ('subdir/images.html', ".//img[@src='../_images/rimg.png']", ''),
@@ -275,3 +287,29 @@ def tail_check(check):
 def test_html5_output(app, cached_etree_parse, fname, path, check):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check)
+
+
+@pytest.mark.sphinx('html', testroot='markup-rubric')
+def test_html5_rubric(app):
+    def insert_invalid_rubric_heading_level(app, doctree, docname):
+        if docname != 'index':
+            return
+        new_node = nodes.rubric('', 'INSERTED RUBRIC')
+        new_node['heading-level'] = 7
+        doctree[0].append(new_node)
+
+    app.connect('doctree-resolved', insert_invalid_rubric_heading_level)
+    app.build()
+
+    warnings = app.warning.getvalue()
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<p class="rubric">This is a rubric</p>' in content
+    assert '<h2 class="myclass rubric">A rubric with a heading level 2</h2>' in content
+
+    # directive warning
+    assert '"7" unknown' in warnings
+
+    # html writer warning
+    assert 'WARNING: unsupported rubric heading level: 7' in warnings
+    assert '</h7>' not in content
+    assert '<p class="rubric">INSERTED RUBRIC</p>' in content

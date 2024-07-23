@@ -1,6 +1,9 @@
 """Tests util.utils functions."""
 
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -11,6 +14,9 @@ from sphinx.util.docutils import (
     new_document,
     register_node,
 )
+
+if TYPE_CHECKING:
+    from sphinx.builders import Builder
 
 
 def test_register_node():
@@ -66,9 +72,9 @@ def test_SphinxTranslator(app):
         pass
 
     class MyTranslator(SphinxTranslator):
-        def __init__(self, *args):
-            self.called = []
-            super().__init__(*args)
+        def __init__(self, document: nodes.document, builder: Builder):
+            self.called: list[str] = []
+            super().__init__(document, builder)
 
         def visit_document(self, node):
             pass

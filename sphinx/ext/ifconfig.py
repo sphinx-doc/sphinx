@@ -22,7 +22,6 @@ from docutils import nodes
 
 import sphinx
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import nested_parse_with_titles
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
@@ -48,7 +47,7 @@ class IfConfig(SphinxDirective):
         node.document = self.state.document
         self.set_source_info(node)
         node['expr'] = self.arguments[0]
-        nested_parse_with_titles(self.state, self.content, node, self.content_offset)
+        node += self.parse_content_to_nodes(allow_section_headings=True)
         return [node]
 
 

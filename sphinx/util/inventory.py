@@ -4,15 +4,16 @@ from __future__ import annotations
 import os
 import re
 import zlib
-from typing import IO, TYPE_CHECKING, Callable
+from typing import IO, TYPE_CHECKING
 
+from sphinx.locale import __
 from sphinx.util import logging
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -125,6 +126,9 @@ class InventoryFile:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
+        # definition -> priority, location, display name
+        potential_ambiguities: dict[str, tuple[str, str, str]] = {}
+        actual_ambiguities = set()
         line = stream.readline()
         if 'zlib' not in line:
             raise ValueError('invalid inventory header (not compressed): %s' % line)
@@ -147,11 +151,29 @@ class InventoryFile:
                 # for Python modules, and the first
                 # one is correct
                 continue
+            if type in {'std:label', 'std:term'}:
+                # Some types require case insensitive matches:
+                # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
+                # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
+                definition = f"{type}:{name}"
+                content = prio, location, dispname
+                lowercase_definition = definition.lower()
+                if lowercase_definition in potential_ambiguities:
+                    if potential_ambiguities[lowercase_definition] != content:
+                        actual_ambiguities.add(definition)
+                    else:
+                        logger.debug(__("inventory <%s> contains duplicate definitions of %s"),
+                                     uri, definition, type='intersphinx',  subtype='external')
+                else:
+                    potential_ambiguities[lowercase_definition] = content
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
             inv_item: InventoryItem = projname, version, location, dispname
             invdata.setdefault(type, {})[name] = inv_item
+        for ambiguity in actual_ambiguities:
+            logger.info(__("inventory <%s> contains multiple definitions for %s"),
+                        uri, ambiguity, type='intersphinx',  subtype='external')
         return invdata
 
     @classmethod

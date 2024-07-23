@@ -1,12 +1,20 @@
 """Test sphinx.ext.viewcode extension."""
 
+from __future__ import annotations
+
 import re
 import shutil
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from io import StringIO
 
-def check_viewcode_output(app, warning):
+    from sphinx.application import Sphinx
+
+
+def check_viewcode_output(app: Sphinx, warning: StringIO) -> str:
     warnings = re.sub(r'\\+', '/', warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
@@ -42,6 +50,7 @@ def check_viewcode_output(app, warning):
 
 @pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
                     confoverrides={"viewcode_line_numbers": True})
+@pytest.mark.usefixtures("rollback_sysmodules")
 def test_viewcode_linenos(app, warning):
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
     app.build(force_all=True)
@@ -52,6 +61,7 @@ def test_viewcode_linenos(app, warning):
 
 @pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
                     confoverrides={"viewcode_line_numbers": False})
+@pytest.mark.usefixtures("rollback_sysmodules")
 def test_viewcode(app, warning):
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
     app.build(force_all=True)
@@ -61,6 +71,7 @@ def test_viewcode(app, warning):
 
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
+@pytest.mark.usefixtures("rollback_sysmodules")
 def test_viewcode_epub_default(app, status, warning):
     shutil.rmtree(app.outdir)
     app.build(force_all=True)
@@ -73,6 +84,7 @@ def test_viewcode_epub_default(app, status, warning):
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode',
                     confoverrides={'viewcode_enable_epub': True})
+@pytest.mark.usefixtures("rollback_sysmodules")
 def test_viewcode_epub_enabled(app, status, warning):
     app.build(force_all=True)
 

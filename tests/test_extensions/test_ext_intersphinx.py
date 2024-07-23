@@ -1,6 +1,9 @@
 """Test the intersphinx extension."""
 
+from __future__ import annotations
+
 import http.server
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -8,19 +11,32 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx import (
     fetch_inventory,
     inspect_main,
     load_mappings,
     missing_reference,
-    normalize_intersphinx_mapping,
+    validate_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx._load import _get_safe_url, _strip_basic_auth
 from sphinx.util.console import strip_colors
 
-from tests.test_util.intersphinx_data import INVENTORY_V2, INVENTORY_V2_NO_VERSION
+from tests.test_util.intersphinx_data import (
+    INVENTORY_V2,
+    INVENTORY_V2_AMBIGUOUS_TERMS,
+    INVENTORY_V2_NO_VERSION,
+)
 from tests.utils import http_server
+
+if TYPE_CHECKING:
+    from typing import NoReturn
+
+
+class FakeList(list):
+    def __iter__(self) -> NoReturn:
+        raise NotImplementedError
 
 
 def fake_node(domain, type, target, content, **attrs):
@@ -40,7 +56,8 @@ def reference_check(app, *args, **kwds):
 
 
 def set_config(app, mapping):
-    app.config.intersphinx_mapping = mapping
+    # copy *mapping* so that normalization does not alter it
+    app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
 
@@ -93,14 +110,14 @@ def test_missing_reference(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
         'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
         'py3krel': ('py3k', str(inv_file)),  # relative path
         'py3krelparent': ('../../py3k', str(inv_file)),  # relative path, parent dir
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
     inv = app.env.intersphinx_inventory
 
@@ -171,11 +188,11 @@ def test_missing_reference_pydomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -205,7 +222,7 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -247,16 +264,34 @@ def test_missing_reference_stddomain(tmp_path, app, status, warning):
     assert rn.astext() == 'The Julia Domain'
 
 
+def test_ambiguous_reference_warning(tmp_path, app, warning):
+    inv_file = tmp_path / 'inventory'
+    inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
+    set_config(app, {
+        'cmd': ('https://docs.python.org/', str(inv_file)),
+    })
+
+    # load the inventory
+    validate_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    # term reference (case insensitive)
+    node, contnode = fake_node('std', 'term', 'A TERM', 'A TERM')
+    missing_reference(app, app.env, node, contnode)
+
+    assert 'multiple matches found for std:term:A TERM' in warning.getvalue()
+
+
 @pytest.mark.sphinx('html', testroot='ext-intersphinx-cppdomain')
 def test_missing_reference_cppdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build()
@@ -278,11 +313,11 @@ def test_missing_reference_jsdomain(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     # no context data
@@ -306,7 +341,7 @@ def test_missing_reference_disabled_domain(tmp_path, app, status, warning):
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     def case(*, term, doc, py):
@@ -364,11 +399,11 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_NO_VERSION)
     set_config(app, {
-        'https://docs.python.org/': str(inv_file),
+        'python': ('https://docs.python.org/', str(inv_file)),
     })
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     rn = reference_check(app, 'py', 'mod', 'module1', 'foo')
@@ -378,29 +413,59 @@ def test_inventory_not_having_version(tmp_path, app, status, warning):
     assert rn[0].astext() == 'Long Module desc'
 
 
-def test_load_mappings_warnings(tmp_path, app, status, warning):
-    """
-    load_mappings issues a warning if new-style mapping
-    identifiers are not string
-    """
-    inv_file = tmp_path / 'inventory'
-    inv_file.write_bytes(INVENTORY_V2)
-    set_config(app, {
-        'https://docs.python.org/': str(inv_file),
-        'py3k': ('https://docs.python.org/py3k/', str(inv_file)),
-        'repoze.workflow': ('https://docs.repoze.org/workflow/', str(inv_file)),
-        'django-taggit': ('https://django-taggit.readthedocs.org/en/latest/',
-                          str(inv_file)),
-        12345: ('https://www.sphinx-doc.org/en/stable/', str(inv_file)),
-    })
+def test_validate_intersphinx_mapping_warnings(app, warning):
+    """Check warnings in :func:`sphinx.ext.intersphinx.validate_intersphinx_mapping`."""
+    bad_intersphinx_mapping = {
+        # fmt: off
+        '':                 ('789.example', None),     # invalid project name (value)
+        12345:              ('456.example', None),     # invalid project name (type)
+        None:               ('123.example', None),     # invalid project name (type)
+        'https://example/': None,                      # Sphinx 0.5 style value (None)
+        'https://server/':  'inventory',               # Sphinx 0.5 style value (str)
+        'bad-dict-item':    0,                         # invalid dict item type
+        'unpack-except-1':  [0],                       # invalid dict item size (native ValueError)
+        'unpack-except-2':  FakeList(),                # invalid dict item size (custom exception)
+        'bad-uri-type-1':   (123456789, None),         # invalid target URI type
+        'bad-uri-type-2':   (None, None),              # invalid target URI type
+        'bad-uri-value':    ('', None),                # invalid target URI value
+        'good':             ('example.org', None),     # duplicated target URI (good entry)
+        'dedup-good':       ('example.org', None),     # duplicated target URI
+        'bad-location-1':   ('a.example', 1),          # invalid inventory location (single input, bad type)
+        'bad-location-2':   ('b.example', ''),         # invalid inventory location (single input, bad string)
+        'bad-location-3':   ('c.example', [2, 'x']),   # invalid inventory location (sequence input, bad type)
+        'bad-location-4':   ('d.example', ['y', '']),  # invalid inventory location (sequence input, bad string)
+        'good-target-1':    ('e.example', None),       # valid inventory location (None)
+        'good-target-2':    ('f.example', ('x',)),     # valid inventory location (sequence input)
+        # fmt: on
+    }
+    set_config(app, bad_intersphinx_mapping)
 
-    # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
-    load_mappings(app)
-    warnings = warning.getvalue().splitlines()
-    assert len(warnings) == 2
-    assert "The pre-Sphinx 1.0 'intersphinx_mapping' format is " in warnings[0]
-    assert 'intersphinx identifier 12345 is not string. Ignored' in warnings[1]
+    # normalise the inventory and check if it's done correctly
+    with pytest.raises(
+        ConfigError,
+        match=r'^Invalid `intersphinx_mapping` configuration \(16 errors\).$',
+    ):
+        validate_intersphinx_mapping(app, app.config)
+    warnings = strip_colors(warning.getvalue()).splitlines()
+    assert len(warnings) == len(bad_intersphinx_mapping) - 3
+    assert warnings == [
+        "ERROR: Invalid intersphinx project identifier `''` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid intersphinx project identifier `12345` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid intersphinx project identifier `None` in intersphinx_mapping. Project identifiers must be non-empty strings.",
+        "ERROR: Invalid value `None` in intersphinx_mapping['https://example/']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `'inventory'` in intersphinx_mapping['https://server/']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `0` in intersphinx_mapping['bad-dict-item']. Expected a two-element tuple or list.",
+        "ERROR: Invalid value `[0]` in intersphinx_mapping['unpack-except-1']. Values must be a (target URI, inventory locations) pair.",
+        "ERROR: Invalid value `[]` in intersphinx_mapping['unpack-except-2']. Values must be a (target URI, inventory locations) pair.",
+        "ERROR: Invalid target URI value `123456789` in intersphinx_mapping['bad-uri-type-1'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `None` in intersphinx_mapping['bad-uri-type-2'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `''` in intersphinx_mapping['bad-uri-value'][0]. Target URIs must be unique non-empty strings.",
+        "ERROR: Invalid target URI value `'example.org'` in intersphinx_mapping['dedup-good'][0]. Target URIs must be unique (other instance in intersphinx_mapping['good']).",
+        "ERROR: Invalid inventory location value `1` in intersphinx_mapping['bad-location-1'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `''` in intersphinx_mapping['bad-location-2'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `2` in intersphinx_mapping['bad-location-3'][1]. Inventory locations must be non-empty strings or None.",
+        "ERROR: Invalid inventory location value `''` in intersphinx_mapping['bad-location-4'][1]. Inventory locations must be non-empty strings or None."
+    ]
 
 
 def test_load_mappings_fallback(tmp_path, app, status, warning):
@@ -412,7 +477,7 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
     app.config.intersphinx_mapping = {
         'fallback': ('https://docs.python.org/py3k/', '/invalid/inventory/path'),
     }
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert "failed to reach any of the inventories" in warning.getvalue()
 
@@ -428,7 +493,7 @@ def test_load_mappings_fallback(tmp_path, app, status, warning):
         'fallback': ('https://docs.python.org/py3k/', ('/invalid/inventory/path',
                                                        str(inv_file))),
     }
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
     assert "encountered some issues with some of the inventories" in status.getvalue()
     assert warning.getvalue() == ""
@@ -545,7 +610,7 @@ def test_intersphinx_role(app, warning):
     app.config.nitpicky = True
 
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build()
@@ -553,14 +618,14 @@ def test_intersphinx_role(app, warning):
     warnings = strip_colors(warning.getvalue()).splitlines()
     index_path = app.srcdir / 'index.rst'
     assert warnings == [
-        f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope'",
-        f"{index_path}:28: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'nope'",
-        f"{index_path}:39: WARNING: inventory for external cross-reference not found: 'invNope'",
-        f"{index_path}:44: WARNING: role for external cross-reference not found in domain 'c': 'function' (perhaps you meant one of: 'func', 'identifier', 'type')",
-        f"{index_path}:45: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'function' (perhaps you meant one of: 'cpp:func', 'cpp:identifier', 'cpp:type')",
-        f'{index_path}:9: WARNING: external py:mod reference target not found: module3',
-        f'{index_path}:14: WARNING: external py:mod reference target not found: module10',
-        f'{index_path}:19: WARNING: external py:meth reference target not found: inv:Foo.bar',
+        f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope' [intersphinx.external]",
+        f"{index_path}:28: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'nope' [intersphinx.external]",
+        f"{index_path}:39: WARNING: inventory for external cross-reference not found: 'invNope' [intersphinx.external]",
+        f"{index_path}:44: WARNING: role for external cross-reference not found in domain 'c': 'function' (perhaps you meant one of: 'func', 'identifier', 'type') [intersphinx.external]",
+        f"{index_path}:45: WARNING: role for external cross-reference not found in domains 'cpp', 'std': 'function' (perhaps you meant one of: 'cpp:func', 'cpp:identifier', 'cpp:type') [intersphinx.external]",
+        f'{index_path}:9: WARNING: external py:mod reference target not found: module3 [ref.mod]',
+        f'{index_path}:14: WARNING: external py:mod reference target not found: module10 [ref.mod]',
+        f'{index_path}:19: WARNING: external py:meth reference target not found: inv:Foo.bar [ref.meth]',
     ]
 
     html = '<a class="reference external" href="https://example.org/{}" title="(in foo v2.0)">'
