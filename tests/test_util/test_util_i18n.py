@@ -38,7 +38,8 @@ def test_catalog_outdated(tmp_path):
     mo_file.write_text('#', encoding='utf8')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
-    os.utime(mo_file, (os.stat(mo_file).st_mtime - 10,) * 2)  # to be outdate
+    new_mtime = os.stat(mo_file).st_mtime_ns - 10_000_000_000
+    os.utime(mo_file, ns=(new_mtime, new_mtime))  # to be outdated
     assert cat.is_outdated()  # if mo is exist and older than po
 
 

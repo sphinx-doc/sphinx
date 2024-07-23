@@ -43,7 +43,7 @@ class TitleCollector(EnvironmentCollector):
         for node in doctree.findall(nodes.section):
             visitor = SphinxContentsFilter(doctree)
             node[0].walkabout(visitor)
-            titlenode += visitor.get_entry_text()
+            titlenode += visitor.get_entry_text()  # type: ignore[no-untyped-call]
             break
         else:
             # document has no title

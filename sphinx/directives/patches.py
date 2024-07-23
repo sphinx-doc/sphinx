@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Figure(images.Figure):
+class Figure(images.Figure):  # type: ignore[misc]
     """The figure directive which applies `:name:` option to the figure node
     instead of the image node.
     """
@@ -53,7 +53,7 @@ class Figure(images.Figure):
         return [figure_node]
 
 
-class CSVTable(tables.CSVTable):
+class CSVTable(tables.CSVTable):  # type: ignore[misc]
     """The csv-table directive which searches a CSV file from Sphinx project's source
     directory when an absolute path is given via :file: option.
     """

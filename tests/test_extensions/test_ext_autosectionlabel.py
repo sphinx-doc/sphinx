@@ -6,7 +6,7 @@ import pytest
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel')
-def test_autosectionlabel_html(app, status, warning, skipped_labels=False):
+def test_autosectionlabel_html(app, skipped_labels=False):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -44,13 +44,13 @@ def test_autosectionlabel_html(app, status, warning, skipped_labels=False):
 
 # Reuse test definition from above, just change the test root directory
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel-prefix-document')
-def test_autosectionlabel_prefix_document_html(app, status, warning):
-    test_autosectionlabel_html(app, status, warning)
+def test_autosectionlabel_prefix_document_html(app):
+    test_autosectionlabel_html(app)
 
 
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel',
                     confoverrides={'autosectionlabel_maxdepth': 3})
-def test_autosectionlabel_maxdepth(app, status, warning):
+def test_autosectionlabel_maxdepth(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -74,4 +74,4 @@ def test_autosectionlabel_maxdepth(app, status, warning):
     html = '<li><p><span class="xref std std-ref">Linux</span></p></li>'
     assert re.search(html, content, re.DOTALL)
 
-    assert "WARNING: undefined label: 'linux'" in warning.getvalue()
+    assert "WARNING: undefined label: 'linux'" in app.warning.getvalue()

@@ -26,7 +26,7 @@ from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, make_filename_from_project
+from sphinx.util.osutil import SEP, copyfile, make_filename_from_project
 from sphinx.util.template import LaTeXRenderer
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
@@ -411,20 +411,32 @@ class LaTeXBuilder(Builder):
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
-                copy_asset_file(path.join(staticdirname, filename),
-                                self.outdir, context=context)
+                copy_asset_file(
+                    path.join(staticdirname, filename),
+                    self.outdir,
+                    context=context,
+                    force=True,
+                )
 
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
             staticdirname = path.join(package_dir, 'texinputs_win')
-            copy_asset_file(path.join(staticdirname, 'Makefile.jinja'),
-                            self.outdir, context=context)
+            copy_asset_file(
+                path.join(staticdirname, 'Makefile.jinja'),
+                self.outdir,
+                context=context,
+                force=True,
+            )
 
     @progress_message(__('copying additional files'))
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
             logger.info(' ' + filename, nonl=True)
-            copy_asset_file(path.join(self.confdir, filename), self.outdir)
+            copyfile(
+                self.confdir / filename,
+                self.outdir,
+                force=True,
+            )
 
     def copy_image_files(self) -> None:
         if self.images:
@@ -434,15 +446,22 @@ class LaTeXBuilder(Builder):
                                        stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
-                    copy_asset_file(path.join(self.srcdir, src),
-                                    path.join(self.outdir, dest))
+                    copyfile(
+                        self.srcdir / src,
+                        self.outdir / dest,
+                        force=True,
+                    )
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
         if self.config.latex_logo:
             if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
                 raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
-            copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
+            copyfile(
+                self.confdir / self.config.latex_logo,
+                self.outdir,
+                force=True,
+            )
 
     def write_message_catalog(self) -> None:
         formats = self.config.numfig_format
@@ -457,7 +476,13 @@ class LaTeXBuilder(Builder):
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
         filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja')
-        copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
+        copy_asset_file(
+            filename,
+            self.outdir,
+            context=context,
+            renderer=LaTeXRenderer(),
+            force=True,
+        )
 
 
 def validate_config_values(app: Sphinx, config: Config) -> None:

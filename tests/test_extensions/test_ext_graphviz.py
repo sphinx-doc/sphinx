@@ -10,7 +10,7 @@ from sphinx.ext.graphviz import ClickableMapDefinition
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_png_html(app, status, warning):
+def test_graphviz_png_html(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -43,7 +43,7 @@ def test_graphviz_png_html(app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-graphviz',
                     confoverrides={'graphviz_output_format': 'svg'})
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_svg_html(app, status, warning):
+def test_graphviz_svg_html(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -102,7 +102,7 @@ def test_graphviz_svg_html(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_latex(app, status, warning):
+def test_graphviz_latex(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -128,7 +128,7 @@ def test_graphviz_latex(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_graphviz_i18n(app, status, warning):
+def test_graphviz_i18n(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')

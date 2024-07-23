@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
-class XMLWriter(BaseXMLWriter):
+class XMLWriter(BaseXMLWriter):  # type: ignore[misc]
     output: str
 
     def __init__(self, builder: Builder) -> None:
@@ -29,7 +29,7 @@ class XMLWriter(BaseXMLWriter):
         return super().translate()
 
 
-class PseudoXMLWriter(BaseXMLWriter):
+class PseudoXMLWriter(BaseXMLWriter):  # type: ignore[misc]
 
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""

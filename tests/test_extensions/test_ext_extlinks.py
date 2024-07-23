@@ -3,15 +3,15 @@ import pytest
 
 @pytest.mark.sphinx('html', testroot='ext-extlinks-hardcoded-urls',
                     confoverrides={'extlinks_detect_hardcoded_links': False})
-def test_extlinks_detect_candidates(app, warning):
+def test_extlinks_detect_candidates(app):
     app.build()
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('html', testroot='ext-extlinks-hardcoded-urls')
-def test_replaceable_uris_emit_extlinks_warnings(app, warning):
+def test_replaceable_uris_emit_extlinks_warnings(app):
     app.build()
-    warning_output = warning.getvalue()
+    warning_output = app.warning.getvalue()
 
     # there should be exactly three warnings for replaceable URLs
     message = (
@@ -24,9 +24,9 @@ def test_replaceable_uris_emit_extlinks_warnings(app, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-extlinks-hardcoded-urls-multiple-replacements')
-def test_all_replacements_suggested_if_multiple_replacements_possible(app, warning):
+def test_all_replacements_suggested_if_multiple_replacements_possible(app):
     app.build()
-    warning_output = warning.getvalue()
+    warning_output = app.warning.getvalue()
     # there should be six warnings for replaceable URLs, three pairs per link
     assert warning_output.count("WARNING: hardcoded link") == 6
     message = (

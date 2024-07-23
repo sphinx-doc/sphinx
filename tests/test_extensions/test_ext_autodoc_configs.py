@@ -608,14 +608,14 @@ def test_autoclass_content_and_docstring_signature_both(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_mocked_module_imports(app, warning):
+def test_mocked_module_imports(app):
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
     # no autodoc_mock_imports
     options = {"members": 'TestAutodoc,decoratedFunction,func,Alias'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == []
-    assert "autodoc: failed to import module 'need_mocks'" in warning.getvalue()
+    assert "autodoc: failed to import module 'need_mocks'" in app.warning.getvalue()
 
     # with autodoc_mock_imports
     app.config.autodoc_mock_imports = [
@@ -626,7 +626,7 @@ def test_mocked_module_imports(app, warning):
         'sphinx.missing_module4',
     ]
 
-    warning.truncate(0)
+    app.warning.truncate(0)
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == [
         '',
@@ -669,7 +669,7 @@ def test_mocked_module_imports(app, warning):
         '   a function takes mocked object as an argument',
         '',
     ]
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc',

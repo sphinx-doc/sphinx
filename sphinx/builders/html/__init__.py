@@ -9,10 +9,10 @@ import os
 import posixpath
 import re
 import sys
-import time
 import types
 import warnings
 from os import path
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any
 from urllib.parse import quote
 
@@ -39,18 +39,27 @@ from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging
+from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
-from sphinx.util.osutil import SEP, copyfile, ensuredir, os_path, relative_uri
+from sphinx.util.osutil import (
+    SEP,
+    _last_modified_time,
+    copyfile,
+    ensuredir,
+    os_path,
+    relative_uri,
+)
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
+    from typing import TypeAlias
 
     from docutils.nodes import Node
     from docutils.readers import Reader
@@ -67,7 +76,7 @@ INVENTORY_FILENAME = 'objects.inv'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
-DOMAIN_INDEX_TYPE = tuple[
+DOMAIN_INDEX_TYPE: TypeAlias = tuple[
     # Index name (e.g. py-modindex)
     str,
     # Index class
@@ -395,7 +404,7 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         if self.templates:
-            template_mtime = self.templates.newest_template_mtime()
+            template_mtime = int(self.templates.newest_template_mtime() * 10**6)
         else:
             template_mtime = 0
         for docname in self.env.found_docs:
@@ -405,19 +414,19 @@ class StandaloneHTMLBuilder(Builder):
                 continue
             targetname = self.get_outfilename(docname)
             try:
-                targetmtime = path.getmtime(targetname)
+                targetmtime = _last_modified_time(targetname)
             except Exception:
                 targetmtime = 0
             try:
-                srcmtime = max(path.getmtime(self.env.doc2path(docname)), template_mtime)
+                srcmtime = max(_last_modified_time(self.env.doc2path(docname)), template_mtime)
                 if srcmtime > targetmtime:
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        _format_modified_time(targetmtime),
-                        _format_modified_time(template_mtime),
+                        _format_rfc3339_microseconds(targetmtime),
+                        _format_rfc3339_microseconds(template_mtime),
                         docname,
-                        _format_modified_time(path.getmtime(self.env.doc2path(docname))),
+                        _format_rfc3339_microseconds(_last_modified_time(self.env.doc2path(docname))),
                     )
                     yield docname
             except OSError:
@@ -609,7 +618,7 @@ class StandaloneHTMLBuilder(Builder):
         title = self.render_partial(title_node)['title'] if title_node else ''
 
         # Suffix for the document
-        source_suffix = self.env.doc2path(docname, False)[len(docname):]
+        source_suffix = str(self.env.doc2path(docname, False))[len(docname):]
 
         # the name for the copied source
         if self.config.html_copy_source:
@@ -755,17 +764,20 @@ class StandaloneHTMLBuilder(Builder):
     def copy_image_files(self) -> None:
         if self.images:
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
-            ensuredir(path.join(self.outdir, self.imagedir))
+            ensuredir(self.outdir / self.imagedir)
             for src in status_iterator(self.images, __('copying images... '), "brown",
                                        len(self.images), self.app.verbosity,
                                        stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
-                    copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, self.imagedir, dest))
+                    copyfile(
+                        self.srcdir / src,
+                        self.outdir / self.imagedir / dest,
+                        force=True,
+                    )
                 except Exception as err:
-                    logger.warning(__('cannot copy image file %r: %s'),
-                                   path.join(self.srcdir, src), err)
+                    logger.warning(__("cannot copy image file '%s': %s"),
+                                   self.srcdir / src, err)
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
@@ -773,17 +785,17 @@ class StandaloneHTMLBuilder(Builder):
 
         # copy downloadable files
         if self.env.dlfiles:
-            ensuredir(path.join(self.outdir, '_downloads'))
+            ensuredir(self.outdir / '_downloads')
             for src in status_iterator(self.env.dlfiles, __('copying downloadable files... '),
                                        "brown", len(self.env.dlfiles), self.app.verbosity,
                                        stringify_func=to_relpath):
                 try:
-                    dest = path.join(self.outdir, '_downloads', self.env.dlfiles[src][1])
-                    ensuredir(path.dirname(dest))
-                    copyfile(path.join(self.srcdir, src), dest)
+                    dest = self.outdir / '_downloads' / self.env.dlfiles[src][1]
+                    ensuredir(dest.parent)
+                    copyfile(self.srcdir / src, dest, force=True)
                 except OSError as err:
                     logger.warning(__('cannot copy downloadable file %r: %s'),
-                                   path.join(self.srcdir, src), err)
+                                   self.srcdir / src, err)
 
     def create_pygments_style_file(self) -> None:
         """Create a style file for pygments."""
@@ -800,18 +812,30 @@ class StandaloneHTMLBuilder(Builder):
         """Copy a JavaScript file for translations."""
         jsfile = self._get_translations_js()
         if jsfile:
-            copyfile(jsfile, path.join(self.outdir, '_static', 'translations.js'))
+            copyfile(
+                jsfile,
+                self.outdir / '_static' / 'translations.js',
+                force=True,
+            )
 
     def copy_stemmer_js(self) -> None:
         """Copy a JavaScript file for stemmer."""
         if self.indexer is not None:
             if hasattr(self.indexer, 'get_js_stemmer_rawcodes'):
                 for jsfile in self.indexer.get_js_stemmer_rawcodes():
-                    copyfile(jsfile, path.join(self.outdir, '_static', path.basename(jsfile)))
+                    js_path = Path(jsfile)
+                    copyfile(
+                        js_path,
+                        self.outdir / '_static' / js_path.name,
+                        force=True,
+                    )
             else:
                 if js_stemmer_rawcode := self.indexer.get_js_stemmer_rawcode():
-                    copyfile(js_stemmer_rawcode,
-                             path.join(self.outdir, '_static', '_stemmer.js'))
+                    copyfile(
+                        js_stemmer_rawcode,
+                        self.outdir / '_static' / '_stemmer.js',
+                        force=True,
+                    )
 
     def copy_theme_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
@@ -820,10 +844,13 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.theme:
             for entry in reversed(self.theme.get_theme_dirs()):
-                copy_asset(path.join(entry, 'static'),
-                           path.join(self.outdir, '_static'),
-                           excluded=DOTFILES, context=context,
-                           renderer=self.templates, onerror=onerror)
+                copy_asset(
+                    Path(entry) / 'static',
+                    self.outdir / '_static',
+                    excluded=DOTFILES, context=context,
+                    renderer=self.templates, onerror=onerror,
+                    force=True,
+                )
 
     def copy_html_static_files(self, context: dict[str, Any]) -> None:
         def onerror(filename: str, error: Exception) -> None:
@@ -832,24 +859,36 @@ class StandaloneHTMLBuilder(Builder):
 
         excluded = Matcher([*self.config.exclude_patterns, '**/.*'])
         for entry in self.config.html_static_path:
-            copy_asset(path.join(self.confdir, entry),
-                       path.join(self.outdir, '_static'),
-                       excluded, context=context, renderer=self.templates, onerror=onerror)
+            copy_asset(
+                self.confdir / entry,
+                self.outdir / '_static',
+                excluded=excluded, context=context,
+                renderer=self.templates, onerror=onerror,
+                force=True,
+            )
 
     def copy_html_logo(self) -> None:
         if self.config.html_logo and not isurl(self.config.html_logo):
-            copy_asset(path.join(self.confdir, self.config.html_logo),
-                       path.join(self.outdir, '_static'))
+            source_path = self.confdir / self.config.html_logo
+            copyfile(
+                source_path,
+                self.outdir / '_static' / source_path.name,
+                force=True,
+            )
 
     def copy_html_favicon(self) -> None:
         if self.config.html_favicon and not isurl(self.config.html_favicon):
-            copy_asset(path.join(self.confdir, self.config.html_favicon),
-                       path.join(self.outdir, '_static'))
+            source_path = self.confdir / self.config.html_favicon
+            copyfile(
+                source_path,
+                self.outdir / '_static' / source_path.name,
+                force=True,
+            )
 
     def copy_static_files(self) -> None:
         try:
             with progress_message(__('copying static files')):
-                ensuredir(path.join(self.outdir, '_static'))
+                ensuredir(self.outdir / '_static')
 
                 # prepare context for templates
                 context = self.globalcontext.copy()
@@ -872,8 +911,12 @@ class StandaloneHTMLBuilder(Builder):
             with progress_message(__('copying extra files')):
                 excluded = Matcher(self.config.exclude_patterns)
                 for extra_path in self.config.html_extra_path:
-                    entry = path.join(self.confdir, extra_path)
-                    copy_asset(entry, self.outdir, excluded)
+                    copy_asset(
+                        self.confdir / extra_path,
+                        self.outdir,
+                        excluded=excluded,
+                        force=True,
+                    )
         except OSError as err:
             logger.warning(__('cannot copy extra file %r'), err)
 
@@ -940,7 +983,7 @@ class StandaloneHTMLBuilder(Builder):
     def index_page(self, pagename: str, doctree: nodes.document, title: str) -> None:
         # only index pages with title
         if self.indexer is not None and title:
-            filename = self.env.doc2path(pagename, base=False)
+            filename = str(self.env.doc2path(pagename, base=False))
             metadata = self.env.metadata.get(pagename, {})
             if 'no-search' in metadata or 'nosearch' in metadata:
                 self.indexer.feed(pagename, filename, '', new_document(''))
@@ -1186,12 +1229,6 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 continue
 
     config.html_css_files = html_css_files
-
-
-def _format_modified_time(timestamp: float) -> str:
-    """Return an RFC 3339 formatted string representing the given timestamp."""
-    seconds, fraction = divmod(timestamp, 1)
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction:.3f}'
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:

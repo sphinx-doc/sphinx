@@ -415,7 +415,7 @@ def test_py_type_alias(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-py', freshenv=True)
-def test_domain_py_type_alias(app, status, warning):
+def test_domain_py_type_alias(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'type_alias.html').read_text(encoding='utf8')
@@ -430,7 +430,7 @@ def test_domain_py_type_alias(app, status, warning):
             '<a class="reference internal" href="#module_two.SomeClass" title="module_two.SomeClass">'
             '<span class="pre">module_two.SomeClass</span></a>'
             '<span class="p"><span class="pre">]</span></span></em>' in content)
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
 
 
 def test_pydecorator_signature(app):

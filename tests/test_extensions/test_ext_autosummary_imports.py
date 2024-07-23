@@ -10,7 +10,7 @@ from sphinx.testing.util import assert_node
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-import_cycle')
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_autosummary_import_cycle(app, warning):
+def test_autosummary_import_cycle(app):
     app.build()
 
     doctree = app.env.get_doctree('index')
@@ -42,7 +42,7 @@ def test_autosummary_import_cycle(app, warning):
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_prefix')
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_autosummary_generate_prefixes(app, warning):
+def test_autosummary_generate_prefixes(app):
     app.build()
     warnings = app.warning.getvalue()
     assert 'Summarised items should not include the current module.' not in warnings

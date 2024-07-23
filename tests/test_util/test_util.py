@@ -6,7 +6,8 @@ import tempfile
 import pytest
 
 from sphinx.errors import ExtensionError
-from sphinx.util import encode_uri, ensuredir, import_object, parselinenos
+from sphinx.util import encode_uri, import_object, parselinenos
+from sphinx.util.osutil import ensuredir
 
 
 def test_encode_uri():

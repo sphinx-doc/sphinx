@@ -8,6 +8,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import TypeAlias
 
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
     InventoryLocation = str | None
 
     #: Inventory cache entry. The integer field is the cache expiration time.
-    InventoryCacheEntry = tuple[InventoryName, int, Inventory]
+    InventoryCacheEntry: TypeAlias = tuple[InventoryName, int, Inventory]
 
     #: The type of :confval:`intersphinx_mapping` *after* normalisation.
     IntersphinxMapping = dict[

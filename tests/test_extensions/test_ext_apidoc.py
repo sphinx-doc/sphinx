@@ -678,7 +678,7 @@ def test_remove_old_files(tmp_path: Path):
     (gen_dir / 'other.rst').write_text('', encoding='utf8')
     apidoc_main(['-o', str(gen_dir), str(module_dir)])
     assert set(gen_dir.iterdir()) == {gen_dir / 'modules.rst', gen_dir / 'example.rst', gen_dir / 'other.rst'}
-    example_mtime = (gen_dir / 'example.rst').stat().st_mtime
+    example_mtime = (gen_dir / 'example.rst').stat().st_mtime_ns
     apidoc_main(['--remove-old', '-o', str(gen_dir), str(module_dir)])
     assert set(gen_dir.iterdir()) == {gen_dir / 'modules.rst', gen_dir / 'example.rst'}
-    assert (gen_dir / 'example.rst').stat().st_mtime == example_mtime
+    assert (gen_dir / 'example.rst').stat().st_mtime_ns == example_mtime

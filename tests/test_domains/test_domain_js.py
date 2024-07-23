@@ -26,7 +26,7 @@ from sphinx.writers.text import STDINDENT
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_xrefs(app, status, warning):
+def test_domain_js_xrefs(app):
     """Domain objects have correct prefixes when looking up xrefs"""
     app.build(force_all=True)
 
@@ -82,7 +82,7 @@ def test_domain_js_xrefs(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_objects(app, status, warning):
+def test_domain_js_objects(app):
     app.build(force_all=True)
 
     modules = app.env.domains['js'].data['modules']
@@ -112,7 +112,7 @@ def test_domain_js_objects(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
-def test_domain_js_find_obj(app, status, warning):
+def test_domain_js_find_obj(app):
 
     def find_obj(mod_name, prefix, obj_name, obj_type, searchmode=0):
         return app.env.domains['js'].find_obj(
@@ -410,7 +410,7 @@ def test_javascript_maximum_signature_line_length_overrides_global(app):
 @pytest.mark.sphinx(
     'html', testroot='domain-js-javascript_maximum_signature_line_length',
 )
-def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status, warning):
+def test_domain_js_javascript_maximum_signature_line_length_in_html(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected_parameter_list_hello = """\
@@ -472,7 +472,7 @@ def test_domain_js_javascript_maximum_signature_line_length_in_html(app, status,
 @pytest.mark.sphinx(
     'text', testroot='domain-js-javascript_maximum_signature_line_length',
 )
-def test_domain_js_javascript_maximum_signature_line_length_in_text(app, status, warning):
+def test_domain_js_javascript_maximum_signature_line_length_in_text(app):
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * " " + "{}\n"

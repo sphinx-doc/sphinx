@@ -2552,7 +2552,7 @@ definition_after_normal_text : int
         actual = str(NumpyDocstring(docstring, config))
         assert expected == actual
 
-    def test_token_type_invalid(self, warning):
+    def test_token_type_invalid(self, app):
         tokens = (
             "{1, 2",
             "}",
@@ -2573,12 +2573,12 @@ definition_after_normal_text : int
             try:
                 _token_type(token)
             finally:
-                raw_warnings = warning.getvalue()
+                raw_warnings = app.warning.getvalue()
                 warnings = [w for w in raw_warnings.split("\n") if w.strip()]
 
                 assert len(warnings) == 1
                 assert re.compile(error).match(warnings[0])
-                warning.truncate(0)
+                app.warning.truncate(0)
 
     @pytest.mark.parametrize(
         ("name", "expected"),
@@ -2623,7 +2623,7 @@ Sample class with PEP 526 annotations and numpy docstring
 @pytest.mark.sphinx('text', testroot='ext-napoleon',
                     confoverrides={'autodoc_typehints': 'description',
                                    'autodoc_typehints_description_target': 'all'})
-def test_napoleon_and_autodoc_typehints_description_all(app, status, warning):
+def test_napoleon_and_autodoc_typehints_description_all(app):
     app.build()
     content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
     assert content == (
@@ -2647,7 +2647,7 @@ def test_napoleon_and_autodoc_typehints_description_all(app, status, warning):
 @pytest.mark.sphinx('text', testroot='ext-napoleon',
                     confoverrides={'autodoc_typehints': 'description',
                                    'autodoc_typehints_description_target': 'documented_params'})
-def test_napoleon_and_autodoc_typehints_description_documented_params(app, status, warning):
+def test_napoleon_and_autodoc_typehints_description_documented_params(app):
     app.build()
     content = (app.outdir / 'typehints.txt').read_text(encoding='utf-8')
     assert content == (

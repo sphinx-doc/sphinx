@@ -21,7 +21,7 @@ def _if_converter_found(app):
 
 @pytest.mark.usefixtures('_if_converter_found')
 @pytest.mark.sphinx('latex', testroot='ext-imgconverter')
-def test_ext_imgconverter(app, status, warning):
+def test_ext_imgconverter(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
