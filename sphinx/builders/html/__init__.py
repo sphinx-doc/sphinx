@@ -611,7 +611,7 @@ class StandaloneHTMLBuilder(Builder):
         title = self.render_partial(title_node)['title'] if title_node else ''
 
         # Suffix for the document
-        source_suffix = self.env.doc2path(docname, False)[len(docname):]
+        source_suffix = str(self.env.doc2path(docname, False))[len(docname):]
 
         # the name for the copied source
         if self.config.html_copy_source:
@@ -976,7 +976,7 @@ class StandaloneHTMLBuilder(Builder):
     def index_page(self, pagename: str, doctree: nodes.document, title: str) -> None:
         # only index pages with title
         if self.indexer is not None and title:
-            filename = self.env.doc2path(pagename, base=False)
+            filename = str(self.env.doc2path(pagename, base=False))
             metadata = self.env.metadata.get(pagename, {})
             if 'no-search' in metadata or 'nosearch' in metadata:
                 self.indexer.feed(pagename, filename, '', new_document(''))

@@ -145,7 +145,7 @@ class TocTree(SphinxDirective):
                 continue
 
             if docname not in frozen_all_docnames:
-                if excluded(self.env.doc2path(docname, False)):
+                if excluded(str(self.env.doc2path(docname, False))):
                     message = __('toctree contains reference to excluded document %r')
                     subtype = 'excluded'
                 else:

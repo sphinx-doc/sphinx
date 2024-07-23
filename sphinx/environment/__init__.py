@@ -413,13 +413,13 @@ class BuildEnvironment:
         """
         return self.project.path2doc(filename)
 
-    def doc2path(self, docname: str, base: bool = True) -> str:
+    def doc2path(self, docname: str, base: bool = True) -> Path:
         """Return the filename for the document name.
 
         If *base* is True, return absolute path under self.srcdir.
         If *base* is False, return relative path to self.srcdir.
         """
-        return self.project.doc2path(docname, base)
+        return self.project.doc2path(docname, absolute=base)
 
     def relfn2path(self, filename: str, docname: str | None = None) -> tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
@@ -628,7 +628,7 @@ class BuildEnvironment:
 
         doctree = pickle.loads(serialised)
         doctree.settings.env = self
-        doctree.reporter = LoggingReporter(self.doc2path(docname))
+        doctree.reporter = LoggingReporter(str(self.doc2path(docname)))
         return doctree
 
     @functools.cached_property
@@ -650,7 +650,7 @@ class BuildEnvironment:
             try:
                 doctree = self._write_doc_doctree_cache.pop(docname)
                 doctree.settings.env = self
-                doctree.reporter = LoggingReporter(self.doc2path(docname))
+                doctree.reporter = LoggingReporter(str(self.doc2path(docname)))
             except KeyError:
                 doctree = self.get_doctree(docname)
 

@@ -10,6 +10,7 @@ import time
 import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
+from pathlib import Path
 from queue import Queue
 from typing import TYPE_CHECKING
 from unittest import mock
@@ -1061,7 +1062,7 @@ def test_connection_contention(get_adapter, app, capsys):
         wqueue: Queue[CheckRequest] = Queue()
         rqueue: Queue[CheckResult] = Queue()
         for _ in range(link_count):
-            wqueue.put(CheckRequest(0, Hyperlink(f"http://{address}", "test", "test.rst", 1)))
+            wqueue.put(CheckRequest(0, Hyperlink(f"http://{address}", "test", Path("test.rst"), 1)))
 
         begin = time.time()
         checked: list[CheckResult] = []
