@@ -85,6 +85,7 @@ lint = [
     "mypy==1.11.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
+    "types-defusedxml==0.7.0.20240218",
     "types-docutils==0.21.0.20240711",
     "types-Pillow==10.2.0.20240520",
     "types-Pygments==2.18.0.20240506",
@@ -275,7 +276,6 @@ disallow_any_generics = false
 
 [[tool.mypy.overrides]]
 module = [
-    "defusedxml.ElementTree",
     "imagesize",
     "snowballstemmer",
 ]
