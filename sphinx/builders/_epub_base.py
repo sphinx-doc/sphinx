@@ -478,14 +478,22 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_mimetype(self) -> None:
         """Write the metainfo file mimetype."""
         logger.info(__('writing mimetype file...'))
-        copyfile(path.join(self.template_dir, 'mimetype'), self.outdir, force=True)
+        copyfile(
+            path.join(self.template_dir, 'mimetype'),
+            self.outdir / 'mimetype',
+            force=True,
+        )
 
     def build_container(self, outname: str = 'META-INF/container.xml') -> None:
         """Write the metainfo file META-INF/container.xml."""
         logger.info(__('writing META-INF/container.xml file...'))
-        outdir = path.join(self.outdir, 'META-INF')
+        outdir = self.outdir / 'META-INF'
         ensuredir(outdir)
-        copyfile(path.join(self.template_dir, 'container.xml'), outdir, force=True)
+        copyfile(
+            path.join(self.template_dir, 'container.xml'),
+            outdir / 'container.xml',
+            force=True,
+        )
 
     def content_metadata(self) -> dict[str, Any]:
         """Create a dictionary with all metadata for the content.opf

@@ -203,7 +203,11 @@ class TexinfoBuilder(Builder):
         try:
             with progress_message(__('copying Texinfo support files')):
                 logger.info('Makefile ', nonl=True)
-                copyfile(os.path.join(template_dir, 'Makefile'), self.outdir, force=True)
+                copyfile(
+                    os.path.join(template_dir, 'Makefile'),
+                    self.outdir / 'Makefile',
+                    force=True,
+                )
         except OSError as err:
             logger.warning(__("error writing file Makefile: %s"), err)
 

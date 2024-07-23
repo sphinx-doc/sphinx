@@ -14,7 +14,7 @@ from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
 from sphinx.util.console import bold
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import copyfile, ensuredir, os_path
+from sphinx.util.osutil import ensuredir, os_path
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -147,9 +147,9 @@ class ChangesBuilder(Builder):
             renderer=self.templates,
             force=True,
         )
-        copyfile(
+        copy_asset_file(
             path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
-            self.outdir,
+            self.outdir / 'basic.css',
             force=True,
         )
 
