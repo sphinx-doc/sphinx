@@ -81,8 +81,8 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
 
     fetch_inventory(app, 'https://hostname/', 'https://hostname/' + INVENTORY_FILENAME)
     assert app.status.getvalue() == ('intersphinx inventory has moved: '
-                                 'https://hostname/%s -> https://hostname/new/%s\n' %
-                                 (INVENTORY_FILENAME, INVENTORY_FILENAME))
+                                     'https://hostname/%s -> https://hostname/new/%s\n' %
+                                     (INVENTORY_FILENAME, INVENTORY_FILENAME))
     assert InventoryFile.load.call_args[0][1] == 'https://hostname/new'
 
     # different uri and inv, not redirected
@@ -101,8 +101,8 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
 
     fetch_inventory(app, 'https://hostname/', 'https://hostname/new/' + INVENTORY_FILENAME)
     assert app.status.getvalue() == ('intersphinx inventory has moved: '
-                                 'https://hostname/new/%s -> https://hostname/other/%s\n' %
-                                 (INVENTORY_FILENAME, INVENTORY_FILENAME))
+                                     'https://hostname/new/%s -> https://hostname/other/%s\n' %
+                                     (INVENTORY_FILENAME, INVENTORY_FILENAME))
     assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
 
 
