@@ -46,25 +46,25 @@ def test_SphinxFileOutput(tmpdir):
     filename = str(tmpdir / 'test.txt')
     output = SphinxFileOutput(destination_path=filename)
     output.write(content)
-    os.utime(filename, (0, 0))
+    os.utime(filename, ns=(0, 0))
 
     # overwrite it again
     output.write(content)
-    assert os.stat(filename).st_mtime != 0  # updated
+    assert os.stat(filename).st_mtime_ns != 0  # updated
 
     # write test2.txt at first
     filename = str(tmpdir / 'test2.txt')
     output = SphinxFileOutput(destination_path=filename, overwrite_if_changed=True)
     output.write(content)
-    os.utime(filename, (0, 0))
+    os.utime(filename, ns=(0, 0))
 
     # overwrite it again
     output.write(content)
-    assert os.stat(filename).st_mtime == 0  # not updated
+    assert os.stat(filename).st_mtime_ns == 0  # not updated
 
     # overwrite it again (content changed)
     output.write(content + "; content change")
-    assert os.stat(filename).st_mtime != 0  # updated
+    assert os.stat(filename).st_mtime_ns != 0  # updated
 
 
 def test_SphinxTranslator(app):

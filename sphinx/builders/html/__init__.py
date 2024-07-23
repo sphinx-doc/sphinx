@@ -9,7 +9,6 @@ import os
 import posixpath
 import re
 import sys
-import time
 import types
 import warnings
 from os import path
@@ -40,13 +39,21 @@ from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging
+from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.i18n import format_date
 from sphinx.util.inventory import InventoryFile
 from sphinx.util.matching import DOTFILES, Matcher, patmatch
-from sphinx.util.osutil import SEP, copyfile, ensuredir, os_path, relative_uri
+from sphinx.util.osutil import (
+    SEP,
+    _last_modified_time,
+    copyfile,
+    ensuredir,
+    os_path,
+    relative_uri,
+)
 from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
@@ -397,7 +404,7 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         if self.templates:
-            template_mtime = self.templates.newest_template_mtime()
+            template_mtime = int(self.templates.newest_template_mtime() * 10**9)
         else:
             template_mtime = 0
         for docname in self.env.found_docs:
@@ -407,19 +414,19 @@ class StandaloneHTMLBuilder(Builder):
                 continue
             targetname = self.get_outfilename(docname)
             try:
-                targetmtime = path.getmtime(targetname)
+                targetmtime = _last_modified_time(targetname)
             except Exception:
                 targetmtime = 0
             try:
-                srcmtime = max(path.getmtime(self.env.doc2path(docname)), template_mtime)
+                srcmtime = max(_last_modified_time(self.env.doc2path(docname)), template_mtime)
                 if srcmtime > targetmtime:
                     logger.debug(
                         '[build target] targetname %r(%s), template(%s), docname %r(%s)',
                         targetname,
-                        _format_modified_time(targetmtime),
-                        _format_modified_time(template_mtime),
+                        _format_rfc3339_microseconds(targetmtime),
+                        _format_rfc3339_microseconds(template_mtime),
                         docname,
-                        _format_modified_time(path.getmtime(self.env.doc2path(docname))),
+                        _format_rfc3339_microseconds(_last_modified_time(self.env.doc2path(docname))),
                     )
                     yield docname
             except OSError:
@@ -1222,12 +1229,6 @@ def convert_html_css_files(app: Sphinx, config: Config) -> None:
                 continue
 
     config.html_css_files = html_css_files
-
-
-def _format_modified_time(timestamp: float) -> str:
-    """Return an RFC 3339 formatted string representing the given timestamp."""
-    seconds, fraction = divmod(timestamp, 1)
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction:.3f}'
 
 
 def convert_html_js_files(app: Sphinx, config: Config) -> None:

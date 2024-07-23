@@ -29,10 +29,8 @@ from sphinx.util.nodes import (  # NoQA: F401
 from sphinx.util.osutil import (  # NoQA: F401
     SEP,
     copyfile,
-    copytimes,
     ensuredir,
     make_filename,
-    mtimes_of_files,
     os_path,
     relative_uri,
 )
