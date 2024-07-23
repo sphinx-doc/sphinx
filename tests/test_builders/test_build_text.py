@@ -1,4 +1,5 @@
 """Test the build process with Text builder with the test root."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

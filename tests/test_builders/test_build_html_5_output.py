@@ -1,4 +1,5 @@
 """Test the HTML builder and check output against XPath."""
+
 from __future__ import annotations
 
 import re
