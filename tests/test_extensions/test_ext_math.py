@@ -12,7 +12,7 @@ from sphinx.ext.mathjax import MATHJAX_URL
 from sphinx.testing.util import assert_node
 
 
-def has_binary(binary):
+def has_binary(binary: str) -> bool:
     try:
         subprocess.check_output([binary])
     except FileNotFoundError:

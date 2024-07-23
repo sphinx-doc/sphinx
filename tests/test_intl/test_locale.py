@@ -1,8 +1,16 @@
 """Test locale."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx import locale
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
 
 
 @pytest.fixture(autouse=True)
@@ -57,7 +65,7 @@ def test_add_message_catalog(app, rootdir):
     assert _('Hello reST') == 'Hello reST'
 
 
-def _empty_language_translation(rootdir):
+def _empty_language_translation(rootdir: Path) -> Callable[[str], str]:
     locale_dirs, catalog = [rootdir / 'test-locale' / 'locale1'], 'myext'
     locale.translators.clear()
     locale.init(locale_dirs, language=None, catalog=catalog)

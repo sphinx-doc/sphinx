@@ -20,7 +20,7 @@ from sphinx.util.osutil import SEP, canon_path, relpath
 if TYPE_CHECKING:
     import datetime as dt
     from collections.abc import Iterator
-    from typing import Protocol
+    from typing import Protocol, TypeAlias
 
     from babel.core import Locale
 
@@ -52,7 +52,7 @@ if TYPE_CHECKING:
             locale: str | Locale | None = ...,
         ) -> str: ...
 
-    Formatter = DateFormatter | TimeFormatter | DatetimeFormatter
+    Formatter: TypeAlias = DateFormatter | TimeFormatter | DatetimeFormatter
 
 logger = logging.getLogger(__name__)
 

@@ -1,12 +1,20 @@
 """Test sphinx.ext.viewcode extension."""
 
+from __future__ import annotations
+
 import re
 import shutil
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from io import StringIO
 
-def check_viewcode_output(app, warning):
+    from sphinx.application import Sphinx
+
+
+def check_viewcode_output(app: Sphinx, warning: StringIO) -> str:
     warnings = re.sub(r'\\+', '/', warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +

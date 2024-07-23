@@ -43,7 +43,7 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-class Todo(BaseAdmonition, SphinxDirective):
+class Todo(BaseAdmonition, SphinxDirective):  # type: ignore[misc]
     """
     A todo entry, displayed (if configured) in the form of an admonition.
     """
