@@ -81,13 +81,13 @@ def is_invalid_builtin_class(obj: Any) -> bool:
 
 
 # Text like nodes which are initialized with text and rawsource
-TextlikeNode = nodes.Text | nodes.TextElement
+TextlikeNode: TypeAlias = nodes.Text | nodes.TextElement
 
 # type of None
-NoneType = type(None)
+NoneType: TypeAlias = type(None)  # type: ignore[no-redef]
 
 # path matcher
-PathMatcher = Callable[[str], bool]
+PathMatcher: TypeAlias = Callable[[str], bool]
 
 # common role functions
 if TYPE_CHECKING:
@@ -105,27 +105,25 @@ if TYPE_CHECKING:
         ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
             ...
 else:
-    RoleFunction = Callable[
+    RoleFunction: TypeAlias = Callable[
         [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
         tuple[list[nodes.Node], list[nodes.system_message]],
     ]
 
 # A option spec for directive
-OptionSpec = dict[str, Callable[[str], Any]]
+OptionSpec: TypeAlias = dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
-TitleGetter = Callable[[nodes.Node], str]
+TitleGetter: TypeAlias = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryItem = tuple[
+InventoryItem: TypeAlias = tuple[
     str,  # project name
     str,  # project version
     str,  # URL
     str,  # display name
 ]
-
-# referencable role -> (reference name -> inventory item)
-Inventory = dict[str, dict[str, InventoryItem]]
+Inventory: TypeAlias = dict[str, dict[str, InventoryItem]]
 
 
 class ExtensionMetadata(TypedDict, total=False):
@@ -149,7 +147,7 @@ class ExtensionMetadata(TypedDict, total=False):
 
 
 if TYPE_CHECKING:
-    _ExtensionSetupFunc = Callable[[Sphinx], ExtensionMetadata]
+    _ExtensionSetupFunc: TypeAlias = Callable[[Sphinx], ExtensionMetadata]
 
 
 def get_type_hints(

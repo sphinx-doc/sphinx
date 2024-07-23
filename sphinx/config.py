@@ -25,6 +25,7 @@ else:
 if TYPE_CHECKING:
     import os
     from collections.abc import Collection, Iterator, Sequence, Set
+    from typing import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild = Literal[
+_ConfigRebuild: TypeAlias = Literal[
     '', 'env', 'epub', 'gettext', 'html',
     # sphinxcontrib-applehelp
     'applehelp',
@@ -93,7 +94,7 @@ class ENUM:
             return value in self.candidates
 
 
-_OptValidTypes = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
+_OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
 
 
 class _Opt:
