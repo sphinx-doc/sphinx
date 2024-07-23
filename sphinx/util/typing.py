@@ -83,9 +83,6 @@ def is_invalid_builtin_class(obj: Any) -> bool:
 # Text like nodes which are initialized with text and rawsource
 TextlikeNode: TypeAlias = nodes.Text | nodes.TextElement
 
-# type of None
-NoneType: TypeAlias = type(None)  # type: ignore[no-redef]
-
 # path matcher
 PathMatcher: TypeAlias = Callable[[str], bool]
 
@@ -237,7 +234,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         raise ValueError(msg)
 
     # things that are not types
-    if cls is None or cls == NoneType:
+    if cls is None or cls == types.NoneType:
         return ':py:obj:`None`'
     if cls is Ellipsis:
         return '...'
@@ -397,7 +394,7 @@ def stringify_annotation(
         raise ValueError(msg)
 
     # things that are not types
-    if annotation is None or annotation == NoneType:
+    if annotation is None or annotation == types.NoneType:
         return 'None'
     if annotation is Ellipsis:
         return '...'
