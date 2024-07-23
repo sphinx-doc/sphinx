@@ -152,7 +152,6 @@ exclude = [
     # tests/test_config
     "^tests/test_config/test_config\\.py$",
     # tests/test_directives
-    "^tests/test_directives/test_directive_object_description\\.py$",
     "^tests/test_directives/test_directive_only\\.py$",
     "^tests/test_directives/test_directive_other\\.py$",
     "^tests/test_directives/test_directive_patch\\.py$",
