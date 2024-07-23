@@ -341,6 +341,69 @@ def nested_parse_with_titles(state: RSTState, content: StringList, node: Node,
     return ret
 
 
+def _lift_sections(
+    node: Node,
+    *,
+    state_parent: Element | None,
+    inner_title_styles: list[str | tuple[str, str]],
+    surrounding_title_styles: list[str | tuple[str, str]],
+) -> None:
+    """Try to handle nested sections which should be raised higher up the doctree.
+
+    For example:
+
+    .. code-block:: rst
+
+       1. Sections in only directives
+       ==============================
+
+       1.1. Section
+       -------------
+
+       .. only:: not nonexisting_tag
+
+          1.2. Section
+          -------------
+          Should be lifted one level.
+
+          1.3. Section
+          -------------
+          Should be here.
+
+       .. only:: not nonexisting_tag
+
+          2. Included document level heading
+          ==================================
+          Should be lifted two levels.
+    """
+    if state_parent is None:
+        return
+    extant_nested_sections = (
+        surrounding_title_styles
+        and inner_title_styles
+        and inner_title_styles[0] in surrounding_title_styles
+    )
+    if not extant_nested_sections:
+        # No nested sections so no special handling needed.
+        return
+    # Calculate the depths of the current and nested sections.
+    current_depth = 0
+    parent = state_parent
+    while not isinstance(parent.parent, nodes.document):
+        current_depth += 1
+        parent = parent.parent
+    nested_depth = surrounding_title_styles.index(inner_title_styles[0])
+    # Use these depths to determine where the nested sections should
+    # be placed in the doctree.
+    num_sections_to_raise = current_depth - nested_depth + 1
+    parent = state_parent
+    for _ in range(num_sections_to_raise):
+        if parent.parent:
+            parent = parent.parent
+    parent.append(node)
+    return
+
+
 def clean_astext(node: Element) -> str:
     """Like node.astext(), but ignore images."""
     node = node.deepcopy()

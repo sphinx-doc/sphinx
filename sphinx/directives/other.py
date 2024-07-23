@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from os.path import abspath, relpath
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -316,6 +316,23 @@ class HList(SphinxDirective):
 class Only(SphinxDirective):
     """
     Directive to only include text if the given tag(s) are enabled.
+
+    This directive functions somewhat akin to a pre-processor,
+    as tag expressions are constant throughout the build.
+    The ``only`` directive is the only one that is able to 'hoist'
+    content in the section hierarchy, as the expected usage includes
+    conditional inclusion of sections.
+
+    At present, there is no supported mechanism to parse content that
+    may contain section headings at a level equal to or greater than
+    the section containing the ``only`` directive. Implementation of
+    such a mechanism is possible, though complex. Prior to Sphinx 7.4,
+    this approach was used to implement the ``only`` directive.
+
+    The current implementation makes use of the ability to modify the
+    input lines of the document being parsed, whilst parsing it. This
+    is not encouraged. Given the nature of ``only`` as both a special
+    case and akin to a pre-processor, this is considered acceptable.
     """
 
     has_content = True
@@ -325,51 +342,55 @@ class Only(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        node = addnodes.only()
-        node.document = self.state.document
-        self.set_source_info(node)
-        node['expr'] = self.arguments[0]
+        tags = self.env.app.builder.tags
+        expr = self.arguments[0]
 
-        # Same as util.nested_parse_with_titles but try to handle nested
-        # sections which should be raised higher up the doctree.
-        memo: Any = self.state.memo
-        surrounding_title_styles = memo.title_styles
-        surrounding_section_level = memo.section_level
-        memo.title_styles = []
-        memo.section_level = 0
         try:
-            self.state.nested_parse(self.content, self.content_offset,
-                                    node, match_titles=True)
-            title_styles = memo.title_styles
-            if (not surrounding_title_styles or
-                    not title_styles or
-                    title_styles[0] not in surrounding_title_styles or
-                    not self.state.parent):
-                # No nested sections so no special handling needed.
-                return [node]
-            # Calculate the depths of the current and nested sections.
-            current_depth = 0
-            parent = self.state.parent
-            while parent:
-                current_depth += 1
-                parent = parent.parent
-            current_depth -= 2
-            title_style = title_styles[0]
-            nested_depth = len(surrounding_title_styles)
-            if title_style in surrounding_title_styles:
-                nested_depth = surrounding_title_styles.index(title_style)
-            # Use these depths to determine where the nested sections should
-            # be placed in the doctree.
-            n_sects_to_raise = current_depth - nested_depth + 1
-            parent = cast(nodes.Element, self.state.parent)
-            for _i in range(n_sects_to_raise):
-                if parent.parent:
-                    parent = parent.parent
-            parent.append(node)
-            return []
-        finally:
-            memo.title_styles = surrounding_title_styles
-            memo.section_level = surrounding_section_level
+            keep_content = tags.eval_condition(expr)
+        except Exception as err:
+            logger.warning(
+                __('exception while evaluating only directive expression: %s'),
+                err,
+                location=self.get_location())
+            keep_content = True
+
+        # Does the directive content end with a newline?
+        trailing_newline = self.block_text[-1] == '\n'
+
+        # Calculate line counts for the entire block, the content, and the preamble.
+        total_line_count = self.block_text.count('\n') + 1
+        content_line_count = len(self.content.data) + (1 * trailing_newline)
+        preamble_line_count = total_line_count - content_line_count
+
+        # Calculate the location of the directive content in the input lines.
+        offset_end = self.state_machine.line_offset
+        offset_start = offset_end - total_line_count + 1
+
+        # Every copy of ``input_lines`` must be updated, so we propagate up
+        # through the parent hierarchy.
+        input_lines = self.state_machine.input_lines
+        while input_lines is not None:
+            if keep_content:
+                blank_lines = [''] * preamble_line_count
+                content = self.content.data + ([''] * trailing_newline)
+                # Blank out the initial lines
+                input_lines.data[offset_start:offset_start + preamble_line_count] = blank_lines
+                # Replace the remaining lines with the unindented content
+                input_lines.data[offset_start + preamble_line_count:offset_end + 1] = content
+            else:
+                blank_lines = [''] * total_line_count
+                # Blank out every line
+                input_lines.data[offset_start:offset_end + 1] = blank_lines
+
+            # Update the offsets for the parent
+            if input_lines.parent_offset is not None:
+                offset_start += input_lines.parent_offset
+                offset_end += input_lines.parent_offset
+            input_lines = input_lines.parent
+
+        # ``1 - directive_lines`` is from the offset_start calculation
+        self.state_machine.next_line(1 - total_line_count)
+        return []
 
 
 class Include(BaseInclude, SphinxDirective):

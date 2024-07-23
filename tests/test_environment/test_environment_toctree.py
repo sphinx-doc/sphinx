@@ -5,22 +5,23 @@ from docutils import nodes
 from docutils.nodes import bullet_list, list_item, literal, reference, title
 
 from sphinx import addnodes
-from sphinx.addnodes import compact_paragraph, only
+from sphinx.addnodes import compact_paragraph
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.environment.adapters.toctree import document_toc, global_toctree_for_doc
 from sphinx.testing.util import assert_node
 
 
-@pytest.mark.sphinx('xml', testroot='toctree')
-@pytest.mark.test_params(shared_result='test_environment_toctree_basic')
-def test_process_doc(app):
+@pytest.mark.sphinx('html', testroot='toctree')
+def test_process_doc_html(app):
     app.build()
     # tocs
     toctree = app.env.tocs['index']
     assert_node(toctree,
                 [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
                                             [bullet_list, (addnodes.toctree,  # [0][1][0]
-                                                           only,  # [0][1][1]
+                                                           # The ``only`` content remains
+                                                           # in the HTML builder.
+                                                           list_item,  # [0][1][1]
                                                            list_item)])],  # [0][1][2]
                                [list_item, (compact_paragraph,  # [1][0]
                                             [bullet_list, (addnodes.toctree,  # [1][1][0]
@@ -38,17 +39,18 @@ def test_process_doc(app):
                 includefiles=['foo', 'bar'])
 
     # only branch
-    assert_node(toctree[0][1][1], addnodes.only, expr="html")
+    assert_node(toctree[0][1][1], list_item)
     assert_node(toctree[0][1][1],
-                [only, list_item, ([compact_paragraph, reference, "Section for HTML"],
-                                   [bullet_list, addnodes.toctree])])
-    assert_node(toctree[0][1][1][0][0][0], reference, anchorname='#section-for-html')
-    assert_node(toctree[0][1][1][0][1][0], addnodes.toctree,
+                [list_item, ([compact_paragraph, reference, "Section for HTML"],
+                             [bullet_list, (addnodes.toctree, list_item)])])
+    assert_node(toctree[0][1][1][0][0], reference, anchorname='#section-for-html')
+    assert_node(toctree[0][1][1][1][0], addnodes.toctree,
                 caption=None, glob=False, hidden=False, entries=[(None, 'baz')],
                 includefiles=['baz'], titlesonly=False, maxdepth=-1, numbered=0)
+    assert_node(toctree[0][1][1][1][1][0],
+                [compact_paragraph, reference, "subsection"])
     assert_node(toctree[0][1][2],
-                ([compact_paragraph, reference, "subsection"],
-                 [bullet_list, list_item, compact_paragraph, reference, "subsubsection"]))
+                [list_item, compact_paragraph, reference, "subsubsection"])
 
     assert_node(toctree[1][0],
                 [compact_paragraph, reference, "Test for issue #1157"])
@@ -71,6 +73,66 @@ def test_process_doc(app):
     assert app.env.files_to_rebuild['foo'] == {'index'}
     assert app.env.files_to_rebuild['bar'] == {'index'}
     assert app.env.files_to_rebuild['baz'] == {'index'}
+    assert app.env.glob_toctrees == set()
+    assert app.env.numbered_toctrees == {'index'}
+
+    # qux has no section title
+    assert len(app.env.tocs['qux']) == 0
+    assert_node(app.env.tocs['qux'], nodes.bullet_list)
+    assert app.env.toc_num_entries['qux'] == 0
+    assert 'qux' not in app.env.toctree_includes
+
+
+@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.test_params(shared_result='test_environment_toctree_basic')
+def test_process_doc(app):
+    app.build()
+    # tocs
+    toctree = app.env.tocs['index']
+    assert_node(toctree,
+                [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
+                                            [bullet_list, (addnodes.toctree,  # [0][1][0]
+                                                           # The ``only`` directive is removed
+                                                           # as this is an XML builder
+                                                           list_item)])],  # [0][1][1]
+                               [list_item, (compact_paragraph,  # [1][0]
+                                            [bullet_list, (addnodes.toctree,  # [1][1][0]
+                                                           addnodes.toctree)])],  # [1][1][1]
+                               list_item)])
+
+    assert_node(toctree[0][0],
+                [compact_paragraph, reference, "Welcome to Sphinx Tests’s documentation!"])
+    assert_node(toctree[0][0][0], reference, anchorname='')
+    assert_node(toctree[0][1][0], addnodes.toctree,
+                caption="Table of Contents", glob=False, hidden=False,
+                titlesonly=False, maxdepth=2, numbered=999,
+                entries=[(None, 'foo'), (None, 'bar'), (None, 'https://sphinx-doc.org/'),
+                         (None, 'self')],
+                includefiles=['foo', 'bar'])
+    assert_node(toctree[0][1][1],
+                ([compact_paragraph, reference, "subsection"],
+                 [bullet_list, list_item, compact_paragraph, reference, "subsubsection"]))
+
+    assert_node(toctree[1][0],
+                [compact_paragraph, reference, "Test for issue #1157"])
+    assert_node(toctree[1][0][0], reference, anchorname='#test-for-issue-1157')
+    assert_node(toctree[1][1][0], addnodes.toctree,
+                caption=None, entries=[], glob=False, hidden=False,
+                titlesonly=False, maxdepth=-1, numbered=0)
+    assert_node(toctree[1][1][1], addnodes.toctree,
+                caption=None, glob=False, hidden=True,
+                titlesonly=False, maxdepth=-1, numbered=0,
+                entries=[('Latest reference', 'https://sphinx-doc.org/latest/'),
+                         ('Python', 'https://python.org/')])
+
+    assert_node(toctree[2][0],
+                [compact_paragraph, reference, "Indices and tables"])
+
+    # other collections
+    assert app.env.toc_num_entries['index'] == 5
+    assert app.env.toctree_includes['index'] == ['foo', 'bar']
+    assert app.env.files_to_rebuild['foo'] == {'index'}
+    assert app.env.files_to_rebuild['bar'] == {'index'}
     assert app.env.glob_toctrees == set()
     assert app.env.numbered_toctrees == {'index'}
 
@@ -231,8 +293,7 @@ def test_document_toc_only(app):
     assert_node(toctree,
                 [bullet_list, ([list_item, (compact_paragraph,  # [0][0]
                                             [bullet_list, (addnodes.toctree,  # [0][1][0]
-                                                           list_item,  # [0][1][1]
-                                                           list_item)])],  # [0][1][2]
+                                                           list_item)])],  # [0][1][1]
                                [list_item, (compact_paragraph,  # [1][0]
                                             [bullet_list, (addnodes.toctree,
                                                            addnodes.toctree)])],
@@ -240,9 +301,6 @@ def test_document_toc_only(app):
     assert_node(toctree[0][0],
                 [compact_paragraph, reference, "Welcome to Sphinx Tests’s documentation!"])
     assert_node(toctree[0][1][1],
-                ([compact_paragraph, reference, "Section for HTML"],
-                 [bullet_list, addnodes.toctree]))
-    assert_node(toctree[0][1][2],
                 ([compact_paragraph, reference, "subsection"],
                  [bullet_list, list_item, compact_paragraph, reference, "subsubsection"]))
     assert_node(toctree[1][0],
@@ -274,7 +332,6 @@ def test_global_toctree_for_doc(app):
     assert_node(toctree,
                 [compact_paragraph, ([title, "Table of Contents"],
                                      bullet_list,
-                                     bullet_list,
                                      bullet_list)])
 
     assert_node(toctree[1],
@@ -298,12 +355,10 @@ def test_global_toctree_for_doc(app):
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
-                [bullet_list, list_item, compact_paragraph, reference, "baz"])
-    assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="https://python.org/")
+    assert_node(toctree[2][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
+    assert_node(toctree[2][1][0][0], reference, refuri="https://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -313,7 +368,6 @@ def test_global_toctree_for_doc_collapse(app):
     toctree = global_toctree_for_doc(app.env, 'index', app.builder, collapse=True)
     assert_node(toctree,
                 [compact_paragraph, ([title, "Table of Contents"],
-                                     bullet_list,
                                      bullet_list,
                                      bullet_list)])
 
@@ -329,12 +383,10 @@ def test_global_toctree_for_doc_collapse(app):
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
-                [bullet_list, list_item, compact_paragraph, reference, "baz"])
-    assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="https://python.org/")
+    assert_node(toctree[2][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
+    assert_node(toctree[2][1][0][0], reference, refuri="https://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -345,7 +397,6 @@ def test_global_toctree_for_doc_maxdepth(app):
                                      collapse=False, maxdepth=3)
     assert_node(toctree,
                 [compact_paragraph, ([title, "Table of Contents"],
-                                     bullet_list,
                                      bullet_list,
                                      bullet_list)])
 
@@ -375,12 +426,10 @@ def test_global_toctree_for_doc_maxdepth(app):
     assert_node(toctree[1][3][0][0], reference, refuri="")
 
     assert_node(toctree[2],
-                [bullet_list, list_item, compact_paragraph, reference, "baz"])
-    assert_node(toctree[3],
                 ([list_item, compact_paragraph, reference, "Latest reference"],
                  [list_item, compact_paragraph, reference, "Python"]))
-    assert_node(toctree[3][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
-    assert_node(toctree[3][1][0][0], reference, refuri="https://python.org/")
+    assert_node(toctree[2][0][0][0], reference, refuri="https://sphinx-doc.org/latest/")
+    assert_node(toctree[2][1][0][0], reference, refuri="https://python.org/")
 
 
 @pytest.mark.sphinx('xml', testroot='toctree')
@@ -391,7 +440,6 @@ def test_global_toctree_for_doc_includehidden(app):
                                      collapse=False, includehidden=False)
     assert_node(toctree,
                 [compact_paragraph, ([title, "Table of Contents"],
-                                     bullet_list,
                                      bullet_list)])
 
     assert_node(toctree[1],
@@ -412,9 +460,6 @@ def test_global_toctree_for_doc_includehidden(app):
     assert_node(toctree[1][0][1][2][0][0], reference, refuri="foo#foo-2", secnumber=[1, 3])
     assert_node(toctree[1][1][0][0], reference, refuri="bar", secnumber=[2])
     assert_node(toctree[1][2][0][0], reference, refuri="https://sphinx-doc.org/")
-
-    assert_node(toctree[2],
-                [bullet_list, list_item, compact_paragraph, reference, "baz"])
 
 
 @pytest.mark.sphinx('xml', testroot='toctree-index')
