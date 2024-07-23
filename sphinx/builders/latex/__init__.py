@@ -432,9 +432,10 @@ class LaTeXBuilder(Builder):
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
             logger.info(' ' + filename, nonl=True)
+            source = self.confdir / filename
             copyfile(
-                self.confdir / filename,
-                self.outdir,
+                source,
+                self.outdir / source.name,
                 force=True,
             )
 
@@ -457,9 +458,10 @@ class LaTeXBuilder(Builder):
         if self.config.latex_logo:
             if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
                 raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
+            source = self.confdir / self.config.latex_logo
             copyfile(
-                self.confdir / self.config.latex_logo,
-                self.outdir,
+                source,
+                self.outdir / source.name,
                 force=True,
             )
 
