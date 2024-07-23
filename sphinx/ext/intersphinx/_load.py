@@ -250,6 +250,16 @@ def _fetch_inventory_group(
     return updated
 
 
+def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
+    """Fetch, parse and return an intersphinx inventory file."""
+    return _fetch_inventory(
+        target_uri=uri,
+        inv_location=inv,
+        config=app.config,
+        srcdir=app.srcdir,
+    )
+
+
 def _fetch_inventory(
     *, target_uri: InventoryURI, inv_location: str, config: Config, srcdir: Path,
 ) -> Inventory:
