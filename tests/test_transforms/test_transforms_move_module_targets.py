@@ -32,7 +32,7 @@ def test_move_module_targets(tmp_path, content):
     app = SphinxTestApp('dummy', srcdir=tmp_path)
     app.build(force_all=True)
     document = app.env.get_doctree('index')
-    section = document[0]
+    section: nodes.section = document[0]  # type: ignore[assignment]
 
     # target ID has been lifted into the section node
     assert section["ids"] == ['module-fish_licence.halibut', 'move-module-targets']
@@ -65,11 +65,11 @@ def test_move_module_targets_disabled(tmp_path):
     app.registry.transforms.remove(MoveModuleTargets)  # disable the transform
     app.build(force_all=True)
     document = app.env.get_doctree('index')
-    section = document[0]
+    section: nodes.section = document[0]  # type: ignore[assignment]
 
     # target ID is not lifted into the section node
     assert section["ids"] == ['move-module-targets']
-    assert section[2]["ids"] == ['module-fish_licence.halibut']
+    assert section[2]["ids"] == ['module-fish_licence.halibut']  # type: ignore[index]
     # nodes.target remains in 'section'
     assert isinstance(section[0], nodes.title)
     assert isinstance(section[1], addnodes.index)

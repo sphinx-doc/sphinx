@@ -178,14 +178,10 @@ exclude = [
     "^tests/test_extensions/test_ext_napoleon_docstring\\.py$",
     # tests/test_intl
     "^tests/test_intl/test_intl\\.py$",
-    # tests/test_markup
-    "^tests/test_markup/test_markup\\.py$",
     # tests/test_pycode
     "^tests/test_pycode/test_pycode\\.py$",
     "^tests/test_pycode/test_pycode_ast\\.py$",
-    # tests/test_theming
     # tests/test_transforms
-    "^tests/test_transforms/test_transforms_move_module_targets\\.py$",
     "^tests/test_transforms/test_transforms_post_transforms\\.py$",
     # tests/test_util
     "^tests/test_util/test_util_fileutil\\.py$",

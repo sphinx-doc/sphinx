@@ -17,7 +17,8 @@ from sphinx.testing.util import assert_node
 from sphinx.transforms import SphinxSmartQuotes
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
-from sphinx.writers.html import HTML5Translator, HTMLWriter
+from sphinx.writers.html import HTMLWriter
+from sphinx.writers.html5 import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 
