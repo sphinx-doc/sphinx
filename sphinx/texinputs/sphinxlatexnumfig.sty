@@ -37,10 +37,10 @@
       \def\theequation{\arabic{equation}}%
     \fi
 \else
-% See apologetic comments on TeX wizardry at bottom fo file.
+% See apologetic comments on TeX wizardry at bottom of file.
 % The reason for this one is to catch case where there will be only
 % the number with no prefix from enclosing sectioning (can happen
-% with latex_toplevel_section='part').
+% with latex_toplevel_sectioning='part').
 \def\spx@preAthefigure{\expandafter\spx@magicsep@s\romannumeral-`0}
 \let\spx@preBthefigure\@empty
 % \ifspx@opt@usespart  % <-- LaTeX writer could pass such a 'usespart' boolean
@@ -124,7 +124,7 @@
 }% end of big \AtBeginDocument
 
 % Sorry for TeX wizardry here.  We need to keep expandability.  Explaining
-% the mechanism is not really feasible to non-TeX experts, but the idea
+% the mechanism is not really feasible to non TeX-experts, but the idea
 % is to force next `\ifnum` conditional so we can check what comes next.
 % All cases are accounted for (i.e. not an equation, or an equation at top
 % level, or an equation in some section at some depth).
