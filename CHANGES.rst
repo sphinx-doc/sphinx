@@ -74,6 +74,12 @@ Incompatible changes
   Patch by Adam Turner.
 * #12646: Remove :py:func:`!sphinx.util.inspect.isNewType`.
   Patch by Adam Turner.
+* Remove the long-deprecated (since Sphinx 2) alias
+  to :py:class:`!VersionChange` in
+  :py:mod:`!sphinx.directives.other`
+  (Deprecated since Sphinx 2).
+  Use :py:class:`!sphinx.domains.changeset.VersionChange` directly.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
