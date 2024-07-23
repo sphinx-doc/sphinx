@@ -139,8 +139,11 @@ def run_update() -> None:
         if not filename.exists():
             continue
 
-        log.info('updating catalogue %s based on %s',
-                 filename.relative_to(ROOT), template_file.relative_to(ROOT))
+        log.info(
+            'updating catalogue %s based on %s',
+            filename.relative_to(ROOT),
+            template_file.relative_to(ROOT),
+        )
         with open(filename, encoding='utf-8') as infile:
             catalogue = read_po(infile, locale=locale.name, domain=domain)
 
