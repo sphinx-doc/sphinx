@@ -407,7 +407,6 @@ class LaTeXBuilder(Builder):
             'xindy_lang_option': xindy_lang_option,
             'xindy_cyrillic':    xindy_cyrillic,
         }
-        logger.info(bold(__('copying TeX support files...')))
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
