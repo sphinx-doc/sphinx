@@ -1,8 +1,11 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import os
 import posixpath
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -13,6 +16,9 @@ from sphinx.util.inventory import InventoryFile
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 def test_html_sidebars_error(make_app, tmp_path):
@@ -230,7 +236,7 @@ def test_html_style(app):
 
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_sidebar(app):
-    ctx = {}
+    ctx: dict[str, Any] = {}
 
     # default for alabaster
     app.build(force_all=True)
@@ -398,7 +404,7 @@ def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
     etree = cached_etree_parse(fname)
 
     class chk:
-        def __init__(self, expect):
+        def __init__(self, expect: str) -> None:
             self.expect = expect
 
         def __call__(self, nodes):

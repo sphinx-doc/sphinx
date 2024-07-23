@@ -174,7 +174,7 @@ def test_nested_toc(app):
     assert toc.find("./ncx:docTitle/ncx:text").text == 'Project name not set'
 
     # toc.ncx / navPoint
-    def navinfo(elem):
+    def navinfo(elem: EPUBElementTree):
         label = elem.find("./ncx:navLabel/ncx:text")
         content = elem.find("./ncx:content")
         return (elem.get('id'), elem.get('playOrder'),

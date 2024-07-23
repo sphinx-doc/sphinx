@@ -17,7 +17,8 @@ from sphinx.testing.util import assert_node
 from sphinx.transforms import SphinxSmartQuotes
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
-from sphinx.writers.html import HTML5Translator, HTMLWriter
+from sphinx.writers.html import HTMLWriter
+from sphinx.writers.html5 import HTML5Translator
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 
@@ -65,7 +66,7 @@ def parse(new_document):
         document = new_document()
         parser = RstParser()
         parser.parse(rst, document)
-        SphinxSmartQuotes(document, startnode=None).apply()
+        SphinxSmartQuotes(document, startnode=None).apply()  # type: ignore[no-untyped-call]
         for msg in list(document.findall(nodes.system_message)):
             if msg['level'] == 1:
                 msg.replace_self([])
