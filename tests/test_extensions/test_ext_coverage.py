@@ -6,7 +6,7 @@ import pytest
 
 
 @pytest.mark.sphinx('coverage')
-def test_build(app, status, warning):
+def test_build(app):
     app.build(force_all=True)
 
     py_undoc = (app.outdir / 'python.txt').read_text(encoding='utf8')
@@ -22,7 +22,7 @@ def test_build(app, status, warning):
 
     assert " * mod -- No module named 'mod'" in py_undoc  # in the "failed import" section
 
-    assert "undocumented  py" not in status.getvalue()
+    assert "undocumented  py" not in app.status.getvalue()
 
     c_undoc = (app.outdir / 'c.txt').read_text(encoding='utf8')
     assert c_undoc.startswith(
@@ -44,11 +44,11 @@ def test_build(app, status, warning):
     assert 'Class' in undoc_py['autodoc_target']['classes']
     assert 'undocmeth' in undoc_py['autodoc_target']['classes']['Class']
 
-    assert "undocumented  c" not in status.getvalue()
+    assert "undocumented  c" not in app.status.getvalue()
 
 
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
-def test_coverage_ignore_pyobjects(app, status, warning):
+def test_coverage_ignore_pyobjects(app):
     app.build(force_all=True)
     actual = (app.outdir / 'python.txt').read_text(encoding='utf8')
     expected = '''\
@@ -91,25 +91,25 @@ Classes:
 
 
 @pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
-def test_show_missing_items(app, status, warning):
+def test_show_missing_items(app):
     app.build(force_all=True)
 
-    assert "undocumented" in status.getvalue()
+    assert "undocumented" in app.status.getvalue()
 
-    assert "py  function  raises" in status.getvalue()
-    assert "py  class     Base" in status.getvalue()
-    assert "py  method    Class.roger" in status.getvalue()
+    assert "py  function  raises" in app.status.getvalue()
+    assert "py  class     Base" in app.status.getvalue()
+    assert "py  method    Class.roger" in app.status.getvalue()
 
-    assert "c   api       Py_SphinxTest [ function]" in status.getvalue()
+    assert "c   api       Py_SphinxTest [ function]" in app.status.getvalue()
 
 
 @pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
-def test_show_missing_items_quiet(app, status, warning):
+def test_show_missing_items_quiet(app):
     app.quiet = True
     app.build(force_all=True)
 
-    assert "undocumented python function: autodoc_target :: raises" in warning.getvalue()
-    assert "undocumented python class: autodoc_target :: Base" in warning.getvalue()
-    assert "undocumented python method: autodoc_target :: Class :: roger" in warning.getvalue()
+    assert "undocumented python function: autodoc_target :: raises" in app.warning.getvalue()
+    assert "undocumented python class: autodoc_target :: Base" in app.warning.getvalue()
+    assert "undocumented python method: autodoc_target :: Class :: roger" in app.warning.getvalue()
 
-    assert "undocumented c api: Py_SphinxTest [function]" in warning.getvalue()
+    assert "undocumented c api: Py_SphinxTest [function]" in app.warning.getvalue()

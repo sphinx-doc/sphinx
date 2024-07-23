@@ -11,9 +11,9 @@ from tests.test_builders.xpath_util import check_xpath
 
 @pytest.mark.sphinx('html', testroot='numfig')
 @pytest.mark.test_params(shared_result='test_build_html_numfig')
-def test_numfig_disabled_warn(app, warning):
+def test_numfig_disabled_warn(app):
     app.build()
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' not in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' not in warnings
@@ -61,7 +61,7 @@ def test_numfig_disabled(app, cached_etree_parse, fname, path, check, be_found):
     'html', testroot='numfig',
     srcdir='test_numfig_without_numbered_toctree_warn',
     confoverrides={'numfig': True})
-def test_numfig_without_numbered_toctree_warn(app, warning):
+def test_numfig_without_numbered_toctree_warn(app):
     app.build()
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')
@@ -69,7 +69,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
     app.build()
 
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
@@ -158,9 +158,9 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, path, c
 
 @pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_on')
-def test_numfig_with_numbered_toctree_warn(app, warning):
+def test_numfig_with_numbered_toctree_warn(app):
     app.build()
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
@@ -246,9 +246,9 @@ def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, path, chec
                       'code-block': 'Code-%s',
                       'section': 'SECTION-%s'}})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
-def test_numfig_with_prefix_warn(app, warning):
+def test_numfig_with_prefix_warn(app):
     app.build()
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
@@ -335,9 +335,9 @@ def test_numfig_with_prefix(app, cached_etree_parse, fname, path, check, be_foun
 @pytest.mark.sphinx('html', testroot='numfig',
                     confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
 @pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
-def test_numfig_with_secnum_depth_warn(app, warning):
+def test_numfig_with_secnum_depth_warn(app):
     app.build()
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: Failed to create a cross reference. Any number is not assigned: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings

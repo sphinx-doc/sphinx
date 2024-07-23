@@ -1,4 +1,5 @@
 """Tests project module."""
+from pathlib import Path
 
 import pytest
 
@@ -64,15 +65,15 @@ def test_project_doc2path(app):
     project.discover()
 
     # absolute path
-    assert project.doc2path('index', absolute=True) == str(app.srcdir / 'index.rst')
+    assert project.doc2path('index', absolute=True) == app.srcdir / 'index.rst'
 
     # relative path
-    assert project.doc2path('index', absolute=False) == 'index.rst'
+    assert project.doc2path('index', absolute=False) == Path('index.rst')
 
     # first source_suffix is used for missing file
-    assert project.doc2path('foo', absolute=False) == 'foo.rst'
+    assert project.doc2path('foo', absolute=False) == Path('foo.rst')
 
     # matched source_suffix is used if exists
     (app.srcdir / 'bar.txt').touch()
     project.discover()
-    assert project.doc2path('bar', absolute=False) == 'bar.txt'
+    assert project.doc2path('bar', absolute=False) == Path('bar.txt')

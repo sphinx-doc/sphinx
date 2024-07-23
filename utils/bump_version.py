@@ -8,10 +8,11 @@ import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import TypeAlias
 
 script_dir = Path(__file__).parent
 package_dir = script_dir.parent

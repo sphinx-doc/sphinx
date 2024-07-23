@@ -30,7 +30,7 @@ def _setup_test(app_params):
 @pytest.mark.sphinx(
     'html', testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
-def test_compile_all_catalogs(app, status, warning):
+def test_compile_all_catalogs(app):
     app.builder.compile_all_catalogs()
 
     locale_dir = app.srcdir / 'locale'
@@ -46,7 +46,7 @@ def test_compile_all_catalogs(app, status, warning):
 @pytest.mark.sphinx(
     'html', testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
-def test_compile_specific_catalogs(app, status, warning):
+def test_compile_specific_catalogs(app):
     locale_dir = app.srcdir / 'locale'
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
 
@@ -63,7 +63,7 @@ def test_compile_specific_catalogs(app, status, warning):
 @pytest.mark.sphinx(
     'html', testroot='intl',
     confoverrides={'language': 'en', 'locale_dirs': ['./locale']})
-def test_compile_update_catalogs(app, status, warning):
+def test_compile_update_catalogs(app):
     app.builder.compile_update_catalogs()
 
     locale_dir = app.srcdir / 'locale'

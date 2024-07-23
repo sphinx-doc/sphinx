@@ -13,7 +13,6 @@ from docutils.parsers.rst.directives.misc import Include as BaseInclude
 from docutils.statemachine import StateMachine
 
 from sphinx import addnodes
-from sphinx.domains.changeset import VersionChange  # NoQA: F401  # for compatibility
 from sphinx.domains.std import StandardDomain
 from sphinx.locale import _, __
 from sphinx.util import docname_join, logging, url_re
@@ -145,7 +144,7 @@ class TocTree(SphinxDirective):
                 continue
 
             if docname not in frozen_all_docnames:
-                if excluded(self.env.doc2path(docname, False)):
+                if excluded(str(self.env.doc2path(docname, False))):
                     message = __('toctree contains reference to excluded document %r')
                     subtype = 'excluded'
                 else:
@@ -209,7 +208,7 @@ class Author(SphinxDirective):
         return ret
 
 
-class SeeAlso(BaseAdmonition):
+class SeeAlso(BaseAdmonition):  # type: ignore[misc]
     """
     An admonition mentioning things to look at as reference.
     """

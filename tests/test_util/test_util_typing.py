@@ -39,6 +39,7 @@ from typing import (
     Literal,
     NewType,
     Optional,
+    ParamSpec,
     Tuple,
     TypeVar,
     Union,
@@ -379,7 +380,6 @@ def test_restify_mock():
 
 
 def test_restify_type_hints_paramspec():
-    from typing import ParamSpec
     P = ParamSpec('P')
 
     assert restify(P) == ":py:obj:`tests.test_util.test_util_typing.P`"
@@ -726,7 +726,6 @@ def test_stringify_type_ForwardRef():
 
 
 def test_stringify_type_hints_paramspec():
-    from typing import ParamSpec
     P = ParamSpec('P')
 
     assert stringify_annotation(P, 'fully-qualified') == "~P"

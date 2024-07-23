@@ -519,7 +519,7 @@ def test_XRefRole(inliner):
 
 
 @pytest.mark.sphinx('dummy', testroot='prolog')
-def test_rst_prolog(app, status, warning):
+def test_rst_prolog(app):
     app.build(force_all=True)
     rst = app.env.get_doctree('restructuredtext')
     md = app.env.get_doctree('markdown')
@@ -543,7 +543,7 @@ def test_rst_prolog(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='keep_warnings')
-def test_keep_warnings_is_True(app, status, warning):
+def test_keep_warnings_is_True(app):
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
@@ -553,7 +553,7 @@ def test_keep_warnings_is_True(app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='keep_warnings',
                     confoverrides={'keep_warnings': False})
-def test_keep_warnings_is_False(app, status, warning):
+def test_keep_warnings_is_False(app):
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
@@ -561,7 +561,7 @@ def test_keep_warnings_is_False(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
-def test_compact_refonly_bullet_list(app, status, warning):
+def test_compact_refonly_bullet_list(app):
     app.build(force_all=True)
     doctree = app.env.get_doctree('index')
     assert_node(doctree[0], nodes.section)
@@ -579,7 +579,7 @@ def test_compact_refonly_bullet_list(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='default_role')
-def test_default_role1(app, status, warning):
+def test_default_role1(app):
     app.build(force_all=True)
 
     # default-role: pep
@@ -600,7 +600,7 @@ def test_default_role1(app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='default_role',
                     confoverrides={'default_role': 'guilabel'})
-def test_default_role2(app, status, warning):
+def test_default_role2(app):
     app.build(force_all=True)
 
     # default-role directive is stronger than configratuion

@@ -31,7 +31,7 @@ class ComplainOnUnhighlighted(PygmentsBridge):
         raise AssertionError("should highlight %r" % source)
 
 
-def test_add_lexer(app, status, warning):
+def test_add_lexer(app):
     app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')

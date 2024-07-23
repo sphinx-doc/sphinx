@@ -18,6 +18,7 @@ from sphinx.locale import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+    from typing import TypeAlias
 
     from docutils import nodes
     from docutils.parsers.rst import Directive
@@ -154,7 +155,7 @@ class Index(ABC):
         raise NotImplementedError
 
 
-TitleGetter = Callable[[Node], str | None]
+TitleGetter: TypeAlias = Callable[[Node], str | None]
 
 
 class Domain:

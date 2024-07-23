@@ -17,7 +17,7 @@ from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
 
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram(app, status, warning):
+def test_inheritance_diagram(app):
     # monkey-patch InheritaceDiagram.run() so we can get access to its
     # results.
     orig_run = InheritanceDiagram.run
@@ -39,7 +39,7 @@ def test_inheritance_diagram(app, status, warning):
 
     assert app.statuscode == 0
 
-    html_warnings = warning.getvalue()
+    html_warnings = app.warning.getvalue()
     assert html_warnings == ""
 
     # note: it is better to split these asserts into separate test functions
@@ -248,7 +248,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
 
 @pytest.mark.sphinx('latex', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_latex(app, status, warning):
+def test_inheritance_diagram_latex(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -262,7 +262,7 @@ def test_inheritance_diagram_latex(app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram',
                     srcdir='ext-inheritance_diagram-alias')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_latex_alias(app, status, warning):
+def test_inheritance_diagram_latex_alias(app):
     app.config.inheritance_alias = {'test.Foo': 'alias.Foo'}
     app.build(force_all=True)
 

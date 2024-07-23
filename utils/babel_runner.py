@@ -246,7 +246,7 @@ def run_compile() -> None:
             _write_pr_body_line(f'* {locale}: {err_count} error{s}')
 
 
-def _get_logger():
+def _get_logger() -> logging.Logger:
     log = logging.getLogger('babel')
     log.setLevel(logging.INFO)
     handler = logging.StreamHandler()
