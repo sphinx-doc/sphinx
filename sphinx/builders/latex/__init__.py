@@ -412,7 +412,10 @@ class LaTeXBuilder(Builder):
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
                 copy_asset_file(path.join(staticdirname, filename),
-                                self.outdir, context=context)
+                                self.outdir,
+                                context=context,
+                                force=True
+                                )
 
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
@@ -424,7 +427,10 @@ class LaTeXBuilder(Builder):
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
             logger.info(' ' + filename, nonl=True)
-            copy_asset_file(path.join(self.confdir, filename), self.outdir)
+            copy_asset_file(path.join(self.confdir, filename),
+                            self.outdir,
+                            force=True
+                            )
 
     def copy_image_files(self) -> None:
         if self.images:
@@ -435,14 +441,19 @@ class LaTeXBuilder(Builder):
                 dest = self.images[src]
                 try:
                     copy_asset_file(path.join(self.srcdir, src),
-                                    path.join(self.outdir, dest))
+                                    path.join(self.outdir, dest),
+                                    force=True
+                                    )
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
         if self.config.latex_logo:
             if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
                 raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
-            copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
+            copy_asset_file(path.join(self.confdir, self.config.latex_logo),
+                            self.outdir,
+                            force=True
+                            )
 
     def write_message_catalog(self) -> None:
         formats = self.config.numfig_format
