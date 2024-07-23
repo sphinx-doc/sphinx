@@ -6,7 +6,7 @@ import pytest
 
 
 @pytest.mark.sphinx('html', testroot='images')
-def test_html_remote_images(app, status, warning):
+def test_html_remote_images(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -16,7 +16,7 @@ def test_html_remote_images(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='image-escape')
-def test_html_encoded_image(app, status, warning):
+def test_html_encoded_image(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -25,7 +25,7 @@ def test_html_encoded_image(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='remote-logo')
-def test_html_remote_logo(app, status, warning):
+def test_html_remote_logo(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -35,7 +35,7 @@ def test_html_remote_logo(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='local-logo')
-def test_html_local_logo(app, status, warning):
+def test_html_local_logo(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -66,7 +66,7 @@ def test_html_scaled_image_link(app):
 
 
 @pytest.mark.sphinx('html', testroot='images')
-def test_copy_images(app, status, warning):
+def test_copy_images(app):
     app.build()
 
     images_dir = Path(app.outdir) / '_images'

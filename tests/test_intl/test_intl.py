@@ -8,6 +8,7 @@ import os.path
 import re
 import shutil
 import time
+from io import StringIO
 
 import pytest
 from babel.messages import mofile, pofile
@@ -91,10 +92,10 @@ def assert_count(expected_expr, result, count):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_emit_warnings(app, warning):
+def test_text_emit_warnings(app):
     app.build()
     # test warnings in translation
-    warnings = getwarning(warning)
+    warnings = getwarning(app.warning)
     warning_expr = ('.*/warnings.txt:4:<translated>:1: '
                     'WARNING: Inline literal start-string without end-string. \\[docutils\\]\n')
     assert re.search(warning_expr, warnings), f'{warning_expr!r} did not match {warnings!r}'
@@ -139,7 +140,7 @@ def test_text_subdirs(app):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_inconsistency_warnings(app, warning):
+def test_text_inconsistency_warnings(app):
     app.build()
     # --- check warnings for inconsistency in number of references
     result = (app.outdir / 'refs_inconsistency.txt').read_text(encoding='utf8')
@@ -153,7 +154,7 @@ def test_text_inconsistency_warnings(app, warning):
               "\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     assert result == expect
 
-    warnings = getwarning(warning)
+    warnings = getwarning(app.warning)
     warning_fmt = ('.*/refs_inconsistency.txt:\\d+: '
                    'WARNING: inconsistent %(reftype)s in translated message.'
                    ' original: %(original)s, translated: %(translated)s \\[i18n.inconsistent_references\\]\n')
@@ -192,7 +193,7 @@ def test_text_inconsistency_warnings(app, warning):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_noqa(app, warning):
+def test_noqa(app):
     app.build()
     result = (app.outdir / 'noqa.txt').read_text(encoding='utf8')
     expect = r"""FIRST SECTION
@@ -212,13 +213,13 @@ Some text, again referring to the section: NEXT SECTION WITH PARAGRAPH
 TO TEST BARE noqa.
 """
     assert result == expect
-    assert "next-section" not in getwarning(warning)
+    assert "next-section" not in getwarning(app.warning)
 
 
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_literalblock_warnings(app, warning):
+def test_text_literalblock_warnings(app):
     app.build()
     # --- check warning for literal block
     result = (app.outdir / 'literalblock.txt').read_text(encoding='utf8')
@@ -231,7 +232,7 @@ def test_text_literalblock_warnings(app, warning):
               "\n<SYSTEM MESSAGE:")
     assert result.startswith(expect)
 
-    warnings = getwarning(warning)
+    warnings = getwarning(app.warning)
     expected_warning_expr = ('.*/literalblock.txt:\\d+: '
                              'WARNING: Literal block expected; none found.')
     assert re.search(expected_warning_expr, warnings), f'{expected_warning_expr!r} did not match {warnings!r}'
@@ -260,7 +261,7 @@ def test_text_definition_terms(app):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_glossary_term(app, warning):
+def test_text_glossary_term(app):
     app.build()
     # --- glossary terms: regression test for #1090
     result = (app.outdir / 'glossary_terms.txt').read_text(encoding='utf8')
@@ -288,14 +289,14 @@ VVV
    DEFINE ZZZ
 """)
     assert result == expect
-    warnings = getwarning(warning)
+    warnings = getwarning(app.warning)
     assert warnings.count('term not in glossary') == 1
 
 
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_glossary_term_inconsistencies(app, warning):
+def test_text_glossary_term_inconsistencies(app):
     app.build()
     # --- glossary term inconsistencies: regression test for #1090
     result = (app.outdir / 'glossary_terms_inconsistency.txt').read_text(encoding='utf8')
@@ -305,7 +306,7 @@ def test_text_glossary_term_inconsistencies(app, warning):
               "\n2. LINK TO *TERM NOT IN GLOSSARY*.\n")
     assert result == expect
 
-    warnings = getwarning(warning)
+    warnings = getwarning(app.warning)
     expected_warning_expr = (
         '.*/glossary_terms_inconsistency.txt:\\d+: '
         'WARNING: inconsistent term references in translated message.'
@@ -567,14 +568,14 @@ def test_gettext_definition_terms(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
-def test_gettext_glossary_terms(app, warning):
+def test_gettext_glossary_terms(app):
     app.build()
     # --- glossary terms: regression test for #1090
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms.po')
     actual = read_po(app.outdir / 'glossary_terms.pot')
     for expect_msg in [m for m in expect if m.id]:
         assert expect_msg.id in [m.id for m in actual if m.id]
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = app.warning.getvalue().replace(os.sep, '/')
     assert 'term not in glossary' not in warnings
 
 
@@ -1046,7 +1047,7 @@ def test_html_rebuild_mo(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_footnotes(app, warning):
+def test_xml_footnotes(app):
     app.build()
     # --- footnotes: regression test for fix #955, #1176
     et = etree_parse(app.outdir / 'footnote.xml')
@@ -1092,7 +1093,7 @@ def test_xml_footnotes(app, warning):
         None,
         ['ref'])
 
-    warnings = getwarning(warning)
+    warnings = getwarning(app.warning)
     warning_expr = '.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
     assert not re.search(warning_expr, warnings), f'{warning_expr!r} did match {warnings!r}'
 
@@ -1254,10 +1255,10 @@ def test_xml_role_xref(app):
 @sphinx_intl
 @pytest.mark.sphinx('xml')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_xml_warnings(app, warning):
+def test_xml_warnings(app):
     app.build()
     # warnings
-    warnings = getwarning(warning)
+    warnings = getwarning(app.warning)
     assert warnings.count('term not in glossary') == 1
     assert 'undefined label' not in warnings
     assert 'unknown document' not in warnings
@@ -1518,10 +1519,10 @@ def test_additional_targets_should_be_translated_substitution_definitions(app):
 @sphinx_intl
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
-def test_text_references(app, warning):
+def test_text_references(app):
     app.build(filenames=[app.srcdir / 'refs.txt'])
 
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = app.warning.getvalue().replace(os.sep, '/')
     warning_expr = 'refs.txt:\\d+: ERROR: Unknown target name:'
     assert_count(warning_expr, warnings, 0)
 
@@ -1642,7 +1643,7 @@ def test_image_glob_intl_using_figure_language_filename(app):
                             'image/svg+xml': 'subdir/svgimg.svg'})
 
 
-def getwarning(warnings):
+def getwarning(warnings: StringIO) -> str:
     return strip_colors(warnings.getvalue().replace(os.sep, '/'))
 
 
