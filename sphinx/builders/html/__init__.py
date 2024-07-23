@@ -404,7 +404,7 @@ class StandaloneHTMLBuilder(Builder):
             pass
 
         if self.templates:
-            template_mtime = int(self.templates.newest_template_mtime() * 10**9)
+            template_mtime = int(self.templates.newest_template_mtime() * 10**6)
         else:
             template_mtime = 0
         for docname in self.env.found_docs:
