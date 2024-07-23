@@ -38,7 +38,6 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.events import EventManager
     from sphinx.util.tags import Tags
-    from sphinx.util.typing import NoneType
 
 
 logger = logging.getLogger(__name__)
@@ -645,7 +644,7 @@ class Builder:
         progress = status_iterator(chunks, __('writing output... '), "darkgreen",
                                    len(chunks), self.app.verbosity)
 
-        def on_chunk_done(args: list[tuple[str, NoneType]], result: NoneType) -> None:
+        def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
             next(progress)
 
         self.app.phase = BuildPhase.RESOLVING

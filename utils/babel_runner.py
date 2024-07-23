@@ -106,7 +106,10 @@ def run_extract() -> None:
                         options = opt_dict
                 with open(os.path.join(root, filename), 'rb') as fileobj:
                     for lineno, message, comments, context in extract(
-                        method, fileobj, KEYWORDS, options=options
+                        method,  # type: ignore[arg-type]
+                        fileobj,
+                        KEYWORDS,
+                        options=options,
                     ):
                         filepath = os.path.join(input_path, relative_name)
                         catalogue.add(
@@ -217,7 +220,7 @@ def run_compile() -> None:
                 for x in message.locations
             ):
                 msgid = message.id
-                if isinstance(msgid, (list, tuple)):
+                if isinstance(msgid, list | tuple):
                     msgid = msgid[0]
                 js_catalogue[msgid] = message.string
 
@@ -243,7 +246,7 @@ def run_compile() -> None:
             _write_pr_body_line(f'* {locale}: {err_count} error{s}')
 
 
-def _get_logger():
+def _get_logger() -> logging.Logger:
     log = logging.getLogger('babel')
     log.setLevel(logging.INFO)
     handler = logging.StreamHandler()

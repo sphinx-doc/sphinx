@@ -12,8 +12,8 @@ def _copy_asset_overwrite_hook(app):
         Path(__file__).parent.joinpath('myext_static', 'custom-styles.css'),
         app.outdir / '_static',
     )
-    # This demonstrates the overwriting
-    assert css.read_text() == '/* extension styles */\n', 'overwriting failed'
+    # This demonstrates that no overwriting occurs
+    assert css.read_text() == '/* html_static_path */\n', 'file overwritten!'
     return []
 
 

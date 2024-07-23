@@ -102,9 +102,9 @@ def _is_lambda(x: Any, /) -> bool:
 
 
 def _get_arguments_inner(x: Any, /) -> ast.arguments | None:
-    if isinstance(x, (ast.AsyncFunctionDef, ast.FunctionDef, ast.Lambda)):
+    if isinstance(x, ast.AsyncFunctionDef | ast.FunctionDef | ast.Lambda):
         return x.args
-    if isinstance(x, (ast.Assign, ast.AnnAssign)):
+    if isinstance(x, ast.Assign | ast.AnnAssign):
         return _get_arguments_inner(x.value)
     return None
 

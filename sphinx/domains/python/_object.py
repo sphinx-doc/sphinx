@@ -25,7 +25,6 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
-
     from docutils.nodes import Node
     from docutils.parsers.rst.states import Inliner
 

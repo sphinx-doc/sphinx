@@ -9,7 +9,7 @@ import time
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 from sphinx import addnodes
 from sphinx.environment.adapters import toctree as toctree_adapters
@@ -23,7 +23,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
     from pathlib import Path
 
     from docutils import nodes
@@ -59,7 +59,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 62
+ENV_VERSION = 63
 
 # config status
 CONFIG_UNSET = -1
@@ -124,7 +124,7 @@ if TYPE_CHECKING:
         def __getitem__(self, key: Literal["todo"]) -> TodoDomain: ...  # NoQA: E704
         @overload
         def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
-        def __getitem__(self, key): raise NotImplementedError  # NoQA: E704
+        def __getitem__(self, _key: str) -> Domain: raise NotImplementedError  # NoQA: E704
         def __setitem__(  # NoQA: E301,E704
             self, key: str, value: Domain,
         ) -> NoReturn: raise NotImplementedError

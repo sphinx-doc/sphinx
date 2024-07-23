@@ -25,10 +25,10 @@ from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from typing import Union
+    from typing import TypeAlias
 
-    CircularList = list[Union[int, 'CircularList']]
-    CircularDict = dict[str, Union[int, 'CircularDict']]
+    CircularList: TypeAlias = list[int | 'CircularList']
+    CircularDict: TypeAlias = dict[str, int | 'CircularDict']
 
 
 def check_is_serializable(subject: object, *, circular: bool) -> None:
@@ -209,9 +209,7 @@ def test_config_pickle_circular_reference_in_list():
 
         assert isinstance(u, list)
         assert v.__class__ is u.__class__
-        assert len(u) == len(v)
-
-        for u_i, v_i in zip(u, v):
+        for u_i, v_i in zip(u, v, strict=True):
             counter[type(u)] += 1
             check(u_i, v_i, counter=counter, guard=guard | {id(u), id(v)})
 
@@ -275,9 +273,7 @@ def test_config_pickle_circular_reference_in_dict():
 
         assert isinstance(u, dict)
         assert v.__class__ is u.__class__
-        assert len(u) == len(v)
-
-        for u_i, v_i in zip(u, v):
+        for u_i, v_i in zip(u, v, strict=True):
             counter[type(u)] += 1
             check(u[u_i], v[v_i], counter=counter, guard=guard | {id(u), id(v)})
         return counter
@@ -573,8 +569,7 @@ def test_nitpick_base(app, status, warning):
     app.build(force_all=True)
 
     warning = warning.getvalue().strip().split('\n')
-    assert len(warning) == len(nitpick_warnings)
-    for actual, expected in zip(warning, nitpick_warnings):
+    for actual, expected in zip(warning, nitpick_warnings, strict=True):
         assert expected in actual
 
 
@@ -629,8 +624,7 @@ def test_nitpick_ignore_regex_fullmatch(app, status, warning):
     app.build(force_all=True)
 
     warning = warning.getvalue().strip().split('\n')
-    assert len(warning) == len(nitpick_warnings)
-    for actual, expected in zip(warning, nitpick_warnings):
+    for actual, expected in zip(warning, nitpick_warnings, strict=True):
         assert expected in actual
 
 

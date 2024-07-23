@@ -7,7 +7,6 @@ import re
 import pytest
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
-from sphinx.deprecation import RemovedInSphinx80Warning
 from sphinx.errors import ConfigError
 from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
@@ -324,8 +323,7 @@ def test_validate_html_extra_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    with pytest.warns(RemovedInSphinx80Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
-        validate_html_extra_path(app, app.config)
+    validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
 
 
@@ -338,8 +336,7 @@ def test_validate_html_static_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    with pytest.warns(RemovedInSphinx80Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
-        validate_html_static_path(app, app.config)
+    validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
 
 
