@@ -17,10 +17,11 @@ from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.config import ENUM, Config
+from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.docstrings import prepare_docstring, separate_metadata
 from sphinx.util.inspect import (
@@ -1381,7 +1382,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if len(sig.parameters) == 0:
             return None
 
-        def dummy():  # NoQA: ANN202
+        def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())
@@ -2277,7 +2278,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if len(sig.parameters) == 1:
             return None
 
-        def dummy():  # NoQA: ANN202
+        def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())

@@ -8,7 +8,7 @@ from sphinx.util.docutils import patch_docutils
 
 
 @pytest.mark.sphinx('dummy', testroot='docutilsconf', freshenv=True)
-def test_html_with_default_docutilsconf(app, status, warning):
+def test_html_with_default_docutilsconf(app):
     with patch_docutils(app.confdir):
         app.build()
 
@@ -20,7 +20,7 @@ def test_html_with_default_docutilsconf(app, status, warning):
 @pytest.mark.sphinx('dummy', testroot='docutilsconf', freshenv=True,
                     docutils_conf=('[restructuredtext parser]\n'
                                    'trim_footnote_reference_space: true\n'))
-def test_html_with_docutilsconf(app, status, warning):
+def test_html_with_docutilsconf(app):
     with patch_docutils(app.confdir):
         app.build()
 

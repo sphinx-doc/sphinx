@@ -96,6 +96,8 @@ def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[st
     On copying, it expands the template variables if context argument is given and
     the asset is a template file.
 
+    Use ``copy_asset_file`` instead to copy a single file.
+
     :param source: The path to source file or directory
     :param destination: The path to destination directory
     :param excluded: The matcher to determine the given path should be copied or not

@@ -184,6 +184,7 @@ nitpick_ignore = {
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
+    ('py:class', 'Path'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge

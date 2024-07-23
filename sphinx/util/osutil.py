@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
     from pathlib import Path
     from types import TracebackType
     from typing import Any
@@ -72,20 +71,25 @@ def ensuredir(file: str | os.PathLike[str]) -> None:
     os.makedirs(file, exist_ok=True)
 
 
-def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
-    for dirname in dirnames:
-        for root, _dirs, files in os.walk(dirname):
-            for sfile in files:
-                if sfile.endswith(suffix):
-                    with contextlib.suppress(OSError):
-                        yield path.getmtime(path.join(root, sfile))
+def _last_modified_time(source: str | os.PathLike[str], /) -> int:
+    """Return the last modified time of ``filename``.
+
+    The time is returned as integer microseconds.
+    The lowest common denominator of modern file-systems seems to be
+    microsecond-level precision.
+
+    We prefer to err on the side of re-rendering a file,
+    so we round up to the nearest microsecond.
+    """
+    st = source.stat() if isinstance(source, os.DirEntry) else os.stat(source)
+    # upside-down floor division to get the ceiling
+    return -(st.st_mtime_ns // -1_000)
 
 
-def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
+def _copy_times(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file's modification times."""
-    st = os.stat(source)
-    if hasattr(os, 'utime'):
-        os.utime(dest, (st.st_atime, st.st_mtime))
+    st = source.stat() if isinstance(source, os.DirEntry) else os.stat(source)
+    os.utime(dest, ns=(st.st_atime_ns, st.st_mtime_ns))
 
 
 def copyfile(
@@ -128,7 +132,7 @@ def copyfile(
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
-            copytimes(source, dest)
+            _copy_times(source, dest)
 
 
 _no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')

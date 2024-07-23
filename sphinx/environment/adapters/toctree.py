@@ -319,7 +319,7 @@ def _toctree_entry(
                            ref, location=toctreenode, type='toc', subtype='no_title')
     except KeyError:
         # this is raised if the included file does not exist
-        ref_path = env.doc2path(ref, False)
+        ref_path = str(env.doc2path(ref, False))
         if excluded(ref_path):
             message = __('toctree contains reference to excluded document %r')
         elif not included(ref_path):
