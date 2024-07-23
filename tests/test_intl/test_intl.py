@@ -40,7 +40,7 @@ def write_mo(pathname, po):
         return mofile.write_mo(f, po)
 
 
-def _set_mtime_ns(target, value):
+def _set_mtime_ns(target: str | os.PathLike[str], value: int) -> int:
     os.utime(target, ns=(value, value))
     return os.stat(target).st_mtime_ns
 
