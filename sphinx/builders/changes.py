@@ -14,7 +14,7 @@ from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
 from sphinx.util.console import bold
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.osutil import copyfile, ensuredir, os_path
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -140,10 +140,18 @@ class ChangesBuilder(Builder):
                 f.write(self.templates.render('changes/rstsource.html', ctx))
         themectx = {'theme_' + key: val for (key, val) in
                     self.theme.get_options({}).items()}
-        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),  # NoQA: E501
-                        self.outdir, context=themectx, renderer=self.templates)
-        copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
-                        self.outdir)
+        copy_asset_file(
+            path.join(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),
+            self.outdir,
+            context=themectx,
+            renderer=self.templates,
+            force=True,
+        )
+        copyfile(
+            path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+            self.outdir,
+            force=True,
+        )
 
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)

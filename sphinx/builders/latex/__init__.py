@@ -26,7 +26,7 @@ from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, make_filename_from_project
+from sphinx.util.osutil import SEP, copyfile, make_filename_from_project
 from sphinx.util.template import LaTeXRenderer
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
@@ -432,7 +432,7 @@ class LaTeXBuilder(Builder):
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
             logger.info(' ' + filename, nonl=True)
-            copy_asset_file(
+            copyfile(
                 self.confdir / filename,
                 self.outdir,
                 force=True,
@@ -446,7 +446,7 @@ class LaTeXBuilder(Builder):
                                        stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
-                    copy_asset_file(
+                    copyfile(
                         self.srcdir / src,
                         self.outdir / dest,
                         force=True,
@@ -457,7 +457,7 @@ class LaTeXBuilder(Builder):
         if self.config.latex_logo:
             if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
                 raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
-            copy_asset_file(
+            copyfile(
                 self.confdir / self.config.latex_logo,
                 self.outdir,
                 force=True,
