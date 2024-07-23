@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Final, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -23,7 +23,7 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -402,7 +402,7 @@ class Glossary(SphinxDirective):
         in_comment = False
         was_empty = True
         messages: list[Node] = []
-        for line, (source, lineno) in zip(self.content, self.content.items):
+        for line, (source, lineno) in zip(self.content, self.content.items, strict=True):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -814,13 +814,12 @@ class StandardDomain(Domain):
                 if not sectname:
                     continue
             else:
-                if (isinstance(node, (nodes.definition_list,
-                                      nodes.field_list)) and
+                if (isinstance(node, nodes.definition_list | nodes.field_list) and
                         node.children):
                     node = cast(nodes.Element, node.children[0])
-                if isinstance(node, (nodes.field, nodes.definition_list_item)):
+                if isinstance(node, nodes.field | nodes.definition_list_item):
                     node = cast(nodes.Element, node.children[0])
-                if isinstance(node, (nodes.term, nodes.field_name)):
+                if isinstance(node, nodes.term | nodes.field_name):
                     sectname = clean_astext(node)
                 else:
                     toctree = next(node.findall(addnodes.toctree), None)
@@ -1114,7 +1113,7 @@ class StandardDomain(Domain):
                 return title_getter(elem)
             else:
                 for subnode in elem:
-                    if isinstance(subnode, (nodes.caption, nodes.title)):
+                    if isinstance(subnode, nodes.caption | nodes.title):
                         return clean_astext(subnode)
 
         return None

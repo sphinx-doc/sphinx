@@ -6,7 +6,7 @@ import os
 import re
 import textwrap
 from collections.abc import Iterable, Iterator, Sequence
-from itertools import chain, groupby
+from itertools import chain, groupby, pairwise
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
@@ -221,10 +221,10 @@ class Table:
             tail = "+" if out[-1][0] == "-" else "|"
             glue = [
                 "+" if left[0] == "-" or right[0] == "-" else "|"
-                for left, right in zip(out, out[1:])
+                for left, right in pairwise(out)
             ]
             glue.append(tail)
-            return head + "".join(chain.from_iterable(zip(out, glue)))
+            return head + "".join(chain.from_iterable(zip(out, glue, strict=False)))
 
         for lineno, line in enumerate(self.lines):
             if self.separator and lineno == self.separator:

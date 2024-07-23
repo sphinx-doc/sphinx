@@ -46,7 +46,7 @@ def test_copy_asset_file(tmp_path):
     subdir1 = (tmp_path / 'subdir')
     subdir1.mkdir(parents=True, exist_ok=True)
 
-    copy_asset_file(src, subdir1, {'var1': 'template'}, renderer)
+    copy_asset_file(src, subdir1, context={'var1': 'template'}, renderer=renderer)
     assert (subdir1 / 'asset.txt').exists()
     assert (subdir1 / 'asset.txt').read_text(encoding='utf8') == '# template data'
 
@@ -111,11 +111,11 @@ def test_copy_asset_overwrite(app):
     app.build()
     src = app.srcdir / 'myext_static' / 'custom-styles.css'
     dst = app.outdir / '_static' / 'custom-styles.css'
-    assert (
-        f'Copying the source path {src} to {dst} will overwrite data, '
-        'as a file already exists at the destination path '
-        'and the content does not match.\n'
-    ) in strip_colors(app.status.getvalue())
+    assert strip_colors(app.warning.getvalue()) == (
+        f'WARNING: Aborted attempted copy from {src} to {dst} '
+        '(the destination path has existing data). '
+        '[misc.copy_overwrite]\n'
+    )
 
 
 def test_template_basename():

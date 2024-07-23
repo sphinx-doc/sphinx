@@ -12,7 +12,7 @@ from sphinx.ext.inheritance_diagram import (
     InheritanceException,
     import_classes,
 )
-from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
 
 
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
@@ -154,10 +154,10 @@ def test_inheritance_diagram_png_html(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(external_inventory)
     app.config.intersphinx_mapping = {
-        'https://example.org': str(inv_file),
+        'example': ('https://example.org', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build(force_all=True)
@@ -204,7 +204,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
         "subdir": ('https://example.org', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build(force_all=True)

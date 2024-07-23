@@ -9,8 +9,8 @@ from os import path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from typing import Any, Callable
+    from collections.abc import Callable, Iterable
+    from typing import Any
 
 
 class _TranslationProxy:

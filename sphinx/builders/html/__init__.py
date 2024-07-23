@@ -51,6 +51,7 @@ from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
+    from typing import TypeAlias
 
     from docutils.nodes import Node
     from docutils.readers import Reader
@@ -67,7 +68,7 @@ INVENTORY_FILENAME = 'objects.inv'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
-DOMAIN_INDEX_TYPE = tuple[
+DOMAIN_INDEX_TYPE: TypeAlias = tuple[
     # Index name (e.g. py-modindex)
     str,
     # Index class
@@ -87,9 +88,9 @@ def _stable_hash(obj: Any) -> str:
     """
     if isinstance(obj, dict):
         obj = sorted(map(_stable_hash, obj.items()))
-    if isinstance(obj, (list, tuple, set, frozenset)):
+    if isinstance(obj, list | tuple | set | frozenset):
         obj = sorted(map(_stable_hash, obj))
-    elif isinstance(obj, (type, types.FunctionType)):
+    elif isinstance(obj, type | types.FunctionType):
         # The default repr() of functions includes the ID, which is not ideal.
         # We use the fully qualified name instead.
         obj = f'{obj.__module__}.{obj.__qualname__}'
@@ -734,7 +735,7 @@ class StandaloneHTMLBuilder(Builder):
                              'genindex-split.html')
             self.handle_page('genindex-all', genindexcontext,
                              'genindex.html')
-            for (key, entries), count in zip(genindex, indexcounts):
+            for (key, entries), count in zip(genindex, indexcounts, strict=True):
                 ctx = {'key': key, 'entries': entries, 'count': count,
                        'genindexentries': genindex}
                 self.handle_page('genindex-' + key, ctx,
@@ -1139,8 +1140,7 @@ class StandaloneHTMLBuilder(Builder):
             source_name = path.join(self.outdir, '_sources',
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
-            copyfile(self.env.doc2path(pagename), source_name,
-                     __overwrite_warning__=False)
+            copyfile(self.env.doc2path(pagename), source_name, force=True)
 
     def update_page_context(self, pagename: str, templatename: str,
                             ctx: dict[str, Any], event_arg: Any) -> None:

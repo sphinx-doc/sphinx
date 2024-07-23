@@ -4,6 +4,8 @@ Release 8.0.0 (in development)
 Dependencies
 ------------
 
+* #12633: Drop Python 3.9 support.
+
 Incompatible changes
 --------------------
 
@@ -60,9 +62,26 @@ Incompatible changes
 * #12597: Change the default of :confval:`show_warning_types`
   from ``False`` to ``True``.
   Patch by Chris Sewell.
+* #12083: Remove support for the old (2008--2010) Sphinx 0.5 and Sphinx 0.6
+  :confval:`intersphinx_mapping` format.
+  Patch by Bénédikt Tran and Adam Turner.
+* #12096: Do not overwrite user-supplied files when copying assets
+  unless forced with ``force=True``.
+  Patch by Adam Turner.
+* #12650: Remove support for string methods on :py:class:`~pathlib.Path` objects.
+  Use :py:func:`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
+  or :py:class:`~pathlib.Path`'s methods to work with path objects.
+  Patch by Adam Turner.
+* #12646: Remove :py:func:`!sphinx.util.inspect.isNewType`.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
+
+* #12643: Renamed ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
+  to ``sphinx.ext.intersphinx.validate_intersphinx_mapping``.
+  The old name will be removed in Sphinx 10.
+  Patch by Adam Turner.
 
 Features added
 --------------

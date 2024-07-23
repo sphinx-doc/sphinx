@@ -22,6 +22,11 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
+     - 8.0
+     - 10.0
+     - ``sphinx.ext.intersphinx.validate_intersphinx_mapping``
+
    * - ``sphinx.testing.util.strip_escseq``
      - 7.3
      - 9.0

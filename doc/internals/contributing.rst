@@ -174,19 +174,19 @@ of targets and allows testing against multiple different Python environments:
 
       tox -av
 
-* To run unit tests for a specific Python version, such as Python 3.10::
+* To run unit tests for a specific Python version, such as Python 3.12::
 
-      tox -e py310
+      tox -e py312
 
 * To run unit tests for a specific Python version and turn on deprecation
   warnings so they're shown in the test output::
 
-      PYTHONWARNINGS=error tox -e py310
+      PYTHONWARNINGS=error tox -e py312
 
 * Arguments to ``pytest`` can be passed via ``tox``, e.g., in order to run a
   particular test::
 
-      tox -e py310 tests/test_module.py::test_new_feature
+      tox -e py312 tests/test_module.py::test_new_feature
 
 You can also test by installing dependencies in your local environment::
 
