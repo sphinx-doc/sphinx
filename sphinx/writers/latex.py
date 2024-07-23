@@ -357,7 +357,7 @@ class LaTeXTranslator(SphinxTranslator):
         if self.config.numfig and self.config.math_numfig:
             sphinxpkgoptions.extend([
                 'mathnumfig',
-                'mathnumsep=%s' % self.config.math_numsep,
+                'mathnumsep={%s}' % self.config.math_numsep,
             ])
 
         if (self.config.language not in {'en', 'ja'} and
