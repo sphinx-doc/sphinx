@@ -141,7 +141,6 @@ exclude = [
     "^tests/test_events\\.py$",
     "^tests/test_quickstart\\.py$",
     "^tests/test_search\\.py$",
-    "^tests/test_versioning\\.py$",
     # tests/test_builders
     "^tests/test_builders/test_build_epub\\.py$",
     "^tests/test_builders/test_build_gettext\\.py$",
