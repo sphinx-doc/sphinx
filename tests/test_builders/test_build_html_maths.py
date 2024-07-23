@@ -4,19 +4,19 @@ from sphinx.errors import ConfigError
 
 
 @pytest.mark.sphinx('html', testroot='basic')
-def test_default_html_math_renderer(app, status, warning):
+def test_default_html_math_renderer(app):
     assert app.builder.math_renderer_name == 'mathjax'
 
 
 @pytest.mark.sphinx('html', testroot='basic',
                     confoverrides={'extensions': ['sphinx.ext.mathjax']})
-def test_html_math_renderer_is_mathjax(app, status, warning):
+def test_html_math_renderer_is_mathjax(app):
     assert app.builder.math_renderer_name == 'mathjax'
 
 
 @pytest.mark.sphinx('html', testroot='basic',
                     confoverrides={'extensions': ['sphinx.ext.imgmath']})
-def test_html_math_renderer_is_imgmath(app, status, warning):
+def test_html_math_renderer_is_imgmath(app):
     assert app.builder.math_renderer_name == 'imgmath'
 
 
@@ -35,7 +35,7 @@ def test_html_math_renderer_is_duplicated(make_app, app_params):
 @pytest.mark.sphinx('html', testroot='basic',
                     confoverrides={'extensions': ['sphinx.ext.imgmath',
                                                   'sphinx.ext.mathjax']})
-def test_html_math_renderer_is_duplicated2(app, status, warning):
+def test_html_math_renderer_is_duplicated2(app):
     # case of both mathjax and another math_renderer is loaded
     assert app.builder.math_renderer_name == 'imgmath'  # The another one is chosen
 
@@ -44,7 +44,7 @@ def test_html_math_renderer_is_duplicated2(app, status, warning):
                     confoverrides={'extensions': ['sphinxcontrib.jsmath',
                                                   'sphinx.ext.imgmath'],
                                    'html_math_renderer': 'imgmath'})
-def test_html_math_renderer_is_chosen(app, status, warning):
+def test_html_math_renderer_is_chosen(app):
     assert app.builder.math_renderer_name == 'imgmath'
 
 

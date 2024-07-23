@@ -105,7 +105,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
 
 
 @pytest.mark.sphinx  # init locale for errors
-def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app, status, warning):
+def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'):
@@ -113,7 +113,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app, sta
 
 
 @pytest.mark.sphinx  # init locale for errors
-def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app, status, warning):
+def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(ValueError, match="Line spec '100-': no lines pulled from include file"):
@@ -294,7 +294,7 @@ def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_code_block(app, status, warning):
+def test_code_block(app):
     app.build(filenames=[app.srcdir / 'index.rst'])
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
@@ -310,13 +310,13 @@ def test_code_block(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_force_option(app, status, warning):
+def test_force_option(app):
     app.build(filenames=[app.srcdir / 'force.rst'])
-    assert 'force.rst' not in warning.getvalue()
+    assert 'force.rst' not in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_code_block_caption_html(app, status, warning):
+def test_code_block_caption_html(app):
     app.build(filenames=[app.srcdir / 'caption.rst'])
     html = (app.outdir / 'caption.html').read_text(encoding='utf8')
     caption = ('<div class="code-block-caption">'
@@ -328,7 +328,7 @@ def test_code_block_caption_html(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_caption_latex(app, status, warning):
+def test_code_block_caption_latex(app):
     app.build(force_all=True)
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
@@ -341,7 +341,7 @@ def test_code_block_caption_latex(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_namedlink_latex(app, status, warning):
+def test_code_block_namedlink_latex(app):
     app.build(force_all=True)
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-rb}}}'
@@ -358,7 +358,7 @@ def test_code_block_namedlink_latex(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_code_block_emphasize_latex(app, status, warning):
+def test_code_block_emphasize_latex(app):
     app.build(filenames=[app.srcdir / 'emphasize.rst'])
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8').replace('\r\n', '\n')
     includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
@@ -368,7 +368,7 @@ def test_code_block_emphasize_latex(app, status, warning):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literal_include(app, status, warning):
+def test_literal_include(app):
     app.build(filenames=[app.srcdir / 'index.rst'])
     et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
@@ -380,7 +380,7 @@ def test_literal_include(app, status, warning):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literal_include_block_start_with_comment_or_brank(app, status, warning):
+def test_literal_include_block_start_with_comment_or_brank(app):
     app.build(filenames=[app.srcdir / 'python.rst'])
     et = etree_parse(app.outdir / 'python.xml')
     secs = et.findall('./section/section')
@@ -404,7 +404,7 @@ def test_literal_include_block_start_with_comment_or_brank(app, status, warning)
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_literal_include_linenos(app, status, warning):
+def test_literal_include_linenos(app):
     app.build(filenames=[app.srcdir / 'linenos.rst'])
     html = (app.outdir / 'linenos.html').read_text(encoding='utf8')
 
@@ -422,7 +422,7 @@ def test_literal_include_linenos(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_file_whole_of_emptyline(app, status, warning):
+def test_literalinclude_file_whole_of_emptyline(app):
     app.build(force_all=True)
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8').replace('\r\n', '\n')
     includes = (
@@ -436,7 +436,7 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_literalinclude_caption_html(app, status, warning):
+def test_literalinclude_caption_html(app):
     app.build(force_all=True)
     html = (app.outdir / 'caption.html').read_text(encoding='utf8')
     caption = ('<div class="code-block-caption">'
@@ -448,7 +448,7 @@ def test_literalinclude_caption_html(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_caption_latex(app, status, warning):
+def test_literalinclude_caption_latex(app):
     app.build(filenames='index')
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
@@ -461,7 +461,7 @@ def test_literalinclude_caption_latex(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
-def test_literalinclude_namedlink_latex(app, status, warning):
+def test_literalinclude_namedlink_latex(app):
     app.build(filenames='index')
     latex = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     label1 = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:name-test-py}}}'
@@ -478,7 +478,7 @@ def test_literalinclude_namedlink_latex(app, status, warning):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literalinclude_classes(app, status, warning):
+def test_literalinclude_classes(app):
     app.build(filenames=[app.srcdir / 'classes.rst'])
     et = etree_parse(app.outdir / 'classes.xml')
     secs = et.findall('./section/section')
@@ -495,7 +495,7 @@ def test_literalinclude_classes(app, status, warning):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literalinclude_pydecorators(app, status, warning):
+def test_literalinclude_pydecorators(app):
     app.build(filenames=[app.srcdir / 'py-decorators.rst'])
     et = etree_parse(app.outdir / 'py-decorators.xml')
     secs = et.findall('./section/section')
@@ -536,7 +536,7 @@ def test_literalinclude_pydecorators(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='directive-code')
-def test_code_block_highlighted(app, status, warning):
+def test_code_block_highlighted(app):
     app.build(filenames=[app.srcdir / 'highlight.rst'])
     doctree = app.env.get_doctree('highlight')
     codeblocks = list(doctree.findall(nodes.literal_block))
@@ -548,7 +548,7 @@ def test_code_block_highlighted(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='directive-code')
-def test_linenothreshold(app, status, warning):
+def test_linenothreshold(app):
     app.build(filenames=[app.srcdir / 'linenothreshold.rst'])
     html = (app.outdir / 'linenothreshold.html').read_text(encoding='utf8')
 
@@ -569,7 +569,7 @@ def test_linenothreshold(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='directive-code')
-def test_code_block_dedent(app, status, warning):
+def test_code_block_dedent(app):
     app.build(filenames=[app.srcdir / 'dedent.rst'])
     doctree = app.env.get_doctree('dedent')
     codeblocks = list(doctree.findall(nodes.literal_block))

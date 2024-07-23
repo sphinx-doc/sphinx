@@ -7,7 +7,7 @@ from docutils import nodes
 
 
 @pytest.mark.sphinx('text', testroot='directive-only')
-def test_sectioning(app, status, warning):
+def test_sectioning(app):
 
     def getsects(section):
         if not isinstance(section, nodes.section):

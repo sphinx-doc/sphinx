@@ -13,18 +13,18 @@ cleanup_called = 0
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest')
-def test_build(app, status, warning):
+def test_build(app):
     global cleanup_called
     cleanup_called = 0
     app.build(force_all=True)
-    assert app.statuscode == 0, f'failures in doctests:\n{status.getvalue()}'
+    assert app.statuscode == 0, f'failures in doctests:\n{app.status.getvalue()}'
     # in doctest.txt, there are two named groups and the default group,
     # so the cleanup function must be called three times
     assert cleanup_called == 3, 'testcleanup did not get executed enough times'
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-doctest')
-def test_highlight_language_default(app, status, warning):
+def test_highlight_language_default(app):
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
@@ -33,7 +33,7 @@ def test_highlight_language_default(app, status, warning):
 
 @pytest.mark.sphinx('dummy', testroot='ext-doctest',
                     confoverrides={'highlight_language': 'python'})
-def test_highlight_language_python3(app, status, warning):
+def test_highlight_language_python3(app):
     app.build()
     doctree = app.env.get_doctree('doctest')
     for node in doctree.findall(nodes.literal_block):
@@ -73,7 +73,7 @@ recorded_calls = Counter()
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')
-def test_skipif(app, status, warning):
+def test_skipif(app):
     """Tests for the :skipif: option
 
     The tests are separated into a different test root directory since the
@@ -87,7 +87,7 @@ def test_skipif(app, status, warning):
     recorded_calls = Counter()
     app.build(force_all=True)
     if app.statuscode != 0:
-        raise AssertionError('failures in doctests:' + status.getvalue())
+        raise AssertionError('failures in doctests:' + app.status.getvalue())
     # The `:skipif:` expressions are always run.
     # Actual tests and setup/cleanup code is only run if the `:skipif:`
     # expression evaluates to a False value.
@@ -119,7 +119,7 @@ def record(directive, part, should_skip):
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-with-autodoc')
-def test_reporting_with_autodoc(app, status, warning, capfd):
+def test_reporting_with_autodoc(app, capfd):
     # Patch builder to get a copy of the output
     written = []
     app.builder._warn_out = written.append

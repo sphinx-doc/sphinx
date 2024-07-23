@@ -56,7 +56,7 @@ def test_read_inventory_v2_not_having_version():
         ('foo', '', '/util/foo.html#module-module1', 'Long Module desc')
 
 
-def test_ambiguous_definition_warning(warning, status):
+def test_ambiguous_definition_warning(app):
     f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
     InventoryFile.load(f, '/util', posixpath.join)
 
@@ -68,10 +68,10 @@ def test_ambiguous_definition_warning(warning, status):
         _multiple_defs_notice_for('std:term:a'),
         _multiple_defs_notice_for('std:term:b'),
     )
-    assert mult_defs_a not in warning.getvalue().lower()
-    assert mult_defs_a not in status.getvalue().lower()
-    assert mult_defs_b not in warning.getvalue().lower()
-    assert mult_defs_b in status.getvalue().lower()
+    assert mult_defs_a not in app.warning.getvalue().lower()
+    assert mult_defs_a not in app.status.getvalue().lower()
+    assert mult_defs_b not in app.warning.getvalue().lower()
+    assert mult_defs_b in app.status.getvalue().lower()
 
 
 def _write_appconfig(dir: Path, language: str, prefix: str | None = None) -> Path:
