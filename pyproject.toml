@@ -208,6 +208,8 @@ exclude = [
 ]
 check_untyped_defs = true
 disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_defs = true
 python_version = "3.10"
 disallow_untyped_calls = true
 show_column_numbers = true
@@ -276,6 +278,12 @@ module = [
     "snowballstemmer",
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+]
+disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 minversion = "6.0"

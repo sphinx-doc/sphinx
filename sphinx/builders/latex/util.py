@@ -5,7 +5,7 @@ from __future__ import annotations
 from docutils.writers.latex2e import Babel
 
 
-class ExtBabel(Babel):
+class ExtBabel(Babel):  # type: ignore[misc]
     cyrillic_languages = ('bulgarian', 'kazakh', 'mongolian', 'russian', 'ukrainian')
 
     def __init__(self, language_code: str, use_polyglossia: bool = False) -> None:

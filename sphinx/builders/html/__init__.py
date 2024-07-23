@@ -51,6 +51,7 @@ from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
+    from typing import TypeAlias
 
     from docutils.nodes import Node
     from docutils.readers import Reader
@@ -67,7 +68,7 @@ INVENTORY_FILENAME = 'objects.inv'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
-DOMAIN_INDEX_TYPE = tuple[
+DOMAIN_INDEX_TYPE: TypeAlias = tuple[
     # Index name (e.g. py-modindex)
     str,
     # Index class
