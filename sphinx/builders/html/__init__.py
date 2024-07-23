@@ -769,7 +769,7 @@ class StandaloneHTMLBuilder(Builder):
                         force=True,
                     )
                 except Exception as err:
-                    logger.warning(__('cannot copy image file %r: %s'),
+                    logger.warning(__("cannot copy image file '%s': %s"),
                                    self.srcdir / src, err)
 
     def copy_download_files(self) -> None:

@@ -387,7 +387,7 @@ def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
     assert len(ws) >= 1
 
     file = os.fsdecode(target)
-    assert f'WARNING: cannot copy image file {file!r}: {file!s} does not exist' == ws[-1]
+    assert f"WARNING: cannot copy image file '{file}': {file} does not exist" == ws[-1]
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_maximum_signature_line_length',
