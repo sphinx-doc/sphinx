@@ -37,6 +37,9 @@ ts_re = re.compile(r".*\[(?P<ts>.*)\].*")
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
     from io import StringIO
+    from typing import Any
+
+    from urllib3 import HTTPConnectionPool
 
     from sphinx.application import Sphinx
 
@@ -77,8 +80,8 @@ class DefaultsHandler(BaseHTTPRequestHandler):
 class ConnectionMeasurement:
     """Measure the number of distinct host connections created during linkchecking"""
 
-    def __init__(self):
-        self.connections = set()
+    def __init__(self) -> None:
+        self.connections: set[HTTPConnectionPool] = set()
         self.urllib3_connection_from_url = PoolManager.connection_from_url
         self.patcher = mock.patch.object(
             target=PoolManager,
@@ -86,7 +89,7 @@ class ConnectionMeasurement:
             new=self._collect_connections(),
         )
 
-    def _collect_connections(self):
+    def _collect_connections(self) -> Callable[[object, str], HTTPConnectionPool]:
         def connection_collector(obj, url):
             connection = self.urllib3_connection_from_url(obj, url)
             self.connections.add(connection)
@@ -436,7 +439,10 @@ def test_decoding_error_anchor_ignored(app):
     assert row['status'] == 'ignored'
 
 
-def custom_handler(valid_credentials=(), success_criteria=lambda _: True):
+def custom_handler(
+    valid_credentials: tuple[str, str] | None = None,
+    success_criteria: Callable[[Any], bool] = lambda _: True
+) -> type[BaseHTTPRequestHandler]:
     """
     Returns an HTTP request handler that authenticates the client and then determines
     an appropriate HTTP response code, based on caller-provided credentials and optional
@@ -591,11 +597,11 @@ def test_linkcheck_request_headers_default(app: Sphinx) -> None:
     assert content["status"] == "working"
 
 
-def make_redirect_handler(*, support_head):
+def make_redirect_handler(*, support_head: bool) -> type[BaseHTTPRequestHandler]:
     class RedirectOnceHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
-        def do_HEAD(self):
+        def do_HEAD(self) -> None:
             if support_head:
                 self.do_GET()
             else:
@@ -603,7 +609,7 @@ def make_redirect_handler(*, support_head):
                 self.send_header("Content-Length", "0")
                 self.end_headers()
 
-        def do_GET(self):
+        def do_GET(self) -> None:
             if self.path == "/?redirected=1":
                 self.send_response(204, "No content")
             else:
@@ -843,7 +849,7 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
     }
 
 
-def make_retry_after_handler(responses):
+def make_retry_after_handler(responses: list[tuple[int, str | None]]) -> type[BaseHTTPRequestHandler]:
     class RetryAfterHandler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
