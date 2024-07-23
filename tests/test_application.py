@@ -33,7 +33,7 @@ def test_instantiation(
     if rootdir and not src_dir.exists():
         shutil.copytree(Path(str(rootdir)) / 'test-root', src_dir)
 
-    syspath = sys.path[:]
+    saved_path = sys.path.copy()
 
     # When
     app_ = SphinxTestApp(
@@ -41,7 +41,7 @@ def test_instantiation(
         status=StringIO(),
         warning=StringIO(),
     )
-    sys.path[:] = syspath
+    sys.path[:] = saved_path
     app_.cleanup()
 
     # Then

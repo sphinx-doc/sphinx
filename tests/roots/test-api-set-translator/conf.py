@@ -1,7 +1,7 @@
 # set this by test
-# import os
 # import sys
-# sys.path.insert(0, os.path.abspath('.'))
+# from pathlib import Path
+# sys.path.insert(0, str(Path.cwd().resolve()))
 
 from docutils.writers.docutils_xml import XMLTranslator
 

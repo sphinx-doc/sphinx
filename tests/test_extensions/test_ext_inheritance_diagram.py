@@ -289,8 +289,9 @@ def test_import_classes(rootdir):
     from sphinx.parsers import Parser, RSTParser
     from sphinx.util.i18n import CatalogInfo
 
+    saved_path = sys.path.copy()
+    sys.path.insert(0, str(rootdir / 'test-ext-inheritance_diagram'))
     try:
-        sys.path.append(str(rootdir / 'test-ext-inheritance_diagram'))
         from example.sphinx import DummyClass
 
         # got exception for unknown class or module
@@ -339,4 +340,4 @@ def test_import_classes(rootdir):
         classes = import_classes('sphinx', 'example')
         assert classes == [DummyClass]
     finally:
-        sys.path.pop()
+        sys.path[:] = saved_path
