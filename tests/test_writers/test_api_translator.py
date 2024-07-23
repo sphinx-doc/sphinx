@@ -7,10 +7,10 @@ import pytest
 
 @pytest.fixture(scope='module', autouse=True)
 def _setup_module(rootdir):
-    p = rootdir / 'test-api-set-translator'
-    sys.path.insert(0, p)
+    saved_path = sys.path.copy()
+    sys.path.insert(0, str(rootdir / 'test-api-set-translator'))
     yield
-    sys.path.remove(p)
+    sys.path[:] = saved_path
 
 
 @pytest.mark.sphinx('html')
