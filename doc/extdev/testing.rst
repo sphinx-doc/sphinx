@@ -1,23 +1,32 @@
-Testing
-=======
+Testing API
+===========
 
 .. py:module:: sphinx.testing
+   :synopsis: Utility functions and pytest fixtures for testing.
 
 .. versionadded:: 1.6
-   :py:mod:`!sphinx.testing` is added as an experiment.
 
-Utility functions and pytest fixtures for testing are provided in
-``sphinx.testing``. If you are a developer of Sphinx extensions, you can write
-unit tests by using pytest. At this time, ``sphinx.testing`` will help your
-test implementation.
+Utility functions and pytest fixtures for testing
+are provided in :py:mod:`!sphinx.testing`.
+If you are a developer of Sphinx extensions,
+you can write unit tests with pytest_.
 
-How to use pytest fixtures that are provided by ``sphinx.testing``?  You can
-require ``'sphinx.testing.fixtures'`` in your test modules or ``conftest.py``
-files like this:
+.. _pytest: https://docs.pytest.org/en/latest/
+
+``pytest`` configuration
+-------------------------
+
+To use pytest fixtures that are provided by ``sphinx.testing``,
+add the ``'sphinx.testing.fixtures'`` plugin
+to your test modules or :file:`conftest.py` files as follows:
 
 .. code-block:: python
 
-   pytest_plugins = 'sphinx.testing.fixtures'
+   pytest_plugins = ('sphinx.testing.fixtures',)
 
-If you want to know more detailed usage, please refer to ``tests/conftest.py``
-and other ``test_*.py`` files under the ``tests`` directory.
+Usage
+-----
+
+If you want to know more detailed usage,
+please refer to :file:`tests/conftest.py`` and other :file:`test_*.py` files
+under the :file:`tests/` directory.
