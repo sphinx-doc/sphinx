@@ -218,8 +218,27 @@ class StandaloneHTMLBuilder(Builder):
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
-        # basename of images directory
-        self.imagedir = '_images'
+        # There are two optional configuration options to control how
+        # images are used by the builder.
+        #
+        # html_image_dir specifies the physical directory where the
+        # image files will be stored during building. Default: "_images"
+        #
+        # html_image_path specifies the relative HTML path to reference
+        # that directory. Default: None
+        #
+        # Setting html_image_path overrides the "default" behaviour of
+        # building the relative path with relative_uri(self.get_target_uri(docname), '_images')
+        html_image_dir = self.get_builder_config('image_dir', 'html')
+        if html_image_dir is not None:
+            self.imagedir = html_image_dir
+        else:
+            # basename of images directory
+            self.imagedir = '_images'
+        # Always set this from the config since we want the default to
+        # be None if not specified in the config
+        self.imagepath = self.get_builder_config('image_path', 'html')
+
         # section numbers for headings in the currently visited document
         self.secnumbers: dict[str, tuple[int, ...]] = {}
         # currently written docname
@@ -656,7 +675,10 @@ class StandaloneHTMLBuilder(Builder):
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.fignumbers = self.env.toc_fignumbers.get(docname, {})
-        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        if self.imagepath is not None:
+            self.imgpath = self.imagepath
+        else:
+            self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -668,7 +690,10 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
-        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
+        if self.imagepath is not None:
+            self.imgpath = self.imagepath
+        else:
+            self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
         title_node = self.env.longtitles.get(docname)
         title = self.render_partial(title_node)['title'] if title_node else ''
