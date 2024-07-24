@@ -20,7 +20,7 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.console import bold, darkgreen
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
@@ -407,7 +407,6 @@ class LaTeXBuilder(Builder):
             'xindy_lang_option': xindy_lang_option,
             'xindy_cyrillic':    xindy_cyrillic,
         }
-        logger.info(bold(__('copying TeX support files...')))
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
