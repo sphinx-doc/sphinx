@@ -1418,6 +1418,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
+    app.add_config_value('html_image_dir', None, 'html', [str])
+    app.add_config_value('html_image_path', None, 'html', [str])
 
     # events
     app.add_event('html-collect-pages')
