@@ -765,8 +765,8 @@ There are also config values that you can set:
 
 .. confval:: autodoc_warningiserror
 
-   This value controls the behavior of :option:`sphinx-build -W` during
-   importing modules.
+   This value controls the behavior of :option:`sphinx-build --fail-on-warning`
+   during importing modules.
    If ``False`` is given, autodoc forcedly suppresses the error if the imported
    module emits warnings.  By default, ``True``.
 
