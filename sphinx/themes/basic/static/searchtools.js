@@ -20,7 +20,7 @@ if (typeof Scorer === "undefined") {
     // and returns the new score.
     /*
     score: result => {
-      const [docname, title, anchor, descr, score, filename] = result
+      const [docname, title, anchor, descr, score, filename, context] = result
       return score
     },
     */
@@ -47,6 +47,14 @@ if (typeof Scorer === "undefined") {
   };
 }
 
+// Global search result kind enum, used by themes to style search results.
+class SearchResultContext {
+    static get index() { return  "index"; }
+    static get object() { return "object"; }
+    static get text() { return "text"; }
+    static get title() { return "title"; }
+}
+
 const _removeChildren = (element) => {
   while (element && element.lastChild) element.removeChild(element.lastChild);
 };
@@ -64,9 +72,13 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
   const contentRoot = document.documentElement.dataset.content_root;
 
-  const [docName, title, anchor, descr, score, _filename] = item;
+  const [docName, title, anchor, descr, score, _filename, context] = item;
 
   let listItem = document.createElement("li");
+  // Add a class representing the item's type:
+  // can be used by a theme's CSS selector for styling
+  // See SearchResultContext for the class names.
+  listItem.classList.add(`context-${context}`);
   let requestUrl;
   let linkUrl;
   if (docBuilder === "dirhtml") {
@@ -138,7 +150,7 @@ const _displayNextItem = (
   else _finishSearch(resultCount);
 };
 // Helper function used by query() to order search results.
-// Each input is an array of [docname, title, anchor, descr, score, filename].
+// Each input is an array of [docname, title, anchor, descr, score, filename, context].
 // Order the results by score (in opposite order of appearance, since the
 // `_displayNextItem` function uses pop() to retrieve items) and then alphabetically.
 const _orderResultsByScoreThenName = (a, b) => {
@@ -248,6 +260,7 @@ const Search = {
     searchSummary.classList.add("search-summary");
     searchSummary.innerText = "";
     const searchList = document.createElement("ul");
+    searchList.setAttribute("role", "list");
     searchList.classList.add("search");
 
     const out = document.getElementById("search-results");
@@ -318,7 +331,7 @@ const Search = {
     const indexEntries = Search._index.indexentries;
 
     // Collect multiple result groups to be sorted separately and then ordered.
-    // Each is an array of [docname, title, anchor, descr, score, filename].
+    // Each is an array of [docname, title, anchor, descr, score, filename, context].
     const normalResults = [];
     const nonMainIndexResults = [];
 
@@ -337,6 +350,7 @@ const Search = {
             null,
             score + boost,
             filenames[file],
+            SearchResultContext.title,
           ]);
         }
       }
@@ -354,6 +368,7 @@ const Search = {
             null,
             score,
             filenames[file],
+            SearchResultContext.index,
           ];
           if (isMain) {
             normalResults.push(result);
@@ -475,6 +490,7 @@ const Search = {
         descr,
         score,
         filenames[match[0]],
+        SearchResultContext.object,
       ]);
     };
     Object.keys(objects).forEach((prefix) =>
@@ -585,6 +601,7 @@ const Search = {
         null,
         score,
         filenames[file],
+        SearchResultContext.text,
       ]);
     }
     return results;

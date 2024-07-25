@@ -221,6 +221,60 @@ If your theme package contains two or more themes, please call
    ``sphinx.html_themes`` entry_points feature.
 
 
+Styling with CSS
+----------------
+The **stylesheets** setting allows to add custom CSS files to a theme.
+
+The structure of the HTML elements and their classes are currently not a
+well-defined public API. Please infer them from inspecting the built HTML
+pages. While we cannot guarantee full stability, they tend to be fairly
+stable.
+
+Styling search result entries by category
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 8.0
+
+The search result items have classes indicating the context in which the
+search term was found. You can use the CSS selectors:
+
+- ``ul.search li.context-index``:
+  If the search term is found in an index such as the glossary
+- ``ul.search li.context-object``:
+  If the search term a code object such as a python function
+- ``ul.search li.context-text``:
+  If the search term is found in plain documentation text
+- ``ul.search li.context-title``:
+  If the search term is found in a heading
+
+The basic theme is intentional minimal and does not use them for styling.
+Derived themes are encouraged to use these selectors as they see fit.
+For example, the following code would add context-dependent icons to the
+search result list:
+
+.. code-block:: css
+
+    ul.search {
+        padding-left: 30px;
+    }
+    ul.search li {
+        padding: 5px 0 5px 10px;
+        list-style-type: "\25A1";  /* Unicode: White Square */
+    }
+    ul.search li.context-index {
+        list-style-type: "\1F4D1";  /* Unicode: Bookmark Tabs */
+    }
+    ul.search li.context-object {
+        list-style-type: "\1F4E6";  /* Unicode: Package */
+    }
+    ul.search li.context-title {
+        list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
+    }
+    ul.search li.context-text {
+        list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
+    }
+
+
 Templating
 ----------
 
