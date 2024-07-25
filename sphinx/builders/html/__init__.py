@@ -193,6 +193,10 @@ class StandaloneHTMLBuilder(Builder):
     imgpath: str = ''
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
 
+    # Used to override the path reference inside built documents
+    imagepath = None
+    
+
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         super().__init__(app, env)
 
