@@ -106,6 +106,14 @@ the documentation as HTML for the first time.  To do that, run this command:
 
    (.venv) $ sphinx-build -M html docs/source/ docs/build/
 
+.. note::
+
+  Please note that ``-M`` flag is a `make-mode` flag. ``sphinx-build`` also has
+  a `build-mode` that provides more control over cache directories but has less
+  builders available and has a different signature. It is invoked by using a
+  ``-b`` flag. These flags are mutually exclusive. You can find out more in
+  :doc:`sphinx-build's manual </man/sphinx-build>`.
+
 And finally, open ``docs/build/html/index.html`` in your browser.  You should see
 something like this:
 
