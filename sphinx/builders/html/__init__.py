@@ -195,7 +195,6 @@ class StandaloneHTMLBuilder(Builder):
 
     # Used to override the path reference inside built documents
     imagepath = None
-    
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         super().__init__(app, env)
@@ -242,7 +241,6 @@ class StandaloneHTMLBuilder(Builder):
         # Always set this from the config since we want the default to
         # be None if not specified in the config
         self.imagepath = self.get_builder_config('image_path', 'html')
-
         # section numbers for headings in the currently visited document
         self.secnumbers: dict[str, tuple[int, ...]] = {}
         # currently written docname
