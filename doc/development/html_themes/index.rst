@@ -249,7 +249,8 @@ search term was found. You can use the CSS selectors:
 - ``ul.search li.context-text``:
   For results found anywhere else in the documentation text
 
-As a base for inheritance by other themes, the ``basic`` theme is intentionally minimal and does not define CSS rules using these.
+As a base for inheritance by other themes, the ``basic`` theme is
+intentionally minimal and does not define CSS rules using these.
 Derived themes are encouraged to use these selectors as they see fit.
 For example, the following stylesheet adds contextual icons to the
 search result list:
