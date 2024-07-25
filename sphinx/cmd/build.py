@@ -9,10 +9,11 @@ import locale
 import multiprocessing
 import os
 import pdb  # NoQA: T100
+import re
 import sys
 import traceback
 from os import path
-from typing import TYPE_CHECKING, Any, TextIO
+from typing import TYPE_CHECKING, Any, TextIO, IO
 
 from docutils.utils import SystemMessage
 
@@ -110,10 +111,41 @@ def jobs_argument(value: str) -> int:
         else:
             return jobs
 
+class ParagraphFormatter(argparse.HelpFormatter):
+    """Wraps help text as a default formatter but keeps paragraps separated."""
+    _paragraph_matcher = re.compile(r"\n\n+")
+
+    def _fill_text(self, text: str, width: int, indent: str) -> str:
+        import textwrap
+        result: list[str] = []
+        for p in self._paragraph_matcher.split(text):
+            p = self._whitespace_matcher.sub(' ', p).strip()
+            p = textwrap.fill(p, width,
+                              initial_indent=indent,
+                              subsequent_indent=indent)
+            result.append(p)
+        return '\n\n'.join(result)
+
+class ArgParser(argparse.ArgumentParser):
+    """Wraps standard ArgumentParser to add sphinx-specefic flags to help."""
+    def print_help(self, file: IO[str] | None = None) -> None:
+        from gettext import gettext as _
+        # we inject -M flag action to positionals before printing help
+        # so that there is no risk of side effects on actual execution
+        for action_group in self._action_groups:
+            if not action_group.title == _('positional arguments'):
+                continue
+            m_flag = argparse.Action(["-M"], "BUILDER",  # ugly but works
+                help=__('please refer to usage and main help section'))
+            action_group._group_actions.insert(0, m_flag)
+            break
+        return super().print_help(file)
 
 def get_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
+    parser = ArgParser(
+        usage=(       '%(prog)s -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]\n'
+               '       %(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]'),
+        formatter_class=ParagraphFormatter,
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
@@ -122,6 +154,13 @@ sphinx-build generates documentation from the files in SOURCEDIR and places it
 in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
 settings. The 'sphinx-quickstart' tool may be used to generate template files,
 including 'conf.py'
+
+PLEASE NOTE that there are 2 signatures for 2 usage scenarios. -M flag is a
+special flag that must always come first if used! If present, it alters the
+way the tool works. It can be thought of as a "one-click" solution. It allows
+to build several formats of docs into the same OUTPUTDIR without mixing them
+up (it creates a dedicated directory for each builder). If more control over
+paths is needed then -b flag is the way to go.
 
 sphinx-build can create documentation in different formats. A format is
 selected by specifying the builder name on the command line; it defaults to
