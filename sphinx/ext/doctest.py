@@ -373,7 +373,7 @@ Doctest summary
         try:
             filename = relpath(node.source, self.env.srcdir).rsplit(':docstring of ', maxsplit=1)[0]  # type: ignore[arg-type]  # noqa: E501
         except Exception:
-            filename = self.env.doc2path(docname, False)
+            filename = str(self.env.doc2path(docname, False))
         return filename
 
     @staticmethod

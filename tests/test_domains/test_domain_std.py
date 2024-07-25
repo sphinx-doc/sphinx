@@ -178,7 +178,7 @@ def test_glossary(app):
     assert_node(refnode, nodes.reference, refid="term-TERM2")
 
 
-def test_glossary_warning(app, status, warning):
+def test_glossary_warning(app):
     # empty line between terms
     text = (".. glossary::\n"
             "\n"
@@ -187,7 +187,7 @@ def test_glossary_warning(app, status, warning):
             "   term2\n")
     restructuredtext.parse(app, text, "case1")
     assert ("case1.rst:4: WARNING: glossary terms must not be separated by empty lines"
-            in warning.getvalue())
+            in app.warning.getvalue())
 
     # glossary starts with indented item
     text = (".. glossary::\n"
@@ -196,7 +196,7 @@ def test_glossary_warning(app, status, warning):
             "   term\n")
     restructuredtext.parse(app, text, "case2")
     assert ("case2.rst:3: WARNING: glossary term must be preceded by empty line"
-            in warning.getvalue())
+            in app.warning.getvalue())
 
     # empty line between terms
     text = (".. glossary::\n"
@@ -206,7 +206,7 @@ def test_glossary_warning(app, status, warning):
             "   term2\n")
     restructuredtext.parse(app, text, "case3")
     assert ("case3.rst:4: WARNING: glossary term must be preceded by empty line"
-            in warning.getvalue())
+            in app.warning.getvalue())
 
     # duplicated terms
     text = (".. glossary::\n"
@@ -215,7 +215,7 @@ def test_glossary_warning(app, status, warning):
             "   term-case4\n")
     restructuredtext.parse(app, text, "case4")
     assert ("case4.rst:3: WARNING: duplicate term description of term-case4, "
-            "other instance in case4" in warning.getvalue())
+            "other instance in case4" in app.warning.getvalue())
 
 
 def test_glossary_comment(app):
@@ -366,10 +366,10 @@ def test_multiple_cmdoptions(app):
 
 
 @pytest.mark.sphinx(testroot='productionlist')
-def test_productionlist(app, status, warning):
+def test_productionlist(app):
     app.build(force_all=True)
 
-    warnings = warning.getvalue().split("\n")
+    warnings = app.warning.getvalue().split("\n")
     assert len(warnings) == 2
     assert warnings[-1] == ''
     assert "Dup2.rst:4: WARNING: duplicate token description of Dup, other instance in Dup1" in warnings[0]

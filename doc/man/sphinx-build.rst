@@ -43,7 +43,7 @@ Options
       the source and output directories, before any other options are passed.
       For example::
 
-          sphinx-build -M html ./source ./build -W --keep-going
+          sphinx-build -M html ./source ./build --fail-on-warning --keep-going
 
    The *make-mode* provides the same build functionality as
    a default :ref:`Makefile or Make.bat <makefile_options>`,
@@ -261,8 +261,10 @@ Options
 
 .. option:: --keep-going
 
-   With -W option, keep going processing when getting warnings to the end
-   of build, and ``sphinx-build`` exits with exit status 1.
+   Only applicable whilst using :option:`--fail-on-warning`,
+   which by default exits :program:`sphinx-build` on the first warning.
+   Using :option:`!--keep-going` runs :program:`!sphinx-build` to completion
+   and exits with exit status 1 if errors are encountered.
 
    .. versionadded:: 1.8
 

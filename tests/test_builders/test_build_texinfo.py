@@ -15,7 +15,7 @@ from sphinx.writers.texinfo import TexinfoTranslator
 
 
 @pytest.mark.sphinx('texinfo')
-def test_texinfo(app, status, warning):
+def test_texinfo(app):
     TexinfoTranslator.ignore_missing_images = True
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
@@ -37,7 +37,7 @@ def test_texinfo(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')
-def test_texinfo_rubric(app, status, warning):
+def test_texinfo_rubric(app):
     app.build()
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
@@ -47,7 +47,7 @@ def test_texinfo_rubric(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-citation')
-def test_texinfo_citation(app, status, warning):
+def test_texinfo_citation(app):
     app.build(force_all=True)
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
@@ -68,7 +68,7 @@ def test_default_texinfo_documents():
 
 
 @pytest.mark.sphinx('texinfo')
-def test_texinfo_escape_id(app, status, warning):
+def test_texinfo_escape_id(app):
     settings = Mock(title='',
                     texinfo_dir_entry='',
                     texinfo_elements={})
@@ -85,7 +85,7 @@ def test_texinfo_escape_id(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='footnotes')
-def test_texinfo_footnote(app, status, warning):
+def test_texinfo_footnote(app):
     app.build(force_all=True)
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
@@ -93,7 +93,7 @@ def test_texinfo_footnote(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo')
-def test_texinfo_xrefs(app, status, warning):
+def test_texinfo_xrefs(app):
     app.build(force_all=True)
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert re.search(r'@ref{\w+,,--plugin\.option}', output)
@@ -107,7 +107,7 @@ def test_texinfo_xrefs(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='root')
-def test_texinfo_samp_with_variable(app, status, warning):
+def test_texinfo_samp_with_variable(app):
     app.build()
 
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
@@ -118,7 +118,7 @@ def test_texinfo_samp_with_variable(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='images')
-def test_copy_images(app, status, warning):
+def test_copy_images(app):
     app.build()
 
     images_dir = Path(app.outdir) / 'projectnamenotset-figures'

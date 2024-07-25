@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.sphinx('html', testroot='theming')
-def test_theme_options(app, status, warning):
+def test_theme_options(app):
     app.build()
 
     result = (app.outdir / '_static' / 'documentation_options.js').read_text(encoding='utf8')
@@ -18,7 +18,7 @@ def test_theme_options(app, status, warning):
         'html_theme_options.enable_search_shortcuts': False,
     },
 )
-def test_theme_options_with_override(app, status, warning):
+def test_theme_options_with_override(app):
     app.build()
 
     result = (app.outdir / '_static' / 'documentation_options.js').read_text(encoding='utf8')

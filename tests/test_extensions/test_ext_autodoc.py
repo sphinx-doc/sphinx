@@ -435,16 +435,16 @@ def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_py_module(app, warning):
+def test_py_module(app):
     # without py:module
     actual = do_autodoc(app, 'method', 'Class.meth')
     assert list(actual) == []
     assert ("don't know which module to import for autodocumenting 'Class.meth'"
-            in warning.getvalue())
+            in app.warning.getvalue())
 
     # with py:module
     app.env.ref_context['py:module'] = 'target'
-    warning.truncate(0)
+    app.warning.truncate(0)
 
     actual = do_autodoc(app, 'method', 'Class.meth')
     assert list(actual) == [
@@ -456,7 +456,7 @@ def test_py_module(app, warning):
         '',
     ]
     assert ("don't know which module to import for autodocumenting 'Class.meth'"
-            not in warning.getvalue())
+            not in app.warning.getvalue())
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -496,23 +496,23 @@ def test_autodoc_exception(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_warnings(app, warning):
+def test_autodoc_warnings(app):
     app.env.temp_data['docname'] = 'dummy'
 
     # can't import module
     do_autodoc(app, 'module', 'unknown')
-    assert "failed to import module 'unknown'" in warning.getvalue()
+    assert "failed to import module 'unknown'" in app.warning.getvalue()
 
     # missing function
     do_autodoc(app, 'function', 'unknown')
-    assert "import for autodocumenting 'unknown'" in warning.getvalue()
+    assert "import for autodocumenting 'unknown'" in app.warning.getvalue()
 
     do_autodoc(app, 'function', 'target.unknown')
-    assert "failed to import function 'unknown' from module 'target'" in warning.getvalue()
+    assert "failed to import function 'unknown' from module 'target'" in app.warning.getvalue()
 
     # missing method
     do_autodoc(app, 'method', 'target.Class.unknown')
-    assert "failed to import method 'Class.unknown' from module 'target'" in warning.getvalue()
+    assert "failed to import method 'Class.unknown' from module 'target'" in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -2705,7 +2705,7 @@ def test_pyclass_for_ClassLevelDocumenter(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autodoc')
-def test_autodoc(app, status, warning):
+def test_autodoc(app):
     app.build(force_all=True)
 
     content = app.env.get_doctree('index')
@@ -2721,7 +2721,7 @@ def test_autodoc(app, status, warning):
 my_name
 
 alias of Foo"""
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

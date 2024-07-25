@@ -9,13 +9,11 @@ from typing import TYPE_CHECKING
 import pytest
 
 if TYPE_CHECKING:
-    from io import StringIO
-
-    from sphinx.application import Sphinx
+    from sphinx.testing.util import SphinxTestApp
 
 
-def check_viewcode_output(app: Sphinx, warning: StringIO) -> str:
-    warnings = re.sub(r'\\+', '/', warning.getvalue())
+def check_viewcode_output(app: SphinxTestApp) -> str:
+    warnings = re.sub(r'\\+', '/', app.warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/spam/__init__.py'",
@@ -51,28 +49,28 @@ def check_viewcode_output(app: Sphinx, warning: StringIO) -> str:
 @pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
                     confoverrides={"viewcode_line_numbers": True})
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_viewcode_linenos(app, warning):
+def test_viewcode_linenos(app):
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
     app.build(force_all=True)
 
-    result = check_viewcode_output(app, warning)
+    result = check_viewcode_output(app)
     assert '<span class="linenos"> 1</span>' in result
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode', freshenv=True,
                     confoverrides={"viewcode_line_numbers": False})
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_viewcode(app, warning):
+def test_viewcode(app):
     shutil.rmtree(app.outdir / '_modules', ignore_errors=True)
     app.build(force_all=True)
 
-    result = check_viewcode_output(app, warning)
+    result = check_viewcode_output(app)
     assert 'class="linenos">' not in result
 
 
 @pytest.mark.sphinx('epub', testroot='ext-viewcode')
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_viewcode_epub_default(app, status, warning):
+def test_viewcode_epub_default(app):
     shutil.rmtree(app.outdir)
     app.build(force_all=True)
 
@@ -85,7 +83,7 @@ def test_viewcode_epub_default(app, status, warning):
 @pytest.mark.sphinx('epub', testroot='ext-viewcode',
                     confoverrides={'viewcode_enable_epub': True})
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_viewcode_epub_enabled(app, status, warning):
+def test_viewcode_epub_enabled(app):
     app.build(force_all=True)
 
     assert (app.outdir / '_modules/spam/mod1.xhtml').exists()
@@ -95,7 +93,7 @@ def test_viewcode_epub_enabled(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode', tags=['test_linkcode'])
-def test_linkcode(app, status, warning):
+def test_linkcode(app):
     app.build(filenames=[app.srcdir / 'objects.rst'])
 
     stuff = (app.outdir / 'objects.html').read_text(encoding='utf8')
@@ -107,7 +105,7 @@ def test_linkcode(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode-find', freshenv=True)
-def test_local_source_files(app, status, warning):
+def test_local_source_files(app):
     def find_source(app, modname):
         if modname == 'not_a_package':
             source = (app.srcdir / 'not_a_package/__init__.py').read_text(encoding='utf8')
@@ -131,7 +129,7 @@ def test_local_source_files(app, status, warning):
     app.connect('viewcode-find-source', find_source)
     app.build(force_all=True)
 
-    warnings = re.sub(r'\\+', '/', warning.getvalue())
+    warnings = re.sub(r'\\+', '/', app.warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/not_a_package/__init__.py'",

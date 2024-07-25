@@ -13,12 +13,13 @@ from urllib.parse import urlsplit, urlunsplit
 
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.errors import ConfigError
-from sphinx.ext.intersphinx._shared import LOGGER, InventoryAdapter
+from sphinx.ext.intersphinx._shared import LOGGER, InventoryAdapter, _IntersphinxProject
 from sphinx.locale import __
 from sphinx.util import requests
 from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
+    from pathlib import Path
     from typing import IO
 
     from sphinx.application import Sphinx
@@ -139,8 +140,17 @@ def load_mappings(app: Sphinx) -> None:
     intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
     intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
 
-    expected_uris = {uri for _name, (uri, _invs) in intersphinx_mapping.values()}
+    projects = []
+    for name, (uri, locations) in intersphinx_mapping.values():
+        try:
+            project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
+        except ValueError as err:
+            msg = __('An invalid intersphinx_mapping entry was added after normalisation.')
+            raise ConfigError(msg) from err
+        else:
+            projects.append(project)
 
+    expected_uris = {project.target_uri for project in projects}
     for uri in frozenset(intersphinx_cache):
         if intersphinx_cache[uri][0] not in intersphinx_mapping:
             # Remove all cached entries that are no longer in `intersphinx_mapping`.
@@ -153,8 +163,15 @@ def load_mappings(app: Sphinx) -> None:
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = [
-            pool.submit(fetch_inventory_group, name, uri, invs, intersphinx_cache, app, now)
-            for name, (uri, invs) in app.config.intersphinx_mapping.values()
+            pool.submit(
+                _fetch_inventory_group,
+                project=project,
+                cache=intersphinx_cache,
+                now=now,
+                config=app.config,
+                srcdir=app.srcdir,
+            )
+            for project in projects
         ]
         updated = [f.result() for f in concurrent.futures.as_completed(futures)]
 
@@ -176,43 +193,52 @@ def load_mappings(app: Sphinx) -> None:
                 inventories.main_inventory.setdefault(objtype, {}).update(objects)
 
 
-def fetch_inventory_group(
-    name: InventoryName,
-    uri: InventoryURI,
-    invs: tuple[InventoryLocation, ...],
+def _fetch_inventory_group(
+    *,
+    project: _IntersphinxProject,
     cache: dict[InventoryURI, InventoryCacheEntry],
-    app: Sphinx,
     now: int,
+    config: Config,
+    srcdir: Path,
 ) -> bool:
-    cache_time = now - app.config.intersphinx_cache_limit * 86400
+    cache_time = now - config.intersphinx_cache_limit * 86400
 
     updated = False
     failures = []
 
-    for location in invs:
+    for location in project.locations:
         # location is either None or a non-empty string
-        inv = f'{uri}/{INVENTORY_FILENAME}' if location is None else location
+        inv = f'{project.target_uri}/{INVENTORY_FILENAME}' if location is None else location
 
         # decide whether the inventory must be read: always read local
         # files; remote ones only if the cache time is expired
-        if '://' not in inv or uri not in cache or cache[uri][1] < cache_time:
+        if (
+            '://' not in inv
+            or project.target_uri not in cache
+            or cache[project.target_uri][1] < cache_time
+        ):
             LOGGER.info(__("loading intersphinx inventory '%s' from %s ..."),
-                        name, _get_safe_url(inv))
+                        project.name, _get_safe_url(inv))
 
             try:
-                invdata = fetch_inventory(app, uri, inv)
+                invdata = _fetch_inventory(
+                    target_uri=project.target_uri,
+                    inv_location=inv,
+                    config=config,
+                    srcdir=srcdir,
+                )
             except Exception as err:
                 failures.append(err.args)
                 continue
 
             if invdata:
-                cache[uri] = name, now, invdata
+                cache[project.target_uri] = project.name, now, invdata
                 updated = True
                 break
 
     if not failures:
         pass
-    elif len(failures) < len(invs):
+    elif len(failures) < len(project.locations):
         LOGGER.info(__('encountered some issues with some of the inventories,'
                        ' but they had working alternatives:'))
         for fail in failures:
@@ -226,36 +252,54 @@ def fetch_inventory_group(
 
 def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
-    # both *uri* (base URI of the links to generate) and *inv* (actual
-    # location of the inventory file) can be local or remote URIs
-    if '://' in uri:
+    return _fetch_inventory(
+        target_uri=uri,
+        inv_location=inv,
+        config=app.config,
+        srcdir=app.srcdir,
+    )
+
+
+def _fetch_inventory(
+    *, target_uri: InventoryURI, inv_location: str, config: Config, srcdir: Path,
+) -> Inventory:
+    """Fetch, parse and return an intersphinx inventory file."""
+    # both *target_uri* (base URI of the links to generate)
+    # and *inv_location* (actual location of the inventory file)
+    # can be local or remote URIs
+    if '://' in target_uri:
         # case: inv URI points to remote resource; strip any existing auth
-        uri = _strip_basic_auth(uri)
+        target_uri = _strip_basic_auth(target_uri)
     try:
-        if '://' in inv:
-            f = _read_from_url(inv, config=app.config)
+        if '://' in inv_location:
+            f = _read_from_url(inv_location, config=config)
         else:
-            f = open(path.join(app.srcdir, inv), 'rb')  # NoQA: SIM115
+            f = open(path.join(srcdir, inv_location), 'rb')  # NoQA: SIM115
     except Exception as err:
         err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
-                    inv, err.__class__, str(err))
+                    inv_location, err.__class__, str(err))
         raise
     try:
         if hasattr(f, 'url'):
-            newinv = f.url
-            if inv != newinv:
-                LOGGER.info(__('intersphinx inventory has moved: %s -> %s'), inv, newinv)
+            new_inv_location = f.url
+            if inv_location != new_inv_location:
+                msg = __('intersphinx inventory has moved: %s -> %s')
+                LOGGER.info(msg, inv_location, new_inv_location)
 
-                if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
-                    uri = path.dirname(newinv)
+                if target_uri in {
+                    inv_location,
+                    path.dirname(inv_location),
+                    path.dirname(inv_location) + '/'
+                }:
+                    target_uri = path.dirname(new_inv_location)
         with f:
             try:
-                invdata = InventoryFile.load(f, uri, posixpath.join)
+                invdata = InventoryFile.load(f, target_uri, posixpath.join)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
     except Exception as err:
         err.args = ('intersphinx inventory %r not readable due to %s: %s',
-                    inv, err.__class__.__name__, str(err))
+                    inv_location, err.__class__.__name__, str(err))
         raise
     else:
         return invdata

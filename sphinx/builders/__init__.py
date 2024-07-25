@@ -519,7 +519,7 @@ class Builder:
         if path.isfile(docutilsconf):
             self.env.note_dependency(docutilsconf)
 
-        filename = self.env.doc2path(docname)
+        filename = str(self.env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
         self.env.temp_data['_parser'] = publisher.parser

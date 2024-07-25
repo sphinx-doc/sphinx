@@ -5,7 +5,6 @@ from __future__ import annotations
 import functools
 import os
 import pickle
-import time
 from collections import defaultdict
 from copy import copy
 from os import path
@@ -17,10 +16,11 @@ from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, 
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import DownloadFiles, FilenameUniqDict, logging
+from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import canon_path, os_path
+from sphinx.util.osutil import _last_modified_time, canon_path, os_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -413,13 +413,13 @@ class BuildEnvironment:
         """
         return self.project.path2doc(filename)
 
-    def doc2path(self, docname: str, base: bool = True) -> str:
+    def doc2path(self, docname: str, base: bool = True) -> Path:
         """Return the filename for the document name.
 
         If *base* is True, return absolute path under self.srcdir.
         If *base* is False, return relative path to self.srcdir.
         """
-        return self.project.doc2path(docname, base)
+        return self.project.doc2path(docname, absolute=base)
 
     def relfn2path(self, filename: str, docname: str | None = None) -> tuple[str, str]:
         """Return paths to a file referenced from a document, relative to
@@ -508,7 +508,8 @@ class BuildEnvironment:
                 if newmtime > mtime:
                     logger.debug('[build target] outdated %r: %s -> %s',
                                  docname,
-                                 _format_modified_time(mtime), _format_modified_time(newmtime))
+                                 _format_rfc3339_microseconds(mtime),
+                                 _format_rfc3339_microseconds(newmtime))
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
@@ -528,7 +529,8 @@ class BuildEnvironment:
                             logger.debug(
                                 '[build target] outdated %r from dependency %r: %s -> %s',
                                 docname, deppath,
-                                _format_modified_time(mtime), _format_modified_time(depmtime),
+                                _format_rfc3339_microseconds(mtime),
+                                _format_rfc3339_microseconds(depmtime),
                             )
                             changed.add(docname)
                             break
@@ -628,7 +630,7 @@ class BuildEnvironment:
 
         doctree = pickle.loads(serialised)
         doctree.settings.env = self
-        doctree.reporter = LoggingReporter(self.doc2path(docname))
+        doctree.reporter = LoggingReporter(str(self.doc2path(docname)))
         return doctree
 
     @functools.cached_property
@@ -650,7 +652,7 @@ class BuildEnvironment:
             try:
                 doctree = self._write_doc_doctree_cache.pop(docname)
                 doctree.settings.env = self
-                doctree.reporter = LoggingReporter(self.doc2path(docname))
+                doctree.reporter = LoggingReporter(str(self.doc2path(docname)))
             except KeyError:
                 doctree = self.get_doctree(docname)
 
@@ -754,26 +756,6 @@ class BuildEnvironment:
         for domain in self.domains.values():
             domain.check_consistency()
         self.events.emit('env-check-consistency', self)
-
-
-def _last_modified_time(filename: str | os.PathLike[str]) -> int:
-    """Return the last modified time of ``filename``.
-
-    The time is returned as integer microseconds.
-    The lowest common denominator of modern file-systems seems to be
-    microsecond-level precision.
-
-    We prefer to err on the side of re-rendering a file,
-    so we round up to the nearest microsecond.
-    """
-    # upside-down floor division to get the ceiling
-    return -(os.stat(filename).st_mtime_ns // -1_000)
-
-
-def _format_modified_time(timestamp: int) -> str:
-    """Return an RFC 3339 formatted string representing the given timestamp."""
-    seconds, fraction = divmod(timestamp, 10**6)
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(seconds)) + f'.{fraction // 1_000}'
 
 
 def _traverse_toctree(

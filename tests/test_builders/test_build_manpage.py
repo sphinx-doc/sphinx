@@ -10,7 +10,7 @@ from sphinx.config import Config
 @pytest.mark.xfail(docutils.__version_info__[:2] > (0, 21),
                    reason='Docutils has removed the reference key in master')
 @pytest.mark.sphinx('man')
-def test_all(app, status, warning):
+def test_all(app):
     app.build(force_all=True)
     assert (app.outdir / 'sphinxtests.1').exists()
 
@@ -35,7 +35,7 @@ def test_all(app, status, warning):
 
 @pytest.mark.sphinx('man', testroot='basic',
                     confoverrides={'man_pages': [('index', 'title', None, [], 1)]})
-def test_man_pages_empty_description(app, status, warning):
+def test_man_pages_empty_description(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'title.1').read_text(encoding='utf8')
@@ -44,7 +44,7 @@ def test_man_pages_empty_description(app, status, warning):
 
 @pytest.mark.sphinx('man', testroot='basic',
                     confoverrides={'man_make_section_directory': True})
-def test_man_make_section_directory(app, status, warning):
+def test_man_make_section_directory(app):
     app.build()
     assert (app.outdir / 'man1' / 'projectnamenotset.1').exists()
 
@@ -52,7 +52,7 @@ def test_man_make_section_directory(app, status, warning):
 @pytest.mark.xfail(docutils.__version_info__[:2] > (0, 21),
                    reason='Docutils has removed the reference key in master')
 @pytest.mark.sphinx('man', testroot='directive-code')
-def test_captioned_code_block(app, status, warning):
+def test_captioned_code_block(app):
     app.build(force_all=True)
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
 
@@ -102,7 +102,7 @@ def test_default_man_pages():
 
 
 @pytest.mark.sphinx('man', testroot='markup-rubric')
-def test_rubric(app, status, warning):
+def test_rubric(app):
     app.build()
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
     assert 'This is a rubric\n' in content

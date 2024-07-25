@@ -27,8 +27,8 @@ def test_build(app):
 @pytest.mark.sphinx(
     'changes', testroot='changes', srcdir='changes-none',
     confoverrides={'version': '0.7', 'release': '0.7b1'})
-def test_no_changes(app, status):
+def test_no_changes(app):
     app.build()
 
-    assert 'no changes in version 0.7.' in status.getvalue()
+    assert 'no changes in version 0.7.' in app.status.getvalue()
     assert not (app.outdir / 'changes.html').exists()

@@ -206,7 +206,7 @@ def str_content(elem):
 
 
 @pytest.mark.sphinx('xml', **default_kw)
-def test_escaping(app, status, warning):
+def test_escaping(app):
     app.build(force_all=True)
 
     outdir = Path(app.builder.outdir)
@@ -357,7 +357,7 @@ def test_autosummary_generate_content_for_module_imported_members_inherited_modu
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary')
-def test_autosummary_generate(app, status, warning):
+def test_autosummary_generate(app):
     app.build(force_all=True)
 
     doctree = app.env.get_doctree('index')
@@ -488,7 +488,7 @@ def test_autosummary_generate_overwrite2(app_params, make_app):
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-recursive')
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_autosummary_recursive(app, status, warning):
+def test_autosummary_recursive(app):
     sys.modules.pop('package', None)  # unload target module to clear the module cache
 
     app.build()
@@ -526,7 +526,7 @@ def test_autosummary_recursive(app, status, warning):
                     srcdir='test_autosummary_recursive_skips_mocked_modules',
                     confoverrides={'autosummary_mock_imports': ['package.package']})
 @pytest.mark.usefixtures("rollback_sysmodules")
-def test_autosummary_recursive_skips_mocked_modules(app, status, warning):
+def test_autosummary_recursive_skips_mocked_modules(app):
     sys.modules.pop('package', None)  # unload target module to clear the module cache
     app.build()
 
@@ -537,7 +537,7 @@ def test_autosummary_recursive_skips_mocked_modules(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-filename-map')
-def test_autosummary_filename_map(app, status, warning):
+def test_autosummary_filename_map(app):
     app.build()
 
     assert (app.srcdir / 'generated' / 'module_mangled.rst').exists()
@@ -551,11 +551,11 @@ def test_autosummary_filename_map(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', **default_kw)
-def test_autosummary_latex_table_colspec(app, status, warning):
+def test_autosummary_latex_table_colspec(app):
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
-    print(status.getvalue())
-    print(warning.getvalue())
+    print(app.status.getvalue())
+    print(app.warning.getvalue())
     assert r'\begin{longtable}{\X{1}{2}\X{1}{2}}' in result
     assert r'p{0.5\linewidth}' not in result
 
@@ -585,10 +585,10 @@ def test_import_by_name():
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-mock_imports')
-def test_autosummary_mock_imports(app, status, warning):
+def test_autosummary_mock_imports(app):
     try:
         app.build()
-        assert warning.getvalue() == ''
+        assert app.warning.getvalue() == ''
 
         # generated/foo is generated successfully
         assert app.env.get_doctree('generated/foo')
@@ -597,7 +597,7 @@ def test_autosummary_mock_imports(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-imported_members')
-def test_autosummary_imported_members(app, status, warning):
+def test_autosummary_imported_members(app):
     try:
         app.build()
         # generated/foo is generated successfully
@@ -617,7 +617,7 @@ def test_autosummary_imported_members(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_all')
-def test_autosummary_module_all(app, status, warning):
+def test_autosummary_module_all(app):
     try:
         app.build()
         # generated/foo is generated successfully
@@ -675,16 +675,16 @@ def test_autosummary_template(app):
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
                     confoverrides={'autosummary_generate': []})
-def test_empty_autosummary_generate(app, status, warning):
+def test_empty_autosummary_generate(app):
     app.build()
     assert ("WARNING: autosummary: failed to import autosummary_importfail"
-            in warning.getvalue())
+            in app.warning.getvalue())
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autosummary',
                     confoverrides={'autosummary_generate': ['unknown']})
-def test_invalid_autosummary_generate(app, status, warning):
-    assert 'WARNING: autosummary_generate: file not found: unknown.rst' in warning.getvalue()
+def test_invalid_autosummary_generate(app):
+    assert 'WARNING: autosummary_generate: file not found: unknown.rst' in app.warning.getvalue()
 
 
 def test_autogen(rootdir, tmp_path):

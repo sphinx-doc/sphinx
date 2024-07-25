@@ -1,8 +1,11 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import os
 import posixpath
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -13,6 +16,9 @@ from sphinx.util.inventory import InventoryFile
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 def test_html_sidebars_error(make_app, tmp_path):
@@ -178,7 +184,7 @@ def test_html_anchor_for_figure(app):
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
-def test_html_raw_directive(app, status, warning):
+def test_html_raw_directive(app):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -220,7 +226,7 @@ def test_alternate_stylesheets(app, cached_etree_parse, expect):
 
 
 @pytest.mark.sphinx('html', testroot='html_style')
-def test_html_style(app, status, warning):
+def test_html_style(app):
     app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<link rel="stylesheet" type="text/css" href="_static/default.css" />' in result
@@ -229,8 +235,8 @@ def test_html_style(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='basic')
-def test_html_sidebar(app, status, warning):
-    ctx = {}
+def test_html_sidebar(app):
+    ctx: dict[str, Any] = {}
 
     # default for alabaster
     app.build(force_all=True)
@@ -291,7 +297,7 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
 
 @pytest.mark.sphinx('html', testroot='toctree-glob',
                     confoverrides={'html_baseurl': 'https://example.com/'})
-def test_html_baseurl(app, status, warning):
+def test_html_baseurl(app):
     app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -304,7 +310,7 @@ def test_html_baseurl(app, status, warning):
 @pytest.mark.sphinx('html', testroot='toctree-glob',
                     confoverrides={'html_baseurl': 'https://example.com/subdir',
                                    'html_file_suffix': '.htm'})
-def test_html_baseurl_and_html_file_suffix(app, status, warning):
+def test_html_baseurl_and_html_file_suffix(app):
     app.build()
 
     result = (app.outdir / 'index.htm').read_text(encoding='utf8')
@@ -369,7 +375,7 @@ def test_html_signaturereturn_icon(app):
 
 
 @pytest.mark.sphinx('html', testroot='root', srcdir=os.urandom(4).hex())
-def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
+def test_html_remove_sources_before_write_gh_issue_10786(app):
     # see:  https://github.com/sphinx-doc/sphinx/issues/10786
     target = app.srcdir / 'img.png'
 
@@ -383,7 +389,7 @@ def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
     app.build()
     assert not target.exists()
 
-    ws = strip_colors(warning.getvalue()).splitlines()
+    ws = strip_colors(app.warning.getvalue()).splitlines()
     assert len(ws) >= 1
 
     file = os.fsdecode(target)
@@ -398,7 +404,7 @@ def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
     etree = cached_etree_parse(fname)
 
     class chk:
-        def __init__(self, expect):
+        def __init__(self, expect: str) -> None:
             self.expect = expect
 
         def __call__(self, nodes):

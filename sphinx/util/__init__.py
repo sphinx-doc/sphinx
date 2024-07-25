@@ -29,10 +29,8 @@ from sphinx.util.nodes import (  # NoQA: F401
 from sphinx.util.osutil import (  # NoQA: F401
     SEP,
     copyfile,
-    copytimes,
     ensuredir,
     make_filename,
-    mtimes_of_files,
     os_path,
     relative_uri,
 )
@@ -50,9 +48,9 @@ def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
-def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
+def get_filetype(source_suffix: dict[str, str], filename: str | os.PathLike) -> str:
     for suffix, filetype in source_suffix.items():
-        if filename.endswith(suffix):
+        if os.fspath(filename).endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
             return filetype or 'restructuredtext'
     raise FiletypeNotFoundError

@@ -201,16 +201,8 @@ def _is_unpack_form(obj: Any) -> bool:
     origin = typing.get_origin(obj)
     return (
         getattr(origin, '__module__', None) == 'typing_extensions'
-        and _typing_internal_name(origin) == 'Unpack'
+        and origin.__name__ == 'Unpack'
     )
-
-
-def _typing_internal_name(obj: Any) -> str | None:
-    try:
-        return obj.__name__
-    except AttributeError:
-        # e.g. ParamSpecArgs, ParamSpecKwargs
-        return ''
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
@@ -299,17 +291,12 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif isgenericalias(cls):
-            # A generic alias always has an __origin__, but it is difficult to
-            # use a type guard on ``isgenericalias()``
-            # (ideally, we would use ``TypeIs`` introduced in Python 3.13).
-            cls_name = _typing_internal_name(cls)
-
             if isinstance(cls.__origin__, typing._SpecialForm):
                 # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard; TypeIs
                 # Required/NotRequired
                 text = restify(cls.__origin__, mode)
-            elif cls_name:
-                text = f':py:class:`{module_prefix}{cls.__module__}.{cls_name}`'
+            elif cls.__name__:
+                text = f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
             else:
                 text = restify(cls.__origin__, mode)
 
@@ -322,14 +309,14 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
 
             # Callable has special formatting
             if (
-                (cls_module_is_typing and _typing_internal_name(cls) == 'Callable')
+                (cls_module_is_typing and cls.__name__ == 'Callable')
                 or (cls.__module__ == 'collections.abc' and cls.__name__ == 'Callable')
             ):
                 args = ', '.join(restify(a, mode) for a in __args__[:-1])
                 returns = restify(__args__[-1], mode)
                 return fr'{text}\ [[{args}], {returns}]'
 
-            if cls_module_is_typing and _typing_internal_name(cls.__origin__) == 'Literal':
+            if cls_module_is_typing and cls.__origin__.__name__ == 'Literal':
                 args = ', '.join(_format_literal_arg_restify(a, mode=mode)
                                  for a in cls.__args__)
                 return fr'{text}\ [{args}]'
@@ -338,8 +325,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             args = ', '.join(restify(a, mode) for a in __args__)
             return fr'{text}\ [{args}]'
         elif isinstance(cls, typing._SpecialForm):
-            cls_name = _typing_internal_name(cls)
-            return f':py:obj:`~{cls.__module__}.{cls_name}`'
+            return f':py:obj:`~{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
@@ -462,8 +448,8 @@ def stringify_annotation(
             # handle ForwardRefs
             qualname = annotation_forward_arg
         else:
-            if internal_name := _typing_internal_name(annotation):
-                qualname = internal_name
+            if annotation_name:
+                qualname = annotation_name
             elif annotation_qualname:
                 qualname = annotation_qualname
             else:

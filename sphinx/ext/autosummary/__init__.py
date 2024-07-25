@@ -249,7 +249,7 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, False)):
+                    if excluded(str(self.env.doc2path(docname, False))):
                         msg = __('autosummary references excluded document %r. Ignored.')
                     else:
                         msg = __('autosummary: stub file not found %r. '
@@ -802,7 +802,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     if genfiles is True:
         env = app.builder.env
-        genfiles = [env.doc2path(x, base=False) for x in env.found_docs
+        genfiles = [str(env.doc2path(x, base=False)) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
     elif genfiles is False:
         pass
