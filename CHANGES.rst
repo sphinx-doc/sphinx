@@ -791,6 +791,9 @@ Features added
   details.
   Patch by Bénédikt Tran.
 * Allow running Sphinx with ``python -m sphinx build ...``.
+* #11556: Add a :ref:`Gitlab CI workflow <gitlab_incremental_build>` for
+  incremental HTML builds.
+  Patch by Bénédikt Tran.
 
 Bugs fixed
 ----------
