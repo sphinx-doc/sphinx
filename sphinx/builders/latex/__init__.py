@@ -344,7 +344,7 @@ class LaTeXBuilder(Builder):
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
         self.docnames = {indexfile, *appendices}
-        logger.info(darkgreen(indexfile) + " ", nonl=True)
+        logger.info(darkgreen(indexfile))
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:

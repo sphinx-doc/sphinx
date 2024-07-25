@@ -80,6 +80,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def assemble_doctree(self) -> nodes.document:
         master = self.config.root_doc
         tree = self.env.get_doctree(master)
+        #  print() is abhorred but works...
+        logger.info('')  # ...probably not the best
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
         tree['docname'] = master
         self.env.resolve_references(tree, master, self)
