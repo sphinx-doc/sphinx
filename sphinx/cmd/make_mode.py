@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.cmd.build import build_main
-from sphinx.util.console import blue, bold, color_terminal, nocolor
+from sphinx.util.console import yellow, bold, color_terminal, nocolor
 from sphinx.util.osutil import rmtree
 
 if sys.version_info >= (3, 11):
@@ -86,14 +86,14 @@ class Make:
         return 0
 
     def build_help(self) -> None:
-        if not color_terminal():
+        if not color_terminal() or '--no-color' in sys.argv or '-N' in sys.argv:
             nocolor()
 
         print(bold("Sphinx v%s" % sphinx.__display_version__))
-        print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))
+        print("Please use `make %s' where %s is one of" % ((yellow('target'),) * 2))
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
-                print(f'  {blue(bname.ljust(10))}  {description}')
+                print(f'  {yellow(bname.ljust(10))}  {description}')
 
     def build_latexpdf(self) -> int:
         if self.run_generic_build('latex') > 0:
