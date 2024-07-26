@@ -15,7 +15,7 @@
     <script src="{{ pathto('_static/language_data.js', 1) }}"></script>
 {%- endblock %}
 {% block extrahead %}
-    <script src="{{ pathto('searchindex.js', 1) }}" defer="defer"></script>
+    <script src="{{ pathto(search_index, 1) }}" defer="defer"></script>
     <meta name="robots" content="noindex" />
     {{ super() }}
 {% endblock %}

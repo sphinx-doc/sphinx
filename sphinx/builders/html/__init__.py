@@ -189,7 +189,6 @@ class StandaloneHTMLBuilder(Builder):
                              'image/gif', 'image/jpeg']
     supported_remote_images = True
     supported_data_uri_images = True
-    searchindex_filename = 'searchindex.js'
     add_permalinks = True
     allow_sharp_as_current_path = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
@@ -248,6 +247,8 @@ class StandaloneHTMLBuilder(Builder):
             self.link_suffix = self.out_suffix
 
         self.use_index = self.get_builder_config('use_index', 'html')
+
+        self.searchindex_filename = self.get_builder_config('search_filename', 'html')
 
     def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, frozenset({'html'}))
@@ -716,7 +717,8 @@ class StandaloneHTMLBuilder(Builder):
         # the search page
         if self.search:
             logger.info('search ', nonl=True)
-            self.handle_page('search', {}, 'search.html')
+            searchcontext = {'search_index': self.searchindex_filename}
+            self.handle_page('search', searchcontext, 'search.html')
 
         # the opensearch xml file
         if self.config.html_use_opensearch and self.search:
@@ -1320,6 +1322,21 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
         config.html_favicon = None
 
 
+def validate_html_search_filename(app: Sphinx, config: Config) -> None:
+    """Check html_search_filename setting."""
+    if config.html_search_filename:
+        if isurl(config.html_search_filename):
+            logger.warning(__('html_search_filename must not be a URL'))
+            config.html_search_filename = 'searchindex.js'
+        if not config.html_search_filename.endswith('.js'):
+            logger.warning(__('html_search_filename must have a .js suffix'))
+            config.html_search_filename = 'searchindex.js'
+        search_path = path.normpath(path.join(app.outdir, config.html_search_filename))
+        if path.commonpath((app.outdir, search_path)) != path.normpath(app.outdir):
+            logger.warning(__('html_search_filename must be within the output directory'))
+            config.html_search_filename = 'searchindex.js'
+
+
 def error_on_html_sidebars_string_values(app: Sphinx, config: Config) -> None:
     """Support removed in Sphinx 2."""
     errors = {}
@@ -1387,6 +1404,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_search_language', None, 'html', str)
     app.add_config_value('html_search_options', {}, 'html')
     app.add_config_value('html_search_scorer', '', '')
+    app.add_config_value('html_search_filename', 'searchindex.js', 'html', str)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
@@ -1406,6 +1424,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', validate_html_static_path, priority=800)
     app.connect('config-inited', validate_html_logo, priority=800)
     app.connect('config-inited', validate_html_favicon, priority=800)
+    app.connect('config-inited', validate_html_search_filename, priority=800)
     app.connect('config-inited', error_on_html_sidebars_string_values, priority=800)
     app.connect('config-inited', error_on_html_4, priority=800)
     app.connect('builder-inited', validate_math_renderer)
