@@ -213,6 +213,7 @@ nitpick_ignore = {
     ('py:class', 'sphinx.roles.XRefRole'),
     ('py:class', 'sphinx.search.SearchLanguage'),
     ('py:class', 'sphinx.theming.Theme'),
+    ('py:class', 'sphinx.util._pathlib._StrPath'),  # sphinx.project.Project.doc2path
     ('py:class', 'sphinxcontrib.websupport.errors.DocumentNotFoundError'),
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
     ('py:exc', 'docutils.nodes.SkipNode'),
