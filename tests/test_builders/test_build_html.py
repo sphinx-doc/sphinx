@@ -235,7 +235,18 @@ def test_html_style(app):
             not in result)
 
 
-@pytest.mark.sphinx('html', testroot='basic')
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    # alabaster changed default sidebars in 1.0.0
+    confoverrides={'html_sidebars': {'**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]}},
+)
 def test_html_sidebar(app):
     ctx: dict[str, Any] = {}
 
