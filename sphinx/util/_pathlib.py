@@ -25,7 +25,7 @@ _STR_METHODS = frozenset(str.__dict__)
 _PATH_NAME = Path().__class__.__name__
 
 _MSG = (
-    'Sphinx 8 will drop support for representing paths as strings. '
+    'Sphinx 9 will drop support for representing paths as strings. '
     'Use "pathlib.Path" or "os.fspath" instead.'
 )
 
