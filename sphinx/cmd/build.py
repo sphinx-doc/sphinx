@@ -13,7 +13,7 @@ import re
 import sys
 import traceback
 from os import path
-from typing import TYPE_CHECKING, Any, TextIO, IO
+from typing import IO, TYPE_CHECKING, Any, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -111,8 +111,10 @@ def jobs_argument(value: str) -> int:
         else:
             return jobs
 
+
 class ParagraphFormatter(argparse.HelpFormatter):
     """Wraps help text as a default formatter but keeps paragraps separated."""
+
     _paragraph_matcher = re.compile(r"\n\n+")
 
     def _fill_text(self, text: str, width: int, indent: str) -> str:
@@ -126,25 +128,30 @@ class ParagraphFormatter(argparse.HelpFormatter):
             result.append(p)
         return '\n\n'.join(result)
 
+
 class ArgParser(argparse.ArgumentParser):
     """Wraps standard ArgumentParser to add sphinx-specefic flags to help."""
+
     def print_help(self, file: IO[str] | None = None) -> None:
         from gettext import gettext as _
         # we inject -M flag action to positionals before printing help
         # so that there is no risk of side effects on actual execution
         for action_group in self._action_groups:
-            if not action_group.title == _('positional arguments'):
+            if action_group.title != _('positional arguments'):
                 continue
-            m_flag = argparse.Action(["-M"], "BUILDER",  # ugly but works
-                help=__('please refer to usage and main help section'))
+            m_flag = argparse.Action(
+                ["-M"], "BUILDER",  # ugly but works
+                help=__('please refer to usage and main help section')
+            )
             action_group._group_actions.insert(0, m_flag)
             break
         return super().print_help(file)
 
+
 def get_parser() -> argparse.ArgumentParser:
     parser = ArgParser(
-        usage=(       '%(prog)s -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]\n'
-               '       %(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]'),
+        usage=('%(prog)s -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]\n       '
+               '%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]'),
         formatter_class=ParagraphFormatter,
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""

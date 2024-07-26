@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.cmd.build import build_main
-from sphinx.util.console import yellow, bold, color_terminal, nocolor
+from sphinx.util.console import bold, color_terminal, nocolor, yellow
 from sphinx.util.osutil import rmtree
 
 if sys.version_info >= (3, 11):

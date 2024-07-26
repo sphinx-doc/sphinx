@@ -14,7 +14,7 @@ Description
 ``<sourcedir>`` and places it in the ``<outputdir>``.
 
 Please note that there are 2 signatures for 2 usage scenarios. ``-M`` flag
-invokes a :ref:`make mode <make_mode>`, otherwise it works in a `build mode`.
+invokes a :ref:`make mode <make_mode>`, otherwise it works in a *build mode*.
 
 :program:`sphinx-build` looks for ``<sourcedir>/conf.py`` for the configuration
 settings.  :manpage:`sphinx-quickstart(1)` may be used to generate template
