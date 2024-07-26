@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from sphinx.domains import Domain
     from sphinx.events import EventManager
     from sphinx.project import Project
+    from sphinx.util._pathlib import _StrPath
 
 logger = logging.getLogger(__name__)
 
@@ -413,7 +414,7 @@ class BuildEnvironment:
         """
         return self.project.path2doc(filename)
 
-    def doc2path(self, docname: str, base: bool = True) -> Path:
+    def doc2path(self, docname: str, base: bool = True) -> _StrPath:
         """Return the filename for the document name.
 
         If *base* is True, return absolute path under self.srcdir.
