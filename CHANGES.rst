@@ -68,10 +68,6 @@ Incompatible changes
 * #12096: Do not overwrite user-supplied files when copying assets
   unless forced with ``force=True``.
   Patch by Adam Turner.
-* #12650: Remove support for string methods on :py:class:`~pathlib.Path` objects.
-  Use :py:func:`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
-  or :py:class:`~pathlib.Path`'s methods to work with path objects.
-  Patch by Adam Turner.
 * #12646: Remove :py:func:`!sphinx.util.inspect.isNewType`.
   Patch by Adam Turner.
 * Remove the long-deprecated (since Sphinx 2) alias
@@ -87,6 +83,11 @@ Deprecated
 * #12643: Renamed ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
   to ``sphinx.ext.intersphinx.validate_intersphinx_mapping``.
   The old name will be removed in Sphinx 10.
+  Patch by Adam Turner.
+* #12650, #12686, #12690: Extend the deprecation for string methods on
+  :py:class:`~pathlib.Path` objects to Sphinx 9.
+  Use :py:func:`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
+  or :py:class:`~pathlib.Path`'s methods to work with path objects.
   Patch by Adam Turner.
 
 Features added
