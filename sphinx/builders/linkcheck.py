@@ -7,6 +7,7 @@ import json
 import re
 import socket
 import time
+import warnings
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue
@@ -19,6 +20,7 @@ from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRed
 from requests.exceptions import Timeout as RequestTimeout
 
 from sphinx.builders.dummy import DummyBuilder
+from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import encode_uri, logging, requests
@@ -611,7 +613,10 @@ class AnchorCheckParser(HTMLParser):
 
     def handle_starttag(self, tag: Any, attrs: Any) -> None:
         for key, value in attrs:
-            if key in ('id', 'name') and value == self.search_anchor:
+            if key in ('id', 'name') and (
+                value == self.search_anchor or
+                value == "user-content-" + self.search_anchor
+            ):
                 self.found = True
                 break
 
@@ -636,6 +641,11 @@ def rewrite_github_anchor(app: Sphinx, uri: str) -> str | None:
     The hyperlink anchors in github.com are dynamically generated.  This rewrites
     them before checking and makes them comparable.
     """
+    deprecation_msg = (
+        "The 'rewrite_github_anchor' function is deprecated and will be removed "
+        "in Sphinx 10.0, as it is no longer needed."
+    )
+    warnings.warn(deprecation_msg, RemovedInSphinx10Warning, stacklevel=1)
     parsed = urlparse(uri)
     if parsed.hostname == 'github.com' and parsed.fragment:
         prefixed = parsed.fragment.startswith('user-content-')
@@ -682,10 +692,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_event('linkcheck-process-uri')
 
     app.connect('config-inited', compile_linkcheck_allowed_redirects, priority=800)
-
-    # FIXME: Disable URL rewrite handler for github.com temporarily.
-    # ref: https://github.com/sphinx-doc/sphinx/issues/9435
-    # app.connect('linkcheck-process-uri', rewrite_github_anchor)
 
     return {
         'version': 'builtin',
