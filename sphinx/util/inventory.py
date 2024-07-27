@@ -183,7 +183,7 @@ class InventoryFile:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 
-        potential_ambiguities: dict[str, tuple[str, str, str]] = {}
+        potential_ambiguities: dict[str, tuple[int, str, str]] = {}
         actual_ambiguities = set()
         with open(os.path.join(filename), 'wb') as f:
             # header
