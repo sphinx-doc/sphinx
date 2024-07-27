@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.matching import get_matching_files
 from sphinx.util.osutil import path_stabilize
 
@@ -24,7 +25,7 @@ class Project:
 
     def __init__(self, srcdir: str | os.PathLike[str], source_suffix: Iterable[str]) -> None:
         #: Source directory.
-        self.srcdir = Path(srcdir)
+        self.srcdir = _StrPath(srcdir)
 
         #: source_suffix. Same as :confval:`source_suffix`.
         self.source_suffix = tuple(source_suffix)
@@ -106,7 +107,7 @@ class Project:
             # the file does not have a docname
             return None
 
-    def doc2path(self, docname: str, absolute: bool) -> Path:
+    def doc2path(self, docname: str, absolute: bool) -> _StrPath:
         """Return the filename for the document name.
 
         If *absolute* is True, return as an absolute path.
@@ -119,5 +120,5 @@ class Project:
             filename = Path(docname + self._first_source_suffix)
 
         if absolute:
-            return self.srcdir / filename
-        return filename
+            return _StrPath(self.srcdir / filename)
+        return _StrPath(filename)

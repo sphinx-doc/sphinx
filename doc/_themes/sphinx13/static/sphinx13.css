@@ -694,6 +694,9 @@ div.sphinx-feature > p.admonition-title::before {
     justify-content: center;
     gap: 10px;
 }
+.sphinx-users-logos .headerlink {
+    display: none;
+}
 
 /* -- search results -------------------------------------------------------- */
 
