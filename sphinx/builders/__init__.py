@@ -297,7 +297,6 @@ class Builder:
                        summary=__('targets for %d source files that are out of date') %
                        len(to_build))
 
-    @final
     def build(
         self,
         docnames: Iterable[str] | None,

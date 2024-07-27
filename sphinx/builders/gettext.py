@@ -257,7 +257,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 msg = f'{template}: {exc!r}'
                 raise ThemeError(msg) from exc
 
-    def build(  # type: ignore[misc]
+    def build(
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
