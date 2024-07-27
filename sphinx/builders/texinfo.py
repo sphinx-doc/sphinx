@@ -104,7 +104,7 @@ class TexinfoBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            with progress_message(__("processing %s") % targetname):
+            with progress_message(__("processing %s") % targetname, nonl=False):
                 appendices = self.config.texinfo_appendices or []
                 doctree = self.assemble_doctree(docname, toctree_only, appendices=appendices)
 

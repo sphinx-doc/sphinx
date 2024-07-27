@@ -27,10 +27,6 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
 
-# Ruff does not like me and wanted this line absolutely moved out of
-# its way so here we are.  This is an import if we were to use status_iterator,
-# but we are not
-# from sphinx.util.display import status_iterator
 logger = logging.getLogger(__name__)
 
 
@@ -427,19 +423,10 @@ def inline_all_toctrees(
     tree = tree.deepcopy()
     for toctreenode in list(tree.findall(addnodes.toctree)):
         newnodes = []
-        includefiles = [str(x) for x in toctreenode['includefiles']
-                        if x not in traversed]
-        if len(includefiles) > 0:
-            indent += ' '
-            # This is some attempt with status_iterator, how to handle colorfunc?
-            # Dropped because it seems to add overhead for gaining not much and
-            # perhaps breaking something.  But the refactoring above with
-            # includefiles was done in order to be able to use this:
-            # for includefile in status_iterator(includefiles,
-            #                                    indent + __('traversing... '),
-            #                                    "darkgreen",
-            #                                    len(includefiles)):
-            for includefile in includefiles:
+        includefiles = map(str, toctreenode['includefiles'])
+        indent += ' '
+        for includefile in includefiles:
+            if includefile not in traversed:
                 try:
                     traversed.append(includefile)
                     logger.info(indent + colorfunc(includefile))
