@@ -42,7 +42,7 @@
 <div class="document">
   <div class="sphinxsidebar" role="navigation" aria-label="Main">
     {%- include "searchfield.html" %}
-    {%- if display_toc %}
+    {%- if display_toc and (pagename != root_doc) %}
       <div class="sphinxsidebar-navigation__contents">
         <h3>{{ _('On this page') }}</h3>
         {{ toc }}
