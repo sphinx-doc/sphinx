@@ -455,13 +455,10 @@ class Glossary(SphinxDirective):
         # now, parse all the entries into a big definition list
         items: list[nodes.definition_list_item] = []
         for terms, definition in entries:
-            node_id: str | None = None
             termnodes: list[Node] = []
             system_messages: list[Node] = []
             for line, source, lineno in terms:
                 term_, first_classifier = split_term_classifiers(line)
-                # use first term as node_id for all equivalent aliases
-                node_id = node_id or make_id(self.env, self.state.document, 'term', term_)
                 # parse the term with inline markup
                 # classifiers (parts[1:]) will not be shown on doctree
                 textnodes, sysmsg = self.parse_inline(term_, lineno=lineno)
@@ -469,7 +466,7 @@ class Glossary(SphinxDirective):
                 # use first classifier as a index key
                 term = make_glossary_term(self.env, textnodes,
                                           first_classifier, source, lineno,
-                                          node_id=node_id, document=self.state.document)
+                                          node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
                 termnodes.append(term)
