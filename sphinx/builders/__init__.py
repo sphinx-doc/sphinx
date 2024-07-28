@@ -318,7 +318,7 @@ class Builder:
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         """Internal build method.
-        
+
         This should not be overriden by consumers of this library.
 
         First updates the environment, and then calls
