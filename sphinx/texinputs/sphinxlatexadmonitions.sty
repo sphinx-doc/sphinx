@@ -1,7 +1,8 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexadmonitions.sty}[2024/07/01 v7.4.0 admonitions]
+% TODO: convert all .sty files into using \ProvidesPackage not \ProvidesFile
+\ProvidesFile{sphinxlatexadmonitions.sty}[2024/07/28 v8.1.0 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -28,7 +29,8 @@
 %   one-argument macros \sphinxstylenotetitle, \sphinxstylewarningtitle, etc
 %   which can be redefined.  Their default is to use \sphinxdotitlerowwithicon
 %   to typeset the title in a coloured header row at top of the
-%   admonition. (new with 7.4.0)
+%   admonition. (new with 7.4.0; definitions moved to sphinxlatexstyletext.sty
+%                                at 8.1.0)
 %
 % The sphinxlightbox environment is kept for backward compatiblity, for user
 % custom code which used it via custom definitions done in preamble or via
@@ -43,7 +45,8 @@
 %  so \sphinxstrong{#1}<space> which was its former default is used above).
 
 %
-% Requires:
+% Requires: (these Require are only for clarity, macro definitions in TeX
+%            can be done in any order whatsoever, of course prior to use...)
 \RequirePackage{sphinxpackageboxes}
 % 7.4.0 removes unneeded \spx@boxes@border
 \RequirePackage{framed}% used by sphinxheavybox
@@ -299,87 +302,5 @@
   }
   % workaround some LaTeX "feature" of \end command (i.e. can't use "sphinx#1" here)
   {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
-
-\newcommand\sphinxtitlerowtoppadding{5pt}
-\newcommand\sphinxtitlerowbottompadding{3pt}
-\newcommand\sphinxtitlerowaftericonspacecmd{\hskip0.5em\relax}
-\newcommand\sphinxdotitlerowwithicon[2]{% #1=type, #2=heading (without final colon)
-   \begingroup
-     \kern-\spx@boxes@padding@top
-     \parskip\z@skip % the \parskip business is a workaround to a vertical
-                     % glue issue showing in LaTeX earlier than 2023-06-01
-     \noindent
-     \kern-\spx@boxes@padding@left % must have been configured by a prior
-                                   % \spx@boxes@fcolorbox@setup{<type>}
-     % inherit settings from the enclosing box and modify what is needed
-     \spx@boxes@border@top    =\z@
-     \spx@boxes@border@right  =\z@
-     \spx@boxes@border@bottom =\z@
-     \spx@boxes@border@left   =\z@
-     \spx@boxes@radius@bottomright@x=\z@
-     \spx@boxes@radius@bottomright@y=\z@
-     \spx@boxes@radius@bottomleft@x=\z@
-     \spx@boxes@radius@bottomleft@x=\z@
-     \spx@boxes@padding@top   =\sphinxtitlerowtoppadding\relax
-     \spx@boxes@padding@bottom=\sphinxtitlerowbottompadding\relax
-     \spx@boxes@withshadowfalse
-     \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinx#1TtlBgColor}%
-     \spx@boxes@fcolorbox{%
-        \makebox[\linewidth][l]{%
-         \textcolor{sphinx#1TtlFgColor}{%
-            \@nameuse{sphinx#1TtlIcon}%
-            % This macro is located here and not after the closing brace
-            % for reasons of fall-back \spx@faIcon definition in sphinx.sty
-            % in case fontawesome5 package not found.
-            \sphinxtitlerowaftericonspacecmd
-         }%
-         \sphinxstrong{#2}%
-         \strut}%
-      }%
-     \kern-\spx@boxes@padding@right
-     \par
-   \endgroup
-   \vskip-\parskip
-   \kern\spx@boxes@padding@top
-}
-
-% #1 holds the localized name of the notice, postfixed with a colon.
-% \sphinxremovefinalcolon{#1} will typeset #1 without the colon.
-% Legacy definitions (done in sphinxlatexstyletext.sty) were all using
-% a boring plain \sphinxstrong{#1}, now we use a coloured title row.
-\newcommand\sphinxstylenotetitle     [1]{\sphinxdotitlerowwithicon{note}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstylehinttitle     [1]{\sphinxdotitlerowwithicon{hint}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstyleimportanttitle[1]{\sphinxdotitlerowwithicon{important}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstyletiptitle      [1]{\sphinxdotitlerowwithicon{tip}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstylewarningtitle  [1]{\sphinxdotitlerowwithicon{warning}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstylecautiontitle  [1]{\sphinxdotitlerowwithicon{caution}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstyleattentiontitle[1]{\sphinxdotitlerowwithicon{attention}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstyledangertitle   [1]{\sphinxdotitlerowwithicon{danger}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstyleerrortitle    [1]{\sphinxdotitlerowwithicon{error}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstyleseealsotitle  [1]{\sphinxdotitlerowwithicon{seealso}{\sphinxremovefinalcolon{#1}}}
-\newcommand\sphinxstyletodotitle     [1]{\sphinxdotitlerowwithicon{todo}{\sphinxremovefinalcolon{#1}}}
-%
-% A utility to remove a final colon.  Removing last token is not easy in
-% LaTeX, and there are additional complications:
-% - some languages will make the : "active" in document body,
-% - the generic admonition ends up using "note", so for \sphinxnotetitle to
-%   use it safely, the utility has to allow an input not having any final colon.
-% - a bit far-fetched but maybe there is more than one colon inside the input
-%   (possible from a generic admonition title).
-% Hence the scary code.
-\newcommand\sphinxremovefinalcolon[1]{% #1 is the "active" : TeX token
-% Prior to 7.4.0 this was defined with \protected\def but we do not
-% see what usefulness this could have.
-\renewcommand\sphinxremovefinalcolon[1]{%
-   % complications due to : possibly "active"
-   \begingroup\ifnum\catcode`:=\active
-                    \def\x####1#1\relax{####1}%
-               \else\def\x####1:\relax{####1}\fi
-   \expandafter\endgroup\x##1\relax
-   % trick to let \x work also if input ##1 has no ending colon
-   \@gobblefour#1\relax:\relax\relax\relax
-   }%
-}% end of wrapper to inject active :
-\begingroup\catcode`:\active\expandafter\endgroup\sphinxremovefinalcolon:
 
 \endinput

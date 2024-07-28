@@ -1,11 +1,13 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexshadowbox.sty}[2023/03/19 sphinxShadowBox]
+\ProvidesFile{sphinxlatexshadowbox.sty}[2024/07/28 v8.1.0 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
-% - sphinxShadowBox (environment)
+% - sphinxtopic, sphinxcontents, sphinxsidebar (environments)
+%   These wrappers replace at 8.1.0 former direct use of sphinxShadowBox
+%   environment which did not allow separate styling.
 %
 % Dependencies (they do not need to be defined at time of loading):
 %
@@ -45,9 +47,39 @@
 %   in contrast with the framing used for literal blocks, also based, but in a
 %   more sophisticated way on usage of \MakeFramed/\endMakeFramed, and
 %   adjusting to current text indentation.
-\newenvironment{sphinxShadowBox}
+%
+% At 8.1.0, sphinxShadowBox takes an optional argument #1 and uses it as
+% \spx@boxes@fcolorbox@setup{#1} rather than \spx@boxes@fcolorbox@setup{topic}.
+% Some hesitation whether to move this line to newly added sphinxtopic,
+% sphinxcontents and sphinxsidebar environmments.  But anyhow the environment
+% also requires later knowing a few more things: sphinx<type>TextColor and
+% spx@<type>@texextras.
+%
+\newenvironment{sphinxtopic}
+               {\begin{sphinxShadowBox}\relax}{\end{sphinxShadowBox}}
+\newenvironment{sphinxcontents}
+               {\begin{sphinxShadowBox}[contents]}{\end{sphinxShadowBox}}
+% Arguably sphinxsidebar should rather use a wrapfig or similar environment
+% but this is so dysfunctional in LaTeX (except for self-written documents)
+% so we prefer to not venture into such a potential quagmire and keep the
+% legacy rendering.
+\newenvironment{sphinxsidebar}
+               {\begin{sphinxShadowBox}[sidebar]}{\end{sphinxShadowBox}}
+
+% The #1 defaulting to topic must be such that all parameters expected by
+% \spx@boxes@fcolorbox@setup actually do exist, see CSS options in sphinx.sty
+% which is what defines them for contents, topic, and sidebar.
+%
+% Fortunately the #1 is not needed in \end{sphinxShadowBox} so we don't have
+% to work around a LaTeX conception bug that such #1 can not be used as is in
+% the definition of the \end part of an environment.
+%
+% MEMO: the "shadow" is not really drawn directly by this environment but
+% indirectly via the configuration which is passed over to \spx@boxes@fcolorbox,
+% which is the macro creating frame and (perhaps but not necessarily) a shadow.
+\newenvironment{sphinxShadowBox}[1][topic]%
   {%
-   \spx@boxes@fcolorbox@setup{topic}%
+   \spx@boxes@fcolorbox@setup{#1}%
    % we will use the dimen registers from sphinxpackageboxes.sty which now hold
    % the values from options related to topic/contents
    % MEMO: \spx@boxes@fcolorbox creates an \hbox but does not quit vertical
@@ -56,7 +88,7 @@
    \def\FrameCommand {\spx@boxes@fcolorbox}%
    % 6.2.0 adds support for div.topic_box-decoration-break=slice.
    % (it is yet undecided if slice style should inhibit a bottom shadow)
-   \ifspx@topic@border@open
+   \@nameuse{ifspx@#1@border@open}%
      \def\FirstFrameCommand
                {\spx@boxes@fcolorbox@setup@openbottom\FrameCommand}%
      \def\MidFrameCommand
@@ -97,10 +129,10 @@
     \@setminipage
     }%
     \color@begingroup % workaround upstream framed.sty bug
-    \ifspx@topic@withtextcolor
-      \color{sphinxtopicTextColor}%
+    \@nameuse{ifspx@#1@withtextcolor}%
+      \color{sphinx#1TextColor}%
     \fi
-    \spx@topic@TeXextras
+    \@nameuse{spx@#1@TeXextras}%
   }%
   {% insert the "endminipage" code
     \par\unskip

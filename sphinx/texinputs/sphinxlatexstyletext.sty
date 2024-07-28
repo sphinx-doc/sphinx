@@ -1,11 +1,117 @@
 %% TEXT STYLING
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexstyletext.sty}[2024/07/01 v7.4.0 text styling]
+\ProvidesFile{sphinxlatexstyletext.sty}[2024/07/28 v8.1.0 text styling]
 
-% 7.4.0 has moved all that is related to admonitions to sphinxlatexadmonitions.sty
-% Most everything left here consists of macros which are part of the latex markup
-% produced by the Sphinx LaTeX writer.
+% 8.1.0 moves here from sphinxlatexadmonitions.sty the title row material,
+% as it may now also be used to topic/contents/sidebar directives so we
+% use a shared location here.
+% TODO: allow these next three settings to be customized individually.
+%       This can however already be done at user level by \renewcommand
+%       inside renew'ed environments sphinxnote, sphinxhint etc...
+\newcommand\sphinxtitlerowtoppadding{5pt}
+\newcommand\sphinxtitlerowbottompadding{3pt}
+\newcommand\sphinxtitlerowaftericonspacecmd{\hskip0.5em\relax}
+\newcommand\sphinxdotitlerowwithicon[2]{% #1=type, #2=heading (without final colon)
+   \begingroup
+     \kern-\spx@boxes@padding@top
+     \parskip\z@skip % the \parskip business is a workaround to a vertical
+                     % glue issue showing in LaTeX earlier than 2023-06-01
+     \noindent
+     \kern-\spx@boxes@padding@left % must have been configured by a prior
+                                   % \spx@boxes@fcolorbox@setup{<type>}
+     % inherit settings from the enclosing box and modify what is needed
+     \spx@boxes@border@top    =\z@
+     \spx@boxes@border@right  =\z@
+     \spx@boxes@border@bottom =\z@
+     \spx@boxes@border@left   =\z@
+     \spx@boxes@radius@bottomright@x=\z@
+     \spx@boxes@radius@bottomright@y=\z@
+     \spx@boxes@radius@bottomleft@x=\z@
+     \spx@boxes@radius@bottomleft@x=\z@
+     \spx@boxes@padding@top   =\sphinxtitlerowtoppadding\relax
+     \spx@boxes@padding@bottom=\sphinxtitlerowbottompadding\relax
+     \spx@boxes@withshadowfalse
+     \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinx#1TtlBgColor}%
+     \spx@boxes@fcolorbox{%
+        \parbox[t]{\linewidth}{% 7.4.0 used \makebox, but wrapping of long titles
+                               % possibly needed for generic admonition or topic.
+         \sphinxAtStartPar
+         \textcolor{sphinx#1TtlFgColor}{%
+            \@nameuse{sphinx#1TtlIcon}%
+            % This macro is located here and not after the closing brace
+            % for reasons of fall-back \spx@faIcon definition in sphinx.sty
+            % in case fontawesome5 package not found.
+            \sphinxtitlerowaftericonspacecmd
+         }%
+         \sphinxstrong{#2}%
+         \strut
+         \par
+        }%
+      }%
+     \kern-\spx@boxes@padding@right
+     \par
+   \endgroup
+   \vskip-\parskip
+   \kern\spx@boxes@padding@top
+}
+% #1 holds the localized name of the notice, postfixed with a colon.
+% \sphinxremovefinalcolon{#1} will typeset #1 without the colon.
+% Legacy definitions were all using a boring plain \sphinxstrong{#1},
+% now we use as default a coloured title row.
+\newcommand\sphinxstylenotetitle     [1]{\sphinxdotitlerowwithicon{note}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstylehinttitle     [1]{\sphinxdotitlerowwithicon{hint}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyleimportanttitle[1]{\sphinxdotitlerowwithicon{important}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyletiptitle      [1]{\sphinxdotitlerowwithicon{tip}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstylewarningtitle  [1]{\sphinxdotitlerowwithicon{warning}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstylecautiontitle  [1]{\sphinxdotitlerowwithicon{caution}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyleattentiontitle[1]{\sphinxdotitlerowwithicon{attention}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyledangertitle   [1]{\sphinxdotitlerowwithicon{danger}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyleerrortitle    [1]{\sphinxdotitlerowwithicon{error}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyleseealsotitle  [1]{\sphinxdotitlerowwithicon{seealso}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyletodotitle     [1]{\sphinxdotitlerowwithicon{todo}{\sphinxremovefinalcolon{#1}}}
+%
+% A utility to remove a final colon.  Removing last token is not easy in
+% LaTeX, and there are additional complications:
+% - some languages will make the : "active" in document body,
+% - the generic admonition ends up using "note", so for \sphinxnotetitle to
+%   use it safely, the utility has to allow an input not having any final colon.
+% - a bit far-fetched but maybe there is more than one colon inside the input
+%   (possible from a generic admonition title).
+% Hence the scary code.
+\newcommand\sphinxremovefinalcolon[1]{% #1 is the "active" : TeX token
+% Prior to 7.4.0 this was defined with \protected\def but we do not
+% see what usefulness this could have.
+\renewcommand\sphinxremovefinalcolon[1]{%
+   % complications due to : possibly "active"
+   \begingroup\ifnum\catcode`:=\active
+                    \def\x####1#1\relax{####1}%
+               \else\def\x####1:\relax{####1}\fi
+   \expandafter\endgroup\x##1\relax
+   % trick to let \x work also if input ##1 has no ending colon
+   \@gobblefour#1\relax:\relax\relax\relax
+   }%
+}% end of wrapper to inject active :
+\begingroup\catcode`:\active\expandafter\endgroup\sphinxremovefinalcolon:
+
+% must be used in an environment to limit scope of some changes
+\newcommand\sphinxdotitlerowwithouticon[2]{%
+   \let\sphinxtitlerowaftericonspacecmd\empty
+   \sphinxcolorlet{sphinx#1TtlFgColor}{black}% only to give it some definition
+   \sphinxdotitlerowwithicon{#1}{#2}%
+}
+% 8.1.0 styles topic/contents/sidebar with a title row, too.
+% Prior to 8.1.0, definitions use \protected\def but there does not seem
+% to be any reason so back to \newcommand
+\newcommand\sphinxstyletopictitle[1]{\sphinxdotitlerowwithouticon{topic}{#1}}
+\newcommand\sphinxstylecontentstitle[1]{\sphinxdotitlerowwithouticon{contents}{#1}}
+\newcommand\sphinxstylesidebartitle[1]{\sphinxdotitlerowwithouticon{sidebar}{#1}}
+% No default color background for subtitle.  The contents next are injected by
+% LaTeX writer after a blank line in source hence will start a new paragrpah.
+% The \sphinxAtStartPar here is only for coherence with other text paragraphs,
+% but does not have serious necessity (its general role is to allow hyphenation
+% for first word in narrow table cells.
+\newcommand\sphinxstylesidebarsubtitle[1]{\sphinxAtStartPar\textbf{#1}}
 
 % Some custom font markup commands.
 \protected\def\sphinxstrong#1{\textbf{#1}}
@@ -39,10 +145,7 @@
     {{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 \def\sphinxstyleindexlettergroupDefault #1%
     {{\Large\sffamily\sphinxnonalphabeticalgroupname}\nopagebreak\vspace{1mm}}
-\protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
-\let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
-\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 % \text.. commands do not allow multiple paragraphs
 % attention, this one is not self-delimiting
 \protected\def\sphinxstyletheadfamily    {\sffamily}
