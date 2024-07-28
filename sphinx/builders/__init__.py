@@ -297,6 +297,7 @@ class Builder:
                        summary=__('targets for %d source files that are out of date') %
                        len(to_build))
 
+    @final
     def build(
         self,
         docnames: Iterable[str] | None,
@@ -304,6 +305,21 @@ class Builder:
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         """Main build method, usually called by a specific ``build_*`` method.
+
+        First updates the environment, and then calls
+        :meth:`!write`.
+        """
+        self._build(docnames, summary, method)
+
+    def _build(
+        self,
+        docnames: Iterable[str] | None,
+        summary: str | None = None,
+        method: Literal['all', 'specific', 'update'] = 'update',
+    ) -> None:
+        """Internal build method.
+        
+        This should not be overriden by consumers of this library.
 
         First updates the environment, and then calls
         :meth:`!write`.
