@@ -1335,7 +1335,7 @@ forget the underscore separating the prefix from the property names.
   - ``{HTML}{86989B}`` is border color of light admonitions (inclusive of
     :rst:dir:`seealso` and :rst:dir:`todo`) as well as of :dudir:`topic`,
     contents_ and :dudir:`sidebar` directives.
-  - ``{HTML}{940000}`` is border color or :dudir:`warning`-type admonitions,
+  - ``{HTML}{940000}`` is border color of :dudir:`warning`-type admonitions,
     except :dudir:`error` which uses ``{HTML}{B40000}``.
 
   The only directives displaying a shadow per default are contents_ and
@@ -1626,10 +1626,10 @@ Macros
      if this final colon is to be removed.
 
   .. versionadded:: 7.4.0 The ``\sphinxdotitlerowwithicon`` LaTeX command,
-     (renamed at 8.1.0 ``sphinxdotitlerow``, former name kept for backward
+     (renamed at 8.1.0 ``\sphinxdotitlerow``, former name kept for backward
      compatibility)
      whose first argument is the admonition type, so that it can recover
-     the associated colours and icon for the title row, and the second
+     the associated colors and icon for the title row, and the second
      argument gets typeset after the icon.
 
   .. todo:: The fact that we must employ ``\sphinxremovefinalcolon`` is a
@@ -1639,9 +1639,8 @@ Macros
   .. versionchanged:: 8.1.0 LaTeX command ``\sphinxdotitlerow`` detects
      automatically if an icon is associated or not with the rendered element.
 
-  .. versionchanged:: 8.1.0 Title rows for :dudir:`topic`, contents_, and
-     :dudir:`sidebar` directives (which have per defaults no associated
-     icons).
+  .. versionadded:: 8.1.0 Titles of :dudir:`topic`, contents_, and
+     :dudir:`sidebar` directives styled using ``\sphinxdotitlerow``.
 
 - ``\sphinxtableofcontents``: A wrapper (defined differently in
   :file:`sphinxhowto.cls` and in :file:`sphinxmanual.cls`) of standard
