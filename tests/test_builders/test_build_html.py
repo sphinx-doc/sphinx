@@ -1,18 +1,25 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import os
 import posixpath
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
+from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError
 from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 def test_html_sidebars_error(make_app, tmp_path):
@@ -228,9 +235,20 @@ def test_html_style(app):
             not in result)
 
 
-@pytest.mark.sphinx('html', testroot='basic')
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    # alabaster changed default sidebars in 1.0.0
+    confoverrides={'html_sidebars': {'**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]}},
+)
 def test_html_sidebar(app):
-    ctx = {}
+    ctx: dict[str, Any] = {}
 
     # default for alabaster
     app.build(force_all=True)
@@ -323,7 +341,8 @@ def test_validate_html_extra_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    validate_html_extra_path(app, app.config)
+    with pytest.warns(RemovedInSphinx90Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
+        validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
 
 
@@ -336,7 +355,8 @@ def test_validate_html_static_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    validate_html_static_path(app, app.config)
+    with pytest.warns(RemovedInSphinx90Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
+        validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
 
 
@@ -398,7 +418,7 @@ def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
     etree = cached_etree_parse(fname)
 
     class chk:
-        def __init__(self, expect):
+        def __init__(self, expect: str) -> None:
             self.expect = expect
 
         def __call__(self, nodes):

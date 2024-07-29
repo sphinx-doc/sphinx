@@ -13,14 +13,13 @@ from sphinx import addnodes
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx import (
-    fetch_inventory,
     inspect_main,
     load_mappings,
     missing_reference,
     validate_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
-from sphinx.ext.intersphinx._load import _get_safe_url, _strip_basic_auth
+from sphinx.ext.intersphinx._load import _fetch_inventory, _get_safe_url, _strip_basic_auth
 from sphinx.util.console import strip_colors
 
 from tests.test_util.intersphinx_data import (
@@ -70,7 +69,12 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
 
     # same uri and inv, not redirected
     _read_from_url().url = 'https://hostname/' + INVENTORY_FILENAME
-    fetch_inventory(app, 'https://hostname/', 'https://hostname/' + INVENTORY_FILENAME)
+    _fetch_inventory(
+        target_uri='https://hostname/',
+        inv_location='https://hostname/' + INVENTORY_FILENAME,
+        config=app.config,
+        srcdir=app.srcdir,
+    )
     assert 'intersphinx inventory has moved' not in app.status.getvalue()
     assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
 
@@ -79,7 +83,12 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
     app.status.truncate(0)
     _read_from_url().url = 'https://hostname/new/' + INVENTORY_FILENAME
 
-    fetch_inventory(app, 'https://hostname/', 'https://hostname/' + INVENTORY_FILENAME)
+    _fetch_inventory(
+        target_uri='https://hostname/',
+        inv_location='https://hostname/' + INVENTORY_FILENAME,
+        config=app.config,
+        srcdir=app.srcdir,
+    )
     assert app.status.getvalue() == ('intersphinx inventory has moved: '
                                      'https://hostname/%s -> https://hostname/new/%s\n' %
                                      (INVENTORY_FILENAME, INVENTORY_FILENAME))
@@ -90,7 +99,12 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
     app.status.truncate(0)
     _read_from_url().url = 'https://hostname/new/' + INVENTORY_FILENAME
 
-    fetch_inventory(app, 'https://hostname/', 'https://hostname/new/' + INVENTORY_FILENAME)
+    _fetch_inventory(
+        target_uri='https://hostname/',
+        inv_location='https://hostname/new/' + INVENTORY_FILENAME,
+        config=app.config,
+        srcdir=app.srcdir,
+    )
     assert 'intersphinx inventory has moved' not in app.status.getvalue()
     assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
 
@@ -99,7 +113,12 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
     app.status.truncate(0)
     _read_from_url().url = 'https://hostname/other/' + INVENTORY_FILENAME
 
-    fetch_inventory(app, 'https://hostname/', 'https://hostname/new/' + INVENTORY_FILENAME)
+    _fetch_inventory(
+        target_uri='https://hostname/',
+        inv_location='https://hostname/new/' + INVENTORY_FILENAME,
+        config=app.config,
+        srcdir=app.srcdir,
+    )
     assert app.status.getvalue() == ('intersphinx inventory has moved: '
                                      'https://hostname/new/%s -> https://hostname/other/%s\n' %
                                      (INVENTORY_FILENAME, INVENTORY_FILENAME))

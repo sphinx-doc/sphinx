@@ -66,7 +66,7 @@ dependencies = [
     "docutils>=0.20,<0.22",
     "snowballstemmer>=2.2",
     "babel>=2.13",
-    "alabaster~=0.7.14",
+    "alabaster>=0.7.14",
     "imagesize>=1.3",
     "requests>=2.30.0",
     "packaging>=23.0",
@@ -81,11 +81,12 @@ docs = [
 ]
 lint = [
     "flake8>=6.0",
-    "ruff==0.5.4",
+    "ruff==0.5.5",
     "mypy==1.11.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
-    "types-docutils==0.21.0.20240711",
+    "types-defusedxml==0.7.0.20240218",
+    "types-docutils==0.21.0.20240724",
     "types-Pillow==10.2.0.20240520",
     "types-Pygments==2.18.0.20240506",
     "types-requests>=2.30.0",  # align with requests
@@ -136,26 +137,19 @@ exclude = [
 [tool.mypy]
 files = ["sphinx", "utils", "tests"]
 exclude = [
-    "tests/certs",
-    "tests/js",
     "tests/roots",
     # tests/
     "^tests/test_events\\.py$",
     "^tests/test_quickstart\\.py$",
     "^tests/test_search\\.py$",
-    "^tests/test_versioning\\.py$",
     # tests/test_builders
-    "^tests/test_builders/test_build_dirhtml\\.py$",
     "^tests/test_builders/test_build_epub\\.py$",
-    "^tests/test_builders/test_builder\\.py$",
     "^tests/test_builders/test_build_gettext\\.py$",
-    "^tests/test_builders/test_build_html\\.py$",
     "^tests/test_builders/test_build_latex\\.py$",
     "^tests/test_builders/test_build_texinfo\\.py$",
     # tests/test_config
     "^tests/test_config/test_config\\.py$",
     # tests/test_directives
-    "^tests/test_directives/test_directive_object_description\\.py$",
     "^tests/test_directives/test_directive_only\\.py$",
     "^tests/test_directives/test_directive_other\\.py$",
     "^tests/test_directives/test_directive_patch\\.py$",
@@ -185,14 +179,10 @@ exclude = [
     "^tests/test_extensions/test_ext_napoleon_docstring\\.py$",
     # tests/test_intl
     "^tests/test_intl/test_intl\\.py$",
-    # tests/test_markup
-    "^tests/test_markup/test_markup\\.py$",
     # tests/test_pycode
     "^tests/test_pycode/test_pycode\\.py$",
     "^tests/test_pycode/test_pycode_ast\\.py$",
-    # tests/test_theming
     # tests/test_transforms
-    "^tests/test_transforms/test_transforms_move_module_targets\\.py$",
     "^tests/test_transforms/test_transforms_post_transforms\\.py$",
     # tests/test_util
     "^tests/test_util/test_util_fileutil\\.py$",
@@ -275,7 +265,6 @@ disallow_any_generics = false
 
 [[tool.mypy.overrides]]
 module = [
-    "defusedxml.ElementTree",
     "imagesize",
     "snowballstemmer",
 ]

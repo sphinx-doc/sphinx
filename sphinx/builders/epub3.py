@@ -197,7 +197,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
         copy_asset_file(
             path.join(self.template_dir, 'nav.xhtml.jinja'),
             self.outdir,
-            context=self.navigation_doc_metadata(navlist)
+            context=self.navigation_doc_metadata(navlist),
+            force=True,
         )
 
         # Add nav.xhtml to epub file

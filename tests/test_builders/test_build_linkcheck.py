@@ -10,7 +10,6 @@ import time
 import wsgiref.handlers
 from base64 import b64encode
 from http.server import BaseHTTPRequestHandler
-from pathlib import Path
 from queue import Queue
 from typing import TYPE_CHECKING
 from unittest import mock
@@ -29,6 +28,7 @@ from sphinx.builders.linkcheck import (
     compile_linkcheck_allowed_redirects,
 )
 from sphinx.util import requests
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.console import strip_colors
 
 from tests.utils import CERT_FILE, serve_application
@@ -240,6 +240,7 @@ def test_raw_node(app: SphinxTestApp) -> None:
         index.write_text(
             ".. raw:: 'html'\n"
             "   :url: http://{address}/".format(address=address),
+            encoding='utf-8',
         )
         app.build()
 
@@ -1061,7 +1062,7 @@ def test_connection_contention(get_adapter, app, capsys):
         wqueue: Queue[CheckRequest] = Queue()
         rqueue: Queue[CheckResult] = Queue()
         for _ in range(link_count):
-            wqueue.put(CheckRequest(0, Hyperlink(f"http://{address}", "test", Path("test.rst"), 1)))
+            wqueue.put(CheckRequest(0, Hyperlink(f"http://{address}", "test", _StrPath("test.rst"), 1)))
 
         begin = time.time()
         checked: list[CheckResult] = []
