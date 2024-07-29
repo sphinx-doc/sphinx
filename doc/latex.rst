@@ -940,32 +940,32 @@ The color used in the above example is available from having passed the
 
     Default: ``\fboxrule``
 
+.. important::
+
+   At 8.1.0 it became possible to style separately the :dudir:`topic`,
+   contents_, and :dudir:`sidebar` directives, and each acquired new defaults.
+   See :ref:`additionalcss`.
+   The ``shadowsep``, ``shadowsize`` and ``shadowrule`` keys are kept for
+   backward compatibility only.
+
 ``shadowsep``
-    The separation between contents and frame for contents_ and
-    :dudir:`topic` boxes.
+    This legacy option sets the padding (same in all directions) simultaneously
+    for the :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
 
-    See :ref:`additionalcss` for the alias ``div.topic_padding``.
-
-    Default: ``5pt``
+    .. versionchanged:: 8.1.0 New separate defaults. See :ref:`additionalcss`.
 
 ``shadowsize``
-    The width of the lateral "shadow" to the right and bottom.
+    This legacy option sets the shadow width simultaneously for the
+    :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
 
-    See :ref:`additionalcss` for ``div.topic_box-shadow`` which allows to
-    configure separately the widths of the vertical and horizontal shadows.
-
-    Default: ``4pt``
-
-    .. versionchanged:: 6.1.2
-       Fixed a regression introduced at ``5.1.0`` which modified unintentionally
-       the width of topic boxes and worse had made usage of this key break PDF
-       builds.
+    .. versionchanged:: 8.1.0 New separate defaults. See :ref:`additionalcss`.
 
 ``shadowrule``
-    The width of the frame around :dudir:`topic` boxes.  See also
-    :ref:`additionalcss` for ``div.topic_border-width``.
 
-    Default: ``\fboxrule``
+    This legacy option sets the border-width (same on all sides) simultaneously
+    for the :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
+
+    .. versionchanged:: 8.1.0 New separate defaults. See :ref:`additionalcss`.
 
 .. important::
 
@@ -1148,6 +1148,11 @@ Additional  CSS-like ``'sphinxsetup'`` keys
    set the foreground and background colors for the title as well as the
    LaTeX code for the icon.
 
+.. versionadded:: 7.4.0  Customizability of the :rst:dir:`seealso` and
+   :rst:dir:`todo` directives.
+
+.. versionadded:: 8.1.0 Separate customizability and new defaults for the
+   :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
 
 Perhaps in future these 5.1.0 (and 6.2.0) novel settings will be optionally
 imported from some genuine CSS external file, but currently they have to be used
@@ -1198,17 +1203,15 @@ which is then followed by an underscore, then the property name.
    :header: Directive, Option prefix, LaTeX environment
 
    :rst:dir:`code-block`, ``pre``, ``sphinxVerbatim``
-   :dudir:`topic`, ``div.topic``, ``sphinxShadowBox``
-   contents_, ``div.topic``, ``sphinxShadowBox``
+   :rst:dir:`literalinclude`, ``pre``, ``sphinxVerbatim``
+   :dudir:`topic`, ``div.topic``, ``sphinxtopic``
+   contents_, ``div.contents``, ``sphinxcontents``
+   :dudir:`sidebar`, ``div.sidebar``, ``sphinxsidebar``
    :dudir:`note`, ``div.note``, ``sphinxnote``
    :dudir:`warning`, ``div.warning``, ``sphinxwarning``
    further admonition types ``<type>``, ``div.<type>``,  ``sphinx<type>``
    :rst:dir:`seealso`, ``div.seealso``, ``sphinxseealso``
    :rst:dir:`todo`, ``div.todo``, ``sphinxtodo``
-
-
-.. versionadded:: 7.4.0  Customizability of the :rst:dir:`seealso` and
-   :rst:dir:`todo` directives.
 
 Here are now these options as well as their common defaults.
 Replace below ``<prefix>`` by the actual prefix as explained above.  Don't
@@ -1224,15 +1227,18 @@ forget the underscore separating the prefix from the property names.
   The default is that all those dimensions are equal.  They are set to:
 
   * ``0.4pt`` for :rst:dir:`code-block`,
-  * ``0.5pt`` for :dudir:`topic` or contents_ directive,
+  * ``0.5pt`` for :dudir:`topic` and contents_ directive,
+  * ``1pt`` (top/bottom) and ``2pt`` (left/right) for :dudir:`sidebar` directive,
   * ``0.5pt`` for :dudir:`note` and other "light" admonitions,
   * ``0.5pt`` for :rst:dir:`seealso` and :rst:dir:`todo` directives,
   * ``1pt`` for  :dudir:`warning` and other "strong" admonitions except
     :dudir:`error` which uses ``1.25pt``.
 
-  .. versionchanged:: 7.4.0
+  .. versionchanged:: 7.4.0 Changed defaults for :dudir:`topic` and
+     :dudir:`error`.
 
-     Changed defaults for :dudir:`topic` and :dudir:`error`.
+  .. versionchanged:: 8.1.0 Distinct from :dudir:`topic` defaults for
+     :dudir:`sidebar`.
 
 - ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
   ``slice`` and configures the behavior at page breaks.
@@ -1248,8 +1254,9 @@ forget the underscore separating the prefix from the property names.
   The defaults:
 
   * all four ``3pt`` for :rst:dir:`code-block`,
-  * ``10pt``, ``7pt``, ``12pt``, ``7pt`` for :dudir:`topic` or
-    contents_ directive,
+  * ``6pt``, ``7pt``, ``6pt``, ``7pt`` for :dudir:`topic`,
+  * ``10pt``, ``7pt``, ``12pt``, ``7pt`` for contents_,
+  * ``6pt``, ``5.5pt``, ``6pt``, ``5.5pt`` for :dudir:`sidebar`,
   * ``6pt``, ``7pt``, ``6pt``, ``7pt`` for all "light" admonitions as well
     as the :rst:dir:`seealso` and :rst:dir:`todo` directives.
   * ``6pt``, ``6.5pt``, ``6pt``, ``6.5pt`` for the strong admonition types
@@ -1263,6 +1270,9 @@ forget the underscore separating the prefix from the property names.
      vertically across admonition types on same page in PDF.  This is only a
      property of defaults, not a constraint on possible user choices.
 
+  .. versionchanged:: 8.1.0 Separate defaults for :dudir:`topic`, contents_,
+     and :dudir:`sidebar`.
+
 - | ``<prefix>_border-top-left-radius``,
   | ``<prefix>_border-top-right-radius``,
   | ``<prefix>_border-bottom-right-radius``,
@@ -1274,16 +1284,19 @@ forget the underscore separating the prefix from the property names.
   The defaults:
 
   * ``3pt`` for :rst:dir:`code-block` (since 6.0.0) and all corners,
-  * ``12pt`` for the bottom right corner of :dudir:`topic`, other corners are
-    straight,
+  * ``8pt`` for all corners of :dudir:`topic`,
+  * ``12pt`` for the bottom right corner of contents_, others use ``0pt``,
+  * ``12pt`` for the top-left and bottom-right corners for :dudir:`sidebar`,
+    ``0pt`` for top-right and bottom-left.
   * all radii set to ``5pt`` for :dudir:`note`, :dudir:`hint` and
     :dudir:`tip`,
   * ``0pt``, i.e. straight corners for all other directives.
 
-  .. versionchanged:: 7.4.0
+  .. versionchanged:: 7.4.0 :dudir:`topic` and :dudir:`note`\ -like
+     admonitions acquire (at least one) rounded corners.
 
-     :dudir:`topic` and :dudir:`note`\ -like admonitions acquire (at least one)
-     rounded corners.
+  .. versionchanged:: 8.1.0 Separate defaults for :dudir:`topic`, contents_,
+     and :dudir:`sidebar`.
 
   See a remark above about traps with spaces in LaTeX.
 - ``<prefix>_box-shadow`` is special in so far as it may be:
@@ -1294,10 +1307,17 @@ forget the underscore separating the prefix from the property names.
   * or two dimensions followed by the keyword ``inset``.
 
   The x-offset and y-offset may be negative.  The default is ``none``,
-  *except* for the :dudir:`topic` or contents_ directives, for which it is
-  ``4pt 4pt``, i.e. the shadow has a width of ``4pt`` and extends to the right
-  and below the frame.  The lateral shadow then extends into the page right
-  margin.
+  *except* for:
+
+  - the contents_ directive: ``4pt 4pt``, i.e. the shadow has a width of
+    ``4pt`` and extends to the right and below the frame; the lateral shadow
+    extends into the page right margin,
+
+  - the :dudir:`sidebar` directive: ``0pt 2pt``, i.e. a small shadow at
+    bottom.
+
+  .. versionchanged:: 8.1.0 No shadow anymore for :dudir:`topic`.
+
 - | ``<prefix>_border-TeXcolor``,
   | ``<prefix>_background-TeXcolor``,
   | ``<prefix>_box-shadow-TeXcolor``,
@@ -1314,14 +1334,14 @@ forget the underscore separating the prefix from the property names.
 
   - ``{HTML}{F7F7F7}`` serves as background color to all.
   - ``{HTML}{86989B}`` is border color of light admonitions (inclusive of
-    :rst:dir:`seealso` and :rst:dir:`todo`) as well as of :dudir:`topic` and
-    contents_ directives.
+    :rst:dir:`seealso` and :rst:dir:`todo`) as well as of :dudir:`topic`,
+    contents_ and :dudir:`sidebar` directives.
   - ``{HTML}{940000}`` is border color or :dudir:`warning`-type admonitions,
     except :dudir:`error` which uses ``{HTML}{B40000}``.
 
-  The only directives displaying a shadow per default are :dudir:`topic` and
-  contents_ (handled identically at LaTeX level) and their shadow color is
-  ``{HTML}{6C6C6C}``.  For all others the default shadow color is black.
+  The only directives displaying a shadow per default are contents_ and
+  :dudir:`sidebar`.  The shadow-color for the former is ``{HTML}{6C6C6C}``
+  and for the latter ``{HTML}{9EACAF}``.
 
   The ``<prefix>_TeXcolor`` stands for the CSS property "color", i.e. it
   influences the text color of the contents.  As for the three other options,
@@ -1340,19 +1360,16 @@ forget the underscore separating the prefix from the property names.
   start of the contents; for admonitions, this happens after the heading which
   reproduces the admonition type.
 
-The next keys, for admonitions only, were all three added at 7.4.0.  The
-default colors are the ones applying to the current HTML rendering of Sphinx
-own docs at https://www.sphinx-doc.org.
+The next keys, for admonitions, :dudir:`topic`, contents_, and
+:dudir:`sidebar`, were all three added at 7.4.0 (and 8.1.0 for the latter three).
 
 - ``div.<type>_title-background-TeXcolor``: the background color for the title.
 
   .. important::
 
      The colored title-row is produced as a result of the Sphinx default
-     definitions for the various ``\sphinxstyle<type>title`` commands, see
-     :ref:`latex-macros`.  Custom redefinitions of these commands are
-     possible, but to re-use the colors and the icon, it is needed to check in
-     Sphinx LaTeX source code how the default definitions are done.
+     definitions for the various ``\sphinxstyle<type>title`` commands, which
+     employ the ``\sphinxdotitlerow`` LaTeX command.  See :ref:`latex-macros`.
 
 - ``div.<type>_title-foreground-TeXcolor``: the color to be used for the icon
   (it applies only to the icon, not to the title of the admonition).
@@ -1429,24 +1446,20 @@ own docs at https://www.sphinx-doc.org.
 .. _ellipse: https://ctan.org/pkg/ellipse
 
 
-The following legacy behavior is currently not customizable:
+The following legacy behavior applies:
 
-- For :rst:dir:`code-block`, padding and border-width and shadow (if one adds
-  one) will go into the margin; the code lines remain at the same place
-  independently of the values of the padding and border-width, except for
-  being shifted vertically of course to not overwrite other text due to the
-  width of the border or external shadow.
+- For :rst:dir:`code-block` (or :rst:dir:`literalinclude`), padding and
+  border-width and shadow (if one adds one) will go into the margin; the code
+  lines remain at the same place independently of the values of the padding
+  and border-width, except for being shifted vertically of course to not
+  overwrite other text due to the width of the border or external shadow.
 
-- For :dudir:`topic` (and contents_) the shadow (if on right) goes into the
-  page margin, but the border and the extra padding are kept within the text
-  area.  Same for admonitions.
+- For all others than :rst:dir:`code-block` (or :rst:dir:`literalinclude`) the
+  shadow (if on right) goes into the page margin, but the border and the extra
+  padding are kept within the text area.
 
-- The contents_ and :dudir:`topic` directives are governed by the same options
-  with ``div.topic`` prefix: the Sphinx LaTeX mark-up uses for both directives
-  the same ``sphinxShadowBox`` environment which has currently no additional
-  branching, contrarily to the ``sphinxadmonition`` environment which branches
-  according to the admonition directive name, e.g. either to ``sphinxnote``
-  or ``sphinxwarning`` etc...
+- :rst:dir:`code-block` and :rst:dir:`literalinclude` use the same LaTeX
+  environment and commands and are not separately customizable.
 
 
 LaTeX macros and environments
@@ -1565,8 +1578,8 @@ Macros
      ``\sphinxstyleliteralintitle``;   ``\sphinxcode{#1}``
      ``\sphinxstylecodecontinued``;    ``{\footnotesize(#1)}}``
      ``\sphinxstylecodecontinues``;    ``{\footnotesize(#1)}}``
-     ``\sphinxstylenotetitle``; ``\sphinxdotitlerowwithicon{note}{#1}``
-     ``\sphinxstylehinttitle``; ``\sphinxdotitlerowwithicon{hint}{#1}``
+     ``\sphinxstylenotetitle``; ``\sphinxdotitlerow{note}{#1}``
+     ``\sphinxstylehinttitle``; ``\sphinxdotitlerow{hint}{#1}``
      ``\sphinxstyleimportanttitle``;   *similar*
      ``\sphinxstyletiptitle``;         *similar*
      ``\sphinxstylewarningtitle``;     *similar*
@@ -1576,6 +1589,9 @@ Macros
      ``\sphinxstyleerrortitle``;       *similar*
      ``\sphinxstyleseealsotitle``;     *similar*
      ``\sphinxstyletodotitle``;        *similar*
+     ``\sphinxstyletopictitle``;       *similar*
+     ``\sphinxstylecontentstitle``;    *similar*
+     ``\sphinxstylesidebartitle``;     *similar*
 
   .. note::
 
@@ -1585,10 +1601,11 @@ Macros
      .. code-block:: latex
 
         \newcommand\sphinxstylenotetitle[1]%
-        {\sphinxdotitlerowwithicon{note}{\sphinxremovefinalcolon{#1}}}
+        {\sphinxdotitlerow{note}{\sphinxremovefinalcolon{#1}}}
 
      The same remark applies to all other similar commands associated with
-     admonitions.
+     admonitions.  The :dudir:`topic`, contents_, and :dudir:`sidebar` do not
+     use it as they don't need it.
 
   .. versionadded:: 1.5
      These macros were formerly hard-coded as non customizable ``\texttt``,
@@ -1610,6 +1627,8 @@ Macros
      if this final colon is to be removed.
 
   .. versionadded:: 7.4.0 The ``\sphinxdotitlerowwithicon`` LaTeX command,
+     (renamed at 8.1.0 ``sphinxdotitlerow``, former name kept for backward
+     compatibility)
      whose first argument is the admonition type, so that it can recover
      the associated colours and icon for the title row, and the second
      argument gets typeset after the icon.
@@ -1617,6 +1636,13 @@ Macros
   .. todo:: The fact that we must employ ``\sphinxremovefinalcolon`` is a
             legacy artefact from old ill-designed Sphinx LaTeX writer,
             which postfixes (still today) the title with a colon automatically.
+
+  .. versionchanged:: 8.1.0 LaTeX command ``\sphinxdotitlerow`` detects
+     automatically if an icon is associated or not with the rendered element.
+
+  .. versionchanged:: 8.1.0 Title rows for :dudir:`topic`, contents_, and
+     :dudir:`sidebar` directives (which have per defaults no associated
+     icons).
 
 - ``\sphinxtableofcontents``: A wrapper (defined differently in
   :file:`sphinxhowto.cls` and in :file:`sphinxmanual.cls`) of standard
