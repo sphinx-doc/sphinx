@@ -1817,17 +1817,18 @@ Environments
 
   .. versionadded:: 6.1.0
   .. versionchanged:: 6.2.0
-
      Colon made part of the mark-up rather than being inserted by the
      environment for coherence with how admonitions are handled generally.
 
 - Environment for the :rst:dir:`todo` directive: ``sphinxtodo``.
-  It takes one argument which will be the localized string ``Todo``
-  followed with a colon.
+  It takes one argument which will is the localized string ``Todo``
+  (with a colon at the end; the default rendering will remove that
+  colon and put the localized string in its own colored title-row).
 
   .. versionadded:: 7.4.0
-- The contents_ directive (with ``:local:`` option) and the
-  :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
+- The :dudir:`topic`, contents_ and :dudir:`sidebar` directives
+  are associated with respectively ``sphinxtopic``, ``sphinxcontents``,
+  and ``sphinxsidebar`` environments.
 
   .. versionadded:: 1.4.2
      Former code refactored into an environment allowing page breaks.
@@ -1835,7 +1836,12 @@ Environments
   .. versionchanged:: 1.5
      Options ``shadowsep``, ``shadowsize``,  ``shadowrule``.
 
-- The literal blocks (via ``::`` or :rst:dir:`code-block`), are
+  .. versionadded:: 8.1.0
+     Separate environments (all three wrappers around ``sphinxShadowBox``)
+     and separate customizability.
+
+- The literal blocks (via ``::`` or :rst:dir:`code-block`), and literal
+  includes (:rst:dir:`literalinclude`) are
   implemented using ``sphinxVerbatim`` environment which is a wrapper of
   ``Verbatim`` environment from package ``fancyvrb.sty``. It adds the handling
   of the top caption and the wrapping of long lines, and a frame which allows
