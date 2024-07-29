@@ -961,7 +961,6 @@ The color used in the above example is available from having passed the
     .. versionchanged:: 8.1.0 New separate defaults. See :ref:`additionalcss`.
 
 ``shadowrule``
-
     This legacy option sets the border-width (same on all sides) simultaneously
     for the :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
 
