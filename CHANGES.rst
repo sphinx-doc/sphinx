@@ -69,6 +69,7 @@ Incompatible changes
   unless forced with ``force=True``.
   Patch by Adam Turner.
 * #12646: Remove :py:func:`!sphinx.util.inspect.isNewType`.
+  Use ``isinstance(obj, typing.NewType)`` instead on Python 3.10 and newer.
   Patch by Adam Turner.
 * Remove the long-deprecated (since Sphinx 2) alias
   to :py:class:`!VersionChange` in
