@@ -11,12 +11,12 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from types import TracebackType
     from typing import Any
 
