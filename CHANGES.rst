@@ -1,5 +1,5 @@
-Release 8.0.0 (in development)
-==============================
+Release 8.0.0 (released Jul 29, 2024)
+=====================================
 
 Dependencies
 ------------
@@ -90,15 +90,6 @@ Deprecated
   Use :py:func:`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
   or :py:class:`~pathlib.Path`'s methods to work with path objects.
   Patch by Adam Turner.
-
-Features added
---------------
-
-Bugs fixed
-----------
-
-Testing
--------
 
 Release 7.4.7 (released Jul 20, 2024)
 =====================================
