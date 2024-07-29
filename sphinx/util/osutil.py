@@ -107,12 +107,15 @@ def copyfile(
 
     .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
     """
-    if not path.exists(source):
-        msg = f'{os.fsdecode(source)} does not exist'
+    # coerce to Path objects
+    source = Path(source)
+    dest = Path(dest)
+    if not source.exists():
+        msg = f'{source} does not exist'
         raise FileNotFoundError(msg)
 
     if (
-        not (dest_exists := path.exists(dest)) or
+        not (dest_exists := dest.exists()) or
         # comparison must be done using shallow=False since
         # two different files might have the same size
         not filecmp.cmp(source, dest, shallow=False)
@@ -125,7 +128,7 @@ def copyfile(
 
             msg = __('Aborted attempted copy from %s to %s '
                      '(the destination path has existing data).')
-            logger.warning(msg, os.fsdecode(source), os.fsdecode(dest),
+            logger.warning(msg, source, dest,
                            type='misc', subtype='copy_overwrite')
             return
 
