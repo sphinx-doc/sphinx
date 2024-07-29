@@ -7,7 +7,8 @@
 %
 % - sphinxtopic, sphinxcontents, sphinxsidebar (environments)
 %   These wrappers replace at 8.1.0 former direct use of sphinxShadowBox
-%   environment which did not allow separate styling.
+%   environment which did not allow separate styling.  Their defaults
+%   use \sphinxdotitlerow macro from sphinxlatexadmonitions.sty
 %
 % Dependencies (they do not need to be defined at time of loading):
 %
@@ -55,17 +56,6 @@
 % also requires later knowing a few more things: sphinx<type>TextColor and
 % spx@<type>@texextras.
 %
-\newenvironment{sphinxtopic}
-               {\begin{sphinxShadowBox}\relax}{\end{sphinxShadowBox}}
-\newenvironment{sphinxcontents}
-               {\begin{sphinxShadowBox}[contents]}{\end{sphinxShadowBox}}
-% Arguably sphinxsidebar should rather use a wrapfig or similar environment
-% but this is so dysfunctional in LaTeX (except for self-written documents)
-% so we prefer to not venture into such a potential quagmire and keep the
-% legacy rendering.
-\newenvironment{sphinxsidebar}
-               {\begin{sphinxShadowBox}[sidebar]}{\end{sphinxShadowBox}}
-
 % The #1 defaulting to topic must be such that all parameters expected by
 % \spx@boxes@fcolorbox@setup actually do exist, see CSS options in sphinx.sty
 % which is what defines them for contents, topic, and sidebar.
@@ -144,5 +134,32 @@
    % output the stored footnotes
    \spewnotes
   }
+
+% 8.1.0
+\newenvironment{sphinxtopic}
+               {\begin{sphinxShadowBox}\relax}{\end{sphinxShadowBox}}
+\newenvironment{sphinxcontents}
+               {\begin{sphinxShadowBox}[contents]}{\end{sphinxShadowBox}}
+% Arguably sphinxsidebar should rather use a wrapfig or similar environment
+% but this is so dysfunctional in LaTeX (except for self-written documents)
+% so we prefer to not venture into such a potential quagmire and keep the
+% legacy rendering using a full width display.
+\newenvironment{sphinxsidebar}
+               {\begin{sphinxShadowBox}[sidebar]}{\end{sphinxShadowBox}}
+
+% TODO: decide if this should be in sphinxlatexstyletext.sty rather
+%
+% 8.1.0 styles topic/contents/sidebar with a title row, too.
+% Prior to 8.1.0, definitions use \protected\def but there does not seem
+% to be any reason so back to \newcommand
+\newcommand\sphinxstyletopictitle[1]{\sphinxdotitlerow{topic}{#1}}
+\newcommand\sphinxstylecontentstitle[1]{\sphinxdotitlerow{contents}{#1}}
+\newcommand\sphinxstylesidebartitle[1]{\sphinxdotitlerow{sidebar}{#1}}
+% No default color background for subtitle.  The contents next are injected by
+% LaTeX writer after a blank line in source hence will start a new paragrpah.
+% The \sphinxAtStartPar here is only for coherence with other text paragraphs,
+% but does not have serious necessity (its general role is to allow hyphenation
+% for first word in narrow table cells).
+\newcommand\sphinxstylesidebarsubtitle[1]{\sphinxAtStartPar\textbf{#1}}
 
 \endinput

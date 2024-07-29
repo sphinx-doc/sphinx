@@ -402,8 +402,8 @@
 %          macro prefix   option prefix   legacy option    init value
 \spx@tempa{spx@pre@}      {pre_}          {verbatimborder} {0.4pt}
 \spx@tempa{spx@topic@}    {div.topic_}    {shadowrule}     {0.5pt}% mod. at 7.4.0
-\spx@tempa{spx@contents@} {div.contents_} {shadowrule}     {0.5pt}% new at 8.1.0
-\spx@tempa{spx@sidebar@}  {div.sidebar_}  {shadowrule}     {1pt}% new at 8.1.0
+\spx@tempa{spx@contents@} {div.contents_} {shadowrule}     {0.5pt}% 8.1.0
+\spx@tempa{spx@sidebar@}  {div.sidebar_}  {shadowrule}     {1pt}%   8.1.0
 \@nameuse{KV@sphinx@div.sidebar_border-left-width}{2pt}
 \@nameuse{KV@sphinx@div.sidebar_border-right-width}{2pt}
 % let legacy shadowrule key set all topic/contents/sidebar border
@@ -465,8 +465,8 @@
 \spx@tempa{spx@pre@}      {pre_}            {3pt}{3pt}{3pt}{3pt}
 \spx@tempa{spx@topic@}    {div.topic_}      {6pt}{7pt}{6pt}{7pt}% mod. at 8.1.0
 % contents styling inherits at 8.1.0 the former 7.4.0 topic defaults
-\spx@tempa{spx@contents@} {div.contents_}   {10pt}{7pt}{12pt}{7pt}% new at 8.1.0
-\spx@tempa{spx@sidebar@}  {div.sidebar_}    {6pt}{5.5pt}{6pt}{5.5pt}% new at 8.1.0
+\spx@tempa{spx@contents@} {div.contents_}   {10pt}{7pt}{12pt}{7pt}%   8.1.0
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {6pt}{5.5pt}{6pt}{5.5pt}% 8.1.0
 % 7.4.0 drops legacy settings which linked strangely padding with border width
 \spx@tempa{spx@note@}     {div.note_}       {6pt}{7pt}{6pt}{7pt}
 \spx@tempa{spx@hint@}     {div.hint_}       {6pt}{7pt}{6pt}{7pt}
@@ -608,7 +608,7 @@
 % This corresponds to the legacy parameters for topic/contents/sidebar,
 % but they are now only kept for contents
     \spx@contents@shadow@setter 4pt 4pt {} \@nnil
-% sidebard has only small shadow at bottom
+% sidebar has only small shadow at bottom
     \spx@sidebar@shadow@setter  0pt 2pt {} \@nnil
 % topic has no shadow, nothing additional to do here
 \spx@tempa{spx@note@}     {div.note_}
@@ -741,9 +741,11 @@
                                 \csname KV@sphinx@pre_background-TeXcolor\endcsname
 % (6.2.0 modified some internal namings for the colors of topic boxes)
 %          macro prefix   option prefix     color name prefix
-\spx@tempa{spx@topic@}    {div.topic_}      {sphinxtopic}% (no legacy interface)
-\spx@tempa{spx@contents@} {div.contents_}   {sphinxcontents}% 8.1.0 (no legacy interface)
-\spx@tempa{spx@sidebar@}  {div.sidebar_}    {sphinxsidebar}% 8.1.0 (no legacy interface)
+% There was no legacy interface for topic/contents/sidebar
+% 8.1.0 allows separate styling for topic/contents/sidebar
+\spx@tempa{spx@topic@}    {div.topic_}      {sphinxtopic}
+\spx@tempa{spx@contents@} {div.contents_}   {sphinxcontents}
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {sphinxsidebar}
 \spx@tempa{spx@note@}     {div.note_}       {sphinxnote}
 \spx@tempa{spx@hint@}     {div.hint_}       {sphinxhint}
 \spx@tempa{spx@important@}{div.important_}  {sphinximportant}
@@ -798,16 +800,18 @@
     % and give the shadow some colour other than black
     % 8.1.0 styles separately topic/contents/sidebar
     % topic has no shadow but we keep 7.4.0 color in case it gets needed
-    \setkeys{sphinx}{div.topic_border-TeXcolor=sphinx-admonition-bordercolor,
-                     div.topic_background-TeXcolor=sphinx-admonition-bgcolor,
-                     div.topic_box-shadow-TeXcolor={RGB}{108,108,108},
-                     div.contents_border-TeXcolor=sphinx-admonition-bordercolor,
-                     div.contents_background-TeXcolor=sphinx-admonition-bgcolor,
-                     div.contents_box-shadow-TeXcolor={RGB}{108,108,108},
-                     div.sidebar_border-TeXcolor=sphinx-admonition-bordercolor,
-                     div.sidebar_background-TeXcolor=sphinx-admonition-bgcolor,
-                     div.sidebar_box-shadow-TeXcolor=sphinx-admonition-bordercolor!80,
-                   }
+    \setkeys{sphinx}{%
+        div.topic_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.topic_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.topic_box-shadow-TeXcolor={RGB}{108,108,108},
+        div.contents_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.contents_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.contents_box-shadow-TeXcolor={RGB}{108,108,108},
+        div.sidebar_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.sidebar_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.sidebar_box-shadow-TeXcolor=sphinx-admonition-bordercolor!80,% #9eacaf
+    }
+
 
 % 7.4.0 lets all types of admonitions style especially their titlss.
 % The Sphinx default colours for admonition titles are copied from PR #12486
@@ -947,11 +951,9 @@
   div.attention_title-icon = \spx@faIcon{exclamation-triangle},
   div.danger_title-icon    = \spx@faIcon{radiation},
   div.error_title-icon     = \spx@faIcon{times-circle},
-% (no default icons set-up for contents/topic/sidebar directives,
-%  as the Sphinx definitions for the environements use
-%  \sphinxdotitlerowwithouticon, but this can be changed by user
-%  via renew'd environment, if desired.  Then the icon keys
-%  must be set).
+% MEMO: the new at 8.1.0 defaults for contents/topic/sidebar directives
+% use no icons, they use \sphinxdotitlerow which detects automatically
+% whether title-icon key has been set or not.
 }
 
 \newif\ifspx@opt@box@addstrut
@@ -1122,8 +1124,6 @@
                 addstrut=false,
                }%
 \RequirePackage{sphinxpackageboxes}
-% TODO: convert everything to packages which will allow ``Requiring'' them
-% possibly twice without errors from \newcommand executed twice.
 \input{sphinxlatexadmonitions.sty}
 \input{sphinxlatexliterals.sty}
 \input{sphinxlatexshadowbox.sty}
