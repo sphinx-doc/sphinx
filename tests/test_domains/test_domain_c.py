@@ -2,6 +2,7 @@
 
 import itertools
 import zlib
+from io import StringIO
 from xml.etree import ElementTree
 
 import pytest
@@ -22,7 +23,7 @@ from sphinx.addnodes import (
 from sphinx.domains.c._ids import _id_prefix, _macroKeywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol
-from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError
@@ -616,15 +617,15 @@ def test_extra_keywords():
 #     raise DefinitionError
 
 
-def split_warnigns(warning):
+def split_warnings(warning: StringIO):
     ws = warning.getvalue().split("\n")
     assert len(ws) >= 1
     assert ws[-1] == ""
     return ws[:-1]
 
 
-def filter_warnings(warning, file):
-    lines = split_warnigns(warning)
+def filter_warnings(warning: StringIO, file):
+    lines = split_warnings(warning)
     res = [l for l in lines if "domain-c" in l and f"{file}.rst" in l and
            "WARNING: document isn't included in any toctree" not in l]
     print(f"Filtered warnings for file '{file}':")
@@ -653,16 +654,16 @@ def extract_role_links(app, filename):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build(app, status, warning):
+def test_domain_c_build(app):
     app.build(force_all=True)
-    ws = filter_warnings(warning, "index")
+    ws = filter_warnings(app.warning, "index")
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_namespace(app, status, warning):
+def test_domain_c_build_namespace(app):
     app.build(force_all=True)
-    ws = filter_warnings(warning, "namespace")
+    ws = filter_warnings(app.warning, "namespace")
     assert len(ws) == 0
     t = (app.outdir / "namespace.html").read_text(encoding='utf8')
     for id_ in ('NS.NSVar', 'NULLVar', 'ZeroVar', 'NS2.NS3.NS2NS3Var', 'PopVar'):
@@ -670,16 +671,16 @@ def test_domain_c_build_namespace(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_anon_dup_decl(app, status, warning):
+def test_domain_c_build_anon_dup_decl(app):
     app.build(force_all=True)
-    ws = filter_warnings(warning, "anon-dup-decl")
+    ws = filter_warnings(app.warning, "anon-dup-decl")
     assert len(ws) == 2
     assert "WARNING: c:identifier reference target not found: @a" in ws[0]
     assert "WARNING: c:identifier reference target not found: @b" in ws[1]
 
 
 @pytest.mark.sphinx(confoverrides={'nitpicky': True})
-def test_domain_c_build_semicolon(app, warning):
+def test_domain_c_build_semicolon(app):
     text = """
 .. c:member:: int member;
 .. c:var:: int var;
@@ -693,15 +694,15 @@ def test_domain_c_build_semicolon(app, warning):
 .. c:type:: int TypeDef;
 """
     restructuredtext.parse(app, text)
-    ws = split_warnigns(warning)
+    ws = split_warnings(app.warning)
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_function_param_target(app, warning):
+def test_domain_c_build_function_param_target(app):
     # the anchor for function parameters should be the function
     app.build(force_all=True)
-    ws = filter_warnings(warning, "function_param_target")
+    ws = filter_warnings(app.warning, "function_param_target")
     assert len(ws) == 0
     entries = extract_role_links(app, "function_param_target.html")
     assert entries == [
@@ -711,16 +712,16 @@ def test_domain_c_build_function_param_target(app, warning):
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_ns_lookup(app, warning):
+def test_domain_c_build_ns_lookup(app):
     app.build(force_all=True)
-    ws = filter_warnings(warning, "ns_lookup")
+    ws = filter_warnings(app.warning, "ns_lookup")
     assert len(ws) == 0
 
 
 @pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
-def test_domain_c_build_field_role(app, status, warning):
+def test_domain_c_build_field_role(app):
     app.build(force_all=True)
-    ws = filter_warnings(warning, "field-role")
+    ws = filter_warnings(app.warning, "field-role")
     assert len(ws) == 0
 
 
@@ -733,7 +734,7 @@ def _get_obj(app, queryName):
 
 
 @pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
-def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
+def test_domain_c_build_intersphinx(tmp_path, app):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
     origSource = """\
@@ -754,7 +755,7 @@ def test_domain_c_build_intersphinx(tmp_path, app, status, warning):
     inv_file.write_bytes(b'''\
 # Sphinx inventory version 2
 # Project: C Intersphinx Test
-# Version: 
+# Version:
 # The remainder of this file is compressed using zlib.
 ''' + zlib.compress(b'''\
 _enum c:enum 1 index.html#c.$ -
@@ -771,15 +772,15 @@ _union c:union 1 index.html#c.$ -
 _var c:member 1 index.html#c.$ -
 '''))  # NoQA: W291
     app.config.intersphinx_mapping = {
-        'https://localhost/intersphinx/c/': str(inv_file),
+        'local': ('https://localhost/intersphinx/c/', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build(force_all=True)
-    ws = filter_warnings(warning, "index")
+    ws = filter_warnings(app.warning, "index")
     assert len(ws) == 0
 
 
@@ -1038,7 +1039,7 @@ def test_c_maximum_signature_line_length_overrides_global(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-c-c_maximum_signature_line_length')
-def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
+def test_domain_c_c_maximum_signature_line_length_in_html(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
     expected = """\
@@ -1062,7 +1063,7 @@ def test_domain_c_c_maximum_signature_line_length_in_html(app, status, warning):
 @pytest.mark.sphinx(
     'text', testroot='domain-c-c_maximum_signature_line_length',
 )
-def test_domain_c_c_maximum_signature_line_length_in_text(app, status, warning):
+def test_domain_c_c_maximum_signature_line_length_in_text(app):
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * " " + "{}\n"

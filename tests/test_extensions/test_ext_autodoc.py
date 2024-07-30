@@ -435,16 +435,16 @@ def _assert_getter_works(app, directive, objtype, name, attrs=(), **kw):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_py_module(app, warning):
+def test_py_module(app):
     # without py:module
     actual = do_autodoc(app, 'method', 'Class.meth')
     assert list(actual) == []
     assert ("don't know which module to import for autodocumenting 'Class.meth'"
-            in warning.getvalue())
+            in app.warning.getvalue())
 
     # with py:module
     app.env.ref_context['py:module'] = 'target'
-    warning.truncate(0)
+    app.warning.truncate(0)
 
     actual = do_autodoc(app, 'method', 'Class.meth')
     assert list(actual) == [
@@ -456,7 +456,7 @@ def test_py_module(app, warning):
         '',
     ]
     assert ("don't know which module to import for autodocumenting 'Class.meth'"
-            not in warning.getvalue())
+            not in app.warning.getvalue())
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -496,23 +496,23 @@ def test_autodoc_exception(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
-def test_autodoc_warnings(app, warning):
+def test_autodoc_warnings(app):
     app.env.temp_data['docname'] = 'dummy'
 
     # can't import module
     do_autodoc(app, 'module', 'unknown')
-    assert "failed to import module 'unknown'" in warning.getvalue()
+    assert "failed to import module 'unknown'" in app.warning.getvalue()
 
     # missing function
     do_autodoc(app, 'function', 'unknown')
-    assert "import for autodocumenting 'unknown'" in warning.getvalue()
+    assert "import for autodocumenting 'unknown'" in app.warning.getvalue()
 
     do_autodoc(app, 'function', 'target.unknown')
-    assert "failed to import function 'unknown' from module 'target'" in warning.getvalue()
+    assert "failed to import function 'unknown' from module 'target'" in app.warning.getvalue()
 
     # missing method
     do_autodoc(app, 'method', 'target.Class.unknown')
-    assert "failed to import method 'Class.unknown' from module 'target'" in warning.getvalue()
+    assert "failed to import method 'Class.unknown' from module 'target'" in app.warning.getvalue()
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
@@ -2321,17 +2321,61 @@ def test_autodoc_TypeVar(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_Annotated(app):
-    options = {"members": None}
+    options = {'members': None, 'member-order': 'bysource'}
     actual = do_autodoc(app, 'module', 'target.annotated', options)
     assert list(actual) == [
         '',
         '.. py:module:: target.annotated',
         '',
         '',
-        '.. py:function:: hello(name: str) -> None',
+        '.. py:class:: FuncValidator(func: function)',
+        '   :module: target.annotated',
+        '',
+        '',
+        '.. py:class:: MaxLen(max_length: int, whitelisted_words: list[str])',
+        '   :module: target.annotated',
+        '',
+        '',
+        '.. py:data:: ValidatedString',
+        '   :module: target.annotated',
+        '',
+        '   Type alias for a validated string.',
+        '',
+        '   alias of :py:class:`~typing.Annotated`\\ [:py:class:`str`, '
+        ':py:class:`~target.annotated.FuncValidator`\\ (func=\\ :py:class:`~target.annotated.validate`)]',
+        '',
+        '',
+        ".. py:function:: hello(name: ~typing.Annotated[str, 'attribute']) -> None",
         '   :module: target.annotated',
         '',
         '   docstring',
+        '',
+        '',
+        '.. py:class:: AnnotatedAttributes()',
+        '   :module: target.annotated',
+        '',
+        '   docstring',
+        '',
+        '',
+        '   .. py:attribute:: AnnotatedAttributes.name',
+        '      :module: target.annotated',
+        "      :type: ~typing.Annotated[str, 'attribute']",
+        '',
+        '      Docstring about the ``name`` attribute.',
+        '',
+        '',
+        '   .. py:attribute:: AnnotatedAttributes.max_len',
+        '      :module: target.annotated',
+        "      :type: list[~typing.Annotated[str, ~target.annotated.MaxLen(max_length=10, whitelisted_words=['word_one', 'word_two'])]]",
+        '',
+        '      Docstring about the ``max_len`` attribute.',
+        '',
+        '',
+        '   .. py:attribute:: AnnotatedAttributes.validated',
+        '      :module: target.annotated',
+        '      :type: ~typing.Annotated[str, ~target.annotated.FuncValidator(func=~target.annotated.validate)]',
+        '',
+        '      Docstring about the ``validated`` attribute.',
         '',
     ]
 
@@ -2661,7 +2705,7 @@ def test_pyclass_for_ClassLevelDocumenter(app):
 
 
 @pytest.mark.sphinx('dummy', testroot='ext-autodoc')
-def test_autodoc(app, status, warning):
+def test_autodoc(app):
     app.build(force_all=True)
 
     content = app.env.get_doctree('index')
@@ -2677,7 +2721,7 @@ def test_autodoc(app, status, warning):
 my_name
 
 alias of Foo"""
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')

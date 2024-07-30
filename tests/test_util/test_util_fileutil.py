@@ -2,7 +2,10 @@
 
 from unittest import mock
 
+import pytest
+
 from sphinx.jinja2glue import BuiltinTemplateLoader
+from sphinx.util import strip_colors
 from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
 
 
@@ -43,7 +46,7 @@ def test_copy_asset_file(tmp_path):
     subdir1 = (tmp_path / 'subdir')
     subdir1.mkdir(parents=True, exist_ok=True)
 
-    copy_asset_file(src, subdir1, {'var1': 'template'}, renderer)
+    copy_asset_file(src, subdir1, context={'var1': 'template'}, renderer=renderer)
     assert (subdir1 / 'asset.txt').exists()
     assert (subdir1 / 'asset.txt').read_text(encoding='utf8') == '# template data'
 
@@ -101,6 +104,18 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_static' / 'basic.css').exists()
     assert (destdir / '_templates' / 'layout.html').exists()
     assert not (destdir / '_templates' / 'sidebar.html').exists()
+
+
+@pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
+def test_copy_asset_overwrite(app):
+    app.build()
+    src = app.srcdir / 'myext_static' / 'custom-styles.css'
+    dst = app.outdir / '_static' / 'custom-styles.css'
+    assert strip_colors(app.warning.getvalue()) == (
+        f'WARNING: Aborted attempted copy from {src} to {dst} '
+        '(the destination path has existing data). '
+        '[misc.copy_overwrite]\n'
+    )
 
 
 def test_template_basename():

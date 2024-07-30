@@ -70,7 +70,7 @@ def test_function_signatures():
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_domain_py_xrefs(app, status, warning):
+def test_domain_py_xrefs(app):
     """Domain objects have correct prefixes when looking up xrefs"""
     app.build(force_all=True)
 
@@ -153,7 +153,7 @@ def test_domain_py_xrefs(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='domain-py')
-def test_domain_py_xrefs_abbreviations(app, status, warning):
+def test_domain_py_xrefs_abbreviations(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'abbr.html').read_text(encoding='utf8')
@@ -176,7 +176,7 @@ def test_domain_py_xrefs_abbreviations(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_domain_py_objects(app, status, warning):
+def test_domain_py_objects(app):
     app.build(force_all=True)
 
     modules = app.env.domains['py'].data['modules']
@@ -210,7 +210,7 @@ def test_domain_py_objects(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='domain-py')
-def test_resolve_xref_for_properties(app, status, warning):
+def test_resolve_xref_for_properties(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'module.html').read_text(encoding='utf8')
@@ -229,7 +229,7 @@ def test_resolve_xref_for_properties(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py')
-def test_domain_py_find_obj(app, status, warning):
+def test_domain_py_find_obj(app):
 
     def find_obj(modname, prefix, obj_name, obj_type, searchmode=0):
         return app.env.domains['py'].find_obj(
@@ -370,6 +370,27 @@ def test_parse_annotation(app):
                           [desc_sig_punctuation, "]"]))
     assert_node(doctree[0], pending_xref, refdomain="py", reftype="obj", reftarget="typing.Literal")
 
+    # Annotated type with callable gets parsed
+    doctree = _parse_annotation("Annotated[Optional[str], annotated_types.MaxLen(max_length=10)]", app.env)
+    assert_node(doctree, (
+        [pending_xref, 'Annotated'],
+        [desc_sig_punctuation, '['],
+        [pending_xref, 'str'],
+        [desc_sig_space, ' '],
+        [desc_sig_punctuation, '|'],
+        [desc_sig_space, ' '],
+        [pending_xref, 'None'],
+        [desc_sig_punctuation, ','],
+        [desc_sig_space, ' '],
+        [pending_xref, 'annotated_types.MaxLen'],
+        [desc_sig_punctuation, '('],
+        [desc_sig_name, 'max_length'],
+        [desc_sig_operator, '='],
+        [desc_sig_literal_number, '10'],
+        [desc_sig_punctuation, ')'],
+        [desc_sig_punctuation, ']'],
+    ))
+
 
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation("~typing.Dict[str, str]", app.env)
@@ -492,7 +513,7 @@ def test_no_index_entry(app):
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names')
-def test_python_python_use_unqualified_type_names(app, status, warning):
+def test_python_python_use_unqualified_type_names(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
@@ -505,7 +526,7 @@ def test_python_python_use_unqualified_type_names(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names',
                     confoverrides={'python_use_unqualified_type_names': False})
-def test_python_python_use_unqualified_type_names_disabled(app, status, warning):
+def test_python_python_use_unqualified_type_names_disabled(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<span class="n"><a class="reference internal" href="#foo.Name" title="foo.Name">'
@@ -517,11 +538,11 @@ def test_python_python_use_unqualified_type_names_disabled(app, status, warning)
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-py-xref-warning')
-def test_warn_missing_reference(app, status, warning):
+def test_warn_missing_reference(app):
     app.build()
-    assert "index.rst:6: WARNING: undefined label: 'no-label'" in warning.getvalue()
+    assert "index.rst:6: WARNING: undefined label: 'no-label'" in app.warning.getvalue()
     assert ("index.rst:6: WARNING: Failed to create a cross reference. "
-            "A title or caption not found: 'existing-label'") in warning.getvalue()
+            "A title or caption not found: 'existing-label'") in app.warning.getvalue()
 
 
 @pytest.mark.sphinx(confoverrides={'nitpicky': True})
@@ -567,7 +588,7 @@ def test_python_maximum_signature_line_length_overrides_global(app):
 @pytest.mark.sphinx(
     'html', testroot='domain-py-python_maximum_signature_line_length',
 )
-def test_domain_py_python_maximum_signature_line_length_in_html(app, status, warning):
+def test_domain_py_python_maximum_signature_line_length_in_html(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     expected_parameter_list_hello = """\
@@ -636,7 +657,7 @@ def test_domain_py_python_maximum_signature_line_length_in_html(app, status, war
 @pytest.mark.sphinx(
     'text', testroot='domain-py-python_maximum_signature_line_length',
 )
-def test_domain_py_python_maximum_signature_line_length_in_text(app, status, warning):
+def test_domain_py_python_maximum_signature_line_length_in_text(app):
     app.build()
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * " " + "{}\n"
@@ -802,7 +823,22 @@ def test_function_pep_695(app):
                         [desc_sig_name, 'A'],
                         [desc_sig_punctuation, ':'],
                         desc_sig_space,
-                        [desc_sig_name, ([pending_xref, 'int | Annotated[int, ctype("char")]'])],
+                        [desc_sig_name, (
+                            [pending_xref, 'int'],
+                            [desc_sig_space, ' '],
+                            [desc_sig_punctuation, '|'],
+                            [desc_sig_space, ' '],
+                            [pending_xref, 'Annotated'],
+                            [desc_sig_punctuation, '['],
+                            [pending_xref, 'int'],
+                            [desc_sig_punctuation, ','],
+                            [desc_sig_space, ' '],
+                            [pending_xref, 'ctype'],
+                            [desc_sig_punctuation, '('],
+                            [desc_sig_literal_string, "'char'"],
+                            [desc_sig_punctuation, ')'],
+                            [desc_sig_punctuation, ']'],
+                        )],
                     )],
                     [desc_type_parameter, (
                         [desc_sig_operator, '*'],
@@ -987,7 +1023,7 @@ def test_class_def_pep_696(app):
     ('[T:(*Ts)|int]', '[T: (*Ts) | int]'),
     ('[T:(int|(*Ts))]', '[T: (int | (*Ts))]'),
     ('[T:((*Ts)|int)]', '[T: ((*Ts) | int)]'),
-    ('[T:Annotated[int,ctype("char")]]', '[T: Annotated[int, ctype("char")]]'),
+    ("[T:Annotated[int,ctype('char')]]", "[T: Annotated[int, ctype('char')]]"),
 ])
 def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'

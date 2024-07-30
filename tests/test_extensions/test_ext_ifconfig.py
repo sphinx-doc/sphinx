@@ -8,7 +8,7 @@ from sphinx.testing import restructuredtext
 
 
 @pytest.mark.sphinx('text', testroot='ext-ifconfig')
-def test_ifconfig(app, status, warning):
+def test_ifconfig(app):
     app.build(force_all=True)
     result = (app.outdir / 'index.txt').read_text(encoding='utf8')
     assert 'spam' in result

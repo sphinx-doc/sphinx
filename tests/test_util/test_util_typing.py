@@ -39,12 +39,11 @@ from typing import (
     Literal,
     NewType,
     Optional,
+    ParamSpec,
     Tuple,
     TypeVar,
     Union,
 )
-
-import pytest
 
 from sphinx.ext.autodoc import mock
 from sphinx.util.typing import _INVALID_BUILTIN_CLASSES, restify, stringify_annotation
@@ -196,8 +195,8 @@ def test_restify_type_hints_containers():
 def test_restify_Annotated():
     assert restify(Annotated[str, "foo", "bar"]) == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
     assert restify(Annotated[str, "foo", "bar"], 'smart') == ":py:class:`~typing.Annotated`\\ [:py:class:`str`, 'foo', 'bar']"
-    assert restify(Annotated[float, Gt(-10.0)]) == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, Gt(gt=-10.0)]'
-    assert restify(Annotated[float, Gt(-10.0)], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, Gt(gt=-10.0)]'
+    assert restify(Annotated[float, Gt(-10.0)]) == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`tests.test_util.test_util_typing.Gt`\\ (gt=\\ -10.0)]'
+    assert restify(Annotated[float, Gt(-10.0)], 'smart') == ':py:class:`~typing.Annotated`\\ [:py:class:`float`, :py:class:`~tests.test_util.test_util_typing.Gt`\\ (gt=\\ -10.0)]'
 
 
 def test_restify_type_hints_Callable():
@@ -274,12 +273,8 @@ def test_restify_type_hints_typevars():
     assert restify(list[T]) == ":py:class:`list`\\ [:py:obj:`tests.test_util.test_util_typing.T`]"
     assert restify(list[T], "smart") == ":py:class:`list`\\ [:py:obj:`~tests.test_util.test_util_typing.T`]"
 
-    if sys.version_info[:2] >= (3, 10):
-        assert restify(MyInt) == ":py:class:`tests.test_util.test_util_typing.MyInt`"
-        assert restify(MyInt, "smart") == ":py:class:`~tests.test_util.test_util_typing.MyInt`"
-    else:
-        assert restify(MyInt) == ":py:class:`MyInt`"
-        assert restify(MyInt, "smart") == ":py:class:`MyInt`"
+    assert restify(MyInt) == ":py:class:`tests.test_util.test_util_typing.MyInt`"
+    assert restify(MyInt, "smart") == ":py:class:`~tests.test_util.test_util_typing.MyInt`"
 
 
 def test_restify_type_hints_custom_class():
@@ -363,7 +358,6 @@ def test_restify_Unpack():
         assert restify(t.Unpack['X'], 'smart') == expect
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
 def test_restify_type_union_operator():
     assert restify(int | None) == ":py:class:`int` | :py:obj:`None`"  # type: ignore[attr-defined]
     assert restify(None | int) == ":py:obj:`None` | :py:class:`int`"  # type: ignore[attr-defined]
@@ -385,9 +379,7 @@ def test_restify_mock():
         assert restify(unknown.secret.Class, "smart") == ':py:class:`~unknown.secret.Class`'
 
 
-@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='ParamSpec not supported in Python 3.9.')
 def test_restify_type_hints_paramspec():
-    from typing import ParamSpec
     P = ParamSpec('P')
 
     assert restify(P) == ":py:obj:`tests.test_util.test_util_typing.P`"
@@ -521,12 +513,11 @@ def test_stringify_type_hints_pep_585():
     assert stringify_annotation(tuple[List[dict[int, str]], str, ...], "smart") == "tuple[~typing.List[dict[int, str]], str, ...]"
 
 
-@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='Needs fixing.')
 def test_stringify_Annotated():
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'fully-qualified-except-typing') == "Annotated[str, 'foo', 'bar']"
     assert stringify_annotation(Annotated[str, "foo", "bar"], 'smart') == "~typing.Annotated[str, 'foo', 'bar']"
-    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'fully-qualified-except-typing') == "Annotated[float, Gt(gt=-10.0)]"
-    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'smart') == "~typing.Annotated[float, Gt(gt=-10.0)]"
+    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'fully-qualified-except-typing') == "Annotated[float, tests.test_util.test_util_typing.Gt(gt=-10.0)]"
+    assert stringify_annotation(Annotated[float, Gt(-10.0)], 'smart') == "~typing.Annotated[float, ~tests.test_util.test_util_typing.Gt(gt=-10.0)]"
 
 
 def test_stringify_Unpack():
@@ -659,12 +650,8 @@ def test_stringify_type_hints_typevars():
     assert stringify_annotation(list[T], 'fully-qualified-except-typing') == "list[tests.test_util.test_util_typing.T]"
     assert stringify_annotation(list[T], "smart") == "list[~tests.test_util.test_util_typing.T]"
 
-    if sys.version_info[:2] >= (3, 10):
-        assert stringify_annotation(MyInt, 'fully-qualified-except-typing') == "tests.test_util.test_util_typing.MyInt"
-        assert stringify_annotation(MyInt, "smart") == "~tests.test_util.test_util_typing.MyInt"
-    else:
-        assert stringify_annotation(MyInt, 'fully-qualified-except-typing') == "MyInt"
-        assert stringify_annotation(MyInt, "smart") == "MyInt"
+    assert stringify_annotation(MyInt, 'fully-qualified-except-typing') == "tests.test_util.test_util_typing.MyInt"
+    assert stringify_annotation(MyInt, "smart") == "~tests.test_util.test_util_typing.MyInt"
 
 
 def test_stringify_type_hints_custom_class():
@@ -696,7 +683,6 @@ def test_stringify_type_Literal():
     assert stringify_annotation(Literal[MyEnum.a], 'smart') == '~typing.Literal[MyEnum.a]'
 
 
-@pytest.mark.skipif(sys.version_info[:2] <= (3, 9), reason='python 3.10+ is required.')
 def test_stringify_type_union_operator():
     assert stringify_annotation(int | None) == "int | None"  # type: ignore[attr-defined]
     assert stringify_annotation(int | None, "smart") == "int | None"  # type: ignore[attr-defined]
@@ -739,9 +725,7 @@ def test_stringify_type_ForwardRef():
     assert stringify_annotation(Tuple[dict[ForwardRef("MyInt"), str], list[List[int]]], 'smart') == "~typing.Tuple[dict[MyInt, str], list[~typing.List[int]]]"  # type: ignore[attr-defined]
 
 
-@pytest.mark.xfail(sys.version_info[:2] <= (3, 9), reason='ParamSpec not supported in Python 3.9.')
 def test_stringify_type_hints_paramspec():
-    from typing import ParamSpec
     P = ParamSpec('P')
 
     assert stringify_annotation(P, 'fully-qualified') == "~P"

@@ -2,11 +2,16 @@
 
 from unittest import mock
 
+import pygments
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
 from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
+
+if tuple(map(int, pygments.__version__.split('.')))[:2] < (2, 18):
+    from pygments.formatter import Formatter
+    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
 
 
 class MyLexer(RegexLexer):
@@ -20,7 +25,7 @@ class MyLexer(RegexLexer):
     }
 
 
-class MyFormatter(HtmlFormatter):
+class MyFormatter(HtmlFormatter[str]):
     def format(self, tokensource, outfile):
         for tok in tokensource:
             outfile.write(tok[1])
@@ -31,7 +36,7 @@ class ComplainOnUnhighlighted(PygmentsBridge):
         raise AssertionError("should highlight %r" % source)
 
 
-def test_add_lexer(app, status, warning):
+def test_add_lexer(app):
     app.add_lexer('test', MyLexer)
 
     bridge = PygmentsBridge('html')

@@ -20,9 +20,8 @@ from sphinx.util import logging
 from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
-from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, ensuredir, make_filename_from_project
+from sphinx.util.osutil import SEP, copyfile, ensuredir, make_filename_from_project
 from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
 
 if TYPE_CHECKING:
@@ -189,10 +188,13 @@ class TexinfoBuilder(Builder):
                                        stringify_func=stringify_func):
                 dest = self.images[src]
                 try:
-                    imagedir = path.join(self.outdir, targetname + '-figures')
+                    imagedir = self.outdir / f'{targetname}-figures'
                     ensuredir(imagedir)
-                    copy_asset_file(path.join(self.srcdir, src),
-                                    path.join(imagedir, dest))
+                    copyfile(
+                        self.srcdir / src,
+                        imagedir / dest,
+                        force=True,
+                    )
                 except Exception as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
@@ -201,7 +203,11 @@ class TexinfoBuilder(Builder):
         try:
             with progress_message(__('copying Texinfo support files')):
                 logger.info('Makefile ', nonl=True)
-                copy_asset_file(os.path.join(template_dir, 'Makefile'), self.outdir)
+                copyfile(
+                    os.path.join(template_dir, 'Makefile'),
+                    self.outdir / 'Makefile',
+                    force=True,
+                )
         except OSError as err:
             logger.warning(__("error writing file Makefile: %s"), err)
 

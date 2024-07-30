@@ -40,14 +40,14 @@ def test_ModuleAnalyzer_for_module(rootdir):
     assert analyzer.srcname in (SPHINX_MODULE_PATH,
                                 os.path.abspath(SPHINX_MODULE_PATH))
 
-    path = str(rootdir / 'test-pycode')
-    sys.path.insert(0, path)
+    saved_path = sys.path.copy()
+    sys.path.insert(0, str(rootdir / 'test-pycode'))
     try:
         analyzer = ModuleAnalyzer.for_module('cp_1251_coded')
         docs = analyzer.find_attr_docs()
         assert docs == {('', 'X'): ['It MUST look like X="\u0425"', '']}
     finally:
-        sys.path.pop(0)
+        sys.path[:] = saved_path
 
 
 def test_ModuleAnalyzer_find_tags():

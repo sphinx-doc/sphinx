@@ -10,6 +10,7 @@ import os
 import shutil
 import sys
 import tempfile
+from importlib.metadata import entry_points
 from os import path
 from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
@@ -26,10 +27,6 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -121,17 +118,11 @@ class Theme:
         elif section == 'options':
             value = self._options.get(name, default)
         else:
-            # https://github.com/sphinx-doc/sphinx/issues/12305
-            # For backwards compatibility when attempting to read a value
-            # from an unsupported configuration section.
-            # xref: RemovedInSphinx80Warning
             msg = __(
                 'Theme configuration sections other than [theme] and [options] '
-                'are not supported, returning the default value instead '
-                '(tried to get a value from %r)'
+                'are not supported (tried to get a value from %r).'
             )
-            logger.info(msg, section)
-            value = default
+            raise ThemeError(msg)
         if value is _NO_DEFAULT:
             msg = __('setting %s.%s occurs in none of the searched theme configs') % (
                 section,

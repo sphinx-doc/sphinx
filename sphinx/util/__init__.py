@@ -13,12 +13,8 @@ from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.errors import ExtensionError, FiletypeNotFoundError
 from sphinx.locale import __
-from sphinx.util import display as _display
-from sphinx.util import exceptions as _exceptions
-from sphinx.util import http_date as _http_date
 from sphinx.util import index_entries as _index_entries
 from sphinx.util import logging
-from sphinx.util import osutil as _osutil
 from sphinx.util.console import strip_colors  # NoQA: F401
 from sphinx.util.matching import patfilter  # NoQA: F401
 from sphinx.util.nodes import (  # NoQA: F401
@@ -33,10 +29,8 @@ from sphinx.util.nodes import (  # NoQA: F401
 from sphinx.util.osutil import (  # NoQA: F401
     SEP,
     copyfile,
-    copytimes,
     ensuredir,
     make_filename,
-    mtimes_of_files,
     os_path,
     relative_uri,
 )
@@ -54,9 +48,9 @@ def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
-def get_filetype(source_suffix: dict[str, str], filename: str) -> str:
+def get_filetype(source_suffix: dict[str, str], filename: str | os.PathLike) -> str:
     for suffix, filetype in source_suffix.items():
-        if filename.endswith(suffix):
+        if os.fspath(filename).endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
             return filetype or 'restructuredtext'
     raise FiletypeNotFoundError
@@ -258,32 +252,16 @@ def isurl(url: str) -> bool:
     return bool(url) and '://' in url
 
 
-def _xml_name_checker() -> re.Pattern[str]:
-    # to prevent import cycles
-    from sphinx.builders.epub3 import _XML_NAME_PATTERN
-
-    return _XML_NAME_PATTERN
-
-
 # deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS: dict[str, tuple[Any, str] | tuple[Any, str, tuple[int, int]]] = {
-    'path_stabilize': (_osutil.path_stabilize, 'sphinx.util.osutil.path_stabilize'),
-    'display_chunk': (_display.display_chunk, 'sphinx.util.display.display_chunk'),
-    'status_iterator': (_display.status_iterator, 'sphinx.util.display.status_iterator'),
-    'SkipProgressMessage': (_display.SkipProgressMessage,
-                            'sphinx.util.display.SkipProgressMessage'),
-    'progress_message': (_display.progress_message, 'sphinx.util.display.progress_message'),
-    'epoch_to_rfc1123': (_http_date.epoch_to_rfc1123, 'sphinx.http_date.epoch_to_rfc1123'),
-    'rfc1123_to_epoch': (_http_date.rfc1123_to_epoch, 'sphinx.http_date.rfc1123_to_epoch'),
-    'save_traceback': (_exceptions.save_traceback, 'sphinx.exceptions.save_traceback'),
-    'format_exception_cut_frames': (_exceptions.format_exception_cut_frames,
-                                    'sphinx.exceptions.format_exception_cut_frames'),
-    'xmlname_checker': (_xml_name_checker, 'sphinx.builders.epub3._XML_NAME_PATTERN'),
+_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'split_index_msg': (_index_entries.split_index_msg,
-                        'sphinx.util.index_entries.split_index_msg'),
-    'split_into': (_index_entries.split_index_msg, 'sphinx.util.index_entries.split_into'),
-    'md5': (_md5, ''),
-    'sha1': (_sha1, ''),
+                        'sphinx.util.index_entries.split_index_msg',
+                        (9, 0)),
+    'split_into': (_index_entries.split_index_msg,
+                   'sphinx.util.index_entries.split_into',
+                   (9, 0)),
+    'md5': (_md5, '', (9, 0)),
+    'sha1': (_sha1, '', (9, 0)),
 }
 
 
@@ -294,8 +272,6 @@ def __getattr__(name: str) -> Any:
 
     from sphinx.deprecation import _deprecation_warning
 
-    info = _DEPRECATED_OBJECTS[name]
-    deprecated_object, canonical_name = info[:2]
-    remove = info[2] if len(info) == 3 else (8, 0)
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
     _deprecation_warning(__name__, name, canonical_name, remove=remove)
     return deprecated_object

@@ -25,10 +25,10 @@ from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from typing import Union
+    from typing import TypeAlias
 
-    CircularList = list[Union[int, 'CircularList']]
-    CircularDict = dict[str, Union[int, 'CircularDict']]
+    CircularList: TypeAlias = list[int | 'CircularList']
+    CircularDict: TypeAlias = dict[str, int | 'CircularDict']
 
 
 def check_is_serializable(subject: object, *, circular: bool) -> None:
@@ -82,7 +82,7 @@ def test_config_opt_deprecated(recwarn):
     'nonexisting_value': 'True',
     'latex_elements.maketitle': 'blah blah blah',
     'modindex_common_prefix': 'path1,path2'})
-def test_core_config(app, status, warning):
+def test_core_config(app):
     cfg = app.config
 
     # simple values
@@ -209,9 +209,7 @@ def test_config_pickle_circular_reference_in_list():
 
         assert isinstance(u, list)
         assert v.__class__ is u.__class__
-        assert len(u) == len(v)
-
-        for u_i, v_i in zip(u, v):
+        for u_i, v_i in zip(u, v, strict=True):
             counter[type(u)] += 1
             check(u_i, v_i, counter=counter, guard=guard | {id(u), id(v)})
 
@@ -275,9 +273,7 @@ def test_config_pickle_circular_reference_in_dict():
 
         assert isinstance(u, dict)
         assert v.__class__ is u.__class__
-        assert len(u) == len(v)
-
-        for u_i, v_i in zip(u, v):
+        for u_i, v_i in zip(u, v, strict=True):
             counter[type(u)] += 1
             check(u[u_i], v[v_i], counter=counter, guard=guard | {id(u), id(v)})
         return counter
@@ -449,8 +445,8 @@ def test_config_eol(logger, tmp_path):
 @pytest.mark.sphinx(confoverrides={'root_doc': 123,
                                    'language': 'foo',
                                    'primary_domain': None})
-def test_builtin_conf(app, status, warning):
-    warnings = warning.getvalue()
+def test_builtin_conf(app):
+    warnings = app.warning.getvalue()
     assert 'root_doc' in warnings, (
         'override on builtin "root_doc" should raise a type warning')
     assert 'language' not in warnings, (
@@ -569,12 +565,11 @@ nitpick_warnings = [
 
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings')
-def test_nitpick_base(app, status, warning):
+def test_nitpick_base(app):
     app.build(force_all=True)
 
-    warning = warning.getvalue().strip().split('\n')
-    assert len(warning) == len(nitpick_warnings)
-    for actual, expected in zip(warning, nitpick_warnings):
+    warning = app.warning.getvalue().strip().split('\n')
+    for actual, expected in zip(warning, nitpick_warnings, strict=True):
         assert expected in actual
 
 
@@ -586,9 +581,9 @@ def test_nitpick_base(app, status, warning):
         ('js:class', 'prefix.anything.postfix'),
     },
 })
-def test_nitpick_ignore(app, status, warning):
+def test_nitpick_ignore(app):
     app.build(force_all=True)
-    assert not len(warning.getvalue().strip())
+    assert not len(app.warning.getvalue().strip())
 
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
@@ -597,9 +592,9 @@ def test_nitpick_ignore(app, status, warning):
         (r'.*:class', r'prefix.*'),
     ],
 })
-def test_nitpick_ignore_regex1(app, status, warning):
+def test_nitpick_ignore_regex1(app):
     app.build(force_all=True)
-    assert not len(warning.getvalue().strip())
+    assert not len(app.warning.getvalue().strip())
 
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
@@ -608,9 +603,9 @@ def test_nitpick_ignore_regex1(app, status, warning):
         (r'.*:class', r'.*postfix'),
     ],
 })
-def test_nitpick_ignore_regex2(app, status, warning):
+def test_nitpick_ignore_regex2(app):
     app.build(force_all=True)
-    assert not len(warning.getvalue().strip())
+    assert not len(app.warning.getvalue().strip())
 
 
 @pytest.mark.sphinx(testroot='nitpicky-warnings', confoverrides={
@@ -625,12 +620,11 @@ def test_nitpick_ignore_regex2(app, status, warning):
         (r'.*', r''),
     ],
 })
-def test_nitpick_ignore_regex_fullmatch(app, status, warning):
+def test_nitpick_ignore_regex_fullmatch(app):
     app.build(force_all=True)
 
-    warning = warning.getvalue().strip().split('\n')
-    assert len(warning) == len(nitpick_warnings)
-    for actual, expected in zip(warning, nitpick_warnings):
+    warning = app.warning.getvalue().strip().split('\n')
+    for actual, expected in zip(warning, nitpick_warnings, strict=True):
         assert expected in actual
 
 

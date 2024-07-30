@@ -8,14 +8,13 @@ import traceback
 import types
 import warnings
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.typing import ExtensionMetadata, NoneType
 
 if sys.version_info >= (3, 11):
     from contextlib import chdir
@@ -25,15 +24,16 @@ else:
 if TYPE_CHECKING:
     import os
     from collections.abc import Collection, Iterator, Sequence, Set
+    from typing import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
-    from sphinx.util.typing import _ExtensionSetupFunc
+    from sphinx.util.typing import ExtensionMetadata, _ExtensionSetupFunc
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild = Literal[
+_ConfigRebuild: TypeAlias = Literal[
     '', 'env', 'epub', 'gettext', 'html',
     # sphinxcontrib-applehelp
     'applehelp',
@@ -66,7 +66,7 @@ def is_serializable(obj: object, *, _seen: frozenset[int] = frozenset()) -> bool
             is_serializable(key, _seen=seen) and is_serializable(value, _seen=seen)
             for key, value in obj.items()
         )
-    elif isinstance(obj, (list, tuple, set, frozenset)):
+    elif isinstance(obj, list | tuple | set | frozenset):
         seen = _seen | {id(obj)}
         return all(is_serializable(item, _seen=seen) for item in obj)
 
@@ -87,13 +87,13 @@ class ENUM:
         self.candidates = candidates
 
     def match(self, value: str | list | tuple) -> bool:
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list | tuple):
             return all(item in self.candidates for item in value)
         else:
             return value in self.candidates
 
 
-_OptValidTypes = Union[tuple[()], tuple[type, ...], frozenset[type], ENUM]
+_OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
 
 
 class _Opt:
@@ -244,12 +244,12 @@ class Config:
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
         'keep_warnings': _Opt(False, 'env', ()),
         'suppress_warnings': _Opt([], 'env', ()),
-        'show_warning_types': _Opt(False, 'env', frozenset((bool,))),
+        'show_warning_types': _Opt(True, 'env', frozenset((bool,))),
         'modindex_common_prefix': _Opt([], 'html', ()),
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
         'trim_doctest_flags': _Opt(True, 'env', ()),
-        'primary_domain': _Opt('py', 'env', frozenset((NoneType,))),
+        'primary_domain': _Opt('py', 'env', frozenset((types.NoneType,))),
         'needs_sphinx': _Opt(None, '', frozenset((str,))),
         'needs_extensions': _Opt({}, '', ()),
         'manpages_url': _Opt(None, 'env', ()),
@@ -260,7 +260,7 @@ class Config:
         'numfig_secnum_depth': _Opt(1, 'env', ()),
         'numfig_format': _Opt({}, 'env', ()),  # will be initialized in init_numfig_format()
         'maximum_signature_line_length': _Opt(
-            None, 'env', frozenset((int, NoneType))),
+            None, 'env', frozenset((int, types.NoneType))),
         'math_number_all': _Opt(False, 'env', ()),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
         'math_numfig': _Opt(True, 'env', ()),
@@ -549,7 +549,7 @@ def _validate_valid_types(
 ) -> tuple[()] | tuple[type, ...] | frozenset[type] | ENUM:
     if not valid_types:
         return ()
-    if isinstance(valid_types, (frozenset, ENUM)):
+    if isinstance(valid_types, frozenset | ENUM):
         return valid_types
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
@@ -584,13 +584,13 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         config.source_suffix = {source_suffix: 'restructuredtext'}
         logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
                     source_suffix, config.source_suffix)
-    elif isinstance(source_suffix, (list, tuple)):
+    elif isinstance(source_suffix, list | tuple):
         # if list, considers as all of them are default filetype
         config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
         logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
                     source_suffix, config.source_suffix)
     elif not isinstance(source_suffix, dict):
-        msg = __("The config value `source_suffix' expects a dictionary,"
+        msg = __("The config value `source_suffix' expects a dictionary, "
                  "a string, or a list of strings. Got `%r' instead (type %s).")
         raise ConfigError(msg % (source_suffix, type(source_suffix)))
 

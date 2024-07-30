@@ -34,6 +34,7 @@ import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx.builders import Builder
 from sphinx.config import Config
+from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autosummary import (
     ImportExceptionGroup,
@@ -42,7 +43,7 @@ from sphinx.ext.autosummary import (
     import_ivar_by_name,
 )
 from sphinx.locale import __
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util.inspect import getall, safe_getattr
@@ -145,7 +146,7 @@ class AutosummaryRenderer:
             # ``install_gettext_translations`` is injected by the ``jinja2.ext.i18n`` extension
             self.env.install_gettext_translations(app.translator)  # type: ignore[attr-defined]
 
-    def render(self, template_name: str, context: dict) -> str:
+    def render(self, template_name: str, context: dict[str, Any]) -> str:
         """Render a template file."""
         try:
             template = self.env.get_template(template_name)
@@ -282,7 +283,7 @@ def generate_autosummary_content(
     imported_members: bool,
     app: Any,
     recursive: bool,
-    context: dict,
+    context: dict[str, Any],
     modname: str | None = None,
     qualname: str | None = None,
 ) -> str:
@@ -392,7 +393,7 @@ def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
 
 
 def _get_class_members(obj: Any) -> dict[str, Any]:
-    members = sphinx.ext.autodoc.get_class_members(obj, None, safe_getattr)
+    members = sphinx.ext.autodoc.importer.get_class_members(obj, None, safe_getattr)
     return {name: member.object for name, member in members.items()}
 
 

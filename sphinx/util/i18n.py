@@ -15,12 +15,17 @@ from babel.messages.pofile import read_po
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import SEP, canon_path, relpath
+from sphinx.util.osutil import (
+    SEP,
+    _last_modified_time,
+    canon_path,
+    relpath,
+)
 
 if TYPE_CHECKING:
     import datetime as dt
     from collections.abc import Iterator
-    from typing import Protocol, Union
+    from typing import Protocol, TypeAlias
 
     from babel.core import Locale
 
@@ -52,7 +57,7 @@ if TYPE_CHECKING:
             locale: str | Locale | None = ...,
         ) -> str: ...
 
-    Formatter = Union[DateFormatter, TimeFormatter, DatetimeFormatter]
+    Formatter: TypeAlias = DateFormatter | TimeFormatter | DatetimeFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +89,7 @@ class CatalogInfo(LocaleFileInfoBase):
     def is_outdated(self) -> bool:
         return (
             not path.exists(self.mo_path) or
-            path.getmtime(self.mo_path) < path.getmtime(self.po_path))
+            _last_modified_time(self.mo_path) < _last_modified_time(self.po_path))
 
     def write_mo(self, locale: str, use_fuzzy: bool = False) -> None:
         with open(self.po_path, encoding=self.charset) as file_po:

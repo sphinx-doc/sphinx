@@ -19,7 +19,7 @@ from sphinx.domains.c._ids import _macroKeywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol, _DuplicateSymbolError
 from sphinx.locale import _, __
-from sphinx.roles import SphinxRole, XRefRole
+from sphinx.roles import XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
@@ -29,7 +29,7 @@ from sphinx.util.cfamily import (
     anon_identifier_re,
 )
 from sphinx.util.docfields import Field, GroupedField, TypedField
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, SphinxRole
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:

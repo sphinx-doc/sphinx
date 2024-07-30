@@ -33,7 +33,7 @@ def test_instantiation(
     if rootdir and not src_dir.exists():
         shutil.copytree(Path(str(rootdir)) / 'test-root', src_dir)
 
-    syspath = sys.path[:]
+    saved_path = sys.path.copy()
 
     # When
     app_ = SphinxTestApp(
@@ -41,14 +41,14 @@ def test_instantiation(
         status=StringIO(),
         warning=StringIO(),
     )
-    sys.path[:] = syspath
+    sys.path[:] = saved_path
     app_.cleanup()
 
     # Then
     assert isinstance(app_, sphinx.application.Sphinx)
 
 
-def test_events(app, status, warning):
+def test_events(app):
     def empty():
         pass
     with pytest.raises(ExtensionError) as excinfo:
@@ -73,25 +73,25 @@ def test_events(app, status, warning):
         "Callback called when disconnected"
 
 
-def test_emit_with_nonascii_name_node(app, status, warning):
+def test_emit_with_nonascii_name_node(app):
     node = nodes.section(names=['\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
-def test_extensions(app, status, warning):
+def test_extensions(app):
     app.setup_extension('shutil')
-    warning = strip_colors(warning.getvalue())
+    warning = strip_colors(app.warning.getvalue())
     assert "extension 'shutil' has no setup() function" in warning
 
 
-def test_extension_in_blacklist(app, status, warning):
+def test_extension_in_blacklist(app):
     app.setup_extension('sphinxjp.themecore')
-    msg = strip_colors(warning.getvalue())
+    msg = strip_colors(app.warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
 @pytest.mark.sphinx(testroot='add_source_parser')
-def test_add_source_parser(app, status, warning):
+def test_add_source_parser(app):
     assert set(app.config.source_suffix) == {'.rst', '.test'}
 
     # .rst; only in :confval:`source_suffix`
@@ -105,42 +105,42 @@ def test_add_source_parser(app, status, warning):
 
 
 @pytest.mark.sphinx(testroot='extensions')
-def test_add_is_parallel_allowed(app, status, warning):
-    logging.setup(app, status, warning)
+def test_add_is_parallel_allowed(app):
+    logging.setup(app, app.status, app.warning)
 
     assert app.is_parallel_allowed('read') is True
     assert app.is_parallel_allowed('write') is True
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
 
     app.setup_extension('read_parallel')
     assert app.is_parallel_allowed('read') is True
     assert app.is_parallel_allowed('write') is True
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
     app.extensions.pop('read_parallel')
 
     app.setup_extension('write_parallel')
     assert app.is_parallel_allowed('read') is False
     assert app.is_parallel_allowed('write') is True
     assert ("the write_parallel extension does not declare if it is safe "
-            "for parallel reading, assuming it isn't - please ") in warning.getvalue()
+            "for parallel reading, assuming it isn't - please ") in app.warning.getvalue()
     app.extensions.pop('write_parallel')
-    warning.truncate(0)  # reset warnings
+    app.warning.truncate(0)  # reset warnings
 
     app.setup_extension('read_serial')
     assert app.is_parallel_allowed('read') is False
-    assert "the read_serial extension is not safe for parallel reading" in warning.getvalue()
-    warning.truncate(0)  # reset warnings
+    assert "the read_serial extension is not safe for parallel reading" in app.warning.getvalue()
+    app.warning.truncate(0)  # reset warnings
     assert app.is_parallel_allowed('write') is True
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
     app.extensions.pop('read_serial')
 
     app.setup_extension('write_serial')
     assert app.is_parallel_allowed('read') is False
     assert app.is_parallel_allowed('write') is False
     assert ("the write_serial extension does not declare if it is safe "
-            "for parallel reading, assuming it isn't - please ") in warning.getvalue()
+            "for parallel reading, assuming it isn't - please ") in app.warning.getvalue()
     app.extensions.pop('write_serial')
-    warning.truncate(0)  # reset warnings
+    app.warning.truncate(0)  # reset warnings
 
 
 @pytest.mark.sphinx('dummy', testroot='root')

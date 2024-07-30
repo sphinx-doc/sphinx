@@ -174,7 +174,7 @@ def test_nested_toc(app):
     assert toc.find("./ncx:docTitle/ncx:text").text == 'Project name not set'
 
     # toc.ncx / navPoint
-    def navinfo(elem):
+    def navinfo(elem: EPUBElementTree):
         label = elem.find("./ncx:navLabel/ncx:text")
         content = elem.find("./ncx:content")
         return (elem.get('id'), elem.get('playOrder'),
@@ -351,7 +351,7 @@ def test_epub_css_files(app):
 
 
 @pytest.mark.sphinx('epub', testroot='roles-download')
-def test_html_download_role(app, status, warning):
+def test_html_download_role(app):
     app.build()
     assert not (app.outdir / '_downloads' / 'dummy.dat').exists()
 
@@ -367,9 +367,9 @@ def test_html_download_role(app, status, warning):
 
 
 @pytest.mark.sphinx('epub', testroot='toctree-duplicated')
-def test_duplicated_toctree_entry(app, status, warning):
+def test_duplicated_toctree_entry(app):
     app.build(force_all=True)
-    assert 'WARNING: duplicated ToC entry found: foo.xhtml' in warning.getvalue()
+    assert 'WARNING: duplicated ToC entry found: foo.xhtml' in app.warning.getvalue()
 
 
 @pytest.mark.skipif('DO_EPUBCHECK' not in os.environ,
@@ -402,7 +402,7 @@ def test_xml_name_pattern_check():
 
 
 @pytest.mark.sphinx('epub', testroot='images')
-def test_copy_images(app, status, warning):
+def test_copy_images(app):
     app.build()
 
     images_dir = Path(app.outdir) / '_images'

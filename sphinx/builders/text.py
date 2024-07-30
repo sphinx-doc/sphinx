@@ -10,7 +10,11 @@ from docutils.io import StringOutput
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.osutil import (
+    _last_modified_time,
+    ensuredir,
+    os_path,
+)
 from sphinx.writers.text import TextTranslator, TextWriter
 
 if TYPE_CHECKING:
@@ -46,11 +50,11 @@ class TextBuilder(Builder):
                 continue
             targetname = path.join(self.outdir, docname + self.out_suffix)
             try:
-                targetmtime = path.getmtime(targetname)
+                targetmtime = _last_modified_time(targetname)
             except Exception:
                 targetmtime = 0
             try:
-                srcmtime = path.getmtime(self.env.doc2path(docname))
+                srcmtime = _last_modified_time(self.env.doc2path(docname))
                 if srcmtime > targetmtime:
                     yield docname
             except OSError:

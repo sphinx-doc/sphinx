@@ -12,12 +12,12 @@ from sphinx.ext.inheritance_diagram import (
     InheritanceException,
     import_classes,
 )
-from sphinx.ext.intersphinx import load_mappings, normalize_intersphinx_mapping
+from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
 
 
 @pytest.mark.sphinx(buildername="html", testroot="inheritance")
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram(app, status, warning):
+def test_inheritance_diagram(app):
     # monkey-patch InheritaceDiagram.run() so we can get access to its
     # results.
     orig_run = InheritanceDiagram.run
@@ -39,7 +39,7 @@ def test_inheritance_diagram(app, status, warning):
 
     assert app.statuscode == 0
 
-    html_warnings = warning.getvalue()
+    html_warnings = app.warning.getvalue()
     assert html_warnings == ""
 
     # note: it is better to split these asserts into separate test functions
@@ -154,10 +154,10 @@ def test_inheritance_diagram_png_html(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(external_inventory)
     app.config.intersphinx_mapping = {
-        'https://example.org': str(inv_file),
+        'example': ('https://example.org', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build(force_all=True)
@@ -204,7 +204,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
         "subdir": ('https://example.org', str(inv_file)),
     }
     app.config.intersphinx_cache_limit = 0
-    normalize_intersphinx_mapping(app, app.config)
+    validate_intersphinx_mapping(app, app.config)
     load_mappings(app)
 
     app.build(force_all=True)
@@ -248,7 +248,7 @@ def test_inheritance_diagram_svg_html(tmp_path, app):
 
 @pytest.mark.sphinx('latex', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_latex(app, status, warning):
+def test_inheritance_diagram_latex(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -262,7 +262,7 @@ def test_inheritance_diagram_latex(app, status, warning):
 @pytest.mark.sphinx('html', testroot='ext-inheritance_diagram',
                     srcdir='ext-inheritance_diagram-alias')
 @pytest.mark.usefixtures('if_graphviz_found')
-def test_inheritance_diagram_latex_alias(app, status, warning):
+def test_inheritance_diagram_latex_alias(app):
     app.config.inheritance_alias = {'test.Foo': 'alias.Foo'}
     app.build(force_all=True)
 
@@ -289,8 +289,9 @@ def test_import_classes(rootdir):
     from sphinx.parsers import Parser, RSTParser
     from sphinx.util.i18n import CatalogInfo
 
+    saved_path = sys.path.copy()
+    sys.path.insert(0, str(rootdir / 'test-ext-inheritance_diagram'))
     try:
-        sys.path.append(str(rootdir / 'test-ext-inheritance_diagram'))
         from example.sphinx import DummyClass
 
         # got exception for unknown class or module
@@ -339,4 +340,4 @@ def test_import_classes(rootdir):
         classes = import_classes('sphinx', 'example')
         assert classes == [DummyClass]
     finally:
-        sys.path.pop()
+        sys.path[:] = saved_path

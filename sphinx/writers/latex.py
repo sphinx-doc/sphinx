@@ -66,7 +66,7 @@ class UnsupportedError(SphinxError):
     category = 'Markup is unsupported in LaTeX'
 
 
-class LaTeXWriter(writers.Writer):
+class LaTeXWriter(writers.Writer):  # type: ignore[misc]
 
     supported = ('sphinxlatex',)
 
@@ -1369,7 +1369,7 @@ class LaTeXTranslator(SphinxTranslator):
                 not isinstance(node.parent[index - 1], nodes.compound)):
             # insert blank line, if the paragraph follows a non-paragraph node in a compound
             self.body.append(r'\noindent' + CR)
-        elif index == 1 and isinstance(node.parent, (nodes.footnote, footnotetext)):
+        elif index == 1 and isinstance(node.parent, nodes.footnote | footnotetext):
             # don't insert blank line, if the paragraph is second child of a footnote
             # (first one is label node)
             pass
@@ -2081,7 +2081,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
+            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -2092,7 +2092,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
+            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)

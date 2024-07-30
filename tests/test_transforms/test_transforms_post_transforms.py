@@ -23,10 +23,10 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference')
-def test_nitpicky_warning(app, warning):
+def test_nitpicky_warning(app):
     app.build()
     assert ('index.rst:4: WARNING: py:class reference target '
-            'not found: io.StringIO' in warning.getvalue())
+            'not found: io.StringIO' in app.warning.getvalue())
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert ('<p><code class="xref py py-class docutils literal notranslate"><span class="pre">'
@@ -35,7 +35,7 @@ def test_nitpicky_warning(app, warning):
 
 @pytest.mark.sphinx('html', testroot='transforms-post_transforms-missing-reference',
                     freshenv=True)
-def test_missing_reference(app, warning):
+def test_missing_reference(app):
     def missing_reference(app_, env_, node_, contnode_):
         assert app_ is app
         assert env_ is app.env
@@ -44,10 +44,10 @@ def test_missing_reference(app, warning):
 
         return nodes.inline('', 'missing-reference.StringIO')
 
-    warning.truncate(0)
+    app.warning.truncate(0)
     app.connect('missing-reference', missing_reference)
     app.build()
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<p><span>missing-reference.StringIO</span></p>' in content
@@ -55,14 +55,14 @@ def test_missing_reference(app, warning):
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_use_unqualified_type_names',
                     freshenv=True)
-def test_missing_reference_conditional_pending_xref(app, warning):
+def test_missing_reference_conditional_pending_xref(app):
     def missing_reference(_app, _env, _node, contnode):
         return contnode
 
-    warning.truncate(0)
+    app.warning.truncate(0)
     app.connect('missing-reference', missing_reference)
     app.build()
-    assert warning.getvalue() == ''
+    assert app.warning.getvalue() == ''
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<span class="n"><span class="pre">Age</span></span>' in content
@@ -228,13 +228,13 @@ class TestSigElementFallbackTransform:
 
         if ignore_sig_element_fallback_transform:
             # desc_sig_element is implemented or desc_sig_* nodes are properly handled (and left untouched)
-            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1]):
+            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1], strict=True):
                 assert_node(node, node_type)
                 assert not node.hasattr('_sig_node_type')
                 assert mess == f'mark: {node_type.__name__!r}'
         else:
             # desc_sig_* nodes are converted into inline nodes
-            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1]):
+            for node_type, node, mess in zip(self._builtin_sig_elements, document.children[:-1], stdout[:-1], strict=True):
                 assert_node(node, nodes.inline, _sig_node_type=node_type.__name__)
                 assert mess == f'generic visit: {nodes.inline.__name__!r}'
 

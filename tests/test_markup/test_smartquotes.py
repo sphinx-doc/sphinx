@@ -6,7 +6,7 @@ from sphinx.testing.util import etree_parse
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
-def test_basic(app, status, warning):
+def test_basic(app):
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -14,7 +14,7 @@ def test_basic(app, status, warning):
 
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
-def test_literals(app, status, warning):
+def test_literals(app):
     app.build()
 
     etree = etree_parse(app.outdir / 'literals.html')
@@ -30,7 +30,7 @@ def test_literals(app, status, warning):
 
 
 @pytest.mark.sphinx(buildername='text', testroot='smartquotes', freshenv=True)
-def test_text_builder(app, status, warning):
+def test_text_builder(app):
     app.build()
 
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
@@ -38,7 +38,7 @@ def test_text_builder(app, status, warning):
 
 
 @pytest.mark.sphinx(buildername='man', testroot='smartquotes', freshenv=True)
-def test_man_builder(app, status, warning):
+def test_man_builder(app):
     app.build()
 
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')
@@ -46,7 +46,7 @@ def test_man_builder(app, status, warning):
 
 
 @pytest.mark.sphinx(buildername='latex', testroot='smartquotes', freshenv=True)
-def test_latex_builder(app, status, warning):
+def test_latex_builder(app):
     app.build()
 
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -55,7 +55,7 @@ def test_latex_builder(app, status, warning):
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
                     confoverrides={'language': 'ja'})
-def test_ja_html_builder(app, status, warning):
+def test_ja_html_builder(app):
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -64,7 +64,7 @@ def test_ja_html_builder(app, status, warning):
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
                     confoverrides={'smartquotes': False})
-def test_smartquotes_disabled(app, status, warning):
+def test_smartquotes_disabled(app):
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -73,7 +73,7 @@ def test_smartquotes_disabled(app, status, warning):
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
                     confoverrides={'smartquotes_action': 'q'})
-def test_smartquotes_action(app, status, warning):
+def test_smartquotes_action(app):
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -82,7 +82,7 @@ def test_smartquotes_action(app, status, warning):
 
 @pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
                     confoverrides={'language': 'ja', 'smartquotes_excludes': {}})
-def test_smartquotes_excludes_language(app, status, warning):
+def test_smartquotes_excludes_language(app):
     app.build()
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -91,7 +91,7 @@ def test_smartquotes_excludes_language(app, status, warning):
 
 @pytest.mark.sphinx(buildername='man', testroot='smartquotes', freshenv=True,
                     confoverrides={'smartquotes_excludes': {}})
-def test_smartquotes_excludes_builders(app, status, warning):
+def test_smartquotes_excludes_builders(app):
     app.build()
 
     content = (app.outdir / 'projectnamenotset.1').read_text(encoding='utf8')

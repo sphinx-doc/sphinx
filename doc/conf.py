@@ -179,6 +179,7 @@ nitpick_ignore = {
     ('js:func', 'number'),
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
+    ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
     ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
@@ -212,6 +213,7 @@ nitpick_ignore = {
     ('py:class', 'sphinx.roles.XRefRole'),
     ('py:class', 'sphinx.search.SearchLanguage'),
     ('py:class', 'sphinx.theming.Theme'),
+    ('py:class', 'sphinx.util._pathlib._StrPath'),  # sphinx.project.Project.doc2path
     ('py:class', 'sphinxcontrib.websupport.errors.DocumentNotFoundError'),
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
     ('py:exc', 'docutils.nodes.SkipNode'),

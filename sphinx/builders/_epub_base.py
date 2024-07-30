@@ -27,8 +27,9 @@ if TYPE_CHECKING:
 
 try:
     from PIL import Image
+    PILLOW_AVAILABLE = True
 except ImportError:
-    Image = None
+    PILLOW_AVAILABLE = False
 
 
 logger = logging.getLogger(__name__)
@@ -107,8 +108,8 @@ class NavPoint(NamedTuple):
 
 def sphinx_smarty_pants(t: str, language: str = 'en') -> str:
     t = t.replace('&quot;', '"')
-    t = smartquotes.educateDashesOldSchool(t)
-    t = smartquotes.educateQuotes(t, language)
+    t = smartquotes.educateDashesOldSchool(t)  # type: ignore[no-untyped-call]
+    t = smartquotes.educateQuotes(t, language)  # type: ignore[no-untyped-call]
     t = t.replace('"', '&quot;')
     return t
 
@@ -411,8 +412,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     logger.warning(__('cannot read image file %r: copying it instead'),
                                    path.join(self.srcdir, src))
                 try:
-                    copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, self.imagedir, dest))
+                    copyfile(
+                        self.srcdir / src,
+                        self.outdir / self.imagedir / dest,
+                        force=True,
+                    )
                 except OSError as err:
                     logger.warning(__('cannot copy image file %r: %s'),
                                    path.join(self.srcdir, src), err)
@@ -440,7 +444,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         if self.images:
             if self.config.epub_fix_images or self.config.epub_max_image_width:
-                if not Image:
+                if not PILLOW_AVAILABLE:
                     logger.warning(__('Pillow not found - copying image files'))
                     super().copy_image_files()
                 else:
@@ -474,14 +478,22 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_mimetype(self) -> None:
         """Write the metainfo file mimetype."""
         logger.info(__('writing mimetype file...'))
-        copy_asset_file(path.join(self.template_dir, 'mimetype'), self.outdir)
+        copyfile(
+            path.join(self.template_dir, 'mimetype'),
+            self.outdir / 'mimetype',
+            force=True,
+        )
 
     def build_container(self, outname: str = 'META-INF/container.xml') -> None:
         """Write the metainfo file META-INF/container.xml."""
         logger.info(__('writing META-INF/container.xml file...'))
-        outdir = path.join(self.outdir, 'META-INF')
+        outdir = self.outdir / 'META-INF'
         ensuredir(outdir)
-        copy_asset_file(path.join(self.template_dir, 'container.xml'), outdir)
+        copyfile(
+            path.join(self.template_dir, 'container.xml'),
+            outdir / 'container.xml',
+            force=True,
+        )
 
     def content_metadata(self) -> dict[str, Any]:
         """Create a dictionary with all metadata for the content.opf
@@ -621,7 +633,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                             html.escape(self.refnodes[0]['refuri'])))
 
         # write the project file
-        copy_asset_file(path.join(self.template_dir, 'content.opf.jinja'), self.outdir, metadata)  # NoQA: E501
+        copy_asset_file(
+            path.join(self.template_dir, 'content.opf.jinja'),
+            self.outdir,
+            context=metadata,
+            force=True,
+        )
 
     def new_navpoint(self, node: dict[str, Any], level: int, incr: bool = True) -> NavPoint:
         """Create a new entry in the toc from the node at given level."""
@@ -704,8 +721,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        copy_asset_file(path.join(self.template_dir, 'toc.ncx.jinja'), self.outdir,
-                        self.toc_metadata(level, navpoints))
+        copy_asset_file(
+            path.join(self.template_dir, 'toc.ncx.jinja'),
+            self.outdir,
+            context=self.toc_metadata(level, navpoints),
+            force=True,
+        )
 
     def build_epub(self) -> None:
         """Write the epub file.

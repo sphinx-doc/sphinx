@@ -7,7 +7,7 @@ import pytest
 
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
                     confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
-def test_todo(app, status, warning):
+def test_todo(app):
     todos = []
 
     def on_todo_defined(app, node):
@@ -33,8 +33,8 @@ def test_todo(app, status, warning):
             '<p>todo in param field</p>') in content
 
     # check emitted warnings
-    assert 'WARNING: TODO entry found: todo in foo' in warning.getvalue()
-    assert 'WARNING: TODO entry found: todo in bar' in warning.getvalue()
+    assert 'WARNING: TODO entry found: todo in foo' in app.warning.getvalue()
+    assert 'WARNING: TODO entry found: todo in bar' in app.warning.getvalue()
 
     # check handled event
     assert len(todos) == 3
@@ -45,7 +45,7 @@ def test_todo(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
                     confoverrides={'todo_include_todos': False, 'todo_emit_warnings': True})
-def test_todo_not_included(app, status, warning):
+def test_todo_not_included(app):
     todos = []
 
     def on_todo_defined(app, node):
@@ -68,8 +68,8 @@ def test_todo_not_included(app, status, warning):
             '<p>todo in foo</p>') not in content
 
     # check emitted warnings
-    assert 'WARNING: TODO entry found: todo in foo' in warning.getvalue()
-    assert 'WARNING: TODO entry found: todo in bar' in warning.getvalue()
+    assert 'WARNING: TODO entry found: todo in foo' in app.warning.getvalue()
+    assert 'WARNING: TODO entry found: todo in bar' in app.warning.getvalue()
 
     # check handled event
     assert len(todos) == 3
@@ -80,7 +80,7 @@ def test_todo_not_included(app, status, warning):
 
 @pytest.mark.sphinx('latex', testroot='ext-todo', freshenv=True,
                     confoverrides={'todo_include_todos': True})
-def test_todo_valid_link(app, status, warning):
+def test_todo_valid_link(app):
     """
     Test that the inserted "original entry" links for todo items have a target
     that exists in the LaTeX output. The target was previously incorrectly

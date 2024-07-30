@@ -1,45 +1,40 @@
 """Test the HTML builder and check output against XPath."""
 
-import contextlib
+from __future__ import annotations
+
 import os
 import posixpath
 import re
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
-from sphinx.deprecation import RemovedInSphinx80Warning
-from sphinx.errors import ConfigError, ThemeError
+from sphinx.deprecation import RemovedInSphinx90Warning
+from sphinx.errors import ConfigError
 from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
 
+if TYPE_CHECKING:
+    from typing import Any
+
 
 def test_html_sidebars_error(make_app, tmp_path):
     (tmp_path / 'conf.py').touch()
-    (tmp_path / 'index.rst').touch()
-    app = make_app(
-        buildername='html',
-        srcdir=tmp_path,
-        confoverrides={'html_sidebars': {'index': 'searchbox.html'}},
-    )
-
-    # Test that the error is logged
-    warnings = app.warning.getvalue()
-    assert ("ERROR: Values in 'html_sidebars' must be a list of strings. "
-            "At least one pattern has a string value: 'index'. "
-            "Change to `html_sidebars = {'index': ['searchbox.html']}`.") in warnings
-
-    # But that the value is unchanged.
-    # (Remove this bit of the test in Sphinx 8)
-    def _html_context_hook(app, pagename, templatename, context, doctree):
-        assert context["sidebars"] == 'searchbox.html'
-    app.connect('html-page-context', _html_context_hook)
-    with contextlib.suppress(ThemeError):
-        # ignore template rendering issues (ThemeError).
-        app.build()
+    with pytest.raises(
+        ConfigError,
+        match="Values in 'html_sidebars' must be a list of strings. "
+              "At least one pattern has a string value: 'index'. "
+              r"Change to `html_sidebars = \{'index': \['searchbox.html'\]\}`.",
+    ):
+        make_app(
+            buildername='html',
+            srcdir=tmp_path,
+            confoverrides={'html_sidebars': {'index': 'searchbox.html'}},
+        )
 
 
 def test_html4_error(make_app, tmp_path):
@@ -190,7 +185,7 @@ def test_html_anchor_for_figure(app):
 
 
 @pytest.mark.sphinx('html', testroot='directives-raw')
-def test_html_raw_directive(app, status, warning):
+def test_html_raw_directive(app):
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
@@ -232,7 +227,7 @@ def test_alternate_stylesheets(app, cached_etree_parse, expect):
 
 
 @pytest.mark.sphinx('html', testroot='html_style')
-def test_html_style(app, status, warning):
+def test_html_style(app):
     app.build()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '<link rel="stylesheet" type="text/css" href="_static/default.css" />' in result
@@ -240,9 +235,20 @@ def test_html_style(app, status, warning):
             not in result)
 
 
-@pytest.mark.sphinx('html', testroot='basic')
-def test_html_sidebar(app, status, warning):
-    ctx = {}
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    # alabaster changed default sidebars in 1.0.0
+    confoverrides={'html_sidebars': {'**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]}},
+)
+def test_html_sidebar(app):
+    ctx: dict[str, Any] = {}
 
     # default for alabaster
     app.build(force_all=True)
@@ -303,7 +309,7 @@ def test_html_manpage(app, cached_etree_parse, fname, expect):
 
 @pytest.mark.sphinx('html', testroot='toctree-glob',
                     confoverrides={'html_baseurl': 'https://example.com/'})
-def test_html_baseurl(app, status, warning):
+def test_html_baseurl(app):
     app.build()
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -316,7 +322,7 @@ def test_html_baseurl(app, status, warning):
 @pytest.mark.sphinx('html', testroot='toctree-glob',
                     confoverrides={'html_baseurl': 'https://example.com/subdir',
                                    'html_file_suffix': '.htm'})
-def test_html_baseurl_and_html_file_suffix(app, status, warning):
+def test_html_baseurl_and_html_file_suffix(app):
     app.build()
 
     result = (app.outdir / 'index.htm').read_text(encoding='utf8')
@@ -335,7 +341,7 @@ def test_validate_html_extra_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    with pytest.warns(RemovedInSphinx80Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
+    with pytest.warns(RemovedInSphinx90Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
         validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
 
@@ -349,7 +355,7 @@ def test_validate_html_static_path(app):
         app.outdir,                 # outdir
         app.outdir / '_static',     # inside outdir
     ]
-    with pytest.warns(RemovedInSphinx80Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
+    with pytest.warns(RemovedInSphinx90Warning, match='Use "pathlib.Path" or "os.fspath" instead'):
         validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
 
@@ -383,7 +389,7 @@ def test_html_signaturereturn_icon(app):
 
 
 @pytest.mark.sphinx('html', testroot='root', srcdir=os.urandom(4).hex())
-def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
+def test_html_remove_sources_before_write_gh_issue_10786(app):
     # see:  https://github.com/sphinx-doc/sphinx/issues/10786
     target = app.srcdir / 'img.png'
 
@@ -397,11 +403,11 @@ def test_html_remove_sources_before_write_gh_issue_10786(app, warning):
     app.build()
     assert not target.exists()
 
-    ws = strip_colors(warning.getvalue()).splitlines()
+    ws = strip_colors(app.warning.getvalue()).splitlines()
     assert len(ws) >= 1
 
     file = os.fsdecode(target)
-    assert f'WARNING: cannot copy image file {file!r}: {file!s} does not exist' == ws[-1]
+    assert f"WARNING: cannot copy image file '{file}': {file} does not exist" == ws[-1]
 
 
 @pytest.mark.sphinx('html', testroot='domain-py-python_maximum_signature_line_length',
@@ -412,7 +418,7 @@ def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
     etree = cached_etree_parse(fname)
 
     class chk:
-        def __init__(self, expect):
+        def __init__(self, expect: str) -> None:
             self.expect = expect
 
         def __call__(self, nodes):
