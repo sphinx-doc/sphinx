@@ -17,4 +17,4 @@ Changelog
    \makeatother
 
 
-.. include:: ../CHANGES.rst
+.. include:: ../../CHANGES.rst
