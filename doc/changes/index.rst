@@ -1,5 +1,3 @@
-:tocdepth: 1
-
 .. _changes:
 
 =========
@@ -18,3 +16,12 @@ Changelog
 
 
 .. include:: ../../CHANGES.rst
+
+
+Prior releases
+==============
+
+.. toctree::
+   :maxdepth: 2
+
+   0.1
