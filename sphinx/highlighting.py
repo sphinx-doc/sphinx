@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 if tuple(map(int, pygments.__version__.split('.')))[:2] < (2, 18):
     from pygments.formatter import Formatter  # NoQA: F811
 
-    Formatter.__class_getitem__ = lambda cls, name: cls  # type: ignore[attr-defined]
+    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
 
 logger = logging.getLogger(__name__)
 
