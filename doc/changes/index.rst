@@ -24,6 +24,7 @@ Prior releases
 .. toctree::
    :maxdepth: 2
 
+   5.0
    4.5
    4.4
    4.3
