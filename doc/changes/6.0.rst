@@ -44,6 +44,7 @@ Incompatible changes
   ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
   and add the following to your ``layout.html``:
 
+  .. _the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v5.3.0/sphinx/themes/basic/static
   .. code-block:: html+jinja
 
      {%- block scripts %}
