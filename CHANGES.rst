@@ -1309,18 +1309,3 @@ Bugs fixed
 
 * #10984: LaTeX: Document :confval:`latex_additional_files` behavior for files
   with ``.tex`` extension.
-
-Release 5.3.0 (released Oct 16, 2022)
-=====================================
-
-* #10759: LaTeX: add :confval:`latex_table_style` and support the
-  ``'booktabs'``, ``'borderless'``, and ``'colorrows'`` styles.
-  (thanks to Stefan Wiehler for initial pull requests #6666, #6671)
-* #10840: One can cross-reference including an option value like
-  ``:option:`--module=foobar```, ``:option:`--module[=foobar]```,
-  or ``:option:`--module foobar```.
-  Patch by Martin Liska.
-* #10881: autosectionlabel: Record the generated section label to the debug log.
-* #10268: Correctly URI-escape image filenames.
-* #10887: domains: Allow sections in all the content of all object description
-  directives (e.g. :rst:dir:`py:function`). Patch by Adam Turner
