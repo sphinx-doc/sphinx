@@ -4,6 +4,8 @@ Release 8.0.1 (in development)
 Bugs fixed
 ----------
 
+* Patch ``pygments.Formatter.__class_getitem__`` in Pygments 2.17.
+  Patch by Adam Turner.
 
 Release 8.0.0 (released Jul 29, 2024)
 =====================================

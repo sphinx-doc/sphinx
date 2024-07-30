@@ -2,11 +2,16 @@
 
 from unittest import mock
 
+import pygments
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
 from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
+
+if tuple(map(int, pygments.__version__.split('.')))[:2] < (2, 18):
+    from pygments.formatter import Formatter
+    Formatter.__class_getitem__ = lambda cls, name: cls
 
 
 class MyLexer(RegexLexer):
