@@ -143,6 +143,7 @@ class Changes:
             f.truncate(0)
             f.write(heading + '\n')
             f.write('=' * len(heading) + '\n')
+            f.write('\n')
             f.write(tmpl)
             f.write('\n')
             f.write(body)

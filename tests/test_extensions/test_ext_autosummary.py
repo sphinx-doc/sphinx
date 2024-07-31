@@ -696,7 +696,7 @@ def test_autogen(rootdir, tmp_path):
 
 def test_autogen_remove_old(rootdir, tmp_path):
     """Test the ``--remove-old`` option."""
-    tmp_path.joinpath('other.rst').write_text('old content')
+    tmp_path.joinpath('other.rst').write_text('old content', encoding='utf-8')
     with chdir(rootdir / 'test-templating'):
         args = ['-o', str(tmp_path), '-t', '.', 'autosummary_templating.txt']
         autogen_main(args)

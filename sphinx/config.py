@@ -590,7 +590,7 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
                     source_suffix, config.source_suffix)
     elif not isinstance(source_suffix, dict):
-        msg = __("The config value `source_suffix' expects a dictionary,"
+        msg = __("The config value `source_suffix' expects a dictionary, "
                  "a string, or a list of strings. Got `%r' instead (type %s).")
         raise ConfigError(msg % (source_suffix, type(source_suffix)))
 

@@ -28,13 +28,13 @@ from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from pathlib import Path
     from typing import Any
 
     from requests import Response
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
@@ -150,7 +150,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
-    def write_entry(self, what: str, docname: str, filename: Path, line: int,
+    def write_entry(self, what: str, docname: str, filename: _StrPath, line: int,
                     uri: str) -> None:
         self.txt_outfile.write(f'{filename}:{line}: [{what}] {uri}\n')
 
@@ -226,7 +226,7 @@ class HyperlinkCollector(SphinxPostTransform):
 class Hyperlink(NamedTuple):
     uri: str
     docname: str
-    docpath: Path
+    docpath: _StrPath
     lineno: int
 
 
