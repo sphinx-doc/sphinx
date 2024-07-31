@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* #12704: LaTeX: make :dudir:`contents <table-of-contents>`, :dudir:`topic`,
+  and :dudir:`sidebar` directives separately customizable for PDF output.
+  Patch by Jean-François B.
+
 Bugs fixed
 ----------
 
