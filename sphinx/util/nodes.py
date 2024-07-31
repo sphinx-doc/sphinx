@@ -414,6 +414,7 @@ def inline_all_toctrees(
     tree: nodes.document,
     colorfunc: Callable[[str], str],
     traversed: list[str],
+    indent: str = '',
 ) -> nodes.document:
     """Inline all toctrees in the *tree*.
 
@@ -423,14 +424,15 @@ def inline_all_toctrees(
     for toctreenode in list(tree.findall(addnodes.toctree)):
         newnodes = []
         includefiles = map(str, toctreenode['includefiles'])
+        indent += ' '
         for includefile in includefiles:
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
-                    logger.info(colorfunc(includefile) + " ", nonl=True)
+                    logger.info(indent + colorfunc(includefile))
                     subtree = inline_all_toctrees(builder, docnameset, includefile,
                                                   builder.env.get_doctree(includefile),
-                                                  colorfunc, traversed)
+                                                  colorfunc, traversed, indent)
                     docnameset.add(includefile)
                 except Exception:
                     logger.warning(__('toctree contains ref to nonexisting file %r'),
