@@ -44,26 +44,22 @@ def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
 
 
 def relative_uri(base: str, to: str) -> str:
-    """Return a relative URL from ``base`` to ``to``."""
+    """ For the JSON/React usage, we don't want relative URLs """
+    # The reason why is because React doesn't process the files
+    # as relative to each other. The files are all treated as
+    # relative to the top of the source directory.
+    #
+    # If, though, the URL starts with the separator then we just
+    # return that.
     if to.startswith(SEP):
         return to
-    b2 = base.split('#')[0].split(SEP)
-    t2 = to.split('#')[0].split(SEP)
-    # remove common segments (except the last segment)
-    for x, y in zip(b2[:-1], t2[:-1], strict=False):
-        if x != y:
-            break
-        b2.pop(0)
-        t2.pop(0)
-    if b2 == t2:
-        # Special case: relative_uri('f/index.html','f/index.html')
-        # returns '', not 'index.html'
-        return ''
-    if len(b2) == 1 and t2 == ['']:
-        # Special case: relative_uri('f/index.html','f/') should
-        # return './', not ''
-        return '.' + SEP
-    return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
+    # The one thing we *do* want to influence is that anything
+    # that is <directory>/index needs to just be <directory>
+    #
+    # We'll also remove trailing slashes
+    if to.endswith(SEP):
+        to = to[:-1]
+    return to
 
 
 def ensuredir(file: str | os.PathLike[str]) -> None:

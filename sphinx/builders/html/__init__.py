@@ -225,8 +225,26 @@ class StandaloneHTMLBuilder(Builder):
 
     def init(self) -> None:
         self.build_info = self.create_build_info()
-        # basename of images directory
-        self.imagedir = '_images'
+        # There are two optional configuration options to control how
+        # images are used by the builder.
+        #
+        # html_image_dir specifies the physical directory where the
+        # image files will be stored during building. Default: "_images"
+        #
+        # html_image_path specifies the relative HTML path to reference
+        # that directory. Default: None
+        #
+        # Setting html_image_path overrides the "default" behaviour of
+        # building the relative path with relative_uri(self.get_target_uri(docname), '_images')
+        html_image_dir = self.get_builder_config('image_dir', 'html')
+        if html_image_dir is not None:
+            self.imagedir = html_image_dir
+        else:
+            # basename of images directory
+            self.imagedir = '_images'
+        # Always set this from the config since we want the default to
+        # be None if not specified in the config
+        self.imagepath = self.get_builder_config('image_path', 'html')
         # section numbers for headings in the currently visited document
         self.secnumbers: dict[str, tuple[int, ...]] = {}
         # currently written docname
@@ -572,6 +590,16 @@ class StandaloneHTMLBuilder(Builder):
             }
         self.globalcontext |= self.config.html_context
 
+    def replace_index_filename(self, path: str) -> str:
+        """ If path is more than just a leafname, return the last node """
+        """ Otherwise return the project name """
+        parts = path.split(SEP)
+        if len(parts) == 1 and parts[0] == "index":
+            return self.get_builder_config('project_name', 'html')
+        if parts[len(parts)-1] == "index":
+            return SEP.join(parts[:-1])
+        return path
+
     def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         """Collect items for the template context of a page."""
         # find out relations
@@ -583,7 +611,7 @@ class StandaloneHTMLBuilder(Builder):
         if related and related[2]:
             try:
                 next = {
-                    'link': self.get_relative_uri(docname, related[2]),
+                    'link': self.get_relative_uri(docname, self.replace_index_filename(related[2])),
                     'title': self.render_partial(titles[related[2]])['title'],
                 }
                 rellinks.append((related[2], next['title'], 'N', _('next')))
@@ -592,7 +620,7 @@ class StandaloneHTMLBuilder(Builder):
         if related and related[1]:
             try:
                 prev = {
-                    'link': self.get_relative_uri(docname, related[1]),
+                    'link': self.get_relative_uri(docname, self.replace_index_filename(related[1])),
                     'title': self.render_partial(titles[related[1]])['title'],
                 }
                 rellinks.append((related[1], prev['title'], 'P', _('previous')))
@@ -603,7 +631,7 @@ class StandaloneHTMLBuilder(Builder):
         while related and related[0]:
             with contextlib.suppress(KeyError):
                 parents.append(
-                    {'link': self.get_relative_uri(docname, related[0]),
+                    {'link': self.get_relative_uri(docname, self.replace_index_filename(related[0])),
                      'title': self.render_partial(titles[related[0]])['title']})
 
             related = self.relations.get(related[0])
@@ -1394,6 +1422,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
                          ENUM('table', 'inline'))
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
+    app.add_config_value('html_image_dir', None, 'html', [str])
+    app.add_config_value('html_image_path', None, 'html', [str])
+    app.add_config_value('html_project_name', None, 'html', [str])
 
     # events
     app.add_event('html-collect-pages')
