@@ -300,6 +300,7 @@ def build_redirects(app: Sphinx, exception: Exception | None) -> None:
     if exception is not None or app.builder.name != 'html':
         return
     for page, rel_redirect in (
+        (('changes.html',), 'changes/index.html'),
         (('development', 'overview.html'), 'index.html'),
         (('development', 'builders.html'), 'howtos/builders.html'),
         (('development', 'theming.html'), 'html_themes/index.html'),

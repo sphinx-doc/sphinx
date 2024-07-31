@@ -1,0 +1,139 @@
+==========
+Sphinx 3.4
+==========
+
+
+Release 3.4.3 (released Jan 08, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8655: autodoc: Failed to generate document if target module contains an
+  object that raises an exception on ``hasattr()``
+
+Release 3.4.2 (released Jan 04, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8164: autodoc: Classes that inherit mocked class are not documented
+* #8602: autodoc: The ``autodoc-process-docstring`` event is emitted to the
+  non-datadescriptors unexpectedly
+* #8616: autodoc: AttributeError is raised on non-class object is passed to
+  autoclass directive
+
+Release 3.4.1 (released Dec 25, 2020)
+=====================================
+
+Bugs fixed
+----------
+
+* #8559: autodoc: AttributeError is raised when using forward-reference type
+  annotations
+* #8568: autodoc: TypeError is raised on checking slots attribute
+* #8567: autodoc: Instance attributes are incorrectly added to Parent class
+* #8566: autodoc: The ``autodoc-process-docstring`` event is emitted to the
+  alias classes unexpectedly
+* #8583: autodoc: Unnecessary object comparison via ``__eq__`` method
+* #8565: linkcheck: Fix PriorityQueue crash when link tuples are not
+  comparable
+
+Release 3.4.0 (released Dec 20, 2020)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #8105: autodoc: the signature of class constructor will be shown for decorated
+  classes, not a signature of decorator
+
+Deprecated
+----------
+
+* The ``follow_wrapped`` argument of ``sphinx.util.inspect.signature()``
+* The ``no_docstring`` argument of
+  ``sphinx.ext.autodoc.Documenter.add_content()``
+* ``sphinx.ext.autodoc.Documenter.get_object_members()``
+* ``sphinx.ext.autodoc.DataDeclarationDocumenter``
+* ``sphinx.ext.autodoc.GenericAliasDocumenter``
+* ``sphinx.ext.autodoc.InstanceAttributeDocumenter``
+* ``sphinx.ext.autodoc.SlotsAttributeDocumenter``
+* ``sphinx.ext.autodoc.TypeVarDocumenter``
+* ``sphinx.ext.autodoc.importer._getannotations()``
+* ``sphinx.ext.autodoc.importer._getmro()``
+* ``sphinx.pycode.ModuleAnalyzer.parse()``
+* ``sphinx.util.osutil.movefile()``
+* ``sphinx.util.requests.is_ssl_error()``
+
+Features added
+--------------
+
+* #8119: autodoc: Allow to determine whether a member not included in
+  ``__all__`` attribute of the module should be documented or not via
+  :event:`autodoc-skip-member` event
+* #8219: autodoc: Parameters for generic class are not shown when super class is
+  a generic class and show-inheritance option is given (in Python 3.7 or above)
+* autodoc: Add ``Documenter.config`` as a shortcut to access the config object
+* autodoc: Add ``Optional[t]`` to annotation of function and method if a default
+  value equal to ``None`` is set.
+* #8209: autodoc: Add ``:no-value:`` option to :rst:dir:`autoattribute` and
+  :rst:dir:`autodata` directive to suppress the default value of the variable
+* #8460: autodoc: Support custom types defined by typing.NewType
+* #8285: napoleon: Add :confval:`napoleon_attr_annotations` to merge type hints
+  on source code automatically if any type is specified in docstring
+* #8236: napoleon: Support numpydoc's "Receives" section
+* #6914: Add a new event :event:`warn-missing-reference` to custom warning
+  messages when failed to resolve a cross-reference
+* #6914: Emit a detailed warning when failed to resolve a ``:ref:`` reference
+* #6629: linkcheck: The builder now handles rate limits. See
+  :confval:`linkcheck_rate_limit_timeout` for details.
+
+Bugs fixed
+----------
+
+* #7613: autodoc: autodoc does not respect __signature__ of the class
+* #4606: autodoc: the location of the warning is incorrect for inherited method
+* #8105: autodoc: the signature of class constructor is incorrect if the class
+  is decorated
+* #8434: autodoc: :confval:`autodoc_type_aliases` does not effect to variables
+  and attributes
+* #8443: autodoc: autodata directive can't create document for PEP-526 based
+  type annotated variables
+* #8443: autodoc: autoattribute directive can't create document for PEP-526
+  based uninitialized variables
+* #8480: autodoc: autoattribute could not create document for __slots__
+  attributes
+* #8503: autodoc: autoattribute could not create document for a GenericAlias as
+  class attributes correctly
+* #8534: autodoc: autoattribute could not create document for a commented
+  attribute in alias class
+* #8452: autodoc: autodoc_type_aliases doesn't work when autodoc_typehints is
+  set to "description"
+* #8541: autodoc: autodoc_type_aliases doesn't work for the type annotation to
+  instance attributes
+* #8460: autodoc: autodata and autoattribute directives do not display type
+  information of TypeVars
+* #8493: autodoc: references to builtins not working in class aliases
+* #8522: autodoc: ``__bool__`` method could be called
+* #8067: autodoc: A typehint for the instance variable having type_comment on
+  super class is not displayed
+* #8545: autodoc: a __slots__ attribute is not documented even having docstring
+* #741: autodoc: inherited-members doesn't work for instance attributes on super
+  class
+* #8477: autosummary: non utf-8 reST files are generated when template contains
+  multibyte characters
+* #8501: autosummary: summary extraction splits text after "el at." unexpectedly
+* #8524: html: Wrong url_root has been generated on a document named "index"
+* #8419: html search: Do not load ``language_data.js`` in non-search pages
+* #8549: i18n: ``-D gettext_compact=0`` is no longer working
+* #8454: graphviz: The layout option for graph and digraph directives don't work
+* #8131: linkcheck: Use GET when HEAD requests cause Too Many Redirects, to
+  accommodate infinite redirect loops on HEAD
+* #8437: Makefile: ``make clean`` with empty BUILDDIR is dangerous
+* #8365: py domain: ``:type:`` and ``:rtype:`` gives false ambiguous class
+  lookup warnings
+* #8352: std domain: Failed to parse an option that starts with bracket
+* #8519: LaTeX: Prevent page brake in the middle of a seealso
+* #8520: C, fix copying of AliasNode.

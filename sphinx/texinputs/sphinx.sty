@@ -1018,9 +1018,9 @@
 %% PASS OPTIONS
 %
 % pass options to hyperref; it must not have been loaded already
-\input{sphinxoptionshyperref.sty}
+\RequirePackage{sphinxoptionshyperref}
 % pass options to geometry; it must not have been loaded already
-\input{sphinxoptionsgeometry.sty}
+\RequirePackage{sphinxoptionsgeometry}
 
 
 %% COLOR (general)
@@ -1059,7 +1059,7 @@
 %
 % It will always be needed, so let's load it here
 \RequirePackage{graphicx}
-\input{sphinxlatexgraphics.sty}
+\RequirePackage{sphinxlatexgraphics}
 
 
 %% FRAMED ENVIRONMENTS
@@ -1124,14 +1124,14 @@
                 addstrut=false,
                }%
 \RequirePackage{sphinxpackageboxes}
-\input{sphinxlatexadmonitions.sty}
-\input{sphinxlatexliterals.sty}
-\input{sphinxlatexshadowbox.sty}
+\RequirePackage{sphinxlatexadmonitions}
+\RequirePackage{sphinxlatexliterals}
+\RequirePackage{sphinxlatexshadowbox}
 
 
 %% CONTAINERS
 %
-\input{sphinxlatexcontainers.sty}
+\RequirePackage{sphinxlatexcontainers}
 
 
 %% PYGMENTS
@@ -1141,17 +1141,17 @@
 
 %% TABLES
 %
-\input{sphinxlatextables.sty}
+\RequirePackage{sphinxlatextables}
 
 
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
 %
-\input{sphinxlatexnumfig.sty}
+\RequirePackage{sphinxlatexnumfig}
 
 
 %% LISTS
 %
-\input{sphinxlatexlists.sty}
+\RequirePackage{sphinxlatexlists}
 
 
 %% FOOTNOTES
@@ -1181,19 +1181,19 @@
 
 %% INDEX, BIBLIOGRAPHY, APPENDIX, TABLE OF CONTENTS
 %
-\input{sphinxlatexindbibtoc.sty}
+\RequirePackage{sphinxlatexindbibtoc}
 
 
 %% STYLING
 %
-\input{sphinxlatexstylepage.sty}
-\input{sphinxlatexstyleheadings.sty}
-\input{sphinxlatexstyletext.sty}
+\RequirePackage{sphinxlatexstylepage}
+\RequirePackage{sphinxlatexstyleheadings}
+\RequirePackage{sphinxlatexstyletext}
 
 
 %% MODULE RELEASE DATA AND OBJECT DESCRIPTIONS
 %
-\input{sphinxlatexobjects.sty}
+\RequirePackage{sphinxlatexobjects}
 
 
 % FIXME: this line should be dropped, as "9" is default anyhow.

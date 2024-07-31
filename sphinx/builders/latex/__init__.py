@@ -293,7 +293,7 @@ class LaTeXBuilder(Builder):
                 toctree_only = entry[5]
             destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
                                            encoding='utf-8', overwrite_if_changed=True)
-            with progress_message(__("processing %s") % targetname):
+            with progress_message(__("processing %s") % targetname, nonl=False):
                 doctree = self.env.get_doctree(docname)
                 toctree = next(doctree.findall(addnodes.toctree), None)
                 if toctree and toctree.get('maxdepth') > 0:
@@ -344,7 +344,7 @@ class LaTeXBuilder(Builder):
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
         self.docnames = {indexfile, *appendices}
-        logger.info(darkgreen(indexfile) + " ", nonl=True)
+        logger.info(darkgreen(indexfile))
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:

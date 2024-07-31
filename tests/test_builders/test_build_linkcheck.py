@@ -240,6 +240,7 @@ def test_raw_node(app: SphinxTestApp) -> None:
         index.write_text(
             ".. raw:: 'html'\n"
             "   :url: http://{address}/".format(address=address),
+            encoding='utf-8',
         )
         app.build()
 
