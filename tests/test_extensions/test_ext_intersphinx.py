@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import http.server
+import time
 from typing import TYPE_CHECKING
 from unittest import mock
 
@@ -19,7 +20,13 @@ from sphinx.ext.intersphinx import (
     validate_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx import setup as intersphinx_setup
-from sphinx.ext.intersphinx._load import _fetch_inventory, _get_safe_url, _strip_basic_auth
+from sphinx.ext.intersphinx._load import (
+    _fetch_inventory,
+    _fetch_inventory_group,
+    _get_safe_url,
+    _strip_basic_auth,
+)
+from sphinx.ext.intersphinx._shared import _IntersphinxProject
 from sphinx.util.console import strip_colors
 
 from tests.test_util.intersphinx_data import (
@@ -665,3 +672,33 @@ def test_intersphinx_role(app):
 
     # explicit title
     assert html.format('index.html#foons') in content
+
+
+if TYPE_CHECKING:
+    from sphinx.ext.intersphinx._shared import InventoryCacheEntry
+
+
+def test_intersphinx_cache_limit(app):
+    url = 'https://example.org/'
+    app.config.intersphinx_cache_limit = -1
+    app.config.intersphinx_mapping = {
+        'inv': (url, None),
+    }
+    # load the inventory and check if it's done correctly
+    intersphinx_cache: dict[str, InventoryCacheEntry] = {
+        url: ('', 0, {}),  # 0 is a timestamp, make sure the entry is expired
+    }
+    validate_intersphinx_mapping(app, app.config)
+    load_mappings(app)
+
+    now = int(time.time())
+    for name, (uri, locations) in app.config.intersphinx_mapping.values():
+        project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
+        # no need to read from remote
+        assert not _fetch_inventory_group(
+            project=project,
+            cache=intersphinx_cache,
+            now=now,
+            config=app.config,
+            srcdir=app.srcdir,
+        )
