@@ -5,20 +5,33 @@
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
-% - sphinxtopic, sphinxcontents, sphinxsidebar (environments)
+% - Environments: sphinxtopic, sphinxcontents, and sphinxsidebar.
+%
 %   These wrappers replace at 8.1.0 former direct use of sphinxShadowBox
-%   environment which did not allow separate styling.  Their defaults
-%   use \sphinxdotitlerow macro from sphinxlatexadmonitions.sty
+%   environment which did not allow separate styling.
+%
+% - Commands: \sphinxstyletopictitle, \sphinxstylecontentstitle, and
+%   \sphinxstylesidebartitle.
+%
+%   At 8.1.0 they default to use \sphinxdotitlerow whose definiion is done in
+%   sphinxlatexadmonitions.sty.  There is also  \sphinxstylesidebarsubtitle
+%   which does not use \sphinxdotitlerow.
 %
 % Dependencies (they do not need to be defined at time of loading):
 %
 % - of course the various colour and dimension options handled via sphinx.sty
 % - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
-% - \savenotes/\spewnotes from sphinxpackagefootnote
+% - \savenotes/\spewnotes from sphinxpackagefootnote.sty
 % - \ifspx@inframed defined in sphinx.sty
+% - \sphinxdotitlerow from sphinxlatexadmonitions.sty
+% - \spx@boxes@fcolorbox@setup from sphinxpackageboxes.sty
 %
-% Requires:
+% They are required either before or after by sphinx.sty anyhow, but for
+% clarity we list them here:
 \RequirePackage{framed}
+\RequirePackage{sphinxlatexgraphics}
+\RequirePackage{sphinxpackagefootnote}
+\RequirePackage{sphinxlatexadmonitions}
 \RequirePackage{sphinxpackageboxes}
 
 % At 5.1.0 the code formerly here in a definition of \spx@ShadowFBox has been

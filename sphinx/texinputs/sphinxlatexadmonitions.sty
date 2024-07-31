@@ -7,9 +7,6 @@
 %
 % - sphinxseealso environment added at 6.1.0.
 %
-% At 7.4.0 it too now uses sphinxheavybox, and has the same associated
-% sphinxsetup CSS keys as admonitions do.
-%
 % - sphinxtodo environment added at 7.4.0.
 %
 % - sphinxadmonition (environment)
@@ -19,16 +16,21 @@
 %     sphinxheavybox since 6.2.0),
 %   - warning, caution, attention, danger, error to use sphinxheavybox.
 %
-% At 7.4.0 all admonitions use sphinxheavybox.
+%   Since 7.4.0 all admonitions use sphinxheavybox.
 %
 % - All environments sphinxnote, sphinxwarning, etc... can be redefined as
 %   will by user. Thay have a single parameter #1 which is the title.
 %
-% - The default sphinxnote, sphinxwarning, etc... use associated
-%   one-argument macros \sphinxstylenotetitle, \sphinxstylewarningtitle, etc
-%   which can be redefined.  Their default is to use \sphinxdotitlerowwithicon
-%   to typeset the title in a coloured header row at top of the
-%   admonition. (new with 7.4.0)
+% - Also redefinable by user are the one-argument commands
+%   * \sphinxstylenotetitle,
+%   * \sphinxstylewarningtitle,
+%   * etc.... one for each admonition type (also seealso and todo).
+%
+% - At 7.4.0, all commands of previous item use \sphinxdotitlerow.
+%   (the 7.4.0 name, still usable, was \sphinxdotitlerowwithicon; the 8.1.0
+%   version is also used for topic, contents and sidebar directives, see
+%   sphinxlatexshadowbox.sty, and handles both "with icon" and "without
+%   icon" situations).
 %
 % The sphinxlightbox environment is kept for backward compatiblity, for user
 % custom code which used it via custom definitions done in preamble or via
@@ -42,20 +44,21 @@
 % (the 7.4.0 redefined \sphinxstylenotetitle will not work in sphinxlightbox,
 %  so \sphinxstrong{#1}<space> which was its former default is used above).
 
-%
-% Requires:
-\RequirePackage{sphinxpackageboxes}
-% 7.4.0 removes unneeded \spx@boxes@border
-\RequirePackage{framed}% used by sphinxheavybox
-%
 % Dependencies (they do not need to be defined at time of loading):
 %
 % - of course the various colour and dimension options handled via sphinx.sty
-%
 % - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
+% - \savenotes/\spewnotes from sphinxpackagefootnote.sty
+% - \ifspx@inframed defined in sphinx.sty
+% - \spx@boxes@fcolorbox@setup from sphinxpackageboxes.sty
 %
-% - \savenotes/\spewnotes from sphinxpackagefootnote (for sphinxheavybox)
-
+% They are required either before or after by sphinx.sty anyhow, but for
+% clarity we list them here:
+\RequirePackage{framed}
+\RequirePackage{sphinxlatexgraphics}
+\RequirePackage{sphinxpackagefootnote}
+\RequirePackage{sphinxpackageboxes}
+%
 % Provides: (also in sphinxlatexliterals.sty)
 % Only needed here by legacy (deprecated) sphinxlightbox environment.
 \providecommand*\sphinxvspacefixafterfrenchlists{%
