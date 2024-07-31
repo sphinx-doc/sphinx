@@ -140,10 +140,18 @@ class ChangesBuilder(Builder):
                 f.write(self.templates.render('changes/rstsource.html', ctx))
         themectx = {'theme_' + key: val for (key, val) in
                     self.theme.get_options({}).items()}
-        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),  # NoQA: E501
-                        self.outdir, context=themectx, renderer=self.templates)
-        copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
-                        self.outdir)
+        copy_asset_file(
+            path.join(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),
+            self.outdir,
+            context=themectx,
+            renderer=self.templates,
+            force=True,
+        )
+        copy_asset_file(
+            path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+            self.outdir / 'basic.css',
+            force=True,
+        )
 
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)

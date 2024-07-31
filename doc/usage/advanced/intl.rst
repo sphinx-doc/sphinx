@@ -176,17 +176,17 @@ section describe an easy way to translate with *sphinx-intl*.
 
    For Windows :command:`cmd.exe`, run:
 
-   .. code-block:: console
+   .. code-block:: doscon
 
       > set SPHINXOPTS=-D language=de
       > .\make.bat html
 
    For PowerShell, run:
 
-   .. code-block:: console
+   .. code-block:: ps1con
 
-      > Set-Item env:SPHINXOPTS "-D language=de"
-      > .\make.bat html
+      PS> Set-Item env:SPHINXOPTS "-D language=de"
+      PS> .\make.bat html
 
 Congratulations! You got the translated documentation in the ``_build/html``
 directory.

@@ -1685,7 +1685,11 @@ def test_gettext_disallow_fuzzy_translations(app):
     assert 'FEATURES' not in content
 
 
-@pytest.mark.sphinx('html', testroot='basic', confoverrides={'language': 'de'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    confoverrides={'language': 'de', 'html_sidebars': {'**': ['searchbox.html']}},
+)
 def test_customize_system_message(make_app, app_params):
     try:
         # clear translators cache

@@ -1279,8 +1279,8 @@ class LaTeXTranslator(SphinxTranslator):
             else:
                 return get_nested_level(node.parent)
 
-        enum = "enum%s" % toRoman(get_nested_level(node)).lower()  # type: ignore[no-untyped-call]
-        enumnext = "enum%s" % toRoman(get_nested_level(node) + 1).lower()  # type: ignore[no-untyped-call]
+        enum = "enum%s" % toRoman(get_nested_level(node)).lower()
+        enumnext = "enum%s" % toRoman(get_nested_level(node) + 1).lower()
         style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
         prefix = node.get('prefix', '')
         suffix = node.get('suffix', '.')
