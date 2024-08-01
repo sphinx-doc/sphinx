@@ -170,10 +170,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
       private, not having docstrings, inherited from super class, or special
       members.
 
-      For modules, ``__all__`` will be respected when looking for members unless
-      you give the ``ignore-module-all`` flag option.  Without
-      ``ignore-module-all``, the order of the members will also be the order in
-      ``__all__``.
+      If a module defines ``__all__``, members will only be taken from that
+      list and be shown in that order. Set the option
+      :rst:dir:`automodule:ignore-module-all` to ignore the ``__all__`` definition.
 
       You can also give an explicit list of members; only these will then be
       documented::
@@ -233,6 +232,124 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
       .. versionchanged:: 1.2
          The option can now take arguments
+
+   .. rst:directive:option:: inherited-members
+      :type: no value
+
+      For classes and exceptions, members inherited from base classes will be
+      left out when documenting all members, unless you give the
+      ``inherited-members`` option, in addition to ``members``::
+
+         .. autoclass:: Noodle
+            :members:
+            :inherited-members:
+
+      This can be combined with ``undoc-members`` to document *all* available
+      members of the class or module.
+
+      It can take an ancestor class not to document inherited members from it.
+      By default, members of ``object`` class are not documented.  To show them
+      all, give ``None`` to the option.
+
+      For example; If your class ``Foo`` is derived from ``list`` class and
+      you don't want to document ``list.__len__()``, you should specify a
+      option ``:inherited-members: list`` to avoid special members of list
+      class.
+
+      Another example; If your class Foo has ``__str__`` special method and
+      autodoc directive has both ``inherited-members`` and ``special-members``,
+      ``__str__`` will be documented as in the past, but other special method
+      that are not implemented in your class ``Foo``.
+
+      Since v5.0, it can take a comma separated list of ancestor classes.  It
+      allows to suppress inherited members of several classes on the module at
+      once by specifying the option to :rst:dir:`automodule` directive.
+
+      Note: this will lead to markup errors if the inherited members come from a
+      module whose docstrings are not reStructuredText formatted.
+
+      .. versionadded:: 0.3
+
+      .. versionchanged:: 3.0
+
+         It takes an ancestor class name as an argument.
+
+      .. versionchanged:: 5.0
+
+   .. rst:directive:option:: imported-members
+      :type: no value
+
+      In an :rst:dir:`automodule` directive with the :rst:dir:`automodule:members`
+      option set, only module members whose ``__module__`` attribute is equal to
+      the module name as given to automodule will be documented. This is to prevent
+      documentation of imported classes or functions.
+
+      Set the ``:imported-members:`` option if you want to prevent this behavior
+      and document all available members. Note that attributes from imported modules
+      will not be documented, because attribute documentation is discovered by
+      parsing the source file of the current module.
+
+      .. versionadded:: 1.2
+
+   .. rst:directive:option:: exclude-members
+      :type: comma separated list
+
+      Exclude single member names from documentation, if all members are to be
+      documented.
+
+      .. versionadded:: 0.6
+
+   .. rst:directive:option:: ignore-module-all
+      :type: no value
+
+      For modules, ``__all__`` will be respected when looking for members unless
+      you give the ``:ignore-module-all:`` flag option.  Without ``:ignore-module-all:``,
+      the order of the members will also be the order in ``__all__``.
+
+   .. rst:directive:option:: member-order
+      :type: str
+
+      Override the global value of :confval:`autodoc_member_order`.
+      Applies to :rst:dir:`automodule` and :rst:dir:`autoclass`.
+
+      .. versionadded:: 0.6
+
+   .. rst:directive:option:: show-inheritance
+      :type: no value
+
+      When given, a list of base classes will be inserted just below the
+      class signature. When used with :rst:dir:`automodule`, this will be
+      inserted for every class that is documented in the module.
+
+      .. versionadded:: 0.4
+
+   .. rst:directive:option:: class-doc-from
+      :type: str
+
+      :rst:dir:`autoclass` also recognizes the ``class-doc-from`` option that
+      can be used to override the global value of :confval:`autoclass_content`.
+
+      .. versionadded:: 4.1
+
+   .. rst:directive:option:: no-index
+      :type: no value
+
+      All autodoc directives support the ``:no-index:`` flag option that has the
+      same effect as for standard :rst:dir:`py:function` etc. directives: no
+      index entries are generated for the documented object (and all
+      autodocumented members).
+
+      .. versionadded:: 0.4
+
+   .. rst:directive:option:: synopsis
+   .. rst:directive:option:: platform
+   .. rst:directive:option:: deprecated
+
+      :rst:dir:`automodule` also recognizes the ``:synopsis:``, ``:platform:`` and
+      ``:deprecated:`` options that the standard :rst:dir:`py:module` directive
+      supports.
+
+      .. versionadded:: 0.5
 
    **Options and advanced usage**
 
@@ -298,48 +415,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
      .. versionadded:: 3.5
 
-   * For classes and exceptions, members inherited from base classes will be
-     left out when documenting all members, unless you give the
-     ``inherited-members`` option, in addition to ``members``::
-
-        .. autoclass:: Noodle
-           :members:
-           :inherited-members:
-
-     This can be combined with ``undoc-members`` to document *all* available
-     members of the class or module.
-
-     It can take an ancestor class not to document inherited members from it.
-     By default, members of ``object`` class are not documented.  To show them
-     all, give ``None`` to the option.
-
-     For example; If your class ``Foo`` is derived from ``list`` class and
-     you don't want to document ``list.__len__()``, you should specify a
-     option ``:inherited-members: list`` to avoid special members of list
-     class.
-
-     Another example; If your class Foo has ``__str__`` special method and
-     autodoc directive has both ``inherited-members`` and ``special-members``,
-     ``__str__`` will be documented as in the past, but other special method
-     that are not implemented in your class ``Foo``.
-
-     Since v5.0, it can take a comma separated list of ancestor classes.  It
-     allows to suppress inherited members of several classes on the module at
-     once by specifying the option to :rst:dir:`automodule` directive.
-
-     Note: this will lead to markup errors if the inherited members come from a
-     module whose docstrings are not reStructuredText formatted.
-
-     .. versionadded:: 0.3
-
-     .. versionchanged:: 3.0
-
-        It takes an ancestor class name as an argument.
-
-     .. versionchanged:: 5.0
-
-        It takes a comma separated list of ancestor class names.
-
    * It's possible to override the signature for explicitly documented callable
      objects (functions, methods, classes) with the regular syntax that will
      override the signature gained from introspection::
@@ -351,39 +426,6 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      This is useful if the signature from the method is hidden by a decorator.
 
      .. versionadded:: 0.4
-
-   * The :rst:dir:`automodule`, :rst:dir:`autoclass` and
-     :rst:dir:`autoexception` directives also support a flag option called
-     ``show-inheritance``.  When given, a list of base classes will be inserted
-     just below the class signature (when used with :rst:dir:`automodule`, this
-     will be inserted for every class that is documented in the module).
-
-     .. versionadded:: 0.4
-
-   * All autodoc directives support the ``no-index`` flag option that has the
-     same effect as for standard :rst:dir:`py:function` etc. directives: no
-     index entries are generated for the documented object (and all
-     autodocumented members).
-
-     .. versionadded:: 0.4
-
-   * :rst:dir:`automodule` also recognizes the ``synopsis``, ``platform`` and
-     ``deprecated`` options that the standard :rst:dir:`py:module` directive
-     supports.
-
-     .. versionadded:: 0.5
-
-   * :rst:dir:`automodule` and :rst:dir:`autoclass` also has an ``member-order``
-     option that can be used to override the global value of
-     :confval:`autodoc_member_order` for one directive.
-
-     .. versionadded:: 0.6
-
-   * The directives supporting member documentation also have a
-     ``exclude-members`` option that can be used to exclude single member names
-     from documentation, if all members are to be documented.
-
-     .. versionadded:: 0.6
 
    * In an :rst:dir:`automodule` directive with the ``members`` option set, only
      module members whose ``__module__`` attribute is equal to the module name
@@ -408,56 +450,43 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
 
         .. autoclass:: module.name::Noodle
 
-   * :rst:dir:`autoclass` also recognizes the ``class-doc-from`` option that
-     can be used to override the global value of :confval:`autoclass_content`.
-
-     .. versionadded:: 4.1
-
 .. rst:directive:: autofunction
-                   autodecorator
-                   autodata
                    automethod
-                   autoattribute
+                   autodecorator
                    autoproperty
 
-   These work exactly like :rst:dir:`autoclass` etc.,
-   but do not offer the options used for automatic member documentation.
+   Document functions, methods, decorators and properties.
 
-   :rst:dir:`autodata` and :rst:dir:`autoattribute` support the ``annotation``
-   option.  The option controls how the value of variable is shown.  If specified
-   without arguments, only the name of the variable will be printed, and its value
-   is not shown::
+   .. versionchanged:: 2.0
+      :rst:dir:`autodecorator` added.
+   .. versionchanged:: 2.1
+      :rst:dir:`autoproperty` added.
 
-      .. autodata:: CD_DRIVE
-         :annotation:
+   .. note::
 
-   If the option specified with arguments, it is printed after the name as a value
-   of the variable::
+      If you document decorated functions or methods, keep in mind that autodoc
+      retrieves its docstrings by importing the module and inspecting the
+      ``__doc__`` attribute of the given function or method.  That means that if
+      a decorator replaces the decorated function with another, it must copy the
+      original ``__doc__`` to the new function.
 
-      .. autodata:: CD_DRIVE
-         :annotation: = your CD device name
 
-   By default, without ``annotation`` option, Sphinx tries to obtain the value of
-   the variable and print it after the name.
+.. rst:directive:: autodata
+                   autoattribute
 
-   The ``no-value`` option can be used instead of a blank ``annotation`` to show the
-   type hint but not the value::
+   Document attributes of classes and module-level variables.
 
-      .. autodata:: CD_DRIVE
-         :no-value:
-
-   If both the ``annotation`` and ``no-value`` options are used, ``no-value`` has no
-   effect.
-
-   For module data members and class attributes, documentation can either be put
-   into a comment with special formatting (using a ``#:`` to start the comment
-   instead of just ``#``), or in a docstring *after* the definition.  Comments
+   Documentation can either be put into a comment with special formatting
+   (using a ``#:`` to start the comment instead of just ``#``),
+   or in a docstring *after* the definition.  Comments
    need to be either on a line of their own *before* the definition, or
    immediately after the assignment *on the same line*.  The latter form is
    restricted to one line only.
 
    This means that in the following class definition, all attributes can be
-   autodocumented::
+   autodocumented:
+
+   .. code-block:: python
 
       class Foo:
           """Docstring for class Foo."""
@@ -478,6 +507,39 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
               self.spam = 4
               """Docstring for instance attribute spam."""
 
+   .. rubric:: Options
+
+   .. rst:directive:option:: annotation
+      :type: no value or str
+
+      Control how the value of variable is shown.  If specified without arguments,
+      only the name of the variable will be printed, and its value is not shown::
+
+         .. autodata:: CD_DRIVE
+            :annotation:
+
+      If the option specified with arguments, it is printed after the name as a
+      value of the variable::
+
+         .. autodata:: CD_DRIVE
+            :annotation: = your CD device name
+
+      By default, without ``annotation`` option, Sphinx tries to obtain the value of
+      the variable and print it after the name.
+
+   .. rst:directive:option:: no-value
+      :type: no value
+
+
+      The ``no-value`` option can be used instead of a blank ``annotation`` to show the
+      type hint but not the value::
+
+         .. autodata:: CD_DRIVE
+            :no-value:
+
+      If both the ``:annotation:`` and ``:no-value:`` options are used, ``no-value`` has no
+      effect.
+
    .. versionchanged:: 0.6
       :rst:dir:`autodata` and :rst:dir:`autoattribute` can now extract
       docstrings.
@@ -486,21 +548,9 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
    .. versionchanged:: 1.2
       :rst:dir:`autodata` and :rst:dir:`autoattribute` have an ``annotation``
       option.
-   .. versionchanged:: 2.0
-      :rst:dir:`autodecorator` added.
-   .. versionchanged:: 2.1
-      :rst:dir:`autoproperty` added.
    .. versionchanged:: 3.4
       :rst:dir:`autodata` and :rst:dir:`autoattribute` now have a ``no-value``
       option.
-
-   .. note::
-
-      If you document decorated functions or methods, keep in mind that autodoc
-      retrieves its docstrings by importing the module and inspecting the
-      ``__doc__`` attribute of the given function or method.  That means that if
-      a decorator replaces the decorated function with another, it must copy the
-      original ``__doc__`` to the new function.
 
 
 Configuration
@@ -587,14 +637,23 @@ There are also config values that you can set:
            'exclude-members': '__weakref__'
        }
 
+   The supported options are:
+
+   - ``'members'``: See :rst:dir:`automodule:members`.
+   - ``'undoc-members'`` See :rst:dir:`automodule:undoc-members`.
+   - ``'private-members'``: See :rst:dir:`automodule:private-members`.
+   - ``'special-members'``: See :rst:dir:`automodule:special-members`.
+   - ``'inherited-members'``: See :rst:dir:`inherited-members <automodule:inherited-members>`.
+   - ``'imported-members'``: See :rst:dir:`automodule:imported-members`.
+   - ``'exclude-members'``: See :rst:dir:`automodule:exclude-members`.
+   - ``'ignore-module-all'``: See :rst:dir:`automodule:ignore-module-all`.
+   - ``'member-order'``: See :rst:dir:`automodule:member-order`.
+   - ``'show-inheritance'``: See :rst:dir:`automodule:show-inheritance`.
+   - ``'class-doc-from'``: See :rst:dir:`class-doc-from <automodule:class-doc-from>`.
+   - ``'no-value'``: See :rst:dir:`autodata:no-value`.
+
    Setting ``None`` or ``True`` to the value is equivalent to giving only the
    option name to the directives.
-
-   The supported options are ``'members'``, ``'member-order'``,
-   ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
-   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
-   ``'imported-members'``, ``'exclude-members'``, ``'class-doc-from'`` and
-   ``'no-value'``.
 
    .. versionadded:: 1.8
 
