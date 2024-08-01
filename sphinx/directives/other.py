@@ -110,17 +110,20 @@ class TocTree(SphinxDirective):
             url_match = url_re.match(entry) is not None
             if glob and glob_re.match(entry) and not explicit and not url_match:
                 pat_name = docname_join(current_docname, entry)
-                doc_names = sorted(patfilter(all_docnames, pat_name))
+                doc_names = sorted(
+                    docname for docname in patfilter(all_docnames, pat_name)
+                    # don't include generated documents in globs
+                    if docname not in generated_docnames
+                )
+                if not doc_names:
+                    logger.warning(
+                        __("toctree glob pattern %r didn't match any documents"),
+                        entry, location=toctree)
+
                 for docname in doc_names:
-                    if docname in generated_docnames:
-                        # don't include generated documents in globs
-                        continue
                     all_docnames.remove(docname)  # don't include it again
                     toctree['entries'].append((None, docname))
                     toctree['includefiles'].append(docname)
-                if not doc_names:
-                    logger.warning(__("toctree glob pattern %r didn't match any documents"),
-                                   entry, location=toctree)
                 continue
 
             if explicit:
