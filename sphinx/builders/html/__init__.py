@@ -887,7 +887,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_static_files(self) -> None:
         try:
-            with progress_message(__('copying static files')):
+            with progress_message(__('copying static files'), nonl=False):
                 ensuredir(self.outdir / '_static')
 
                 # prepare context for templates
@@ -908,7 +908,7 @@ class StandaloneHTMLBuilder(Builder):
     def copy_extra_files(self) -> None:
         """Copy html_extra_path files."""
         try:
-            with progress_message(__('copying extra files')):
+            with progress_message(__('copying extra files'), nonl=False):
                 excluded = Matcher(self.config.exclude_patterns)
                 for extra_path in self.config.html_extra_path:
                     copy_asset(

@@ -106,6 +106,15 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_templates' / 'sidebar.html').exists()
 
 
+@pytest.mark.sphinx('html')
+def test_copy_asset_template(app):
+    app.build()
+
+    expected_filename = app.outdir / '_static' / 'basic.css'
+    expected_msg = f"Writing evaluated template result to {expected_filename}"
+    assert expected_msg in strip_colors(app.status.getvalue())
+
+
 @pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
 def test_copy_asset_overwrite(app):
     app.build()
