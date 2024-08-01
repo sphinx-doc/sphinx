@@ -108,7 +108,7 @@ def test_copy_asset(tmp_path):
 
 @pytest.mark.sphinx('html')
 def test_copy_asset_template(app):
-    app.build(freshenv=True)
+    app.build(force_all=True)
 
     expected_filename = app.outdir / '_static' / 'basic.css'
     expected_msg = f"Writing evaluated template result to {expected_filename}"
