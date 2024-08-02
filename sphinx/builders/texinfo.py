@@ -104,7 +104,7 @@ class TexinfoBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            with progress_message(__("processing %s") % targetname):
+            with progress_message(__("processing %s") % targetname, nonl=False):
                 appendices = self.config.texinfo_appendices or []
                 doctree = self.assemble_doctree(docname, toctree_only, appendices=appendices)
 
@@ -135,7 +135,7 @@ class TexinfoBuilder(Builder):
         self, indexfile: str, toctree_only: bool, appendices: list[str],
     ) -> nodes.document:
         self.docnames = {indexfile, *appendices}
-        logger.info(darkgreen(indexfile) + " ", nonl=True)
+        logger.info(darkgreen(indexfile))
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:

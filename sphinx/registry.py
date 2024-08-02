@@ -47,6 +47,7 @@ logger = logging.getLogger(__name__)
 # Values are Sphinx version that merge the extension.
 EXTENSION_BLACKLIST = {
     "sphinxjp.themecore": "1.2",
+    'sphinxcontrib-napoleon': '1.3',
     "sphinxprettysearchresults": "2.0.0",
 }
 

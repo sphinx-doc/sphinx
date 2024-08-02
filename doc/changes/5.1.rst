@@ -1,0 +1,88 @@
+==========
+Sphinx 5.1
+==========
+
+
+Release 5.1.1 (released Jul 26, 2022)
+=====================================
+
+Bugs fixed
+----------
+
+* #10701: Fix ValueError in the new ``deque`` based ``sphinx.ext.napoleon``
+  iterator implementation.
+* #10702: Restore compatibility with third-party builders.
+
+Release 5.1.0 (released Jul 24, 2022)
+=====================================
+
+Dependencies
+------------
+
+* #10656: Support `Docutils 0.19`_. Patch by Adam Turner.
+
+.. _Docutils 0.19: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-19-2022-07-05
+
+Deprecated
+----------
+
+* #10467: Deprecated ``sphinx.util.stemmer`` in favour of ``snowballstemmer``.
+  Patch by Adam Turner.
+* #9856: Deprecated ``sphinx.ext.napoleon.iterators``.
+
+Features added
+--------------
+
+* #10444: html theme: Allow specifying multiple CSS files through the ``stylesheet``
+  setting in ``theme.conf`` or by setting ``html_style`` to an iterable of strings.
+* #10366: std domain: Add support for emphasising placeholders in :rst:dir:`option`
+  directives through a new :confval:`option_emphasise_placeholders` configuration
+  option.
+* #10439: std domain: Use the repr of some variables when displaying warnings,
+  making whitespace issues easier to identify.
+* #10571: quickstart: Reduce content in the generated ``conf.py`` file. Patch by
+  Pradyun Gedam.
+* #10648: LaTeX: CSS-named-alike additional :ref:`'sphinxsetup' <latexsphinxsetup>`
+  keys allow to configure four separate border-widths, four paddings, four
+  corner radii, a shadow (possibly inset), colours for border, background, shadow
+  for each of the code-block, topic, attention, caution, danger, error and warning
+  directives.
+* #10655: LaTeX: Explain non-standard encoding in LatinRules.xdy
+* #10599: HTML Theme: Wrap consecutive footnotes in an ``<aside>`` element when
+  using Docutils 0.18 or later, to allow for easier styling. This matches the
+  behaviour introduced in Docutils 0.19. Patch by Adam Turner.
+* #10518: config: Add ``include_patterns`` as the opposite of ``exclude_patterns``.
+  Patch by Adam Turner.
+
+Bugs fixed
+----------
+
+* #10594: HTML Theme: field term colons are doubled if using Docutils 0.18+
+* #10596: Build failure if Docutils version is 0.18 (not 0.18.1) due
+  to missing ``Node.findall()``
+* #10506: LaTeX: build error if highlighting inline code role in figure caption
+  (refs: #10251)
+* #10634: Make -P (pdb) option work better with exceptions triggered from events
+* #10550: py domain: Fix spurious whitespace in unparsing various operators (``+``,
+  ``-``, ``~``, and ``**``). Patch by Adam Turner (refs: #10551).
+* #10460: logging: Always show node source locations as absolute paths.
+* HTML Search: HTML tags are displayed as a part of object name
+* HTML Search: search snippets should not be folded
+* HTML Search: Minor errors are emitted on fetching search snippets
+* HTML Search: The markers for header links are shown in the search result
+* #10520: HTML Theme: Fix use of sidebar classes in ``agogo.css_t``.
+* #6679: HTML Theme: Fix inclusion of hidden toctrees in the agogo theme.
+* #10566: HTML Theme: Fix enable_search_shortcuts does not work
+* #8686: LaTeX: Text can fall out of code-block at end of page and leave artifact
+  on next page
+* #10633: LaTeX: user injected ``\color`` commands in topic or admonition boxes may
+  cause color leaks in PDF due to upstream `framed.sty
+  <https://ctan.org/pkg/framed>`_ bug
+* #10638: LaTeX: framed coloured boxes in highlighted code (e.g. highlighted
+  diffs using Pygments style ``'manni'``) inherit thickness of code-block frame
+* #10647: LaTeX: Only one ``\label`` is generated for ``desc_signature`` node
+  even if it has multiple node IDs
+* #10579: i18n: UnboundLocalError is raised on translating raw directive
+* #9577, #10088: py domain: Fix warning for duplicate Python references when
+  using ``:any:`` and autodoc.
+* #10548: HTML Search: fix minor summary issues.

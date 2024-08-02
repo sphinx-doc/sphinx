@@ -20,7 +20,7 @@ from sphinx.writers.text import TextTranslator, TextWriter
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from docutils.nodes import Node
+    from docutils import nodes
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
@@ -67,7 +67,7 @@ class TextBuilder(Builder):
     def prepare_writing(self, docnames: set[str]) -> None:
         self.writer = TextWriter(self)
 
-    def write_doc(self, docname: str, doctree: Node) -> None:
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
