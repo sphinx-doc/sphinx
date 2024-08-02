@@ -1,0 +1,80 @@
+==========
+Sphinx 6.0
+==========
+
+
+Release 6.0.1 (released Jan 05, 2023)
+=====================================
+
+Dependencies
+------------
+
+* Require Pygments 2.13 or later.
+
+Bugs fixed
+----------
+
+* #10944: imgmath: Fix resolving image paths for files in nested folders.
+
+Release 6.0.0 (released Dec 29, 2022)
+=====================================
+
+Dependencies
+------------
+
+* #10468: Drop Python 3.6 support
+* #10470: Drop Python 3.7, Docutils 0.14, Docutils 0.15, Docutils 0.16, and
+  Docutils 0.17 support. Patch by Adam Turner
+
+Incompatible changes
+--------------------
+
+* #7405: Removed the jQuery and underscore.js JavaScript frameworks.
+
+  These frameworks are no longer be automatically injected into themes from
+  Sphinx 6.0. If you develop a theme or extension that uses the
+  ``jQuery``, ``$``, or ``$u`` global objects, you need to update your
+  JavaScript to modern standards, or use the mitigation below.
+
+  The first option is to use the sphinxcontrib.jquery_ extension, which has been
+  developed by the Sphinx team and contributors. To use this, add
+  ``sphinxcontrib.jquery`` to the ``extensions`` list in ``conf.py``, or call
+  ``app.setup_extension("sphinxcontrib.jquery")`` if you develop a Sphinx theme
+  or extension.
+
+  The second option is to manually ensure that the frameworks are present.
+  To re-add jQuery and underscore.js, you will need to copy ``jquery.js`` and
+  ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
+  and add the following to your ``layout.html``:
+
+  .. _the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v5.3.0/sphinx/themes/basic/static
+  .. code-block:: html+jinja
+
+     {%- block scripts %}
+         <script src="{{ pathto('_static/jquery.js', resource=True) }}"></script>
+         <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
+         {{ super() }}
+     {%- endblock %}
+
+  .. _sphinxcontrib.jquery: https://github.com/sphinx-contrib/jquery/
+
+  Patch by Adam Turner.
+* #10471, #10565: Removed deprecated APIs scheduled for removal in Sphinx 6.0. See
+  :ref:`dev-deprecated-apis` for details. Patch by Adam Turner.
+* #10901: C Domain: Remove support for parsing pre-v3 style type directives and
+  roles. Also remove associated configuration variables ``c_allow_pre_v3`` and
+  ``c_warn_on_allowed_pre_v3``. Patch by Adam Turner.
+
+Features added
+--------------
+
+* #10924: LaTeX: adopt better looking defaults for tables and code-blocks.
+  See :confval:`latex_table_style` and the ``pre_border-radius`` and
+  ``pre_background-TeXcolor`` :ref:`additionalcss` for the former defaults
+  and how to re-enact them if desired.
+
+Bugs fixed
+----------
+
+* #10984: LaTeX: Document :confval:`latex_additional_files` behavior for files
+  with ``.tex`` extension.
