@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* #12727: build: Allow :option:`sphinx-build --pdb` to debug warnings when
+  :option:`sphinx-build --fail-on-warning` is specified.
+  Patch by Jeremy Maitin-Shepard.
+
 Bugs fixed
 ----------
 

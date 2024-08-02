@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import traceback
 
 import pytest
 
@@ -56,6 +57,20 @@ def test_html_warnings(app):
     app.build(force_all=True)
     warnings_exp = HTML_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, app.warning.getvalue())
+
+
+@pytest.mark.parametrize('pdb', [True, False])
+@pytest.mark.sphinx('html', testroot='warnings', freshenv=True)
+def test_html_warnings_pdb(app, pdb):
+    app.pdb = pdb
+    app.warningiserror = True
+    try:
+        app.build(force_all=True)
+        pytest.fail("Expected an exception to be raised")
+    except Exception:
+        tb = traceback.format_exc()
+        assert ("unindent_warning" in tb) == pdb
+        assert ("pending_warnings" not in tb) == pdb
 
 
 @pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
