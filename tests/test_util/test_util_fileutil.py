@@ -1,5 +1,7 @@
 """Tests sphinx.util.fileutil functions."""
 
+import os
+import re
 from unittest import mock
 
 import pytest
@@ -110,9 +112,9 @@ def test_copy_asset(tmp_path):
 def test_copy_asset_template(app):
     app.build(force_all=True)
 
-    expected_filename = app.outdir / '_static' / 'API.html'
-    expected_msg = f"Writing evaluated template result to {expected_filename}"
-    assert expected_msg in strip_colors(app.status.getvalue())
+    expected_filename = rf"{app.outdir / '_static'}[{os.sep}{os.altsep}]API.html"
+    expected_msg = rf"Writing evaluated template result to {expected_filename}"
+    assert re.findall(expected_msg, strip_colors(app.status.getvalue()))
 
 
 @pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
