@@ -106,11 +106,11 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_templates' / 'sidebar.html').exists()
 
 
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='html_assets')
 def test_copy_asset_template(app):
     app.build(force_all=True)
 
-    expected_filename = app.outdir / '_static' / 'basic.css'
+    expected_filename = app.outdir / '_static' / 'API.html'
     expected_msg = f"Writing evaluated template result to {expected_filename}"
     assert expected_msg in strip_colors(app.status.getvalue())
 
