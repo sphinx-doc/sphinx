@@ -3,12 +3,12 @@ from __future__ import annotations
 import re
 import textwrap
 from typing import TYPE_CHECKING
-from xml.etree.ElementTree import Element, tostring
+from xml.etree.ElementTree import tostring
 
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterable, Sequence
-    from xml.etree.ElementTree import ElementTree
+    from xml.etree.ElementTree import Element, ElementTree
 
 
 def _get_text(node: Element) -> str:
@@ -25,18 +25,6 @@ def _prettify(nodes: Iterable[Element]) -> str:
         return tostring(node, encoding='unicode', method='html')
 
     return ''.join(f'(i={index}) {pformat(node)}\n' for index, node in enumerate(nodes))
-
-
-def _intradocument_hyperlink_check(nodes: Sequence[Element]) -> None:
-    """Confirm that a series of nodes are all HTML hyperlinks to the current page"""
-    assert nodes, "Expected at least one node to check"
-    for node in nodes:
-        assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
-        href = node.attrib.get('href')
-        # Allow Sphinx index and table hyperlinks to be non-same-document, as exceptions.
-        if href in {'genindex.html', 'py-modindex.html', 'search.html'}:
-            continue
-        assert (not href or href.startswith('#')), 'Hyperlink failed same-document check'
 
 
 def check_xpath(
