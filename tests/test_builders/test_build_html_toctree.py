@@ -3,7 +3,8 @@ import re
 
 import pytest
 
-from tests.test_builders.xpath_util import _intradocument_hyperlink_check, check_xpath
+from tests.test_builders.xpath_html_util import _intradocument_hyperlink_check
+from tests.test_builders.xpath_util import check_xpath
 
 
 @pytest.mark.sphinx(testroot='toctree-glob')
