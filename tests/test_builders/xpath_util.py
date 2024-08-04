@@ -28,7 +28,7 @@ def _prettify(nodes: Iterable[Element]) -> str:
 
 
 def _intradocument_hyperlink_check(nodes: Sequence[Element]) -> None:
-    assert nodes
+    assert nodes, "Expected at least one node to check"
     for node in nodes:
         assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
         href = node.attrib.get('href')
