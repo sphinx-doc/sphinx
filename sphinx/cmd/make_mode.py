@@ -123,7 +123,8 @@ class Make:
                     returncode = subprocess.call(
                         [makecmd,
                          'all-pdf',
-                         'LATEXOPTS=-halt-on-error -interaction=batchmode',
+                         'LATEXOPTS=-halt-on-error',
+                         'LATEXMKOPTS=-silent',
                          ],
                     )
                     if returncode:
