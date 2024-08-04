@@ -28,7 +28,7 @@ Title
     )
     app = make_app(srcdir=tmp_path)
     app.build()
-    warnings = strip_colors(app.warning.getvalue()).replace(str(tmp_path), "source")
+    warnings = strip_colors(app.warning.getvalue()).replace(str(tmp_path / "index.rst"), "source/index.rst")
     print(warnings)
     assert warnings.strip() == """
 source/index.rst:8: WARNING: Duplicate explicit target name: "2". [docutils]
