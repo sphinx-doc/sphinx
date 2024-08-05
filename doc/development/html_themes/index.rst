@@ -221,6 +221,63 @@ If your theme package contains two or more themes, please call
    ``sphinx.html_themes`` entry_points feature.
 
 
+Styling with CSS
+----------------
+The :confval:`stylesheets` setting can be used to add custom CSS files to a theme.
+
+.. caution::
+
+   The structure of the HTML elements and their classes are currently not a
+   well-defined public API. Please infer them from inspecting the built HTML
+   pages. While we cannot guarantee full stability, they tend to be fairly
+   stable.
+
+Styling search result entries by category
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 8.0
+
+The search result items have classes indicating the context in which the
+search term was found. You can use the CSS selectors:
+
+- ``ul.search li.context-index``:
+  For results in an index, such as the glossary
+- ``ul.search li.context-object``:
+  For results in source code, like Python function definitions
+- ``ul.search li.context-title``:
+  For results found in section headings
+- ``ul.search li.context-text``:
+  For results found anywhere else in the documentation text
+
+As a base for inheritance by other themes, the ``basic`` theme is
+intentionally minimal and does not define CSS rules using these.
+Derived themes are encouraged to use these selectors as they see fit.
+For example, the following stylesheet adds contextual icons to the
+search result list:
+
+.. code-block:: css
+
+    ul.search {
+        padding-left: 30px;
+    }
+    ul.search li {
+        padding: 5px 0 5px 10px;
+        list-style-type: "\25A1";  /* Unicode: White Square */
+    }
+    ul.search li.context-index {
+        list-style-type: "\1F4D1";  /* Unicode: Bookmark Tabs */
+    }
+    ul.search li.context-object {
+        list-style-type: "\1F4E6";  /* Unicode: Package */
+    }
+    ul.search li.context-title {
+        list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
+    }
+    ul.search li.context-text {
+        list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
+    }
+
+
 Templating
 ----------
 

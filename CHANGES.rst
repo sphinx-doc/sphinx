@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #12474: Support type-dependent search result highlighting via CSS.
+  Patch by Tim Hoffmann.
+
 Bugs fixed
 ----------
 
