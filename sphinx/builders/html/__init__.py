@@ -200,6 +200,9 @@ class StandaloneHTMLBuilder(Builder):
     imgpath: str = ''
     domain_indices: list[DOMAIN_INDEX_TYPE] = []
 
+    # Used to override the path reference inside built documents
+    imagepath = None
+
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         super().__init__(app, env)
 
@@ -691,7 +694,10 @@ class StandaloneHTMLBuilder(Builder):
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.fignumbers = self.env.toc_fignumbers.get(docname, {})
-        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        if self.imagepath is not None:
+            self.imgpath = self.imagepath
+        else:
+            self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -703,7 +709,10 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
-        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
+        if self.imagepath is not None:
+            self.imgpath = self.imagepath
+        else:
+            self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
         title_node = self.env.longtitles.get(docname)
         title = self.render_partial(title_node)['title'] if title_node else ''
