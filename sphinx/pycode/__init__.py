@@ -130,7 +130,7 @@ class ModuleAnalyzer:
                 if comment:
                     self.attr_docs[scope] = [*comment.splitlines(), '']
                 else:
-                    self.attr_docs[scope] = ['']
+                    self.attr_docs[scope] = []
 
             self.annotations = parser.annotations
             self.finals = parser.finals

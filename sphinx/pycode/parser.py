@@ -396,6 +396,15 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         # not commented (record deforders only)
         for varname in varnames:
+            if (
+                # TODO(picnixz): decide whether to include special names or not
+                self.current_function
+                and len(self.current_classes) == 1  # ignore inner classes
+                and self.context[-1] == "__init__"
+            ):
+                # store instance variables even though they have no
+                # comments so that :undoc-members: can be used
+                self.add_variable_comment(varname, '')
             self.add_entry(varname)
 
     def visit_AnnAssign(self, node: ast.AnnAssign) -> None:

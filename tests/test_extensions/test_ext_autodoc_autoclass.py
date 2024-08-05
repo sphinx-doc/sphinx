@@ -104,6 +104,22 @@ def test_inherited_instance_variable(app):
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_undoc_instance_variable(app):
+    options = {'members': None, 'undoc-members': None}
+    actual = do_autodoc(app, 'class', 'target.instance_variable.Baz', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: Baz()',
+        '   :module: target.instance_variable',
+        '',
+        '',
+        '   .. py:attribute:: Baz.undoc',
+        '      :module: target.instance_variable',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_uninitialized_attributes(app):
     options = {"members": None,
                "inherited-members": None}
