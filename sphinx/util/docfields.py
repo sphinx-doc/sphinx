@@ -17,6 +17,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from docutils.parsers.rst.states import Inliner
 
     from sphinx.directives import ObjectDescription
@@ -57,7 +59,7 @@ class Field:
     def __init__(
         self,
         name: str,
-        names: tuple[str, ...] = (),
+        names: Sequence[str] = (),
         label: str = '',
         has_arg: bool = True,
         rolename: str = '',
@@ -155,7 +157,7 @@ class GroupedField(Field):
     is_grouped = True
     list_type = nodes.bullet_list
 
-    def __init__(self, name: str, names: tuple[str, ...] = (), label: str = '',
+    def __init__(self, name: str, names: Sequence[str] = (), label: str = '',
                  rolename: str = '', can_collapse: bool = False) -> None:
         super().__init__(name, names, label, True, rolename)
         self.can_collapse = can_collapse

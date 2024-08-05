@@ -13,7 +13,7 @@ from collections import deque
 from collections.abc import Callable, Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Literal
+from typing import IO, TYPE_CHECKING, Any, Literal, overload
 
 from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
@@ -41,6 +41,8 @@ from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from docutils import nodes
     from docutils.nodes import Element, Node
     from docutils.parsers import Parser
@@ -451,6 +453,19 @@ class Sphinx:
             raise VersionRequirementError(req)
 
     # event interface
+    @overload
+    def connect(
+        self,
+        event: Literal['include-read'],
+        callback: Callable[[Sphinx, Path, str, list[str]], None],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    @overload
+    def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
+        ...
+
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
         """Register *callback* to be called when *event* is emitted.
 

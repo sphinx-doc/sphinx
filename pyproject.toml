@@ -135,7 +135,7 @@ exclude = [
 ]
 
 [tool.mypy]
-files = ["sphinx", "utils", "tests"]
+files = ["sphinx", "utils", "tests", "doc/conf.py"]
 exclude = [
     "tests/roots",
     # tests/
