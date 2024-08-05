@@ -295,7 +295,7 @@ class UnreferencedFootnotesDetector(SphinxTransform):
     Detect unreferenced footnotes and emit warnings
     """
 
-    default_priority = Footnotes.default_priority + 1
+    default_priority = Footnotes.default_priority + 2
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.footnotes:
