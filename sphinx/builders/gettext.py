@@ -28,7 +28,7 @@ from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
 
     from docutils.nodes import Element
 
@@ -91,13 +91,15 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: list[str | os.PathLike[str]] | None = None,
+        self, template_path: Sequence[str | os.PathLike[str]] | None = None,
             outdir: str | os.PathLike[str] | None = None,
     ) -> None:
         self.outdir = outdir
-        if template_path is None:
-            template_path = [path.join(package_dir, 'templates', 'gettext')]
-        super().__init__(template_path)
+        default_template_path: str = path.join(package_dir, 'templates', 'gettext')
+        template_dirs: list[str | os.PathLike[str]] = [default_template_path]
+        if template_path is not None:
+            template_dirs = [*list(template_path), default_template_path]
+        super().__init__(template_dirs)
 
         def escape(s: str) -> str:
             s = s.replace('\\', r'\\')
@@ -287,7 +289,10 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer(outdir=self.outdir).render('message.pot.jinja', context)
+            template_path = [path.join(self.app.srcdir, rel_path)
+                             for rel_path in self.config.templates_path]
+            content = GettextRenderer(template_path,
+                                      outdir=self.outdir).render('message.pot.jinja', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):

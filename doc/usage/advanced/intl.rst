@@ -119,6 +119,11 @@ section describe an easy way to translate with *sphinx-intl*.
       $ make gettext
 
    The generated pot files will be placed in the ``_build/gettext`` directory.
+   If you want to customize the output beyond what can be done via the
+   :ref:`intl-options`, the
+   :download:`default pot file template <../../../sphinx/templates/gettext/message.pot.jinja>`
+   can be replaced by a custom :file:`message.pot.jinja` file placed in any
+   directory listed in :confval:`templates_path`.
 
 #. Generate po files.
 
