@@ -682,7 +682,6 @@ class AliasTransform(SphinxTransform):
                     nestedName=name,
                     templateDecls=templateDecls,
                     typ='any',
-                    templateShorthand=True,
                     matchSelf=True, recurseInAnon=True,
                     searchInSiblings=False)
                 if symbols is None:
@@ -1010,7 +1009,6 @@ class CPPDomain(Domain):
             searchInSiblings = (not name.rooted) and len(name.names) == 1
             symbols, failReason = parentSymbol.find_name(
                 name, templateDecls, typ,
-                templateShorthand=True,
                 matchSelf=True, recurseInAnon=True,
                 searchInSiblings=searchInSiblings)
             if symbols is None:
