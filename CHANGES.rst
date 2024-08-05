@@ -13,6 +13,9 @@ Deprecated
 Features added
 --------------
 
+* #12652: LaTeX: Add :confval:`math_numsep` support to latex builder.
+  Patch by Thomas Fanning and Jean-François B.
+
 Bugs fixed
 ----------
 

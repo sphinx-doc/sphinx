@@ -690,6 +690,13 @@ The color used in the above example is available from having passed the
 
     .. versionadded:: 1.5.3
 
+``mathnumsep``
+    This defaults to the string (without quotes!) as set by
+    :confval:`math_numsep` (which itself defaults to ``'.'``).  Use it if
+    a different setting is needed for LaTeX output.
+
+    .. versionadded:: 8.1.0
+
 ``verbatimwithframe``
     Boolean to specify if :rst:dir:`code-block`\ s and literal includes are
     framed. Setting it to ``false`` does not deactivate use of package

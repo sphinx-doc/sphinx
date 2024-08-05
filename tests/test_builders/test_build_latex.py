@@ -511,23 +511,23 @@ def test_latex_obey_numfig_secnum_depth_is_zero(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'SphinxManual.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,nonumfigreset,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,nonumfigreset,mathnumfig,mathnumsep={.}]{sphinx}' in result
 
     result = (app.outdir / 'SphinxHowTo.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,nonumfigreset,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,nonumfigreset,mathnumfig,mathnumsep={.}]{sphinx}' in result
 
 
 @pytest.mark.sphinx(
     'latex', testroot='latex-numfig',
-    confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 2, 'math_numsep': "-"})
 def test_latex_obey_numfig_secnum_depth_is_two(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'SphinxManual.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,numfigreset=2,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,numfigreset=2,mathnumfig,mathnumsep={-}]{sphinx}' in result
 
     result = (app.outdir / 'SphinxHowTo.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,numfigreset=3,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,numfigreset=3,mathnumfig,mathnumsep={-}]{sphinx}' in result
 
 
 @pytest.mark.sphinx(

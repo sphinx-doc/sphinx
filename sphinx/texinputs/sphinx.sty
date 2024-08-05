@@ -156,6 +156,7 @@
 \DeclareStringOption[-1]{numfigreset}
 \DeclareBoolOption[false]{nonumfigreset}
 \DeclareBoolOption[false]{mathnumfig}
+\DeclareStringOption[.]{mathnumsep}
 \define@key{sphinx}{bookmarksdepth}{\AtBeginDocument{\hypersetup{bookmarksdepth=#1}}}
 \AtBeginDocument{\define@key{sphinx}{bookmarksdepth}{\hypersetup{bookmarksdepth=#1}}}
 % \DeclareBoolOption[false]{usespart}% not used
@@ -731,7 +732,7 @@
     \spx@tempa{div.important_}  {important}
     \spx@tempa{div.tip_}        {tip}
 
-    % Add "legacy" hintTeXextras etc... 
+    % Add "legacy" hintTeXextras etc...
     \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy option prefix
       \expandafter\let\csname KV@sphinx@#2TeXextras\expandafter\endcsname
                       \csname KV@sphinx@#1TeXextras\endcsname
@@ -807,7 +808,7 @@
 % We try to
 % - get Sphinx PDF builds to process fine in absence of fontawesome5
 % - use fontawesome5 if present, but not if user prefers another package
-% - provide an interface for using other LaTeX code for icons  
+% - provide an interface for using other LaTeX code for icons
 % - provide an interface for using some other package than fontawesome5
 % Indeed we can't load fontawesome5 unconditionally even if available,
 % as it proves incompatible with fontawesome package.
