@@ -45,6 +45,7 @@ def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
 
 def relative_uri(base: str, to: str) -> str:
     """ For the JSON/React usage, we don't want relative URLs """
+    print(f"relative_uri: from {base} to {to}")
     # The reason why is because React doesn't process the files
     # as relative to each other. The files are all treated as
     # relative to the top of the source directory.
