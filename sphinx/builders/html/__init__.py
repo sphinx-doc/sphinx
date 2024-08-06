@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import contextlib
-import hashlib
 import html
+import json
 import os
 import posixpath
 import re
+import shutil
 import sys
 import types
 import warnings
@@ -89,21 +90,30 @@ DOMAIN_INDEX_TYPE: TypeAlias = tuple[
 ]
 
 
-def _stable_hash(obj: Any) -> str:
-    """Return a stable hash for a Python data structure.
+def _stable_str(obj: Any) -> str:
+    """Return a stable string representation of a Python data structure.
 
-    We can't just use the md5 of str(obj) as the order of collections
-    may be random.
+    We can't just use str(obj) as the order of collections may be random.
     """
+    return json.dumps(_json_prep(obj), separators=(',', ':'))
+
+
+def _json_prep(obj: Any) -> dict[str, Any] | list[Any] | str:
     if isinstance(obj, dict):
-        obj = sorted(map(_stable_hash, obj.items()))
+        # convert to a sorted dict
+        obj = {_json_prep(k): _json_prep(v) for k, v in obj.items()}
+        obj = {k: obj[k] for k in sorted(obj, key=str)}
     if isinstance(obj, list | tuple | set | frozenset):
-        obj = sorted(map(_stable_hash, obj))
+        # convert to a sorted list
+        obj = sorted(map(_json_prep, obj), key=str)
     elif isinstance(obj, type | types.FunctionType):
         # The default repr() of functions includes the ID, which is not ideal.
         # We use the fully qualified name instead.
         obj = f'{obj.__module__}.{obj.__qualname__}'
-    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
+    else:
+        # we can't do any better, just use the string representation
+        obj = str(obj)
+    return obj
 
 
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
@@ -128,13 +138,13 @@ class BuildInfo:
     def load(cls: type[BuildInfo], f: IO[str]) -> BuildInfo:
         try:
             lines = f.readlines()
-            assert lines[0].rstrip() == '# Sphinx build info version 1'
-            assert lines[2].startswith('config: ')
-            assert lines[3].startswith('tags: ')
+            assert lines[0].rstrip() == '# Sphinx build info version 2', "Bad version"
+            assert lines[2].startswith('config: '), "File missing config entry"
+            assert lines[3].startswith('tags: '), "File missing tags entry"
 
             build_info = BuildInfo()
-            build_info.config_hash = lines[2].split()[1].strip()
-            build_info.tags_hash = lines[3].split()[1].strip()
+            build_info.config_hash = lines[2].split(maxsplit=1)[1].strip()
+            build_info.tags_hash = lines[3].split(maxsplit=1)[1].strip()
             return build_info
         except Exception as exc:
             raise ValueError(__('build info file is broken: %r') % exc) from exc
@@ -150,22 +160,23 @@ class BuildInfo:
 
         if config:
             values = {c.name: c.value for c in config.filter(config_categories)}
-            self.config_hash = _stable_hash(values)
+            self.config_hash = _stable_str(values)
 
         if tags:
-            self.tags_hash = _stable_hash(sorted(tags))
+            self.tags_hash = _stable_str(sorted(tags))
 
     def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
     def dump(self, f: IO[str]) -> None:
-        f.write('# Sphinx build info version 1\n'
-                '# This file hashes the configuration used when building these files.'
-                ' When it is not found, a full rebuild will be done.\n'
-                'config: %s\n'
-                'tags: %s\n' %
-                (self.config_hash, self.tags_hash))
+        f.write(
+            "# Sphinx build info version 2\n"
+            "# This file JSON-ifies the configuration used when building these "
+            "files. When it is not found, a full rebuild will be done.\n"
+            f"config: {self.config_hash}\n"
+            f"tags: {self.tags_hash}\n"
+        )
 
 
 class StandaloneHTMLBuilder(Builder):
@@ -396,7 +407,13 @@ class StandaloneHTMLBuilder(Builder):
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
-                logger.debug('[build target] did not match: build_info ')
+                logger.info(
+                    bold(__("building [html]: ")) +
+                    __("build_info mismatch, copying .buildinfo to .buildinfo.old")
+                )
+                shutil.copy(build_info_fname, build_info_fname + ".old")
+                with open(build_info_fname, 'w', encoding="utf-8") as fp:
+                    self.build_info.dump(fp)
                 yield from self.env.found_docs
                 return
         except ValueError as exc:
@@ -426,7 +443,7 @@ class StandaloneHTMLBuilder(Builder):
             template_mtime = 0
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
-                logger.debug('[build target] did not in env: %r', docname)
+                logger.debug('[build target] did not find in env: %r', docname)
                 yield docname
                 continue
             targetname = self.get_outfilename(docname)
@@ -435,15 +452,16 @@ class StandaloneHTMLBuilder(Builder):
             except Exception:
                 targetmtime = 0
             try:
-                srcmtime = max(_last_modified_time(self.env.doc2path(docname)), template_mtime)
+                docpath_mtime = _last_modified_time(self.env.doc2path(docname))
+                srcmtime = max(docpath_mtime, template_mtime)
                 if srcmtime > targetmtime:
                     logger.debug(
-                        '[build target] targetname %r(%s), template(%s), docname %r(%s)',
+                        '[build target] targetname %r(%s) < max(template(%s), docname %r(%s))',
                         targetname,
                         _format_rfc3339_microseconds(targetmtime),
                         _format_rfc3339_microseconds(template_mtime),
                         docname,
-                        _format_rfc3339_microseconds(_last_modified_time(self.env.doc2path(docname))),
+                        _format_rfc3339_microseconds(docpath_mtime),
                     )
                     yield docname
             except OSError:
