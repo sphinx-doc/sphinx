@@ -44,22 +44,43 @@ def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
 
 
 def relative_uri(base: str, to: str) -> str:
-    """ For the JSON/React usage, we don't want relative URLs """
-    print(f"relative_uri: from {base} to {to}")
-    # The reason why is because React doesn't process the files
-    # as relative to each other. The files are all treated as
-    # relative to the top of the source directory.
+    """ Calculate the correct URI to get from base to to"""
+    # React doesn't process the pages as entirely relative
+    # to each other. Files are generally treated as relative
+    # to the top of the source directory.
     #
     # If, though, the URL starts with the separator then we just
     # return that.
     if to.startswith(SEP):
         return to
-    # The one thing we *do* want to influence is that anything
-    # that is <directory>/index needs to just be <directory>
+    if base == to:
+        return to
+    # However, because React isn't an HTML server, having
+    # a file called "foo/index.html" doesn't work if the
+    # URL is just "foo", so we cheat and write out the
+    # file as named "foo". But this then causes problems if
+    # we have a directory "foo" with other pages in it.
     #
-    # We'll also remove trailing slashes
+    # So we have to see if "to" starts with "base" and,
+    # if it does, return from the last common factor (e.g. foo)
+    # onwards.
+    #
+    # Start by removing trailing slashes from both
+    if base.endswith(SEP):
+        base = base[:-1]
     if to.endswith(SEP):
         to = to[:-1]
+    #
+    # Does to begin with base? If not, return the value for to
+    if not to.startswith(base):
+        return to
+    #
+    # Calculate the overlap. Strip that overlap from the beginning
+    # of to and then prefix it with the last leaf from base.
+    if len(base) != 0:
+        to = to[len(base)+1:]
+    base_parts = base.split(SEP)
+    to = base_parts[-1] + SEP + to
     return to
 
 
