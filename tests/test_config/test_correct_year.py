@@ -9,6 +9,10 @@ import pytest
         # test with SOURCE_DATE_EPOCH set: copyright year should be updated
         ('1293840000', '2006-2011'),
         ('1293839999', '2006-2010'),
+        # figure dash (U+2012)
+        ('1293840000', '2006‒2011'),
+        # en dash (U+2013)
+        ('1293840000', '2006–2011'),
     ],
 
 )
