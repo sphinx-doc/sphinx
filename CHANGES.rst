@@ -24,5 +24,11 @@ Bugs fixed
   to :ref:`latexsphinxsetupforcewraps`.
   Patch by Jean-François B.
 
+* #12730: The ``UnreferencedFootnotesDetector`` transform has been improved
+  to more consistently detect unreferenced footnotes.
+  Note, the priority of the transform has been changed from 200 to 622,
+  so that it now runs after the docutils ``Footnotes`` resolution transform.
+  Patch by Chris Sewell.
+
 Testing
 -------
