@@ -390,9 +390,9 @@ class StandaloneHTMLBuilder(Builder):
                 return None
 
     def get_outdated_docs(self) -> Iterator[str]:
-        old_info = path.join(self.outdir, '.buildinfo')
+        build_info_fname = path.join(self.outdir, '.buildinfo')
         try:
-            with open(old_info, encoding="utf-8") as fp:
+            with open(build_info_fname, encoding="utf-8") as fp:
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
@@ -408,7 +408,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.templates:
             template_mtime = int(self.templates.newest_template_mtime() * 10**6)
             try:
-                old_mtime = _last_modified_time(old_info)
+                old_mtime = _last_modified_time(build_info_fname)
             except Exception:
                 pass
             else:
