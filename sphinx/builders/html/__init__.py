@@ -40,6 +40,7 @@ from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging
 from sphinx.util._timestamps import _format_rfc3339_microseconds
+from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
@@ -405,6 +406,23 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.templates:
             template_mtime = int(self.templates.newest_template_mtime() * 10**6)
+            try:
+                old_mtime = _last_modified_time(old_info)
+            except Exception:
+                pass
+            else:
+                # Let users know they have a newer template
+                if template_mtime > old_mtime:
+                    logger.info(
+                        bold("building [html]: ") +
+                        __(
+                            "template %s is newer (%s) than previous build info (%s), "
+                            "all docs will be out of date"
+                        ),
+                        self.templates.newest_template_name(),
+                        _format_rfc3339_microseconds(template_mtime),
+                        _format_rfc3339_microseconds(old_mtime),
+                    )
         else:
             template_mtime = 0
         for docname in self.env.found_docs:

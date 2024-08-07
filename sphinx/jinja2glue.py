@@ -204,8 +204,14 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:
+        return self._newest_template_mtime_name()[0]
+
+    def newest_template_name(self) -> str:
+        return self._newest_template_mtime_name()[1]
+
+    def _newest_template_mtime_name(self) -> tuple[float, str]:
         return max(
-            os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9
+            (os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9, sfile)
             for dirname in self.pathchain
             for root, _dirs, files in os.walk(dirname)
             for sfile in files
