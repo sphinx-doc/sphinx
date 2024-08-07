@@ -51,9 +51,7 @@ def relative_uri(base: str, to: str) -> str:
     #
     # If, though, the URL starts with the separator then we just
     # return that.
-    if to.startswith(SEP):
-        return to
-    if base == to:
+    if to.startswith(SEP) or base == to or base == "":
         return to
     # However, because React isn't an HTML server, having
     # a file called "foo/index.html" doesn't work if the
