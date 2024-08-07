@@ -1960,7 +1960,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             # annotation only instance variable (PEP-526)
             try:
                 with mock(self.config.autodoc_mock_imports):
-                    parent = import_module(self.modname, self.config.autodoc_warningiserror)
+                    parent = import_module(self.modname)
                     annotations = get_type_hints(parent, None,
                                                  self.config.autodoc_type_aliases,
                                                  include_extras=True)
