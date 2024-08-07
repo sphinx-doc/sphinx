@@ -117,7 +117,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
         parallel: int = 0,
         # additional arguments at the end to keep the signature
         verbosity: int = 0,  # argument is not in the same order as in the superclass
-        keep_going: bool = False,
+        keep_going: bool = True,
         warningiserror: bool = False,  # argument is not in the same order as in the superclass
         # unknown keyword arguments
         **extras: Any,

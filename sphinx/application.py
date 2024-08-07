@@ -143,7 +143,7 @@ class Sphinx:
                  status: IO[str] | None = sys.stdout, warning: IO[str] | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
                  tags: Sequence[str] = (),
-                 verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
+                 verbosity: int = 0, parallel: int = 0, keep_going: bool = True,
                  pdb: bool = False) -> None:
         """Initialize the Sphinx application.
 
@@ -163,7 +163,8 @@ class Sphinx:
         :param verbosity: The verbosity level.
         :param parallel: The maximum number of parallel jobs to use
             when reading/writing documents.
-        :param keep_going: If true, continue processing when an error occurs.
+        :param keep_going: If false, fail on the first warning.
+            Only used when warningiserror is true.
         :param pdb: If true, enable the Python debugger on an exception.
         """
         self.phase = BuildPhase.INITIALIZATION

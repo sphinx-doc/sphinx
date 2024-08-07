@@ -202,6 +202,7 @@ files can be built by specifying individual filenames.
     group.add_argument('--fail-on-warning', '-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
     group.add_argument('--keep-going', action='store_true', dest='keep_going',
+                       default=True,
                        help=__("with --fail-on-warning, keep going when getting warnings"))
     group.add_argument('--show-traceback', '-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
