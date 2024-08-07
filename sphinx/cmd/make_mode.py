@@ -86,7 +86,8 @@ class Make:
         return 0
 
     def build_help(self) -> None:
-        if not color_terminal() or '--no-color' in sys.argv or '-N' in sys.argv:
+        print(self.opts)
+        if not color_terminal() or '--no-color' in self.opts or '-N' in self.opts:
             nocolor()
 
         print(bold("Sphinx v%s" % sphinx.__display_version__))

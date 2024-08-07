@@ -108,11 +108,10 @@ the documentation as HTML for the first time.  To do that, run this command:
 
 .. note::
 
-  Please note that ``-M`` flag is a *make-mode* flag. ``sphinx-build`` also has
-  a *build-mode* that provides more control over cache directories but has less
-  builders available and has a different signature. It is invoked by using a
-  ``-b`` flag. These flags are mutually exclusive. You can find out more in
-  :doc:`sphinx-build's manual </man/sphinx-build>`.
+  :option:`sphinx-build -M` uses the *make-mode* but :program:`sphinx-build`
+  also supports a *build-mode* via :option:`sphinx-build -b` to provide a finer
+  control over the generated artifacts. See the :ref:`sphinx-build's manual
+  </man/sphinx-build>` for details.
 
 And finally, open ``docs/build/html/index.html`` in your browser.  You should see
 something like this:
