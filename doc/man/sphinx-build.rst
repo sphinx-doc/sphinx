@@ -43,7 +43,7 @@ Options
       the source and output directories, before any other options are passed.
       For example::
 
-          sphinx-build -M html ./source ./build --fail-on-warning --keep-going
+          sphinx-build -M html ./source ./build --fail-on-warning
 
    The *make-mode* provides the same build functionality as
    a default :ref:`Makefile or Make.bat <makefile_options>`,

@@ -201,9 +201,7 @@ files can be built by specifying individual filenames.
                        help=__('write warnings (and errors) to given file'))
     group.add_argument('--fail-on-warning', '-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
-    group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       default=True,
-                       help=__("with --fail-on-warning, keep going when getting warnings"))
+    group.add_argument('--keep-going', action='store_true', help=argparse.SUPPRESS)
     group.add_argument('--show-traceback', '-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('--pdb', '-P', action='store_true', dest='pdb',
@@ -333,7 +331,7 @@ def build_main(argv: Sequence[str]) -> int:
             app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
                          args.doctreedir, args.builder, args.confoverrides, args.status,
                          args.warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs, args.keep_going,
+                         args.tags, args.verbosity, args.jobs,
                          args.pdb)
             app.build(args.force_all, args.filenames)
             return app.statuscode

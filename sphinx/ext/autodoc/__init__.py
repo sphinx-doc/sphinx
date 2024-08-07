@@ -417,7 +417,7 @@ class Documenter:
             try:
                 ret = import_object(self.modname, self.objpath, self.objtype,
                                     attrgetter=self.get_attr,
-                                    warningiserror=self.config.autodoc_warningiserror)
+                                    )
                 self.module, self.parent, self.object_name, self.object = ret
                 if ismock(self.object):
                     self.object = undecorate(self.object)
@@ -2457,7 +2457,7 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
                 with mock(self.config.autodoc_mock_imports):
                     ret = import_object(self.modname, self.objpath[:-1], 'class',
                                         attrgetter=self.get_attr,  # type: ignore[attr-defined]
-                                        warningiserror=self.config.autodoc_warningiserror)
+                                        )
                     parent = ret[3]
                     if self.is_runtime_instance_attribute(parent):
                         self.object = self.RUNTIME_INSTANCE_ATTRIBUTE
@@ -2511,7 +2511,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
             try:
                 ret = import_object(self.modname, self.objpath[:-1], 'class',
                                     attrgetter=self.get_attr,  # type: ignore[attr-defined]
-                                    warningiserror=self.config.autodoc_warningiserror)
+                                    )
                 parent = ret[3]
                 if self.is_uninitialized_instance_attribute(parent):
                     self.object = UNINITIALIZED_ATTR
