@@ -205,7 +205,7 @@ class Sphinx:
             self._warning = warning
         self._warncount = 0
         self.keep_going = bool(warningiserror)
-        self._warning_is_error = bool(warningiserror)
+        self._fail_on_warnings = bool(warningiserror)
         self.pdb = pdb
         logging.setup(self, self._status, self._warning)
 
@@ -390,7 +390,7 @@ class Sphinx:
             else:
                 logger.info(bold(__('build succeeded.')))
         elif self._warncount == 1:
-            if self._warning_is_error:
+            if self._fail_on_warnings:
                 self.statuscode = 1
                 msg = __('build finished with problems, %s warning '
                          '(with warnings treated as errors).')
@@ -400,7 +400,7 @@ class Sphinx:
                 msg = __('build succeeded, %s warning.')
             logger.info(bold(msg))
         else:
-            if self._warning_is_error:
+            if self._fail_on_warnings:
                 self.statuscode = 1
                 msg = __('build finished with problems, %s warnings '
                          '(with warnings treated as errors).')
