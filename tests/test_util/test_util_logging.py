@@ -7,7 +7,6 @@ import os.path
 import pytest
 from docutils import nodes
 
-from sphinx.errors import SphinxWarning
 from sphinx.util import logging, osutil
 from sphinx.util.console import colorize, strip_colors
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings

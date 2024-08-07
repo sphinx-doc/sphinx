@@ -392,7 +392,8 @@ class Sphinx:
         elif self._warncount == 1:
             if self._warning_is_error:
                 self.statuscode = 1
-                msg = __('build finished with problems, %s warning (with warnings treated as errors).')
+                msg = __('build finished with problems, %s warning '
+                         '(with warnings treated as errors).')
             elif self.statuscode != 0:
                 msg = __('build finished with problems, %s warning.')
             else:
@@ -401,7 +402,8 @@ class Sphinx:
         else:
             if self._warning_is_error:
                 self.statuscode = 1
-                msg = __('build finished with problems, %s warnings (with warnings treated as errors).')
+                msg = __('build finished with problems, %s warnings '
+                         '(with warnings treated as errors).')
             elif self.statuscode != 0:
                 msg = __('build finished with problems, %s warnings.')
             else:
