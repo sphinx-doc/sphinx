@@ -390,8 +390,9 @@ class StandaloneHTMLBuilder(Builder):
                 return None
 
     def get_outdated_docs(self) -> Iterator[str]:
+        old_info = path.join(self.outdir, '.buildinfo')
         try:
-            with open(path.join(self.outdir, '.buildinfo'), encoding="utf-8") as fp:
+            with open(old_info, encoding="utf-8") as fp:
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
