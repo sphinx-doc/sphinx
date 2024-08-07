@@ -815,7 +815,8 @@ def test_reference_in_caption_and_codeblock_in_footnote(app):
             'Second footnote in caption of longtable\n') in result
     assert ('This is a reference to the code\\sphinxhyphen{}block in the footnote:\n'
             '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
-            '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}') in result
+            '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}'
+            '{I am in a footnote}}}}}') in result
     assert ('&\n\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
             '\\begin{footnote}[12]\\sphinxAtStartFootnote\n'
             'Third footnote in longtable\n') in result

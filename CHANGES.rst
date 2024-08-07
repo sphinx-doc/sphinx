@@ -26,5 +26,9 @@ Bugs fixed
   so that it now runs after the docutils ``Footnotes`` resolution transform.
   Patch by Chris Sewell.
 
+* #12744: Classes injected by a custom interpreted text role now give rise to
+  nested ``\DUrole``'s, rather than a single one with comma separated classes.
+  Patch by Jean-François B.
+
 Testing
 -------
