@@ -7,8 +7,6 @@ from sphinx.builders.manpage import default_man_pages
 from sphinx.config import Config
 
 
-@pytest.mark.xfail(docutils.__version_info__[:2] > (0, 21),
-                   reason='Docutils has removed the reference key in master')
 @pytest.mark.sphinx('man')
 def test_all(app):
     app.build(force_all=True)
@@ -49,8 +47,6 @@ def test_man_make_section_directory(app):
     assert (app.outdir / 'man1' / 'projectnamenotset.1').exists()
 
 
-@pytest.mark.xfail(docutils.__version_info__[:2] > (0, 21),
-                   reason='Docutils has removed the reference key in master')
 @pytest.mark.sphinx('man', testroot='directive-code')
 def test_captioned_code_block(app):
     app.build(force_all=True)
