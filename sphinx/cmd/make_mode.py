@@ -106,7 +106,34 @@ class Make:
             raise RuntimeError('Invalid $MAKE command: %r' % makecmd)
         try:
             with chdir(self.builddir_join('latex')):
-                return subprocess.call([makecmd, 'all-pdf'])
+                if '-Q' in self.opts:
+                    with open('__LATEXSTDOUT__', 'w') as outfile:
+                        returncode = subprocess.call([makecmd,
+                                                      'all-pdf',
+                                                      'LATEXOPTS=-halt-on-error',
+                                                      ],
+                                                     stdout=outfile,
+                                                     stderr=subprocess.STDOUT,
+                                                     )
+                    if returncode:
+                        print('Latex error: check %s' %
+                              self.builddir_join('latex', '__LATEXSTDOUT__')
+                              )
+                elif '-q' in self.opts:
+                    returncode = subprocess.call(
+                        [makecmd,
+                         'all-pdf',
+                         'LATEXOPTS=-halt-on-error',
+                         'LATEXMKOPTS=-silent',
+                         ],
+                    )
+                    if returncode:
+                        print('Latex error: check .log file in %s' %
+                              self.builddir_join('latex')
+                              )
+                else:
+                    returncode = subprocess.call([makecmd, 'all-pdf'])
+                return returncode
         except OSError:
             print('Error: Failed to run: %s' % makecmd)
             return 1
