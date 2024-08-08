@@ -2173,8 +2173,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(r'\sphinxaccelerator{')
             self.context.append('}')
         elif classes and not self.in_title:
-            self.body.append(r'\DUrole{%s}{' % ','.join(classes))
-            self.context.append('}')
+            self.body.append(r'\DUrole{' + r'}{\DUrole{'.join(classes) + '}{')
+            self.context.append('}' * len(classes))
         else:
             self.context.append('')
 
