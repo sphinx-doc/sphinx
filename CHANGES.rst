@@ -13,6 +13,10 @@ Deprecated
 Features added
 --------------
 
+* #11153: HTML builder: determine the JavaScript search index filename
+  using a :confval:`html_search_filename` setting.
+  Patch by James Addison.
+
 Bugs fixed
 ----------
 

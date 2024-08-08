@@ -2129,6 +2129,13 @@ and also make use of these options.
 
    .. versionadded:: 1.2
 
+.. confval:: html_search_filename
+   :type: :code-py:`str`
+   :default: :code-py:`searchindex.js`
+
+   Controls the filename of the JavaScript search index that will be
+   written in HTML output.
+
 .. confval:: html_scaled_image_link
    :type: :code-py:`bool`
    :default: :code-py:`True`

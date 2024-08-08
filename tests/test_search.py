@@ -349,6 +349,39 @@ def test_search_index_is_deterministic(app):
     assert_is_sorted(index, '')
 
 
+@pytest.mark.sphinx(testroot='search',
+                    confoverrides={'html_search_filename': '_static/searchindex.js'})
+def test_search_index_alternate_filename(app):
+    app.build(force_all=True)
+    assert (app.outdir / '_static' / 'searchindex.js').exists()
+
+
+@pytest.mark.sphinx(testroot='search',
+                    confoverrides={'html_search_filename': 'http://example.invalid/searchindex.js'})
+def test_search_index_url_filename_rejected(app):
+    app.build(force_all=True)
+    assert (app.outdir / 'searchindex.js').exists()  # default searchindex.js location
+    assert "must not be a URL" in app.warning.getvalue()
+
+
+@pytest.mark.sphinx(testroot='search',
+                    confoverrides={'html_search_filename': 'searchindex.html'})
+def test_search_index_non_js_filename_rejected(app):
+    app.build(force_all=True)
+    assert not (app.outdir / 'searchindex.html').exists()
+    assert (app.outdir / 'searchindex.js').exists()  # default searchindex.js location
+    assert "must have a .js suffix" in app.warning.getvalue()
+
+
+@pytest.mark.sphinx(testroot='search',
+                    confoverrides={'html_search_filename': '../disallowed.js'})
+def test_search_index_filename_outside_outdir_rejected(app):
+    app.build(force_all=True)
+    assert not (app.outdir / '..' / 'disallowed.js').exists()
+    assert (app.outdir / 'searchindex.js').exists()  # default searchindex.js location
+    assert "must be within the output directory" in app.warning.getvalue()
+
+
 def is_title_tuple_type(item: list[int | str]):
     """
     In the search index, titles inside .alltitles are stored as a tuple of
