@@ -1227,7 +1227,8 @@ forget the underscore separating the prefix from the property names.
 
   * ``0.4pt`` for :rst:dir:`code-block`,
   * ``0.5pt`` for :dudir:`topic` and contents_ directive,
-  * ``1pt`` (top/bottom) and ``2pt`` (left/right) for :dudir:`sidebar` directive,
+  * ``2pt`` (but bottom-width only at ``1pt`` with a ``2pt`` shadow, see
+    below) for :dudir:`sidebar` directive,
   * ``0.5pt`` for :dudir:`note` and other "light" admonitions,
   * ``0.5pt`` for :rst:dir:`seealso` and :rst:dir:`todo` directives,
   * ``1pt`` for  :dudir:`warning` and other "strong" admonitions except
@@ -1313,7 +1314,7 @@ forget the underscore separating the prefix from the property names.
     extends into the page right margin,
 
   - the :dudir:`sidebar` directive: ``0pt 2pt``, i.e. a small shadow at
-    bottom.
+    bottom of width ``2pt`` (the border bottom-width being set to ``1pt``).
 
   .. versionchanged:: 8.1.0 No shadow anymore for :dudir:`topic`.
 
