@@ -40,6 +40,7 @@ from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import isurl, logging
 from sphinx.util._timestamps import _format_rfc3339_microseconds
+from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
@@ -389,8 +390,9 @@ class StandaloneHTMLBuilder(Builder):
                 return None
 
     def get_outdated_docs(self) -> Iterator[str]:
+        build_info_fname = self.outdir / '.buildinfo'
         try:
-            with open(path.join(self.outdir, '.buildinfo'), encoding="utf-8") as fp:
+            with open(build_info_fname, encoding="utf-8") as fp:
                 buildinfo = BuildInfo.load(fp)
 
             if self.build_info != buildinfo:
@@ -405,6 +407,21 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.templates:
             template_mtime = int(self.templates.newest_template_mtime() * 10**6)
+            try:
+                old_mtime = _last_modified_time(build_info_fname)
+            except Exception:
+                pass
+            else:
+                # Let users know they have a newer template
+                if template_mtime > old_mtime:
+                    logger.info(
+                        bold("building [html]: ") +
+                        __(
+                            "template %s has been changed since the previous build, "
+                            "all docs will be rebuilt"
+                        ),
+                        self.templates.newest_template_name(),
+                    )
         else:
             template_mtime = 0
         for docname in self.env.found_docs:
