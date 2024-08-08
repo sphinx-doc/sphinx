@@ -114,6 +114,9 @@
     {%- if not embedded %}
     {%- block scripts %}
     {{- script() }}
+    {%- block navigate_to_top_script %}
+    <script src="{{ pathto('_static/navigate_top.js', 1) }}"></script>
+    {%- endblock %}
     {%- endblock %}
     {%- if pageurl %}
     <link rel="canonical" href="{{ pageurl|e }}" />
@@ -213,5 +216,12 @@
     {%- endif %}
     </div>
 {%- endblock %}
+
+{%- block navigate_to_top %}
+<a href="#" id="navigate-to-top" class="hide-navigate-to-top">
+  Navigate to Top
+</a>
+{%- endblock %}
+
   </body>
 </html>

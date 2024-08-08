@@ -11,6 +11,10 @@
 
 /* -- main layout ----------------------------------------------------------- */
 
+html {
+    scroll-behavior: smooth;
+}
+
 div.clearer {
     clear: both;
 }
@@ -110,6 +114,31 @@ div.sphinxsidebar #searchbox input[type="submit"] {
 img {
     border: 0;
     max-width: 100%;
+}
+
+/* -- navigate to top -------------------------------------------------------*/
+#navigate-to-top {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-decoration: none;
+    color: #000;
+    font-size: 14px;
+    padding: 2px 8px;
+    background-color: rgb(239, 239, 239);
+    border: 1px outset #000;
+    border-radius: 2px;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.hide-navigate-to-top {
+    display: none;
+}
+
+.show-navigate-to-top {
+    display: block;
 }
 
 /* -- search page ----------------------------------------------------------- */
