@@ -2,6 +2,7 @@
 
 import pytest
 
+from tests.test_builders.xpath_html_util import _intradocument_hyperlink_check
 from tests.test_builders.xpath_util import check_xpath
 
 
@@ -57,6 +58,7 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
     (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
     (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
     (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+    (".//ul/li[@class='toctree-l1']/..//a", _intradocument_hyperlink_check),
 
     # index.rst
     (".//h1", 'test-tocdepth', True),
@@ -86,6 +88,9 @@ def test_tocdepth(app, cached_etree_parse, fname, path, check, be_found):
     # baz.rst
     (".//h4", 'Baz A', True),
     (".//h4//span[@class='section-number']", '2.1.1. ', True),
+
+    # in the absence of external hyperlinks, all content hrefs should be same-document
+    (".//div[@class='document']//a", _intradocument_hyperlink_check),
 ])
 @pytest.mark.sphinx('singlehtml', testroot='tocdepth')
 @pytest.mark.test_params(shared_result='test_build_html_tocdepth')
