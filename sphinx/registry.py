@@ -55,7 +55,7 @@ EXTENSION_BLACKLIST = {
 class SphinxComponentRegistry:
     def __init__(self) -> None:
         #: special attrgetter for autodoc; class object -> attrgetter
-        self.autodoc_attrgettrs: dict[type, Callable[[Any, str, Any], Any]] = {}
+        self.autodoc_attrgetters: dict[type, Callable[[Any, str, Any], Any]] = {}
 
         #: builders; a dict of builder name -> builder class
         self.builders: dict[str, type[Builder]] = {}
@@ -113,7 +113,7 @@ class SphinxComponentRegistry:
         #: post transforms; list of transforms
         self.post_transforms: list[type[Transform]] = []
 
-        #: source paresrs; file type -> parser class
+        #: source parsers; file type -> parser class
         self.source_parsers: dict[str, type[Parser]] = {}
 
         #: source suffix: suffix -> file type
@@ -377,7 +377,7 @@ class SphinxComponentRegistry:
 
     def add_autodoc_attrgetter(self, typ: type,
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
-        self.autodoc_attrgettrs[typ] = attrgetter
+        self.autodoc_attrgetters[typ] = attrgetter
 
     def add_css_files(self, filename: str, **attributes: Any) -> None:
         self.css_files.append((filename, attributes))
