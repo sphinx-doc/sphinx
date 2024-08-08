@@ -157,7 +157,7 @@ class ReferencesResolver(SphinxPostTransform):
             candidates = ' or '.join(starmap(stringify, results))
             logger.warning(__("more than one target found for 'any' cross-"
                               'reference %r: could be %s'), target, candidates,
-                           location=node)
+                           location=node, type="ref", subtype="any")
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
         # approximately correct.
