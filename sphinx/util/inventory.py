@@ -183,6 +183,8 @@ class InventoryFile:
         def escape(string: str) -> str:
             return re.sub("\\s+", " ", string)
 
+        potential_ambiguities: dict[str, tuple[int, str, str]] = {}
+        actual_ambiguities = set()
         with open(os.path.join(filename), 'wb') as f:
             # header
             f.write(('# Sphinx inventory version 2\n'
@@ -205,7 +207,25 @@ class InventoryFile:
                         uri += '#' + anchor
                     if dispname == name:
                         dispname = '-'
+                    if domainname == 'std' and typ in {'label', 'term'}:
+                        if uri.endswith('$'):
+                            uri = uri[:-1] + name
+                        # Some types require case insensitive matches; see 'Inventory.load_v2'
+                        content = prio, uri, dispname
+                        lowercase_name = name.lower()
+                        if lowercase_name in potential_ambiguities:
+                            if potential_ambiguities[lowercase_name] != content:
+                                actual_ambiguities.add(name)
+                            else:
+                                logger.debug(__("duplicate definitions of %s found"), name,
+                                             type='intersphinx',
+                                             subtype='ambiguous_definitions')
+                        else:
+                            potential_ambiguities[lowercase_name] = content
                     entry = ('%s %s:%s %s %s %s\n' %
                              (name, domainname, typ, prio, uri, dispname))
                     f.write(compressor.compress(entry.encode()))
+            for ambiguity in actual_ambiguities:
+                logger.warning(__("multiple definitions of %s found"), ambiguity,
+                               type='intersphinx', subtype='ambiguous_definitions')
             f.write(compressor.flush())
