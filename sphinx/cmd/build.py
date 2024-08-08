@@ -9,10 +9,11 @@ import locale
 import multiprocessing
 import os
 import pdb  # NoQA: T100
+import re
 import sys
 import traceback
 from os import path
-from typing import TYPE_CHECKING, Any, TextIO
+from typing import IO, TYPE_CHECKING, Any, TextIO
 
 from docutils.utils import SystemMessage
 
@@ -111,9 +112,55 @@ def jobs_argument(value: str) -> int:
             return jobs
 
 
+class ParagraphFormatter(argparse.HelpFormatter):
+    """Wraps help text as a default formatter but keeps paragraps separated."""
+
+    _paragraph_matcher = re.compile(r"\n\n+")
+
+    def _fill_text(self, text: str, width: int, indent: str) -> str:
+        import textwrap
+        result: list[str] = []
+        for p in self._paragraph_matcher.split(text):
+            p = self._whitespace_matcher.sub(' ', p).strip()
+            p = textwrap.fill(p, width,
+                              initial_indent=indent,
+                              subsequent_indent=indent)
+            result.append(p)
+        return '\n\n'.join(result)
+
+
+class ArgParser(argparse.ArgumentParser):
+    """Wraps standard ArgumentParser to add sphinx-specefic flags to help."""
+
+    def __inject_help_entry(self) -> argparse._ArgumentGroup:
+        from gettext import gettext as _
+        # we inject -M flag action to positionals before printing help
+        # so that there is no risk of side effects on actual execution
+        for action_group in self._action_groups:
+            if action_group.title != _('positional arguments'):
+                continue
+            m_flag = argparse.Action(
+                ["-M"], "BUILDER",  # ugly but works
+                help=__('please refer to usage and main help section')
+            )
+            action_group._group_actions.insert(0, m_flag)
+            return action_group
+        err = (
+            "Couldn't find the argument group 'positional arguments' to inject "
+            "-M flag's help info into.")
+        raise TypeError(err)
+
+    def print_help(self, file: IO[str] | None = None) -> None:
+        action_group = self.__inject_help_entry()
+        super().print_help(file)
+        del action_group._group_actions[0]
+
+
 def get_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]',
+    parser = ArgParser(
+        usage=('%(prog)s [OPTIONS] SOURCEDIR OUTPUTDIR [FILENAMES...]\n       '
+               '%(prog)s -M BUILDER SOURCEDIR OUTPUTDIR [OPTIONS]'),
+        formatter_class=ParagraphFormatter,
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Generate documentation from source files.
@@ -122,6 +169,11 @@ sphinx-build generates documentation from the files in SOURCEDIR and places it
 in OUTPUTDIR. It looks for 'conf.py' in SOURCEDIR for the configuration
 settings. The 'sphinx-quickstart' tool may be used to generate template files,
 including 'conf.py'
+
+Use the '-M' option to simultaneously build several formats into the same
+OUTPUTDIR. When specified, this option MUST be the first command-line argument.
+If a finer control over the output is needed, use the '-b/--builder' option
+instead. Note that these modes have a different signature.
 
 sphinx-build can create documentation in different formats. A format is
 selected by specifying the builder name on the command line; it defaults to

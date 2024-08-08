@@ -4,13 +4,19 @@ sphinx-build
 Synopsis
 --------
 
-**sphinx-build** [*options*] <*sourcedir*> <*outputdir*> [*filenames* ...]
+| **sphinx-build** [*options*] <*sourcedir*> <*outputdir*> [*filenames* ...]
+| **sphinx-build** -M <*builder*> <*sourcedir*> <*outputdir*> [*options*]
 
 Description
 -----------
 
 :program:`sphinx-build` generates documentation from the files in
 ``<sourcedir>`` and places it in the ``<outputdir>``.
+
+The available modes are the *build-mode* via :option:`sphinx-build -b` and the
+*make-mode* via :option:`sphinx-build -M`. Note that these modes have a
+different signature. The *make-mode* always requires the ``-M`` argument to
+come first and options to come last.
 
 :program:`sphinx-build` looks for ``<sourcedir>/conf.py`` for the configuration
 settings.  :manpage:`sphinx-quickstart(1)` may be used to generate template
