@@ -651,6 +651,8 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     * ``YYYY-YYYY,``
     * ``YYYY-YYYY ``
 
+    The dash in year ranges may also be figure-dash (U+2012) or en-dash (U+2013).
+
     The final year in the string is replaced with ``replace_year``.
     """
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
@@ -659,7 +661,7 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     if copyright_line[4:5] in {'', ' ', ','}:
         return replace_year + copyright_line[4:]
 
-    if copyright_line[4] != '-':
+    if copyright_line[4] != '-' and copyright_line[4] != '‒' and copyright_line[4] != '–':
         return copyright_line
 
     if copyright_line[5:9].isdigit() and copyright_line[9:10] in {'', ' ', ','}:
