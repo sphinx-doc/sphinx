@@ -713,7 +713,7 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
         assert '  &#169; Copyright 2010-2013, Bob.<br/>\n' in content
         assert '  &#169; Copyright 2014-2017, Charlie.<br/>\n' in content
         assert '  &#169; Copyright 2018-2021, David.<br/>\n' in content
-        assert '  &#169; Copyright 2022-2025, Eve.' in content
+        assert f'  &#169; Copyright 2022-{time.strftime("%Y")}, Eve.' in content
 
         # check the raw copyright footer block (empty lines included)
         assert (
@@ -727,7 +727,7 @@ def test_multi_line_copyright(source_date_year, app, monkeypatch):
             '    \n'
             '      &#169; Copyright 2018-2021, David.<br/>\n'
             '    \n'
-            '      &#169; Copyright 2022-2025, Eve.'
+            f'      &#169; Copyright 2022-{time.strftime("%Y")}, Eve.'
         ) in content
     else:
         # check the copyright footer line by line (empty lines ignored)
@@ -813,3 +813,17 @@ def test_root_doc_and_master_doc_are_synchronized():
     c.root_doc = '1234'
     assert c.master_doc == '1234'
     assert c.root_doc == c.master_doc
+
+
+@pytest.mark.sphinx(testroot='config')
+def test_config_constants(app):
+    # constants
+    assert 'project' in app.config._constants
+    assert 'release' in app.config._constants
+    assert 'templates_path' in app.config._constants
+
+    # dynamic values
+    assert 'copyright' not in app.config._constants
+
+    # non-config constant assignments
+    assert 'unrelated' not in app.config._constants
