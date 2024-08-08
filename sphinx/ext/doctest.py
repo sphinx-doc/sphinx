@@ -322,7 +322,7 @@ class DocTestBuilder(Builder):
         self.outfile.write(text)
 
     def _warn_out(self, text: str) -> None:
-        if self.app.quiet or self.app.warningiserror:
+        if self.app.quiet:
             logger.warning(text)
         else:
             logger.info(text, nonl=True)
