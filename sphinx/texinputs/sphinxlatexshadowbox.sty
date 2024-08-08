@@ -1,21 +1,37 @@
 %% TOPIC AND CONTENTS BOXES
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexshadowbox}[2023/03/19 sphinxShadowBox]
+\ProvidesPackage{sphinxlatexshadowbox}[2024/07/28 v8.1.0 sphinxShadowBox]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
-% - sphinxShadowBox (environment)
+% - Environments: sphinxtopic, sphinxcontents, and sphinxsidebar.
+%
+%   These wrappers replace at 8.1.0 former direct use of sphinxShadowBox
+%   environment which did not allow separate styling.
+%
+% - Commands: \sphinxstyletopictitle, \sphinxstylecontentstitle, and
+%   \sphinxstylesidebartitle.
+%
+%   At 8.1.0 they default to use \sphinxdotitlerow whose definiion is done in
+%   sphinxlatexadmonitions.sty.  There is also  \sphinxstylesidebarsubtitle
+%   which does not use \sphinxdotitlerow.
 %
 % Dependencies (they do not need to be defined at time of loading):
 %
 % - of course the various colour and dimension options handled via sphinx.sty
 % - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
-% - \savenotes/\spewnotes from sphinxpackagefootnote
+% - \savenotes/\spewnotes from sphinxpackagefootnote.sty
 % - \ifspx@inframed defined in sphinx.sty
+% - \sphinxdotitlerow from sphinxlatexadmonitions.sty
+% - \spx@boxes@fcolorbox@setup from sphinxpackageboxes.sty
 %
-% Requires:
 \RequirePackage{framed}
+% Those are required either before or after by sphinx.sty anyhow, but for
+% clarity we list them here:
+\RequirePackage{sphinxlatexgraphics}
+\RequirePackage{sphinxpackagefootnote}
+\RequirePackage{sphinxlatexadmonitions}
 \RequirePackage{sphinxpackageboxes}
 
 % At 5.1.0 the code formerly here in a definition of \spx@ShadowFBox has been
@@ -45,9 +61,28 @@
 %   in contrast with the framing used for literal blocks, also based, but in a
 %   more sophisticated way on usage of \MakeFramed/\endMakeFramed, and
 %   adjusting to current text indentation.
-\newenvironment{sphinxShadowBox}
+%
+% At 8.1.0, sphinxShadowBox takes an optional argument #1 and uses it as
+% \spx@boxes@fcolorbox@setup{#1} rather than \spx@boxes@fcolorbox@setup{topic}.
+% Some hesitation whether to move this line to newly added sphinxtopic,
+% sphinxcontents and sphinxsidebar environmments.  But anyhow the environment
+% also requires later knowing a few more things: sphinx<type>TextColor and
+% spx@<type>@texextras.
+%
+% The #1 defaulting to topic must be such that all parameters expected by
+% \spx@boxes@fcolorbox@setup actually do exist, see CSS options in sphinx.sty
+% which is what defines them for contents, topic, and sidebar.
+%
+% Fortunately the #1 is not needed in \end{sphinxShadowBox} so we don't have
+% to work around a LaTeX conception bug that such #1 can not be used as is in
+% the definition of the \end part of an environment.
+%
+% MEMO: the "shadow" is not really drawn directly by this environment but
+% indirectly via the configuration which is passed over to \spx@boxes@fcolorbox,
+% which is the macro creating frame and (perhaps but not necessarily) a shadow.
+\newenvironment{sphinxShadowBox}[1][topic]%
   {%
-   \spx@boxes@fcolorbox@setup{topic}%
+   \spx@boxes@fcolorbox@setup{#1}%
    % we will use the dimen registers from sphinxpackageboxes.sty which now hold
    % the values from options related to topic/contents
    % MEMO: \spx@boxes@fcolorbox creates an \hbox but does not quit vertical
@@ -56,7 +91,7 @@
    \def\FrameCommand {\spx@boxes@fcolorbox}%
    % 6.2.0 adds support for div.topic_box-decoration-break=slice.
    % (it is yet undecided if slice style should inhibit a bottom shadow)
-   \ifspx@topic@border@open
+   \@nameuse{ifspx@#1@border@open}%
      \def\FirstFrameCommand
                {\spx@boxes@fcolorbox@setup@openbottom\FrameCommand}%
      \def\MidFrameCommand
@@ -97,10 +132,10 @@
     \@setminipage
     }%
     \color@begingroup % workaround upstream framed.sty bug
-    \ifspx@topic@withtextcolor
-      \color{sphinxtopicTextColor}%
+    \@nameuse{ifspx@#1@withtextcolor}%
+      \color{sphinx#1TextColor}%
     \fi
-    \spx@topic@TeXextras
+    \@nameuse{spx@#1@TeXextras}%
   }%
   {% insert the "endminipage" code
     \par\unskip
@@ -112,5 +147,32 @@
    % output the stored footnotes
    \spewnotes
   }
+
+% 8.1.0
+\newenvironment{sphinxtopic}
+               {\begin{sphinxShadowBox}\relax}{\end{sphinxShadowBox}}
+\newenvironment{sphinxcontents}
+               {\begin{sphinxShadowBox}[contents]}{\end{sphinxShadowBox}}
+% Arguably sphinxsidebar should rather use a wrapfig or similar environment
+% but this is so dysfunctional in LaTeX (except for self-written documents)
+% so we prefer to not venture into such a potential quagmire and keep the
+% legacy rendering using a full width display.
+\newenvironment{sphinxsidebar}
+               {\begin{sphinxShadowBox}[sidebar]}{\end{sphinxShadowBox}}
+
+% TODO: decide if this should be in sphinxlatexstyletext.sty rather
+%
+% 8.1.0 styles topic/contents/sidebar with a title row, too.
+% Prior to 8.1.0, definitions use \protected\def but there does not seem
+% to be any reason so back to \newcommand
+\newcommand\sphinxstyletopictitle[1]{\sphinxdotitlerow{topic}{#1}}
+\newcommand\sphinxstylecontentstitle[1]{\sphinxdotitlerow{contents}{#1}}
+\newcommand\sphinxstylesidebartitle[1]{\sphinxdotitlerow{sidebar}{#1}}
+% No default color background for subtitle.  The contents next are injected by
+% LaTeX writer after a blank line in source hence will start a new paragrpah.
+% The \sphinxAtStartPar here is only for coherence with other text paragraphs,
+% but does not have serious necessity (its general role is to allow hyphenation
+% for first word in narrow table cells).
+\newcommand\sphinxstylesidebarsubtitle[1]{\sphinxAtStartPar\textbf{#1}}
 
 \endinput
