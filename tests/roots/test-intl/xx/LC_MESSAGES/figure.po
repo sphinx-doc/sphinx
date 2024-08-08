@@ -40,14 +40,14 @@ msgstr "IMAGE URL AND ALT"
 msgid "img"
 msgstr "IMG -> I18N"
 
-msgid ".. image:: img.png"
-msgstr ".. image:: i18n.png"
+msgid "img.png"
+msgstr "i18n.png"
 
 msgid "i18n"
 msgstr "I18N -> IMG"
 
-msgid ".. image:: i18n.png"
-msgstr ".. image:: img.png"
+msgid "i18n.png"
+msgstr "img.png"
 
 msgid "image on substitution"
 msgstr "IMAGE ON SUBSTITUTION"

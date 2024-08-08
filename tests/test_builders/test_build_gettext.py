@@ -206,11 +206,11 @@ def test_gettext_prolog_epilog_substitution(app):
         "This is content that contains |subst_prolog_1|.",
         "Substituted image |subst_prolog_2| here.",
         "subst_prolog_2",
-        ".. image:: /img.png",
+        "/img.png",
         "This is content that contains |subst_epilog_1|.",
         "Substituted image |subst_epilog_2| here.",
         "subst_epilog_2",
-        ".. image:: /i18n.png",
+        "/i18n.png",
     ]
 
 
@@ -265,4 +265,6 @@ def test_gettext_literalblock_additional(app):
         "function\\n...     sys.stdout.write('hello')  # call write method of "
         "stdout object\\n>>>\\n>>> if __name__ == '__main__':  # if run this py "
         'file as python script\\n...     main()  # call main',
+        'parsed literal',
+        '**this** *is*\\n`parsed literal`_',
     ]

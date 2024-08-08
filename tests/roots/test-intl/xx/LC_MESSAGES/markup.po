@@ -23,3 +23,6 @@ msgstr "I18N WITH STRANGE MARKUP"
 msgid "1. title starting with 1."
 msgstr "1. TITLE STARTING WITH 1."
 
+msgid "A. Einstein was a really smart dude."
+msgstr "A. EINSTEIN WAS A REALLY SMART DUDE."
+

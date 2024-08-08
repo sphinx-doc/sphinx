@@ -267,8 +267,7 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
             if node.get('alt'):
                 yield node, node['alt']
             if node.get('translatable'):
-                image_uri = node.get('original_uri', node['uri'])
-                msg = f'.. image:: {image_uri}'
+                msg = node.get('original_uri', node['uri'])
             else:
                 msg = ''
         elif isinstance(node, nodes.meta):

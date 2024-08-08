@@ -125,3 +125,13 @@ msgstr ""
 ">>> if __name__ == '__main__':  # IF RUN THIS PY FILE AS PYTHON SCRIPT\n"
 "...     main()  # CALL MAIN"
 
+msgid "parsed literal"
+msgstr "PARSED LITERAL"
+
+msgid ""
+"**this** *is*\n"
+"`parsed literal`_"
+msgstr ""
+"**THIS** *IS*\n"
+"`PARSED LITERAL`_"
+

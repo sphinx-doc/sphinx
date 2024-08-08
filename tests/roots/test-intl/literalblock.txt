@@ -69,3 +69,11 @@ doctest blocks
 >>> if __name__ == '__main__':  # if run this py file as python script
 ...     main()  # call main
 
+
+parsed literal
+==============
+
+.. parsed-literal::
+
+   **this** *is*
+   `parsed literal`_

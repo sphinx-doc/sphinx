@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import docutils.parsers
 import docutils.parsers.rst
 from docutils import nodes
-from docutils.parsers.rst import states
+from docutils.parsers.rst import languages, states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
 
@@ -46,6 +46,11 @@ class Parser(docutils.parsers.Parser):
         self.config = app.config
         self.env = app.env
 
+    def parse_inline(self, inputstring: str, document: nodes.document, lineno: int) -> None:
+        """Parse the inline elements of a text block and generate a document tree."""
+        msg = 'Parser subclasses must implement parse_inline'
+        raise NotImplementedError(msg)
+
 
 class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
@@ -59,6 +64,30 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         transforms = super().get_transforms()
         transforms.remove(SmartQuotes)
         return transforms
+
+    def parse_inline(self, inputstring: str, document: nodes.document, lineno: int) -> None:
+        """Parse inline syntax from text and generate a document tree."""
+        # Avoid "Literal block expected; none found." warnings.
+        if inputstring.endswith('::'):
+            inputstring = inputstring[:-1]
+
+        reporter = document.reporter
+        reporter.get_source_and_line = lambda x: (document['source'], x)  # type: ignore[attr-defined]
+        language = languages.get_language(document.settings.language_code, reporter)
+        if self.inliner is None:
+            inliner = states.Inliner()
+        else:
+            inliner = self.inliner
+        inliner.init_customizations(document.settings)
+        memo = states.Struct(
+            document=document,
+            reporter=reporter,
+            language=language,
+        )
+        textnodes, messages = inliner.parse(inputstring, lineno, memo, document)
+        p = nodes.paragraph(inputstring, '', *textnodes)
+        p.source, p.line = document['source'], lineno
+        document += [p, *messages]
 
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
