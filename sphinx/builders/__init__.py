@@ -309,6 +309,21 @@ class Builder:
         First updates the environment, and then calls
         :meth:`!write`.
         """
+        self._build(docnames, summary, method)
+
+    def _build(
+        self,
+        docnames: Iterable[str] | None,
+        summary: str | None = None,
+        method: Literal['all', 'specific', 'update'] = 'update',
+    ) -> None:
+        """Internal build method.
+
+        This should not be overriden by consumers of this library.
+
+        First updates the environment, and then calls
+        :meth:`!write`.
+        """
         if summary:
             logger.info(bold(__('building [%s]: ')) + summary, self.name)
 

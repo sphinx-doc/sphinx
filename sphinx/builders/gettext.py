@@ -257,14 +257,14 @@ class MessageCatalogBuilder(I18nBuilder):
                 msg = f'{template}: {exc!r}'
                 raise ThemeError(msg) from exc
 
-    def build(  # type: ignore[misc]
+    def _build(
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         self._extract_from_template()
-        super().build(docnames, summary, method)
+        super()._build(docnames, summary, method)
 
     def finish(self) -> None:
         super().finish()
