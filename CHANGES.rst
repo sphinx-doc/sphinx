@@ -28,3 +28,7 @@ Bugs fixed
 
 Testing
 -------
+
+* #12141: Migrate from the deprecated ``karma`` JavaScript test framework to
+  the actively-maintained ``jasmine`` framework.  Test coverage is unaffected.
+  Patch by James Addison.
