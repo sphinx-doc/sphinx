@@ -1,7 +1,7 @@
 {
   "name": "sphinx",
   "scripts": {
-    "test": "npx jasmine-browser-runner runSpecs"
+    "test": "npx jasmine-browser-runner runSpecs --config=tests/js/jasmine-browser.mjs"
   },
   "repository": {
     "type": "git",
