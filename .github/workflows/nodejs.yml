@@ -6,7 +6,7 @@ on:
       - ".github/workflows/nodejs.yml"
       - "sphinx/themes/**.js"
       - "tests/js/**"
-      - "karma.conf.js"
+      - "spec/support/jasmine-browser.mjs"
       - "package.json"
       - "package-lock.json"
   pull_request:
@@ -14,7 +14,7 @@ on:
       - ".github/workflows/nodejs.yml"
       - "sphinx/themes/**.js"
       - "tests/js/**"
-      - "karma.conf.js"
+      - "spec/support/jasmine-browser.mjs"
       - "package.json"
       - "package-lock.json"
 
