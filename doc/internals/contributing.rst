@@ -218,8 +218,8 @@ To run JavaScript tests, use :program:`npm`:
 
    :program:`jasmine` requires a Firefox binary to use as a test browser.
 
-   On Unix systems, you can check the presence and location of the `firefox`
-   binary at the command-line by running `command -v firefox`.
+   On Unix systems, you can check the presence and location of the ``firefox``
+   binary at the command-line by running ``command -v firefox``.
 
 New unit tests should be included in the :file:`tests/` directory where necessary:
 
