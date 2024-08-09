@@ -206,6 +206,8 @@ files can be built by specifying individual filenames.
                        help=__('show full traceback on exception'))
     group.add_argument('--pdb', '-P', action='store_true', dest='pdb',
                        help=__('run Pdb on exception'))
+    group.add_argument('--debug-warnings', action='store_true',
+                       help=__('run Pdb on warnings (requires --pdb)'))
 
     return parser
 

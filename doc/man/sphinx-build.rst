@@ -301,6 +301,13 @@ Options
    .. versionchanged:: 7.3
       Add ``--pdb`` long option.
 
+.. option:: --debug-warnings
+
+   (Requires :option:`--pdb`.)
+   Run the Python debugger, :mod:`pdb`, for warnings emitted while building.
+
+   .. versionadded:: 8.1
+
 .. option:: -h, --help, --version
 
    Display usage summary or Sphinx version.

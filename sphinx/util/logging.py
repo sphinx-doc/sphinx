@@ -11,11 +11,13 @@ from typing import IO, TYPE_CHECKING, Any
 from docutils import nodes
 from docutils.utils import get_source_line
 
+from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence, Set
+    from typing import NoReturn
 
     from docutils.nodes import Node
 
@@ -392,6 +394,21 @@ class InfoFilter(logging.Filter):
         return record.levelno < logging.WARNING
 
 
+class _RaiseOnWarningFilter(logging.Filter):
+    """Raise exception if a warning is emitted."""
+
+    def filter(self, record: logging.LogRecord) -> NoReturn:
+        try:
+            message = record.msg % record.args
+        except (TypeError, ValueError):
+            message = record.msg  # use record.msg itself
+        if location := getattr(record, 'location', ''):
+            message = f"{location}:{message}"
+        if record.exc_info is not None:
+            raise SphinxWarning(message) from record.exc_info[1]
+        raise SphinxWarning(message)
+
+
 def is_suppressed_warning(
     warning_type: str, sub_type: str, suppress_warnings: Set[str] | Sequence[str],
 ) -> bool:
@@ -600,6 +617,8 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
     info_handler.setFormatter(ColorizeFormatter())
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
+    if app._debug_warnings:
+        warning_handler.addFilter(_RaiseOnWarningFilter())
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.addFilter(OnceFilter())

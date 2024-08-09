@@ -1,9 +1,11 @@
 import os
 import re
 import sys
+import traceback
 
 import pytest
 
+from sphinx.errors import SphinxError
 from sphinx.util.console import strip_colors
 
 ENV_WARNINGS = """\
@@ -56,6 +58,23 @@ def test_html_warnings(app):
     app.build(force_all=True)
     warnings_exp = HTML_WARNINGS.format(root=re.escape(app.srcdir.as_posix()))
     _check_warnings(warnings_exp, app.warning.getvalue())
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='warnings',
+    freshenv=True,
+    pdb=True,
+    debug_warnings=True,
+)
+def test_html_warnings_pdb(app):
+    try:
+        app.build(force_all=True)
+        pytest.fail('Expected an exception to be raised')
+    except SphinxError:
+        tb = traceback.format_exc()
+        assert 'unindent_warning' in tb
+        assert 'pending_warnings' not in tb
 
 
 @pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
