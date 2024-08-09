@@ -81,7 +81,7 @@ docs = [
 ]
 lint = [
     "flake8>=6.0",
-    "ruff==0.5.5",
+    "ruff==0.5.7",
     "mypy==1.11.1",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
