@@ -216,13 +216,10 @@ To run JavaScript tests, use :program:`npm`:
 
 .. tip::
 
-   :program:`karma` requires a Firefox binary to use as a test browser.
+   :program:`jasmine` requires a Firefox binary to use as a test browser.
 
-   For Unix-based systems, you can specify the path to the Firefox binary using:
-
-   .. code-block:: shell
-
-      FIREFOX_BIN="/Applications/Firefox.app/Contents/MacOS/firefox" npm test
+   On Unix systems, you can check the presence and location of the `firefox`
+   binary at the command-line by running `command -v firefox`.
 
 New unit tests should be included in the :file:`tests/` directory where necessary:
 
