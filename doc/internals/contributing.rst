@@ -174,10 +174,10 @@ Style and type checks can be run as follows:
 Unit tests
 ~~~~~~~~~~
 
-Sphinx is tested using pytest_ for Python code and Karma_ for JavaScript.
+Sphinx is tested using pytest_ for Python code and Jasmine_ for JavaScript.
 
 .. _pytest: https://docs.pytest.org/en/latest/
-.. _Karma: https://karma-runner.github.io
+.. _Jasmine: https://jasmine.github.io/
 
 To run Python unit tests, we recommend using :program:`tox`, which provides a number
 of targets and allows testing against multiple different Python environments:
