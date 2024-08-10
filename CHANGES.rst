@@ -4,6 +4,9 @@ Release 8.1.0 (in development)
 Dependencies
 ------------
 
+* #12756: Add lower-bounds to the ``sphinxcontrib-*`` dependencies.
+  Patch by Adam Turner.
+
 Incompatible changes
 --------------------
 
