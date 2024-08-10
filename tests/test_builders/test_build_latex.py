@@ -1698,7 +1698,7 @@ def test_latex_code_role(app):
         r'\PYG{k}{pass}')
     assert (r'Inline \sphinxcode{\sphinxupquote{%' + '\n' +
             common_content + '%\n}} code block') in content
-    assert (r'\begin{sphinxVerbatim}[commandchars=\\\{\}]' +
+    assert (r'\begin{sphinxVerbatim}[commandchars=\\\{\}]'
             '\n' + common_content + '\n' + r'\end{sphinxVerbatim}') in content
 
 

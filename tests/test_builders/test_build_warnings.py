@@ -45,8 +45,8 @@ def _check_warnings(expected_warnings: str, warning: str) -> None:
     warnings = strip_colors(re.sub(re.escape(os.sep) + '{1,2}', '/', warning))
     assert re.match(f'{expected_warnings}$', warnings), (
         "Warnings don't match:\n"
-        + f'--- Expected (regex):\n{expected_warnings}\n'
-        + f'--- Got:\n{warnings}'
+        f'--- Expected (regex):\n{expected_warnings}\n'
+        f'--- Got:\n{warnings}'
     )
     sys.modules.pop('autodoc_fodder', None)
 

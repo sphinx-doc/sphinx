@@ -234,8 +234,8 @@ def test_no_index_entry(app):
 
 
 def test_module_content_line_number(app):
-    text = (".. js:module:: foo\n" +
-            "\n" +
+    text = (".. js:module:: foo\n"
+            "\n"
             "   Some link here: :ref:`abc`\n")
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))

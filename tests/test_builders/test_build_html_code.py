@@ -41,6 +41,6 @@ def test_html_code_role(app):
         '<span class="k">pass</span>')
     assert ('<p>Inline <code class="code highlight python docutils literal highlight-python">' +
             common_content + '</code> code block</p>') in content
-    assert ('<div class="highlight-python notranslate">' +
+    assert ('<div class="highlight-python notranslate">'
             '<div class="highlight"><pre><span></span>' +
             common_content) in content

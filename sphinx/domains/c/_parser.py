@@ -495,9 +495,11 @@ class DefinitionParser(BaseParser):
                 self.fail("Expected identifier in nested name, "
                           "got keyword: %s" % identifier)
             if self.matched_text in self.config.c_extra_keywords:
-                msg = "Expected identifier, got user-defined keyword: %s." \
-                      + " Remove it from c_extra_keywords to allow it as identifier.\n" \
-                      + "Currently c_extra_keywords is %s."
+                msg = (
+                    'Expected identifier, got user-defined keyword: %s.'
+                    ' Remove it from c_extra_keywords to allow it as identifier.\n'
+                    'Currently c_extra_keywords is %s.'
+                )
                 self.fail(msg % (self.matched_text,
                                  str(self.config.c_extra_keywords)))
             ident = ASTIdentifier(identifier)
@@ -670,9 +672,11 @@ class DefinitionParser(BaseParser):
                     self.fail("Expected identifier, "
                               "got keyword: %s" % self.matched_text)
                 if self.matched_text in self.config.c_extra_keywords:
-                    msg = "Expected identifier, got user-defined keyword: %s." \
-                          + " Remove it from c_extra_keywords to allow it as identifier.\n" \
-                          + "Currently c_extra_keywords is %s."
+                    msg = (
+                        'Expected identifier, got user-defined keyword: %s. '
+                        'Remove it from c_extra_keywords to allow it as identifier.\n'
+                        'Currently c_extra_keywords is %s.'
+                    )
                     self.fail(msg % (self.matched_text,
                                      str(self.config.c_extra_keywords)))
                 identifier = ASTIdentifier(self.matched_text)
