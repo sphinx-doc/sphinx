@@ -16,14 +16,25 @@ from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironmen
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
+from sphinx.util import (
+    UnicodeDecodeErrorHandler,
+    get_filetype,
+    import_object,
+    logging,
+    rst,
+)
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
-from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
+from sphinx.util.parallel import (
+    ParallelTasks,
+    SerialTasks,
+    make_chunks,
+    parallel_available,
+)
 
 # side effect: registers roles and directives
 from sphinx import directives  # NoQA: F401  isort:skip

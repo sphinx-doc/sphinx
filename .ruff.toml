@@ -1,5 +1,5 @@
 target-version = "py310"  # Pin Ruff to Python 3.10
-line-length = 95
+line-length = 88
 output-format = "full"
 
 extend-exclude = [
@@ -426,6 +426,9 @@ select = [
     "T201",  # whitelist ``print`` for stdout messages
     "ANN",  # utilities don't need annotations
 ]
+
+[lint.pycodestyle]
+max-line-length = 95
 
 [lint.flake8-quotes]
 inline-quotes = "single"

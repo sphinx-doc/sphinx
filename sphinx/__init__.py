@@ -16,7 +16,10 @@ if 'PYTHONWARNINGS' not in os.environ:
 
     warnings.filterwarnings('default', category=RemovedInNextVersionWarning)
 warnings.filterwarnings(
-    'ignore', 'The frontend.Option class .*', DeprecationWarning, module='docutils.frontend'
+    'ignore',
+    'The frontend.Option class .*',
+    DeprecationWarning,
+    module='docutils.frontend',
 )
 
 #: Version info for better programmatic use.

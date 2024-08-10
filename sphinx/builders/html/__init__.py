@@ -26,7 +26,11 @@ from docutils.utils import relative_path
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
 from sphinx.builders import Builder
-from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
+from sphinx.builders.html._assets import (
+    _CascadingStyleSheet,
+    _file_checksum,
+    _JavaScript,
+)
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry

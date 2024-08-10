@@ -12,7 +12,12 @@ from typing import TYPE_CHECKING, Any, NoReturn
 
 from sphinx import addnodes
 from sphinx.environment.adapters import toctree as toctree_adapters
-from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
+from sphinx.errors import (
+    BuildEnvironmentError,
+    DocumentError,
+    ExtensionError,
+    SphinxError,
+)
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import DownloadFiles, FilenameUniqDict, logging
