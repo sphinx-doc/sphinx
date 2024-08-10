@@ -14,7 +14,11 @@ from typing import Callable, List, Optional, Union  # NoQA: UP035
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringify_signature
+from sphinx.util.inspect import (
+    TypeAliasForwardRef,
+    TypeAliasNamespace,
+    stringify_signature,
+)
 from sphinx.util.typing import stringify_annotation
 
 

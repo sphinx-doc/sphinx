@@ -4,7 +4,12 @@ from types import SimpleNamespace
 
 from docutils import nodes
 from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
-from docutils.parsers.rst.states import Inliner, RSTState, RSTStateMachine, state_classes
+from docutils.parsers.rst.states import (
+    Inliner,
+    RSTState,
+    RSTStateMachine,
+    state_classes,
+)
 from docutils.statemachine import StringList
 
 from sphinx.util.docutils import SphinxDirective, new_document

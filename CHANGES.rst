@@ -4,6 +4,9 @@ Release 8.1.0 (in development)
 Dependencies
 ------------
 
+* #12756: Add lower-bounds to the ``sphinxcontrib-*`` dependencies.
+  Patch by Adam Turner.
+
 Incompatible changes
 --------------------
 
@@ -32,3 +35,7 @@ Bugs fixed
 
 Testing
 -------
+
+* #12141: Migrate from the deprecated ``karma`` JavaScript test framework to
+  the actively-maintained ``jasmine`` framework.  Test coverage is unaffected.
+  Patch by James Addison.

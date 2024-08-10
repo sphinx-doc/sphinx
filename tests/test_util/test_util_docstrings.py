@@ -1,6 +1,10 @@
 """Test sphinx.util.docstrings."""
 
-from sphinx.util.docstrings import prepare_commentdoc, prepare_docstring, separate_metadata
+from sphinx.util.docstrings import (
+    prepare_commentdoc,
+    prepare_docstring,
+    separate_metadata,
+)
 
 
 def test_separate_metadata():

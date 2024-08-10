@@ -2,7 +2,7 @@ describe('Basic html theme search', function() {
 
   function loadFixture(name) {
       req = new XMLHttpRequest();
-      req.open("GET", `base/tests/js/fixtures/${name}`, false);
+      req.open("GET", `__src__/tests/js/fixtures/${name}`, false);
       req.send(null);
       return req.responseText;
   }
