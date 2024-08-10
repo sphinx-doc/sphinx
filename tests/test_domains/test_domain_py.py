@@ -691,8 +691,8 @@ def test_domain_py_python_maximum_signature_line_length_in_text(app):
 
 
 def test_module_content_line_number(app):
-    text = (".. py:module:: foo\n" +
-            "\n" +
+    text = (".. py:module:: foo\n"
+            "\n"
             "   Some link here: :ref:`abc`\n")
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))

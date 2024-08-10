@@ -55,8 +55,8 @@ def test_object_description_sections(app):
 
 
 def test_object_description_content_line_number(app):
-    text = (".. py:function:: foo(bar)\n" +
-            "\n" +
+    text = (".. py:function:: foo(bar)\n"
+            "\n"
             "   Some link here: :ref:`abc`\n")
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))

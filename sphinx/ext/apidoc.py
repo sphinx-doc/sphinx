@@ -394,7 +394,7 @@ Note: By default this script will not overwrite already created files."""),
         'exclude_pattern',
         nargs='*',
         help=__(
-            'fnmatch-style file and/or directory patterns ' 'to exclude from generation'
+            'fnmatch-style file and/or directory patterns to exclude from generation'
         ),
     )
 
@@ -419,7 +419,7 @@ Note: By default this script will not overwrite already created files."""),
         dest='maxdepth',
         type=int,
         default=4,
-        help=__('maximum depth of submodules to show in the TOC ' '(default: 4)'),
+        help=__('maximum depth of submodules to show in the TOC (default: 4)'),
     )
     parser.add_argument(
         '-f',
@@ -435,8 +435,7 @@ Note: By default this script will not overwrite already created files."""),
         dest='followlinks',
         default=False,
         help=__(
-            'follow symbolic links. Powerful when combined '
-            'with collective.recipe.omelette.'
+            'follow symbolic links. Powerful when combined with collective.recipe.omelette.'
         ),
     )
     parser.add_argument(
@@ -490,15 +489,14 @@ Note: By default this script will not overwrite already created files."""),
         '--module-first',
         action='store_true',
         dest='modulefirst',
-        help=__('put module documentation before submodule ' 'documentation'),
+        help=__('put module documentation before submodule documentation'),
     )
     parser.add_argument(
         '--implicit-namespaces',
         action='store_true',
         dest='implicit_namespaces',
         help=__(
-            'interpret module paths according to PEP-0420 '
-            'implicit namespaces specification'
+            'interpret module paths according to PEP-0420 implicit namespaces specification'
         ),
     )
     parser.add_argument(
@@ -559,7 +557,7 @@ Note: By default this script will not overwrite already created files."""),
         action='store',
         dest='release',
         help=__(
-            'project release, used when --full is given, ' 'defaults to --doc-version'
+            'project release, used when --full is given, defaults to --doc-version'
         ),
     )
 

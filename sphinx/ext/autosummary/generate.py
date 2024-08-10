@@ -803,7 +803,7 @@ The format of the autosummary directive is documented in the
         action='store',
         dest='suffix',
         default='rst',
-        help=__('default suffix for files (default: ' '%(default)s)'),
+        help=__('default suffix for files (default: %(default)s)'),
     )
     parser.add_argument(
         '-t',
@@ -811,7 +811,7 @@ The format of the autosummary directive is documented in the
         action='store',
         dest='templates',
         default=None,
-        help=__('custom template directory (default: ' '%(default)s)'),
+        help=__('custom template directory (default: %(default)s)'),
     )
     parser.add_argument(
         '-i',
@@ -819,7 +819,7 @@ The format of the autosummary directive is documented in the
         action='store_true',
         dest='imported_members',
         default=False,
-        help=__('document imported members (default: ' '%(default)s)'),
+        help=__('document imported members (default: %(default)s)'),
     )
     parser.add_argument(
         '-a',

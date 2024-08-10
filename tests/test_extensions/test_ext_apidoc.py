@@ -322,9 +322,10 @@ def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
         if not (outdir / filename).is_file():
             missing_files.append(filename)
 
-    assert len(missing_files) == 0, \
-        'File(s) referenced in TOC not found: {}\n' \
-        'TOC:\n{}'.format(", ".join(missing_files), toc)
+    all_missing = ', '.join(missing_files)
+    assert len(missing_files) == 0, (
+        f'File(s) referenced in TOC not found: {all_missing}\nTOC:\n{toc}'
+    )
 
 
 @pytest.mark.apidoc(
@@ -352,9 +353,10 @@ def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
         if not (outdir / filename).is_file():
             missing_files.append(filename)
 
-    assert len(missing_files) == 0, \
-        'File(s) referenced in TOC not found: {}\n' \
-        'TOC:\n{}'.format(", ".join(missing_files), toc)
+    all_missing = ', '.join(missing_files)
+    assert len(missing_files) == 0, (
+        f'File(s) referenced in TOC not found: {all_missing}\nTOC:\n{toc}'
+    )
 
 
 def extract_toc(path):

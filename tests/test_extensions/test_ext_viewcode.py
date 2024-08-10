@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 def check_viewcode_output(app: SphinxTestApp) -> str:
     warnings = re.sub(r'\\+', '/', app.warning.getvalue())
     assert re.findall(
-        r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
+        r"index.rst:\d+: WARNING: Object named 'func1' not found in include "
         r"file .*/spam/__init__.py'",
         warnings,
     )
@@ -131,7 +131,7 @@ def test_local_source_files(app):
 
     warnings = re.sub(r'\\+', '/', app.warning.getvalue())
     assert re.findall(
-        r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
+        r"index.rst:\d+: WARNING: Object named 'func1' not found in include "
         r"file .*/not_a_package/__init__.py'",
         warnings,
     )

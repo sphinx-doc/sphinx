@@ -1307,8 +1307,7 @@ def test_xml_label_targets(app):
     assert_elem(
         para3[0],
         ['X', 'bridge label',
-         'IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED ' +
-         'SECTION TITLE.'],
+         'IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED SECTION TITLE.'],
         ['label-bridged-target-section'])
     assert_elem(
         para3[1],

@@ -485,8 +485,8 @@ def test_domain_cpp_ast_function_definitions():
     check('function', 'bool namespaced::theclass::method(arg1, arg2)',
           {1: "namespaced::theclass::method__arg1.arg2",
            2: "N10namespaced8theclass6methodE4arg14arg2"})
-    x = 'std::vector<std::pair<std::string, int>> &module::test(register int ' \
-        'foo, bar, std::string baz = "foobar, blah, bleh") const = 0'
+    x = ('std::vector<std::pair<std::string, int>> &module::test(register int '
+         'foo, bar, std::string baz = "foobar, blah, bleh") const = 0')
     check('function', x, {1: "module::test__i.bar.ssC",
                           2: "NK6module4testEi3barNSt6stringE"})
     check('function', 'void f(std::pair<A, B>)',
@@ -557,8 +557,8 @@ def test_domain_cpp_ast_function_definitions():
     check('function', 'MyClass::pointer MyClass::operator->()',
           {1: "MyClass::pointer-operator", 2: "N7MyClassptEv"})
 
-    x = 'std::vector<std::pair<std::string, int>> &module::test(register int ' \
-        'foo, bar[n], std::string baz = "foobar, blah, bleh") const = 0'
+    x = ('std::vector<std::pair<std::string, int>> &module::test(register int '
+         'foo, bar[n], std::string baz = "foobar, blah, bleh") const = 0')
     check('function', x, {1: "module::test__i.barA.ssC",
                           2: "NK6module4testEiAn_3barNSt6stringE",
                           3: "NK6module4testEiA1n_3barNSt6stringE"})
@@ -920,12 +920,12 @@ def test_domain_cpp_ast_requires_clauses():
     check('function', 'template<typename T> requires A && B || C and D void f()',
           {4: 'I0EIQooaa1A1Baa1C1DE1fvv'})
     check('function',
-          'template<typename T> requires R<T> ' +
-          'template<typename U> requires S<T> ' +
+          'template<typename T> requires R<T> '
+          'template<typename U> requires S<T> '
           'void A<T>::f() requires B',
           {4: 'I0EIQ1RI1TEEI0EIQaa1SI1TE1BEN1A1fEvv'})
     check('function',
-          'template<template<typename T> requires R<T> typename X> ' +
+          'template<template<typename T> requires R<T> typename X> '
           'void f()',
           {2: 'II0EIQ1RI1TEE0E1fv', 4: 'II0EIQ1RI1TEE0E1fvv'})
     check('type',
