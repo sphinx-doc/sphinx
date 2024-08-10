@@ -140,7 +140,14 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install graphviz
     - name: Install uv
-      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      run: > 
+        curl 
+        --location 
+        --fail
+        --proto '=https' --tlsv1.2 
+        --silent --show-error 
+        https://astral.sh/uv/install.sh
+        | sh
     - name: Install dependencies
       run: |
         uv pip install .[test] --resolution lowest-direct
