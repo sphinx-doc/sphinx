@@ -50,11 +50,14 @@ def test_numbered_toctree(app):
     app.build(force_all=True)
 
 
-@pytest.mark.parametrize("expect", [
-    # internal references should be same-document; external should not
-    (".//a[@class='reference internal']", _intradocument_hyperlink_check),
-    (".//a[@class='reference external']", r'https?://'),
-])
+@pytest.mark.parametrize(
+    'expect',
+    [
+        # internal references should be same-document; external should not
+        (".//a[@class='reference internal']", _intradocument_hyperlink_check),
+        (".//a[@class='reference external']", r'https?://'),
+    ],
+)
 @pytest.mark.sphinx('singlehtml', testroot='toctree')
 def test_singlehtml_hyperlinks(app, cached_etree_parse, expect):
     app.build()

@@ -9,11 +9,11 @@ if TYPE_CHECKING:
 
 def _intradocument_hyperlink_check(nodes: Sequence[Element]) -> None:
     """Confirm that a series of nodes are all HTML hyperlinks to the current page"""
-    assert nodes, "Expected at least one node to check"
+    assert nodes, 'Expected at least one node to check'
     for node in nodes:
-        assert node.tag == 'a', 'Same-document hyperlink check attempted on non-anchor element'
+        assert node.tag == 'a', 'Attempted to check hyperlink on a non-anchor element'
         href = node.attrib.get('href')
         # Allow Sphinx index and table hyperlinks to be non-same-document, as exceptions.
         if href in {'genindex.html', 'py-modindex.html', 'search.html'}:
             continue
-        assert (not href or href.startswith('#')), 'Hyperlink failed same-document check'
+        assert not href or href.startswith('#'), 'Hyperlink failed same-document check'
