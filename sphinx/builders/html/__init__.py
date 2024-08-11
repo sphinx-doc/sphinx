@@ -4,13 +4,11 @@ from __future__ import annotations
 
 import contextlib
 import html
-import json
 import os
 import posixpath
 import re
 import shutil
 import sys
-import types
 import warnings
 from os import path
 from pathlib import Path
@@ -72,9 +70,7 @@ if TYPE_CHECKING:
     from docutils.readers import Reader
 
     from sphinx.application import Sphinx
-    from sphinx.config import _ConfigRebuild
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.tags import Tags
     from sphinx.util.typing import ExtensionMetadata
 
 #: the filename for the inventory of objects
@@ -95,32 +91,6 @@ DOMAIN_INDEX_TYPE: TypeAlias = tuple[
 ]
 
 
-def _stable_str(obj: Any) -> str:
-    """Return a stable string representation of a Python data structure.
-
-    We can't just use str(obj) as the order of collections may be random.
-    """
-    return json.dumps(_json_prep(obj), separators=(',', ':'))
-
-
-def _json_prep(obj: Any) -> dict[str, Any] | list[Any] | str:
-    if isinstance(obj, dict):
-        # convert to a sorted dict
-        obj = {_json_prep(k): _json_prep(v) for k, v in obj.items()}
-        obj = {k: obj[k] for k in sorted(obj, key=str)}
-    if isinstance(obj, list | tuple | set | frozenset):
-        # convert to a sorted list
-        obj = sorted(map(_json_prep, obj), key=str)
-    elif isinstance(obj, type | types.FunctionType):
-        # The default repr() of functions includes the ID, which is not ideal.
-        # We use the fully qualified name instead.
-        obj = f'{obj.__module__}.{obj.__qualname__}'
-    else:
-        # we can't do any better, just use the string representation
-        obj = str(obj)
-    return obj
-
-
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
     """Convert a locale string to a language tag (ex. en_US -> en-US).
 
@@ -130,73 +100,6 @@ def convert_locale_to_language_tag(locale: str | None) -> str | None:
         return locale.replace('_', '-')
     else:
         return None
-
-
-class BuildInfo:
-    """buildinfo file manipulator.
-
-    HTMLBuilder and its family are storing their own envdata to ``.buildinfo``.
-    This class is a manipulator for the file.
-    """
-
-    @classmethod
-    def load(cls: type[BuildInfo], filename: Path, /) -> BuildInfo:
-        try:
-            content = filename.read_text(encoding="utf-8")
-        except OSError as exc:
-            msg = __('could not read build info file: %r') % exc
-            raise ValueError(msg) from exc
-        lines = content.splitlines()
-
-        version = lines[0].rstrip()
-        if version == '# Sphinx build info version 1':
-            logger.info(__('ignoring outdated build info file'))
-            return BuildInfo()
-        if version != '# Sphinx build info version 2':
-            msg = __('failed to read broken build info file (unknown version)')
-            raise ValueError(msg)
-
-        if not lines[2].startswith('config: '):
-            msg = __('failed to read broken build info file (missing config entry)')
-            raise ValueError(msg)
-        if not lines[3].startswith('tags: '):
-            msg = __('failed to read broken build info file (missing tags entry)')
-            raise ValueError(msg)
-
-        build_info = BuildInfo()
-        build_info._config_str = lines[2].removeprefix('config: ').strip()
-        build_info._tags_str = lines[3].removeprefix('tags: ').strip()
-        return build_info
-
-    def __init__(
-        self,
-        config: Config | None = None,
-        tags: Tags | None = None,
-        config_categories: Set[_ConfigRebuild] = frozenset(),
-    ) -> None:
-        self._config_str = ''
-        self._tags_str = ''
-
-        if config:
-            values = {c.name: c.value for c in config.filter(config_categories)}
-            self._config_str = _stable_str(values)
-
-        if tags:
-            self._tags_str = _stable_str(sorted(tags))
-
-    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
-        return (self._config_str == other._config_str and
-                self._tags_str == other._tags_str)
-
-    def dump(self, filename: Path, /) -> None:
-        build_info = (
-            '# Sphinx build info version 2\n'
-            '# This file records the configuration used when building these files. '
-            'When it is not found, a full rebuild will be done.\n'
-            f'config: {self._config_str}\n'
-            f'tags: {self._tags_str}\n'
-        )
-        filename.write_text(build_info, encoding="utf-8")
 
 
 class StandaloneHTMLBuilder(Builder):

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
+import json
 import types
 from typing import TYPE_CHECKING
 
@@ -30,7 +30,9 @@ class BuildInfo:
         lines = content.splitlines()
 
         version = lines[0].rstrip()
-        if version != '# Sphinx build info version 1':
+        if version == '# Sphinx build info version 1':
+            return BuildInfo()  # ignore outdated build info file
+        if version != '# Sphinx build info version 2':
             msg = __('failed to read broken build info file (unknown version)')
             raise ValueError(msg)
 
@@ -57,18 +59,18 @@ class BuildInfo:
 
         if config:
             values = {c.name: c.value for c in config.filter(config_categories)}
-            self.config_hash = _stable_hash(values)
+            self.config_hash = _stable_str(values)
 
         if tags:
-            self.tags_hash = _stable_hash(sorted(tags))
+            self.tags_hash = _stable_str(sorted(tags))
 
     def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
-        return (self.config_hash == other.config_hash and
-                self.tags_hash == other.tags_hash)
+        return (self.config_hash == other.config_hash
+                and self.tags_hash == other.tags_hash)
 
     def dump(self, filename: Path, /) -> None:
         build_info = (
-            '# Sphinx build info version 1\n'
+            '# Sphinx build info version 2\n'
             '# This file records the configuration used when building these files. '
             'When it is not found, a full rebuild will be done.\n'
             f'config: {self.config_hash}\n'
@@ -77,18 +79,27 @@ class BuildInfo:
         filename.write_text(build_info, encoding="utf-8")
 
 
-def _stable_hash(obj: Any) -> str:
-    """Return a stable hash for a Python data structure.
+def _stable_str(obj: Any) -> str:
+    """Return a stable string representation of a Python data structure.
 
-    We can't just use the md5 of str(obj) as the order of collections
-    may be random.
+    We can't just use str(obj) as the order of collections may be random.
     """
+    return json.dumps(_json_prep(obj), separators=(',', ':'))
+
+
+def _json_prep(obj: Any) -> dict[str, Any] | list[Any] | str:
     if isinstance(obj, dict):
-        obj = sorted(map(_stable_hash, obj.items()))
+        # convert to a sorted dict
+        obj = {_json_prep(k): _json_prep(v) for k, v in obj.items()}
+        obj = {k: obj[k] for k in sorted(obj, key=str)}
     if isinstance(obj, list | tuple | set | frozenset):
-        obj = sorted(map(_stable_hash, obj))
+        # convert to a sorted list
+        obj = sorted(map(_json_prep, obj), key=str)
     elif isinstance(obj, type | types.FunctionType):
         # The default repr() of functions includes the ID, which is not ideal.
         # We use the fully qualified name instead.
         obj = f'{obj.__module__}.{obj.__qualname__}'
-    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
+    else:
+        # we can't do any better, just use the string representation
+        obj = str(obj)
+    return obj
