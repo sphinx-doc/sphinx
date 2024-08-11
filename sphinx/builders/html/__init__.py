@@ -8,6 +8,7 @@ import html
 import os
 import posixpath
 import re
+import shutil
 import sys
 import types
 import warnings
@@ -129,19 +130,30 @@ class BuildInfo:
     """
 
     @classmethod
-    def load(cls: type[BuildInfo], f: IO[str]) -> BuildInfo:
+    def load(cls: type[BuildInfo], filename: Path, /) -> BuildInfo:
         try:
-            lines = f.readlines()
-            assert lines[0].rstrip() == '# Sphinx build info version 1'
-            assert lines[2].startswith('config: ')
-            assert lines[3].startswith('tags: ')
+            content = filename.read_text(encoding="utf-8")
+        except OSError as exc:
+            msg = __('could not read build info file: %r') % exc
+            raise ValueError(msg) from exc
+        lines = content.splitlines()
 
-            build_info = BuildInfo()
-            build_info.config_hash = lines[2].split()[1].strip()
-            build_info.tags_hash = lines[3].split()[1].strip()
-            return build_info
-        except Exception as exc:
-            raise ValueError(__('build info file is broken: %r') % exc) from exc
+        version = lines[0].rstrip()
+        if version != '# Sphinx build info version 1':
+            msg = __('failed to read broken build info file (unknown version)')
+            raise ValueError(msg)
+
+        if not lines[2].startswith('config: '):
+            msg = __('failed to read broken build info file (missing config entry)')
+            raise ValueError(msg)
+        if not lines[3].startswith('tags: '):
+            msg = __('failed to read broken build info file (missing tags entry)')
+            raise ValueError(msg)
+
+        build_info = BuildInfo()
+        build_info.config_hash = lines[2].removeprefix('config: ').strip()
+        build_info.tags_hash = lines[3].removeprefix('tags: ').strip()
+        return build_info
 
     def __init__(
         self,
@@ -163,13 +175,15 @@ class BuildInfo:
         return (self.config_hash == other.config_hash and
                 self.tags_hash == other.tags_hash)
 
-    def dump(self, f: IO[str]) -> None:
-        f.write('# Sphinx build info version 1\n'
-                '# This file hashes the configuration used when building these files.'
-                ' When it is not found, a full rebuild will be done.\n'
-                'config: %s\n'
-                'tags: %s\n' %
-                (self.config_hash, self.tags_hash))
+    def dump(self, filename: Path, /) -> None:
+        build_info = (
+            '# Sphinx build info version 1\n'
+            '# This file records the configuration used when building these files. '
+            'When it is not found, a full rebuild will be done.\n'
+            f'config: {self.config_hash}\n'
+            f'tags: {self.tags_hash}\n'
+        )
+        filename.write_text(build_info, encoding="utf-8")
 
 
 class StandaloneHTMLBuilder(Builder):
@@ -396,18 +410,25 @@ class StandaloneHTMLBuilder(Builder):
     def get_outdated_docs(self) -> Iterator[str]:
         build_info_fname = self.outdir / '.buildinfo'
         try:
-            with open(build_info_fname, encoding="utf-8") as fp:
-                buildinfo = BuildInfo.load(fp)
-
-            if self.build_info != buildinfo:
-                logger.debug('[build target] did not match: build_info ')
-                yield from self.env.found_docs
-                return
+            build_info = BuildInfo.load(build_info_fname)
         except ValueError as exc:
             logger.warning(__('Failed to read build info file: %r'), exc)
-        except OSError:
-            # ignore errors on reading
-            pass
+        else:
+            if self.build_info != build_info:
+                # log the mismatch and backup the old build info
+                build_info_backup = build_info_fname.with_name('.buildinfo.bak')
+                try:
+                    shutil.move(build_info_fname, build_info_backup)
+                    self.build_info.dump(build_info_fname)
+                except OSError:
+                    pass  # ignore errors
+                else:
+                    # only log on success
+                    msg = __('build_info mismatch, copying .buildinfo to .buildinfo.bak')
+                    logger.info(bold(__('building [html]: ')) + msg)
+
+                yield from self.env.found_docs
+                return
 
         if self.templates:
             template_mtime = int(self.templates.newest_template_mtime() * 10**6)
@@ -943,8 +964,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def write_buildinfo(self) -> None:
         try:
-            with open(path.join(self.outdir, '.buildinfo'), 'w', encoding="utf-8") as fp:
-                self.build_info.dump(fp)
+            self.build_info.dump(self.outdir / '.buildinfo')
         except OSError as exc:
             logger.warning(__('Failed to write build info file: %r'), exc)
 
