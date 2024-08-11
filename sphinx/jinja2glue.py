@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import os
 from os import path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -12,10 +13,10 @@ from jinja2.utils import open_if_exists, pass_context
 
 from sphinx.application import TemplateBridge
 from sphinx.util import logging
-from sphinx.util.osutil import mtimes_of_files
+from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
     from jinja2.environment import Environment
 
@@ -115,7 +116,9 @@ class SphinxFileSystemLoader(FileSystemLoader):
     template names.
     """
 
-    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
+    def get_source(
+        self, environment: Environment, template: str
+    ) -> tuple[str, str, Callable]:
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
@@ -127,11 +130,11 @@ class SphinxFileSystemLoader(FileSystemLoader):
         with f:
             contents = f.read().decode(self.encoding)
 
-        mtime = path.getmtime(filename)
+        mtime = _last_modified_time(filename)
 
         def uptodate() -> bool:
             try:
-                return path.getmtime(filename) == mtime
+                return _last_modified_time(filename) == mtime
             except OSError:
                 return False
 
@@ -203,11 +206,25 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:
-        return max(mtimes_of_files(self.pathchain, '.html'))
+        return self._newest_template_mtime_name()[0]
+
+    def newest_template_name(self) -> str:
+        return self._newest_template_mtime_name()[1]
+
+    def _newest_template_mtime_name(self) -> tuple[float, str]:
+        return max(
+            (os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9, sfile)
+            for dirname in self.pathchain
+            for root, _dirs, files in os.walk(dirname)
+            for sfile in files
+            if sfile.endswith('.html')
+        )
 
     # Loader interface
 
-    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
+    def get_source(
+        self, environment: Environment, template: str
+    ) -> tuple[str, str, Callable]:
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

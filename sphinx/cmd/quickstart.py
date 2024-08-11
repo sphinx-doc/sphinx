@@ -8,7 +8,7 @@ import os
 import sys
 import time
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 # try to import readline, unix specific enhancement
 try:
@@ -36,7 +36,7 @@ from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
 EXTENSIONS = {
     'autodoc': __('automatically insert docstrings from modules'),
@@ -326,7 +326,10 @@ def ask_user(d: dict[str, Any]) -> None:
 
 
 def generate(
-    d: dict, overwrite: bool = True, silent: bool = False, templatedir: str | None = None,
+    d: dict[str, Any],
+    overwrite: bool = True,
+    silent: bool = False,
+    templatedir: str | None = None,
 ) -> None:
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir or '')
@@ -389,15 +392,8 @@ def generate(
     else:
         write_file(masterfile, template.render('quickstart/root_doc.rst.jinja', d))
 
-    if d.get('make_mode'):
-        makefile_template = 'quickstart/Makefile.new.jinja'
-        batchfile_template = 'quickstart/make.bat.new.jinja'
-    else:
-        # xref RemovedInSphinx80Warning
-        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
-        print(colorize('red', msg))
-        makefile_template = 'quickstart/Makefile.jinja'
-        batchfile_template = 'quickstart/make.bat.jinja'
+    makefile_template = 'quickstart/Makefile.new.jinja'
+    batchfile_template = 'quickstart/make.bat.new.jinja'
 
     if d['makefile'] is True:
         d['rsrcdir'] = 'source' if d['sep'] else '.'
@@ -428,13 +424,9 @@ def generate(
     print(__('where "builder" is one of the supported builders, '
              'e.g. html, latex or linkcheck.'))
     print()
-    if not d.get('make_mode'):
-        # xref RemovedInSphinx80Warning
-        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
-        print(colorize('red', msg))
 
 
-def valid_dir(d: dict) -> bool:
+def valid_dir(d: dict[str, Any]) -> bool:
     dir = d['path']
     if not path.exists(dir):
         return True
@@ -527,12 +519,10 @@ def get_parser() -> argparse.ArgumentParser:
     group.add_argument('--no-batchfile', action='store_false',
                        dest='batchfile',
                        help=__('do not create batchfile'))
+    # --use-make-mode is a no-op from Sphinx 8.
     group.add_argument('-m', '--use-make-mode', action='store_true',
                        dest='make_mode', default=True,
                        help=__('use make-mode for Makefile/make.bat'))
-    group.add_argument('-M', '--no-use-make-mode', action='store_false',
-                       dest='make_mode',
-                       help=__('do not use make-mode for Makefile/make.bat'))
 
     group = parser.add_argument_group(__('Project templating'))
     group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',

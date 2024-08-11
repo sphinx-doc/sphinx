@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ManualPageWriter(Writer):
+class ManualPageWriter(Writer):  # type: ignore[misc]
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
@@ -70,7 +70,7 @@ class NestedInlineTransform:
                     node.parent.remove(node)
 
 
-class ManualPageTranslator(SphinxTranslator, BaseTranslator):
+class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     """
     Custom man page translator.
     """

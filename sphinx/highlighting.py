@@ -6,6 +6,7 @@ from functools import partial
 from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
+import pygments
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
@@ -30,6 +31,11 @@ if TYPE_CHECKING:
     from pygments.lexer import Lexer
     from pygments.style import Style
 
+if tuple(map(int, pygments.__version__.split('.')))[:2] < (2, 18):
+    from pygments.formatter import Formatter  # NoQA: F811
+
+    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
+
 logger = logging.getLogger(__name__)
 
 lexers: dict[str, Lexer] = {}
@@ -42,7 +48,11 @@ lexer_classes: dict[str, type[Lexer] | partial[Lexer]] = {
 }
 
 
-escape_hl_chars = {ord('\\'): '\\PYGZbs{}', ord('{'): '\\PYGZob{}', ord('}'): '\\PYGZcb{}'}
+escape_hl_chars = {
+    ord('\\'): '\\PYGZbs{}',
+    ord('{'): '\\PYGZob{}',
+    ord('}'): '\\PYGZcb{}',
+}
 
 # used if Pygments is available
 # MEMO: no use of \protected here to avoid having to do hyperref extras,
@@ -86,11 +96,14 @@ _LATEX_ADD_STYLES = r"""
 class PygmentsBridge:
     # Set these attributes if you want to have different Pygments formatters
     # than the default ones.
-    html_formatter = HtmlFormatter
-    latex_formatter = LatexFormatter
+    html_formatter = HtmlFormatter[str]
+    latex_formatter = LatexFormatter[str]
 
     def __init__(
-        self, dest: str = 'html', stylename: str = 'sphinx', latex_engine: str | None = None
+        self,
+        dest: str = 'html',
+        stylename: str = 'sphinx',
+        latex_engine: str | None = None,
     ) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
@@ -98,7 +111,7 @@ class PygmentsBridge:
         style = self.get_style(stylename)
         self.formatter_args: dict[str, Any] = {'style': style}
         if dest == 'html':
-            self.formatter = self.html_formatter
+            self.formatter: type[Formatter[str]] = self.html_formatter
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'

@@ -487,7 +487,7 @@ class IndexBuilder:
         self._index_entries[docname] = sorted(_index_entries)
 
     def _word_collector(self, doctree: nodes.document) -> WordStore:
-        def _visit_nodes(node):
+        def _visit_nodes(node: nodes.Node) -> None:
             if isinstance(node, nodes.comment):
                 return
             elif isinstance(node, nodes.raw):

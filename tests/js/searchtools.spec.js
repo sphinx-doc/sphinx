@@ -2,7 +2,7 @@ describe('Basic html theme search', function() {
 
   function loadFixture(name) {
       req = new XMLHttpRequest();
-      req.open("GET", `base/tests/js/fixtures/${name}`, false);
+      req.open("GET", `__src__/tests/js/fixtures/${name}`, false);
       req.send(null);
       return req.responseText;
   }
@@ -31,8 +31,6 @@ describe('Basic html theme search', function() {
       eval(loadFixture("cpp/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('C++');
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
 
       hits = [[
         "index",
@@ -42,15 +40,13 @@ describe('Basic html theme search', function() {
         5,
         "index.rst"
       ]];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
     it('should be able to search for multiple terms', function() {
       eval(loadFixture("multiterm/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('main page');
-      terms = Search._index.terms;
-      titleterms = Search._index.titleterms;
       hits = [[
         'index',
         'Main Page',
@@ -58,13 +54,29 @@ describe('Basic html theme search', function() {
         null,
         15,
         'index.rst']];
-      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
     it('should partially-match "sphinx" when in title index', function() {
       eval(loadFixture("partial/searchindex.js"));
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('sphinx');
+
+      hits = [[
+        "index",
+        "sphinx_utils module",
+        "",
+        null,
+        7,
+        "index.rst"
+      ]];
+      expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
+    });
+
+    it('should partially-match within "possible" when in term index', function() {
+      eval(loadFixture("partial/searchindex.js"));
+
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('ossibl');
       terms = Search._index.terms;
       titleterms = Search._index.titleterms;
 
@@ -73,7 +85,7 @@ describe('Basic html theme search', function() {
         "sphinx_utils module",
         "",
         null,
-        7,
+        2,
         "index.rst"
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
@@ -142,6 +154,34 @@ describe('Basic html theme search', function() {
       ];
 
       searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a title match above a standard index entry match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* title */
+        ['index', 'Main Page', '#index-1'],  /* index entry */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a priority index entry match above a title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['index', 'Main Page', '#index-0'],  /* index entry */
+        ['index', 'Main Page > Result Scoring', '#result-scoring'],  /* title */
+      ];
+
+      searchParameters = Search._parseQuery('scoring');
       results = Search._performSearch(...searchParameters);
 
       checkRanking(expectedRanking, results);

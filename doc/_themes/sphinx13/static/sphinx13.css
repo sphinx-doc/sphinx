@@ -62,17 +62,14 @@ body {
     text-decoration: none;
 }
 
-.pageheader .brand a {
-    width: 2em;
-}
-
 .pageheader .brand img {
+    width: 2em;
     filter: invert(1) drop-shadow(1px 1px 2px black);
 }
 
-.pageheader .brand h1 {
+.pageheader .brand span {
     color: white;
-    margin: 0;
+    margin-left: 0.4em;
     font-weight: 400;
     font-size: 2em;
     line-height: 1;
@@ -216,6 +213,16 @@ div.sphinxsidebar li.current > a {
 
 div.sphinxsidebar #searchbox {
     margin: 12px 0 20px 0;
+}
+
+div.sphinxsidebar #searchbox input[type="text"] {
+    border-radius: var(--admonition-radius) 0 0 var(--admonition-radius);
+}
+
+div.sphinxsidebar #searchbox input[type="submit"] {
+    border-radius: 0 var(--admonition-radius) var(--admonition-radius) 0;
+  color: white;
+    background: var(--colour-sphinx-blue);
 }
 
 div.footer {
@@ -683,4 +690,8 @@ div.sphinx-feature > p.admonition-title::before {
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
+}
+
+.sphinx-users-logos .headerlink {
+    display: none;
 }

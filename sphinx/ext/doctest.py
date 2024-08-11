@@ -11,7 +11,7 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any, Callable, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -27,7 +27,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Callable, Iterable, Sequence
 
     from docutils.nodes import Element, Node, TextElement
 
@@ -373,7 +373,7 @@ Doctest summary
         try:
             filename = relpath(node.source, self.env.srcdir).rsplit(':docstring of ', maxsplit=1)[0]  # type: ignore[arg-type]  # noqa: E501
         except Exception:
-            filename = self.env.doc2path(docname, False)
+            filename = str(self.env.doc2path(docname, False))
         return filename
 
     @staticmethod
@@ -420,12 +420,12 @@ Doctest summary
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node: Node) -> bool:
-                return (isinstance(node, (nodes.literal_block, nodes.comment)) and
+                return (isinstance(node, nodes.literal_block | nodes.comment) and
                         'testnodetype' in node) or \
                     isinstance(node, nodes.doctest_block)
         else:
             def condition(node: Node) -> bool:
-                return isinstance(node, (nodes.literal_block, nodes.comment)) \
+                return isinstance(node, nodes.literal_block | nodes.comment) \
                     and 'testnodetype' in node
         for node in doctree.findall(condition):
             if self.skipped(node):  # type: ignore[arg-type]

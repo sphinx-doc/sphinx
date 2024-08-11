@@ -12,19 +12,20 @@ from sphinx.util.cfamily import (
     ASTAttributeList,
     ASTBaseBase,
     ASTBaseParenExprList,
-    StringifyTransform,
     UnsupportedMultiCharacterCharLiteral,
     verify_description_mode,
 )
 
 if TYPE_CHECKING:
+    from typing import TypeAlias
 
     from docutils.nodes import Element, Node, TextElement
 
     from sphinx.domains.c._symbol import Symbol
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.cfamily import StringifyTransform
 
-DeclarationType = Union[
+DeclarationType: TypeAlias = Union[  # NoQA: UP007
     "ASTStruct", "ASTUnion", "ASTEnum", "ASTEnumerator",
     "ASTType", "ASTTypeWithInit", "ASTMacro",
 ]

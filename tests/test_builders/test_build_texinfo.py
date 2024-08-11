@@ -15,13 +15,15 @@ from sphinx.writers.texinfo import TexinfoTranslator
 
 
 @pytest.mark.sphinx('texinfo')
-def test_texinfo(app, status, warning):
+def test_texinfo(app):
     TexinfoTranslator.ignore_missing_images = True
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
-    assert ('@anchor{markup doc}@anchor{11}'
-            '@anchor{markup id1}@anchor{12}'
-            '@anchor{markup testing-various-markup}@anchor{13}' in result)
+    assert (
+        '@anchor{markup doc}@anchor{11}'
+        '@anchor{markup id1}@anchor{12}'
+        '@anchor{markup testing-various-markup}@anchor{13}'
+    ) in result
     assert 'Footnotes' not in result
     # now, try to run makeinfo over it
     try:
@@ -37,7 +39,7 @@ def test_texinfo(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-rubric')
-def test_texinfo_rubric(app, status, warning):
+def test_texinfo_rubric(app):
     app.build()
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
@@ -47,31 +49,41 @@ def test_texinfo_rubric(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='markup-citation')
-def test_texinfo_citation(app, status, warning):
+def test_texinfo_citation(app):
     app.build(force_all=True)
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
     assert 'This is a citation ref; @ref{1,,[CITE1]} and @ref{2,,[CITE2]}.' in output
-    assert ('@anchor{index cite1}@anchor{1}@w{(CITE1)} \n'
-            'This is a citation\n') in output
-    assert ('@anchor{index cite2}@anchor{2}@w{(CITE2)} \n'
-            'This is a multiline citation\n') in output
+    assert (
+        '@anchor{index cite1}@anchor{1}@w{(CITE1)} \nThis is a citation\n'
+    ) in output
+    assert (
+        '@anchor{index cite2}@anchor{2}@w{(CITE2)} \nThis is a multiline citation\n'
+    ) in output
 
 
 def test_default_texinfo_documents():
-    config = Config({'project': 'STASI™ Documentation',
-                     'author': "Wolfgang Schäuble & G'Beckstein"})
-    expected = [('index', 'stasi', 'STASI™ Documentation',
-                 "Wolfgang Schäuble & G'Beckstein", 'stasi',
-                 'One line description of project', 'Miscellaneous')]
+    config = Config({
+        'project': 'STASI™ Documentation',
+        'author': "Wolfgang Schäuble & G'Beckstein",
+    })
+    expected = [
+        (
+            'index',
+            'stasi',
+            'STASI™ Documentation',
+            "Wolfgang Schäuble & G'Beckstein",
+            'stasi',
+            'One line description of project',
+            'Miscellaneous',
+        )
+    ]
     assert default_texinfo_documents(config) == expected
 
 
 @pytest.mark.sphinx('texinfo')
-def test_texinfo_escape_id(app, status, warning):
-    settings = Mock(title='',
-                    texinfo_dir_entry='',
-                    texinfo_elements={})
+def test_texinfo_escape_id(app):
+    settings = Mock(title='', texinfo_dir_entry='', texinfo_elements={})
     document = new_document('', settings)
     translator = app.builder.create_translator(document, app.builder)
 
@@ -85,7 +97,7 @@ def test_texinfo_escape_id(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='footnotes')
-def test_texinfo_footnote(app, status, warning):
+def test_texinfo_footnote(app):
     app.build(force_all=True)
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
@@ -93,7 +105,7 @@ def test_texinfo_footnote(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo')
-def test_texinfo_xrefs(app, status, warning):
+def test_texinfo_xrefs(app):
     app.build(force_all=True)
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert re.search(r'@ref{\w+,,--plugin\.option}', output)
@@ -103,11 +115,13 @@ def test_texinfo_xrefs(app, status, warning):
     app.build(force_all=True)
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
-    assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output
+    assert (
+        'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j'
+    ) in output
 
 
 @pytest.mark.sphinx('texinfo', testroot='root')
-def test_texinfo_samp_with_variable(app, status, warning):
+def test_texinfo_samp_with_variable(app):
     app.build()
 
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
@@ -118,7 +132,7 @@ def test_texinfo_samp_with_variable(app, status, warning):
 
 
 @pytest.mark.sphinx('texinfo', testroot='images')
-def test_copy_images(app, status, warning):
+def test_copy_images(app):
     app.build()
 
     images_dir = Path(app.outdir) / 'projectnamenotset-figures'
@@ -129,4 +143,4 @@ def test_copy_images(app, status, warning):
         'img.png',
         'rimg.png',
         'testimäge.png',
-    }
+    }  # fmt: skip

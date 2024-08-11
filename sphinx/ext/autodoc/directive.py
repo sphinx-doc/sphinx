@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.statemachine import StringList
@@ -31,14 +32,14 @@ AUTODOC_EXTENDABLE_OPTIONS = ['members', 'private-members', 'special-members',
                               'exclude-members']
 
 
-class DummyOptionSpec(dict):
+class DummyOptionSpec(dict[str, Callable[[str], str]]):
     """An option_spec allows any options."""
 
     def __bool__(self) -> bool:
         """Behaves like some options are defined."""
         return True
 
-    def __getitem__(self, key: str) -> Callable[[str], str]:
+    def __getitem__(self, _key: str) -> Callable[[str], str]:
         return lambda x: x
 
 
@@ -56,8 +57,9 @@ class DocumenterBridge:
         self.state = state
 
 
-def process_documenter_options(documenter: type[Documenter], config: Config, options: dict,
-                               ) -> Options:
+def process_documenter_options(
+    documenter: type[Documenter], config: Config, options: dict[str, str],
+) -> Options:
     """Recognize options of Documenter from user input."""
     default_options = config.autodoc_default_options
     for name in AUTODOC_DEFAULT_OPTIONS:
