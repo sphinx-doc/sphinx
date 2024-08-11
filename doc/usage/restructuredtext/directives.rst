@@ -119,35 +119,53 @@ The ``toctree`` directive is the central element.
 
    .. rubric:: options
 
-   .. rst:directive:option:: caption
-      :type: text
-
-      Add a caption of the toctree.
-
-      .. versionadded:: 1.3
-
-   .. rst:directive:option:: name: label
-      :type: text
-
-      A label name that can be referenced using :rst:role:`ref`.
-      This is a :dudir:`common option <common-options>`.
-
-      .. versionadded:: 1.3
-
    .. rst:directive:option:: class: class names
-      :type: a list of class names separated by spaces
+      :type: a list of class names, separated by spaces
 
       Assign `class attributes`_.
       This is a :dudir:`common option <common-options>`.
+      For example::
+
+          .. toctree::
+             :class: custom-toc
 
       .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
 
       .. versionadded:: 7.4
 
-   .. rst:directive:option:: numbered
+   .. rst:directive:option:: name: label
+      :type: text
 
-      If you want to have section numbers even in HTML output, add the ``:numbered:``
-      option to the *top-level* toctree.  For example::
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
+      For example::
+
+          .. toctree::
+             :name: mastertoc
+
+             foo
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: caption
+      :type: text
+
+      Add a caption to the toctree.
+      For example::
+
+          .. toctree::
+             :caption: Table of Contents
+
+              foo
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: numbered
+                             numbered: depth
+
+      If you want to have section numbers even in HTML output,
+      add the ``:numbered:`` option to the *top-level* toctree.
+      For example::
 
          .. toctree::
             :numbered:
@@ -155,66 +173,76 @@ The ``toctree`` directive is the central element.
             foo
             bar
 
-      Numbering then starts at the heading of ``foo``.  Sub-toctrees are
-      automatically numbered (don't give the ``numbered`` flag to those).
+      Section numbering then starts at the heading of ``foo``.
+      Sub-toctrees are automatically numbered
+      (don't give the ``numbered`` flag to those).
 
-      Numbering up to a specific depth is also possible, by giving the depth as a
-      numeric argument to ``numbered``.
+      Numbering up to a specific depth is also possible,
+      by giving the depth as a numeric argument to ``numbered``.
 
       .. versionadded:: 0.6
 
       .. versionchanged:: 1.1
-         Added numeric argument to "numbered".
+         Added the numeric *depth* argument.
 
    .. rst:directive:option:: titlesonly
 
-      Only list the titles of the documents, not other headings of the same
-      level.
+      Only list document titles, not other headings of the same level.
+      For example::
+
+          .. toctree::
+             :titlesonly:
+
+             foo
+             bar
 
       .. versionadded:: 1.0
 
    .. rst:directive:option:: glob
 
-      Parse glob wildcards in toctree entries. All entries are matched against
-      the list of available documents, and matches are inserted into the list
-      alphabetically.  Example::
+      Parse glob wildcards in toctree entries.
+      All entries are matched against the list of available documents,
+      and matches are inserted into the list alphabetically.
+      For example::
 
-         .. toctree::
-            :glob:
+          .. toctree::
+             :glob:
 
-            intro*
-            recipe/*
-            *
+             intro*
+             recipe/*
+             *
 
-      This includes first all documents whose names start with ``intro``, then all
-      documents in the ``recipe`` folder, then all remaining documents (except the
-      one containing the directive, of course.) [#]_
+      This includes first all documents whose names start with ``intro``,
+      then all documents in the ``recipe`` folder, then all remaining documents
+      (except the one containing the directive, of course.) [#]_
 
       .. versionadded:: 0.3
 
    .. rst:directive:option:: reversed
 
-      Reverse the order of the entries in the list. This is particularly useful when
-      using the ``:glob:`` option.
+      Reverse the order of the entries in the list.
+      This is particularly useful when using the ``:glob:`` option.
+
+      .. versionadded:: 1.5
 
    .. rst:directive:option:: hidden
 
-      A hidden toctree only defines the document hierarchy. It will not insert links
-      into the document at the location of the directive.
+      A hidden toctree only defines the document hierarchy.
+      It will not insert links into the document at the location of the directive.
 
-      This makes sense if you have other means of navigation, e.g. through
-      manual links, HTML sidebar navigation, or use the ``:includehidden:`` option
-      on the top-level toctree.
+      This makes sense if you have other means of navigation,
+      e.g. through manual links, HTML sidebar navigation,
+      or if you use the ``:includehidden:`` option on the top-level toctree.
 
       .. versionadded:: 0.6
 
    .. rst:directive:option:: includehidden
 
-      If you want one global table of contents showing the complete document
-      structure, you can add the ``:includehidden:`` option to the *top-level*
-      toctree entry. All other toctrees on child pages can then be made invisible
-      using the ``:hidden:`` option. The top-level toctree with ``:includehidden:``
-      will then include their entries.
+      If you want one global table of contents showing the complete document structure,
+      you can add the ``:includehidden:`` option to the *top-level* toctree directive.
+      All other toctrees on child pages can then be made invisible
+      with the ``:hidden:`` option.
+      The top-level toctree with ``:includehidden:`` will then include their entries.
 
       .. versionadded:: 1.2
 
