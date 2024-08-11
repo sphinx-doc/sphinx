@@ -7,6 +7,7 @@ import time
 from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
@@ -35,6 +36,8 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
+
+DEFAULT_TEMPLATE_PATH = Path(package_dir, 'templates', 'gettext')
 
 logger = logging.getLogger(__name__)
 
@@ -95,11 +98,10 @@ class GettextRenderer(SphinxRenderer):
             outdir: str | os.PathLike[str] | None = None,
     ) -> None:
         self.outdir = outdir
-        default_template_path: str = path.join(package_dir, 'templates', 'gettext')
-        template_dirs: list[str | os.PathLike[str]] = [default_template_path]
-        if template_path is not None:
-            template_dirs = [*list(template_path), default_template_path]
-        super().__init__(template_dirs)
+        if template_path is None:
+            super().__init__([DEFAULT_TEMPLATE_PATH])
+        else:
+            super().__init__([*template_path, DEFAULT_TEMPLATE_PATH])
 
         def escape(s: str) -> str:
             s = s.replace('\\', r'\\')
@@ -289,10 +291,12 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            template_path = [path.join(self.app.srcdir, rel_path)
-                             for rel_path in self.config.templates_path]
-            content = GettextRenderer(template_path,
-                                      outdir=self.outdir).render('message.pot.jinja', context)
+            template_path = [
+                self.app.srcdir / rel_path
+                for rel_path in self.config.templates_path
+            ]
+            renderer = GettextRenderer(template_path, outdir=self.outdir)
+            content = renderer.render('message.pot.jinja', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):
