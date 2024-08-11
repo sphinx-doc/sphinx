@@ -22,6 +22,16 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.FilenameUniqDict``
+     - 8.1
+     - 10.0
+     - N/A
+
+   * - ``sphinx.util.DownloadFiles``
+     - 8.1
+     - 10.0
+     - N/A
+
    * - ``sphinx.util.import_object``
      - 8.1
      - 10.0
