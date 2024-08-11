@@ -42,7 +42,7 @@ Bugs fixed
 * #12587: Do not warn when potential ambiguity detected during Intersphinx
   resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
-* #12639: :py:meth:`.Builder.write` is typed as ``final``, meaning that the
+* #12767: :py:meth:`.Builder.write` is typed as ``final``, meaning that the
   :event:`write-started` event may be relied upon by extensions.
   A new :py:meth:`.Builder.write_documents` method has been added to
   control how documents are written.
