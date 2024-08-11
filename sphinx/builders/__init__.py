@@ -19,10 +19,10 @@ from sphinx.locale import __
 from sphinx.util import (
     UnicodeDecodeErrorHandler,
     get_filetype,
-    import_object,
     logging,
     rst,
 )
+from sphinx.util._importer import import_object
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
@@ -139,8 +139,11 @@ class Builder:
     def create_template_bridge(self) -> None:
         """Return the template bridge configured."""
         if self.config.template_bridge:
-            self.templates = import_object(self.config.template_bridge,
-                                           'template_bridge setting')()
+            template_bridge_cls = import_object(
+                self.config.template_bridge,
+                source='template_bridge setting'
+            )
+            self.templates = template_bridge_cls()
         else:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()

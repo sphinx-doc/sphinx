@@ -3,17 +3,16 @@
 from __future__ import annotations
 
 import contextlib
-import hashlib
 import html
 import os
 import posixpath
 import re
+import shutil
 import sys
-import types
 import warnings
 from os import path
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -31,6 +30,7 @@ from sphinx.builders.html._assets import (
     _file_checksum,
     _JavaScript,
 )
+from sphinx.builders.html._build_info import BuildInfo
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
@@ -63,16 +63,14 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Set
+    from collections.abc import Iterable, Iterator
     from typing import TypeAlias
 
     from docutils.nodes import Node
     from docutils.readers import Reader
 
     from sphinx.application import Sphinx
-    from sphinx.config import _ConfigRebuild
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.tags import Tags
     from sphinx.util.typing import ExtensionMetadata
 
 #: the filename for the inventory of objects
@@ -93,23 +91,6 @@ DOMAIN_INDEX_TYPE: TypeAlias = tuple[
 ]
 
 
-def _stable_hash(obj: Any) -> str:
-    """Return a stable hash for a Python data structure.
-
-    We can't just use the md5 of str(obj) as the order of collections
-    may be random.
-    """
-    if isinstance(obj, dict):
-        obj = sorted(map(_stable_hash, obj.items()))
-    if isinstance(obj, list | tuple | set | frozenset):
-        obj = sorted(map(_stable_hash, obj))
-    elif isinstance(obj, type | types.FunctionType):
-        # The default repr() of functions includes the ID, which is not ideal.
-        # We use the fully qualified name instead.
-        obj = f'{obj.__module__}.{obj.__qualname__}'
-    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
-
-
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
     """Convert a locale string to a language tag (ex. en_US -> en-US).
 
@@ -119,57 +100,6 @@ def convert_locale_to_language_tag(locale: str | None) -> str | None:
         return locale.replace('_', '-')
     else:
         return None
-
-
-class BuildInfo:
-    """buildinfo file manipulator.
-
-    HTMLBuilder and its family are storing their own envdata to ``.buildinfo``.
-    This class is a manipulator for the file.
-    """
-
-    @classmethod
-    def load(cls: type[BuildInfo], f: IO[str]) -> BuildInfo:
-        try:
-            lines = f.readlines()
-            assert lines[0].rstrip() == '# Sphinx build info version 1'
-            assert lines[2].startswith('config: ')
-            assert lines[3].startswith('tags: ')
-
-            build_info = BuildInfo()
-            build_info.config_hash = lines[2].split()[1].strip()
-            build_info.tags_hash = lines[3].split()[1].strip()
-            return build_info
-        except Exception as exc:
-            raise ValueError(__('build info file is broken: %r') % exc) from exc
-
-    def __init__(
-        self,
-        config: Config | None = None,
-        tags: Tags | None = None,
-        config_categories: Set[_ConfigRebuild] = frozenset(),
-    ) -> None:
-        self.config_hash = ''
-        self.tags_hash = ''
-
-        if config:
-            values = {c.name: c.value for c in config.filter(config_categories)}
-            self.config_hash = _stable_hash(values)
-
-        if tags:
-            self.tags_hash = _stable_hash(sorted(tags))
-
-    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
-        return (self.config_hash == other.config_hash and
-                self.tags_hash == other.tags_hash)
-
-    def dump(self, f: IO[str]) -> None:
-        f.write('# Sphinx build info version 1\n'
-                '# This file hashes the configuration used when building these files.'
-                ' When it is not found, a full rebuild will be done.\n'
-                'config: %s\n'
-                'tags: %s\n' %
-                (self.config_hash, self.tags_hash))
 
 
 class StandaloneHTMLBuilder(Builder):
@@ -396,18 +326,28 @@ class StandaloneHTMLBuilder(Builder):
     def get_outdated_docs(self) -> Iterator[str]:
         build_info_fname = self.outdir / '.buildinfo'
         try:
-            with open(build_info_fname, encoding="utf-8") as fp:
-                buildinfo = BuildInfo.load(fp)
-
-            if self.build_info != buildinfo:
-                logger.debug('[build target] did not match: build_info ')
-                yield from self.env.found_docs
-                return
+            build_info = BuildInfo.load(build_info_fname)
         except ValueError as exc:
             logger.warning(__('Failed to read build info file: %r'), exc)
         except OSError:
             # ignore errors on reading
             pass
+        else:
+            if self.build_info != build_info:
+                # log the mismatch and backup the old build info
+                build_info_backup = build_info_fname.with_name('.buildinfo.bak')
+                try:
+                    shutil.move(build_info_fname, build_info_backup)
+                    self.build_info.dump(build_info_fname)
+                except OSError:
+                    pass  # ignore errors
+                else:
+                    # only log on success
+                    msg = __('build_info mismatch, copying .buildinfo to .buildinfo.bak')
+                    logger.info(bold(__('building [html]: ')) + msg)
+
+                yield from self.env.found_docs
+                return
 
         if self.templates:
             template_mtime = int(self.templates.newest_template_mtime() * 10**6)
@@ -908,7 +848,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_static_files(self) -> None:
         try:
-            with progress_message(__('copying static files')):
+            with progress_message(__('copying static files'), nonl=False):
                 ensuredir(self.outdir / '_static')
 
                 # prepare context for templates
@@ -929,7 +869,7 @@ class StandaloneHTMLBuilder(Builder):
     def copy_extra_files(self) -> None:
         """Copy html_extra_path files."""
         try:
-            with progress_message(__('copying extra files')):
+            with progress_message(__('copying extra files'), nonl=False):
                 excluded = Matcher(self.config.exclude_patterns)
                 for extra_path in self.config.html_extra_path:
                     copy_asset(
@@ -943,8 +883,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def write_buildinfo(self) -> None:
         try:
-            with open(path.join(self.outdir, '.buildinfo'), 'w', encoding="utf-8") as fp:
-                self.build_info.dump(fp)
+            self.build_info.dump(self.outdir / '.buildinfo')
         except OSError as exc:
             logger.warning(__('Failed to write build info file: %r'), exc)
 

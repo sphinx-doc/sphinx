@@ -10,11 +10,26 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #12763: Remove unused internal class ``sphinx.util.Tee``.
+  Patch by Adam Turner.
+
 Deprecated
 ----------
 
+* #12762: Deprecate ``sphinx.util.import_object``.
+  Use :py:func:`importlib.import_module` instead.
+  Patch by Adam Turner.
+* #12766: Deprecate ``sphinx.util.FilenameUniqDict``
+  and ``sphinx.util.DownloadFiles``.
+  Patch by Adam Turner.
+
 Features added
 --------------
+
+* #11328: Mention evaluation of templated content during production of static
+  output files.
+* #12474: Support type-dependent search result highlighting via CSS.
+  Patch by Tim Hoffmann.
 
 Bugs fixed
 ----------
@@ -26,12 +41,23 @@ Bugs fixed
 * #12514: intersphinx: fix the meaning of a negative value for
   :confval:`intersphinx_cache_limit`.
   Patch by Shengyu Zhang.
-
 * #12730: The ``UnreferencedFootnotesDetector`` transform has been improved
   to more consistently detect unreferenced footnotes.
   Note, the priority of the transform has been changed from 200 to 622,
   so that it now runs after the docutils ``Footnotes`` resolution transform.
   Patch by Chris Sewell.
+* #12587: Do not warn when potential ambiguity detected during Intersphinx
+  resolution occurs due to duplicate targets that differ case-insensitively.
+  Patch by James Addison.
+* #12639: Fix singular and plural search results text.
+  Patch by Hugo van Kemenade.
+* #12645: Correctly support custom gettext output templates.
+  Patch by Jeremy Bowman.
+* #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
+  :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
+  get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
+  (silent) apply as well to the PDF build phase.
+  Patch by Jean-François B.
 
 Testing
 -------

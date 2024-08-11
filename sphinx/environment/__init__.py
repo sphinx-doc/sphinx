@@ -20,7 +20,8 @@ from sphinx.errors import (
 )
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import DownloadFiles, FilenameUniqDict, logging
+from sphinx.util import logging
+from sphinx.util._files import DownloadFiles, FilenameUniqDict
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
