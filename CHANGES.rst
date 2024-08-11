@@ -28,6 +28,8 @@ Features added
 
 * #11328: Mention evaluation of templated content during production of static
   output files.
+* #12474: Support type-dependent search result highlighting via CSS.
+  Patch by Tim Hoffmann.
 
 Bugs fixed
 ----------
