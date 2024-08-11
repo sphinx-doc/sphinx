@@ -27,10 +27,6 @@ digraph build {
     "Builder.build_update":p1 -> "Builder.build";
 
     "Builder.build" -> "Builder.read";
-    "Builder.write" [
-        shape=record
-        label = "<p1> Builder.write | Builder._write_serial | Builder._write_parallel"
-    ];
     "Builder.build" -> "Builder.write";
     "Builder.build" -> "Builder.finish";
 
@@ -39,8 +35,13 @@ digraph build {
 
     "Builder.write":p1 -> "Builder.prepare_writing";
     "Builder.write":p1 -> "Builder.copy_assets";
-    "Builder.write":p1 -> "Builder.write_doc";
+    "Builder.write_documents" [
+        shape=record
+        label = "<p1> Builder.write_documents | Builder._write_serial | Builder._write_parallel"
+    ];
+    "Builder.write":p1 -> "Builder.write_documents";
 
+    "Builder.write_documents":p1 -> "Builder.write_doc";
     "Builder.write_doc" -> "Builder.get_relative_uri";
 
     "Builder.get_relative_uri" -> "Builder.get_target_uri";

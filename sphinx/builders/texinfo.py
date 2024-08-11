@@ -25,7 +25,7 @@ from sphinx.util.osutil import SEP, copyfile, ensuredir, make_filename_from_proj
 from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Set
 
     from docutils.nodes import Node
 
@@ -70,7 +70,7 @@ class TexinfoBuilder(Builder):
         # ignore source path
         return self.get_target_uri(to, typ)
 
-    def init_document_data(self) -> None:
+    def prepare_writing(self, _docnames: Set[str]) -> None:
         preliminary_document_data = [list(x) for x in self.config.texinfo_documents]
         if not preliminary_document_data:
             logger.warning(__('no "texinfo_documents" config value found; no documents '
@@ -89,9 +89,7 @@ class TexinfoBuilder(Builder):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
-    def write(self, *ignored: Any) -> None:
-        self.init_document_data()
-        self.copy_assets()
+    def write_documents(self, _docnames: Set[str]) -> None:
         for entry in self.document_data:
             docname, targetname, title, author = entry[:4]
             targetname += '.texi'

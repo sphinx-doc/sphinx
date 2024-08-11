@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import html
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from sphinx import package_dir
 from sphinx.builders import Builder
@@ -17,6 +17,8 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -47,7 +49,7 @@ class ChangesBuilder(Builder):
         'versionremoved': 'removed',
     }
 
-    def write(self, *ignored: Any) -> None:
+    def write_documents(self, _docnames: Set[str]) -> None:
         version = self.config.version
         domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
         libchanges: dict[str, list[tuple[str, str, int]]] = {}

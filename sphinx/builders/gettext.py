@@ -149,9 +149,6 @@ class I18nBuilder(Builder):
     def get_outdated_docs(self) -> set[str]:
         return self.env.found_docs
 
-    def prepare_writing(self, docnames: set[str]) -> None:
-        return
-
     def compile_catalogs(self, catalogs: set[CatalogInfo], message: str) -> None:
         return
 

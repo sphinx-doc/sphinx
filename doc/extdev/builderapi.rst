@@ -39,20 +39,21 @@ Builder API
    .. automethod:: read
    .. automethod:: read_doc
    .. automethod:: write_doctree
+   .. automethod:: write
 
    .. rubric:: Overridable Methods
 
    These must be implemented in builder sub-classes:
 
    .. automethod:: get_outdated_docs
-   .. automethod:: prepare_writing
    .. automethod:: write_doc
    .. automethod:: get_target_uri
 
    These methods can be overridden in builder sub-classes:
 
    .. automethod:: init
-   .. automethod:: write
+   .. automethod:: write_documents
+   .. automethod:: prepare_writing
    .. automethod:: copy_assets
    .. automethod:: get_relative_uri
    .. automethod:: finish
