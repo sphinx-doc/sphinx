@@ -174,10 +174,10 @@ Style and type checks can be run as follows:
 Unit tests
 ~~~~~~~~~~
 
-Sphinx is tested using pytest_ for Python code and Karma_ for JavaScript.
+Sphinx is tested using pytest_ for Python code and Jasmine_ for JavaScript.
 
 .. _pytest: https://docs.pytest.org/en/latest/
-.. _Karma: https://karma-runner.github.io
+.. _Jasmine: https://jasmine.github.io/
 
 To run Python unit tests, we recommend using :program:`tox`, which provides a number
 of targets and allows testing against multiple different Python environments:
@@ -216,13 +216,10 @@ To run JavaScript tests, use :program:`npm`:
 
 .. tip::
 
-   :program:`karma` requires a Firefox binary to use as a test browser.
+   :program:`jasmine` requires a Firefox binary to use as a test browser.
 
-   For Unix-based systems, you can specify the path to the Firefox binary using:
-
-   .. code-block:: shell
-
-      FIREFOX_BIN="/Applications/Firefox.app/Contents/MacOS/firefox" npm test
+   On Unix systems, you can check the presence and location of the ``firefox``
+   binary at the command-line by running ``command -v firefox``.
 
 New unit tests should be included in the :file:`tests/` directory where necessary:
 

@@ -84,7 +84,10 @@ class EventManager:
                     listeners.remove(listener)
 
     def emit(
-        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+        self,
+        name: str,
+        *args: Any,
+        allowed_exceptions: tuple[type[Exception], ...] = (),
     ) -> list:
         """Emit a Sphinx event."""
         # not every object likes to be repr()'d (think
@@ -120,7 +123,10 @@ class EventManager:
         return results
 
     def emit_firstresult(
-        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+        self,
+        name: str,
+        *args: Any,
+        allowed_exceptions: tuple[type[Exception], ...] = (),
     ) -> Any:
         """Emit a Sphinx event and returns first result.
 
