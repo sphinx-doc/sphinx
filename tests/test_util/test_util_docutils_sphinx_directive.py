@@ -15,12 +15,16 @@ from docutils.statemachine import StringList
 from sphinx.util.docutils import SphinxDirective, new_document
 
 
-def make_directive(*, env: SimpleNamespace, input_lines: StringList | None = None) -> SphinxDirective:
+def make_directive(
+    *, env: SimpleNamespace, input_lines: StringList | None = None
+) -> SphinxDirective:
     _, directive = make_directive_and_state(env=env, input_lines=input_lines)
     return directive
 
 
-def make_directive_and_state(*, env: SimpleNamespace, input_lines: StringList | None = None) -> tuple[RSTState, SphinxDirective]:
+def make_directive_and_state(
+    *, env: SimpleNamespace, input_lines: StringList | None = None
+) -> tuple[RSTState, SphinxDirective]:
     sm = RSTStateMachine(state_classes, initial_state='Body')
     sm.reporter = object()
     if input_lines is not None:

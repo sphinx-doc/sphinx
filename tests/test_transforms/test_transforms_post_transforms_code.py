@@ -15,8 +15,11 @@ def test_trim_doctest_flags_html(app):
     assert 'GRAULT' in result
 
 
-@pytest.mark.sphinx('html', testroot='trim_doctest_flags',
-                    confoverrides={'trim_doctest_flags': False})
+@pytest.mark.sphinx(
+    'html',
+    testroot='trim_doctest_flags',
+    confoverrides={'trim_doctest_flags': False},
+)
 def test_trim_doctest_flags_disabled(app):
     app.build()
 

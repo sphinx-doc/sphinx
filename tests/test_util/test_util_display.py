@@ -35,36 +35,38 @@ def test_status_iterator_length_0(app):
 
 @pytest.mark.sphinx('dummy')
 def test_status_iterator_verbosity_0(app, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
+    monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
     # test for status_iterator (verbosity=0)
     app.status.seek(0)
     app.status.truncate(0)
-    yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
-                                  length=3, verbosity=0))
+    yields = status_iterator(
+        ['hello', 'sphinx', 'world'], 'testing ... ', length=3, verbosity=0
+    )
+    assert list(yields) == ['hello', 'sphinx', 'world']
     output = strip_colors(app.status.getvalue())
     assert 'testing ... [ 33%] hello\r' in output
     assert 'testing ... [ 67%] sphinx\r' in output
     assert 'testing ... [100%] world\r\n' in output
-    assert yields == ['hello', 'sphinx', 'world']
 
 
 @pytest.mark.sphinx('dummy')
 def test_status_iterator_verbosity_1(app, monkeypatch):
-    monkeypatch.setenv("FORCE_COLOR", "1")
+    monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
 
     # test for status_iterator (verbosity=1)
     app.status.seek(0)
     app.status.truncate(0)
-    yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
-                                  length=3, verbosity=1))
+    yields = status_iterator(
+        ['hello', 'sphinx', 'world'], 'testing ... ', length=3, verbosity=1
+    )
+    assert list(yields) == ['hello', 'sphinx', 'world']
     output = strip_colors(app.status.getvalue())
     assert 'testing ... [ 33%] hello\n' in output
     assert 'testing ... [ 67%] sphinx\n' in output
     assert 'testing ... [100%] world\n\n' in output
-    assert yields == ['hello', 'sphinx', 'world']
 
 
 def test_progress_message(app):

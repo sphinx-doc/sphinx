@@ -31,8 +31,11 @@ def test_all(app):
     assert 'Footnotes' not in content
 
 
-@pytest.mark.sphinx('man', testroot='basic',
-                    confoverrides={'man_pages': [('index', 'title', None, [], 1)]})
+@pytest.mark.sphinx(
+    'man',
+    testroot='basic',
+    confoverrides={'man_pages': [('index', 'title', None, [], 1)]},
+)
 def test_man_pages_empty_description(app):
     app.build(force_all=True)
 
@@ -40,8 +43,11 @@ def test_man_pages_empty_description(app):
     assert r'title \-' not in content
 
 
-@pytest.mark.sphinx('man', testroot='basic',
-                    confoverrides={'man_make_section_directory': True})
+@pytest.mark.sphinx(
+    'man',
+    testroot='basic',
+    confoverrides={'man_make_section_directory': True},
+)
 def test_man_make_section_directory(app):
     app.build()
     assert (app.outdir / 'man1' / 'projectnamenotset.1').exists()
@@ -89,11 +95,20 @@ end
 
 
 def test_default_man_pages():
-    config = Config({'project': 'STASI™ Documentation',
-                     'author': "Wolfgang Schäuble & G'Beckstein",
-                     'release': '1.0'})
-    expected = [('index', 'stasi', 'STASI™ Documentation 1.0',
-                 ["Wolfgang Schäuble & G'Beckstein"], 1)]
+    config = Config({
+        'project': 'STASI™ Documentation',
+        'author': "Wolfgang Schäuble & G'Beckstein",
+        'release': '1.0',
+    })
+    expected = [
+        (
+            'index',
+            'stasi',
+            'STASI™ Documentation 1.0',
+            ["Wolfgang Schäuble & G'Beckstein"],
+            1,
+        )
+    ]
     assert default_man_pages(config) == expected
 
 
