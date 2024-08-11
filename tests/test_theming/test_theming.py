@@ -103,13 +103,19 @@ def test_double_inheriting_theme(app):
     app.build()  # => not raises TemplateNotFound
 
 
-@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'child'})
+@pytest.mark.sphinx(
+    testroot='theming',
+    confoverrides={'html_theme': 'child'},
+)
 def test_nested_zipped_theme(app):
     assert app.builder.theme.name == 'child'
     app.build()  # => not raises TemplateNotFound
 
 
-@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'staticfiles'})
+@pytest.mark.sphinx(
+    testroot='theming',
+    confoverrides={'html_theme': 'staticfiles'},
+)
 def test_staticfiles(app):
     app.build()
     assert (app.outdir / '_static' / 'legacytmpl.html').exists()
@@ -127,7 +133,10 @@ def test_staticfiles(app):
     assert '<meta name="testopt" content="optdefault" />' in result
 
 
-@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'test-theme'})
+@pytest.mark.sphinx(
+    testroot='theming',
+    confoverrides={'html_theme': 'test-theme'},
+)
 def test_dark_style(app, monkeypatch):
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 
@@ -149,7 +158,9 @@ def test_dark_style(app, monkeypatch):
     ]
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
+    assert (
+        '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />'
+    ) in result
     assert (
         '<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
         'rel="stylesheet" type="text/css" '

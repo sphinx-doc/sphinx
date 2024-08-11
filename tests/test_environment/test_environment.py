@@ -1,4 +1,5 @@
 """Test the BuildEnvironment class."""
+
 import os
 import shutil
 from pathlib import Path
@@ -7,7 +8,12 @@ import pytest
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
-from sphinx.environment import CONFIG_CHANGED, CONFIG_EXTENSIONS_CHANGED, CONFIG_NEW, CONFIG_OK
+from sphinx.environment import (
+    CONFIG_CHANGED,
+    CONFIG_EXTENSIONS_CHANGED,
+    CONFIG_NEW,
+    CONFIG_OK,
+)
 
 
 @pytest.mark.sphinx('dummy', testroot='basic')
@@ -24,7 +30,7 @@ def test_config_status(make_app, app_params):
     app2 = make_app(*args, **kwargs)
     assert app2.env.config_status == CONFIG_OK
     app2.build()
-    assert "0 added, 0 changed, 0 removed" in app2._status.getvalue()
+    assert '0 added, 0 changed, 0 removed' in app2._status.getvalue()
 
     # incremental build (config entry changed)
     app3 = make_app(*args, confoverrides={'root_doc': 'indexx'}, **kwargs)
@@ -37,7 +43,9 @@ def test_config_status(make_app, app_params):
     assert "[config changed ('master_doc')] 1 added" in app3._status.getvalue()
 
     # incremental build (extension changed)
-    app4 = make_app(*args, confoverrides={'extensions': ['sphinx.ext.autodoc']}, **kwargs)
+    app4 = make_app(
+        *args, confoverrides={'extensions': ['sphinx.ext.autodoc']}, **kwargs
+    )
     assert app4.env.config_status == CONFIG_EXTENSIONS_CHANGED
     app4.build()
     want_str = "[extensions changed ('sphinx.ext.autodoc')] 1 added"
@@ -53,20 +61,40 @@ def test_images(app):
     htmlbuilder.init()
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
-    assert set(htmlbuilder.images.keys()) == \
-        {'subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg', 'img.foo.png'}
-    assert set(htmlbuilder.images.values()) == \
-        {'img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'}
+    assert set(htmlbuilder.images.keys()) == {
+        'subdir/img.png',
+        'img.png',
+        'subdir/simg.png',
+        'svgimg.svg',
+        'img.foo.png',
+    }
+    assert set(htmlbuilder.images.values()) == {
+        'img.png',
+        'img1.png',
+        'simg.png',
+        'svgimg.svg',
+        'img.foo.png',
+    }
 
     latexbuilder = LaTeXBuilder(app, app.env)
     latexbuilder.init()
     latexbuilder.post_process_images(tree)
-    assert set(latexbuilder.images.keys()) == \
-        {'subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
-         'svgimg.pdf', 'img.foo.png'}
-    assert set(latexbuilder.images.values()) == \
-        {'img.pdf', 'img.png', 'img1.png', 'simg.png',
-         'svgimg.pdf', 'img.foo.png'}
+    assert set(latexbuilder.images.keys()) == {
+        'subdir/img.png',
+        'subdir/simg.png',
+        'img.png',
+        'img.pdf',
+        'svgimg.pdf',
+        'img.foo.png',
+    }
+    assert set(latexbuilder.images.values()) == {
+        'img.pdf',
+        'img.png',
+        'img1.png',
+        'simg.png',
+        'svgimg.pdf',
+        'img.foo.png',
+    }
 
 
 @pytest.mark.sphinx('dummy')
@@ -75,7 +103,12 @@ def test_object_inventory(app):
     refs = app.env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs
-    assert refs['func_without_module'] == ('objects', 'func_without_module', 'function', False)
+    assert refs['func_without_module'] == (
+        'objects',
+        'func_without_module',
+        'function',
+        False,
+    )
     assert 'func_without_module2' in refs
     assert 'mod.func_in_module' in refs
     assert 'mod.Cls' in refs
@@ -89,8 +122,13 @@ def test_object_inventory(app):
     assert 'func_in_module' not in refs
     assert 'func_noindex' not in refs
 
-    assert app.env.domaindata['py']['modules']['mod'] == \
-        ('objects', 'module-mod', 'Module synopsis.', 'UNIX', False)
+    assert app.env.domaindata['py']['modules']['mod'] == (
+        'objects',
+        'module-mod',
+        'Module synopsis.',
+        'UNIX',
+        False,
+    )
 
     assert app.env.domains['py'].data is app.env.domaindata['py']
     assert app.env.domains['c'].data is app.env.domaindata['c']

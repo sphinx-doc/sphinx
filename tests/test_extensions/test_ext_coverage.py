@@ -11,28 +11,30 @@ def test_build(app):
 
     py_undoc = (app.outdir / 'python.txt').read_text(encoding='utf8')
     assert py_undoc.startswith(
-        'Undocumented Python objects\n'
-        '===========================\n',
+        'Undocumented Python objects\n===========================\n',
     )
     assert 'autodoc_target\n--------------\n' in py_undoc
     assert ' * Class -- missing methods:\n' in py_undoc
     assert ' * raises\n' in py_undoc
-    assert ' * function\n' not in py_undoc  # these two are documented
-    assert ' * Class\n' not in py_undoc     # in autodoc.txt
+    # these two are documented in autodoc.txt
+    assert ' * function\n' not in py_undoc
+    assert ' * Class\n' not in py_undoc
 
-    assert " * mod -- No module named 'mod'" in py_undoc  # in the "failed import" section
+    # in the "failed import" section
+    assert " * mod -- No module named 'mod'" in py_undoc
 
-    assert "undocumented  py" not in app.status.getvalue()
+    assert 'undocumented  py' not in app.status.getvalue()
 
     c_undoc = (app.outdir / 'c.txt').read_text(encoding='utf8')
     assert c_undoc.startswith(
-        'Undocumented C API elements\n'
-        '===========================\n',
+        'Undocumented C API elements\n===========================\n',
     )
     assert 'api.h' in c_undoc
     assert ' * Py_SphinxTest' in c_undoc
 
-    undoc_py, undoc_c, py_undocumented, py_documented = pickle.loads((app.outdir / 'undoc.pickle').read_bytes())
+    undoc_py, undoc_c, py_undocumented, py_documented = pickle.loads(
+        (app.outdir / 'undoc.pickle').read_bytes()
+    )
     assert len(undoc_c) == 1
     # the key is the full path to the header file, which isn't testable
     assert list(undoc_c.values())[0] == {('function', 'Py_SphinxTest')}
@@ -44,14 +46,14 @@ def test_build(app):
     assert 'Class' in undoc_py['autodoc_target']['classes']
     assert 'undocmeth' in undoc_py['autodoc_target']['classes']['Class']
 
-    assert "undocumented  c" not in app.status.getvalue()
+    assert 'undocumented  c' not in app.status.getvalue()
 
 
 @pytest.mark.sphinx('coverage', testroot='ext-coverage')
 def test_coverage_ignore_pyobjects(app):
     app.build(force_all=True)
     actual = (app.outdir / 'python.txt').read_text(encoding='utf8')
-    expected = '''\
+    expected = """\
 Undocumented Python objects
 ===========================
 
@@ -86,7 +88,7 @@ Classes:
    - not_ignored2
  * NotIgnored
 
-'''
+"""
     assert actual == expected
 
 
@@ -94,13 +96,13 @@ Classes:
 def test_show_missing_items(app):
     app.build(force_all=True)
 
-    assert "undocumented" in app.status.getvalue()
+    assert 'undocumented' in app.status.getvalue()
 
-    assert "py  function  raises" in app.status.getvalue()
-    assert "py  class     Base" in app.status.getvalue()
-    assert "py  method    Class.roger" in app.status.getvalue()
+    assert 'py  function  raises' in app.status.getvalue()
+    assert 'py  class     Base' in app.status.getvalue()
+    assert 'py  method    Class.roger' in app.status.getvalue()
 
-    assert "c   api       Py_SphinxTest [ function]" in app.status.getvalue()
+    assert 'c   api       Py_SphinxTest [ function]' in app.status.getvalue()
 
 
 @pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
@@ -108,8 +110,12 @@ def test_show_missing_items_quiet(app):
     app.quiet = True
     app.build(force_all=True)
 
-    assert "undocumented python function: autodoc_target :: raises" in app.warning.getvalue()
-    assert "undocumented python class: autodoc_target :: Base" in app.warning.getvalue()
-    assert "undocumented python method: autodoc_target :: Class :: roger" in app.warning.getvalue()
+    assert (
+        'undocumented python function: autodoc_target :: raises'
+    ) in app.warning.getvalue()
+    assert 'undocumented python class: autodoc_target :: Base' in app.warning.getvalue()
+    assert (
+        'undocumented python method: autodoc_target :: Class :: roger'
+    ) in app.warning.getvalue()
 
-    assert "undocumented c api: Py_SphinxTest [function]" in app.warning.getvalue()
+    assert 'undocumented c api: Py_SphinxTest [function]' in app.warning.getvalue()

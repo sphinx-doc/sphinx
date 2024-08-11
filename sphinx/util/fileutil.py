@@ -81,6 +81,9 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
 
         destination = _template_basename(destination) or destination
         with open(destination, 'w', encoding='utf-8') as fdst:
+            msg = __('Writing evaluated template result to %s')
+            logger.info(msg, os.fsdecode(destination), type='misc',
+                        subtype='template_evaluation')
             fdst.write(rendered_template)
     else:
         copyfile(source, destination, force=force)
