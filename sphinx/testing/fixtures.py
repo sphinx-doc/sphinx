@@ -7,6 +7,7 @@ import subprocess
 import sys
 from collections import namedtuple
 from io import StringIO
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -42,7 +43,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 @pytest.fixture(scope='session')
-def rootdir() -> str | None:
+def rootdir() -> Path | None:
     return None
 
 
@@ -74,7 +75,7 @@ def app_params(
     test_params: dict[str, Any],
     shared_result: SharedResult,
     sphinx_test_tempdir: str,
-    rootdir: str,
+    rootdir: Path,
 ) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
