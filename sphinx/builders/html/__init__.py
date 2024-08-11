@@ -14,7 +14,7 @@ import types
 import warnings
 from os import path
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -32,6 +32,7 @@ from sphinx.builders.html._assets import (
     _file_checksum,
     _JavaScript,
 )
+from sphinx.builders.html._build_info import BuildInfo
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
@@ -64,7 +65,7 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Set
+    from collections.abc import Iterable, Iterator
     from typing import TypeAlias
 
     from docutils.nodes import Node
@@ -425,20 +426,25 @@ class StandaloneHTMLBuilder(Builder):
             build_info = BuildInfo.load(build_info_fname)
         except ValueError as exc:
             logger.warning(__('Failed to read build info file: %r'), exc)
+        except OSError:
+            # ignore errors on reading
+            pass
         else:
             if self.build_info != build_info:
-                logger.info(
-                    bold(__("building [html]: ")) +
-                    __("build_info mismatch, copying .buildinfo to .buildinfo.old")
-                )
+                # log the mismatch and backup the old build info
+                build_info_backup = build_info_fname.with_name('.buildinfo.bak')
                 try:
-                    shutil.move(build_info_fname, build_info_fname + ".old")
+                    shutil.move(build_info_fname, build_info_backup)
                     self.build_info.dump(build_info_fname)
                 except OSError:
-                    pass  # ignore errors on reading
+                    pass  # ignore errors
                 else:
-                    yield from self.env.found_docs
-                    return
+                    # only log on success
+                    msg = __('build_info mismatch, copying .buildinfo to .buildinfo.bak')
+                    logger.info(bold(__('building [html]: ')) + msg)
+
+                yield from self.env.found_docs
+                return
 
         if self.templates:
             template_mtime = int(self.templates.newest_template_mtime() * 10**6)
