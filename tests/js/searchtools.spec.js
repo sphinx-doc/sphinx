@@ -159,6 +159,34 @@ describe('Basic html theme search', function() {
       checkRanking(expectedRanking, results);
     });
 
+    it('should score a title match above a standard index entry match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* title */
+        ['index', 'Main Page', '#index-1'],  /* index entry */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a priority index entry match above a title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['index', 'Main Page', '#index-0'],  /* index entry */
+        ['index', 'Main Page > Result Scoring', '#result-scoring'],  /* title */
+      ];
+
+      searchParameters = Search._parseQuery('scoring');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
     it('should score a main-title match above a subheading-title match', function() {
       eval(loadFixture("titles/searchindex.js"));
 
