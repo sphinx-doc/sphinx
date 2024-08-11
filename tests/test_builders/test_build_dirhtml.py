@@ -7,7 +7,7 @@ import pytest
 from sphinx.util.inventory import InventoryFile
 
 
-@pytest.mark.sphinx(buildername='dirhtml', testroot='builder-dirhtml')
+@pytest.mark.sphinx('dirhtml', testroot='builder-dirhtml')
 def test_dirhtml(app):
     app.build()
 
@@ -31,10 +31,25 @@ def test_dirhtml(app):
     assert invdata['std:doc']['index'] == ('Project name not set', '', 'path/to/', '-')
 
     assert 'foo/index' in invdata.get('std:doc', {})
-    assert invdata['std:doc']['foo/index'] == ('Project name not set', '', 'path/to/foo/', '-')
+    assert invdata['std:doc']['foo/index'] == (
+        'Project name not set',
+        '',
+        'path/to/foo/',
+        '-',
+    )
 
     assert 'index' in invdata.get('std:label', {})
-    assert invdata['std:label']['index'] == ('Project name not set', '', 'path/to/#index', '-')
+    assert invdata['std:label']['index'] == (
+        'Project name not set',
+        '',
+        'path/to/#index',
+        '-',
+    )
 
     assert 'foo' in invdata.get('std:label', {})
-    assert invdata['std:label']['foo'] == ('Project name not set', '', 'path/to/foo/#foo', 'foo/index')
+    assert invdata['std:label']['foo'] == (
+        'Project name not set',
+        '',
+        'path/to/foo/#foo',
+        'foo/index',
+    )

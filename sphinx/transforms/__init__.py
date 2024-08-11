@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
+from docutils.transforms.references import Footnotes
 from docutils.transforms.universal import SmartQuotes
 from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
@@ -294,23 +295,40 @@ class UnreferencedFootnotesDetector(SphinxTransform):
     Detect unreferenced footnotes and emit warnings
     """
 
-    default_priority = 200
+    default_priority = Footnotes.default_priority + 2
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.footnotes:
-            if node['names'] == []:
-                # footnote having duplicated number.  It is already warned at parser.
-                pass
-            elif node['names'][0] not in self.document.footnote_refs:
-                logger.warning(__('Footnote [%s] is not referenced.'), node['names'][0],
-                               type='ref', subtype='footnote',
-                               location=node)
-
+            # note we do not warn on duplicate footnotes here
+            # (i.e. where the name has been moved to dupnames)
+            # since this is already reported by docutils
+            if not node['backrefs'] and node["names"]:
+                logger.warning(
+                    __('Footnote [%s] is not referenced.'),
+                    node['names'][0] if node['names'] else node['dupnames'][0],
+                    type='ref',
+                    subtype='footnote',
+                    location=node
+                )
+        for node in self.document.symbol_footnotes:
+            if not node['backrefs']:
+                logger.warning(
+                    __('Footnote [*] is not referenced.'),
+                    type='ref',
+                    subtype='footnote',
+                    location=node
+                )
         for node in self.document.autofootnotes:
-            if not any(ref['auto'] == node['auto'] for ref in self.document.autofootnote_refs):
-                logger.warning(__('Footnote [#] is not referenced.'),
-                               type='ref', subtype='footnote',
-                               location=node)
+            # note we do not warn on duplicate footnotes here
+            # (i.e. where the name has been moved to dupnames)
+            # since this is already reported by docutils
+            if not node['backrefs'] and node["names"]:
+                logger.warning(
+                    __('Footnote [#] is not referenced.'),
+                    type='ref',
+                    subtype='footnote',
+                    location=node
+                )
 
 
 class DoctestTransform(SphinxTransform):
