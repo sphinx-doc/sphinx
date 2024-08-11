@@ -142,10 +142,6 @@ class DownloadFiles(dict):
                 self.add_file(docname, filename)
 
 
-# a regex to recognize coding cookies
-_coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
-
-
 class UnicodeDecodeErrorHandler:
     """Custom error handler for open() that warns and replaces."""
 
