@@ -124,8 +124,9 @@ def test_copy_asset(tmp_path):
 def test_copy_asset_template(app):
     app.build(force_all=True)
 
-    expected_msg = r"^Writing evaluated template result to [^\n]*\bAPI.html$"
-    assert re.findall(expected_msg, strip_colors(app.status.getvalue()), flags=re.MULTILINE)
+    expected_msg = r'^Writing evaluated template result to [^\n]*\bAPI.html$'
+    output = strip_colors(app.status.getvalue())
+    assert re.findall(expected_msg, output, flags=re.MULTILINE)
 
 
 @pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
