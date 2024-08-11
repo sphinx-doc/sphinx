@@ -10,8 +10,7 @@ export default {
   ],
   specDir: "tests/js",
   specFiles: [
-    'searchtools.js',
-    'sphinx_highlight.js'
+    '**/*.spec.js',
   ],
   helpers: [],
   env: {
