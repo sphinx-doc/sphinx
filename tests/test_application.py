@@ -1,4 +1,5 @@
 """Test the Sphinx class."""
+
 from __future__ import annotations
 
 import shutil
@@ -51,26 +52,27 @@ def test_instantiation(
 def test_events(app):
     def empty():
         pass
-    with pytest.raises(ExtensionError) as excinfo:
-        app.connect("invalid", empty)
-    assert "Unknown event name: invalid" in str(excinfo.value)
 
-    app.add_event("my_event")
     with pytest.raises(ExtensionError) as excinfo:
-        app.add_event("my_event")
+        app.connect('invalid', empty)
+    assert 'Unknown event name: invalid' in str(excinfo.value)
+
+    app.add_event('my_event')
+    with pytest.raises(ExtensionError) as excinfo:
+        app.add_event('my_event')
     assert "Event 'my_event' already present" in str(excinfo.value)
 
     def mock_callback(a_app, *args):
         assert a_app is app
         assert emit_args == args
-        return "ret"
-    emit_args = (1, 3, "string")
-    listener_id = app.connect("my_event", mock_callback)
-    assert app.emit("my_event", *emit_args) == ["ret"], "Callback not called"
+        return 'ret'
+
+    emit_args = (1, 3, 'string')
+    listener_id = app.connect('my_event', mock_callback)
+    assert app.emit('my_event', *emit_args) == ['ret'], 'Callback not called'
 
     app.disconnect(listener_id)
-    assert app.emit("my_event", *emit_args) == [], \
-        "Callback called when disconnected"
+    assert app.emit('my_event', *emit_args) == [], 'Callback called when disconnected'
 
 
 def test_emit_with_nonascii_name_node(app):
@@ -121,14 +123,18 @@ def test_add_is_parallel_allowed(app):
     app.setup_extension('write_parallel')
     assert app.is_parallel_allowed('read') is False
     assert app.is_parallel_allowed('write') is True
-    assert ("the write_parallel extension does not declare if it is safe "
-            "for parallel reading, assuming it isn't - please ") in app.warning.getvalue()
+    assert (
+        'the write_parallel extension does not declare if it is safe '
+        "for parallel reading, assuming it isn't - please "
+    ) in app.warning.getvalue()
     app.extensions.pop('write_parallel')
     app.warning.truncate(0)  # reset warnings
 
     app.setup_extension('read_serial')
     assert app.is_parallel_allowed('read') is False
-    assert "the read_serial extension is not safe for parallel reading" in app.warning.getvalue()
+    assert (
+        'the read_serial extension is not safe for parallel reading'
+    ) in app.warning.getvalue()
     app.warning.truncate(0)  # reset warnings
     assert app.is_parallel_allowed('write') is True
     assert app.warning.getvalue() == ''
@@ -137,8 +143,10 @@ def test_add_is_parallel_allowed(app):
     app.setup_extension('write_serial')
     assert app.is_parallel_allowed('read') is False
     assert app.is_parallel_allowed('write') is False
-    assert ("the write_serial extension does not declare if it is safe "
-            "for parallel reading, assuming it isn't - please ") in app.warning.getvalue()
+    assert (
+        'the write_serial extension does not declare if it is safe '
+        "for parallel reading, assuming it isn't - please "
+    ) in app.warning.getvalue()
     app.extensions.pop('write_serial')
     app.warning.truncate(0)  # reset warnings
 
@@ -146,17 +154,21 @@ def test_add_is_parallel_allowed(app):
 @pytest.mark.sphinx('dummy', testroot='root')
 def test_build_specific(app):
     app.builder.build = Mock()
-    filenames = [app.srcdir / 'index.txt',                      # normal
-                 app.srcdir / 'images',                         # without suffix
-                 app.srcdir / 'notfound.txt',                   # not found
-                 app.srcdir / 'img.png',                        # unknown suffix
-                 '/index.txt',                                  # external file
-                 app.srcdir / 'subdir',                         # directory
-                 app.srcdir / 'subdir/includes.txt',            # file on subdir
-                 app.srcdir / 'subdir/../subdir/excluded.txt']  # not normalized
+    filenames = [
+        app.srcdir / 'index.txt',                      # normal
+        app.srcdir / 'images',                         # without suffix
+        app.srcdir / 'notfound.txt',                   # not found
+        app.srcdir / 'img.png',                        # unknown suffix
+        '/index.txt',                                  # external file
+        app.srcdir / 'subdir',                         # directory
+        app.srcdir / 'subdir/includes.txt',            # file on subdir
+        app.srcdir / 'subdir/../subdir/excluded.txt',  # not normalized
+    ]  # fmt: skip
     app.build(False, filenames)
 
     expected = ['index', 'subdir/includes', 'subdir/excluded']
-    app.builder.build.assert_called_with(expected,
-                                         method='specific',
-                                         summary='3 source files given on command line')
+    app.builder.build.assert_called_with(
+        expected,
+        method='specific',
+        summary='3 source files given on command line',
+    )
