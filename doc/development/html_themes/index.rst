@@ -223,7 +223,8 @@ If your theme package contains two or more themes, please call
 
 Styling with CSS
 ----------------
-The :confval:`stylesheets` setting can be used to add custom CSS files to a theme.
+
+The :confval:`!stylesheets` setting can be used to add custom CSS files to a theme.
 
 .. caution::
 
