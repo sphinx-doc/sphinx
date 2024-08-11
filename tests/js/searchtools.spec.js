@@ -2,7 +2,7 @@ describe('Basic html theme search', function() {
 
   function loadFixture(name) {
       req = new XMLHttpRequest();
-      req.open("GET", `base/tests/js/fixtures/${name}`, false);
+      req.open("GET", `__src__/tests/js/fixtures/${name}`, false);
       req.send(null);
       return req.responseText;
   }
@@ -77,6 +77,24 @@ describe('Basic html theme search', function() {
       expect(Search.performTermsSearch(searchterms, excluded)).toEqual(hits);
     });
 
+    it('should partially-match within "possible" when in term index', function() {
+      eval(loadFixture("partial/searchindex.js"));
+
+      [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('ossibl');
+      terms = Search._index.terms;
+      titleterms = Search._index.titleterms;
+
+      hits = [[
+        "index",
+        "sphinx_utils module",
+        "",
+        null,
+        2,
+        "index.rst"
+      ]];
+      expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
+    });
+
   });
 
   describe('aggregation of search results', function() {
@@ -141,6 +159,34 @@ describe('Basic html theme search', function() {
       ];
 
       searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a title match above a standard index entry match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['relevance', 'Relevance', ''],  /* title */
+        ['index', 'Main Page', '#index-1'],  /* index entry */
+      ];
+
+      searchParameters = Search._parseQuery('relevance');
+      results = Search._performSearch(...searchParameters);
+
+      checkRanking(expectedRanking, results);
+    });
+
+    it('should score a priority index entry match above a title match', function() {
+      eval(loadFixture("titles/searchindex.js"));
+
+      expectedRanking = [
+        ['index', 'Main Page', '#index-0'],  /* index entry */
+        ['index', 'Main Page > Result Scoring', '#result-scoring'],  /* title */
+      ];
+
+      searchParameters = Search._parseQuery('scoring');
       results = Search._performSearch(...searchParameters);
 
       checkRanking(expectedRanking, results);

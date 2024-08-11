@@ -1,4 +1,5 @@
 """Test the doctest extension."""
+
 import os
 from collections import Counter
 
@@ -31,8 +32,11 @@ def test_highlight_language_default(app):
         assert node['language'] in {'python', 'pycon', 'none'}
 
 
-@pytest.mark.sphinx('dummy', testroot='ext-doctest',
-                    confoverrides={'highlight_language': 'python'})
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='ext-doctest',
+    confoverrides={'highlight_language': 'python'},
+)
 def test_highlight_language_python3(app):
     app.build()
     doctree = app.env.get_doctree('doctest')
@@ -94,23 +98,25 @@ def test_skipif(app):
     # Global setup/cleanup are run before/after evaluating the `:skipif:`
     # option in each directive - thus 11 additional invocations for each on top
     # of the ones made for the whole test file.
-    assert recorded_calls == {('doctest_global_setup', 'body', True): 13,
-                              ('testsetup', ':skipif:', True): 1,
-                              ('testsetup', ':skipif:', False): 1,
-                              ('testsetup', 'body', False): 1,
-                              ('doctest', ':skipif:', True): 1,
-                              ('doctest', ':skipif:', False): 1,
-                              ('doctest', 'body', False): 1,
-                              ('testcode', ':skipif:', True): 1,
-                              ('testcode', ':skipif:', False): 1,
-                              ('testcode', 'body', False): 1,
-                              ('testoutput-1', ':skipif:', True): 1,
-                              ('testoutput-2', ':skipif:', True): 1,
-                              ('testoutput-2', ':skipif:', False): 1,
-                              ('testcleanup', ':skipif:', True): 1,
-                              ('testcleanup', ':skipif:', False): 1,
-                              ('testcleanup', 'body', False): 1,
-                              ('doctest_global_cleanup', 'body', True): 13}
+    assert recorded_calls == {
+        ('doctest_global_setup', 'body', True): 13,
+        ('testsetup', ':skipif:', True): 1,
+        ('testsetup', ':skipif:', False): 1,
+        ('testsetup', 'body', False): 1,
+        ('doctest', ':skipif:', True): 1,
+        ('doctest', ':skipif:', False): 1,
+        ('doctest', 'body', False): 1,
+        ('testcode', ':skipif:', True): 1,
+        ('testcode', ':skipif:', False): 1,
+        ('testcode', 'body', False): 1,
+        ('testoutput-1', ':skipif:', True): 1,
+        ('testoutput-2', ':skipif:', True): 1,
+        ('testoutput-2', ':skipif:', False): 1,
+        ('testcleanup', ':skipif:', True): 1,
+        ('testcleanup', ':skipif:', False): 1,
+        ('testcleanup', 'body', False): 1,
+        ('doctest_global_cleanup', 'body', True): 13,
+    }
 
 
 def record(directive, part, should_skip):
@@ -125,9 +131,11 @@ def test_reporting_with_autodoc(app, capfd):
     app.builder._warn_out = written.append
     app.build(force_all=True)
 
-    failures = [line.replace(os.sep, '/')
-                for line in '\n'.join(written).splitlines()
-                if line.startswith('File')]
+    failures = [
+        line.replace(os.sep, '/')
+        for line in '\n'.join(written).splitlines()
+        if line.startswith('File')
+    ]
 
     assert 'File "dir/inner.rst", line 1, in default' in failures
     assert 'File "dir/bar.py", line ?, in default' in failures

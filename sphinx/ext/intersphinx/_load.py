@@ -201,7 +201,10 @@ def _fetch_inventory_group(
     config: Config,
     srcdir: Path,
 ) -> bool:
-    cache_time = now - config.intersphinx_cache_limit * 86400
+    if config.intersphinx_cache_limit < 0:
+        cache_time = now - config.intersphinx_cache_limit * 86400
+    else:
+        cache_time = 0
 
     updated = False
     failures = []

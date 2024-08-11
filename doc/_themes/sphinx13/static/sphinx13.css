@@ -62,17 +62,14 @@ body {
     text-decoration: none;
 }
 
-.pageheader .brand a {
-    width: 2em;
-}
-
 .pageheader .brand img {
+    width: 2em;
     filter: invert(1) drop-shadow(1px 1px 2px black);
 }
 
-.pageheader .brand h1 {
+.pageheader .brand span {
     color: white;
-    margin: 0;
+    margin-left: 0.4em;
     font-weight: 400;
     font-size: 2em;
     line-height: 1;

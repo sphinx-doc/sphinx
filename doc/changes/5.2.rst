@@ -1,0 +1,78 @@
+==========
+Sphinx 5.2
+==========
+
+
+Release 5.2.3 (released Sep 30, 2022)
+=====================================
+
+* #10878: Fix base64 image embedding in ``sphinx.ext.imgmath``
+* #10886: Add ``:nocontentsentry:`` flag and global domain table of contents
+  entry control option. Patch by Adam Turner
+
+Release 5.2.2 (released Sep 27, 2022)
+=====================================
+
+* #10872: Restore link targets for autodoc modules to the top of content.
+  Patch by Dominic Davis-Foster.
+
+Release 5.2.1 (released Sep 25, 2022)
+=====================================
+
+Bugs fixed
+----------
+
+* #10861: Always normalise the ``pycon3`` lexer to ``pycon``.
+* Fix using ``sphinx.ext.autosummary`` with modules containing titles in the
+  module-level docstring.
+
+Release 5.2.0.post0 (released Sep 24, 2022)
+===========================================
+
+* Recreated source tarballs for Debian maintainers.
+
+Release 5.2.0 (released Sep 24, 2022)
+=====================================
+
+Dependencies
+------------
+
+* #10356: Sphinx now uses declarative metadata with ``pyproject.toml`` to
+  create packages, using PyPA's ``flit`` project as a build backend. Patch by
+  Adam Turner.
+
+Deprecated
+----------
+
+* #10843: Support for HTML 4 output. Patch by Adam Turner.
+
+Features added
+--------------
+
+* #10738: napoleon: Add support for docstring types using 'of', like
+  ``type of type``. Example: ``tuple of int``.
+* #10286: C++, support requires clauses not just between the template
+  parameter lists and the declaration.
+* #10755: linkcheck: Check the source URL of raw directives that use the ``url``
+  option.
+* #10781: Allow :rst:role:`ref` role to be used with definitions and fields.
+* #10717: HTML Search: Increase priority for full title and
+  subtitle matches in search results
+* #10718: HTML Search: Save search result score to the HTML element for debugging
+* #10673: Make toctree accept 'genindex', 'modindex' and 'search' docnames
+* #6316, #10804: Add domain objects to the table of contents. Patch by Adam Turner
+* #6692: HTML Search: Include explicit :rst:dir:`index` directive index entries
+  in the search index and search results. Patch by Adam Turner
+* #10816: imgmath: Allow embedding images in HTML as base64
+* #10854: HTML Search: Use browser localstorage for highlight control, stop
+  storing highlight parameters in URL query strings. Patch by Adam Turner.
+
+Bugs fixed
+----------
+
+* #10723: LaTeX: 5.1.0 has made the 'sphinxsetup' ``verbatimwithframe=false``
+  become without effect.
+* #10257: C++, ensure consistent non-specialization template argument
+  representation.
+* #10729: C++, fix parsing of certain non-type template parameter packs.
+* #10715: Revert #10520: "Fix" use of sidebar classes in ``agogo.css_t``

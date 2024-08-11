@@ -57,7 +57,9 @@ def purge_todos(app, env, docname):
     if not hasattr(env, 'todo_all_todos'):
         return
 
-    env.todo_all_todos = [todo for todo in env.todo_all_todos if todo['docname'] != docname]
+    env.todo_all_todos = [
+        todo for todo in env.todo_all_todos if todo['docname'] != docname
+    ]
 
 
 def merge_todos(app, env, docnames, other):
@@ -98,7 +100,9 @@ def process_todo_nodes(app, doctree, fromdocname):
             newnode = nodes.reference('', '')
             innernode = nodes.emphasis(_('here'), _('here'))
             newnode['refdocname'] = todo_info['docname']
-            newnode['refuri'] = app.builder.get_relative_uri(fromdocname, todo_info['docname'])
+            newnode['refuri'] = app.builder.get_relative_uri(
+                fromdocname, todo_info['docname']
+            )
             newnode['refuri'] += '#' + todo_info['target']['refid']
             newnode.append(innernode)
             para += newnode
