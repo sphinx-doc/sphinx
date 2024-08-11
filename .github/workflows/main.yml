@@ -114,6 +114,8 @@ jobs:
         python-version: "3"
     - name: Check Python version
       run: python --version --version
+    - name: Install graphviz
+      run: choco install --no-progress graphviz
     - name: Install uv
       run: >
         Invoke-WebRequest -Uri "https://astral.sh/uv/install.ps1"
@@ -132,9 +134,10 @@ jobs:
     steps:
     - name: Install epubcheck
       run: |
+        EPUBCHECK_VERSION="5.1.0"
         mkdir /tmp/epubcheck && cd /tmp/epubcheck
-        wget https://github.com/w3c/epubcheck/releases/download/v5.1.0/epubcheck-5.1.0.zip
-        unzip epubcheck-5.1.0.zip
+        wget --no-verbose https://github.com/w3c/epubcheck/releases/download/v${EPUBCHECK_VERSION}/epubcheck-${EPUBCHECK_VERSION}.zip
+        unzip epubcheck-${EPUBCHECK_VERSION}.zip
     - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v5
