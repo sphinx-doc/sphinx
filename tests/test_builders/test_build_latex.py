@@ -2227,55 +2227,71 @@ def test_one_parameter_per_line(app):
 
     # TODO: should these asserts check presence or absence of a final \sphinxparamcomma?
     # signature of 23 characters is too short to trigger one-param-per-line mark-up
-    assert ('\\pysiglinewithargsret\n'
-            '{\\sphinxbfcode{\\sphinxupquote{hello}}}\n'
-            '{\\sphinxparam{' in result)
+    assert (
+        '\\pysiglinewithargsret\n'
+        '{\\sphinxbfcode{\\sphinxupquote{hello}}}\n'
+        '{\\sphinxparam{' in result
+    )
 
-    assert ('\\pysigwithonelineperarg\n'
-            '{\\sphinxbfcode{\\sphinxupquote{foo}}}\n'
-            '{\\sphinxoptional{\\sphinxparam{' in result)
+    assert (
+        '\\pysigwithonelineperarg\n'
+        '{\\sphinxbfcode{\\sphinxupquote{foo}}}\n'
+        '{\\sphinxoptional{\\sphinxparam{' in result
+    )
 
     # generic_arg[T]
-    assert ('\\pysiglinewithargsretwithtypelist\n'
-            '{\\sphinxbfcode{\\sphinxupquote{generic\\_arg}}}\n'
-            '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
-            '{}\n'
-            '{}\n' in result)
+    assert (
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_arg}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # generic_foo[T]()
-    assert ('\\pysiglinewithargsretwithtypelist\n'
-            '{\\sphinxbfcode{\\sphinxupquote{generic\\_foo}}}\n'
-            '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
-            '{}\n'
-            '{}\n' in result)
+    assert (
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_foo}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # generic_bar[T](x: list[T])
-    assert ('\\pysigwithonelineperargwithtypelist\n'
-            '{\\sphinxbfcode{\\sphinxupquote{generic\\_bar}}}\n'
-            '{\\sphinxtypeparam{' in result)
+    assert (
+        '\\pysigwithonelineperargwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_bar}}}\n'
+        '{\\sphinxtypeparam{' in result
+    )
 
     # generic_ret[R]() -> R
-    assert ('\\pysiglinewithargsretwithtypelist\n'
-            '{\\sphinxbfcode{\\sphinxupquote{generic\\_ret}}}\n'
-            '{\\sphinxtypeparam{\\DUrole{n}{R}}}\n'
-            '{}\n'
-            '{{ $\\rightarrow$ R}}\n' in result)
+    assert (
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_ret}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{R}}}\n'
+        '{}\n'
+        '{{ $\\rightarrow$ R}}\n' in result
+    )
 
     # MyGenericClass[X]
-    assert ('\\pysiglinewithargsretwithtypelist\n'
-            '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
-            '\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}\n'
-            '{\\sphinxtypeparam{\\DUrole{n}{X}}}\n'
-            '{}\n'
-            '{}\n' in result)
+    assert (
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
+        '\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{X}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # MyList[T](list[T])
-    assert ('\\pysiglinewithargsretwithtypelist\n'
-            '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
-            '\\sphinxbfcode{\\sphinxupquote{MyList}}}\n'
-            '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
-            '{\\sphinxparam{list{[}T{]}}}\n'
-            '{}\n' in result)
+    assert (
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
+        '\\sphinxbfcode{\\sphinxupquote{MyList}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{\\sphinxparam{list{[}T{]}}}\n'
+        '{}\n' in result
+    )
 
 
 @pytest.mark.sphinx('latex', testroot='markup-rubric')
