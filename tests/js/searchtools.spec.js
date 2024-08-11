@@ -90,7 +90,8 @@ describe('Basic html theme search', function() {
         "",
         null,
         2,
-        "index.rst"
+        "index.rst",
+        "text"
       ]];
       expect(Search.performTermsSearch(searchterms, excluded, terms, titleterms)).toEqual(hits);
     });
