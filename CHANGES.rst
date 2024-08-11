@@ -31,6 +31,6 @@ Bugs fixed
   get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
   (silent) apply as well to the PDF build phase.
   Patch by Jean-François B.
-  
+
 Testing
 -------
