@@ -27,9 +27,9 @@ Bugs fixed
   Patch by Chris Sewell.
 
 * #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
-  :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` get
-  passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>` (silent)
-  apply as well to the PDF build phase.
+  :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
+  get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
+  (silent) apply as well to the PDF build phase.
   Patch by Jean-François B.
   
 Testing
