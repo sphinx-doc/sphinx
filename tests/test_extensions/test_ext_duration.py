@@ -5,8 +5,11 @@ import re
 import pytest
 
 
-@pytest.mark.sphinx('dummy', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.duration']})
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='basic',
+    confoverrides={'extensions': ['sphinx.ext.duration']},
+)
 def test_githubpages(app):
     app.build()
 

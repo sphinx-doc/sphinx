@@ -5,7 +5,9 @@ import pytest
 def test_theme_options(app):
     app.build()
 
-    result = (app.outdir / '_static' / 'documentation_options.js').read_text(encoding='utf8')
+    result = (app.outdir / '_static' / 'documentation_options.js').read_text(
+        encoding='utf8'
+    )
     assert 'NAVIGATION_WITH_KEYS: false' in result
     assert 'ENABLE_SEARCH_SHORTCUTS: true' in result
 
@@ -21,7 +23,9 @@ def test_theme_options(app):
 def test_theme_options_with_override(app):
     app.build()
 
-    result = (app.outdir / '_static' / 'documentation_options.js').read_text(encoding='utf8')
+    result = (app.outdir / '_static' / 'documentation_options.js').read_text(
+        encoding='utf8'
+    )
     assert 'NAVIGATION_WITH_KEYS: true' in result
     assert 'ENABLE_SEARCH_SHORTCUTS: false' in result
 
@@ -31,5 +35,9 @@ def test_theme_having_multiple_stylesheets(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
 
-    assert '<link rel="stylesheet" type="text/css" href="_static/mytheme.css" />' in content
-    assert '<link rel="stylesheet" type="text/css" href="_static/extra.css" />' in content
+    assert (
+        '<link rel="stylesheet" type="text/css" href="_static/mytheme.css" />'
+    ) in content
+    assert (
+        '<link rel="stylesheet" type="text/css" href="_static/extra.css" />'
+    ) in content

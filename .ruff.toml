@@ -1,5 +1,5 @@
 target-version = "py310"  # Pin Ruff to Python 3.10
-line-length = 95
+line-length = 88
 output-format = "full"
 
 extend-exclude = [
@@ -427,6 +427,9 @@ select = [
     "ANN",  # utilities don't need annotations
 ]
 
+[lint.pycodestyle]
+max-line-length = 95
+
 [lint.flake8-quotes]
 inline-quotes = "single"
 
@@ -482,18 +485,4 @@ exclude = [
     "sphinx/transforms/*",
     "sphinx/util/*",
     "sphinx/writers/*",
-    "tests/*",
-    "tests/roots/*",
-    "tests/test_builders/*",
-    "tests/test_config/*",
-    "tests/test_directives/*",
-    "tests/test_domains/*",
-    "tests/test_environment/*",
-    "tests/test_extensions/*",
-    "tests/test_intl/*",
-    "tests/test_markup/*",
-    "tests/test_pycode/*",
-    "tests/test_transforms/*",
-    "tests/test_util/*",
-    "tests/test_writers/*",
 ]

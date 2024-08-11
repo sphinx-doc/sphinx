@@ -29,7 +29,7 @@ except ImportError:
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.search import SearchLanguage
-from sphinx.util import import_object
+from sphinx.util._importer import import_object
 
 
 class BaseSplitter:
@@ -505,12 +505,18 @@ class SearchJapanese(SearchLanguage):
     language_name = 'Japanese'
 
     def init(self, options: dict[str, str]) -> None:
-        dotted_path = options.get('type', 'sphinx.search.ja.DefaultSplitter')
-        try:
-            self.splitter = import_object(dotted_path)(options)
-        except ExtensionError as exc:
-            raise ExtensionError("Splitter module %r can't be imported" %
-                                 dotted_path) from exc
+        dotted_path = options.get('type')
+        if dotted_path is None:
+            self.splitter = DefaultSplitter(options)
+        else:
+            try:
+                splitter_cls = import_object(
+                    dotted_path, "html_search_options['type'] setting"
+                )
+                self.splitter = splitter_cls(options)
+            except ExtensionError as exc:
+                msg = f"Splitter module {dotted_path!r} can't be imported"
+                raise ExtensionError(msg) from exc
 
     def split(self, input: str) -> list[str]:
         return self.splitter.split(input)

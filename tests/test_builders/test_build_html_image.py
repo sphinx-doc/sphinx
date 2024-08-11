@@ -10,8 +10,10 @@ def test_html_remote_images(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert ('<img alt="http://localhost:7777/sphinx.png" '
-            'src="http://localhost:7777/sphinx.png" />' in result)
+    assert (
+        '<img alt="http://localhost:7777/sphinx.png" '
+        'src="http://localhost:7777/sphinx.png" />'
+    ) in result
     assert not (app.outdir / 'sphinx.png').exists()
 
 
@@ -20,7 +22,7 @@ def test_html_encoded_image(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert ('<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result)
+    assert '<img alt="_images/img_%231.png" src="_images/img_%231.png" />' in result
     assert (app.outdir / '_images/img_#1.png').exists()
 
 
@@ -29,8 +31,12 @@ def test_html_remote_logo(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert ('<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo of Project name not set"/>' in result)
-    assert ('<link rel="icon" href="https://www.python.org/static/favicon.ico"/>' in result)
+    assert (
+        '<img class="logo" src="https://www.python.org/static/img/python-logo.png" alt="Logo of Project name not set"/>'
+    ) in result
+    assert (
+        '<link rel="icon" href="https://www.python.org/static/favicon.ico"/>'
+    ) in result
     assert not (app.outdir / 'python-logo.png').exists()
 
 
@@ -39,7 +45,9 @@ def test_html_local_logo(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert ('<img class="logo" src="_static/img.png" alt="Logo of Project name not set"/>' in result)
+    assert (
+        '<img class="logo" src="_static/img.png" alt="Logo of Project name not set"/>'
+    ) in result
     assert (app.outdir / '_static/img.png').exists()
 
 
@@ -53,16 +61,20 @@ def test_html_scaled_image_link(app):
 
     # scaled_image_link
     # Docutils 0.21 adds a newline before the closing </a> tag
-    closing_space = "\n" if docutils.__version_info__[:2] >= (0, 21) else ""
-    assert re.search('\n<a class="reference internal image-reference" href="_images/img.png">'
-                     '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />'
-                     f'{closing_space}</a>',
-                     context)
+    closing_space = '\n' if docutils.__version_info__[:2] >= (0, 21) else ''
+    assert re.search(
+        '\n<a class="reference internal image-reference" href="_images/img.png">'
+        '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />'
+        f'{closing_space}</a>',
+        context,
+    )
 
     # no-scaled-link class disables the feature
-    assert re.search('\n<img alt="_images/img.png" class="no-scaled-link"'
-                     ' src="_images/img.png" style="[^"]+" />',
-                     context)
+    assert re.search(
+        '\n<img alt="_images/img.png" class="no-scaled-link"'
+        ' src="_images/img.png" style="[^"]+" />',
+        context,
+    )
 
 
 @pytest.mark.sphinx('html', testroot='images')

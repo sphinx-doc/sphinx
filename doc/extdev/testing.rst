@@ -28,5 +28,5 @@ Usage
 -----
 
 If you want to know more detailed usage,
-please refer to :file:`tests/conftest.py`` and other :file:`test_*.py` files
+please refer to :file:`tests/conftest.py` and other :file:`test_*.py` files
 under the :file:`tests/` directory.
