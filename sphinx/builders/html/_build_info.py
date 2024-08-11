@@ -26,11 +26,7 @@ class BuildInfo:
 
     @classmethod
     def load(cls: type[BuildInfo], filename: Path, /) -> BuildInfo:
-        try:
-            content = filename.read_text(encoding="utf-8")
-        except OSError as exc:
-            msg = __('could not read build info file: %r') % exc
-            raise ValueError(msg) from exc
+        content = filename.read_text(encoding="utf-8")
         lines = content.splitlines()
 
         version = lines[0].rstrip()

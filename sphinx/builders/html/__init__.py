@@ -329,6 +329,9 @@ class StandaloneHTMLBuilder(Builder):
             build_info = BuildInfo.load(build_info_fname)
         except ValueError as exc:
             logger.warning(__('Failed to read build info file: %r'), exc)
+        except OSError:
+            # ignore errors on reading
+            pass
         else:
             if self.build_info != build_info:
                 # log the mismatch and backup the old build info
