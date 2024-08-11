@@ -1,4 +1,5 @@
 """Test copyright year adjustment"""
+
 import pytest
 
 
@@ -10,7 +11,6 @@ import pytest
         ('1293840000', '2006-2011'),
         ('1293839999', '2006-2010'),
     ],
-
 )
 def expect_date(request, monkeypatch):
     sde, expect = request.param

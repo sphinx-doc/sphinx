@@ -45,7 +45,9 @@ def add_uids(doctree: Node, condition: Callable[[Node], bool]) -> Iterator[Node]
         yield node
 
 
-def merge_doctrees(old: Node, new: Node, condition: Callable[[Node], bool]) -> Iterator[Node]:
+def merge_doctrees(
+    old: Node, new: Node, condition: Callable[[Node], bool]
+) -> Iterator[Node]:
     """Merge the `old` doctree with the `new` one while looking at nodes
     matching the `condition`.
 

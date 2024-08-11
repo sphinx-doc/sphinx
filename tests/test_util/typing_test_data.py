@@ -77,7 +77,7 @@ def f14() -> Any:
     pass
 
 
-def f15(x: "Unknown", y: "int") -> Any:  # NoQA: F821  # type: ignore[attr-defined]
+def f15(x: 'Unknown', y: 'int') -> Any:  # NoQA: F821  # type: ignore[attr-defined]
     pass
 
 
@@ -121,7 +121,7 @@ def f25(a, b, /):
     pass
 
 
-def f26(x: Literal[1, 2, 3] = 1, y: Union[Literal["a"], Literal["b"]] = "a") -> None:
+def f26(x: Literal[1, 2, 3] = 1, y: Union[Literal['a'], Literal['b']] = 'a') -> None:
     pass
 
 
