@@ -1,4 +1,5 @@
 """Test the HTML builder and check output against XPath."""
+
 import re
 
 import pytest
@@ -12,7 +13,11 @@ def test_relations(app):
     assert app.builder.relations['bar/index'] == ['index', 'foo', 'bar/bar_1']
     assert app.builder.relations['bar/bar_1'] == ['bar/index', 'bar/index', 'bar/bar_2']
     assert app.builder.relations['bar/bar_2'] == ['bar/index', 'bar/bar_1', 'bar/bar_3']
-    assert app.builder.relations['bar/bar_3'] == ['bar/index', 'bar/bar_2', 'bar/bar_4/index']
+    assert app.builder.relations['bar/bar_3'] == [
+        'bar/index',
+        'bar/bar_2',
+        'bar/bar_4/index',
+    ]
     assert app.builder.relations['bar/bar_4/index'] == ['bar/index', 'bar/bar_3', 'baz']
     assert app.builder.relations['baz'] == ['index', 'bar/bar_4/index', 'qux/index']
     assert app.builder.relations['qux/index'] == ['index', 'baz', 'qux/qux_1']
@@ -30,7 +35,10 @@ def test_singlehtml_toctree(app):
         pytest.fail('Unexpected AttributeError in app.builder.fix_refuris')
 
 
-@pytest.mark.sphinx(testroot='toctree', srcdir="numbered-toctree")
+@pytest.mark.sphinx(
+    testroot='toctree',
+    srcdir='numbered-toctree',
+)
 def test_numbered_toctree(app):
     # give argument to :numbered: option
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')

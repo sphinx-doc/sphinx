@@ -80,7 +80,9 @@ def parse_version(version: str) -> VersionInfo:
     raise RuntimeError(msg)
 
 
-def bump_version(path: Path, version_info: VersionInfo, in_develop: bool = True) -> None:
+def bump_version(
+    path: Path, version_info: VersionInfo, in_develop: bool = True
+) -> None:
     if in_develop or version_info.is_final:
         version = version_info.version
     else:
@@ -150,7 +152,9 @@ class Changes:
 
     @staticmethod
     def filter_empty_sections(body: str) -> str:
-        return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.MULTILINE)
+        return re.sub(
+            '^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.MULTILINE
+        )
 
 
 class Skip(Exception):

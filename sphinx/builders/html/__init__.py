@@ -26,7 +26,11 @@ from docutils.utils import relative_path
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
 from sphinx.builders import Builder
-from sphinx.builders.html._assets import _CascadingStyleSheet, _file_checksum, _JavaScript
+from sphinx.builders.html._assets import (
+    _CascadingStyleSheet,
+    _file_checksum,
+    _JavaScript,
+)
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
@@ -904,7 +908,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_static_files(self) -> None:
         try:
-            with progress_message(__('copying static files')):
+            with progress_message(__('copying static files'), nonl=False):
                 ensuredir(self.outdir / '_static')
 
                 # prepare context for templates
@@ -925,7 +929,7 @@ class StandaloneHTMLBuilder(Builder):
     def copy_extra_files(self) -> None:
         """Copy html_extra_path files."""
         try:
-            with progress_message(__('copying extra files')):
+            with progress_message(__('copying extra files'), nonl=False):
                 excluded = Matcher(self.config.exclude_patterns)
                 for extra_path in self.config.html_extra_path:
                     copy_asset(
