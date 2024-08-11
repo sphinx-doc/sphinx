@@ -30,8 +30,13 @@ class InventoryEntry:
     """Entry in the Intersphinx inventory."""
 
     __slots__ = (
-        'name', 'display_name', 'domain_name',
-        'object_type', 'uri', 'anchor', 'priority',
+        'name',
+        'display_name',
+        'domain_name',
+        'object_type',
+        'uri',
+        'anchor',
+        'priority',
     )
 
     def __init__(
@@ -46,7 +51,7 @@ class InventoryEntry:
         priority: int = 0,
     ):
         if anchor.endswith(name):
-            anchor = anchor[:-len(name)] + '$'
+            anchor = anchor.removesuffix(name) + '$'
 
         if anchor:
             uri += '#' + anchor
@@ -64,8 +69,10 @@ class InventoryEntry:
 
     def format(self) -> str:
         """Format the entry as it appears in the inventory file."""
-        return (f'{self.name} {self.domain_name}:{self.object_type} '
-                f'{self.priority} {self.uri} {self.display_name}\n')
+        return (
+            f'{self.name} {self.domain_name}:{self.object_type} '
+            f'{self.priority} {self.uri} {self.display_name}\n'
+        )
 
 
 class IntersphinxProject:
@@ -122,9 +129,12 @@ class FakeInventory:
         return buffer.getvalue()
 
     def _write_headers(self, buffer: BinaryIO) -> None:
-        buffer.write((f'# Sphinx inventory version {self.protocol_version}\n'
-                      f'# Project: {self.project.safe_name}\n'
-                      f'# Version: {self.project.safe_version}\n').encode())
+        headers = (
+            f'# Sphinx inventory version {self.protocol_version}\n'
+            f'# Project: {self.project.safe_name}\n'
+            f'# Version: {self.project.safe_version}\n'
+        ).encode()
+        buffer.write(headers)
 
     def _write_body(self, buffer: BinaryIO, lines: Iterable[bytes]) -> None:
         raise NotImplementedError
@@ -154,7 +164,7 @@ class SingleEntryProject(IntersphinxProject):
         *,
         item_name: str = 'ham',
         domain_name: str = 'py',
-        object_type: str = 'module'
+        object_type: str = 'module',
     ) -> None:
         super().__init__(
             name=self.name,
@@ -170,10 +180,14 @@ class SingleEntryProject(IntersphinxProject):
     def make_entry(self) -> InventoryEntry:
         """Get an inventory entry for this project."""
         name = f'{self.item_name}_{self.version}'
-        return InventoryEntry(name, domain_name=self.domain_name, object_type=self.object_type)
+        return InventoryEntry(
+            name, domain_name=self.domain_name, object_type=self.object_type
+        )
 
 
-def make_inventory_handler(*projects: SingleEntryProject) -> type[BaseHTTPRequestHandler]:
+def make_inventory_handler(
+    *projects: SingleEntryProject,
+) -> type[BaseHTTPRequestHandler]:
     name, port = projects[0].name, projects[0].port
     assert all(p.name == name for p in projects)
     assert all(p.port == port for p in projects)
