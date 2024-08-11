@@ -6,15 +6,14 @@ import hashlib
 import os
 import posixpath
 import re
-from importlib import import_module
 from os import path
 from typing import IO, Any
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
-from sphinx.errors import ExtensionError, FiletypeNotFoundError
+from sphinx.errors import FiletypeNotFoundError
 from sphinx.locale import __
+from sphinx.util import _importer, logging
 from sphinx.util import index_entries as _index_entries
-from sphinx.util import logging
 from sphinx.util.console import strip_colors  # NoQA: F401
 from sphinx.util.matching import patfilter  # NoQA: F401
 from sphinx.util.nodes import (  # NoQA: F401
@@ -217,27 +216,6 @@ def parselinenos(spec: str, total: int) -> list[int]:
     return items
 
 
-def import_object(objname: str, source: str | None = None) -> Any:
-    """Import python object by qualname."""
-    try:
-        objpath = objname.split('.')
-        modname = objpath.pop(0)
-        obj = import_module(modname)
-        for name in objpath:
-            modname += '.' + name
-            try:
-                obj = getattr(obj, name)
-            except AttributeError:
-                obj = import_module(modname)
-
-        return obj
-    except (AttributeError, ImportError) as exc:
-        if source:
-            raise ExtensionError('Could not import %s (needed for %s)' %
-                                 (objname, source), exc) from exc
-        raise ExtensionError('Could not import %s' % objname, exc) from exc
-
-
 def encode_uri(uri: str) -> str:
     split = list(urlsplit(uri))
     split[1] = split[1].encode('idna').decode('ascii')
@@ -262,6 +240,7 @@ _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
                    (9, 0)),
     'md5': (_md5, '', (9, 0)),
     'sha1': (_sha1, '', (9, 0)),
+    'import_object': (_importer.import_object, '', (10, 0)),
 }
 
 
