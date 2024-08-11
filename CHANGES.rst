@@ -32,6 +32,10 @@ Bugs fixed
   so that it now runs after the docutils ``Footnotes`` resolution transform.
   Patch by Chris Sewell.
 
+* #12587: Do not warn when potential ambiguity detected during Intersphinx
+  resolution occurs due to duplicate targets that differ case-insensitively.
+  Patch by James Addison.
+
 Testing
 -------
 
