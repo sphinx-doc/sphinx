@@ -77,7 +77,14 @@ epub_use_index = False
 epub_description = 'Sphinx documentation generator system manual'
 
 latex_documents = [
-    ('index', 'sphinx.tex', 'Sphinx Documentation', 'the Sphinx developers', 'manual', 1)
+    (
+        'index',
+        'sphinx.tex',
+        'Sphinx Documentation',
+        'the Sphinx developers',
+        'manual',
+        1,
+    )
 ]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
@@ -324,7 +331,9 @@ def setup(app: Sphinx) -> None:
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.connect('include-read', linkify_issues_in_changelog)
     app.connect('build-finished', build_redirects)
-    fdesc = GroupedField('parameter', label='Parameters', names=['param'], can_collapse=True)
+    fdesc = GroupedField(
+        'parameter', label='Parameters', names=['param'], can_collapse=True
+    )
     app.add_object_type(
         'event',
         'event',

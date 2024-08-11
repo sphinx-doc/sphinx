@@ -8,8 +8,8 @@ from sphinx.util.console import strip_colors
 
 def test_warnings(make_app: type[SphinxTestApp], tmp_path: Path) -> None:
     """Test that warnings are emitted for unreferenced footnotes."""
-    tmp_path.joinpath("conf.py").touch()
-    tmp_path.joinpath("index.rst").write_text(
+    tmp_path.joinpath('conf.py').touch()
+    tmp_path.joinpath('index.rst').write_text(
         """
 Title
 =====
@@ -24,16 +24,20 @@ Title
 .. [#label1] This is an auto-numbered footnote with a label.
 .. [#label1] This is an auto-numbered footnote with a label.
 .. [#label2] This is an auto-numbered footnote with a label.
-        """, encoding="utf8"
+        """,
+        encoding='utf8',
     )
     app = make_app(srcdir=tmp_path)
     app.build()
-    warnings = strip_colors(app.warning.getvalue()).replace(str(tmp_path / "index.rst"), "source/index.rst")
-    print(warnings)
-    assert warnings.strip() == """
+    warnings = strip_colors(app.warning.getvalue()).lstrip()
+    warnings = warnings.replace(str(tmp_path / 'index.rst'), 'source/index.rst')
+    assert (
+        warnings
+        == """\
 source/index.rst:8: WARNING: Duplicate explicit target name: "2". [docutils]
 source/index.rst:13: WARNING: Duplicate explicit target name: "label1". [docutils]
 source/index.rst:9: WARNING: Footnote [3] is not referenced. [ref.footnote]
 source/index.rst:10: WARNING: Footnote [*] is not referenced. [ref.footnote]
 source/index.rst:11: WARNING: Footnote [#] is not referenced. [ref.footnote]
-""".strip()
+"""
+    )
