@@ -16,6 +16,9 @@ Deprecated
 Features added
 --------------
 
+* #11328: Mention evaluation of templated content during production of static
+  output files.
+
 Bugs fixed
 ----------
 

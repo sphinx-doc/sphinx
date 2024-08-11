@@ -1,5 +1,6 @@
 """Tests sphinx.util.fileutil functions."""
 
+import re
 from unittest import mock
 
 import pytest
@@ -117,6 +118,14 @@ def test_copy_asset(tmp_path):
     assert not (destdir / '_static' / 'basic.css').exists()
     assert (destdir / '_templates' / 'layout.html').exists()
     assert not (destdir / '_templates' / 'sidebar.html').exists()
+
+
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_copy_asset_template(app):
+    app.build(force_all=True)
+
+    expected_msg = r"^Writing evaluated template result to [^\n]*\bAPI.html$"
+    assert re.findall(expected_msg, strip_colors(app.status.getvalue()), flags=re.MULTILINE)
 
 
 @pytest.mark.sphinx('html', testroot='util-copyasset_overwrite')
