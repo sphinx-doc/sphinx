@@ -22,6 +22,21 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.util.FilenameUniqDict``
+     - 8.1
+     - 10.0
+     - N/A
+
+   * - ``sphinx.util.DownloadFiles``
+     - 8.1
+     - 10.0
+     - N/A
+
+   * - ``sphinx.util.import_object``
+     - 8.1
+     - 10.0
+     - ``importlib.import_module``
+
    * - ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
      - 8.0
      - 10.0
@@ -929,7 +944,7 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.directives.VersionChange``
      - 2.1
      - 4.0
-     - ``sphinx.directives.other.VersionChange``
+     - ``sphinx.domains.changeset.VersionChange``
 
    * - ``sphinx.domains.python.PyClassmember``
      - 2.1
@@ -1465,10 +1480,10 @@ The following is a list of deprecated interfaces.
      - 3.0
      - N/A
 
-   * - ``sphinx.directives.other.VersionChanges``
+   * - ``sphinx.directives.other.VersionChange``
      - 1.8
      - 3.0
-     - ``sphinx.domains.changeset.VersionChanges``
+     - ``sphinx.domains.changeset.VersionChange``
 
    * - ``sphinx.highlighting.PygmentsBridge.unhighlight()``
      - 1.8

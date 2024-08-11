@@ -36,10 +36,10 @@ from sphinx.locale import __, init_console
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import NoReturn
+    from typing import NoReturn, TypeAlias
 
-    _PARSER_SETUP = Callable[[argparse.ArgumentParser], argparse.ArgumentParser]
-    _RUNNER = Callable[[argparse.Namespace], int]
+    _PARSER_SETUP: TypeAlias = Callable[[argparse.ArgumentParser], argparse.ArgumentParser]
+    _RUNNER: TypeAlias = Callable[[argparse.Namespace], int]
 
     from typing import Protocol
 

@@ -11,16 +11,17 @@ import functools
 import operator
 import re
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, NewType, TypeVar
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.config import ENUM, Config
+from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.docstrings import prepare_docstring, separate_metadata
 from sphinx.util.inspect import (
@@ -1381,7 +1382,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if len(sig.parameters) == 0:
             return None
 
-        def dummy():  # NoQA: ANN202
+        def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())
@@ -1475,7 +1476,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any,
     ) -> bool:
         return isinstance(member, type) or (
-            isattr and (inspect.isNewType(member) or isinstance(member, TypeVar)))
+            isattr and isinstance(member, NewType | TypeVar))
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
@@ -1486,7 +1487,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
             else:
                 self.doc_as_attr = True
-            if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
+            if isinstance(self.object, NewType | TypeVar):
                 modname = getattr(self.object, '__module__', self.modname)
                 if modname != self.modname and self.modname.startswith(modname):
                     bases = self.modname[len(modname):].strip('.').split('.')
@@ -1495,7 +1496,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return ret
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
+        if isinstance(self.object, NewType | TypeVar):
             # Suppress signature
             return None, None, None
 
@@ -1680,14 +1681,14 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.directivetype = 'attribute'
         super().add_directive_header(sig)
 
-        if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
+        if isinstance(self.object, NewType | TypeVar):
             return
 
         if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
 
         canonical_fullname = self.get_canonical_fullname()
-        if (not self.doc_as_attr and not inspect.isNewType(self.object)
+        if (not self.doc_as_attr and not isinstance(self.object, NewType)
                 and canonical_fullname and self.fullname != canonical_fullname):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
@@ -1802,7 +1803,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return None
 
     def add_content(self, more_content: StringList | None) -> None:
-        if inspect.isNewType(self.object):
+        if isinstance(self.object, NewType):
             if self.config.autodoc_typehints_format == "short":
                 supertype = restify(self.object.__supertype__, "smart")
             else:
@@ -2277,7 +2278,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if len(sig.parameters) == 1:
             return None
 
-        def dummy():  # NoQA: ANN202
+        def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())

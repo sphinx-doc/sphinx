@@ -30,7 +30,7 @@ if TYPE_CHECKING:
         _IndexEntrySubItems,
         _IndexEntryCategoryKey,
     ]
-    _IndexEntryMap = dict[str, _IndexEntry]
+    _IndexEntryMap: TypeAlias = dict[str, _IndexEntry]
     _Index: TypeAlias = list[
         tuple[
             str,

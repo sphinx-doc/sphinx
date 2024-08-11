@@ -22,8 +22,9 @@ def mock_input(answers, needanswer=False):
 
     def input_(prompt):
         if prompt in called:
-            raise AssertionError('answer for %r missing and no default '
-                                 'present' % prompt)
+            raise AssertionError(
+                'answer for %r missing and no default present' % prompt
+            )
         called.add(prompt)
         for question in answers:
             if prompt.startswith(qs.PROMPT_PREFIX + question):
@@ -31,6 +32,7 @@ def mock_input(answers, needanswer=False):
         if needanswer:
             raise AssertionError('answer for %r missing' % prompt)
         return ''
+
     return input_
 
 
@@ -152,14 +154,17 @@ def test_quickstart_all_answers(tmp_path):
     ns = {}
     exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == [
-        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
+        'sphinx.ext.autodoc',
+        'sphinx.ext.doctest',
+        'sphinx.ext.todo',
     ]
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['root_doc'] == 'contents'
     assert ns['project'] == 'STASI™'
-    assert ns['copyright'] == "%s, Wolfgang Schäuble & G'Beckstein" % \
-        time.strftime('%Y')
+    assert ns['copyright'] == "%s, Wolfgang Schäuble & G'Beckstein" % time.strftime(
+        '%Y'
+    )
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
     assert ns['todo_include_todos'] is True
@@ -185,7 +190,7 @@ def test_generated_files_eol(tmp_path):
 
     def assert_eol(filename, eol):
         content = filename.read_bytes().decode()
-        assert all(l[-len(eol):] == eol for l in content.splitlines(keepends=True))
+        assert all(l[-len(eol) :] == eol for l in content.splitlines(keepends=True))
 
     assert_eol(tmp_path / 'make.bat', '\r\n')
     assert_eol(tmp_path / 'Makefile', '\n')
@@ -210,7 +215,8 @@ def test_quickstart_and_build(tmp_path):
         (tmp_path / '_build' / '.doctree'),  # doctreedir
         'html',  # buildername
         status=StringIO(),
-        warning=warnfile)
+        warning=warnfile,
+    )
     app.build(force_all=True)
     warnings = warnfile.getvalue()
     assert not warnings
@@ -235,8 +241,16 @@ def test_default_filename(tmp_path):
 
 
 def test_extensions(tmp_path):
-    qs.main(['-q', '-p', 'project_name', '-a', 'author',
-             '--extensions', 'foo,bar,baz', str(tmp_path)])
+    qs.main([
+        '-q',
+        '-p',
+        'project_name',
+        '-a',
+        'author',
+        '--extensions',
+        'foo,bar,baz',
+        str(tmp_path),
+    ])
 
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
@@ -250,6 +264,7 @@ def test_exits_when_existing_confpy(monkeypatch):
     # so we mock it as True with pytest's monkeypatch
     def mock_isfile(path):
         return True
+
     monkeypatch.setattr(path, 'isfile', mock_isfile)
 
     qs.term_input = mock_input({

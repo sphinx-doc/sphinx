@@ -202,7 +202,7 @@ class _NodeUpdater:
         old_foot_refs = list(is_autofootnote_ref.findall(self.node))
         new_foot_refs = list(is_autofootnote_ref.findall(self.patch))
         self.compare_references(old_foot_refs, new_foot_refs,
-                                __('inconsistent footnote references in translated message.' +
+                                __('inconsistent footnote references in translated message.'
                                    ' original: {0}, translated: {1}'))
         old_foot_namerefs: dict[str, list[nodes.footnote_reference]] = {}
         for r in old_foot_refs:
@@ -242,7 +242,7 @@ class _NodeUpdater:
         old_refs = list(is_refnamed_ref.findall(self.node))
         new_refs = list(is_refnamed_ref.findall(self.patch))
         self.compare_references(old_refs, new_refs,
-                                __('inconsistent references in translated message.' +
+                                __('inconsistent references in translated message.'
                                    ' original: {0}, translated: {1}'))
         old_ref_names = [r['refname'] for r in old_refs]
         new_ref_names = [r['refname'] for r in new_refs]
@@ -267,7 +267,7 @@ class _NodeUpdater:
         new_foot_refs = list(is_refnamed_footnote_ref.findall(self.patch))
         refname_ids_map: dict[str, list[str]] = {}
         self.compare_references(old_foot_refs, new_foot_refs,
-                                __('inconsistent footnote references in translated message.' +
+                                __('inconsistent footnote references in translated message.'
                                    ' original: {0}, translated: {1}'))
         for oldf in old_foot_refs:
             refname_ids_map.setdefault(oldf["refname"], []).append(oldf["ids"])
@@ -282,7 +282,7 @@ class _NodeUpdater:
         old_cite_refs = list(is_citation_ref.findall(self.node))
         new_cite_refs = list(is_citation_ref.findall(self.patch))
         self.compare_references(old_cite_refs, new_cite_refs,
-                                __('inconsistent citation references in translated message.' +
+                                __('inconsistent citation references in translated message.'
                                    ' original: {0}, translated: {1}'))
         refname_ids_map: dict[str, list[str]] = {}
         for oldc in old_cite_refs:
@@ -299,7 +299,7 @@ class _NodeUpdater:
         old_xrefs = [*self.node.findall(addnodes.pending_xref)]
         new_xrefs = [*self.patch.findall(addnodes.pending_xref)]
         self.compare_references(old_xrefs, new_xrefs,
-                                __('inconsistent term references in translated message.' +
+                                __('inconsistent term references in translated message.'
                                    ' original: {0}, translated: {1}'))
 
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}

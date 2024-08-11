@@ -373,13 +373,12 @@ example of code to accomplish this:
 
 .. code-block:: python
 
-   from os import path
-   from sphinx.util.fileutil import copy_asset_file
+   import shutil
 
    def copy_custom_files(app, exc):
        if app.builder.format == 'html' and not exc:
-           staticdir = path.join(app.builder.outdir, '_static')
-           copy_asset_file('path/to/myextension/_static/myjsfile.js', staticdir)
+           static_dir = app.outdir / '_static'
+           shutil.copyfile('path/to/myextension/_static/myjsfile.js', static_dir)
 
    def setup(app):
        app.connect('build-finished', copy_custom_files)

@@ -17,11 +17,11 @@ from importlib import import_module
 from inspect import Parameter, Signature
 from io import StringIO
 from types import ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ForwardRef
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
-from sphinx.util.typing import ForwardRef, stringify_annotation
+from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -196,11 +196,6 @@ def getslots(obj: Any) -> dict[str, Any] | dict[str, None] | None:
         return dict.fromkeys(__slots__)
     else:
         raise ValueError
-
-
-def isNewType(obj: Any) -> bool:
-    """Check the if object is a kind of :class:`~typing.NewType`."""
-    return isinstance(obj, typing.NewType)
 
 
 def isenumclass(x: Any) -> TypeIs[type[enum.Enum]]:

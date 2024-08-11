@@ -21,6 +21,7 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
 from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
+from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
@@ -231,7 +232,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     page_filename = path.join(app.outdir, '_modules/', basename)
 
     try:
-        if path.getmtime(module_filename) <= path.getmtime(page_filename):
+        if _last_modified_time(module_filename) <= _last_modified_time(page_filename):
             # generation is not needed if the HTML page is newer than module file.
             return False
     except OSError:

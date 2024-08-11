@@ -15,7 +15,6 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.typing import ExtensionMetadata, NoneType
 
 if sys.version_info >= (3, 11):
     from contextlib import chdir
@@ -25,15 +24,16 @@ else:
 if TYPE_CHECKING:
     import os
     from collections.abc import Collection, Iterator, Sequence, Set
+    from typing import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
-    from sphinx.util.typing import _ExtensionSetupFunc
+    from sphinx.util.typing import ExtensionMetadata, _ExtensionSetupFunc
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild = Literal[
+_ConfigRebuild: TypeAlias = Literal[
     '', 'env', 'epub', 'gettext', 'html',
     # sphinxcontrib-applehelp
     'applehelp',
@@ -93,7 +93,7 @@ class ENUM:
             return value in self.candidates
 
 
-_OptValidTypes = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
+_OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
 
 
 class _Opt:
@@ -249,7 +249,7 @@ class Config:
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
         'trim_doctest_flags': _Opt(True, 'env', ()),
-        'primary_domain': _Opt('py', 'env', frozenset((NoneType,))),
+        'primary_domain': _Opt('py', 'env', frozenset((types.NoneType,))),
         'needs_sphinx': _Opt(None, '', frozenset((str,))),
         'needs_extensions': _Opt({}, '', ()),
         'manpages_url': _Opt(None, 'env', ()),
@@ -260,7 +260,7 @@ class Config:
         'numfig_secnum_depth': _Opt(1, 'env', ()),
         'numfig_format': _Opt({}, 'env', ()),  # will be initialized in init_numfig_format()
         'maximum_signature_line_length': _Opt(
-            None, 'env', frozenset((int, NoneType))),
+            None, 'env', frozenset((int, types.NoneType))),
         'math_number_all': _Opt(False, 'env', ()),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
         'math_numfig': _Opt(True, 'env', ()),
@@ -590,7 +590,7 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
                     source_suffix, config.source_suffix)
     elif not isinstance(source_suffix, dict):
-        msg = __("The config value `source_suffix' expects a dictionary,"
+        msg = __("The config value `source_suffix' expects a dictionary, "
                  "a string, or a list of strings. Got `%r' instead (type %s).")
         raise ConfigError(msg % (source_suffix, type(source_suffix)))
 

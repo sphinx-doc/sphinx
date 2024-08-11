@@ -69,13 +69,14 @@ import sphinx
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc import INSTANCEATTR, Documenter
-from sphinx.ext.autodoc.directive import DocumenterBridge, Options
+from sphinx.errors import PycodeError
+from sphinx.ext.autodoc import INSTANCEATTR, Documenter, Options
+from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.project import Project
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util.docutils import (
@@ -97,7 +98,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.extension import Extension
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +249,7 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, False)):
+                    if excluded(str(self.env.doc2path(docname, False))):
                         msg = __('autosummary references excluded document %r. Ignored.')
                     else:
                         msg = __('autosummary: stub file not found %r. '
@@ -801,7 +802,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     if genfiles is True:
         env = app.builder.env
-        genfiles = [env.doc2path(x, base=False) for x in env.found_docs
+        genfiles = [str(env.doc2path(x, base=False)) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
     elif genfiles is False:
         pass
