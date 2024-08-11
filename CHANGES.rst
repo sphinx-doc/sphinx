@@ -28,6 +28,8 @@ Features added
 
 * #11328: Mention evaluation of templated content during production of static
   output files.
+* #12474: Support type-dependent search result highlighting via CSS.
+  Patch by Tim Hoffmann.
 
 Bugs fixed
 ----------
@@ -43,6 +45,8 @@ Bugs fixed
 * #12587: Do not warn when potential ambiguity detected during Intersphinx
   resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
+* #12639: Fix singular and plural search results text.
+  Patch by Hugo van Kemenade.
 * #12645: Correctly support custom gettext output templates.
   Patch by Jeremy Bowman.
 
