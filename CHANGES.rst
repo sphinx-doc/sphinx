@@ -19,7 +19,7 @@ Deprecated
 * #12762: Deprecate ``sphinx.util.import_object``.
   Use :py:func:`importlib.import_module` instead.
   Patch by Adam Turner.
-* #12765: Deprecate ``sphinx.util.FilenameUniqDict``
+* #12766: Deprecate ``sphinx.util.FilenameUniqDict``
   and ``sphinx.util.DownloadFiles``.
   Patch by Adam Turner.
 
