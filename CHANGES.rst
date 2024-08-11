@@ -13,6 +13,10 @@ Incompatible changes
 Deprecated
 ----------
 
+* #12762: Deprecate ``sphinx.util.import_object``.
+  Use :py:func:`importlib.import_module` instead.
+  Patch by Adam Turner.
+
 Features added
 --------------
 
