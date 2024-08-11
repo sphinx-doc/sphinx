@@ -455,7 +455,7 @@ class CoverageBuilder(Builder):
                                     if self.app.quiet or self.app.warningiserror:
                                         for meth in methods:
                                             logger.warning(
-                                                __('undocumented python method:' +
+                                                __('undocumented python method:'
                                                    ' %s :: %s :: %s'),
                                                 name, class_name, meth)
                                     else:

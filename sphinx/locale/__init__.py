@@ -166,11 +166,15 @@ def init_console(
     return init([locale_dir], language, catalog, 'console')
 
 
-def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
+def get_translator(
+    catalog: str = 'sphinx', namespace: str = 'general'
+) -> NullTranslations:
     return translators.get((namespace, catalog), NullTranslations())
 
 
-def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
+def is_translator_registered(
+    catalog: str = 'sphinx', namespace: str = 'general'
+) -> bool:
     return (namespace, catalog) in translators
 
 

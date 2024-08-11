@@ -109,21 +109,22 @@ def test_once_warning_log(app):
     logger.warning('message: %d', 1, once=True)
     logger.warning('message: %d', 2, once=True)
 
-    assert 'WARNING: message: 1\nWARNING: message: 2\n' in strip_colors(app.warning.getvalue())
+    warnings = strip_colors(app.warning.getvalue())
+    assert 'WARNING: message: 1\nWARNING: message: 2\n' in warnings
 
 
 def test_is_suppressed_warning():
-    suppress_warnings = ["ref", "files.*", "rest.duplicated_labels"]
+    suppress_warnings = ['ref', 'files.*', 'rest.duplicated_labels']
 
     assert is_suppressed_warning(None, None, suppress_warnings) is False
-    assert is_suppressed_warning("ref", None, suppress_warnings) is True
-    assert is_suppressed_warning("ref", "numref", suppress_warnings) is True
-    assert is_suppressed_warning("ref", "option", suppress_warnings) is True
-    assert is_suppressed_warning("files", "image", suppress_warnings) is True
-    assert is_suppressed_warning("files", "stylesheet", suppress_warnings) is True
-    assert is_suppressed_warning("rest", None, suppress_warnings) is False
-    assert is_suppressed_warning("rest", "syntax", suppress_warnings) is False
-    assert is_suppressed_warning("rest", "duplicated_labels", suppress_warnings) is True
+    assert is_suppressed_warning('ref', None, suppress_warnings) is True
+    assert is_suppressed_warning('ref', 'numref', suppress_warnings) is True
+    assert is_suppressed_warning('ref', 'option', suppress_warnings) is True
+    assert is_suppressed_warning('files', 'image', suppress_warnings) is True
+    assert is_suppressed_warning('files', 'stylesheet', suppress_warnings) is True
+    assert is_suppressed_warning('rest', None, suppress_warnings) is False
+    assert is_suppressed_warning('rest', 'syntax', suppress_warnings) is False
+    assert is_suppressed_warning('rest', 'duplicated_labels', suppress_warnings) is True
 
 
 def test_suppress_warnings(app):
@@ -277,7 +278,8 @@ def test_pending_warnings(app):
         assert 'WARNING: message3' not in app.warning.getvalue()
 
     # actually logged as ordered
-    assert 'WARNING: message2\nWARNING: message3' in strip_colors(app.warning.getvalue())
+    warnings = strip_colors(app.warning.getvalue())
+    assert 'WARNING: message2\nWARNING: message3' in warnings
 
 
 def test_colored_logs(app):
@@ -307,8 +309,10 @@ def test_colored_logs(app):
     assert colorize('red', 'message8') in app.status.getvalue()
 
 
-@pytest.mark.xfail(os.name != 'posix',
-                   reason="Parallel mode does not work on Windows")
+@pytest.mark.xfail(
+    os.name != 'posix',
+    reason='Parallel mode does not work on Windows',
+)
 def test_logging_in_ParallelTasks(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -335,8 +339,8 @@ def test_output_with_unencodable_char(app):
     # info with UnicodeEncodeError
     app.status.truncate(0)
     app.status.seek(0)
-    logger.info("unicode \u206d...")
-    assert app.status.getvalue() == "unicode ?...\n"
+    logger.info('unicode \u206d...')
+    assert app.status.getvalue() == 'unicode ?...\n'
 
 
 def test_skip_warningiserror(app):

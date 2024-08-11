@@ -48,7 +48,11 @@ lexer_classes: dict[str, type[Lexer] | partial[Lexer]] = {
 }
 
 
-escape_hl_chars = {ord('\\'): '\\PYGZbs{}', ord('{'): '\\PYGZob{}', ord('}'): '\\PYGZcb{}'}
+escape_hl_chars = {
+    ord('\\'): '\\PYGZbs{}',
+    ord('{'): '\\PYGZob{}',
+    ord('}'): '\\PYGZcb{}',
+}
 
 # used if Pygments is available
 # MEMO: no use of \protected here to avoid having to do hyperref extras,
@@ -96,7 +100,10 @@ class PygmentsBridge:
     latex_formatter = LatexFormatter[str]
 
     def __init__(
-        self, dest: str = 'html', stylename: str = 'sphinx', latex_engine: str | None = None
+        self,
+        dest: str = 'html',
+        stylename: str = 'sphinx',
+        latex_engine: str | None = None,
     ) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
