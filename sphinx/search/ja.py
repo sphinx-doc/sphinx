@@ -506,7 +506,7 @@ class SearchJapanese(SearchLanguage):
 
     def init(self, options: dict[str, str]) -> None:
         dotted_path = options.get('type')
-        if dotted_path in {None, 'sphinx.search.ja.DefaultSplitter'}:
+        if dotted_path is None:
             self.splitter = DefaultSplitter(options)
         else:
             try:
