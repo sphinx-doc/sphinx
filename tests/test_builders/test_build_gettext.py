@@ -207,7 +207,7 @@ def test_gettext_custom_output_template(app):
     assert (app.outdir / 'index.pot').is_file()
 
     result = (app.outdir / 'index.pot').read_text(encoding='utf8')
-    assert "EVEN MORE DESCRIPTIVE TITLE" in result
+    assert 'EVEN MORE DESCRIPTIVE TITLE' in result
 
 
 @pytest.mark.sphinx(
