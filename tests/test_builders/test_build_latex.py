@@ -2278,7 +2278,6 @@ def test_one_parameter_per_line(app):
             '{}\n' in result)
 
 
-
 @pytest.mark.sphinx('latex', testroot='markup-rubric')
 def test_latex_rubric(app):
     app.build()
