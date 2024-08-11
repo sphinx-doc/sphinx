@@ -43,6 +43,8 @@ Bugs fixed
 * #12587: Do not warn when potential ambiguity detected during Intersphinx
   resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
+* #12639: Fix singular and plural search results text.
+  Patch by Hugo van Kemenade.
 
 Testing
 -------

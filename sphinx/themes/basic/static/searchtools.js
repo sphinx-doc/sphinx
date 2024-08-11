@@ -115,8 +115,10 @@ const _finishSearch = (resultCount) => {
       "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
     );
   else
-    Search.status.innerText = _(
-      "Search finished, found ${resultCount} page(s) matching the search query."
+    Search.status.innerText = Documentation.ngettext(
+      "Search finished, found one page matching the search query.",
+      "Search finished, found ${resultCount} pages matching the search query.",
+      resultCount,
     ).replace('${resultCount}', resultCount);
 };
 const _displayNextItem = (
