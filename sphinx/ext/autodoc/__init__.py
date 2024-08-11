@@ -10,18 +10,18 @@ from __future__ import annotations
 import functools
 import operator
 import re
-import sys
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, NewType, TypeVar
 
 from docutils.statemachine import StringList
 
 import sphinx
 from sphinx.config import ENUM, Config
+from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
 from sphinx.locale import _, __
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import inspect, logging
 from sphinx.util.docstrings import prepare_docstring, separate_metadata
 from sphinx.util.inspect import (
@@ -40,7 +40,7 @@ from sphinx.util.typing import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
 
     from sphinx.application import Sphinx
@@ -612,7 +612,7 @@ class Documenter:
 
         # add additional content (e.g. from document), if present
         if more_content:
-            for line, src in zip(more_content.data, more_content.items):
+            for line, src in zip(more_content.data, more_content.items, strict=True):
                 self.add_line(line, src[0], src[1])
 
     def get_object_members(self, want_all: bool) -> tuple[bool, list[ObjectMember]]:
@@ -975,7 +975,7 @@ class ModuleDocumenter(Documenter):
         super().add_content(None)
         self.indent = old_indent
         if more_content:
-            for line, src in zip(more_content.data, more_content.items):
+            for line, src in zip(more_content.data, more_content.items, strict=True):
                 self.add_line(line, src[0], src[1])
 
     @classmethod
@@ -1382,7 +1382,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if len(sig.parameters) == 0:
             return None
 
-        def dummy():  # NoQA: ANN202
+        def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())
@@ -1450,7 +1450,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
     # Must be higher than FunctionDocumenter, ClassDocumenter, and
     # AttributeDocumenter as NewType can be an attribute and is a class
-    # after Python 3.10. Before 3.10 it is a kind of function object
+    # after Python 3.10.
     priority = 15
 
     _signature_class: Any = None
@@ -1476,7 +1476,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         cls: type[Documenter], member: Any, membername: str, isattr: bool, parent: Any,
     ) -> bool:
         return isinstance(member, type) or (
-            isattr and (inspect.isNewType(member) or isinstance(member, TypeVar)))
+            isattr and isinstance(member, NewType | TypeVar))
 
     def import_object(self, raiseerror: bool = False) -> bool:
         ret = super().import_object(raiseerror)
@@ -1487,7 +1487,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 self.doc_as_attr = (self.objpath[-1] != self.object.__name__)
             else:
                 self.doc_as_attr = True
-            if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
+            if isinstance(self.object, NewType | TypeVar):
                 modname = getattr(self.object, '__module__', self.modname)
                 if modname != self.modname and self.modname.startswith(modname):
                     bases = self.modname[len(modname):].strip('.').split('.')
@@ -1496,7 +1496,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return ret
 
     def _get_signature(self) -> tuple[Any | None, str | None, Signature | None]:
-        if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
+        if isinstance(self.object, NewType | TypeVar):
             # Suppress signature
             return None, None, None
 
@@ -1681,14 +1681,14 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             self.directivetype = 'attribute'
         super().add_directive_header(sig)
 
-        if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
+        if isinstance(self.object, NewType | TypeVar):
             return
 
         if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
 
         canonical_fullname = self.get_canonical_fullname()
-        if (not self.doc_as_attr and not inspect.isNewType(self.object)
+        if (not self.doc_as_attr and not isinstance(self.object, NewType)
                 and canonical_fullname and self.fullname != canonical_fullname):
             self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
@@ -1740,24 +1740,6 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         if isinstance(self.object, TypeVar):
             if self.object.__doc__ == TypeVar.__doc__:
                 return []
-        if sys.version_info[:2] < (3, 10):
-            if inspect.isNewType(self.object) or isinstance(self.object, TypeVar):
-                parts = self.modname.strip('.').split('.')
-                orig_objpath = self.objpath
-                for i in range(len(parts)):
-                    new_modname = '.'.join(parts[:len(parts) - i])
-                    new_objpath = parts[len(parts) - i:] + orig_objpath
-                    try:
-                        analyzer = ModuleAnalyzer.for_module(new_modname)
-                        analyzer.analyze()
-                        key = ('', new_objpath[-1])
-                        comment = list(analyzer.attr_docs.get(key, []))
-                        if comment:
-                            self.objpath = new_objpath
-                            self.modname = new_modname
-                            return [comment]
-                    except PycodeError:
-                        pass
         if self.doc_as_attr:
             # Don't show the docstring of the class when it is an alias.
             if self.get_variable_comment():
@@ -1821,7 +1803,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return None
 
     def add_content(self, more_content: StringList | None) -> None:
-        if inspect.isNewType(self.object):
+        if isinstance(self.object, NewType):
             if self.config.autodoc_typehints_format == "short":
                 supertype = restify(self.object.__supertype__, "smart")
             else:
@@ -2296,7 +2278,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if len(sig.parameters) == 1:
             return None
 
-        def dummy():  # NoQA: ANN202
+        def dummy():  # type: ignore[no-untyped-def]  # NoQA: ANN202
             pass
 
         params = list(sig.parameters.values())

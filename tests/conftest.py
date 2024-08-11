@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gettext
 import os
 import sys
 from pathlib import Path
@@ -18,15 +19,16 @@ if TYPE_CHECKING:
 
 
 def _init_console(
-    locale_dir: str | None = sphinx.locale._LOCALE_DIR, catalog: str = 'sphinx',
-) -> tuple[sphinx.locale.NullTranslations, bool]:
+    locale_dir: str | None = sphinx.locale._LOCALE_DIR,
+    catalog: str = 'sphinx',
+) -> tuple[gettext.NullTranslations, bool]:
     """Monkeypatch ``init_console`` to skip its action.
 
     Some tests rely on warning messages in English. We don't want
     CLI tests to bleed over those tests and make their warnings
     translated.
     """
-    return sphinx.locale.NullTranslations(), False
+    return gettext.NullTranslations(), False
 
 
 sphinx.locale.init_console = _init_console
@@ -45,9 +47,9 @@ def rootdir() -> Path:
 
 
 def pytest_report_header(config: pytest.Config) -> str:
-    header = f"libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}"
+    header = f'libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}'
     if hasattr(config, '_tmp_path_factory'):
-        header += f"\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}"
+        header += f'\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}'
     return header
 
 

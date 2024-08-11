@@ -23,6 +23,7 @@ env:
   FORCE_COLOR: "1"
   PYTHONDEVMODE: "1"  # -X dev
   PYTHONWARNDEFAULTENCODING: "1"  # -X warn_default_encoding
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   ubuntu:
@@ -32,7 +33,6 @@ jobs:
       fail-fast: false
       matrix:
         python:
-        - "3.9"
         - "3.10"
         - "3.11"
         - "3.12"
@@ -124,6 +124,38 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
         DO_EPUBCHECK: "1"
         EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
+
+  oldest-supported:
+    runs-on: ubuntu-latest
+    name: Oldest supported
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install uv
+      run: > 
+        curl 
+        --location 
+        --fail
+        --proto '=https' --tlsv1.2 
+        --silent --show-error 
+        https://astral.sh/uv/install.sh
+        | sh
+    - name: Install dependencies
+      run: |
+        uv pip install .[test] --resolution lowest-direct
+        uv pip install alabaster==1.0.0
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   latex:
     runs-on: ubuntu-latest

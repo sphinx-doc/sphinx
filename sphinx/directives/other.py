@@ -13,7 +13,6 @@ from docutils.parsers.rst.directives.misc import Include as BaseInclude
 from docutils.statemachine import StateMachine
 
 from sphinx import addnodes
-from sphinx.domains.changeset import VersionChange  # NoQA: F401  # for compatibility
 from sphinx.domains.std import StandardDomain
 from sphinx.locale import _, __
 from sphinx.util import docname_join, logging, url_re
@@ -79,17 +78,19 @@ class TocTree(SphinxDirective):
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
         self.set_source_info(subnode)
+        self.parse_content(subnode)
+
         wrappernode = nodes.compound(
             classes=['toctree-wrapper', *self.options.get('class', ())],
         )
         wrappernode.append(subnode)
         self.add_name(wrappernode)
+        return [wrappernode]
 
-        ret = self.parse_content(subnode)
-        ret.append(wrappernode)
-        return ret
-
-    def parse_content(self, toctree: addnodes.toctree) -> list[Node]:
+    def parse_content(self, toctree: addnodes.toctree) -> None:
+        """
+        Populate ``toctree['entries']`` and ``toctree['includefiles']`` from content.
+        """
         generated_docnames = frozenset(StandardDomain._virtual_doc_names)
         suffixes = self.config.source_suffix
         current_docname = self.env.docname
@@ -100,7 +101,6 @@ class TocTree(SphinxDirective):
         all_docnames.remove(current_docname)  # remove current document
         frozen_all_docnames = frozenset(all_docnames)
 
-        ret: list[Node] = []
         excluded = Matcher(self.config.exclude_patterns)
         for entry in self.content:
             if not entry:
@@ -145,7 +145,7 @@ class TocTree(SphinxDirective):
                 continue
 
             if docname not in frozen_all_docnames:
-                if excluded(self.env.doc2path(docname, False)):
+                if excluded(str(self.env.doc2path(docname, False))):
                     message = __('toctree contains reference to excluded document %r')
                     subtype = 'excluded'
                 else:
@@ -170,8 +170,6 @@ class TocTree(SphinxDirective):
         if 'reversed' in self.options:
             toctree['entries'] = list(reversed(toctree['entries']))
             toctree['includefiles'] = list(reversed(toctree['includefiles']))
-
-        return ret
 
 
 class Author(SphinxDirective):
@@ -209,7 +207,7 @@ class Author(SphinxDirective):
         return ret
 
 
-class SeeAlso(BaseAdmonition):
+class SeeAlso(BaseAdmonition):  # type: ignore[misc]
     """
     An admonition mentioning things to look at as reference.
     """

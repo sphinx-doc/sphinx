@@ -319,7 +319,7 @@ def _toctree_entry(
                            ref, location=toctreenode, type='toc', subtype='no_title')
     except KeyError:
         # this is raised if the included file does not exist
-        ref_path = env.doc2path(ref, False)
+        ref_path = str(env.doc2path(ref, False))
         if excluded(ref_path):
             message = __('toctree contains reference to excluded document %r')
         elif not included(ref_path):
@@ -404,7 +404,7 @@ def _toctree_standard_entry(
 def _toctree_add_classes(node: Element, depth: int, docname: str) -> None:
     """Add 'toctree-l%d' and 'current' classes to the toctree."""
     for subnode in node.children:
-        if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
+        if isinstance(subnode, addnodes.compact_paragraph | nodes.list_item):
             # for <p> and <li>, indicate the depth level and recurse
             subnode['classes'].append(f'toctree-l{depth - 1}')
             _toctree_add_classes(subnode, depth, docname)
@@ -442,7 +442,7 @@ def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tag
 
     copy = node.copy()
     for subnode in node.children:
-        if isinstance(subnode, (addnodes.compact_paragraph, nodes.list_item)):
+        if isinstance(subnode, addnodes.compact_paragraph | nodes.list_item):
             # for <p> and <li>, just recurse
             copy.append(_toctree_copy(subnode, depth, maxdepth, collapse, tags))
         elif isinstance(subnode, nodes.bullet_list):
@@ -462,7 +462,7 @@ def _toctree_copy(node: ET, depth: int, maxdepth: int, collapse: bool, tags: Tag
                     copy.append(_toctree_copy(
                         child, depth, maxdepth, collapse, tags,  # type: ignore[type-var]
                     ))
-        elif isinstance(subnode, (nodes.reference, nodes.title)):
+        elif isinstance(subnode, nodes.reference | nodes.title):
             # deep copy references and captions
             sub_node_copy = subnode.copy()
             sub_node_copy.children = [child.deepcopy() for child in subnode.children]

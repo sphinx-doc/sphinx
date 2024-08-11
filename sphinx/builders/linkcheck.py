@@ -27,13 +27,14 @@ from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from typing import Any, Callable
+    from collections.abc import Callable, Iterator
+    from typing import Any
 
     from requests import Response
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
@@ -82,7 +83,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         filename = self.env.doc2path(result.docname, False)
 
         linkstat: dict[str, str | int] = {
-            'filename': filename, 'lineno': result.lineno,
+            'filename': str(filename), 'lineno': result.lineno,
             'status': result.status, 'code': result.code,
             'uri': result.uri, 'info': result.message,
         }
@@ -149,7 +150,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
-    def write_entry(self, what: str, docname: str, filename: str, line: int,
+    def write_entry(self, what: str, docname: str, filename: _StrPath, line: int,
                     uri: str) -> None:
         self.txt_outfile.write(f'{filename}:{line}: [{what}] {uri}\n')
 
@@ -225,7 +226,7 @@ class HyperlinkCollector(SphinxPostTransform):
 class Hyperlink(NamedTuple):
     uri: str
     docname: str
-    docpath: str
+    docpath: _StrPath
     lineno: int
 
 

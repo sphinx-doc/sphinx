@@ -5,10 +5,9 @@ Gracefully adapted from the TextPress system by Armin.
 
 from __future__ import annotations
 
-import contextlib
 from collections import defaultdict
 from operator import attrgetter
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
@@ -16,6 +15,8 @@ from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from sphinx.application import Sphinx
 
 
@@ -83,13 +84,20 @@ class EventManager:
                     listeners.remove(listener)
 
     def emit(
-        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+        self,
+        name: str,
+        *args: Any,
+        allowed_exceptions: tuple[type[Exception], ...] = (),
     ) -> list:
         """Emit a Sphinx event."""
         # not every object likes to be repr()'d (think
         # random stuff coming via autodoc)
-        with contextlib.suppress(Exception):
-            logger.debug('[app] emitting event: %r%s', name, repr(args)[:100])
+        try:
+            repr_args = repr(args)
+        except Exception:
+            pass
+        else:
+            logger.debug('[app] emitting event: %r%s', name, repr_args)
 
         results = []
         listeners = sorted(self.listeners[name], key=attrgetter('priority'))
@@ -115,7 +123,10 @@ class EventManager:
         return results
 
     def emit_firstresult(
-        self, name: str, *args: Any, allowed_exceptions: tuple[type[Exception], ...] = ()
+        self,
+        name: str,
+        *args: Any,
+        allowed_exceptions: tuple[type[Exception], ...] = (),
     ) -> Any:
         """Emit a Sphinx event and returns first result.
 

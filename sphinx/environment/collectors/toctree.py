@@ -78,7 +78,7 @@ class TocTreeCollector(EnvironmentCollector):
                     # and unnecessary stuff
                     visitor = SphinxContentsFilter(doctree)
                     title.walkabout(visitor)
-                    nodetext = visitor.get_entry_text()
+                    nodetext = visitor.get_entry_text()  # type: ignore[no-untyped-call]
                     anchorname = _make_anchor_name(sectionnode['ids'], numentries)
                     # make these nodes:
                     # list_item -> compact_paragraph -> reference

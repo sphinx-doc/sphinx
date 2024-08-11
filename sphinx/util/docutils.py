@@ -8,7 +8,7 @@ from collections.abc import Sequence  # NoQA: TCH003
 from contextlib import contextmanager
 from copy import copy
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Callable, cast
+from typing import IO, TYPE_CHECKING, Any, cast
 
 import docutils
 from docutils import nodes
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:(?:\\d+)?): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) ')
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator  # NoQA: TCH003
     from types import ModuleType
 
     from docutils.frontend import Values
@@ -366,30 +366,47 @@ class SphinxDirective(Directive):
 
     This class provides helper methods for Sphinx directives.
 
+    .. versionadded:: 1.8
+
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
 
     @property
     def env(self) -> BuildEnvironment:
-        """Reference to the :class:`.BuildEnvironment` object."""
+        """Reference to the :class:`.BuildEnvironment` object.
+
+        .. versionadded:: 1.8
+        """
         return self.state.document.settings.env
 
     @property
     def config(self) -> Config:
-        """Reference to the :class:`.Config` object."""
+        """Reference to the :class:`.Config` object.
+
+        .. versionadded:: 1.8
+        """
         return self.env.config
 
     def get_source_info(self) -> tuple[str, int]:
-        """Get source and line number."""
+        """Get source and line number.
+
+        .. versionadded:: 3.0
+        """
         return self.state_machine.get_source_and_line(self.lineno)
 
     def set_source_info(self, node: Node) -> None:
-        """Set source and line number to the node."""
+        """Set source and line number to the node.
+
+        .. versionadded:: 2.1
+        """
         node.source, node.line = self.get_source_info()
 
     def get_location(self) -> str:
-        """Get current location info for logging."""
+        """Get current location info for logging.
+
+        .. versionadded:: 4.2
+        """
         source, line = self.get_source_info()
         if source and line:
             return f'{source}:{line}'
@@ -473,6 +490,8 @@ class SphinxRole:
 
     This class provides helper methods for Sphinx roles.
 
+    .. versionadded:: 2.0
+
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.
     """
@@ -517,24 +536,35 @@ class SphinxRole:
 
     @property
     def env(self) -> BuildEnvironment:
-        """Reference to the :class:`.BuildEnvironment` object."""
+        """Reference to the :class:`.BuildEnvironment` object.
+
+        .. versionadded:: 2.0
+        """
         return self.inliner.document.settings.env
 
     @property
     def config(self) -> Config:
-        """Reference to the :class:`.Config` object."""
+        """Reference to the :class:`.Config` object.
+
+        .. versionadded:: 2.0
+        """
         return self.env.config
 
     def get_source_info(self, lineno: int | None = None) -> tuple[str, int]:
+        # .. versionadded:: 3.0
         if lineno is None:
             lineno = self.lineno
         return self.inliner.reporter.get_source_and_line(lineno)  # type: ignore[attr-defined]
 
     def set_source_info(self, node: Node, lineno: int | None = None) -> None:
+        # .. versionadded:: 2.0
         node.source, node.line = self.get_source_info(lineno)
 
     def get_location(self) -> str:
-        """Get current location info for logging."""
+        """Get current location info for logging.
+
+        .. versionadded:: 4.2
+        """
         source, line = self.get_source_info()
         if source and line:
             return f'{source}:{line}'
@@ -551,6 +581,8 @@ class ReferenceRole(SphinxRole):
     The reference roles can accept ``link title <target>`` style as a text for
     the role.  The parsed result; link title and target will be stored to
     ``self.title`` and ``self.target``.
+
+    .. versionadded:: 2.0
     """
 
     has_explicit_title: bool    #: A boolean indicates the role has explicit title or not.
@@ -590,6 +622,8 @@ class SphinxTranslator(nodes.NodeVisitor):
     if visitor/departure method for node class is not found.
 
     It also provides helper methods for Sphinx translators.
+
+    .. versionadded:: 2.0
 
     .. note:: The subclasses of this class might not work with docutils.
               This class is strongly coupled with Sphinx.

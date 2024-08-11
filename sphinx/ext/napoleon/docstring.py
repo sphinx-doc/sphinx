@@ -8,14 +8,14 @@ import inspect
 import re
 from functools import partial
 from itertools import starmap
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.typing import get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
     from sphinx.application import Sphinx
     from sphinx.config import Config as SphinxConfig

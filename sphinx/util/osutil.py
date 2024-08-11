@@ -11,11 +11,12 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING
 
+from sphinx.locale import __
+
 if TYPE_CHECKING:
-    from collections.abc import Iterator
-    from pathlib import Path
     from types import TracebackType
     from typing import Any
 
@@ -49,7 +50,7 @@ def relative_uri(base: str, to: str) -> str:
     b2 = base.split('#')[0].split(SEP)
     t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
-    for x, y in zip(b2[:-1], t2[:-1]):
+    for x, y in zip(b2[:-1], t2[:-1], strict=False):
         if x != y:
             break
         b2.pop(0)
@@ -70,62 +71,71 @@ def ensuredir(file: str | os.PathLike[str]) -> None:
     os.makedirs(file, exist_ok=True)
 
 
-def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
-    for dirname in dirnames:
-        for root, _dirs, files in os.walk(dirname):
-            for sfile in files:
-                if sfile.endswith(suffix):
-                    with contextlib.suppress(OSError):
-                        yield path.getmtime(path.join(root, sfile))
+def _last_modified_time(source: str | os.PathLike[str], /) -> int:
+    """Return the last modified time of ``filename``.
+
+    The time is returned as integer microseconds.
+    The lowest common denominator of modern file-systems seems to be
+    microsecond-level precision.
+
+    We prefer to err on the side of re-rendering a file,
+    so we round up to the nearest microsecond.
+    """
+    st = source.stat() if isinstance(source, os.DirEntry) else os.stat(source)
+    # upside-down floor division to get the ceiling
+    return -(st.st_mtime_ns // -1_000)
 
 
-def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
+def _copy_times(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file's modification times."""
-    st = os.stat(source)
-    if hasattr(os, 'utime'):
-        os.utime(dest, (st.st_atime, st.st_mtime))
+    st = source.stat() if isinstance(source, os.DirEntry) else os.stat(source)
+    os.utime(dest, ns=(st.st_atime_ns, st.st_mtime_ns))
 
 
 def copyfile(
     source: str | os.PathLike[str],
     dest: str | os.PathLike[str],
     *,
-    __overwrite_warning__: bool = True,
+    force: bool = False,
 ) -> None:
     """Copy a file and its modification times, if possible.
 
     :param source: An existing source to copy.
     :param dest: The destination path.
+    :param bool force: Overwrite the destination file even if it exists.
     :raise FileNotFoundError: The *source* does not exist.
 
     .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
     """
-    if not path.exists(source):
-        msg = f'{os.fsdecode(source)} does not exist'
+    # coerce to Path objects
+    source = Path(source)
+    dest = Path(dest)
+    if not source.exists():
+        msg = f'{source} does not exist'
         raise FileNotFoundError(msg)
 
     if (
-        not (dest_exists := path.exists(dest)) or
+        not (dest_exists := dest.exists()) or
         # comparison must be done using shallow=False since
         # two different files might have the same size
         not filecmp.cmp(source, dest, shallow=False)
     ):
-        if __overwrite_warning__ and dest_exists:
+        if not force and dest_exists:
             # sphinx.util.logging imports sphinx.util.osutil,
             # so use a local import to avoid circular imports
             from sphinx.util import logging
             logger = logging.getLogger(__name__)
 
-            msg = ('Copying the source path %s to %s will overwrite data, '
-                   'as a file already exists at the destination path '
-                   'and the content does not match.')
-            logger.info(msg, os.fsdecode(source), os.fsdecode(dest),
-                        type='misc', subtype='copy_overwrite')
+            msg = __('Aborted attempted copy from %s to %s '
+                     '(the destination path has existing data).')
+            logger.warning(msg, source, dest,
+                           type='misc', subtype='copy_overwrite')
+            return
 
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
-            copytimes(source, dest)
+            _copy_times(source, dest)
 
 
 _no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
