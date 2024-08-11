@@ -47,6 +47,8 @@ Bugs fixed
   Patch by James Addison.
 * #12639: Fix singular and plural search results text.
   Patch by Hugo van Kemenade.
+* #12645: Correctly support custom gettext output templates.
+  Patch by Jeremy Bowman.
 
 Testing
 -------
