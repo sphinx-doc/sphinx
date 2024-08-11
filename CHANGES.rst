@@ -10,6 +10,9 @@ Dependencies
 Incompatible changes
 --------------------
 
+* #12763: Remove unused internal class ``sphinx.util.Tee``.
+  Patch by Adam Turner.
+
 Deprecated
 ----------
 

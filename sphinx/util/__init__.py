@@ -168,26 +168,6 @@ class UnicodeDecodeErrorHandler:
 
 # Low-level utility functions and classes.
 
-class Tee:
-    """
-    File-like object writing to two streams.
-    """
-
-    def __init__(self, stream1: IO, stream2: IO) -> None:
-        self.stream1 = stream1
-        self.stream2 = stream2
-
-    def write(self, text: str) -> None:
-        self.stream1.write(text)
-        self.stream2.write(text)
-
-    def flush(self) -> None:
-        if hasattr(self.stream1, 'flush'):
-            self.stream1.flush()
-        if hasattr(self.stream2, 'flush'):
-            self.stream2.flush()
-
-
 def parselinenos(spec: str, total: int) -> list[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
