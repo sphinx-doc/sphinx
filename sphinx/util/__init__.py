@@ -6,13 +6,12 @@ import hashlib
 import os
 import posixpath
 import re
-from os import path
 from typing import Any
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.errors import FiletypeNotFoundError
 from sphinx.locale import __
-from sphinx.util import _importer, logging
+from sphinx.util import _files, _importer, logging
 from sphinx.util import index_entries as _index_entries
 from sphinx.util.console import strip_colors  # NoQA: F401
 from sphinx.util.matching import patfilter  # NoQA: F401
@@ -55,49 +54,6 @@ def get_filetype(source_suffix: dict[str, str], filename: str | os.PathLike) -> 
     raise FiletypeNotFoundError
 
 
-class FilenameUniqDict(dict):
-    """
-    A dictionary that automatically generates unique names for its keys,
-    interpreted as filenames, and keeps track of a set of docnames they
-    appear in.  Used for images and downloadable files in the environment.
-    """
-
-    def __init__(self) -> None:
-        self._existing: set[str] = set()
-
-    def add_file(self, docname: str, newfile: str) -> str:
-        if newfile in self:
-            self[newfile][0].add(docname)
-            return self[newfile][1]
-        uniquename = path.basename(newfile)
-        base, ext = path.splitext(uniquename)
-        i = 0
-        while uniquename in self._existing:
-            i += 1
-            uniquename = f'{base}{i}{ext}'
-        self[newfile] = ({docname}, uniquename)
-        self._existing.add(uniquename)
-        return uniquename
-
-    def purge_doc(self, docname: str) -> None:
-        for filename, (docs, unique) in list(self.items()):
-            docs.discard(docname)
-            if not docs:
-                del self[filename]
-                self._existing.discard(unique)
-
-    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
-        for filename, (docs, _unique) in other.items():
-            for doc in docs & set(docnames):
-                self.add_file(doc, filename)
-
-    def __getstate__(self) -> set[str]:
-        return self._existing
-
-    def __setstate__(self, state: set[str]) -> None:
-        self._existing = state
-
-
 def _md5(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
     """Deprecated wrapper around hashlib.md5
 
@@ -112,34 +68,6 @@ def _sha1(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
     To be removed in Sphinx 9.0
     """
     return hashlib.sha1(data, usedforsecurity=False)
-
-
-class DownloadFiles(dict):
-    """A special dictionary for download files.
-
-    .. important:: This class would be refactored in nearly future.
-                   Hence don't hack this directly.
-    """
-
-    def add_file(self, docname: str, filename: str) -> str:
-        if filename not in self:
-            digest = hashlib.md5(filename.encode(), usedforsecurity=False).hexdigest()
-            dest = f'{digest}/{os.path.basename(filename)}'
-            self[filename] = (set(), dest)
-
-        self[filename][0].add(docname)
-        return self[filename][1]
-
-    def purge_doc(self, docname: str) -> None:
-        for filename, (docs, _dest) in list(self.items()):
-            docs.discard(docname)
-            if not docs:
-                del self[filename]
-
-    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
-        for filename, (docs, _dest) in other.items():
-            for docname in docs & set(docnames):
-                self.add_file(docname, filename)
 
 
 class UnicodeDecodeErrorHandler:
@@ -217,6 +145,8 @@ _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
     'md5': (_md5, '', (9, 0)),
     'sha1': (_sha1, '', (9, 0)),
     'import_object': (_importer.import_object, '', (10, 0)),
+    'FilenameUniqDict': (_files.FilenameUniqDict, '', (10, 0)),
+    'DownloadFiles': (_files.DownloadFiles, '', (10, 0)),
 }
 
 
