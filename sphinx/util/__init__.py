@@ -7,7 +7,7 @@ import os
 import posixpath
 import re
 from os import path
-from typing import IO, Any
+from typing import Any
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.errors import FiletypeNotFoundError
@@ -140,10 +140,6 @@ class DownloadFiles(dict):
         for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)
-
-
-# a regex to recognize coding cookies
-_coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 
 class UnicodeDecodeErrorHandler:
