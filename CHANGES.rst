@@ -25,7 +25,6 @@ Bugs fixed
   Note, the priority of the transform has been changed from 200 to 622,
   so that it now runs after the docutils ``Footnotes`` resolution transform.
   Patch by Chris Sewell.
-
 * #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
   :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
   get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
