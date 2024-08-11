@@ -3,18 +3,16 @@
 from __future__ import annotations
 
 import contextlib
-import hashlib
 import html
 import os
 import posixpath
 import re
 import shutil
 import sys
-import types
 import warnings
 from os import path
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -32,6 +30,7 @@ from sphinx.builders.html._assets import (
     _file_checksum,
     _JavaScript,
 )
+from sphinx.builders.html._build_info import BuildInfo
 from sphinx.config import ENUM, Config
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Domain, Index, IndexEntry
@@ -64,16 +63,14 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Set
+    from collections.abc import Iterable, Iterator
     from typing import TypeAlias
 
     from docutils.nodes import Node
     from docutils.readers import Reader
 
     from sphinx.application import Sphinx
-    from sphinx.config import _ConfigRebuild
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.tags import Tags
     from sphinx.util.typing import ExtensionMetadata
 
 #: the filename for the inventory of objects
@@ -94,23 +91,6 @@ DOMAIN_INDEX_TYPE: TypeAlias = tuple[
 ]
 
 
-def _stable_hash(obj: Any) -> str:
-    """Return a stable hash for a Python data structure.
-
-    We can't just use the md5 of str(obj) as the order of collections
-    may be random.
-    """
-    if isinstance(obj, dict):
-        obj = sorted(map(_stable_hash, obj.items()))
-    if isinstance(obj, list | tuple | set | frozenset):
-        obj = sorted(map(_stable_hash, obj))
-    elif isinstance(obj, type | types.FunctionType):
-        # The default repr() of functions includes the ID, which is not ideal.
-        # We use the fully qualified name instead.
-        obj = f'{obj.__module__}.{obj.__qualname__}'
-    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
-
-
 def convert_locale_to_language_tag(locale: str | None) -> str | None:
     """Convert a locale string to a language tag (ex. en_US -> en-US).
 
@@ -120,70 +100,6 @@ def convert_locale_to_language_tag(locale: str | None) -> str | None:
         return locale.replace('_', '-')
     else:
         return None
-
-
-class BuildInfo:
-    """buildinfo file manipulator.
-
-    HTMLBuilder and its family are storing their own envdata to ``.buildinfo``.
-    This class is a manipulator for the file.
-    """
-
-    @classmethod
-    def load(cls: type[BuildInfo], filename: Path, /) -> BuildInfo:
-        try:
-            content = filename.read_text(encoding="utf-8")
-        except OSError as exc:
-            msg = __('could not read build info file: %r') % exc
-            raise ValueError(msg) from exc
-        lines = content.splitlines()
-
-        version = lines[0].rstrip()
-        if version != '# Sphinx build info version 1':
-            msg = __('failed to read broken build info file (unknown version)')
-            raise ValueError(msg)
-
-        if not lines[2].startswith('config: '):
-            msg = __('failed to read broken build info file (missing config entry)')
-            raise ValueError(msg)
-        if not lines[3].startswith('tags: '):
-            msg = __('failed to read broken build info file (missing tags entry)')
-            raise ValueError(msg)
-
-        build_info = BuildInfo()
-        build_info.config_hash = lines[2].removeprefix('config: ').strip()
-        build_info.tags_hash = lines[3].removeprefix('tags: ').strip()
-        return build_info
-
-    def __init__(
-        self,
-        config: Config | None = None,
-        tags: Tags | None = None,
-        config_categories: Set[_ConfigRebuild] = frozenset(),
-    ) -> None:
-        self.config_hash = ''
-        self.tags_hash = ''
-
-        if config:
-            values = {c.name: c.value for c in config.filter(config_categories)}
-            self.config_hash = _stable_hash(values)
-
-        if tags:
-            self.tags_hash = _stable_hash(sorted(tags))
-
-    def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
-        return (self.config_hash == other.config_hash and
-                self.tags_hash == other.tags_hash)
-
-    def dump(self, filename: Path, /) -> None:
-        build_info = (
-            '# Sphinx build info version 1\n'
-            '# This file records the configuration used when building these files. '
-            'When it is not found, a full rebuild will be done.\n'
-            f'config: {self.config_hash}\n'
-            f'tags: {self.tags_hash}\n'
-        )
-        filename.write_text(build_info, encoding="utf-8")
 
 
 class StandaloneHTMLBuilder(Builder):
