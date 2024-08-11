@@ -114,7 +114,7 @@ const _finishSearch = (resultCount) => {
     Search.status.innerText = Documentation.gettext(
       "Your search did not match any documents. Please make sure that all words are spelled correctly and that you've selected enough categories."
     );
-    else
+  else
     Search.status.innerText = Documentation.ngettext(
       "Search finished, found one page matching the search query.",
       "Search finished, found ${resultCount} pages matching the search query.",
