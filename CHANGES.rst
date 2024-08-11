@@ -33,10 +33,6 @@ Features added
 
 Bugs fixed
 ----------
-* #11970: singlehtml builder: make target URIs to be same-document references in
-  the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`, e.g., ``index.html#foo``
-  becomes ``#foo``. (note: continuation of a partial fix added in v7.3.0)
-  Patch by James Addison (with reference to prior work by Eric Norige)
 
 * #12514: intersphinx: fix the meaning of a negative value for
   :confval:`intersphinx_cache_limit`.
@@ -58,6 +54,11 @@ Bugs fixed
   get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
   (silent) apply as well to the PDF build phase.
   Patch by Jean-François B.
+* #11970, #12551: singlehtml builder: make target URIs to be same-document
+  references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
+  e.g., ``index.html#foo`` becomes ``#foo``.
+  (note: continuation of a partial fix added in Sphinx 7.3.0)
+  Patch by James Addison (with reference to prior work by Eric Norige)
 
 Testing
 -------
