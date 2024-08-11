@@ -31,8 +31,6 @@ Features added
 
 Bugs fixed
 ----------
-* #12645: Correctly support custom gettext output templates.
-  Patch by Jeremy Bowman.
 
 * #12514: intersphinx: fix the meaning of a negative value for
   :confval:`intersphinx_cache_limit`.
@@ -45,6 +43,8 @@ Bugs fixed
 * #12587: Do not warn when potential ambiguity detected during Intersphinx
   resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
+* #12645: Correctly support custom gettext output templates.
+  Patch by Jeremy Bowman.
 
 Testing
 -------
