@@ -5,7 +5,7 @@ import os.path
 from typing import Any
 
 
-class FilenameUniqDict(dict):
+class FilenameUniqDict(dict[str, tuple[set[str], str]]):
     """
     A dictionary that automatically generates unique names for its keys,
     interpreted as filenames, and keeps track of a set of docnames they
@@ -48,7 +48,7 @@ class FilenameUniqDict(dict):
         self._existing = state
 
 
-class DownloadFiles(dict):
+class DownloadFiles(dict[str, tuple[set[str], str]]):
     """A special dictionary for download files.
 
     .. important:: This class would be refactored in nearly future.
