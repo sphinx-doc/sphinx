@@ -59,6 +59,8 @@ Bugs fixed
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
   Patch by James Addison (with reference to prior work by Eric Norige)
+* #12735: Fix :pep:`695` generic classes LaTeX output formatting.
+  Patch by Jean-François B. and Bénédikt Tran.
 
 Testing
 -------
