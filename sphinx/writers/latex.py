@@ -887,7 +887,7 @@ class LaTeXTranslator(SphinxTranslator):
     def depart_desc_type_parameter_list(self, node: Element) -> None:
         if self.orphan_tp_list:
             # this node next sibling isn't a desc_parameterlist, there are no parameters:
-            # close the type list, output an empty parameter list, and open return annotation.
+            # close the type list, output an empty parameter list, open return annotation.
             self.body.append('}' + CR + '{}' + CR + '{')
         else:
             # close type parameters list, open parameters list argument (#3)
