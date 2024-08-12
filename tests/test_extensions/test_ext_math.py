@@ -288,6 +288,7 @@ def test_mathjax_numsep_html(app):
     assert html in content
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx(
     'html',
     testroot='ext-math',

@@ -131,6 +131,7 @@ def test_texinfo_samp_with_variable(app):
     assert '@code{Show @var{variable} in the middle}' in output
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('texinfo', testroot='images')
 def test_copy_images(app):
     app.build()

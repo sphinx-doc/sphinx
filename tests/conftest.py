@@ -4,6 +4,7 @@ import gettext
 import os
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import docutils
@@ -43,7 +44,11 @@ os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 @pytest.fixture(scope='session')
 def rootdir() -> Path:
-    return Path(__file__).parent.resolve() / 'roots'
+    roots = Path(__file__).parent.resolve() / 'roots'
+    all_files = set(roots.rglob('*'))
+    yield roots
+    added_files = set(roots.rglob('*')) - all_files
+    Path('added_files.txt').write_text('\n'.join(str(f) for f in added_files))
 
 
 def pytest_report_header(config: pytest.Config) -> str:
@@ -60,3 +65,20 @@ def _cleanup_docutils() -> Iterator[None]:
     sys.path[:] = saved_path
 
     _clean_up_global_state()
+
+
+@pytest.fixture
+def _http_teapot(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Short-circuit HTTP requests.
+
+    Windows takes too long to fail on connections, hence this fixture.
+    """
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418
+    response = SimpleNamespace(status_code=418)
+
+    def _request(*args, **kwargs):
+        return response
+
+    with monkeypatch.context() as m:
+        m.setattr('sphinx.util.requests._Session.request', _request)
+        yield

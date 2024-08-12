@@ -473,6 +473,7 @@ def test_xml_name_pattern_check():
     assert not _XML_NAME_PATTERN.match('1bfda21')
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('epub', testroot='images')
 def test_copy_images(app):
     app.build()
