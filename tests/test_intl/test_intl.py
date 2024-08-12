@@ -1705,6 +1705,7 @@ SUBSTITUTED IMAGE [image: SUBST_EPILOG_2 TRANSLATED][image] HERE.
     )
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx(
     'dummy',
     testroot='images',
@@ -1782,6 +1783,7 @@ def test_image_glob_intl(app):
     )
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx(
     'dummy',
     testroot='images',

@@ -100,6 +100,7 @@ def test_numbered_circular_toctree(app):
     ) in warnings
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('dummy', testroot='images')
 def test_image_glob(app):
     app.build(force_all=True)

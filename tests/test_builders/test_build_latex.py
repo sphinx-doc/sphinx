@@ -2157,6 +2157,7 @@ def test_latex_code_role(app):
     ) in content
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_copy_images(app):
     app.build()

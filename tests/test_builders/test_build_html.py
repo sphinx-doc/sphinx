@@ -266,6 +266,7 @@ def test_html_inventory(app):
     )
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx(
     'html',
     testroot='images',
