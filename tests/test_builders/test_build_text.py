@@ -14,12 +14,7 @@ if TYPE_CHECKING:
 
 
 def with_text_app(*args: Any, **kw: Any) -> pytest.MarkDecorator:
-    default_kw = {
-        'buildername': 'text',
-        'testroot': 'build-text',
-    }
-    default_kw.update(kw)
-    return pytest.mark.sphinx(*args, **default_kw)
+    return pytest.mark.sphinx(*args, buildername='text', testroot='build-text', **kw)
 
 
 @with_text_app()

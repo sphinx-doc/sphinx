@@ -86,7 +86,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
     It is recommended to use::
 
-        @pytest.mark.sphinx('html')
+        @pytest.mark.sphinx('html', testroot='root')
         def test(app):
             app = ...
 

@@ -69,6 +69,7 @@ def make_directive_bridge(env):
 processed_signatures = []
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_parse_name(app):
     def verify(objtype, name, result):
         inst = app.registry.documenters[objtype](directive, name)
@@ -123,6 +124,7 @@ def test_parse_name(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_format_signature(app):
     def process_signature(app, what, name, obj, options, args, retann):
         processed_signatures.append((what, name))
@@ -306,6 +308,7 @@ def test_autodoc_process_signature_typing_generic(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_autodoc_process_signature_typehints(app):
     captured = []
 
@@ -328,6 +331,7 @@ def test_autodoc_process_signature_typehints(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_get_doc(app):
     directive = make_directive_bridge(app.env)
 

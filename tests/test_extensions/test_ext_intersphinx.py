@@ -70,6 +70,7 @@ def set_config(app, mapping):
 
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
 @mock.patch('sphinx.ext.intersphinx._load._read_from_url')
+@pytest.mark.sphinx('html', testroot='root')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQA: PT019
     intersphinx_setup(app)
     _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
@@ -136,6 +137,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
     assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -227,6 +229,7 @@ def test_missing_reference(tmp_path, app):
     assert rn['refuri'] == 'https://docs.python.org/docname.html'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_pydomain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -260,6 +263,7 @@ def test_missing_reference_pydomain(tmp_path, app):
     assert rn.astext() == 'Foo.bar'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_stddomain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -320,6 +324,7 @@ def test_missing_reference_stddomain(tmp_path, app):
         ('B TERM', True),
     ],
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_ambiguous_reference_handling(term, expected_ambiguity, tmp_path, app, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
@@ -378,6 +383,7 @@ def test_missing_reference_cppdomain(tmp_path, app):
     ) in html
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_jsdomain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -405,6 +411,7 @@ def test_missing_reference_jsdomain(tmp_path, app):
     assert rn.astext() == 'baz()'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_disabled_domain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -470,6 +477,7 @@ def test_missing_reference_disabled_domain(tmp_path, app):
     case(term=False, doc=False, py=False)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_inventory_not_having_version(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_NO_VERSION)
@@ -491,6 +499,7 @@ def test_inventory_not_having_version(tmp_path, app):
     assert rn[0].astext() == 'Long Module desc'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_validate_intersphinx_mapping_warnings(app):
     """Check warnings in :func:`sphinx.ext.intersphinx.validate_intersphinx_mapping`."""
     bad_intersphinx_mapping = {
@@ -544,6 +553,7 @@ def test_validate_intersphinx_mapping_warnings(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_load_mappings_fallback(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -733,6 +743,7 @@ if TYPE_CHECKING:
     from sphinx.ext.intersphinx._shared import InventoryCacheEntry
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_intersphinx_cache_limit(app):
     url = 'https://example.org/'
     app.config.intersphinx_cache_limit = -1

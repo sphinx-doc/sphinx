@@ -87,6 +87,7 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'ls.-l'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_cmd_option_with_optional_value(app):
     text = '.. option:: -j[=N]'
     doctree = restructuredtext.parse(app, text)
@@ -113,6 +114,7 @@ def test_cmd_option_with_optional_value(app):
     assert ('-j', '-j', 'cmdoption', 'index', 'cmdoption-j', 1) in objects
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_cmd_option_starting_with_bracket(app):
     text = '.. option:: [enable=]PATTERN'
     doctree = restructuredtext.parse(app, text)
@@ -143,6 +145,7 @@ def test_cmd_option_starting_with_bracket(app):
     ) in objects
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_glossary(app):
     text = (
         '.. glossary::\n'
@@ -238,6 +241,7 @@ def test_glossary(app):
     assert_node(refnode, nodes.reference, refid='term-TERM2')
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_glossary_warning(app):
     # empty line between terms
     text = '.. glossary::\n\n   term1\n\n   term2\n'
@@ -269,6 +273,7 @@ def test_glossary_warning(app):
     ) in app.warning.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_glossary_comment(app):
     text = (
         '.. glossary::\n'
@@ -294,6 +299,7 @@ def test_glossary_comment(app):
     assert_node(doctree[0][0][0][1], [nodes.definition, nodes.paragraph, 'description'])
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_glossary_comment2(app):
     text = (
         '.. glossary::\n'
@@ -327,6 +333,7 @@ def test_glossary_comment2(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_glossary_sorted(app):
     text = (
         '.. glossary::\n'
@@ -364,6 +371,7 @@ def test_glossary_sorted(app):
     assert_node(doctree[0][0][1][1], [nodes.definition, nodes.paragraph, 'description'])
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_glossary_alphanumeric(app):
     text = '.. glossary::\n\n   1\n   /\n'
     restructuredtext.parse(app, text)
@@ -372,6 +380,7 @@ def test_glossary_alphanumeric(app):
     assert ('/', '/', 'term', 'index', 'term-0', -1) in objects
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_glossary_conflicted_labels(app):
     text = '.. _term-foo:\n.. glossary::\n\n   foo\n'
     restructuredtext.parse(app, text)
@@ -379,6 +388,7 @@ def test_glossary_conflicted_labels(app):
     assert ('foo', 'foo', 'term', 'index', 'term-0', -1) in objects
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_cmdoption(app):
     text = '.. program:: ls\n\n.. option:: -l\n'
     domain = app.env.get_domain('std')
@@ -405,6 +415,7 @@ def test_cmdoption(app):
     assert domain.progoptions[('ls', '-l')] == ('index', 'cmdoption-ls-l')
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_cmdoption_for_None(app):
     text = '.. program:: ls\n.. program:: None\n\n.. option:: -l\n'
     domain = app.env.get_domain('std')
@@ -431,6 +442,7 @@ def test_cmdoption_for_None(app):
     assert domain.progoptions[(None, '-l')] == ('index', 'cmdoption-l')
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_multiple_cmdoptions(app):
     text = '.. program:: cmd\n\n.. option:: -o directory, --output directory\n'
     domain = app.env.get_domain('std')
@@ -471,7 +483,7 @@ def test_multiple_cmdoptions(app):
     assert domain.progoptions[('cmd', '--output')] == ('index', 'cmdoption-cmd-o')
 
 
-@pytest.mark.sphinx(testroot='productionlist')
+@pytest.mark.sphinx('html', testroot='productionlist')
 def test_productionlist(app):
     app.build(force_all=True)
 
@@ -530,6 +542,7 @@ def test_productionlist(app):
     assert 'A</strong> ::=  B C D    E F G' in text
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_productionlist2(app):
     text = '.. productionlist:: P2\n   A: `:A` `A`\n   B: `P1:B` `~P1:B`\n'
     doctree = restructuredtext.parse(app, text)
@@ -544,6 +557,7 @@ def test_productionlist2(app):
     assert_node(refnodes[3], [pending_xref, nodes.literal, 'B'])
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_disabled_docref(app):
     text = ':doc:`index`\n:doc:`!index`\n'
     doctree = restructuredtext.parse(app, text)
@@ -558,6 +572,7 @@ def test_disabled_docref(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_labeled_rubric(app):
     text = '.. _label:\n.. rubric:: blah *blah* blah\n'
     restructuredtext.parse(app, text)
@@ -567,6 +582,7 @@ def test_labeled_rubric(app):
     assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_labeled_definition(app):
     text = (
         '.. _label1:\n'
@@ -589,6 +605,7 @@ def test_labeled_definition(app):
     assert domain.labels['label2'] == ('index', 'label2', 'Bar blah blah blah')
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_labeled_field(app):
     text = (
         '.. _label1:\n'

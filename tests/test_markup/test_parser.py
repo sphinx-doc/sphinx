@@ -8,7 +8,7 @@ from sphinx.parsers import RSTParser
 from sphinx.util.docutils import new_document
 
 
-@pytest.mark.sphinx(testroot='basic')
+@pytest.mark.sphinx('html', testroot='basic')
 @patch('docutils.parsers.rst.states.RSTStateMachine')
 def test_RSTParser_prolog_epilog(RSTStateMachine, app):
     document = new_document('dummy.rst')
