@@ -49,6 +49,16 @@ Bugs fixed
   Patch by Hugo van Kemenade.
 * #12645: Correctly support custom gettext output templates.
   Patch by Jeremy Bowman.
+* #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
+  :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
+  get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
+  (silent) apply as well to the PDF build phase.
+  Patch by Jean-François B.
+* #11970, #12551: singlehtml builder: make target URIs to be same-document
+  references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
+  e.g., ``index.html#foo`` becomes ``#foo``.
+  (note: continuation of a partial fix added in Sphinx 7.3.0)
+  Patch by James Addison (with reference to prior work by Eric Norige)
 
 Testing
 -------
