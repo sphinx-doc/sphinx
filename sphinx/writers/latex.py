@@ -885,11 +885,12 @@ class LaTeXTranslator(SphinxTranslator):
         self._visit_sig_parameter_list(node, addnodes.desc_type_parameter)
 
     def depart_desc_type_parameter_list(self, node: Element) -> None:
-        # close type parameters list, open parameters list argument (#3)
         if self.orphan_tp_list:
-            # no parameters
+            # this node next sibling isn't a desc_parameterlist, there are no parameters:
+            # close the type list, output an empty parameter list, and open return annotation.
             self.body.append('}' + CR + '{}' + CR + '{')
         else:
+            # close type parameters list, open parameters list argument (#3)
             self.body.append('}' + CR + '{')
 
     def _visit_sig_parameter(self, node: Element, parameter_macro: str) -> None:
