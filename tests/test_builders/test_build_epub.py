@@ -443,7 +443,7 @@ def test_duplicated_toctree_entry(app):
     'DO_EPUBCHECK' not in os.environ,
     reason='Skipped because DO_EPUBCHECK is not set',
 )
-@pytest.mark.sphinx('epub')
+@pytest.mark.sphinx('epub', testroot='root')
 def test_run_epubcheck(app):
     app.build()
 

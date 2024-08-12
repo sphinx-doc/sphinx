@@ -124,7 +124,7 @@ def test_html4_error(make_app, tmp_path):
         ),
     ],
 )
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='root')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
 def test_docutils_output(app, cached_etree_parse, fname, path, check):
     app.build()
@@ -133,6 +133,7 @@ def test_docutils_output(app, cached_etree_parse, fname, path, check):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     parallel=2,
 )
 def test_html_parallel(app):
@@ -489,6 +490,7 @@ def test_html_baseurl_and_html_file_suffix(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='basic',
     srcdir='validate_html_extra_path',
 )
@@ -508,6 +510,7 @@ def test_validate_html_extra_path(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='basic',
     srcdir='validate_html_static_path',
 )

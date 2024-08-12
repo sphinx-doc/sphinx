@@ -8,6 +8,7 @@ from sphinx.testing import restructuredtext
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     freshenv=True,
 )
 def test_create_single_index(app):
@@ -73,6 +74,7 @@ def test_create_single_index(app):
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     freshenv=True,
 )
 def test_create_pair_index(app):
@@ -139,6 +141,7 @@ def test_create_pair_index(app):
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     freshenv=True,
 )
 def test_create_triple_index(app):
@@ -170,6 +173,7 @@ def test_create_triple_index(app):
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     freshenv=True,
 )
 def test_create_see_index(app):
@@ -188,6 +192,7 @@ def test_create_see_index(app):
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     freshenv=True,
 )
 def test_create_seealso_index(app):
@@ -212,6 +217,7 @@ def test_create_seealso_index(app):
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     freshenv=True,
 )
 def test_create_main_index(app):
@@ -236,6 +242,7 @@ def test_create_main_index(app):
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     freshenv=True,
 )
 def test_create_index_with_name(app):
@@ -263,6 +270,7 @@ def test_create_index_with_name(app):
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     freshenv=True,
 )
 def test_create_index_by_key(app):

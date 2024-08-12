@@ -1,5 +1,6 @@
 """Tests sphinx.util.rst functions."""
 
+import pytest
 from docutils.statemachine import StringList
 from jinja2 import Environment
 
@@ -13,6 +14,7 @@ def test_escape():
     assert escape('.. toctree::') == r'\.. toctree\:\:'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_append_epilog(app):
     epilog = 'this is rst_epilog\ngood-bye reST!'
     content = StringList(
@@ -30,6 +32,7 @@ def test_append_epilog(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_prepend_prolog(app):
     prolog = 'this is rst_prolog\nhello reST!'
     content = StringList(
@@ -57,6 +60,7 @@ def test_prepend_prolog(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_prepend_prolog_with_CR(app):
     # prolog having CR at tail
     prolog = 'this is rst_prolog\nhello reST!\n'
@@ -75,6 +79,7 @@ def test_prepend_prolog_with_CR(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_prepend_prolog_without_CR(app):
     # prolog not having CR at tail
     prolog = 'this is rst_prolog\nhello reST!'
@@ -93,6 +98,7 @@ def test_prepend_prolog_without_CR(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_prepend_prolog_with_roles_in_sections(app):
     prolog = 'this is rst_prolog\nhello reST!'
     content = StringList(
@@ -124,6 +130,7 @@ def test_prepend_prolog_with_roles_in_sections(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_prepend_prolog_with_roles_in_sections_with_newline(app):
     # prologue with trailing line break
     prolog = 'this is rst_prolog\nhello reST!\n'
@@ -141,6 +148,7 @@ def test_prepend_prolog_with_roles_in_sections_with_newline(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_prepend_prolog_with_roles_in_sections_without_newline(app):
     # prologue with no trailing line break
     prolog = 'this is rst_prolog\nhello reST!'

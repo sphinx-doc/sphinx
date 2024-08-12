@@ -23,7 +23,6 @@ from sphinx.util.nodes import NodeMatcher
 _CATALOG_LOCALE = 'xx'
 
 sphinx_intl = pytest.mark.sphinx(
-    testroot='intl',
     confoverrides={
         'language': _CATALOG_LOCALE,
         'locale_dirs': ['.'],
@@ -91,7 +90,7 @@ def assert_count(expected_expr, result, count):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_emit_warnings(app):
     app.build()
@@ -107,7 +106,7 @@ def test_text_emit_warnings(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_warning_node(app):
     app.build()
@@ -122,7 +121,7 @@ def test_text_warning_node(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_title_underline(app):
     app.build()
@@ -137,7 +136,7 @@ def test_text_title_underline(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_subdirs(app):
     app.build()
@@ -147,7 +146,7 @@ def test_text_subdirs(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_inconsistency_warnings(app):
     app.build()
@@ -215,7 +214,7 @@ def test_text_inconsistency_warnings(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_noqa(app):
     app.build()
@@ -241,7 +240,7 @@ TO TEST BARE noqa.
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_literalblock_warnings(app):
     app.build()
@@ -268,7 +267,7 @@ def test_text_literalblock_warnings(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_definition_terms(app):
     app.build()
@@ -290,7 +289,7 @@ def test_text_definition_terms(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_glossary_term(app):
     app.build()
@@ -325,7 +324,7 @@ VVV
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_glossary_term_inconsistencies(app):
     app.build()
@@ -361,7 +360,7 @@ def test_text_glossary_term_inconsistencies(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_section(app):
     app.build()
@@ -373,7 +372,7 @@ def test_gettext_section(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_section(app):
     app.build()
@@ -385,7 +384,7 @@ def test_text_section(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_seealso(app):
     app.build()
@@ -404,7 +403,7 @@ def test_text_seealso(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_figure_captions(app):
     app.build()
@@ -450,7 +449,7 @@ def test_text_figure_captions(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_rubric(app):
     app.build()
@@ -470,7 +469,7 @@ def test_text_rubric(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_docfields(app):
     app.build()
@@ -501,7 +500,7 @@ def test_text_docfields(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_admonitions(app):
     app.build()
@@ -530,7 +529,7 @@ def test_text_admonitions(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_toctree(app):
     app.build()
@@ -547,7 +546,7 @@ def test_gettext_toctree(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_table(app):
     app.build()
@@ -559,7 +558,7 @@ def test_gettext_table(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_table(app):
     app.build()
@@ -571,7 +570,7 @@ def test_text_table(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_toctree(app):
     app.build()
@@ -588,7 +587,7 @@ def test_text_toctree(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_topic(app):
     app.build()
@@ -600,7 +599,7 @@ def test_gettext_topic(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_topic(app):
     app.build()
@@ -612,7 +611,7 @@ def test_text_topic(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_definition_terms(app):
     app.build()
@@ -626,7 +625,7 @@ def test_gettext_definition_terms(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_glossary_terms(app):
     app.build()
@@ -640,7 +639,7 @@ def test_gettext_glossary_terms(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_glossary_term_inconsistencies(app):
     app.build()
@@ -654,7 +653,7 @@ def test_gettext_glossary_term_inconsistencies(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_literalblock(app):
     app.build()
@@ -670,7 +669,7 @@ def test_gettext_literalblock(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('gettext')
+@pytest.mark.sphinx('gettext', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_buildr_ignores_only_directive(app):
     app.build()
@@ -682,6 +681,7 @@ def test_gettext_buildr_ignores_only_directive(app):
 
 
 @sphinx_intl
+@pytest.mark.sphinx('html', testroot='intl')
 def test_node_translated_attribute(app):
     app.build(filenames=[app.srcdir / 'translation_progress.txt'])
 
@@ -695,6 +695,7 @@ def test_node_translated_attribute(app):
 
 
 @sphinx_intl
+@pytest.mark.sphinx('html', testroot='intl')
 def test_translation_progress_substitution(app):
     app.build(filenames=[app.srcdir / 'translation_progress.txt'])
 
@@ -704,6 +705,7 @@ def test_translation_progress_substitution(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='intl',
     freshenv=True,
     confoverrides={
@@ -837,8 +839,8 @@ def mock_time_and_i18n(
         yield mock, clock
 
 
-@sphinx_intl
 # use the same testroot as 'gettext' since the latter contains less PO files
+@sphinx_intl
 @pytest.mark.sphinx(
     'dummy',
     testroot='builder-gettext-dont-rebuild-mo',
@@ -950,7 +952,7 @@ def test_gettext_dont_rebuild_mo(mock_time_and_i18n, app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_meta(app):
     app.build()
@@ -969,7 +971,7 @@ def test_html_meta(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_footnotes(app):
     app.build()
@@ -979,7 +981,7 @@ def test_html_footnotes(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_undefined_refs(app):
     app.build()
@@ -1003,7 +1005,7 @@ def test_html_undefined_refs(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_index_entries(app):
     app.build()
@@ -1047,7 +1049,7 @@ def test_html_index_entries(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_versionchanges(app):
     app.build()
@@ -1092,7 +1094,7 @@ def test_html_versionchanges(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_docfields(app):
     app.build()
@@ -1102,7 +1104,7 @@ def test_html_docfields(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_template(app):
     app.build()
@@ -1113,7 +1115,7 @@ def test_html_template(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_html_rebuild_mo(app):
     app.build()
@@ -1132,7 +1134,7 @@ def test_html_rebuild_mo(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('xml')
+@pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_footnotes(app):
     app.build()
@@ -1181,7 +1183,7 @@ def test_xml_footnotes(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('xml')
+@pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_footnote_backlinks(app):
     app.build()
@@ -1201,7 +1203,7 @@ def test_xml_footnote_backlinks(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('xml')
+@pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_refs_in_python_domain(app):
     app.build()
@@ -1219,7 +1221,7 @@ def test_xml_refs_in_python_domain(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('xml')
+@pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_keep_external_links(app):
     app.build()
@@ -1287,7 +1289,7 @@ def test_xml_keep_external_links(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('xml')
+@pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_role_xref(app):
     app.build()
@@ -1362,7 +1364,7 @@ def test_xml_role_xref(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('xml')
+@pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_warnings(app):
     app.build()
@@ -1374,7 +1376,7 @@ def test_xml_warnings(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('xml')
+@pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_label_targets(app):
     app.build()
@@ -1456,7 +1458,7 @@ def test_xml_label_targets(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('xml')
+@pytest.mark.sphinx('xml', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_xml_strange_markup(app):
     app.build()
@@ -1469,7 +1471,7 @@ def test_xml_strange_markup(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app):
     app.build()
@@ -1539,6 +1541,7 @@ def test_additional_targets_should_not_be_translated(app):
 @sphinx_intl
 @pytest.mark.sphinx(
     'html',
+    testroot='intl',
     srcdir='test_additional_targets_should_be_translated',
     confoverrides={
         'language': _CATALOG_LOCALE,
@@ -1665,7 +1668,7 @@ def test_additional_targets_should_be_translated_substitution_definitions(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('text')
+@pytest.mark.sphinx('text', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_references(app):
     app.build(filenames=[app.srcdir / 'refs.txt'])
