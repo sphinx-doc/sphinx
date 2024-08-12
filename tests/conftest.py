@@ -44,11 +44,7 @@ os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 @pytest.fixture(scope='session')
 def rootdir() -> Path:
-    roots = Path(__file__).parent.resolve() / 'roots'
-    all_files = set(roots.rglob('*'))
-    yield roots
-    added_files = set(roots.rglob('*')) - all_files
-    Path('added_files.txt').write_text('\n'.join(str(f) for f in added_files))
+    return Path(__file__).parent.resolve() / 'roots'
 
 
 def pytest_report_header(config: pytest.Config) -> str:
