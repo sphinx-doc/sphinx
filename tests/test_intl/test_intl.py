@@ -27,6 +27,7 @@ sphinx_intl = pytest.mark.sphinx(
         'language': _CATALOG_LOCALE,
         'locale_dirs': ['.'],
         'gettext_compact': False,
+        'html_sidebars': {'**': ['globaltoc.html']},  # for test_html_meta
     },
 )
 

@@ -177,6 +177,16 @@ class SphinxTestApp(sphinx.application.Sphinx):
             self.cleanup()
             raise
 
+    def _init_builder(self) -> None:
+        # override the default theme to 'basic' rather than 'alabaster'
+        # for test independence
+
+        if 'html_theme' in self.config._overrides:
+            pass  # respect overrides
+        elif 'html_theme' in self.config and self.config.html_theme == 'alabaster':
+            self.config.html_theme = self.config._overrides.get('html_theme', 'basic')
+        super()._init_builder()
+
     @property
     def status(self) -> StringIO:
         """The in-memory text I/O for the application status messages."""
