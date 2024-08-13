@@ -766,7 +766,7 @@ __ https://pygments.org/docs/lexers
       .. versionchanged:: 1.6.6
          LaTeX supports the ``emphasize-lines`` option.
 
-   .. rst:directive:option: force
+   .. rst:directive:option:: force
       :type: no value
 
       Ignore minor errors on highlighting
@@ -852,122 +852,184 @@ __ https://pygments.org/docs/lexers
    it is absolute (starting with ``/``), it is relative to the top source
    directory.
 
-   **Additional options**
+   .. rubric:: General options
 
-   Like :rst:dir:`code-block`, the directive supports the ``linenos`` flag
-   option to switch on line numbers, the ``lineno-start`` option to select the
-   first line number, the ``emphasize-lines`` option to emphasize particular
-   lines, the ``name`` option to provide an implicit target name, the
-   ``dedent`` option to strip indentation characters for the code block, and a
-   ``language`` option to select a language different from the current file's
-   standard language. In addition, it supports the ``caption`` option; however,
-   this can be provided with no argument to use the filename as the caption.
-   Example with options::
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
 
-      .. literalinclude:: example.rb
-         :language: ruby
-         :emphasize-lines: 12,15-18
-         :linenos:
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
 
-   Tabs in the input are expanded if you give a ``tab-width`` option with the
-   desired tab width.
+      .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
 
-   Include files are assumed to be encoded in the :confval:`source_encoding`.
-   If the file has a different encoding, you can specify it with the
-   ``encoding`` option::
+   .. rst:directive:option:: name: label
+      :type: text
 
-      .. literalinclude:: example.py
-         :encoding: latin-1
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
 
-   The directive also supports including only parts of the file.  If it is a
-   Python module, you can select a class, function or method to include using
-   the ``pyobject`` option::
+   .. rst:directive:option:: caption: caption
+      :type: text
 
-      .. literalinclude:: example.py
-         :pyobject: Timer.start
+      Add a caption above the included content. I no argument is given,
+      the filename is used as the caption.
 
-   This would only include the code lines belonging to the ``start()`` method
-   in the ``Timer`` class within the file.
+   .. rubric:: Options for formatting
 
-   Alternately, you can specify exactly which lines to include by giving a
-   ``lines`` option::
+   .. rst:directive:option:: dedent: number
+      :type: number or no value
 
-      .. literalinclude:: example.py
-         :lines: 1,3,5-10,20-
+      Strip indentation characters from the included content.  When a number
+      is given, the leading N characters are removed.  When no argument given,
+      leading spaces are removed via :func:`textwrap.dedent()`.
 
-   This includes the lines 1, 3, 5 to 10 and lines 20 to the last line.
+   .. rst:directive:option:: tab-width: N
+      :type: number
 
-   Another way to control which part of the file is included is to use the
-   ``start-after`` and ``end-before`` options (or only one of them).  If
-   ``start-after`` is given as a string option, only lines that follow the
-   first line containing that string are included.  If ``end-before`` is given
-   as a string option, only lines that precede the first lines containing that
-   string are included. The ``start-at`` and ``end-at`` options behave in a
-   similar way, but the lines containing the matched string are included.
+      Expand tabs to N spaces.
 
-   ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
-   ``start-after``/``start-at`` filter lines before the line that contains
-   option string (``start-at`` will keep the line). Then ``end-before``/``end-at``
-   filter lines after the line that contains option string (``end-at`` will keep
-   the line and ``end-before`` skip the first line).
+   .. rst:directive:option:: encoding
+      :type: text
 
-   .. note::
+      Explicitly specify the encoding of the file. This overwrites the default
+      encoding :confval:`source_encoding`. Example::
 
-      If you want to select only ``[second-section]`` of ini file like the
-      following, you can use ``:start-at: [second-section]`` and
-      ``:end-before: [third-section]``:
-
-      .. code-block:: ini
-
-         [first-section]
-
-         var_in_first=true
-
-         [second-section]
-
-         var_in_second=true
-
-         [third-section]
-
-         var_in_third=true
-
-      Useful cases of these option is working with tag comments.
-      ``:start-after: [initialize]`` and ``:end-before: [initialized]`` options
-      keep lines between comments:
-
-      .. code-block:: py
-
-         if __name__ == "__main__":
-             # [initialize]
-             app.start(":8000")
-             # [initialized]
+         .. literalinclude:: example.py
+            :encoding: latin-1
 
 
-   When lines have been selected in any of the ways described above, the line
-   numbers in ``emphasize-lines`` refer to those selected lines, counted
-   consecutively starting at ``1``.
 
-   When specifying particular parts of a file to display, it can be useful to
-   display the original line numbers. This can be done using the
-   ``lineno-match`` option, which is however allowed only when the selection
-   consists of contiguous lines.
+   .. rst:directive:option:: linenos
+      :type: no value
 
-   You can prepend and/or append a line to the included code, using the
-   ``prepend`` and ``append`` option, respectively.  This is useful e.g. for
-   highlighting PHP code that doesn't include the ``<?php``/``?>`` markers.
+      Show line numbers alongside the included content. By default,
+      line numbers are counted from 1. This can be changed by the
+      options ``:lineno-start:`` and ``:lineno-match:``.
 
-   If you want to show the diff of the code, you can specify the old file by
-   giving a ``diff`` option::
+   .. rst:directive:option:: lineno-start: number
+      :type: number
 
-      .. literalinclude:: example.py
-         :diff: example.py.orig
+      Set line number for the first line to show.  If given, this
+      automatically activates ``:linenos:``.
 
-   This shows the diff between ``example.py`` and ``example.py.orig`` with
-   unified diff format.
+   .. rst:directive:option:: lineno-match
 
-   A ``force`` option can ignore minor errors on highlighting.
+      When including only parts of a file and show the original line numbers.
+      This is only allowed only when the selection consists of contiguous lines.
 
-   .. versionchanged:: 0.4.3
+
+   .. rst:directive:option:: emphasize-lines: line numbers
+      :type: comma separated numbers
+
+      Emphasize particular lines of the included content.
+
+   .. rst:directive:option:: language: language
+      :type: text
+
+      Select a highlight language different from the current file's
+      standard language.
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      Ignore minor errors on highlighting.
+
+   .. rubric:: Options for selecting the content to include
+
+   .. rst:directive:option:: pyobject: object
+      :type: text
+
+      For Python files, only include the specified class, function or method::
+
+         .. literalinclude:: example.py
+            :pyobject: Timer.start
+
+   .. rst:directive:option:: lines: line numbers
+      :type: comma separated numbers
+
+      Specify exactly which lines to include::
+
+         .. literalinclude:: example.py
+            :lines: 1,3,5-10,20-
+
+      This includes the lines 1, 3, 5 to 10 and lines 20 to the last line.
+
+   .. rst:directive:option:: start-at: text
+   .. rst:directive:option:: start-after: text
+   .. rst:directive:option:: end-before: text
+   .. rst:directive:option:: end-at: text
+
+      Another way to control which part of the file is included is to use the
+      ``start-after`` and ``end-before`` options (or only one of them).  If
+      ``start-after`` is given as a string option, only lines that follow the
+      first line containing that string are included.  If ``end-before`` is given
+      as a string option, only lines that precede the first lines containing that
+      string are included. The ``start-at`` and ``end-at`` options behave in a
+      similar way, but the lines containing the matched string are included.
+
+      ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
+      ``start-after``/``start-at`` filter lines before the line that contains
+      option string (``start-at`` will keep the line). Then ``end-before``/``end-at``
+      filter lines after the line that contains option string (``end-at`` will keep
+      the line and ``end-before`` skip the first line).
+
+      .. note::
+
+         If you want to select only ``[second-section]`` of ini file like the
+         following, you can use ``:start-at: [second-section]`` and
+         ``:end-before: [third-section]``:
+
+         .. code-block:: ini
+
+            [first-section]
+
+            var_in_first=true
+
+            [second-section]
+
+            var_in_second=true
+
+            [third-section]
+
+            var_in_third=true
+
+         Useful cases of these option is working with tag comments.
+         ``:start-after: [initialize]`` and ``:end-before: [initialized]`` options
+         keep lines between comments:
+
+         .. code-block:: py
+
+            if __name__ == "__main__":
+                # [initialize]
+                app.start(":8000")
+                # [initialized]
+
+         When lines have been selected in any of the ways described above, the line
+         numbers in ``emphasize-lines`` refer to those selected lines, counted
+         consecutively starting at ``1``.
+
+   .. rst:directive:option:: prepend: line
+      :type: text
+
+      Prepend a line before the included code. This is useful e.g. for
+      highlighting PHP code that doesn't include the ``<?php``/``?>`` markers.
+
+   .. rst:directive:option:: append: line
+      :type: text
+
+      Append a line to the included code.
+
+   .. rst:directive:option:: diff: filename
+
+      Show the diff of two files::
+
+         .. literalinclude:: example.py
+            :diff: example.py.orig
+
+      This shows the diff between ``example.py`` and ``example.py.orig`` with
+      unified diff format.
+
+   .. versionadded:: 0.4.3
       Added the ``encoding`` option.
 
    .. versionchanged:: 0.6
