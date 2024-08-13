@@ -78,10 +78,10 @@ class BuildInfo:
         )
         filename.write_text(build_info, encoding="utf-8")
 
-    def differing_keys(self, other: BuildInfo, *, kind="config") -> list[str]:
+    def differing_keys(self, other: BuildInfo) -> list[str]:
         """Compute the keys that differ between two configs."""
-        self_config = json.loads(getattr(self, f"{kind}_hash"))
-        other_config = json.loads(getattr(other, f"{kind}_hash"))
+        self_config = json.loads(self.config_hash)
+        other_config = json.loads(other.config_hash)
         return [
             key
             for key in sorted(set(self_config) | set(other_config))

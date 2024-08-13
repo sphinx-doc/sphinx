@@ -337,9 +337,9 @@ class StandaloneHTMLBuilder(Builder):
                 # log the mismatch and backup the old build info
                 build_info_backup = build_info_fname.with_name('.buildinfo.bak')
                 bad_keys = self.build_info.differing_keys(build_info)
-                msg = __(f'all docs marked outdated due to build_info mismatch')
+                msg = __('all docs marked outdated due to build_info mismatch')
                 if bad_keys:
-                    msg += __(f' in %s config key(s): ') % len(bad_keys)
+                    msg += __(' in %s config key(s): ') % len(bad_keys)
                     bad_keys = bad_keys[:10] + ([] if len(bad_keys) <= 10 else ['...'])
                     msg += repr(bad_keys)
                 try:
