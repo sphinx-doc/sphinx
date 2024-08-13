@@ -150,7 +150,7 @@
 
 % 8.1.0
 \newenvironment{sphinxtopic}
-               {\begin{sphinxShadowBox}\relax}{\end{sphinxShadowBox}}
+               {\begin{sphinxShadowBox}}{\end{sphinxShadowBox}}
 \newenvironment{sphinxcontents}
                {\begin{sphinxShadowBox}[contents]}{\end{sphinxShadowBox}}
 % Arguably sphinxsidebar should rather use a wrapfig or similar environment
@@ -164,7 +164,7 @@
 %
 % 8.1.0 styles topic/contents/sidebar with a title row, too.
 % Prior to 8.1.0, definitions use \protected\def but there does not seem
-% to be any reason so back to \newcommand
+% to be any reason so back to \newcommand.
 \newcommand\sphinxstyletopictitle[1]{\sphinxdotitlerow{topic}{#1}}
 \newcommand\sphinxstylecontentstitle[1]{\sphinxdotitlerow{contents}{#1}}
 \newcommand\sphinxstylesidebartitle[1]{\sphinxdotitlerow{sidebar}{#1}}

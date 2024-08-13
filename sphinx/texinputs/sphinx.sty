@@ -403,8 +403,7 @@
 \spx@tempa{spx@pre@}      {pre_}          {verbatimborder} {0.4pt}
 \spx@tempa{spx@topic@}    {div.topic_}    {shadowrule}     {0.5pt}% mod. at 7.4.0
 \spx@tempa{spx@contents@} {div.contents_} {shadowrule}     {0.5pt}% 8.1.0
-\spx@tempa{spx@sidebar@}  {div.sidebar_}  {shadowrule}     {2pt}%   8.1.0
-\@nameuse{KV@sphinx@div.sidebar_border-bottom-width}{1pt}
+\spx@tempa{spx@sidebar@}  {div.sidebar_}  {shadowrule}     {1pt}%   8.1.0
 % let legacy shadowrule key set all topic/contents/sidebar border
 % keys to the common value given by user to shadowrule
 \def\KV@sphinx@shadowrule #1{%
@@ -465,7 +464,7 @@
 \spx@tempa{spx@topic@}    {div.topic_}      {6pt}{7pt}{6pt}{7pt}% mod. at 8.1.0
 % contents styling inherits at 8.1.0 the former 7.4.0 topic defaults
 \spx@tempa{spx@contents@} {div.contents_}   {10pt}{7pt}{12pt}{7pt}%   8.1.0
-\spx@tempa{spx@sidebar@}  {div.sidebar_}    {6pt}{5.5pt}{6pt}{5.5pt}% 8.1.0
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {6pt}{6.5pt}{6pt}{6.5pt}% 8.1.0
 % 7.4.0 drops legacy settings which linked strangely padding with border width
 \spx@tempa{spx@note@}     {div.note_}       {6pt}{7pt}{6pt}{7pt}
 \spx@tempa{spx@hint@}     {div.hint_}       {6pt}{7pt}{6pt}{7pt}
@@ -607,9 +606,7 @@
 % This corresponds to the legacy parameters for topic/contents/sidebar,
 % but they are now only kept for contents
     \spx@contents@shadow@setter 4pt 4pt {} \@nnil
-% sidebar has only small shadow at bottom
-    \spx@sidebar@shadow@setter  0pt 2pt {} \@nnil
-% topic has no shadow, nothing additional to do here
+% topic and sidebar default to no shadow
 \spx@tempa{spx@note@}     {div.note_}
 \spx@tempa{spx@hint@}     {div.hint_}
 \spx@tempa{spx@important@}{div.important_}

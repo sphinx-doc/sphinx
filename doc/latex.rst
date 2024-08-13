@@ -942,29 +942,22 @@ The color used in the above example is available from having passed the
 
 .. important::
 
-   At 8.1.0 it became possible to style separately the :dudir:`topic`,
-   contents_, and :dudir:`sidebar` directives, and each acquired new defaults.
-   See :ref:`additionalcss`.
-   The ``shadowsep``, ``shadowsize`` and ``shadowrule`` keys are kept for
-   backward compatibility only.
+   Since 8.1.0 it is possible to style separately the :dudir:`topic`,
+   contents_, and :dudir:`sidebar` directives, and their defaults differ.
+   See :ref:`additionalcss`.  The next three keys are kept as legacy
+   interface not distinguishing between the three directives.
 
 ``shadowsep``
     This legacy option sets the padding (same in all directions) simultaneously
     for the :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
 
-    .. versionchanged:: 8.1.0 New separate defaults. See :ref:`additionalcss`.
-
 ``shadowsize``
     This legacy option sets the shadow width simultaneously for the
     :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
 
-    .. versionchanged:: 8.1.0 New separate defaults. See :ref:`additionalcss`.
-
 ``shadowrule``
     This legacy option sets the border-width (same on all sides) simultaneously
     for the :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
-
-    .. versionchanged:: 8.1.0 New separate defaults. See :ref:`additionalcss`.
 
 .. important::
 
@@ -1227,8 +1220,7 @@ forget the underscore separating the prefix from the property names.
 
   * ``0.4pt`` for :rst:dir:`code-block`,
   * ``0.5pt`` for :dudir:`topic` and contents_ directive,
-  * ``2pt`` (but bottom-width only at ``1pt`` with a ``2pt`` shadow, see
-    below) for :dudir:`sidebar` directive,
+  * ``1pt`` for :dudir:`sidebar` directive,
   * ``0.5pt`` for :dudir:`note` and other "light" admonitions,
   * ``0.5pt`` for :rst:dir:`seealso` and :rst:dir:`todo` directives,
   * ``1pt`` for  :dudir:`warning` and other "strong" admonitions except
@@ -1306,17 +1298,15 @@ forget the underscore separating the prefix from the property names.
   * or two dimensions (separated by a space),
   * or two dimensions followed by the keyword ``inset``.
 
-  The x-offset and y-offset may be negative.  The default is ``none``,
-  *except* for:
+  The x-offset and y-offset may be negative.  A negative x-offset means
+  that the shadow is on the left.  Whether positive or negative it extends
+  into the page margin.
 
-  - the contents_ directive: ``4pt 4pt``, i.e. the shadow has a width of
-    ``4pt`` and extends to the right and below the frame; the lateral shadow
-    extends into the page right margin,
+  The default is ``none`` *except* for the  contents_ directive which uses
+  ``4pt 4pt``.
 
-  - the :dudir:`sidebar` directive: ``0pt 2pt``, i.e. a small shadow at
-    bottom of width ``2pt`` (the border bottom-width being set to ``1pt``).
-
-  .. versionchanged:: 8.1.0 No shadow anymore for :dudir:`topic`.
+  .. versionchanged:: 8.1.0
+     No shadow per default for :dudir:`topic` and :dudir:`sidebar`.
 
 - | ``<prefix>_border-TeXcolor``,
   | ``<prefix>_background-TeXcolor``,
@@ -1578,25 +1568,25 @@ Macros
      ``\sphinxstyleliteralintitle``;   ``\sphinxcode{#1}``
      ``\sphinxstylecodecontinued``;    ``{\footnotesize(#1)}}``
      ``\sphinxstylecodecontinues``;    ``{\footnotesize(#1)}}``
-     ``\sphinxstylenotetitle``; ``\sphinxdotitlerow{note}{#1}``
-     ``\sphinxstylehinttitle``; ``\sphinxdotitlerow{hint}{#1}``
-     ``\sphinxstyleimportanttitle``;   *similar*
-     ``\sphinxstyletiptitle``;         *similar*
-     ``\sphinxstylewarningtitle``;     *similar*
-     ``\sphinxstylecautiontitle``;     *similar*
-     ``\sphinxstyleattentiontitle``;   *similar*
-     ``\sphinxstyledangertitle``;      *similar*
-     ``\sphinxstyleerrortitle``;       *similar*
-     ``\sphinxstyleseealsotitle``;     *similar*
-     ``\sphinxstyletodotitle``;        *similar*
-     ``\sphinxstyletopictitle``;       *similar*
-     ``\sphinxstylecontentstitle``;    *similar*
-     ``\sphinxstylesidebartitle``;     *similar*
+     ``\sphinxstylenotetitle``;        ``\sphinxdotitlerow{note}{#1}``
+     ``\sphinxstylehinttitle``;        ``\sphinxdotitlerow{hint}{#1}``
+     ``\sphinxstyleimportanttitle``;   ``\sphinxdotitlerow{important}{#1}``
+     ``\sphinxstyletiptitle``;         ``\sphinxdotitlerow{tip}{#1}``
+     ``\sphinxstylewarningtitle``;     ``\sphinxdotitlerow{warning}{#1}``
+     ``\sphinxstylecautiontitle``;     ``\sphinxdotitlerow{caution}{#1}``
+     ``\sphinxstyleattentiontitle``;   ``\sphinxdotitlerow{attention}{#1}``
+     ``\sphinxstyledangertitle``;      ``\sphinxdotitlerow{danger}{#1}``
+     ``\sphinxstyleerrortitle``;       ``\sphinxdotitlerow{error}{#1}``
+     ``\sphinxstyleseealsotitle``;     ``\sphinxdotitlerow{seealso}{#1}``
+     ``\sphinxstyletodotitle``;        ``\sphinxdotitlerow{todo}{#1}``
+     ``\sphinxstyletopictitle``;       ``\sphinxdotitlerow{topic}{#1}``
+     ``\sphinxstylecontentstitle``;    ``\sphinxdotitlerow{contents}{#1}``
+     ``\sphinxstylesidebartitle``;     ``\sphinxdotitlerow{sidebar}{#1}``
 
   .. note::
 
      To let this table fit on the page width in PDF output we have lied a bit
-     and the actual definition of ``\sphinxstylenotetitle`` is:
+     and the actual definition of, for example, ``\sphinxstylenotetitle`` is:
 
      .. code-block:: latex
 
@@ -1605,7 +1595,7 @@ Macros
 
      The same remark applies to all other similar commands associated with
      admonitions.  The :dudir:`topic`, contents_, and :dudir:`sidebar` do not
-     use it as they don't need it.
+     use ``\sphinxremovefinalcolon`` as they don't need it.
 
   .. versionadded:: 1.5
      These macros were formerly hard-coded as non customizable ``\texttt``,
@@ -1626,22 +1616,21 @@ Macros
      directive, with a final colon.  Wrap it as ``\sphinxremovefinalcolon{#1}``
      if this final colon is to be removed.
 
-  .. versionadded:: 7.4.0 The ``\sphinxdotitlerowwithicon`` LaTeX command,
-     (renamed at 8.1.0 ``\sphinxdotitlerow``, former name kept for backward
-     compatibility)
-     whose first argument is the admonition type, so that it can recover
-     the associated colors and icon for the title row, and the second
-     argument gets typeset after the icon.
+  .. versionadded:: 7.4.0
+     ``\sphinxdotitlerowwithicon`` LaTeX command.
 
-  .. todo:: The fact that we must employ ``\sphinxremovefinalcolon`` is a
-            legacy artefact from old ill-designed Sphinx LaTeX writer,
-            which postfixes (still today) the title with a colon automatically.
+  .. versionchanged:: 8.1.0
+     ``\sphinxdotitlerowwithicon`` now detects automatically if an icon is
+     associated or not with the rendered element used as first argument.
 
-  .. versionchanged:: 8.1.0 LaTeX command ``\sphinxdotitlerow`` detects
-     automatically if an icon is associated or not with the rendered element.
+  .. versionadded:: 8.1.0
+     ``\sphinxdotitlerow`` as alias to ``\sphinxdotitlerowwithicon`` with
+     a more appropriate name.
 
-  .. versionadded:: 8.1.0 Titles of :dudir:`topic`, contents_, and
-     :dudir:`sidebar` directives styled using ``\sphinxdotitlerow``.
+  .. versionadded:: 8.1.0
+     Titles of :dudir:`topic`, contents_, and :dudir:`sidebar` directives are
+     also styled using ``\sphinxdotitlerow`` (they have no default icons
+     associated with them).
 
 - ``\sphinxtableofcontents``: A wrapper (defined differently in
   :file:`sphinxhowto.cls` and in :file:`sphinxmanual.cls`) of standard
