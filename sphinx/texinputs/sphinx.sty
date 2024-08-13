@@ -587,13 +587,10 @@
         % used here.  Since 6.2.0, expansion is delayed to time of use as for
         % the other dimensions handled above.  This is synched with an added
         % encapsulation in \dimexpr...\relax by the "setup" from
-        % sphinxpackageboxes.sty.  An induced regression had to be fixed in
-        % the sphinxShadowBox environment as it was using in an \ifdim the
-        % \spx@topic@shadow@yoffset macro, now holding by default 4pt+\z@
-        % rather than an already digested 262144sp.  The +\z@ is in case ##2
-        % is empty.
+        % sphinxpackageboxes.sty.
   \else #1%
-        \def#6{##1}\def#7{##2+\z@}%
+        \def#6{##1}%
+        \if\relax\detokenize{##2}\relax\let#7#6\else\def#7{##2}\fi
         \if\relax\detokenize{##3}\relax#4\else#3\fi
   \fi
   }%
