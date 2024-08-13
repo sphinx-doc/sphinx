@@ -78,6 +78,18 @@ class BuildInfo:
         )
         filename.write_text(build_info, encoding="utf-8")
 
+    def differing_keys(self, other: BuildInfo, *, kind="config") -> list[str]:
+        """Compute the keys that differ between two configs."""
+        self_config = json.loads(getattr(self, f"{kind}_hash"))
+        other_config = json.loads(getattr(other, f"{kind}_hash"))
+        return [
+            key
+            for key in sorted(set(self_config) | set(other_config))
+            if key not in self_config
+            or key not in other_config
+            or self_config[key] != other_config[key]
+        ]
+
 
 def _stable_str(obj: Any) -> str:
     """Return a stable string representation of a Python data structure.
@@ -92,7 +104,7 @@ def _json_prep(obj: Any) -> dict[str, Any] | list[Any] | str:
         # convert to a sorted dict
         obj = {_json_prep(k): _json_prep(v) for k, v in obj.items()}
         obj = {k: obj[k] for k in sorted(obj, key=str)}
-    if isinstance(obj, list | tuple | set | frozenset):
+    elif isinstance(obj, list | tuple | set | frozenset):
         # convert to a sorted list
         obj = sorted(map(_json_prep, obj), key=str)
     elif isinstance(obj, type | types.FunctionType):

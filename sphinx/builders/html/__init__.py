@@ -336,15 +336,20 @@ class StandaloneHTMLBuilder(Builder):
             if self.build_info != build_info:
                 # log the mismatch and backup the old build info
                 build_info_backup = build_info_fname.with_name('.buildinfo.bak')
+                bad_keys = self.build_info.differing_keys(build_info)
+                msg = __(f'all docs marked outdated due to build_info mismatch')
+                if bad_keys:
+                    msg += __(f' in %s config key(s): ') % len(bad_keys)
+                    bad_keys = bad_keys[:10] + ([] if len(bad_keys) <= 10 else ['...'])
+                    msg += repr(bad_keys)
                 try:
                     shutil.move(build_info_fname, build_info_backup)
                     self.build_info.dump(build_info_fname)
                 except OSError:
                     pass  # ignore errors
                 else:
-                    # only log on success
-                    msg = __('build_info mismatch, copying .buildinfo to .buildinfo.bak')
-                    logger.info(bold(__('building [html]: ')) + msg)
+                    msg += __(", copying .buildinfo to .buildinfo.bak")
+                logger.info(bold(__('building [html]: ')) + msg)
 
                 yield from self.env.found_docs
                 return
