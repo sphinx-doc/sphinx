@@ -1444,7 +1444,7 @@ The following legacy behavior applies:
   and border-width, except for being shifted vertically of course to not
   overwrite other text due to the width of the border or external shadow.
 
-- For all others than :rst:dir:`code-block` (or :rst:dir:`literalinclude`) the
+- For the other directives, the
   shadow (if on right) goes into the page margin, but the border and the extra
   padding are kept within the text area.
 
