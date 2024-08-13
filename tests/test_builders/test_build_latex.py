@@ -2280,8 +2280,7 @@ def test_latex_contents_topic_sidebar(app):
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     assert (
-        '\\begin{sphinxcontents}\n'
-        '\\sphinxstylecontentstitle{Contents}\n'
+        '\\begin{sphinxcontents}\n\\sphinxstylecontentstitle{Contents}\n'
     ) in result
 
     assert (
