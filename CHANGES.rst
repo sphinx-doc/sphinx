@@ -45,6 +45,9 @@ Bugs fixed
   Note, the priority of the transform has been changed from 200 to 622,
   so that it now runs after the docutils ``Footnotes`` resolution transform.
   Patch by Chris Sewell.
+* #12778: LaTeX: let :ref:`'sphinxsetup' <latexsphinxsetup>`
+  ``div.topic_box-shadow`` key if used with only one dimension set both
+  x-offset and y-offset as per documentation.
 * #12587: Do not warn when potential ambiguity detected during Intersphinx
   resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
