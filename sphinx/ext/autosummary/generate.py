@@ -71,7 +71,6 @@ class DummyApplication:
         self.translator = translator
         self.verbosity = 0
         self._warncount = 0
-        self.warningiserror = False
         self._debug_warnings = False
 
         self.config.add('autosummary_context', {}, 'env', ())
