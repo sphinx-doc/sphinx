@@ -12,10 +12,16 @@ from typing import TYPE_CHECKING, Any, NoReturn
 
 from sphinx import addnodes
 from sphinx.environment.adapters import toctree as toctree_adapters
-from sphinx.errors import BuildEnvironmentError, DocumentError, ExtensionError, SphinxError
+from sphinx.errors import (
+    BuildEnvironmentError,
+    DocumentError,
+    ExtensionError,
+    SphinxError,
+)
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
-from sphinx.util import DownloadFiles, FilenameUniqDict, logging
+from sphinx.util import logging
+from sphinx.util._files import DownloadFiles, FilenameUniqDict
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
@@ -242,7 +248,7 @@ class BuildEnvironment:
         self.dlfiles: DownloadFiles = DownloadFiles()
 
         # the original URI for images
-        self.original_image_uri: dict[str, str] = {}
+        self.original_image_uri: dict[_StrPath, str] = {}
 
         # temporary data storage while reading a document
         self.temp_data: dict[str, Any] = {}

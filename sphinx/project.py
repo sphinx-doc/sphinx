@@ -23,7 +23,9 @@ EXCLUDE_PATHS = ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
 class Project:
     """A project is the source code set of the Sphinx document(s)."""
 
-    def __init__(self, srcdir: str | os.PathLike[str], source_suffix: Iterable[str]) -> None:
+    def __init__(
+        self, srcdir: str | os.PathLike[str], source_suffix: Iterable[str]
+    ) -> None:
         #: Source directory.
         self.srcdir = _StrPath(srcdir)
 
@@ -82,7 +84,9 @@ class Project:
                     self._docname_to_path[docname] = path
                 else:
                     logger.warning(
-                        __('Ignored unreadable document %r.'), filename, location=docname
+                        __('Ignored unreadable document %r.'),
+                        filename,
+                        location=docname,
                     )
 
         return self.docnames

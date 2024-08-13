@@ -132,7 +132,9 @@ class AutosummaryRenderer:
             msg = 'Expected a Sphinx application object!'
             raise ValueError(msg)
 
-        system_templates_path = [os.path.join(package_dir, 'ext', 'autosummary', 'templates')]
+        system_templates_path = [
+            os.path.join(package_dir, 'ext', 'autosummary', 'templates')
+        ]
         loader = SphinxTemplateLoader(
             app.srcdir, app.config.templates_path, system_templates_path
         )
@@ -298,7 +300,9 @@ def generate_autosummary_content(
         ns['members'] = scanner.scan(imported_members)
 
         respect_module_all = not app.config.autosummary_ignore_module_all
-        imported_members = imported_members or ('__all__' in dir(obj) and respect_module_all)
+        imported_members = imported_members or (
+            '__all__' in dir(obj) and respect_module_all
+        )
 
         ns['functions'], ns['all_functions'] = _get_members(
             doc, app, obj, {'function'}, imported=imported_members
@@ -379,7 +383,9 @@ def generate_autosummary_content(
 
 def _skip_member(app: Sphinx, obj: Any, name: str, objtype: str) -> bool:
     try:
-        return app.emit_firstresult('autodoc-skip-member', objtype, name, obj, False, {})
+        return app.emit_firstresult(
+            'autodoc-skip-member', objtype, name, obj, False, {}
+        )
     except Exception as exc:
         logger.warning(
             __(
@@ -466,7 +472,11 @@ def _get_module_attrs(name: str, members: Any) -> tuple[list[str], list[str]]:
 
 
 def _get_modules(
-    obj: Any, *, skip: Sequence[str], name: str, public_members: Sequence[str] | None = None
+    obj: Any,
+    *,
+    skip: Sequence[str],
+    name: str,
+    public_members: Sequence[str] | None = None,
 ) -> tuple[list[str], list[str]]:
     items: list[str] = []
     public: list[str] = []
@@ -512,7 +522,9 @@ def generate_autosummary_docs(
     showed_sources = sorted(sources)
     if len(showed_sources) > 20:
         showed_sources = showed_sources[:10] + ['...'] + showed_sources[-10:]
-    logger.info(__('[autosummary] generating autosummary for: %s'), ', '.join(showed_sources))
+    logger.info(
+        __('[autosummary] generating autosummary for: %s'), ', '.join(showed_sources)
+    )
 
     if output_dir:
         logger.info(__('[autosummary] writing to %s'), output_dir)
@@ -737,7 +749,9 @@ def find_autosummary_in_lines(
         if m:
             current_module = m.group(1).strip()
             # recurse into the automodule docstring
-            documented.extend(find_autosummary_in_docstring(current_module, filename=filename))
+            documented.extend(
+                find_autosummary_in_docstring(current_module, filename=filename)
+            )
             continue
 
         m = module_re.match(line)
@@ -790,7 +804,7 @@ The format of the autosummary directive is documented in the
         action='store',
         dest='suffix',
         default='rst',
-        help=__('default suffix for files (default: ' '%(default)s)'),
+        help=__('default suffix for files (default: %(default)s)'),
     )
     parser.add_argument(
         '-t',
@@ -798,7 +812,7 @@ The format of the autosummary directive is documented in the
         action='store',
         dest='templates',
         default=None,
-        help=__('custom template directory (default: ' '%(default)s)'),
+        help=__('custom template directory (default: %(default)s)'),
     )
     parser.add_argument(
         '-i',
@@ -806,7 +820,7 @@ The format of the autosummary directive is documented in the
         action='store_true',
         dest='imported_members',
         default=False,
-        help=__('document imported members (default: ' '%(default)s)'),
+        help=__('document imported members (default: %(default)s)'),
     )
     parser.add_argument(
         '-a',
@@ -824,7 +838,9 @@ The format of the autosummary directive is documented in the
         action='store_true',
         dest='remove_old',
         default=False,
-        help=__('Remove existing files in the output directory that were not generated'),
+        help=__(
+            'Remove existing files in the output directory that were not generated'
+        ),
     )
 
     return parser

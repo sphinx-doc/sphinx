@@ -56,6 +56,7 @@ def test_init_with_unknown_language(rootdir):
     assert _('Hello reST') == 'Hello reST'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_add_message_catalog(app, rootdir):
     app.config.language = 'en'
     app.add_message_catalog('myext', rootdir / 'test-locale' / 'locale1')
@@ -74,11 +75,11 @@ def _empty_language_translation(rootdir: Path) -> Callable[[str], str]:
 
 def test_init_environment_language(rootdir, monkeypatch):
     with monkeypatch.context() as m:
-        m.setenv("LANGUAGE", "en_US:en")
+        m.setenv('LANGUAGE', 'en_US:en')
         _ = _empty_language_translation(rootdir)
         assert _('Hello world') == 'HELLO WORLD'
 
     with monkeypatch.context() as m:
-        m.setenv("LANGUAGE", "et_EE:et")
+        m.setenv('LANGUAGE', 'et_EE:et')
         _ = _empty_language_translation(rootdir)
         assert _('Hello world') == 'Tere maailm'
