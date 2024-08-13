@@ -267,8 +267,9 @@ Options
 
 .. option:: --keep-going
 
-   Only applicable whilst using :option:`--fail-on-warning`,
-   which by default exits :program:`sphinx-build` on the first warning.
+   From Sphinx 8.1, :option:`!--keep-going` is always enabled.
+   Previously, it was only applicable whilst using :option:`--fail-on-warning`,
+   which by default exited :program:`sphinx-build` on the first warning.
    Using :option:`!--keep-going` runs :program:`!sphinx-build` to completion
    and exits with exit status 1 if errors are encountered.
 

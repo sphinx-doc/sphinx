@@ -206,7 +206,7 @@ class Sphinx:
         else:
             self._warning = warning
         self._warncount = 0
-        self.keep_going = bool(warningiserror)
+        self.keep_going = bool(warningiserror)  # Unused
         self._fail_on_warnings = bool(warningiserror)
         self.pdb = pdb
         self._debug_warnings = pdb and debug_warnings

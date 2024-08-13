@@ -336,7 +336,8 @@ def build_main(argv: Sequence[str]) -> int:
                 buildername=args.builder, confoverrides=args.confoverrides,
                 status=args.status, warning=args.warning,
                 freshenv=args.freshenv, warningiserror=args.warningiserror,
-                tags=args.tags, verbosity=args.verbosity, parallel=args.jobs, keep_going=False,
+                tags=args.tags,
+                verbosity=args.verbosity, parallel=args.jobs, keep_going=False,
                 pdb=args.pdb, debug_warnings=args.debug_warnings,
             )
             app.build(args.force_all, args.filenames)
