@@ -165,14 +165,14 @@
 % 8.1.0 styles topic/contents/sidebar with a title row, too.
 % Prior to 8.1.0, definitions use \protected\def but there does not seem
 % to be any reason so back to \newcommand.
-\newcommand\sphinxstyletopictitle[1]{\sphinxdotitlerow{topic}{#1}}
-\newcommand\sphinxstylecontentstitle[1]{\sphinxdotitlerow{contents}{#1}}
-\newcommand\sphinxstylesidebartitle[1]{\sphinxdotitlerow{sidebar}{#1}}
+\newcommand*\sphinxstyletopictitle[1]{\sphinxdotitlerow{topic}{#1}}
+\newcommand*\sphinxstylecontentstitle[1]{\sphinxdotitlerow{contents}{#1}}
+\newcommand*\sphinxstylesidebartitle[1]{\sphinxdotitlerow{sidebar}{#1}}
 % No default color background for subtitle.  The contents next are injected by
 % LaTeX writer after a blank line in source hence will start a new paragrpah.
 % The \sphinxAtStartPar here is only for coherence with other text paragraphs,
 % but does not have serious necessity (its general role is to allow hyphenation
 % for first word in narrow table cells).
-\newcommand\sphinxstylesidebarsubtitle[1]{\sphinxAtStartPar\textbf{#1}}
+\newcommand*\sphinxstylesidebarsubtitle[1]{\sphinxAtStartPar\textbf{#1}}
 
 \endinput
