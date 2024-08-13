@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import logging.handlers
 from collections import defaultdict
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
@@ -323,10 +323,7 @@ def pending_logging() -> Iterator[MemoryHandler]:
         memhandler.flushTo(logger)
 
 
-@contextmanager
-def skip_warningiserror(skip: bool = True) -> Iterator[None]:
-    # Deprecate in Sphinx 10
-    yield
+skip_warningiserror = nullcontext  # Deprecate in Sphinx 10
 
 
 @contextmanager
