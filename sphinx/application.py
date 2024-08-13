@@ -145,7 +145,7 @@ class Sphinx:
                  status: IO[str] | None = sys.stdout, warning: IO[str] | None = sys.stderr,
                  freshenv: bool = False, warningiserror: bool = False,
                  tags: Sequence[str] = (),
-                 verbosity: int = 0, parallel: int = 0,
+                 verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
                  pdb: bool = False, debug_warnings: bool = False) -> None:
         """Initialize the Sphinx application.
 
@@ -165,6 +165,7 @@ class Sphinx:
         :param verbosity: The verbosity level.
         :param parallel: The maximum number of parallel jobs to use
             when reading/writing documents.
+        :param keep_going: Unused.
         :param pdb: If true, enable the Python debugger on an exception.
         :param debug_warnings: If true, enable the Python debugger on warnings.
         """
@@ -394,12 +395,12 @@ class Sphinx:
         elif self._warncount == 1:
             if self._fail_on_warnings:
                 self.statuscode = 1
-                msg = __('build finished with problems, %s warning '
+                msg = __('build finished with problems, 1 warning '
                          '(with warnings treated as errors).')
             elif self.statuscode != 0:
-                msg = __('build finished with problems, %s warning.')
+                msg = __('build finished with problems, 1 warning.')
             else:
-                msg = __('build succeeded, %s warning.')
+                msg = __('build succeeded, 1 warning.')
             logger.info(bold(msg))
         else:
             if self._fail_on_warnings:

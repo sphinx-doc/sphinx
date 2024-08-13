@@ -206,7 +206,7 @@ files can be built by specifying individual filenames.
                        help=__('show full traceback on exception'))
     group.add_argument('--pdb', '-P', action='store_true', dest='pdb',
                        help=__('run Pdb on exception'))
-    group.add_argument('--debug-warnings', action='store_true',
+    group.add_argument('--debug-warnings', action='store_true', dest='debug_warnings',
                        help=__('run Pdb on warnings (requires --pdb)'))
 
     return parser
@@ -330,11 +330,15 @@ def build_main(argv: Sequence[str]) -> int:
     try:
         confdir = args.confdir or args.sourcedir
         with patch_docutils(confdir), docutils_namespace():
-            app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
-                         args.doctreedir, args.builder, args.confoverrides, args.status,
-                         args.warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs,
-                         args.pdb)
+            app = Sphinx(
+                srcdir=args.sourcedir, confdir=args.confdir,
+                outdir=args.outputdir, doctreedir=args.doctreedir,
+                buildername=args.builder, confoverrides=args.confoverrides,
+                status=args.status, warning=args.warning,
+                freshenv=args.freshenv, warningiserror=args.warningiserror,
+                tags=args.tags, verbosity=args.verbosity, parallel=args.jobs, keep_going=False,
+                pdb=args.pdb, debug_warnings=args.debug_warnings,
+            )
             app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:

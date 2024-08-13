@@ -14,7 +14,7 @@ Features added
 --------------
 
 * #12743: No longer exit on the first warning when
-  :option:`--fail-on-warning  <sphinx-build --fail-on-warning>` is used.
+  :option:`--fail-on-warning <sphinx-build --fail-on-warning>` is used.
   Instead, exit with a non-zero status if any warnings were generated
   during the build.
   Patch by Adam Turner.

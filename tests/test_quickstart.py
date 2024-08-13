@@ -204,11 +204,11 @@ def test_quickstart_and_build(tmp_path):
     qs.generate(d)
 
     app = application.Sphinx(
-        tmp_path,  # srcdir
-        tmp_path,  # confdir
-        (tmp_path / '_build' / 'html'),  # outdir
-        (tmp_path / '_build' / '.doctree'),  # doctreedir
-        'html',  # buildername
+        srcdir=tmp_path,
+        confdir=tmp_path,
+        outdir=(tmp_path / '_build' / 'html'),
+        doctreedir=(tmp_path / '_build' / '.doctree'),
+        buildername='html',  # buildername
         status=StringIO(),
         warning=warnfile)
     app.build(force_all=True)
