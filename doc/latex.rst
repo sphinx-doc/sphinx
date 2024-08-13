@@ -1439,7 +1439,7 @@ The next keys, for admonitions, :dudir:`topic`, contents_, and
 The following legacy behavior applies:
 
 - For :rst:dir:`code-block` or :rst:dir:`literalinclude`, padding and
-  border-width and shadow (if one adds one) will go into the margin; the code
+  border-width and shadow (if any) will go into the margin; the code
   lines remain at the same place independently of the values of the padding
   and border-width, except for being shifted vertically of course to not
   overwrite other text due to the width of the border or external shadow.
