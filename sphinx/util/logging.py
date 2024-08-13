@@ -614,7 +614,7 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
     info_handler.setFormatter(ColorizeFormatter())
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
-    if app._debug_warnings:
+    if app._exception_on_warning:
         warning_handler.addFilter(_RaiseOnWarningFilter())
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))

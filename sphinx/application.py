@@ -146,7 +146,7 @@ class Sphinx:
                  freshenv: bool = False, warningiserror: bool = False,
                  tags: Sequence[str] = (),
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
-                 pdb: bool = False, debug_warnings: bool = False) -> None:
+                 pdb: bool = False, exception_on_warning: bool = False) -> None:
         """Initialize the Sphinx application.
 
         :param srcdir: The path to the source directory.
@@ -167,7 +167,7 @@ class Sphinx:
             when reading/writing documents.
         :param keep_going: Unused.
         :param pdb: If true, enable the Python debugger on an exception.
-        :param debug_warnings: If true, enable the Python debugger on warnings.
+        :param exception_on_warning: If true, raise an exception on warnings.
         """
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
@@ -209,7 +209,7 @@ class Sphinx:
         self.keep_going = bool(warningiserror)  # Unused
         self._fail_on_warnings = bool(warningiserror)
         self.pdb = pdb
-        self._debug_warnings = pdb and debug_warnings
+        self._exception_on_warning = exception_on_warning
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager(self)

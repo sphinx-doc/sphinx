@@ -77,10 +77,9 @@ def test_html_warnings(app):
     'html',
     testroot='warnings',
     freshenv=True,
-    pdb=True,
-    debug_warnings=True,
+    exception_on_warning=True,
 )
-def test_html_warnings_pdb(app):
+def test_html_warnings_exception_on_warning(app):
     try:
         app.build(force_all=True)
         pytest.fail('Expected an exception to be raised')

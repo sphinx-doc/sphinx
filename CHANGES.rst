@@ -35,8 +35,8 @@ Features added
   Instead, exit with a non-zero status if any warnings were generated
   during the build.
   Patch by Adam Turner.
-* #12743: Add :option:`sphinx-build --debug-warnings` to debug warnings when
-  :option:`sphinx-build --pdb` is specified.
+* #12743: Add :option:`sphinx-build --exception-on-warning`,
+  to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
 
 Bugs fixed

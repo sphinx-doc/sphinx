@@ -119,7 +119,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
         verbosity: int = 0,  # argument is not in the same order as in the superclass
         warningiserror: bool = False,  # argument is not in the same order as in the superclass
         pdb: bool = False,
-        debug_warnings: bool = False,
+        exception_on_warning: bool = False,
         # unknown keyword arguments
         **extras: Any,
     ) -> None:
@@ -172,7 +172,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
                 confoverrides=confoverrides, status=status, warning=warning,
                 freshenv=freshenv, warningiserror=warningiserror, tags=tags,
                 verbosity=verbosity, parallel=parallel,
-                pdb=pdb, debug_warnings=debug_warnings,
+                pdb=pdb, exception_on_warning=exception_on_warning,
             )
         except Exception:
             self.cleanup()

@@ -206,8 +206,9 @@ files can be built by specifying individual filenames.
                        help=__('show full traceback on exception'))
     group.add_argument('--pdb', '-P', action='store_true', dest='pdb',
                        help=__('run Pdb on exception'))
-    group.add_argument('--debug-warnings', action='store_true', dest='debug_warnings',
-                       help=__('run Pdb on warnings (requires --pdb)'))
+    group.add_argument('--exception-on-warning', action='store_true',
+                       dest='exception_on_warning',
+                       help=__('raise an exception on warnings'))
 
     return parser
 
@@ -338,7 +339,7 @@ def build_main(argv: Sequence[str]) -> int:
                 freshenv=args.freshenv, warningiserror=args.warningiserror,
                 tags=args.tags,
                 verbosity=args.verbosity, parallel=args.jobs, keep_going=False,
-                pdb=args.pdb, debug_warnings=args.debug_warnings,
+                pdb=args.pdb, exception_on_warning=args.exception_on_warning,
             )
             app.build(args.force_all, args.filenames)
             return app.statuscode

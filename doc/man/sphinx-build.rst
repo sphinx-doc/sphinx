@@ -302,10 +302,10 @@ Options
    .. versionchanged:: 7.3
       Add ``--pdb`` long option.
 
-.. option:: --debug-warnings
+.. option:: --exception-on-warning
 
-   (Requires :option:`--pdb`.)
-   Run the Python debugger, :mod:`pdb`, for warnings emitted while building.
+   Raise an exception when a warning is emitted during the build.
+   This can be useful in combination with :option:`--pdb` to debug warnings.
 
    .. versionadded:: 8.1
 
