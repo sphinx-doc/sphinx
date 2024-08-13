@@ -117,8 +117,9 @@ class SphinxTestApp(sphinx.application.Sphinx):
         parallel: int = 0,
         # additional arguments at the end to keep the signature
         verbosity: int = 0,  # argument is not in the same order as in the superclass
-        keep_going: bool = False,
         warningiserror: bool = False,  # argument is not in the same order as in the superclass
+        pdb: bool = False,
+        exception_on_warning: bool = False,
         # unknown keyword arguments
         **extras: Any,
     ) -> None:
@@ -170,8 +171,8 @@ class SphinxTestApp(sphinx.application.Sphinx):
                 srcdir, confdir, outdir, doctreedir, buildername,
                 confoverrides=confoverrides, status=status, warning=warning,
                 freshenv=freshenv, warningiserror=warningiserror, tags=tags,
-                verbosity=verbosity, parallel=parallel, keep_going=keep_going,
-                pdb=False,
+                verbosity=verbosity, parallel=parallel,
+                pdb=pdb, exception_on_warning=exception_on_warning,
             )
         except Exception:
             self.cleanup()
