@@ -569,7 +569,7 @@ def test_module_index(app):
         '.. py:module:: sphinx_intl\n'
     )
     restructuredtext.parse(app, text)
-    index = PythonModuleIndex(app.env.get_domain('py'))
+    index = PythonModuleIndex(app.env.domains['py'])
     assert index.generate() == (
         [
             ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
@@ -612,7 +612,7 @@ def test_module_index(app):
 def test_module_index_submodule(app):
     text = '.. py:module:: sphinx.config\n'
     restructuredtext.parse(app, text)
-    index = PythonModuleIndex(app.env.get_domain('py'))
+    index = PythonModuleIndex(app.env.domains['py'])
     assert index.generate() == (
         [
             (
@@ -633,7 +633,7 @@ def test_module_index_submodule(app):
 def test_module_index_not_collapsed(app):
     text = '.. py:module:: docutils\n.. py:module:: sphinx\n'
     restructuredtext.parse(app, text)
-    index = PythonModuleIndex(app.env.get_domain('py'))
+    index = PythonModuleIndex(app.env.domains['py'])
     assert index.generate() == (
         [
             ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
@@ -659,7 +659,7 @@ def test_modindex_common_prefix(app):
         '.. py:module:: sphinx_intl\n'
     )
     restructuredtext.parse(app, text)
-    index = PythonModuleIndex(app.env.get_domain('py'))
+    index = PythonModuleIndex(app.env.domains['py'])
     assert index.generate() == (
         [
             (

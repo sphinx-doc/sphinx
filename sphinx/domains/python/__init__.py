@@ -449,7 +449,7 @@ class PyModule(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        domain = cast(PythonDomain, self.env.get_domain('py'))
+        domain = self.env.domains['py']
 
         modname = self.arguments[0].strip()
         no_index = 'no-index' in self.options

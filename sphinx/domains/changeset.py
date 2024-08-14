@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
 
 from docutils import nodes
 
@@ -96,7 +96,7 @@ class VersionChange(SphinxDirective):
                                    translatable=False)
             node.append(para)
 
-        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
+        domain = self.env.domains['changeset']
         domain.note_changeset(node)
 
         ret: list[Node] = [node]

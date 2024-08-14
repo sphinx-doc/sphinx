@@ -139,7 +139,7 @@ class Domain:
         from sphinx.domains.std import StandardDomain
 
         # Add special hyperlink target for index pages (ex. py-modindex)
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains['std']
         for index in self.indices:
             if index.name and index.localname:
                 docname = f"{self.name}-{index.name}"

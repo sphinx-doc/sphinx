@@ -496,7 +496,7 @@ class TexinfoTranslator(SphinxTranslator):
                             generate(content, collapsed),
                         ))
         # only add the main Index if it's not empty
-        domain = cast(IndexDomain, self.builder.env.get_domain('index'))
+        domain = cast(IndexDomain, self.builder.env.domains['index'])
         for docname in self.builder.docnames:
             if domain.entries[docname]:
                 self.indices.append((_('Index'), '\n@printindex ge\n'))

@@ -108,7 +108,7 @@ class CitationDefinitionTransform(SphinxTransform):
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
+        domain = self.env.domains['citation']
         for node in self.document.findall(nodes.citation):
             # register citation node to domain
             node['docname'] = self.env.docname
@@ -128,7 +128,7 @@ class CitationReferenceTransform(SphinxTransform):
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
+        domain = self.env.domains['citation']
         for node in self.document.findall(nodes.citation_reference):
             target = node.astext()
             ref = pending_xref(target, refdomain='citation', reftype='ref',

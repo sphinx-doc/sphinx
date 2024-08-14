@@ -1657,7 +1657,7 @@ class LaTeXTranslator(SphinxTranslator):
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
-        domain = cast(StandardDomain, self.builder.env.get_domain('std'))
+        domain = cast(StandardDomain, self.builder.env.domains['std'])
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):

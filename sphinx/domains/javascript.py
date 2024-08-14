@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -150,7 +150,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+        domain = self.env.domains['js']
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
@@ -315,7 +315,7 @@ class JSModule(SphinxDirective):
 
         ret: list[Node] = []
         if not no_index:
-            domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+            domain = self.env.domains['js']
 
             node_id = make_id(self.env, self.state.document, 'module', mod_name)
             domain.note_module(mod_name, node_id)

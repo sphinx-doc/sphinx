@@ -78,7 +78,7 @@ class GenericObject(ObjectDescription[str]):
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry, node_id, '', None))
 
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains['std']
         std.note_object(self.objtype, name, node_id, location=signode)
 
 
@@ -211,7 +211,7 @@ class Target(SphinxDirective):
         if ':' in self.name:
             _, name = self.name.split(':', 1)
 
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains['std']
         std.note_object(name, fullname, node_id, location=node)
 
         return ret
@@ -539,7 +539,7 @@ class ProductionList(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        domain = cast(StandardDomain, self.env.get_domain('std'))
+        domain = self.env.domains['std']
         node: Element = addnodes.productionlist()
         self.set_source_info(node)
         # The backslash handling is from ObjectDescription.get_signatures

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils.parsers.rst import directives
 
@@ -51,7 +51,7 @@ class ReSTMarkup(ObjectDescription[str]):
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(ReSTDomain, self.env.get_domain('rst'))
+        domain = self.env.domains['rst']
         domain.note_object(self.objtype, name, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
@@ -164,7 +164,7 @@ class ReSTDirectiveOption(ReSTMarkup):
         return name
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
-        domain = cast(ReSTDomain, self.env.get_domain('rst'))
+        domain = self.env.domains['rst']
 
         directive_name = self.current_directive
         if directive_name:
