@@ -106,7 +106,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         elif result.status == 'working':
             logger.info(darkgreen('ok        ') + result.uri + result.message)
         elif result.status == 'timeout':
-            if self.app.quiet or self.app.warningiserror:
+            if self.app.quiet:
                 logger.warning('timeout   ' + result.uri + result.message,
                                location=(result.docname, result.lineno))
             else:
@@ -115,7 +115,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                              result.uri + ': ' + result.message)
             self.timed_out_hyperlinks += 1
         elif result.status == 'broken':
-            if self.app.quiet or self.app.warningiserror:
+            if self.app.quiet:
                 logger.warning(__('broken link: %s (%s)'), result.uri, result.message,
                                location=(result.docname, result.lineno))
             else:

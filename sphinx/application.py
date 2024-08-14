@@ -41,6 +41,8 @@ from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
+    from typing import Final
+
     from docutils import nodes
     from docutils.nodes import Element, Node
     from docutils.parsers import Parser
@@ -134,7 +136,7 @@ class Sphinx:
     :ivar outdir: Directory for storing build documents.
     """
 
-    warningiserror: bool
+    warningiserror: Final = False
     _warncount: int
 
     def __init__(self, srcdir: str | os.PathLike[str], confdir: str | os.PathLike[str] | None,
@@ -144,7 +146,7 @@ class Sphinx:
                  freshenv: bool = False, warningiserror: bool = False,
                  tags: Sequence[str] = (),
                  verbosity: int = 0, parallel: int = 0, keep_going: bool = False,
-                 pdb: bool = False) -> None:
+                 pdb: bool = False, exception_on_warning: bool = False) -> None:
         """Initialize the Sphinx application.
 
         :param srcdir: The path to the source directory.
@@ -163,8 +165,9 @@ class Sphinx:
         :param verbosity: The verbosity level.
         :param parallel: The maximum number of parallel jobs to use
             when reading/writing documents.
-        :param keep_going: If true, continue processing when an error occurs.
+        :param keep_going: Unused.
         :param pdb: If true, enable the Python debugger on an exception.
+        :param exception_on_warning: If true, raise an exception on warnings.
         """
         self.phase = BuildPhase.INITIALIZATION
         self.verbosity = verbosity
@@ -203,12 +206,10 @@ class Sphinx:
         else:
             self._warning = warning
         self._warncount = 0
-        self.keep_going = warningiserror and keep_going
-        if self.keep_going:
-            self.warningiserror = False
-        else:
-            self.warningiserror = warningiserror
+        self.keep_going = bool(warningiserror)  # Unused
+        self._fail_on_warnings = bool(warningiserror)
         self.pdb = pdb
+        self._exception_on_warning = exception_on_warning
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager(self)
@@ -386,26 +387,31 @@ class Sphinx:
             self.events.emit('build-finished', err)
             raise
 
-        if self._warncount and self.keep_going:
-            self.statuscode = 1
-
-        status = (__('succeeded') if self.statuscode == 0
-                  else __('finished with problems'))
-        if self._warncount:
-            if self.warningiserror:
-                if self._warncount == 1:
-                    msg = __('build %s, %s warning (with warnings treated as errors).')
-                else:
-                    msg = __('build %s, %s warnings (with warnings treated as errors).')
+        if self._warncount == 0:
+            if self.statuscode != 0:
+                logger.info(bold(__('build finished with problems.')))
             else:
-                if self._warncount == 1:
-                    msg = __('build %s, %s warning.')
-                else:
-                    msg = __('build %s, %s warnings.')
-
-            logger.info(bold(msg), status, self._warncount)
+                logger.info(bold(__('build succeeded.')))
+        elif self._warncount == 1:
+            if self._fail_on_warnings:
+                self.statuscode = 1
+                msg = __('build finished with problems, 1 warning '
+                         '(with warnings treated as errors).')
+            elif self.statuscode != 0:
+                msg = __('build finished with problems, 1 warning.')
+            else:
+                msg = __('build succeeded, 1 warning.')
+            logger.info(bold(msg))
         else:
-            logger.info(bold(__('build %s.')), status)
+            if self._fail_on_warnings:
+                self.statuscode = 1
+                msg = __('build finished with problems, %s warnings '
+                         '(with warnings treated as errors).')
+            elif self.statuscode != 0:
+                msg = __('build finished with problems, %s warnings.')
+            else:
+                msg = __('build succeeded, %s warnings.')
+            logger.info(bold(msg), self._warncount)
 
         if self.statuscode == 0 and self.builder.epilog:
             logger.info('')
