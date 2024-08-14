@@ -117,7 +117,7 @@ The ``toctree`` directive is the central element.
    .. versionchanged:: 0.6
       Added support for external links and "self" references.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: class: class names
       :type: a list of class names, separated by spaces
@@ -562,6 +562,27 @@ Presentational
    A rubric is like an informal heading that doesn't correspond to the document's structure,
    i.e. it does not create a table of contents node.
 
+   .. note::
+
+      If the *title* of the rubric is "Footnotes" (or the selected language's
+      equivalent), this rubric is ignored by the LaTeX writer, since it is
+      assumed to only contain footnote definitions and therefore would create an
+      empty heading.
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
+
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
+
    .. rst:directive:option:: heading-level: n
       :type: number from 1 to 6
 
@@ -572,12 +593,6 @@ Presentational
       or as the corresponding non-numbered sectioning command for LaTeX
       (see :confval:`latex_toplevel_sectioning`).
 
-   .. note::
-
-      If the *title* of the rubric is "Footnotes" (or the selected language's
-      equivalent), this rubric is ignored by the LaTeX writer, since it is
-      assumed to only contain footnote definitions and therefore would create an
-      empty heading.
 
 .. rst:directive:: centered
 
@@ -594,17 +609,22 @@ Presentational
    compact list by either distributing more than one item horizontally, or
    reducing spacing between items, depending on the builder.
 
-   For builders that support the horizontal distribution, there is a ``columns``
-   option that specifies the number of columns; it defaults to 2.  Example::
+   .. rubric:: Options
 
-      .. hlist::
-         :columns: 3
+   .. rst:directive:option:: columns: n
+      :type: int
 
-         * A list of
-         * short items
-         * that should be
-         * displayed
-         * horizontally
+      The number of columns; defaults to 2.
+      For example::
+
+         .. hlist::
+            :columns: 3
+
+            * A list of
+            * short items
+            * that should be
+            * displayed
+            * horizontally
 
    .. versionadded:: 0.6
 
@@ -678,7 +698,7 @@ __ https://pygments.org/docs/lexers
    As discussed previously, *language* can be any lexer alias supported by
    Pygments.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: linenothreshold: threshold
       :type: number (optional)
@@ -723,7 +743,7 @@ __ https://pygments.org/docs/lexers
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: linenos
       :type: no value
@@ -1050,9 +1070,6 @@ Glossary
    text only have "term" part. In this case, translated "localized term" will be
    categorized in "key" group.
 
-   .. versionadded:: 0.6
-      You can now give the glossary directive a ``:sorted:`` flag that will
-      automatically sort the entries alphabetically.
 
    .. versionchanged:: 1.1
       Now supports multiple terms and inline markup in terms.
@@ -1060,9 +1077,19 @@ Glossary
    .. versionchanged:: 1.4
       Index key for glossary term should be considered *experimental*.
 
-   .. versionchanged:: 4.4
-      In internationalized documentation, the ``:sorted:`` flag sorts
-      according to translated terms.
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: sorted
+
+      Sort the entries alphabetically.
+
+      .. versionadded:: 0.6
+
+      .. versionchanged:: 4.4
+         In internationalized documentation, sort according to translated terms.
+
+
 
 Meta-information markup
 -----------------------
@@ -1211,7 +1238,7 @@ mainly contained in information units, such as the language reference.
    .. versionchanged:: 1.1
       Added ``see`` and ``seealso`` types, as well as marking main entries.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: name: a label for hyperlink
       :type: text
@@ -1415,23 +1442,45 @@ or use Python raw strings (``r"raw"``).
 
       .. math:: (a + b)^2 = a^2 + 2ab + b^2
 
-   Normally, equations are not numbered.  If you want your equation to get a
-   number, use the ``label`` option.  When given, it selects an internal label
-   for the equation, by which it can be cross-referenced, and causes an equation
-   number to be issued.  See :rst:role:`eq` for an example.  The numbering
-   style depends on the output format.
+   .. rubric:: Options
 
-   There is also an option ``nowrap`` that prevents any wrapping of the given
-   math in a math environment.  When you give this option, you must make sure
-   yourself that the math is properly set up.  For example::
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
 
-      .. math::
-         :nowrap:
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
 
-         \begin{eqnarray}
-            y    & = & ax^2 + bx + c \\
-            f(x) & = & x^2 + 2xy + y^2
-         \end{eqnarray}
+      .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: label: label
+      :type: text
+
+      Normally, equations are not numbered.  If you want your equation to get a
+      number, use the ``label`` option.  When given, it selects an internal label
+      for the equation, by which it can be cross-referenced, and causes an equation
+      number to be issued.  See :rst:role:`eq` for an example.  The numbering
+      style depends on the output format.
+
+   .. rst:directive:option:: nowrap
+
+      Prevent wrapping of the given math in a math environment.
+      When you give this option, you must make sure
+      yourself that the math is properly set up.
+      For example::
+
+         .. math::
+            :nowrap:
+
+            \begin{eqnarray}
+               y    & = & ax^2 + bx + c \\
+               f(x) & = & x^2 + 2xy + y^2
+            \end{eqnarray}
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
 
