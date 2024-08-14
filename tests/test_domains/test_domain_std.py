@@ -497,9 +497,9 @@ def test_productionlist(app):
 
     etree = etree_parse(app.outdir / 'index.html')
     nodes = list(etree.iter('ul'))
-    assert len(nodes) >= 2
+    assert len(nodes) >= 3
 
-    ul = nodes[1]
+    ul = nodes[2]
     cases = []
     for li in list(ul):
         assert len(list(li)) == 1
