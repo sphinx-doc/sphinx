@@ -571,16 +571,6 @@ Presentational
 
    .. rubric:: Options
 
-   .. rst:directive:option:: heading-level: n
-      :type: number from 1 to 6
-
-      .. versionadded:: 7.4.1
-
-      Use this option to specify the heading level of the rubric.
-      In this case the rubric will be rendered as ``<h1>`` to ``<h6>`` for HTML output,
-      or as the corresponding non-numbered sectioning command for LaTeX
-      (see :confval:`latex_toplevel_sectioning`).
-
    .. rst:directive:option:: class: class names
       :type: a list of class names, separated by spaces
 
@@ -592,6 +582,16 @@ Presentational
 
       An implicit target name that can be referenced using :rst:role:`ref`.
       This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: heading-level: n
+      :type: number from 1 to 6
+
+      .. versionadded:: 7.4.1
+
+      Use this option to specify the heading level of the rubric.
+      In this case the rubric will be rendered as ``<h1>`` to ``<h6>`` for HTML output,
+      or as the corresponding non-numbered sectioning command for LaTeX
+      (see :confval:`latex_toplevel_sectioning`).
 
 
 .. rst:directive:: centered
@@ -614,7 +614,8 @@ Presentational
    .. rst:directive:option:: columns: n
       :type: int
 
-      The number of columns; defaults to 2.  Example::
+      The number of columns; defaults to 2.
+      For example::
 
          .. hlist::
             :columns: 3
@@ -1468,8 +1469,9 @@ or use Python raw strings (``r"raw"``).
 
    .. rst:directive:option:: nowrap
 
-      Prevent wrapping of the given math in a math environment. When you give this
-      option, you must make sure yourself that the math is properly set up.
+      Prevent wrapping of the given math in a math environment.
+      When you give this option, you must make sure
+      yourself that the math is properly set up.
       For example::
 
          .. math::
