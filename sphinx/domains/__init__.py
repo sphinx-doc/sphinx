@@ -53,11 +53,10 @@ class ObjType:
         'searchprio': 1,
     }
 
-    def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
-        self.lname = lname
-        self.roles: tuple = roles
-        self.attrs: dict = self.known_attrs.copy()
-        self.attrs.update(attrs)
+    def __init__(self, lname: str, /, *roles: Any, **attrs: Any) -> None:
+        self.lname: str = lname
+        self.roles: tuple[Any, ...] = roles
+        self.attrs: dict[str, Any] = self.known_attrs | attrs
 
 
 class Domain:
