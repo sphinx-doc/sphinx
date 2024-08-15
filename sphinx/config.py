@@ -23,7 +23,7 @@ else:
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Collection, Iterator, Sequence, Set, Iterable
+    from collections.abc import Collection, Iterable, Iterator, Sequence, Set
     from typing import TypeAlias
 
     from sphinx.application import Sphinx

@@ -483,7 +483,6 @@ class Sphinx:
         self,
         event: Literal['env-get-outdated'],
         callback: Callable[
-            # do we want to allow users to mutate (added, changed, removed)?
             [Sphinx, BuildEnvironment, Set[str], Set[str], Set[str]], Sequence[str]
         ],
         priority: int = 500
