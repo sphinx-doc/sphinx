@@ -107,9 +107,9 @@ Here is a more detailed list of these events.
 
    :param app: :class:`.Sphinx`
    :param env: :class:`.BuildEnvironment`
-   :param added: ``set[str]``
-   :param changed: ``set[str]``
-   :param removed: ``set[str]``
+   :param added: ``Set[str]``
+   :param changed: ``Set[str]``
+   :param removed: ``Set[str]``
    :returns: ``Sequence[str]`` of additional docnames to re-read
 
    Emitted when the environment determines which source files have changed and
