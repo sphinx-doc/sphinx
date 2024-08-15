@@ -329,7 +329,7 @@ class IntersphinxRole(SphinxRole):
             if default_domain := self.env.temp_data.get('default_domain'):
                 domains.append(default_domain)
             if (
-                std_domain := self.env.domains.get('std')
+                std_domain := self.env.domains.standard_domain
             ) is not None and std_domain not in domains:
                 domains.append(std_domain)
 

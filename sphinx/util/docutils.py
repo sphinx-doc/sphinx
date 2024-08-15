@@ -268,7 +268,7 @@ class sphinx_domains(CustomReSTDispatcher):
                     return element, []
 
         # always look in the std domain
-        element = getattr(self.env.domains['std'], type)(name)
+        element = getattr(self.env.domains.standard_domain, type)(name)
         if element is not None:
             return element, []
 

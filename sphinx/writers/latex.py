@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes, writers
 
 from sphinx import addnodes, highlighting
-from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging, texescape
@@ -504,8 +503,7 @@ class LaTeXTranslator(SphinxTranslator):
                 indices_config = frozenset(indices_config)
             else:
                 check_names = False
-            for domain_name in sorted(self.builder.env.domains):
-                domain = self.builder.env.domains[domain_name]
+            for _domain_name, domain in sorted(self.builder.env.domains.items()):
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
                     if check_names and index_name not in indices_config:
@@ -1657,7 +1655,7 @@ class LaTeXTranslator(SphinxTranslator):
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
-        domain = cast(StandardDomain, self.builder.env.domains['std'])
+        domain = self.builder.env.domains.standard_domain
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):

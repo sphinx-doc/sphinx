@@ -48,7 +48,7 @@ class ChangesBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         version = self.config.version
-        domain = self.env.domains['changeset']
+        domain = self.env.domains.changeset_domain
         libchanges: dict[str, list[tuple[str, str, int]]] = {}
         apichanges: list[tuple[str, str, int]] = []
         otherchanges: dict[tuple[str, str], list[tuple[str, str, int]]] = {}

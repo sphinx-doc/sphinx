@@ -14,7 +14,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Set
 
     from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
@@ -85,7 +85,7 @@ class MathDomain(Domain):
 
         self.data['has_equations'].pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.equations[labelid] = (doc, eqno)

@@ -8,7 +8,7 @@ import pickle
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING, overload
 
 from sphinx import addnodes
 from sphinx.environment.adapters import toctree as toctree_adapters
@@ -29,18 +29,32 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import _last_modified_time, canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Set
     from pathlib import Path
+    from typing import Any, Final, Literal, NoReturn
 
     from docutils import nodes
     from docutils.nodes import Node
     from docutils.parsers import Parser
+    from typing_extensions import Self
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.domains import Domain
+    from sphinx.domains.c import CDomain
+    from sphinx.domains.changeset import ChangeSetDomain
+    from sphinx.domains.citation import CitationDomain
+    from sphinx.domains.cpp import CPPDomain
+    from sphinx.domains.index import IndexDomain
+    from sphinx.domains.javascript import JavaScriptDomain
+    from sphinx.domains.math import MathDomain
+    from sphinx.domains.python import PythonDomain
+    from sphinx.domains.rst import ReSTDomain
+    from sphinx.domains.std import StandardDomain
     from sphinx.events import EventManager
+    from sphinx.ext.duration import DurationDomain
+    from sphinx.ext.todo import TodoDomain
     from sphinx.project import Project
     from sphinx.util._pathlib import _StrPath
 
@@ -87,61 +101,6 @@ versioning_conditions: dict[str, Literal[False] | Callable[[Node], bool]] = {
     'text': is_translatable,
 }
 
-if TYPE_CHECKING:
-    from collections.abc import MutableMapping
-    from typing import Literal, overload
-
-    from sphinx.domains.c import CDomain
-    from sphinx.domains.changeset import ChangeSetDomain
-    from sphinx.domains.citation import CitationDomain
-    from sphinx.domains.cpp import CPPDomain
-    from sphinx.domains.index import IndexDomain
-    from sphinx.domains.javascript import JavaScriptDomain
-    from sphinx.domains.math import MathDomain
-    from sphinx.domains.python import PythonDomain
-    from sphinx.domains.rst import ReSTDomain
-    from sphinx.domains.std import StandardDomain
-    from sphinx.ext.duration import DurationDomain
-    from sphinx.ext.todo import TodoDomain
-
-    class _DomainsType(MutableMapping[str, Domain]):
-        @overload
-        def __getitem__(self, key: Literal["c"]) -> CDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["cpp"]) -> CPPDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["changeset"]) -> ChangeSetDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["citation"]) -> CitationDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["index"]) -> IndexDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["js"]) -> JavaScriptDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["math"]) -> MathDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["py"]) -> PythonDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["rst"]) -> ReSTDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["std"]) -> StandardDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["duration"]) -> DurationDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["todo"]) -> TodoDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
-        def __getitem__(self, _key: str) -> Domain: raise NotImplementedError  # NoQA: E704
-        def __setitem__(  # NoQA: E301,E704
-            self, key: str, value: Domain,
-        ) -> NoReturn: raise NotImplementedError
-        def __delitem__(self, key: str) -> NoReturn: raise NotImplementedError  # NoQA: E704
-        def __iter__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
-        def __len__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
-
-else:
-    _DomainsType = dict
-
 
 class BuildEnvironment:
     """
@@ -149,8 +108,6 @@ class BuildEnvironment:
     Stores an inventory of cross-file targets and provides doctree
     transformations to resolve links to them.
     """
-
-    domains: _DomainsType
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -168,9 +125,6 @@ class BuildEnvironment:
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: Literal[False] | Callable[[Node], bool] | None = None
         self.versioning_compare: bool | None = None
-
-        # all the registered domains, set by the application
-        self.domains = _DomainsType()
 
         # the docutils settings for building
         self.settings: dict[str, Any] = default_settings.copy()
@@ -276,6 +230,9 @@ class BuildEnvironment:
         # objtype index -> (domain, type, objname (localized))
         self._search_index_objnames: dict[int, tuple[str, str, str]] = {}
 
+        # all the registered domains, set by the application
+        self.domains: _DomainsType = _DomainsType.from_environment(self)
+
         # set up environment
         self.setup(app)
 
@@ -310,14 +267,8 @@ class BuildEnvironment:
         self.project = app.project
         self.version = app.registry.get_envversion(app)
 
-        # initialize domains
-        self.domains = _DomainsType()
-        for domain in app.registry.create_domains(self):
-            self.domains[domain.name] = domain
-
         # setup domains (must do after all initialization)
-        for domain in self.domains.values():
-            domain.setup()
+        self.domains._setup_domains()
 
         # initialize config
         self._update_config(app.config)
@@ -392,25 +343,23 @@ class BuildEnvironment:
             self.included.pop(docname, None)
             self.reread_always.discard(docname)
 
-        for domain in self.domains.values():
-            domain.clear_doc(docname)
+        self.domains._clear_doc(docname)
 
-    def merge_info_from(self, docnames: list[str], other: BuildEnvironment,
+    def merge_info_from(self, docnames: Iterable[str], other: BuildEnvironment,
                         app: Sphinx) -> None:
         """Merge global information gathered about *docnames* while reading them
         from the *other* environment.
 
         This possibly comes from a parallel build process.
         """
-        docnames = set(docnames)  # type: ignore[assignment]
+        docnames = frozenset(docnames)
         for docname in docnames:
             self.all_docs[docname] = other.all_docs[docname]
             self.included[docname] = other.included[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
 
-        for domainname, domain in self.domains.items():
-            domain.merge_domaindata(docnames, other.domaindata[domainname])
+        self.domains._merge_domain_data(docnames, other.domaindata)
         self.events.emit('env-merge-info', self, docnames, other)
 
     def path2doc(self, filename: str | os.PathLike[str]) -> str | None:
@@ -563,8 +512,7 @@ class BuildEnvironment:
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_role'] = self.config.default_role
-        self.temp_data['default_domain'] = \
-            self.domains.get(self.config.primary_domain)
+        self.temp_data['default_domain'] = self.domains.get(self.config.primary_domain)
 
     # utilities to use while reading a document
 
@@ -622,7 +570,8 @@ class BuildEnvironment:
         try:
             return self.domains[domainname]
         except KeyError as exc:
-            raise ExtensionError(__('Domain %r is not registered') % domainname) from exc
+            msg = __('Domain %r is not registered') % domainname
+            raise ExtensionError(msg) from exc
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
@@ -760,9 +709,208 @@ class BuildEnvironment:
                                location=docname)
 
         # call check-consistency for all extensions
-        for domain in self.domains.values():
-            domain.check_consistency()
+        self.domains._check_consistency()
         self.events.emit('env-check-consistency', self)
+
+
+class _DomainsType:
+    __slots__ = (
+        '_data',
+        'c_domain',
+        'changeset_domain',
+        'citation_domain',
+        'cpp_domain',
+        'index_domain',
+        'javascript_domain',
+        'math_domain',
+        'python_domain',
+        'restructuredtext_domain',
+        'standard_domain',
+    )
+
+    #: First-party domains in :mod:`sphinx.domains`
+    _core_domains: Final = frozenset({
+        'std', 'c', 'cpp', 'js', 'py', 'rst',
+        'changeset', 'citation', 'index', 'math',
+    })  # fmt: skip
+
+    @classmethod
+    def from_environment(cls, env: BuildEnvironment) -> Self:
+        registry = env.app.registry
+        # Initialise domains
+        domains = {domain.name: domain for domain in registry.create_domains(env)}
+        return cls(**domains)  # type: ignore[arg-type]
+
+    def __init__(
+        self,
+        *,
+        c: CDomain,
+        cpp: CPPDomain,
+        js: JavaScriptDomain,
+        py: PythonDomain,
+        rst: ReSTDomain,
+        std: StandardDomain,
+        changeset: ChangeSetDomain,
+        citation: CitationDomain,
+        index: IndexDomain,
+        math: MathDomain,
+        **domains: Domain,
+    ) -> None:
+
+        # All domains, including core.
+        # Implemented as a dict for backwards compatibility.
+        self._data: dict[str, Domain] = {
+            'c': c,
+            'changeset': changeset,
+            'citation': citation,
+            'cpp': cpp,
+            'index': index,
+            'js': js,
+            'math': math,
+            'py': py,
+            'rst': rst,
+            'std': std,
+            **domains,
+        }
+
+        # core domains are always available, so we provide typed attributes
+        self.standard_domain: StandardDomain = std
+        self.c_domain: CDomain = c
+        self.cpp_domain: CPPDomain = cpp
+        self.javascript_domain: JavaScriptDomain = js
+        self.python_domain: PythonDomain = py
+        self.restructuredtext_domain: ReSTDomain = rst
+        self.changeset_domain: ChangeSetDomain = changeset
+        self.citation_domain: CitationDomain = citation
+        self.index_domain: IndexDomain = index
+        self.math_domain: MathDomain = math
+
+    def _setup_domains(self) -> None:
+        for domain in self._data.values():
+            domain.setup()
+
+    def _process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document
+    ) -> None:
+        for domain in self._data.values():
+            domain.process_doc(env, docname, document)
+
+    def _clear_doc(self, docname: str) -> None:
+        for domain in self._data.values():
+            domain.clear_doc(docname)
+
+    def _merge_domain_data(self, docnames: Set[str], domain_data: dict[str, Any]) -> None:
+        for domain_name, domain in self._data.items():
+            domain.merge_domaindata(docnames, domain_data[domain_name])
+
+    def _check_consistency(self) -> None:
+        for domain in self._data.values():
+            domain.check_consistency()
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._data
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, _DomainsType):
+            return NotImplemented
+        return self._data == other._data
+
+    def __setattr__(self, key: str, value: object) -> None:
+        if key in self._core_domains:
+            msg = f'{self.__class__.__name__!r} object does not support assignment to {key!r}'
+            raise TypeError(msg)
+        super().__setattr__(key, value)
+
+    def __delattr__(self, key: str) -> None:
+        if key in self._core_domains:
+            msg = f'{self.__class__.__name__!r} object does not support deletion of {key!r}'
+            raise TypeError(msg)
+        super().__delattr__(key)
+
+    # Mapping interface
+
+    @overload
+    def __getitem__(self, key: Literal["c"]) -> CDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["cpp"]) -> CPPDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["changeset"]) -> ChangeSetDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["citation"]) -> CitationDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["index"]) -> IndexDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["js"]) -> JavaScriptDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["math"]) -> MathDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["py"]) -> PythonDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["rst"]) -> ReSTDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["std"]) -> StandardDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["duration"]) -> DurationDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: Literal["todo"]) -> TodoDomain:
+        ...
+
+    @overload
+    def __getitem__(self, key: str) -> Domain:
+        ...
+
+    def __getitem__(self, key: str) -> Domain:
+        if domain := getattr(self, key, None):
+            return domain
+        return self._data[key]
+
+    def __setitem__(self, key: str, value: Domain) -> NoReturn:
+        msg = f'{self.__class__.__name__!r} object does not support item assignment'
+        raise TypeError(msg)
+
+    def __delitem__(self, key: str) -> NoReturn:
+        msg = f'{self.__class__.__name__!r} object does not support item deletion'
+        raise TypeError(msg)
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._data.keys())
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def get(self, key: str, default: Domain | None = None) -> Domain | None:
+        return self._data.get(key, default)
+
+    def keys(self) -> Iterable[str]:
+        return self._data.keys()
+
+    def items(self) -> Iterable[tuple[str, Domain]]:
+        return self._data.items()
+
+    def values(self) -> Iterable[Domain]:
+        return self._data.values()
 
 
 def _traverse_toctree(

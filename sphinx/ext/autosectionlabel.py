@@ -30,7 +30,7 @@ def get_node_depth(node: Node) -> int:
 
 
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
-    domain = app.env.domains['std']
+    domain = app.env.domains.standard_domain
     for node in document.findall(nodes.section):
         if (app.config.autosectionlabel_maxdepth and
                 get_node_depth(node) >= app.config.autosectionlabel_maxdepth):

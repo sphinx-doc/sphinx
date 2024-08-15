@@ -24,6 +24,8 @@ from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxDirective, new_document
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
@@ -87,7 +89,7 @@ class TodoDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.todos.pop(docname, None)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for docname in docnames:
             self.todos[docname] = otherdata['todos'][docname]
 

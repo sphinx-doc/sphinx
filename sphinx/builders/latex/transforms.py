@@ -536,7 +536,7 @@ class CitationReferenceTransform(SphinxPostTransform):
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
-        domain = self.env.domains['citation']
+        domain = self.env.domains.citation_domain
         matcher = NodeMatcher(addnodes.pending_xref, refdomain='citation', reftype='ref')
         for node in matcher.findall(self.document):
             docname, labelid, _ = domain.citations.get(node['reftarget'], ('', '', 0))
@@ -557,7 +557,7 @@ class MathReferenceTransform(SphinxPostTransform):
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
-        equations = self.env.domains['math'].data['objects']
+        equations = self.env.domains.math_domain.data['objects']
         for node in self.document.findall(addnodes.pending_xref):
             if node['refdomain'] == 'math' and node['reftype'] in ('eq', 'numref'):
                 docname, _ = equations.get(node['reftarget'], (None, None))

@@ -81,7 +81,7 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict
         msg = 'mathjax_path config value must be set for the mathjax extension to work'
         raise ExtensionError(msg)
 
-    domain = app.env.domains['math']
+    domain = app.env.domains.math_domain
     builder = cast(StandaloneHTMLBuilder, app.builder)
     if app.registry.html_assets_policy == 'always' or domain.has_equations(pagename):
         # Enable mathjax only if equations exists

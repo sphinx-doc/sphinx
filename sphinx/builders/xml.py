@@ -76,8 +76,7 @@ class XMLBuilder(Builder):
         # replace tuples in attribute values with lists
         doctree = doctree.deepcopy()
         for domain in self.env.domains.values():
-            xmlns = "xmlns:" + domain.name
-            doctree[xmlns] = "https://www.sphinx-doc.org/"
+            doctree[f'xmlns:{domain.name}'] = 'https://www.sphinx-doc.org/'
         for node in doctree.findall(nodes.Element):
             for att, value in node.attributes.items():
                 if isinstance(value, tuple):

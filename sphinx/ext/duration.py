@@ -13,6 +13,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from collections.abc import Set
     from typing import TypedDict
 
     from docutils import nodes
@@ -43,7 +44,7 @@ class DurationDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.reading_durations.pop(docname, None)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: _DurationDomainData) -> None:  # type: ignore[override]
+    def merge_domaindata(self, docnames: Set[str], otherdata: _DurationDomainData) -> None:  # type: ignore[override]
         other_reading_durations = otherdata.get('reading_durations', {})
         docnames_set = frozenset(docnames)
         for docname, duration in other_reading_durations.items():

@@ -164,7 +164,7 @@ class MathDirective(SphinxDirective):
             return
 
         # register label to domain
-        domain = self.env.domains['math']
+        domain = self.env.domains.math_domain
         domain.note_equation(self.env.docname, node['label'], location=node)
         node['number'] = domain.get_equation_number_for(node['label'])
 
