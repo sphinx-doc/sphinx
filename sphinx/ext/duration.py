@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 from itertools import islice
 from operator import itemgetter
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.domains import Domain
@@ -57,7 +57,7 @@ def on_builder_inited(app: Sphinx) -> None:
 
     This clears the results of the last build.
     """
-    domain = cast(DurationDomain, app.env.get_domain('duration'))
+    domain = app.env.domains['duration']
     domain.clear()
 
 
@@ -70,13 +70,13 @@ def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     """Record a reading duration."""
     started_at = app.env.temp_data['started_at']
     duration = time.monotonic() - started_at
-    domain = cast(DurationDomain, app.env.get_domain('duration'))
+    domain = app.env.domains['duration']
     domain.note_reading_duration(duration)
 
 
 def on_build_finished(app: Sphinx, error: Exception) -> None:
     """Display duration ranking on the current build."""
-    domain = cast(DurationDomain, app.env.get_domain('duration'))
+    domain = app.env.domains['duration']
     if not domain.reading_durations:
         return
     durations = sorted(domain.reading_durations.items(), key=itemgetter(1), reverse=True)

@@ -366,8 +366,7 @@ def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_k
         term['ids'].append(node_id)
         document.note_explicit_target(term)
 
-    std = cast(StandardDomain, env.get_domain('std'))
-    std._note_term(termtext, node_id, location=term)
+    env.domains.standard_domain._note_term(termtext, node_id, location=term)
 
     # add an index entry too
     indexnode = addnodes.index()
