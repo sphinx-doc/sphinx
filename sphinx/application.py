@@ -16,7 +16,6 @@ from os import path
 from pathlib import Path  # NoQA: TCH003
 from typing import IO, TYPE_CHECKING, Any, Literal, overload
 
-import docutils.nodes
 from docutils.nodes import TextElement, document  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
 from docutils.transforms import Transform  # NoQA: TCH002
@@ -533,7 +532,7 @@ class Sphinx:
     @overload
     def connect(self, event: Literal['missing-reference'],  # NoQA: E704
                 callback: Callable[
-                    [Sphinx, BuildEnvironment, pending_xref, docutils.nodes.TextElement],
+                    [Sphinx, BuildEnvironment, pending_xref, TextElement],
                     nodes.reference | None],
                 priority: int = 500) -> int: ...
 
