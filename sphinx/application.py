@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from docutils.transforms import Transform
     from pygments.lexer import Lexer
 
-    from sphinx.addnodes import pending_xref
+    from sphinx import addnodes
     from sphinx.builders import Builder
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
@@ -483,6 +483,7 @@ class Sphinx:
         self,
         event: Literal['env-get-outdated'],
         callback: Callable[
+            # do we want to allow users to mutate (added, changed, removed)?
             [Sphinx, BuildEnvironment, Set[str], Set[str], Set[str]], Sequence[str]
         ],
         priority: int = 500
@@ -530,7 +531,7 @@ class Sphinx:
         self,
         event: Literal['doctree-read'],
         callback: Callable[[Sphinx, nodes.document], None],
-    priority: int = 500
+        priority: int = 500
     ) -> int:
         ...
 
@@ -595,7 +596,7 @@ class Sphinx:
         self,
         event: Literal['missing-reference'],
         callback: Callable[
-            [Sphinx, BuildEnvironment, pending_xref, nodes.TextElement],
+            [Sphinx, BuildEnvironment, addnodes.pending_xref, nodes.TextElement],
             nodes.reference | None,
         ],
         priority: int = 500
@@ -606,7 +607,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['warn-missing-reference'],
-        callback: Callable[[Sphinx, Domain, pending_xref], bool | None],
+        callback: Callable[[Sphinx, Domain, addnodes.pending_xref], bool | None],
         priority: int = 500
     ) -> int:
         ...
@@ -657,7 +658,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['object-description-transform'],
-        callback: Callable[[Sphinx, str, str, nodes.desc_content], None],
+        callback: Callable[[Sphinx, str, str, addnodes.desc_content], None],
         priority: int = 500
     ) -> int:
         ...
@@ -676,8 +677,8 @@ class Sphinx:
                 Any,
                 dict[str, bool],
                 Sequence[str],
-             ],
-            None
+            ],
+            None,
         ],
         priority: int = 500
     ) -> int:
@@ -755,7 +756,7 @@ class Sphinx:
         event: Literal['viewcode-find-source'],
         callback: Callable[
             [Sphinx, str],
-            tuple[str, dict[str, tuple[str, int, int]]],
+            tuple[str, dict[str, tuple[Literal['class', 'def', 'other'], int, int]]],
         ],
         priority: int = 500,
     ) -> int:
