@@ -24,12 +24,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Get Ruff version from pyproject.toml
+      run: |
+        RUFF_VERSION=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
+        echo "RUFF_VERSION=$RUFF_VERSION" >> $GITHUB_ENV
+
     - name: Install Ruff
       run: >
-        RUFF_VERSION=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
         curl --no-progress-meter --location --fail
         --proto '=https' --tlsv1.2
-        "https://astral.sh/ruff/${RUFF_VERSION}/install.sh"
+        --write-out "%{stderr}Downloaded: %{url}\n"
+        "https://astral.sh/ruff/$RUFF_VERSION/install.sh"
         | sh
 
     - name: Lint with Ruff

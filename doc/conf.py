@@ -186,12 +186,15 @@ nitpick_ignore = {
     ('js:func', 'number'),
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
+    ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
     ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
     ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
+    ('py:class', 'Lexer'),  # sphinx.application.Sphinx.add_lexer
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
+    ('py:class', 'Path'),  # sphinx.application.Sphinx.connect
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
@@ -199,6 +202,8 @@ nitpick_ignore = {
     ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'system_message'),  # sphinx.utils.docutils.SphinxDirective
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
+    ('py:class', 'todo_node'),  # sphinx.application.Sphinx.connect
+    ('py:class', 'Transform'),  # sphinx.application.Sphinx.add_transform
     ('py:class', 'XRefRole'),  # sphinx.domains.Domain
     ('py:class', 'docutils.nodes.Element'),
     ('py:class', 'docutils.nodes.Node'),
@@ -210,6 +215,7 @@ nitpick_ignore = {
     ('py:class', 'docutils.parsers.rst.states.Inliner'),
     ('py:class', 'docutils.transforms.Transform'),
     ('py:class', 'nodes.NodeVisitor'),
+    ('py:class', 'nodes.TextElement'),  # sphinx.application.Sphinx.connect
     ('py:class', 'nodes.document'),
     ('py:class', 'nodes.reference'),
     ('py:class', 'pygments.lexer.Lexer'),

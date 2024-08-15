@@ -1,9 +1,9 @@
 """Tests the C Domain"""
 
 import itertools
+import xml.etree.ElementTree as ET
 import zlib
 from io import StringIO
-from xml.etree import ElementTree
 
 import pytest
 
@@ -717,7 +717,7 @@ def extract_role_links(app, filename):
     lis = [l for l in t.split('\n') if l.startswith('<li')]
     entries = []
     for l in lis:
-        li = ElementTree.fromstring(l)  # NoQA: S314  # using known data in tests
+        li = ET.fromstring(l)  # NoQA: S314  # using known data in tests
         aList = list(li.iter('a'))
         assert len(aList) == 1
         a = aList[0]
