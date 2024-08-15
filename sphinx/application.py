@@ -10,16 +10,11 @@ import os
 import pickle
 import sys
 from collections import deque
-from collections.abc import Callable, Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from pathlib import Path  # NoQA: TCH003
-from typing import IO, TYPE_CHECKING, Any, Literal, overload
+from typing import TYPE_CHECKING, overload
 
-from docutils.nodes import TextElement, document  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
-from docutils.transforms import Transform  # NoQA: TCH002
-from pygments.lexer import Lexer  # NoQA: TCH002
 
 import sphinx
 from sphinx import locale, package_dir
@@ -42,18 +37,22 @@ from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from typing import Final
+    from collections.abc import Callable, Collection, Iterable, Sequence, Set
+    from pathlib import Path
+    from typing import IO, Any, Final, Literal
 
     from docutils import nodes
     from docutils.nodes import Element, Node
     from docutils.parsers import Parser
+    from docutils.transforms import Transform
+    from pygments.lexer import Lexer
 
     from sphinx.addnodes import pending_xref
     from sphinx.builders import Builder
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
     from sphinx.ext.autodoc import Documenter
+    from sphinx.ext.todo import todo_node
     from sphinx.extension import Extension
     from sphinx.roles import XRefRole
     from sphinx.search import SearchLanguage
@@ -459,102 +458,328 @@ class Sphinx:
             req = f'{major}.{minor}'
             raise VersionRequirementError(req)
 
-    @overload
-    def connect(self, event: Literal['config-inited'],  # NoQA: E704
-                callback: Callable[[Sphinx, Config], None], priority: int = 500) -> int: ...
+    # ---- Core events -------------------------------------------------------
 
     @overload
-    def connect(self, event: Literal['builder-inited'],  # NoQA: E704
-                callback: Callable[[Sphinx], None], priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['config-inited'],
+        callback: Callable[[Sphinx, Config], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['env-get-outdated'],  # NoQA: E704
-                callback: Callable[
-                    [Sphinx, BuildEnvironment, set[str], set[str], set[str]],
-                    list[str]],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['builder-inited'],
+        callback: Callable[[Sphinx], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['env-before-read-docs'],  # NoQA: E704
-                callback: Callable[[Sphinx, BuildEnvironment, list[str]], None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['env-get-outdated'],
+        callback: Callable[
+            [Sphinx, BuildEnvironment, Set[str], Set[str], Set[str]], Sequence[str]
+        ],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['env-purge-doc'],  # NoQA: E704
-                callback: Callable[[Sphinx, BuildEnvironment, str], None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['env-before-read-docs'],
+        callback: Callable[[Sphinx, BuildEnvironment, list[str]], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['source-read'],  # NoQA: E704
-                callback: Callable[[Sphinx, str, list[str]], None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['env-purge-doc'],
+        callback: Callable[[Sphinx, BuildEnvironment, str], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['include-read'],  # NoQA: E704
-                callback: Callable[[Sphinx, Path, str, list[str]], None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['source-read'],
+        callback: Callable[[Sphinx, str, list[str]], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['doctree-read'],  # NoQA: E704
-                callback: Callable[[Sphinx, document], None], priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['include-read'],
+        callback: Callable[[Sphinx, Path, str, list[str]], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['env-merge-info'],  # NoQA: E704
-                callback: Callable[
-                    [Sphinx, BuildEnvironment, list[str], BuildEnvironment],
-                    None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['doctree-read'],
+        callback: Callable[[Sphinx, nodes.document], None],
+    priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['env-updated'],  # NoQA: E704
-                callback: Callable[[Sphinx, BuildEnvironment], str],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['env-merge-info'],
+        callback: Callable[
+            [Sphinx, BuildEnvironment, list[str], BuildEnvironment], None
+        ],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['env-get-updated'],  # NoQA: E704
-                callback: Callable[[Sphinx, BuildEnvironment], Iterable[str]],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['env-updated'],
+        callback: Callable[[Sphinx, BuildEnvironment], str],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['env-check-consistency'],  # NoQA: E704
-                callback: Callable[[Sphinx, BuildEnvironment], None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['env-get-updated'],
+        callback: Callable[[Sphinx, BuildEnvironment], Iterable[str]],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['write-started'],  # NoQA: E704
-                callback: Callable[[Sphinx, Builder], None], priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['env-check-consistency'],
+        callback: Callable[[Sphinx, BuildEnvironment], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['doctree-resolved'],  # NoQA: E704
-                callback: Callable[[Sphinx, document, str], None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['write-started'],
+        callback: Callable[[Sphinx, Builder], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['missing-reference'],  # NoQA: E704
-                callback: Callable[
-                    [Sphinx, BuildEnvironment, pending_xref, TextElement],
-                    nodes.reference | None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['doctree-resolved'],
+        callback: Callable[[Sphinx, nodes.document, str], None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['warn-missing-reference'],  # NoQA: E704
-                callback: Callable[[Sphinx, Domain, pending_xref], bool | None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['missing-reference'],
+        callback: Callable[
+            [Sphinx, BuildEnvironment, pending_xref, nodes.TextElement],
+            nodes.reference | None,
+        ],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['build-finished'],  # NoQA: E704
-                callback: Callable[[Sphinx, Exception | None], None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['warn-missing-reference'],
+        callback: Callable[[Sphinx, Domain, pending_xref], bool | None],
+        priority: int = 500
+    ) -> int:
+        ...
 
     @overload
-    def connect(self, event: Literal['autodoc-before-process-signature'],  # NoQA: E704
-                callback: Callable[[Sphinx, Any, bool], None],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['build-finished'],
+        callback: Callable[[Sphinx, Exception | None], None],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    # ---- Events from builtin builders --------------------------------------
 
     @overload
-    def connect(self, event: str,  # NoQA: E704
-                callback: Callable[..., Any],
-                priority: int = 500) -> int: ...
+    def connect(
+        self,
+        event: Literal['html-collect-pages'],
+        callback: Callable[[Sphinx], Iterable[tuple[str, dict[str, Any], str]]],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['html-page-context'],
+        callback: Callable[
+            [Sphinx, str, str, dict[str, Any], nodes.document], str | None
+        ],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['linkcheck-process-uri'],
+        callback: Callable[[Sphinx, str], str | None],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    # ---- Events from builtin extensions-- ----------------------------------
+
+    @overload
+    def connect(
+        self,
+        event: Literal['object-description-transform'],
+        callback: Callable[[Sphinx, str, str, nodes.desc_content], None],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    # ---- Events from first-party extensions --------------------------------
+
+    @overload
+    def connect(
+        self,
+        event: Literal['autodoc-process-docstring'],
+        callback: Callable[
+            [
+                Sphinx,
+                Literal['module', 'class', 'exception', 'function', 'method', 'attribute'],
+                str,
+                Any,
+                dict[str, bool],
+                Sequence[str],
+             ],
+            None
+        ],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['autodoc-before-process-signature'],
+        callback: Callable[[Sphinx, Any, bool], None],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['autodoc-process-signature'],
+        callback: Callable[
+            [
+                Sphinx,
+                Literal['module', 'class', 'exception', 'function', 'method', 'attribute'],
+                str,
+                Any,
+                dict[str, bool],
+                str | None,
+                str | None,
+            ],
+            tuple[str | None, str | None] | None,
+        ],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['autodoc-process-bases'],
+        callback: Callable[[Sphinx, str, Any, dict[str, bool], list[str]], None],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['autodoc-skip-member'],
+        callback: Callable[
+            [
+                Sphinx,
+                Literal['module', 'class', 'exception', 'function', 'method', 'attribute'],
+                str,
+                Any,
+                bool,
+                dict[str, bool],
+            ],
+            bool,
+        ],
+        priority: int = 500
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['todo-defined'],
+        callback: Callable[[Sphinx, todo_node], None],
+        priority: int = 500,
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['viewcode-find-source'],
+        callback: Callable[
+            [Sphinx, str],
+            tuple[str, dict[str, tuple[str, int, int]]],
+        ],
+        priority: int = 500,
+    ) -> int:
+        ...
+
+    @overload
+    def connect(
+        self,
+        event: Literal['viewcode-follow-imported'],
+        callback: Callable[[Sphinx, str, str], str | None],
+        priority: int = 500,
+    ) -> int:
+        ...
+
+    # ---- Catch-all ---------------------------------------------------------
+
+    @overload
+    def connect(
+        self,
+        event: str,
+        callback: Callable[..., Any],
+        priority: int = 500
+    ) -> int:
+        ...
 
     # event interface
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
@@ -951,7 +1176,7 @@ class Sphinx:
 
     def add_object_type(self, directivename: str, rolename: str, indextemplate: str = '',
                         parse_node: Callable | None = None,
-                        ref_nodeclass: type[TextElement] | None = None,
+                        ref_nodeclass: type[nodes.TextElement] | None = None,
                         objname: str = '', doc_field_types: Sequence = (),
                         override: bool = False,
                         ) -> None:
@@ -1018,9 +1243,11 @@ class Sphinx:
                                       ref_nodeclass, objname, doc_field_types,
                                       override=override)
 
-    def add_crossref_type(self, directivename: str, rolename: str, indextemplate: str = '',
-                          ref_nodeclass: type[TextElement] | None = None, objname: str = '',
-                          override: bool = False) -> None:
+    def add_crossref_type(
+        self, directivename: str, rolename: str, indextemplate: str = '',
+        ref_nodeclass: type[nodes.TextElement] | None = None, objname: str = '',
+        override: bool = False,
+    ) -> None:
         """Register a new crossref object type.
 
         This method is very similar to :meth:`~Sphinx.add_object_type` except that the

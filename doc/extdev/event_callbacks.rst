@@ -110,7 +110,7 @@ Here is a more detailed list of these events.
    :param added: ``set[str]``
    :param changed: ``set[str]``
    :param removed: ``set[str]``
-   :returns: ``list[str]`` of additional docnames to re-read
+   :returns: ``Sequence[str]`` of additional docnames to re-read
 
    Emitted when the environment determines which source files have changed and
    should be re-read.
