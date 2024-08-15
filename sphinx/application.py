@@ -13,9 +13,10 @@ from collections import deque
 from collections.abc import Callable, Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
+from pathlib import Path  # NoQA: TCH003
 from typing import IO, TYPE_CHECKING, Any, Literal, overload
 
-from docutils.nodes import TextElement  # NoQA: TCH002
+from docutils.nodes import TextElement, document  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
 from docutils.transforms import Transform  # NoQA: TCH002
 from pygments.lexer import Lexer  # NoQA: TCH002
@@ -42,11 +43,10 @@ from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from pathlib import Path
     from typing import Final
 
     from docutils import nodes
-    from docutils.nodes import Element, Node, document
+    from docutils.nodes import Element, Node
     from docutils.parsers import Parser
 
     from sphinx.addnodes import pending_xref
