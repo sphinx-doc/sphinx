@@ -83,8 +83,7 @@ class EventManager:
         name: Literal['config-inited'],
         callback: Callable[[Sphinx, Config], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -92,8 +91,7 @@ class EventManager:
         name: Literal['builder-inited'],
         callback: Callable[[Sphinx], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -103,8 +101,7 @@ class EventManager:
             [Sphinx, BuildEnvironment, Set[str], Set[str], Set[str]], Sequence[str]
         ],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -112,8 +109,7 @@ class EventManager:
         name: Literal['env-before-read-docs'],
         callback: Callable[[Sphinx, BuildEnvironment, list[str]], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -121,8 +117,7 @@ class EventManager:
         name: Literal['env-purge-doc'],
         callback: Callable[[Sphinx, BuildEnvironment, str], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -130,8 +125,7 @@ class EventManager:
         name: Literal['source-read'],
         callback: Callable[[Sphinx, str, list[str]], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -139,8 +133,7 @@ class EventManager:
         name: Literal['include-read'],
         callback: Callable[[Sphinx, Path, str, list[str]], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -148,8 +141,7 @@ class EventManager:
         name: Literal['doctree-read'],
         callback: Callable[[Sphinx, nodes.document], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -159,8 +151,7 @@ class EventManager:
             [Sphinx, BuildEnvironment, list[str], BuildEnvironment], None
         ],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -168,8 +159,7 @@ class EventManager:
         name: Literal['env-updated'],
         callback: Callable[[Sphinx, BuildEnvironment], str],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -177,8 +167,7 @@ class EventManager:
         name: Literal['env-get-updated'],
         callback: Callable[[Sphinx, BuildEnvironment], Iterable[str]],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -186,8 +175,7 @@ class EventManager:
         name: Literal['env-check-consistency'],
         callback: Callable[[Sphinx, BuildEnvironment], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -195,8 +183,7 @@ class EventManager:
         name: Literal['write-started'],
         callback: Callable[[Sphinx, Builder], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -204,8 +191,7 @@ class EventManager:
         name: Literal['doctree-resolved'],
         callback: Callable[[Sphinx, nodes.document, str], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -216,8 +202,7 @@ class EventManager:
             nodes.reference | None,
         ],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -225,8 +210,7 @@ class EventManager:
         name: Literal['warn-missing-reference'],
         callback: Callable[[Sphinx, Domain, addnodes.pending_xref], bool | None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -234,8 +218,7 @@ class EventManager:
         name: Literal['build-finished'],
         callback: Callable[[Sphinx, Exception | None], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     # ---- Events from builtin builders --------------------------------------
 
@@ -245,8 +228,7 @@ class EventManager:
         name: Literal['html-collect-pages'],
         callback: Callable[[Sphinx], Iterable[tuple[str, dict[str, Any], str]]],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -256,8 +238,7 @@ class EventManager:
             [Sphinx, str, str, dict[str, Any], nodes.document], str | None
         ],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -265,8 +246,7 @@ class EventManager:
         name: Literal['linkcheck-process-uri'],
         callback: Callable[[Sphinx, str], str | None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     # ---- Events from builtin extensions-- ----------------------------------
 
@@ -276,8 +256,7 @@ class EventManager:
         name: Literal['object-description-transform'],
         callback: Callable[[Sphinx, str, str, addnodes.desc_content], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     # ---- Events from first-party extensions --------------------------------
 
@@ -288,7 +267,9 @@ class EventManager:
         callback: Callable[
             [
                 Sphinx,
-                Literal['module', 'class', 'exception', 'function', 'method', 'attribute'],
+                Literal[
+                    'module', 'class', 'exception', 'function', 'method', 'attribute'
+                ],
                 str,
                 Any,
                 dict[str, bool],
@@ -297,8 +278,7 @@ class EventManager:
             None,
         ],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -306,8 +286,7 @@ class EventManager:
         name: Literal['autodoc-before-process-signature'],
         callback: Callable[[Sphinx, Any, bool], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -316,7 +295,9 @@ class EventManager:
         callback: Callable[
             [
                 Sphinx,
-                Literal['module', 'class', 'exception', 'function', 'method', 'attribute'],
+                Literal[
+                    'module', 'class', 'exception', 'function', 'method', 'attribute'
+                ],
                 str,
                 Any,
                 dict[str, bool],
@@ -326,8 +307,7 @@ class EventManager:
             tuple[str | None, str | None] | None,
         ],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -335,8 +315,7 @@ class EventManager:
         name: Literal['autodoc-process-bases'],
         callback: Callable[[Sphinx, str, Any, dict[str, bool], list[str]], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -345,7 +324,9 @@ class EventManager:
         callback: Callable[
             [
                 Sphinx,
-                Literal['module', 'class', 'exception', 'function', 'method', 'attribute'],
+                Literal[
+                    'module', 'class', 'exception', 'function', 'method', 'attribute'
+                ],
                 str,
                 Any,
                 bool,
@@ -354,8 +335,7 @@ class EventManager:
             bool,
         ],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -363,8 +343,7 @@ class EventManager:
         name: Literal['todo-defined'],
         callback: Callable[[Sphinx, todo_node], None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -375,8 +354,7 @@ class EventManager:
             tuple[str, dict[str, tuple[Literal['class', 'def', 'other'], int, int]]],
         ],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     @overload
     def connect(
@@ -384,8 +362,7 @@ class EventManager:
         name: Literal['viewcode-follow-imported'],
         callback: Callable[[Sphinx, str, str], str | None],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     # ---- Catch-all ---------------------------------------------------------
 
@@ -395,8 +372,7 @@ class EventManager:
         name: str,
         callback: Callable[..., Any],
         priority: int,
-    ) -> int:
-        ...
+    ) -> int: ...
 
     def connect(self, name: str, callback: Callable, priority: int) -> int:
         """Connect a handler to specific event."""
