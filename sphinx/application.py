@@ -13,7 +13,7 @@ from collections import deque
 from collections.abc import Callable, Collection, Sequence  # NoQA: TCH003
 from io import StringIO
 from os import path
-from typing import IO, TYPE_CHECKING, Any, Literal
+from typing import IO, TYPE_CHECKING, Any, Literal, overload
 
 from docutils.nodes import TextElement  # NoQA: TCH002
 from docutils.parsers.rst import Directive, roles
@@ -41,12 +41,15 @@ from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from pathlib import Path
     from typing import Final
 
     from docutils import nodes
-    from docutils.nodes import Element, Node
+    from docutils.nodes import Element, Node, document
     from docutils.parsers import Parser
 
+    from sphinx.addnodes import pending_xref
     from sphinx.builders import Builder
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
@@ -455,6 +458,103 @@ class Sphinx:
         if (major, minor) > sphinx.version_info[:2]:
             req = f'{major}.{minor}'
             raise VersionRequirementError(req)
+
+    @overload
+    def connect(self, event: Literal['config-inited'],  # NoQA: E704
+                callback: Callable[[Sphinx, Config], None], priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['builder-inited'],  # NoQA: E704
+                callback: Callable[[Sphinx], None], priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['env-get-outdated'],  # NoQA: E704
+                callback: Callable[
+                    [Sphinx, BuildEnvironment, set[str], set[str], set[str]],
+                    list[str]],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['env-before-read-docs'],  # NoQA: E704
+                callback: Callable[[Sphinx, BuildEnvironment, list[str]], None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['env-purge-doc'],  # NoQA: E704
+                callback: Callable[[Sphinx, BuildEnvironment, str], None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['source-read'],  # NoQA: E704
+                callback: Callable[[Sphinx, str, list[str]], None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['include-read'],  # NoQA: E704
+                callback: Callable[[Sphinx, Path, str, list[str]], None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['doctree-read'],  # NoQA: E704
+                callback: Callable[[Sphinx, document], None], priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['env-merge-info'],  # NoQA: E704
+                callback: Callable[
+                    [Sphinx, BuildEnvironment, list[str], BuildEnvironment],
+                    None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['env-updated'],  # NoQA: E704
+                callback: Callable[[Sphinx, BuildEnvironment], str],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['env-get-updated'],  # NoQA: E704
+                callback: Callable[[Sphinx, BuildEnvironment], Iterable[str]],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['env-check-consistency'],  # NoQA: E704
+                callback: Callable[[Sphinx, BuildEnvironment], None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['write-started'],  # NoQA: E704
+                callback: Callable[[Sphinx, Builder], None], priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['doctree-resolved'],  # NoQA: E704
+                callback: Callable[[Sphinx, document, str], None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['missing-reference'],  # NoQA: E704
+                callback: Callable[
+                    [Sphinx, BuildEnvironment, pending_xref, TextElement],
+                    nodes.reference | None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['warn-missing-reference'],  # NoQA: E704
+                callback: Callable[[Sphinx, Domain, pending_xref], bool | None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['build-finished'],  # NoQA: E704
+                callback: Callable[[Sphinx, Exception | None], None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: Literal['autodoc-before-process-signature'],  # NoQA: E704
+                callback: Callable[[Sphinx, Any, bool], None],
+                priority: int = 500) -> int: ...
+
+    @overload
+    def connect(self, event: str,
+                callback: Callable[..., Any],
+                priority: int = 500) -> int: ...
 
     # event interface
     def connect(self, event: str, callback: Callable, priority: int = 500) -> int:
