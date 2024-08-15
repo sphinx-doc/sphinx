@@ -552,7 +552,7 @@ class Sphinx:
                 priority: int = 500) -> int: ...
 
     @overload
-    def connect(self, event: str,
+    def connect(self, event: str,  # NoQA: E704
                 callback: Callable[..., Any],
                 priority: int = 500) -> int: ...
 
