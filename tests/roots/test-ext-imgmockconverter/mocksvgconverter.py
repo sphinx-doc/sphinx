@@ -3,14 +3,14 @@
 """
 
 import shutil
+from typing import TYPE_CHECKING
 
 from sphinx.transforms.post_transforms.images import ImageConverter
 
-if False:
-    # For type annotation
-    from typing import Any, Dict  # NoQA
+if TYPE_CHECKING:
+    from typing import Any, Dict
 
-    from sphinx.application import Sphinx  # NoQA
+    from sphinx.application import Sphinx
 
 class MyConverter(ImageConverter):
     conversion_rules = [
