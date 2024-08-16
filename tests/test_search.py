@@ -21,10 +21,19 @@ JAVASCRIPT_TEST_ROOTS = [
 ]
 
 
+class DummyDomainsContainer:
+    def __init__(self, domains):
+        self._domain_instances = domains
+
+    def sorted_domains(self):
+        for _domain_name, domain in sorted(self._domain_instances.items()):
+            yield domain
+
+
 class DummyEnvironment:
     def __init__(self, version, domains):
         self.version = version
-        self.domains = domains
+        self.domains = DummyDomainsContainer(domains)
 
     def __getattr__(self, name):
         if name.startswith('_search_index_'):
@@ -36,7 +45,8 @@ class DummyEnvironment:
 
 
 class DummyDomain:
-    def __init__(self, data):
+    def __init__(self, name, data):
+        self.name = name
         self.data = data
         self.object_types = {}
 
@@ -162,14 +172,20 @@ def test_term_in_raw_directive(app):
 
 
 def test_IndexBuilder():
-    domain1 = DummyDomain([
-        ('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
-        ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1),
-    ])
-    domain2 = DummyDomain([
-        ('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
-        ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1),
-    ])
+    domain1 = DummyDomain(
+        'dummy1',
+        [
+            ('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
+            ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1),
+        ],
+    )
+    domain2 = DummyDomain(
+        'dummy2',
+        [
+            ('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
+            ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1),
+        ],
+    )
     env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
     doc = utils.new_document(b'test data', settings)
     doc['file'] = 'dummy'
