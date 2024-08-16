@@ -58,12 +58,11 @@ import sys
 from inspect import Parameter
 from os import path
 from types import ModuleType
-from types import SimpleNamespace as Struct
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import RSTStateMachine, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
