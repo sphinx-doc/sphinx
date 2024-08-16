@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # our parallel functionality only works for the forking Process
-parallel_available = multiprocessing and os.name == 'posix'
+parallel_available = HAS_MULTIPROCESSING and os.name == 'posix'
 
 
 class SerialTasks:
