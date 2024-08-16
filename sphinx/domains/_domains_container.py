@@ -199,7 +199,7 @@ class _DomainsContainer:
             raise TypeError(msg)
         super().__delattr__(key)
 
-    # Mapping interface
+    # Mapping interface: builtin domains
 
     @overload
     def __getitem__(self, key: Literal["c"]) -> CDomain:
@@ -241,6 +241,8 @@ class _DomainsContainer:
     def __getitem__(self, key: Literal["std"]) -> StandardDomain:
         ...
 
+    # Mapping interface: first-party domains
+
     @overload
     def __getitem__(self, key: Literal["duration"]) -> DurationDomain:
         ...
@@ -248,6 +250,8 @@ class _DomainsContainer:
     @overload
     def __getitem__(self, key: Literal["todo"]) -> TodoDomain:
         ...
+
+    # Mapping interface: third-party domains
 
     @overload
     def __getitem__(self, key: str) -> Domain:

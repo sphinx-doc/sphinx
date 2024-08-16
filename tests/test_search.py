@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import warnings
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import frontend, utils
@@ -14,6 +15,9 @@ from sphinx.search import IndexBuilder
 
 from tests.utils import TESTS_ROOT
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 JAVASCRIPT_TEST_ROOTS = [
     directory
     for directory in (TESTS_ROOT / 'js' / 'roots').iterdir()
@@ -22,30 +26,30 @@ JAVASCRIPT_TEST_ROOTS = [
 
 
 class DummyDomainsContainer:
-    def __init__(self, domains):
+    def __init__(self, **domains: DummyDomain) -> None:
         self._domain_instances = domains
 
-    def sorted_domains(self):
+    def sorted_domains(self) -> Iterator[DummyDomain]:
         for _domain_name, domain in sorted(self._domain_instances.items()):
             yield domain
 
 
 class DummyEnvironment:
-    def __init__(self, version, domains):
+    def __init__(self, version: str, domains: DummyDomainsContainer) -> None:
         self.version = version
-        self.domains = DummyDomainsContainer(domains)
+        self.domains = domains
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         if name.startswith('_search_index_'):
             setattr(self, name, {})
         return getattr(self, name, {})
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'DummyEnvironment({self.version!r}, {self.domains!r})'
 
 
 class DummyDomain:
-    def __init__(self, name, data):
+    def __init__(self, name: str, data: dict) -> None:
         self.name = name
         self.data = data
         self.object_types = {}
@@ -186,7 +190,7 @@ def test_IndexBuilder():
             ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1),
         ],
     )
-    env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
+    env = DummyEnvironment('1.0', DummyDomainsContainer(dummy1=domain1, dummy2=domain2))
     doc = utils.new_document(b'test data', settings)
     doc['file'] = 'dummy'
     parser.parse(FILE_CONTENTS, doc)
@@ -274,7 +278,7 @@ def test_IndexBuilder():
         1: ('dummy2', 'objtype1', 'objtype1'),
     }
 
-    env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
+    env = DummyEnvironment('1.0', DummyDomainsContainer(dummy1=domain1, dummy2=domain2))
 
     # dump / load
     stream = BytesIO()

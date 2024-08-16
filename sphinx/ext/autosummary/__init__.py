@@ -152,7 +152,7 @@ def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table)
 # -- autodoc integration -------------------------------------------------------
 
 class FakeApplication:
-    def __init__(self, *, registry: SphinxComponentRegistry) -> None:
+    def __init__(self) -> None:
         self.doctreedir = None
         self.events = None
         self.extensions: dict[str, Extension] = {}
@@ -160,14 +160,13 @@ class FakeApplication:
         self.config = Config()
         self.project = Project('', {})
         self.registry = SphinxComponentRegistry()
-        # self.registry.domains |= registry.domains
 
 
 class FakeDirective(DocumenterBridge):
-    def __init__(self, *, registry: SphinxComponentRegistry) -> None:
+    def __init__(self) -> None:
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
-        app = FakeApplication(registry=registry)
+        app = FakeApplication()
         app.config.add('autodoc_class_signature', 'mixed', 'env', ())
         env = BuildEnvironment(app)  # type: ignore[arg-type]
         state = Struct(document=document)
@@ -194,11 +193,10 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     else:
         parent_doc_cls = ModuleDocumenter
 
-    bridge = FakeDirective(registry=app.registry)
     if hasattr(parent, '__name__'):
-        parent_doc = parent_doc_cls(bridge, parent.__name__)
+        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
     else:
-        parent_doc = parent_doc_cls(bridge, "")
+        parent_doc = parent_doc_cls(FakeDirective(), "")
 
     # Get the correct documenter class for *obj*
     classes = [cls for cls in app.registry.documenters.values()
