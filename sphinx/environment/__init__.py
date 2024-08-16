@@ -734,9 +734,19 @@ class _DomainsType:
 
     #: First-party domains in :mod:`sphinx.domains`
     _core_domains: Final = frozenset({
-        'std', 'c', 'cpp', 'js', 'py', 'rst',
-        'changeset', 'citation', 'index', 'math',
-    })  # fmt: skip
+        'std',
+        # Language-specific domains
+        'c',
+        'cpp',
+        'js',
+        'py',
+        'rst',
+        # Other core domains
+        'changeset',
+        'citation',
+        'index',
+        'math',
+    })
 
     @classmethod
     def from_environment(cls, env: BuildEnvironment, /) -> Self:
