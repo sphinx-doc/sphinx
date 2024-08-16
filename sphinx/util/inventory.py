@@ -194,7 +194,7 @@ class InventoryFile:
 
             # body
             compressor = zlib.compressobj(9)
-            for domain_name, domain in sorted(env.domains.items()):
+            for domain in env.domains.sorted_domains():
                 sorted_objects = sorted(domain.get_objects())
                 for fullname, dispname, type, docname, anchor, prio in sorted_objects:
                     if anchor.endswith(fullname):
@@ -206,6 +206,6 @@ class InventoryFile:
                     if dispname == fullname:
                         dispname = '-'
                     entry = ('%s %s:%s %s %s %s\n' %
-                             (fullname, domain_name, type, prio, uri, dispname))
+                             (fullname, domain.name, type, prio, uri, dispname))
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

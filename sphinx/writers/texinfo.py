@@ -481,7 +481,7 @@ class TexinfoTranslator(SphinxTranslator):
                 indices_config = frozenset(indices_config)
             else:
                 check_names = False
-            for _domain_name, domain in sorted(self.builder.env.domains.items()):
+            for domain in self.builder.env.domains.sorted_domains():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
                     if check_names and index_name not in indices_config:

@@ -336,7 +336,7 @@ class IndexBuilder:
         rv: dict[str, list[tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
-        for domain_name, domain in sorted(self.env.domains.items()):
+        for domain in self.env.domains.sorted_domains():
             sorted_objects = sorted(domain.get_objects())
             for fullname, dispname, type, docname, anchor, prio in sorted_objects:
                 if docname not in fn2index:
@@ -348,17 +348,17 @@ class IndexBuilder:
                 prefix, _, name = dispname.rpartition('.')
                 plist = rv.setdefault(prefix, [])
                 try:
-                    typeindex = otypes[domain_name, type]
+                    typeindex = otypes[domain.name, type]
                 except KeyError:
                     typeindex = len(otypes)
-                    otypes[domain_name, type] = typeindex
+                    otypes[domain.name, type] = typeindex
                     otype = domain.object_types.get(type)
                     if otype:
                         # use str() to fire translation proxies
-                        onames[typeindex] = (domain_name, type,
+                        onames[typeindex] = (domain.name, type,
                                              str(domain.get_type_name(otype)))
                     else:
-                        onames[typeindex] = (domain_name, type, type)
+                        onames[typeindex] = (domain.name, type, type)
                 if anchor == fullname:
                     shortanchor = ''
                 elif anchor == type + '-' + fullname:

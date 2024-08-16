@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Set
+    from collections.abc import Iterable, Iterator, Mapping, Set
     from typing import Any, Final, Literal, NoReturn
 
     from docutils import nodes
@@ -28,8 +28,8 @@ if TYPE_CHECKING:
 class _DomainsContainer:
     """Container for domain instances.
 
-    This class, its constructor, and every method on it is private,
-    and will change without notice or warning in any release.
+    This class is private, including its name, constructor, and all methods.
+    Any or all of these will change without notice or warning in any release.
 
     The public interface is restricted to:
 
@@ -125,7 +125,7 @@ class _DomainsContainer:
 
         # All domains, including core.
         # Implemented as a dict for backwards compatibility.
-        self._domain_instances: dict[str, Domain] = {
+        self._domain_instances: Mapping[str, Domain] = {
             'c': c,
             'changeset': changeset,
             'citation': citation,
@@ -139,7 +139,7 @@ class _DomainsContainer:
             **domains,
         }
 
-        # core domains are always available, so we provide typed attributes
+        # Provide typed attributes for the core domains
         self.standard_domain: StandardDomain = std
         self.c_domain: CDomain = c
         self.cpp_domain: CPPDomain = cpp
@@ -150,6 +150,12 @@ class _DomainsContainer:
         self.citation_domain: CitationDomain = citation
         self.index_domain: IndexDomain = index
         self.math_domain: MathDomain = math
+
+        for domain_name, domain in self._domain_instances.items():
+            # invariant from ``_DomainsContainer._from_environment``
+            if domain_name != domain.name:
+                msg = f'Domain name mismatch in {domain!r}: {domain_name!r} != {domain.name!r}'
+                raise ValueError(msg)
 
     def _setup_domains(self) -> None:
         for domain in self._domain_instances.values():
@@ -277,3 +283,7 @@ class _DomainsContainer:
 
     def values(self) -> Iterable[Domain]:
         return self._domain_instances.values()
+
+    def sorted_domains(self) -> Iterable[Domain]:
+        for _domain_name, domain in sorted(self._domain_instances.items()):
+            yield domain

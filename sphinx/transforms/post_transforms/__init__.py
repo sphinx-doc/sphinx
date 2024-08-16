@@ -133,7 +133,7 @@ class ReferencesResolver(SphinxPostTransform):
         # next, do the standard domain (makes this a priority)
         results.extend(stddomain.resolve_any_xref(self.env, refdoc, self.app.builder,
                                                   target, node, contnode))
-        for domain in self.env.domains.values():
+        for domain in self.env.domains.sorted_domains():
             if domain.name == 'std':
                 continue  # we did this one already
             try:
