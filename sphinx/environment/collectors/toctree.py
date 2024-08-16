@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, TypeVar, cast
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.domains.std import StandardDomain
 from sphinx.environment.adapters.toctree import note_toctree
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
@@ -272,8 +273,7 @@ class TocTreeCollector(EnvironmentCollector):
         def get_figtype(node: Node) -> str | None:
             for domain in env.domains.values():
                 figtype = domain.get_enumerable_node_type(node)
-                if (domain.name == 'std'
-                        and not domain.get_numfig_title(node)):  # type: ignore[attr-defined]  # NoQA: E501
+                if isinstance(domain, StandardDomain) and not domain.get_numfig_title(node):
                     # Skip if uncaptioned node
                     continue
 
