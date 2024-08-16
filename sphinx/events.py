@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from operator import attrgetter
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple, overload
+from typing import TYPE_CHECKING, overload
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
@@ -17,6 +17,7 @@ from sphinx.util.inspect import safe_getattr
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence, Set
     from pathlib import Path
+    from typing import Any, Literal, NamedTuple
 
     from docutils import nodes
 
