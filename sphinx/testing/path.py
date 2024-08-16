@@ -178,7 +178,7 @@ class path(str):
         with open(self, mode='rb') as f:
             return f.read()
 
-    def write_bytes(self, bytes: str, append: bool = False) -> None:
+    def write_bytes(self, bytes: bytes, append: bool = False) -> None:
         """
         Writes the given `bytes` to the file.
 
