@@ -80,7 +80,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 63
+ENV_VERSION = 64
 
 # config status
 CONFIG_UNSET = -1
@@ -240,7 +240,7 @@ class BuildEnvironment:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
         # clear unpickable attributes
-        __dict__.update(app=None, domains={}, events=None)
+        __dict__.update(app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
@@ -267,6 +267,10 @@ class BuildEnvironment:
         self.project = app.project
         self.version = app.registry.get_envversion(app)
 
+        # initialise domains
+        if self.domains is None:
+            # if we are unpickling an environment, we need to recreate the domains
+            self.domains = _DomainsType.from_environment(self)
         # setup domains (must do after all initialization)
         self.domains._setup_domains()
 
@@ -735,11 +739,40 @@ class _DomainsType:
     })  # fmt: skip
 
     @classmethod
-    def from_environment(cls, env: BuildEnvironment) -> Self:
-        registry = env.app.registry
+    def from_environment(cls, env: BuildEnvironment, /) -> Self:
+        create_domains = env.app.registry.create_domains
         # Initialise domains
-        domains = {domain.name: domain for domain in registry.create_domains(env)}
-        return cls(**domains)  # type: ignore[arg-type]
+        if domains := {domain.name: domain for domain in create_domains(env)}:
+            return cls(**domains)  # type: ignore[arg-type]
+
+        return cls._from_environment_no_registry(env=env)
+
+    @classmethod
+    def _from_environment_no_registry(cls, *, env: BuildEnvironment) -> Self:
+        """Return a default instance with every domain we require."""
+        from sphinx.domains.c import CDomain
+        from sphinx.domains.changeset import ChangeSetDomain
+        from sphinx.domains.citation import CitationDomain
+        from sphinx.domains.cpp import CPPDomain
+        from sphinx.domains.index import IndexDomain
+        from sphinx.domains.javascript import JavaScriptDomain
+        from sphinx.domains.math import MathDomain
+        from sphinx.domains.python import PythonDomain
+        from sphinx.domains.rst import ReSTDomain
+        from sphinx.domains.std import StandardDomain
+
+        return cls(
+            c=CDomain(env),
+            changeset=ChangeSetDomain(env),
+            citation=CitationDomain(env),
+            cpp=CPPDomain(env),
+            index=IndexDomain(env),
+            js=JavaScriptDomain(env),
+            math=MathDomain(env),
+            py=PythonDomain(env),
+            rst=ReSTDomain(env),
+            std=StandardDomain(env),
+        )
 
     def __init__(
         self,

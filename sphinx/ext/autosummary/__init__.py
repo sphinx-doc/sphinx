@@ -58,11 +58,12 @@ import sys
 from inspect import Parameter
 from os import path
 from types import ModuleType
+from types import SimpleNamespace as Struct
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.states import RSTStateMachine, Struct, state_classes
+from docutils.parsers.rst.states import RSTStateMachine, state_classes
 from docutils.statemachine import StringList
 
 import sphinx
@@ -151,7 +152,7 @@ def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table)
 # -- autodoc integration -------------------------------------------------------
 
 class FakeApplication:
-    def __init__(self) -> None:
+    def __init__(self, *, registry: SphinxComponentRegistry) -> None:
         self.doctreedir = None
         self.events = None
         self.extensions: dict[str, Extension] = {}
@@ -159,13 +160,14 @@ class FakeApplication:
         self.config = Config()
         self.project = Project('', {})
         self.registry = SphinxComponentRegistry()
+        # self.registry.domains |= registry.domains
 
 
 class FakeDirective(DocumenterBridge):
-    def __init__(self) -> None:
+    def __init__(self, *, registry: SphinxComponentRegistry) -> None:
         settings = Struct(tab_width=8)
         document = Struct(settings=settings)
-        app = FakeApplication()
+        app = FakeApplication(registry=registry)
         app.config.add('autodoc_class_signature', 'mixed', 'env', ())
         env = BuildEnvironment(app)  # type: ignore[arg-type]
         state = Struct(document=document)
@@ -192,10 +194,11 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
     else:
         parent_doc_cls = ModuleDocumenter
 
+    bridge = FakeDirective(registry=app.registry)
     if hasattr(parent, '__name__'):
-        parent_doc = parent_doc_cls(FakeDirective(), parent.__name__)
+        parent_doc = parent_doc_cls(bridge, parent.__name__)
     else:
-        parent_doc = parent_doc_cls(FakeDirective(), "")
+        parent_doc = parent_doc_cls(bridge, "")
 
     # Get the correct documenter class for *obj*
     classes = [cls for cls in app.registry.documenters.values()
