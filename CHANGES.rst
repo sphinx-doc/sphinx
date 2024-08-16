@@ -39,6 +39,8 @@ Features added
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
 
+* #11778: Add the possibility to use custom Project class.
+
 Bugs fixed
 ----------
 
