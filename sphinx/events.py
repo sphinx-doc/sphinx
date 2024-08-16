@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from operator import attrgetter
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, NamedTuple, overload
 
 from sphinx.errors import ExtensionError, SphinxError
 from sphinx.locale import __
@@ -17,7 +17,7 @@ from sphinx.util.inspect import safe_getattr
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence, Set
     from pathlib import Path
-    from typing import Any, Literal, NamedTuple
+    from typing import Any, Literal
 
     from docutils import nodes
 
@@ -79,7 +79,7 @@ class EventManager:
     # ---- Core events -------------------------------------------------------
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['config-inited'],
         callback: Callable[[Sphinx, Config], None],
@@ -87,7 +87,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['builder-inited'],
         callback: Callable[[Sphinx], None],
@@ -95,7 +95,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['env-get-outdated'],
         callback: Callable[
@@ -105,7 +105,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['env-before-read-docs'],
         callback: Callable[[Sphinx, BuildEnvironment, list[str]], None],
@@ -113,7 +113,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['env-purge-doc'],
         callback: Callable[[Sphinx, BuildEnvironment, str], None],
@@ -121,7 +121,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['source-read'],
         callback: Callable[[Sphinx, str, list[str]], None],
@@ -129,7 +129,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['include-read'],
         callback: Callable[[Sphinx, Path, str, list[str]], None],
@@ -137,7 +137,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['doctree-read'],
         callback: Callable[[Sphinx, nodes.document], None],
@@ -145,7 +145,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['env-merge-info'],
         callback: Callable[
@@ -155,7 +155,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['env-updated'],
         callback: Callable[[Sphinx, BuildEnvironment], str],
@@ -163,7 +163,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['env-get-updated'],
         callback: Callable[[Sphinx, BuildEnvironment], Iterable[str]],
@@ -171,7 +171,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['env-check-consistency'],
         callback: Callable[[Sphinx, BuildEnvironment], None],
@@ -179,7 +179,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['write-started'],
         callback: Callable[[Sphinx, Builder], None],
@@ -187,7 +187,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['doctree-resolved'],
         callback: Callable[[Sphinx, nodes.document, str], None],
@@ -195,7 +195,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['missing-reference'],
         callback: Callable[
@@ -206,7 +206,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['warn-missing-reference'],
         callback: Callable[[Sphinx, Domain, addnodes.pending_xref], bool | None],
@@ -214,7 +214,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['build-finished'],
         callback: Callable[[Sphinx, Exception | None], None],
@@ -224,7 +224,7 @@ class EventManager:
     # ---- Events from builtin builders --------------------------------------
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['html-collect-pages'],
         callback: Callable[[Sphinx], Iterable[tuple[str, dict[str, Any], str]]],
@@ -232,7 +232,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['html-page-context'],
         callback: Callable[
@@ -242,7 +242,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['linkcheck-process-uri'],
         callback: Callable[[Sphinx, str], str | None],
@@ -252,7 +252,7 @@ class EventManager:
     # ---- Events from builtin extensions-- ----------------------------------
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['object-description-transform'],
         callback: Callable[[Sphinx, str, str, addnodes.desc_content], None],
@@ -262,7 +262,7 @@ class EventManager:
     # ---- Events from first-party extensions --------------------------------
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['autodoc-process-docstring'],
         callback: Callable[
@@ -282,7 +282,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['autodoc-before-process-signature'],
         callback: Callable[[Sphinx, Any, bool], None],
@@ -290,7 +290,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['autodoc-process-signature'],
         callback: Callable[
@@ -311,7 +311,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['autodoc-process-bases'],
         callback: Callable[[Sphinx, str, Any, dict[str, bool], list[str]], None],
@@ -319,7 +319,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['autodoc-skip-member'],
         callback: Callable[
@@ -339,7 +339,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['todo-defined'],
         callback: Callable[[Sphinx, todo_node], None],
@@ -347,7 +347,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['viewcode-find-source'],
         callback: Callable[
@@ -358,7 +358,7 @@ class EventManager:
     ) -> int: ...
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: Literal['viewcode-follow-imported'],
         callback: Callable[[Sphinx, str, str], str | None],
@@ -368,7 +368,7 @@ class EventManager:
     # ---- Catch-all ---------------------------------------------------------
 
     @overload
-    def connect(  # NoQA: E704
+    def connect(
         self,
         name: str,
         callback: Callable[..., Any],
