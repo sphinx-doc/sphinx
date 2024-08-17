@@ -5,6 +5,7 @@ import docutils
 import pytest
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('html', testroot='images')
 def test_html_remote_images(app):
     app.build(force_all=True)
@@ -51,7 +52,7 @@ def test_html_local_logo(app):
     assert (app.outdir / '_static/img.png').exists()
 
 
-@pytest.mark.sphinx(testroot='html_scaled_image_link')
+@pytest.mark.sphinx('html', testroot='html_scaled_image_link')
 def test_html_scaled_image_link(app):
     app.build()
     context = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -77,6 +78,7 @@ def test_html_scaled_image_link(app):
     )
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('html', testroot='images')
 def test_copy_images(app):
     app.build()

@@ -3,7 +3,7 @@ from unittest.mock import ANY, call, patch
 import pytest
 
 
-@pytest.mark.sphinx('html', testroot='basic')
+@pytest.mark.sphinx('html', testroot='basic', confoverrides={'html_theme': 'alabaster'})
 def test_html_pygments_style_default(app):
     style = app.builder.highlighter.formatter_args.get('style')
     assert style.__name__ == 'Alabaster'

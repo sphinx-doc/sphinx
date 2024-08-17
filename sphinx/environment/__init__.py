@@ -248,7 +248,7 @@ class BuildEnvironment:
         self.dlfiles: DownloadFiles = DownloadFiles()
 
         # the original URI for images
-        self.original_image_uri: dict[str, str] = {}
+        self.original_image_uri: dict[_StrPath, str] = {}
 
         # temporary data storage while reading a document
         self.temp_data: dict[str, Any] = {}

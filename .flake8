@@ -33,5 +33,6 @@ exclude =
     doc/usage/extensions/example*.py,
 per-file-ignores =
     doc/conf.py:W605
+    sphinx/events.py:E704,
     tests/test_extensions/ext_napoleon_pep526_data_google.py:MLL001,
     tests/test_extensions/ext_napoleon_pep526_data_numpy.py:MLL001,

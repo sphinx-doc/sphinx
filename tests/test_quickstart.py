@@ -6,8 +6,8 @@ from os import path
 
 import pytest
 
-from sphinx import application
 from sphinx.cmd import quickstart as qs
+from sphinx.testing.util import SphinxTestApp
 from sphinx.util.console import coloron, nocolor
 
 warnfile = StringIO()
@@ -208,16 +208,9 @@ def test_quickstart_and_build(tmp_path):
     qs.ask_user(d)
     qs.generate(d)
 
-    app = application.Sphinx(
-        tmp_path,  # srcdir
-        tmp_path,  # confdir
-        (tmp_path / '_build' / 'html'),  # outdir
-        (tmp_path / '_build' / '.doctree'),  # doctreedir
-        'html',  # buildername
-        status=StringIO(),
-        warning=warnfile,
-    )
+    app = SphinxTestApp('html', srcdir=tmp_path, warning=warnfile)
     app.build(force_all=True)
+    app.cleanup()
     warnings = warnfile.getvalue()
     assert not warnings
 

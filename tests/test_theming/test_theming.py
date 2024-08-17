@@ -23,6 +23,7 @@ HERE = Path(__file__).resolve().parent
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='theming',
     confoverrides={'html_theme': 'ziptheme', 'html_theme_options.testopt': 'foo'},
 )
@@ -97,13 +98,14 @@ def test_nonexistent_theme_settings(tmp_path):
         _load_theme('', str(tmp_path))
 
 
-@pytest.mark.sphinx(testroot='double-inheriting-theme')
+@pytest.mark.sphinx('html', testroot='double-inheriting-theme')
 def test_double_inheriting_theme(app):
     assert app.builder.theme.name == 'base_theme2'
     app.build()  # => not raises TemplateNotFound
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='theming',
     confoverrides={'html_theme': 'child'},
 )
@@ -113,6 +115,7 @@ def test_nested_zipped_theme(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='theming',
     confoverrides={'html_theme': 'staticfiles'},
 )
@@ -134,6 +137,7 @@ def test_staticfiles(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='theming',
     confoverrides={'html_theme': 'test-theme'},
 )
@@ -168,7 +172,7 @@ def test_dark_style(app, monkeypatch):
     ) in result
 
 
-@pytest.mark.sphinx(testroot='theming')
+@pytest.mark.sphinx('html', testroot='theming')
 def test_theme_sidebars(app):
     app.build()
 

@@ -86,7 +86,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
     It is recommended to use::
 
-        @pytest.mark.sphinx('html')
+        @pytest.mark.sphinx('html', testroot='root')
         def test(app):
             app = ...
 
@@ -117,8 +117,9 @@ class SphinxTestApp(sphinx.application.Sphinx):
         parallel: int = 0,
         # additional arguments at the end to keep the signature
         verbosity: int = 0,  # argument is not in the same order as in the superclass
-        keep_going: bool = False,
         warningiserror: bool = False,  # argument is not in the same order as in the superclass
+        pdb: bool = False,
+        exception_on_warning: bool = False,
         # unknown keyword arguments
         **extras: Any,
     ) -> None:
@@ -170,12 +171,22 @@ class SphinxTestApp(sphinx.application.Sphinx):
                 srcdir, confdir, outdir, doctreedir, buildername,
                 confoverrides=confoverrides, status=status, warning=warning,
                 freshenv=freshenv, warningiserror=warningiserror, tags=tags,
-                verbosity=verbosity, parallel=parallel, keep_going=keep_going,
-                pdb=False,
+                verbosity=verbosity, parallel=parallel,
+                pdb=pdb, exception_on_warning=exception_on_warning,
             )
         except Exception:
             self.cleanup()
             raise
+
+    def _init_builder(self) -> None:
+        # override the default theme to 'basic' rather than 'alabaster'
+        # for test independence
+
+        if 'html_theme' in self.config._overrides:
+            pass  # respect overrides
+        elif 'html_theme' in self.config and self.config.html_theme == 'alabaster':
+            self.config.html_theme = self.config._overrides.get('html_theme', 'basic')
+        super()._init_builder()
 
     @property
     def status(self) -> StringIO:

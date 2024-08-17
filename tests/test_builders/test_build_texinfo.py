@@ -14,7 +14,7 @@ from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo(app):
     TexinfoTranslator.ignore_missing_images = True
     app.build(force_all=True)
@@ -81,7 +81,7 @@ def test_default_texinfo_documents():
     assert default_texinfo_documents(config) == expected
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo_escape_id(app):
     settings = Mock(title='', texinfo_dir_entry='', texinfo_elements={})
     document = new_document('', settings)
@@ -104,7 +104,7 @@ def test_texinfo_footnote(app):
     assert 'First footnote: @footnote{\nFirst\n}' in output
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo_xrefs(app):
     app.build(force_all=True)
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
@@ -131,6 +131,7 @@ def test_texinfo_samp_with_variable(app):
     assert '@code{Show @var{variable} in the middle}' in output
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('texinfo', testroot='images')
 def test_copy_images(app):
     app.build()

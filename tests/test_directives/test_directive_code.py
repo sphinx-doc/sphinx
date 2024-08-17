@@ -101,7 +101,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
     assert reader.lineno_start == 3
 
 
-@pytest.mark.sphinx  # init locale for errors
+@pytest.mark.sphinx('html', testroot='root')  # init locale for errors
 def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -111,7 +111,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
         reader.read()
 
 
-@pytest.mark.sphinx  # init locale for errors
+@pytest.mark.sphinx('html', testroot='root')  # init locale for errors
 def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)

@@ -15,7 +15,8 @@ from docutils import nodes
 from docutils.utils import smartquotes
 
 from sphinx import addnodes
-from sphinx.builders.html import BuildInfo, StandaloneHTMLBuilder
+from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.builders.html._build_info import BuildInfo
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.display import status_iterator
