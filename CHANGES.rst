@@ -62,6 +62,10 @@ Bugs fixed
   get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
   (silent) apply as well to the PDF build phase.
   Patch by Jean-François B.
+* #12744: LaTeX: Classes injected by a custom interpreted text role now give
+  rise to nested ``\DUrole``'s, rather than a single one with comma separated
+  classes.
+  Patch by Jean-François B.
 * #11970, #12551: singlehtml builder: make target URIs to be same-document
   references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
   e.g., ``index.html#foo`` becomes ``#foo``.
