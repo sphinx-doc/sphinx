@@ -981,11 +981,13 @@ def test_reference_in_caption_and_codeblock_in_footnote(app):
     ) in result
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert (
-        '\\sphinxcaption{The table title with a reference to {[}AuthorYear{]}}'
-    ) in result
+        '\\sphinxcaption{The table title with a reference'
+        ' to {[}AuthorYear{]}}' in result
+    )
     assert (
         '\\subsubsection*{The rubric title with a reference to {[}AuthorYear{]}}'
-    ) in result
+        in result
+    )
     assert (
         '\\chapter{The section with a reference to \\sphinxfootnotemark[6]}\n'
         '\\label{\\detokenize{index:the-section-with-a-reference-to}}'
@@ -1016,14 +1018,15 @@ def test_reference_in_caption_and_codeblock_in_footnote(app):
     assert (
         'This is a reference to the code\\sphinxhyphen{}block in the footnote:\n'
         '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
-        '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}'
+        '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}'
+        '{I am in a footnote}}}}}'
     ) in result
     assert (
         '&\n\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
         '\\begin{footnote}[12]\\sphinxAtStartFootnote\n'
         'Third footnote in longtable\n'
     ) in result
-    assert '\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n' in result
+    assert ('\\end{sphinxVerbatim}\n%\n\\end{footnote}.\n') in result
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
 
 

@@ -67,6 +67,9 @@ Bugs fixed
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
   Patch by James Addison (with reference to prior work by Eric Norige)
+* #12744: Classes injected by a custom interpreted text role now give rise to
+  nested ``\DUrole``'s, rather than a single one with comma separated classes.
+  Patch by Jean-François B.
 
 Testing
 -------
