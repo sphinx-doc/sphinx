@@ -210,6 +210,9 @@ files can be built by specifying individual filenames.
                        dest='exception_on_warning',
                        help=__('raise an exception on warnings'))
 
+    if parser.prog == '__main__.py':
+        parser.prog = 'sphinx-build'
+
     return parser
 
 
@@ -386,7 +389,8 @@ def main(argv: Sequence[str] = (), /) -> int:
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()
     if argv[:1] == ['-M']:
-        return make_main(argv)
+        from sphinx.cmd import make_mode
+        return make_mode.run_make_mode(argv[1:])
     else:
         return build_main(argv)
 
