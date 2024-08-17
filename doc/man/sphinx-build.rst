@@ -43,7 +43,7 @@ Options
       the source and output directories, before any other options are passed.
       For example::
 
-          sphinx-build -M html ./source ./build --fail-on-warning --keep-going
+          sphinx-build -M html ./source ./build --fail-on-warning
 
    The *make-mode* provides the same build functionality as
    a default :ref:`Makefile or Make.bat <makefile_options>`,
@@ -253,20 +253,35 @@ Options
 
 .. option:: -W, --fail-on-warning
 
-   Turn warnings into errors.  This means that the build stops at the first
-   warning and ``sphinx-build`` exits with exit status 1.
+   Turn warnings into errors.
+   This means that :program:`sphinx-build` exits with exit status 1
+   if any warnings are generated during the build.
 
    .. versionchanged:: 7.3
       Add ``--fail-on-warning`` long option.
+   .. versionchanged:: 8.1
+      :program:`sphinx-build` no longer exits on the first warning,
+      but instead runs the entire build and exits with exit status 1
+      if any warnings were generated.
+      This behaviour was previously enabled with :option:`--keep-going`.
 
 .. option:: --keep-going
 
-   Only applicable whilst using :option:`--fail-on-warning`,
-   which by default exits :program:`sphinx-build` on the first warning.
+   From Sphinx 8.1, :option:`!--keep-going` is always enabled.
+   Previously, it was only applicable whilst using :option:`--fail-on-warning`,
+   which by default exited :program:`sphinx-build` on the first warning.
    Using :option:`!--keep-going` runs :program:`!sphinx-build` to completion
    and exits with exit status 1 if errors are encountered.
 
    .. versionadded:: 1.8
+   .. versionchanged:: 8.1
+      :program:`sphinx-build` no longer exits on the first warning,
+      meaning that in effect :option:`!--fail-on-warning` is always enabled.
+      The option is retained for compatibility, but may be removed at some
+      later date.
+
+   .. xref RemovedInSphinx10Warning: deprecate this option in Sphinx 10
+                                     or no earlier than 2026-01-01.
 
 .. option:: -T, --show-traceback
 
@@ -286,6 +301,13 @@ Options
 
    .. versionchanged:: 7.3
       Add ``--pdb`` long option.
+
+.. option:: --exception-on-warning
+
+   Raise an exception when a warning is emitted during the build.
+   This can be useful in combination with :option:`--pdb` to debug warnings.
+
+   .. versionadded:: 8.1
 
 .. option:: -h, --help, --version
 

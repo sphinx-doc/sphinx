@@ -2,9 +2,9 @@
 
 import os
 import subprocess
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from subprocess import CalledProcessError
-from xml.etree import ElementTree
 
 import pytest
 
@@ -37,7 +37,7 @@ class EPUBElementTree:
 
     @classmethod
     def fromstring(cls, string):
-        tree = ElementTree.fromstring(string)  # NoQA: S314  # using known data in tests
+        tree = ET.fromstring(string)  # NoQA: S314  # using known data in tests
         return cls(tree)
 
     def find(self, match):
@@ -443,7 +443,7 @@ def test_duplicated_toctree_entry(app):
     'DO_EPUBCHECK' not in os.environ,
     reason='Skipped because DO_EPUBCHECK is not set',
 )
-@pytest.mark.sphinx('epub')
+@pytest.mark.sphinx('epub', testroot='root')
 def test_run_epubcheck(app):
     app.build()
 
@@ -473,6 +473,7 @@ def test_xml_name_pattern_check():
     assert not _XML_NAME_PATTERN.match('1bfda21')
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('epub', testroot='images')
 def test_copy_images(app):
     app.build()

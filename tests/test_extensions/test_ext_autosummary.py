@@ -33,14 +33,11 @@ except ImportError:
 html_warnfile = StringIO()
 
 
-default_kw = {
-    'testroot': 'autosummary',
-    'confoverrides': {
-        'extensions': ['sphinx.ext.autosummary'],
-        'autosummary_generate': True,
-        'autosummary_generate_overwrite': False,
-        'source_suffix': '.rst',
-    },
+defaults = {
+    'extensions': ['sphinx.ext.autosummary'],
+    'autosummary_generate': True,
+    'autosummary_generate_overwrite': False,
+    'source_suffix': '.rst',
 }
 
 
@@ -146,7 +143,7 @@ def test_extract_summary(capsys):
     assert err == ''
 
 
-@pytest.mark.sphinx('dummy', **default_kw)
+@pytest.mark.sphinx('dummy', testroot='autosummary', confoverrides=defaults.copy())
 def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary
     import sphinx.ext.autosummary.generate
@@ -218,7 +215,7 @@ def str_content(elem):
         return ''.join(str_content(e) for e in elem)
 
 
-@pytest.mark.sphinx('xml', **default_kw)
+@pytest.mark.sphinx('xml', testroot='autosummary', confoverrides=defaults.copy())
 def test_escaping(app):
     app.build(force_all=True)
 
@@ -232,7 +229,7 @@ def test_escaping(app):
     assert str_content(title) == 'underscore_module_'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module(app):
     import autosummary_dummy_module
 
@@ -292,7 +289,7 @@ def test_autosummary_generate_content_for_module(app):
     assert context['objtype'] == 'module'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module___all__(app):
     import autosummary_dummy_module
 
@@ -337,7 +334,7 @@ def test_autosummary_generate_content_for_module___all__(app):
     assert context['objtype'] == 'module'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_skipped(app):
     import autosummary_dummy_module
 
@@ -383,7 +380,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     assert context['exceptions'] == []
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_imported_members(app):
     import autosummary_dummy_module
 
@@ -449,7 +446,7 @@ def test_autosummary_generate_content_for_module_imported_members(app):
     assert context['objtype'] == 'module'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_imported_members_inherited_module(app):
     import autosummary_dummy_inherited_module
 
@@ -752,7 +749,7 @@ def test_autosummary_filename_map(app):
     assert html_warnings == ''
 
 
-@pytest.mark.sphinx('latex', **default_kw)
+@pytest.mark.sphinx('latex', testroot='autosummary', confoverrides=defaults.copy())
 def test_autosummary_latex_table_colspec(app):
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -844,6 +841,7 @@ def test_autosummary_module_all(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='ext-autodoc',
     confoverrides={'extensions': ['sphinx.ext.autosummary']},
 )
@@ -865,7 +863,7 @@ def test_generate_autosummary_docs_property(app):
     )
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary-skip-member')
+@pytest.mark.sphinx('html', testroot='ext-autosummary-skip-member')
 def test_autosummary_skip_member(app):
     app.build()
 
@@ -874,7 +872,7 @@ def test_autosummary_skip_member(app):
     assert 'Foo._privatemeth' in content
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary-template')
+@pytest.mark.sphinx('html', testroot='ext-autosummary-template')
 def test_autosummary_template(app):
     app.build()
 

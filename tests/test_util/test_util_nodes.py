@@ -214,17 +214,20 @@ def test_clean_astext():
         ('', 'sphinx-', 'sphinx'),  # ends with hyphen
     ],
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_make_id(app, prefix, term, expected):
     document = create_new_document()
     assert make_id(app.env, document, prefix, term) == expected
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_make_id_already_registered(app):
     document = create_new_document()
     document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
     assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_make_id_sequential(app):
     document = create_new_document()
     document.ids['term-0'] = True

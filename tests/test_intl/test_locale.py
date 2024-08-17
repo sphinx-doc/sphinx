@@ -56,6 +56,7 @@ def test_init_with_unknown_language(rootdir):
     assert _('Hello reST') == 'Hello reST'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_add_message_catalog(app, rootdir):
     app.config.language = 'en'
     app.add_message_catalog('myext', rootdir / 'test-locale' / 'locale1')

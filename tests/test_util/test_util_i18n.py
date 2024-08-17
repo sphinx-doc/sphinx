@@ -93,6 +93,7 @@ def test_format_date():
     assert i18n.format_date(format, date=datet, language='en') == '+0000'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_get_filename_for_language(app):
     get_filename = i18n.get_image_filename_for_language
     app.env.temp_data['docname'] = 'index'

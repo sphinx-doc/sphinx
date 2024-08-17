@@ -35,6 +35,7 @@ def test_domain_py_canonical(app):
     assert app.warning.getvalue() == ''
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_canonical(app):
     text = '.. py:class:: io.StringIO\n   :canonical: _io.StringIO'
     domain = app.env.get_domain('py')
@@ -64,6 +65,7 @@ def test_canonical(app):
     assert domain.objects['_io.StringIO'] == ('index', 'io.StringIO', 'class', True)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_canonical_definition_overrides(app):
     text = (
         '.. py:class:: io.StringIO\n'
@@ -77,6 +79,7 @@ def test_canonical_definition_overrides(app):
     assert domain.objects['_io.StringIO'] == ('index', 'id0', 'class', False)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_canonical_definition_skip(app):
     text = (
         '.. py:class:: _io.StringIO\n'
@@ -91,6 +94,7 @@ def test_canonical_definition_skip(app):
     assert domain.objects['_io.StringIO'] == ('index', 'io.StringIO', 'class', False)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_canonical_duplicated(app):
     text = (
         '.. py:class:: mypackage.StringIO\n'
