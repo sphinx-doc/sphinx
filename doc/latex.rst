@@ -1870,11 +1870,11 @@ Miscellany
   in Docutils <classarguments_>`_.  Object signatures also use ``\DUrole`` for
   some components, with one or two-letters class names as in HTML output.
 
-  .. versionchanged:: 8.1.0 When multiple classes are injected via a a custom
-     role, the LaTeX output uses nested ``\DUrole``'s as in the `Docutils
-     documentation <classarguments_>`_.  Formerly it used a single ``\DUrole``
-     with comma separated classes, making the LaTeX customization more
-     arduous.
+  .. versionchanged:: 8.1.0
+     When multiple classes are injected via a a custom role, the LaTeX output
+     uses nested ``\DUrole``'s as in the `Docutils documentation
+     <classarguments_>`_.  Formerly it used a single ``\DUrole`` with comma
+     separated classes, making the LaTeX customization more arduous.
 
 .. _classarguments: https://docutils.sourceforge.io/docs/user/latex.html#custom-interpreted-text-roles
 
