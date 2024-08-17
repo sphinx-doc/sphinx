@@ -177,18 +177,19 @@ class Make:
 
     def run_generic_build(self, builder: str, doctreedir: str | None = None) -> int:
         # compatibility with old Makefile
-        papersize = os.getenv('PAPER', '')
-        opts = self.opts
-        if papersize in ('a4', 'letter'):
-            opts.extend(['-D', 'latex_elements.papersize=' + papersize + 'paper'])
+        paper_size = os.getenv('PAPER', '')
+        if paper_size in {'a4', 'letter'}:
+            self.opts.extend(['-D', f'latex_elements.papersize={paper_size}paper'])
         if doctreedir is None:
             doctreedir = self.builddir_join('doctrees')
 
-        args = ['-b', builder,
-                '-d', doctreedir,
-                self.srcdir,
-                self.builddir_join(builder)]
-        return build_main(args + opts)
+        args = [
+            '--builder', builder,
+            '--doctree-dir', doctreedir,
+            self.srcdir,
+            self.builddir_join(builder),
+        ]
+        return build_main(args + self.opts)
 
 
 def run_make_mode(args: Sequence[str]) -> int:
@@ -196,8 +197,10 @@ def run_make_mode(args: Sequence[str]) -> int:
         print('Error: at least 3 arguments (builder, source '
               'dir, build dir) are required.', file=sys.stderr)
         return 1
+
+    builder_name = args[0]
     make = Make(args[1], args[2], args[3:])
-    run_method = 'build_' + args[0]
+    run_method = f'build_{builder_name}'
     if hasattr(make, run_method):
         return getattr(make, run_method)()
-    return make.run_generic_build(args[0])
+    return make.run_generic_build(builder_name)

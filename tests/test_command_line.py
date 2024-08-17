@@ -87,7 +87,8 @@ def parse_arguments(args: list[str]) -> dict[str, Any]:
     return {k: v for k, v in parsed.items() if k not in DEFAULTS or v != DEFAULTS[k]}
 
 
-def test_build_main_parse_arguments_pos_first():
+def test_build_main_parse_arguments_pos_first() -> None:
+    # <positional...> <opts>
     args = [
         *POSITIONAL,
         *OPTS,
@@ -95,7 +96,8 @@ def test_build_main_parse_arguments_pos_first():
     assert parse_arguments(args) == EXPECTED_BUILD_MAIN
 
 
-def test_build_main_parse_arguments_pos_last():
+def test_build_main_parse_arguments_pos_last() -> None:
+    # <opts> <positional...>
     args = [
         *OPTS,
         *POSITIONAL,
@@ -103,7 +105,8 @@ def test_build_main_parse_arguments_pos_last():
     assert parse_arguments(args) == EXPECTED_BUILD_MAIN
 
 
-def test_build_main_parse_arguments_pos_middle():
+def test_build_main_parse_arguments_pos_middle() -> None:
+    # <opts> <positional...> <opts>
     args = [
         *EARLY_OPTS,
         *BUILDER_BUILD_MAIN,
@@ -113,35 +116,19 @@ def test_build_main_parse_arguments_pos_middle():
     assert parse_arguments(args) == EXPECTED_BUILD_MAIN
 
 
-def test_make_mode_parse_arguments_pos_first(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
+@pytest.mark.xfail(reason='sphinx-build does not yet support filenames after options')
+def test_build_main_parse_arguments_filenames_last() -> None:
     args = [
-        *POSITIONAL_MAKE_MODE,
+        *POSITIONAL_DIRS,
         *OPTS,
+        *POSITIONAL_FILENAMES,
     ]
-    assert run_make_mode(args) == EXPECTED_MAKE_MODE
+    assert parse_arguments(args) == EXPECTED_BUILD_MAIN
 
 
-def test_make_mode_parse_arguments_pos_last(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
-    args = [
-        *OPTS,
-        *POSITIONAL_MAKE_MODE,
-    ]
-    assert run_make_mode(args) == EXPECTED_MAKE_MODE
-
-
-def test_make_mode_parse_arguments_pos_middle(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
-    args = [
-        *EARLY_OPTS,
-        *POSITIONAL_MAKE_MODE,
-        *LATE_OPTS,
-    ]
-    assert run_make_mode(args) == EXPECTED_MAKE_MODE
-
-
-def test_build_main_parse_arguments_pos_intermixed(capsys: pytest.CaptureFixture):
+def test_build_main_parse_arguments_pos_intermixed(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     args = [
         *EARLY_OPTS,
         *BUILDER_BUILD_MAIN,
@@ -155,7 +142,67 @@ def test_build_main_parse_arguments_pos_intermixed(capsys: pytest.CaptureFixture
     assert stderr[-1].endswith('error: unrecognized arguments: filename1 filename2')
 
 
-def test_make_mode_parse_arguments_pos_intermixed(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture):
+def test_make_mode_parse_arguments_pos_first(monkeypatch: pytest.MonkeyPatch) -> None:
+    # -M <positional...> <opts>
+    monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
+    args = [
+        *POSITIONAL_MAKE_MODE,
+        *OPTS,
+    ]
+    assert run_make_mode(args) == EXPECTED_MAKE_MODE
+
+
+def test_make_mode_parse_arguments_pos_last(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # -M <opts> <positional...>
+    monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
+    args = [
+        *OPTS,
+        *POSITIONAL_MAKE_MODE,
+    ]
+    with pytest.raises(SystemExit):
+        run_make_mode(args)
+    stderr = capsys.readouterr().err.splitlines()
+    assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
+
+
+def test_make_mode_parse_arguments_pos_middle(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # -M <opts> <positional...> <opts>
+    monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
+    args = [
+        *EARLY_OPTS,
+        *POSITIONAL_MAKE_MODE,
+        *LATE_OPTS,
+    ]
+    with pytest.raises(SystemExit):
+        run_make_mode(args)
+    stderr = capsys.readouterr().err.splitlines()
+    assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
+
+
+@pytest.mark.xfail(reason='sphinx-build does not yet support filenames after options')
+def test_make_mode_parse_arguments_filenames_last(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
+    args = [
+        *BUILDER_MAKE_MODE,
+        *POSITIONAL_DIRS,
+        *OPTS,
+        *POSITIONAL_FILENAMES,
+    ]
+    assert run_make_mode(args) == EXPECTED_MAKE_MODE
+
+
+def test_make_mode_parse_arguments_pos_intermixed(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
     args = [
         *EARLY_OPTS,
@@ -167,4 +214,4 @@ def test_make_mode_parse_arguments_pos_intermixed(monkeypatch: pytest.MonkeyPatc
     with pytest.raises(SystemExit):
         run_make_mode(args)
     stderr = capsys.readouterr().err.splitlines()
-    assert stderr[-1].endswith('error: unrecognized arguments: filename1 filename2')
+    assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
