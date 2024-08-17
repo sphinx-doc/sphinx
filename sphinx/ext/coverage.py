@@ -241,7 +241,7 @@ class CoverageBuilder(Builder):
                 for typ, name in sorted(undoc):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                     if self.config.coverage_show_missing_items:
-                        if self.app.quiet or self.app.warningiserror:
+                        if self.app.quiet:
                             logger.warning(__('undocumented c api: %s [%s] in file %s'),
                                            name, typ, filename)
                         else:
@@ -423,7 +423,7 @@ class CoverageBuilder(Builder):
                         op.write('Functions:\n')
                         op.writelines(' * %s\n' % x for x in undoc['funcs'])
                         if self.config.coverage_show_missing_items:
-                            if self.app.quiet or self.app.warningiserror:
+                            if self.app.quiet:
                                 for func in undoc['funcs']:
                                     logger.warning(
                                         __('undocumented python function: %s :: %s'),
@@ -440,7 +440,7 @@ class CoverageBuilder(Builder):
                             if not methods:
                                 op.write(' * %s\n' % class_name)
                                 if self.config.coverage_show_missing_items:
-                                    if self.app.quiet or self.app.warningiserror:
+                                    if self.app.quiet:
                                         logger.warning(
                                             __('undocumented python class: %s :: %s'),
                                             name, class_name)
@@ -452,7 +452,7 @@ class CoverageBuilder(Builder):
                                 op.write(' * %s -- missing methods:\n\n' % class_name)
                                 op.writelines('   - %s\n' % x for x in methods)
                                 if self.config.coverage_show_missing_items:
-                                    if self.app.quiet or self.app.warningiserror:
+                                    if self.app.quiet:
                                         for meth in methods:
                                             logger.warning(
                                                 __('undocumented python method:'

@@ -72,6 +72,7 @@ DOMAINS = [
     ('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'),
     DOMAINS,
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
 ):
@@ -84,6 +85,7 @@ def test_object_description_no_typesetting(
     ('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'),
     DOMAINS,
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_twice(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
 ):
@@ -102,6 +104,7 @@ def test_object_description_no_typesetting_twice(
     ('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'),
     DOMAINS,
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_noindex_orig(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
 ):
@@ -117,6 +120,7 @@ def test_object_description_no_typesetting_noindex_orig(
     ('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'),
     DOMAINS,
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_noindex(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
 ):
@@ -139,6 +143,7 @@ def test_object_description_no_typesetting_noindex(
     ('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'),
     DOMAINS,
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_no_index_entry(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
 ):
@@ -161,6 +166,7 @@ def test_object_description_no_typesetting_no_index_entry(
     ('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'),
     DOMAINS,
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_code(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
 ):
@@ -191,6 +197,7 @@ def test_object_description_no_typesetting_code(
     ('directive', 'no_index', 'no_index_entry', 'sig_f', 'sig_g', 'index_g'),
     DOMAINS,
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_object_description_no_typesetting_heading(
     app, directive, no_index, no_index_entry, sig_f, sig_g, index_g
 ):

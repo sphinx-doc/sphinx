@@ -3,6 +3,7 @@
 from unittest import mock
 
 import pygments
+import pytest
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer
 from pygments.token import Name, Text
@@ -37,6 +38,7 @@ class ComplainOnUnhighlighted(PygmentsBridge):
         raise AssertionError('should highlight %r' % source)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_add_lexer(app):
     app.add_lexer('test', MyLexer)
 

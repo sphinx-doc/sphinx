@@ -20,7 +20,7 @@ def test_display_chunk():
     assert display_chunk(('hello', 'sphinx', 'world')) == 'hello .. world'
 
 
-@pytest.mark.sphinx('dummy')
+@pytest.mark.sphinx('dummy', testroot='root')
 def test_status_iterator_length_0(app):
     logging.setup(app, app.status, app.warning)
 
@@ -33,7 +33,7 @@ def test_status_iterator_length_0(app):
     assert yields == ['hello', 'sphinx', 'world']
 
 
-@pytest.mark.sphinx('dummy')
+@pytest.mark.sphinx('dummy', testroot='root')
 def test_status_iterator_verbosity_0(app, monkeypatch):
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
@@ -51,7 +51,7 @@ def test_status_iterator_verbosity_0(app, monkeypatch):
     assert 'testing ... [100%] world\r\n' in output
 
 
-@pytest.mark.sphinx('dummy')
+@pytest.mark.sphinx('dummy', testroot='root')
 def test_status_iterator_verbosity_1(app, monkeypatch):
     monkeypatch.setenv('FORCE_COLOR', '1')
     logging.setup(app, app.status, app.warning)
@@ -69,6 +69,7 @@ def test_status_iterator_verbosity_1(app, monkeypatch):
     assert 'testing ... [100%] world\n\n' in output
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_progress_message(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)

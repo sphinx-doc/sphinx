@@ -199,6 +199,7 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_js_module(app):
     text = '.. js:module:: sphinx'
     doctree = restructuredtext.parse(app, text)
@@ -211,6 +212,7 @@ def test_js_module(app):
     assert_node(doctree[1], nodes.target, ids=['module-sphinx'])
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_js_function(app):
     text = '.. js:function:: sum(a, b)'
     doctree = restructuredtext.parse(app, text)
@@ -250,6 +252,7 @@ def test_js_function(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_js_class(app):
     text = '.. js:class:: Application'
     doctree = restructuredtext.parse(app, text)
@@ -284,6 +287,7 @@ def test_js_class(app):
     assert_node(doctree[1], addnodes.desc, domain='js', objtype='class', no_index=False)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_js_data(app):
     text = '.. js:data:: name'
     doctree = restructuredtext.parse(app, text)
@@ -308,6 +312,7 @@ def test_js_data(app):
     assert_node(doctree[1], addnodes.desc, domain='js', objtype='data', no_index=False)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_no_index_entry(app):
     text = '.. js:function:: f()\n.. js:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
@@ -320,6 +325,7 @@ def test_no_index_entry(app):
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_module_content_line_number(app):
     text = '.. js:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
@@ -332,6 +338,7 @@ def test_module_content_line_number(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'javascript_maximum_signature_line_length': len('hello(name)'),
     },
@@ -375,6 +382,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_equa
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'javascript_maximum_signature_line_length': len('hello(name)'),
     },
@@ -420,6 +428,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_forc
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'javascript_maximum_signature_line_length': len('hello(name)'),
     },
@@ -463,6 +472,7 @@ def test_jsfunction_signature_with_javascript_maximum_signature_line_length_brea
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('hello(name)'),
     },
@@ -506,6 +516,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_equal(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('hello(name)'),
     },
@@ -549,6 +560,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_force_single(ap
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('hello(name)'),
     },
@@ -592,6 +604,7 @@ def test_jsfunction_signature_with_maximum_signature_line_length_break(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'javascript_maximum_signature_line_length': len('hello(name)'),
         'maximum_signature_line_length': 1,

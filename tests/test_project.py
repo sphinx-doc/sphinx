@@ -75,8 +75,9 @@ def test_project_path2doc(rootdir):
 
 
 @pytest.mark.sphinx(
-    srcdir='project_doc2path',
+    'html',
     testroot='basic',
+    srcdir='project_doc2path',
 )
 def test_project_doc2path(app):
     source_suffix = {'.rst': 'restructuredtext', '.txt': 'restructuredtext'}

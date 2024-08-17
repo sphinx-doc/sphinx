@@ -23,6 +23,6 @@ export default {
   hostname: "127.0.0.1",
 
   browser: {
-    name: "firefox"
+    name: "headlessFirefox"
   }
 };

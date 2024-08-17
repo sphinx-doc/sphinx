@@ -23,7 +23,7 @@ else:
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Collection, Iterator, Sequence, Set
+    from collections.abc import Collection, Iterable, Iterator, Sequence, Set
     from typing import TypeAlias
 
     from sphinx.application import Sphinx
@@ -739,8 +739,8 @@ def check_primary_domain(app: Sphinx, config: Config) -> None:
         config.primary_domain = None
 
 
-def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
-                   changed: set[str], removed: set[str]) -> set[str]:
+def check_root_doc(app: Sphinx, env: BuildEnvironment, added: Set[str],
+                   changed: Set[str], removed: Set[str]) -> Iterable[str]:
     """Adjust root_doc to 'contents' to support an old project which does not have
     any root_doc setting.
     """

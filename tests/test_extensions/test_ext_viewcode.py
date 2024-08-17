@@ -50,6 +50,7 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='ext-viewcode',
     freshenv=True,
     confoverrides={'viewcode_line_numbers': True},
@@ -64,6 +65,7 @@ def test_viewcode_linenos(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='ext-viewcode',
     freshenv=True,
     confoverrides={'viewcode_line_numbers': False},
@@ -104,7 +106,7 @@ def test_viewcode_epub_enabled(app):
     assert result.count('href="_modules/spam/mod1.xhtml#func1"') == 2
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode', tags=['test_linkcode'])
+@pytest.mark.sphinx('html', testroot='ext-viewcode', tags=['test_linkcode'])
 def test_linkcode(app):
     app.build(filenames=[app.srcdir / 'objects.rst'])
 
@@ -116,7 +118,7 @@ def test_linkcode(app):
     assert 'https://foobar/cpp/' in stuff
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode-find', freshenv=True)
+@pytest.mark.sphinx('html', testroot='ext-viewcode-find', freshenv=True)
 def test_local_source_files(app):
     def find_source(app, modname):
         if modname == 'not_a_package':

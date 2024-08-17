@@ -124,7 +124,7 @@ def test_html4_error(make_app, tmp_path):
         ),
     ],
 )
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='root')
 @pytest.mark.test_params(shared_result='test_build_html_output_docutils18')
 def test_docutils_output(app, cached_etree_parse, fname, path, check):
     app.build()
@@ -133,6 +133,7 @@ def test_docutils_output(app, cached_etree_parse, fname, path, check):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     parallel=2,
 )
 def test_html_parallel(app):
@@ -366,15 +367,12 @@ def test_html_style(app):
 @pytest.mark.sphinx(
     'html',
     testroot='basic',
-    # alabaster changed default sidebars in 1.0.0
     confoverrides={
         'html_sidebars': {
             '**': [
-                'about.html',
-                'navigation.html',
-                'relations.html',
-                'searchbox.html',
-                'donate.html',
+                'localtoc.html',
+                'searchfield.html',
+                'sourcelink.html',
             ]
         }
     },
@@ -385,45 +383,58 @@ def test_html_sidebar(app):
     # default for alabaster
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    # layout.html
     assert '<div class="sphinxsidebar" role="navigation" aria-label="Main">' in result
-    assert '<h1 class="logo"><a href="#">Project name not set</a></h1>' in result
+    assert '<h1>The basic Sphinx documentation for testing' in result
     assert '<h3>Navigation</h3>' in result
-    assert '<h3>Related Topics</h3>' in result
-    assert '<h3 id="searchlabel">Quick search</h3>' in result
+    # localtoc.html
+    assert '<h3><a href="#">Table of Contents</a></h3>' in result
+    # searchfield.html
+    assert '<div class="searchformwrapper">' in result
+    # sourcelink.html
+    assert '<h3>This Page</h3>' in result
 
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == [
-        'about.html',
-        'navigation.html',
-        'relations.html',
-        'searchbox.html',
-        'donate.html',
+        'localtoc.html',
+        'searchfield.html',
+        'sourcelink.html',
     ]
 
-    # only relations.html
-    app.config.html_sidebars = {'**': ['relations.html']}
+    # only sourcelink.html
+    app.config.html_sidebars = {'**': ['sourcelink.html']}
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    # layout.html
     assert '<div class="sphinxsidebar" role="navigation" aria-label="Main">' in result
-    assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
-    assert '<h3>Navigation</h3>' not in result
-    assert '<h3>Related Topics</h3>' in result
-    assert '<h3 id="searchlabel">Quick search</h3>' not in result
+    assert '<h1>The basic Sphinx documentation for testing' in result
+    assert '<h3>Navigation</h3>' in result
+    # localtoc.html
+    assert '<h3><a href="#">Table of Contents</a></h3>' not in result
+    # searchfield.html
+    assert '<div class="searchformwrapper">' not in result
+    # sourcelink.html
+    assert '<h3>This Page</h3>' in result
 
     app.builder.add_sidebars('index', ctx)
-    assert ctx['sidebars'] == ['relations.html']
+    assert ctx['sidebars'] == ['sourcelink.html']
 
     # no sidebars
     app.config.html_sidebars = {'**': []}
     app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
+    # layout.html
     assert (
         '<div class="sphinxsidebar" role="navigation" aria-label="Main">'
     ) not in result
-    assert '<h1 class="logo"><a href="#">Python</a></h1>' not in result
-    assert '<h3>Navigation</h3>' not in result
-    assert '<h3>Related Topics</h3>' not in result
-    assert '<h3 id="searchlabel">Quick search</h3>' not in result
+    assert '<h1>The basic Sphinx documentation for testing' in result
+    assert '<h3>Navigation</h3>' in result
+    # localtoc.html
+    assert '<h3><a href="#">Table of Contents</a></h3>' not in result
+    # searchfield.html
+    assert '<div class="searchformwrapper">' not in result
+    # sourcelink.html
+    assert '<h3>This Page</h3>' not in result
 
     app.builder.add_sidebars('index', ctx)
     assert ctx['sidebars'] == []
@@ -489,6 +500,7 @@ def test_html_baseurl_and_html_file_suffix(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='basic',
     srcdir='validate_html_extra_path',
 )
@@ -508,6 +520,7 @@ def test_validate_html_extra_path(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='basic',
     srcdir='validate_html_static_path',
 )

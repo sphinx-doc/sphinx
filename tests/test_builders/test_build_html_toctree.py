@@ -8,7 +8,7 @@ from tests.test_builders.xpath_html_util import _intradocument_hyperlink_check
 from tests.test_builders.xpath_util import check_xpath
 
 
-@pytest.mark.sphinx(testroot='toctree-glob')
+@pytest.mark.sphinx('html', testroot='toctree-glob')
 def test_relations(app):
     app.build(force_all=True)
     assert app.builder.relations['index'] == [None, None, 'foo']
@@ -39,6 +39,7 @@ def test_singlehtml_toctree(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='toctree',
     srcdir='numbered-toctree',
 )
