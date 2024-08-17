@@ -9,7 +9,6 @@ import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 
 from __future__ import annotations
 
-import argparse
 import os
 import subprocess
 import sys
@@ -58,19 +57,11 @@ BUILDERS = [
 ]
 
 
-class _Make:
-    def __init__(
-        self,
-        *,
-        srcdir: str,
-        builddir: str,
-        filenames: Sequence[str],
-        opts: Sequence[str],
-    ) -> None:
+class Make:
+    def __init__(self, srcdir: str, builddir: str, opts: Sequence[str]) -> None:
         self.srcdir = srcdir
         self.builddir = builddir
-        self.filenames = list(filenames)
-        self.opts = list(opts)
+        self.opts = [*opts]
 
     def builddir_join(self, *comps: str) -> str:
         return path.join(self.builddir, *comps)
@@ -186,42 +177,18 @@ class _Make:
 
     def run_generic_build(self, builder: str, doctreedir: str | None = None) -> int:
         # compatibility with old Makefile
-        paper_size = os.getenv('PAPER', '')
-        if paper_size in {'a4', 'letter'}:
-            self.opts.extend(['-D', f'latex_elements.papersize={paper_size}paper'])
+        papersize = os.getenv('PAPER', '')
+        opts = self.opts
+        if papersize in ('a4', 'letter'):
+            opts.extend(['-D', 'latex_elements.papersize=' + papersize + 'paper'])
         if doctreedir is None:
             doctreedir = self.builddir_join('doctrees')
 
-        args = [
-            '--builder', builder,
-            '--doctree-dir', doctreedir,
-            *self.opts,
-            self.srcdir,
-            self.builddir_join(builder),
-            *self.filenames,
-        ]
-        return build_main(args)
-
-
-def _parse_make_args(args: Sequence[str]) -> tuple[str, _Make]:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('builder_name')
-    parser.add_argument('source_dir')
-    parser.add_argument('build_dir')
-    parser.add_argument('filenames', nargs=argparse.ZERO_OR_MORE)
-    make_args, remaining = parser.parse_known_args(args)
-
-    # Check for problems with positional arguments (i.e. [FILENAMES...])
-    if pos_args := [arg for arg in remaining if not arg.startswith('-')]:
-        msg = f'unrecognized arguments: {" ".join(pos_args)}'
-        parser.error(msg)
-
-    return make_args.builder_name, _Make(
-        srcdir=make_args.source_dir,
-        builddir=make_args.build_dir,
-        filenames=make_args.filenames,
-        opts=remaining,
-    )
+        args = ['-b', builder,
+                '-d', doctreedir,
+                self.srcdir,
+                self.builddir_join(builder)]
+        return build_main(args + opts)
 
 
 def run_make_mode(args: Sequence[str]) -> int:
@@ -229,9 +196,8 @@ def run_make_mode(args: Sequence[str]) -> int:
         print('Error: at least 3 arguments (builder, source '
               'dir, build dir) are required.', file=sys.stderr)
         return 1
-
-    builder_name, make = _parse_make_args(args)
-    run_method = f'build_{builder_name}'
+    make = Make(args[1], args[2], args[3:])
+    run_method = 'build_' + args[0]
     if hasattr(make, run_method):
         return getattr(make, run_method)()
-    return make.run_generic_build(builder_name)
+    return make.run_generic_build(args[0])
