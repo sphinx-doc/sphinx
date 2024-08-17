@@ -981,13 +981,11 @@ def test_reference_in_caption_and_codeblock_in_footnote(app):
     ) in result
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert (
-        '\\sphinxcaption{The table title with a reference'
-        ' to {[}AuthorYear{]}}' in result
-    )
+        '\\sphinxcaption{The table title with a reference to {[}AuthorYear{]}}'
+    ) in result
     assert (
         '\\subsubsection*{The rubric title with a reference to {[}AuthorYear{]}}'
-        in result
-    )
+    ) in result
     assert (
         '\\chapter{The section with a reference to \\sphinxfootnotemark[6]}\n'
         '\\label{\\detokenize{index:the-section-with-a-reference-to}}'
