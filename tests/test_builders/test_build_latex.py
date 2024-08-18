@@ -668,7 +668,7 @@ def test_latex_obey_numfig_secnum_depth_is_zero(app):
 @pytest.mark.sphinx(
     'latex',
     testroot='latex-numfig',
-    confoverrides={'numfig': True, 'numfig_secnum_depth': 2, 'math_numsep': "-"},
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 2, 'math_numsep': '-'},
 )
 def test_latex_obey_numfig_secnum_depth_is_two(app):
     app.build(force_all=True)
