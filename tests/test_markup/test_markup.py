@@ -448,6 +448,7 @@ def get_verifier(verify, verify_re):
         ),
     ],
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
@@ -464,12 +465,13 @@ def test_inline(get_verifier, type, rst, html_expected, latex_expected):
         ),
     ],
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_inline_docutils16(get_verifier, type, rst, html_expected, latex_expected):
     verifier = get_verifier(type)
     verifier(rst, html_expected, latex_expected)
 
 
-@pytest.mark.sphinx(confoverrides={'latex_engine': 'xelatex'})
+@pytest.mark.sphinx('html', testroot='root', confoverrides={'latex_engine': 'xelatex'})
 @pytest.mark.parametrize(
     ('type', 'rst', 'html_expected', 'latex_expected'),
     [
@@ -493,6 +495,7 @@ def test_inline_for_unicode_latex_engine(
     verifier(rst, html_expected, latex_expected)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_samp_role(parse):
     # no braces
     text = ':samp:`a{b}c`'
@@ -524,6 +527,7 @@ def test_samp_role(parse):
     assert_node(doctree[0], [nodes.paragraph, nodes.literal, 'code   sample'])
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_download_role(parse):
     # implicit
     text = ':download:`sphinx.rst`'
@@ -562,6 +566,7 @@ def test_download_role(parse):
     assert_node(doctree[0][0][0], classes=['xref', 'download'])
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_XRefRole(inliner):
     role = XRefRole()
 

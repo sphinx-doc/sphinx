@@ -7,6 +7,8 @@ import posixpath
 from io import BytesIO
 from typing import TYPE_CHECKING
 
+import pytest
+
 import sphinx.locale
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util.inventory import InventoryFile
@@ -77,6 +79,7 @@ def test_read_inventory_v2_not_having_version():
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_ambiguous_definition_warning(app):
     f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
     InventoryFile.load(f, '/util', posixpath.join)

@@ -32,6 +32,14 @@ Features added
   Patch by Tim Hoffmann.
 * #12652: LaTeX: Add :confval:`math_numsep` support to latex builder.
   Patch by Thomas Fanning and Jean-François B.
+* #12743: No longer exit on the first warning when
+  :option:`--fail-on-warning <sphinx-build --fail-on-warning>` is used.
+  Instead, exit with a non-zero status if any warnings were generated
+  during the build.
+  Patch by Adam Turner.
+* #12743: Add :option:`sphinx-build --exception-on-warning`,
+  to raise an exception when warnings are emitted during the build.
+  Patch by Adam Turner and Jeremy Maitin-Shepard.
 
 Bugs fixed
 ----------
@@ -39,6 +47,10 @@ Bugs fixed
 * #12514: intersphinx: fix the meaning of a negative value for
   :confval:`intersphinx_cache_limit`.
   Patch by Shengyu Zhang.
+* #12722: LaTeX: avoid TeX reporting ``Overfull \hbox`` from too long
+  strings in a codeline when the problem has actually been solved thanks
+  to :ref:`latexsphinxsetupforcewraps`.
+  Patch by Jean-François B.
 * #12730: The ``UnreferencedFootnotesDetector`` transform has been improved
   to more consistently detect unreferenced footnotes.
   Note, the priority of the transform has been changed from 200 to 622,
@@ -51,6 +63,20 @@ Bugs fixed
   Patch by Hugo van Kemenade.
 * #12645: Correctly support custom gettext output templates.
   Patch by Jeremy Bowman.
+* #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
+  :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
+  get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
+  (silent) apply as well to the PDF build phase.
+  Patch by Jean-François B.
+* #12744: LaTeX: Classes injected by a custom interpreted text role now give
+  rise to nested ``\DUrole``'s, rather than a single one with comma separated
+  classes.
+  Patch by Jean-François B.
+* #11970, #12551: singlehtml builder: make target URIs to be same-document
+  references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
+  e.g., ``index.html#foo`` becomes ``#foo``.
+  (note: continuation of a partial fix added in Sphinx 7.3.0)
+  Patch by James Addison (with reference to prior work by Eric Norige)
 
 Testing
 -------

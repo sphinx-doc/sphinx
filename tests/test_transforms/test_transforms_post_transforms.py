@@ -191,7 +191,7 @@ class TestSigElementFallbackTransform:
             'without_default_visitors_for_desc_sig_elements',
         ],
     )
-    @pytest.mark.sphinx('dummy')
+    @pytest.mark.sphinx('dummy', testroot='root')
     def test_support_desc_inline(
         self,
         document: nodes.document,
@@ -235,7 +235,7 @@ class TestSigElementFallbackTransform:
             'without_default_visitors_for_desc_sig_elements',
         ],
     )
-    @pytest.mark.sphinx('dummy')
+    @pytest.mark.sphinx('dummy', testroot='root')
     def test_custom_implementation(
         self,
         document: nodes.document,

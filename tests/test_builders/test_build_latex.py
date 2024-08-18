@@ -134,6 +134,7 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
 )
 @pytest.mark.sphinx(
     'latex',
+    testroot='root',
     freshenv=True,
 )
 def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_length):
@@ -163,7 +164,7 @@ def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_le
     compile_latex_document(app, 'sphinxtests.tex', docclass)
 
 
-@pytest.mark.sphinx('latex')
+@pytest.mark.sphinx('latex', testroot='root')
 def test_writer(app):
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.tex').read_text(encoding='utf8')
@@ -928,7 +929,7 @@ def test_polyglossia_with_language_de_1901(app):
     assert r'\addto\captionsgerman{\renewcommand{\tablename}{Table.\@{} }}' in result
 
 
-@pytest.mark.sphinx('latex')
+@pytest.mark.sphinx('latex', testroot='root')
 def test_footnote(app):
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.tex').read_text(encoding='utf8')
@@ -1015,7 +1016,8 @@ def test_reference_in_caption_and_codeblock_in_footnote(app):
     assert (
         'This is a reference to the code\\sphinxhyphen{}block in the footnote:\n'
         '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
-        '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}'
+        '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}'
+        '{I am in a footnote}}}}}'
     ) in result
     assert (
         '&\n\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
@@ -2157,6 +2159,7 @@ def test_latex_code_role(app):
     ) in content
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_copy_images(app):
     app.build()

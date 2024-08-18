@@ -1872,6 +1872,19 @@ Miscellany
      Formerly, use of *fncychap* with other styles than ``Bjarne`` was
      dysfunctional.
 
+- The :dudir:`role` directive allows to mark inline text with class arguments.
+  This is handled in LaTeX output via the ``\DUrole`` dispatcher command `as
+  in Docutils <classarguments_>`_.  Object signatures also use ``\DUrole`` for
+  some components, with one or two-letters class names as in HTML output.
+
+  .. versionchanged:: 8.1.0
+     When multiple classes are injected via a a custom role, the LaTeX output
+     uses nested ``\DUrole``'s as in the `Docutils documentation
+     <classarguments_>`_.  Formerly it used a single ``\DUrole`` with comma
+     separated classes, making the LaTeX customization more arduous.
+
+.. _classarguments: https://docutils.sourceforge.io/docs/user/latex.html#custom-interpreted-text-roles
+
 .. _latexcontainer:
 
 - Docutils :dudir:`container` directives are supported in LaTeX output: to

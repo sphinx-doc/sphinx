@@ -2736,6 +2736,7 @@ definition_after_normal_text : int
         actual = NumpyDocstring(docstring, config)
         assert str(actual) == expected
 
+    @pytest.mark.sphinx('html', testroot='root')
     def test_token_type_invalid(self, app):
         tokens = (
             '{1, 2',

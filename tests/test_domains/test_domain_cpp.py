@@ -1540,7 +1540,7 @@ def filter_warnings(warning: StringIO, file):
     return res
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_multi_decl_lookup(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'lookup-key-overload')
@@ -1550,7 +1550,7 @@ def test_domain_cpp_build_multi_decl_lookup(app):
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_warn_template_param_qualified_name(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'warn-template-param-qualified-name')
@@ -1559,14 +1559,14 @@ def test_domain_cpp_build_warn_template_param_qualified_name(app):
     assert 'WARNING: cpp:type reference target not found: T::U::typeWarn' in ws[1]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_backslash_ok_true(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'backslash')
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_semicolon(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'semicolon')
@@ -1574,6 +1574,7 @@ def test_domain_cpp_build_semicolon(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='domain-cpp',
     confoverrides={'nitpicky': True, 'strip_signature_backslash': True},
 )
@@ -1584,7 +1585,7 @@ def test_domain_cpp_build_backslash_ok_false(app):
     assert 'WARNING: Parsing of expression failed. Using fallback parser.' in ws[0]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_anon_dup_decl(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'anon-dup-decl')
@@ -1593,7 +1594,7 @@ def test_domain_cpp_build_anon_dup_decl(app):
     assert 'WARNING: cpp:identifier reference target not found: @b' in ws[1]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp')
+@pytest.mark.sphinx('html', testroot='domain-cpp')
 def test_domain_cpp_build_misuse_of_roles(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'roles-targets-ok')
@@ -1653,6 +1654,7 @@ def test_domain_cpp_build_misuse_of_roles(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='domain-cpp',
     confoverrides={'add_function_parentheses': True},
 )
@@ -1697,6 +1699,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_True(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='domain-cpp',
     confoverrides={'add_function_parentheses': False},
 )
@@ -1740,7 +1743,7 @@ def test_domain_cpp_build_with_add_function_parentheses_is_False(app):
         assert match is not None, f'Pattern not found in any-role.html:\n\t{pattern}'
 
 
-@pytest.mark.sphinx(testroot='domain-cpp')
+@pytest.mark.sphinx('html', testroot='domain-cpp')
 def test_domain_cpp_build_xref_consistency(app):
     app.build(force_all=True)
 
@@ -1808,14 +1811,14 @@ not found in `{test}`
     assert any_role.classes == texpr_role.content_classes['a'], expect
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_field_role(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'field-role')
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_operator_lookup(app):
     app.builder.build_all()
     ws = filter_warnings(app.warning, 'operator-lookup')
@@ -1832,7 +1835,9 @@ def test_domain_cpp_build_operator_lookup(app):
     assert ':21: WARNING: cpp:func reference target not found: operator bool' in ws[4]
 
 
-@pytest.mark.sphinx(testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(
+    'html', testroot='domain-cpp-intersphinx', confoverrides={'nitpicky': True}
+)
 def test_domain_cpp_build_intersphinx(tmp_path, app):
     origSource = """\
 .. cpp:class:: _class
@@ -1898,6 +1903,7 @@ _var cpp:member 1 index.html#_CPPv44$ -
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_domain_cpp_parse_no_index_entry(app):
     text = (
         '.. cpp:function:: void f()\n'
@@ -1914,6 +1920,7 @@ def test_domain_cpp_parse_no_index_entry(app):
     assert_node(doctree[2], addnodes.index, entries=[])
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_domain_cpp_parse_mix_decl_duplicate(app):
     # Issue 8270
     text = '.. cpp:struct:: A\n.. cpp:function:: void A()\n.. cpp:struct:: A\n'
@@ -1934,7 +1941,7 @@ def test_domain_cpp_parse_mix_decl_duplicate(app):
 # For some reason, using the default testroot of "root" leads to the contents of
 # `test-root/objects.txt` polluting the symbol table depending on the test
 # execution order.  Using a testroot of "config" seems to avoid that problem.
-@pytest.mark.sphinx(testroot='config')
+@pytest.mark.sphinx('html', testroot='config')
 def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
     args, kwargs = app_params
 
@@ -1983,6 +1990,7 @@ def test_domain_cpp_normalize_unspecialized_template_args(make_app, app_params):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'cpp_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -2043,6 +2051,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_equal(app
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'cpp_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -2105,6 +2114,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_force_sin
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'cpp_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -2163,6 +2173,7 @@ def test_cpp_function_signature_with_cpp_maximum_signature_line_length_break(app
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -2223,6 +2234,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_equal(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -2283,6 +2295,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_force_single(
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -2341,6 +2354,7 @@ def test_cpp_function_signature_with_maximum_signature_line_length_break(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'cpp_maximum_signature_line_length': len('str hello(str name)'),
         'maximum_signature_line_length': 1,

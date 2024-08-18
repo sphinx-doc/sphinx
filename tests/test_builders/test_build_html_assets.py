@@ -81,7 +81,6 @@ def test_assets_order(app, monkeypatch):
     expected = [
         '_static/early.css',
         '_static/pygments.css',
-        '_static/alabaster.css',
         'https://example.com/custom.css',
         '_static/normal.css',
         '_static/late.css',

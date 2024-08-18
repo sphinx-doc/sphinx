@@ -101,7 +101,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(literal_inc_path):
     assert reader.lineno_start == 3
 
 
-@pytest.mark.sphinx  # init locale for errors
+@pytest.mark.sphinx('html', testroot='root')  # init locale for errors
 def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -111,7 +111,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
         reader.read()
 
 
-@pytest.mark.sphinx  # init locale for errors
+@pytest.mark.sphinx('html', testroot='root')  # init locale for errors
 def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
@@ -333,7 +333,7 @@ def test_code_block_namedlink_latex(app):
     )
     link1 = (
         '\\hyperref[\\detokenize{caption:name-test-rb}]'
-        '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
+        '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}{Ruby}}}}'
     )
     label2 = (
         '\\def\\sphinxLiteralBlockLabel'
@@ -341,7 +341,7 @@ def test_code_block_namedlink_latex(app):
     )
     link2 = (
         '\\hyperref[\\detokenize{namedblocks:some-ruby-code}]'
-        '{\\sphinxcrossref{\\DUrole{std,std-ref}{the ruby code}}}'
+        '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}{the ruby code}}}}'
     )
     assert label1 in latex
     assert link1 in latex
@@ -472,7 +472,7 @@ def test_literalinclude_namedlink_latex(app):
     )
     link1 = (
         '\\hyperref[\\detokenize{caption:name-test-py}]'
-        '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'
+        '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}{Python}}}}'
     )
     label2 = (
         '\\def\\sphinxLiteralBlockLabel'
@@ -480,7 +480,7 @@ def test_literalinclude_namedlink_latex(app):
     )
     link2 = (
         '\\hyperref[\\detokenize{namedblocks:some-python-code}]'
-        '{\\sphinxcrossref{\\DUrole{std,std-ref}{the python code}}}'
+        '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}{the python code}}}}'
     )
     assert label1 in latex
     assert link1 in latex

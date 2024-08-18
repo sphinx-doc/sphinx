@@ -71,7 +71,7 @@ class DummyApplication:
         self.translator = translator
         self.verbosity = 0
         self._warncount = 0
-        self.warningiserror = False
+        self._exception_on_warning = False
 
         self.config.add('autosummary_context', {}, 'env', ())
         self.config.add('autosummary_filename_map', {}, 'env', ())
