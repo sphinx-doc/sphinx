@@ -355,7 +355,10 @@ class LaTeXTranslator(SphinxTranslator):
                 sphinxpkgoptions.append('nonumfigreset')
 
         if self.config.numfig and self.config.math_numfig:
-            sphinxpkgoptions.append('mathnumfig')
+            sphinxpkgoptions.extend([
+                'mathnumfig',
+                'mathnumsep={%s}' % self.config.math_numsep,
+            ])
 
         if (self.config.language not in {'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):

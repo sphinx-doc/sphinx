@@ -30,6 +30,8 @@ Features added
   output files.
 * #12474: Support type-dependent search result highlighting via CSS.
   Patch by Tim Hoffmann.
+* #12652: LaTeX: Add :confval:`math_numsep` support to latex builder.
+  Patch by Thomas Fanning and Jean-François B.
 * #12743: No longer exit on the first warning when
   :option:`--fail-on-warning <sphinx-build --fail-on-warning>` is used.
   Instead, exit with a non-zero status if any warnings were generated
