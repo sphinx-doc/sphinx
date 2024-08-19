@@ -1301,8 +1301,8 @@ forget the underscore separating the prefix from the property names.
   * or two dimensions followed by the keyword ``inset``.
 
   The x-offset and y-offset may be negative.  A negative x-offset means
-  that the shadow is on the left.  Whether positive or negative it extends
-  into the page margin.
+  that the shadow is on the left.  The shadow extends into the page margin,
+  whether the offset is positive or negative.
 
   The default is ``none`` *except* for the  contents_ directive which uses
   ``4pt 4pt``.
@@ -1446,9 +1446,8 @@ The following legacy behavior applies:
   and border-width, except for being shifted vertically of course to not
   overwrite other text due to the width of the border or external shadow.
 
-- For the other directives, the
-  shadow (if on right) goes into the page margin, but the border and the extra
-  padding are kept within the text area.
+- For the other directives, the shadow (if on right) goes into the page margin,
+  but the border and the extra padding are kept within the text area.
 
 - :rst:dir:`code-block` and :rst:dir:`literalinclude` use the same LaTeX
   environment and commands and are not separately customizable.
@@ -1588,7 +1587,7 @@ Macros
   .. note::
 
      To let this table fit on the page width in PDF output we have lied a bit
-     and the actual definition of, for example, ``\sphinxstylenotetitle`` is:
+     For instance, the actual definition of ``\sphinxstylenotetitle`` is:
 
      .. code-block:: latex
 
@@ -1619,15 +1618,14 @@ Macros
      if this final colon is to be removed.
 
   .. versionadded:: 7.4.0
-     ``\sphinxdotitlerowwithicon`` LaTeX command.
+     Added the ``\sphinxdotitlerowwithicon`` LaTeX command.
 
   .. versionchanged:: 8.1.0
      ``\sphinxdotitlerowwithicon`` now detects automatically if an icon is
      associated or not with the rendered element used as first argument.
 
   .. versionadded:: 8.1.0
-     ``\sphinxdotitlerow`` as alias to ``\sphinxdotitlerowwithicon`` with
-     a more appropriate name.
+     Make ``\sphinxdotitlerow`` an alias to ``\sphinxdotitlerowwithicon``.
 
   .. versionadded:: 8.1.0
      Titles of :dudir:`topic`, contents_, and :dudir:`sidebar` directives are
@@ -1812,11 +1810,12 @@ Environments
      environment for coherence with how admonitions are handled generally.
 
 - Environment for the :rst:dir:`todo` directive: ``sphinxtodo``.
-  It takes one argument which will is the localized string ``Todo``
+  It takes one argument, namely the localization of ``Todo``
   (with a colon at the end; the default rendering will remove that
   colon and put the localized string in its own colored title-row).
 
   .. versionadded:: 7.4.0
+
 - The :dudir:`topic`, contents_ and :dudir:`sidebar` directives
   are associated with respectively ``sphinxtopic``, ``sphinxcontents``,
   and ``sphinxsidebar`` environments.
