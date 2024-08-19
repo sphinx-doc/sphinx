@@ -1228,11 +1228,11 @@ forget the underscore separating the prefix from the property names.
   * ``1pt`` for  :dudir:`warning` and other "strong" admonitions except
     :dudir:`error` which uses ``1.25pt``.
 
-  .. versionchanged:: 7.4.0 Changed defaults for :dudir:`topic` and
-     :dudir:`error`.
+  .. versionchanged:: 7.4.0
+     Changed defaults for :dudir:`topic` and :dudir:`error`.
 
-  .. versionchanged:: 8.1.0 Distinct from :dudir:`topic` defaults for
-     :dudir:`sidebar`.
+  .. versionchanged:: 8.1.0
+     Distinct from :dudir:`topic` defaults for :dudir:`sidebar`.
 
 - ``<prefix>_box-decoration-break`` can be set to either ``clone`` or
   ``slice`` and configures the behavior at page breaks.
@@ -1264,8 +1264,8 @@ forget the underscore separating the prefix from the property names.
      vertically across admonition types on same page in PDF.  This is only a
      property of defaults, not a constraint on possible user choices.
 
-  .. versionchanged:: 8.1.0 Separate defaults for :dudir:`topic`, contents_,
-     and :dudir:`sidebar`.
+  .. versionchanged:: 8.1.0
+     Separate defaults for :dudir:`topic`, contents_, and :dudir:`sidebar`.
 
 - | ``<prefix>_border-top-left-radius``,
   | ``<prefix>_border-top-right-radius``,
@@ -1289,8 +1289,8 @@ forget the underscore separating the prefix from the property names.
   .. versionchanged:: 7.4.0 :dudir:`topic` and :dudir:`note`\ -like
      admonitions acquire (at least one) rounded corners.
 
-  .. versionchanged:: 8.1.0 Separate defaults for :dudir:`topic`, contents_,
-     and :dudir:`sidebar`.
+  .. versionchanged:: 8.1.0
+     Separate defaults for :dudir:`topic`, contents_, and :dudir:`sidebar`.
 
   See a remark above about traps with spaces in LaTeX.
 - ``<prefix>_box-shadow`` is special in so far as it may be:
