@@ -1446,7 +1446,7 @@ The following legacy behavior applies:
   and border-width, except for being shifted vertically of course to not
   overwrite other text due to the width of the border or external shadow.
 
-- For the other directives, the shadow (if on right) goes into the page margin,
+- For the other directives, shadows extend horizontally into the page margins,
   but the border and the extra padding are kept within the text area.
 
 - :rst:dir:`code-block` and :rst:dir:`literalinclude` use the same LaTeX
