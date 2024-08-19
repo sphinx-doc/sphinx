@@ -1140,10 +1140,12 @@ Additional  CSS-like ``'sphinxsetup'`` keys
    set the foreground and background colors for the title as well as the
    LaTeX code for the icon.
 
-.. versionadded:: 7.4.0  Customizability of the :rst:dir:`seealso` and
+.. versionadded:: 7.4.0
+   Customizability of the :rst:dir:`seealso` and
    :rst:dir:`todo` directives.
 
-.. versionadded:: 8.1.0 Separate customizability and new defaults for the
+.. versionadded:: 8.1.0
+   Separate customizability and new defaults for the
    :dudir:`topic`, contents_, and :dudir:`sidebar` directives.
 
 Perhaps in future these 5.1.0 (and 6.2.0) novel settings will be optionally
