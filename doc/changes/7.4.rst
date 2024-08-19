@@ -217,7 +217,8 @@ Bugs fixed
 * #12410: LaTeX: for French and ``'lualatex'`` as :confval:`latex_engine`
   use ``babel`` as with ``'xelatex'`` (and not ``polyglossia``).
   Patch by Jean-François B.
-* #12520: LaTeX: let :rst:dir:`todolist` produce correct hyperlinks in PDF.
+* #8807, #12520: LaTeX: let :rst:dir:`todolist` produce correct hyperlinks
+  in PDF.
   Patch by Jean-François B.
 * #12416: Ensure that configuration setting aliases are always synchronised
   when one value or the other is modified.
