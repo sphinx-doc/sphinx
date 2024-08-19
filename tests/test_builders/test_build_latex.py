@@ -2275,3 +2275,30 @@ def test_latex_rubric(app):
     content = (app.outdir / 'test.tex').read_text(encoding='utf8')
     assert r'\subsubsection*{This is a rubric}' in content
     assert r'\subsection*{A rubric with a heading level 2}' in content
+
+
+@pytest.mark.sphinx('latex', testroot='latex-contents-topic-sidebar')
+def test_latex_contents_topic_sidebar(app):
+    app.build()
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
+
+    assert '\\begin{sphinxcontents}\n\\sphinxstylecontentstitle{Contents}\n' in result
+
+    assert (
+        '\\begin{sphinxtopic}\n'
+        '\\sphinxstyletopictitle{Title of topic}\n'
+        '\n'
+        '\\sphinxAtStartPar\n'
+        'text of topic\n'
+        '\\end{sphinxtopic}\n'
+    ) in result
+
+    assert (
+        '\\begin{sphinxsidebar}\n'
+        '\\sphinxstylesidebartitle{Title of sidebar}\n'
+        '\\sphinxstylesidebarsubtitle{sub\\sphinxhyphen{}title}\n'
+        '\n'
+        '\\sphinxAtStartPar\n'
+        'text of sidebar\n'
+        '\\end{sphinxsidebar}\n'
+    ) in result
