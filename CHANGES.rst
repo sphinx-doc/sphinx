@@ -30,7 +30,7 @@ Features added
   output files.
 * #12704: LaTeX: make :dudir:`contents <table-of-contents>`, :dudir:`topic`,
   and :dudir:`sidebar` directives separately customizable for PDF output.
-  Patch by Jean-François B.
+  Patch by Jean-François B. and Bénédikt Tran.
 * #12474: Support type-dependent search result highlighting via CSS.
   Patch by Tim Hoffmann.
 * #12743: No longer exit on the first warning when
