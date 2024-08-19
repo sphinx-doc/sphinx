@@ -1286,7 +1286,8 @@ forget the underscore separating the prefix from the property names.
     :dudir:`tip`,
   * ``0pt``, i.e. straight corners for all other directives.
 
-  .. versionchanged:: 7.4.0 :dudir:`topic` and :dudir:`note`\ -like
+  .. versionchanged:: 7.4.0
+     :dudir:`topic` and :dudir:`note`\ -like
      admonitions acquire (at least one) rounded corners.
 
   .. versionchanged:: 8.1.0
