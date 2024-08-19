@@ -1586,7 +1586,7 @@ Macros
 
   .. note::
 
-     To let this table fit on the page width in PDF output we have lied a bit
+     To let this table fit on the page width in PDF output we have lied a bit.
      For instance, the actual definition of ``\sphinxstylenotetitle`` is:
 
      .. code-block:: latex
