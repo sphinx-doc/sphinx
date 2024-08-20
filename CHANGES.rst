@@ -83,6 +83,10 @@ Bugs fixed
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
   Patch by James Addison (with reference to prior work by Eric Norige)
+* #12782: intersphinx: fix double forward slashes when generating the inventory
+  file URL (user-defined base URL of an intersphinx project are left untouched
+  even if they end with double forward slashes).
+  Patch by Bénédikt Tran.
 
 Testing
 -------
