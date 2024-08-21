@@ -800,28 +800,42 @@ def test_intersphinx_fetch_inventory_group_url(app):
         # handling in sphinx.ext.intersphinx._load._fetch_inventory_group).
         side_effect = ValueError('')
 
-        project1 = _IntersphinxProject(name='1', target_uri=url1, locations=(url1, None))
-        with mock.patch('sphinx.ext.intersphinx._load._fetch_inventory',
-                        side_effect=side_effect) as mockfn:
+        project1 = _IntersphinxProject(
+            name='1', target_uri=url1, locations=(url1, None)
+        )
+        with mock.patch(
+            'sphinx.ext.intersphinx._load._fetch_inventory', side_effect=side_effect
+        ) as mockfn:
             assert not _fetch_inventory_group(project=project1, **kwds)
         mockfn.assert_any_call(
-            target_uri=url1, inv_location=url1,
-            config=app.config, srcdir=app.srcdir,
+            target_uri=url1,
+            inv_location=url1,
+            config=app.config,
+            srcdir=app.srcdir,
         )
         mockfn.assert_any_call(
-            target_uri=url1, inv_location=url1 + '/' + INVENTORY_FILENAME,
-            config=app.config, srcdir=app.srcdir,
+            target_uri=url1,
+            inv_location=url1 + '/' + INVENTORY_FILENAME,
+            config=app.config,
+            srcdir=app.srcdir,
         )
 
-        project2 = _IntersphinxProject(name='2', target_uri=url2, locations=(url2, None))
-        with mock.patch('sphinx.ext.intersphinx._load._fetch_inventory',
-                        side_effect=side_effect) as mockfn:
+        project2 = _IntersphinxProject(
+            name='2', target_uri=url2, locations=(url2, None)
+        )
+        with mock.patch(
+            'sphinx.ext.intersphinx._load._fetch_inventory', side_effect=side_effect
+        ) as mockfn:
             assert not _fetch_inventory_group(project=project2, **kwds)
         mockfn.assert_any_call(
-            target_uri=url2, inv_location=url2,
-            config=app.config, srcdir=app.srcdir,
+            target_uri=url2,
+            inv_location=url2,
+            config=app.config,
+            srcdir=app.srcdir,
         )
         mockfn.assert_any_call(
-            target_uri=url2, inv_location=url2 + INVENTORY_FILENAME,
-            config=app.config, srcdir=app.srcdir,
+            target_uri=url2,
+            inv_location=url2 + INVENTORY_FILENAME,
+            config=app.config,
+            srcdir=app.srcdir,
         )
