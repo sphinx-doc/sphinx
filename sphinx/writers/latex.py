@@ -355,7 +355,10 @@ class LaTeXTranslator(SphinxTranslator):
                 sphinxpkgoptions.append('nonumfigreset')
 
         if self.config.numfig and self.config.math_numfig:
-            sphinxpkgoptions.append('mathnumfig')
+            sphinxpkgoptions.extend([
+                'mathnumfig',
+                'mathnumsep={%s}' % self.config.math_numsep,
+            ])
 
         if (self.config.language not in {'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
@@ -582,13 +585,22 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}')
 
     def visit_topic(self, node: Element) -> None:
-        self.in_minipage = 1
-        self.body.append(CR + r'\begin{sphinxShadowBox}' + CR)
+        self.in_minipage += 1
+        if 'contents' in node.get('classes', []):
+            self.body.append(CR + r'\begin{sphinxcontents}' + CR)
+            self.context.append(r'\end{sphinxcontents}' + CR)
+        else:
+            self.body.append(CR + r'\begin{sphinxtopic}' + CR)
+            self.context.append(r'\end{sphinxtopic}' + CR)
 
     def depart_topic(self, node: Element) -> None:
-        self.in_minipage = 0
-        self.body.append(r'\end{sphinxShadowBox}' + CR)
-    visit_sidebar = visit_topic
+        self.in_minipage -= 1
+        self.body.append(self.context.pop())
+
+    def visit_sidebar(self, node: Element) -> None:
+        self.in_minipage += 1
+        self.body.append(CR + r'\begin{sphinxsidebar}' + CR)
+        self.context.append(r'\end{sphinxsidebar}' + CR)
     depart_sidebar = depart_topic
 
     def visit_glossary(self, node: Element) -> None:
@@ -651,7 +663,10 @@ class LaTeXTranslator(SphinxTranslator):
                 self.body.append(fr'\{self.sectionnames[-1]}{short}{{')
             self.context.append('}' + CR + self.hypertarget_to(node.parent))
         elif isinstance(parent, nodes.topic):
-            self.body.append(r'\sphinxstyletopictitle{')
+            if 'contents' in parent.get('classes', []):
+                self.body.append(r'\sphinxstylecontentstitle{')
+            else:
+                self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}' + CR)
         elif isinstance(parent, nodes.sidebar):
             self.body.append(r'\sphinxstylesidebartitle{')
@@ -2173,8 +2188,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(r'\sphinxaccelerator{')
             self.context.append('}')
         elif classes and not self.in_title:
-            self.body.append(r'\DUrole{%s}{' % ','.join(classes))
-            self.context.append('}')
+            self.body.append(r'\DUrole{' + r'}{\DUrole{'.join(classes) + '}{')
+            self.context.append('}' * len(classes))
         else:
             self.context.append('')
 
