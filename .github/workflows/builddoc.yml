@@ -44,4 +44,3 @@ jobs:
         --jobs=auto
         --show-traceback
         --fail-on-warning
-        --keep-going
