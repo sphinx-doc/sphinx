@@ -769,7 +769,7 @@ __ https://pygments.org/docs/lexers
    .. rst:directive:option:: force
       :type: no value
 
-      Ignore minor errors on highlighting
+      Ignore minor errors on highlighting.
 
       .. versionchanged:: 2.1
 
@@ -831,13 +831,6 @@ __ https://pygments.org/docs/lexers
       .. versionadded:: 1.3
       .. versionchanged:: 3.5
          Support automatic dedent.
-
-   .. rst:directive:option:: force
-      :type: no value
-
-      If given, minor errors on highlighting are ignored.
-
-      .. versionadded:: 2.1
 
 .. rst:directive:: .. literalinclude:: filename
 
