@@ -795,7 +795,7 @@ def test_intersphinx_fetch_inventory_group_url(app):
         validate_intersphinx_mapping(app, app.config)
 
         now = int(time.time())
-        kwds = dict(cache={}, now=now, config=app.config, srcdir=app.srcdir)
+        kwds = {'cache': {}, 'now': now, 'config': app.config, 'srcdir': app.srcdir}
         # We need an exception with its 'args' attribute set (see error
         # handling in sphinx.ext.intersphinx._load._fetch_inventory_group).
         side_effect = ValueError('')
