@@ -12,6 +12,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.config import Config
 from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx import (
     inspect_main,
@@ -770,10 +771,7 @@ def test_intersphinx_cache_limit(app):
         )
 
 
-@pytest.mark.sphinx('dummy')
-def test_intersphinx_fetch_inventory_group_url(app):
-    intersphinx_setup(app)
-
+def test_intersphinx_fetch_inventory_group_url():
     class InventoryHandler(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             self.send_response(200, 'OK')
@@ -788,14 +786,16 @@ def test_intersphinx_fetch_inventory_group_url(app):
         url1 = f'http://localhost:{server.server_port}'
         url2 = f'http://localhost:{server.server_port}/'
 
-        app.config.intersphinx_mapping = {
+        config = Config()
+        config.intersphinx_cache_limit = -1
+        config.intersphinx_mapping = {
             '1': (url1, None),
             '2': (url2, None),
         }
-        validate_intersphinx_mapping(app, app.config)
 
         now = int(time.time())
-        kwds = {'cache': {}, 'now': now, 'config': app.config, 'srcdir': app.srcdir}
+        # we can use 'srcdir=None' since we are raising in _fetch_inventory
+        kwds = {'cache': {}, 'now': now, 'config': config, 'srcdir': None}
         # We need an exception with its 'args' attribute set (see error
         # handling in sphinx.ext.intersphinx._load._fetch_inventory_group).
         side_effect = ValueError('')
@@ -810,14 +810,14 @@ def test_intersphinx_fetch_inventory_group_url(app):
         mockfn.assert_any_call(
             target_uri=url1,
             inv_location=url1,
-            config=app.config,
-            srcdir=app.srcdir,
+            config=config,
+            srcdir=None,
         )
         mockfn.assert_any_call(
             target_uri=url1,
             inv_location=url1 + '/' + INVENTORY_FILENAME,
-            config=app.config,
-            srcdir=app.srcdir,
+            config=config,
+            srcdir=None,
         )
 
         project2 = _IntersphinxProject(
@@ -830,12 +830,12 @@ def test_intersphinx_fetch_inventory_group_url(app):
         mockfn.assert_any_call(
             target_uri=url2,
             inv_location=url2,
-            config=app.config,
-            srcdir=app.srcdir,
+            config=config,
+            srcdir=None,
         )
         mockfn.assert_any_call(
             target_uri=url2,
             inv_location=url2 + INVENTORY_FILENAME,
-            config=app.config,
-            srcdir=app.srcdir,
+            config=config,
+            srcdir=None,
         )
