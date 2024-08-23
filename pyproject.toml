@@ -174,7 +174,6 @@ exclude = [
     "^tests/test_extensions/test_ext_doctest\\.py$",
     "^tests/test_extensions/test_ext_inheritance_diagram\\.py$",
     "^tests/test_extensions/test_ext_intersphinx\\.py$",
-    "^tests/test_extensions/test_ext_napoleon\\.py$",
     "^tests/test_extensions/test_ext_napoleon_docstring\\.py$",
     # tests/test_intl
     "^tests/test_intl/test_intl\\.py$",
