@@ -20,7 +20,9 @@ def setup_module():
     nocolor()
 
 
-def mock_input(answers: dict[str, str], needanswer: bool = False) -> Callable[[str], str]:
+def mock_input(
+    answers: dict[str, str], needanswer: bool = False
+) -> Callable[[str], str]:
     called = set()
 
     def input_(prompt: str) -> str:
