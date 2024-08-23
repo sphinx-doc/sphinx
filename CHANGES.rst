@@ -11,18 +11,12 @@ Incompatible changes
 --------------------
 
 * LaTeX: The inclusion of ``amssymb`` LaTeX package is done after the contents
-  of :confval:`latex_elements`\ ``['fontpkg']``, and originates in the new
-  ``'fontpkgmath'`` key of :confval:`latex_elements`.
-
-  - Thus, move custom math font set-up from ``'fontpkg'`` to ``'fontpkgmath'``
-    if needed.
-  - Regarding Unicode latex engines, they do not use ``amssymb`` anymore but
-    XITS Math font via ``unicode-math``, as default of ``'fontpkgmath'``.
-    This fixes some issues and provides math glyphs much better matching GNU
-    FreeSerif which is the default text font.
-  - For ``'pdflatex'`` as :confval:`latex_engine`, it is planned to replace at
-    Sphinx 9 usage of ``amssymb`` by ``stix2`` in order for the math glyphs to
-    much better match the default Times-like text font.
+  of :ref:`fontpkg`, and originates in the new :ref:`fontpkgmath` key of
+  :ref:`latex_elements <latex_elements_confval>`.  Thus, move custom math
+  set-up from :ref:`fontpkg` to :ref:`fontpkgmath` to avoid getting overridden
+  by ``amssymb``.  Regarding Unicode latex engines, they do not use
+  ``amssymb`` anymore, but ``unicode-math`` with the XITS Math font (refs:
+  #12714).
 * #12763: Remove unused internal class ``sphinx.util.Tee``.
   Patch by Adam Turner.
 
