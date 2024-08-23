@@ -79,6 +79,7 @@ Bugs fixed
 * #12714: LaTeX: Let ``\mathbf{\Lambda}`` work as expected if
   :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``, via usage
   of ``unicode-math`` with XITS Math font.
+  Patch by Jean-François B.
 * #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
   :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
   get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
