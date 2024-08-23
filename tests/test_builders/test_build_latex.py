@@ -659,25 +659,25 @@ def test_latex_obey_numfig_secnum_depth_is_zero(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'SphinxManual.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,nonumfigreset,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,nonumfigreset,mathnumfig,mathnumsep={.}]{sphinx}' in result
 
     result = (app.outdir / 'SphinxHowTo.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,nonumfigreset,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,nonumfigreset,mathnumfig,mathnumsep={.}]{sphinx}' in result
 
 
 @pytest.mark.sphinx(
     'latex',
     testroot='latex-numfig',
-    confoverrides={'numfig': True, 'numfig_secnum_depth': 2},
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 2, 'math_numsep': '-'},
 )
 def test_latex_obey_numfig_secnum_depth_is_two(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'SphinxManual.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,numfigreset=2,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,numfigreset=2,mathnumfig,mathnumsep={-}]{sphinx}' in result
 
     result = (app.outdir / 'SphinxHowTo.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,numfigreset=3,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,numfigreset=3,mathnumfig,mathnumsep={-}]{sphinx}' in result
 
 
 @pytest.mark.sphinx(
@@ -1016,7 +1016,8 @@ def test_reference_in_caption_and_codeblock_in_footnote(app):
     assert (
         'This is a reference to the code\\sphinxhyphen{}block in the footnote:\n'
         '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
-        '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}'
+        '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}'
+        '{I am in a footnote}}}}}'
     ) in result
     assert (
         '&\n\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
@@ -2302,3 +2303,30 @@ def test_latex_rubric(app):
     content = (app.outdir / 'test.tex').read_text(encoding='utf8')
     assert r'\subsubsection*{This is a rubric}' in content
     assert r'\subsection*{A rubric with a heading level 2}' in content
+
+
+@pytest.mark.sphinx('latex', testroot='latex-contents-topic-sidebar')
+def test_latex_contents_topic_sidebar(app):
+    app.build()
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
+
+    assert '\\begin{sphinxcontents}\n\\sphinxstylecontentstitle{Contents}\n' in result
+
+    assert (
+        '\\begin{sphinxtopic}\n'
+        '\\sphinxstyletopictitle{Title of topic}\n'
+        '\n'
+        '\\sphinxAtStartPar\n'
+        'text of topic\n'
+        '\\end{sphinxtopic}\n'
+    ) in result
+
+    assert (
+        '\\begin{sphinxsidebar}\n'
+        '\\sphinxstylesidebartitle{Title of sidebar}\n'
+        '\\sphinxstylesidebarsubtitle{sub\\sphinxhyphen{}title}\n'
+        '\n'
+        '\\sphinxAtStartPar\n'
+        'text of sidebar\n'
+        '\\end{sphinxsidebar}\n'
+    ) in result

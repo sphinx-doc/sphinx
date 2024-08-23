@@ -2788,7 +2788,8 @@ These options influence LaTeX output.
    * :code-py:`'uplatex'` -- upLaTeX
      (default if :confval:`language` is :code-py:`'ja'`)
 
-   .. caution::
+   .. important::
+
       ``'pdflatex'``\ 's support for Unicode characters is limited.
       If your project uses Unicode characters,
       setting the engine to ``'xelatex'`` or ``'lualatex'``
@@ -2800,10 +2801,10 @@ These options influence LaTeX output.
 
    .. note::
 
-      Sphinx 2.0 adds support to ``'pdflatex'`` in Latin language document of
-      occasional Cyrillic or Greek letters or words.
-      This is not automatic, see the discussion
-      of the ``'fontenc'`` key in :confval:`latex_elements` .
+      Sphinx 2.0 adds support for occasional Cyrillic and Greek letters or
+      words in documents using a Latin language and ``'pdflatex'``.  To enable
+      this, the :ref:`fontenc` key of :ref:`latex_elements
+      <latex_elements_confval>` must be used appropriately.
 
    .. note::
 
@@ -2813,23 +2814,24 @@ These options influence LaTeX output.
       the only comprehensive solution (as far as we know) is to
       use ``'xelatex'`` or ``'lualatex'`` *and* to add
       ``r'\usepackage{unicode-math}'``
-      (e.g. via the :confval:`latex_elements` ``'preamble'`` key).
+      (e.g. via the :ref:`preamble` key of :ref:`latex_elements
+      <latex_elements_confval>`).
       You may prefer ``r'\usepackage[math-style=literal]{unicode-math}'``
       to keep a Unicode literal such as ``α`` (U+03B1) as-is in output,
       rather than being rendered as :math:`\alpha`.
 
    .. versionchanged:: 2.1.0
-      Use ``xelatex`` (and LaTeX package ``xeCJK``)
+      Use ``'xelatex'`` (and LaTeX package ``xeCJK``)
       by default for Chinese documents.
 
    .. versionchanged:: 2.2.1
-      Use ``xelatex`` by default for Greek documents.
+      Use ``'xelatex'`` by default for Greek documents.
 
    .. versionchanged:: 2.3
-      Add ``uplatex`` support.
+      Add ``'uplatex'`` support.
 
    .. versionchanged:: 4.0
-      Use ``uplatex`` by default for Japanese documents.
+      Use ``'uplatex'`` by default for Japanese documents.
 
 .. confval:: latex_documents
    :type: :code-py:`Sequence[tuple[str, str, str, str, str, bool]]`
@@ -2899,16 +2901,16 @@ These options influence LaTeX output.
    :type: :code-py:`'part' | 'chapter' | 'section'`
    :default: :code-py:`None`
 
-   This value determines the topmost sectioning unit.
-   By default,  the topmost sectioning unit is switched by documentclass:
-   ``section`` is used if documentclass will be ``howto``,
-   otherwise ``chapter`` is used be used.
+   This value determines the topmost sectioning unit.  The default setting is
+   ``'section'`` if :confval:`latex_theme` is ``'howto'``, and ``'chapter'``
+   if it is ``'manual'``.  The alternative in both cases is to specify
+   ``'part'``, which means that LaTeX document will use the :code-tex:`\\part`
+   command.
 
-   Note that if LaTeX uses :code-tex:`\\part` command,
-   then the numbering of sectioning units one level deep gets off-sync
-   with HTML numbering,
-   because LaTeX numbers :code-tex:`\\chapter` continuously
-   (or :code-tex:`\\section` for ``howto``).
+   In that case the numbering of sectioning units one level deep gets off-sync
+   with HTML numbering, as by default LaTeX does not reset
+   :code-tex:`\\chapter` numbering (or :code-tex:`\\section` for ``'howto'``
+   theme) when encountering :code-tex:`\\part` command.
 
    .. versionadded:: 1.4
 
@@ -3107,7 +3109,7 @@ These options influence LaTeX output.
    Use Xindy_ to prepare the index of general terms.
    By default, the LaTeX builder uses :program:`makeindex`
    for preparing the index of general terms .
-   This means that words with UTF-8 characters will be
+   Using Xindy_ means that words with UTF-8 characters will be
    ordered correctly for the :confval:`language`.
 
    .. _Xindy: https://xindy.sourceforge.net/
@@ -3131,7 +3133,7 @@ These options influence LaTeX output.
    for using :code-py:`'pdflatex'` engine with Cyrillic scripts.
    With both :code-py:`'pdflatex'` and Unicode engines,
    Cyrillic documents handle the indexing of Latin names correctly,
-   even with diacritics.
+   even those having diacritics.
 
    .. versionadded:: 1.8
 
@@ -3167,12 +3169,9 @@ These options influence LaTeX output.
    A list of file names, relative to the :term:`configuration directory`,
    to copy to the build directory when building LaTeX output.
    This is useful to copy files that Sphinx doesn't copy automatically,
-   e.g. if they are referenced in custom LaTeX added in ``latex_elements``.
+   or to overwrite Sphinx LaTeX support files with custom versions.
    Image files that are referenced in source files (e.g. via ``.. image::``)
-   are copied automatically.
-
-   You have to make sure yourself that the filenames don't collide with those
-   of any automatically copied files.
+   are copied automatically and should not be listed there.
 
    .. attention::
       Filenames with the ``.tex`` extension will be automatically

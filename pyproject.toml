@@ -87,7 +87,7 @@ lint = [
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20240218",
     "types-docutils==0.21.0.20240724",
-    "types-Pillow==10.2.0.20240520",
+    "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.18.0.20240506",
     "types-requests>=2.30.0",  # align with requests
     "tomli>=2",  # for mypy (Python<=3.10)
