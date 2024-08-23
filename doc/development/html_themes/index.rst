@@ -241,13 +241,13 @@ Styling search result entries by category
 The search result items have classes indicating the context in which the
 search term was found. You can use the CSS selectors:
 
-- ``ul.search li.context-index``:
+- ``ul.search li.kind-index``:
   For results in an index, such as the glossary
-- ``ul.search li.context-object``:
+- ``ul.search li.kind-object``:
   For results in source code, like Python function definitions
-- ``ul.search li.context-title``:
+- ``ul.search li.kind-title``:
   For results found in section headings
-- ``ul.search li.context-text``:
+- ``ul.search li.kind-text``:
   For results found anywhere else in the documentation text
 
 As a base for inheritance by other themes, the ``basic`` theme is
@@ -265,16 +265,16 @@ search result list:
         padding: 5px 0 5px 10px;
         list-style-type: "\25A1";  /* Unicode: White Square */
     }
-    ul.search li.context-index {
+    ul.search li.kind-index {
         list-style-type: "\1F4D1";  /* Unicode: Bookmark Tabs */
     }
-    ul.search li.context-object {
+    ul.search li.kind-object {
         list-style-type: "\1F4E6";  /* Unicode: Package */
     }
-    ul.search li.context-title {
+    ul.search li.kind-title {
         list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
     }
-    ul.search li.context-text {
+    ul.search li.kind-text {
         list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
     }
 
