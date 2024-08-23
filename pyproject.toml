@@ -167,7 +167,6 @@ exclude = [
     # tests/test_extensions
     "^tests/test_extensions/test_ext_apidoc\\.py$",
     "^tests/test_extensions/test_ext_autodoc\\.py$",
-    "^tests/test_extensions/test_ext_autodoc_autofunction\\.py$",
     "^tests/test_extensions/test_ext_autodoc_events\\.py$",
     "^tests/test_extensions/test_ext_autodoc_mock\\.py$",
     "^tests/test_extensions/test_ext_autosummary\\.py$",
