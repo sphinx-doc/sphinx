@@ -11,7 +11,7 @@ PDFLATEX_DEFAULT_FONTPKG = r'''
 '''
 
 PDFLATEX_DEFAULT_FONTPKGMATH = r'''
-\usepackage{amssymb}% will become stix2 with suitable options at Sphinx 9
+\usepackage{amssymb}% may become stix2 at some future version
 '''
 
 PDFLATEX_DEFAULT_FONTSUBSTITUTION = r'''
