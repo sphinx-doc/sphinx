@@ -892,6 +892,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
+        assert not self.orphan_tp_list
         self.body.append('}' + CR + '{')
 
     def visit_desc_type_parameter_list(self, node: Element) -> None:
