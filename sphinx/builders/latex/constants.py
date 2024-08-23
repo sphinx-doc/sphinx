@@ -67,14 +67,18 @@ XELATEX_DEFAULT_FONTPKGMATH = r'''
 \setmathfont{XITSMath-Regular.otf}[
     StylisticSet=1,% choice of shape for "\mathcal"
     BoldFont=XITSMath-Bold.otf,
+    ItalicFont=XITS-Italic.otf,% text only (\mathit)
+    BoldItalicFont=XITS-BoldItalic.otf,% text only
     NFSSFamily=XITS,
 ]
 \makeatletter
 \AtBeginDocument{%
   % work around unicode-math problems with \mathbf{\Gamma} et al.
   \SetMathAlphabet{\mathrm}{normal}{TU}{XITS}{m}{n}
+  \SetMathAlphabet{\mathit}{normal}{TU}{XITS}{m}{it}
   \SetMathAlphabet{\mathbf}{normal}{TU}{XITS}{b}{n}
   \SetMathAlphabet{\mathrm}{bold}{TU}{XITS}{b}{n}
+  \SetMathAlphabet{\mathit}{bold}{TU}{XITS}{b}{it}
   \SetMathAlphabet{\mathbf}{bold}{TU}{XITS}{b}{n}
   \def\Gamma{Γ}
   \def\Delta{Δ}
