@@ -1,10 +1,10 @@
 """Test the sphinx.quickstart module."""
 
-from collections.abc import Callable
-from pathlib import Path
 import time
+from collections.abc import Callable
 from io import StringIO
 from os import path
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -20,7 +20,7 @@ def setup_module():
     nocolor()
 
 
-def mock_input(answers: dict[str, str], needanswer: bool=False) -> Callable[[str], str]:
+def mock_input(answers: dict[str, str], needanswer: bool = False) -> Callable[[str], str]:
     called = set()
 
     def input_(prompt: str) -> str:
