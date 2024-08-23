@@ -139,7 +139,6 @@ files = ["sphinx", "utils", "tests"]
 exclude = [
     "tests/roots",
     # tests/
-    "^tests/test_events\\.py$",
     "^tests/test_quickstart\\.py$",
     "^tests/test_search\\.py$",
     # tests/test_builders
