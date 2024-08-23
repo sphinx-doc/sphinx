@@ -1,11 +1,8 @@
-[build-system]
-requires = ["flit_core>=3.7"]
-build-backend = "flit_core.buildapi"
-
 # project metadata
 [project]
 name = "Sphinx"
 description = "Python documentation generator"
+authors = [{ name = "Georg Brandl", email = "georg@python.org" }]
 readme = "README.rst"
 urls.Changelog = "https://www.sphinx-doc.org/en/master/changes.html"
 urls.Code = "https://github.com/sphinx-doc/sphinx"
@@ -75,11 +72,12 @@ dependencies = [
 ]
 dynamic = ["version"]
 
-[project.optional-dependencies]
-docs = [
+[tool.uv]
+dev-dependencies = [
+    # docs
     "sphinxcontrib-websupport",
-]
-lint = [
+
+    # lint
     "flake8>=6.0",
     "ruff==0.6.8",
     "mypy==1.11.1",
@@ -93,47 +91,16 @@ lint = [
     "types-urllib3==1.26.25.14",
     "tomli>=2",  # for mypy (Python<=3.10)
     "pyright==1.1.382.post0",
+    "types-requests>=2.30.0",           # align with requests
+    "tomli>=2",                         # for mypy (Python<=3.10)
     "pytest>=6.0",
-]
-test = [
+
+    # test
     "pytest>=8.0",
-    "defusedxml>=0.7.1", # for secure XML/HTML parsing
+    "defusedxml>=0.7.1",      # for secure XML/HTML parsing
     "cython>=3.0",
-    "setuptools>=70.0",  # for Cython compilation
-    "typing_extensions>=4.9",  # for typing_extensions.Unpack
-]
-
-[[project.authors]]
-name = "Georg Brandl"
-email = "georg@python.org"
-
-[project.scripts]
-sphinx-build = "sphinx.cmd.build:main"
-sphinx-quickstart = "sphinx.cmd.quickstart:main"
-sphinx-apidoc = "sphinx.ext.apidoc:main"
-sphinx-autogen = "sphinx.ext.autosummary.generate:main"
-
-[tool.flit.module]
-name = "sphinx"
-
-[tool.flit.sdist]
-include = [
-    "LICENSE.rst",
-    "AUTHORS.rst",
-    "CHANGES.rst",
-    # Documentation
-    "doc/",
-    "CODE_OF_CONDUCT.rst",  # used as an include in the Documentation
-    "EXAMPLES.rst",  # used as an include in the Documentation
-    # Tests
-    "tests/",
-    "tox.ini",
-    # Utilities
-    "utils/",
-    "babel.cfg",
-]
-exclude = [
-    "doc/_build",
+    "setuptools>=70.0",       # for Cython compilation
+    "typing_extensions>=4.9", # for typing_extensions.Unpack
 ]
 
 [tool.mypy]
@@ -257,16 +224,11 @@ module = [
 disallow_any_generics = false
 
 [[tool.mypy.overrides]]
-module = [
-    "imagesize",
-    "snowballstemmer",
-]
+module = ["imagesize", "snowballstemmer"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = [
-    "tests.*",
-]
+module = ["tests.*"]
 disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
@@ -274,7 +236,7 @@ minversion = "6.0"
 addopts = [
     "-ra",
     "--import-mode=prepend",
-#    "--pythonwarnings=error",
+    #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
 ]
@@ -288,9 +250,7 @@ filterwarnings = [
     "ignore::ImportWarning:importlib._bootstrap",
 ]
 log_cli_level = "INFO"
-markers = [
-    "apidoc",
-]
+markers = ["apidoc"]
 testpaths = ["tests"]
 xfail_strict = true
 
