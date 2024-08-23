@@ -174,7 +174,7 @@ Keys that you may want to override include:
 .. _fontpkg:
 
 ``'fontpkg'``
-   Font package inclusion. The default is::
+   Font package inclusion. The default with ``'pdflatex'`` is::
 
       r"""\usepackage{tgtermes}
       \usepackage{tgheros}
@@ -194,6 +194,7 @@ Keys that you may want to override include:
    .. versionchanged:: 2.0
       Incorporates some font substitution commands to help support occasional
       Greek or Cyrillic in a document using ``'pdflatex'`` engine.
+      At 4.0.0 these commands were moved to the ``'fontsubstitution'`` key.
 
    .. versionchanged:: 4.0.0
       The default font setting was changed.  As shown above it still uses
