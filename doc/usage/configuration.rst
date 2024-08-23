@@ -2806,20 +2806,6 @@ These options influence LaTeX output.
       this, the :ref:`fontenc` key of :ref:`latex_elements
       <latex_elements_confval>` must be used appropriately.
 
-   .. note::
-
-      Contrarily to :ref:`MathJaX math rendering in HTML output <math-support>`,
-      LaTeX requires some extra configuration to support Unicode literals in
-      :rst:dir:`math`:
-      the only comprehensive solution (as far as we know) is to
-      use ``'xelatex'`` or ``'lualatex'`` *and* to add
-      ``r'\usepackage{unicode-math}'``
-      (e.g. via the :ref:`preamble` key of :ref:`latex_elements
-      <latex_elements_confval>`).
-      You may prefer ``r'\usepackage[math-style=literal]{unicode-math}'``
-      to keep a Unicode literal such as ``α`` (U+03B1) as-is in output,
-      rather than being rendered as :math:`\alpha`.
-
    .. versionchanged:: 2.1.0
       Use ``'xelatex'`` (and LaTeX package ``xeCJK``)
       by default for Chinese documents.
@@ -2832,6 +2818,13 @@ These options influence LaTeX output.
 
    .. versionchanged:: 4.0
       Use ``'uplatex'`` by default for Japanese documents.
+
+   .. versionchanged:: 8.1.0
+      ``'xelatex'`` and ``'lualatex'`` trigger inclusion of the LaTeX
+      ``unicode-math`` package and as a result, Unicode literals are
+      allowed in math mode (but their shapes may be normalized by
+      ``unicode-math``).  You can customize this via the
+      :ref:`fontpkgmath` key of :confval:`latex_elements`.
 
 .. confval:: latex_documents
    :type: :code-py:`Sequence[tuple[str, str, str, str, str, bool]]`

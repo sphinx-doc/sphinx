@@ -237,8 +237,7 @@ The most common builders are:
 
    * ``texlive-latex-recommended``
    * ``texlive-fonts-recommended``
-   * ``texlive-fonts-extra`` (needed for ``fontawesome5``, see the 7.4.0
-     change notice below)
+   * ``texlive-fonts-extra``
    * ``tex-gyre`` (if :confval:`latex_engine` left to default)
    * ``texlive-latex-extra``
    * ``latexmk``
@@ -249,8 +248,9 @@ The most common builders are:
    .. versionchanged:: 7.4.0
       LaTeX package ``xcolor`` is now required (it is part of Ubuntu
       ``texlive-latex-recommended`` anyhow).  The LaTeX package
-      ``fontawesome5`` is recommended.  See the :ref:`'sphinxsetup'
-      <latexsphinxsetup>` ``iconpackage`` key for more.
+      ``fontawesome5`` is recommended (part of Ubuntu ``texlive-fonts-extra``).
+      See the :ref:`'sphinxsetup' <latexsphinxsetup>` ``iconpackage`` key for
+      more.
 
    Additional packages are needed in some circumstances:
 

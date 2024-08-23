@@ -10,6 +10,19 @@ Dependencies
 Incompatible changes
 --------------------
 
+* LaTeX: The inclusion of ``amssymb`` LaTeX package is done after the contents
+  of :confval:`latex_elements`\ ``['fontpkg']``, and originates in the new
+  ``'fontpkgmath'`` key of :confval:`latex_elements`.
+
+  - Thus, move custom math font set-up from ``'fontpkg'`` to ``'fontpkgmath'``
+    if needed.
+  - Regarding Unicode latex engines, they do not use ``amssymb`` anymore but
+    XITS Math font via ``unicode-math``, as default of ``'fontpkgmath'``.
+    This fixes some issues and provides math glyphs much better matching GNU
+    FreeSerif which is the default text font.
+  - For ``'pdflatex'`` as :confval:`latex_engine`, it is planned to replace at
+    Sphinx 9 usage of ``amssymb`` by ``stix2`` in order for the math glyphs to
+    much better match the default Times-like text font.
 * #12763: Remove unused internal class ``sphinx.util.Tee``.
   Patch by Adam Turner.
 
@@ -69,6 +82,9 @@ Bugs fixed
   Patch by Hugo van Kemenade.
 * #12645: Correctly support custom gettext output templates.
   Patch by Jeremy Bowman.
+* #12714: LaTeX: Let ``\mathbf{\Lambda}`` work as expected if
+  :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``, via usage
+  of ``unicode-math`` with XITS Math font.
 * #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
   :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
   get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
