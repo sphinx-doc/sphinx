@@ -82,6 +82,29 @@ sphinx-autogen = "sphinx.ext.autosummary.generate:main"
 requires = ["flit_core >=3.9,<4"]
 build-backend = "flit_core.buildapi"
 
+[tool.flit.module]
+name = "sphinx"
+
+[tool.flit.sdist]
+include = [
+    "LICENSE.rst",
+    "AUTHORS.rst",
+    "CHANGES.rst",
+    # Documentation
+    "doc/",
+    "CODE_OF_CONDUCT.rst",  # used as an include in the Documentation
+    "EXAMPLES.rst",  # used as an include in the Documentation
+    # Tests
+    "tests/",
+    "tox.ini",
+    # Utilities
+    "utils/",
+    "babel.cfg",
+]
+exclude = [
+    "doc/_build",
+]
+
 [tool.uv]
 dev-dependencies = [
     # docs
