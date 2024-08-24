@@ -202,6 +202,43 @@ Keys that you may want to override include:
       more complete TeX fonts and associated LaTeX packages.  The monospace
       font has been changed to better match the Times clone.
 
+   .. versionchanged:: 8.1.0 Custom configuration of math fonts, if any,
+      should be done via the ``'fontpkgmath'`` key, which is new at 8.1.0.
+
+.. _fontpkgmath:
+
+``'fontpkgmath'``
+   LaTeX configuration for math fonts, which is executed after contents of
+   ``'fontpkg'``.  It defaults to:
+
+   - :code-tex:`r'\\usepackage{amssymb}'` if :confval:`latex_engine` is set to
+     ``'pdflatex'`` (or ``'uplatex'``).
+
+   - :code-tex:`r'\\usepackage{unicode-math}'` for ``'xelatex'`` and
+     ``'lualatex'`` with extras to set the math font to XITS Math.  It also
+     allows mark-up such as :code-tex:`\\mathbf{\\Gamma}` (which is already
+     legit both for HTML and for PDF via ``'pdflatex'``).
+
+     .. hint::
+
+        Use :code-tex:`\\boldsymbol` for boldening *lowercase* Greek letter,
+        :code-tex:`\\boldsymbol{\\alpha\\beta\\gamma}`.
+
+   .. versionadded:: 8.1.0
+      The default TeX math fonts, and their AMS extensions loaded via
+      :code-tex:`\\usepackage{amssymb}` (a package whose usage could formerly
+      not be canceled, only overriden via additional math packages in
+      ``'fontpkg'``), do not fit well with most text fonts (they are much
+      thinner), the quasi sole exceptions being the original Computer Modern
+      text fonts and their close derivatives the Latin Modern text fonts.
+
+      Sphinx sets up per default a Times-alike font for text, which does not
+      fit well with LaTeX default math fonts (in particuler for Greek
+      letters).  This is solved for ``'xelatex'`` and ``'lualatex'`` via usage
+      of XITS Math font.  A possibility in future for ``'pdflatex'`` could be
+      for Sphinx to use the ``'fontpkgmath'`` key to inject usage of the
+      ``stix2`` package in replacement of ``amssymb``.
+
 ``'fncychap'``
    Inclusion of the "fncychap" package (which makes fancy chapter titles),
    default :code-tex:`r'\\usepackage[Bjarne]{fncychap}'` for English documentation

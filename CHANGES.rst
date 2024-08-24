@@ -10,6 +10,13 @@ Dependencies
 Incompatible changes
 --------------------
 
+* LaTeX: The inclusion of ``amssymb`` LaTeX package is done after the contents
+  of :ref:`fontpkg`, and originates in the new :ref:`fontpkgmath` key of
+  :ref:`latex_elements <latex_elements_confval>`.  Thus, move custom math
+  set-up from :ref:`fontpkg` to :ref:`fontpkgmath` to avoid getting overridden
+  by ``amssymb``.  Regarding Unicode latex engines, they do not use
+  ``amssymb`` anymore, but ``unicode-math`` with the XITS Math font (refs:
+  #12714).
 * #12763: Remove unused internal class ``sphinx.util.Tee``.
   Patch by Adam Turner.
 
@@ -69,6 +76,10 @@ Bugs fixed
   Patch by Hugo van Kemenade.
 * #12645: Correctly support custom gettext output templates.
   Patch by Jeremy Bowman.
+* #12714: LaTeX: Let ``\mathbf{\Lambda}`` work as expected if
+  :confval:`latex_engine` is ``'xelatex'`` or ``'lualatex'``, via usage
+  of ``unicode-math`` with XITS Math font.
+  Patch by Jean-François B.
 * #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
   :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
   get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`

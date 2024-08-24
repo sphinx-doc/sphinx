@@ -10,6 +10,10 @@ PDFLATEX_DEFAULT_FONTPKG = r'''
 \renewcommand{\ttdefault}{txtt}
 '''
 
+PDFLATEX_DEFAULT_FONTPKGMATH = r'''
+\usepackage{amssymb}% may become stix2 at some future version
+'''
+
 PDFLATEX_DEFAULT_FONTSUBSTITUTION = r'''
 \expandafter\ifx\csname T@LGR\endcsname\relax
 \else
@@ -58,12 +62,54 @@ XELATEX_DEFAULT_FONTPKG = r'''
 ]
 '''
 
+XELATEX_DEFAULT_FONTPKGMATH = r'''
+\usepackage{unicode-math}
+\setmathfont{XITSMath-Regular.otf}[
+    StylisticSet=1,% choice of shape for "\mathcal"
+    BoldFont=XITSMath-Bold.otf,
+    ItalicFont=XITS-Italic.otf,% text only (\mathit)
+    BoldItalicFont=XITS-BoldItalic.otf,% text only
+    NFSSFamily=XITS,
+]
+\makeatletter
+\AtBeginDocument{%
+  % work around unicode-math problems with \mathbf{\Gamma} et al.
+  \SetMathAlphabet{\mathrm}{normal}{TU}{XITS}{m}{n}
+  \SetMathAlphabet{\mathit}{normal}{TU}{XITS}{m}{it}
+  \SetMathAlphabet{\mathbf}{normal}{TU}{XITS}{b}{n}
+  \SetMathAlphabet{\mathrm}{bold}{TU}{XITS}{b}{n}
+  \SetMathAlphabet{\mathit}{bold}{TU}{XITS}{b}{it}
+  \SetMathAlphabet{\mathbf}{bold}{TU}{XITS}{b}{n}
+  \def\Gamma{Γ}
+  \def\Delta{Δ}
+  \def\Theta{Θ}
+  \def\Lambda{Λ}
+  \def\Xi{Ξ}
+  \def\Pi{Π}
+  \def\Sigma{Σ}
+  \def\Upsilon{Υ}
+  \def\Phi{Φ}
+  \def\Psi{Ψ}
+  \def\Omega{Ω}
+  % Make subscripts a bit larger for legibility
+  \def\defaultscriptratio{.8}
+  \def\defaultscriptscriptratio{.6}
+  \DeclareMathSizes{9}{9}{7}{5}
+  \DeclareMathSizes{\@xpt}{\@xpt}{8}{6}
+  \DeclareMathSizes{\@xipt}{\@xipt}{8.76}{6.57}
+  \DeclareMathSizes{\@xiipt}{\@xiipt}{9.6}{7.2}
+  \DeclareMathSizes{\@xivpt}{\@xivpt}{11.52}{8.64}
+}
+\makeatother
+'''
+
 XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
                                  '\n\\newfontfamily\\greekfont{FreeSerif}' +
                                  '\n\\newfontfamily\\greekfontsf{FreeSans}' +
                                  '\n\\newfontfamily\\greekfonttt{FreeMono}')
 
 LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
+LUALATEX_DEFAULT_FONTPKGMATH = XELATEX_DEFAULT_FONTPKGMATH
 
 DEFAULT_SETTINGS: dict[str, Any] = {
     'latex_engine':    'pdflatex',
@@ -82,11 +128,12 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     'utf8extra':       '',
     'cmappkg':         '\\usepackage{cmap}',
     'fontenc':         '\\usepackage[T1]{fontenc}',
-    'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
+    'amsmath':         '\\usepackage{amsmath,amstext}',
     'multilingual':    '',
     'babel':           '\\usepackage{babel}',
     'polyglossia':     '',
     'fontpkg':         PDFLATEX_DEFAULT_FONTPKG,
+    'fontpkgmath':     PDFLATEX_DEFAULT_FONTPKGMATH,
     'fontsubstitution': PDFLATEX_DEFAULT_FONTSUBSTITUTION,
     'substitutefont':  '',
     'textcyrillic':    '',
@@ -142,6 +189,7 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      XELATEX_DEFAULT_FONTPKG,
+        'fontpkgmath':  XELATEX_DEFAULT_FONTPKGMATH,
         'fvset':        '\\fvset{fontsize=\\small}',
         'fontsubstitution': '',
         'textgreek':    '',
@@ -155,6 +203,7 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
+        'fontpkgmath':  LUALATEX_DEFAULT_FONTPKGMATH,
         'fvset':        '\\fvset{fontsize=\\small}',
         'fontsubstitution': '',
         'textgreek':    '',
@@ -166,6 +215,7 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
         'babel':        '',
         'classoptions': ',dvipdfmx',
         'fontpkg':      PDFLATEX_DEFAULT_FONTPKG,
+        'fontpkgmath':  PDFLATEX_DEFAULT_FONTPKGMATH,
         'fontsubstitution': '',
         'textgreek':    '',
         'fncychap':     '',
@@ -176,6 +226,7 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
         'babel':        '',
         'classoptions': ',dvipdfmx',
         'fontpkg':      PDFLATEX_DEFAULT_FONTPKG,
+        'fontpkgmath':  PDFLATEX_DEFAULT_FONTPKGMATH,
         'fontsubstitution': '',
         'textgreek':    '',
         'fncychap':     '',

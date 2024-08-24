@@ -16,6 +16,8 @@ texlive-tex-gyre [platform:rpm]
 texlive-pict2e [platform:rpm]
 texlive-fontawesome5 [platform:rpm]
 texlive-xcolor [platform:rpm]
+texlive-unicode-math [platform:rpm]
+texlive-xits [platform:rpm]
 latexmk [platform:rpm]
 
 texlive-latex-recommended [platform:dpkg]
