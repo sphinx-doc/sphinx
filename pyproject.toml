@@ -72,6 +72,16 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.scripts]
+sphinx-build = "sphinx.cmd.build:main"
+sphinx-quickstart = "sphinx.cmd.quickstart:main"
+sphinx-apidoc = "sphinx.ext.apidoc:main"
+sphinx-autogen = "sphinx.ext.autosummary.generate:main"
+
+[build-system]
+requires = ["flit_core >=3.9,<4"]
+build-backend = "flit_core.buildapi"
+
 [tool.uv]
 dev-dependencies = [
     # docs
