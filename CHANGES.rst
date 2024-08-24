@@ -67,6 +67,10 @@ Bugs fixed
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
   Patch by James Addison (with reference to prior work by Eric Norige)
+* #12796: Enable parallel reading if requested,
+  even if there are fewer than 6 documents.
+  Patch by Matthias Geier.
+
 
 Testing
 -------
