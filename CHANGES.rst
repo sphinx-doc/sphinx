@@ -12,6 +12,11 @@ Incompatible changes
 
 * #12763: Remove unused internal class ``sphinx.util.Tee``.
   Patch by Adam Turner.
+* #12822: LaTeX: for Unicode engines, the :ref:`fvset` default is changed to
+  ``'\\fvset{fontsize=auto}'`` from ``'\\fvset{fontsize=\\small}'``.
+  Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
+  An adjustement to existing projects is needed only if they used a custom
+  :ref:`fontpkg` configuration and did not set :ref:`fvset`.
 
 Deprecated
 ----------

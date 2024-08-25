@@ -571,10 +571,12 @@ Keys that don't need to be overridden unless in special cases are:
 ``'fvset'``
    Customization of ``fancyvrb`` LaTeX package.
 
-   The default value is :code-tex:`r'\\fvset{fontsize=auto}'` which means that the
-   font size will adjust correctly if a code-block ends up in a footnote.
-   You may need to modify this if you use custom fonts, for example to use
-   :code-tex:`r'\\fvset{fontsize=\\small}'` if the monospace font is Courier-like.
+   The default value is :code-tex:`r'\\fvset{fontsize=auto}'` which means that
+   the font size will adjust correctly if a code-block ends up in a footnote.
+   You may need to modify this when using a custom monospace font, for example
+   set it to :code-tex:`r'\\fvset{fontsize=\\small}'` if it is Courier-like
+   (for Unicode engines, it is recommended to use rather the ``Scale``
+   interface of :code-tex:`\\setmonofont` LaTeX command from ``fontspec``).
 
    Default: :code-tex:`r'\\fvset{fontsize=auto}'`
 
