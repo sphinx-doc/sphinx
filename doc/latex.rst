@@ -185,7 +185,7 @@ Keys that you may want to override include:
    :code-tex:`\\setmainfont`, :code-tex:`\\setsansfont` and
    :code-tex:`\\setmonofont` commands of LaTeX package ``fontspec`` (included
    via :ref:`fontenc`) are used to set up the OpenType fonts GNU FreeSerif,
-   FreeSans, and FreeMono as document fonts.
+   FreeSans, and FreeMono (scaled with ratio ``0.9``) as document fonts.
 
    .. versionchanged:: 1.2
       Defaults to ``''`` when the :confval:`language` uses the Cyrillic
@@ -201,6 +201,13 @@ Keys that you may want to override include:
       Times and Helvetica clones for serif and sans serif, but via better,
       more complete TeX fonts and associated LaTeX packages.  The monospace
       font has been changed to better match the Times clone.
+
+   .. versionchanged:: 8.1.0
+      The monospace font FreeMono used with Unicode engines is loaded at scale
+      ``0.9``.  This replaces the former mechanism via :ref:`fvset` which
+      configured code-blocks to use :code-tex:`\\small`.  Inline literals now
+      fit better in their surrounding text, and it is easier to set up custom
+      fonts, as :ref:`fvset` does not intervene anymore by default.
 
 ``'fncychap'``
    Inclusion of the "fncychap" package (which makes fancy chapter titles),
@@ -416,7 +423,7 @@ Keys that don't need to be overridden unless in special cases are:
 
 ``'fontsubstitution'``
    Ignored if ``'fontenc'`` was not configured to use ``LGR`` or ``X2`` (or
-   ``T2A``).  In case ``'fontpkg'`` key is configured for usage with some
+   ``T2A``).  In case :ref:`fontpkg` key is configured for usage with some
    TeX fonts known to be available in the ``LGR`` or ``X2`` encodings, set
    this one to be the empty string.  Else leave to its default.
 
@@ -468,7 +475,7 @@ Keys that don't need to be overridden unless in special cases are:
       The location in the LaTeX file has been moved to after
       :code-tex:`\\usepackage{sphinx}` and :code-tex:`\\sphinxsetup{..}`,
       hence also after
-      insertion of ``'fontpkg'`` key. This is in order to handle the paper
+      insertion of :ref:`fontpkg` key. This is in order to handle the paper
       layout options in a special way for Japanese documents: the text
       width will be set to an integer multiple of the *zenkaku* width, and
       the text height to an integer multiple of the baseline. See the
@@ -559,12 +566,14 @@ Keys that don't need to be overridden unless in special cases are:
 
    Default: :code-tex:`r'\\printindex'`
 
+.. _fvset:
+
 ``'fvset'``
    Customization of ``fancyvrb`` LaTeX package.
 
    The default value is :code-tex:`r'\\fvset{fontsize=auto}'` which means that the
    font size will adjust correctly if a code-block ends up in a footnote.
-   You may need to modify this if you use custom fonts:
+   You may need to modify this if you use custom fonts, for example to use
    :code-tex:`r'\\fvset{fontsize=\\small}'` if the monospace font is Courier-like.
 
    Default: :code-tex:`r'\\fvset{fontsize=auto}'`
@@ -583,6 +592,12 @@ Keys that don't need to be overridden unless in special cases are:
    .. versionchanged:: 4.1.0
       Changed default for Chinese documents to
       :code-tex:`r'\\fvset{fontsize=\\small,formatcom=\\xeCJKVerbAddon}'`
+
+   .. versionchanged:: 8.1.0
+      Changed default for ``'xelatex'`` and ``'lualatex'`` to be also
+      :code-tex:`r'\\fvset{fontsize=auto}'`.  The rescaling for default
+      monospace font FreeMono is now set via the LaTeX package ``fontspec``
+      interface rather.  See :ref:`fontpkg`.
 
 Keys that are set by other options and therefore should not be overridden are:
 
@@ -1439,19 +1454,12 @@ The next keys, for admonitions, :dudir:`topic`, contents_, and
        tokens; it does color the line numbers, but if one wants to color
        *only* them one has to go through the ``fancyvrb`` interface.
 
-     - ``pre_TeXextras=\footnotesize`` for example may be replaced by usage of
-       the :confval:`latex_elements` key ``'fvset'``.  For ``'lualatex'`` or
-       ``'xelatex'`` Sphinx includes in the preamble already
-       :code-tex:`\\fvset{fontsize=\\small}` and this induces ``fancyvrb``
-       into overriding a :code-tex:`\\footnotesize` coming from
-       ``pre_TeXextras``.  One has to use
-       :code-tex:`pre_TeXextras=\\fvset{fontsize=\\footnotesize}` syntax.
-       Simpler to set directly the :confval:`latex_elements` key
-       ``'fvset'``...
+     - ``pre_TeXextras=\footnotesize`` (as an example) is equivalent to setting
+       :ref:`fvset` key value to :code-tex:`r'\\fvset{fontsize=\\footnotesize}'`.
 
      Consider these options experimental and that some implementation details
      may change.  For example if the ``pre_TeXextras`` LaTeX commands were put
-     by Sphinx in another location it could override the ``'fvset'`` effect,
+     by Sphinx in another location it could override the :ref:`fvset` effect,
      perhaps this is what will be done in a future release.
 
    - Rounded boxes are done using the pict2e_ interface to some basic PDF
