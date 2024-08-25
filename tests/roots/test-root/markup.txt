@@ -469,3 +469,9 @@ Smart quotes
 
 .. [#] Like footnotes.
 
+
+Link in a title: `Field lists <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists>`_
+---------------------------------------------------------------------------------------------------------------------
+
+Again: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists
+------------------------------------------------------------------------------------------

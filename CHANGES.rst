@@ -31,6 +31,8 @@ Features added
 Bugs fixed
 ----------
 
+* #12821: LaTeX: URLs/links in section titles should render in PDF.
+  Patch by Jean-François B.
 * #13369: Correctly parse and cross-reference unpacked type annotations.
   Patch by Alicia Garcia-Raboso.
 * #13528: Add tilde ``~`` prefix support for :rst:role:`py:deco`.
