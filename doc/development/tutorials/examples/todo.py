@@ -53,9 +53,9 @@ def get_all_todos(env: BuildEnvironment) -> Iterator[list[TodoInfo]]:
     Changes to the 'all_todos' list are saved back to the build environment once the context
     manager exits.
     """
-    all_todos: list[TodoInfo] = getattr(env, '__todo_all_todos', [])
+    all_todos: list[TodoInfo] = getattr(env, '_todo_all_todos', [])
     yield all_todos
-    env.__todo_all_todos = all_todos  # type: ignore[attr-defined]
+    env._todo_all_todos = all_todos  # type: ignore[attr-defined]
 
 
 class TodoDirective(SphinxDirective):
