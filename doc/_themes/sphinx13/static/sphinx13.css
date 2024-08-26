@@ -704,7 +704,8 @@ ul.search li {
     padding: 5px 0 5px 10px;
 }
 
-/* note: these rules apply to search results from the built-in Sphinx HTML/JS search engine */
+/* note: these rules apply to search results from the built-in Sphinx HTML/JS search engine
+   and only take effect in dev builds. The released docs use the ReadTheDocs search engine and are not affected. */
 ul.search li.kind-index {
     list-style-type: "\1F4D1";  /* Unicode: Bookmark Tabs */
 }
