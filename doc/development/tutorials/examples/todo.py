@@ -46,9 +46,16 @@ class TodolistDirective(Directive):
 
 @contextmanager
 def get_all_todos(env: BuildEnvironment) -> Iterator[list[TodoInfo]]:
-    all_todos: list[TodoInfo] = getattr(env, 'todo_all_todos', [])
+    """A context manager for accessing plugin state stored in the build environment.
+
+    This state should never be accessed directly, only using this helper method.
+
+    Changes to the 'all_todos' list are saved back to the build environment once the context
+    manager exits.
+    """
+    all_todos: list[TodoInfo] = getattr(env, '__todo_all_todos', [])
     yield all_todos
-    env.todo_all_todos = all_todos  # type: ignore[attr-defined]
+    env.__todo_all_todos = all_todos  # type: ignore[attr-defined]
 
 
 class TodoDirective(SphinxDirective):
