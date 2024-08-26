@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
@@ -25,8 +24,7 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-@dataclass
-class TodoInfo:
+class TodoInfo(NamedTuple):
     docname: str
     lineno: int
     todo: todo
