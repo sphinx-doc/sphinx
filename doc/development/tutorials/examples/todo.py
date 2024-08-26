@@ -1,10 +1,20 @@
+from __future__ import annotations
+
+from contextlib import contextmanager
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
 from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import ExtensionMetadata
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
 
 
 class todo(nodes.Admonition, nodes.Element):
@@ -15,24 +25,39 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-def visit_todo_node(self, node):
+@dataclass
+class TodoInfo:
+    docname: str
+    lineno: int
+    todo: todo
+    target: nodes.target
+
+
+def visit_todo_node(self: nodes.GenericNodeVisitor, node: nodes.Node) -> None:
     self.visit_admonition(node)
 
 
-def depart_todo_node(self, node):
+def depart_todo_node(self: nodes.GenericNodeVisitor, node: nodes.Node) -> None:
     self.depart_admonition(node)
 
 
 class TodolistDirective(Directive):
-    def run(self):
+    def run(self) -> Sequence[nodes.Node]:
         return [todolist('')]
+
+
+@contextmanager
+def get_all_todos(env: BuildEnvironment) -> Iterator[list[TodoInfo]]:
+    all_todos: list[TodoInfo] = getattr(env, 'todo_all_todos', [])
+    yield all_todos
+    env.todo_all_todos = all_todos  # type: ignore[attr-defined]
 
 
 class TodoDirective(SphinxDirective):
     # this enables content in the directive
     has_content = True
 
-    def run(self):
+    def run(self) -> Sequence[nodes.Node]:
         targetid = 'todo-%d' % self.env.new_serialno('todo')
         targetnode = nodes.target('', '', ids=[targetid])
 
@@ -40,81 +65,75 @@ class TodoDirective(SphinxDirective):
         todo_node += nodes.title(_('Todo'), _('Todo'))
         todo_node += self.parse_content_to_nodes()
 
-        if not hasattr(self.env, 'todo_all_todos'):
-            self.env.todo_all_todos = []
-
-        self.env.todo_all_todos.append({
-            'docname': self.env.docname,
-            'lineno': self.lineno,
-            'todo': todo_node.deepcopy(),
-            'target': targetnode,
-        })
+        with get_all_todos(self.env) as all_todos:
+            all_todos.append(
+                TodoInfo(
+                    docname=self.env.docname,
+                    lineno=self.lineno,
+                    todo=todo_node.deepcopy(),
+                    target=targetnode,
+                )
+            )
 
         return [targetnode, todo_node]
 
 
-def purge_todos(app, env, docname):
-    if not hasattr(env, 'todo_all_todos'):
-        return
-
-    env.todo_all_todos = [
-        todo for todo in env.todo_all_todos if todo['docname'] != docname
-    ]
+def purge_todos(_app: Sphinx, env: BuildEnvironment, docname: str) -> None:
+    with get_all_todos(env) as all_todos:
+        all_todos[:] = [todo for todo in all_todos if todo.docname != docname]
 
 
-def merge_todos(app, env, docnames, other):
-    if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []
-    if hasattr(other, 'todo_all_todos'):
-        env.todo_all_todos.extend(other.todo_all_todos)
+def merge_todos(
+    _app: Sphinx, env: BuildEnvironment, _docnames: list[str], other: BuildEnvironment
+) -> None:
+    with get_all_todos(env) as all_todos, get_all_todos(other) as other_todos:
+        all_todos.extend(other_todos)
 
 
-def process_todo_nodes(app, doctree, fromdocname):
+def process_todo_nodes(app: Sphinx, doctree: nodes.document, fromdocname: str) -> None:
     if not app.config.todo_include_todos:
-        for node in doctree.findall(todo):
-            node.parent.remove(node)
+        for todo_node in doctree.findall(todo):
+            todo_node.parent.remove(todo_node)
 
     # Replace all todolist nodes with a list of the collected todos.
     # Augment each todo with a backlink to the original location.
     env = app.builder.env
 
-    if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []
+    with get_all_todos(env) as all_todos:
+        for todolist_node in doctree.findall(todolist):
+            if not app.config.todo_include_todos:
+                todolist_node.replace_self([])
+                continue
 
-    for node in doctree.findall(todolist):
-        if not app.config.todo_include_todos:
-            node.replace_self([])
-            continue
+            content: list[nodes.Node] = []
 
-        content = []
+            for todo_info in all_todos:
+                para = nodes.paragraph()
+                filename = env.doc2path(todo_info.docname, base=False)
+                description = _(
+                    '(The original entry is located in %s, line %d and can be found '
+                ) % (filename, todo_info.lineno)
+                para += nodes.Text(description)
 
-        for todo_info in env.todo_all_todos:
-            para = nodes.paragraph()
-            filename = env.doc2path(todo_info['docname'], base=None)
-            description = _(
-                '(The original entry is located in %s, line %d and can be found '
-            ) % (filename, todo_info['lineno'])
-            para += nodes.Text(description)
+                # Create a reference
+                newnode = nodes.reference('', '')
+                innernode = nodes.emphasis(_('here'), _('here'))
+                newnode['refdocname'] = todo_info.docname
+                newnode['refuri'] = app.builder.get_relative_uri(
+                    fromdocname, todo_info.docname
+                )
+                newnode['refuri'] += '#' + todo_info.target['refid']
+                newnode.append(innernode)
+                para += newnode
+                para += nodes.Text('.)')
 
-            # Create a reference
-            newnode = nodes.reference('', '')
-            innernode = nodes.emphasis(_('here'), _('here'))
-            newnode['refdocname'] = todo_info['docname']
-            newnode['refuri'] = app.builder.get_relative_uri(
-                fromdocname, todo_info['docname']
-            )
-            newnode['refuri'] += '#' + todo_info['target']['refid']
-            newnode.append(innernode)
-            para += newnode
-            para += nodes.Text('.)')
+                # Insert into the todolist
+                content.extend((
+                    todo_info.todo,
+                    para,
+                ))
 
-            # Insert into the todolist
-            content.extend((
-                todo_info['todo'],
-                para,
-            ))
-
-        node.replace_self(content)
+            todolist_node.replace_self(content)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
