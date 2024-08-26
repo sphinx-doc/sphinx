@@ -250,7 +250,7 @@ class IndexBuilder:
         'pickle':   pickle
     }
 
-    def __init__(self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str) -> None:
+    def __init__(self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str | None) -> None:
         self.env = env
         # docname -> title
         self._titles: dict[str, str | None] = env._search_index_titles

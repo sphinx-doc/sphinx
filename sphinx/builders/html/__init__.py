@@ -1350,7 +1350,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_secnumber_suffix', '. ', 'html')
     app.add_config_value('html_search_language', None, 'html', str)
     app.add_config_value('html_search_options', {}, 'html')
-    app.add_config_value('html_search_scorer', '', '')
+    app.add_config_value('html_search_scorer', None, '', str)
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
