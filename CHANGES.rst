@@ -83,6 +83,8 @@ Bugs fixed
   rise to nested ``\DUrole``'s, rather than a single one with comma separated
   classes.
   Patch by Jean-François B.
+* #12831: LaTeX: avoid large voids sometimes occurring at page bottoms.
+  Patch by Jean-François B.
 * #11970, #12551: singlehtml builder: make target URIs to be same-document
   references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
   e.g., ``index.html#foo`` becomes ``#foo``.
