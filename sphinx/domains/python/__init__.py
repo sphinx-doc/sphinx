@@ -451,6 +451,12 @@ class PyModule(SphinxDirective):
     def run(self) -> list[Node]:
         domain = cast(PythonDomain, self.env.get_domain('py'))
 
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # # deprecate noindex in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+
         modname = self.arguments[0].strip()
         no_index = 'no-index' in self.options
         self.env.ref_context['py:module'] = modname
