@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Element
     from docutils.parsers.rst import Directive
     from docutils.parsers.rst.states import Inliner, RSTState
-    from docutils.statemachine import StringList
+    from docutils.statemachine import ViewList
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -325,7 +325,7 @@ def traverse_translatable_index(
         yield node, entries
 
 
-def nested_parse_with_titles(state: RSTState, content: StringList, node: Node,
+def nested_parse_with_titles(state: RSTState, content: ViewList[str], node: Node,
                              content_offset: int = 0) -> str:
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
