@@ -1812,17 +1812,17 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.locale.l_()``
      - 1.8
      - 3.0
-     - :func:`sphinx.locale._()`
+     - :func:`sphinx.locale._`
 
    * - ``sphinx.locale.lazy_gettext()``
      - 1.8
      - 3.0
-     - :func:`sphinx.locale._()`
+     - :func:`sphinx.locale._`
 
    * - ``sphinx.locale.mygettext()``
      - 1.8
      - 3.0
-     - :func:`sphinx.locale._()`
+     - :func:`sphinx.locale._`
 
    * - ``sphinx.util.copy_static_entry()``
      - 1.5
