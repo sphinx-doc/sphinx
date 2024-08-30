@@ -29,7 +29,7 @@ class _MockObject:
     __name__ = ''
     __sphinx_mock__ = True
     __sphinx_decorator_args__: tuple[Any, ...] = ()
-    __sphinx_empty_attrs__: ('__typing_subst__',)
+    __sphinx_empty_attrs__ = ('__typing_subst__',)
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
