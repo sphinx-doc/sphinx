@@ -88,7 +88,7 @@ class ImageCollector(EnvironmentCollector):
                     new_refuri = os.path.join(
                         os.path.dirname(original_refuri), new_file_name
                     )
-                    if new_refuri != original_refuri:
+                    if new_refuri != original_refuri and os.path.isfile(new_refuri):
                         node.parent.attributes["refuri"] = new_refuri
                         node["original_refuri"] = original_refuri
 
