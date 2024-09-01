@@ -180,7 +180,7 @@ class TocTreeCollector(EnvironmentCollector):
     def assign_section_numbers(self, env: BuildEnvironment) -> list[str]:
         """Assign a section number to each heading under a numbered toctree."""
         # a list of all docnames whose section numbers changed
-        rewrite_needed = []
+        rewrite_needed: list[str] = []
 
         assigned: set[str] = set()
         old_secnumbers = env.toc_secnumbers
@@ -262,7 +262,7 @@ class TocTreeCollector(EnvironmentCollector):
         """Assign a figure number to each figure under a numbered toctree."""
         generated_docnames = frozenset(env.domains['std']._virtual_doc_names)
 
-        rewrite_needed = []
+        rewrite_needed: list[str] = []
 
         assigned: set[str] = set()
         old_fignumbers = env.toc_fignumbers

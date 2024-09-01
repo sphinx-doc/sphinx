@@ -658,7 +658,7 @@ class Documenter:
 
             return False
 
-        ret = []
+        ret: list[tuple[str, Any, bool]] = []
 
         # search for members in source code too
         namespace = '.'.join(self.objpath)  # will be empty for modules
@@ -1070,7 +1070,7 @@ class ModuleDocumenter(Documenter):
                 return False, list(members.values())
         else:
             memberlist = self.options.members or []
-            ret = []
+            ret: list[ObjectMember] = []
             for name in memberlist:
                 if name in members:
                     ret.append(members[name])
@@ -1177,7 +1177,7 @@ class DocstringSignatureMixin:
 
     def _find_signature(self) -> tuple[str | None, str | None] | None:
         # candidates of the object name
-        valid_names = [self.objpath[-1]]  # type: ignore[attr-defined]
+        valid_names: list[str] = [self.objpath[-1]]  # type: ignore[attr-defined]
         if isinstance(self, ClassDocumenter):
             valid_names.append('__init__')
             if hasattr(self.object, '__mro__'):
@@ -1187,7 +1187,7 @@ class DocstringSignatureMixin:
         if docstrings is None:
             return None, None
         self._new_docstrings = docstrings[:]
-        self._signatures = []
+        self._signatures: list[str] = []
         result = None
         for i, doclines in enumerate(docstrings):
             for j, line in enumerate(doclines):
@@ -1322,7 +1322,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
-        sigs = []
+        sigs: list[str] = []
         if (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
                 self.config.autodoc_typehints != 'none'):
@@ -1623,7 +1623,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             kwargs.setdefault('unqualified_typehints', True)
 
         sig = super().format_signature()
-        sigs = []
+        sigs: list[str] = []
 
         overloads = self.get_overloaded_signatures()
         if overloads and self.config.autodoc_typehints != 'none':
@@ -1724,7 +1724,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             if not self.options.members:
                 return False, []
             # specific members given
-            selected = []
+            selected: list[ObjectMember] = []
             for name in self.options.members:
                 if name in members:
                     selected.append(members[name])
@@ -1754,7 +1754,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         classdoc_from = self.options.get('class-doc-from', self.config.autoclass_content)
 
-        docstrings = []
+        docstrings: list[str] = []
         attrdocstring = getdoc(self.object, self.get_attr)
         if attrdocstring:
             docstrings.append(attrdocstring)
@@ -2205,7 +2205,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
 
-        sigs = []
+        sigs: list[str] = []
         if (self.analyzer and
                 '.'.join(self.objpath) in self.analyzer.overloads and
                 self.config.autodoc_typehints != 'none'):

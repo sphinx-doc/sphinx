@@ -257,7 +257,7 @@ def pending_warnings() -> Iterator[logging.Handler]:
     memhandler.setLevel(logging.WARNING)
 
     try:
-        handlers = []
+        handlers: list[logging.Handler] = []
         for handler in logger.handlers[:]:
             if isinstance(handler, WarningStreamHandler):
                 logger.removeHandler(handler)
@@ -289,7 +289,7 @@ def suppress_logging() -> Iterator[MemoryHandler]:
     memhandler = MemoryHandler()
 
     try:
-        handlers = []
+        handlers: list[logging.Handler] = []
         for handler in logger.handlers[:]:
             logger.removeHandler(handler)
             handlers.append(handler)

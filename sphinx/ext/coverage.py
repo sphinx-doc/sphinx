@@ -39,7 +39,7 @@ def write_header(f: IO[str], text: str, char: str = '-') -> None:
 
 
 def compile_regex_list(name: str, exps: str) -> list[re.Pattern[str]]:
-    lst = []
+    lst: list[re.Pattern[str]] = []
     for exp in exps:
         try:
             lst.append(re.compile(exp))
@@ -284,7 +284,7 @@ class CoverageBuilder(Builder):
             documented_objects: set[str] = set()
             undocumented_objects: set[str] = set()
 
-            funcs = []
+            funcs: list[str] = []
             classes: dict[str, list[str]] = {}
 
             for name, obj in inspect.getmembers(mod):

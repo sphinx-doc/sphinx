@@ -157,7 +157,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
     def add_target_and_index(self, ast: ASTDeclaration, sig: str,
                              signode: TextElement) -> None:
-        ids = []
+        ids: list[str] = []
         for i in range(1, _max_id + 1):
             try:
                 id = ast.get_id(version=i)

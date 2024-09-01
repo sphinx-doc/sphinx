@@ -872,7 +872,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self._table_row_indices.append(0)
 
         atts = {}
-        classes = [cls.strip(' \t\n') for cls in self.settings.table_style.split(',')]
+        classes: list[str] = [
+            cls.strip(' \t\n') for cls in self.settings.table_style.split(',')
+        ]
         classes.insert(0, "docutils")  # compat
 
         # set align-default if align not specified to give a default style

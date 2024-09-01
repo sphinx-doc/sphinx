@@ -55,7 +55,7 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
     elif node_name in ('Tuple', 'List'):
-        members = []
+        members: list[str] = []
         for elt in node.elts:  # type: ignore[attr-defined]
             with contextlib.suppress(TypeError):
                 members.extend(get_lvar_names(elt, self))
@@ -152,7 +152,7 @@ class TokenProcessor:
 
         .. note:: This also handles parenthesis well.
         """
-        tokens = []
+        tokens: list[Token] = []
         while current := self.fetch_token():
             tokens.append(current)
             if current == condition:
@@ -278,7 +278,7 @@ class VariableCommentPicker(ast.NodeVisitor):
             self.annotations[(basename, name)] = ast_unparse(annotation)
 
     def is_final(self, decorators: list[ast.expr]) -> bool:
-        final = []
+        final: list[str] = []
         if self.typing:
             final.append('%s.final' % self.typing)
         if self.typing_final:
@@ -294,7 +294,7 @@ class VariableCommentPicker(ast.NodeVisitor):
         return False
 
     def is_overload(self, decorators: list[ast.expr]) -> bool:
-        overload = []
+        overload: list[str] = []
         if self.typing:
             overload.append('%s.overload' % self.typing)
         if self.typing_overload:
@@ -379,7 +379,7 @@ class VariableCommentPicker(ast.NodeVisitor):
 
         # check comments before assignment
         if indent_re.match(current_line[:node.col_offset]):
-            comment_lines = []
+            comment_lines: list[str] = []
             for i in range(node.lineno - 1):
                 before_line = self.get_line(node.lineno - 1 - i)
                 if comment_re.match(before_line):

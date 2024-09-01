@@ -407,7 +407,7 @@ Doctest summary
 
     def test_doc(self, docname: str, doctree: Node) -> None:
         groups: dict[str, TestGroup] = {}
-        add_to_all_groups = []
+        add_to_all_groups: list[TestCode] = []
         self.setup_runner = SphinxDocTestRunner(verbose=False,
                                                 optionflags=self.opt)
         self.test_runner = SphinxDocTestRunner(verbose=False,
@@ -494,7 +494,7 @@ Doctest summary
         ns: dict = {}
 
         def run_setup_cleanup(runner: Any, testcodes: list[TestCode], what: Any) -> bool:
-            examples = []
+            examples: list[doctest.Example] = []
             for testcode in testcodes:
                 example = doctest.Example(testcode.code, '', lineno=testcode.lineno)
                 examples.append(example)

@@ -316,7 +316,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.first_param = 0
         self.in_desc_signature = False
 
-        sphinxpkgoptions = []
+        sphinxpkgoptions: list[str] = []
 
         # sort out some elements
         self.elements = self.builder.context.copy()
@@ -499,7 +499,7 @@ class LaTeXTranslator(SphinxTranslator):
                                (entry[2], self.idescape(entry[3])) + CR)
             ret.append(r'\end{sphinxtheindex}' + CR)
 
-        ret = []
+        ret: list[str] = []
         # latex_domain_indices can be False/True or a list of index names
         if indices_config := self.config.latex_domain_indices:
             if not isinstance(indices_config, bool):
@@ -1455,7 +1455,7 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_image(self, node: Element) -> None:
         pre: list[str] = []  # in reverse order
         post: list[str] = []
-        include_graphics_options = []
+        include_graphics_options: list[str] = []
         has_hyperlink = isinstance(node.parent, nodes.reference)
         if has_hyperlink:
             is_inline = self.is_inline(node.parent)

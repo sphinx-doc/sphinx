@@ -200,7 +200,7 @@ class Table:
         return physical_lines
 
     def __str__(self) -> str:
-        out = []
+        out: list[str] = []
         self.rewrap()
 
         def writesep(char: str = "-", lineno: int | None = None) -> str:
@@ -275,7 +275,7 @@ class TextWrapper(textwrap.TextWrapper):
         chunks.reverse()
 
         while chunks:
-            cur_line = []
+            cur_line: list[str] = []
             cur_len = 0
 
             if lines:

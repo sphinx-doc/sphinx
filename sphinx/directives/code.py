@@ -59,7 +59,7 @@ def dedent_lines(
     if any(s[:dedent].strip() for s in lines):
         logger.warning(__('non-whitespace stripped by dedent'), location=location)
 
-    new_lines = []
+    new_lines: list[str] = []
     for line in lines:
         new_line = line[dedent:]
         if line.endswith('\n') and not new_line:

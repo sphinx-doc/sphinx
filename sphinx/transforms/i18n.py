@@ -520,7 +520,7 @@ class Locale(SphinxTransform):
                 new_entries: list[tuple[str, str, str, str, str | None]] = []
                 for entry_type, value, target_id, main, _category_key in entries:
                     msg_parts = split_index_msg(entry_type, value)
-                    msgstr_parts = []
+                    msgstr_parts: list[str] = []
                     for part in msg_parts:
                         msgstr = merged.get(part, '')
                         if not msgstr:

@@ -531,7 +531,7 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
         toml_lines += [f'    "{s}",' for s in map(str.strip, sidebar.split(','))]
         toml_lines.append(']')
 
-    styles = []
+    styles: list[str] = []
     default = _cfg_parser.get('theme', 'pygments_style', fallback=...)
     if default is not ...:
         styles.append(f'default = "{default}"')

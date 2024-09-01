@@ -136,7 +136,7 @@ def get_matching_files(
             relative_root = ""  # suppress dirname for files on the target dir
 
         # Filter files
-        included_files = []
+        included_files: list[str] = []
         for entry in sorted(files):
             entry = path_stabilize(os.path.join(relative_root, entry))
             keep = False
@@ -154,7 +154,7 @@ def get_matching_files(
                 included_files.append(entry)
 
         # Filter directories
-        filtered_dirs = []
+        filtered_dirs: list[str] = []
         for dir_name in sorted(dirs):
             normalised = path_stabilize(os.path.join(relative_root, dir_name))
             for matcher in exclude_matchers:

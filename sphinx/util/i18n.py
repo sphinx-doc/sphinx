@@ -234,7 +234,7 @@ def format_date(
         else:
             date = datetime.now(tz=timezone.utc).astimezone()
 
-    result = []
+    result: list[str] = []
     tokens = date_format_re.split(format)
     for token in tokens:
         if token in date_format_mappings:

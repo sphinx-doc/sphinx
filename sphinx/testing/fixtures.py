@@ -189,7 +189,7 @@ def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
-    apps = []
+    apps: list[SphinxTestApp] = []
     syspath = sys.path.copy()
 
     def make(*args: Any, **kwargs: Any) -> SphinxTestApp:

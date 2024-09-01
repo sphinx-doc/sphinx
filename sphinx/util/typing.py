@@ -256,7 +256,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return f':py:class:`{module_prefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
         elif _is_annotated_form(cls):
             args = restify(cls.__args__[0], mode)
-            meta_args = []
+            meta_args: list[str] = []
             for m in cls.__metadata__:
                 if isinstance(m, type):
                     meta_args.append(restify(m, mode))
@@ -500,7 +500,7 @@ def stringify_annotation(
             return f'{module_prefix}Literal[{args}]'
         elif _is_annotated_form(annotation):  # for py310+
             args = stringify_annotation(annotation_args[0], mode)
-            meta_args = []
+            meta_args: list[str] = []
             for m in annotation.__metadata__:
                 if isinstance(m, type):
                     meta_args.append(stringify_annotation(m, mode))

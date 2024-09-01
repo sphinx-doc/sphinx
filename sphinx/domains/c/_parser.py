@@ -63,6 +63,7 @@ from sphinx.domains.c._ids import (
     _string_re,
 )
 from sphinx.util.cfamily import (
+    ASTAttribute,
     ASTAttributeList,
     BaseParser,
     DefinitionError,
@@ -193,7 +194,7 @@ class DefinitionParser(BaseParser):
         if self.skip_string(close):
             return [], False
 
-        exprs = []
+        exprs: list[ASTExpression] = []
         trailingComma = False
         while True:
             self.skip_ws()
@@ -330,7 +331,7 @@ class DefinitionParser(BaseParser):
                 try:
                     return self._parse_unary_expression()
                 except DefinitionError as exUnary:
-                    errs = []
+                    errs: list[tuple[DefinitionError, str]] = []
                     errs.append((exCast, "If type cast expression"))
                     errs.append((exUnary, "If unary expression"))
                     raise self._make_multi_error(errs,
@@ -357,8 +358,8 @@ class DefinitionParser(BaseParser):
             else:
                 def parser() -> ASTExpression:
                     return _parse_bin_op_expr(self, opId + 1)
-            exprs = []
-            ops = []
+            exprs: list[ASTExpression] = []
+            ops: list[str] = []
             exprs.append(parser())
             while True:
                 self.skip_ws()
@@ -400,8 +401,8 @@ class DefinitionParser(BaseParser):
         #     logical-or-expression
         #   | logical-or-expression "?" expression ":" assignment-expression
         #   | logical-or-expression assignment-operator initializer-clause
-        exprs = []
-        ops = []
+        exprs: list[ASTExpression] = []
+        ops: list[str] = []
         orExpr = self._parse_logical_or_expression()
         exprs.append(orExpr)
         # TODO: handle ternary with _parse_conditional_expression_tail
@@ -560,7 +561,7 @@ class DefinitionParser(BaseParser):
             else:
                 return None
 
-        args = []
+        args: list[ASTFunctionParameter] = []
         self.skip_ws()
         if not self.skip_string(')'):
             while 1:
@@ -750,14 +751,14 @@ class DefinitionParser(BaseParser):
         if paramMode not in ('type', 'function'):
             raise Exception(
                 "Internal error, unknown paramMode '%s'." % paramMode)
-        prevErrors = []
+        prevErrors: list[tuple[DefinitionError, str]] = []
         self.skip_ws()
         if typed and self.skip_string('*'):
             self.skip_ws()
             restrict = False
             volatile = False
             const = False
-            attrs = []
+            attrs: list[ASTAttribute] = []
             while 1:
                 if not restrict:
                     restrict = self.skip_word_and_ws('restrict')
@@ -866,7 +867,7 @@ class DefinitionParser(BaseParser):
 
         if outer == 'type':
             # We allow type objects to just be a name.
-            prevErrors = []
+            prevErrors: list[tuple[DefinitionError, str]] = []
             startPos = self.pos
             # first try without the type
             try:
@@ -930,7 +931,7 @@ class DefinitionParser(BaseParser):
             return ASTMacro(ident, None)
         if self.skip_string(')'):
             return ASTMacro(ident, [])
-        args = []
+        args: list[ASTMacroParameter] = []
         while 1:
             self.skip_ws()
             if self.skip_string('...'):
@@ -1046,7 +1047,7 @@ class DefinitionParser(BaseParser):
                 self.assert_end()
             except DefinitionError as exType:
                 header = "Error when parsing (type) expression."
-                errs = []
+                errs: list[tuple[DefinitionError, str]] = []
                 errs.append((exExpr, "If expression"))
                 errs.append((exType, "If type"))
                 raise self._make_multi_error(errs, header) from exType

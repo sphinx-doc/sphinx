@@ -417,7 +417,7 @@ class DefaultSplitter(BaseSplitter):
         if not input:
             return []
 
-        result = []
+        result: list[str] = []
         seg = ['B3', 'B2', 'B1', *input, 'E1', 'E2', 'E3']
         ctype = ['O', 'O', 'O', *map(self.ctype_, input), 'O', 'O', 'O']
         word = seg[3]

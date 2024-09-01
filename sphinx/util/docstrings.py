@@ -14,7 +14,7 @@ def separate_metadata(s: str | None) -> tuple[str | None, dict[str, str]]:
     """Separate docstring into metadata and others."""
     in_other_element = False
     metadata: dict[str, str] = {}
-    lines = []
+    lines: list[str] = []
 
     if not s:
         return s, metadata
@@ -74,7 +74,7 @@ def prepare_commentdoc(s: str) -> list[str]:
     """Extract documentation comment lines (starting with #:) and return them
     as a list of lines.  Returns an empty list if there is no documentation.
     """
-    result = []
+    result: list[str] = []
     lines = [line.strip() for line in s.expandtabs().splitlines()]
     for line in lines:
         if line.startswith('#:'):

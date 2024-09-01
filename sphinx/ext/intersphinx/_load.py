@@ -140,7 +140,7 @@ def load_mappings(app: Sphinx) -> None:
     intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
     intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
 
-    projects = []
+    projects: list[_IntersphinxProject] = []
     for name, (uri, locations) in intersphinx_mapping.values():
         try:
             project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)

@@ -241,7 +241,7 @@ class Autosummary(SphinxDirective):
             dirname = posixpath.dirname(self.env.docname)
 
             tree_prefix = self.options['toctree'].strip()
-            docnames = []
+            docnames: list[str] = []
             excluded = Matcher(self.config.exclude_patterns)
             filename_map = self.config.autosummary_filename_map
             for _name, _sig, _summary, real_name in items:
@@ -637,7 +637,7 @@ def import_by_name(
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
-    tried = []
+    tried: list[str] = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
         if prefix is not None and name.startswith(f'{prefix}.'):

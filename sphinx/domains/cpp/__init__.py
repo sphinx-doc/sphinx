@@ -212,7 +212,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
     def add_target_and_index(self, ast: ASTDeclaration, sig: str,
                              signode: TextElement) -> None:
         # general note: name must be lstrip(':')'ed, to remove "::"
-        ids = []
+        ids: list[str] = []
         for i in range(1, _max_id + 1):
             try:
                 id = ast.get_id(version=i)

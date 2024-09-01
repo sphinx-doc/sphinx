@@ -292,7 +292,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
             lines[min(end, max_index)] += '</div>\n'
 
         # try to find parents (for submodules)
-        parents = []
+        parents: list[dict[str, str]] = []
         parent = modname
         while '.' in parent:
             parent = parent.rsplit('.', 1)[0]

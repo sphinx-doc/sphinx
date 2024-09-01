@@ -422,7 +422,7 @@ def inline_all_toctrees(
     """
     tree = tree.deepcopy()
     for toctreenode in list(tree.findall(addnodes.toctree)):
-        newnodes = []
+        newnodes: list[Node] = []
         includefiles = map(str, toctreenode['includefiles'])
         indent += ' '
         for includefile in includefiles:

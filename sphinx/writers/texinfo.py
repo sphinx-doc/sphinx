@@ -84,7 +84,7 @@ TEMPLATE = """\
 
 def find_subsections(section: Element) -> list[nodes.section]:
     """Return a list of subsections for the given ``section``."""
-    result = []
+    result: list[nodes.section] = []
     for child in section:
         if isinstance(child, nodes.section):
             result.append(child)

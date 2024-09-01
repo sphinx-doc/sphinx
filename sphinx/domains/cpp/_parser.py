@@ -634,7 +634,7 @@ class DefinitionParser(BaseParser):
                 try:
                     return self._parse_unary_expression()
                 except DefinitionError as exUnary:
-                    errs = []
+                    errs: list[tuple[DefinitionError, str]] = []
                     errs.append((exCast, "If type cast expression"))
                     errs.append((exUnary, "If unary expression"))
                     raise self._make_multi_error(errs,
@@ -662,8 +662,8 @@ class DefinitionParser(BaseParser):
             else:
                 def parser(inTemplate: bool) -> ASTExpression:
                     return _parse_bin_op_expr(self, opId + 1, inTemplate=inTemplate)
-            exprs = []
-            ops = []
+            exprs: list[ASTExpression] = []
+            ops: list[str] = []
             exprs.append(parser(inTemplate=inTemplate))
             while True:
                 self.skip_ws()
@@ -855,7 +855,7 @@ class DefinitionParser(BaseParser):
             return None
         if self.skip_string('>'):
             return ASTTemplateArgs([], False)
-        prevErrors = []
+        prevErrors: list[tuple[DefinitionError, str]] = []
         templateArgs: list[ASTType | ASTTemplateArgConstant] = []
         packExpansion = False
         while 1:
@@ -1102,7 +1102,7 @@ class DefinitionParser(BaseParser):
                 self.fail('Expecting "(" in parameters-and-qualifiers.')
             else:
                 return None
-        args = []
+        args: list[ASTFunctionParameter] = []
         self.skip_ws()
         if not self.skip_string(')'):
             while 1:
@@ -1332,7 +1332,7 @@ class DefinitionParser(BaseParser):
             declId = self._parse_nested_name()
         else:
             declId = None
-        arrayOps = []
+        arrayOps: list[ASTArray] = []
         while 1:
             self.skip_ws()
             if typed and self.skip_string('['):
@@ -1367,7 +1367,7 @@ class DefinitionParser(BaseParser):
         if paramMode not in ('type', 'function', 'operatorCast', 'new'):
             raise Exception(
                 "Internal error, unknown paramMode '%s'." % paramMode)
-        prevErrors = []
+        prevErrors: list[tuple[DefinitionError, str]] = []
         self.skip_ws()
         if typed and self.skip_string('*'):
             self.skip_ws()
@@ -1541,7 +1541,7 @@ class DefinitionParser(BaseParser):
             # We allow type objects to just be a name.
             # Some functions don't have normal return types: constructors,
             # destructors, cast operators
-            prevErrors = []
+            prevErrors: list[tuple[DefinitionError, str]] = []
             startPos = self.pos
             # first try without the type
             try:
@@ -1650,7 +1650,7 @@ class DefinitionParser(BaseParser):
         except DefinitionError as eType:
             if eExpr is None:
                 raise
-            errs = []
+            errs: list[tuple[DefinitionError, str]] = []
             errs.append((eExpr, "If default template argument is an expression"))
             errs.append((eType, "If default template argument is a type"))
             msg = "Error in non-type template parameter"
@@ -1676,7 +1676,7 @@ class DefinitionParser(BaseParser):
         name = self._parse_nested_name()
         self.skip_ws()
         final = self.skip_word_and_ws('final')
-        bases = []
+        bases: list[ASTBaseClass] = []
         self.skip_ws()
         if self.skip_string(':'):
             while 1:
@@ -1788,7 +1788,7 @@ class DefinitionParser(BaseParser):
             except DefinitionError as eNonType:
                 self.pos = pos
                 header = "Error when parsing template parameter."
-                errs = []
+                errs: list[tuple[DefinitionError, str]] = []
                 errs.append(
                     (eType, "If unconstrained type parameter or template type parameter"))
                 errs.append(
@@ -1819,7 +1819,7 @@ class DefinitionParser(BaseParser):
                 continue
             else:
                 header = "Error in template parameter list."
-                errs = []
+                errs: list[tuple[DefinitionError, str]] = []
                 if err:
                     errs.append((err, "If parameter"))
                 try:
@@ -1842,7 +1842,7 @@ class DefinitionParser(BaseParser):
             return None
 
         # for sure it must be a template introduction now
-        params = []
+        params: list[ASTTemplateIntroductionParameter] = []
         while 1:
             self.skip_ws()
             parameterPack = self.skip_string('...')
@@ -1878,8 +1878,8 @@ class DefinitionParser(BaseParser):
             return None
 
         def parse_and_expr(self: DefinitionParser) -> ASTExpression:
-            andExprs = []
-            ops = []
+            andExprs: list[ASTExpression] = []
+            ops: list[str] = []
             andExprs.append(self._parse_primary_expression())
             while True:
                 self.skip_ws()
@@ -1898,8 +1898,8 @@ class DefinitionParser(BaseParser):
             else:
                 return ASTBinOpExpr(andExprs, ops)
 
-        orExprs = []
-        ops = []
+        orExprs: list[ASTExpression] = []
+        ops: list[str] = []
         orExprs.append(parse_and_expr(self))
         while True:
             self.skip_ws()
@@ -2013,7 +2013,7 @@ class DefinitionParser(BaseParser):
             templatePrefix = self._parse_template_declaration_prefix(objectType)
 
         if objectType == 'type':
-            prevErrors = []
+            prevErrors: list[tuple[DefinitionError, str]] = []
             pos = self.pos
             try:
                 if not templatePrefix:
@@ -2090,7 +2090,7 @@ class DefinitionParser(BaseParser):
                 self.assert_end()
                 return res2, False
             except DefinitionError as e2:
-                errs = []
+                errs: list[tuple[DefinitionError, str]] = []
                 errs.append((e1, "If shorthand ref"))
                 errs.append((e2, "If full function ref"))
                 msg = "Error in cross-reference."
@@ -2112,7 +2112,7 @@ class DefinitionParser(BaseParser):
                 return typ
             except DefinitionError as exType:
                 header = "Error when parsing (type) expression."
-                errs = []
+                errs: list[tuple[DefinitionError, str]] = []
                 errs.append((exExpr, "If expression"))
                 errs.append((exType, "If type"))
                 raise self._make_multi_error(errs, header) from exType

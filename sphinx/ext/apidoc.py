@@ -302,8 +302,8 @@ def recurse_tree(
         # otherwise, the base is a directory with packages
         root_package = None
 
-    toplevels = []
-    written_files = []
+    toplevels: list[str] = []
+    written_files: list[Path] = []
     for root, subs, files in walk(rootpath, excludes, opts):
         is_pkg = is_packagedir(None, files)
         is_namespace = not is_pkg and opts.implicit_namespaces

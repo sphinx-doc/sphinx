@@ -164,7 +164,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
         if isinstance(node, ast.Call):
             # Call nodes can be used in Annotated type metadata,
             # for example Annotated[str, ArbitraryTypeValidator(str, len=10)]
-            args = []
+            args: list[Node] = []
             for arg in node.args:
                 args += unparse(arg)
                 args.append(addnodes.desc_sig_punctuation('', ','))
@@ -234,7 +234,7 @@ class _TypeParameterListParser(TokenProcessor):
         self.type_params: list[tuple[str, int, Any, Any]] = []
 
     def fetch_type_param_spec(self) -> list[Token]:
-        tokens = []
+        tokens: list[Token] = []
         while current := self.fetch_token():
             tokens.append(current)
             for ldelim, rdelim in ('(', ')'), ('{', '}'), ('[', ']'):

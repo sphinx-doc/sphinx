@@ -223,7 +223,7 @@ class ASTNestedName(ASTBase):
             else:
                 return '::'.join(n.get_id(version) for n in self.names)
 
-        res = []
+        res: list[str] = []
         if len(self.names) > 1 or len(modifiers) > 0:
             res.append('N')
         res.append(modifiers)
@@ -233,7 +233,7 @@ class ASTNestedName(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.rooted:
             res.append('')
         for i in range(len(self.names)):
@@ -571,7 +571,7 @@ class ASTFoldExpr(ASTExpression):
         if version == 3:
             return str(self)
         # https://github.com/itanium-cxx-abi/cxx-abi/pull/67
-        res = []
+        res: list[str] = []
         if self.leftExpr is None:  # (... op expr)
             res.append('fl')
         elif self.rightExpr is None:  # (expr op ...)
@@ -1087,7 +1087,7 @@ class ASTNewExpr(ASTExpression):
         return hash((self.rooted, self.isNewTypeId, self.typ, self.initList))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.rooted:
             res.append('::')
         res.append('new ')
@@ -1146,7 +1146,7 @@ class ASTDeleteExpr(ASTExpression):
         return hash((self.rooted, self.array, self.expr))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.rooted:
             res.append('::')
         res.append('delete ')
@@ -1230,7 +1230,7 @@ class ASTBinOpExpr(ASTExpression):
         return hash((self.exprs, self.ops))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.exprs[0]))
         for i in range(1, len(self.exprs)):
             res.append(' ')
@@ -1241,7 +1241,7 @@ class ASTBinOpExpr(ASTExpression):
 
     def get_id(self, version: int) -> str:
         assert version >= 2
-        res = []
+        res: list[str] = []
         for i in range(len(self.ops)):
             res.append(_id_operator_v2[self.ops[i]])
             res.append(self.exprs[i].get_id(version))
@@ -1282,7 +1282,7 @@ class ASTConditionalExpr(ASTExpression):
         return hash((self.ifExpr, self.thenExpr, self.elseExpr))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.ifExpr))
         res.append(' ? ')
         res.append(transform(self.thenExpr))
@@ -1292,7 +1292,7 @@ class ASTConditionalExpr(ASTExpression):
 
     def get_id(self, version: int) -> str:
         assert version >= 2
-        res = []
+        res: list[str] = []
         res.append(_id_operator_v2['?'])
         res.append(self.ifExpr.get_id(version))
         res.append(self.thenExpr.get_id(version))
@@ -1371,7 +1371,7 @@ class ASTAssignmentExpr(ASTExpression):
         return hash((self.leftExpr, self.op, self.rightExpr))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.leftExpr))
         res.append(' ')
         res.append(self.op)
@@ -1381,7 +1381,7 @@ class ASTAssignmentExpr(ASTExpression):
 
     def get_id(self, version: int) -> str:
         # we end up generating the ID from left to right, instead of right to left
-        res = []
+        res: list[str] = []
         res.append(_id_operator_v2[self.op])
         res.append(self.leftExpr.get_id(version))
         res.append(self.rightExpr.get_id(version))
@@ -1417,7 +1417,7 @@ class ASTCommaExpr(ASTExpression):
 
     def get_id(self, version: int) -> str:
         id_ = _id_operator_v2[',']
-        res = []
+        res: list[str] = []
         for i in range(len(self.exprs) - 1):
             res.append(id_)
             res.append(self.exprs[i].get_id(version))
@@ -1657,7 +1657,7 @@ class ASTTemplateArgs(ASTBase):
 
     def get_id(self, version: int) -> str:
         if version == 1:
-            res = []
+            res: list[str] = []
             res.append(':')
             res.append('.'.join(a.get_id(version) for a in self.args))
             res.append(':')
@@ -1731,7 +1731,7 @@ class ASTTrailingTypeSpecFundamental(ASTTrailingTypeSpec):
 
     def get_id(self, version: int) -> str:
         if version == 1:
-            res = []
+            res: list[str] = []
             for a in self.canonNames:
                 if a in _id_fundamental_v1:
                     res.append(_id_fundamental_v1[a])
@@ -1836,7 +1836,7 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
         return self.nestedName.get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.prefix:
             res.append(self.prefix)
             res.append(' ')
@@ -1977,7 +1977,7 @@ class ASTParametersQualifiers(ASTBase):
         return self.args
 
     def get_modifiers_id(self, version: int) -> str:
-        res = []
+        res: list[str] = []
         if self.volatile:
             res.append('V')
         if self.const:
@@ -2003,7 +2003,7 @@ class ASTParametersQualifiers(ASTBase):
             return ''.join(a.get_id(version) for a in self.args)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append('(')
         first = True
         for a in self.args:
@@ -2302,7 +2302,7 @@ class ASTDeclSpecs(ASTBase):
 
     def get_id(self, version: int) -> str:
         if version == 1:
-            res = []
+            res: list[str] = []
             res.append(self.trailingTypeSpec.get_id(version))
             if self.allSpecs.volatile:
                 res.append('V')
@@ -2500,7 +2500,7 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
-        res = []
+        res: list[str] = []
         # TODO: can we actually have both array ops and paramQual?
         res.append(self.get_ptr_suffix_id(version))
         if self.paramQual:
@@ -2522,7 +2522,7 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
         return self.paramQual is not None
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.declId:
             res.append(transform(self.declId))
         res.extend(transform(op) for op in self.arrayOps)
@@ -2577,7 +2577,7 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
         return False
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.declId:
             res.append(transform(self.declId))
         res.append(" : ")
@@ -2909,7 +2909,7 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
         return True
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.className))
         res.append('::*')
         if self.volatile:
@@ -3184,7 +3184,7 @@ class ASTType(ASTBase):
     def get_id(self, version: int, objectType: str | None = None,
                symbol: Symbol | None = None) -> str:
         if version == 1:
-            res = []
+            res: list[str] = []
             if objectType:  # needs the name
                 if objectType == 'function':  # also modifiers
                     res.append(symbol.get_full_nested_name().get_id(version))
@@ -3236,7 +3236,7 @@ class ASTType(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         declSpecs = transform(self.declSpecs)
         res.append(declSpecs)
         if self.decl.require_space_after_declSpecs() and len(declSpecs) > 0:
@@ -3345,7 +3345,7 @@ class ASTTypeWithInit(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.type))
         if self.init:
             res.append(transform(self.init))
@@ -3379,7 +3379,7 @@ class ASTTypeUsing(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.name))
         if self.type:
             res.append(' = ')
@@ -3461,7 +3461,7 @@ class ASTBaseClass(ASTBase):
         return hash((self.name, self.visibility, self.virtual, self.pack))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.visibility is not None:
             res.append(self.visibility)
             res.append(' ')
@@ -3512,7 +3512,7 @@ class ASTClass(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.attrs))
         if len(self.attrs) != 0:
             res.append(' ')
@@ -3570,7 +3570,7 @@ class ASTUnion(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.attrs))
         if len(self.attrs) != 0:
             res.append(' ')
@@ -3613,7 +3613,7 @@ class ASTEnum(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.scoped:
             res.append(self.scoped)
             res.append(' ')
@@ -3667,7 +3667,7 @@ class ASTEnumerator(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.name))
         if len(self.attrs) != 0:
             res.append(' ')
@@ -3744,7 +3744,7 @@ class ASTTemplateKeyParamPackIdDefault(ASTTemplateParam):
     def get_id(self, version: int) -> str:
         assert version >= 2
         # this is not part of the normal name mangling in C++
-        res = []
+        res: list[str] = []
         if self.parameterPack:
             res.append('Dp')
         else:
@@ -3961,7 +3961,7 @@ class ASTTemplateParams(ASTBase):
 
     def get_id(self, version: int, excludeRequires: bool = False) -> str:
         assert version >= 2
-        res = []
+        res: list[str] = []
         res.append("I")
         res.extend(param.get_id(version) for param in self.params)
         res.append("E")
@@ -3970,7 +3970,7 @@ class ASTTemplateParams(ASTBase):
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append("template<")
         res.append(", ".join(transform(a) for a in self.params))
         res.append("> ")
@@ -4080,7 +4080,7 @@ class ASTTemplateIntroductionParameter(ASTBase):
             return res
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.parameterPack:
             res.append('...')
         res.append(transform(self.identifier))
@@ -4125,7 +4125,7 @@ class ASTTemplateIntroduction(ASTBase):
         ])
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.concept))
         res.append('{')
         res.append(', '.join(transform(param) for param in self.params))
@@ -4178,7 +4178,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
     def get_id_except_requires_clause_in_last(self, version: int) -> str:
         assert version >= 2
         # This is not part of the Itanium ABI mangling system.
-        res = []
+        res: list[str] = []
         lastIndex = len(self.templates) - 1
         for i, t in enumerate(self.templates):
             if isinstance(t, ASTTemplateParams):
@@ -4330,7 +4330,7 @@ class ASTDeclaration(ASTBase):
         return self._newest_id_cache
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.visibility and self.visibility != "public":
             res.append(self.visibility)
             res.append(' ')
@@ -4424,7 +4424,7 @@ class ASTNamespace(ASTBase):
         )
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.templatePrefix:
             res.append(transform(self.templatePrefix))
         res.append(transform(self.nestedName))

@@ -614,7 +614,7 @@ class ASTBinOpExpr(ASTBase):
         return hash((self.exprs, self.ops))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.exprs[0]))
         for i in range(1, len(self.exprs)):
             res.append(' ')
@@ -656,7 +656,7 @@ class ASTAssignmentExpr(ASTExpression):
         return hash((self.exprs, self.ops))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.exprs[0]))
         for i in range(1, len(self.exprs)):
             res.append(' ')
@@ -758,7 +758,7 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
         return self.nestedName
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.prefix:
             res.append(self.prefix)
             res.append(' ')
@@ -823,7 +823,7 @@ class ASTParameters(ASTBase):
         return self.args
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append('(')
         first = True
         for a in self.args:
@@ -1072,7 +1072,7 @@ class ASTArray(ASTBase):
         ))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        el = []
+        el: list[str] = []
         if self.static:
             el.append('static')
         if self.restrict:
@@ -1162,7 +1162,7 @@ class ASTDeclaratorNameParam(ASTDeclarator):
         return self.declId is not None
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.declId:
             res.append(transform(self.declId))
         res.extend(transform(op) for op in self.arrayOps)
@@ -1204,7 +1204,7 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
         return self.declId is not None
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.declId:
             res.append(transform(self.declId))
         res.append(" : ")
@@ -1477,7 +1477,7 @@ class ASTType(ASTBase):
         return self.decl.function_params
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         declSpecs = transform(self.declSpecs)
         res.append(declSpecs)
         if self.decl.require_space_after_declSpecs() and len(declSpecs) > 0:
@@ -1526,7 +1526,7 @@ class ASTTypeWithInit(ASTBase):
         return self.type.get_id(version, objectType, symbol)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.type))
         if self.init:
             res.append(transform(self.init))
@@ -1600,7 +1600,7 @@ class ASTMacro(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.ident))
         if self.args is not None:
             res.append('(')
@@ -1722,7 +1722,7 @@ class ASTEnumerator(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         res.append(transform(self.name))
         if len(self.attrs) != 0:
             res.append(' ')

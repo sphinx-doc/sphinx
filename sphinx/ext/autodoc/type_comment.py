@@ -38,7 +38,7 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
 
     :param bound_method: Specify *node* is a bound method or not
     """
-    params = []
+    params: list[Parameter] = []
     for arg in node.args.posonlyargs:
         param = Parameter(arg.arg, Parameter.POSITIONAL_ONLY, annotation=arg.type_comment)
         params.append(param)

@@ -438,7 +438,7 @@ class JavaScriptDomain(Domain):
         if name[-2:] == '()':
             name = name[:-2]
 
-        searches = []
+        searches: list[str] = []
         if mod_name and prefix:
             searches.append(f'{mod_name}.{prefix}.{name}')
         if mod_name:

@@ -757,7 +757,7 @@ def stringify_signature(
 
     EMPTY = Parameter.empty
 
-    args = []
+    args: list[str] = []
     last_kind = None
     for param in sig.parameters.values():
         if param.kind != Parameter.POSITIONAL_ONLY and last_kind == Parameter.POSITIONAL_ONLY:

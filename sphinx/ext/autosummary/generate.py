@@ -222,7 +222,7 @@ class ModuleScanner:
             return False
 
     def scan(self, imported_members: bool) -> list[str]:
-        members = []
+        members: list[str] = []
         try:
             analyzer = ModuleAnalyzer.for_module(self.object.__name__)
             attr_docs = analyzer.find_attr_docs()
@@ -456,7 +456,8 @@ def _get_members(
 
 def _get_module_attrs(name: str, members: Any) -> tuple[list[str], list[str]]:
     """Find module attributes with docstrings."""
-    attrs, public = [], []
+    attrs: list[str] = []
+    public: list[str] = []
     try:
         analyzer = ModuleAnalyzer.for_module(name)
         attr_docs = analyzer.find_attr_docs()

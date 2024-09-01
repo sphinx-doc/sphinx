@@ -318,7 +318,7 @@ class BaseParser:
         logger.debug(f"{msg}\n{self.definition}\n{indicator}")  # NoQA: G004
 
     def fail(self, msg: str) -> None:
-        errors = []
+        errors: list[tuple[DefinitionError, str]] = []
         indicator = '-' * self.pos + '^'
         exMain = DefinitionError(
             'Invalid %s declaration: %s [error at %d]\n  %s\n  %s' %
@@ -448,7 +448,7 @@ class BaseParser:
                 self.fail("Expected '(' after '__attribute__'.")
             if not self.skip_string_and_ws('('):
                 self.fail("Expected '(' after '__attribute__('.")
-            attrs = []
+            attrs: list[ASTGnuAttribute] = []
             while 1:
                 if self.match(identifier_re):
                     name = self.matched_text
@@ -482,7 +482,7 @@ class BaseParser:
         return None
 
     def _parse_attribute_list(self) -> ASTAttributeList:
-        res = []
+        res: list[ASTAttribute] = []
         while True:
             attr = self._parse_attribute()
             if attr is None:

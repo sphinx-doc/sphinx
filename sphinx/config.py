@@ -382,7 +382,7 @@ class Config:
                 logger.warning(__('unknown config value %r in override, ignoring'), name)
 
     def __repr__(self) -> str:
-        values = []
+        values: list[str] = []
         for opt_name in self._options:
             try:
                 opt_value = getattr(self, opt_name)

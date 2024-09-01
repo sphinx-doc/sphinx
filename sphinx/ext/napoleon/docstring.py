@@ -259,7 +259,7 @@ class GoogleDocstring:
         return self._parsed_lines
 
     def _consume_indented_block(self, indent: int = 1) -> list[str]:
-        lines = []
+        lines: list[str] = []
         line = self._lines.get(0)
         while (
             not self._is_section_break() and
@@ -270,7 +270,7 @@ class GoogleDocstring:
         return lines
 
     def _consume_contiguous(self) -> list[str]:
-        lines = []
+        lines: list[str] = []
         while (self._lines and
                self._lines.get(0) and
                not self._is_section_header()):
@@ -278,7 +278,7 @@ class GoogleDocstring:
         return lines
 
     def _consume_empty(self) -> list[str]:
-        lines = []
+        lines: list[str] = []
         line = self._lines.get(0)
         while self._lines and not line:
             lines.append(self._lines.next())
@@ -369,14 +369,14 @@ class GoogleDocstring:
         return section
 
     def _consume_to_end(self) -> list[str]:
-        lines = []
+        lines: list[str] = []
         while self._lines:
             lines.append(self._lines.next())
         return lines
 
     def _consume_to_next_section(self) -> list[str]:
         self._consume_empty()
-        lines = []
+        lines: list[str] = []
         while not self._is_section_break():
             lines.append(self._lines.next())
         return lines + self._consume_empty()
@@ -428,7 +428,7 @@ class GoogleDocstring:
         if lines:
             if padding is None:
                 padding = ' ' * len(prefix)
-            result_lines = []
+            result_lines: list[str] = []
             for i, line in enumerate(lines):
                 if i == 0:
                     result_lines.append((prefix + line).rstrip())
@@ -443,7 +443,7 @@ class GoogleDocstring:
     def _format_docutils_params(self, fields: list[tuple[str, str, list[str]]],
                                 field_role: str = 'param', type_role: str = 'type',
                                 ) -> list[str]:
-        lines = []
+        lines: list[str] = []
         for _name, _type, _desc in fields:
             _desc = self._strip_empty(_desc)
             if any(_desc):
@@ -651,7 +651,7 @@ class GoogleDocstring:
         return lines
 
     def _parse_attributes_section(self, section: str) -> list[str]:
-        lines = []
+        lines: list[str] = []
         for _name, _type, _desc in self._consume_fields():
             if not _type:
                 _type = self._lookup_annotation(_name)
@@ -829,8 +829,8 @@ class GoogleDocstring:
         return self._format_fields(_('Yields'), fields)
 
     def _partition_field_on_colon(self, line: str) -> tuple[str, str, str]:
-        before_colon = []
-        after_colon = []
+        before_colon: list[str] = []
+        after_colon: list[str] = []
         colon = ''
         found_colon = False
         for i, source in enumerate(_xref_or_code_regex.split(line)):
