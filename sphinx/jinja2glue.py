@@ -118,7 +118,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
     def get_source(
         self, environment: Environment, template: str
-    ) -> tuple[str, str, Callable]:
+    ) -> tuple[str, str, Callable[[], bool]]:
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
@@ -224,7 +224,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def get_source(
         self, environment: Environment, template: str
-    ) -> tuple[str, str, Callable]:
+    ) -> tuple[str, str, Callable[[], bool]]:
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):
