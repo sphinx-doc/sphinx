@@ -43,9 +43,6 @@ Features added
 * #12743: Add :option:`sphinx-build --exception-on-warning`,
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
-* #12820: Document :py:class:`sphinx.domains.IndexEntry` in
-  :doc:`/extdev/domainapi`.
-  Patch by Shengyu Zhang.
 
 Bugs fixed
 ----------
