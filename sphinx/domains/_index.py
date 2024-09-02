@@ -15,16 +15,17 @@ if TYPE_CHECKING:
 
 class IndexEntry(NamedTuple):
     """
-    An entry of index.
+    An index entry.
 
     .. note::
 
-       Qualifier and description are not rendered for some output formats such
-       as LaTeX.
+       The *qualifier* and *description* are not rendered for some output formats,
+       such as LaTeX.
     """
 
     #: The name of the index entry to be displayed.
     name: str
+
     #: The sub-entry related type. One of:
     #:
     #: ``0``
@@ -34,14 +35,19 @@ class IndexEntry(NamedTuple):
     #: ``2``
     #:   A sub-entry.
     subtype: int
+
     #: *docname* where the entry is located.
     docname: str
+
     #: Anchor for the entry within `docname`
     anchor: str
+
     #: Extra info for the entry.
     extra: str
+
     #: Qualifier for the description.
     qualifier: str
+
     #: Description for the entry.
     descr: str
 
@@ -98,7 +104,7 @@ class Index(ABC):
         ``content``:
           A sequence of ``(letter, entries)`` tuples, where ``letter`` is the
           "heading" for the given ``entries``, usually the starting letter, and
-          ``entries`` is a sequence of single entries. Each entry is a
-          :py:class:`IndexEntry`.
+          ``entries`` is a sequence of single entries.
+          Each entry is an :py:class:`IndexEntry`.
         """
         raise NotImplementedError
