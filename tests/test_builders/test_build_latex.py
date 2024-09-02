@@ -2184,10 +2184,6 @@ def test_duplicated_labels_before_module(app):
     app.build()
     content: str = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
-    def count_label(name):
-        text = r'\phantomsection\label{\detokenize{%s}}' % name
-        return content.count(text)
-
     pattern = (
         r'\\phantomsection\\label\{\\detokenize\{index:label-(?:auto-)?\d+[a-z]*}}'
     )
