@@ -281,6 +281,12 @@ class Config:
                  overrides: dict[str, Any] | None = None) -> None:
         raw_config: dict[str, Any] = config or {}
         constants = raw_config.pop('__constants__', None) or frozenset()
+
+        # when empty, config.epub_copyright inherits from config.copyright, so
+        # treat it as constant if the latter is
+        if 'epub_copyright' not in raw_config and 'copyright' in constants:
+            constants |= frozenset(['epub_copyright'])
+
         self._overrides = dict(overrides) if overrides is not None else {}
         self._options = Config.config_values.copy()
         self._raw_config = raw_config
