@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "",
         "Hide Search Matches": "",
         "Index": "Cholwuj",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "",

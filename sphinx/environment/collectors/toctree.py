@@ -68,8 +68,6 @@ class TocTreeCollector(EnvironmentCollector):
         ) -> nodes.bullet_list | None:
             # list of table of contents entries
             entries: list[Element] = []
-            # cache of parents -> list item
-            memo_parents: dict[tuple[str, ...], nodes.list_item] = {}
             for sectionnode in node:
                 # find all toctree nodes in this section and add them
                 # to the toc (just copying the toctree node which is then
@@ -80,7 +78,7 @@ class TocTreeCollector(EnvironmentCollector):
                     # and unnecessary stuff
                     visitor = SphinxContentsFilter(doctree)
                     title.walkabout(visitor)
-                    nodetext = visitor.get_entry_text()
+                    nodetext = visitor.get_entry_text()  # type: ignore[no-untyped-call]
                     anchorname = _make_anchor_name(sectionnode['ids'], numentries)
                     # make these nodes:
                     # list_item -> compact_paragraph -> reference
@@ -103,6 +101,8 @@ class TocTreeCollector(EnvironmentCollector):
                         entries.append(onlynode)
                 # check within the section for other node types
                 elif isinstance(sectionnode, nodes.Element):
+                    # cache of parent node -> list item
+                    memo_parents: dict[nodes.Element, nodes.list_item] = {}
                     toctreenode: nodes.Node
                     for toctreenode in sectionnode.findall():
                         if isinstance(toctreenode, nodes.section):
@@ -114,6 +114,10 @@ class TocTreeCollector(EnvironmentCollector):
                             note_toctree(app.env, docname, toctreenode)
                         # add object signatures within a section to the ToC
                         elif isinstance(toctreenode, addnodes.desc):
+                            # The desc has one or more nested desc_signature,
+                            # and then a desc_content, which again may have desc nodes.
+                            # Thus, desc is the one we can bubble up to through parents.
+                            entry: nodes.list_item | None = None
                             for sig_node in toctreenode:
                                 if not isinstance(sig_node, addnodes.desc_signature):
                                     continue
@@ -136,22 +140,28 @@ class TocTreeCollector(EnvironmentCollector):
                                 para = addnodes.compact_paragraph('', '', reference,
                                                                   skip_section_number=True)
                                 entry = nodes.list_item('', para)
-                                *parents, _ = sig_node['_toc_parts']
-                                parents = tuple(parents)
 
-                                # Cache parents tuple
-                                memo_parents[sig_node['_toc_parts']] = entry
-
-                                # Nest children within parents
-                                if parents and parents in memo_parents:
-                                    root_entry = memo_parents[parents]
+                                # Find parent node
+                                parent = sig_node.parent
+                                while parent not in memo_parents and parent != sectionnode:
+                                    parent = parent.parent
+                                # Note, it may both be the limit and in memo_parents,
+                                # prefer memo_parents, so we get the nesting.
+                                if parent in memo_parents:
+                                    root_entry = memo_parents[parent]
                                     if isinstance(root_entry[-1], nodes.bullet_list):
                                         root_entry[-1].append(entry)
                                     else:
                                         root_entry.append(nodes.bullet_list('', entry))
-                                    continue
+                                else:
+                                    assert parent == sectionnode
+                                    entries.append(entry)
 
-                                entries.append(entry)
+                            # Save the latest desc_signature as the one we put sub entries in.
+                            # If there are multiple signatures, then the latest is used.
+                            if entry is not None:
+                                # are there any desc nodes without desc_signature nodes?
+                                memo_parents[toctreenode] = entry
 
             if entries:
                 return nodes.bullet_list('', *entries)
@@ -177,7 +187,10 @@ class TocTreeCollector(EnvironmentCollector):
         env.toc_secnumbers = {}
 
         def _walk_toc(
-            node: Element, secnums: dict, depth: int, titlenode: nodes.title | None = None,
+            node: Element,
+            secnums: dict[str, tuple[int, ...]],
+            depth: int,
+            titlenode: nodes.title | None = None,
         ) -> None:
             # titlenode is the title of the document, it will get assigned a
             # secnumber too, so that it shows up in next/prev/parent rellinks
@@ -206,7 +219,7 @@ class TocTreeCollector(EnvironmentCollector):
                         secnums[reference['anchorname']] = tuple(numstack)
                     else:
                         number = None
-                        secnums[reference['anchorname']] = None
+                        secnums[reference['anchorname']] = ()
                     reference['secnumber'] = number
                     if titlenode:
                         titlenode['secnumber'] = number

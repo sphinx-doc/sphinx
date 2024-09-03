@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "",
         "Hide Search Matches": "Fela leitarni\u00f0urst\u00f6\u00f0ur",
         "Index": "Yfirlit",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "",
         "Indices and tables:": "Atri\u00f0askr\u00e1 og t\u00f6flur:",
         "Last updated on %(last_updated)s.": "",

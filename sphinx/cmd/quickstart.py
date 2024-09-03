@@ -8,7 +8,7 @@ import os
 import sys
 import time
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 # try to import readline, unix specific enhancement
 try:
@@ -36,7 +36,7 @@ from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
 EXTENSIONS = {
     'autodoc': __('automatically insert docstrings from modules'),
@@ -326,7 +326,10 @@ def ask_user(d: dict[str, Any]) -> None:
 
 
 def generate(
-    d: dict, overwrite: bool = True, silent: bool = False, templatedir: str | None = None,
+    d: dict[str, Any],
+    overwrite: bool = True,
+    silent: bool = False,
+    templatedir: str | None = None,
 ) -> None:
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir or '')
@@ -372,32 +375,25 @@ def generate(
             if 'quiet' not in d:
                 print(__('File %s already exists, skipping.') % fpath)
 
-    conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
+    conf_path = os.path.join(templatedir, 'conf.py.jinja') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
-        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
+        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py.jinja')
     with open(conf_path, encoding="utf-8") as f:
         conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
-    if template._has_custom_template('quickstart/master_doc.rst_t'):
-        msg = ('A custom template `master_doc.rst_t` found. It has been renamed to '
-               '`root_doc.rst_t`.  Please rename it on your project too.')
+    if template._has_custom_template('quickstart/master_doc.rst.jinja'):
+        msg = ('A custom template `master_doc.rst.jinja` found. It has been renamed to '
+               '`root_doc.rst.jinja`.  Please rename it on your project too.')
         print(colorize('red', msg))
-        write_file(masterfile, template.render('quickstart/master_doc.rst_t', d))
+        write_file(masterfile, template.render('quickstart/master_doc.rst.jinja', d))
     else:
-        write_file(masterfile, template.render('quickstart/root_doc.rst_t', d))
+        write_file(masterfile, template.render('quickstart/root_doc.rst.jinja', d))
 
-    if d.get('make_mode'):
-        makefile_template = 'quickstart/Makefile.new_t'
-        batchfile_template = 'quickstart/make.bat.new_t'
-    else:
-        # xref RemovedInSphinx80Warning
-        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
-        print(colorize('red', msg))
-        makefile_template = 'quickstart/Makefile_t'
-        batchfile_template = 'quickstart/make.bat_t'
+    makefile_template = 'quickstart/Makefile.new.jinja'
+    batchfile_template = 'quickstart/make.bat.new.jinja'
 
     if d['makefile'] is True:
         d['rsrcdir'] = 'source' if d['sep'] else '.'
@@ -428,13 +424,9 @@ def generate(
     print(__('where "builder" is one of the supported builders, '
              'e.g. html, latex or linkcheck.'))
     print()
-    if not d.get('make_mode'):
-        # xref RemovedInSphinx80Warning
-        msg = "Support for '--no-use-make-mode' will be removed in Sphinx 8."
-        print(colorize('red', msg))
 
 
-def valid_dir(d: dict) -> bool:
+def valid_dir(d: dict[str, Any]) -> bool:
     dir = d['path']
     if not path.exists(dir):
         return True
@@ -527,12 +519,10 @@ def get_parser() -> argparse.ArgumentParser:
     group.add_argument('--no-batchfile', action='store_false',
                        dest='batchfile',
                        help=__('do not create batchfile'))
+    # --use-make-mode is a no-op from Sphinx 8.
     group.add_argument('-m', '--use-make-mode', action='store_true',
                        dest='make_mode', default=True,
                        help=__('use make-mode for Makefile/make.bat'))
-    group.add_argument('-M', '--no-use-make-mode', action='store_false',
-                       dest='make_mode',
-                       help=__('do not use make-mode for Makefile/make.bat'))
 
     group = parser.add_argument_group(__('Project templating'))
     group.add_argument('-t', '--templatedir', metavar='TEMPLATEDIR',

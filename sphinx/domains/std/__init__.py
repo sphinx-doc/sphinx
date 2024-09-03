@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Final, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -14,7 +14,7 @@ from docutils.statemachine import StringList
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType, TitleGetter
+from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
 from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
@@ -23,12 +23,17 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import ExtensionMetadata, OptionSpec, RoleFunction
+    from sphinx.util.typing import (
+        ExtensionMetadata,
+        OptionSpec,
+        RoleFunction,
+        TitleGetter,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +105,76 @@ class EnvVarXRefRole(XRefRole):
         targetnode = nodes.target('', '', ids=[tgtid])
         document.note_explicit_target(targetnode)
         return [indexnode, targetnode, node], []
+
+
+class ConfigurationValue(ObjectDescription[str]):
+    index_template: str = _('%s; configuration value')
+    option_spec: ClassVar[OptionSpec] = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
+        'type': directives.unchanged_required,
+        'default': directives.unchanged_required,
+    }
+
+    def handle_signature(self, sig: str, sig_node: desc_signature) -> str:
+        sig_node.clear()
+        sig_node += addnodes.desc_name(sig, sig)
+        name = ws_re.sub(' ', sig)
+        sig_node['fullname'] = name
+        return name
+
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        return (sig_node['fullname'],)
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+        name, = sig_node['_toc_parts']
+        return name
+
+    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
+        node_id = make_id(self.env, self.state.document, self.objtype, name)
+        signode['ids'].append(node_id)
+        self.state.document.note_explicit_target(signode)
+        index_entry = self.index_template % name
+        self.indexnode['entries'].append(('pair', index_entry, node_id, '', None))
+        self.env.domains['std'].note_object(self.objtype, name, node_id, location=signode)
+
+    def transform_content(self, content_node: addnodes.desc_content) -> None:
+        """Insert *type* and *default* as a field list."""
+        field_list = nodes.field_list()
+        if 'type' in self.options:
+            field, msgs = self.format_type(self.options['type'])
+            field_list.append(field)
+            field_list += msgs
+        if 'default' in self.options:
+            field, msgs = self.format_default(self.options['default'])
+            field_list.append(field)
+            field_list += msgs
+        if len(field_list.children) > 0:
+            content_node.insert(0, field_list)
+
+    def format_type(self, type_: str) -> tuple[nodes.field, list[system_message]]:
+        """Formats the ``:type:`` option."""
+        parsed, msgs = self.parse_inline(type_, lineno=self.lineno)
+        field = nodes.field(
+            '',
+            nodes.field_name('', _('Type')),
+            nodes.field_body('', *parsed),
+        )
+        return field, msgs
+
+    def format_default(self, default: str) -> tuple[nodes.field, list[system_message]]:
+        """Formats the ``:default:`` option."""
+        parsed, msgs = self.parse_inline(default, lineno=self.lineno)
+        field = nodes.field(
+            '',
+            nodes.field_name('', _('Default')),
+            nodes.field_body('', *parsed),
+        )
+        return field, msgs
 
 
 class Target(SphinxDirective):
@@ -332,7 +407,7 @@ class Glossary(SphinxDirective):
         in_comment = False
         was_empty = True
         messages: list[Node] = []
-        for line, (source, lineno) in zip(self.content, self.content.items):
+        for line, (source, lineno) in zip(self.content, self.content.items, strict=True):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -527,6 +602,7 @@ class StandardDomain(Domain):
         'token': ObjType(_('grammar token'), 'token', searchprio=-1),
         'label': ObjType(_('reference label'), 'ref', 'keyword',
                          searchprio=-1),
+        'confval': ObjType('configuration value', 'confval'),
         'envvar': ObjType(_('environment variable'), 'envvar'),
         'cmdoption': ObjType(_('program option'), 'option'),
         'doc': ObjType(_('document'), 'doc', searchprio=-1),
@@ -536,12 +612,14 @@ class StandardDomain(Domain):
         'program': Program,
         'cmdoption': Cmdoption,  # old name for backwards compatibility
         'option': Cmdoption,
+        'confval': ConfigurationValue,
         'envvar': EnvVar,
         'glossary': Glossary,
         'productionlist': ProductionList,
     }
     roles: dict[str, RoleFunction | XRefRole] = {
         'option':  OptionXRefRole(warn_dangling=True),
+        'confval': XRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   TokenXRefRole(),
@@ -741,13 +819,12 @@ class StandardDomain(Domain):
                 if not sectname:
                     continue
             else:
-                if (isinstance(node, (nodes.definition_list,
-                                      nodes.field_list)) and
+                if (isinstance(node, nodes.definition_list | nodes.field_list) and
                         node.children):
                     node = cast(nodes.Element, node.children[0])
-                if isinstance(node, (nodes.field, nodes.definition_list_item)):
+                if isinstance(node, nodes.field | nodes.definition_list_item):
                     node = cast(nodes.Element, node.children[0])
-                if isinstance(node, (nodes.term, nodes.field_name)):
+                if isinstance(node, nodes.term | nodes.field_name):
                     sectname = clean_astext(node)
                 else:
                     toctree = next(node.findall(addnodes.toctree), None)
@@ -1041,7 +1118,7 @@ class StandardDomain(Domain):
                 return title_getter(elem)
             else:
                 for subnode in elem:
-                    if isinstance(subnode, (nodes.caption, nodes.title)):
+                    if isinstance(subnode, nodes.caption | nodes.title):
                         return clean_astext(subnode)
 
         return None

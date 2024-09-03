@@ -7,8 +7,8 @@ import pytest
 from sphinx.util.inventory import InventoryFile
 
 
-@pytest.mark.sphinx(buildername='dirhtml', testroot='builder-dirhtml')
-def test_dirhtml(app, status, warning):
+@pytest.mark.sphinx('dirhtml', testroot='builder-dirhtml')
+def test_dirhtml(app):
     app.build()
 
     assert (app.outdir / 'index.html').exists()
@@ -27,14 +27,29 @@ def test_dirhtml(app, status, warning):
     with (app.outdir / 'objects.inv').open('rb') as f:
         invdata = InventoryFile.load(f, 'path/to', posixpath.join)
 
-    assert 'index' in invdata.get('std:doc')
-    assert invdata['std:doc']['index'] == ('Python', '', 'path/to/', '-')
+    assert 'index' in invdata.get('std:doc', {})
+    assert invdata['std:doc']['index'] == ('Project name not set', '', 'path/to/', '-')
 
-    assert 'foo/index' in invdata.get('std:doc')
-    assert invdata['std:doc']['foo/index'] == ('Python', '', 'path/to/foo/', '-')
+    assert 'foo/index' in invdata.get('std:doc', {})
+    assert invdata['std:doc']['foo/index'] == (
+        'Project name not set',
+        '',
+        'path/to/foo/',
+        '-',
+    )
 
-    assert 'index' in invdata.get('std:label')
-    assert invdata['std:label']['index'] == ('Python', '', 'path/to/#index', '-')
+    assert 'index' in invdata.get('std:label', {})
+    assert invdata['std:label']['index'] == (
+        'Project name not set',
+        '',
+        'path/to/#index',
+        '-',
+    )
 
-    assert 'foo' in invdata.get('std:label')
-    assert invdata['std:label']['foo'] == ('Python', '', 'path/to/foo/#foo', 'foo/index')
+    assert 'foo' in invdata.get('std:label', {})
+    assert invdata['std:label']['foo'] == (
+        'Project name not set',
+        '',
+        'path/to/foo/#foo',
+        'foo/index',
+    )

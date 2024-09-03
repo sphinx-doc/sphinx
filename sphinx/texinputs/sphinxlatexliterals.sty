@@ -1,7 +1,7 @@
 %% LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexliterals.sty}[2023/04/01 code-blocks and parsed literals]
+\ProvidesPackage{sphinxlatexliterals}[2024/07/01 v7.4.0 code-blocks and parsed literals]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -34,6 +34,7 @@
 % - needspace
 % - sphinxpackageboxes
 \RequirePackage{sphinxpackageboxes}
+% 7.4.0 removes unneeded usage of \spx@boxes@border
 
 % also in sphinxlatexadmonitions.sty:
 % This is a workaround to a "feature" of French lists, when literal block
@@ -224,7 +225,6 @@
        \spx@boxes@border@right\z@
        \spx@boxes@border@bottom\z@
        \spx@boxes@border@left\z@
-       \spx@boxes@border\z@
        % MEMO: rounded corners still make sense in presence of a background
        % color, so we do not force the fcolorbox@rectangle here
     \fi
@@ -512,6 +512,9 @@
     \setbox\spx@tempboxa
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
+% Avoid TeX reporting Overfull \hbox'es during this measuring phase. Setting
+% \hbadness to \@M to avoid Underfull reports is unneeded due to \raggedright.
+          \hfuzz\maxdimen
           \spx@everypar{}\noindent\strut\FV@Line\strut\spx@par
           \spx@verb@getwidths}%
     \ifdim\spx@verb@maxwidth>
@@ -670,25 +673,18 @@
        \def\sphinxVerbatim@Before
            {\sphinxVerbatim@Title\nointerlineskip
             \kern\dimexpr-\dp\strutbox+\sphinxbelowcaptionspace
-                 % if no frame (code-blocks inside table cells), remove
-                 % the top padding (better visually)
-                 \ifspx@opt@verbatimwithframe\else
-                    % but we must now check if there is a background color
-                    % MEMO: "fcolorbox@setup" will have been done by time of use
-                    \ifspx@boxes@withbackgroundcolor\else-\spx@boxes@padding@top\fi
-                \fi
+                 % MEMO: prior to 7.4.0 a test was done for presence or
+                 % not of a frame and if not top padding was removed if
+                 % no background color.  A background color is now always
+                 % assumed, so this got removed.
                  % caption package adds \abovecaptionskip vspace, remove it
-                 \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax}%
+            \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax}%
      \else
        \vskip\sphinxverbatimsmallskipamount
        \def\sphinxVerbatim@After
           {\nointerlineskip\kern\dimexpr\dp\strutbox
-            \ifspx@opt@verbatimwithframe\else
-                    % but we must now check if there is a background color
-                    % MEMO: "fcolorbox@setup" will have been done by time of use
-                    \ifspx@boxes@withbackgroundcolor\else-\spx@boxes@padding@bottom\fi
-            \fi
-            \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax
+           % MEMO: 7.4.0 removes here too an optional removal of bottom padding
+           \spx@ifcaptionpackage{-\abovecaptionskip}{}\relax
            \sphinxVerbatim@Title}%
      \fi
      \def\@captype{literalblock}%

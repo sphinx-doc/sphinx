@@ -96,7 +96,10 @@ def write_file(name: str, text: str, opts: CliOptions) -> Path:
 
 
 def create_module_file(
-    package: str | None, basename: str, opts: CliOptions, user_template_dir: str | None = None
+    package: str | None,
+    basename: str,
+    opts: CliOptions,
+    user_template_dir: str | None = None,
 ) -> Path:
     """Build the text of the file and write the file."""
     options = copy(OPTIONS)
@@ -114,7 +117,7 @@ def create_module_file(
         template_path = [user_template_dir, template_dir]
     else:
         template_path = [template_dir]
-    text = ReSTRenderer(template_path).render('module.rst_t', context)
+    text = ReSTRenderer(template_path).render('module.rst.jinja', context)
     return write_file(qualname, text, opts)
 
 
@@ -148,7 +151,9 @@ def create_package_file(
         if not is_skipped_module(Path(root, sub), opts, excludes) and not is_initpy(sub)
     ]
     submodules = sorted(set(submodules))
-    submodules = [module_join(master_package, subroot, modname) for modname in submodules]
+    submodules = [
+        module_join(master_package, subroot, modname) for modname in submodules
+    ]
     options = copy(OPTIONS)
     if opts.includeprivate and 'private-members' not in options:
         options.append('private-members')
@@ -172,7 +177,7 @@ def create_package_file(
 
     written: list[Path] = []
 
-    text = ReSTRenderer(template_path).render('package.rst_t', context)
+    text = ReSTRenderer(template_path).render('package.rst.jinja', context)
     written.append(write_file(pkgname, text, opts))
 
     if submodules and opts.separatemodules:
@@ -209,7 +214,7 @@ def create_modules_toc_file(
         template_path = [user_template_dir, template_dir]
     else:
         template_path = [template_dir]
-    text = ReSTRenderer(template_path).render('toc.rst_t', context)
+    text = ReSTRenderer(template_path).render('toc.rst.jinja', context)
     return write_file(name, text, opts)
 
 
@@ -316,7 +321,9 @@ def recurse_tree(
         if is_pkg or is_namespace:
             # we are in a package with something to document
             if subs or len(files) > 1 or not is_skipped_package(root, opts):
-                subpackage = root[len(rootpath) :].lstrip(path.sep).replace(path.sep, '.')
+                subpackage = (
+                    root[len(rootpath) :].lstrip(path.sep).replace(path.sep, '.')
+                )
                 # if this is not a namespace or
                 # a namespace and there is something there to document
                 if not is_namespace or has_child_module(root, excludes, opts):
@@ -342,7 +349,9 @@ def recurse_tree(
                 if not is_skipped_module(Path(rootpath, py_file), opts, excludes):
                     module = py_file.split('.')[0]
                     written_files.append(
-                        create_module_file(root_package, module, opts, user_template_dir)
+                        create_module_file(
+                            root_package, module, opts, user_template_dir
+                        )
                     )
                     toplevels.append(module)
 
@@ -361,7 +370,7 @@ def is_excluded(root: str | Path, excludes: Sequence[re.Pattern[str]]) -> bool:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> ' '[EXCLUDE_PATTERN, ...]',
+        usage='%(prog)s [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> [EXCLUDE_PATTERN, ...]',
         epilog=__('For more information, visit <https://www.sphinx-doc.org/>.'),
         description=__("""
 Look recursively in <MODULE_PATH> for Python modules and packages and create
@@ -384,7 +393,9 @@ Note: By default this script will not overwrite already created files."""),
     parser.add_argument(
         'exclude_pattern',
         nargs='*',
-        help=__('fnmatch-style file and/or directory patterns ' 'to exclude from generation'),
+        help=__(
+            'fnmatch-style file and/or directory patterns to exclude from generation'
+        ),
     )
 
     parser.add_argument(
@@ -408,10 +419,14 @@ Note: By default this script will not overwrite already created files."""),
         dest='maxdepth',
         type=int,
         default=4,
-        help=__('maximum depth of submodules to show in the TOC ' '(default: 4)'),
+        help=__('maximum depth of submodules to show in the TOC (default: 4)'),
     )
     parser.add_argument(
-        '-f', '--force', action='store_true', dest='force', help=__('overwrite existing files')
+        '-f',
+        '--force',
+        action='store_true',
+        dest='force',
+        help=__('overwrite existing files'),
     )
     parser.add_argument(
         '-l',
@@ -420,7 +435,7 @@ Note: By default this script will not overwrite already created files."""),
         dest='followlinks',
         default=False,
         help=__(
-            'follow symbolic links. Powerful when combined ' 'with collective.recipe.omelette.'
+            'follow symbolic links. Powerful when combined with collective.recipe.omelette.'
         ),
     )
     parser.add_argument(
@@ -474,14 +489,14 @@ Note: By default this script will not overwrite already created files."""),
         '--module-first',
         action='store_true',
         dest='modulefirst',
-        help=__('put module documentation before submodule ' 'documentation'),
+        help=__('put module documentation before submodule documentation'),
     )
     parser.add_argument(
         '--implicit-namespaces',
         action='store_true',
         dest='implicit_namespaces',
         help=__(
-            'interpret module paths according to PEP-0420 ' 'implicit namespaces specification'
+            'interpret module paths according to PEP-0420 implicit namespaces specification'
         ),
     )
     parser.add_argument(
@@ -497,7 +512,9 @@ Note: By default this script will not overwrite already created files."""),
         '--remove-old',
         action='store_true',
         dest='remove_old',
-        help=__('Remove existing files in the output directory that were not generated'),
+        help=__(
+            'Remove existing files in the output directory that were not generated'
+        ),
     )
     exclusive_group.add_argument(
         '-F',
@@ -539,7 +556,9 @@ Note: By default this script will not overwrite already created files."""),
         '--doc-release',
         action='store',
         dest='release',
-        help=__('project release, used when --full is given, ' 'defaults to --doc-version'),
+        help=__(
+            'project release, used when --full is given, defaults to --doc-version'
+        ),
     )
 
     group = parser.add_argument_group(__('extension options'))
@@ -649,7 +668,11 @@ def main(argv: Sequence[str] = (), /) -> int:
             'suffix': '.' + args.suffix,
             'master': 'index',
             'epub': True,
-            'extensions': ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.todo'],
+            'extensions': [
+                'sphinx.ext.autodoc',
+                'sphinx.ext.viewcode',
+                'sphinx.ext.todo',
+            ],
             'makefile': True,
             'batchfile': True,
             'make_mode': True,
@@ -670,7 +693,9 @@ def main(argv: Sequence[str] = (), /) -> int:
                 d['extensions'].extend(ext.split(','))
 
         if not args.dryrun:
-            qs.generate(d, silent=True, overwrite=args.force, templatedir=args.templatedir)
+            qs.generate(
+                d, silent=True, overwrite=args.force, templatedir=args.templatedir
+            )
     elif args.tocfile:
         written_files.append(
             create_modules_toc_file(modules, args, args.tocfile, args.templatedir)

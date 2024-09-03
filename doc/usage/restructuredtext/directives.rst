@@ -24,10 +24,11 @@ Table of contents
 
 .. index:: pair: table of; contents
 
-Since reST does not have facilities to interconnect several documents, or split
-documents into multiple output files, Sphinx uses a custom directive to add
-relations between the single files the documentation is made of, as well as
-tables of contents.  The ``toctree`` directive is the central element.
+Since reStructuredText does not have facilities to interconnect several documents,
+or split documents into multiple output files,
+Sphinx uses a custom directive to add relations between
+the single files the documentation is made of, as well as tables of contents.
+The ``toctree`` directive is the central element.
 
 .. note::
 
@@ -37,7 +38,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 .. note::
 
    To create table of contents for current document (.rst file), use the
-   standard reST :dudir:`contents directive <table-of-contents>`.
+   standard reStructuredText :dudir:`contents directive <table-of-contents>`.
 
 .. rst:directive:: toctree
 
@@ -49,8 +50,8 @@ tables of contents.  The ``toctree`` directive is the central element.
    indicate the depth of the tree; by default, all levels are included. [#]_
 
    The representation of "TOC tree" is changed in each output format.  The
-   builders that output multiple files (ex. HTML) treat it as a collection of
-   hyperlinks.  On the other hand, the builders that output a single file (ex.
+   builders that output multiple files (e.g. HTML) treat it as a collection of
+   hyperlinks.  On the other hand, the builders that output a single file (e.g.
    LaTeX, man page, etc.) replace it with the content of the documents on the
    TOC tree.
 
@@ -79,7 +80,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    Document titles in the :rst:dir:`toctree` will be automatically read from the
    title of the referenced document. If that isn't what you want, you can
-   specify an explicit title and target using a similar syntax to reST
+   specify an explicit title and target using a similar syntax to reStructuredText
    hyperlinks (and Sphinx's :ref:`cross-referencing syntax <xref-syntax>`). This
    looks like::
 
@@ -95,97 +96,9 @@ tables of contents.  The ``toctree`` directive is the central element.
    You can also add external links, by giving an HTTP URL instead of a document
    name.
 
-   **Section numbering**
-
-   If you want to have section numbers even in HTML output, give the
-   **toplevel** toctree a ``numbered`` option.  For example::
-
-      .. toctree::
-         :numbered:
-
-         foo
-         bar
-
-   Numbering then starts at the heading of ``foo``.  Sub-toctrees are
-   automatically numbered (don't give the ``numbered`` flag to those).
-
-   Numbering up to a specific depth is also possible, by giving the depth as a
-   numeric argument to ``numbered``.
-
-   **Additional options**
-
-   You can use the ``caption`` option to provide a toctree caption and you can
-   use the ``name`` option to provide an implicit target name that can be
-   referenced by using :rst:role:`ref`::
-
-      .. toctree::
-         :caption: Table of Contents
-         :name: mastertoc
-
-         foo
-
-   If you want only the titles of documents in the tree to show up, not other
-   headings of the same level, you can use the ``titlesonly`` option::
-
-      .. toctree::
-         :titlesonly:
-
-         foo
-         bar
-
-   You can use "globbing" in toctree directives, by giving the ``glob`` flag
-   option.  All entries are then matched against the list of available
-   documents, and matches are inserted into the list alphabetically.  Example::
-
-      .. toctree::
-         :glob:
-
-         intro*
-         recipe/*
-         *
-
-   This includes first all documents whose names start with ``intro``, then all
-   documents in the ``recipe`` folder, then all remaining documents (except the
-   one containing the directive, of course.) [#]_
-
    The special entry name ``self`` stands for the document containing the
    toctree directive.  This is useful if you want to generate a "sitemap" from
    the toctree.
-
-   You can use the ``reversed`` flag option to reverse the order of the entries
-   in the list. This can be useful when using the ``glob`` flag option to
-   reverse the ordering of the files.  Example::
-
-      .. toctree::
-         :glob:
-         :reversed:
-
-         recipe/*
-
-   You can also give a "hidden" option to the directive, like this::
-
-      .. toctree::
-         :hidden:
-
-         doc_1
-         doc_2
-
-   This will still notify Sphinx of the document hierarchy, but not insert links
-   into the document at the location of the directive -- this makes sense if you
-   intend to insert these links yourself, in a different style, or in the HTML
-   sidebar.
-
-   In cases where you want to have only one top-level toctree and hide all other
-   lower level toctrees you can add the "includehidden" option to the top-level
-   toctree entry::
-
-      .. toctree::
-         :includehidden:
-
-         doc_1
-         doc_2
-
-   All other toctree entries can then be eliminated by the "hidden" option.
 
    In the end, all documents in the :term:`source directory` (or subdirectories)
    must occur in some ``toctree`` directive; Sphinx will emit a warning if it
@@ -199,174 +112,455 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    The "root document" (selected by :confval:`root_doc`) is the "root" of the TOC
    tree hierarchy.  It can be used as the documentation's main page, or as a
-   "full table of contents" if you don't give a ``maxdepth`` option.
-
-   .. versionchanged:: 0.3
-      Added "globbing" option.
+   "full table of contents" if you don't give a ``:maxdepth:`` option.
 
    .. versionchanged:: 0.6
-      Added "numbered" and "hidden" options as well as external links and
-      support for "self" references.
+      Added support for external links and "self" references.
 
-   .. versionchanged:: 1.0
-      Added "titlesonly" option.
+   .. rubric:: Options
 
-   .. versionchanged:: 1.1
-      Added numeric argument to "numbered".
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
 
-   .. versionchanged:: 1.2
-      Added "includehidden" option.
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
+      For example::
 
-   .. versionchanged:: 1.3
-      Added "caption" and "name" option.
+          .. toctree::
+             :class: custom-toc
+
+      .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
+
+      .. versionadded:: 7.4
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
+      For example::
+
+          .. toctree::
+             :name: mastertoc
+
+             foo
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: caption
+      :type: text
+
+      Add a caption to the toctree.
+      For example::
+
+          .. toctree::
+             :caption: Table of Contents
+
+              foo
+
+      .. versionadded:: 1.3
+
+   .. rst:directive:option:: numbered
+                             numbered: depth
+
+      If you want to have section numbers even in HTML output,
+      add the ``:numbered:`` option to the *top-level* toctree.
+      For example::
+
+         .. toctree::
+            :numbered:
+
+            foo
+            bar
+
+      Section numbering then starts at the heading of ``foo``.
+      Sub-toctrees are automatically numbered
+      (don't give the ``numbered`` flag to those).
+
+      Numbering up to a specific depth is also possible,
+      by giving the depth as a numeric argument to ``numbered``.
+
+      .. versionadded:: 0.6
+
+      .. versionchanged:: 1.1
+         Added the numeric *depth* argument.
+
+   .. rst:directive:option:: titlesonly
+
+      Only list document titles, not other headings of the same level.
+      For example::
+
+          .. toctree::
+             :titlesonly:
+
+             foo
+             bar
+
+      .. versionadded:: 1.0
+
+   .. rst:directive:option:: glob
+
+      Parse glob wildcards in toctree entries.
+      All entries are matched against the list of available documents,
+      and matches are inserted into the list alphabetically.
+      For example::
+
+          .. toctree::
+             :glob:
+
+             intro*
+             recipe/*
+             *
+
+      This includes first all documents whose names start with ``intro``,
+      then all documents in the ``recipe`` folder, then all remaining documents
+      (except the one containing the directive, of course.) [#]_
+
+      .. versionadded:: 0.3
+
+   .. rst:directive:option:: reversed
+
+      Reverse the order of the entries in the list.
+      This is particularly useful when using the ``:glob:`` option.
+
+      .. versionadded:: 1.5
+
+   .. rst:directive:option:: hidden
+
+      A hidden toctree only defines the document hierarchy.
+      It will not insert links into the document at the location of the directive.
+
+      This makes sense if you have other means of navigation,
+      e.g. through manual links, HTML sidebar navigation,
+      or if you use the ``:includehidden:`` option on the top-level toctree.
+
+      .. versionadded:: 0.6
+
+   .. rst:directive:option:: includehidden
+
+      If you want one global table of contents showing the complete document structure,
+      you can add the ``:includehidden:`` option to the *top-level* toctree directive.
+      All other toctrees on child pages can then be made invisible
+      with the ``:hidden:`` option.
+      The top-level toctree with ``:includehidden:`` will then include their entries.
+
+      .. versionadded:: 1.2
+
 
 Special names
 ^^^^^^^^^^^^^
+
+.. index:: pair: genindex; toctree
+           pair: modindex; toctree
+           pair: search; toctree
 
 Sphinx reserves some document names for its own use; you should not try to
 create documents with these names -- it will cause problems.
 
 The special document names (and pages generated for them) are:
 
-* ``genindex``, ``modindex``, ``search``
+* ``genindex``
 
-  These are used for the general index, the Python module index, and the search
-  page, respectively.
+  This is used for the general index,
+  which is populated with entries from :rst:dir:`index` directives
+  and all index-generating :ref:`object descriptions <basic-domain-markup>`.
+  For example, see Sphinx's :ref:`genindex`.
 
-  The general index is populated with entries from modules, all
-  index-generating :ref:`object descriptions <basic-domain-markup>`, and from
-  :rst:dir:`index` directives.
+* ``modindex``
 
-  The Python module index contains one entry per :rst:dir:`py:module`
-  directive.
+  This is used for the Python module index,
+  which contains one entry per :rst:dir:`py:module` directive.
+  For example, see Sphinx's :ref:`py-modindex`.
 
-  The search page contains a form that uses the generated JSON search index and
-  JavaScript to full-text search the generated documents for search words; it
-  should work on every major browser that supports modern JavaScript.
+* ``search``
 
-* every name beginning with ``_``
+  This is used for the search page,
+  which contains a form that uses the generated JSON search index and JavaScript
+  to full-text search the generated documents for search words;
+  it works on every major browser.
+  For example, see Sphinx's :ref:`search`.
 
-  Though few such names are currently used by Sphinx, you should not
-  create documents or document-containing directories with such names.  (Using
-  ``_`` as a prefix for a custom template directory is fine.)
+* Every name beginning with ``_``
+
+  Though few such names are currently used by Sphinx,
+  you should not create documents or document-containing directories with such names.
+  (Using ``_`` as a prefix for a custom template directory is fine.)
 
 .. warning::
 
-   Be careful with unusual characters in filenames.  Some formats may interpret
-   these characters in unexpected ways:
+   Be careful with unusual characters in filenames.
+   Some formats may interpret these characters in unexpected ways:
 
-   * Do not use the colon ``:`` for HTML based formats.  Links to other parts
-     may not work.
-
-   * Do not use the plus ``+`` for the ePub format.  Some resources may not be
-     found.
+   * Do not use the colon ``:`` for HTML based formats.
+     Links to other parts may not work.
+   * Do not use the plus ``+`` for the ePub format.
+     Some resources may not be found.
 
 
 Paragraph-level markup
 ----------------------
 
-.. index:: note, warning
-           pair: changes; in version
-
 These directives create short paragraphs and can be used inside information
 units as well as normal text.
 
+
+Admonitions, messages, and warnings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: admonition, admonitions
+           pair: attention; admonition
+           pair: caution; admonition
+           pair: danger; admonition
+           pair: error; admonition
+           pair: hint; admonition
+           pair: important; admonition
+           pair: note; admonition
+           pair: tip; admonition
+           pair: warning; admonition
+
+The admonition directives create 'admonition' elements,
+a standardised system of communicating different types of information,
+from a helpful :rst:dir:`tip` to matters of paramount :rst:dir:`danger`.
+These directives can be used anywhere an ordinary body element can,
+and can contain arbitrary body elements.
+There are nine specific named admonitions
+and the generic :rst:dir:`admonition` directive.
+
+.. rst:directive:: .. attention::
+
+   Information that requires the reader's attention.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. attention::
+
+      Please may I have your attention.
+
+.. rst:directive:: .. caution::
+
+   Information with regard to which the reader should exercise care.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. caution::
+
+      Exercise due caution.
+
+.. rst:directive:: .. danger::
+
+   Information which may lead to near and present danger if not heeded.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. danger::
+
+      Let none think to fly the danger for soon or late love is his own avenger.
+
+.. rst:directive:: .. error::
+
+   Information relating to failure modes of some description.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. error::
+
+      ERROR 418: I'm a teapot.
+
+.. rst:directive:: .. hint::
+
+   Information that is helpful to the reader.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. hint::
+
+      Look under the flowerpot.
+
+.. rst:directive:: .. important::
+
+   Information that is of paramount importance
+   and which the reader must not ignore.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. important::
+
+      This is a statement of paramount importance.
+
 .. rst:directive:: .. note::
 
-   An especially important bit of information about an API that a user should be
-   aware of when using whatever bit of API the note pertains to.  The content of
-   the directive should be written in complete sentences and include all
-   appropriate punctuation.
+   An especially important bit of information that the reader should know.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
 
-   Example::
+   Example:
 
-      .. note::
+   .. note::
 
-         This function is not suitable for sending spam e-mails.
+      This function is not suitable for sending tins of spam.
+
+.. rst:directive:: .. tip::
+
+   Some useful tidbit of information for the reader.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. tip::
+
+      Remember your sun cream!
 
 .. rst:directive:: .. warning::
 
-   An important bit of information about an API that a user should be very aware
-   of when using whatever bit of API the warning pertains to.  The content of
-   the directive should be written in complete sentences and include all
-   appropriate punctuation. This differs from :rst:dir:`note` in that it is
-   recommended over :rst:dir:`note` for information regarding security.
+   An important bit of information that the reader should be very aware of.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
 
-.. rst:directive:: .. versionadded:: version
+   Example:
 
-   This directive documents the version of the project which added the described
-   feature to the library or C API. When this applies to an entire module, it
-   should be placed at the top of the module section before any prose.
+   .. warning::
+
+      Beware of the dog.
+
+.. rst:directive:: .. admonition:: title
+
+   A generic admonition, with an optional title.
+   The content of the directive should be written in complete sentences
+   and include all appropriate punctuation.
+
+   Example:
+
+   .. admonition:: This is a title
+
+      This is the content of the admonition.
+
+
+.. rst:directive:: seealso
+
+   Many sections include a list of references to module documentation or
+   external documents.
+   These lists are created using the :rst:dir:`seealso` directive.
+
+   The :rst:dir:`!seealso` directive is typically placed in a section
+   just before any subsections.
+   The content of the :rst:dir:`seealso` directive should be
+   either a single line or a reStructuredText `definition list`_.
+
+   .. _definition list: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#definition-lists
+
+   Example::
+
+      .. seealso::
+
+         Python's :py:mod:`zipfile` module
+            Documentation of Python's standard :py:mod:`zipfile` module.
+
+         `GNU tar manual, Basic Tar Format <https://example.org>`_
+            Documentation for tar archive files, including GNU tar extensions.
+
+   .. seealso::
+
+      Module :py:mod:`zipfile`
+         Documentation of the :py:mod:`zipfile` standard module.
+
+      `GNU tar manual, Basic Tar Format <https://example.org>`_
+         Documentation for tar archive files, including GNU tar extensions.
+
+
+Describing changes between versions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: pair: added; in version
+           pair: changes; in version
+           pair: removed; in version
+
+.. rst:directive:: .. versionadded:: version [brief explanation]
+
+   This directive documents the version of the project
+   which added the described feature.
+   When this applies to an entire module or component,
+   it should be placed at the top of the relevant section before any prose.
 
    The first argument must be given and is the version in question; you can add
    a second argument consisting of a *brief* explanation of the change.
+
+   .. attention::
+      There must be no blank line between the directive head and the explanation;
+      this is to make these blocks visually continuous in the markup.
 
    Example::
 
       .. versionadded:: 2.5
          The *spam* parameter.
 
-   Note that there must be no blank line between the directive head and the
-   explanation; this is to make these blocks visually continuous in the markup.
+   .. versionadded:: 2.5
+      The *spam* parameter.
 
-.. rst:directive:: .. versionchanged:: version
+.. rst:directive:: .. versionchanged:: version [brief explanation]
 
    Similar to :rst:dir:`versionadded`, but describes when and what changed in
    the named feature in some way (new parameters, changed side effects, etc.).
 
-.. rst:directive:: .. deprecated:: version
-
-   Similar to :rst:dir:`versionchanged`, but describes when the feature was
-   deprecated.  An explanation can also be given, for example to inform the
-   reader what should be used instead.  Example::
-
-      .. deprecated:: 3.1
-         Use :func:`spam` instead.
-
-.. rst:directive:: .. versionremoved:: version
-
-   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
-   An explanation may be provided to inform the reader what to use instead,
-   or why the feature was removed.
    Example::
 
-      .. versionremoved:: 4.0
-         The :func:`spam` function is more flexible, and should be used instead.
+      .. versionchanged:: 2.8
+         The *spam* parameter is now of type *boson*.
+
+   .. versionchanged:: 2.8
+      The *spam* parameter is now of type *boson*.
+
+.. rst:directive:: .. deprecated:: version [brief explanation]
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was
+   deprecated.
+   A *brief* explanation can also be given,
+   for example to tell the reader what to use instead.
+
+   Example::
+
+      .. deprecated:: 3.1
+         Use :py:func:`spam` instead.
+
+   .. deprecated:: 3.1
+      Use :py:func:`!spam` instead.
+
+.. rst:directive:: .. versionremoved:: version [brief explanation]
+
+   Similar to :rst:dir:`versionadded`, but describes when the feature was removed.
+   An explanation may be provided to tell the reader what to use instead,
+   or why the feature was removed.
 
    .. versionadded:: 7.3
 
-.. rst:directive:: seealso
+   Example::
 
-   Many sections include a list of references to module documentation or
-   external documents.  These lists are created using the :rst:dir:`seealso`
-   directive.
+      .. versionremoved:: 4.0
+         The :py:func:`spam` function is more flexible, and should be used instead.
 
-   The :rst:dir:`seealso` directive is typically placed in a section just before
-   any subsections.  For the HTML output, it is shown boxed off from the main
-   flow of the text.
+   .. versionremoved:: 4.0
+      The :py:func:`!spam` function is more flexible, and should be used instead.
 
-   The content of the :rst:dir:`seealso` directive should be a reST definition
-   list. Example::
 
-      .. seealso::
-
-         Module :py:mod:`zipfile`
-            Documentation of the :py:mod:`zipfile` standard module.
-
-         `GNU tar manual, Basic Tar Format <https://link>`_
-            Documentation for tar archive files, including GNU tar extensions.
-
-   There's also a "short form" allowed that looks like this::
-
-      .. seealso:: modules :py:mod:`zipfile`, :py:mod:`tarfile`
-
-   .. versionadded:: 0.5
-      The short form.
+Presentational
+^^^^^^^^^^^^^^
 
 .. rst:directive:: .. rubric:: title
 
-   This directive creates a paragraph heading that is not used to create a
-   table of contents node.
+   A rubric is like an informal heading that doesn't correspond to the document's structure,
+   i.e. it does not create a table of contents node.
 
    .. note::
 
@@ -375,12 +569,34 @@ units as well as normal text.
       assumed to only contain footnote definitions and therefore would create an
       empty heading.
 
+   .. rubric:: Options
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
+
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: heading-level: n
+      :type: number from 1 to 6
+
+      .. versionadded:: 7.4.1
+
+      Use this option to specify the heading level of the rubric.
+      In this case the rubric will be rendered as ``<h1>`` to ``<h6>`` for HTML output,
+      or as the corresponding non-numbered sectioning command for LaTeX
+      (see :confval:`latex_toplevel_sectioning`).
+
+
 .. rst:directive:: centered
 
-   This directive creates a centered boldfaced line of text.  Use it as
-   follows::
-
-      .. centered:: LICENSE AGREEMENT
+   This directive creates a centered boldfaced line of text.
 
    .. deprecated:: 1.1
       This presentation-only directive is a legacy from older versions.
@@ -393,17 +609,22 @@ units as well as normal text.
    compact list by either distributing more than one item horizontally, or
    reducing spacing between items, depending on the builder.
 
-   For builders that support the horizontal distribution, there is a ``columns``
-   option that specifies the number of columns; it defaults to 2.  Example::
+   .. rubric:: Options
 
-      .. hlist::
-         :columns: 3
+   .. rst:directive:option:: columns: n
+      :type: int
 
-         * A list of
-         * short items
-         * that should be
-         * displayed
-         * horizontally
+      The number of columns; defaults to 2.
+      For example::
+
+         .. hlist::
+            :columns: 3
+
+            * A list of
+            * short items
+            * that should be
+            * displayed
+            * horizontally
 
    .. versionadded:: 0.6
 
@@ -419,8 +640,8 @@ Showing code examples
 There are multiple ways to show syntax-highlighted literal code blocks in
 Sphinx:
 
-* using :ref:`reST doctest blocks <rst-doctest-blocks>`;
-* using :ref:`reST literal blocks <rst-literal-blocks>`, optionally in
+* using :ref:`reStructuredText doctest blocks <rst-doctest-blocks>`;
+* using :ref:`reStructuredText literal blocks <rst-literal-blocks>`, optionally in
   combination with the :rst:dir:`highlight` directive;
 * using the :rst:dir:`code-block` directive;
 * and using the :rst:dir:`literalinclude` directive.
@@ -477,7 +698,7 @@ __ https://pygments.org/docs/lexers
    As discussed previously, *language* can be any lexer alias supported by
    Pygments.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: linenothreshold: threshold
       :type: number (optional)
@@ -503,6 +724,7 @@ __ https://pygments.org/docs/lexers
 
 .. rst:directive:: .. code-block:: [language]
                    .. sourcecode:: [language]
+                   .. code:: [language]
 
    Example::
 
@@ -521,7 +743,7 @@ __ https://pygments.org/docs/lexers
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: linenos
       :type: no value
@@ -618,7 +840,7 @@ __ https://pygments.org/docs/lexers
 
       Strip indentation characters from the code block.  When number given,
       leading N characters are removed.  When no argument given, leading spaces
-      are removed via :func:`textwrap.dedent()`.  For example::
+      are removed via :func:`textwrap.dedent`.  For example::
 
          .. code-block:: ruby
             :linenos:
@@ -802,8 +1024,8 @@ Glossary
 
 .. rst:directive:: .. glossary::
 
-   This directive must contain a reST definition-list-like markup with terms and
-   definitions.  The definitions will then be referenceable with the
+   This directive must contain a reStructuredText definition-list-like markup
+   with terms and definitions.  The definitions will then be referenceable with the
    :rst:role:`term` role.  Example::
 
       .. glossary::
@@ -848,9 +1070,6 @@ Glossary
    text only have "term" part. In this case, translated "localized term" will be
    categorized in "key" group.
 
-   .. versionadded:: 0.6
-      You can now give the glossary directive a ``:sorted:`` flag that will
-      automatically sort the entries alphabetically.
 
    .. versionchanged:: 1.1
       Now supports multiple terms and inline markup in terms.
@@ -858,9 +1077,19 @@ Glossary
    .. versionchanged:: 1.4
       Index key for glossary term should be considered *experimental*.
 
-   .. versionchanged:: 4.4
-      In internationalized documentation, the ``:sorted:`` flag sorts
-      according to translated terms.
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: sorted
+
+      Sort the entries alphabetically.
+
+      .. versionadded:: 0.6
+
+      .. versionchanged:: 4.4
+         In internationalized documentation, sort according to translated terms.
+
+
 
 Meta-information markup
 -----------------------
@@ -934,7 +1163,7 @@ mainly contained in information units, such as the language reference.
       (this notation is also used below to describe what entries are created).
       Examples:
 
-      .. code:: reStructuredText
+      .. code-block:: rst
 
          .. index:: single: execution
                     single: execution; context
@@ -947,7 +1176,7 @@ mainly contained in information units, such as the language reference.
       The pair of values must be separated by a semicolon.
       Example:
 
-      .. code:: reStructuredText
+      .. code-block:: rst
 
          .. index:: pair: loop; statement
 
@@ -957,7 +1186,7 @@ mainly contained in information units, such as the language reference.
       All three values must be separated by a semicolon.
       Example:
 
-      .. code:: reStructuredText
+      .. code-block:: rst
 
          .. index:: triple: module; search; path
 
@@ -967,7 +1196,7 @@ mainly contained in information units, such as the language reference.
       A shortcut to create an index entry that refers to another entry.
       Example:
 
-      .. code:: reStructuredText
+      .. code-block:: rst
 
          .. index:: see: entry; other
 
@@ -1009,7 +1238,7 @@ mainly contained in information units, such as the language reference.
    .. versionchanged:: 1.1
       Added ``see`` and ``seealso`` types, as well as marking main entries.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: name: a label for hyperlink
       :type: text
@@ -1034,7 +1263,7 @@ mainly contained in information units, such as the language reference.
    case, the "target" part can be a full entry as described for the directive
    above.  For example::
 
-      This is a normal reST :index:`paragraph` that contains several
+      This is a normal reStructuredText :index:`paragraph` that contains several
       :index:`index entries <pair: index; entry>`.
 
    .. versionadded:: 1.1
@@ -1052,10 +1281,11 @@ Including content based on tags
 
       .. only:: html and draft
 
-   Undefined tags are false, defined tags (via the ``-t`` command-line option or
-   within :file:`conf.py`, see :ref:`here <conf-tags>`) are true.  Boolean
-   expressions, also using parentheses (like ``(latex or html) and draft``) are
-   supported.
+   Undefined tags are false, defined tags are true
+   (tags can be defined via the :option:`--tag <sphinx-build --tag>`
+   command-line option or within :file:`conf.py`, see :ref:`here <conf-tags>`).
+   Boolean expressions (like ``(latex or html) and draft``) are supported
+   and may use parentheses.
 
    The *format* and the *name* of the current builder (``html``, ``latex`` or
    ``text``) are always set as a tag [#]_.  To make the distinction between
@@ -1212,23 +1442,45 @@ or use Python raw strings (``r"raw"``).
 
       .. math:: (a + b)^2 = a^2 + 2ab + b^2
 
-   Normally, equations are not numbered.  If you want your equation to get a
-   number, use the ``label`` option.  When given, it selects an internal label
-   for the equation, by which it can be cross-referenced, and causes an equation
-   number to be issued.  See :rst:role:`eq` for an example.  The numbering
-   style depends on the output format.
+   .. rubric:: Options
 
-   There is also an option ``nowrap`` that prevents any wrapping of the given
-   math in a math environment.  When you give this option, you must make sure
-   yourself that the math is properly set up.  For example::
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
 
-      .. math::
-         :nowrap:
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
 
-         \begin{eqnarray}
-            y    & = & ax^2 + bx + c \\
-            f(x) & = & x^2 + 2xy + y^2
-         \end{eqnarray}
+      .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: label: label
+      :type: text
+
+      Normally, equations are not numbered.  If you want your equation to get a
+      number, use the ``label`` option.  When given, it selects an internal label
+      for the equation, by which it can be cross-referenced, and causes an equation
+      number to be issued.  See :rst:role:`eq` for an example.  The numbering
+      style depends on the output format.
+
+   .. rst:directive:option:: nowrap
+
+      Prevent wrapping of the given math in a math environment.
+      When you give this option, you must make sure
+      yourself that the math is properly set up.
+      For example::
+
+         .. math::
+            :nowrap:
+
+            \begin{eqnarray}
+               y    & = & ax^2 + bx + c \\
+               f(x) & = & x^2 + 2xy + y^2
+            \end{eqnarray}
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
 
@@ -1287,8 +1539,8 @@ the definition of the symbol.  There is this directive:
    an explicit title can be given (e.g., "``myTitle <myGroup:sum>``"),
    or the target can be prefixed with a tilde (e.g., "``~myGroup:sum``").
 
-   Note that no further reST parsing is done in the production, so that you
-   don't have to escape ``*`` or ``|`` characters.
+   Note that no further reStructuredText parsing is done in the production,
+   so that you don't have to escape ``*`` or ``|`` characters.
 
 The following is an example taken from the Python Reference Manual::
 

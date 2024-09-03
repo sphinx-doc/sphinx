@@ -216,4 +216,5 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    logging
    i18n
    utils
+   testing
    deprecated

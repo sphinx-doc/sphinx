@@ -1,7 +1,7 @@
 %% GRAPHICS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexgraphics.sty}[2021/01/27 graphics]
+\ProvidesPackage{sphinxlatexgraphics}[2024/08/13 v8.1.0 graphics]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
@@ -84,7 +84,8 @@
     \ifin@
       \setbox\spx@image@box
       \hbox{\includegraphics
-            [%#1,% contained only width and/or height and overruled anyhow
+            [#1,% contains only width and/or height which are overruled next
+                % but in future may contain page=N hence must be kept
             width=\spx@image@requiredwidth,height=\spx@image@requiredheight]%
             {#2}}%
       % \includegraphics does not set box dimensions to the exactly

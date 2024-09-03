@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 .. _ext-autodoc:
 
@@ -328,7 +328,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      once by specifying the option to :rst:dir:`automodule` directive.
 
      Note: this will lead to markup errors if the inherited members come from a
-     module whose docstrings are not reST formatted.
+     module whose docstrings are not reStructuredText formatted.
 
      .. versionadded:: 0.3
 
@@ -745,7 +745,7 @@ There are also config values that you can set:
 
    * ``'fully-qualified'`` -- Show the module name and its name of typehints
    * ``'short'`` -- Suppress the leading module names of the typehints
-     (ex. ``io.StringIO`` -> ``StringIO``)  (default)
+     (e.g. ``io.StringIO`` -> ``StringIO``)  (default)
 
    .. versionadded:: 4.4
 
@@ -765,10 +765,14 @@ There are also config values that you can set:
 
 .. confval:: autodoc_warningiserror
 
-   This value controls the behavior of :option:`sphinx-build -W` during
-   importing modules.
+   This value controls the behavior of :option:`sphinx-build --fail-on-warning`
+   during importing modules.
    If ``False`` is given, autodoc forcedly suppresses the error if the imported
    module emits warnings.  By default, ``True``.
+
+   .. versionchanged:: 8.1
+      This option now has no effect as :option:`!--fail-on-warning`
+      no longer exits early.
 
 .. confval:: autodoc_inherit_docstrings
 
@@ -873,8 +877,8 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
    .. versionadded:: 4.1
    .. versionchanged:: 4.3
 
-      ``bases`` can contain a string as a base class name.  It will be processed
-      as reST mark-up'ed text.
+      ``bases`` can contain a string as a base class name.
+      It will be processed as reStructuredText.
 
 
 Skipping members

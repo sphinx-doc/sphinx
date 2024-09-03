@@ -8,7 +8,7 @@ from sphinx.builders import Builder
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from docutils.nodes import Node
+    from docutils import nodes
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
@@ -32,7 +32,7 @@ class DummyBuilder(Builder):
     def prepare_writing(self, docnames: set[str]) -> None:
         pass
 
-    def write_doc(self, docname: str, doctree: Node) -> None:
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
         pass
 
     def finish(self) -> None:

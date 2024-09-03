@@ -21,7 +21,7 @@ things are in a document.  To do this you will need to create an instance of the
    support.build()
 
 This will read reStructuredText sources from ``srcdir`` and place the necessary
-data in ``builddir``.  The ``builddir`` will contain two sub-directories: one
+data in ``builddir``.  The ``builddir`` will contain two subdirectories: one
 named "data" that contains all the data needed to display documents, search
 through documents, and add comments to documents.  The other directory will be
 called "static" and contains static files that should be served from "/static".

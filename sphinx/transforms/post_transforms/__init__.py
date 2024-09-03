@@ -98,7 +98,7 @@ class ReferencesResolver(SphinxPostTransform):
                                                         node, contnode,
                                                         allowed_exceptions=(NoUri,))
                     # still not found? warn if node wishes to be warned about or
-                    # we are in nit-picky mode
+                    # we are in nitpicky mode
                     if newnode is None:
                         self.warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:

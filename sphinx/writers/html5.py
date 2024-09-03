@@ -43,7 +43,7 @@ def multiply_length(length: str, scale: int) -> str:
     return f"{int(result)}{unit}"
 
 
-class HTML5Translator(SphinxTranslator, BaseTranslator):
+class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     """
     Our custom HTML translator.
     """
@@ -59,7 +59,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
 
         self.highlighter = self.builder.highlighter
         self.docnames = [self.builder.current_docname]  # for singlehtml builder
-        self.manpages_url = self.config.manpages_url
         self.protect_literal_text = 0
         self.secnumber_suffix = self.config.html_secnumber_suffix
         self.param_separator = ''
@@ -511,6 +510,30 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
         super().depart_title(node)
 
     # overwritten
+    def visit_rubric(self, node: nodes.rubric) -> None:
+        if 'heading-level' in node:
+            level = node['heading-level']
+            if level in {1, 2, 3, 4, 5, 6}:
+                self.body.append(self.starttag(node, f'h{level}', '', CLASS='rubric'))
+            else:
+                logger.warning(
+                    __('unsupported rubric heading level: %s'),
+                    level,
+                    type='html',
+                    location=node
+                )
+                super().visit_rubric(node)
+        else:
+            super().visit_rubric(node)
+
+    # overwritten
+    def depart_rubric(self, node: nodes.rubric) -> None:
+        if (level := node.get('heading-level')) in {1, 2, 3, 4, 5, 6}:
+            self.body.append(f'</h{level}>\n')
+        else:
+            super().depart_rubric(node)
+
+    # overwritten
     def visit_literal_block(self, node: Element) -> None:
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
@@ -695,24 +718,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                         node['width'] = str(size[0])
                     if 'height' not in node:
                         node['height'] = str(size[1])
-
-        uri = node['uri']
-        if uri.lower().endswith(('svg', 'svgz')):
-            atts = {'src': uri}
-            if 'width' in node:
-                atts['width'] = node['width']
-            if 'height' in node:
-                atts['height'] = node['height']
-            if 'scale' in node:
-                if 'width' in atts:
-                    atts['width'] = multiply_length(atts['width'], node['scale'])
-                if 'height' in atts:
-                    atts['height'] = multiply_length(atts['height'], node['scale'])
-            atts['alt'] = node.get('alt', uri)
-            if 'align' in node:
-                atts['class'] = 'align-%s' % node['align']
-            self.body.append(self.emptytag(node, 'img', '', **atts))
-            return
 
         super().visit_image(node)
 

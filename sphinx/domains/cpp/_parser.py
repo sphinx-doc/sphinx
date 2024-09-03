@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from sphinx.domains.cpp._ast import (
     ASTAlignofExpr,
@@ -127,7 +127,7 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -1263,7 +1263,7 @@ class DefinitionParser(BaseParser):
                         if self.skip_string('('):
                             expr = self._parse_constant_expression(inTemplate=False)
                             if not expr:
-                                self.fail("Expected constant expression after '('" +
+                                self.fail("Expected constant expression after '('"
                                           " in explicit specifier.")
                             self.skip_ws()
                             if not self.skip_string(')'):
@@ -1972,13 +1972,14 @@ class DefinitionParser(BaseParser):
         if numArgs > numParams:
             numExtra = numArgs - numParams
             if not fullSpecShorthand and not isMemberInstantiation:
-                msg = "Too many template argument lists compared to parameter" \
-                    " lists. Argument lists: %d, Parameter lists: %d," \
-                    " Extra empty parameters lists prepended: %d." \
-                    % (numArgs, numParams, numExtra)
-                msg += " Declaration:\n\t"
+                msg = (
+                    f'Too many template argument lists compared to parameter lists. '
+                    f'Argument lists: {numArgs:d}, Parameter lists: {numParams:d}, '
+                    f'Extra empty parameters lists prepended: {numExtra:d}. '
+                    'Declaration:\n\t'
+                )
                 if templatePrefix:
-                    msg += "%s\n\t" % templatePrefix
+                    msg += f"{templatePrefix}\n\t"
                 msg += str(nestedName)
                 self.warn(msg)
 

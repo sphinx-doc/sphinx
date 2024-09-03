@@ -6,20 +6,20 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Final
 
-INVENTORY_V1: Final[bytes] = b'''\
+INVENTORY_V1: Final[bytes] = b"""\
 # Sphinx inventory version 1
 # Project: foo
 # Version: 1.0
 module mod foo.html
 module.cls class foo.html
-'''
+"""
 
-INVENTORY_V2: Final[bytes] = b'''\
+INVENTORY_V2: Final[bytes] = b"""\
 # Sphinx inventory version 2
 # Project: foo
 # Version: 2.0
 # The remainder of this file is compressed with zlib.
-''' + zlib.compress(b'''\
+""" + zlib.compress(b"""\
 module1 py:module 0 foo.html#module-module1 Long Module desc
 module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
@@ -40,23 +40,25 @@ foo.bar.baz js:method 1 index.html#foo.bar.baz -
 foo.bar.qux js:data 1 index.html#foo.bar.qux -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 The-Julia-Domain std:label -1 write_inventory/#$ The Julia Domain
-''')
+""")
 
-INVENTORY_V2_NO_VERSION: Final[bytes] = b'''\
+INVENTORY_V2_NO_VERSION: Final[bytes] = b"""\
 # Sphinx inventory version 2
 # Project: foo
 # Version:
 # The remainder of this file is compressed with zlib.
-''' + zlib.compress(b'''\
+""" + zlib.compress(b"""\
 module1 py:module 0 foo.html#module-module1 Long Module desc
-''')
+""")
 
-INVENTORY_V2_AMBIGUOUS_TERMS: Final[bytes] = b'''\
+INVENTORY_V2_AMBIGUOUS_TERMS: Final[bytes] = b"""\
 # Sphinx inventory version 2
 # Project: foo
 # Version: 2.0
 # The remainder of this file is compressed with zlib.
-''' + zlib.compress(b'''\
+""" + zlib.compress(b"""\
 a term std:term -1 glossary.html#term-a-term -
 A term std:term -1 glossary.html#term-a-term -
-''')
+b term std:term -1 document.html#id5 -
+B term std:term -1 document.html#B -
+""")

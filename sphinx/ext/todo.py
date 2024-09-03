@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-class Todo(BaseAdmonition, SphinxDirective):
+class Todo(BaseAdmonition, SphinxDirective):  # type: ignore[misc]
     """
     A todo entry, displayed (if configured) in the form of an admonition.
     """
@@ -209,19 +209,23 @@ def depart_todo_node(self: HTML5Translator, node: todo_node) -> None:
 
 def latex_visit_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     if self.config.todo_include_todos:
-        self.body.append('\n\\begin{sphinxadmonition}{note}{')
+        self.body.append('\n\\begin{sphinxtodo}{')
         self.body.append(self.hypertarget_to(node))
 
         title_node = cast(nodes.title, node[0])
         title = texescape.escape(title_node.astext(), self.config.latex_engine)
         self.body.append('%s:}' % title)
+        self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
         node.pop(0)
     else:
         raise nodes.SkipNode
 
 
 def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
-    self.body.append('\\end{sphinxadmonition}\n')
+    self.body.append('\\end{sphinxtodo}\n')
+    self.no_latex_floats -= 1
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

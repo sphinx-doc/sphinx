@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from itertools import groupby
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
@@ -13,8 +13,39 @@ from sphinx.util import logging
 from sphinx.util.index_entries import _split_into
 
 if TYPE_CHECKING:
+    from typing import Literal, TypeAlias
+
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+
+    _IndexEntryTarget: TypeAlias = tuple[str | None, str | Literal[False]]
+    _IndexEntryTargets: TypeAlias = list[_IndexEntryTarget]
+    _IndexEntryCategoryKey: TypeAlias = str | None
+    _IndexEntrySubItems: TypeAlias = dict[
+        str,
+        tuple[_IndexEntryTargets, _IndexEntryCategoryKey],
+    ]
+    _IndexEntry: TypeAlias = tuple[
+        _IndexEntryTargets,
+        _IndexEntrySubItems,
+        _IndexEntryCategoryKey,
+    ]
+    _IndexEntryMap: TypeAlias = dict[str, _IndexEntry]
+    _Index: TypeAlias = list[
+        tuple[
+            str,
+            list[
+                tuple[
+                    str,
+                    tuple[
+                        _IndexEntryTargets,
+                        list[tuple[str, _IndexEntryTargets]],
+                        _IndexEntryCategoryKey
+                    ]
+                ]
+            ]
+        ]
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +55,14 @@ class IndexEntries:
         self.env = env
         self.builder: Builder
 
-    def create_index(self, builder: Builder, group_entries: bool = True,
-                     _fixre: re.Pattern = re.compile(r'(.*) ([(][^()]*[)])'),
-                     ) -> list[tuple[str, list[tuple[str, Any]]]]:
+    def create_index(
+        self,
+        builder: Builder,
+        group_entries: bool = True,
+        _fixre: re.Pattern[str] = re.compile(r'(.*) ([(][^()]*[)])'),
+    ) -> _Index:
         """Create the real index from the collected index entries."""
-        new: dict[str, list] = {}
+        new: _IndexEntryMap = {}
 
         rel_uri: str | Literal[False]
         index_domain = self.env.domains['index']
@@ -80,10 +114,10 @@ class IndexEntries:
 
         for (targets, sub_items, _category_key) in new.values():
             targets.sort(key=_key_func_0)
-            for (sub_targets, _0, _sub_category_key) in sub_items.values():
+            for (sub_targets, _sub_category_key) in sub_items.values():
                 sub_targets.sort(key=_key_func_0)
 
-        new_list = sorted(new.items(), key=_key_func_1)
+        new_list: list[tuple[str, _IndexEntry]] = sorted(new.items(), key=_key_func_1)
 
         if group_entries:
             # fixup entries: transform
@@ -94,7 +128,7 @@ class IndexEntries:
             #     (in module foo)
             #     (in module bar)
             old_key = ''
-            old_sub_items: dict[str, list] = {}
+            old_sub_items: _IndexEntrySubItems = {}
             i = 0
             while i < len(new_list):
                 key, (targets, sub_items, category_key) = new_list[i]
@@ -106,7 +140,7 @@ class IndexEntries:
                             # prefixes match: add entry as subitem of the
                             # previous entry
                             old_sub_items.setdefault(
-                                m.group(2), [[], {}, category_key])[0].extend(targets)
+                                m.group(2), ([], category_key))[0].extend(targets)
                             del new_list[i]
                             continue
                         old_key = m.group(1)
@@ -115,26 +149,41 @@ class IndexEntries:
                 old_sub_items = sub_items
                 i += 1
 
-        return [(key_, list(group))
-                for (key_, group) in groupby(new_list, _key_func_3)]
+        grouped = []
+        for (group_key, group) in groupby(new_list, _group_by_func):
+            group_list = []
+            for group_entry in group:
+                entry_key, (targets, sub_items, category_key) = group_entry
+                pairs = [
+                    (sub_key, sub_targets)
+                    for (sub_key, (sub_targets, _sub_category_key))
+                    in sub_items.items()
+                ]
+                pairs.sort(key=_key_func_2)
+                group_list.append((entry_key, (targets, pairs, category_key)))
+            grouped.append((group_key, group_list))
+        return grouped
 
 
 def _add_entry(word: str, subword: str, main: str | None, *,
-               dic: dict[str, list], link: str | Literal[False], key: str | None) -> None:
-    entry = dic.setdefault(word, [[], {}, key])
+               dic: _IndexEntryMap,
+               link: str | Literal[False], key: _IndexEntryCategoryKey) -> None:
+    entry = dic.setdefault(word, ([], {}, key))
     if subword:
-        entry = entry[1].setdefault(subword, [[], {}, key])
+        targets = entry[1].setdefault(subword, ([], key))[0]
+    else:
+        targets = entry[0]
     if link:
-        entry[0].append((main, link))
+        targets.append((main, link))
 
 
-def _key_func_0(entry: tuple[str, str]) -> tuple[bool, str]:
+def _key_func_0(entry: _IndexEntryTarget) -> tuple[bool, str | Literal[False]]:
     """Sort the index entries for same keyword."""
     main, uri = entry
     return not main, uri  # show main entries at first
 
 
-def _key_func_1(entry: tuple[str, list]) -> tuple[tuple[int, str], str]:
+def _key_func_1(entry: tuple[str, _IndexEntry]) -> tuple[tuple[int, str], str]:
     """Sort the index entries"""
     key, (_targets, _sub_items, category_key) = entry
     if category_key:
@@ -155,7 +204,7 @@ def _key_func_1(entry: tuple[str, list]) -> tuple[tuple[int, str], str]:
     return (group, lc_key), entry[0]
 
 
-def _key_func_2(entry: tuple[str, list]) -> str:
+def _key_func_2(entry: tuple[str, _IndexEntryTargets]) -> str:
     """Sort the sub-index entries"""
     key = unicodedata.normalize('NFD', entry[0].lower())
     if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
@@ -165,13 +214,9 @@ def _key_func_2(entry: tuple[str, list]) -> str:
     return key
 
 
-def _key_func_3(entry: tuple[str, list]) -> str:
-    """Group the entries by letter"""
+def _group_by_func(entry: tuple[str, _IndexEntry]) -> str:
+    """Group the entries by letter or category key."""
     key, (targets, sub_items, category_key) = entry
-    # hack: mutating the sub_items dicts to a list in the key_func
-    entry[1][1] = sorted(((sub_key, sub_targets)
-                          for (sub_key, (sub_targets, _0, _sub_category_key))
-                          in sub_items.items()), key=_key_func_2)
 
     if category_key is not None:
         return category_key
