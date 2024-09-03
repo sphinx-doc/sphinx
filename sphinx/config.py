@@ -567,7 +567,7 @@ def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
                 and (
                     isinstance(node.value, ast.Constant)
                     or (
-                        isinstance(node.value, (ast.List, ast.Tuple))
+                        isinstance(node.value, ast.List | ast.Tuple)
                         and all(isinstance(elt, ast.Constant) for elt in node.value.elts)
                     )
                 )
