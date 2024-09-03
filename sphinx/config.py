@@ -677,6 +677,13 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
             # No need to perform substitutions on copyright notices declared as constants
             if k in config._constants:
                 continue
+            logger.warning(
+                f"The {k!r} configuration setting for this project appears to "  # NoQA: G004
+                "contain a dynamic value.  Because the SOURCE_DATE_EPOCH environment "
+                "variable is also enabled, the value of the setting will be replaced "
+                "in order to achieve a deterministic (reproducible) build output. "
+                f"To silence this warning, please configure a constant {k!r} value."  # NoQA: G004
+            )
             value: str | Sequence[str] = config[k]
             if isinstance(value, str):
                 config[k] = _substitute_copyright_year(value, source_date_epoch_year)

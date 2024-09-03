@@ -27,3 +27,4 @@ def test_correct_year(expect_date, app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert '2006-2009' in content
+    assert app.warning.getvalue() == ''

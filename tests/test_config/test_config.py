@@ -813,6 +813,7 @@ def test_multi_line_copyright(source_date_year, app):
             f'    \n'
             f'      &#169; Copyright 2022-{source_date_year}, Eve.'
         ) in content
+        assert "please configure a constant 'copyright' value" in app.warning.getvalue()
 
 
 @pytest.mark.parametrize(
