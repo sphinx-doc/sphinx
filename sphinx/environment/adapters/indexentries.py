@@ -219,7 +219,7 @@ def _group_by_func(entry: tuple[str, _IndexEntry]) -> str:
     key, (targets, sub_items, category_key) = entry
 
     if category_key is not None:
-        return category_key
+        key = category_key
 
     # now calculate the key
     if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
