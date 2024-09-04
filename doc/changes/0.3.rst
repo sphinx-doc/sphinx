@@ -1,0 +1,63 @@
+==========
+Sphinx 0.3
+==========
+
+
+Release 0.3 (May 6, 2008)
+=========================
+
+New features added
+------------------
+
+* The ``toctree`` directive now supports a ``glob`` option that allows
+  glob-style entries in the content.
+
+* If the ``pygments_style`` config value contains a dot it's treated as the
+  import path of a custom Pygments style class.
+
+* A new config value, ``exclude_dirs``, can be used to exclude whole
+  directories from the search for source files.
+
+* The configuration directory (containing ``conf.py``) can now be set
+  independently from the source directory.  For that, a new command-line
+  option ``-c`` has been added.
+
+* A new directive ``tabularcolumns`` can be used to give a tabular column
+  specification for LaTeX output.  Tables now use the ``tabulary`` package.
+  Literal blocks can now be placed in tables, with several caveats.
+
+* A new config value, ``latex_use_parts``, can be used to enable parts in LaTeX
+  documents.
+
+* Autodoc now skips inherited members for classes, unless you give the
+  new ``inherited-members`` option.
+
+* A new config value, ``autoclass_content``, selects if the docstring of the
+  class' ``__init__`` method is added to the directive's body.
+
+* Support for C++ class names (in the style ``Class::Function``) in C function
+  descriptions.
+
+* Support for a ``toctree_only`` item in items for the ``latex_documents``
+  config value.  This only includes the documents referenced by TOC trees in the
+  output, not the rest of the file containing the directive.
+
+Bugs fixed
+----------
+
+* sphinx.htmlwriter: Correctly write the TOC file for any structure of the
+  master document.  Also encode non-ASCII characters as entities in TOC
+  and index file.  Remove two remaining instances of hard-coded
+  "documentation".
+
+* sphinx.ext.autodoc: descriptors are detected properly now.
+
+* sphinx.latexwriter: implement all reST admonitions, not just ``note``
+  and ``warning``.
+
+* Lots of little fixes to the LaTeX output and style.
+
+* Fix OpenSearch template and make template URL absolute.  The
+  ``html_use_opensearch`` config value now must give the base URL.
+
+* Some unused files are now stripped from the HTML help file build.

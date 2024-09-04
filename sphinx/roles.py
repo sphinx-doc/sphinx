@@ -167,7 +167,11 @@ class XRefRole(ReferenceRole):
         return title, ws_re.sub(' ', target)
 
     def result_nodes(
-        self, document: nodes.document, env: BuildEnvironment, node: Element, is_ref: bool
+        self,
+        document: nodes.document,
+        env: BuildEnvironment,
+        node: Element,
+        is_ref: bool,
     ) -> tuple[list[Node], list[system_message]]:
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
@@ -211,7 +215,9 @@ class PEP(ReferenceRole):
 
         try:
             refuri = self.build_uri()
-            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['pep'])
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['pep']
+            )
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
@@ -246,7 +252,9 @@ class RFC(ReferenceRole):
 
         try:
             refuri = self.build_uri()
-            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['rfc'])
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['rfc']
+            )
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:

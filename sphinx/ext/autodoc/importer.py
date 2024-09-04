@@ -137,24 +137,22 @@ def unmangle(subject: Any, name: str) -> str | None:
     return name
 
 
-def import_module(modname: str, warningiserror: bool = False) -> Any:
+def import_module(modname: str) -> Any:
     """Call importlib.import_module(modname), convert exceptions to ImportError."""
     try:
-        with logging.skip_warningiserror(not warningiserror):
-            return importlib.import_module(modname)
+        return importlib.import_module(modname)
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
         raise ImportError(exc, traceback.format_exc()) from exc
 
 
-def _reload_module(module: ModuleType, warningiserror: bool = False) -> Any:
+def _reload_module(module: ModuleType) -> Any:
     """
     Call importlib.reload(module), convert exceptions to ImportError
     """
     try:
-        with logging.skip_warningiserror(not warningiserror):
-            return importlib.reload(module)
+        return importlib.reload(module)
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
@@ -162,8 +160,7 @@ def _reload_module(module: ModuleType, warningiserror: bool = False) -> Any:
 
 
 def import_object(modname: str, objpath: list[str], objtype: str = '',
-                  attrgetter: Callable[[Any, str], Any] = safe_getattr,
-                  warningiserror: bool = False) -> Any:
+                  attrgetter: Callable[[Any, str], Any] = safe_getattr) -> Any:
     if objpath:
         logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
     else:
@@ -176,7 +173,7 @@ def import_object(modname: str, objpath: list[str], objtype: str = '',
         while module is None:
             try:
                 original_module_names = frozenset(sys.modules)
-                module = import_module(modname, warningiserror=warningiserror)
+                module = import_module(modname)
                 if os.environ.get('SPHINX_AUTODOC_RELOAD_MODULES'):
                     new_modules = [m for m in sys.modules if m not in original_module_names]
                     # Try reloading modules with ``typing.TYPE_CHECKING == True``.

@@ -40,7 +40,11 @@ def _deprecation_warning(
 
        # deprecated name -> (object to return, canonical path or empty string, removal version)
        _DEPRECATED_OBJECTS = {
-           'deprecated_name': (object_to_return, 'fully_qualified_replacement_name', (9, 0)),
+           'deprecated_name': (
+               object_to_return,
+               'fully_qualified_replacement_name',
+               (9, 0),
+           ),
        }
 
 
@@ -65,7 +69,9 @@ def _deprecation_warning(
 
     qualname = f'{module}.{attribute}'
     if canonical_name:
-        message = f'The alias {qualname!r} is deprecated, use {canonical_name!r} instead.'
+        message = (
+            f'The alias {qualname!r} is deprecated, use {canonical_name!r} instead.'
+        )
     else:
         message = f'{qualname!r} is deprecated.'
 

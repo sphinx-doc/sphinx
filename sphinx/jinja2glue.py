@@ -116,7 +116,9 @@ class SphinxFileSystemLoader(FileSystemLoader):
     template names.
     """
 
-    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
+    def get_source(
+        self, environment: Environment, template: str
+    ) -> tuple[str, str, Callable[[], bool]]:
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
@@ -204,8 +206,14 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:
+        return self._newest_template_mtime_name()[0]
+
+    def newest_template_name(self) -> str:
+        return self._newest_template_mtime_name()[1]
+
+    def _newest_template_mtime_name(self) -> tuple[float, str]:
         return max(
-            os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9
+            (os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9, sfile)
             for dirname in self.pathchain
             for root, _dirs, files in os.walk(dirname)
             for sfile in files
@@ -214,7 +222,9 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     # Loader interface
 
-    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
+    def get_source(
+        self, environment: Environment, template: str
+    ) -> tuple[str, str, Callable[[], bool]]:
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

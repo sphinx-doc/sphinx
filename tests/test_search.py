@@ -1,4 +1,5 @@
 """Test the search index builder."""
+
 from __future__ import annotations
 
 import json
@@ -69,7 +70,7 @@ def is_registered_term(index, keyword):
     return index['terms'].get(keyword, []) != []
 
 
-FILE_CONTENTS = '''\
+FILE_CONTENTS = """\
 section_title
 =============
 
@@ -79,10 +80,10 @@ another_title
 =============
 
 test that non-comments are indexed: fermion
-'''
+"""
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode')
+@pytest.mark.sphinx('html', testroot='ext-viewcode')
 def test_objects_are_escaped(app):
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
@@ -93,7 +94,7 @@ def test_objects_are_escaped(app):
         raise AssertionError(index.get('objects').get(''))
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_meta_keys_are_handled_for_language_en(app):
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
@@ -106,7 +107,12 @@ def test_meta_keys_are_handled_for_language_en(app):
     assert not is_registered_term(searchindex, 'onlytoogerman')
 
 
-@pytest.mark.sphinx(testroot='search', confoverrides={'html_search_language': 'de'}, freshenv=True)
+@pytest.mark.sphinx(
+    'html',
+    testroot='search',
+    confoverrides={'html_search_language': 'de'},
+    freshenv=True,
+)
 def test_meta_keys_are_handled_for_language_de(app):
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
@@ -119,14 +125,14 @@ def test_meta_keys_are_handled_for_language_de(app):
     assert is_registered_term(searchindex, 'onlytoogerman')
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_stemmer_does_not_remove_short_words(app):
     app.build(force_all=True)
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     assert 'bat' in searchindex
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_stemmer(app):
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
@@ -135,7 +141,7 @@ def test_stemmer(app):
     assert is_registered_term(searchindex, 'intern')
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_term_in_heading_and_section(app):
     app.build(force_all=True)
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
@@ -146,7 +152,7 @@ def test_term_in_heading_and_section(app):
     assert '"textinhead": 0' in searchindex
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_term_in_raw_directive(app):
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
@@ -156,10 +162,14 @@ def test_term_in_raw_directive(app):
 
 
 def test_IndexBuilder():
-    domain1 = DummyDomain([('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
-                          ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1)])
-    domain2 = DummyDomain([('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
-                           ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1)])
+    domain1 = DummyDomain([
+        ('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
+        ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1),
+    ])
+    domain2 = DummyDomain([
+        ('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
+        ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1),
+    ])
     env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
     doc = utils.new_document(b'test data', settings)
     doc['file'] = 'dummy'
@@ -171,10 +181,18 @@ def test_IndexBuilder():
     index.feed('docname1_2', 'filename1_2', 'title1_2', doc)
     index.feed('docname2_2', 'filename2_2', 'title2_2', doc)
     index.feed('docname2_1', 'filename2_1', 'title2_1', doc)
-    assert index._titles == {'docname1_1': 'title1_1', 'docname1_2': 'title1_2',
-                             'docname2_1': 'title2_1', 'docname2_2': 'title2_2'}
-    assert index._filenames == {'docname1_1': 'filename1_1', 'docname1_2': 'filename1_2',
-                                'docname2_1': 'filename2_1', 'docname2_2': 'filename2_2'}
+    assert index._titles == {
+        'docname1_1': 'title1_1',
+        'docname1_2': 'title1_2',
+        'docname2_1': 'title2_1',
+        'docname2_2': 'title2_2',
+    }
+    assert index._filenames == {
+        'docname1_1': 'filename1_1',
+        'docname1_2': 'filename1_2',
+        'docname2_1': 'filename2_1',
+        'docname2_2': 'filename2_2',
+    }
     # note: element iteration order (sort order) is important when the index
     # is frozen (serialized) during build -- however, the _mapping-related
     # dictionaries below may be iterated in arbitrary order by Python at
@@ -199,30 +217,46 @@ def test_IndexBuilder():
         'docnames': ('docname1_1', 'docname1_2', 'docname2_1', 'docname2_2'),
         'envversion': '1.0',
         'filenames': ['filename1_1', 'filename1_2', 'filename2_1', 'filename2_2'],
-        'objects': {'': [(0, 0, 1, '#anchor', 'objdispname1'),
-                         (2, 1, 1, '#anchor', 'objdispname1')]},
-        'objnames': {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')},
+        'objects': {
+            '': [
+                (0, 0, 1, '#anchor', 'objdispname1'),
+                (2, 1, 1, '#anchor', 'objdispname1'),
+            ]
+        },
+        'objnames': {
+            0: ('dummy1', 'objtype1', 'objtype1'),
+            1: ('dummy2', 'objtype1', 'objtype1'),
+        },
         'objtypes': {0: 'dummy1:objtype1', 1: 'dummy2:objtype1'},
-        'terms': {'ar': [0, 1, 2, 3],
-                  'comment': [0, 1, 2, 3],
-                  'fermion': [0, 1, 2, 3],
-                  'index': [0, 1, 2, 3],
-                  'non': [0, 1, 2, 3],
-                  'test': [0, 1, 2, 3]},
+        'terms': {
+            'ar': [0, 1, 2, 3],
+            'comment': [0, 1, 2, 3],
+            'fermion': [0, 1, 2, 3],
+            'index': [0, 1, 2, 3],
+            'non': [0, 1, 2, 3],
+            'test': [0, 1, 2, 3],
+        },
         'titles': ('title1_1', 'title1_2', 'title2_1', 'title2_2'),
         'titleterms': {
             'another_titl': [0, 1, 2, 3],
             'section_titl': [0, 1, 2, 3],
         },
         'alltitles': {
-            'another_title': [(0, 'another-title'), (1, 'another-title'), (2, 'another-title'), (3, 'another-title')],
+            'another_title': [
+                (0, 'another-title'),
+                (1, 'another-title'),
+                (2, 'another-title'),
+                (3, 'another-title'),
+            ],
             'section_title': [(0, None), (1, None), (2, None), (3, None)],
         },
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
-    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),
-                               1: ('dummy2', 'objtype1', 'objtype1')}
+    assert index._objnames == {
+        0: ('dummy1', 'objtype1', 'objtype1'),
+        1: ('dummy2', 'objtype1', 'objtype1'),
+    }
 
     env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
 
@@ -249,7 +283,10 @@ def test_IndexBuilder():
     # prune
     index.prune(['docname1_2', 'docname2_2'])
     assert index._titles == {'docname1_2': 'title1_2', 'docname2_2': 'title2_2'}
-    assert index._filenames == {'docname1_2': 'filename1_2', 'docname2_2': 'filename2_2'}
+    assert index._filenames == {
+        'docname1_2': 'filename1_2',
+        'docname2_2': 'filename2_2',
+    }
     assert index._mapping == {
         'ar': {'docname1_2', 'docname2_2'},
         'fermion': {'docname1_2', 'docname2_2'},
@@ -263,7 +300,10 @@ def test_IndexBuilder():
         'section_titl': {'docname1_2', 'docname2_2'},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
-    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')}
+    assert index._objnames == {
+        0: ('dummy1', 'objtype1', 'objtype1'),
+        1: ('dummy2', 'objtype1', 'objtype1'),
+    }
 
     # freeze after prune
     assert index.freeze() == {
@@ -271,14 +311,19 @@ def test_IndexBuilder():
         'envversion': '1.0',
         'filenames': ['filename1_2', 'filename2_2'],
         'objects': {},
-        'objnames': {0: ('dummy1', 'objtype1', 'objtype1'), 1: ('dummy2', 'objtype1', 'objtype1')},
+        'objnames': {
+            0: ('dummy1', 'objtype1', 'objtype1'),
+            1: ('dummy2', 'objtype1', 'objtype1'),
+        },
         'objtypes': {0: 'dummy1:objtype1', 1: 'dummy2:objtype1'},
-        'terms': {'ar': [0, 1],
-                  'comment': [0, 1],
-                  'fermion': [0, 1],
-                  'index': [0, 1],
-                  'non': [0, 1],
-                  'test': [0, 1]},
+        'terms': {
+            'ar': [0, 1],
+            'comment': [0, 1],
+            'fermion': [0, 1],
+            'index': [0, 1],
+            'non': [0, 1],
+            'test': [0, 1],
+        },
         'titles': ('title1_2', 'title2_2'),
         'titleterms': {
             'another_titl': [0, 1],
@@ -291,8 +336,10 @@ def test_IndexBuilder():
         'indexentries': {},
     }
     assert index._objtypes == {('dummy1', 'objtype1'): 0, ('dummy2', 'objtype1'): 1}
-    assert index._objnames == {0: ('dummy1', 'objtype1', 'objtype1'),
-                               1: ('dummy2', 'objtype1', 'objtype1')}
+    assert index._objnames == {
+        0: ('dummy1', 'objtype1', 'objtype1'),
+        1: ('dummy2', 'objtype1', 'objtype1'),
+    }
 
 
 def test_IndexBuilder_lookup():
@@ -308,6 +355,7 @@ def test_IndexBuilder_lookup():
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='search',
     confoverrides={'html_search_language': 'zh'},
     srcdir='search_zh',
@@ -321,7 +369,11 @@ def test_search_index_gen_zh(app):
     assert 'cas' in index['terms']
 
 
-@pytest.mark.sphinx(testroot='search', freshenv=True)
+@pytest.mark.sphinx(
+    'html',
+    testroot='search',
+    freshenv=True,
+)
 def test_nosearch(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
@@ -333,14 +385,19 @@ def test_nosearch(app):
     assert index['terms']['bat'] == [0, 2]
 
 
-@pytest.mark.sphinx(testroot='search', parallel=3, freshenv=True)
+@pytest.mark.sphinx(
+    'html',
+    testroot='search',
+    parallel=3,
+    freshenv=True,
+)
 def test_parallel(app):
     app.build()
     index = load_searchindex(app.outdir / 'searchindex.js')
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_search_index_is_deterministic(app):
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
@@ -377,18 +434,28 @@ def assert_is_sorted(item, path: str):
     elif isinstance(item, list):
         if not is_title_tuple_type(item) and path not in lists_not_to_sort:
             # sort nulls last; http://stackoverflow.com/questions/19868767/
-            assert item == sorted(item, key=lambda x: (x is None, x)), f'{err_path} is not sorted'
+            assert item == sorted(
+                item, key=lambda x: (x is None, x)
+            ), f'{err_path} is not sorted'
         for i, child in enumerate(item):
             assert_is_sorted(child, f'{path}[{i}]')
 
 
 @pytest.mark.parametrize('directory', JAVASCRIPT_TEST_ROOTS)
 def test_check_js_search_indexes(make_app, sphinx_test_tempdir, directory):
-    app = make_app('html', srcdir=directory, builddir=sphinx_test_tempdir / directory.name)
+    app = make_app(
+        'html',
+        srcdir=directory,
+        builddir=sphinx_test_tempdir / directory.name,
+    )
     app.build()
 
-    fresh_searchindex = (app.outdir / 'searchindex.js')
-    existing_searchindex = (TESTS_ROOT / 'js' / 'fixtures' / directory.name / 'searchindex.js')
+    fresh_searchindex = app.outdir / 'searchindex.js'
+    existing_searchindex = (
+        TESTS_ROOT / 'js' / 'fixtures' / directory.name / 'searchindex.js'
+    )
 
-    msg = f"Search index fixture {existing_searchindex} does not match regenerated copy."
+    msg = (
+        f'Search index fixture {existing_searchindex} does not match regenerated copy.'
+    )
     assert fresh_searchindex.read_bytes() == existing_searchindex.read_bytes(), msg

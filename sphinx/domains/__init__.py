@@ -7,20 +7,16 @@ and roles describing e.g. constructs of one programming language.
 from __future__ import annotations
 
 import copy
-from abc import ABC, abstractmethod
-from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from docutils.nodes import Element, Node, system_message
-
-from sphinx.errors import SphinxError
+from sphinx.domains._index import Index, IndexEntry
 from sphinx.locale import _
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import TypeAlias
+    from collections.abc import Callable, Iterable, Sequence
 
     from docutils import nodes
+    from docutils.nodes import Element, Node
     from docutils.parsers.rst import Directive
     from docutils.parsers.rst.states import Inliner
 
@@ -28,7 +24,14 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.roles import XRefRole
-    from sphinx.util.typing import RoleFunction
+    from sphinx.util.typing import RoleFunction, TitleGetter
+
+__all__ = (
+    'Domain',
+    'Index',
+    'IndexEntry',
+    'ObjType',
+)
 
 
 class ObjType:
@@ -50,112 +53,10 @@ class ObjType:
         'searchprio': 1,
     }
 
-    def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
-        self.lname = lname
-        self.roles: tuple = roles
-        self.attrs: dict = self.known_attrs.copy()
-        self.attrs.update(attrs)
-
-
-class IndexEntry(NamedTuple):
-    name: str
-    subtype: int
-    docname: str
-    anchor: str
-    extra: str
-    qualifier: str
-    descr: str
-
-
-class Index(ABC):
-    """
-    An Index is the description for a domain-specific index.  To add an index to
-    a domain, subclass Index, overriding the three name attributes:
-
-    * `name` is an identifier used for generating file names.
-      It is also used for a hyperlink target for the index. Therefore, users can
-      refer the index page using ``ref`` role and a string which is combined
-      domain name and ``name`` attribute (ex. ``:ref:`py-modindex```).
-    * `localname` is the section title for the index.
-    * `shortname` is a short name for the index, for use in the relation bar in
-      HTML output.  Can be empty to disable entries in the relation bar.
-
-    and providing a :meth:`generate()` method.  Then, add the index class to
-    your domain's `indices` list.  Extensions can add indices to existing
-    domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain()`.
-
-    .. versionchanged:: 3.0
-
-       Index pages can be referred by domain name and index name via
-       :rst:role:`ref` role.
-    """
-
-    name: str
-    localname: str
-    shortname: str | None = None
-
-    def __init__(self, domain: Domain) -> None:
-        if not self.name or self.localname is None:
-            raise SphinxError('Index subclass %s has no valid name or localname'
-                              % self.__class__.__name__)
-        self.domain = domain
-
-    @abstractmethod
-    def generate(self, docnames: Iterable[str] | None = None,
-                 ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
-        """Get entries for the index.
-
-        If ``docnames`` is given, restrict to entries referring to these
-        docnames.
-
-        The return value is a tuple of ``(content, collapse)``:
-
-        ``collapse``
-          A boolean that determines if sub-entries should start collapsed (for
-          output formats that support collapsing sub-entries).
-
-        ``content``:
-          A sequence of ``(letter, entries)`` tuples, where ``letter`` is the
-          "heading" for the given ``entries``, usually the starting letter, and
-          ``entries`` is a sequence of single entries. Each entry is a sequence
-          ``[name, subtype, docname, anchor, extra, qualifier, descr]``. The
-          items in this sequence have the following meaning:
-
-          ``name``
-            The name of the index entry to be displayed.
-
-          ``subtype``
-            The sub-entry related type. One of:
-
-            ``0``
-              A normal entry.
-            ``1``
-              An entry with sub-entries.
-            ``2``
-              A sub-entry.
-
-          ``docname``
-            *docname* where the entry is located.
-
-          ``anchor``
-            Anchor for the entry within ``docname``
-
-          ``extra``
-            Extra info for the entry.
-
-          ``qualifier``
-            Qualifier for the description.
-
-          ``descr``
-            Description for the entry.
-
-        Qualifier and description are not rendered for some output formats such
-        as LaTeX.
-        """
-        raise NotImplementedError
-
-
-TitleGetter: TypeAlias = Callable[[Node], str | None]
+    def __init__(self, lname: str, /, *roles: Any, **attrs: Any) -> None:
+        self.lname: str = lname
+        self.roles: tuple[Any, ...] = roles
+        self.attrs: dict[str, Any] = self.known_attrs | attrs
 
 
 class Domain:
@@ -268,7 +169,7 @@ class Domain:
         def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
                          inliner: Inliner, options: dict | None = None,
                          content: Sequence[str] = (),
-                         ) -> tuple[list[Node], list[system_message]]:
+                         ) -> tuple[list[Node], list[nodes.system_message]]:
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options or {}, content)
         self._role_cache[name] = role_adapter

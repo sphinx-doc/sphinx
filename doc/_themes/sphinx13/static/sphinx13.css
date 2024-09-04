@@ -62,17 +62,14 @@ body {
     text-decoration: none;
 }
 
-.pageheader .brand a {
-    width: 2em;
-}
-
 .pageheader .brand img {
+    width: 2em;
     filter: invert(1) drop-shadow(1px 1px 2px black);
 }
 
-.pageheader .brand h1 {
+.pageheader .brand span {
     color: white;
-    margin: 0;
+    margin-left: 0.4em;
     font-weight: 400;
     font-size: 2em;
     line-height: 1;
@@ -694,7 +691,28 @@ div.sphinx-feature > p.admonition-title::before {
     justify-content: center;
     gap: 10px;
 }
-
 .sphinx-users-logos .headerlink {
     display: none;
+}
+
+/* -- search results -------------------------------------------------------- */
+
+ul.search {
+    padding-left: 30px;
+}
+ul.search li {
+    padding: 5px 0 5px 10px;
+    list-style-type: "\25A1";  /* Unicode: White Square */
+}
+ul.search li.context-index {
+    list-style-type: "\1F4D1";  /* Unicode: Bookmark Tabs */
+}
+ul.search li.context-object {
+    list-style-type: "\1F4E6";  /* Unicode: Package */
+}
+ul.search li.context-title {
+    list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
+}
+ul.search li.context-text {
+    list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
 }

@@ -1,0 +1,112 @@
+==========
+Sphinx 6.2
+==========
+
+
+Release 6.2.1 (released Apr 25, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11355: Revert the default type of :confval:`nitpick_ignore` and
+  :confval:`nitpick_ignore_regex` to ``list``.
+
+Release 6.2.0 (released Apr 23, 2023)
+=====================================
+
+Dependencies
+------------
+
+* Require Docutils 0.18.1 or greater.
+
+Incompatible changes
+--------------------
+
+* LaTeX: removal of some internal TeX ``\dimen`` registers (not previously
+  publicly documented) as per 5.1.0 code comments in ``sphinx.sty``:
+  ``\sphinxverbatimsep``, ``\sphinxverbatimborder``, ``\sphinxshadowsep``,
+  ``\sphinxshadowsize``, and ``\sphinxshadowrule``. (refs: #11105)
+* Remove ``.egg`` support from pycode ``ModuleAnalyser``; Python eggs are a
+  now-obsolete binary distribution format
+* #11089: Remove deprecated code in ``sphinx.builders.linkcheck``.
+  Patch by Daniel Eades
+* Remove internal-only ``sphinx.locale.setlocale``
+
+Deprecated
+----------
+
+* #11247: Deprecate the legacy ``intersphinx_mapping`` format
+* ``sphinx.util.osutil.cd`` is deprecated in favour of ``contextlib.chdir``.
+
+Features added
+--------------
+
+* #11277: :rst:dir:`autoproperty` allows the return type to be specified as
+  a type comment (e.g., ``# type: () -> int``). Patch by Bénédikt Tran
+* #10811: Autosummary: extend ``__all__`` to imported members for template rendering
+  when option ``autosummary_ignore_module_all`` is set to ``False``. Patch by
+  Clement Pinard
+* #11147: Add a ``content_offset`` parameter to ``nested_parse_with_titles()``,
+  allowing for correct line numbers during nested parsing.
+  Patch by Jeremy Maitin-Shepard
+* Update to Unicode CLDR 42
+* Add a ``--jobs`` synonym for ``-j``. Patch by Hugo van Kemenade
+* LaTeX: a command ``\sphinxbox`` for styling text elements with a (possibly
+  rounded) box, optional background color and shadow, has been added.
+  See :ref:`sphinxbox`. (refs: #11224)
+* LaTeX: add ``\sphinxstylenotetitle``, ..., ``\sphinxstylewarningtitle``, ...,
+  for an extra layer of mark-up freeing up ``\sphinxstrong`` for other uses.
+  See :ref:`latex-macros`. (refs: #11267)
+* LaTeX: :dudir:`note`, :dudir:`hint`, :dudir:`important` and :dudir:`tip` can
+  now each be styled as the other admonitions, i.e. possibly with a background
+  color, individual border widths and paddings, possibly rounded corners, and
+  optional shadow.  See :ref:`additionalcss`. (refs: #11234)
+* LaTeX: admonitions and :dudir:`topic` (and
+  :dudir:`contents <table-of-contents>`) directives, and not only
+  :rst:dir:`code-block`, support ``box-decoration-break=slice``.
+* LaTeX: let rounded boxes support up to 4 distinct border-widths (refs: #11243)
+* LaTeX: new options ``noteTextColor``, ``noteTeXextras`` et al.
+  See :ref:`additionalcss`.
+* LaTeX: support elliptical corners in rounded boxes. (refs: #11254)
+* #11150: Include source location in highlighting warnings, when lexing fails.
+  Patch by Jeremy Maitin-Shepard
+* #11281: Support for :confval:`imgmath_latex` ``= 'tectonic'`` or
+  ``= 'xelatex'``.  Patch by Dimitar Dimitrov
+* #11109, #9643: Add :confval:`python_display_short_literal_types` option for
+  condensed rendering of ``Literal`` types.
+
+Bugs fixed
+----------
+
+* #11079: LaTeX: figures with align attribute may disappear and strangely impact
+  following lists
+* #11093: LaTeX: fix "multiply-defined references" PDF build warnings when one or
+  more reST labels directly precede an :rst:dir:`py:module` or :rst:dir:`automodule`
+  directive. Patch by Bénédikt Tran (picnixz)
+* #11110: LaTeX: Figures go missing from latex pdf if their files have the same
+  base name and they use a post transform.  Patch by aaron-cooper
+* LaTeX: fix potential color leak from shadow to border of rounded boxes, if
+  shadow color is set but border color is not
+* LaTeX: fix unintended 1pt upwards vertical shift of code blocks frames
+  respective to contents (when using rounded corners)
+* #11235: LaTeX: added ``\color`` in topic (or admonition) contents may cause color
+  leak to the shadow and border at a page break
+* #11264: LaTeX: missing space before colon after "Voir aussi" for :rst:dir:`seealso`
+  directive in French
+* #11268: LaTeX: longtable with left alignment breaks out of current list
+  indentation context in PDF.  Thanks to picnixz.
+* #11274: LaTeX: external links are not properly escaped for ``\sphinxupquote``
+  compatibility
+* #11147: Fix source file/line number info in object description content and in
+  other uses of ``nested_parse_with_titles``.  Patch by Jeremy Maitin-Shepard.
+* #11192: Restore correct parallel search index building.
+  Patch by Jeremy Maitin-Shepard
+* Use the new Transifex ``tx`` client
+
+Testing
+-------
+
+* Fail testing when any Python warnings are emitted
+* Migrate remaining ``unittest.TestCase`` style test functions to pytest style
+* Remove tests that rely on setuptools

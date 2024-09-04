@@ -14,7 +14,7 @@ that, using the :py:mod:`~sphinx.ext.autodoc` extension, document items included
 in :rst:dir:`autosummary` listing(s).
 
 *sourcefile* is the path to one or more reStructuredText documents containing
-:rst:dir:`autosummary` entries with the ``:toctree::`` option set. *sourcefile*
+:rst:dir:`autosummary` entries with the ``:toctree:`` option set. *sourcefile*
 can be an :py:mod:`fnmatch`-style pattern.
 
 Options

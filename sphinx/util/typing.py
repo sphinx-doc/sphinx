@@ -23,6 +23,8 @@ from typing import (
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
+from sphinx.util import logging
+
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from typing import Final, Literal, Protocol, TypeAlias
@@ -40,6 +42,8 @@ if TYPE_CHECKING:
         'fully-qualified',
         'smart',
     ]
+
+logger = logging.getLogger(__name__)
 
 
 # classes that have an incorrect .__module__ attribute
@@ -336,7 +340,8 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         else:
             # not a class (ex. TypeVar) but should have a __name__
             return f':py:obj:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-    except (AttributeError, TypeError):
+    except (AttributeError, TypeError) as exc:
+        logger.debug('restify on %r in mode %r failed: %r', cls, mode, exc)
         return object_description(cls)
 
 

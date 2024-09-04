@@ -7,13 +7,13 @@ import os.path
 import pytest
 from docutils import nodes
 
-from sphinx.errors import SphinxWarning
 from sphinx.util import logging, osutil
 from sphinx.util.console import colorize, strip_colors
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_info_and_warning(app):
     app.verbosity = 2
     logging.setup(app, app.status, app.warning)
@@ -38,6 +38,7 @@ def test_info_and_warning(app):
     assert 'ERROR: message5' in app.warning.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_Exception(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -46,6 +47,7 @@ def test_Exception(app):
     assert "<class 'Exception'>" in app.status.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_verbosity_filter(app):
     # verbosity = 0: INFO
     app.verbosity = 0
@@ -90,6 +92,7 @@ def test_verbosity_filter(app):
     assert 'message4' not in app.status.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_nonl_info_log(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -101,6 +104,7 @@ def test_nonl_info_log(app):
     assert 'message1message2\nmessage3' in app.status.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_once_warning_log(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -109,23 +113,25 @@ def test_once_warning_log(app):
     logger.warning('message: %d', 1, once=True)
     logger.warning('message: %d', 2, once=True)
 
-    assert 'WARNING: message: 1\nWARNING: message: 2\n' in strip_colors(app.warning.getvalue())
+    warnings = strip_colors(app.warning.getvalue())
+    assert 'WARNING: message: 1\nWARNING: message: 2\n' in warnings
 
 
 def test_is_suppressed_warning():
-    suppress_warnings = ["ref", "files.*", "rest.duplicated_labels"]
+    suppress_warnings = ['ref', 'files.*', 'rest.duplicated_labels']
 
     assert is_suppressed_warning(None, None, suppress_warnings) is False
-    assert is_suppressed_warning("ref", None, suppress_warnings) is True
-    assert is_suppressed_warning("ref", "numref", suppress_warnings) is True
-    assert is_suppressed_warning("ref", "option", suppress_warnings) is True
-    assert is_suppressed_warning("files", "image", suppress_warnings) is True
-    assert is_suppressed_warning("files", "stylesheet", suppress_warnings) is True
-    assert is_suppressed_warning("rest", None, suppress_warnings) is False
-    assert is_suppressed_warning("rest", "syntax", suppress_warnings) is False
-    assert is_suppressed_warning("rest", "duplicated_labels", suppress_warnings) is True
+    assert is_suppressed_warning('ref', None, suppress_warnings) is True
+    assert is_suppressed_warning('ref', 'numref', suppress_warnings) is True
+    assert is_suppressed_warning('ref', 'option', suppress_warnings) is True
+    assert is_suppressed_warning('files', 'image', suppress_warnings) is True
+    assert is_suppressed_warning('files', 'stylesheet', suppress_warnings) is True
+    assert is_suppressed_warning('rest', None, suppress_warnings) is False
+    assert is_suppressed_warning('rest', 'syntax', suppress_warnings) is False
+    assert is_suppressed_warning('rest', 'duplicated_labels', suppress_warnings) is True
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_suppress_warnings(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -169,24 +175,7 @@ def test_suppress_warnings(app):
     assert app._warncount == 8
 
 
-def test_warningiserror(app):
-    logging.setup(app, app.status, app.warning)
-    logger = logging.getLogger(__name__)
-
-    # if False, warning is not error
-    app.warningiserror = False
-    logger.warning('message')
-
-    # if True, warning raises SphinxWarning exception
-    app.warningiserror = True
-    with pytest.raises(SphinxWarning):
-        logger.warning('message: %s', 'arg')
-
-    # message contains format string (refs: #4070)
-    with pytest.raises(SphinxWarning):
-        logger.warning('%s')
-
-
+@pytest.mark.sphinx('html', testroot='root')
 def test_info_location(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -218,6 +207,7 @@ def test_info_location(app):
     assert '\nmessage7' in app.status.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_warning_location(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -249,6 +239,7 @@ def test_warning_location(app):
     assert colorize('red', 'WARNING: message7') in app.warning.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_suppress_logging(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -263,6 +254,7 @@ def test_suppress_logging(app):
     assert 'WARNING: message2' not in app.warning.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_pending_warnings(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -277,9 +269,11 @@ def test_pending_warnings(app):
         assert 'WARNING: message3' not in app.warning.getvalue()
 
     # actually logged as ordered
-    assert 'WARNING: message2\nWARNING: message3' in strip_colors(app.warning.getvalue())
+    warnings = strip_colors(app.warning.getvalue())
+    assert 'WARNING: message2\nWARNING: message3' in warnings
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_colored_logs(app):
     app.verbosity = 2
     logging.setup(app, app.status, app.warning)
@@ -307,8 +301,10 @@ def test_colored_logs(app):
     assert colorize('red', 'message8') in app.status.getvalue()
 
 
-@pytest.mark.xfail(os.name != 'posix',
-                   reason="Parallel mode does not work on Windows")
+@pytest.mark.xfail(
+    os.name != 'posix',
+    reason='Parallel mode does not work on Windows',
+)
 def test_logging_in_ParallelTasks(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -324,6 +320,7 @@ def test_logging_in_ParallelTasks(app):
     assert 'index.txt: WARNING: message2' in app.warning.getvalue()
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_output_with_unencodable_char(app):
     class StreamWriter(codecs.StreamWriter):
         def write(self, object):
@@ -335,34 +332,11 @@ def test_output_with_unencodable_char(app):
     # info with UnicodeEncodeError
     app.status.truncate(0)
     app.status.seek(0)
-    logger.info("unicode \u206d...")
-    assert app.status.getvalue() == "unicode ?...\n"
+    logger.info('unicode \u206d...')
+    assert app.status.getvalue() == 'unicode ?...\n'
 
 
-def test_skip_warningiserror(app):
-    logging.setup(app, app.status, app.warning)
-    logger = logging.getLogger(__name__)
-
-    app.warningiserror = True
-    with logging.skip_warningiserror():
-        logger.warning('message')
-
-    # if False, warning raises SphinxWarning exception
-    with logging.skip_warningiserror(False):  # NoQA: SIM117
-        with pytest.raises(SphinxWarning):
-            logger.warning('message')
-
-    # It also works during pending_warnings.
-    with logging.pending_warnings():  # NoQA: SIM117
-        with logging.skip_warningiserror():
-            logger.warning('message')
-
-    with pytest.raises(SphinxWarning):  # NoQA: PT012,SIM117
-        with logging.pending_warnings():
-            with logging.skip_warningiserror(False):
-                logger.warning('message')
-
-
+@pytest.mark.sphinx('html', testroot='root')
 def test_prefixed_warnings(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)
@@ -397,7 +371,7 @@ def test_get_node_location_abspath():
     assert location == absolute_filename + ':'
 
 
-@pytest.mark.sphinx(confoverrides={'show_warning_types': True})
+@pytest.mark.sphinx('html', testroot='root', confoverrides={'show_warning_types': True})
 def test_show_warning_types(app):
     logging.setup(app, app.status, app.warning)
     logger = logging.getLogger(__name__)

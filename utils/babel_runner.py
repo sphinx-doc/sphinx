@@ -111,7 +111,7 @@ def run_extract() -> None:
                     catalogue.add(
                         message,
                         None,
-                        [(str(filename), lineno)],
+                        [(str(relative_name), lineno)],
                         auto_comments=comments,
                         context=context,
                     )
@@ -183,7 +183,9 @@ def run_compile() -> None:
             catalogue = read_po(infile, locale=locale.name)
 
         if catalogue.fuzzy:
-            log.info('catalogue %s is marked as fuzzy, skipping', po_file.relative_to(ROOT))
+            log.info(
+                'catalogue %s is marked as fuzzy, skipping', po_file.relative_to(ROOT)
+            )
             continue
 
         locale_errors = 0
@@ -250,7 +252,9 @@ def run_compile() -> None:
         _write_pr_body_line('## Babel catalogue errors')
         _write_pr_body_line('')
         for locale_name, err_count in total_errors.items():
-            log.error('error: %d errors encountered in %r locale.', err_count, locale_name)
+            log.error(
+                'error: %d errors encountered in %r locale.', err_count, locale_name
+            )
             s = 's' if err_count != 1 else ''
             _write_pr_body_line(f'* {locale_name}: {err_count} error{s}')
 

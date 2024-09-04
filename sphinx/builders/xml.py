@@ -22,8 +22,6 @@ from sphinx.writers.xml import PseudoXMLWriter, XMLWriter
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from docutils.nodes import Node
-
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -73,13 +71,13 @@ class XMLBuilder(Builder):
     def prepare_writing(self, docnames: set[str]) -> None:
         self.writer = self._writer_class(self)
 
-    def write_doc(self, docname: str, doctree: Node) -> None:
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
         # work around multiple string % tuple issues in docutils;
         # replace tuples in attribute values with lists
         doctree = doctree.deepcopy()
         for domain in self.env.domains.values():
             xmlns = "xmlns:" + domain.name
-            doctree[xmlns] = "https://www.sphinx-doc.org/"  # type: ignore[index]
+            doctree[xmlns] = "https://www.sphinx-doc.org/"
         for node in doctree.findall(nodes.Element):
             for att, value in node.attributes.items():
                 if isinstance(value, tuple):

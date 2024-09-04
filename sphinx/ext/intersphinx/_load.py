@@ -201,14 +201,20 @@ def _fetch_inventory_group(
     config: Config,
     srcdir: Path,
 ) -> bool:
-    cache_time = now - config.intersphinx_cache_limit * 86400
+    if config.intersphinx_cache_limit < 0:
+        cache_time = now - config.intersphinx_cache_limit * 86400
+    else:
+        cache_time = 0
 
     updated = False
     failures = []
 
     for location in project.locations:
         # location is either None or a non-empty string
-        inv = f'{project.target_uri}/{INVENTORY_FILENAME}' if location is None else location
+        if location is None:
+            inv = posixpath.join(project.target_uri, INVENTORY_FILENAME)
+        else:
+            inv = location
 
         # decide whether the inventory must be read: always read local
         # files; remote ones only if the cache time is expired

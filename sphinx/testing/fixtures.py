@@ -28,7 +28,7 @@ DEFAULT_ENABLED_MARKERS = [
         'testroot="root", srcdir=None, '
         'confoverrides=None, freshenv=False, '
         'warningiserror=False, tags=None, verbosity=0, parallel=0, '
-        'keep_going=False, builddir=None, docutils_conf=None'
+        'builddir=None, docutils_conf=None'
         '): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
@@ -42,7 +42,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 @pytest.fixture(scope='session')
-def rootdir() -> str | None:
+def rootdir() -> Path | None:
     return None
 
 
@@ -74,7 +74,7 @@ def app_params(
     test_params: dict[str, Any],
     shared_result: SharedResult,
     sphinx_test_tempdir: str,
-    rootdir: str,
+    rootdir: Path,
 ) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
@@ -239,7 +239,7 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
+def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Temporary directory."""
     return tmp_path_factory.getbasetemp()
 
