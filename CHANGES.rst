@@ -96,6 +96,10 @@ Bugs fixed
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
+* #12707: HTML: Fix a bug where the grouping keys (categories) used in
+  glossaries would be used instead of the expected single-character groupings
+  displayed for all other index entries.
+  Patch by James Addison.
 
 Testing
 -------
