@@ -217,7 +217,7 @@ class InventoryFile:
                             if potential_ambiguities[lowercase_name] != content:
                                 actual_ambiguities.add(name)
                             else:
-                                logger.debug(__("duplicate definitions of %s found"), name,
+                                logger.debug(__("duplicate definitions of %r found"), name,
                                              type='intersphinx',
                                              subtype='ambiguous_definitions')
                         else:
@@ -226,6 +226,6 @@ class InventoryFile:
                              (name, domainname, typ, prio, uri, dispname))
                     f.write(compressor.compress(entry.encode()))
             for ambiguity in actual_ambiguities:
-                logger.warning(__("multiple definitions of %s found"), ambiguity,
+                logger.warning(__("multiple definitions of %r found"), ambiguity,
                                type='intersphinx', subtype='ambiguous_definitions')
             f.write(compressor.flush())
