@@ -8,12 +8,26 @@ from typing import TYPE_CHECKING
 import pytest
 from docutils import nodes
 
+from sphinx import locale
+
 from tests.test_builders.xpath_util import check_xpath
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Sequence
     from typing import Literal
     from xml.etree.ElementTree import Element
+
+
+def _symbolic_hyperlink_check(nodes: Sequence[Element]) -> None:
+    """Confirm that a series of nodes are HTML hyperlinks represented by individual symbols"""
+    assert nodes, 'Expected at least one node to check'
+    _ = locale.get_translation('sphinx')
+    for idx, node in enumerate(nodes):
+        assert node.tag == 'a', 'Attempted to check hyperlink on a non-anchor element'
+        hyperlink_label = "".join(node.itertext())
+        if idx == 0 and hyperlink_label == _('Symbols'):
+            continue  # allow the first label to be a named group of symbols
+        assert len(hyperlink_label) == 1
 
 
 def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
@@ -481,6 +495,7 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ('genindex.html', './/a/strong', 'Other'),
         ('genindex.html', './/a', 'entry'),
         ('genindex.html', './/li/a', 'double'),
+        ('genindex.html', './/div[@class="genindex-jumpbox"]/a', _symbolic_hyperlink_check),
         ('otherext.html', './/h1', 'Generated section'),
         ('otherext.html', ".//a[@href='_sources/otherext.foo.txt']", ''),
         ('search.html', ".//meta[@name='robots'][@content='noindex']", ''),
