@@ -102,7 +102,7 @@ def test_load_ambiguous_definition_warning(app):
 def test_dump_ambiguous_definition_warning(app):
     app.build()
 
-    assert "multiple definitions of duplicate found" not in app.warning.getvalue()
+    assert "multiple definitions of term found" not in app.warning.getvalue()
     assert 'multiple definitions of nice found' in app.warning.getvalue()
     assert 'multiple definitions of t found' in app.warning.getvalue()
 

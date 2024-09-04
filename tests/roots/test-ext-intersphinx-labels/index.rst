@@ -3,9 +3,9 @@ Terminology
 
 .. glossary::
 
-   duplicate
-   Duplicate
-      Both of these terms refer to the same idea: an item that is identical to another.
+   term
+   Term
+      Both of these entries can be used to refer to the same idea: an item of nomenclature.
 
    nice
       Good, enjoyable, pleasant.
