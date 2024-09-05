@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
 
-def _symbolic_hyperlink_check(nodes: Sequence[Element]) -> None:
+def _symbolic_link_check(nodes: Sequence[Element]) -> None:
     """Confirm that a series of nodes are HTML hyperlinks represented by individual symbols"""
     assert nodes, 'Expected at least one node to check'
     _ = locale.get_translation('sphinx')
@@ -495,7 +495,7 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ('genindex.html', './/a/strong', 'Other'),
         ('genindex.html', './/a', 'entry'),
         ('genindex.html', './/li/a', 'double'),
-        ('genindex.html', './/div[@class~="jumpbox"]/a', _symbolic_hyperlink_check),
+        ('genindex.html', './/div[@class="genindex-jumpbox"]/a', _symbolic_link_check),
         ('otherext.html', './/h1', 'Generated section'),
         ('otherext.html', ".//a[@href='_sources/otherext.foo.txt']", ''),
         ('search.html', ".//meta[@name='robots'][@content='noindex']", ''),
