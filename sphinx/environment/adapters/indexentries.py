@@ -82,6 +82,9 @@ class IndexEntries:
                         except ValueError:
                             entry, = _split_into(1, 'single', value)
                             sub_entry = ''
+                        if category_key and not entry.startswith(category_key):
+                            # TODO: can sub_entry be non-empty here?  under what conditions?
+                            entry, sub_entry = category_key, entry
                         _add_entry(entry, sub_entry, main,
                                    dic=new, link=uri, key=category_key)
                     elif entry_type == 'pair':
