@@ -82,6 +82,9 @@ class IndexEntries:
                         except ValueError:
                             entry, = _split_into(1, 'single', value)
                             sub_entry = ''
+                        if category_key and not entry.startswith(category_key):
+                            # TODO: can sub_entry be non-empty here?  under what conditions?
+                            entry, sub_entry = category_key, entry
                         _add_entry(entry, sub_entry, main,
                                    dic=new, link=uri, key=category_key)
                     elif entry_type == 'pair':
@@ -219,7 +222,7 @@ def _group_by_func(entry: tuple[str, _IndexEntry]) -> str:
     key, (targets, sub_items, category_key) = entry
 
     if category_key is not None:
-        return category_key
+        key = category_key
 
     # now calculate the key
     if key.startswith('\N{RIGHT-TO-LEFT MARK}'):

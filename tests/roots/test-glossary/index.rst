@@ -10,9 +10,9 @@ test-glossary
    *fermion*
       Particle with half-integer spin.
 
-   tauon
-   myon
-   electron
+   tauon : fermions
+   myon : fermions
+   electron : fermions
       Examples for fermions.
 
    über
