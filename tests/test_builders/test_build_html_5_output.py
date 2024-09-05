@@ -24,7 +24,7 @@ def _symbolic_hyperlink_check(nodes: Sequence[Element]) -> None:
     _ = locale.get_translation('sphinx')
     for idx, node in enumerate(nodes):
         assert node.tag == 'a', 'Attempted to check hyperlink on a non-anchor element'
-        hyperlink_label = "".join(node.itertext())
+        hyperlink_label = ''.join(node.itertext())
         if idx == 0 and hyperlink_label == _('Symbols'):
             continue  # allow the first label to be a named group of symbols
         assert len(hyperlink_label) == 1
@@ -495,7 +495,7 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ('genindex.html', './/a/strong', 'Other'),
         ('genindex.html', './/a', 'entry'),
         ('genindex.html', './/li/a', 'double'),
-        ('genindex.html', './/div[@class="genindex-jumpbox"]/a', _symbolic_hyperlink_check),
+        ('genindex.html', './/div[@class~="jumpbox"]/a', _symbolic_hyperlink_check),
         ('otherext.html', './/h1', 'Generated section'),
         ('otherext.html', ".//a[@href='_sources/otherext.foo.txt']", ''),
         ('search.html', ".//meta[@name='robots'][@content='noindex']", ''),
