@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 import re
 import zlib
-from typing import TYPE_CHECKING
+from typing import IO, TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import logging

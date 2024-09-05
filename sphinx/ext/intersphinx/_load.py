@@ -19,8 +19,8 @@ from sphinx.util import requests
 from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
-    from pathlib import Path
     from io import IOBase
+    from pathlib import Path
 
     from urllib3 import HTTPResponse
 
