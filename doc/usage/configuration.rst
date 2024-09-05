@@ -1612,7 +1612,7 @@ and also make use of these options.
 
    The special attribute *priority* can be set as an integer
    to load the CSS file at an earlier or later step.
-   For more information, refer to :meth:`.Sphinx.add_css_file()`.
+   For more information, refer to :meth:`.Sphinx.add_css_file`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
@@ -1641,7 +1641,7 @@ and also make use of these options.
 
    As a special attribute, *priority* can be set as an integer
    to load the JavaScript file at an earlier or later step.
-   For more information, refer to :meth:`.Sphinx.add_js_file()`.
+   For more information, refer to :meth:`.Sphinx.add_js_file`.
 
    .. versionadded:: 1.8
    .. versionchanged:: 3.5
