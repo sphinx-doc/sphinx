@@ -20,7 +20,9 @@ from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import IO
+    from io import IOBase
+
+    from urllib3 import HTTPResponse
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -277,6 +279,7 @@ def _fetch_inventory(
         # case: inv URI points to remote resource; strip any existing auth
         target_uri = _strip_basic_auth(target_uri)
     try:
+        f: IOBase
         if '://' in inv_location:
             f = _read_from_url(inv_location, config=config)
         else:
@@ -357,7 +360,7 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, *, config: Config) -> IO:
+def _read_from_url(url: str, *, config: Config) -> HTTPResponse:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -380,5 +383,5 @@ def _read_from_url(url: str, *, config: Config) -> IO:
     r.raw.url = r.url
     # decode content-body based on the header.
     # ref: https://github.com/psf/requests/issues/2155
-    r.raw.read = functools.partial(r.raw.read, decode_content=True)
+    r.raw.read = functools.partial(r.raw.read, decode_content=True)  # type: ignore[method-assign, misc]
     return r.raw
