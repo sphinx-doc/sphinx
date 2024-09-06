@@ -12,6 +12,11 @@ Incompatible changes
 
 * #12763: Remove unused internal class ``sphinx.util.Tee``.
   Patch by Adam Turner.
+* #12822: LaTeX: for Unicode engines, the :ref:`fvset` default is changed to
+  ``'\\fvset{fontsize=auto}'`` from ``'\\fvset{fontsize=\\small}'``.
+  Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
+  An adjustement to existing projects is needed only if they used a custom
+  :ref:`fontpkg` configuration and did not set :ref:`fvset`.
 
 Deprecated
 ----------
@@ -78,11 +83,19 @@ Bugs fixed
   rise to nested ``\DUrole``'s, rather than a single one with comma separated
   classes.
   Patch by Jean-François B.
+* #12831: LaTeX: avoid large voids sometimes occurring at page bottoms.
+  Patch by Jean-François B.
 * #11970, #12551: singlehtml builder: make target URIs to be same-document
   references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
   Patch by James Addison (with reference to prior work by Eric Norige)
+* #12735: Fix :pep:`695` generic classes LaTeX output formatting.
+  Patch by Jean-François B. and Bénédikt Tran.
+* #12782: intersphinx: fix double forward slashes when generating the inventory
+  file URL (user-defined base URL of an intersphinx project are left untouched
+  even if they end with double forward slashes).
+  Patch by Bénédikt Tran.
 
 Testing
 -------

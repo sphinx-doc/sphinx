@@ -14,12 +14,41 @@ if TYPE_CHECKING:
 
 
 class IndexEntry(NamedTuple):
+    """
+    An index entry.
+
+    .. note::
+
+       The *qualifier* and *description* are not rendered for some output formats,
+       such as LaTeX.
+    """
+
+    #: The name of the index entry to be displayed.
     name: str
+
+    #: The sub-entry related type. One of:
+    #:
+    #: ``0``
+    #:   A normal entry.
+    #: ``1``
+    #:   An entry with sub-entries.
+    #: ``2``
+    #:   A sub-entry.
     subtype: int
+
+    #: *docname* where the entry is located.
     docname: str
+
+    #: Anchor for the entry within `docname`
     anchor: str
+
+    #: Extra info for the entry.
     extra: str
+
+    #: Qualifier for the description.
     qualifier: str
+
+    #: Description for the entry.
     descr: str
 
 
@@ -75,39 +104,7 @@ class Index(ABC):
         ``content``:
           A sequence of ``(letter, entries)`` tuples, where ``letter`` is the
           "heading" for the given ``entries``, usually the starting letter, and
-          ``entries`` is a sequence of single entries. Each entry is a sequence
-          ``[name, subtype, docname, anchor, extra, qualifier, descr]``. The
-          items in this sequence have the following meaning:
-
-          ``name``
-            The name of the index entry to be displayed.
-
-          ``subtype``
-            The sub-entry related type. One of:
-
-            ``0``
-              A normal entry.
-            ``1``
-              An entry with sub-entries.
-            ``2``
-              A sub-entry.
-
-          ``docname``
-            *docname* where the entry is located.
-
-          ``anchor``
-            Anchor for the entry within ``docname``
-
-          ``extra``
-            Extra info for the entry.
-
-          ``qualifier``
-            Qualifier for the description.
-
-          ``descr``
-            Description for the entry.
-
-        Qualifier and description are not rendered for some output formats such
-        as LaTeX.
+          ``entries`` is a sequence of single entries.
+          Each entry is an :py:class:`IndexEntry`.
         """
         raise NotImplementedError

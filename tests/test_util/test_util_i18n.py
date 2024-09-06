@@ -179,13 +179,13 @@ def test_CatalogRepository(tmp_path):
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # no languages
-    repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # unknown locale_dirs
-    repo = i18n.CatalogRepository(tmp_path, ['loc3'], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, ['loc3'], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # no locale_dirs
-    repo = i18n.CatalogRepository(tmp_path, [], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, [], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []

@@ -302,7 +302,7 @@ def test_multibyte_parameters(make_app, apidoc):
     coderoot='test-root',
     options=['--ext-mathjax'],
 )
-def test_extension_parsed(make_app, apidoc):
+def test_extension_parsed(apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
 
@@ -315,7 +315,7 @@ def test_extension_parsed(make_app, apidoc):
     coderoot='test-apidoc-toc/mypackage',
     options=['--implicit-namespaces'],
 )
-def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
+def test_toc_all_references_should_exist_pep420_enabled(apidoc):
     """All references in toc should exist. This test doesn't say if
     directories with empty __init__.py and and nothing else should be
     skipped, just ensures consistency between what's referenced in the toc
@@ -346,7 +346,7 @@ def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
 @pytest.mark.apidoc(
     coderoot='test-apidoc-toc/mypackage',
 )
-def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
+def test_toc_all_references_should_exist_pep420_disabled(apidoc):
     """All references in toc should exist. This test doesn't say if
     directories with empty __init__.py and and nothing else should be
     skipped, just ensures consistency between what's referenced in the toc
@@ -394,7 +394,7 @@ def extract_toc(path):
     coderoot='test-apidoc-subpackage-in-toc',
     options=['--separate'],
 )
-def test_subpackage_in_toc(make_app, apidoc):
+def test_subpackage_in_toc(apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them
     are not skipped (issue #4520)
     """

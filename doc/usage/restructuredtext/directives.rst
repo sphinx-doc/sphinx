@@ -840,7 +840,7 @@ __ https://pygments.org/docs/lexers
 
       Strip indentation characters from the code block.  When number given,
       leading N characters are removed.  When no argument given, leading spaces
-      are removed via :func:`textwrap.dedent()`.  For example::
+      are removed via :func:`textwrap.dedent`.  For example::
 
          .. code-block:: ruby
             :linenos:

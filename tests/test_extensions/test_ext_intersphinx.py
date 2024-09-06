@@ -12,6 +12,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.config import Config
 from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx import (
     inspect_main,
@@ -767,4 +768,74 @@ def test_intersphinx_cache_limit(app):
             now=now,
             config=app.config,
             srcdir=app.srcdir,
+        )
+
+
+def test_intersphinx_fetch_inventory_group_url():
+    class InventoryHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, 'OK')
+            self.end_headers()
+            self.wfile.write(INVENTORY_V2)
+
+        def log_message(*args, **kwargs):
+            # Silenced.
+            pass
+
+    with http_server(InventoryHandler) as server:
+        url1 = f'http://localhost:{server.server_port}'
+        url2 = f'http://localhost:{server.server_port}/'
+
+        config = Config()
+        config.intersphinx_cache_limit = -1
+        config.intersphinx_mapping = {
+            '1': (url1, None),
+            '2': (url2, None),
+        }
+
+        now = int(time.time())
+        # we can use 'srcdir=None' since we are raising in _fetch_inventory
+        kwds = {'cache': {}, 'now': now, 'config': config, 'srcdir': None}
+        # We need an exception with its 'args' attribute set (see error
+        # handling in sphinx.ext.intersphinx._load._fetch_inventory_group).
+        side_effect = ValueError('')
+
+        project1 = _IntersphinxProject(
+            name='1', target_uri=url1, locations=(url1, None)
+        )
+        with mock.patch(
+            'sphinx.ext.intersphinx._load._fetch_inventory', side_effect=side_effect
+        ) as mockfn:
+            assert not _fetch_inventory_group(project=project1, **kwds)
+        mockfn.assert_any_call(
+            target_uri=url1,
+            inv_location=url1,
+            config=config,
+            srcdir=None,
+        )
+        mockfn.assert_any_call(
+            target_uri=url1,
+            inv_location=url1 + '/' + INVENTORY_FILENAME,
+            config=config,
+            srcdir=None,
+        )
+
+        project2 = _IntersphinxProject(
+            name='2', target_uri=url2, locations=(url2, None)
+        )
+        with mock.patch(
+            'sphinx.ext.intersphinx._load._fetch_inventory', side_effect=side_effect
+        ) as mockfn:
+            assert not _fetch_inventory_group(project=project2, **kwds)
+        mockfn.assert_any_call(
+            target_uri=url2,
+            inv_location=url2,
+            config=config,
+            srcdir=None,
+        )
+        mockfn.assert_any_call(
+            target_uri=url2,
+            inv_location=url2 + INVENTORY_FILENAME,
+            config=config,
+            srcdir=None,
         )
