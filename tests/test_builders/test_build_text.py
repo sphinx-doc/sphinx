@@ -57,7 +57,7 @@ def test_lineblock(app):
 
 @with_text_app()
 def test_nonascii_title_line(app):
-    app.build()
+    app.build(force_all=True)
     result = (app.outdir / 'nonascii_title.txt').read_text(encoding='utf8')
     expect_underline = '*********'
     result_underline = result.splitlines()[1].strip()
