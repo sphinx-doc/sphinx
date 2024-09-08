@@ -66,7 +66,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 63
+ENV_VERSION = 64
 
 # config status
 CONFIG_UNSET = -1
@@ -232,7 +232,7 @@ class BuildEnvironment:
         # docname -> list of toctree includefiles
         self.toctree_includes: dict[str, list[str]] = {}
         # docname -> set of files (containing its TOCs) to rebuild too
-        self.files_to_rebuild: dict[str, set[str]] = {}
+        self.files_to_rebuild: dict[str, list[str]] = {}
         # docnames that have :glob: toctrees
         self.glob_toctrees: set[str] = set()
         # docnames that have :numbered: toctrees
@@ -747,7 +747,7 @@ class BuildEnvironment:
         """Do consistency checks."""
         included = set().union(*self.included.values())
         for docname in sorted(self.all_docs):
-            if docname not in self.files_to_rebuild:
+            if docname not in self.files_to_rebuild:  # TODO: SortedList (?)
                 if docname == self.config.root_doc:
                     # the master file is not included anywhere ;)
                     continue

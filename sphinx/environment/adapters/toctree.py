@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 from docutils import nodes
 from docutils.nodes import Element, Node
+from sortedcontainers import SortedList
 
 from sphinx import addnodes
 from sphinx.locale import __
@@ -36,7 +37,9 @@ def note_toctree(env: BuildEnvironment, docname: str, toctreenode: addnodes.toct
     for include_file in include_files:
         # note that if the included file is rebuilt, this one must be
         # too (since the TOC of the included file could have changed)
-        env.files_to_rebuild.setdefault(include_file, set()).add(docname)
+        fnlist = SortedList(env.files_to_rebuild.get(include_file, []))
+        fnlist.add(docname)
+        env.files_to_rebuild[include_file] = list(fnlist)
     env.toctree_includes.setdefault(docname, []).extend(include_files)
 
 

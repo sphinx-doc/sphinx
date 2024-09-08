@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar, cast
 
 from docutils import nodes
+from sortedcontainers import SortedList
 
 from sphinx import addnodes
 from sphinx.environment.adapters.toctree import note_toctree
@@ -37,9 +38,12 @@ class TocTreeCollector(EnvironmentCollector):
         env.glob_toctrees.discard(docname)
         env.numbered_toctrees.discard(docname)
 
-        for subfn, fnset in list(env.files_to_rebuild.items()):
-            fnset.discard(docname)
-            if not fnset:
+        for subfn, fnlist in list(env.files_to_rebuild.items()):
+            try:
+                fnlist.remove(docname)
+            except ValueError:
+                pass
+            if not fnlist:
                 del env.files_to_rebuild[subfn]
 
     def merge_other(self, app: Sphinx, env: BuildEnvironment, docnames: set[str],
@@ -54,8 +58,10 @@ class TocTreeCollector(EnvironmentCollector):
             if docname in other.numbered_toctrees:
                 env.numbered_toctrees.add(docname)
 
-        for subfn, fnset in other.files_to_rebuild.items():
-            env.files_to_rebuild.setdefault(subfn, set()).update(fnset & set(docnames))
+        for subfn, other_fnlist in other.files_to_rebuild.items():
+            fnlist = SortedList(env.files_to_rebuild.get(subfn, []))
+            fnlist.update(frozenset(other_fnlist) & docnames)
+            env.files_to_rebuild[subfn] = list(fnlist)
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Build a TOC from the doctree and store it in the inventory."""
