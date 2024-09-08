@@ -14,7 +14,7 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
-  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
+  UV_VERSION: 0.3.2  # Pin the version of UV
 
 jobs:
   build:
@@ -22,22 +22,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
     - name: Install graphviz
       run: sudo apt-get install graphviz
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
-    - name: Install dependencies
-      run: uv pip install .[docs]
+      run: curl -LsSf https://astral.sh/uv/${{ env.UV_VERSION }}/install.sh | sh
     - name: Render the documentation
       run: >
+        uv run
         sphinx-build
         -M html ./doc ./build/sphinx
         -vv
