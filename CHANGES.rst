@@ -96,6 +96,9 @@ Bugs fixed
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
+* #12864: intersphinx: resolve type-check failures in inventory loading module
+  by defining a "file-like" ``ReadableStream`` protocol.
+  Patch by A. Rafey Khan.
 
 Testing
 -------
