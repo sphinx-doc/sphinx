@@ -191,12 +191,12 @@ class BuildEnvironment:
         # docnames to re-read unconditionally on next build
         self.reread_always: set[str] = set()
 
-        self._pickled_doctree_cache: dict[str, bytes] = {}
-        """In-memory cache for reading pickled doctrees from disk.
-        docname -> pickled doctree
+        self._pickled_doctree_cache: dict[str, nodes.document] = {}
+        """In-memory cache for reading parsed doctrees from disk.
+        docname -> parsed doctree
 
         This cache is used in the ``get_doctree`` method to avoid reading the
-        doctree from disk multiple times.
+        doctree from disk multiple times. Cached objects are pre-pickled using pickle.loads().
         """
 
         self._write_doc_doctree_cache: dict[str, nodes.document] = {}
@@ -629,13 +629,13 @@ class BuildEnvironment:
     def get_doctree(self, docname: str) -> nodes.document:
         """Read the doctree for a file from the pickle and return it."""
         try:
-            serialised = self._pickled_doctree_cache[docname]
+            doctree = self._pickled_doctree_cache[docname]
         except KeyError:
             filename = path.join(self.doctreedir, docname + '.doctree')
             with open(filename, 'rb') as f:
-                serialised = self._pickled_doctree_cache[docname] = f.read()
+                parsed = pickle.loads(f.read())
+                doctree = self._pickled_doctree_cache[docname] = parsed
 
-        doctree = pickle.loads(serialised)
         doctree.settings.env = self
         doctree.reporter = LoggingReporter(str(self.doc2path(docname)))
         return doctree
