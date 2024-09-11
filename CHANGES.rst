@@ -96,6 +96,9 @@ Bugs fixed
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
+* #6714, #12409: Workaround parallel-unsafe ``toctree`` collection process by
+  disabling the ``parallel_read_safe`` flag for the relevant collector.
+  Patch by James Addison.
 
 Testing
 -------

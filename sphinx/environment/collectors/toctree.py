@@ -364,6 +364,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     return {
         'version': 'builtin',
-        'parallel_read_safe': True,
+        'parallel_read_safe': False,
         'parallel_write_safe': True,
     }
