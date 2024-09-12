@@ -32,7 +32,7 @@ def test_relations(app):
 @pytest.mark.sphinx(
     'html',
     testroot='toctree-glob',
-    parallel=2,
+    parallel=5,
     confoverrides={'html_theme': 'alabaster'},
 )
 def test_parallel_toctree(app, cached_etree_parse):
