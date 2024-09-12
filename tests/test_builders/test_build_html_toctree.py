@@ -44,7 +44,9 @@ def test_parallel_toctree(app, cached_etree_parse):
     # top-level documents should only contain depth-1 navigation links
     sidebar_xpath = "//div[@class='sphinxsidebarwrapper']"
     nested_links = f"{sidebar_xpath}//li[@class!='toctree-l1']/a"
-    check_xpath(cached_etree_parse(index), index.name, nested_links, None, be_found=False)
+    check_xpath(
+        cached_etree_parse(index), index.name, nested_links, None, be_found=False
+    )
 
     # nested documents should contain breadcrumbs for depths one and two
     crumb1 = f"{sidebar_xpath}//li[@class='toctree-l1 current']/a"
