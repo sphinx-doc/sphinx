@@ -600,6 +600,9 @@ class GoogleDocstring:
                     elif entry[1] == "returns_style":
                         self._sections[entry[0].lower()] = \
                             self._parse_custom_returns_style_section
+                    elif callable(entry[1]):
+                        # [0] is new section, [1] is the custom parsing method
+                        self._sections[entry[0].lower()] = entry[1].__get__(self)
                     else:
                         # [0] is new section, [1] is the section to alias.
                         # in the case of key mismatch, just handle as generic section.
