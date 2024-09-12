@@ -32,21 +32,19 @@ def test_relations(app):
 @pytest.mark.sphinx(
     'html',
     testroot='toctree-glob',
-    parallel=5,
+    parallel=2,
     confoverrides={'html_theme': 'alabaster'},
 )
 def test_parallel_toctree(app, cached_etree_parse):
     app.build(force_all=True)
 
-    index = app.outdir / 'index.html'
+    root = app.outdir / 'index.html'
     bar1 = app.outdir / 'bar' / 'bar_1.html'
 
     # top-level documents should only contain depth-1 navigation links
     sidebar_xpath = ".//div[@class='sphinxsidebarwrapper']"
     nested_links = f"{sidebar_xpath}//li[@class!='toctree-l1']/a"
-    check_xpath(
-        cached_etree_parse(index), index.name, nested_links, None, be_found=False
-    )
+    check_xpath(cached_etree_parse(root), root.name, nested_links, None, be_found=False)
 
     # nested documents should contain breadcrumbs for depths one and two
     crumb1 = f"{sidebar_xpath}//li[@class='toctree-l1 current']/a"
