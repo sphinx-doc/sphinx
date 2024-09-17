@@ -88,15 +88,12 @@ class XRefRole(ReferenceRole):
 
     def update_title_and_target(self, title: str, target: str) -> tuple[str, str]:
         if not self.has_explicit_title:
-            if title.endswith('()'):
-                # remove parentheses
-                title = title[:-2]
+            title = title.removesuffix('()')
             if self.config.add_function_parentheses:
                 # add them back to all occurrences if configured
                 title += '()'
         # remove parentheses from the target too
-        if target.endswith('()'):
-            target = target[:-2]
+        target = target.removesuffix('()')
         return title, target
 
     def run(self) -> tuple[list[Node], list[system_message]]:

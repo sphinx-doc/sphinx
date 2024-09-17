@@ -786,8 +786,7 @@ class CPPXRefRole(XRefRole):
             # The addition part is done with the reference is resolved.
             if not has_explicit_title and title.endswith('()'):
                 title = title[:-2]
-            if target.endswith('()'):
-                target = target[:-2]
+            target = target.removesuffix('()')
         # TODO: should this really be here?
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
@@ -1036,8 +1035,7 @@ class CPPDomain(Domain):
                 raise NoUri(txtName, typ)
             return None, None
 
-        if typ.startswith('cpp:'):
-            typ = typ[4:]
+        typ = typ.removeprefix('cpp:')
         declTyp = s.declaration.objectType
 
         def checkType() -> bool:
