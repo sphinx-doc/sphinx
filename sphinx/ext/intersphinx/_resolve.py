@@ -162,7 +162,7 @@ def _resolve_reference(env: BuildEnvironment,
 
     typ = node['reftype']
     if typ == 'any':
-        for domain in env.domains.sorted_domains():
+        for domain in env.domains.sorted():
             if honor_disabled_refs and f'{domain.name}:*' in intersphinx_disabled_reftypes:
                 continue
             objtypes: Iterable[str] = domain.object_types.keys()

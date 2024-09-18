@@ -260,7 +260,7 @@ class BuildEnvironment:
             # if we are unpickling an environment, we need to recreate the domains
             self.domains = _DomainsContainer._from_environment(self)
         # setup domains (must do after all initialization)
-        self.domains._setup_domains()
+        self.domains._setup()
 
         # initialize config
         self._update_config(app.config)

@@ -75,7 +75,7 @@ class XMLBuilder(Builder):
         # work around multiple string % tuple issues in docutils;
         # replace tuples in attribute values with lists
         doctree = doctree.deepcopy()
-        for domain in self.env.domains.sorted_domains():
+        for domain in self.env.domains.sorted():
             doctree[f'xmlns:{domain.name}'] = 'https://www.sphinx-doc.org/'
         for node in doctree.findall(nodes.Element):
             for att, value in node.attributes.items():

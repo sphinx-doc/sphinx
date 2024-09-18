@@ -157,7 +157,7 @@ class _DomainsContainer:
                 msg = f'Domain name mismatch in {domain!r}: {domain_name!r} != {domain.name!r}'
                 raise ValueError(msg)
 
-    def _setup_domains(self) -> None:
+    def _setup(self) -> None:
         for domain in self._domain_instances.values():
             domain.setup()
 
@@ -288,6 +288,6 @@ class _DomainsContainer:
     def values(self) -> Iterable[Domain]:
         return self._domain_instances.values()
 
-    def sorted_domains(self) -> Iterable[Domain]:
+    def sorted(self) -> Iterable[Domain]:
         for _domain_name, domain in sorted(self._domain_instances.items()):
             yield domain

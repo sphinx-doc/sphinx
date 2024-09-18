@@ -336,7 +336,7 @@ class IndexBuilder:
         rv: dict[str, list[tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
-        for domain in self.env.domains.sorted_domains():
+        for domain in self.env.domains.sorted():
             sorted_objects = sorted(domain.get_objects())
             for fullname, dispname, type, docname, anchor, prio in sorted_objects:
                 if docname not in fn2index:

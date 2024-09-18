@@ -271,7 +271,7 @@ class TocTreeCollector(EnvironmentCollector):
         fignum_counter: dict[str, dict[tuple[int, ...], int]] = {}
 
         def get_figtype(node: Node) -> str | None:
-            for domain in env.domains.sorted_domains():
+            for domain in env.domains.sorted():
                 figtype = domain.get_enumerable_node_type(node)
                 if isinstance(domain, StandardDomain) and not domain.get_numfig_title(node):
                     # Skip if uncaptioned node

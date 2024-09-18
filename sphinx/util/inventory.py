@@ -194,7 +194,7 @@ class InventoryFile:
 
             # body
             compressor = zlib.compressobj(9)
-            for domain in env.domains.sorted_domains():
+            for domain in env.domains.sorted():
                 sorted_objects = sorted(domain.get_objects())
                 for fullname, dispname, type, docname, anchor, prio in sorted_objects:
                     if anchor.endswith(fullname):

@@ -29,7 +29,7 @@ class DummyDomainsContainer:
     def __init__(self, **domains: DummyDomain) -> None:
         self._domain_instances = domains
 
-    def sorted_domains(self) -> Iterator[DummyDomain]:
+    def sorted(self) -> Iterator[DummyDomain]:
         for _domain_name, domain in sorted(self._domain_instances.items()):
             yield domain
 
