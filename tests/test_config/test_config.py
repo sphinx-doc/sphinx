@@ -762,7 +762,7 @@ def source_date_year(request, monkeypatch):
 
 
 @pytest.mark.sphinx('html', testroot='copyright-multiline')
-def test_multi_line_copyright(source_date_year, app, monkeypatch):
+def test_multi_line_copyright(source_date_year, app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')

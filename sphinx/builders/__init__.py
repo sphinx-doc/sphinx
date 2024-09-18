@@ -428,7 +428,7 @@ class Builder:
         self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
-        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
+        if parallel_available and self.app.parallel > 1:
             par_ok = self.app.is_parallel_allowed('read')
         else:
             par_ok = False

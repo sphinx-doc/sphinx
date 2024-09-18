@@ -25,7 +25,6 @@ if TYPE_CHECKING:
 def test_instantiation(
     tmp_path_factory: pytest.TempPathFactory,
     rootdir: str | os.PathLike[str] | None,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Given
     src_dir = tmp_path_factory.getbasetemp() / 'root'

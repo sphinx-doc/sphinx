@@ -13,6 +13,10 @@ Domain API
 .. autoclass:: Index
    :members:
 
+.. autoclass:: IndexEntry
+   :members:
+   :member-order: bysource
+
 .. module:: sphinx.directives
 
 .. autoclass:: ObjectDescription
