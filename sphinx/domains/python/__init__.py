@@ -731,8 +731,7 @@ class PythonDomain(Domain):
         and/or classname.  Returns a list of (name, object entry) tuples.
         """
         # skip parens
-        if name[-2:] == '()':
-            name = name[:-2]
+        name = name.removesuffix('()')
 
         if not name:
             return []
