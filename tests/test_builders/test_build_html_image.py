@@ -79,11 +79,18 @@ def test_html_scaled_image_link(app):
         )
 
     # no-scaled-link class disables the feature
-    assert re.search(
-        '\n<img alt="_images/img.png" class="no-scaled-link"'
-        ' src="_images/img.png" style="[^"]+" />',
-        context,
-    )
+    if docutils.__version_info__[:2] >= (0, 22):
+        assert re.search(
+            '\n<img alt="_images/img.png" class="no-scaled-link"'
+            ' src="_images/img.png" height="[^"]+" width="[^"]+" />',
+            context,
+        )
+    else:
+        assert re.search(
+            '\n<img alt="_images/img.png" class="no-scaled-link"'
+            ' src="_images/img.png" style="[^"]+" />',
+            context,
+        )
 
 
 @pytest.mark.usefixtures('_http_teapot')
