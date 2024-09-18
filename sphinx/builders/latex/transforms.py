@@ -90,8 +90,7 @@ class ShowUrlsTransform(SphinxPostTransform):
         for node in list(self.document.findall(nodes.reference)):
             uri = node.get('refuri', '')
             if uri.startswith(URI_SCHEMES):
-                if uri.startswith('mailto:'):
-                    uri = uri[7:]
+                uri = uri.removeprefix('mailto:')
                 if node.astext() != uri:
                     index = node.parent.index(node)
                     docname = self.get_docname_for_node(node)

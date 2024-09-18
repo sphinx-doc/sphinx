@@ -85,8 +85,7 @@ class TexinfoBuilder(Builder):
                                   'document %s'), docname)
                 continue
             self.document_data.append(entry)  # type: ignore[arg-type]
-            if docname.endswith(SEP + 'index'):
-                docname = docname[:-5]
+            docname = docname.removesuffix(SEP + 'index')
             self.titles.append((docname, entry[2]))
 
     def write(self, *ignored: Any) -> None:
