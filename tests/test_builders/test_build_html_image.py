@@ -82,7 +82,7 @@ def test_html_scaled_image_link(app):
     if docutils.__version_info__[:2] >= (0, 22):
         assert re.search(
             '\n<img alt="_images/img.png" class="no-scaled-link"'
-            ' src="_images/img.png" height="[^"]+" width="[^"]+" />',
+            ' height="[^"]+" src="_images/img.png" width="[^"]+" />',
             context,
         )
     else:
