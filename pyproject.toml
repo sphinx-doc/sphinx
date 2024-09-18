@@ -87,9 +87,10 @@ lint = [
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20240218",
     "types-docutils==0.21.0.20240724",
-    "types-Pillow==10.2.0.20240520",
+    "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.18.0.20240506",
-    "types-requests>=2.30.0",  # align with requests
+    "types-requests==2.32.0.20240914",  # align with requests
+    "types-urllib3==1.26.25.14",
     "tomli>=2",  # for mypy (Python<=3.10)
     "pytest>=6.0",
 ]
@@ -135,7 +136,7 @@ exclude = [
 ]
 
 [tool.mypy]
-files = ["sphinx", "utils", "tests"]
+files = ["sphinx", "utils", "tests", "doc/conf.py"]
 exclude = [
     "tests/roots",
     # tests/
@@ -196,22 +197,12 @@ exclude = [
     "^tests/test_util/typing_test_data\\.py$",
     # tests/test_writers
 ]
-check_untyped_defs = true
 python_version = "3.10"
+strict = true
 show_column_numbers = true
 show_error_context = true
-strict_optional = true
-warn_redundant_casts = true
-warn_unused_configs = true
-warn_unused_ignores = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_subclassing_any = true
-disallow_untyped_calls = true
-disallow_untyped_decorators = true
-disallow_untyped_defs = true
-no_implicit_reexport = true
-extra_checks = true
+strict_equality = false
+warn_return_any = false
 enable_error_code = [
     "type-arg",
     "redundant-self",
