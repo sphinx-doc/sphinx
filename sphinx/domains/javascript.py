@@ -442,8 +442,7 @@ class JavaScriptDomain(Domain):
         typ: str | None,
         searchorder: int = 0,
     ) -> tuple[str | None, tuple[str, str, str] | None]:
-        if name[-2:] == '()':
-            name = name[:-2]
+        name = name.removesuffix('()')
 
         searches = []
         if mod_name and prefix:
