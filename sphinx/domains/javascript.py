@@ -307,15 +307,14 @@ class JSModule(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        mod_name = self.arguments[0].strip()
-        self.env.ref_context['js:module'] = mod_name
-
         # Copy old option names to new ones
         # xref RemovedInSphinx90Warning
         # # deprecate noindex in Sphinx 9.0
         if 'no-index' not in self.options and 'noindex' in self.options:
             self.options['no-index'] = self.options['noindex']
 
+        mod_name = self.arguments[0].strip()
+        self.env.ref_context['js:module'] = mod_name
         no_index = 'no-index' in self.options
 
         content_nodes = self.parse_content_to_nodes(allow_section_headings=True)
