@@ -10,12 +10,14 @@ from __future__ import annotations
 import functools
 import operator
 import re
+from collections.abc import Callable
 from inspect import Parameter, Signature
 from typing import TYPE_CHECKING, Any, ClassVar, NewType, TypeAlias, TypeVar
 
 from docutils.statemachine import StringList
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.config import ENUM, Config
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
@@ -40,10 +42,9 @@ from sphinx.util.typing import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Iterator, Sequence
     from types import ModuleType
 
-    from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
@@ -178,6 +179,7 @@ def merge_members_option(options: dict) -> None:
 # Some useful event listener factories for autodoc-process-docstring.
 
 _EventListener: TypeAlias = Callable[[Sphinx, str, str, Any, Any, list[str]], None]
+
 
 def cut_lines(pre: int, post: int = 0, what: str | list[str] | None = None) -> _EventListener:
     """Return a listener that removes the first *pre* and last *post*
