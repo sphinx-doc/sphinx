@@ -329,6 +329,7 @@ Documentation using pydata_sphinx_theme
 * `NetworkX <https://networkx.org/documentation/stable/>`__
 * `Numpy <https://numpy.org/doc/stable/>`__
 * `Pandas <https://pandas.pydata.org/docs/>`__
+* `PhaseFieldX <https://phasefieldx.readthedocs.io/>`__
 * `Pystra (continuation of PyRe) <https://pystra.github.io/pystra/>`__
 * `PyVista <https://docs.pyvista.org/>`__
 * `SciPy <https://docs.scipy.org/doc/scipy/>`__
