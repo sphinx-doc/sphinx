@@ -247,7 +247,6 @@ module = [
     "sphinx.jinja2glue",
     "sphinx.registry",
     "sphinx.search",
-    "sphinx.util",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
     "sphinx.util.inspect",
