@@ -84,7 +84,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v3.1.0
+      uses: deadsnakes/action@v3.2.0
       with:
         python-version: ${{ matrix.python }}
     - name: Check Python version
@@ -117,7 +117,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
-      uses: deadsnakes/action@v3.1.0
+      uses: deadsnakes/action@v3.2.0
       with:
         python-version: ${{ matrix.python }}
         nogil: true
