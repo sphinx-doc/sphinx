@@ -48,6 +48,8 @@ Features added
 * #12743: Add :option:`sphinx-build --exception-on-warning`,
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
+* #12882: Cache entire (pickled + parsed) document objects instead of
+  raw bytes during the build phase.
 
 Bugs fixed
 ----------
