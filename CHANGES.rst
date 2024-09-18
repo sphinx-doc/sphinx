@@ -99,7 +99,9 @@ Bugs fixed
 * #12796: Enable parallel reading if requested,
   even if there are fewer than 6 documents.
   Patch by Matthias Geier.
-
+* #12844: Restore support for ``:noindex:`` for the :rst:dir:`js:module`
+  and :rst:dir:`py:module` directives.
+  Patch by Stephen Finucane.
 
 Testing
 -------
