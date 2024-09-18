@@ -11,7 +11,7 @@ import functools
 import operator
 import re
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, ClassVar, NewType, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar, NewType, TypeAlias, TypeVar
 
 from docutils.statemachine import StringList
 
@@ -177,7 +177,9 @@ def merge_members_option(options: dict) -> None:
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-def cut_lines(pre: int, post: int = 0, what: Sequence[str] | None = None) -> Callable:
+_EventListener: TypeAlias = Callable[[Sphinx, str, str, Any, Any, list[str]], None]
+
+def cut_lines(pre: int, post: int = 0, what: str | list[str] | None = None) -> _EventListener:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
@@ -212,7 +214,7 @@ def between(
     what: Sequence[str] | None = None,
     keepempty: bool = False,
     exclude: bool = False,
-) -> Callable:
+) -> _EventListener:
     """Return a listener that either keeps, or if *exclude* is True excludes,
     lines between lines that match the *marker* regular expression.  If no line
     matches, the resulting docstring would be empty, so no change will be made
@@ -249,7 +251,7 @@ def between(
 
 # This class is used only in ``sphinx.ext.autodoc.directive``,
 # But we define this class here to keep compatibility (see #4538)
-class Options(dict):
+class Options(dict[str, Any]):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
 
     def copy(self) -> Options:
