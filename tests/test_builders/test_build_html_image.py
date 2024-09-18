@@ -61,14 +61,22 @@ def test_html_scaled_image_link(app):
     assert re.search('\n<img alt="_images/img.png" src="_images/img.png" />', context)
 
     # scaled_image_link
-    # Docutils 0.21 adds a newline before the closing </a> tag
-    closing_space = '\n' if docutils.__version_info__[:2] >= (0, 21) else ''
-    assert re.search(
-        '\n<a class="reference internal image-reference" href="_images/img.png">'
-        '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />'
-        f'{closing_space}</a>',
-        context,
-    )
+    if docutils.__version_info__[:2] >= (0, 22):
+        assert re.search(
+            '\n<a class="reference internal image-reference" href="_images/img.png">'
+            '<img alt="_images/img.png" height="90" src="_images/img.png" width="100" />'
+            '\n</a>',
+            context,
+        )
+    else:
+        # Docutils 0.21 adds a newline before the closing </a> tag
+        closing_space = '\n' if docutils.__version_info__[:2] >= (0, 21) else ''
+        assert re.search(
+            '\n<a class="reference internal image-reference" href="_images/img.png">'
+            '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />'
+            f'{closing_space}</a>',
+            context,
+        )
 
     # no-scaled-link class disables the feature
     assert re.search(
