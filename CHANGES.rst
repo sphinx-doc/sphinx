@@ -96,6 +96,10 @@ Bugs fixed
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
+* #12796: Enable parallel reading if requested,
+  even if there are fewer than 6 documents.
+  Patch by Matthias Geier.
+
 
 Testing
 -------
