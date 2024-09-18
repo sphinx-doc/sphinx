@@ -2783,7 +2783,7 @@ These options influence LaTeX output.
 
    * :code-py:`'pdflatex'` -- PDFLaTeX (default)
    * :code-py:`'xelatex'` -- XeLaTeX
-     (default if :confval:`language` is one of :code-py:`['zh_CN', 'zh_TW', 'el']`)
+     (default if :confval:`language` is one of ``zh_CN``', ``zh_TW``, or ``el``)
    * :code-py:`'lualatex'` -- LuaLaTeX
    * :code-py:`'platex'` -- pLaTeX
    * :code-py:`'uplatex'` -- upLaTeX
