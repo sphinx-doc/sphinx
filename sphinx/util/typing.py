@@ -117,6 +117,29 @@ OptionSpec: TypeAlias = dict[str, Callable[[str], Any]]
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter: TypeAlias = Callable[[nodes.Node], str]
 
+# Readable file stream for inventory loading
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from typing_extensions import Self
+
+    _T_co = TypeVar('_T_co', str, bytes, covariant=True)
+
+    class _ReadableStream(Protocol[_T_co]):
+        def read(self, size: int = ...) -> _T_co:
+            ...
+
+        def __enter__(self) -> Self:
+            ...
+
+        def __exit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc_val: BaseException | None,
+            exc_tb: TracebackType | None
+        ) -> None:
+            ...
+
 # inventory data on memory
 InventoryItem: TypeAlias = tuple[
     str,  # project name

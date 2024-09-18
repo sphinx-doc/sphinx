@@ -784,10 +784,9 @@ class CPPXRefRole(XRefRole):
         if refnode['reftype'] == 'any':
             # Assume the removal part of fix_parens for :any: refs.
             # The addition part is done with the reference is resolved.
-            if not has_explicit_title and title.endswith('()'):
-                title = title[:-2]
-            if target.endswith('()'):
-                target = target[:-2]
+            if not has_explicit_title:
+                title = title.removesuffix('()')
+            target = target.removesuffix('()')
         # TODO: should this really be here?
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
@@ -1036,8 +1035,7 @@ class CPPDomain(Domain):
                 raise NoUri(txtName, typ)
             return None, None
 
-        if typ.startswith('cpp:'):
-            typ = typ[4:]
+        typ = typ.removeprefix('cpp:')
         declTyp = s.declaration.objectType
 
         def checkType() -> bool:
@@ -1093,8 +1091,8 @@ class CPPDomain(Domain):
                         if typ == 'any' and displayName.endswith('()'):
                             addParen += 1
                         elif typ == 'func':
-                            if title.endswith('()') and not displayName.endswith('()'):
-                                title = title[:-2]
+                            if not displayName.endswith('()'):
+                                title = title.removesuffix('()')
                     else:
                         if displayName.endswith('()'):
                             addParen += 1

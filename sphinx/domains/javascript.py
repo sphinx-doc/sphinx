@@ -307,6 +307,12 @@ class JSModule(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # # deprecate noindex in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
         no_index = 'no-index' in self.options
@@ -435,8 +441,7 @@ class JavaScriptDomain(Domain):
         typ: str | None,
         searchorder: int = 0,
     ) -> tuple[str | None, tuple[str, str, str] | None]:
-        if name[-2:] == '()':
-            name = name[:-2]
+        name = name.removesuffix('()')
 
         searches = []
         if mod_name and prefix:

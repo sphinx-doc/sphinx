@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class IndexDomain(Domain):
-    """Mathematics domain."""
+    """Index domain."""
 
     name = 'index'
     label = 'index'

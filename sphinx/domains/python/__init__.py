@@ -449,6 +449,12 @@ class PyModule(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # # deprecate noindex in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+
         domain = self.env.domains.python_domain
 
         modname = self.arguments[0].strip()
@@ -731,8 +737,7 @@ class PythonDomain(Domain):
         and/or classname.  Returns a list of (name, object entry) tuples.
         """
         # skip parens
-        if name[-2:] == '()':
-            name = name[:-2]
+        name = name.removesuffix('()')
 
         if not name:
             return []
