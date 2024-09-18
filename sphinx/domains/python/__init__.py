@@ -25,7 +25,7 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Element, Node
 
@@ -455,7 +455,7 @@ class PyModule(SphinxDirective):
         if 'no-index' not in self.options and 'noindex' in self.options:
             self.options['no-index'] = self.options['noindex']
 
-        domain = cast(PythonDomain, self.env.get_domain('py'))
+        domain = self.env.domains.python_domain
 
         modname = self.arguments[0].strip()
         no_index = 'no-index' in self.options
@@ -721,7 +721,7 @@ class PythonDomain(Domain):
             if mod.docname == docname:
                 del self.modules[modname]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates?
         for fullname, obj in otherdata['objects'].items():
             if obj.docname in docnames:

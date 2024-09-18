@@ -2,7 +2,6 @@
 
 import sys
 from io import StringIO
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -37,7 +36,6 @@ defaults = {
     'extensions': ['sphinx.ext.autosummary'],
     'autosummary_generate': True,
     'autosummary_generate_overwrite': False,
-    'source_suffix': '.rst',
 }
 
 
@@ -219,13 +217,10 @@ def str_content(elem):
 def test_escaping(app):
     app.build(force_all=True)
 
-    outdir = Path(app.builder.outdir)
-
-    docpage = outdir / 'underscore_module_.xml'
+    docpage = app.builder.outdir / 'underscore_module_.xml'
     assert docpage.exists()
 
     title = etree_parse(docpage).find('section/title')
-
     assert str_content(title) == 'underscore_module_'
 
 

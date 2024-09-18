@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -20,7 +20,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils.nodes import Element, Node
 
@@ -150,7 +150,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+        domain = self.env.domains.javascript_domain
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
@@ -321,7 +321,7 @@ class JSModule(SphinxDirective):
 
         ret: list[Node] = []
         if not no_index:
-            domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+            domain = self.env.domains.javascript_domain
 
             node_id = make_id(self.env, self.state.document, 'module', mod_name)
             domain.note_module(mod_name, node_id)
@@ -423,7 +423,7 @@ class JavaScriptDomain(Domain):
             if pkg_docname == docname:
                 del self.modules[modname]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates
         for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:

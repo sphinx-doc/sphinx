@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes, writers
 
 from sphinx import __display_version__, addnodes
-from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
@@ -482,8 +481,7 @@ class TexinfoTranslator(SphinxTranslator):
                 indices_config = frozenset(indices_config)
             else:
                 check_names = False
-            for domain_name in sorted(self.builder.env.domains):
-                domain = self.builder.env.domains[domain_name]
+            for domain in self.builder.env.domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
                     if check_names and index_name not in indices_config:
@@ -496,7 +494,7 @@ class TexinfoTranslator(SphinxTranslator):
                             generate(content, collapsed),
                         ))
         # only add the main Index if it's not empty
-        domain = cast(IndexDomain, self.builder.env.get_domain('index'))
+        domain = self.builder.env.domains.index_domain
         for docname in self.builder.docnames:
             if domain.entries[docname]:
                 self.indices.append((_('Index'), '\n@printindex ge\n'))
