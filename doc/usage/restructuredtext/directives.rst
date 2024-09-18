@@ -903,7 +903,7 @@ __ https://pygments.org/docs/lexers
       Strip indentation characters from the included content.
       When a number is given, the leading N characters are removed.
       When no argument given, all common leading indentation is removed
-      (using :func:`textwrap.dedent()`).
+      (using :func:`textwrap.dedent`).
 
       .. versionadded:: 1.3
       .. versionchanged:: 3.5
