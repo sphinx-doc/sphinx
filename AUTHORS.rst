@@ -72,6 +72,7 @@ Contributors
 * Michael Wilson -- Intersphinx HTTP basic auth support
 * Nathan Damon -- bugfix in validation of static paths in html builders
 * Pauli Virtanen -- autodoc improvements, autosummary extension
+* A. Rafey Khan -- improved intersphinx typing
 * Rob Ruana -- napoleon extension
 * Robert Lehmann -- gettext builder (GSOC project)
 * Roland Meister -- epub builder

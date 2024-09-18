@@ -31,7 +31,7 @@ if TYPE_CHECKING:
         InventoryName,
         InventoryURI,
     )
-    from sphinx.util.typing import Inventory, ReadableStream
+    from sphinx.util.typing import Inventory, _ReadableStream
 
 
 def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
@@ -278,7 +278,7 @@ def _fetch_inventory(
         target_uri = _strip_basic_auth(target_uri)
     try:
         if '://' in inv_location:
-            f: ReadableStream[bytes] = _read_from_url(inv_location, config=config)
+            f: _ReadableStream[bytes] = _read_from_url(inv_location, config=config)
         else:
             f = open(path.join(srcdir, inv_location), 'rb')  # NoQA: SIM115
     except Exception as err:
@@ -377,8 +377,11 @@ def _read_from_url(url: str, *, config: Config) -> HTTPResponse:
                      _user_agent=config.user_agent,
                      _tls_info=(config.tls_verify, config.tls_cacerts))
     r.raise_for_status()
-    r.raw.url = r.url
-    # decode content-body based on the header.
-    # ref: https://github.com/psf/requests/issues/2155
+
+    # For inv_location / new_inv_location
+    r.raw.url = r.url  # type: ignore[union-attr]
+
+    # Decode content-body based on the header.
+    # xref: https://github.com/psf/requests/issues/2155
     r.raw.decode_content = True
     return r.raw

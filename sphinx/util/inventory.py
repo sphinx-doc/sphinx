@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import Inventory, InventoryItem, ReadableStream
+    from sphinx.util.typing import Inventory, InventoryItem, _ReadableStream
 
 
 class InventoryFileReader:
@@ -26,7 +26,7 @@ class InventoryFileReader:
     This reader supports mixture of texts and compressed texts.
     """
 
-    def __init__(self, stream: ReadableStream[bytes]) -> None:
+    def __init__(self, stream: _ReadableStream[bytes]) -> None:
         self.stream = stream
         self.buffer = b''
         self.eof = False
@@ -80,7 +80,7 @@ class InventoryFile:
     @classmethod
     def load(
         cls: type[InventoryFile],
-        stream: ReadableStream[bytes],
+        stream: _ReadableStream[bytes],
         uri: str,
         joinfunc: Callable[[str, str], str],
     ) -> Inventory:

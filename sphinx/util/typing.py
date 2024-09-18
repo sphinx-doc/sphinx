@@ -123,10 +123,10 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    T_co = TypeVar('T_co', str, bytes, covariant=True)
+    _T_co = TypeVar('_T_co', str, bytes, covariant=True)
 
-    class ReadableStream(Protocol[T_co]):
-        def read(self, size: int = ...) -> T_co:
+    class _ReadableStream(Protocol[_T_co]):
+        def read(self, size: int = ...) -> _T_co:
             ...
 
         def __enter__(self) -> Self:
