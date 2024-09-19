@@ -100,6 +100,15 @@ def test_numbered_circular_toctree(app):
     ) in warnings
 
 
+@pytest.mark.sphinx('text', testroot='toctree-multiple-parents')
+def test_multiple_parents_toctree(app):
+    app.build(force_all=True)
+    warnings = app.warning.getvalue()
+    assert (
+        "document is referenced in multiple toctrees: ['bar', 'baz'], selecting: baz <- qux"
+    ) in warnings
+
+
 @pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('dummy', testroot='images')
 def test_image_glob(app):

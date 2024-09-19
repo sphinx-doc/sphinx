@@ -758,6 +758,7 @@ class BuildEnvironment:
                     continue
                 logger.warning(__("document isn't included in any toctree"),
                                location=docname)
+        _check_toc_parents(self.toctree_includes)
 
         # call check-consistency for all extensions
         for domain in self.domains.values():
@@ -788,3 +789,22 @@ def _traverse_toctree(
             if sub_docname not in traversed:
                 yield sub_parent, sub_docname
                 traversed.add(sub_docname)
+
+
+def _check_toc_parents(toctree_includes:  dict[str, list[str]]):
+    toc_parents: dict[str, list[str]] = {}
+    for parent, children in toctree_includes.items():
+        for child in children:
+            toc_parents.setdefault(child, []).append(parent)
+
+    for doc, parents in sorted(toc_parents.items()):
+        if len(parents) > 1:
+            logger.warning(
+                __("document is referenced in multiple toctrees: %s, "
+                   "selecting: %s <- %s"),
+                parents,
+                max(parents),
+                doc,
+                location=doc, type='toc',
+                subtype='multiple_toc_parents'
+            )
