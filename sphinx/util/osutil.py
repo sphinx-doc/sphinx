@@ -69,9 +69,17 @@ def relative_uri(base: str, to: str) -> str:
     if to.endswith(SEP):
         to = to[:-1]
     #
-    # Does to begin with base? If not, return the value for to
+    # Does to begin with base? If not, we need to figure out how
+    # many "folders" we need to go up before we can then go to
+    # the "to" destination.
     if not to.startswith(base):
-        return to
+        count = base.count("/")
+        # If there aren't any "/", it is a top-level doc, so we
+        # can just go straight there.
+        if count == 0:
+            return to
+        # Otherwise we need to step up for each / plus one.
+        return "../" * (count+1) + to
     #
     # Calculate the overlap. Strip that overlap from the beginning
     # of to and then prefix it with the last leaf from base.
