@@ -78,8 +78,8 @@ def relative_uri(base: str, to: str) -> str:
         # can just go straight there.
         if count == 0:
             return to
-        # Otherwise we need to step up for each / plus one.
-        return "../" * (count+1) + to
+        # Otherwise we need to step up for each /.
+        return "../" * count + to
     #
     # Calculate the overlap. Strip that overlap from the beginning
     # of to and then prefix it with the last leaf from base.
