@@ -187,7 +187,11 @@ def _resolve_toctree(
     # generation time)
     for refnode in newnode.findall(nodes.reference):
         if url_re.match(refnode['refuri']) is None:
-            rel_uri = builder.get_relative_uri(docname, refnode['refuri'])
+            # PJC: Now that osutil/relative_uri accommodates / navigation in
+            # calculating the relative uri, this *doesn't* work for the navigation
+            # sidebar, so we deliberately pass "" instead of docname, just to get
+            # the correct URI back.
+            rel_uri = builder.get_relative_uri("", refnode['refuri'])
             refnode['refuri'] = rel_uri + refnode['anchorname']
     return newnode
 
