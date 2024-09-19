@@ -99,6 +99,10 @@ Bugs fixed
 * #12796: Enable parallel reading if requested,
   even if there are fewer than 6 documents.
   Patch by Matthias Geier.
+* #12888: Ensure deterministic resolution of global toctree in parallel builds
+  when document is included in multiple toctrees by choosing lexicographically
+  greatest parent document.
+  Patch by A. Rafey Khan
 
 
 Testing

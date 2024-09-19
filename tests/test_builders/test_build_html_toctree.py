@@ -3,6 +3,7 @@
 import re
 
 import pytest
+from unittest.mock import patch
 
 from tests.test_builders.xpath_html_util import _intradocument_hyperlink_check
 from tests.test_builders.xpath_util import check_xpath
@@ -63,3 +64,24 @@ def test_numbered_toctree(app):
 def test_singlehtml_hyperlinks(app, cached_etree_parse, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='toctree-multiple-parents',
+    confoverrides={'html_theme': 'alabaster'},
+)
+def test_toctree_multiple_parents(app, cached_etree_parse):
+    # Lexicographically greatest parent of the document in global toctree
+    # should be chosen regardless of the order in which files are read
+    with patch.object(app.builder, '_read_serial') as mock_read_serial:
+        # Read files in reversed order
+        _read_serial = app.builder.__class__._read_serial
+        mock_read_serial.side_effect = lambda docnames: _read_serial(
+            app.builder, list(reversed(docnames))
+        )
+        app.build()
+        # Check if qux is a child of baz in qux.html
+        xpath_baz_children = ".//ul[@class='current']//a[@href='baz.html']/../ul/li//a"
+        etree = cached_etree_parse(app.outdir / 'qux.html')
+        check_xpath(etree, 'qux.html', xpath=xpath_baz_children, check='Qux')

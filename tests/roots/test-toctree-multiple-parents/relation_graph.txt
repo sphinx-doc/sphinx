@@ -1,0 +1,7 @@
+     index
+    /     \
+   foo    baz
+    \      /
+    bar   /
+      \  /
+      qux
