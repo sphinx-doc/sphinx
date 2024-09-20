@@ -201,9 +201,13 @@ def _fetch_inventory_group(
     config: Config,
     srcdir: Path,
 ) -> bool:
-    if config.intersphinx_cache_limit < 0:
+    if config.intersphinx_cache_limit >= 0:
+        # Positive value: cache is expired if its timestamp is below
+        # `now - X days`.
         cache_time = now - config.intersphinx_cache_limit * 86400
     else:
+        # Negative value: cache is expired if its timestamp is below
+        # zero, which is impossible.
         cache_time = 0
 
     updated = False

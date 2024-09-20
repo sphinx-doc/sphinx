@@ -102,6 +102,10 @@ Bugs fixed
 * #12844: Restore support for ``:noindex:`` for the :rst:dir:`js:module`
   and :rst:dir:`py:module` directives.
   Patch by Stephen Finucane.
+* #12905: intersphinx: fix flipped use of :confval:`intersphinx_cache_limit`,
+  which always kept the cache for positive values, and always refreshed it for
+  negative ones.
+  Patch by Nico Madysa.
 
 Testing
 -------
