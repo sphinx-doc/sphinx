@@ -249,7 +249,6 @@ module = [
     "sphinx.util.inspect",
     "sphinx.util.logging",
     "sphinx.util.parallel",
-    "sphinx.util.template",
 ]
 disallow_any_generics = false
 
