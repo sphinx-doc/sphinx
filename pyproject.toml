@@ -237,7 +237,6 @@ module = [
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
-    "sphinx.ext.intersphinx._load",
     "sphinx.ext.napoleon.docstring",
     "sphinx.highlighting",
     "sphinx.jinja2glue",
@@ -246,11 +245,9 @@ module = [
     "sphinx.util",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
-    "sphinx.util.i18n",
     "sphinx.util.inspect",
     "sphinx.util.logging",
     "sphinx.util.parallel",
-    "sphinx.util.template",
 ]
 disallow_any_generics = false
 
