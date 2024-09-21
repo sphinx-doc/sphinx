@@ -246,7 +246,6 @@ module = [
     "sphinx.util",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
-    "sphinx.util.i18n",
     "sphinx.util.inspect",
     "sphinx.util.logging",
     "sphinx.util.parallel",
