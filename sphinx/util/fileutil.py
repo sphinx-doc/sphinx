@@ -70,7 +70,7 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
 
         if (
             not force
-            and os.path.exists(destination)
+            and destination.exists()
             and template_content != rendered_template
         ):
             msg = __('Aborted attempted copy from rendered template %s to %s '
