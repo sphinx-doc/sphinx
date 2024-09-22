@@ -53,6 +53,7 @@ html_additional_pages = {'contents': 'contents.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
 html_favicon = '_static/favicon.svg'
+html_last_updated_time_zone = 'GMT'
 
 htmlhelp_basename = 'Sphinxdoc'
 
