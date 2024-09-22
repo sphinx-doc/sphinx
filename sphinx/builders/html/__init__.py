@@ -454,7 +454,10 @@ class StandaloneHTMLBuilder(Builder):
         last_updated: str | None
         if (lu_fmt := self.config.html_last_updated_fmt) is not None:
             lu_fmt = lu_fmt or _('%b %d, %Y')
-            last_updated = format_date(lu_fmt, language=self.config.language)
+            local_time = self.config.html_last_updated_time_zone == 'local'
+            last_updated = format_date(
+                lu_fmt, language=self.config.language, local_time=local_time
+            )
         else:
             last_updated = None
 
@@ -1323,6 +1326,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', str)
+    app.add_config_value('html_last_updated_time_zone', 'local', 'html',
+                         ENUM('GMT', 'local'))
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', types={set, list})

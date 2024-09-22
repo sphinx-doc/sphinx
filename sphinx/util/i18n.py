@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from datetime import datetime, timezone
 from os import path
 from typing import TYPE_CHECKING, NamedTuple
@@ -58,6 +59,11 @@ if TYPE_CHECKING:
         ) -> str: ...
 
     Formatter: TypeAlias = DateFormatter | TimeFormatter | DatetimeFormatter
+
+if sys.version_info[:2] >= (3, 11):
+    from datetime import UTC
+else:
+    UTC = timezone.utc
 
 logger = logging.getLogger(__name__)
 
@@ -223,16 +229,26 @@ def babel_format_date(date: datetime, format: str, locale: str,
 
 
 def format_date(
-    format: str, *, date: datetime | None = None, language: str,
+    format: str,
+    *,
+    date: datetime | None = None,
+    language: str,
+    local_time: bool = False,
 ) -> str:
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
-            date = datetime.fromtimestamp(float(source_date_epoch), tz=timezone.utc)
+            date = datetime.fromtimestamp(float(source_date_epoch), tz=UTC)
         else:
-            date = datetime.now(tz=timezone.utc).astimezone()
+            date = datetime.now(tz=UTC)
+
+    if local_time:
+        # > If called with tz=None, the system local time zone
+        # > is assumed for the target time zone.
+        # https://docs.python.org/dev/library/datetime.html#datetime.datetime.astimezone
+        date = date.astimezone(tz=None)
 
     result = []
     tokens = date_format_re.split(format)

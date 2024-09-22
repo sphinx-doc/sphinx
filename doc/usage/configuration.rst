@@ -1717,6 +1717,14 @@ and also make use of these options.
    The empty string is equivalent to :code-py:`'%b %d, %Y'`
    (or a locale-dependent equivalent).
 
+.. confval:: html_last_updated_time_zone
+   :type: :code-py:`'local' | 'GMT'`
+   :default: :code-py:`'local'`
+
+   Choose GMT (+00:00) or the system's local time zone
+   for the time supplied to :confval:`html_last_updated_fmt`.
+   This is most useful when the format used includes the time.
+
 .. confval:: html_permalinks
    :type: :code-py:`bool`
    :default: :code-py:`True`
