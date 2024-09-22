@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import posixpath
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from docutils.utils import relative_path
@@ -53,11 +54,10 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
     if not os.path.exists(source):
         return
 
-    if os.path.isdir(destination):
+    destination = Path(destination)
+    if destination.is_dir():
         # Use source filename if destination points a directory
-        destination = os.path.join(destination, os.path.basename(source))
-    else:
-        destination = str(destination)
+        destination /= os.path.basename(source)
 
     if _template_basename(source) and context is not None:
         if renderer is None:
