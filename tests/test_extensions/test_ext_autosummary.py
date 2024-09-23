@@ -68,7 +68,7 @@ def test_mangle_signature():
     """
 
     TEST = [
-        [y.strip() for y in x.split('::')]
+        list(map(str.strip, x.split('::')))
         for x in TEST_SIGNATURE.split('\n')
         if '::' in x
     ]
