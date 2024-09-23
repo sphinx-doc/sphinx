@@ -21,7 +21,7 @@ from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
     from pathlib import Path
     from typing import Any
     from xml.etree.ElementTree import ElementTree
@@ -43,7 +43,7 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                         'The node%s has %d child nodes, not one' % (xpath, len(node))
                     assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
         elif isinstance(cls, tuple):
-            assert isinstance(node, (list, nodes.Element)), \
+            assert isinstance(node, list | nodes.Element), \
                 'The node%s does not have any items' % xpath
             assert len(node) == len(cls), \
                 'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
@@ -86,7 +86,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
     It is recommended to use::
 
-        @pytest.mark.sphinx('html')
+        @pytest.mark.sphinx('html', testroot='root')
         def test(app):
             app = ...
 
@@ -112,16 +112,19 @@ class SphinxTestApp(sphinx.application.Sphinx):
         confoverrides: dict[str, Any] | None = None,
         status: StringIO | None = None,
         warning: StringIO | None = None,
-        tags: list[str] | None = None,
+        tags: Sequence[str] = (),
         docutils_conf: str | None = None,  # extra constructor argument
         parallel: int = 0,
         # additional arguments at the end to keep the signature
         verbosity: int = 0,  # argument is not in the same order as in the superclass
-        keep_going: bool = False,
         warningiserror: bool = False,  # argument is not in the same order as in the superclass
+        pdb: bool = False,
+        exception_on_warning: bool = False,
         # unknown keyword arguments
         **extras: Any,
     ) -> None:
+        self._builder_name = buildername
+
         assert srcdir is not None
 
         if verbosity == -1:
@@ -170,12 +173,22 @@ class SphinxTestApp(sphinx.application.Sphinx):
                 srcdir, confdir, outdir, doctreedir, buildername,
                 confoverrides=confoverrides, status=status, warning=warning,
                 freshenv=freshenv, warningiserror=warningiserror, tags=tags,
-                verbosity=verbosity, parallel=parallel, keep_going=keep_going,
-                pdb=False,
+                verbosity=verbosity, parallel=parallel,
+                pdb=pdb, exception_on_warning=exception_on_warning,
             )
         except Exception:
             self.cleanup()
             raise
+
+    def _init_builder(self) -> None:
+        # override the default theme to 'basic' rather than 'alabaster'
+        # for test independence
+
+        if 'html_theme' in self.config._overrides:
+            pass  # respect overrides
+        elif 'html_theme' in self.config and self.config.html_theme == 'alabaster':
+            self.config.html_theme = self.config._overrides.get('html_theme', 'basic')
+        super()._init_builder()
 
     @property
     def status(self) -> StringIO:
@@ -198,30 +211,24 @@ class SphinxTestApp(sphinx.application.Sphinx):
             os.remove(self.docutils_conf_path)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
+        return f'<{self.__class__.__name__} buildername={self._builder_name!r}>'
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         self.env._pickled_doctree_cache.clear()
         super().build(force_all, filenames)
 
 
-class SphinxTestAppWrapperForSkipBuilding:
+class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
     """A wrapper for SphinxTestApp.
 
     This class is used to speed up the test by skipping ``app.build()``
     if it has already been built and there are any output files.
     """
 
-    def __init__(self, app_: SphinxTestApp) -> None:
-        self.app = app_
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self.app, name)
-
-    def build(self, *args: Any, **kwargs: Any) -> None:
-        if not os.listdir(self.app.outdir):
+    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+        if not os.listdir(self.outdir):
             # if listdir is empty, do build.
-            self.app.build(*args, **kwargs)
+            super().build(force_all, filenames)
             # otherwise, we can use built cache
 
 

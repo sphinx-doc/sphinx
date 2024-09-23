@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
+from docutils.transforms.references import Footnotes
 from docutils.transforms.universal import SmartQuotes
 from docutils.utils import normalize_language_tag
 from docutils.utils.smartquotes import smartchars
@@ -22,8 +23,10 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from typing import Literal, TypeAlias
 
     from docutils.nodes import Node, Text
+    from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -31,15 +34,22 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
 
+    _DEFAULT_SUBSTITUTION_NAMES: TypeAlias = Literal[
+        'version',
+        'release',
+        'today',
+        'translation progress',
+    ]
+
 
 logger = logging.getLogger(__name__)
 
-default_substitutions = {
+_DEFAULT_SUBSTITUTIONS = frozenset({
     'version',
     'release',
     'today',
     'translation progress',
-}
+})
 
 
 class SphinxTransform(Transform):
@@ -105,20 +115,25 @@ class DefaultSubstitutions(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         # only handle those not otherwise defined in the document
-        to_handle = default_substitutions - set(self.document.substitution_defs)
+        to_handle = _DEFAULT_SUBSTITUTIONS - set(self.document.substitution_defs)
         for ref in self.document.findall(nodes.substitution_reference):
-            refname = ref['refname']
-            if refname in to_handle:
-                if refname == 'translation progress':
-                    # special handling: calculate translation progress
-                    text = _calculate_translation_progress(self.document)
-                else:
-                    text = self.config[refname]
-                if refname == 'today' and not text:
-                    # special handling: can also specify a strftime format
-                    text = format_date(self.config.today_fmt or _('%b %d, %Y'),
-                                       language=self.config.language)
-                ref.replace_self(nodes.Text(text))
+            if (name := ref['refname']) in to_handle:
+                ref.replace_self(self._handle_default_substitution(name))
+
+    def _handle_default_substitution(self, name: _DEFAULT_SUBSTITUTION_NAMES) -> nodes.Text:
+        if name == 'translation progress':
+            # special handling: calculate translation progress
+            return nodes.Text(_calculate_translation_progress(self.document))
+        if name == 'today':
+            if text := self.config.today:
+                return nodes.Text(text)
+            # special handling: can also specify a strftime format
+            return nodes.Text(format_date(
+                self.config.today_fmt or _('%b %d, %Y'),
+                language=self.config.language,
+            ))
+        # config.version and config.release
+        return nodes.Text(getattr(self.config, name))
 
 
 def _calculate_translation_progress(document: nodes.document) -> str:
@@ -193,7 +208,7 @@ class AutoNumbering(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        domain: StandardDomain = self.env.domains['std']
+        domain: StandardDomain = self.env.domains.standard_domain
 
         for node in self.document.findall(nodes.Element):
             if (domain.is_enumerable_node(node) and
@@ -233,7 +248,7 @@ class ApplySourceWorkaround(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall():  # type: Node
-            if isinstance(node, (nodes.TextElement, nodes.image, nodes.topic)):
+            if isinstance(node, nodes.TextElement | nodes.image | nodes.topic):
                 apply_source_workaround(node)
 
 
@@ -263,15 +278,15 @@ class ExtraTranslatableNodes(SphinxTransform):
     default_priority = 10
 
     def apply(self, **kwargs: Any) -> None:
-        targets = self.config.gettext_additional_targets
-        target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
+        targets = frozenset(self.config.gettext_additional_targets)
+        target_nodes = tuple(v for k, v in TRANSLATABLE_NODES.items() if k in targets)
         if not target_nodes:
             return
 
-        def is_translatable_node(node: Node) -> bool:
-            return isinstance(node, tuple(target_nodes))
+        def is_translatable_node(node: Node) -> TypeIs[nodes.Element]:
+            return isinstance(node, target_nodes)
 
-        for node in self.document.findall(is_translatable_node):  # type: nodes.Element
+        for node in self.document.findall(is_translatable_node):
             node['translatable'] = True
 
 
@@ -280,23 +295,40 @@ class UnreferencedFootnotesDetector(SphinxTransform):
     Detect unreferenced footnotes and emit warnings
     """
 
-    default_priority = 200
+    default_priority = Footnotes.default_priority + 2
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.footnotes:
-            if node['names'] == []:
-                # footnote having duplicated number.  It is already warned at parser.
-                pass
-            elif node['names'][0] not in self.document.footnote_refs:
-                logger.warning(__('Footnote [%s] is not referenced.'), node['names'][0],
-                               type='ref', subtype='footnote',
-                               location=node)
-
+            # note we do not warn on duplicate footnotes here
+            # (i.e. where the name has been moved to dupnames)
+            # since this is already reported by docutils
+            if not node['backrefs'] and node["names"]:
+                logger.warning(
+                    __('Footnote [%s] is not referenced.'),
+                    node['names'][0] if node['names'] else node['dupnames'][0],
+                    type='ref',
+                    subtype='footnote',
+                    location=node
+                )
+        for node in self.document.symbol_footnotes:
+            if not node['backrefs']:
+                logger.warning(
+                    __('Footnote [*] is not referenced.'),
+                    type='ref',
+                    subtype='footnote',
+                    location=node
+                )
         for node in self.document.autofootnotes:
-            if not any(ref['auto'] == node['auto'] for ref in self.document.autofootnote_refs):
-                logger.warning(__('Footnote [#] is not referenced.'),
-                               type='ref', subtype='footnote',
-                               location=node)
+            # note we do not warn on duplicate footnotes here
+            # (i.e. where the name has been moved to dupnames)
+            # since this is already reported by docutils
+            if not node['backrefs'] and node["names"]:
+                logger.warning(
+                    __('Footnote [#] is not referenced.'),
+                    type='ref',
+                    subtype='footnote',
+                    location=node
+                )
 
 
 class DoctestTransform(SphinxTransform):
@@ -350,7 +382,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
         # override default settings with :confval:`smartquotes_action`
         self.smartquotes_action = self.config.smartquotes_action
 
-        super().apply()
+        super().apply()  # type: ignore[no-untyped-call]
 
     def is_available(self) -> bool:
         builders = self.config.smartquotes_excludes.get('builders', [])
@@ -463,7 +495,7 @@ def _reorder_index_target_nodes(start_node: nodes.target) -> None:
     # as we want *consecutive* target & index nodes.
     node: nodes.Node
     for node in start_node.findall(descend=False, siblings=True):
-        if isinstance(node, (nodes.target, addnodes.index)):
+        if isinstance(node, nodes.target | addnodes.index):
             nodes_to_reorder.append(node)
             continue
         break  # must be a consecutive run of target or index nodes

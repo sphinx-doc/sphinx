@@ -1,5 +1,5 @@
-target-version = "py39"  # Pin Ruff to Python 3.9
-line-length = 95
+target-version = "py310"  # Pin Ruff to Python 3.10
+line-length = 88
 output-format = "full"
 
 extend-exclude = [
@@ -222,7 +222,6 @@ select = [
 #    "PLR0912",  # Too many branches ({branches} > {max_branches})
 #    "PLR0913",  # Too many arguments to function call ({c_args} > {max_args})
 #    "PLR0915",  # Too many statements ({statements} > {max_statements})
-    "PLR1701",  # Merge `isinstance` calls: `{expr}`
     "PLR1711",  # Useless `return` statement at end of function
 #    "PLR1714",  # Consider merging multiple comparisons: `{expr}`. Use a `set` if the elements are hashable.
     "PLR1722",  # Use `sys.exit()` instead of `{name}`
@@ -373,6 +372,7 @@ select = [
 [lint.per-file-ignores]
 "doc/*" = [
     "ANN",  # documentation doesn't need annotations
+    "TCH001",  # documentation doesn't need type-checking blocks
 ]
 "doc/conf.py" = ["INP001", "W605"]
 "doc/development/tutorials/examples/*" = ["INP001"]
@@ -419,13 +419,16 @@ select = [
 ]
 
 # these tests need old ``typing`` generic aliases
-"tests/test_util/test_util_typing.py" = ["UP006", "UP035"]
-"tests/test_util/typing_test_data.py" = ["FA100", "UP006", "UP035"]
+"tests/test_util/test_util_typing.py" = ["UP006", "UP007", "UP035"]
+"tests/test_util/typing_test_data.py" = ["FA100", "UP006", "UP007", "UP035"]
 
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages
     "ANN",  # utilities don't need annotations
 ]
+
+[lint.pycodestyle]
+max-line-length = 95
 
 [lint.flake8-quotes]
 inline-quotes = "single"
@@ -448,7 +451,32 @@ exclude = [
     "sphinx/directives/*",
     "sphinx/domains/*",
     "sphinx/environment/*",
-    "sphinx/ext/*",
+    "sphinx/ext/autodoc/__init__.py",
+    "sphinx/ext/autodoc/directive.py",
+    "sphinx/ext/autodoc/importer.py",
+    "sphinx/ext/autodoc/mock.py",
+    "sphinx/ext/autodoc/preserve_defaults.py",
+    "sphinx/ext/autodoc/type_comment.py",
+    "sphinx/ext/autodoc/typehints.py",
+    "sphinx/ext/autosectionlabel.py",
+    "sphinx/ext/autosummary/__init__.py",
+    "sphinx/ext/coverage.py",
+    "sphinx/ext/doctest.py",
+    "sphinx/ext/duration.py",
+    "sphinx/ext/extlinks.py",
+    "sphinx/ext/githubpages.py",
+    "sphinx/ext/graphviz.py",
+    "sphinx/ext/ifconfig.py",
+    "sphinx/ext/imgconverter.py",
+    "sphinx/ext/imgmath.py",
+    "sphinx/ext/inheritance_diagram.py",
+    "sphinx/ext/intersphinx/*",
+    "sphinx/ext/linkcode.py",
+    "sphinx/ext/mathjax.py",
+    "sphinx/ext/napoleon/__init__.py",
+    "sphinx/ext/napoleon/docstring.py",
+    "sphinx/ext/todo.py",
+    "sphinx/ext/viewcode.py",
     "sphinx/pycode/*",
     "sphinx/pygments_styles.py",
     "sphinx/registry.py",
@@ -457,18 +485,4 @@ exclude = [
     "sphinx/transforms/*",
     "sphinx/util/*",
     "sphinx/writers/*",
-    "tests/*",
-    "tests/roots/*",
-    "tests/test_builders/*",
-    "tests/test_config/*",
-    "tests/test_directives/*",
-    "tests/test_domains/*",
-    "tests/test_environment/*",
-    "tests/test_extensions/*",
-    "tests/test_intl/*",
-    "tests/test_markup/*",
-    "tests/test_pycode/*",
-    "tests/test_transforms/*",
-    "tests/test_util/*",
-    "tests/test_writers/*",
 ]

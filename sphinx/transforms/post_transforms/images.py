@@ -6,6 +6,7 @@ import os
 import re
 from hashlib import sha1
 from math import ceil
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
@@ -13,6 +14,7 @@ from docutils import nodes
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.util import logging, requests
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.http_date import epoch_to_rfc1123, rfc1123_to_epoch
 from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_uri
 from sphinx.util.osutil import ensuredir
@@ -65,60 +67,66 @@ class ImageDownloader(BaseImageConverter):
             basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
 
             uri_hash = sha1(node['uri'].encode(), usedforsecurity=False).hexdigest()
-            ensuredir(os.path.join(self.imagedir, uri_hash))
-            path = os.path.join(self.imagedir, uri_hash, basename)
+            path = Path(self.imagedir, uri_hash, basename)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self._download_image(node, path)
 
-            headers = {}
-            if os.path.exists(path):
-                timestamp: float = ceil(os.stat(path).st_mtime)
-                headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
-
-            config = self.app.config
-            r = requests.get(
-                node['uri'], headers=headers,
-                _user_agent=config.user_agent,
-                _tls_info=(config.tls_verify, config.tls_cacerts),
-            )
-            if r.status_code >= 400:
-                logger.warning(__('Could not fetch remote image: %s [%d]'),
-                               node['uri'], r.status_code)
-            else:
-                self.app.env.original_image_uri[path] = node['uri']
-
-                if r.status_code == 200:
-                    with open(path, 'wb') as f:
-                        f.write(r.content)
-
-                last_modified = r.headers.get('last-modified')
-                if last_modified:
-                    timestamp = rfc1123_to_epoch(last_modified)
-                    os.utime(path, (timestamp, timestamp))
-
-                mimetype = guess_mimetype(path, default='*')
-                if mimetype != '*' and os.path.splitext(basename)[1] == '':
-                    # append a suffix if URI does not contain suffix
-                    ext = get_image_extension(mimetype)
-                    newpath = os.path.join(self.imagedir, uri_hash, basename + ext)
-                    os.replace(path, newpath)
-                    self.app.env.original_image_uri.pop(path)
-                    self.app.env.original_image_uri[newpath] = node['uri']
-                    path = newpath
-                node['candidates'].pop('?')
-                node['candidates'][mimetype] = path
-                node['uri'] = path
-                self.app.env.images.add_file(self.env.docname, path)
         except Exception as exc:
-            logger.warning(__('Could not fetch remote image: %s [%s]'), node['uri'], exc)
+            msg = __('Could not fetch remote image: %s [%s]')
+            logger.warning(msg, node['uri'], exc)
+
+    def _download_image(self, node: nodes.image, path: Path) -> None:
+        headers = {}
+        if path.exists():
+            timestamp: float = ceil(path.stat().st_mtime)
+            headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
+
+        config = self.app.config
+        r = requests.get(
+            node['uri'], headers=headers,
+            _user_agent=config.user_agent,
+            _tls_info=(config.tls_verify, config.tls_cacerts),
+        )
+        if r.status_code >= 400:
+            msg = __('Could not fetch remote image: %s [%d]')
+            logger.warning(msg, node['uri'], r.status_code)
+        else:
+            self.app.env.original_image_uri[_StrPath(path)] = node['uri']
+
+            if r.status_code == 200:
+                path.write_bytes(r.content)
+            if last_modified := r.headers.get('Last-Modified'):
+                timestamp = rfc1123_to_epoch(last_modified)
+                os.utime(path, (timestamp, timestamp))
+
+            self._process_image(node, path)
+
+    def _process_image(self, node: nodes.image, path: Path) -> None:
+        str_path = _StrPath(path)
+        self.app.env.original_image_uri[str_path] = node['uri']
+
+        mimetype = guess_mimetype(path, default='*')
+        if mimetype != '*' and path.suffix == '':
+            # append a suffix if URI does not contain suffix
+            ext = get_image_extension(mimetype) or ''
+            with_ext = path.with_name(path.name + ext)
+            os.replace(path, with_ext)
+            self.app.env.original_image_uri.pop(str_path)
+            self.app.env.original_image_uri[_StrPath(with_ext)] = node['uri']
+            path = with_ext
+        path_str = str(path)
+        node['candidates'].pop('?')
+        node['candidates'][mimetype] = path_str
+        node['uri'] = path_str
+        self.app.env.images.add_file(self.env.docname, path_str)
 
 
 class DataURIExtractor(BaseImageConverter):
     default_priority = 150
 
     def match(self, node: nodes.image) -> bool:
-        if not self.app.builder.supported_remote_images:
-            return False
         if self.app.builder.supported_data_uri_images is True:
-            return False
+            return False  # do not transform the image; data URIs are valid in the build output
         return node['uri'].startswith('data:')
 
     def handle(self, node: nodes.image) -> None:
@@ -132,16 +140,17 @@ class DataURIExtractor(BaseImageConverter):
 
         ensuredir(os.path.join(self.imagedir, 'embeded'))
         digest = sha1(image.data, usedforsecurity=False).hexdigest()
-        path = os.path.join(self.imagedir, 'embeded', digest + ext)
+        path = _StrPath(self.imagedir, 'embeded', digest + ext)
         self.app.env.original_image_uri[path] = node['uri']
 
         with open(path, 'wb') as f:
             f.write(image.data)
 
+        path_str = str(path)
         node['candidates'].pop('?')
-        node['candidates'][image.mimetype] = path
-        node['uri'] = path
-        self.app.env.images.add_file(self.env.docname, path)
+        node['candidates'][image.mimetype] = path_str
+        node['uri'] = path_str
+        self.app.env.images.add_file(self.env.docname, path_str)
 
 
 def get_filename_for(filename: str, mimetype: str) -> str:
@@ -260,7 +269,7 @@ class ImageConverter(BaseImageConverter):
                 node['candidates'][_to] = destpath
             node['uri'] = destpath
 
-            self.env.original_image_uri[destpath] = srcpath
+            self.env.original_image_uri[_StrPath(destpath)] = srcpath
             self.env.images.add_file(self.env.docname, destpath)
 
     def convert(self, _from: str, _to: str) -> bool:

@@ -7,7 +7,8 @@ import time
 from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from docutils import nodes
@@ -28,13 +29,15 @@ from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
 
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
+
+DEFAULT_TEMPLATE_PATH = Path(package_dir, 'templates', 'gettext')
 
 logger = logging.getLogger(__name__)
 
@@ -91,13 +94,14 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: list[str | os.PathLike[str]] | None = None,
+        self, template_path: Sequence[str | os.PathLike[str]] | None = None,
             outdir: str | os.PathLike[str] | None = None,
     ) -> None:
         self.outdir = outdir
         if template_path is None:
-            template_path = [path.join(package_dir, 'templates', 'gettext')]
-        super().__init__(template_path)
+            super().__init__([DEFAULT_TEMPLATE_PATH])
+        else:
+            super().__init__([*template_path, DEFAULT_TEMPLATE_PATH])
 
         def escape(s: str) -> str:
             s = s.replace('\\', r'\\')
@@ -119,8 +123,8 @@ class GettextRenderer(SphinxRenderer):
 class I18nTags(Tags):
     """Dummy tags module for I18nBuilder.
 
-    To translate all text inside of only nodes, this class
-    always returns True value even if no tags are defined.
+    To ensure that all text inside ``only`` nodes is translated,
+    this class always returns ``True`` regardless the defined tags.
     """
 
     def eval_condition(self, condition: Any) -> bool:
@@ -257,11 +261,11 @@ class MessageCatalogBuilder(I18nBuilder):
                 msg = f'{template}: {exc!r}'
                 raise ThemeError(msg) from exc
 
-    def build(
+    def build(  # type: ignore[misc]
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         self._extract_from_template()
         super().build(docnames, summary, method)
@@ -287,7 +291,12 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer(outdir=self.outdir).render('message.pot_t', context)
+            template_path = [
+                self.app.srcdir / rel_path
+                for rel_path in self.config.templates_path
+            ]
+            renderer = GettextRenderer(template_path, outdir=self.outdir)
+            content = renderer.render('message.pot.jinja', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):
@@ -299,9 +308,9 @@ def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
     gettext_compact = config.gettext_compact
     # Convert 0/1 from the command line to ``bool`` types
     if gettext_compact == '0':
-        config.gettext_compact = False  # type: ignore[attr-defined]
+        config.gettext_compact = False
     elif gettext_compact == '1':
-        config.gettext_compact = True  # type: ignore[attr-defined]
+        config.gettext_compact = True
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
@@ -311,7 +320,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
-    app.add_config_value('gettext_additional_targets', [], 'env')
+    app.add_config_value('gettext_additional_targets', [], 'env', types={set, list})
     app.add_config_value('gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext')
     app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
     app.connect('config-inited', _gettext_compact_validator, priority=800)

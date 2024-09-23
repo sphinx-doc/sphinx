@@ -6,7 +6,7 @@ import os
 import time
 import traceback
 from math import sqrt
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 try:
     import multiprocessing
@@ -18,12 +18,12 @@ from sphinx.errors import SphinxParallelError
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
 logger = logging.getLogger(__name__)
 
 # our parallel functionality only works for the forking Process
-parallel_available = multiprocessing and os.name == 'posix'
+parallel_available = HAS_MULTIPROCESSING and os.name == 'posix'
 
 
 class SerialTasks:

@@ -1,4 +1,5 @@
 """Tests uti.nodes functions."""
+
 from __future__ import annotations
 
 import warnings
@@ -30,8 +31,7 @@ def create_new_document():
         warnings.filterwarnings('ignore', category=DeprecationWarning)
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        settings = frontend.OptionParser(
-            components=(rst.Parser,)).get_default_values()
+        settings = frontend.OptionParser(components=(rst.Parser,)).get_default_values()
     settings.id_prefix = 'id'
     document = new_document('dummy.txt', settings)
     return document
@@ -52,8 +52,9 @@ def assert_node_count(messages, node_type, expect_count):
             count += 1
 
     assert count == expect_count, (
-        "Count of %r in the %r is %d instead of %d"
-        % (node_type, node_list, count, expect_count))
+        f'Count of {node_type!r} in the {node_list!r} '
+        f'is {count} instead of {expect_count}'
+    )
 
 
 def test_NodeMatcher():
@@ -101,7 +102,8 @@ def test_NodeMatcher():
 
               admonition body
            """,
-            nodes.title, 1,
+            nodes.title,
+            1,
         ),
         (
             """
@@ -109,20 +111,23 @@ def test_NodeMatcher():
 
               this is title
            """,
-            nodes.caption, 1,
+            nodes.caption,
+            1,
         ),
         (
             """
            .. rubric:: spam
            """,
-            nodes.rubric, 1,
+            nodes.rubric,
+            1,
         ),
         (
             """
            | spam
            | egg
            """,
-            nodes.line, 2,
+            nodes.line,
+            2,
         ),
         (
             """
@@ -134,15 +139,16 @@ def test_NodeMatcher():
            | | Message 1    |
            +----------------+
            """,
-            nodes.line, 2,
+            nodes.line,
+            2,
         ),
         (
             """
            * | **Title 1**
              | Message 1
            """,
-            nodes.line, 2,
-
+            nodes.line,
+            2,
         ),
     ],
 )
@@ -192,8 +198,13 @@ def test_clean_astext():
         ('', '', 'id0'),
         ('term', '', 'term-0'),
         ('term', 'Sphinx', 'term-Sphinx'),
-        ('', 'io.StringIO', 'io.StringIO'),   # contains a dot
-        ('', 'sphinx.setup_command', 'sphinx.setup_command'),  # contains a dot & underscore
+        ('', 'io.StringIO', 'io.StringIO'),  # contains a dot
+        (
+            # contains a dot & underscore
+            '',
+            'sphinx.setup_command',
+            'sphinx.setup_command',
+        ),
         ('', '_io.StringIO', 'io.StringIO'),  # starts with underscore
         ('', 'ｓｐｈｉｎｘ', 'sphinx'),  # alphabets in unicode fullwidth characters
         ('', '悠好', 'id0'),  # multibytes text (in Chinese)
@@ -201,18 +212,22 @@ def test_clean_astext():
         ('', 'fünf', 'funf'),  # latin1 (umlaut)
         ('', '0sphinx', 'sphinx'),  # starts with number
         ('', 'sphinx-', 'sphinx'),  # ends with hyphen
-    ])
+    ],
+)
+@pytest.mark.sphinx('html', testroot='root')
 def test_make_id(app, prefix, term, expected):
     document = create_new_document()
     assert make_id(app.env, document, prefix, term) == expected
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_make_id_already_registered(app):
     document = create_new_document()
     document.ids['term-Sphinx'] = True  # register "term-Sphinx" manually
     assert make_id(app.env, document, 'term', 'Sphinx') == 'term-0'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_make_id_sequential(app):
     document = create_new_document()
     document.ids['term-0'] = True
@@ -231,7 +246,7 @@ def test_make_id_sequential(app):
     ],
 )
 def test_split_explicit_target(title, expected):
-    assert expected == split_explicit_title(title)
+    assert split_explicit_title(title) == expected
 
 
 def test_apply_source_workaround_literal_block_no_source():

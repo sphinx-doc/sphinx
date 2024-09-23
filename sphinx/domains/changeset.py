@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
 
 from docutils import nodes
 
@@ -12,6 +12,8 @@ from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -62,15 +64,14 @@ class VersionChange(SphinxDirective):
         node['version'] = self.arguments[0]
         text = versionlabels[self.name] % self.arguments[0]
         if len(self.arguments) == 2:
-            inodes, messages = self.state.inline_text(self.arguments[1],
-                                                      self.lineno + 1)
+            inodes, messages = self.parse_inline(self.arguments[1], lineno=self.lineno + 1)
             para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
             self.set_source_info(para)
             node.append(para)
         else:
             messages = []
         if self.content:
-            self.state.nested_parse(self.content, self.content_offset, node)
+            node += self.parse_content_to_nodes()
         classes = ['versionmodified', versionlabel_classes[self.name]]
         if len(node) > 0 and isinstance(node[0], nodes.paragraph):
             # the contents start with a paragraph
@@ -97,7 +98,7 @@ class VersionChange(SphinxDirective):
                                    translatable=False)
             node.append(para)
 
-        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
+        domain = self.env.domains.changeset_domain
         domain.note_changeset(node)
 
         ret: list[Node] = [node]
@@ -111,7 +112,7 @@ class ChangeSetDomain(Domain):
     name = 'changeset'
     label = 'changeset'
 
-    initial_data: dict[str, Any] = {
+    initial_data: dict[str, dict[str, list[ChangeSet]]] = {
         'changes': {},      # version -> list of ChangeSet
     }
 
@@ -133,7 +134,7 @@ class ChangeSetDomain(Domain):
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for version, otherchanges in otherdata['changes'].items():
             changes = self.changesets.setdefault(version, [])

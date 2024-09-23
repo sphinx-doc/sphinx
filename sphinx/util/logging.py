@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import logging.handlers
 from collections import defaultdict
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
@@ -16,7 +16,8 @@ from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence, Set
+    from typing import NoReturn
 
     from docutils.nodes import Node
 
@@ -322,24 +323,7 @@ def pending_logging() -> Iterator[MemoryHandler]:
         memhandler.flushTo(logger)
 
 
-@contextmanager
-def skip_warningiserror(skip: bool = True) -> Iterator[None]:
-    """Context manager to skip WarningIsErrorFilter temporarily."""
-    logger = logging.getLogger(NAMESPACE)
-
-    if skip is False:
-        yield
-    else:
-        try:
-            disabler = DisableWarningIsErrorFilter()
-            for handler in logger.handlers:
-                # use internal method; filters.insert() directly to install disabler
-                # before WarningIsErrorFilter
-                handler.filters.insert(0, disabler)
-            yield
-        finally:
-            for handler in logger.handlers:
-                handler.removeFilter(disabler)
+skip_warningiserror = nullcontext  # Deprecate in Sphinx 10
 
 
 @contextmanager
@@ -407,23 +391,33 @@ class InfoFilter(logging.Filter):
         return record.levelno < logging.WARNING
 
 
-def is_suppressed_warning(type: str, subtype: str, suppress_warnings: list[str]) -> bool:
+class _RaiseOnWarningFilter(logging.Filter):
+    """Raise exception if a warning is emitted."""
+
+    def filter(self, record: logging.LogRecord) -> NoReturn:
+        try:
+            message = record.msg % record.args
+        except (TypeError, ValueError):
+            message = record.msg  # use record.msg itself
+        if location := getattr(record, 'location', ''):
+            message = f"{location}:{message}"
+        if record.exc_info is not None:
+            raise SphinxWarning(message) from record.exc_info[1]
+        raise SphinxWarning(message)
+
+
+def is_suppressed_warning(
+    warning_type: str, sub_type: str, suppress_warnings: Set[str] | Sequence[str],
+) -> bool:
     """Check whether the warning is suppressed or not."""
-    if type is None:
+    if warning_type is None or len(suppress_warnings) == 0:
         return False
-
-    subtarget: str | None
-
-    for warning_type in suppress_warnings:
-        if '.' in warning_type:
-            target, subtarget = warning_type.split('.', 1)
-        else:
-            target, subtarget = warning_type, None
-
-        if target == type and subtarget in (None, subtype, "*"):
-            return True
-
-    return False
+    suppressed_warnings = frozenset(suppress_warnings)
+    if warning_type in suppressed_warnings:
+        return True
+    if f'{warning_type}.*' in suppressed_warnings:
+        return True
+    return f'{warning_type}.{sub_type}' in suppressed_warnings
 
 
 class WarningSuppressor(logging.Filter):
@@ -441,51 +435,13 @@ class WarningSuppressor(logging.Filter):
             suppress_warnings = self.app.config.suppress_warnings
         except AttributeError:
             # config is not initialized yet (ex. in conf.py)
-            suppress_warnings = []
+            suppress_warnings = ()
 
         if is_suppressed_warning(type, subtype, suppress_warnings):
             return False
         else:
             self.app._warncount += 1
             return True
-
-
-class WarningIsErrorFilter(logging.Filter):
-    """Raise exception if warning emitted."""
-
-    def __init__(self, app: Sphinx) -> None:
-        self.app = app
-        super().__init__()
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        if getattr(record, 'skip_warningsiserror', False):
-            # disabled by DisableWarningIsErrorFilter
-            return True
-        elif self.app.warningiserror:
-            location = getattr(record, 'location', '')
-            try:
-                message = record.msg % record.args
-            except (TypeError, ValueError):
-                message = record.msg  # use record.msg itself
-
-            if location:
-                exc = SphinxWarning(location + ":" + str(message))
-            else:
-                exc = SphinxWarning(message)
-            if record.exc_info is not None:
-                raise exc from record.exc_info[1]
-            else:
-                raise exc
-        else:
-            return True
-
-
-class DisableWarningIsErrorFilter(logging.Filter):
-    """Disable WarningIsErrorFilter if this filter installed."""
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        record.skip_warningsiserror = True
-        return True
 
 
 class MessagePrefixFilter(logging.Filter):
@@ -589,12 +545,10 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 
 def get_node_location(node: Node) -> str | None:
     source, line = get_source_line(node)
-    if source:
-        source = abspath(source)
     if source and line:
-        return f"{source}:{line}"
+        return f"{abspath(source)}:{line}"
     if source:
-        return f"{source}:"
+        return f"{abspath(source)}:"
     if line:
         return f"<unknown>:{line}"
     return None
@@ -660,9 +614,10 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
     info_handler.setFormatter(ColorizeFormatter())
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
+    if app._exception_on_warning:
+        warning_handler.addFilter(_RaiseOnWarningFilter())
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
-    warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.addFilter(OnceFilter())
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())

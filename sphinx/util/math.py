@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from docutils import nodes
 
-    from sphinx.builders.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
 
 
 def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) -> str:
@@ -20,7 +20,9 @@ def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) ->
 
         id = node['ids'][0]
         number = writer.builder.fignumbers.get(key, {}).get(id, ())
-        return '.'.join(map(str, number))
+        eqno = '.'.join(map(str, number))
+        eqno = writer.builder.config.math_numsep.join(eqno.rsplit('.', 1))
+        return eqno
     else:
         return node['number']
 

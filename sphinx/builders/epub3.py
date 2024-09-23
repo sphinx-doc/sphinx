@@ -194,8 +194,12 @@ class Epub3Builder(_epub_base.EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'), self.outdir,
-                        self.navigation_doc_metadata(navlist))
+        copy_asset_file(
+            path.join(self.template_dir, 'nav.xhtml.jinja'),
+            self.outdir,
+            context=self.navigation_doc_metadata(navlist),
+            force=True,
+        )
 
         # Add nav.xhtml to epub file
         if 'nav.xhtml' not in self.files:
@@ -255,7 +259,7 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.epub_css_files = epub_css_files  # type: ignore[attr-defined]
+    config.epub_css_files = epub_css_files
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

@@ -1,4 +1,6 @@
-.. highlight:: rest
+.. highlight:: rst
+
+.. _ext-autodoc:
 
 :mod:`sphinx.ext.autodoc` -- Include documentation from docstrings
 ==================================================================
@@ -36,13 +38,25 @@ docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 .. _Google: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
+Getting started
+---------------
+
+Setup
+.....
+Activate the plugin by adding ``'sphinx.ext.autodoc'`` to the :confval:`extensions`
+in your :file:`conf.py`::
+
+   extensions = [
+       ...
+       'sphinx.ext.autodoc',
+   ]
 
 Ensuring the code can be imported
----------------------------------
+.................................
 
 :mod:`~sphinx.ext.autodoc` analyses the code and docstrings by introspection after
-importing the modules. For importing to work. you have to make sure that your
-modules can be found by sphinx and that dependencies can be resolved (if your
+importing the modules. For importing to work, you have to make sure that your
+modules can be found by Sphinx and that dependencies can be resolved (if your
 module does ``import foo``, but ``foo`` is not available in the python environment
 that Sphinx runs in, your module import will fail).
 
@@ -51,16 +65,16 @@ There are two ways to ensure this:
 1. Use an environment that contains your package and Sphinx. This can e.g. be your
    local dev environment (with an editable install), or an environment in CI in
    which you install Sphinx and your package. The regular installation process
-   ensures that your package can be found by sphinx and that all dependencies are
+   ensures that your package can be found by Sphinx and that all dependencies are
    available.
 
 2. It is alternatively possible to patch the Sphinx run so that it can operate
-   directly on the sources; e.g. if you want to be able to do a sphinx build from a
+   directly on the sources; e.g. if you want to be able to do a Sphinx build from a
    source checkout.
 
    - Patch :data:`sys.path` in your Sphinx :file:`conf.py` to include the folder of
      your sources. E.g. if you have a repository structure with :file:`doc/conf.py`
-     and your package is at :file:`src/mypackage`, then you sould add::
+     and your package is at :file:`src/mypackage`, then you should add::
 
         sys.path.insert(0, os.path.abspath('../src'))
 
@@ -69,6 +83,23 @@ There are two ways to ensure this:
    - To cope with missing dependencies, specify the missing modules in
      :confval:`autodoc_mock_imports`.
 
+Usage
+.....
+
+You can now use the :ref:`autodoc-directives` to add formatted documentation for
+Python code elements like functions, classes, modules, etc. For example, to document
+the function ``io.open()``, reading its signature and docstring from the source file,
+you'd write ::
+
+   .. autofunction:: io.open
+
+You can also document whole classes or even modules automatically, using member
+options for the auto directives, like ::
+
+   .. automodule:: io
+      :members:
+
+.. _autodoc-directives:
 
 Directives
 ----------
@@ -297,7 +328,7 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
      once by specifying the option to :rst:dir:`automodule` directive.
 
      Note: this will lead to markup errors if the inherited members come from a
-     module whose docstrings are not reST formatted.
+     module whose docstrings are not reStructuredText formatted.
 
      .. versionadded:: 0.3
 
@@ -714,7 +745,7 @@ There are also config values that you can set:
 
    * ``'fully-qualified'`` -- Show the module name and its name of typehints
    * ``'short'`` -- Suppress the leading module names of the typehints
-     (ex. ``io.StringIO`` -> ``StringIO``)  (default)
+     (e.g. ``io.StringIO`` -> ``StringIO``)  (default)
 
    .. versionadded:: 4.4
 
@@ -734,10 +765,14 @@ There are also config values that you can set:
 
 .. confval:: autodoc_warningiserror
 
-   This value controls the behavior of :option:`sphinx-build -W` during
-   importing modules.
+   This value controls the behavior of :option:`sphinx-build --fail-on-warning`
+   during importing modules.
    If ``False`` is given, autodoc forcedly suppresses the error if the imported
    module emits warnings.  By default, ``True``.
+
+   .. versionchanged:: 8.1
+      This option now has no effect as :option:`!--fail-on-warning`
+      no longer exits early.
 
 .. confval:: autodoc_inherit_docstrings
 
@@ -842,8 +877,8 @@ needed docstring processing in event :event:`autodoc-process-docstring`:
    .. versionadded:: 4.1
    .. versionchanged:: 4.3
 
-      ``bases`` can contain a string as a base class name.  It will be processed
-      as reST mark-up'ed text.
+      ``bases`` can contain a string as a base class name.
+      It will be processed as reStructuredText.
 
 
 Skipping members

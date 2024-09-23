@@ -4,19 +4,20 @@ from __future__ import annotations
 import os
 import re
 import zlib
-from typing import IO, TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
+from sphinx.locale import __
 from sphinx.util import logging
 
 BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import Inventory, InventoryItem
+    from sphinx.util.typing import Inventory, InventoryItem, _ReadableStream
 
 
 class InventoryFileReader:
@@ -25,7 +26,7 @@ class InventoryFileReader:
     This reader supports mixture of texts and compressed texts.
     """
 
-    def __init__(self, stream: IO[bytes]) -> None:
+    def __init__(self, stream: _ReadableStream[bytes]) -> None:
         self.stream = stream
         self.buffer = b''
         self.eof = False
@@ -79,7 +80,7 @@ class InventoryFile:
     @classmethod
     def load(
         cls: type[InventoryFile],
-        stream: IO[bytes],
+        stream: _ReadableStream[bytes],
         uri: str,
         joinfunc: Callable[[str, str], str],
     ) -> Inventory:
@@ -125,6 +126,9 @@ class InventoryFile:
         invdata: Inventory = {}
         projname = stream.readline().rstrip()[11:]
         version = stream.readline().rstrip()[11:]
+        # definition -> priority, location, display name
+        potential_ambiguities: dict[str, tuple[str, str, str]] = {}
+        actual_ambiguities = set()
         line = stream.readline()
         if 'zlib' not in line:
             raise ValueError('invalid inventory header (not compressed): %s' % line)
@@ -147,11 +151,29 @@ class InventoryFile:
                 # for Python modules, and the first
                 # one is correct
                 continue
+            if type in {'std:label', 'std:term'}:
+                # Some types require case insensitive matches:
+                # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
+                # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
+                definition = f"{type}:{name}"
+                content = prio, location, dispname
+                lowercase_definition = definition.lower()
+                if lowercase_definition in potential_ambiguities:
+                    if potential_ambiguities[lowercase_definition] != content:
+                        actual_ambiguities.add(definition)
+                    else:
+                        logger.debug(__("inventory <%s> contains duplicate definitions of %s"),
+                                     uri, definition, type='intersphinx',  subtype='external')
+                else:
+                    potential_ambiguities[lowercase_definition] = content
             if location.endswith('$'):
                 location = location[:-1] + name
             location = join(uri, location)
             inv_item: InventoryItem = projname, version, location, dispname
             invdata.setdefault(type, {})[name] = inv_item
+        for ambiguity in actual_ambiguities:
+            logger.info(__("inventory <%s> contains multiple definitions for %s"),
+                        uri, ambiguity, type='intersphinx',  subtype='external')
         return invdata
 
     @classmethod
@@ -172,18 +194,18 @@ class InventoryFile:
 
             # body
             compressor = zlib.compressobj(9)
-            for domainname, domain in sorted(env.domains.items()):
-                for name, dispname, typ, docname, anchor, prio in \
-                        sorted(domain.get_objects()):
-                    if anchor.endswith(name):
+            for domain in env.domains.sorted():
+                sorted_objects = sorted(domain.get_objects())
+                for fullname, dispname, type, docname, anchor, prio in sorted_objects:
+                    if anchor.endswith(fullname):
                         # this can shorten the inventory by as much as 25%
-                        anchor = anchor[:-len(name)] + '$'
+                        anchor = anchor.removesuffix(fullname) + '$'
                     uri = builder.get_target_uri(docname)
                     if anchor:
                         uri += '#' + anchor
-                    if dispname == name:
+                    if dispname == fullname:
                         dispname = '-'
                     entry = ('%s %s:%s %s %s %s\n' %
-                             (name, domainname, typ, prio, uri, dispname))
+                             (fullname, domain.name, type, prio, uri, dispname))
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

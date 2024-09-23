@@ -64,7 +64,7 @@ def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
     try:
         # clear rst_prolog temporarily
         rst_prolog = config.rst_prolog
-        config.rst_prolog = None  # type: ignore[attr-defined]
+        config.rst_prolog = None
 
         from sphinx.io import SphinxI18nReader
         reader = SphinxI18nReader()
@@ -81,7 +81,7 @@ def publish_msgstr(app: Sphinx, source: str, source_path: str, source_line: int,
             return doc[0]
         return doc
     finally:
-        config.rst_prolog = rst_prolog  # type: ignore[attr-defined]
+        config.rst_prolog = rst_prolog
 
 
 def parse_noqa(source: str) -> tuple[str, bool]:
@@ -202,7 +202,7 @@ class _NodeUpdater:
         old_foot_refs = list(is_autofootnote_ref.findall(self.node))
         new_foot_refs = list(is_autofootnote_ref.findall(self.patch))
         self.compare_references(old_foot_refs, new_foot_refs,
-                                __('inconsistent footnote references in translated message.' +
+                                __('inconsistent footnote references in translated message.'
                                    ' original: {0}, translated: {1}'))
         old_foot_namerefs: dict[str, list[nodes.footnote_reference]] = {}
         for r in old_foot_refs:
@@ -242,7 +242,7 @@ class _NodeUpdater:
         old_refs = list(is_refnamed_ref.findall(self.node))
         new_refs = list(is_refnamed_ref.findall(self.patch))
         self.compare_references(old_refs, new_refs,
-                                __('inconsistent references in translated message.' +
+                                __('inconsistent references in translated message.'
                                    ' original: {0}, translated: {1}'))
         old_ref_names = [r['refname'] for r in old_refs]
         new_ref_names = [r['refname'] for r in new_refs]
@@ -267,7 +267,7 @@ class _NodeUpdater:
         new_foot_refs = list(is_refnamed_footnote_ref.findall(self.patch))
         refname_ids_map: dict[str, list[str]] = {}
         self.compare_references(old_foot_refs, new_foot_refs,
-                                __('inconsistent footnote references in translated message.' +
+                                __('inconsistent footnote references in translated message.'
                                    ' original: {0}, translated: {1}'))
         for oldf in old_foot_refs:
             refname_ids_map.setdefault(oldf["refname"], []).append(oldf["ids"])
@@ -282,7 +282,7 @@ class _NodeUpdater:
         old_cite_refs = list(is_citation_ref.findall(self.node))
         new_cite_refs = list(is_citation_ref.findall(self.patch))
         self.compare_references(old_cite_refs, new_cite_refs,
-                                __('inconsistent citation references in translated message.' +
+                                __('inconsistent citation references in translated message.'
                                    ' original: {0}, translated: {1}'))
         refname_ids_map: dict[str, list[str]] = {}
         for oldc in old_cite_refs:
@@ -299,7 +299,7 @@ class _NodeUpdater:
         old_xrefs = [*self.node.findall(addnodes.pending_xref)]
         new_xrefs = [*self.patch.findall(addnodes.pending_xref)]
         self.compare_references(old_xrefs, new_xrefs,
-                                __('inconsistent term references in translated message.' +
+                                __('inconsistent term references in translated message.'
                                    ' original: {0}, translated: {1}'))
 
         xref_reftarget_map: dict[tuple[str, str, str] | None, dict[str, Any]] = {}
@@ -406,12 +406,13 @@ class Locale(SphinxTransform):
             # glossary terms update refid
             if isinstance(node, nodes.term):
                 for _id in node['ids']:
-                    parts = split_term_classifiers(msgstr)
+                    term, first_classifier = split_term_classifiers(msgstr)
                     patch = publish_msgstr(
-                        self.app, parts[0] or '', source, node.line, self.config, settings,  # type: ignore[arg-type]
+                        self.app, term or '', source, node.line, self.config, settings,  # type: ignore[arg-type]
                     )
                     updater.patch = make_glossary_term(
-                        self.env, patch, parts[1] or '', source, node.line, _id, self.document,  # type: ignore[arg-type]
+                        self.env, patch, first_classifier,
+                        source, node.line, _id, self.document,  # type: ignore[arg-type]
                     )
                     processed = True
 

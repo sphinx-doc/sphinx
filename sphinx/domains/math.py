@@ -14,7 +14,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Set
 
     from sphinx.addnodes import pending_xref
     from sphinx.application import Sphinx
@@ -74,7 +74,7 @@ class MathDomain(Domain):
     def process_doc(self, env: BuildEnvironment, docname: str,
                     document: nodes.document) -> None:
         def math_node(node: Node) -> bool:
-            return isinstance(node, (nodes.math, nodes.math_block))
+            return isinstance(node, nodes.math | nodes.math_block)
 
         self.data['has_equations'][docname] = any(document.findall(math_node))
 
@@ -85,7 +85,7 @@ class MathDomain(Domain):
 
         self.data['has_equations'].pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.equations[labelid] = (doc, eqno)
@@ -106,6 +106,7 @@ class MathDomain(Domain):
                 if docname in env.toc_fignumbers:
                     numbers = env.toc_fignumbers[docname]['displaymath'].get(node_id, ())
                     eqno = '.'.join(map(str, numbers))
+                    eqno = env.config.math_numsep.join(eqno.rsplit('.', 1))
                 else:
                     eqno = ''
             else:
