@@ -237,7 +237,6 @@ module = [
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
-    "sphinx.ext.napoleon.docstring",
     "sphinx.highlighting",
     "sphinx.jinja2glue",
     "sphinx.registry",
