@@ -142,7 +142,14 @@ class TestSetup:
 
 
 class TestSkipMember:
-    def assert_skip(self, what: str, member: str, obj: Any, expect_default_skip: bool, config_name: str) -> None:
+    def assert_skip(
+        self,
+        what: str,
+        member: str,
+        obj: Any,
+        expect_default_skip: bool,
+        config_name: str,
+    ) -> None:
         skip = True
         app = mock.Mock()
         app.config = Config()

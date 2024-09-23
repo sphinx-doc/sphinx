@@ -67,7 +67,11 @@ def test_mangle_signature():
     (a: Tuple[int, str], b: int) -> str :: (a, b)
     """
 
-    TEST = [[y.strip() for y in x.split('::')] for x in TEST_SIGNATURE.split('\n') if '::' in x]
+    TEST = [
+        [y.strip() for y in x.split('::')]
+        for x in TEST_SIGNATURE.split('\n')
+        if '::' in x
+    ]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace('\u00a0', ' ')
         assert res == outp, f"'{inp}' -> '{res}' != '{outp}'"
