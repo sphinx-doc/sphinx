@@ -594,7 +594,13 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
     assert context['fullname'] == 'autosummary_dummy_complex_inheritance_module.Jerry'
 
     assert context['attributes'] == ['relation']
-    assert context['methods'] == ['__init__', 'addition', 'get_age', 'get_name','get_salary']
+    assert context['methods'] == [
+        '__init__',
+        'addition',
+        'get_age',
+        'get_name',
+        'get_salary',
+    ]
 
     assert context['all_attributes'] == [
         '__annotations__',
@@ -630,7 +636,7 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
         'addition',
         'get_age',
         'get_name',
-        'get_salary'
+        'get_salary',
     ]
 
     assert context['inherited_attributes'] == [
