@@ -293,7 +293,7 @@ The following variables are available in the templates:
 
 .. data:: members
 
-   List containing names of all members of the module or class including private 
+   List containing names of all members of the module or class including private
    ones. Only available for modules and classes.
 
 .. data:: inherited_members
@@ -350,16 +350,17 @@ The following variables are available in the templates:
      'mypackage.test.foo.do_something']``
    * ``inherited_attributes`` returns ``['mypackage.test.foo.foo_attr']``
 
-   These parameters could then be used in a Sphinx template `class.rst` like the following
+   These parameters could then be used in a Sphinx template ``class.rst`` like
+   the following
 
    .. code-block:: RST
       :dedent: 0
-      
+
       .. currentmodule:: {{ module }}
 
       .. autoclass:: {{ objname }}
          :show-inheritance:
-      
+
       .. rubric:: Methods
       .. autosummary::
          :toctree:
