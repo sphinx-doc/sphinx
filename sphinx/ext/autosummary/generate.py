@@ -350,8 +350,9 @@ def generate_autosummary_content(
         obj_classinfo = _get_class_members(obj, False)
         obj_local = [j for j, k in obj_classinfo.items() if k == obj]
 
-        ns['inherited_members'] = \
-            [x for x in dict.fromkeys(ns['members']) if x not in obj_local]
+        ns['inherited_members'] = [
+            x for x in dict.fromkeys(ns['members']) if x not in obj_local
+        ]
 
         ns['methods'], ns['all_methods'] = _get_members(
             doc, app, obj, {'method'}, include_public={'__init__'}
@@ -360,8 +361,8 @@ def generate_autosummary_content(
             doc, app, obj, {'attribute', 'property'}
         )
 
-        method_string = [m.split(".")[-1] for m in ns['methods']]
-        attr_string = [m.split(".")[-1] for m in ns['attributes']]
+        method_string = [m.split('.')[-1] for m in ns['methods']]
+        attr_string = [m.split('.')[-1] for m in ns['attributes']]
 
         # Find the first link for this attribute in higher classes
         ns['inherited_qualnames'] = []
@@ -375,7 +376,7 @@ def generate_autosummary_content(
 
             for i in local:
                 if i in inherited_set:
-                    cl_str = f"{cl.__module__}.{cl.__name__}.{i}"
+                    cl_str = f'{cl.__module__}.{cl.__name__}.{i}'
                     ns['inherited_qualnames'].append(cl_str)
                     if i in method_string:
                         ns['inherited_methods'].append(cl_str)
