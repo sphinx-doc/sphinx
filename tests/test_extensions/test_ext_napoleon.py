@@ -2,6 +2,7 @@
 
 import functools
 from collections import namedtuple
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -141,7 +142,14 @@ class TestSetup:
 
 
 class TestSkipMember:
-    def assert_skip(self, what, member, obj, expect_default_skip, config_name):
+    def assert_skip(
+        self,
+        what: str,
+        member: str,
+        obj: Any,
+        expect_default_skip: bool,
+        config_name: str,
+    ) -> None:
         skip = True
         app = mock.Mock()
         app.config = Config()
