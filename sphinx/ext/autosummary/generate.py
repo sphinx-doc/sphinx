@@ -382,6 +382,7 @@ def generate_autosummary_content(
                         ns['inherited_methods'].append(cl_str)
                     elif i in attr_string:
                         ns['inherited_attributes'].append(cl_str)
+                    inherited_set.remove(i)
 
     if modname is None or qualname is None:
         modname, qualname = _split_full_qualified_name(name)
