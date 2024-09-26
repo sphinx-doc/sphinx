@@ -81,7 +81,7 @@ docs = [
 ]
 lint = [
     "flake8>=6.0",
-    "ruff==0.6.1",
+    "ruff==0.6.7",
     "mypy==1.11.1",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -89,7 +89,8 @@ lint = [
     "types-docutils==0.21.0.20240724",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.18.0.20240506",
-    "types-requests>=2.30.0",  # align with requests
+    "types-requests==2.32.0.20240914",  # align with requests
+    "types-urllib3==1.26.25.14",
     "tomli>=2",  # for mypy (Python<=3.10)
     "pytest>=6.0",
 ]
@@ -236,8 +237,6 @@ module = [
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
-    "sphinx.ext.intersphinx._load",
-    "sphinx.ext.napoleon.docstring",
     "sphinx.highlighting",
     "sphinx.jinja2glue",
     "sphinx.registry",
@@ -245,11 +244,9 @@ module = [
     "sphinx.util",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
-    "sphinx.util.i18n",
     "sphinx.util.inspect",
     "sphinx.util.logging",
     "sphinx.util.parallel",
-    "sphinx.util.template",
 ]
 disallow_any_generics = false
 

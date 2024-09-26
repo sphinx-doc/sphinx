@@ -199,7 +199,7 @@ def test_pyobject_prefix(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_pydata(app):
     text = '.. py:module:: example\n.. py:data:: var\n   :type: int\n'
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -238,7 +238,7 @@ def test_pydata(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_pyclass_options(app):
     text = '.. py:class:: Class1\n.. py:class:: Class2\n   :final:\n'
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -313,7 +313,7 @@ def test_pymethod_options(app):
         '   .. py:method:: meth6\n'
         '      :final:\n'
     )
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -486,7 +486,7 @@ def test_pymethod_options(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_pyclassmethod(app):
     text = '.. py:class:: Class\n\n   .. py:classmethod:: meth\n'
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -533,7 +533,7 @@ def test_pyclassmethod(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_pystaticmethod(app):
     text = '.. py:class:: Class\n\n   .. py:staticmethod:: meth\n'
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -586,7 +586,7 @@ def test_pyattribute(app):
         '      :type: Optional[str]\n'
         "      :value: ''\n"
     )
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -664,7 +664,7 @@ def test_pyproperty(app):
         '      :classmethod:\n'
         '      :type: str\n'
     )
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -761,7 +761,7 @@ def test_py_type_alias(app):
         '   .. py:type:: Alias2\n'
         '      :canonical: int\n'
     )
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -891,7 +891,7 @@ def test_domain_py_type_alias(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_pydecorator_signature(app):
     text = '.. py:decorator:: deco'
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -922,7 +922,7 @@ def test_pydecorator_signature(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_pydecoratormethod_signature(app):
     text = '.. py:decoratormethod:: deco'
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -968,7 +968,7 @@ def test_pycurrentmodule(app):
         '   .. py:method:: m3\n'
         '   .. py:method:: m4\n'
     )
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     print(doctree)
     assert_node(

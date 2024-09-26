@@ -8,9 +8,10 @@ import pickle
 from collections import defaultdict
 from copy import copy
 from os import path
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING
 
 from sphinx import addnodes
+from sphinx.domains._domains_container import _DomainsContainer
 from sphinx.environment.adapters import toctree as toctree_adapters
 from sphinx.errors import (
     BuildEnvironmentError,
@@ -29,8 +30,9 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import _last_modified_time, canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
     from pathlib import Path
+    from typing import Any, Literal
 
     from docutils import nodes
     from docutils.nodes import Node
@@ -66,7 +68,7 @@ default_settings: dict[str, Any] = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 63
+ENV_VERSION = 64
 
 # config status
 CONFIG_UNSET = -1
@@ -87,61 +89,6 @@ versioning_conditions: dict[str, Literal[False] | Callable[[Node], bool]] = {
     'text': is_translatable,
 }
 
-if TYPE_CHECKING:
-    from collections.abc import MutableMapping
-    from typing import Literal, overload
-
-    from sphinx.domains.c import CDomain
-    from sphinx.domains.changeset import ChangeSetDomain
-    from sphinx.domains.citation import CitationDomain
-    from sphinx.domains.cpp import CPPDomain
-    from sphinx.domains.index import IndexDomain
-    from sphinx.domains.javascript import JavaScriptDomain
-    from sphinx.domains.math import MathDomain
-    from sphinx.domains.python import PythonDomain
-    from sphinx.domains.rst import ReSTDomain
-    from sphinx.domains.std import StandardDomain
-    from sphinx.ext.duration import DurationDomain
-    from sphinx.ext.todo import TodoDomain
-
-    class _DomainsType(MutableMapping[str, Domain]):
-        @overload
-        def __getitem__(self, key: Literal["c"]) -> CDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["cpp"]) -> CPPDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["changeset"]) -> ChangeSetDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["citation"]) -> CitationDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["index"]) -> IndexDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["js"]) -> JavaScriptDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["math"]) -> MathDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["py"]) -> PythonDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["rst"]) -> ReSTDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["std"]) -> StandardDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["duration"]) -> DurationDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: Literal["todo"]) -> TodoDomain: ...  # NoQA: E704
-        @overload
-        def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
-        def __getitem__(self, _key: str) -> Domain: raise NotImplementedError  # NoQA: E704
-        def __setitem__(  # NoQA: E301,E704
-            self, key: str, value: Domain,
-        ) -> NoReturn: raise NotImplementedError
-        def __delitem__(self, key: str) -> NoReturn: raise NotImplementedError  # NoQA: E704
-        def __iter__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
-        def __len__(self) -> NoReturn: raise NotImplementedError  # NoQA: E704
-
-else:
-    _DomainsType = dict
-
 
 class BuildEnvironment:
     """
@@ -149,8 +96,6 @@ class BuildEnvironment:
     Stores an inventory of cross-file targets and provides doctree
     transformations to resolve links to them.
     """
-
-    domains: _DomainsType
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -168,9 +113,6 @@ class BuildEnvironment:
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: Literal[False] | Callable[[Node], bool] | None = None
         self.versioning_compare: bool | None = None
-
-        # all the registered domains, set by the application
-        self.domains = _DomainsType()
 
         # the docutils settings for building
         self.settings: dict[str, Any] = default_settings.copy()
@@ -276,6 +218,9 @@ class BuildEnvironment:
         # objtype index -> (domain, type, objname (localized))
         self._search_index_objnames: dict[int, tuple[str, str, str]] = {}
 
+        # all the registered domains, set by the application
+        self.domains: _DomainsContainer = _DomainsContainer._from_environment(self)
+
         # set up environment
         self.setup(app)
 
@@ -283,7 +228,7 @@ class BuildEnvironment:
         """Obtains serializable data for pickling."""
         __dict__ = self.__dict__.copy()
         # clear unpickable attributes
-        __dict__.update(app=None, domains={}, events=None)
+        __dict__.update(app=None, domains=None, events=None)
         # clear in-memory doctree caches, to reduce memory consumption and
         # ensure that, upon restoring the state, the most recent pickled files
         # on the disk are used instead of those from a possibly outdated state
@@ -310,14 +255,12 @@ class BuildEnvironment:
         self.project = app.project
         self.version = app.registry.get_envversion(app)
 
-        # initialize domains
-        self.domains = _DomainsType()
-        for domain in app.registry.create_domains(self):
-            self.domains[domain.name] = domain
-
+        # initialise domains
+        if self.domains is None:
+            # if we are unpickling an environment, we need to recreate the domains
+            self.domains = _DomainsContainer._from_environment(self)
         # setup domains (must do after all initialization)
-        for domain in self.domains.values():
-            domain.setup()
+        self.domains._setup()
 
         # initialize config
         self._update_config(app.config)
@@ -392,25 +335,23 @@ class BuildEnvironment:
             self.included.pop(docname, None)
             self.reread_always.discard(docname)
 
-        for domain in self.domains.values():
-            domain.clear_doc(docname)
+        self.domains._clear_doc(docname)
 
-    def merge_info_from(self, docnames: list[str], other: BuildEnvironment,
+    def merge_info_from(self, docnames: Iterable[str], other: BuildEnvironment,
                         app: Sphinx) -> None:
         """Merge global information gathered about *docnames* while reading them
         from the *other* environment.
 
         This possibly comes from a parallel build process.
         """
-        docnames = set(docnames)  # type: ignore[assignment]
+        docnames = frozenset(docnames)
         for docname in docnames:
             self.all_docs[docname] = other.all_docs[docname]
             self.included[docname] = other.included[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
 
-        for domainname, domain in self.domains.items():
-            domain.merge_domaindata(docnames, other.domaindata[domainname])
+        self.domains._merge_domain_data(docnames, other.domaindata)
         self.events.emit('env-merge-info', self, docnames, other)
 
     def path2doc(self, filename: str | os.PathLike[str]) -> str | None:
@@ -563,8 +504,7 @@ class BuildEnvironment:
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
         self.temp_data['default_role'] = self.config.default_role
-        self.temp_data['default_domain'] = \
-            self.domains.get(self.config.primary_domain)
+        self.temp_data['default_domain'] = self.domains.get(self.config.primary_domain)
 
     # utilities to use while reading a document
 
@@ -622,7 +562,8 @@ class BuildEnvironment:
         try:
             return self.domains[domainname]
         except KeyError as exc:
-            raise ExtensionError(__('Domain %r is not registered') % domainname) from exc
+            msg = __('Domain %r is not registered') % domainname
+            raise ExtensionError(msg) from exc
 
     # --------- RESOLVING REFERENCES AND TOCTREES ------------------------------
 
@@ -760,8 +701,7 @@ class BuildEnvironment:
                                location=docname)
 
         # call check-consistency for all extensions
-        for domain in self.domains.values():
-            domain.check_consistency()
+        self.domains._check_consistency()
         self.events.emit('env-check-consistency', self)
 
 

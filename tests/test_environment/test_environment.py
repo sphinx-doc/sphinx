@@ -130,8 +130,8 @@ def test_object_inventory(app):
         False,
     )
 
-    assert app.env.domains['py'].data is app.env.domaindata['py']
-    assert app.env.domains['c'].data is app.env.domaindata['c']
+    assert app.env.domains.python_domain.data is app.env.domaindata['py']
+    assert app.env.domains.c_domain.data is app.env.domaindata['c']
 
 
 @pytest.mark.sphinx('dummy', testroot='basic')

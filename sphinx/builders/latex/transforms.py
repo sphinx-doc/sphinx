@@ -15,7 +15,6 @@ from sphinx.builders.latex.nodes import (
     math_reference,
     thebibliography,
 )
-from sphinx.domains.citation import CitationDomain
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform
@@ -90,8 +89,7 @@ class ShowUrlsTransform(SphinxPostTransform):
         for node in list(self.document.findall(nodes.reference)):
             uri = node.get('refuri', '')
             if uri.startswith(URI_SCHEMES):
-                if uri.startswith('mailto:'):
-                    uri = uri[7:]
+                uri = uri.removeprefix('mailto:')
                 if node.astext() != uri:
                     index = node.parent.index(node)
                     docname = self.get_docname_for_node(node)
@@ -537,7 +535,7 @@ class CitationReferenceTransform(SphinxPostTransform):
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
+        domain = self.env.domains.citation_domain
         matcher = NodeMatcher(addnodes.pending_xref, refdomain='citation', reftype='ref')
         for node in matcher.findall(self.document):
             docname, labelid, _ = domain.citations.get(node['reftarget'], ('', '', 0))
@@ -558,7 +556,7 @@ class MathReferenceTransform(SphinxPostTransform):
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
-        equations = self.env.get_domain('math').data['objects']
+        equations = self.env.domains.math_domain.data['objects']
         for node in self.document.findall(addnodes.pending_xref):
             if node['refdomain'] == 'math' and node['reftype'] in ('eq', 'numref'):
                 docname, _ = equations.get(node['reftarget'], (None, None))

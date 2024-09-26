@@ -323,8 +323,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         if uri and not uri.startswith('#'):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
-                if uri.startswith('mailto:'):
-                    uri = uri[7:]
+                uri = uri.removeprefix('mailto:')
                 self.body.extend([
                     ' <',
                     self.defs['strong'][0], uri, self.defs['strong'][1],
