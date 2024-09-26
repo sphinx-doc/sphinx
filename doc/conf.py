@@ -238,6 +238,13 @@ nitpick_ignore = {
     ('py:class', 'sphinx.util._pathlib._StrPath'),  # sphinx.project.Project.doc2path
     ('py:class', 'sphinxcontrib.websupport.errors.DocumentNotFoundError'),
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
+    # stdlib
+    ('py:class', '_io.StringIO'),
+    ('py:class', 'typing_extensions.Self'),
+    ('py:class', 'typing_extensions.Unpack'),
+    # type variables
+    ('py:class', 'sphinx.testing.matcher.buffer.T'),
+    ('py:class', 'sphinx.testing.matcher.options.DT'),
     ('py:exc', 'docutils.nodes.SkipNode'),
     ('py:exc', 'sphinx.environment.NoUri'),
     ('py:func', 'setup'),
@@ -340,6 +347,7 @@ def build_redirects(app: Sphinx, exception: Exception | None) -> None:
 
 def setup(app: Sphinx) -> None:
     from sphinx.ext.autodoc import cut_lines
+    from sphinx.roles import code_role
     from sphinx.util.docfields import GroupedField
 
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
@@ -355,3 +363,15 @@ def setup(app: Sphinx) -> None:
         parse_event,
         doc_field_types=[fdesc],
     )
+
+    def pycode_role(name, rawtext, text, lineno, inliner, options=None, content=()):
+        options = (options or {}) | {'language': 'python'}
+        return code_role(name, rawtext, text, lineno, inliner, options, content)
+
+    def pyrepr_role(name, rawtext, text, lineno, inliner, options=None, content=()):
+        # restore backslashes instead of null bytes
+        text = repr(text).replace(r'\x00', '\\')
+        return pycode_role(name, rawtext, text, lineno, inliner, options, content)
+
+    app.add_role('py3', pycode_role)
+    app.add_role('py3r', pyrepr_role)
