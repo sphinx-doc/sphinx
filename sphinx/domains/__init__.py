@@ -7,13 +7,14 @@ and roles describing e.g. constructs of one programming language.
 from __future__ import annotations
 
 import copy
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING
 
 from sphinx.domains._index import Index, IndexEntry
 from sphinx.locale import _
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Callable, Iterable, Sequence, Set
+    from typing import Any
 
     from docutils import nodes
     from docutils.nodes import Element, Node
@@ -136,10 +137,8 @@ class Domain:
 
     def setup(self) -> None:
         """Set up domain object."""
-        from sphinx.domains.std import StandardDomain
-
         # Add special hyperlink target for index pages (ex. py-modindex)
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains.standard_domain
         for index in self.indices:
             if index.name and index.localname:
                 docname = f"{self.name}-{index.name}"
@@ -199,7 +198,7 @@ class Domain:
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """

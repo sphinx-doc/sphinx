@@ -20,7 +20,7 @@ if (typeof Scorer === "undefined") {
     // and returns the new score.
     /*
     score: result => {
-      const [docname, title, anchor, descr, score, filename, context] = result
+      const [docname, title, anchor, descr, score, filename, kind] = result
       return score
     },
     */
@@ -48,7 +48,7 @@ if (typeof Scorer === "undefined") {
 }
 
 // Global search result kind enum, used by themes to style search results.
-class SearchResultContext {
+class SearchResultKind {
     static get index() { return  "index"; }
     static get object() { return "object"; }
     static get text() { return "text"; }
@@ -72,13 +72,13 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
   const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
   const contentRoot = document.documentElement.dataset.content_root;
 
-  const [docName, title, anchor, descr, score, _filename, context] = item;
+  const [docName, title, anchor, descr, score, _filename, kind] = item;
 
   let listItem = document.createElement("li");
   // Add a class representing the item's type:
   // can be used by a theme's CSS selector for styling
-  // See SearchResultContext for the class names.
-  listItem.classList.add(`context-${context}`);
+  // See SearchResultKind for the class names.
+  listItem.classList.add(`kind-${kind}`);
   let requestUrl;
   let linkUrl;
   if (docBuilder === "dirhtml") {
@@ -152,7 +152,7 @@ const _displayNextItem = (
   else _finishSearch(resultCount);
 };
 // Helper function used by query() to order search results.
-// Each input is an array of [docname, title, anchor, descr, score, filename, context].
+// Each input is an array of [docname, title, anchor, descr, score, filename, kind].
 // Order the results by score (in opposite order of appearance, since the
 // `_displayNextItem` function uses pop() to retrieve items) and then alphabetically.
 const _orderResultsByScoreThenName = (a, b) => {
@@ -333,7 +333,7 @@ const Search = {
     const indexEntries = Search._index.indexentries;
 
     // Collect multiple result groups to be sorted separately and then ordered.
-    // Each is an array of [docname, title, anchor, descr, score, filename, context].
+    // Each is an array of [docname, title, anchor, descr, score, filename, kind].
     const normalResults = [];
     const nonMainIndexResults = [];
 
@@ -352,7 +352,7 @@ const Search = {
             null,
             score + boost,
             filenames[file],
-            SearchResultContext.title,
+            SearchResultKind.title,
           ]);
         }
       }
@@ -370,7 +370,7 @@ const Search = {
             null,
             score,
             filenames[file],
-            SearchResultContext.index,
+            SearchResultKind.index,
           ];
           if (isMain) {
             normalResults.push(result);
@@ -492,7 +492,7 @@ const Search = {
         descr,
         score,
         filenames[match[0]],
-        SearchResultContext.object,
+        SearchResultKind.object,
       ]);
     };
     Object.keys(objects).forEach((prefix) =>
@@ -603,7 +603,7 @@ const Search = {
         null,
         score,
         filenames[file],
-        SearchResultContext.text,
+        SearchResultKind.text,
       ]);
     }
     return results;

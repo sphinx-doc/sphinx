@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, cast
 from docutils import nodes
 
 import sphinx
-from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
@@ -31,7 +30,7 @@ def get_node_depth(node: Node) -> int:
 
 
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
-    domain = cast(StandardDomain, app.env.get_domain('std'))
+    domain = app.env.domains.standard_domain
     for node in document.findall(nodes.section):
         if (app.config.autosectionlabel_maxdepth and
                 get_node_depth(node) >= app.config.autosectionlabel_maxdepth):

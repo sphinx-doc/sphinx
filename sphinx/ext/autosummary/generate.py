@@ -722,9 +722,7 @@ def find_autosummary_in_lines(
 
             m = autosummary_item_re.match(line)
             if m:
-                name = m.group(1).strip()
-                if name.startswith('~'):
-                    name = name[1:]
+                name = m.group(1).strip().removeprefix('~')
                 if current_module and not name.startswith(current_module + '.'):
                     name = f'{current_module}.{name}'
                 documented.append(AutosummaryEntry(name, toctree, template, recursive))

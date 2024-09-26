@@ -48,6 +48,10 @@ Features added
 * #12743: Add :option:`sphinx-build --exception-on-warning`,
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
+* #12907: Add :confval:`html_last_updated_time_zone` to allow using
+  GMT (universal time) instead of local time for the date-time
+  supplied to :confval:`html_last_updated_fmt`.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
@@ -96,6 +100,12 @@ Bugs fixed
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
+* #12796: Enable parallel reading if requested,
+  even if there are fewer than 6 documents.
+  Patch by Matthias Geier.
+* #12844: Restore support for ``:noindex:`` for the :rst:dir:`js:module`
+  and :rst:dir:`py:module` directives.
+  Patch by Stephen Finucane.
 
 Testing
 -------

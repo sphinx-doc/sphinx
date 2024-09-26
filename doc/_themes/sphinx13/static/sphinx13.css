@@ -702,17 +702,19 @@ ul.search {
 }
 ul.search li {
     padding: 5px 0 5px 10px;
-    list-style-type: "\25A1";  /* Unicode: White Square */
 }
-ul.search li.context-index {
+
+/* note: these rules apply to search results from the built-in Sphinx HTML/JS search engine
+   and only take effect in dev builds. The released docs use the ReadTheDocs search engine and are not affected. */
+ul.search li.kind-index {
     list-style-type: "\1F4D1";  /* Unicode: Bookmark Tabs */
 }
-ul.search li.context-object {
+ul.search li.kind-object {
     list-style-type: "\1F4E6";  /* Unicode: Package */
 }
-ul.search li.context-title {
+ul.search li.kind-title {
     list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
 }
-ul.search li.context-text {
+ul.search li.kind-text {
     list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
 }

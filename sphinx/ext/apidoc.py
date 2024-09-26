@@ -69,7 +69,7 @@ def module_join(*modnames: str | None) -> str:
 
 def is_packagedir(dirname: str | None = None, files: list[str] | None = None) -> bool:
     """Check given *files* contains __init__ file."""
-    if files is dirname is None:
+    if files is None and dirname is None:
         return False
 
     if files is None:
@@ -633,8 +633,7 @@ def main(argv: Sequence[str] = (), /) -> int:
 
     if args.header is None:
         args.header = rootpath.split(path.sep)[-1]
-    if args.suffix.startswith('.'):
-        args.suffix = args.suffix[1:]
+    args.suffix = args.suffix.removeprefix('.')
     if not Path(rootpath).is_dir():
         logger.error(__('%s is not a directory.'), rootpath)
         raise SystemExit(1)

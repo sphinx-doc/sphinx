@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 import re
 import zlib
-from typing import IO, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import logging
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import Inventory, InventoryItem
+    from sphinx.util.typing import Inventory, InventoryItem, _ReadableStream
 
 
 class InventoryFileReader:
@@ -26,7 +26,7 @@ class InventoryFileReader:
     This reader supports mixture of texts and compressed texts.
     """
 
-    def __init__(self, stream: IO[bytes]) -> None:
+    def __init__(self, stream: _ReadableStream[bytes]) -> None:
         self.stream = stream
         self.buffer = b''
         self.eof = False
@@ -80,7 +80,7 @@ class InventoryFile:
     @classmethod
     def load(
         cls: type[InventoryFile],
-        stream: IO[bytes],
+        stream: _ReadableStream[bytes],
         uri: str,
         joinfunc: Callable[[str, str], str],
     ) -> Inventory:
@@ -194,18 +194,18 @@ class InventoryFile:
 
             # body
             compressor = zlib.compressobj(9)
-            for domainname, domain in sorted(env.domains.items()):
-                for name, dispname, typ, docname, anchor, prio in \
-                        sorted(domain.get_objects()):
-                    if anchor.endswith(name):
+            for domain in env.domains.sorted():
+                sorted_objects = sorted(domain.get_objects())
+                for fullname, dispname, type, docname, anchor, prio in sorted_objects:
+                    if anchor.endswith(fullname):
                         # this can shorten the inventory by as much as 25%
-                        anchor = anchor[:-len(name)] + '$'
+                        anchor = anchor.removesuffix(fullname) + '$'
                     uri = builder.get_target_uri(docname)
                     if anchor:
                         uri += '#' + anchor
-                    if dispname == name:
+                    if dispname == fullname:
                         dispname = '-'
                     entry = ('%s %s:%s %s %s %s\n' %
-                             (name, domainname, typ, prio, uri, dispname))
+                             (fullname, domain.name, type, prio, uri, dispname))
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

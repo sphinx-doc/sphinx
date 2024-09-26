@@ -359,7 +359,7 @@ class InheritanceDiagram(SphinxDirective):
         node = inheritance_diagram()
         node.document = self.state.document
         class_names = self.arguments[0].split()
-        class_role = self.env.get_domain('py').role('class')
+        class_role = self.env.domains.python_domain.role('class')
         # Store the original content for use as a hash
         node['parts'] = self.options.get('parts', 0)
         node['content'] = ', '.join(class_names)

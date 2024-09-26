@@ -12,7 +12,6 @@ from docutils.parsers.rst.directives.misc import Meta
 from docutils.parsers.rst.roles import set_classes
 
 from sphinx.directives import optional_int
-from sphinx.domains.math import MathDomain
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
@@ -165,7 +164,7 @@ class MathDirective(SphinxDirective):
             return
 
         # register label to domain
-        domain = cast(MathDomain, self.env.get_domain('math'))
+        domain = self.env.domains.math_domain
         domain.note_equation(self.env.docname, node['label'], location=node)
         node['number'] = domain.get_equation_number_for(node['label'])
 
