@@ -60,23 +60,6 @@ def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
     return inner
 
 
-# Wrap escape sequence with ``\1`` and ``\2`` to let readline know
-# that the colour escape codes are non-printable characters
-# [ https://tiswww.case.edu/php/chet/readline/readline.html ]
-#
-# Note: This does not work well in Windows
-# (see https://github.com/sphinx-doc/sphinx/pull/5059)
-if sys.platform == 'win32':
-    _create_input_mode_colour_func = _create_colour_func
-else:
-    def _create_input_mode_colour_func(escape_code: str, /) -> Callable[[str], str]:
-        def inner(text: str) -> str:
-            if _COLOURING_DISABLED:
-                return text
-            return f'\x01\x1b[{escape_code}m\x02{text}\x01\x1b[39;49;00m\x02'
-        return inner
-
-
 reset = _create_colour_func('39;49;00')
 bold = _create_colour_func('01')
 faint = _create_colour_func('02')
