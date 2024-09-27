@@ -271,7 +271,7 @@ class Config:
         'smartquotes': _Opt(True, 'env', ()),
         'smartquotes_action': _Opt('qDe', 'env', ()),
         'smartquotes_excludes': _Opt(
-            {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', ()),
+            {'languages': ['ja', 'zh_CN', 'zh_TW'], 'builders': ['man', 'text']}, 'env', ()),
         'option_emphasise_placeholders': _Opt(False, 'env', ()),
     }
 
