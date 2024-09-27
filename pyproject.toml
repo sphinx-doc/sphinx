@@ -307,7 +307,12 @@ ignore_errors = true
 
 [tool.pyright]
 typeCheckingMode = "strict"
-include = ["sphinx", "utils", "tests", "doc/conf.py"]
+include = [
+    "doc/conf.py",
+    "utils", 
+    "sphinx",
+    "tests", 
+]
 
 reportArgumentType = "none"
 reportAssignmentType = "none"
