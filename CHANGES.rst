@@ -17,6 +17,7 @@ Incompatible changes
   Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
   An adjustement to existing projects is needed only if they used a custom
   :ref:`fontpkg` configuration and did not set :ref:`fvset`.
+* #12875: Disable smartquotes for languages: ``zh_CN`` and ``zh_TW`` by default.
 
 Deprecated
 ----------
