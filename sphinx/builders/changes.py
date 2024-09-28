@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import html
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from sphinx import package_dir
 from sphinx.builders import Builder
-from sphinx.domains.changeset import ChangeSetDomain
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
@@ -49,7 +48,7 @@ class ChangesBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         version = self.config.version
-        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
+        domain = self.env.domains.changeset_domain
         libchanges: dict[str, list[tuple[str, str, int]]] = {}
         apichanges: list[tuple[str, str, int]] = []
         otherchanges: dict[tuple[str, str], list[tuple[str, str, int]]] = {}
@@ -134,16 +133,24 @@ class ChangesBuilder(Builder):
             with open(targetfn, 'w', encoding='utf-8') as f:
                 text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
-                    'filename': self.env.doc2path(docname, False),
+                    'filename': str(self.env.doc2path(docname, False)),
                     'text': text,
                 }
                 f.write(self.templates.render('changes/rstsource.html', ctx))
         themectx = {'theme_' + key: val for (key, val) in
                     self.theme.get_options({}).items()}
-        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css_t'),
-                        self.outdir, context=themectx, renderer=self.templates)
-        copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
-                        self.outdir)
+        copy_asset_file(
+            path.join(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),
+            self.outdir,
+            context=themectx,
+            renderer=self.templates,
+            force=True,
+        )
+        copy_asset_file(
+            path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+            self.outdir / 'basic.css',
+            force=True,
+        )
 
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)

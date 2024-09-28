@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ManualPageWriter(Writer):
+class ManualPageWriter(Writer):  # type: ignore[misc]
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
@@ -70,7 +70,7 @@ class NestedInlineTransform:
                     node.parent.remove(node)
 
 
-class ManualPageTranslator(SphinxTranslator, BaseTranslator):
+class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     """
     Custom man page translator.
     """
@@ -323,8 +323,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if uri and not uri.startswith('#'):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
-                if uri.startswith('mailto:'):
-                    uri = uri[7:]
+                uri = uri.removeprefix('mailto:')
                 self.body.extend([
                     ' <',
                     self.defs['strong'][0], uri, self.defs['strong'][1],

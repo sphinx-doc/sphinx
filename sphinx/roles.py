@@ -88,15 +88,15 @@ class XRefRole(ReferenceRole):
 
     def update_title_and_target(self, title: str, target: str) -> tuple[str, str]:
         if not self.has_explicit_title:
-            if title.endswith('()'):
-                # remove parentheses
-                title = title[:-2]
             if self.config.add_function_parentheses:
-                # add them back to all occurrences if configured
-                title += '()'
-        # remove parentheses from the target too
-        if target.endswith('()'):
-            target = target[:-2]
+                if not title.endswith('()'):
+                    # add parentheses to the title
+                    title += '()'
+            else:
+                # remove parentheses
+                title = title.removesuffix('()')
+        # remove parentheses from the target
+        target = target.removesuffix('()')
         return title, target
 
     def run(self) -> tuple[list[Node], list[system_message]]:
@@ -167,7 +167,11 @@ class XRefRole(ReferenceRole):
         return title, ws_re.sub(' ', target)
 
     def result_nodes(
-        self, document: nodes.document, env: BuildEnvironment, node: Element, is_ref: bool
+        self,
+        document: nodes.document,
+        env: BuildEnvironment,
+        node: Element,
+        is_ref: bool,
     ) -> tuple[list[Node], list[system_message]]:
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
@@ -211,7 +215,9 @@ class PEP(ReferenceRole):
 
         try:
             refuri = self.build_uri()
-            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['pep'])
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['pep']
+            )
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
@@ -246,7 +252,9 @@ class RFC(ReferenceRole):
 
         try:
             refuri = self.build_uri()
-            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['rfc'])
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['rfc']
+            )
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
@@ -374,7 +382,7 @@ class Manpage(ReferenceRole):
         inner: nodes.Node
         text = self.title[1:] if self.disabled else self.title
         if not self.disabled and self.config.manpages_url:
-            uri = self.config.manpages_url.format(**info)
+            uri = self.config.manpages_url.format_map(info)
             inner = nodes.reference('', text, classes=[self.name], refuri=uri)
         else:
             inner = nodes.Text(text)

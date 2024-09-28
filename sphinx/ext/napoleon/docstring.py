@@ -8,14 +8,14 @@ import inspect
 import re
 from functools import partial
 from itertools import starmap
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.typing import get_type_hints, stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
     from sphinx.application import Sphinx
     from sphinx.config import Config as SphinxConfig
@@ -52,7 +52,7 @@ _default_regex = re.compile(
 _SINGLETONS = ("None", "True", "False", "Ellipsis")
 
 
-class Deque(collections.deque):
+class Deque(collections.deque[Any]):
     """
     A subclass of deque that mimics ``pockets.iterators.modify_iter``.
 
@@ -195,7 +195,7 @@ class GoogleDocstring:
         if not hasattr(self, '_directive_sections'):
             self._directive_sections: list[str] = []
         if not hasattr(self, '_sections'):
-            self._sections: dict[str, Callable] = {
+            self._sections: dict[str, Callable[..., list[str]]] = {
                 'args': self._parse_parameters_section,
                 'arguments': self._parse_parameters_section,
                 'attention': partial(self._parse_admonition, 'attention'),
@@ -1023,7 +1023,7 @@ def _token_type(token: str, location: str | None = None) -> str:
 
 
 def _convert_numpy_type_spec(
-    _type: str, location: str | None = None, translations: dict | None = None,
+    _type: str, location: str | None = None, translations: dict[str, str] | None = None,
 ) -> str:
     if translations is None:
         translations = {}

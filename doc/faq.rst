@@ -33,7 +33,7 @@ How do I...
    See the :ref:`extension-tutorials-index`.
 
 ... convert from my existing docs using MoinMoin markup?
-   The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
+   The easiest way is to convert to xhtml, then convert `xhtml to reStructuredText`_.
    You'll still need to mark up classes and such, but the headings and code
    examples come through cleanly.
 
@@ -58,8 +58,8 @@ Epydoc
    Epydoc's API docs for a given identifier.
 
 Doxygen
-   Michael Jones is developing a reST/Sphinx bridge to doxygen called `breathe
-   <https://github.com/michaeljones/breathe/tree/master>`_.
+   Michael Jones has developed a reStructuredText/Sphinx bridge to doxygen
+   called `breathe <https://github.com/breathe-doc/breathe/tree/master>`_.
 
 SCons
    Glenn Hutchings has written a SCons build script to build Sphinx
@@ -147,7 +147,7 @@ Google Search
 
 .. _Getting Started: https://docs.readthedocs.io/en/stable/intro/getting-started-with-sphinx.html
 .. _api role: https://git.savannah.gnu.org/cgit/kenozooid.git/tree/doc/extapi.py
-.. _xhtml to reST: https://docutils.sourceforge.io/sandbox/xhtml2rest/xhtml2rest.py
+.. _xhtml to reStructuredText: https://docutils.sourceforge.io/sandbox/xhtml2rest/xhtml2rest.py
 
 
 Sphinx vs. Docutils
@@ -236,7 +236,7 @@ The following list gives some hints for the creation of epub files:
   for Kindle. You can get ``yourdoc.mobi`` under ``_build/epub`` after the
   following command:
 
-  .. code-block:: bash
+  .. code-block:: console
 
      $ make epub
      $ kindlegen _build/epub/yourdoc.epub

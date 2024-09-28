@@ -1,0 +1,114 @@
+==========
+Sphinx 0.2
+==========
+
+
+Release 0.2 (Apr 27, 2008)
+==========================
+
+Incompatible changes
+--------------------
+
+* Jinja, the template engine used for the default HTML templates, is now
+  no longer shipped with Sphinx.  If it is not installed automatically for
+  you (it is now listed as a dependency in ``setup.py``), install it manually
+  from PyPI.  This will also be needed if you're using Sphinx from a SVN
+  checkout; in that case please also remove the ``sphinx/jinja`` directory
+  that may be left over from old revisions.
+
+* The clumsy handling of the ``index.html`` template was removed.  The config
+  value ``html_index`` is gone, and ``html_additional_pages`` should be used
+  instead.  If you need it, the old ``index.html`` template is still there,
+  called ``defindex.html``, and you can port your html_index template, using
+  Jinja inheritance, by changing your template::
+
+     {% extends "defindex.html" %}
+     {% block tables %}
+     ... old html_index template content ...
+     {% endblock %}
+
+  and putting ``'index': name of your template`` in ``html_additional_pages``.
+
+* In the layout template, redundant ``block``\s were removed; you should use
+  Jinja's standard ``{{ super() }}`` mechanism instead, as explained in the
+  (newly written) templating docs.
+
+New features added
+------------------
+
+* Extension API (Application object):
+
+  - Support a new method, ``add_crossref_type``.  It works like
+    ``add_description_unit`` but the directive will only create a target
+    and no output.
+  - Support a new method, ``add_transform``.  It takes a standard Docutils
+    ``Transform`` subclass which is then applied by Sphinx's reader on
+    parsing reST document trees.
+  - Add support for other template engines than Jinja, by adding an
+    abstraction called a "template bridge".  This class handles rendering
+    of templates and can be changed using the new configuration value
+    "template_bridge".
+  - The config file itself can be an extension (if it provides a ``setup()``
+    function).
+
+* Markup:
+
+  - New directive, ``currentmodule``.  It can be used to indicate the module
+    name of the following documented things without creating index entries.
+  - Allow giving a different title to documents in the toctree.
+  - Allow giving multiple options in a ``cmdoption`` directive.
+  - Fix display of class members without explicit class name given.
+
+* Templates (HTML output):
+
+  - ``index.html`` renamed to ``defindex.html``, see above.
+  - There's a new config value, ``html_title``, that controls the overall
+    "title" of the set of Sphinx docs.  It is used instead everywhere instead of
+    "Projectname vX.Y documentation" now.
+  - All references to "documentation" in the templates have been removed, so
+    that it is now easier to use Sphinx for non-documentation documents with
+    the default templates.
+  - Templates now have an XHTML doctype, to be consistent with Docutils'
+    HTML output.
+  - You can now create an OpenSearch description file with the
+    ``html_use_opensearch`` config value.
+  - You can now quickly include a logo in the sidebar, using the ``html_logo``
+    config value.
+  - There are new blocks in the sidebar, so that you can easily insert content
+    into the sidebar.
+
+* LaTeX output:
+
+  - The ``sphinx.sty`` package was cleaned of unused stuff.
+  - You can include a logo in the title page with the ``latex_logo`` config
+    value.
+  - You can define the link colors and a border and background color for
+    verbatim environments.
+
+Thanks to Jacob Kaplan-Moss, Talin, Jeroen Ruigrok van der Werven and Sebastian
+Wiesner for suggestions.
+
+Bugs fixed
+----------
+
+* sphinx.ext.autodoc: Don't check ``__module__`` for explicitly given
+  members.  Remove "self" in class constructor argument list.
+
+* sphinx.htmlwriter: Don't use os.path for joining image HREFs.
+
+* sphinx.htmlwriter: Don't use SmartyPants for HTML attribute values.
+
+* sphinx.latexwriter: Implement option lists.  Also, some other changes
+  were made to ``sphinx.sty`` in order to enhance compatibility and
+  remove old unused stuff.  Thanks to Gael Varoquaux for that!
+
+* sphinx.roles: Fix referencing glossary terms with explicit targets.
+
+* sphinx.environment: Don't swallow TOC entries when resolving subtrees.
+
+* sphinx.quickstart: Create a sensible default latex_documents setting.
+
+* sphinx.builder, sphinx.environment: Gracefully handle some user error
+  cases.
+
+* sphinx.util: Follow symbolic links when searching for documents.

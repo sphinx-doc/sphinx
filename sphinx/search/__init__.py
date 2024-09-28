@@ -52,11 +52,11 @@ class SearchLanguage:
        This class is used to preprocess search word which Sphinx HTML readers
        type, before searching index. Default implementation does nothing.
     """
-    lang: str | None = None
-    language_name: str | None = None
+    lang: str = ''
+    language_name: str = ''
     stopwords: set[str] = set()
     js_splitter_code: str = ""
-    js_stemmer_rawcode: str | None = None
+    js_stemmer_rawcode: str = ''
     js_stemmer_code = """
 /**
  * Dummy stemmer for languages without stemming rules.
@@ -336,9 +336,9 @@ class IndexBuilder:
         rv: dict[str, list[tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
-        for domainname, domain in sorted(self.env.domains.items()):
-            for fullname, dispname, type, docname, anchor, prio in \
-                    sorted(domain.get_objects()):
+        for domain in self.env.domains.sorted():
+            sorted_objects = sorted(domain.get_objects())
+            for fullname, dispname, type, docname, anchor, prio in sorted_objects:
                 if docname not in fn2index:
                     continue
                 if prio < 0:
@@ -348,17 +348,17 @@ class IndexBuilder:
                 prefix, _, name = dispname.rpartition('.')
                 plist = rv.setdefault(prefix, [])
                 try:
-                    typeindex = otypes[domainname, type]
+                    typeindex = otypes[domain.name, type]
                 except KeyError:
                     typeindex = len(otypes)
-                    otypes[domainname, type] = typeindex
+                    otypes[domain.name, type] = typeindex
                     otype = domain.object_types.get(type)
                     if otype:
                         # use str() to fire translation proxies
-                        onames[typeindex] = (domainname, type,
+                        onames[typeindex] = (domain.name, type,
                                              str(domain.get_type_name(otype)))
                     else:
-                        onames[typeindex] = (domainname, type, type)
+                        onames[typeindex] = (domain.name, type, type)
                 if anchor == fullname:
                     shortanchor = ''
                 elif anchor == type + '-' + fullname:
@@ -487,7 +487,7 @@ class IndexBuilder:
         self._index_entries[docname] = sorted(_index_entries)
 
     def _word_collector(self, doctree: nodes.document) -> WordStore:
-        def _visit_nodes(node):
+        def _visit_nodes(node: nodes.Node) -> None:
             if isinstance(node, nodes.comment):
                 return
             elif isinstance(node, nodes.raw):

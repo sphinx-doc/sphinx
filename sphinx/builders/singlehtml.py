@@ -52,7 +52,6 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     def fix_refuris(self, tree: Node) -> None:
         # fix refuris with double anchor
-        fname = self.config.root_doc + self.out_suffix
         for refnode in tree.findall(nodes.reference):
             if 'refuri' not in refnode:
                 continue
@@ -62,7 +61,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 continue
             hashindex = refuri.find('#', hashindex + 1)
             if hashindex >= 0:
-                refnode['refuri'] = fname + refuri[hashindex:]
+                # all references are on the same page...
+                refnode['refuri'] = refuri[hashindex:]
 
     def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
         if isinstance(includehidden := kwargs.get('includehidden'), str):
@@ -80,6 +80,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def assemble_doctree(self) -> nodes.document:
         master = self.config.root_doc
         tree = self.env.get_doctree(master)
+        logger.info(darkgreen(master))
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
         tree['docname'] = master
         self.env.resolve_references(tree, master, self)
@@ -157,7 +158,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)  # type: ignore[arg-type]
 
-        with progress_message(__('assembling single document')):
+        with progress_message(__('assembling single document'), nonl=False):
             doctree = self.assemble_doctree()
             self.env.toc_secnumbers = self.assemble_toc_secnumbers()
             self.env.toc_fignumbers = self.assemble_toc_fignumbers()

@@ -23,7 +23,7 @@ from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol, _DuplicateSymbolError
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.roles import SphinxRole, XRefRole
+from sphinx.roles import XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
@@ -33,11 +33,11 @@ from sphinx.util.cfamily import (
     anon_identifier_re,
 )
 from sphinx.util.docfields import Field, GroupedField
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, SphinxRole
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -661,7 +661,7 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            rootSymbol: Symbol = self.env.domains['cpp'].data['root_symbol']
+            rootSymbol: Symbol = self.env.domains.cpp_domain.data['root_symbol']
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 logger.debug("Target: %s", sig)
@@ -784,10 +784,9 @@ class CPPXRefRole(XRefRole):
         if refnode['reftype'] == 'any':
             # Assume the removal part of fix_parens for :any: refs.
             # The addition part is done with the reference is resolved.
-            if not has_explicit_title and title.endswith('()'):
-                title = title[:-2]
-            if target.endswith('()'):
-                target = target[:-2]
+            if not has_explicit_title:
+                title = title.removesuffix('()')
+            target = target.removesuffix('()')
         # TODO: should this really be here?
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
@@ -934,7 +933,7 @@ class CPPDomain(Domain):
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         if Symbol.debug_show_tree:
             logger.debug("merge_domaindata:")
             logger.debug("\tself:")
@@ -1036,8 +1035,7 @@ class CPPDomain(Domain):
                 raise NoUri(txtName, typ)
             return None, None
 
-        if typ.startswith('cpp:'):
-            typ = typ[4:]
+        typ = typ.removeprefix('cpp:')
         declTyp = s.declaration.objectType
 
         def checkType() -> bool:
@@ -1093,8 +1091,8 @@ class CPPDomain(Domain):
                         if typ == 'any' and displayName.endswith('()'):
                             addParen += 1
                         elif typ == 'func':
-                            if title.endswith('()') and not displayName.endswith('()'):
-                                title = title[:-2]
+                            if not displayName.endswith('()'):
+                                title = title.removesuffix('()')
                     else:
                         if displayName.endswith('()'):
                             addParen += 1
@@ -1157,8 +1155,8 @@ class CPPDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
     app.add_config_value("cpp_index_common_prefix", [], 'env')
-    app.add_config_value("cpp_id_attributes", [], 'env')
-    app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_config_value("cpp_id_attributes", [], 'env', types={list, tuple})
+    app.add_config_value("cpp_paren_attributes", [], 'env', types={list, tuple})
     app.add_config_value("cpp_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 

@@ -21,7 +21,6 @@ _FUTURE_YEAR = str(_FUTURE_MOMENT.year)
         # test with +1yr SOURCE_DATE_EPOCH set: copyright year should _not_ be updated
         (f'{_FUTURE_TIMESTAMP}', _ORIG_CONF_COPYRIGHT),
     ],
-
 )
 def expect_date(request, monkeypatch):
     sde, expect = request.param

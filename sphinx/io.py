@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import docutils
-from docutils import nodes
 from docutils.core import Publisher
 from docutils.io import FileInput, Input, NullOutput
 from docutils.readers import standalone
@@ -25,6 +23,7 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
+    from docutils import nodes
     from docutils.frontend import Values
     from docutils.parsers import Parser
     from docutils.transforms import Transform
@@ -36,7 +35,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class SphinxBaseReader(standalone.Reader):
+class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
     """
     A base class of readers for Sphinx.
 
@@ -144,7 +143,7 @@ class SphinxI18nReader(SphinxBaseReader):
                 self.transforms.remove(transform)
 
 
-class SphinxDummyWriter(UnfilteredWriter):
+class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[misc]
     """Dummy writer module used for generating doctree."""
 
     supported = ('html',)  # needed to keep "meta" nodes
@@ -191,8 +190,5 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     # Propagate exceptions by default when used programmatically:
     defaults = {'traceback': True, **app.env.settings}
     # Set default settings
-    if docutils.__version_info__[:2] >= (0, 19):
-        pub.get_settings(**defaults)
-    else:
-        pub.settings = pub.setup_option_parser(**defaults).get_default_values()
+    pub.get_settings(**defaults)
     return pub

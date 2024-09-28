@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import codecs
 import pickle
+import re
 import time
+from contextlib import nullcontext
 from os import path
 from typing import TYPE_CHECKING, Any, Literal, final
 
@@ -15,14 +17,25 @@ from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironmen
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
+from sphinx.util import (
+    UnicodeDecodeErrorHandler,
+    get_filetype,
+    logging,
+    rst,
+)
+from sphinx.util._importer import import_object
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
-from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
-from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
+from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
+from sphinx.util.parallel import (
+    ParallelTasks,
+    SerialTasks,
+    make_chunks,
+    parallel_available,
+)
 
 # side effect: registers roles and directives
 from sphinx import directives  # NoQA: F401  isort:skip
@@ -37,7 +50,6 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.events import EventManager
     from sphinx.util.tags import Tags
-    from sphinx.util.typing import NoneType
 
 
 logger = logging.getLogger(__name__)
@@ -128,8 +140,11 @@ class Builder:
     def create_template_bridge(self) -> None:
         """Return the template bridge configured."""
         if self.config.template_bridge:
-            self.templates = import_object(self.config.template_bridge,
-                                           'template_bridge setting')()
+            template_bridge_cls = import_object(
+                self.config.template_bridge,
+                source='template_bridge setting'
+            )
+            self.templates = template_bridge_cls()
         else:
             from sphinx.jinja2glue import BuiltinTemplateLoader
             self.templates = BuiltinTemplateLoader()
@@ -313,7 +328,7 @@ class Builder:
             logger.info(bold(__('building [%s]: ')) + summary, self.name)
 
         # while reading, collect all warnings from docutils
-        with logging.pending_warnings():
+        with nullcontext() if self.app._exception_on_warning else logging.pending_warnings():
             updated_docnames = set(self.read())
 
         doccount = len(updated_docnames)
@@ -413,7 +428,7 @@ class Builder:
         self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
-        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
+        if parallel_available and self.app.parallel > 1:
             par_ok = self.app.is_parallel_allowed('read')
         else:
             par_ok = False
@@ -423,9 +438,40 @@ class Builder:
         else:
             self._read_serial(docnames)
 
-        if self.config.root_doc not in self.env.all_docs:
-            raise SphinxError('root file %s not found' %
-                              self.env.doc2path(self.config.root_doc))
+        if self.config.master_doc not in self.env.all_docs:
+            from sphinx.project import EXCLUDE_PATHS
+            from sphinx.util.matching import _translate_pattern
+
+            master_doc_path = self.env.doc2path(self.config.master_doc)
+            master_doc_canon = canon_path(master_doc_path)
+            for pat in EXCLUDE_PATHS:
+                if not re.match(_translate_pattern(pat), master_doc_canon):
+                    continue
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it matches a built-in exclude pattern %r. '
+                         'Please move your master document to a different location.')
+                raise SphinxError(msg % (master_doc_path, pat))
+            for pat in self.config.exclude_patterns:
+                if not re.match(_translate_pattern(pat), master_doc_canon):
+                    continue
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it matches an exclude pattern specified '
+                         'in conf.py, %r. '
+                         'Please remove this pattern from conf.py.')
+                raise SphinxError(msg % (master_doc_path, pat))
+            if set(self.config.include_patterns) != {'**'} and not any(
+                re.match(_translate_pattern(pat), master_doc_canon)
+                for pat in self.config.include_patterns
+            ):
+                msg = __('Sphinx is unable to load the master document (%s) '
+                         'because it is not included in the custom include_patterns = %r. '
+                         'Ensure that a pattern in include_patterns matches the '
+                         'master document.')
+                raise SphinxError(msg % (master_doc_path, self.config.include_patterns))
+            msg = __('Sphinx is unable to load the master document (%s). '
+                     'The master document must be within the source directory '
+                     'or a subdirectory of it.')
+            raise SphinxError(msg % master_doc_path)
 
         for retval in self.events.emit('env-updated', self.env):
             if retval is not None:
@@ -488,7 +534,7 @@ class Builder:
         if path.isfile(docutilsconf):
             self.env.note_dependency(docutilsconf)
 
-        filename = self.env.doc2path(docname)
+        filename = str(self.env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
         self.env.temp_data['_parser'] = publisher.parser
@@ -547,6 +593,9 @@ class Builder:
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         """Write builder specific output files."""
+        # Allow any extensions to perform setup for writing
+        self.events.emit('write-started', self)
+
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
@@ -579,7 +628,7 @@ class Builder:
             self._write_serial(sorted(docnames))
 
     def _write_serial(self, docnames: Sequence[str]) -> None:
-        with logging.pending_warnings():
+        with nullcontext() if self.app._exception_on_warning else logging.pending_warnings():
             for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
                                            len(docnames), self.app.verbosity):
                 self.app.phase = BuildPhase.RESOLVING
@@ -610,7 +659,7 @@ class Builder:
         progress = status_iterator(chunks, __('writing output... '), "darkgreen",
                                    len(chunks), self.app.verbosity)
 
-        def on_chunk_done(args: list[tuple[str, NoneType]], result: NoneType) -> None:
+        def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
             next(progress)
 
         self.app.phase = BuildPhase.RESOLVING

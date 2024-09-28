@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "G\u00e5",
         "Hide Search Matches": "Skjul s\u00f8keresultat",
         "Index": "Index",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Registersider per bokstav",
         "Indices and tables:": "Registre og tabeller",
         "Last updated on %(last_updated)s.": "Sist oppdatert %(last_updated)s.",

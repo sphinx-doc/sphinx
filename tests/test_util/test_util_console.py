@@ -53,7 +53,7 @@ def test_strip_ansi(
         #
         # For instance ``next_ansi_blocks(['a', 'b'], 3) == ['a', 'b', 'a']``.
         stream = itertools.cycle(choices)
-        return list(map(operator.itemgetter(0), zip(stream, range(n))))
+        return list(map(operator.itemgetter(0), zip(stream, range(n), strict=False)))
 
     # generate all permutations of length N
     for sigma in itertools.permutations(range(N), N):

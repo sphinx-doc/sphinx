@@ -10,6 +10,7 @@ import os
 import shutil
 import sys
 import tempfile
+from importlib.metadata import entry_points
 from os import path
 from typing import TYPE_CHECKING, Any
 from zipfile import ZipFile
@@ -26,10 +27,6 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -121,17 +118,11 @@ class Theme:
         elif section == 'options':
             value = self._options.get(name, default)
         else:
-            # https://github.com/sphinx-doc/sphinx/issues/12305
-            # For backwards compatibility when attempting to read a value
-            # from an unsupported configuration section.
-            # xref: RemovedInSphinx80Warning
             msg = __(
                 'Theme configuration sections other than [theme] and [options] '
-                'are not supported, returning the default value instead '
-                '(tried to get a value from %r)'
+                'are not supported (tried to get a value from %r).'
             )
-            logger.info(msg, section)
-            value = default
+            raise ThemeError(msg)
         if value is _NO_DEFAULT:
             msg = __('setting %s.%s occurs in none of the searched theme configs') % (
                 section,
@@ -179,7 +170,7 @@ class HTMLThemeFactory:
         for name, theme in themes.items():
             self._themes[name] = theme
 
-    def _load_additional_themes(self, theme_paths: str) -> None:
+    def _load_additional_themes(self, theme_paths: list[str]) -> None:
         """Load additional themes placed at specified directories."""
         for theme_path in theme_paths:
             abs_theme_path = path.abspath(path.join(self._app.confdir, theme_path))
@@ -302,7 +293,9 @@ def _load_theme_with_ancestors(
     return themes, theme_dirs, tmp_dirs
 
 
-def _load_theme(name: str, theme_path: str, /) -> tuple[str, str, str | None, _ConfigFile]:
+def _load_theme(
+    name: str, theme_path: str, /
+) -> tuple[str, str, str | None, _ConfigFile]:
     if path.isdir(theme_path):
         # already a directory, do nothing
         tmp_dir = None
@@ -380,7 +373,9 @@ def _convert_theme_toml(cfg: _ThemeToml, /) -> _ConfigFile:
     pygments_table = theme.get('pygments_style', {})
     if isinstance(pygments_table, str):
         hint = f'pygments_style = {{ default = "{pygments_table}" }}'
-        msg = __('The "theme.pygments_style" setting must be a table. Hint: "%s"') % hint
+        msg = (
+            __('The "theme.pygments_style" setting must be a table. Hint: "%s"') % hint
+        )
         raise ThemeError(msg)
     pygments_style_default: str | None = pygments_table.get('default')
     pygments_style_dark: str | None = pygments_table.get('dark')
@@ -410,15 +405,23 @@ def _validate_theme_conf(cfg: configparser.RawConfigParser, name: str) -> str:
 
 def _convert_theme_conf(cfg: configparser.RawConfigParser, /) -> _ConfigFile:
     if stylesheet := cfg.get('theme', 'stylesheet', fallback=''):
-        stylesheets: tuple[str, ...] | None = tuple(map(str.strip, stylesheet.split(',')))
+        stylesheets: tuple[str, ...] | None = tuple(
+            map(str.strip, stylesheet.split(','))
+        )
     else:
         stylesheets = None
     if sidebar := cfg.get('theme', 'sidebars', fallback=''):
-        sidebar_templates: tuple[str, ...] | None = tuple(map(str.strip, sidebar.split(',')))
+        sidebar_templates: tuple[str, ...] | None = tuple(
+            map(str.strip, sidebar.split(','))
+        )
     else:
         sidebar_templates = None
-    pygments_style_default: str | None = cfg.get('theme', 'pygments_style', fallback=None)
-    pygments_style_dark: str | None = cfg.get('theme', 'pygments_dark_style', fallback=None)
+    pygments_style_default: str | None = cfg.get(
+        'theme', 'pygments_style', fallback=None
+    )
+    pygments_style_dark: str | None = cfg.get(
+        'theme', 'pygments_dark_style', fallback=None
+    )
     options = dict(cfg.items('options')) if cfg.has_section('options') else {}
     return _ConfigFile(
         stylesheets=stylesheets,

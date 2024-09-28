@@ -1,0 +1,94 @@
+==========
+Sphinx 0.1
+==========
+
+
+Release 0.1.61950 (Mar 26, 2008)
+================================
+
+* sphinx.quickstart: Fix format string for Makefile.
+
+
+Release 0.1.61945 (Mar 26, 2008)
+================================
+
+* sphinx.htmlwriter, sphinx.latexwriter: Support the ``.. image::``
+  directive by copying image files to the output directory.
+
+* sphinx.builder: Consistently name "special" HTML output directories
+  with a leading underscore; this means ``_sources`` and ``_static``.
+
+* sphinx.environment: Take dependent files into account when collecting
+  the set of outdated sources.
+
+* sphinx.directives: Record files included with ``.. literalinclude::``
+  as dependencies.
+
+* sphinx.ext.autodoc: Record files from which docstrings are included
+  as dependencies.
+
+* sphinx.builder: Rebuild all HTML files in case of a template change.
+
+* sphinx.builder: Handle unavailability of TOC relations (previous/
+  next chapter) more gracefully in the HTML builder.
+
+* sphinx.latexwriter: Include fncychap.sty which doesn't seem to be
+  very common in TeX distributions.  Add a ``clean`` target in the
+  latex Makefile.  Really pass the correct paper and size options
+  to the LaTeX document class.
+
+* setup: On Python 2.4, don't egg-depend on Docutils if a Docutils is
+  already installed -- else it will be overwritten.
+
+
+Release 0.1.61843 (Mar 24, 2008)
+================================
+
+* sphinx.quickstart: Really don't create a makefile if the user
+  doesn't want one.
+
+* setup: Don't install scripts twice, via setuptools entry points
+  and distutils scripts.  Only install via entry points.
+
+* sphinx.builder: Don't recognize the HTML builder's copied source
+  files (under ``_sources``) as input files if the source suffix is
+  ``.txt``.
+
+* sphinx.highlighting: Generate correct markup for LaTeX Verbatim
+  environment escapes even if Pygments is not installed.
+
+* sphinx.builder: The WebHTMLBuilder is now called PickleHTMLBuilder.
+
+* sphinx.htmlwriter: Make parsed-literal blocks work as expected,
+  not highlighting them via Pygments.
+
+* sphinx.environment: Don't error out on reading an empty source file.
+
+
+Release 0.1.61798 (Mar 23, 2008)
+================================
+
+* sphinx: Work with Docutils SVN snapshots as well as 0.4.
+
+* sphinx.ext.doctest: Make the group in which doctest blocks are
+  placed selectable, and default to ``'default'``.
+
+* sphinx.ext.doctest: Replace ``<BLANKLINE>`` in doctest blocks by
+  real blank lines for presentation output, and remove doctest
+  options given inline.
+
+* sphinx.environment: Move doctest_blocks out of block_quotes to
+  support indented doctest blocks.
+
+* sphinx.ext.autodoc: Render ``.. automodule::`` docstrings in a
+  section node, so that module docstrings can contain proper
+  sectioning.
+
+* sphinx.ext.autodoc: Use the module's encoding for decoding
+  docstrings, rather than requiring ASCII.
+
+
+Release 0.1.61611 (Mar 21, 2008)
+================================
+
+* First public release.

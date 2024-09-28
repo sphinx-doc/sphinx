@@ -69,13 +69,14 @@ import sphinx
 from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
-from sphinx.ext.autodoc import INSTANCEATTR, Documenter
-from sphinx.ext.autodoc.directive import DocumenterBridge, Options
+from sphinx.errors import PycodeError
+from sphinx.ext.autodoc import INSTANCEATTR, Documenter, Options
+from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
 from sphinx.locale import __
 from sphinx.project import Project
-from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.pycode import ModuleAnalyzer
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
 from sphinx.util.docutils import (
@@ -97,7 +98,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.extension import Extension
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +249,7 @@ class Autosummary(SphinxDirective):
                 docname = posixpath.join(tree_prefix, real_name)
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in self.env.found_docs:
-                    if excluded(self.env.doc2path(docname, False)):
+                    if excluded(str(self.env.doc2path(docname, False))):
                         msg = __('autosummary references excluded document %r. Ignored.')
                     else:
                         msg = __('autosummary: stub file not found %r. '
@@ -639,6 +640,13 @@ def import_by_name(
     tried = []
     errors: list[ImportExceptionGroup] = []
     for prefix in prefixes:
+        if prefix is not None and name.startswith(f'{prefix}.'):
+            # Catch and avoid module cycles (e.g., sphinx.ext.sphinx.ext...)
+            msg = __('Summarised items should not include the current module. '
+                     'Replace %r with %r.')
+            logger.warning(msg, name, name.removeprefix(f'{prefix}.'),
+                           type='autosummary', subtype='import_cycle')
+            continue
         try:
             if prefix:
                 prefixed_name = f'{prefix}.{name}'
@@ -746,7 +754,7 @@ class AutoLink(SphinxRole):
     """
 
     def run(self) -> tuple[list[Node], list[system_message]]:
-        pyobj_role = self.env.get_domain('py').role('obj')
+        pyobj_role = self.env.domains.python_domain.role('obj')
         assert pyobj_role is not None
         objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
                                      self.inliner, self.options, self.content)
@@ -758,7 +766,14 @@ class AutoLink(SphinxRole):
         try:
             # try to import object by name
             prefixes = get_import_prefixes_from_env(self.env)
-            import_by_name(pending_xref['reftarget'], prefixes)
+            name = pending_xref['reftarget']
+            prefixes = [
+                prefix
+                for prefix in prefixes
+                if prefix is None
+                or not (name.startswith(f'{prefix}.') or name == prefix)
+            ]
+            import_by_name(name, prefixes)
         except ImportExceptionGroup:
             literal = cast(nodes.literal, pending_xref[0])
             objects[0] = nodes.emphasis(self.rawtext, literal.astext(),
@@ -787,7 +802,7 @@ def process_generate_options(app: Sphinx) -> None:
 
     if genfiles is True:
         env = app.builder.env
-        genfiles = [env.doc2path(x, base=False) for x in env.found_docs
+        genfiles = [str(env.doc2path(x, base=False)) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
     elif genfiles is False:
         pass

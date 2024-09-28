@@ -13,8 +13,9 @@ if TYPE_CHECKING:
 
 try:
     from PIL import Image
+    PILLOW_AVAILABLE = True
 except ImportError:
-    Image = None
+    PILLOW_AVAILABLE = False
 
 mime_suffixes = {
     '.gif': 'image/gif',
@@ -43,7 +44,7 @@ def get_image_size(filename: str) -> tuple[int, int] | None:
         elif isinstance(size[0], float) or isinstance(size[1], float):
             size = (int(size[0]), int(size[1]))
 
-        if size is None and Image:  # fallback to Pillow
+        if size is None and PILLOW_AVAILABLE:  # fallback to Pillow
             with Image.open(filename) as im:
                 size = im.size
 

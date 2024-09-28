@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils.parsers.rst import directives
 
@@ -16,7 +16,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils.nodes import Element
 
@@ -51,7 +51,7 @@ class ReSTMarkup(ObjectDescription[str]):
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(ReSTDomain, self.env.get_domain('rst'))
+        domain = self.env.domains.restructuredtext_domain
         domain.note_object(self.objtype, name, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
@@ -164,7 +164,7 @@ class ReSTDirectiveOption(ReSTMarkup):
         return name
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
-        domain = cast(ReSTDomain, self.env.get_domain('rst'))
+        domain = self.env.domains.restructuredtext_domain
 
         directive_name = self.current_directive
         if directive_name:
@@ -254,7 +254,7 @@ class ReSTDomain(Domain):
             if doc == docname:
                 del self.objects[typ, name]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates
         for (typ, name), (doc, node_id) in otherdata['objects'].items():
             if doc in docnames:

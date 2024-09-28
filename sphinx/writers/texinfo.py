@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes, writers
 
 from sphinx import __display_version__, addnodes
-from sphinx.domains.index import IndexDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
@@ -105,7 +104,7 @@ def smart_capwords(s: str, sep: str | None = None) -> str:
     return (sep or ' ').join(words)
 
 
-class TexinfoWriter(writers.Writer):
+class TexinfoWriter(writers.Writer):  # type: ignore[misc]
     """Texinfo writer for generating Texinfo documents."""
 
     supported = ('texinfo', 'texi')
@@ -297,7 +296,7 @@ class TexinfoTranslator(SphinxTranslator):
         # try to find a suitable "Top" node
         title = self.document.next_node(nodes.title)
         top = title.parent if title else self.document
-        if not isinstance(top, (nodes.document, nodes.section)):
+        if not isinstance(top, nodes.document | nodes.section):
             top = self.document
         if top is not self.document:
             entries = node_menus[top['node_name']]
@@ -476,22 +475,26 @@ class TexinfoTranslator(SphinxTranslator):
             ret.append('@end menu\n')
             return ''.join(ret)
 
-        indices_config = self.config.texinfo_domain_indices
-        if indices_config:
-            for domain in self.builder.env.domains.values():
-                for indexcls in domain.indices:
-                    indexname = f'{domain.name}-{indexcls.name}'
-                    if isinstance(indices_config, list):
-                        if indexname not in indices_config:
-                            continue
-                    content, collapsed = indexcls(domain).generate(
-                        self.builder.docnames)
-                    if not content:
+        if indices_config := self.config.texinfo_domain_indices:
+            if not isinstance(indices_config, bool):
+                check_names = True
+                indices_config = frozenset(indices_config)
+            else:
+                check_names = False
+            for domain in self.builder.env.domains.sorted():
+                for index_cls in domain.indices:
+                    index_name = f'{domain.name}-{index_cls.name}'
+                    if check_names and index_name not in indices_config:
                         continue
-                    self.indices.append((indexcls.localname,
-                                         generate(content, collapsed)))
+                    content, collapsed = index_cls(domain).generate(
+                        self.builder.docnames)
+                    if content:
+                        self.indices.append((
+                            index_cls.localname,
+                            generate(content, collapsed),
+                        ))
         # only add the main Index if it's not empty
-        domain = cast(IndexDomain, self.builder.env.get_domain('index'))
+        domain = self.builder.env.domains.index_domain
         for docname in self.builder.docnames:
             if domain.entries[docname]:
                 self.indices.append((_('Index'), '\n@printindex ge\n'))
@@ -620,7 +623,7 @@ class TexinfoTranslator(SphinxTranslator):
         parent = node.parent
         if isinstance(parent, nodes.table):
             return
-        if isinstance(parent, (nodes.Admonition, nodes.sidebar, nodes.topic)):
+        if isinstance(parent, nodes.Admonition | nodes.sidebar | nodes.topic):
             raise nodes.SkipNode
         if not isinstance(parent, nodes.section):
             logger.warning(__('encountered title node not in section, topic, table, '
@@ -689,7 +692,7 @@ class TexinfoTranslator(SphinxTranslator):
     def visit_reference(self, node: Element) -> None:
         # an xref's target is displayed in Info so we ignore a few
         # cases for the sake of appearance
-        if isinstance(node.parent, (nodes.title, addnodes.desc_type)):
+        if isinstance(node.parent, nodes.title | addnodes.desc_type):
             return
         if len(node) != 0 and isinstance(node[0], nodes.image):
             return
@@ -982,7 +985,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.add_anchor(id, node)
         # anchors and indexes need to go in front
         for n in node[::]:
-            if isinstance(n, (addnodes.index, nodes.target)):
+            if isinstance(n, addnodes.index | nodes.target):
                 n.walkabout(self)
                 node.remove(n)
         self.body.append('\n%s ' % self.at_item_x)

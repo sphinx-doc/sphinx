@@ -14,7 +14,6 @@ from docutils import nodes
 
 import sphinx
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.domains.math import MathDomain
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
@@ -22,7 +21,7 @@ from sphinx.util.math import get_node_equation_number
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
 
 # more information for mathjax secure url is here:
 # https://docs.mathjax.org/en/latest/web/start.html#using-mathjax-from-a-content-delivery-network-cdn
@@ -82,7 +81,7 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict
         msg = 'mathjax_path config value must be set for the mathjax extension to work'
         raise ExtensionError(msg)
 
-    domain = cast(MathDomain, app.env.get_domain('math'))
+    domain = app.env.domains.math_domain
     builder = cast(StandaloneHTMLBuilder, app.builder)
     if app.registry.html_assets_policy == 'always' or domain.has_equations(pagename):
         # Enable mathjax only if equations exists
