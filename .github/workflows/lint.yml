@@ -83,6 +83,26 @@ jobs:
     - name: Type check with mypy
       run: mypy
 
+  pyright:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Install uv
+      run: >
+        curl --no-progress-meter --location --fail
+        --proto '=https' --tlsv1.2
+        "https://astral.sh/uv/install.sh"
+        | sh
+    - name: Install dependencies
+      run: uv pip install ".[lint,test]"
+    - name: Type check with pyright
+      run: pyright
+
   docs-lint:
     runs-on: ubuntu-latest
 
