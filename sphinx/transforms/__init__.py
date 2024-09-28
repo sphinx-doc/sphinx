@@ -247,7 +247,7 @@ class ApplySourceWorkaround(SphinxTransform):
     default_priority = 10
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.findall():  # type: Node
+        for node in self.document.findall():
             if isinstance(node, nodes.TextElement | nodes.image | nodes.topic):
                 apply_source_workaround(node)
 
