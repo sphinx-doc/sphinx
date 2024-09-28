@@ -1,4 +1,5 @@
 """Test copyright year adjustment"""
+
 from datetime import datetime, timedelta
 
 import pytest
