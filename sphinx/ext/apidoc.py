@@ -55,6 +55,26 @@ PY_SUFFIXES = ('.py', '.pyx', *tuple(EXTENSION_SUFFIXES))
 template_dir = path.join(package_dir, 'templates', 'apidoc')
 
 
+def _render_template(
+    template_path: Sequence[str],
+    template_basename: str,
+    context: dict[str, Any],
+) -> str:
+    """Attempt to render ReST output using a provided template search path
+    and context.
+
+    Priority is given to template files with a .jinja suffix.
+    """
+    for template_dir in template_path:
+        for template_suffix in ('.jinja', '_t'):
+            template_name = template_basename + template_suffix
+            try:
+                return ReSTRenderer([template_dir]).render(template_name, context)
+            except TemplateNotFound:
+                continue
+    raise TemplateNotFound(template_basename + '.jinja')
+
+
 def is_initpy(filename: str | Path) -> bool:
     """Check *filename* is __init__ file or not."""
     basename = Path(filename).name
@@ -119,10 +139,7 @@ def create_module_file(
         template_path = [user_template_dir, template_dir]
     else:
         template_path = [template_dir]
-    try:
-        text = ReSTRenderer(template_path).render('module.rst_t', context)
-    except TemplateNotFound:
-        text = ReSTRenderer(template_path).render('module.rst.jinja', context)
+    text = _render_template(template_path, 'module.rst', context)
     return write_file(qualname, text, opts)
 
 
@@ -182,10 +199,7 @@ def create_package_file(
 
     written: list[Path] = []
 
-    try:
-        text = ReSTRenderer(template_path).render('package.rst_t', context)
-    except TemplateNotFound:
-        text = ReSTRenderer(template_path).render('package.rst.jinja', context)
+    text = _render_template(template_path, 'package.rst', context)
     written.append(write_file(pkgname, text, opts))
 
     if submodules and opts.separatemodules:
@@ -222,10 +236,7 @@ def create_modules_toc_file(
         template_path = [user_template_dir, template_dir]
     else:
         template_path = [template_dir]
-    try:
-        text = ReSTRenderer(template_path).render('toc.rst_t', context)
-    except TemplateNotFound:
-        text = ReSTRenderer(template_path).render('toc.rst.jinja', context)
+    text = _render_template(template_path, 'toc.rst', context)
     return write_file(name, text, opts)
 
 
