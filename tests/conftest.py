@@ -13,10 +13,13 @@ import pytest
 import sphinx
 import sphinx.locale
 import sphinx.pycode
+from sphinx.testing._internal.pytest_util import get_tmp_path_factory
 from sphinx.testing.util import _clean_up_global_state
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from _pytest.config import Config
 
 
 def _init_console(
@@ -34,12 +37,49 @@ def _init_console(
 
 sphinx.locale.init_console = _init_console
 
-pytest_plugins = ['sphinx.testing.fixtures']
+# For now, we do not enable the 'xdist' plugin but we
+# need the 'pytester' plugin declared in the top-level
+# conftest.py file.
+#
+# See https://docs.pytest.org/en/stable/deprecations.html#pytest-plugins-in-non-top-level-conftest-files.
+pytest_plugins = ['sphinx.testing.fixtures', 'pytester']
 
-# Exclude 'roots' dirs for pytest test collector
-collect_ignore = ['roots']
+# Exclude resource directories for pytest test collector
+collect_ignore = ['certs', 'roots']
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
+
+
+###############################################################################
+# pytest hooks
+###############################################################################
+
+
+def pytest_configure(config: Config) -> None:
+    config.addinivalue_line(
+        'markers',
+        'apidoc(*, coderoot="test-root", excludes=[], options=[]): '
+        'sphinx-apidoc command-line options (see test_ext_apidoc).',
+    )
+
+
+def pytest_report_header(config: Config) -> str:
+    headers: dict[str, str] = {
+        'libraries': f'Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}',
+    }
+    if (factory := get_tmp_path_factory(config, None)) is not None:
+        headers['base tmp_path'] = os.fsdecode(factory.getbasetemp())
+    return '\n'.join(f'{key}: {value}' for key, value in headers.items())
+
+
+###############################################################################
+# fixtures
+###############################################################################
+
+
+@pytest.fixture
+def sphinx_use_legacy_plugin() -> bool:  # xref RemovedInSphinx90Warning
+    return False  # use the new implementation
 
 
 @pytest.fixture(scope='session')
@@ -47,11 +87,11 @@ def rootdir() -> Path:
     return Path(__file__).parent.resolve() / 'roots'
 
 
-def pytest_report_header(config: pytest.Config) -> str:
-    header = f'libraries: Sphinx-{sphinx.__display_version__}, docutils-{docutils.__version__}'
-    if hasattr(config, '_tmp_path_factory'):
-        header += f'\nbase tmp_path: {config._tmp_path_factory.getbasetemp()}'
-    return header
+# TODO(picnixz): change this fixture to 'minimal' when all tests using 'root'
+#                have been found and explicitly changed
+@pytest.fixture(scope='session')
+def default_testroot() -> str:
+    return 'root'
 
 
 @pytest.fixture(autouse=True)

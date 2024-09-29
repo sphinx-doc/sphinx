@@ -10,6 +10,7 @@ import functools
 import itertools
 import operator
 import sys
+import uuid
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
@@ -2690,7 +2691,9 @@ def test_singledispatchmethod_classmethod_automethod(app):
     reason='Cython does not support Python 3.13 yet.',
 )
 @pytest.mark.skipif(pyximport is None, reason='cython is not installed')
-@pytest.mark.sphinx('html', testroot='ext-autodoc')
+# use an explicit 'srcdir' to make the path smaller on Windows platforms
+# so that cython can correctly compile the files
+@pytest.mark.sphinx('html', srcdir=uuid.uuid4().hex, testroot='ext-autodoc')
 def test_cython(app):
     options = {
         'members': None,

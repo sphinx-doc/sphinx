@@ -43,6 +43,7 @@ def test_singlehtml_toctree(app):
     testroot='toctree',
     srcdir='numbered-toctree',
 )
+@pytest.mark.isolate  # because we change the sources in-place
 def test_numbered_toctree(app):
     # give argument to :numbered: option
     index = (app.srcdir / 'index.rst').read_text(encoding='utf8')

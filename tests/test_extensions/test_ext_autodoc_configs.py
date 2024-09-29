@@ -1043,6 +1043,7 @@ def test_autodoc_typehints_description(app):
         'autodoc_typehints_description_target': 'documented',
     },
 )
+@pytest.mark.isolate  # because we change the sources in-place
 def test_autodoc_typehints_description_no_undoc(app):
     # No :type: or :rtype: will be injected for `incr`, which does not have
     # a description for its parameters or its return. `tuple_args` does
@@ -1095,6 +1096,7 @@ def test_autodoc_typehints_description_no_undoc(app):
         'autodoc_typehints_description_target': 'documented_params',
     },
 )
+@pytest.mark.isolate  # because we change the sources in-place
 def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     # No :type: will be injected for `incr`, which does not have a description
     # for its parameters or its return, just :rtype: will be injected due to
@@ -1164,6 +1166,7 @@ def test_autodoc_typehints_description_no_undoc_doc_rtype(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'description'},
 )
+@pytest.mark.isolate  # because we change the sources in-place
 def test_autodoc_typehints_description_with_documented_init(app):
     with overwrite_file(
         app.srcdir / 'index.rst',
@@ -1208,6 +1211,7 @@ def test_autodoc_typehints_description_with_documented_init(app):
         'autodoc_typehints_description_target': 'documented',
     },
 )
+@pytest.mark.isolate  # because we change the sources in-place
 def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
     with overwrite_file(
         app.srcdir / 'index.rst',
@@ -1242,6 +1246,7 @@ def test_autodoc_typehints_description_with_documented_init_no_undoc(app):
         'autodoc_typehints_description_target': 'documented_params',
     },
 )
+@pytest.mark.isolate  # because we change the sources in-place
 def test_autodoc_typehints_description_with_documented_init_no_undoc_doc_rtype(app):
     # see test_autodoc_typehints_description_with_documented_init_no_undoc
     # returnvalue_and_documented_params should not change class or method
@@ -1286,6 +1291,7 @@ def test_autodoc_typehints_description_for_invalid_node(app):
     testroot='ext-autodoc',
     confoverrides={'autodoc_typehints': 'both'},
 )
+@pytest.mark.isolate  # because we change the sources in-place
 def test_autodoc_typehints_both(app):
     with overwrite_file(
         app.srcdir / 'index.rst',
@@ -1483,6 +1489,7 @@ def test_autodoc_type_aliases(app):
         'autodoc_type_aliases': {'myint': 'myint'},
     },
 )
+@pytest.mark.isolate  # because we change the sources in-place
 def test_autodoc_typehints_description_and_type_aliases(app):
     with overwrite_file(
         app.srcdir / 'autodoc_type_aliases.rst',

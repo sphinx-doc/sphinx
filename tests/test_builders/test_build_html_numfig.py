@@ -79,6 +79,7 @@ def test_numfig_disabled(app, cached_etree_parse, fname, path, check, be_found):
     srcdir='test_numfig_without_numbered_toctree_warn',
     confoverrides={'numfig': True},
 )
+@pytest.mark.isolate  # because we affect the sources
 def test_numfig_without_numbered_toctree_warn(app):
     app.build()
     # remove :numbered: option
@@ -299,6 +300,7 @@ def test_numfig_without_numbered_toctree_warn(app):
     srcdir='test_numfig_without_numbered_toctree',
     confoverrides={'numfig': True},
 )
+@pytest.mark.isolate('grouped')  # because we affect the sources
 def test_numfig_without_numbered_toctree(
     app, cached_etree_parse, fname, path, check, be_found
 ):
