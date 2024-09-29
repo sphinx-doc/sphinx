@@ -1,8 +1,16 @@
 """Test locale."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx import locale
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
 
 
 @pytest.fixture(autouse=True)
@@ -48,6 +56,7 @@ def test_init_with_unknown_language(rootdir):
     assert _('Hello reST') == 'Hello reST'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_add_message_catalog(app, rootdir):
     app.config.language = 'en'
     app.add_message_catalog('myext', rootdir / 'test-locale' / 'locale1')
@@ -57,7 +66,7 @@ def test_add_message_catalog(app, rootdir):
     assert _('Hello reST') == 'Hello reST'
 
 
-def _empty_language_translation(rootdir):
+def _empty_language_translation(rootdir: Path) -> Callable[[str], str]:
     locale_dirs, catalog = [rootdir / 'test-locale' / 'locale1'], 'myext'
     locale.translators.clear()
     locale.init(locale_dirs, language=None, catalog=catalog)
@@ -66,11 +75,11 @@ def _empty_language_translation(rootdir):
 
 def test_init_environment_language(rootdir, monkeypatch):
     with monkeypatch.context() as m:
-        m.setenv("LANGUAGE", "en_US:en")
+        m.setenv('LANGUAGE', 'en_US:en')
         _ = _empty_language_translation(rootdir)
         assert _('Hello world') == 'HELLO WORLD'
 
     with monkeypatch.context() as m:
-        m.setenv("LANGUAGE", "et_EE:et")
+        m.setenv('LANGUAGE', 'et_EE:et')
         _ = _empty_language_translation(rootdir)
         assert _('Hello world') == 'Tere maailm'

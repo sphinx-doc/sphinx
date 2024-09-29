@@ -205,7 +205,7 @@ class CoverageBuilder(Builder):
 
     def build_c_coverage(self) -> None:
         c_objects = {}
-        for obj in self.env.domains['c'].get_objects():
+        for obj in self.env.domains.c_domain.get_objects():
             c_objects[obj[2]] = obj[1]
         for filename in self.c_sourcefiles:
             undoc: set[tuple[str, str]] = set()
@@ -241,7 +241,7 @@ class CoverageBuilder(Builder):
                 for typ, name in sorted(undoc):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                     if self.config.coverage_show_missing_items:
-                        if self.app.quiet or self.app.warningiserror:
+                        if self.app.quiet:
                             logger.warning(__('undocumented c api: %s [%s] in file %s'),
                                            name, typ, filename)
                         else:
@@ -423,7 +423,7 @@ class CoverageBuilder(Builder):
                         op.write('Functions:\n')
                         op.writelines(' * %s\n' % x for x in undoc['funcs'])
                         if self.config.coverage_show_missing_items:
-                            if self.app.quiet or self.app.warningiserror:
+                            if self.app.quiet:
                                 for func in undoc['funcs']:
                                     logger.warning(
                                         __('undocumented python function: %s :: %s'),
@@ -440,7 +440,7 @@ class CoverageBuilder(Builder):
                             if not methods:
                                 op.write(' * %s\n' % class_name)
                                 if self.config.coverage_show_missing_items:
-                                    if self.app.quiet or self.app.warningiserror:
+                                    if self.app.quiet:
                                         logger.warning(
                                             __('undocumented python class: %s :: %s'),
                                             name, class_name)
@@ -452,10 +452,10 @@ class CoverageBuilder(Builder):
                                 op.write(' * %s -- missing methods:\n\n' % class_name)
                                 op.writelines('   - %s\n' % x for x in methods)
                                 if self.config.coverage_show_missing_items:
-                                    if self.app.quiet or self.app.warningiserror:
+                                    if self.app.quiet:
                                         for meth in methods:
                                             logger.warning(
-                                                __('undocumented python method:' +
+                                                __('undocumented python method:'
                                                    ' %s :: %s :: %s'),
                                                 name, class_name, meth)
                                     else:

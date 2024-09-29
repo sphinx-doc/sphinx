@@ -4,8 +4,16 @@ from __future__ import annotations
 import os
 import re
 import time
+from typing import TYPE_CHECKING
 
-from sphinx import __display_version__
+from sphinx import __display_version__, addnodes
+from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from docutils import nodes
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -45,6 +53,7 @@ html_additional_pages = {'contents': 'contents.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
 html_favicon = '_static/favicon.svg'
+html_last_updated_time_zone = 'GMT'
 
 htmlhelp_basename = 'Sphinxdoc'
 
@@ -77,7 +86,14 @@ epub_use_index = False
 epub_description = 'Sphinx documentation generator system manual'
 
 latex_documents = [
-    ('index', 'sphinx.tex', 'Sphinx Documentation', 'the Sphinx developers', 'manual', 1)
+    (
+        'index',
+        'sphinx.tex',
+        'Sphinx Documentation',
+        'the Sphinx developers',
+        'manual',
+        1,
+    )
 ]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
@@ -179,11 +195,15 @@ nitpick_ignore = {
     ('js:func', 'number'),
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
+    ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
+    ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
     ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
+    ('py:class', 'Lexer'),  # sphinx.application.Sphinx.add_lexer
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
+    ('py:class', 'Path'),  # sphinx.application.Sphinx.connect
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
@@ -191,6 +211,8 @@ nitpick_ignore = {
     ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'system_message'),  # sphinx.utils.docutils.SphinxDirective
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
+    ('py:class', 'todo_node'),  # sphinx.application.Sphinx.connect
+    ('py:class', 'Transform'),  # sphinx.application.Sphinx.add_transform
     ('py:class', 'XRefRole'),  # sphinx.domains.Domain
     ('py:class', 'docutils.nodes.Element'),
     ('py:class', 'docutils.nodes.Node'),
@@ -202,6 +224,7 @@ nitpick_ignore = {
     ('py:class', 'docutils.parsers.rst.states.Inliner'),
     ('py:class', 'docutils.transforms.Transform'),
     ('py:class', 'nodes.NodeVisitor'),
+    ('py:class', 'nodes.TextElement'),  # sphinx.application.Sphinx.connect
     ('py:class', 'nodes.document'),
     ('py:class', 'nodes.reference'),
     ('py:class', 'pygments.lexer.Lexer'),
@@ -212,6 +235,7 @@ nitpick_ignore = {
     ('py:class', 'sphinx.roles.XRefRole'),
     ('py:class', 'sphinx.search.SearchLanguage'),
     ('py:class', 'sphinx.theming.Theme'),
+    ('py:class', 'sphinx.util._pathlib._StrPath'),  # sphinx.project.Project.doc2path
     ('py:class', 'sphinxcontrib.websupport.errors.DocumentNotFoundError'),
     ('py:class', 'sphinxcontrib.websupport.errors.UserNotAuthorizedError'),
     ('py:exc', 'docutils.nodes.SkipNode'),
@@ -239,13 +263,10 @@ nitpick_ignore = {
 
 # -- Extension interface -------------------------------------------------------
 
-from sphinx import addnodes  # NoQA: E402
-from sphinx.application import Sphinx  # NoQA: E402, TCH001
-
 _event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
 
-def parse_event(env, sig, signode):
+def parse_event(_env: BuildEnvironment, sig: str, signode: nodes.Element) -> str:
     m = _event_sig_re.match(sig)
     if m is None:
         signode += addnodes.desc_name(sig, sig)
@@ -260,11 +281,13 @@ def parse_event(env, sig, signode):
     return name
 
 
-def linkify_issues_in_changelog(app, path, docname, source):
+def linkify_issues_in_changelog(
+    _app: Sphinx, _path: Path, docname: str, source: list[str]
+) -> None:
     """Linkify issue references like #123 in changelog to GitHub."""
     if docname == 'changes':
 
-        def linkify(match):
+        def linkify(match: re.Match[str]) -> str:
             url = 'https://github.com/sphinx-doc/sphinx/issues/' + match[1]
             return f'`{match[0]} <{url}>`_'
 
@@ -298,6 +321,7 @@ def build_redirects(app: Sphinx, exception: Exception | None) -> None:
     if exception is not None or app.builder.name != 'html':
         return
     for page, rel_redirect in (
+        (('changes.html',), 'changes/index.html'),
         (('development', 'overview.html'), 'index.html'),
         (('development', 'builders.html'), 'howtos/builders.html'),
         (('development', 'theming.html'), 'html_themes/index.html'),
@@ -321,7 +345,9 @@ def setup(app: Sphinx) -> None:
     app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.connect('include-read', linkify_issues_in_changelog)
     app.connect('build-finished', build_redirects)
-    fdesc = GroupedField('parameter', label='Parameters', names=['param'], can_collapse=True)
+    fdesc = GroupedField(
+        'parameter', label='Parameters', names=('param',), can_collapse=True
+    )
     app.add_object_type(
         'event',
         'event',

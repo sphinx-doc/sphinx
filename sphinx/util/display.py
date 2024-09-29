@@ -7,9 +7,9 @@ from sphinx.util import logging
 from sphinx.util.console import bold, color_terminal
 
 if False:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
-    from typing import Any, Callable, TypeVar
+    from typing import Any, TypeVar
 
     from typing_extensions import ParamSpec
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def display_chunk(chunk: Any) -> str:
-    if isinstance(chunk, (list, tuple)):
+    if isinstance(chunk, list | tuple):
         if len(chunk) == 1:
             return str(chunk[0])
         return f'{chunk[0]} .. {chunk[-1]}'

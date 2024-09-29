@@ -20,7 +20,7 @@ HTMLTranslator = HTML5Translator
 # https://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
 
-class HTMLWriter(Writer):
+class HTMLWriter(Writer):  # type: ignore[misc]
 
     # override embed-stylesheet default value to False.
     settings_default_overrides = {"embed_stylesheet": False}

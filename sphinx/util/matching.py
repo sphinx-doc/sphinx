@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import os.path
 import re
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from sphinx.util.osutil import canon_path, path_stabilize
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
 
 
 def _translate_pattern(pat: str) -> str:

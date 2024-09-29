@@ -43,7 +43,7 @@ def multiply_length(length: str, scale: int) -> str:
     return f"{int(result)}{unit}"
 
 
-class HTML5Translator(SphinxTranslator, BaseTranslator):
+class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     """
     Our custom HTML translator.
     """
@@ -402,7 +402,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains['std'].get_enumerable_node_type(node)
+        figtype = self.builder.env.domains.standard_domain.get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
                 msg = __('Any IDs not assigned for %s node') % node.tagname

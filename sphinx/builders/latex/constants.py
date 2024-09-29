@@ -49,7 +49,7 @@ XELATEX_DEFAULT_FONTPKG = r'''
   BoldFont       = *Bold,
   BoldItalicFont = *BoldOblique,
 ]
-\setmonofont{FreeMono}[
+\setmonofont{FreeMono}[Scale=0.9,
   Extension      = .otf,
   UprightFont    = *,
   ItalicFont     = *Oblique,
@@ -142,7 +142,6 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      XELATEX_DEFAULT_FONTPKG,
-        'fvset':        '\\fvset{fontsize=\\small}',
         'fontsubstitution': '',
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
@@ -155,7 +154,6 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
         'fontenc':     ('\\usepackage{fontspec}\n'
                         '\\defaultfontfeatures[\\rmfamily,\\sffamily,\\ttfamily]{}'),
         'fontpkg':      LUALATEX_DEFAULT_FONTPKG,
-        'fvset':        '\\fvset{fontsize=\\small}',
         'fontsubstitution': '',
         'textgreek':    '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'

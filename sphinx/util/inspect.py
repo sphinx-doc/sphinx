@@ -17,19 +17,19 @@ from importlib import import_module
 from inspect import Parameter, Signature
 from io import StringIO
 from types import ClassMethodDescriptorType, MethodDescriptorType, WrapperDescriptorType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ForwardRef
 
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import logging
-from sphinx.util.typing import ForwardRef, stringify_annotation
+from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
-    from typing import Final, Protocol, Union
+    from typing import Final, Protocol, TypeAlias
 
-    from typing_extensions import TypeAlias, TypeIs
+    from typing_extensions import TypeIs
 
     class _SupportsGet(Protocol):
         def __get__(self, __instance: Any, __owner: type | None = ...) -> Any: ...  # NoQA: E704
@@ -42,21 +42,21 @@ if TYPE_CHECKING:
         # instance is contravariant but we do not need that precision
         def __delete__(self, __instance: Any) -> None: ...  # NoQA: E704
 
-    _RoutineType: TypeAlias = Union[
-        types.FunctionType,
-        types.LambdaType,
-        types.MethodType,
-        types.BuiltinFunctionType,
-        types.BuiltinMethodType,
-        types.WrapperDescriptorType,
-        types.MethodDescriptorType,
-        types.ClassMethodDescriptorType,
-    ]
-    _SignatureType: TypeAlias = Union[
-        Callable[..., Any],
-        staticmethod,
-        classmethod,
-    ]
+    _RoutineType: TypeAlias = (
+        types.FunctionType
+        | types.LambdaType
+        | types.MethodType
+        | types.BuiltinFunctionType
+        | types.BuiltinMethodType
+        | types.WrapperDescriptorType
+        | types.MethodDescriptorType
+        | types.ClassMethodDescriptorType
+    )
+    _SignatureType: TypeAlias = (
+        Callable[..., Any]
+        | staticmethod
+        | classmethod
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -128,20 +128,14 @@ def getall(obj: Any) -> Sequence[str] | None:
     __all__ = safe_getattr(obj, '__all__', None)
     if __all__ is None:
         return None
-    if isinstance(__all__, (list, tuple)) and all(isinstance(e, str) for e in __all__):
+    if isinstance(__all__, list | tuple) and all(isinstance(e, str) for e in __all__):
         return __all__
     raise ValueError(__all__)
 
 
 def getannotations(obj: Any) -> Mapping[str, Any]:
     """Safely get the ``__annotations__`` attribute of an object."""
-    if sys.version_info >= (3, 10, 0) or not isinstance(obj, type):
-        __annotations__ = safe_getattr(obj, '__annotations__', None)
-    else:
-        # Workaround for bugfix not available until python 3.10 as recommended by docs
-        # https://docs.python.org/3.10/howto/annotations.html#accessing-the-annotations-dict-of-an-object-in-python-3-9-and-older
-        __dict__ = safe_getattr(obj, '__dict__', {})
-        __annotations__ = __dict__.get('__annotations__', None)
+    __annotations__ = safe_getattr(obj, '__annotations__', None)
     if isinstance(__annotations__, Mapping):
         return __annotations__
     return {}
@@ -198,19 +192,10 @@ def getslots(obj: Any) -> dict[str, Any] | dict[str, None] | None:
         return __slots__
     elif isinstance(__slots__, str):
         return {__slots__: None}
-    elif isinstance(__slots__, (list, tuple)):
+    elif isinstance(__slots__, list | tuple):
         return dict.fromkeys(__slots__)
     else:
         raise ValueError
-
-
-def isNewType(obj: Any) -> bool:
-    """Check the if object is a kind of :class:`~typing.NewType`."""
-    if sys.version_info[:2] >= (3, 10):
-        return isinstance(obj, typing.NewType)
-    __module__ = safe_getattr(obj, '__module__', None)
-    __qualname__ = safe_getattr(obj, '__qualname__', None)
-    return __module__ == 'typing' and __qualname__ == 'NewType.<locals>.new_type'
 
 
 def isenumclass(x: Any) -> TypeIs[type[enum.Enum]]:
@@ -237,7 +222,7 @@ def unpartial(obj: Any) -> Any:
 
 def ispartial(obj: Any) -> TypeIs[partial | partialmethod]:
     """Check if the object is a partial function or method."""
-    return isinstance(obj, (partial, partialmethod))
+    return isinstance(obj, partial | partialmethod)
 
 
 def isclassmethod(
@@ -397,12 +382,12 @@ def _is_wrapped_coroutine(obj: Any) -> bool:
 
 def isproperty(obj: Any) -> TypeIs[property | cached_property]:
     """Check if the object is property (possibly cached)."""
-    return isinstance(obj, (property, cached_property))
+    return isinstance(obj, property | cached_property)
 
 
 def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
     """Check if the object is a generic alias."""
-    return isinstance(obj, (types.GenericAlias, typing._BaseGenericAlias))  # type: ignore[attr-defined]
+    return isinstance(obj, types.GenericAlias | typing._BaseGenericAlias)  # type: ignore[attr-defined]
 
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
@@ -852,11 +837,11 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> Signature:
     params: list[Parameter] = []
 
     # positional-only arguments (introduced in Python 3.8)
-    for arg, defexpr in zip(args.posonlyargs, defaults):
+    for arg, defexpr in zip(args.posonlyargs, defaults, strict=False):
         params.append(_define(Parameter.POSITIONAL_ONLY, arg, code, defexpr=defexpr))
 
     # normal arguments
-    for arg, defexpr in zip(args.args, defaults[pos_only_offset:]):
+    for arg, defexpr in zip(args.args, defaults[pos_only_offset:], strict=False):
         params.append(_define(Parameter.POSITIONAL_OR_KEYWORD, arg, code, defexpr=defexpr))
 
     # variadic positional argument (no possible default expression)
@@ -864,7 +849,7 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> Signature:
         params.append(_define(Parameter.VAR_POSITIONAL, args.vararg, code, defexpr=None))
 
     # keyword-only arguments
-    for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults):
+    for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults, strict=False):
         params.append(_define(Parameter.KEYWORD_ONLY, arg, code, defexpr=defexpr))
 
     # variadic keyword argument (no possible default expression)

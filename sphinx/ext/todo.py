@@ -24,12 +24,14 @@ from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxDirective, new_document
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.writers.html5 import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
 
 logger = logging.getLogger(__name__)
@@ -43,7 +45,7 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-class Todo(BaseAdmonition, SphinxDirective):
+class Todo(BaseAdmonition, SphinxDirective):  # type: ignore[misc]
     """
     A todo entry, displayed (if configured) in the form of an admonition.
     """
@@ -87,7 +89,7 @@ class TodoDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.todos.pop(docname, None)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for docname in docnames:
             self.todos[docname] = otherdata['todos'][docname]
 
@@ -125,7 +127,7 @@ class TodoListProcessor:
         self.builder = app.builder
         self.config = app.config
         self.env = app.env
-        self.domain = cast(TodoDomain, app.env.get_domain('todo'))
+        self.domain = app.env.domains['todo']
         self.document = new_document('')
 
         self.process(doctree, docname)

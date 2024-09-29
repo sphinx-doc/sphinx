@@ -236,7 +236,7 @@ The following list gives some hints for the creation of epub files:
   for Kindle. You can get ``yourdoc.mobi`` under ``_build/epub`` after the
   following command:
 
-  .. code-block:: bash
+  .. code-block:: console
 
      $ make epub
      $ kindlegen _build/epub/yourdoc.epub

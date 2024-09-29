@@ -31,7 +31,7 @@ def _is_single_paragraph(node: nodes.field_body) -> bool:
     if len(node) == 0:
         return False
     elif len(node) > 1:
-        for subnode in node[1:]:  # type: Node
+        for subnode in node[1:]:
             if not isinstance(subnode, nodes.system_message):
                 return False
     return isinstance(node[0], nodes.paragraph)
@@ -356,7 +356,7 @@ class DocFieldTransformer:
             if is_typefield:
                 # filter out only inline nodes; others will result in invalid
                 # markup being written out
-                content = [n for n in content if isinstance(n, (nodes.Inline, nodes.Text))]
+                content = [n for n in content if isinstance(n, nodes.Inline | nodes.Text)]
                 if content:
                     types.setdefault(typename, {})[fieldarg] = content
                 continue

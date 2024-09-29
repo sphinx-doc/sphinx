@@ -189,5 +189,5 @@ usecase-driven documentation, see :ref:`get-started` or :ref:`user-guides`.
    usage/extensions/index
    usage/restructuredtext/index
    glossary
-   changes
+   changes/index
    examples

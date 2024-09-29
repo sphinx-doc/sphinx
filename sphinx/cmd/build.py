@@ -201,12 +201,17 @@ files can be built by specifying individual filenames.
                        help=__('write warnings (and errors) to given file'))
     group.add_argument('--fail-on-warning', '-W', action='store_true', dest='warningiserror',
                        help=__('turn warnings into errors'))
-    group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("with --fail-on-warning, keep going when getting warnings"))
+    group.add_argument('--keep-going', action='store_true', help=argparse.SUPPRESS)
     group.add_argument('--show-traceback', '-T', action='store_true', dest='traceback',
                        help=__('show full traceback on exception'))
     group.add_argument('--pdb', '-P', action='store_true', dest='pdb',
                        help=__('run Pdb on exception'))
+    group.add_argument('--exception-on-warning', action='store_true',
+                       dest='exception_on_warning',
+                       help=__('raise an exception on warnings'))
+
+    if parser.prog == '__main__.py':
+        parser.prog = 'sphinx-build'
 
     return parser
 
@@ -329,11 +334,16 @@ def build_main(argv: Sequence[str]) -> int:
     try:
         confdir = args.confdir or args.sourcedir
         with patch_docutils(confdir), docutils_namespace():
-            app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
-                         args.doctreedir, args.builder, args.confoverrides, args.status,
-                         args.warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs, args.keep_going,
-                         args.pdb)
+            app = Sphinx(
+                srcdir=args.sourcedir, confdir=args.confdir,
+                outdir=args.outputdir, doctreedir=args.doctreedir,
+                buildername=args.builder, confoverrides=args.confoverrides,
+                status=args.status, warning=args.warning,
+                freshenv=args.freshenv, warningiserror=args.warningiserror,
+                tags=args.tags,
+                verbosity=args.verbosity, parallel=args.jobs, keep_going=False,
+                pdb=args.pdb, exception_on_warning=args.exception_on_warning,
+            )
             app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
@@ -379,7 +389,8 @@ def main(argv: Sequence[str] = (), /) -> int:
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()
     if argv[:1] == ['-M']:
-        return make_main(argv)
+        from sphinx.cmd import make_mode
+        return make_mode.run_make_mode(argv[1:])
     else:
         return build_main(argv)
 

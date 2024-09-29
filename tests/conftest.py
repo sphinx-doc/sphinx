@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import gettext
 import os
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import docutils
@@ -21,15 +23,16 @@ if TYPE_CHECKING:
 
 
 def _init_console(
-    locale_dir: str | None = sphinx.locale._LOCALE_DIR, catalog: str = 'sphinx',
-) -> tuple[sphinx.locale.NullTranslations, bool]:
+    locale_dir: str | None = sphinx.locale._LOCALE_DIR,
+    catalog: str = 'sphinx',
+) -> tuple[gettext.NullTranslations, bool]:
     """Monkeypatch ``init_console`` to skip its action.
 
     Some tests rely on warning messages in English. We don't want
     CLI tests to bleed over those tests and make their warnings
     translated.
     """
-    return sphinx.locale.NullTranslations(), False
+    return gettext.NullTranslations(), False
 
 
 sphinx.locale.init_console = _init_console
@@ -98,3 +101,20 @@ def _cleanup_docutils() -> Iterator[None]:
     sys.path[:] = saved_path
 
     _clean_up_global_state()
+
+
+@pytest.fixture
+def _http_teapot(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Short-circuit HTTP requests.
+
+    Windows takes too long to fail on connections, hence this fixture.
+    """
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418
+    response = SimpleNamespace(status_code=418)
+
+    def _request(*args, **kwargs):
+        return response
+
+    with monkeypatch.context() as m:
+        m.setattr('sphinx.util.requests._Session.request', _request)
+        yield

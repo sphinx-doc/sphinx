@@ -36,10 +36,10 @@ from sphinx.locale import __, init_console
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import NoReturn
+    from typing import NoReturn, TypeAlias
 
-    _PARSER_SETUP = Callable[[argparse.ArgumentParser], argparse.ArgumentParser]
-    _RUNNER = Callable[[argparse.Namespace], int]
+    _PARSER_SETUP: TypeAlias = Callable[[argparse.ArgumentParser], argparse.ArgumentParser]
+    _RUNNER: TypeAlias = Callable[[argparse.Namespace], int]
 
     from typing import Protocol
 
@@ -79,7 +79,7 @@ class _RootArgumentParser(argparse.ArgumentParser):
         ]
 
         if commands := list(_load_subcommand_descriptions()):
-            command_max_length = min(max(map(len, next(zip(*commands), ()))), 22)
+            command_max_length = min(max(map(len, next(zip(*commands, strict=True), ()))), 22)
             help_fragments += [
                 '\n',
                 bold(underline(__('Commands:'))),

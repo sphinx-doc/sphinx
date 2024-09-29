@@ -15,7 +15,6 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes, writers
 
 from sphinx import addnodes, highlighting
-from sphinx.domains.std import StandardDomain
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging, texescape
@@ -66,7 +65,7 @@ class UnsupportedError(SphinxError):
     category = 'Markup is unsupported in LaTeX'
 
 
-class LaTeXWriter(writers.Writer):
+class LaTeXWriter(writers.Writer):  # type: ignore[misc]
 
     supported = ('sphinxlatex',)
 
@@ -355,7 +354,10 @@ class LaTeXTranslator(SphinxTranslator):
                 sphinxpkgoptions.append('nonumfigreset')
 
         if self.config.numfig and self.config.math_numfig:
-            sphinxpkgoptions.append('mathnumfig')
+            sphinxpkgoptions.extend([
+                'mathnumfig',
+                'mathnumsep={%s}' % self.config.math_numsep,
+            ])
 
         if (self.config.language not in {'en', 'ja'} and
                 'fncychap' not in self.config.latex_elements):
@@ -504,8 +506,7 @@ class LaTeXTranslator(SphinxTranslator):
                 indices_config = frozenset(indices_config)
             else:
                 check_names = False
-            for domain_name in sorted(self.builder.env.domains):
-                domain = self.builder.env.domains[domain_name]
+            for domain in self.builder.env.domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
                     if check_names and index_name not in indices_config:
@@ -582,13 +583,22 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}')
 
     def visit_topic(self, node: Element) -> None:
-        self.in_minipage = 1
-        self.body.append(CR + r'\begin{sphinxShadowBox}' + CR)
+        self.in_minipage += 1
+        if 'contents' in node.get('classes', []):
+            self.body.append(CR + r'\begin{sphinxcontents}' + CR)
+            self.context.append(r'\end{sphinxcontents}' + CR)
+        else:
+            self.body.append(CR + r'\begin{sphinxtopic}' + CR)
+            self.context.append(r'\end{sphinxtopic}' + CR)
 
     def depart_topic(self, node: Element) -> None:
-        self.in_minipage = 0
-        self.body.append(r'\end{sphinxShadowBox}' + CR)
-    visit_sidebar = visit_topic
+        self.in_minipage -= 1
+        self.body.append(self.context.pop())
+
+    def visit_sidebar(self, node: Element) -> None:
+        self.in_minipage += 1
+        self.body.append(CR + r'\begin{sphinxsidebar}' + CR)
+        self.context.append(r'\end{sphinxsidebar}' + CR)
     depart_sidebar = depart_topic
 
     def visit_glossary(self, node: Element) -> None:
@@ -651,7 +661,10 @@ class LaTeXTranslator(SphinxTranslator):
                 self.body.append(fr'\{self.sectionnames[-1]}{short}{{')
             self.context.append('}' + CR + self.hypertarget_to(node.parent))
         elif isinstance(parent, nodes.topic):
-            self.body.append(r'\sphinxstyletopictitle{')
+            if 'contents' in parent.get('classes', []):
+                self.body.append(r'\sphinxstylecontentstitle{')
+            else:
+                self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}' + CR)
         elif isinstance(parent, nodes.sidebar):
             self.body.append(r'\sphinxstylesidebartitle{')
@@ -743,26 +756,30 @@ class LaTeXTranslator(SphinxTranslator):
 
                 if multi_tp_list:
                     if multi_arglist:
-                        self.body.append(CR + r'\pysigwithonelineperargwithonelinepertparg{')
+                        self.body.append(CR + r'\pysigwithonelineperargwithonelinepertparg'
+                                         + CR + '{')
                     else:
-                        self.body.append(CR + r'\pysiglinewithargsretwithonelinepertparg{')
+                        self.body.append(CR + r'\pysiglinewithargsretwithonelinepertparg'
+                                         + CR + '{')
                 else:
                     if multi_arglist:
-                        self.body.append(CR + r'\pysigwithonelineperargwithtypelist{')
+                        self.body.append(CR + r'\pysigwithonelineperargwithtypelist'
+                                         + CR + '{')
                     else:
-                        self.body.append(CR + r'\pysiglinewithargsretwithtypelist{')
+                        self.body.append(CR + r'\pysiglinewithargsretwithtypelist'
+                                         + CR + '{')
                 break
 
             if isinstance(child, addnodes.desc_parameterlist):
                 # arglist only: \macro{name}{arglist}{retann}
                 if has_multi_line(child):
-                    self.body.append(CR + r'\pysigwithonelineperarg{')
+                    self.body.append(CR + r'\pysigwithonelineperarg' + CR + '{')
                 else:
-                    self.body.append(CR + r'\pysiglinewithargsret{')
+                    self.body.append(CR + r'\pysiglinewithargsret' + CR + '{')
                 break
         else:
             # no tp_list, no arglist: \macro{name}
-            self.body.append(CR + r'\pysigline{')
+            self.body.append(CR + r'\pysigline' + CR + '{')
 
     def _depart_signature_line(self, node: Element) -> None:
         self.body.append('}')
@@ -863,26 +880,32 @@ class LaTeXTranslator(SphinxTranslator):
         if self.has_tp_list:
             if self.orphan_tp_list:
                 # close type parameters list (#2)
-                self.body.append('}{')
+                self.body.append('}' + CR + '{')
                 # empty parameters list argument (#3)
                 return
         else:
             # close name argument (#1), open parameters list argument (#2)
-            self.body.append('}{')
+            self.body.append('}' + CR + '{')
         self._visit_sig_parameter_list(node, addnodes.desc_parameter)
 
     def depart_desc_parameterlist(self, node: Element) -> None:
         # close parameterlist, open return annotation
-        self.body.append('}{')
+        assert not self.orphan_tp_list
+        self.body.append('}' + CR + '{')
 
     def visit_desc_type_parameter_list(self, node: Element) -> None:
         # close name argument (#1), open type parameters list argument (#2)
-        self.body.append('}{')
+        self.body.append('}' + CR + '{')
         self._visit_sig_parameter_list(node, addnodes.desc_type_parameter)
 
     def depart_desc_type_parameter_list(self, node: Element) -> None:
-        # close type parameters list, open parameters list argument (#3)
-        self.body.append('}{')
+        if self.orphan_tp_list:
+            # this node next sibling isn't a desc_parameterlist, there are no parameters:
+            # close the type list, output an empty parameter list, open return annotation.
+            self.body.append('}' + CR + '{}' + CR + '{')
+        else:
+            # close type parameters list, open parameters list argument (#3)
+            self.body.append('}' + CR + '{')
 
     def _visit_sig_parameter(self, node: Element, parameter_macro: str) -> None:
         if self.is_first_param:
@@ -1369,7 +1392,7 @@ class LaTeXTranslator(SphinxTranslator):
                 not isinstance(node.parent[index - 1], nodes.compound)):
             # insert blank line, if the paragraph follows a non-paragraph node in a compound
             self.body.append(r'\noindent' + CR)
-        elif index == 1 and isinstance(node.parent, (nodes.footnote, footnotetext)):
+        elif index == 1 and isinstance(node.parent, nodes.footnote | footnotetext):
             # don't insert blank line, if the paragraph is second child of a footnote
             # (first one is label node)
             pass
@@ -1657,7 +1680,7 @@ class LaTeXTranslator(SphinxTranslator):
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
-        domain = cast(StandardDomain, self.builder.env.get_domain('std'))
+        domain = self.builder.env.domains.standard_domain
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if domain.get_enumerable_node_type(next_node) and domain.get_numfig_title(next_node):
@@ -2081,7 +2104,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
+            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
                 done = 1
         if not done:
             self.body.append(r'\begin{quote}' + CR)
@@ -2092,7 +2115,7 @@ class LaTeXTranslator(SphinxTranslator):
         done = 0
         if len(node.children) == 1:
             child = node.children[0]
-            if isinstance(child, (nodes.bullet_list, nodes.enumerated_list)):
+            if isinstance(child, nodes.bullet_list | nodes.enumerated_list):
                 done = 1
         if not done:
             self.body.append(r'\end{quote}' + CR)
@@ -2173,8 +2196,8 @@ class LaTeXTranslator(SphinxTranslator):
             self.body.append(r'\sphinxaccelerator{')
             self.context.append('}')
         elif classes and not self.in_title:
-            self.body.append(r'\DUrole{%s}{' % ','.join(classes))
-            self.context.append('}')
+            self.body.append(r'\DUrole{' + r'}{\DUrole{'.join(classes) + '}{')
+            self.context.append('}' * len(classes))
         else:
             self.context.append('')
 
