@@ -1,0 +1,11 @@
+{%- if show_headings %}
+{{- basename | e | heading }}
+
+The Jinja template was found!
+-----------------------------
+
+{% endif -%}
+.. automodule:: {{ qualname }}
+{%- for option in automodule_options %}
+   :{{ option }}:
+{%- endfor %}

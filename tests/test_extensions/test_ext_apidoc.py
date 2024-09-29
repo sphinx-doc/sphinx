@@ -14,6 +14,7 @@ from sphinx.ext.apidoc import main as apidoc_main
 def apidoc(rootdir, tmp_path, apidoc_params):
     _, kwargs = apidoc_params
     coderoot = rootdir / kwargs.get('coderoot', 'test-root')
+    templatedir = kwargs.get('templatedir')
     outdir = tmp_path / 'out'
     excludes = [str(coderoot / e) for e in kwargs.get('excludes', [])]
     args = [
@@ -23,6 +24,7 @@ def apidoc(rootdir, tmp_path, apidoc_params):
         str(coderoot),
         *excludes,
         *kwargs.get('options', []),
+        *(['--templatedir', str(rootdir / templatedir)] if templatedir else []),
     ]
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
@@ -51,6 +53,26 @@ def test_simple(make_app, apidoc):
     app.build()
     print(app._status.getvalue())
     print(app._warning.getvalue())
+
+
+@pytest.mark.apidoc(
+    coderoot='test-apidoc-toc/mypackage',
+    templatedir='test-apidoc-toc/custom_templates',
+    options=['--separate'],
+)
+def test_custom_templates(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').is_file()
+    assert (outdir / 'index.rst').is_file()
+
+    app = make_app('text', srcdir=outdir)
+    app.build()
+
+    builddir = outdir / '_build' / 'text'
+    with open(builddir / 'mypackage.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The legacy template was found!' in txt
+        assert 'The Jinja template was found!' in txt
 
 
 @pytest.mark.apidoc(
