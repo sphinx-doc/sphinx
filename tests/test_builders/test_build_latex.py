@@ -1561,7 +1561,7 @@ def test_maxlistdepth_at_ten(app):
 )
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_tabulars(app):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
