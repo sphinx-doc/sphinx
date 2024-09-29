@@ -9,7 +9,7 @@ import subprocess
 import sys
 import warnings
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -40,15 +40,15 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from io import StringIO
     from pathlib import Path
-    from typing import Any, Final, Union
+    from typing import Any, Final, TypeAlias
 
     from _pytest.nodes import Node as PytestNode
 
     from sphinx.testing._internal.isolation import IsolationPolicy
     from sphinx.testing._internal.markers import TestParams
 
-    AnySphinxTestApp = Union[SphinxTestApp, SphinxTestAppWrapperForSkipBuilding]
-    AnyAppParams = Union[AppParams, AppLegacyParams]
+    AnySphinxTestApp: TypeAlias = SphinxTestApp | SphinxTestAppWrapperForSkipBuilding
+    AnyAppParams: TypeAlias = AppParams | AppLegacyParams
 
 DEFAULT_ENABLED_MARKERS: Final[list[str]] = [
     # The marker signature differs from the constructor signature
@@ -517,7 +517,7 @@ def if_graphviz_found(app: AnySphinxTestApp) -> None:  # NoQA: PT004
     pytest.skip('graphviz "dot" is not available')
 
 
-_HOST_ONLINE_ERROR = pytest.StashKey[Optional[str]]()
+_HOST_ONLINE_ERROR = pytest.StashKey[str | None]()
 
 
 def _query(address: tuple[str, int]) -> str | None:

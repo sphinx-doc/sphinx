@@ -98,7 +98,7 @@ def get_container_id(node: PytestNode) -> str:
     def get_obj_name(subject: PytestNode) -> str | None:
         if isinstance(subject, pytest.Package):
             return subject.name
-        if isinstance(subject, (pytest.Module, pytest.Class)):
+        if isinstance(subject, pytest.Module | pytest.Class):
             return getattr(subject.obj, '__name__', None)
         return None
 

@@ -256,6 +256,7 @@ disallow_any_generics = false
 module = [
     "imagesize",
     "snowballstemmer",
+    "xdist.workermanage",
 ]
 ignore_missing_imports = true
 

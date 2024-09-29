@@ -10,7 +10,10 @@ __all__ = ()
 
 from enum import IntEnum
 from enum import auto as _auto
-from typing import Literal, Union
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from typing import TypeAlias
 
 
 class Isolation(IntEnum):
@@ -24,10 +27,10 @@ class Isolation(IntEnum):
     """Copy the original testroot to a unique sources and build directory."""
 
 
-IsolationPolicy = Union[bool, Literal['minimal', 'grouped', 'always']]
+IsolationPolicy: TypeAlias = bool | Literal['minimal', 'grouped', 'always']
 """Allowed values for the isolation policy."""
 
-NormalizableIsolation = Union[IsolationPolicy, Isolation]
+NormalizableIsolation: TypeAlias = IsolationPolicy | Isolation
 """Normalizable isolation value."""
 
 

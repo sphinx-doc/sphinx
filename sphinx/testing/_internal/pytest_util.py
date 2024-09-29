@@ -13,7 +13,11 @@ import pytest
 from _pytest.nodes import Node as PytestNode
 from _pytest.nodes import get_fslocation_from_item
 
-from sphinx.testing._internal.warnings import MarkWarning, NodeWarning, SphinxTestingWarning
+from sphinx.testing._internal.warnings import (
+    MarkWarning,
+    NodeWarning,
+    SphinxTestingWarning,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Iterator
@@ -337,7 +341,7 @@ def issue_warning(  # NoQA: E302
     else:
         message = str(fmt)
         if args:  # allow str(fmt) to contain '%s'
-            message = message % args
+            message %= args
         warning = SphinxTestingWarning(message) if category is None else category(message)
 
     if isinstance(ctx, pytest.Config):
@@ -358,7 +362,7 @@ def issue_warning(  # NoQA: E302
         lineno = -1
     else:
         filename, lineno = location
-        lineno = lineno + 1
+        lineno += 1
 
     warnings.warn_explicit(warning, category=None, filename=filename, lineno=lineno)
 
