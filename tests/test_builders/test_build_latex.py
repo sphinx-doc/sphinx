@@ -1639,7 +1639,7 @@ def test_latex_table_tabulars(app):
 )
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_longtable(app):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|chapter){', result)[1:]:
@@ -1707,7 +1707,7 @@ def test_latex_table_longtable(app):
 )
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_complex_tables(app):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     tables = {}
     for chap in re.split(r'\\(?:section|renewcommand){', result)[1:]:
@@ -1780,7 +1780,7 @@ def test_latex_table_custom_template_caseB(app):
 @pytest.mark.sphinx('latex', testroot='latex-table')
 @pytest.mark.test_params(shared_result='latex-table')
 def test_latex_table_custom_template_caseC(app):
-    app.build(force_all=True)
+    app.build()
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert 'SALUT LES COPAINS' not in result
 
