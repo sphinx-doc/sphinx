@@ -108,7 +108,7 @@ Bugs fixed
   and :rst:dir:`py:module` directives.
   Patch by Stephen Finucane.
 * #12916: Restore support for custom templates named with the legacy ``_t``
-  suffix during ``apidoc`` RST rendering.
+  suffix during ``apidoc`` RST rendering (regression in 7.4.0).
   Patch by James Addison.
 
 Testing
