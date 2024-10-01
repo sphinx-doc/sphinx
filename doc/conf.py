@@ -339,10 +339,8 @@ def build_redirects(app: Sphinx, exception: Exception | None) -> None:
 
 
 def setup(app: Sphinx) -> None:
-    from sphinx.ext.autodoc import cut_lines
     from sphinx.util.docfields import GroupedField
 
-    app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.connect('include-read', linkify_issues_in_changelog)
     app.connect('build-finished', build_redirects)
     fdesc = GroupedField(
