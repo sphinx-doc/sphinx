@@ -367,7 +367,7 @@ Automatically document modules
       By default, ``autodoc`` only includes public members
       with a docstring or :ref:`doc-comment <doc-comment>` (``#:``).
       If ``__all__`` exists, it will be used to define which members are public,
-      unless the ``:ignore-module-all:`` option is set.
+      unless the :rst:dir:`automodule:ignore-module-all` option is set.
 
       To only document certain members, an explicit comma-separated list
       may be used as the argument to ``:members:``:
@@ -503,8 +503,8 @@ Automatically document modules
    .. rst:directive:option:: show-inheritance
       :type: no value
 
-      Enable the ``:show-inheritance:`` option for all members of the module,
-      if ``:members:`` is enabled.
+      Enable the :rst:dir:`autoclass:show-inheritance` option for all members
+      of the module, if ``:members:`` is enabled.
 
       .. versionadded:: 0.4
 
@@ -516,7 +516,7 @@ Automatically document classes or exceptions
                    autoexception
 
    Document a class.
-   For exception classes, prefer ``autoexception``.
+   For exception classes, prefer ``.. autoexception::``.
    By default, the directive only inserts the docstring of the class itself:
 
    .. code-block:: rst
@@ -586,7 +586,7 @@ Automatically document classes or exceptions
         using the ``:members:`` option or :rst:dir:`automethod`.
       * ``init``:
         Only use the docstring of the :meth:`!__init__` method.
-      * ``both``
+      * ``both``:
         Use both, appending the docstring of the :meth:`!__init__` method
         to the class's docstring.
 
@@ -915,7 +915,7 @@ Automatically document attributes or data
       the displayed value will be ``493`` (as ``oct(493) == '0o755'``).
       This can be fixed by setting ``:annotation: = 0o755``.
 
-      If ``annotation`` is used without arguments,
+      If ``:annotation:`` is used without arguments,
       no value or type hint will be shown for the variable.
 
    .. rst:directive:option:: no-value
@@ -923,9 +923,9 @@ Automatically document attributes or data
       .. versionadded:: 3.4
 
       To display the type hint of the variable without a value,
-      use the ``no-value`` option.
-      If both the ``annotation`` and ``no-value`` options are used,
-      ``no-value`` has no effect.
+      use the ``:no-value:`` option.
+      If both the ``:annotation:`` and ``:no-value:`` options are used,
+      ``:no-value:`` has no effect.
 
 
 Configuration
@@ -934,12 +934,14 @@ Configuration
 There are also config values that you can set:
 
 .. confval:: autoclass_content
+   :type: string
+   :default: "class"
 
    This value selects what content will be inserted into the main body of an
    :rst:dir:`autoclass` directive.  The possible values are:
 
    ``"class"``
-      Only the class' docstring is inserted.  This is the default.  You can
+      Only the class' docstring is inserted.  You can
       still document ``__init__`` as a separate method using
       :rst:dir:`automethod` or the ``members`` option to :rst:dir:`autoclass`.
    ``"both"``
@@ -957,6 +959,8 @@ There are also config values that you can set:
    .. versionadded:: 1.4
 
 .. confval:: autodoc_class_signature
+   :type: string
+   :default: "mixed"
 
    This value selects how the signature will be displayed for the class defined
    by :rst:dir:`autoclass` directive.  The possible values are:
@@ -966,39 +970,34 @@ There are also config values that you can set:
    ``"separated"``
       Display the signature as a method.
 
-   The default is ``"mixed"``.
-
    .. versionadded:: 4.1
 
 .. confval:: autodoc_member_order
+   :type: string
+   :default: "alphabetical"
 
-   This value selects if automatically documented members are sorted
-   alphabetical (value ``'alphabetical'``), by member type (value
-   ``'groupwise'``) or by source order (value ``'bysource'``).  The default is
-   alphabetical.
 
-   Note that for source order, the module must be a Python module with the
-   source code available.
+   Define the order in which :rst:dir:`automodule` and :rst:dir:`autoclass`
+   members are listed. Supported values are:
+
+   - ``'alphabetical'``: order alphabetically
+   - ``'groupwise'``: order by member type. The order is
+
+     - for modules: exception, class, function, data
+     - for classes: methods, properties/attributes
+
+     Members are ordered alphabetically inside the groups.
+
+   - ``'bysource'``: order in which the members appear in the source code.
+     This requires that the module must be a Python module with the
+     source code available.
 
    .. versionadded:: 0.6
    .. versionchanged:: 1.0
       Support for ``'bysource'``.
 
-.. confval:: autodoc_default_flags
-
-   This value is a list of autodoc directive flags that should be automatically
-   applied to all autodoc directives.  The supported flags are ``'members'``,
-   ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
-   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``
-   and ``'exclude-members'``.
-
-   .. versionadded:: 1.0
-
-   .. deprecated:: 1.8
-
-      Integrated into :confval:`autodoc_default_options`.
-
 .. confval:: autodoc_default_options
+   :type: dict
 
    The default options for autodoc directives.  They are applied to all autodoc
    directives automatically.  It must be a dictionary which maps option names
@@ -1017,11 +1016,20 @@ There are also config values that you can set:
    Setting ``None`` or ``True`` to the value is equivalent to giving only the
    option name to the directives.
 
-   The supported options are ``'members'``, ``'member-order'``,
-   ``'undoc-members'``, ``'private-members'``, ``'special-members'``,
-   ``'inherited-members'``, ``'show-inheritance'``, ``'ignore-module-all'``,
-   ``'imported-members'``, ``'exclude-members'``, ``'class-doc-from'`` and
-   ``'no-value'``.
+   The supported options are:
+
+   - ``'members'``: See :rst:dir:`automodule:members`.
+   - ``'undoc-members'`` See :rst:dir:`automodule:undoc-members`.
+   - ``'private-members'``: See :rst:dir:`automodule:private-members`.
+   - ``'special-members'``: See :rst:dir:`automodule:special-members`.
+   - ``'inherited-members'``: See :rst:dir:`autoclass:inherited-members`.
+   - ``'imported-members'``: See :rst:dir:`automodule:imported-members`.
+   - ``'exclude-members'``: See :rst:dir:`automodule:exclude-members`.
+   - ``'ignore-module-all'``: See :rst:dir:`automodule:ignore-module-all`.
+   - ``'member-order'``: See :rst:dir:`automodule:member-order`.
+   - ``'show-inheritance'``: See :rst:dir:`automodule:show-inheritance`.
+   - ``'class-doc-from'``: See :rst:dir:`autoclass:class-doc-from`.
+   - ``'no-value'``: See :rst:dir:`autodata:no-value`.
 
    .. versionadded:: 1.8
 
@@ -1038,6 +1046,8 @@ There are also config values that you can set:
       Added ``'no-value'``.
 
 .. confval:: autodoc_docstring_signature
+   :type: bool
+   :default: True
 
    Functions imported from C modules cannot be introspected, and therefore the
    signature for such functions cannot be automatically determined.  However, it
@@ -1063,6 +1073,7 @@ There are also config values that you can set:
       Overloaded signatures do not need to be separated by a backslash
 
 .. confval:: autodoc_mock_imports
+   :type: list of string
 
    This value contains a list of modules to be mocked up. This is useful when
    some external dependencies are not met at build time and break the building
@@ -1082,11 +1093,13 @@ There are also config values that you can set:
       should be mocked.
 
 .. confval:: autodoc_typehints
+   :type: string
+   :default: "signature"
 
    This value controls how to represent typehints.  The setting takes the
    following values:
 
-   * ``'signature'`` -- Show typehints in the signature (default)
+   * ``'signature'`` -- Show typehints in the signature
    * ``'description'`` -- Show typehints as content of the function or method
      The typehints of overloaded functions or methods will still be represented
      in the signature.
@@ -1108,19 +1121,20 @@ There are also config values that you can set:
       New option ``'both'`` is added.
 
 .. confval:: autodoc_typehints_description_target
+   :type: string
+   :default: "all"
 
    This value controls whether the types of undocumented parameters and return
-   values are documented when ``autodoc_typehints`` is set to ``description``.
+   values are documented when :confval:`autodoc_typehints` is set to
+   ``'description'``. Supported values:
 
-   The default value is ``"all"``, meaning that types are documented for all
-   parameters and return values, whether they are documented or not.
-
-   When set to ``"documented"``, types will only be documented for a parameter
-   or a return value that is already documented by the docstring.
-
-   With ``"documented_params"``, parameter types will only be annotated if the
-   parameter is documented in the docstring. The return type is always
-   annotated (except if it is ``None``).
+   - ``"all"``: Types are documented for all parameters and return values,
+     whether they are documented or not.
+   - ``"documented"``: types will only be documented for a parameter
+     or a return value that is already documented by the docstring.
+   - ``"documented_params"``: Parameter types will only be annotated if the
+     parameter is documented in the docstring. The return type is always
+     annotated (except if it is ``None``).
 
    .. versionadded:: 4.0
 
@@ -1129,6 +1143,7 @@ There are also config values that you can set:
       New option ``'documented_params'`` is added.
 
 .. confval:: autodoc_type_aliases
+   :type: dict
 
    A dictionary for users defined `type aliases`__ that maps a type name to the
    full-qualified object name.  It is used to keep type aliases not evaluated in
@@ -1172,13 +1187,15 @@ There are also config values that you can set:
    .. versionadded:: 3.3
 
 .. confval:: autodoc_typehints_format
+   :type: string
+   :default: "short"
 
    This value controls the format of typehints.  The setting takes the
    following values:
 
    * ``'fully-qualified'`` -- Show the module name and its name of typehints
    * ``'short'`` -- Suppress the leading module names of the typehints
-     (e.g. ``io.StringIO`` -> ``StringIO``)  (default)
+     (e.g. ``io.StringIO`` -> ``StringIO``)
 
    .. versionadded:: 4.4
 
@@ -1187,6 +1204,8 @@ There are also config values that you can set:
       The default setting was changed to ``'short'``
 
 .. confval:: autodoc_preserve_defaults
+   :type: bool
+   :default: False
 
    If True, the default argument values of functions will be not evaluated on
    generating document.  It preserves them as is in the source code.
@@ -1197,28 +1216,31 @@ There are also config values that you can set:
       in the future.
 
 .. confval:: autodoc_warningiserror
+   :type: bool
+   :default: True
 
    This value controls the behavior of :option:`sphinx-build --fail-on-warning`
    during importing modules.
    If ``False`` is given, autodoc forcedly suppresses the error if the imported
-   module emits warnings.  By default, ``True``.
+   module emits warnings.
 
    .. versionchanged:: 8.1
       This option now has no effect as :option:`!--fail-on-warning`
       no longer exits early.
 
 .. confval:: autodoc_inherit_docstrings
+   :type: bool
+   :default: True
 
    This value controls the docstrings inheritance.
    If set to True the docstring for classes or methods, if not explicitly set,
    is inherited from parents.
 
-   The default is ``True``.
-
    .. versionadded:: 1.7
 
 .. confval:: suppress_warnings
    :no-index:
+   :type: list of strings
 
    :mod:`autodoc` supports to suppress warning messages via
    :confval:`suppress_warnings`.  It allows following warnings types in
