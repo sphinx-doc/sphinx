@@ -5,11 +5,9 @@ from collections import namedtuple
 from pathlib import Path
 
 import pytest
-from jinja2.environment import Environment
 
 import sphinx.ext.apidoc
 from sphinx.ext.apidoc import main as apidoc_main
-from sphinx.util.template import SphinxFileSystemLoader
 
 
 @pytest.fixture
