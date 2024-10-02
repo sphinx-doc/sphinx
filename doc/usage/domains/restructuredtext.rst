@@ -98,13 +98,12 @@ These roles are provided to refer to the described objects:
 
 .. rst:role:: rst:dir
 
-
    Reference directives and directive options. Examples:
 
-   - Use ``:rst:dir:`mydirective``` to reference a directive.
-   - Use ``:rst:dir:`mydirective:my-option``` to reference a
+   * Use ``:rst:dir:`my-directive``` to reference a directive.
+   * Use ``:rst:dir:`my-directive:my-option``` to reference a
      directive option.
 
 .. rst:role:: rst:role
 
-   Reference a role. Example: ``:rst:role:`myrole```.
+   Reference a role. Example: ``:rst:role:`my-role```.

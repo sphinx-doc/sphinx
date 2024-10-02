@@ -9,6 +9,9 @@
 .. index:: pair: automatic; documentation
            single: docstring
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension can import the modules you are documenting,
 and pull in documentation from docstrings in a semi-automatic way.
 
@@ -367,7 +370,8 @@ Automatically document modules
       By default, ``autodoc`` only includes public members
       with a docstring or :ref:`doc-comment <doc-comment>` (``#:``).
       If ``__all__`` exists, it will be used to define which members are public,
-      unless the :rst:dir:`automodule:ignore-module-all` option is set.
+      unless the :rst:dir:`:ignore-module-all: <automodule:ignore-module-all>`
+      option is set.
 
       To only document certain members, an explicit comma-separated list
       may be used as the argument to ``:members:``:
@@ -451,7 +455,7 @@ Automatically document modules
       :type: no value or comma separated list
 
       Generate automatic documentation for special members of the target module,
-      also known as :ref:`"dunder" names <python:specialnames>`.
+      also known as :ref:`'dunder' names <python:specialnames>`.
       This includes all names enclosed with a double-underscore,
       e.g. ``__special__``:
 
@@ -503,8 +507,9 @@ Automatically document modules
    .. rst:directive:option:: show-inheritance
       :type: no value
 
-      Enable the :rst:dir:`autoclass:show-inheritance` option for all members
-      of the module, if ``:members:`` is enabled.
+      Enable the :rst:dir:`:show-inheritance: <autoclass:show-inheritance>`
+      option for all members of the module,
+      if ``:members:`` is enabled.
 
       .. versionadded:: 0.4
 
@@ -717,7 +722,7 @@ Automatically document classes or exceptions
       :type: no value or comma separated list
 
       Generate automatic documentation for special members of the target class,
-      also known as :ref:`"dunder" names <python:specialnames>`.
+      also known as :ref:`'dunder' names <python:specialnames>`.
       This includes all names enclosed with a double-underscore,
       e.g. ``__special__``:
 
@@ -934,20 +939,20 @@ Configuration
 There are also config values that you can set:
 
 .. confval:: autoclass_content
-   :type: string
-   :default: "class"
+   :type: :code-py:`str`
+   :default: :code-py:`'class'`
 
    This value selects what content will be inserted into the main body of an
    :rst:dir:`autoclass` directive.  The possible values are:
 
-   ``"class"``
+   ``'class'``
       Only the class' docstring is inserted.  You can
       still document ``__init__`` as a separate method using
       :rst:dir:`automethod` or the ``members`` option to :rst:dir:`autoclass`.
-   ``"both"``
+   ``'both'``
       Both the class' and the ``__init__`` method's docstring are concatenated
       and inserted.
-   ``"init"``
+   ``'init'``
       Only the ``__init__`` method's docstring is inserted.
 
    .. versionadded:: 0.3
@@ -959,36 +964,37 @@ There are also config values that you can set:
    .. versionadded:: 1.4
 
 .. confval:: autodoc_class_signature
-   :type: string
-   :default: "mixed"
+   :type: :code-py:`str`
+   :default: :code-py:`'mixed'`
 
    This value selects how the signature will be displayed for the class defined
    by :rst:dir:`autoclass` directive.  The possible values are:
 
-   ``"mixed"``
+   ``'mixed'``
       Display the signature with the class name.
-   ``"separated"``
+   ``'separated'``
       Display the signature as a method.
 
    .. versionadded:: 4.1
 
 .. confval:: autodoc_member_order
-   :type: string
-   :default: "alphabetical"
-
+   :type: :code-py:`str`
+   :default: :code-py:`'alphabetical'`
 
    Define the order in which :rst:dir:`automodule` and :rst:dir:`autoclass`
    members are listed. Supported values are:
 
-   - ``'alphabetical'``: order alphabetically
-   - ``'groupwise'``: order by member type. The order is
+   * ``'alphabetical'``:
+     Use alphabetical order.
+   * ``'groupwise'``: order by member type. The order is:
 
-     - for modules: exception, class, function, data
-     - for classes: methods, properties/attributes
+     * for modules, exceptions, classes, functions, data
+     * for classes: methods, then properties and attributes
 
-     Members are ordered alphabetically inside the groups.
+     Members are ordered alphabetically within groups.
 
-   - ``'bysource'``: order in which the members appear in the source code.
+   * ``'bysource'``:
+     Use the order in which the members appear in the source code.
      This requires that the module must be a Python module with the
      source code available.
 
@@ -997,7 +1003,8 @@ There are also config values that you can set:
       Support for ``'bysource'``.
 
 .. confval:: autodoc_default_options
-   :type: dict
+   :type: :code-py:`dict[str, str | bool]`
+   :default: :code-py:`{}`
 
    The default options for autodoc directives.  They are applied to all autodoc
    directives automatically.  It must be a dictionary which maps option names
@@ -1018,18 +1025,18 @@ There are also config values that you can set:
 
    The supported options are:
 
-   - ``'members'``: See :rst:dir:`automodule:members`.
-   - ``'undoc-members'`` See :rst:dir:`automodule:undoc-members`.
-   - ``'private-members'``: See :rst:dir:`automodule:private-members`.
-   - ``'special-members'``: See :rst:dir:`automodule:special-members`.
-   - ``'inherited-members'``: See :rst:dir:`autoclass:inherited-members`.
-   - ``'imported-members'``: See :rst:dir:`automodule:imported-members`.
-   - ``'exclude-members'``: See :rst:dir:`automodule:exclude-members`.
-   - ``'ignore-module-all'``: See :rst:dir:`automodule:ignore-module-all`.
-   - ``'member-order'``: See :rst:dir:`automodule:member-order`.
-   - ``'show-inheritance'``: See :rst:dir:`automodule:show-inheritance`.
-   - ``'class-doc-from'``: See :rst:dir:`autoclass:class-doc-from`.
-   - ``'no-value'``: See :rst:dir:`autodata:no-value`.
+   * ``'members'``: See :rst:dir:`automodule:members`.
+   * ``'undoc-members'`` See :rst:dir:`automodule:undoc-members`.
+   * ``'private-members'``: See :rst:dir:`automodule:private-members`.
+   * ``'special-members'``: See :rst:dir:`automodule:special-members`.
+   * ``'inherited-members'``: See :rst:dir:`autoclass:inherited-members`.
+   * ``'imported-members'``: See :rst:dir:`automodule:imported-members`.
+   * ``'exclude-members'``: See :rst:dir:`automodule:exclude-members`.
+   * ``'ignore-module-all'``: See :rst:dir:`automodule:ignore-module-all`.
+   * ``'member-order'``: See :rst:dir:`automodule:member-order`.
+   * ``'show-inheritance'``: See :rst:dir:`autoclass:show-inheritance`.
+   * ``'class-doc-from'``: See :rst:dir:`autoclass:class-doc-from`.
+   * ``'no-value'``: See :rst:dir:`autodata:no-value`.
 
    .. versionadded:: 1.8
 
@@ -1046,8 +1053,8 @@ There are also config values that you can set:
       Added ``'no-value'``.
 
 .. confval:: autodoc_docstring_signature
-   :type: bool
-   :default: True
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    Functions imported from C modules cannot be introspected, and therefore the
    signature for such functions cannot be automatically determined.  However, it
@@ -1073,7 +1080,8 @@ There are also config values that you can set:
       Overloaded signatures do not need to be separated by a backslash
 
 .. confval:: autodoc_mock_imports
-   :type: list of string
+   :type: :code-py:`list[str]`
+   :default: :code-py:`[]`
 
    This value contains a list of modules to be mocked up. This is useful when
    some external dependencies are not met at build time and break the building
@@ -1082,7 +1090,7 @@ There are also config values that you can set:
 
    .. code-block:: python
 
-      autodoc_mock_imports = ["django"]
+      autodoc_mock_imports = ['django']
 
    Will mock all imports under the ``django`` package.
 
@@ -1093,8 +1101,8 @@ There are also config values that you can set:
       should be mocked.
 
 .. confval:: autodoc_typehints
-   :type: string
-   :default: "signature"
+   :type: :code-py:`str`
+   :default: :code-py:`'signature'`
 
    This value controls how to represent typehints.  The setting takes the
    following values:
@@ -1121,18 +1129,21 @@ There are also config values that you can set:
       New option ``'both'`` is added.
 
 .. confval:: autodoc_typehints_description_target
-   :type: string
-   :default: "all"
+   :type: :code-py:`str`
+   :default: :code-py:`'all'`
 
    This value controls whether the types of undocumented parameters and return
-   values are documented when :confval:`autodoc_typehints` is set to
-   ``'description'``. Supported values:
+   values are documented when :confval:`autodoc_typehints` is set to ``'description'``.
+   Supported values:
 
-   - ``"all"``: Types are documented for all parameters and return values,
+   * ``'all'``:
+     Types are documented for all parameters and return values,
      whether they are documented or not.
-   - ``"documented"``: types will only be documented for a parameter
+   * ``'documented'``:
+     Types will only be documented for a parameter
      or a return value that is already documented by the docstring.
-   - ``"documented_params"``: Parameter types will only be annotated if the
+   * ``'documented_params'``:
+     Parameter types will only be annotated if the
      parameter is documented in the docstring. The return type is always
      annotated (except if it is ``None``).
 
@@ -1143,11 +1154,12 @@ There are also config values that you can set:
       New option ``'documented_params'`` is added.
 
 .. confval:: autodoc_type_aliases
-   :type: dict
+   :type: :code-py:`dict[str, str]`
+   :default: :code-py:`{}`
 
    A dictionary for users defined `type aliases`__ that maps a type name to the
    full-qualified object name.  It is used to keep type aliases not evaluated in
-   the document.  Defaults to empty (``{}``).
+   the document.
 
    The type aliases are only available if your program enables :pep:`Postponed
    Evaluation of Annotations (PEP 563) <563>` feature via ``from __future__ import
@@ -1187,8 +1199,8 @@ There are also config values that you can set:
    .. versionadded:: 3.3
 
 .. confval:: autodoc_typehints_format
-   :type: string
-   :default: "short"
+   :type: :code-py:`str`
+   :default: :code-py:`'short'`
 
    This value controls the format of typehints.  The setting takes the
    following values:
@@ -1204,8 +1216,8 @@ There are also config values that you can set:
       The default setting was changed to ``'short'``
 
 .. confval:: autodoc_preserve_defaults
-   :type: bool
-   :default: False
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    If True, the default argument values of functions will be not evaluated on
    generating document.  It preserves them as is in the source code.
@@ -1216,8 +1228,8 @@ There are also config values that you can set:
       in the future.
 
 .. confval:: autodoc_warningiserror
-   :type: bool
-   :default: True
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    This value controls the behavior of :option:`sphinx-build --fail-on-warning`
    during importing modules.
@@ -1229,8 +1241,8 @@ There are also config values that you can set:
       no longer exits early.
 
 .. confval:: autodoc_inherit_docstrings
-   :type: bool
-   :default: True
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    This value controls the docstrings inheritance.
    If set to True the docstring for classes or methods, if not explicitly set,
@@ -1240,11 +1252,12 @@ There are also config values that you can set:
 
 .. confval:: suppress_warnings
    :no-index:
-   :type: list of strings
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`()`
 
-   :mod:`autodoc` supports to suppress warning messages via
-   :confval:`suppress_warnings`.  It allows following warnings types in
-   addition:
+   :mod:`autodoc` supports suppressing warning messages
+   via :confval:`suppress_warnings`.  
+   It defines the following additional warnings types:
 
    * autodoc
    * autodoc.import_object
@@ -1265,8 +1278,8 @@ autodoc provides the following additional events:
 
    :param app: the Sphinx application object
    :param what: the type of the object which the docstring belongs to (one of
-      ``"module"``, ``"class"``, ``"exception"``, ``"function"``, ``"method"``,
-      ``"attribute"``)
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
+      ``'attribute'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
@@ -1296,8 +1309,8 @@ autodoc provides the following additional events:
 
    :param app: the Sphinx application object
    :param what: the type of the object which the docstring belongs to (one of
-      ``"module"``, ``"class"``, ``"exception"``, ``"function"``, ``"method"``,
-      ``"attribute"``)
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
+      ``'attribute'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param options: the options given to the directive: an object with attributes
@@ -1305,10 +1318,10 @@ autodoc provides the following additional events:
       ``no-index`` that are true if the flag option of same name was given to the
       auto directive
    :param signature: function signature, as a string of the form
-      ``"(parameter_1, parameter_2)"``, or ``None`` if introspection didn't
+      ``'(parameter_1, parameter_2)'``, or ``None`` if introspection didn't
       succeed and signature wasn't specified in the directive.
    :param return_annotation: function return annotation as a string of the form
-      ``" -> annotation"``, or ``None`` if there is no return annotation
+      ``' -> annotation'``, or ``None`` if there is no return annotation
 
 The :mod:`sphinx.ext.autodoc` module provides factory functions for commonly
 needed docstring processing in event :event:`autodoc-process-docstring`:
@@ -1357,8 +1370,8 @@ member should be included in the documentation by using the following event:
 
    :param app: the Sphinx application object
    :param what: the type of the object which the docstring belongs to (one of
-      ``"module"``, ``"class"``, ``"exception"``, ``"function"``, ``"method"``,
-      ``"attribute"``)
+      ``'module'``, ``'class'``, ``'exception'``, ``'function'``, ``'method'``,
+      ``'attribute'``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
    :param skip: a boolean indicating if autodoc will skip this member if the
