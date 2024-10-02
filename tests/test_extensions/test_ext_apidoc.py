@@ -55,26 +55,39 @@ def test_simple(make_app, apidoc):
     print(app._warning.getvalue())
 
 
-def test_custom_templates(rootdir):
-    template_dir = rootdir / 'test-ext-apidoc-legacy-template-names'
-    loader = SphinxFileSystemLoader(template_dir)
-    env = Environment()
+@pytest.mark.apidoc(
+    coderoot='test-apidoc-custom-templates',
+    options=[
+        '--separate',
+        '--templatedir=tests/roots/test-apidoc-custom-templates/_templates',
+    ],
+)
+def test_custom_templates(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').is_file()
+    assert (outdir / 'index.rst').is_file()
 
+    template_dir = apidoc.coderoot / '_templates'
     assert sorted(template_dir.iterdir()) == [
         template_dir / 'module.rst.jinja',
         template_dir / 'module.rst_t',
         template_dir / 'package.rst_t',
     ]
 
+    app = make_app('text', srcdir=outdir)
+    app.build()
+
+    builddir = outdir / '_build' / 'text'
+
     # Assert that the legacy filename is discovered
-    txt, filename, _ = loader.get_source(env, 'package.rst.jinja')
-    assert filename == str(template_dir / 'package.rst_t')
-    assert 'The legacy package template was found!' in txt
+    with open(builddir / 'mypackage.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The legacy package template was found!' in txt
 
     # Assert that the new filename is preferred
-    txt, filename, _ = loader.get_source(env, 'module.rst.jinja')
-    assert filename == str(template_dir / 'module.rst.jinja')
-    assert 'The Jinja module template was found!' in txt
+    with open(builddir / 'mypackage.mymodule.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The Jinja module template was found!' in txt
 
 
 @pytest.mark.apidoc(
