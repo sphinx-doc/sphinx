@@ -1132,8 +1132,9 @@ There are also config values that you can set:
    :type: :code-py:`str`
    :default: :code-py:`'all'`
 
-   This value controls whether the types of undocumented parameters and return
-   values are documented when :confval:`autodoc_typehints` is set to ``'description'``.
+   This value controls whether the types of
+   undocumented parameters and return values are documented
+   when :confval:`autodoc_typehints` is set to ``'description'``.
    Supported values:
 
    * ``'all'``:
@@ -1256,7 +1257,7 @@ There are also config values that you can set:
    :default: :code-py:`()`
 
    :mod:`autodoc` supports suppressing warning messages
-   via :confval:`suppress_warnings`.  
+   via :confval:`suppress_warnings`.
    It defines the following additional warnings types:
 
    * autodoc
