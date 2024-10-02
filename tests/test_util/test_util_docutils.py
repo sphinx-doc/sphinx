@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+import pytest
 from docutils import nodes
 
 from sphinx.util.docutils import (
@@ -67,6 +68,7 @@ def test_SphinxFileOutput(tmpdir):
     assert os.stat(filename).st_mtime_ns != 0  # updated
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_SphinxTranslator(app):
     class CustomNode(nodes.inline):
         pass

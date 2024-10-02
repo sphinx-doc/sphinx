@@ -5,6 +5,7 @@ import docutils
 import pytest
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('html', testroot='images')
 def test_html_remote_images(app):
     app.build(force_all=True)
@@ -51,7 +52,7 @@ def test_html_local_logo(app):
     assert (app.outdir / '_static/img.png').exists()
 
 
-@pytest.mark.sphinx(testroot='html_scaled_image_link')
+@pytest.mark.sphinx('html', testroot='html_scaled_image_link')
 def test_html_scaled_image_link(app):
     app.build()
     context = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -60,23 +61,39 @@ def test_html_scaled_image_link(app):
     assert re.search('\n<img alt="_images/img.png" src="_images/img.png" />', context)
 
     # scaled_image_link
-    # Docutils 0.21 adds a newline before the closing </a> tag
-    closing_space = '\n' if docutils.__version_info__[:2] >= (0, 21) else ''
-    assert re.search(
-        '\n<a class="reference internal image-reference" href="_images/img.png">'
-        '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />'
-        f'{closing_space}</a>',
-        context,
-    )
+    if docutils.__version_info__[:2] >= (0, 22):
+        assert re.search(
+            '\n<a class="reference internal image-reference" href="_images/img.png">'
+            '<img alt="_images/img.png" height="[^"]+" src="_images/img.png" width="[^"]+" />'
+            '\n</a>',
+            context,
+        )
+    else:
+        # Docutils 0.21 adds a newline before the closing </a> tag
+        closing_space = '\n' if docutils.__version_info__[:2] >= (0, 21) else ''
+        assert re.search(
+            '\n<a class="reference internal image-reference" href="_images/img.png">'
+            '<img alt="_images/img.png" src="_images/img.png" style="[^"]+" />'
+            f'{closing_space}</a>',
+            context,
+        )
 
     # no-scaled-link class disables the feature
-    assert re.search(
-        '\n<img alt="_images/img.png" class="no-scaled-link"'
-        ' src="_images/img.png" style="[^"]+" />',
-        context,
-    )
+    if docutils.__version_info__[:2] >= (0, 22):
+        assert re.search(
+            '\n<img alt="_images/img.png" class="no-scaled-link"'
+            ' height="[^"]+" src="_images/img.png" width="[^"]+" />',
+            context,
+        )
+    else:
+        assert re.search(
+            '\n<img alt="_images/img.png" class="no-scaled-link"'
+            ' src="_images/img.png" style="[^"]+" />',
+            context,
+        )
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('html', testroot='images')
 def test_copy_images(app):
     app.build()

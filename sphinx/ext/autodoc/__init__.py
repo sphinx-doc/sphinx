@@ -177,7 +177,7 @@ def merge_members_option(options: dict) -> None:
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-def cut_lines(pre: int, post: int = 0, what: str | None = None) -> Callable:
+def cut_lines(pre: int, post: int = 0, what: Sequence[str] | None = None) -> Callable:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
@@ -185,13 +185,15 @@ def cut_lines(pre: int, post: int = 0, what: str | None = None) -> Callable:
     Use like this (e.g. in the ``setup()`` function of :file:`conf.py`)::
 
        from sphinx.ext.autodoc import cut_lines
-       app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
+       app.connect('autodoc-process-docstring', cut_lines(4, what={'module'}))
 
     This can (and should) be used in place of :confval:`automodule_skip_lines`.
     """
+    what_unique = frozenset(what or ())
+
     def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
                 ) -> None:
-        if what and what_ not in what:
+        if what_ not in what_unique:
             return
         del lines[:pre]
         if post:
@@ -415,9 +417,10 @@ class Documenter:
         """
         with mock(self.config.autodoc_mock_imports):
             try:
-                ret = import_object(self.modname, self.objpath, self.objtype,
-                                    attrgetter=self.get_attr,
-                                    warningiserror=self.config.autodoc_warningiserror)
+                ret = import_object(
+                    self.modname, self.objpath, self.objtype,
+                    attrgetter=self.get_attr,
+                )
                 self.module, self.parent, self.object_name, self.object = ret
                 if ismock(self.object):
                     self.object = undecorate(self.object)
@@ -1960,7 +1963,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
             # annotation only instance variable (PEP-526)
             try:
                 with mock(self.config.autodoc_mock_imports):
-                    parent = import_module(self.modname, self.config.autodoc_warningiserror)
+                    parent = import_module(self.modname)
                     annotations = get_type_hints(parent, None,
                                                  self.config.autodoc_type_aliases,
                                                  include_extras=True)
@@ -2455,9 +2458,10 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
         except ImportError as exc:
             try:
                 with mock(self.config.autodoc_mock_imports):
-                    ret = import_object(self.modname, self.objpath[:-1], 'class',
-                                        attrgetter=self.get_attr,  # type: ignore[attr-defined]
-                                        warningiserror=self.config.autodoc_warningiserror)
+                    ret = import_object(
+                        self.modname, self.objpath[:-1], 'class',
+                        attrgetter=self.get_attr,  # type: ignore[attr-defined]
+                    )
                     parent = ret[3]
                     if self.is_runtime_instance_attribute(parent):
                         self.object = self.RUNTIME_INSTANCE_ATTRIBUTE
@@ -2509,9 +2513,10 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
             return super().import_object(raiseerror=True)  # type: ignore[misc]
         except ImportError as exc:
             try:
-                ret = import_object(self.modname, self.objpath[:-1], 'class',
-                                    attrgetter=self.get_attr,  # type: ignore[attr-defined]
-                                    warningiserror=self.config.autodoc_warningiserror)
+                ret = import_object(
+                    self.modname, self.objpath[:-1], 'class',
+                    attrgetter=self.get_attr,  # type: ignore[attr-defined]
+                )
                 parent = ret[3]
                 if self.is_uninitialized_instance_attribute(parent):
                     self.object = UNINITIALIZED_ATTR

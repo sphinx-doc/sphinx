@@ -4,7 +4,7 @@ import re
 import pytest
 
 
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='root')
 def test_html_download(app):
     app.build()
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import warnings
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 import pytest
 from docutils import frontend, utils
@@ -14,6 +15,9 @@ from sphinx.search import IndexBuilder
 
 from tests.utils import TESTS_ROOT
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 JAVASCRIPT_TEST_ROOTS = [
     directory
     for directory in (TESTS_ROOT / 'js' / 'roots').iterdir()
@@ -21,22 +25,32 @@ JAVASCRIPT_TEST_ROOTS = [
 ]
 
 
+class DummyDomainsContainer:
+    def __init__(self, **domains: DummyDomain) -> None:
+        self._domain_instances = domains
+
+    def sorted(self) -> Iterator[DummyDomain]:
+        for _domain_name, domain in sorted(self._domain_instances.items()):
+            yield domain
+
+
 class DummyEnvironment:
-    def __init__(self, version, domains):
+    def __init__(self, version: str, domains: DummyDomainsContainer) -> None:
         self.version = version
         self.domains = domains
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         if name.startswith('_search_index_'):
             setattr(self, name, {})
         return getattr(self, name, {})
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'DummyEnvironment({self.version!r}, {self.domains!r})'
 
 
 class DummyDomain:
-    def __init__(self, data):
+    def __init__(self, name: str, data: dict) -> None:
+        self.name = name
         self.data = data
         self.object_types = {}
 
@@ -83,7 +97,7 @@ test that non-comments are indexed: fermion
 """
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode')
+@pytest.mark.sphinx('html', testroot='ext-viewcode')
 def test_objects_are_escaped(app):
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
@@ -94,7 +108,7 @@ def test_objects_are_escaped(app):
         raise AssertionError(index.get('objects').get(''))
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_meta_keys_are_handled_for_language_en(app):
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
@@ -108,6 +122,7 @@ def test_meta_keys_are_handled_for_language_en(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='search',
     confoverrides={'html_search_language': 'de'},
     freshenv=True,
@@ -124,14 +139,14 @@ def test_meta_keys_are_handled_for_language_de(app):
     assert is_registered_term(searchindex, 'onlytoogerman')
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_stemmer_does_not_remove_short_words(app):
     app.build(force_all=True)
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
     assert 'bat' in searchindex
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_stemmer(app):
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
@@ -140,7 +155,7 @@ def test_stemmer(app):
     assert is_registered_term(searchindex, 'intern')
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_term_in_heading_and_section(app):
     app.build(force_all=True)
     searchindex = (app.outdir / 'searchindex.js').read_text(encoding='utf8')
@@ -151,7 +166,7 @@ def test_term_in_heading_and_section(app):
     assert '"textinhead": 0' in searchindex
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_term_in_raw_directive(app):
     app.build(force_all=True)
     searchindex = load_searchindex(app.outdir / 'searchindex.js')
@@ -161,15 +176,21 @@ def test_term_in_raw_directive(app):
 
 
 def test_IndexBuilder():
-    domain1 = DummyDomain([
-        ('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
-        ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1),
-    ])
-    domain2 = DummyDomain([
-        ('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
-        ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1),
-    ])
-    env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
+    domain1 = DummyDomain(
+        'dummy1',
+        [
+            ('objname1', 'objdispname1', 'objtype1', 'docname1_1', '#anchor', 1),
+            ('objname2', 'objdispname2', 'objtype2', 'docname1_2', '', -1),
+        ],
+    )
+    domain2 = DummyDomain(
+        'dummy2',
+        [
+            ('objname1', 'objdispname1', 'objtype1', 'docname2_1', '#anchor', 1),
+            ('objname2', 'objdispname2', 'objtype2', 'docname2_2', '', -1),
+        ],
+    )
+    env = DummyEnvironment('1.0', DummyDomainsContainer(dummy1=domain1, dummy2=domain2))
     doc = utils.new_document(b'test data', settings)
     doc['file'] = 'dummy'
     parser.parse(FILE_CONTENTS, doc)
@@ -257,7 +278,7 @@ def test_IndexBuilder():
         1: ('dummy2', 'objtype1', 'objtype1'),
     }
 
-    env = DummyEnvironment('1.0', {'dummy1': domain1, 'dummy2': domain2})
+    env = DummyEnvironment('1.0', DummyDomainsContainer(dummy1=domain1, dummy2=domain2))
 
     # dump / load
     stream = BytesIO()
@@ -354,6 +375,7 @@ def test_IndexBuilder_lookup():
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='search',
     confoverrides={'html_search_language': 'zh'},
     srcdir='search_zh',
@@ -368,6 +390,7 @@ def test_search_index_gen_zh(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='search',
     freshenv=True,
 )
@@ -383,6 +406,7 @@ def test_nosearch(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='search',
     parallel=3,
     freshenv=True,
@@ -393,7 +417,7 @@ def test_parallel(app):
     assert index['docnames'] == ['index', 'nosearch', 'tocitem']
 
 
-@pytest.mark.sphinx(testroot='search')
+@pytest.mark.sphinx('html', testroot='search')
 def test_search_index_is_deterministic(app):
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')

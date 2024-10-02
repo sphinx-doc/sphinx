@@ -6,6 +6,7 @@ import codecs
 import pickle
 import re
 import time
+from contextlib import nullcontext
 from os import path
 from typing import TYPE_CHECKING, Any, Literal, final
 
@@ -327,7 +328,7 @@ class Builder:
             logger.info(bold(__('building [%s]: ')) + summary, self.name)
 
         # while reading, collect all warnings from docutils
-        with logging.pending_warnings():
+        with nullcontext() if self.app._exception_on_warning else logging.pending_warnings():
             updated_docnames = set(self.read())
 
         doccount = len(updated_docnames)
@@ -427,7 +428,7 @@ class Builder:
         self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
-        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
+        if parallel_available and self.app.parallel > 1:
             par_ok = self.app.is_parallel_allowed('read')
         else:
             par_ok = False
@@ -627,7 +628,7 @@ class Builder:
             self._write_serial(sorted(docnames))
 
     def _write_serial(self, docnames: Sequence[str]) -> None:
-        with logging.pending_warnings():
+        with nullcontext() if self.app._exception_on_warning else logging.pending_warnings():
             for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
                                            len(docnames), self.app.verbosity):
                 self.app.phase = BuildPhase.RESOLVING

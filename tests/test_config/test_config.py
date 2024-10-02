@@ -80,6 +80,7 @@ def test_config_opt_deprecated(recwarn):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='config',
     confoverrides={
         'root_doc': 'root',
@@ -458,6 +459,8 @@ def test_config_eol(logger, tmp_path):
 
 
 @pytest.mark.sphinx(
+    'html',
+    testroot='root',
     confoverrides={'root_doc': 123, 'language': 'foo', 'primary_domain': None},
 )
 def test_builtin_conf(app):
@@ -603,7 +606,7 @@ nitpick_warnings = [
 ]
 
 
-@pytest.mark.sphinx(testroot='nitpicky-warnings')
+@pytest.mark.sphinx('html', testroot='nitpicky-warnings')
 def test_nitpick_base(app):
     app.build(force_all=True)
 
@@ -613,6 +616,7 @@ def test_nitpick_base(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='nitpicky-warnings',
     confoverrides={
         'nitpick_ignore': {
@@ -629,6 +633,7 @@ def test_nitpick_ignore(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='nitpicky-warnings',
     confoverrides={
         'nitpick_ignore_regex': [
@@ -643,6 +648,7 @@ def test_nitpick_ignore_regex1(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='nitpicky-warnings',
     confoverrides={
         'nitpick_ignore_regex': [
@@ -657,6 +663,7 @@ def test_nitpick_ignore_regex2(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='nitpicky-warnings',
     confoverrides={
         'nitpick_ignore_regex': [
@@ -754,8 +761,8 @@ def source_date_year(request, monkeypatch):
             yield None
 
 
-@pytest.mark.sphinx(testroot='copyright-multiline')
-def test_multi_line_copyright(source_date_year, app, monkeypatch):
+@pytest.mark.sphinx('html', testroot='copyright-multiline')
+def test_multi_line_copyright(source_date_year, app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')

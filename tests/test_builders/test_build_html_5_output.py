@@ -488,6 +488,7 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
 )
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     tags=['testtag'],
     confoverrides={'html_context.hckey_co': 'hcval_co'},
 )

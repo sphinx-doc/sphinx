@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import html
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from sphinx import package_dir
 from sphinx.builders import Builder
-from sphinx.domains.changeset import ChangeSetDomain
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
@@ -49,7 +48,7 @@ class ChangesBuilder(Builder):
 
     def write(self, *ignored: Any) -> None:
         version = self.config.version
-        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
+        domain = self.env.domains.changeset_domain
         libchanges: dict[str, list[tuple[str, str, int]]] = {}
         apichanges: list[tuple[str, str, int]] = []
         otherchanges: dict[tuple[str, str], list[tuple[str, str, int]]] = {}

@@ -23,11 +23,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: "1"
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      node-version: "16"
+      node-version: "20"
 
     steps:
     - uses: actions/checkout@v4
@@ -37,5 +40,4 @@ jobs:
         node-version: ${{ env.node-version }}
         cache: "npm"
     - run: npm install
-    - name: Run headless test
-      run: xvfb-run -a npm test
+    - run: npm test

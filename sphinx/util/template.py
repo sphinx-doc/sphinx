@@ -124,7 +124,11 @@ class SphinxTemplateLoader(BaseLoader):
             self.loaders.append(loader)
             self.sysloaders.append(loader)
 
-    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
+    def get_source(
+        self,
+        environment: Environment,
+        template: str,
+    ) -> tuple[str, str, Callable[[], bool]]:
         if template.startswith('!'):
             # search a template from ``system_templates_paths``
             loaders = self.sysloaders

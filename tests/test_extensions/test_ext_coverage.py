@@ -5,7 +5,7 @@ import pickle
 import pytest
 
 
-@pytest.mark.sphinx('coverage')
+@pytest.mark.sphinx('coverage', testroot='root')
 def test_build(app):
     app.build(force_all=True)
 
@@ -92,7 +92,9 @@ Classes:
     assert actual == expected
 
 
-@pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
+@pytest.mark.sphinx(
+    'coverage', testroot='root', confoverrides={'coverage_show_missing_items': True}
+)
 def test_show_missing_items(app):
     app.build(force_all=True)
 
@@ -105,7 +107,9 @@ def test_show_missing_items(app):
     assert 'c   api       Py_SphinxTest [ function]' in app.status.getvalue()
 
 
-@pytest.mark.sphinx('coverage', confoverrides={'coverage_show_missing_items': True})
+@pytest.mark.sphinx(
+    'coverage', testroot='root', confoverrides={'coverage_show_missing_items': True}
+)
 def test_show_missing_items_quiet(app):
     app.quiet = True
     app.build(force_all=True)

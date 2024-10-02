@@ -25,7 +25,7 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Element, Node
 
@@ -449,7 +449,13 @@ class PyModule(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        domain = cast(PythonDomain, self.env.get_domain('py'))
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # # deprecate noindex in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+
+        domain = self.env.domains.python_domain
 
         modname = self.arguments[0].strip()
         no_index = 'no-index' in self.options
@@ -715,7 +721,7 @@ class PythonDomain(Domain):
             if mod.docname == docname:
                 del self.modules[modname]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates?
         for fullname, obj in otherdata['objects'].items():
             if obj.docname in docnames:
@@ -731,8 +737,7 @@ class PythonDomain(Domain):
         and/or classname.  Returns a list of (name, object entry) tuples.
         """
         # skip parens
-        if name[-2:] == '()':
-            name = name[:-2]
+        name = name.removesuffix('()')
 
         if not name:
             return []

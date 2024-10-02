@@ -71,7 +71,7 @@ class DummyApplication:
         self.translator = translator
         self.verbosity = 0
         self._warncount = 0
-        self.warningiserror = False
+        self._exception_on_warning = False
 
         self.config.add('autosummary_context', {}, 'env', ())
         self.config.add('autosummary_filename_map', {}, 'env', ())
@@ -722,9 +722,7 @@ def find_autosummary_in_lines(
 
             m = autosummary_item_re.match(line)
             if m:
-                name = m.group(1).strip()
-                if name.startswith('~'):
-                    name = name[1:]
+                name = m.group(1).strip().removeprefix('~')
                 if current_module and not name.startswith(current_module + '.'):
                     name = f'{current_module}.{name}'
                 documented.append(AutosummaryEntry(name, toctree, template, recursive))

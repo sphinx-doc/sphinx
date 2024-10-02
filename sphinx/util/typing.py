@@ -23,6 +23,8 @@ from typing import (
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
+from sphinx.util import logging
+
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from typing import Final, Literal, Protocol, TypeAlias
@@ -40,6 +42,8 @@ if TYPE_CHECKING:
         'fully-qualified',
         'smart',
     ]
+
+logger = logging.getLogger(__name__)
 
 
 # classes that have an incorrect .__module__ attribute
@@ -112,6 +116,29 @@ OptionSpec: TypeAlias = dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter: TypeAlias = Callable[[nodes.Node], str]
+
+# Readable file stream for inventory loading
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from typing_extensions import Self
+
+    _T_co = TypeVar('_T_co', str, bytes, covariant=True)
+
+    class _ReadableStream(Protocol[_T_co]):
+        def read(self, size: int = ...) -> _T_co:
+            ...
+
+        def __enter__(self) -> Self:
+            ...
+
+        def __exit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc_val: BaseException | None,
+            exc_tb: TracebackType | None
+        ) -> None:
+            ...
 
 # inventory data on memory
 InventoryItem: TypeAlias = tuple[
@@ -336,7 +363,8 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         else:
             # not a class (ex. TypeVar) but should have a __name__
             return f':py:obj:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-    except (AttributeError, TypeError):
+    except (AttributeError, TypeError) as exc:
+        logger.debug('restify on %r in mode %r failed: %r', cls, mode, exc)
         return object_description(cls)
 
 
