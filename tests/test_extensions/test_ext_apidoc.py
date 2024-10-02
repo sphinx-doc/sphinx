@@ -14,7 +14,6 @@ from sphinx.ext.apidoc import main as apidoc_main
 def apidoc(rootdir, tmp_path, apidoc_params):
     _, kwargs = apidoc_params
     coderoot = rootdir / kwargs.get('coderoot', 'test-root')
-    templatedir = kwargs.get('templatedir')
     outdir = tmp_path / 'out'
     excludes = [str(coderoot / e) for e in kwargs.get('excludes', [])]
     args = [
@@ -24,8 +23,9 @@ def apidoc(rootdir, tmp_path, apidoc_params):
         str(coderoot),
         *excludes,
         *kwargs.get('options', []),
-        *(['--templatedir', str(rootdir / templatedir)] if templatedir else []),
     ]
+    if templatedir := kwargs.get('templatedir'):
+        args += ['--templatedir', str(rootdir / templatedir)]
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
 

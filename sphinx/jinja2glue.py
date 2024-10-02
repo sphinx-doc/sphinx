@@ -130,12 +130,11 @@ class SphinxFileSystemLoader(FileSystemLoader):
             f = open_if_exists(filename)
             if f is not None:
                 break
-            if legacy_template is None:
-                continue
-            filename = path.join(searchpath, legacy_template)
-            f = open_if_exists(filename)
-            if f is not None:
-                break
+            if legacy_template is not None:
+                filename = path.join(searchpath, legacy_template)
+                f = open_if_exists(filename)
+                if f is not None:
+                    break
         else:
             raise TemplateNotFound(template)
 
