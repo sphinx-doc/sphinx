@@ -119,9 +119,12 @@ class SphinxFileSystemLoader(FileSystemLoader):
     def get_source(
         self, environment: Environment, template: str
     ) -> tuple[str, str, Callable[[], bool]]:
-        jinja_suffix, legacy_suffix, legacy_template = '.jinja', '_t', None
-        if template.endswith(jinja_suffix):
-            legacy_template = template.removesuffix(jinja_suffix) + legacy_suffix
+        if template.endswith('.jinja'):
+            legacy_suffix = '_t'
+            legacy_template = template.removesuffix('.jinja') + legacy_suffix
+        else:
+            legacy_template = None
+
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
