@@ -321,6 +321,13 @@ cite, code, tt {
     letter-spacing: -0.02em;
 }
 
+div.body code.literal {
+    background-color: #f3f4f5;
+    border: 1px solid #d1d5da;
+    border-radius: 0.25rem;
+    padding: .1rem .2rem;
+}
+
 table.deprecated code.literal {
     word-break: break-all;
 }
