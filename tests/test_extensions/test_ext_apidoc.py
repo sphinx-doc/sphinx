@@ -60,7 +60,7 @@ def test_custom_templates(rootdir):
     loader = SphinxFileSystemLoader(template_dir)
     env = Environment()
 
-    assert list(template_dir.iterdir()) == [
+    assert sorted(template_dir.iterdir()) == [
         template_dir / 'module.rst.jinja',
         template_dir / 'module.rst_t',
         template_dir / 'package.rst_t',
