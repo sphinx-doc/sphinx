@@ -5,9 +5,11 @@ from collections import namedtuple
 from pathlib import Path
 
 import pytest
+from jinja2.environment import Environment
 
 import sphinx.ext.apidoc
 from sphinx.ext.apidoc import main as apidoc_main
+from sphinx.util.template import SphinxFileSystemLoader
 
 
 @pytest.fixture
@@ -24,8 +26,6 @@ def apidoc(rootdir, tmp_path, apidoc_params):
         *excludes,
         *kwargs.get('options', []),
     ]
-    if templatedir := kwargs.get('templatedir'):
-        args += ['--templatedir', str(rootdir / templatedir)]
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
 
@@ -55,24 +55,26 @@ def test_simple(make_app, apidoc):
     print(app._warning.getvalue())
 
 
-@pytest.mark.apidoc(
-    coderoot='test-apidoc-toc/mypackage',
-    templatedir='test-apidoc-toc/custom_templates',
-    options=['--separate'],
-)
-def test_custom_templates(make_app, apidoc):
-    outdir = apidoc.outdir
-    assert (outdir / 'conf.py').is_file()
-    assert (outdir / 'index.rst').is_file()
+def test_custom_templates(rootdir):
+    template_dir = rootdir / 'test-ext-apidoc-legacy-template-names'
+    loader = SphinxFileSystemLoader(template_dir)
+    env = Environment()
 
-    app = make_app('text', srcdir=outdir)
-    app.build()
+    assert list(template_dir.iterdir()) == [
+        template_dir / 'module.rst.jinja',
+        template_dir / 'module.rst_t',
+        template_dir / 'package.rst_t',
+    ]
 
-    builddir = outdir / '_build' / 'text'
-    with open(builddir / 'mypackage.txt', encoding='utf-8') as f:
-        txt = f.read()
-        assert 'The legacy template was found!' in txt
-        assert 'The Jinja template was found!' in txt
+    # Assert that the legacy filename is discovered
+    txt, filename, _ = loader.get_source(env, 'package.rst.jinja')
+    assert filename == str(template_dir / 'package.rst_t')
+    assert 'The legacy package template was found!' in txt
+
+    # Assert that the new filename is preferred
+    txt, filename, _ = loader.get_source(env, 'module.rst.jinja')
+    assert filename == str(template_dir / 'module.rst.jinja')
+    assert 'The Jinja module template was found!' in txt
 
 
 @pytest.mark.apidoc(
