@@ -716,15 +716,39 @@ a matching identifier is found:
 
    .. versionadded:: 0.4
 
-The name enclosed in this markup can include a module name and/or a class name.
-For example, ``:py:func:`filter``` could refer to a function named ``filter``
-in the current module, or the built-in function of that name.  In contrast,
-``:py:func:`foo.filter``` clearly refers to the ``filter`` function in the
-``foo`` module.
+Target specification
+....................
 
-Normally, names in these roles are searched first without any further
+The target can be specified as a fully qualified name, e.g.
+``:py:meth:`mymodule.MyClass.my_method```, or any shortended version
+(``:py:meth:`MyClass.my_method```, ``:py:meth:`my_method```). See
+`python-target-resolution`_ for details on the resolution of shortend names.
+
+:ref:`Cross-referencing modifiers <xref-syntax>` can be applied. In short:
+
+* You may supply an explicit title and reference target: ``:mod:`mathematical
+  functions <math>``` will refer to the ``math`` module, but the link text
+  will be "mathematical functions".
+
+* If you prefix the content with an exclamation mark ``!``, no reference/hyperlink
+  will be created.
+
+* If you prefix the content with ``~``, the link text will only be the last
+  component of the target.  For example, ``:py:meth:`~Queue.Queue.get``` will
+  refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
+
+.. _python-target-resolution:
+
+Target resolution
+.................
+
+A given link target name is resolved to an object using the following strategy:
+
+Names in these roles are searched first without any further
 qualification, then with the current module name prepended, then with the
-current module and class name (if any) prepended.  If you prefix the name with
+current module and class name (if any) prepended.
+
+If you prefix the name with
 a dot, this order is reversed.  For example, in the documentation of Python's
 :mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
 function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
