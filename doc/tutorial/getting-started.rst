@@ -106,6 +106,13 @@ the documentation as HTML for the first time.  To do that, run this command:
 
    (.venv) $ sphinx-build -M html docs/source/ docs/build/
 
+.. note::
+
+  :option:`sphinx-build -M` uses the *make-mode* but :program:`sphinx-build`
+  also supports a *build-mode* via :option:`sphinx-build -b` to provide a finer
+  control over the generated artifacts. See the :ref:`sphinx-build's manual
+  </man/sphinx-build>` for details.
+
 And finally, open ``docs/build/html/index.html`` in your browser.  You should see
 something like this:
 
