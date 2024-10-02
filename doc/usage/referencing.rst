@@ -35,49 +35,6 @@ The behavior can be modified in the following ways:
   tool-tip on mouse-hover) will always be the full target name.
 
 
-.. _any-role:
-
-Cross-referencing anything
---------------------------
-
-.. rst:role:: any
-
-   .. versionadded:: 1.3
-
-   This convenience role tries to do its best to find a valid target for its
-   reference text.
-
-   * First, it tries standard cross-reference targets that would be referenced
-     by :rst:role:`doc`, :rst:role:`ref` or :rst:role:`option`.
-
-     Custom objects added to the standard domain by extensions (see
-     :meth:`.Sphinx.add_object_type`) are also searched.
-
-   * Then, it looks for objects (targets) in all loaded domains.  It is up to
-     the domains how specific a match must be.  For example, in the Python
-     domain a reference of ``:any:`Builder``` would match the
-     ``sphinx.builders.Builder`` class.
-
-   If none or multiple targets are found, a warning will be emitted.  In the
-   case of multiple targets, you can change "any" to a specific role.
-
-   This role is a good candidate for setting :confval:`default_role`.  If you
-   do, you can write cross-references without a lot of markup overhead.  For
-   example, in this Python function documentation::
-
-      .. function:: install()
-
-         This function installs a `handler` for every signal known by the
-         `signal` module.  See the section `about-signals` for more information.
-
-   there could be references to a glossary term (usually ``:term:`handler```), a
-   Python module (usually ``:py:mod:`signal``` or ``:mod:`signal```) and a
-   section (usually ``:ref:`about-signals```).
-
-   The :rst:role:`any` role also works together with the
-   :mod:`~sphinx.ext.intersphinx` extension: when no local cross-reference is
-   found, all object types of intersphinx inventories are also searched.
-
 .. _ref-objects:
 
 Cross-referencing objects
@@ -276,3 +233,48 @@ The following role creates a cross-reference to a term in a
 
    If you use a term that's not explained in a glossary, you'll get a warning
    during build.
+
+
+.. _any-role:
+
+Cross-referencing anything
+--------------------------
+
+.. rst:role:: any
+
+   .. versionadded:: 1.3
+
+   This convenience role tries to do its best to find a valid target for its
+   reference text.
+
+   * First, it tries standard cross-reference targets that would be referenced
+     by :rst:role:`doc`, :rst:role:`ref` or :rst:role:`option`.
+
+     Custom objects added to the standard domain by extensions (see
+     :meth:`.Sphinx.add_object_type`) are also searched.
+
+   * Then, it looks for objects (targets) in all loaded domains.  It is up to
+     the domains how specific a match must be.  For example, in the Python
+     domain a reference of ``:any:`Builder``` would match the
+     ``sphinx.builders.Builder`` class.
+
+   If none or multiple targets are found, a warning will be emitted.  In the
+   case of multiple targets, you can change "any" to a specific role.
+
+   This role is a good candidate for setting :confval:`default_role`.  If you
+   do, you can write cross-references without a lot of markup overhead.  For
+   example, in this Python function documentation::
+
+      .. function:: install()
+
+         This function installs a `handler` for every signal known by the
+         `signal` module.  See the section `about-signals` for more information.
+
+   there could be references to a glossary term (usually ``:term:`handler```), a
+   Python module (usually ``:py:mod:`signal``` or ``:mod:`signal```) and a
+   section (usually ``:ref:`about-signals```).
+
+   The :rst:role:`any` role also works together with the
+   :mod:`~sphinx.ext.intersphinx` extension: when no local cross-reference is
+   found, all object types of intersphinx inventories are also searched.
+
