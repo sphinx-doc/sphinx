@@ -118,12 +118,23 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
     def get_source(
         self, environment: Environment, template: str
-    ) -> tuple[str, str, Callable]:
+    ) -> tuple[str, str, Callable[[], bool]]:
+        if template.endswith('.jinja'):
+            legacy_suffix = '_t'
+            legacy_template = template.removesuffix('.jinja') + legacy_suffix
+        else:
+            legacy_template = None
+
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
             if f is not None:
                 break
+            if legacy_template is not None:
+                filename = path.join(searchpath, legacy_template)
+                f = open_if_exists(filename)
+                if f is not None:
+                    break
         else:
             raise TemplateNotFound(template)
 
@@ -224,7 +235,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def get_source(
         self, environment: Environment, template: str
-    ) -> tuple[str, str, Callable]:
+    ) -> tuple[str, str, Callable[[], bool]]:
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

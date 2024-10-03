@@ -65,7 +65,7 @@ class IndexEntries:
         new: _IndexEntryMap = {}
 
         rel_uri: str | Literal[False]
-        index_domain = self.env.domains['index']
+        index_domain = self.env.domains.index_domain
         for docname, entries in index_domain.entries.items():
             try:
                 rel_uri = builder.get_relative_uri('genindex', docname)

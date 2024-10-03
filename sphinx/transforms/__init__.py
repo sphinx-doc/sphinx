@@ -208,7 +208,7 @@ class AutoNumbering(SphinxTransform):
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        domain: StandardDomain = self.env.domains['std']
+        domain: StandardDomain = self.env.domains.standard_domain
 
         for node in self.document.findall(nodes.Element):
             if (domain.is_enumerable_node(node) and
@@ -247,7 +247,7 @@ class ApplySourceWorkaround(SphinxTransform):
     default_priority = 10
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.findall():  # type: Node
+        for node in self.document.findall():
             if isinstance(node, nodes.TextElement | nodes.image | nodes.topic):
                 apply_source_workaround(node)
 

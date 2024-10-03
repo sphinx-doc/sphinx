@@ -162,8 +162,8 @@ def _resolve_reference(env: BuildEnvironment,
 
     typ = node['reftype']
     if typ == 'any':
-        for domain_name, domain in env.domains.items():
-            if honor_disabled_refs and f'{domain_name}:*' in intersphinx_disabled_reftypes:
+        for domain in env.domains.sorted():
+            if honor_disabled_refs and f'{domain.name}:*' in intersphinx_disabled_reftypes:
                 continue
             objtypes: Iterable[str] = domain.object_types.keys()
             res = _resolve_reference_in_domain(env, inv_name, inventory,
@@ -302,16 +302,17 @@ class IntersphinxRole(SphinxRole):
 
         if domain_name is not None:
             # the user specified a domain, so we only check that
-            if (domain := self.env.domains.get(domain_name)) is None:
+            if domain_name not in self.env.domains:
                 self._emit_warning(
                     __('domain for external cross-reference not found: %r'), domain_name
                 )
                 return [], []
-            if (role_func := domain.roles.get(role_name)) is None:
+            domain = self.env.domains[domain_name]
+            role_func = domain.roles.get(role_name)
+            if role_func is None:
                 msg = 'role for external cross-reference not found in domain %r: %r'
-                if (
-                    object_types := domain.object_types.get(role_name)
-                ) is not None and object_types.roles:
+                object_types = domain.object_types.get(role_name)
+                if object_types is not None and object_types.roles:
                     self._emit_warning(
                         __(f'{msg} (perhaps you meant one of: %s)'),
                         domain_name,
@@ -329,7 +330,7 @@ class IntersphinxRole(SphinxRole):
             if default_domain := self.env.temp_data.get('default_domain'):
                 domains.append(default_domain)
             if (
-                std_domain := self.env.domains.get('std')
+                std_domain := self.env.domains.standard_domain
             ) is not None and std_domain not in domains:
                 domains.append(std_domain)
 

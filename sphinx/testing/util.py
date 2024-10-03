@@ -123,6 +123,8 @@ class SphinxTestApp(sphinx.application.Sphinx):
         # unknown keyword arguments
         **extras: Any,
     ) -> None:
+        self._builder_name = buildername
+
         assert srcdir is not None
 
         if verbosity == -1:
@@ -209,7 +211,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             os.remove(self.docutils_conf_path)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} buildername={self.builder.name!r}>'
+        return f'<{self.__class__.__name__} buildername={self._builder_name!r}>'
 
     def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
         self.env._pickled_doctree_cache.clear()

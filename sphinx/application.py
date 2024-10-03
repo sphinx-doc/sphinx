@@ -218,7 +218,7 @@ class Sphinx:
 
         # keep last few messages for traceback
         # This will be filled by sphinx.util.logging.LastMessagesWriter
-        self.messagelog: deque = deque(maxlen=10)
+        self.messagelog: deque[str] = deque(maxlen=10)
 
         # say hello to the world
         logger.info(bold(__('Running Sphinx v%s')), sphinx.__display_version__)
@@ -1718,7 +1718,7 @@ class TemplateBridge:
         """
         return 0
 
-    def render(self, template: str, context: dict) -> None:
+    def render(self, template: str, context: dict[str, Any]) -> None:
         """Called by the builder to render a template given as a filename with
         a specified context (a Python dictionary).
         """

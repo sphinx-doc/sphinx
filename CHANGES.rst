@@ -12,6 +12,12 @@ Incompatible changes
 
 * #12763: Remove unused internal class ``sphinx.util.Tee``.
   Patch by Adam Turner.
+* #12822: LaTeX: for Unicode engines, the :ref:`fvset` default is changed to
+  ``'\\fvset{fontsize=auto}'`` from ``'\\fvset{fontsize=\\small}'``.
+  Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
+  An adjustement to existing projects is needed only if they used a custom
+  :ref:`fontpkg` configuration and did not set :ref:`fvset`.
+* #12875: Disable smartquotes for languages: ``zh_CN`` and ``zh_TW`` by default.
 
 Deprecated
 ----------
@@ -43,6 +49,10 @@ Features added
 * #12743: Add :option:`sphinx-build --exception-on-warning`,
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
+* #12907: Add :confval:`html_last_updated_time_zone` to allow using
+  GMT (universal time) instead of local time for the date-time
+  supplied to :confval:`html_last_updated_fmt`.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
@@ -78,15 +88,28 @@ Bugs fixed
   rise to nested ``\DUrole``'s, rather than a single one with comma separated
   classes.
   Patch by Jean-François B.
+* #12831: LaTeX: avoid large voids sometimes occurring at page bottoms.
+  Patch by Jean-François B.
 * #11970, #12551: singlehtml builder: make target URIs to be same-document
   references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
   Patch by James Addison (with reference to prior work by Eric Norige)
+* #12735: Fix :pep:`695` generic classes LaTeX output formatting.
+  Patch by Jean-François B. and Bénédikt Tran.
 * #12782: intersphinx: fix double forward slashes when generating the inventory
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
+* #12796: Enable parallel reading if requested,
+  even if there are fewer than 6 documents.
+  Patch by Matthias Geier.
+* #12844: Restore support for ``:noindex:`` for the :rst:dir:`js:module`
+  and :rst:dir:`py:module` directives.
+  Patch by Stephen Finucane.
+* #12916: Restore support for custom templates named with the legacy ``_t``
+  suffix during ``apidoc`` RST rendering (regression in 7.4.0).
+  Patch by James Addison.
 
 Testing
 -------

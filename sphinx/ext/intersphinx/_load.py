@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import concurrent.futures
-import functools
 import posixpath
 import time
 from operator import itemgetter
@@ -20,7 +19,8 @@ from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import IO
+
+    from urllib3.response import HTTPResponse
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
         InventoryName,
         InventoryURI,
     )
-    from sphinx.util.typing import Inventory
+    from sphinx.util.typing import Inventory, _ReadableStream
 
 
 def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
@@ -278,7 +278,7 @@ def _fetch_inventory(
         target_uri = _strip_basic_auth(target_uri)
     try:
         if '://' in inv_location:
-            f = _read_from_url(inv_location, config=config)
+            f: _ReadableStream[bytes] = _read_from_url(inv_location, config=config)
         else:
             f = open(path.join(srcdir, inv_location), 'rb')  # NoQA: SIM115
     except Exception as err:
@@ -357,7 +357,7 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, *, config: Config) -> IO:
+def _read_from_url(url: str, *, config: Config) -> HTTPResponse:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -377,8 +377,11 @@ def _read_from_url(url: str, *, config: Config) -> IO:
                      _user_agent=config.user_agent,
                      _tls_info=(config.tls_verify, config.tls_cacerts))
     r.raise_for_status()
-    r.raw.url = r.url
-    # decode content-body based on the header.
-    # ref: https://github.com/psf/requests/issues/2155
-    r.raw.read = functools.partial(r.raw.read, decode_content=True)
+
+    # For inv_location / new_inv_location
+    r.raw.url = r.url  # type: ignore[union-attr]
+
+    # Decode content-body based on the header.
+    # xref: https://github.com/psf/requests/issues/2155
+    r.raw.decode_content = True
     return r.raw

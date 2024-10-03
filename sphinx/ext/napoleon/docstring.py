@@ -52,7 +52,7 @@ _default_regex = re.compile(
 _SINGLETONS = ("None", "True", "False", "Ellipsis")
 
 
-class Deque(collections.deque):
+class Deque(collections.deque[Any]):
     """
     A subclass of deque that mimics ``pockets.iterators.modify_iter``.
 
@@ -195,7 +195,7 @@ class GoogleDocstring:
         if not hasattr(self, '_directive_sections'):
             self._directive_sections: list[str] = []
         if not hasattr(self, '_sections'):
-            self._sections: dict[str, Callable] = {
+            self._sections: dict[str, Callable[..., list[str]]] = {
                 'args': self._parse_parameters_section,
                 'arguments': self._parse_parameters_section,
                 'attention': partial(self._parse_admonition, 'attention'),
@@ -1023,7 +1023,7 @@ def _token_type(token: str, location: str | None = None) -> str:
 
 
 def _convert_numpy_type_spec(
-    _type: str, location: str | None = None, translations: dict | None = None,
+    _type: str, location: str | None = None, translations: dict[str, str] | None = None,
 ) -> str:
     if translations is None:
         translations = {}
@@ -1262,8 +1262,6 @@ class NumpyDocstring(GoogleDocstring):
 
     def _parse_numpydoc_see_also_section(self, content: list[str]) -> list[str]:
         """
-        Derived from the NumpyDoc implementation of _parse_see_also.
-
         See Also
         --------
         func_name : Descriptive text
@@ -1271,6 +1269,37 @@ class NumpyDocstring(GoogleDocstring):
         another_func_name : Descriptive text
         func_name1, func_name2, :meth:`func_name`, func_name3
 
+        Licence
+        -------
+
+        Derived from the NumpyDoc implementation of ``_parse_see_also``,
+        which was under the following licence:
+
+            Copyright (C) 2008 Stefan van der Walt <stefan@mentat.za.net>,
+                               Pauli Virtanen <pav@iki.fi>
+
+            Redistribution and use in source and binary forms, with or without
+            modification, are permitted provided that the following conditions are
+            met:
+
+             1. Redistributions of source code must retain the above copyright
+                notice, this list of conditions and the following disclaimer.
+             2. Redistributions in binary form must reproduce the above copyright
+                notice, this list of conditions and the following disclaimer in
+                the documentation and/or other materials provided with the
+                distribution.
+
+            THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
+            IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+            WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+            DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+            INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+            (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+            SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+            HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+            STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+            IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+            POSSIBILITY OF SUCH DAMAGE.
         """
         items: list[tuple[str, list[str], str | None]] = []
 
