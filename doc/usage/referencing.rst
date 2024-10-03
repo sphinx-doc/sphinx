@@ -4,36 +4,71 @@
 Cross-referencing syntax
 ========================
 
-Sphinx supports various cross-referencing roles to create links to other elements in
-the documentation. Writing ``:role:`target``` creates a link to the item named
-*target* of the type indicated by *role*. The link's text depends the role but is
-often the same as or similar to *target*.
+One of Sphinx's most useful features is creating automatic cross-references
+through semantic cross-referencing roles.
+A cross reference to an object description, such as ``:func:`spam```,
+will create a link to the place where ``spam()`` is documented,
+appropriate to each output format (HTML, PDF, ePUB, etc.).
+
+Sphinx supports various cross-referencing roles to create links
+to other elements in the documentation.
+In general, writing ``:role:`target``` creates a link to
+the object called *target* of the type indicated by *role*.
+The link's text depends the role but is often the same as or similar to *target*.
+
+.. _xref-modifiers:
 
 The behavior can be modified in the following ways:
 
-* **Custom link text:** You can specify the link text explicitly using the same
-  notation as in reStructuredText :ref:`rst-external-links`:
-  ``:role:`link text <target>``` will refer to *target*, but the link text will be
-  *link text*.
+* **Custom link text:**
+  You can specify the link text explicitly using the same
+  notation as in reStructuredText :ref:`external links <rst-external-links>`:
+  ``:role:`custom text <target>``` will refer to *target*
+  and display *custom text* as the text of the link.
 
-* **Surpressed link:** Prefixing with an exclamation mark ``!``, prevents the
-  creation of a link but otherwise keeps the visual output of the role. Example:
-  ``:role:`!target```.
+* **Suppressed link:**
+  Prefixing with an exclamation mark (``!``) prevents the creation of a link
+  but otherwise keeps the visual output of the role.
 
-  This is helpful for cases, in which the link target does not exist; e.g.
-  changelog entries that target removed functionality, or third-party libraries
-  without intersphinx. Surpressing the link prevents warnings in :confval:`nitpicky`
-  mode.
+  For example, writing ``:py:func:`!target``` displays :py:func:`!target`,
+  with no link generated.
+
+  This is helpful for cases in which the link target does not exist;
+  e.g. changelog entries that describe removed functionality,
+  or third-party libraries that don't support :doc:`intersphinx
+  </usage/extensions/intersphinx>`.
+  Suppressing the link prevents warnings in :confval:`nitpicky` mode.
 
 * **Modified domain reference:**
-  When :ref:`referencing domain objects <ref-objects>`, a tilde ``~`` prefix shortens
-  the link text the last component of the target.
-  For example, ``:py:meth:`~Queue.Queue.get``` will refer to ``Queue.Queue.get`` but
-  only display ``get`` as the link text.
+  When :ref:`referencing domain objects <ref-objects>`,
+  a tilde ``~`` prefix shortens the link text the last component of the target.
+  For example, ``:py:meth:`~queue.Queue.get``` will
+  refer to ``queue.Queue.get`` but only display ``get`` as the link text.
 
-  In HTML output, the link's ``title`` attribute (that is e.g. shown as a
-  tool-tip on mouse-hover) will always be the full target name.
+  In HTML output, the link's ``title`` attribute
+  (that is e.g. shown as a tool-tip on mouse-hover)
+  will always be the full target name.
 
+Some of the built-in cross-reference roles are:
+
+* :rst:role:`:any: <any>`,
+  :rst:role:`:doc: <doc>`,
+  :rst:role:`:ref: <ref>`
+* :rst:role:`:confval: <confval>`,
+  :rst:role:`:envvar: <envvar>`,
+  :rst:role:`:option: <option>`
+* :rst:role:`:manpage: <manpage>`,
+  :rst:role:`:pep: <pep>`,
+  :rst:role:`:rfc: <rfc>`
+* :rst:role:`download`,
+  :rst:role:`:index: <index>`
+  :rst:role:`:numref: <numref>`,
+  :rst:role:`:keyword: <keyword>`,
+  :rst:role:`:term: <term>`,
+  :rst:role:`:token: <token>`
+* :rst:role:`!:func:`
+  (this uses the :confval:`primary_domain`, e.g. :rst:role:`:py:func: <py:func>`)
+* :ref:`Domain cross-reference roles <ref-objects>`
 
 .. _ref-objects:
 
@@ -42,11 +77,11 @@ Cross-referencing objects
 
 These roles are described with their respective domains:
 
-* :ref:`Python <python-xref-roles>`
 * :ref:`C <c-xref-roles>`
 * :ref:`C++ <cpp-xref-roles>`
 * :ref:`JavaScript <js-xref-roles>`
 * :ref:`reStructuredText <rst-xref-roles>`
+* :ref:`Python <python-xref-roles>`
 
 
 .. _ref-role:
