@@ -6,7 +6,7 @@ import hashlib
 import os
 import posixpath
 import re
-from typing import TYPE_CHECKING, Any
+from typing import Any
 from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.errors import FiletypeNotFoundError
@@ -33,9 +33,6 @@ from sphinx.util.osutil import (  # NoQA: F401
     relative_uri,
 )
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
@@ -49,7 +46,7 @@ def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
-def get_filetype(source_suffix: dict[str, str], filename: str | Path) -> str:
+def get_filetype(source_suffix: dict[str, str], filename: str | os.PathLike[str]) -> str:
     for suffix, filetype in source_suffix.items():
         if os.fspath(filename).endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
