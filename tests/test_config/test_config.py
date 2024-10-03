@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pickle
-import time
 from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -18,7 +17,6 @@ from sphinx.config import (
     Config,
     _Opt,
     check_confval_types,
-    correct_copyright_year,
     is_serializable,
 )
 from sphinx.deprecation import RemovedInSphinx90Warning

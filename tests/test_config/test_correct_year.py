@@ -36,7 +36,7 @@ def expect_date(request, monkeypatch):
 def test_correct_year(expect_date):
     # test that copyright is substituted
     copyright_date = '2006-2009, Alice'
-    cfg = Config(dict(copyright=copyright_date), {})
+    cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)
     if expect_date:
@@ -48,7 +48,7 @@ def test_correct_year(expect_date):
 def test_correct_year_space(expect_date):
     # test that copyright is substituted
     copyright_date = '2006-2009 Alice'
-    cfg = Config(dict(copyright=copyright_date), {})
+    cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)
     if expect_date:
@@ -60,7 +60,7 @@ def test_correct_year_space(expect_date):
 def test_correct_year_no_author(expect_date):
     # test that copyright is substituted
     copyright_date = '2006-2009'
-    cfg = Config(dict(copyright=copyright_date), {})
+    cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)
     if expect_date:
@@ -72,7 +72,7 @@ def test_correct_year_no_author(expect_date):
 def test_correct_year_single(expect_date):
     # test that copyright is substituted
     copyright_date = '2009, Alice'
-    cfg = Config(dict(copyright=copyright_date), {})
+    cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)
     if expect_date:
@@ -84,7 +84,7 @@ def test_correct_year_single(expect_date):
 def test_correct_year_single_space(expect_date):
     # test that copyright is substituted
     copyright_date = '2009 Alice'
-    cfg = Config(dict(copyright=copyright_date), {})
+    cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)
     if expect_date:
@@ -96,7 +96,7 @@ def test_correct_year_single_space(expect_date):
 def test_correct_year_single_no_author(expect_date):
     # test that copyright is substituted
     copyright_date = '2009'
-    cfg = Config(dict(copyright=copyright_date), {})
+    cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)
     if expect_date:
@@ -115,7 +115,7 @@ def test_correct_year_multi_line(expect_date):
         '2018-2021, David',
         '2022-2025, Eve',
     )
-    cfg = Config(dict(copyright=copyright_dates), {})
+    cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
     correct_copyright_year(None, cfg)
     if expect_date:
@@ -141,7 +141,7 @@ def test_correct_year_multi_line_all_formats(expect_date):
         '2006-2009 Charlie',
         '2006-2009, David',
     )
-    cfg = Config(dict(copyright=copyright_dates), {})
+    cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
     correct_copyright_year(None, cfg)
     if expect_date:
@@ -164,7 +164,7 @@ def test_correct_year_app(expect_date, tmp_path, make_app):
     app = make_app(
         'dummy',
         srcdir=tmp_path,
-        confoverrides=dict(copyright=copyright_date),
+        confoverrides={'copyright': copyright_date},
     )
     if expect_date:
         assert app.config.copyright == f'2006-{expect_date}, Alice'
