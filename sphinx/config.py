@@ -648,6 +648,7 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     * ``YYYY``
     * ``YYYY,``
     * ``YYYY ``
+    * ``YYYY-YYYY``
     * ``YYYY-YYYY,``
     * ``YYYY-YYYY ``
 
