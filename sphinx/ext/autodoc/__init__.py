@@ -178,7 +178,7 @@ def merge_members_option(options: dict) -> None:
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-_EventListener: TypeAlias = Callable[[Sphinx, str, str, Any, Any, list[str]], None]
+_AutodocProcessDocstringListener: TypeAlias = Callable[[Sphinx, str, str, Any, Any, list[str]], None]
 
 
 def cut_lines(pre: int, post: int = 0, what: str | list[str] | None = None) -> _EventListener:
