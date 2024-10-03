@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import types
 from typing import TYPE_CHECKING
 
@@ -25,3 +26,26 @@ def stable_hash(obj: Any) -> str:
         # We use the fully qualified name instead.
         obj = f'{obj.__module__}.{obj.__qualname__}'
     return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
+
+
+def stable_str(obj: Any, *, indent: int | None = None) -> str:
+    """Return a stable string representation of a Python data structure.
+
+    We can't just use ``str(obj)`` as the order of collections may be random.
+    """
+    return json.dumps(_stable_str_prep(obj), indent=indent)
+
+
+def _stable_str_prep(obj: Any) -> dict[str, Any] | list[Any] | str:
+    if isinstance(obj, dict):
+        # Convert to a sorted dict
+        return dict(sorted(map(_stable_str_prep, obj.items())))
+    if isinstance(obj, list | tuple | set | frozenset):
+        # Convert to a sorted list
+        return sorted(map(_stable_str_prep, obj))
+    if isinstance(obj, type | types.FunctionType):
+        # The default repr() of functions includes the ID, which is not ideal.
+        # We use the fully qualified name instead.
+        return f'{obj.__module__}.{obj.__qualname__}'
+    # We can't do any better, just use the string representation
+    return str(obj)
