@@ -660,6 +660,7 @@ def _substitute_copyright_year(
     * ``YYYY``
     * ``YYYY,``
     * ``YYYY ``
+    * ``YYYY-YYYY``
     * ``YYYY-YYYY,``
     * ``YYYY-YYYY ``
 
