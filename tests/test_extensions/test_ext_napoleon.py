@@ -2,7 +2,6 @@
 
 import functools
 from collections import namedtuple
-from typing import Any
 from unittest import mock
 
 import pytest
@@ -111,7 +110,7 @@ class TestProcessDocstring:
 
 class TestSetup:
     def test_unknown_app_type(self):
-        setup(object())
+        setup(object())  # type: ignore[arg-type]
 
     def test_add_config_values(self):
         app = mock.Mock(Sphinx)
@@ -146,7 +145,7 @@ class TestSkipMember:
         self,
         what: str,
         member: str,
-        obj: Any,
+        obj: object,
         expect_default_skip: bool,
         config_name: str,
     ) -> None:
