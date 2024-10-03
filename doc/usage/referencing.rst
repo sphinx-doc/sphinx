@@ -49,26 +49,6 @@ The behavior can be modified in the following ways:
   (that is e.g. shown as a tool-tip on mouse-hover)
   will always be the full target name.
 
-Some of the built-in cross-reference roles are:
-
-* :rst:role:`:any: <any>`,
-  :rst:role:`:doc: <doc>`,
-  :rst:role:`:ref: <ref>`
-* :rst:role:`:confval: <confval>`,
-  :rst:role:`:envvar: <envvar>`,
-  :rst:role:`:option: <option>`
-* :rst:role:`:manpage: <manpage>`,
-  :rst:role:`:pep: <pep>`,
-  :rst:role:`:rfc: <rfc>`
-* :rst:role:`download`,
-  :rst:role:`:index: <index>`
-  :rst:role:`:numref: <numref>`,
-  :rst:role:`:keyword: <keyword>`,
-  :rst:role:`:term: <term>`,
-  :rst:role:`:token: <token>`
-* :rst:role:`!:func:`
-  (this uses the :confval:`primary_domain`, e.g. :rst:role:`:py:func: <py:func>`)
-* :ref:`Domain cross-reference roles <ref-objects>`
 
 .. _ref-objects:
 
