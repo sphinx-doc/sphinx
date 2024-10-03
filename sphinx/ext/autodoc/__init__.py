@@ -178,10 +178,14 @@ def merge_members_option(options: dict) -> None:
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-_AutodocProcessDocstringListener: TypeAlias = Callable[[Sphinx, str, str, Any, Any, list[str]], None]
+_AutodocProcessDocstringListener: TypeAlias = Callable[
+    [Sphinx, str, str, Any, Any, list[str]], None
+]
 
 
-def cut_lines(pre: int, post: int = 0, what: str | list[str] | None = None) -> _EventListener:
+def cut_lines(
+    pre: int, post: int = 0, what: str | list[str] | None = None
+) -> _AutodocProcessDocstringListener:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
@@ -216,7 +220,7 @@ def between(
     what: Sequence[str] | None = None,
     keepempty: bool = False,
     exclude: bool = False,
-) -> _EventListener:
+) -> _AutodocProcessDocstringListener:
     """Return a listener that either keeps, or if *exclude* is True excludes,
     lines between lines that match the *marker* regular expression.  If no line
     matches, the resulting docstring would be empty, so no change will be made
