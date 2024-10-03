@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-import hashlib
-import types
 from typing import TYPE_CHECKING
 
 from sphinx.locale import __
+from sphinx.util._serialise import stable_hash
 
 if TYPE_CHECKING:
     from collections.abc import Set
     from pathlib import Path
-    from typing import Any
 
     from sphinx.config import Config, _ConfigRebuild
     from sphinx.util.tags import Tags
@@ -57,10 +55,10 @@ class BuildInfo:
 
         if config:
             values = {c.name: c.value for c in config.filter(config_categories)}
-            self.config_hash = _stable_hash(values)
+            self.config_hash = stable_hash(values)
 
         if tags:
-            self.tags_hash = _stable_hash(sorted(tags))
+            self.tags_hash = stable_hash(sorted(tags))
 
     def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
         return (self.config_hash == other.config_hash and
@@ -75,20 +73,3 @@ class BuildInfo:
             f'tags: {self.tags_hash}\n'
         )
         filename.write_text(build_info, encoding="utf-8")
-
-
-def _stable_hash(obj: Any) -> str:
-    """Return a stable hash for a Python data structure.
-
-    We can't just use the md5 of str(obj) as the order of collections
-    may be random.
-    """
-    if isinstance(obj, dict):
-        obj = sorted(map(_stable_hash, obj.items()))
-    if isinstance(obj, list | tuple | set | frozenset):
-        obj = sorted(map(_stable_hash, obj))
-    elif isinstance(obj, type | types.FunctionType):
-        # The default repr() of functions includes the ID, which is not ideal.
-        # We use the fully qualified name instead.
-        obj = f'{obj.__module__}.{obj.__qualname__}'
-    return hashlib.md5(str(obj).encode(), usedforsecurity=False).hexdigest()
