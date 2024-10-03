@@ -38,7 +38,7 @@ def test_correct_year(expect_date):
     copyright_date = '2006-2009, Alice'
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
-    correct_copyright_year(None, cfg)
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date:
         assert cfg.copyright == f'2006-{expect_date}, Alice'
     else:
@@ -50,7 +50,7 @@ def test_correct_year_space(expect_date):
     copyright_date = '2006-2009 Alice'
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
-    correct_copyright_year(None, cfg)
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date:
         assert cfg.copyright == f'2006-{expect_date} Alice'
     else:
@@ -62,7 +62,7 @@ def test_correct_year_no_author(expect_date):
     copyright_date = '2006-2009'
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
-    correct_copyright_year(None, cfg)
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date:
         assert cfg.copyright == f'2006-{expect_date}'
     else:
@@ -74,7 +74,7 @@ def test_correct_year_single(expect_date):
     copyright_date = '2009, Alice'
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
-    correct_copyright_year(None, cfg)
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date:
         assert cfg.copyright == f'{expect_date}, Alice'
     else:
@@ -86,7 +86,7 @@ def test_correct_year_single_space(expect_date):
     copyright_date = '2009 Alice'
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
-    correct_copyright_year(None, cfg)
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date:
         assert cfg.copyright == f'{expect_date} Alice'
     else:
@@ -98,7 +98,7 @@ def test_correct_year_single_no_author(expect_date):
     copyright_date = '2009'
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
-    correct_copyright_year(None, cfg)
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date:
         assert cfg.copyright == f'{expect_date}'
     else:
@@ -117,7 +117,7 @@ def test_correct_year_multi_line(expect_date):
     )
     cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
-    correct_copyright_year(None, cfg)
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date:
         assert cfg.copyright == (
             f'{expect_date}',
@@ -143,7 +143,7 @@ def test_correct_year_multi_line_all_formats(expect_date):
     )
     cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
-    correct_copyright_year(None, cfg)
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date:
         assert cfg.copyright == (
             f'{expect_date}',
