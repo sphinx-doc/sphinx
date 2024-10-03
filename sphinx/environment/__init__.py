@@ -23,6 +23,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
+from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
@@ -30,7 +31,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import _last_modified_time, canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Sequence
     from pathlib import Path
     from typing import Any, Literal
 
@@ -295,6 +296,27 @@ class BuildEnvironment:
             else:
                 extension = f'{len(extensions)}'
             return CONFIG_EXTENSIONS_CHANGED, f' ({extension!r})'
+
+        # Log any changes in configuration keys
+        if changed_keys := _differing_config_keys(old_config, new_config):
+            changed_num = len(changed_keys)
+            if changed_num == 1:
+                logger.info(
+                    __('1 configuration option has changed: %s'),
+                    changed_keys[0],
+                )
+            elif changed_num <= 10:
+                logger.info(
+                    __('%d configuration options have changed: %s'),
+                    changed_num,
+                    ', '.join(changed_keys),
+                )
+            else:
+                logger.info(
+                    __('%d configuration options have changed: %s, ...'),
+                    changed_num,
+                    ', '.join(changed_keys[:10]),
+                )
 
         # check if a config value was changed that affects how doctrees are read
         for item in new_config.filter(frozenset({'env'})):
@@ -712,6 +734,18 @@ class BuildEnvironment:
         # call check-consistency for all extensions
         self.domains._check_consistency()
         self.events.emit('env-check-consistency', self)
+
+
+def _differing_config_keys(old: Config, new: Config) -> Sequence[str]:
+    """Return a sorted list of keys that differ between two config objects."""
+    old_vals = {c.name: c.value for c in old}
+    new_vals = {c.name: c.value for c in new}
+    not_in_both = old_vals.keys() ^ new_vals.keys()
+    different_values = {
+        key for key in old_vals.keys() & new_vals.keys()
+        if stable_str(old_vals[key]) != stable_str(new_vals[key])
+    }
+    return sorted(not_in_both | different_values)
 
 
 def _traverse_toctree(
