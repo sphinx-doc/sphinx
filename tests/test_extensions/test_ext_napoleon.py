@@ -2,7 +2,6 @@
 
 import functools
 from collections import namedtuple
-from typing import Any
 from unittest import mock
 
 import pytest
