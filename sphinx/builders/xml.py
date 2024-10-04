@@ -94,7 +94,7 @@ class XMLBuilder(Builder):
             with open(outfilename, 'w', encoding='utf-8') as f:
                 f.write(self.writer.output)
         except OSError as err:
-            logger.warning(__("error writing file %s: %s"), outfilename, err)
+            logger.warning(__('error writing file %s: %s'), outfilename, err)
 
     def finish(self) -> None:
         pass
