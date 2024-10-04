@@ -262,42 +262,55 @@ class BuildEnvironment:
         # setup domains (must do after all initialization)
         self.domains._setup()
 
-        # initialize config
-        self._update_config(app.config)
+        # Initialise config.
+        # The old config is self.config, restored from the pickled environment.
+        # The new config is app.config, always recreated from ``conf.py``
+        self.config_status, self.config_status_extra = self._config_status(
+            old_config=self.config, new_config=app.config
+        )
+        self.config = app.config
 
         # initialize settings
         self._update_settings(app.config)
 
-    def _update_config(self, config: Config) -> None:
-        """Update configurations by new one."""
-        self.config_status = CONFIG_OK
-        self.config_status_extra = ''
-        if self.config is None:
-            self.config_status = CONFIG_NEW
-        elif self.config.extensions != config.extensions:
-            self.config_status = CONFIG_EXTENSIONS_CHANGED
-            extensions = sorted(
-                set(self.config.extensions) ^ set(config.extensions))
-            if len(extensions) == 1:
-                extension = extensions[0]
-            else:
-                extension = '%d' % (len(extensions),)
-            self.config_status_extra = f' ({extension!r})'
-        else:
-            # check if a config value was changed that affects how
-            # doctrees are read
-            for item in config.filter(frozenset({'env'})):
-                if self.config[item.name] != item.value:
-                    self.config_status = CONFIG_CHANGED
-                    self.config_status_extra = f' ({item.name!r})'
-                    break
+    @staticmethod
+    def _config_status(
+        *, old_config: Config | None, new_config: Config
+    ) -> tuple[int, str]:
+        """Report the differences between two Config objects.
 
-        self.config = config
+        Returns a triple of:
+
+        1. The new configuration
+        2. A status code indicating how the configuration has changed.
+        3. A status message indicating what has changed.
+        """
+        if old_config is None:
+            return CONFIG_NEW, ''
+
+        if old_config.extensions != new_config.extensions:
+            old_extensions = set(old_config.extensions)
+            new_extensions = set(new_config.extensions)
+            extensions = old_extensions ^ new_extensions
+            if len(extensions) == 1:
+                extension = extensions.pop()
+            else:
+                extension = f'{len(extensions)}'
+            return CONFIG_EXTENSIONS_CHANGED, f' ({extension!r})'
+
+        # check if a config value was changed that affects how doctrees are read
+        for item in new_config.filter(frozenset({'env'})):
+            if old_config[item.name] != item.value:
+                return CONFIG_CHANGED, f' ({item.name!r})'
+
+        return CONFIG_OK, ''
 
     def _update_settings(self, config: Config) -> None:
         """Update settings by new config."""
         self.settings['input_encoding'] = config.source_encoding
-        self.settings['trim_footnote_reference_space'] = config.trim_footnote_reference_space
+        self.settings['trim_footnote_reference_space'] = (
+            config.trim_footnote_reference_space
+        )
         self.settings['language_code'] = config.language
 
         # Allow to disable by 3rd party extension (workaround)
@@ -322,9 +335,12 @@ class BuildEnvironment:
             condition = versioning_conditions[method]
 
         if self.versioning_condition not in {None, condition}:
-            raise SphinxError(__('This environment is incompatible with the '
-                                 'selected builder, please choose another '
-                                 'doctree directory.'))
+            msg = __(
+                'This environment is incompatible with the '
+                'selected builder, please choose another '
+                'doctree directory.'
+            )
+            raise SphinxError(msg)
         self.versioning_condition = condition
         self.versioning_compare = compare
 
@@ -337,8 +353,9 @@ class BuildEnvironment:
 
         self.domains._clear_doc(docname)
 
-    def merge_info_from(self, docnames: Iterable[str], other: BuildEnvironment,
-                        app: Sphinx) -> None:
+    def merge_info_from(
+        self, docnames: Iterable[str], other: BuildEnvironment, app: Sphinx
+    ) -> None:
         """Merge global information gathered about *docnames* while reading them
         from the *other* environment.
 
@@ -381,12 +398,13 @@ class BuildEnvironment:
         if filename.startswith(('/', os.sep)):
             rel_fn = filename[1:]
         else:
-            docdir = path.dirname(self.doc2path(docname or self.docname,
-                                                base=False))
+            docdir = path.dirname(self.doc2path(docname or self.docname, base=False))
             rel_fn = path.join(docdir, filename)
 
-        return (canon_path(path.normpath(rel_fn)),
-                path.normpath(path.join(self.srcdir, rel_fn)))
+        return (
+            canon_path(path.normpath(rel_fn)),
+            path.normpath(path.join(self.srcdir, rel_fn)),
+        )
 
     @property
     def found_docs(self) -> set[str]:
@@ -398,9 +416,11 @@ class BuildEnvironment:
         self.found_docs.
         """
         try:
-            exclude_paths = (self.config.exclude_patterns +
-                             self.config.templates_path +
-                             builder.get_asset_paths())
+            exclude_paths = (
+                self.config.exclude_patterns
+                + self.config.templates_path
+                + builder.get_asset_paths()
+            )
             self.project.discover(exclude_paths, self.config.include_patterns)
 
             # Current implementation is applying translated messages in the reading
@@ -411,18 +431,25 @@ class BuildEnvironment:
             # move i18n process into the writing phase, and remove these lines.
             if builder.use_message_catalog:
                 # add catalog mo file dependency
-                repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                         self.config.language, self.config.source_encoding)
+                repo = CatalogRepository(
+                    self.srcdir,
+                    self.config.locale_dirs,
+                    self.config.language,
+                    self.config.source_encoding,
+                )
                 mo_paths = {c.domain: c.mo_path for c in repo.catalogs}
                 for docname in self.found_docs:
                     domain = docname_to_domain(docname, self.config.gettext_compact)
                     if domain in mo_paths:
                         self.dependencies[docname].add(mo_paths[domain])
         except OSError as exc:
-            raise DocumentError(__('Failed to scan documents in %s: %r') %
-                                (self.srcdir, exc)) from exc
+            raise DocumentError(
+                __('Failed to scan documents in %s: %r') % (self.srcdir, exc)
+            ) from exc
 
-    def get_outdated_files(self, config_changed: bool) -> tuple[set[str], set[str], set[str]]:
+    def get_outdated_files(
+        self, config_changed: bool
+    ) -> tuple[set[str], set[str], set[str]]:
         """Return (added, changed, removed) sets."""
         # clear all files no longer present
         removed = set(self.all_docs) - self.found_docs
@@ -454,10 +481,12 @@ class BuildEnvironment:
                 mtime = self.all_docs[docname]
                 newmtime = _last_modified_time(self.doc2path(docname))
                 if newmtime > mtime:
-                    logger.debug('[build target] outdated %r: %s -> %s',
-                                 docname,
-                                 _format_rfc3339_microseconds(mtime),
-                                 _format_rfc3339_microseconds(newmtime))
+                    logger.debug(
+                        '[build target] outdated %r: %s -> %s',
+                        docname,
+                        _format_rfc3339_microseconds(mtime),
+                        _format_rfc3339_microseconds(newmtime),
+                    )
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
@@ -468,7 +497,8 @@ class BuildEnvironment:
                         if not path.isfile(deppath):
                             logger.debug(
                                 '[build target] changed %r missing dependency %r',
-                                docname, deppath,
+                                docname,
+                                deppath,
                             )
                             changed.add(docname)
                             break
@@ -476,7 +506,8 @@ class BuildEnvironment:
                         if depmtime > mtime:
                             logger.debug(
                                 '[build target] outdated %r from dependency %r: %s -> %s',
-                                docname, deppath,
+                                docname,
+                                deppath,
                                 _format_rfc3339_microseconds(mtime),
                                 _format_rfc3339_microseconds(depmtime),
                             )
@@ -610,7 +641,10 @@ class BuildEnvironment:
         # now, resolve all toctree nodes
         for toctreenode in doctree.findall(addnodes.toctree):
             result = toctree_adapters._resolve_toctree(
-                self, docname, builder, toctreenode,
+                self,
+                docname,
+                builder,
+                toctreenode,
                 prune=prune_toctrees,
                 includehidden=includehidden,
             )
@@ -621,9 +655,17 @@ class BuildEnvironment:
 
         return doctree
 
-    def resolve_toctree(self, docname: str, builder: Builder, toctree: addnodes.toctree,
-                        prune: bool = True, maxdepth: int = 0, titles_only: bool = False,
-                        collapse: bool = False, includehidden: bool = False) -> Node | None:
+    def resolve_toctree(
+        self,
+        docname: str,
+        builder: Builder,
+        toctree: addnodes.toctree,
+        prune: bool = True,
+        maxdepth: int = 0,
+        titles_only: bool = False,
+        collapse: bool = False,
+        includehidden: bool = False,
+    ) -> Node | None:
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -636,7 +678,10 @@ class BuildEnvironment:
         be collapsed.
         """
         return toctree_adapters._resolve_toctree(
-            self, docname, builder, toctree,
+            self,
+            docname,
+            builder,
+            toctree,
             prune=prune,
             maxdepth=maxdepth,
             titles_only=titles_only,
@@ -644,8 +689,9 @@ class BuildEnvironment:
             includehidden=includehidden,
         )
 
-    def resolve_references(self, doctree: nodes.document, fromdocname: str,
-                           builder: Builder) -> None:
+    def resolve_references(
+        self, doctree: nodes.document, fromdocname: str, builder: Builder
+    ) -> None:
         self.apply_post_transforms(doctree, fromdocname)
 
     def apply_post_transforms(self, doctree: nodes.document, docname: str) -> None:
@@ -670,7 +716,7 @@ class BuildEnvironment:
 
         relations = {}
         docnames = _traverse_toctree(
-            traversed, None, self.config.root_doc, self.toctree_includes,
+            traversed, None, self.config.root_doc, self.toctree_includes
         )
         prev_doc = None
         parent, docname = next(docnames)
@@ -697,8 +743,9 @@ class BuildEnvironment:
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue
-                logger.warning(__("document isn't included in any toctree"),
-                               location=docname)
+                logger.warning(
+                    __("document isn't included in any toctree"), location=docname
+                )
 
         # call check-consistency for all extensions
         self.domains._check_consistency()
@@ -712,9 +759,12 @@ def _traverse_toctree(
     toctree_includes: dict[str, list[str]],
 ) -> Iterator[tuple[str | None, str]]:
     if parent == docname:
-        logger.warning(__('self referenced toctree found. Ignored.'),
-                       location=docname, type='toc',
-                       subtype='circular')
+        logger.warning(
+            __('self referenced toctree found. Ignored.'),
+            location=docname,
+            type='toc',
+            subtype='circular',
+        )
         return
 
     # traverse toctree by pre-order
@@ -723,7 +773,7 @@ def _traverse_toctree(
 
     for child in toctree_includes.get(docname, ()):
         for sub_parent, sub_docname in _traverse_toctree(
-            traversed, docname, child, toctree_includes,
+            traversed, docname, child, toctree_includes
         ):
             if sub_docname not in traversed:
                 yield sub_parent, sub_docname

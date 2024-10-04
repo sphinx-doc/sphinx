@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import os
 import re
-import time
 from typing import TYPE_CHECKING
 
 from sphinx import __display_version__
@@ -27,7 +26,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = f'2007-{time.strftime("%Y")}, the Sphinx developers'
+copyright = '2007-%Y, the Sphinx developers'
 release = version = __display_version__
 show_authors = True
 nitpicky = True
