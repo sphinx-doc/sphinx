@@ -389,6 +389,10 @@ def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
     """A getattr() that turns all exceptions into AttributeErrors."""
+    if len(defargs) > 1:
+        msg = f'safe_getattr expected at most 3 arguments, got {len(defargs)}'
+        raise TypeError(msg)
+
     try:
         return getattr(obj, name, *defargs)
     except Exception as exc:
