@@ -262,37 +262,46 @@ class BuildEnvironment:
         # setup domains (must do after all initialization)
         self.domains._setup()
 
-        # initialize config
-        self._update_config(app.config)
+        # Initialise config.
+        # The old config is self.config, restored from the pickled environment.
+        # The new config is app.config, always recreated from ``conf.py``
+        self.config_status, self.config_status_extra = self._config_status(
+            old_config=self.config, new_config=app.config
+        )
+        self.config = app.config
 
         # initialize settings
         self._update_settings(app.config)
 
-    def _update_config(self, config: Config) -> None:
-        """Update configurations by new one."""
-        self.config_status = CONFIG_OK
-        self.config_status_extra = ''
-        if self.config is None:
-            self.config_status = CONFIG_NEW
-        elif self.config.extensions != config.extensions:
-            self.config_status = CONFIG_EXTENSIONS_CHANGED
-            extensions = sorted(
-                set(self.config.extensions) ^ set(config.extensions))
-            if len(extensions) == 1:
-                extension = extensions[0]
-            else:
-                extension = '%d' % (len(extensions),)
-            self.config_status_extra = f' ({extension!r})'
-        else:
-            # check if a config value was changed that affects how
-            # doctrees are read
-            for item in config.filter(frozenset({'env'})):
-                if self.config[item.name] != item.value:
-                    self.config_status = CONFIG_CHANGED
-                    self.config_status_extra = f' ({item.name!r})'
-                    break
+    @staticmethod
+    def _config_status(*, old_config: Config | None, new_config: Config) -> tuple[int, str]:
+        """Report the differences between two Config objects.
 
-        self.config = config
+        Returns a triple of:
+
+        1. The new configuration
+        2. A status code indicating how the configuration has changed.
+        3. A status message indicating what has changed.
+        """
+        if old_config is None:
+            return CONFIG_NEW, ''
+
+        if old_config.extensions != new_config.extensions:
+            old_extensions = set(old_config.extensions)
+            new_extensions = set(new_config.extensions)
+            extensions = old_extensions ^ new_extensions
+            if len(extensions) == 1:
+                extension = extensions.pop()
+            else:
+                extension = f'{len(extensions)}'
+            return CONFIG_EXTENSIONS_CHANGED, f' ({extension!r})'
+
+        # check if a config value was changed that affects how doctrees are read
+        for item in new_config.filter(frozenset({'env'})):
+            if old_config[item.name] != item.value:
+                return CONFIG_CHANGED, f' ({item.name!r})'
+
+        return CONFIG_OK, ''
 
     def _update_settings(self, config: Config) -> None:
         """Update settings by new config."""

@@ -625,34 +625,46 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-
-    if source_date_epoch := getenv('SOURCE_DATE_EPOCH'):
-        year = str(time.gmtime(int(source_date_epoch)).tm_year)
+    if source_date_epoch := int(getenv('SOURCE_DATE_EPOCH', '0')):
+        replace_year = time.gmtime(source_date_epoch).tm_year
     else:
-        year = str(time.gmtime().tm_year)
-    year_short = year[-2:]
+        replace_year = time.gmtime().tm_year
 
+
+    # If the current year is the replacement year, there's no work to do.
+    # We also skip replacement years that are in the future.
+    current_year = time.localtime().tm_year
+    if current_year <= replace_year:
+        return
+
+    current_yr = str(current_year)
+    replace_yr = str(replace_year)
+    year_short = str(replace_year % 100)
     for k in ('copyright', 'epub_copyright'):
         if k in config:
             value: str | Sequence[str] = config[k]
             if isinstance(value, str):
                 if '%y' in value or '%Y' in value:
                     # new-style placeholder replacement
-                    config[k] = value.replace('%Y', year).replace('%y', year_short)
+                    config[k] = value.replace('%Y', replace_yr).replace('%y', year_short)
                 else:
-                    config[k] = _substitute_copyright_year(value, year)
+                    config[k] = _substitute_copyright_year(value, current_yr, replace_yr)
             else:
                 if any('%y' in line or '%Y' in line for line in value):
                     # new-style placeholder replacement
                     items = (
-                        x.replace('%Y', year).replace('%y', year_short) for x in value
+                        x.replace('%Y', replace_yr).replace('%y', year_short) for x in value
                     )
                 else:
-                    items = (_substitute_copyright_year(x, year) for x in value)
+                    items = (
+                        _substitute_copyright_year(x, current_yr, replace_yr) for x in value
+                    )
                 config[k] = type(value)(items)  # type: ignore[call-arg]
 
 
-def _substitute_copyright_year(copyright_line: str, year: str) -> str:
+def _substitute_copyright_year(
+    copyright_line: str, current_year: str, replace_year: str
+) -> str:
     """Replace the year in a single copyright line.
 
     Legal formats are:
@@ -660,20 +672,19 @@ def _substitute_copyright_year(copyright_line: str, year: str) -> str:
     * ``YYYY``
     * ``YYYY,``
     * ``YYYY ``
+    * ``YYYY-YYYY``
     * ``YYYY-YYYY,``
     * ``YYYY-YYYY ``
 
-    The final year in the string is replaced with ``year``.
+    The final year in the string is replaced with ``replace_year``.
     """
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
         return copyright_line
 
-    current_year = time.strftime('%Y')
-
     if copyright_line[:4] == current_year and copyright_line[4:5] in {'', ' ', ','}:
-        return year + copyright_line[4:]
+        return replace_year + copyright_line[4:]
 
-    if copyright_line[4] != '-':
+    if copyright_line[4:5] != '-':
         return copyright_line
 
     if (
@@ -681,7 +692,7 @@ def _substitute_copyright_year(copyright_line: str, year: str) -> str:
         and copyright_line[5:9] == current_year
         and copyright_line[9:10] in {'', ' ', ','}
     ):
-        return copyright_line[:5] + year + copyright_line[9:]
+        return copyright_line[:5] + replace_year + copyright_line[9:]
 
     return copyright_line
 
