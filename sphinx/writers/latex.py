@@ -10,7 +10,7 @@ import re
 from collections import defaultdict
 from collections.abc import Iterable
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
 
@@ -65,7 +65,7 @@ class UnsupportedError(SphinxError):
     category = 'Markup is unsupported in LaTeX'
 
 
-class LaTeXWriter(writers.Writer):  # type: ignore[misc]
+class LaTeXWriter(writers.Writer):  # type: ignore[type-arg]
 
     supported = ('sphinxlatex',)
 
@@ -74,7 +74,7 @@ class LaTeXWriter(writers.Writer):  # type: ignore[misc]
         ('Document class', ['--docclass'], {'default': 'manual'}),
         ('Author', ['--author'], {'default': ''}),
     ))
-    settings_defaults: dict[str, Any] = {}
+    settings_defaults: ClassVar[dict[str, Any]] = {}
 
     theme: Theme
 
@@ -83,6 +83,7 @@ class LaTeXWriter(writers.Writer):  # type: ignore[misc]
         self.builder = builder
 
     def translate(self) -> None:
+        assert isinstance(self.document, nodes.document)
         visitor = self.builder.create_translator(self.document, self.builder, self.theme)
         self.document.walkabout(visitor)
         self.output = cast(LaTeXTranslator, visitor).astext()
