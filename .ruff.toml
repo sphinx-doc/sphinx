@@ -445,7 +445,6 @@ exclude = [
     "sphinx/addnodes.py",
     "sphinx/application.py",
     "sphinx/builders/*",
-    "sphinx/cmd/*",
     "sphinx/config.py",
     "sphinx/domains/*",
     "sphinx/environment/*",

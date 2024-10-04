@@ -29,31 +29,34 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 BUILDERS = [
-    ("",      "html",        "to make standalone HTML files"),
-    ("",      "dirhtml",     "to make HTML files named index.html in directories"),
-    ("",      "singlehtml",  "to make a single large HTML file"),
-    ("",      "pickle",      "to make pickle files"),
-    ("",      "json",        "to make JSON files"),
-    ("",      "htmlhelp",    "to make HTML files and an HTML help project"),
-    ("",      "qthelp",      "to make HTML files and a qthelp project"),
-    ("",      "devhelp",     "to make HTML files and a Devhelp project"),
-    ("",      "epub",        "to make an epub"),
-    ("",      "latex",       "to make LaTeX files, you can set PAPER=a4 or PAPER=letter"),
-    ("posix", "latexpdf",    "to make LaTeX and PDF files (default pdflatex)"),
-    ("posix", "latexpdfja",  "to make LaTeX files and run them through platex/dvipdfmx"),
-    ("",      "text",        "to make text files"),
-    ("",      "man",         "to make manual pages"),
-    ("",      "texinfo",     "to make Texinfo files"),
-    ("posix", "info",        "to make Texinfo files and run them through makeinfo"),
-    ("",      "gettext",     "to make PO message catalogs"),
-    ("",      "changes",     "to make an overview of all changed/added/deprecated items"),
-    ("",      "xml",         "to make Docutils-native XML files"),
-    ("",      "pseudoxml",   "to make pseudoxml-XML files for display purposes"),
-    ("",      "linkcheck",   "to check all external links for integrity"),
-    ("",      "doctest",     "to run all doctests embedded in the documentation "
-                             "(if enabled)"),
-    ("",      "coverage",    "to run coverage check of the documentation (if enabled)"),
-    ("",      "clean",       "to remove everything in the build directory"),
+    ('', 'html', 'to make standalone HTML files'),
+    ('', 'dirhtml', 'to make HTML files named index.html in directories'),
+    ('', 'singlehtml', 'to make a single large HTML file'),
+    ('', 'pickle', 'to make pickle files'),
+    ('', 'json', 'to make JSON files'),
+    ('', 'htmlhelp', 'to make HTML files and an HTML help project'),
+    ('', 'qthelp', 'to make HTML files and a qthelp project'),
+    ('', 'devhelp', 'to make HTML files and a Devhelp project'),
+    ('', 'epub', 'to make an epub'),
+    ('', 'latex', 'to make LaTeX files, you can set PAPER=a4 or PAPER=letter'),
+    ('posix', 'latexpdf', 'to make LaTeX and PDF files (default pdflatex)'),
+    ('posix', 'latexpdfja', 'to make LaTeX files and run them through platex/dvipdfmx'),
+    ('', 'text', 'to make text files'),
+    ('', 'man', 'to make manual pages'),
+    ('', 'texinfo', 'to make Texinfo files'),
+    ('posix', 'info', 'to make Texinfo files and run them through makeinfo'),
+    ('', 'gettext', 'to make PO message catalogs'),
+    ('', 'changes', 'to make an overview of all changed/added/deprecated items'),
+    ('', 'xml', 'to make Docutils-native XML files'),
+    ('', 'pseudoxml', 'to make pseudoxml-XML files for display purposes'),
+    ('', 'linkcheck', 'to check all external links for integrity'),
+    (
+        '',
+        'doctest',
+        'to run all doctests embedded in the documentation ' '(if enabled)',
+    ),
+    ('', 'coverage', 'to run coverage check of the documentation (if enabled)'),
+    ('', 'clean', 'to remove everything in the build directory'),
 ]
 
 
@@ -72,15 +75,15 @@ class Make:
         if not path.exists(self.build_dir):
             return 0
         elif not path.isdir(self.build_dir):
-            print("Error: %r is not a directory!" % self.build_dir)
+            print('Error: %r is not a directory!' % self.build_dir)
             return 1
         elif source_dir == build_dir:
-            print("Error: %r is same as source directory!" % self.build_dir)
+            print('Error: %r is same as source directory!' % self.build_dir)
             return 1
         elif path.commonpath([source_dir, build_dir]) == build_dir:
-            print("Error: %r directory contains source directory!" % self.build_dir)
+            print('Error: %r directory contains source directory!' % self.build_dir)
             return 1
-        print("Removing everything under %r..." % self.build_dir)
+        print('Removing everything under %r...' % self.build_dir)
         for item in os.listdir(self.build_dir):
             rmtree(self.build_dir_join(item))
         return 0
@@ -89,7 +92,7 @@ class Make:
         if not color_terminal():
             nocolor()
 
-        print(bold("Sphinx v%s" % sphinx.__display_version__))
+        print(bold('Sphinx v%s' % sphinx.__display_version__))
         print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
@@ -108,29 +111,34 @@ class Make:
             with chdir(self.build_dir_join('latex')):
                 if '-Q' in self.opts:
                     with open('__LATEXSTDOUT__', 'w') as outfile:
-                        returncode = subprocess.call([makecmd,
-                                                      'all-pdf',
-                                                      'LATEXOPTS=-halt-on-error',
-                                                      ],
-                                                     stdout=outfile,
-                                                     stderr=subprocess.STDOUT,
-                                                     )
+                        returncode = subprocess.call(
+                            [
+                                makecmd,
+                                'all-pdf',
+                                'LATEXOPTS=-halt-on-error',
+                            ],
+                            stdout=outfile,
+                            stderr=subprocess.STDOUT,
+                        )
                     if returncode:
-                        print('Latex error: check %s' %
-                              self.build_dir_join('latex', '__LATEXSTDOUT__')
-                              )
+                        print(
+                            'Latex error: check %s'
+                            % self.build_dir_join('latex', '__LATEXSTDOUT__')
+                        )
                 elif '-q' in self.opts:
                     returncode = subprocess.call(
-                        [makecmd,
-                         'all-pdf',
-                         'LATEXOPTS=-halt-on-error',
-                         'LATEXMKOPTS=-silent',
-                         ],
+                        [
+                            makecmd,
+                            'all-pdf',
+                            'LATEXOPTS=-halt-on-error',
+                            'LATEXMKOPTS=-silent',
+                        ],
                     )
                     if returncode:
-                        print('Latex error: check .log file in %s' %
-                              self.build_dir_join('latex')
-                              )
+                        print(
+                            'Latex error: check .log file in %s'
+                            % self.build_dir_join('latex')
+                        )
                 else:
                     returncode = subprocess.call([makecmd, 'all-pdf'])
                 return returncode
@@ -184,8 +192,10 @@ class Make:
             doctreedir = self.build_dir_join('doctrees')
 
         args = [
-            '--builder', builder,
-            '--doctree-dir', doctreedir,
+            '--builder',
+            builder,
+            '--doctree-dir',
+            doctreedir,
             self.source_dir,
             self.build_dir_join(builder),
         ]
@@ -194,8 +204,11 @@ class Make:
 
 def run_make_mode(args: Sequence[str]) -> int:
     if len(args) < 3:
-        print('Error: at least 3 arguments (builder, source '
-              'dir, build dir) are required.', file=sys.stderr)
+        print(
+            'Error: at least 3 arguments (builder, source '
+            'dir, build dir) are required.',
+            file=sys.stderr,
+        )
         return 1
 
     builder_name = args[0]
