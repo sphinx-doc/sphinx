@@ -630,7 +630,6 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
     else:
         replace_year = time.gmtime().tm_year
 
-
     # If the current year is the replacement year, there's no work to do.
     # We also skip replacement years that are in the future.
     current_year = time.localtime().tm_year

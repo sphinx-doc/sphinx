@@ -26,7 +26,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = f'2007-%Y, the Sphinx developers'
+copyright = '2007-%Y, the Sphinx developers'
 release = version = __display_version__
 show_authors = True
 nitpicky = True
