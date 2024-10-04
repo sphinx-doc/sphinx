@@ -4,7 +4,11 @@ import time
 
 import pytest
 
-from sphinx.config import Config, correct_copyright_year
+from sphinx.config import (
+    Config,
+    correct_copyright_year,
+    evaluate_copyright_placeholders,
+)
 
 LT = time.localtime()
 LT_NEW = (2009, *LT[1:], LT.tm_zone, LT.tm_gmtoff)
@@ -106,6 +110,19 @@ def test_correct_year_single_no_author(expect_date):
         assert cfg.copyright == copyright_date
 
 
+def test_correct_year_placeholder(expect_date):
+    # test that copyright is substituted
+    copyright_date = '2006-%Y, Alice'
+    cfg = Config({'copyright': copyright_date}, {})
+    assert cfg.copyright == copyright_date
+    evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
+        assert cfg.copyright == f'2006-{expect_date}, Alice'
+    else:
+        assert cfg.copyright == '2006-2009, Alice'
+
+
 def test_correct_year_multi_line(expect_date):
     # test that copyright is substituted
     copyright_dates = (
@@ -157,6 +174,47 @@ def test_correct_year_multi_line_all_formats(expect_date):
         )
     else:
         assert cfg.copyright == copyright_dates
+
+
+def test_correct_year_multi_line_all_formats_placeholder(expect_date):
+    # test that copyright is substituted
+    copyright_dates = (
+        '%Y',
+        '%Y Alice',
+        '%Y, Bob',
+        '2006-%Y',
+        '2006-%Y Charlie',
+        '2006-%Y, David',
+        # other format codes are left as-is
+        '2006-%y, Eve',
+        '%Y-%m-%d %H:%M:S %z, Francis',
+    )
+    cfg = Config({'copyright': copyright_dates}, {})
+    assert cfg.copyright == copyright_dates
+    evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
+    correct_copyright_year(None, cfg)  # type: ignore[arg-type]
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
+        assert cfg.copyright == (
+            f'{expect_date}',
+            f'{expect_date} Alice',
+            f'{expect_date}, Bob',
+            f'2006-{expect_date}',
+            f'2006-{expect_date} Charlie',
+            f'2006-{expect_date}, David',
+            '2006-%y, Eve',
+            '2009-%m-%d %H:%M:S %z, Francis',
+        )
+    else:
+        assert cfg.copyright == (
+            '2009',
+            '2009 Alice',
+            '2009, Bob',
+            '2006-2009',
+            '2006-2009 Charlie',
+            '2006-2009, David',
+            '2006-%y, Eve',
+            '2009-%m-%d %H:%M:S %z, Francis',
+        )
 
 
 def test_correct_year_app(expect_date, tmp_path, make_app):

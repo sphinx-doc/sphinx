@@ -53,6 +53,12 @@ Features added
   GMT (universal time) instead of local time for the date-time
   supplied to :confval:`html_last_updated_fmt`.
   Patch by Adam Turner.
+* #12910: Copyright entries now support the ``'%Y'`` placeholder
+  to substitute the current year.
+  This is helpful for reducing the reliance on Python modules
+  such as :py:mod:`time` or :py:mod:`datetime` in :file:`conf.py`.
+  See :ref:`the docs <config-copyright>` for further detail.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
