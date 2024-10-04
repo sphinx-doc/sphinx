@@ -41,7 +41,7 @@ The behavior can be modified in the following ways:
 
 * **Modified domain reference:**
   When :ref:`referencing domain objects <ref-objects>`,
-  a tilde ``~`` prefix shortens the link text the last component of the target.
+  a tilde ``~`` prefix shortens the link text to the last component of the target.
   For example, ``:py:meth:`~queue.Queue.get``` will
   refer to ``queue.Queue.get`` but only display ``get`` as the link text.
 
