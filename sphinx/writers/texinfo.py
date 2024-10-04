@@ -6,7 +6,7 @@ import re
 import textwrap
 from collections.abc import Iterable, Iterator
 from os import path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
 
@@ -104,12 +104,12 @@ def smart_capwords(s: str, sep: str | None = None) -> str:
     return (sep or ' ').join(words)
 
 
-class TexinfoWriter(writers.Writer):  # type: ignore[misc]
+class TexinfoWriter(writers.Writer):  # type: ignore[type-arg]
     """Texinfo writer for generating Texinfo documents."""
 
     supported = ('texinfo', 'texi')
 
-    settings_spec: tuple[str, Any, tuple[tuple[str, list[str], dict[str, str]], ...]] = (
+    settings_spec = (
         'Texinfo Specific Options', None, (
             ("Name of the Info file", ['--texinfo-filename'], {'default': ''}),
             ('Dir entry', ['--texinfo-dir-entry'], {'default': ''}),
@@ -117,7 +117,7 @@ class TexinfoWriter(writers.Writer):  # type: ignore[misc]
             ('Category', ['--texinfo-dir-category'], {'default':
                                                       'Miscellaneous'})))
 
-    settings_defaults: dict[str, Any] = {}
+    settings_defaults: ClassVar[dict[str, Any]] = {}
 
     output: str
 
@@ -128,6 +128,7 @@ class TexinfoWriter(writers.Writer):  # type: ignore[misc]
         self.builder = builder
 
     def translate(self) -> None:
+        assert isinstance(self.document, nodes.document)
         visitor = self.builder.create_translator(self.document, self.builder)
         self.visitor = cast(TexinfoTranslator, visitor)
         self.document.walkabout(visitor)

@@ -7,7 +7,7 @@ import re
 import textwrap
 from collections.abc import Iterable, Iterator, Sequence
 from itertools import chain, groupby, pairwise
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -356,10 +356,10 @@ def my_wrap(text: str, width: int = MAXWIDTH, **kwargs: Any) -> list[str]:
     return w.wrap(text)
 
 
-class TextWriter(writers.Writer):  # type: ignore[misc]
+class TextWriter(writers.Writer):  # type: ignore[type-arg]
     supported = ('text',)
     settings_spec = ('No options here.', '', ())
-    settings_defaults: dict[str, Any] = {}
+    settings_defaults: ClassVar[dict[str, Any]] = {}
 
     output: str
 
@@ -368,6 +368,7 @@ class TextWriter(writers.Writer):  # type: ignore[misc]
         self.builder = builder
 
     def translate(self) -> None:
+        assert isinstance(self.document, nodes.document)
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = cast(TextTranslator, visitor).body

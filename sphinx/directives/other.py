@@ -217,7 +217,7 @@ class Author(SphinxDirective):
         return ret
 
 
-class SeeAlso(BaseAdmonition):  # type: ignore[misc]
+class SeeAlso(BaseAdmonition):
     """
     An admonition mentioning things to look at as reference.
     """
