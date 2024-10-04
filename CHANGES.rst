@@ -57,7 +57,7 @@ Features added
   to substitute the current year.
   This is helpful for reducing the reliance on Python modules
   such as :py:mod:`time` or :py:mod:`datetime` in :file:`conf.py`.
-  See :confval:`the docs <copyright>` for further detail.
+  See :ref:`the docs <config-copyright>` for further detail.
   Patch by Adam Turner.
 
 Bugs fixed

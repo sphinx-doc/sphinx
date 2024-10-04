@@ -114,6 +114,8 @@ Project information
 
       author = 'Joe Bloggs'
 
+.. _config-copyright:
+
 .. confval:: copyright
              project_copyright
    :type: :code-py:`str | Sequence[str]`
