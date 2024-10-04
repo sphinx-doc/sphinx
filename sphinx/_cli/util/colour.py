@@ -57,6 +57,7 @@ def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
         if _COLOURING_DISABLED:
             return text
         return f'\x1b[{escape_code}m{text}\x1b[39;49;00m'
+
     return inner
 
 
@@ -69,11 +70,13 @@ def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
 if sys.platform == 'win32':
     _create_input_mode_colour_func = _create_colour_func
 else:
+
     def _create_input_mode_colour_func(escape_code: str, /) -> Callable[[str], str]:
         def inner(text: str) -> str:
             if _COLOURING_DISABLED:
                 return text
             return f'\x01\x1b[{escape_code}m\x02{text}\x01\x1b[39;49;00m\x02'
+
         return inner
 
 
