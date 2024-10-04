@@ -7,7 +7,7 @@ extend-exclude = [
     "tests/js/roots/*",
     "build/*",
     "doc/_build/*",
-    "sphinx/search/*",
+#    "sphinx/search/*",
     "doc/usage/extensions/example*.py",
 ]
 
@@ -411,6 +411,8 @@ select = [
 "sphinx/ext/autodoc/importer.py" = ["D402"]
 "sphinx/util/requests.py" = ["D402"]
 
+"sphinx/search/*" = ["E501"]
+
 "tests/*" = [
     "E501",
     "ANN",  # tests don't need annotations
@@ -476,7 +478,6 @@ exclude = [
     "sphinx/ext/todo.py",
     "sphinx/ext/viewcode.py",
     "sphinx/registry.py",
-    "sphinx/search/*",
     "sphinx/testing/*",
     "sphinx/transforms/*",
     "sphinx/writers/*",
