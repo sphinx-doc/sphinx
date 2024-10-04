@@ -14,12 +14,13 @@ LOCALTIME_2009 = type(LT)(LT_NEW)
 @pytest.fixture(
     params=[
         # test with SOURCE_DATE_EPOCH unset: no modification
-        (None, ''),
-        # test with SOURCE_DATE_EPOCH set: copyright year should be updated
-        ('1293840000', '2011'),
-        ('1293839999', '2010'),
-        ('1199145600', '2008'),
-        ('1199145599', '2007'),
+        (None, None),
+        # test with post-2009 SOURCE_DATE_EPOCH set: copyright year should not be updated
+        ('1293840000', 2011),
+        ('1293839999', 2010),
+        # test with pre-2009 SOURCE_DATE_EPOCH set: copyright year should be updated
+        ('1199145600', 2008),
+        ('1199145599', 2007),
     ],
 )
 def expect_date(request, monkeypatch):
@@ -39,7 +40,7 @@ def test_correct_year(expect_date):
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'2006-{expect_date}, Alice'
     else:
         assert cfg.copyright == copyright_date
@@ -51,7 +52,7 @@ def test_correct_year_space(expect_date):
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'2006-{expect_date} Alice'
     else:
         assert cfg.copyright == copyright_date
@@ -63,7 +64,7 @@ def test_correct_year_no_author(expect_date):
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'2006-{expect_date}'
     else:
         assert cfg.copyright == copyright_date
@@ -75,7 +76,7 @@ def test_correct_year_single(expect_date):
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'{expect_date}, Alice'
     else:
         assert cfg.copyright == copyright_date
@@ -87,7 +88,7 @@ def test_correct_year_single_space(expect_date):
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'{expect_date} Alice'
     else:
         assert cfg.copyright == copyright_date
@@ -99,7 +100,7 @@ def test_correct_year_single_no_author(expect_date):
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'{expect_date}'
     else:
         assert cfg.copyright == copyright_date
@@ -108,7 +109,7 @@ def test_correct_year_single_no_author(expect_date):
 def test_correct_year_multi_line(expect_date):
     # test that copyright is substituted
     copyright_dates = (
-        '2006',
+        '2009',
         '2006-2009, Alice',
         '2010-2013, Bob',
         '2014-2017, Charlie',
@@ -118,14 +119,15 @@ def test_correct_year_multi_line(expect_date):
     cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == (
             f'{expect_date}',
             f'2006-{expect_date}, Alice',
-            f'2010-{expect_date}, Bob',
-            f'2014-{expect_date}, Charlie',
-            f'2018-{expect_date}, David',
-            f'2022-{expect_date}, Eve',
+            # post 2009-dates aren't substituted
+            '2010-2013, Bob',
+            '2014-2017, Charlie',
+            '2018-2021, David',
+            '2022-2025, Eve',
         )
     else:
         assert cfg.copyright == copyright_dates
@@ -144,7 +146,7 @@ def test_correct_year_multi_line_all_formats(expect_date):
     cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == (
             f'{expect_date}',
             f'{expect_date} Alice',
@@ -166,7 +168,7 @@ def test_correct_year_app(expect_date, tmp_path, make_app):
         srcdir=tmp_path,
         confoverrides={'copyright': copyright_date},
     )
-    if expect_date:
+    if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert app.config.copyright == f'2006-{expect_date}, Alice'
     else:
         assert app.config.copyright == copyright_date

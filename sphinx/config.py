@@ -625,22 +625,34 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-    if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is None:
+    if source_date_epoch := int(getenv('SOURCE_DATE_EPOCH', '0')):
+        source_date_epoch_year = time.gmtime(source_date_epoch).tm_year
+    else:
         return
 
-    source_date_epoch_year = str(time.gmtime(int(source_date_epoch)).tm_year)
+    # If the current year is the replacement year, there's no work to do.
+    # We also skip replacement years that are in the future.
+    current_year = time.localtime().tm_year
+    if current_year <= source_date_epoch_year:
+        return
 
+    current_yr = str(current_year)
+    replace_yr = str(source_date_epoch_year)
     for k in ('copyright', 'epub_copyright'):
         if k in config:
             value: str | Sequence[str] = config[k]
             if isinstance(value, str):
-                config[k] = _substitute_copyright_year(value, source_date_epoch_year)
+                config[k] = _substitute_copyright_year(value, current_yr, replace_yr)
             else:
-                items = (_substitute_copyright_year(x, source_date_epoch_year) for x in value)
+                items = (
+                    _substitute_copyright_year(x, current_yr, replace_yr) for x in value
+                )
                 config[k] = type(value)(items)  # type: ignore[call-arg]
 
 
-def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
+def _substitute_copyright_year(
+    copyright_line: str, current_year: str, replace_year: str
+) -> str:
     """Replace the year in a single copyright line.
 
     Legal formats are:
@@ -657,13 +669,17 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
         return copyright_line
 
-    if copyright_line[4:5] in {'', ' ', ','}:
+    if copyright_line[:4] == current_year and copyright_line[4:5] in {'', ' ', ','}:
         return replace_year + copyright_line[4:]
 
-    if copyright_line[4] != '-':
+    if copyright_line[4:5] != '-':
         return copyright_line
 
-    if copyright_line[5:9].isdigit() and copyright_line[9:10] in {'', ' ', ','}:
+    if (
+        copyright_line[5:9].isdigit()
+        and copyright_line[5:9] == current_year
+        and copyright_line[9:10] in {'', ' ', ','}
+    ):
         return copyright_line[:5] + replace_year + copyright_line[9:]
 
     return copyright_line

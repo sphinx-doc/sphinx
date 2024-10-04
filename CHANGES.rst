@@ -110,6 +110,10 @@ Bugs fixed
 * #12916: Restore support for custom templates named with the legacy ``_t``
   suffix during ``apidoc`` RST rendering (regression in 7.4.0).
   Patch by James Addison.
+* #12451: Only substitute copyright notice years with values from
+  ``SOURCE_DATE_EPOCH`` for entries that match the current system clock year,
+  and disallow substitution of future years.
+  Patch by James Addison and Adam Turner.
 
 Testing
 -------
