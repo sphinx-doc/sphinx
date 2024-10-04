@@ -619,6 +619,21 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
     config.numfig_format = numfig_format
 
 
+def copyright_year_placeholders(_app: Sphinx, config: Config) -> None:
+    """Replace copyright year placeholders (%Y) with the current year."""
+    replace_yr = str(time.localtime().tm_year)
+    for k in ('copyright', 'epub_copyright'):
+        if k in config:
+            value: str | Sequence[str] = config[k]
+            if isinstance(value, str):
+                if '%Y' in value:
+                    config[k] = value.replace('%Y', replace_yr)
+            else:
+                if any('%Y' in line for line in value):
+                    items = (line.replace('%Y', replace_yr) for line in value)
+                    config[k] = type(value)(items)  # type: ignore[call-arg]
+
+
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
     """Correct values of copyright year that are not coherent with
     the SOURCE_DATE_EPOCH environment variable (if set)
@@ -626,38 +641,27 @@ def correct_copyright_year(_app: Sphinx, config: Config) -> None:
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
     if source_date_epoch := int(getenv('SOURCE_DATE_EPOCH', '0')):
-        replace_year = time.gmtime(source_date_epoch).tm_year
+        source_date_epoch_year = time.gmtime(source_date_epoch).tm_year
     else:
-        replace_year = time.gmtime().tm_year
+        return
 
     # If the current year is the replacement year, there's no work to do.
     # We also skip replacement years that are in the future.
     current_year = time.localtime().tm_year
-    if current_year <= replace_year:
+    if current_year <= source_date_epoch_year:
         return
 
     current_yr = str(current_year)
-    replace_yr = str(replace_year)
-    year_short = str(replace_year % 100)
+    replace_yr = str(source_date_epoch_year)
     for k in ('copyright', 'epub_copyright'):
         if k in config:
             value: str | Sequence[str] = config[k]
             if isinstance(value, str):
-                if '%y' in value or '%Y' in value:
-                    # new-style placeholder replacement
-                    config[k] = value.replace('%Y', replace_yr).replace('%y', year_short)
-                else:
-                    config[k] = _substitute_copyright_year(value, current_yr, replace_yr)
+                config[k] = _substitute_copyright_year(value, current_yr, replace_yr)
             else:
-                if any('%y' in line or '%Y' in line for line in value):
-                    # new-style placeholder replacement
-                    items = (
-                        x.replace('%Y', replace_yr).replace('%y', year_short) for x in value
-                    )
-                else:
-                    items = (
-                        _substitute_copyright_year(x, current_yr, replace_yr) for x in value
-                    )
+                items = (
+                    _substitute_copyright_year(x, current_yr, replace_yr) for x in value
+                )
                 config[k] = type(value)(items)  # type: ignore[call-arg]
 
 
@@ -786,6 +790,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
+    app.connect('config-inited', copyright_year_placeholders, priority=795)
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
     app.connect('config-inited', check_primary_domain, priority=800)
