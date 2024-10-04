@@ -49,8 +49,8 @@ Features added
 * #12743: Add :option:`sphinx-build --exception-on-warning`,
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
-* #12907: Add :confval:`html_last_updated_time_zone` to allow using
-  GMT (universal time) instead of local time for the date-time
+* #12907: Add :confval:`html_last_updated_use_utc` to allow using
+  universal time (GMT/UTC) instead of local time for the date-time
   supplied to :confval:`html_last_updated_fmt`.
   Patch by Adam Turner.
 * #12910: Copyright entries now support the ``'%Y'`` placeholder
