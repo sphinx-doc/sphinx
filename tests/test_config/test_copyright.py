@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from sphinx.config import Config, correct_copyright_year, copyright_year_placeholders
+from sphinx.config import Config, copyright_year_placeholders, correct_copyright_year
 
 LT = time.localtime()
 LT_NEW = (2009, *LT[1:], LT.tm_zone, LT.tm_gmtoff)
@@ -198,7 +198,7 @@ def test_correct_year_multi_line_all_formats_placeholder(expect_date):
             f'2006-{expect_date} Charlie',
             f'2006-{expect_date}, David',
             '2006-%y, Eve',
-            f'2009-%m-%d %H:%M:S %z, Francis',
+            '2009-%m-%d %H:%M:S %z, Francis',
         )
     else:
         assert cfg.copyright == (
