@@ -468,7 +468,6 @@ exclude = [
     "sphinx/ext/imgconverter.py",
     "sphinx/ext/imgmath.py",
     "sphinx/ext/inheritance_diagram.py",
-    "sphinx/ext/intersphinx/*",
     "sphinx/ext/linkcode.py",
     "sphinx/ext/mathjax.py",
     "sphinx/ext/napoleon/__init__.py",
