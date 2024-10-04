@@ -42,6 +42,7 @@ url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
 
 # High-level utility functions.
 
+
 def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
 
@@ -82,15 +83,22 @@ class UnicodeDecodeErrorHandler:
         if lineend == -1:
             lineend = len(error.object)
         lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning(__('undecodable source characters, replacing with "?": %r'),
-                       (error.object[linestart + 1:error.start] + b'>>>' +
-                        error.object[error.start:error.end] + b'<<<' +
-                        error.object[error.end:lineend]),
-                       location=(self.docname, lineno))
+        logger.warning(
+            __('undecodable source characters, replacing with "?": %r'),
+            (
+                error.object[linestart + 1 : error.start]
+                + b'>>>'
+                + error.object[error.start : error.end]
+                + b'<<<'
+                + error.object[error.end : lineend]
+            ),
+            location=(self.docname, lineno),
+        )
         return ('?', error.end)
 
 
 # Low-level utility functions and classes.
+
 
 def parselinenos(spec: str, total: int) -> list[int]:
     """Parse a line number spec (such as "1,2,4-6") and return a list of
@@ -136,12 +144,16 @@ def isurl(url: str) -> bool:
 
 # deprecated name -> (object to return, canonical path or empty string)
 _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'split_index_msg': (_index_entries.split_index_msg,
-                        'sphinx.util.index_entries.split_index_msg',
-                        (9, 0)),
-    'split_into': (_index_entries.split_index_msg,
-                   'sphinx.util.index_entries.split_into',
-                   (9, 0)),
+    'split_index_msg': (
+        _index_entries.split_index_msg,
+        'sphinx.util.index_entries.split_index_msg',
+        (9, 0),
+    ),
+    'split_into': (
+        _index_entries.split_index_msg,
+        'sphinx.util.index_entries.split_into',
+        (9, 0),
+    ),
     'md5': (_md5, '', (9, 0)),
     'sha1': (_sha1, '', (9, 0)),
     'import_object': (_importer.import_object, '', (10, 0)),

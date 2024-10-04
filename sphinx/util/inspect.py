@@ -52,11 +52,7 @@ if TYPE_CHECKING:
         | types.MethodDescriptorType
         | types.ClassMethodDescriptorType
     )
-    _SignatureType: TypeAlias = (
-        Callable[..., Any]
-        | staticmethod
-        | classmethod
-    )
+    _SignatureType: TypeAlias = Callable[..., Any] | staticmethod | classmethod
 
 logger = logging.getLogger(__name__)
 
@@ -266,7 +262,8 @@ def isstaticmethod(
 def isdescriptor(x: Any) -> TypeIs[_SupportsGet | _SupportsSet | _SupportsDelete]:
     """Check if the object is a :external+python:term:`descriptor`."""
     return any(
-        callable(safe_getattr(x, item, None)) for item in ('__get__', '__set__', '__delete__')
+        callable(safe_getattr(x, item, None))
+        for item in ('__get__', '__set__', '__delete__')
     )
 
 
@@ -429,7 +426,10 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
             sorted_keys = sorted(obj, key=lambda k: object_description(k, _seen=seen))
 
         items = (
-            (object_description(key, _seen=seen), object_description(obj[key], _seen=seen))
+            (
+                object_description(key, _seen=seen),
+                object_description(obj[key], _seen=seen),
+            )
             for key in sorted_keys
         )
         return '{%s}' % ', '.join(f'{key}: {value}' for (key, value) in items)
@@ -442,7 +442,9 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         except TypeError:
             # Cannot sort set values, fall back to using descriptions as a sort key
             sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
-        return '{%s}' % ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+        return '{%s}' % ', '.join(
+            object_description(x, _seen=seen) for x in sorted_values
+        )
     elif isinstance(obj, frozenset):
         if id(obj) in seen:
             return 'frozenset(...)'
@@ -760,7 +762,10 @@ def stringify_signature(
     args = []
     last_kind = None
     for param in sig.parameters.values():
-        if param.kind != Parameter.POSITIONAL_ONLY and last_kind == Parameter.POSITIONAL_ONLY:
+        if (
+            param.kind != Parameter.POSITIONAL_ONLY
+            and last_kind == Parameter.POSITIONAL_ONLY
+        ):
             # PEP-570: Separator for Positional Only Parameter: /
             args.append('/')
         if param.kind == Parameter.KEYWORD_ONLY and last_kind in (
@@ -797,7 +802,11 @@ def stringify_signature(
         args.append('/')
 
     concatenated_args = ', '.join(args)
-    if sig.return_annotation is EMPTY or not show_annotation or not show_return_annotation:
+    if (
+        sig.return_annotation is EMPTY
+        or not show_annotation
+        or not show_return_annotation
+    ):
         return f'({concatenated_args})'
     else:
         retann = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
@@ -842,11 +851,15 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> Signature:
 
     # normal arguments
     for arg, defexpr in zip(args.args, defaults[pos_only_offset:], strict=False):
-        params.append(_define(Parameter.POSITIONAL_OR_KEYWORD, arg, code, defexpr=defexpr))
+        params.append(
+            _define(Parameter.POSITIONAL_OR_KEYWORD, arg, code, defexpr=defexpr)
+        )
 
     # variadic positional argument (no possible default expression)
     if args.vararg:
-        params.append(_define(Parameter.VAR_POSITIONAL, args.vararg, code, defexpr=None))
+        params.append(
+            _define(Parameter.VAR_POSITIONAL, args.vararg, code, defexpr=None)
+        )
 
     # keyword-only arguments
     for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults, strict=False):

@@ -47,8 +47,8 @@ ascii_tex_replacements = [
     # complications (whether by {}, or a macro) and is not done
     # the next two require textcomp package
     ("'", r'\textquotesingle{}'),  # else ' renders curly, and '' is a ligature
-    ('`', r'\textasciigrave{}'),   # else \` and \`\` render curly
-    ('<', r'\textless{}'),     # < is inv. exclam in OT1, << is a T1-ligature
+    ('`', r'\textasciigrave{}'),  # else \` and \`\` render curly
+    ('<', r'\textless{}'),  # < is inv. exclam in OT1, << is a T1-ligature
     ('>', r'\textgreater{}'),  # > is inv. quest. mark in 0T1, >> a T1-ligature
 ]
 

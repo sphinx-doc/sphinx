@@ -483,6 +483,5 @@ exclude = [
     "sphinx/search/*",
     "sphinx/testing/*",
     "sphinx/transforms/*",
-    "sphinx/util/*",
     "sphinx/writers/*",
 ]

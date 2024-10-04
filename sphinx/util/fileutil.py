@@ -35,11 +35,14 @@ def _template_basename(filename: str | os.PathLike[str]) -> str | None:
     return None
 
 
-def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLike[str],
-                    context: dict[str, Any] | None = None,
-                    renderer: BaseRenderer | None = None,
-                    *,
-                    force: bool = False) -> None:
+def copy_asset_file(
+    source: str | os.PathLike[str],
+    destination: str | os.PathLike[str],
+    context: dict[str, Any] | None = None,
+    renderer: BaseRenderer | None = None,
+    *,
+    force: bool = False,
+) -> None:
     """Copy an asset file to destination.
 
     On copying, it expands the template variables if context argument is given and
@@ -62,38 +65,51 @@ def copy_asset_file(source: str | os.PathLike[str], destination: str | os.PathLi
     if _template_basename(source) and context is not None:
         if renderer is None:
             from sphinx.util.template import SphinxRenderer
+
             renderer = SphinxRenderer()
 
         with open(source, encoding='utf-8') as fsrc:
             template_content = fsrc.read()
         rendered_template = renderer.render_string(template_content, context)
 
-        if (
-            not force
-            and destination.exists()
-            and template_content != rendered_template
-        ):
-            msg = __('Aborted attempted copy from rendered template %s to %s '
-                     '(the destination path has existing data).')
-            logger.warning(msg, os.fsdecode(source), os.fsdecode(destination),
-                           type='misc', subtype='copy_overwrite')
+        if not force and destination.exists() and template_content != rendered_template:
+            msg = __(
+                'Aborted attempted copy from rendered template %s to %s '
+                '(the destination path has existing data).'
+            )
+            logger.warning(
+                msg,
+                os.fsdecode(source),
+                os.fsdecode(destination),
+                type='misc',
+                subtype='copy_overwrite',
+            )
             return
 
         destination = _template_basename(destination) or destination
         with open(destination, 'w', encoding='utf-8') as fdst:
             msg = __('Writing evaluated template result to %s')
-            logger.info(msg, os.fsdecode(destination), type='misc',
-                        subtype='template_evaluation')
+            logger.info(
+                msg,
+                os.fsdecode(destination),
+                type='misc',
+                subtype='template_evaluation',
+            )
             fdst.write(rendered_template)
     else:
         copyfile(source, destination, force=force)
 
 
-def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[str],
-               excluded: PathMatcher = lambda path: False,
-               context: dict[str, Any] | None = None, renderer: BaseRenderer | None = None,
-               onerror: Callable[[str, Exception], None] | None = None,
-               *, force: bool = False) -> None:
+def copy_asset(
+    source: str | os.PathLike[str],
+    destination: str | os.PathLike[str],
+    excluded: PathMatcher = lambda path: False,
+    context: dict[str, Any] | None = None,
+    renderer: BaseRenderer | None = None,
+    onerror: Callable[[str, Exception], None] | None = None,
+    *,
+    force: bool = False,
+) -> None:
     """Copy asset files to destination recursively.
 
     On copying, it expands the template variables if context argument is given and
@@ -114,14 +130,14 @@ def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[st
 
     if renderer is None:
         from sphinx.util.template import SphinxRenderer
+
         renderer = SphinxRenderer()
 
     ensuredir(destination)
     if os.path.isfile(source):
-        copy_asset_file(source, destination,
-                        context=context,
-                        renderer=renderer,
-                        force=force)
+        copy_asset_file(
+            source, destination, context=context, renderer=renderer, force=force
+        )
         return
 
     for root, dirs, files in os.walk(source, followlinks=True):
@@ -135,11 +151,13 @@ def copy_asset(source: str | os.PathLike[str], destination: str | os.PathLike[st
         for filename in files:
             if not excluded(posixpath.join(reldir, filename)):
                 try:
-                    copy_asset_file(posixpath.join(root, filename),
-                                    posixpath.join(destination, reldir),
-                                    context=context,
-                                    renderer=renderer,
-                                    force=force)
+                    copy_asset_file(
+                        posixpath.join(root, filename),
+                        posixpath.join(destination, reldir),
+                        context=context,
+                        renderer=renderer,
+                        force=force,
+                    )
                 except Exception as exc:
                     if onerror:
                         onerror(posixpath.join(root, filename), exc)
