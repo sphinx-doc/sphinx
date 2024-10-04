@@ -4,7 +4,11 @@ import time
 
 import pytest
 
-from sphinx.config import Config, copyright_year_placeholders, correct_copyright_year
+from sphinx.config import (
+    Config,
+    correct_copyright_year,
+    evaluate_copyright_placeholders,
+)
 
 LT = time.localtime()
 LT_NEW = (2009, *LT[1:], LT.tm_zone, LT.tm_gmtoff)
@@ -111,7 +115,7 @@ def test_correct_year_placeholder(expect_date):
     copyright_date = '2006-%Y, Alice'
     cfg = Config({'copyright': copyright_date}, {})
     assert cfg.copyright == copyright_date
-    copyright_year_placeholders(None, cfg)  # type: ignore[arg-type]
+    evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == f'2006-{expect_date}, Alice'
@@ -187,7 +191,7 @@ def test_correct_year_multi_line_all_formats_placeholder(expect_date):
     )
     cfg = Config({'copyright': copyright_dates}, {})
     assert cfg.copyright == copyright_dates
-    copyright_year_placeholders(None, cfg)  # type: ignore[arg-type]
+    evaluate_copyright_placeholders(None, cfg)  # type: ignore[arg-type]
     correct_copyright_year(None, cfg)  # type: ignore[arg-type]
     if expect_date and expect_date <= LOCALTIME_2009.tm_year:
         assert cfg.copyright == (

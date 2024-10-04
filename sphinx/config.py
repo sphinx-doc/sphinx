@@ -619,7 +619,7 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
     config.numfig_format = numfig_format
 
 
-def copyright_year_placeholders(_app: Sphinx, config: Config) -> None:
+def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
     """Replace copyright year placeholders (%Y) with the current year."""
     replace_yr = str(time.localtime().tm_year)
     for k in ('copyright', 'epub_copyright'):
@@ -790,7 +790,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
-    app.connect('config-inited', copyright_year_placeholders, priority=795)
+    app.connect('config-inited', evaluate_copyright_placeholders, priority=795)
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
     app.connect('config-inited', check_primary_domain, priority=800)
