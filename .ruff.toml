@@ -446,7 +446,7 @@ quote-style = "single"
 exclude = [
     "sphinx/addnodes.py",
     "sphinx/application.py",
-    "sphinx/builders/*",
+    "sphinx/builders/latex/constants.py",
     "sphinx/config.py",
     "sphinx/domains/*",
     "sphinx/ext/autodoc/__init__.py",
