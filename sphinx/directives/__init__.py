@@ -301,9 +301,9 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             # If ``:no-index:`` is set, or there are no ids on the node
             # or any of its children, then just return the index node,
             # as Docutils expects a target node to have at least one id.
-            if node_ids := [
+            if node_ids := [  # type: ignore[var-annotated]
                 node_id
-                for el in node.findall(nodes.Element)  # type: ignore[var-annotated]
+                for el in node.findall(nodes.Element)
                 for node_id in el.get('ids', ())
             ]:
                 target_node = nodes.target(ids=node_ids)
