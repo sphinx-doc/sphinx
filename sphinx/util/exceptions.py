@@ -40,8 +40,9 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
             if ext.version != 'builtin'
         )
 
-    tmp = NamedTemporaryFile('w', suffix='.log', prefix='sphinx-err-', delete=False)
-    with tmp as f:
+    with NamedTemporaryFile(
+        'w', suffix='.log', prefix='sphinx-err-', delete=False
+    ) as f:
         f.write(f"""\
 # Platform:         {sys.platform}; ({platform.platform()})
 # Sphinx version:   {sphinx.__display_version__}
