@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from docutils.writers.html5_polyglot import Writer
+from docutils.writers.html4css1 import Writer
 
 from sphinx.util import logging
 from sphinx.writers.html5 import HTML5Translator
