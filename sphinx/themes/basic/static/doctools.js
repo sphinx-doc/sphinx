@@ -1,7 +1,4 @@
 /*
- * doctools.js
- * ~~~~~~~~~~~
- *
  * Base JavaScript utilities for all Sphinx HTML documentation.
  *
  * :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS.
