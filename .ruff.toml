@@ -447,7 +447,6 @@ exclude = [
     "sphinx/builders/*",
     "sphinx/config.py",
     "sphinx/domains/*",
-    "sphinx/environment/*",
     "sphinx/ext/autodoc/__init__.py",
     "sphinx/ext/autodoc/directive.py",
     "sphinx/ext/autodoc/importer.py",
