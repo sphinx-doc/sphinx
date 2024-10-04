@@ -24,7 +24,7 @@ class BuildInfo:
 
     @classmethod
     def load(cls: type[BuildInfo], filename: Path, /) -> BuildInfo:
-        content = filename.read_text(encoding="utf-8")
+        content = filename.read_text(encoding='utf-8')
         lines = content.splitlines()
 
         version = lines[0].rstrip()
@@ -61,8 +61,9 @@ class BuildInfo:
             self.tags_hash = stable_hash(sorted(tags))
 
     def __eq__(self, other: BuildInfo) -> bool:  # type: ignore[override]
-        return (self.config_hash == other.config_hash and
-                self.tags_hash == other.tags_hash)
+        return (
+            self.config_hash == other.config_hash and self.tags_hash == other.tags_hash
+        )
 
     def dump(self, filename: Path, /) -> None:
         build_info = (
@@ -72,4 +73,4 @@ class BuildInfo:
             f'config: {self.config_hash}\n'
             f'tags: {self.tags_hash}\n'
         )
-        filename.write_text(build_info, encoding="utf-8")
+        filename.write_text(build_info, encoding='utf-8')
