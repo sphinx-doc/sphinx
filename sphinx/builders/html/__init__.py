@@ -1423,9 +1423,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', str)
-    app.add_config_value(
-        'html_last_updated_use_utc', False, 'html', types={bool}
-    )
+    app.add_config_value('html_last_updated_use_utc', False, 'html', types={bool})
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_domain_indices', True, 'html', types={set, list})
