@@ -20,8 +20,13 @@ class MetadataCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.metadata.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: set[str],
+        other: BuildEnvironment,
+    ) -> None:
         for docname in docnames:
             env.metadata[docname] = other.metadata[docname]
 

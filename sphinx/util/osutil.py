@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 # Define SEP as a manifest constant, not so much because we expect it to change
 # in the future as to avoid the suspicion that a stray "/" in the code is a
 # hangover from more *nix-oriented origins.
-SEP = "/"
+SEP = '/'
 
 
 def os_path(canonical_path: str, /) -> str:
@@ -115,21 +115,23 @@ def copyfile(
         raise FileNotFoundError(msg)
 
     if (
-        not (dest_exists := dest.exists()) or
+        not (dest_exists := dest.exists())
         # comparison must be done using shallow=False since
         # two different files might have the same size
-        not filecmp.cmp(source, dest, shallow=False)
+        or not filecmp.cmp(source, dest, shallow=False)
     ):
         if not force and dest_exists:
             # sphinx.util.logging imports sphinx.util.osutil,
             # so use a local import to avoid circular imports
             from sphinx.util import logging
+
             logger = logging.getLogger(__name__)
 
-            msg = __('Aborted attempted copy from %s to %s '
-                     '(the destination path has existing data).')
-            logger.warning(msg, source, dest,
-                           type='misc', subtype='copy_overwrite')
+            msg = __(
+                'Aborted attempted copy from %s to %s '
+                '(the destination path has existing data).'
+            )
+            logger.warning(msg, source, dest, type='misc', subtype='copy_overwrite')
             return
 
         shutil.copyfile(source, dest)
@@ -149,8 +151,9 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project.removesuffix(' Documentation')).lower()
 
 
-def relpath(path: str | os.PathLike[str],
-            start: str | os.PathLike[str] | None = os.curdir) -> str:
+def relpath(
+    path: str | os.PathLike[str], start: str | os.PathLike[str] | None = os.curdir
+) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -241,7 +244,7 @@ class FileAvoidWrite:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
     ) -> bool:
         self.close()
         return True

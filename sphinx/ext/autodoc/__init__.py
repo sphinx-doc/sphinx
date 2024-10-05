@@ -1087,7 +1087,8 @@ class ModuleDocumenter(Documenter):
                 else:
                     logger.warning(__('missing attribute mentioned in :members: option: '
                                       'module %s, attribute %s'),
-                                   safe_getattr(self.object, '__name__', '???', name),
+                                   safe_getattr(self.object, '__name__', '???'),
+                                   name,
                                    type='autodoc')
             return False, ret
 

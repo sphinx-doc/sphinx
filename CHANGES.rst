@@ -49,9 +49,15 @@ Features added
 * #12743: Add :option:`sphinx-build --exception-on-warning`,
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
-* #12907: Add :confval:`html_last_updated_time_zone` to allow using
-  GMT (universal time) instead of local time for the date-time
+* #12907: Add :confval:`html_last_updated_use_utc` to allow using
+  universal time (GMT/UTC) instead of local time for the date-time
   supplied to :confval:`html_last_updated_fmt`.
+  Patch by Adam Turner.
+* #12910: Copyright entries now support the ``'%Y'`` placeholder
+  to substitute the current year.
+  This is helpful for reducing the reliance on Python modules
+  such as :py:mod:`time` or :py:mod:`datetime` in :file:`conf.py`.
+  See :ref:`the docs <config-copyright>` for further detail.
   Patch by Adam Turner.
 
 Bugs fixed
@@ -110,6 +116,10 @@ Bugs fixed
 * #12916: Restore support for custom templates named with the legacy ``_t``
   suffix during ``apidoc`` RST rendering (regression in 7.4.0).
   Patch by James Addison.
+* #12451: Only substitute copyright notice years with values from
+  ``SOURCE_DATE_EPOCH`` for entries that match the current system clock year,
+  and disallow substitution of future years.
+  Patch by James Addison and Adam Turner.
 
 Testing
 -------

@@ -86,13 +86,13 @@ lint = [
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20240724",
+    "types-docutils==0.21.0.20241004",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.18.0.20240506",
     "types-requests==2.32.0.20240914",  # align with requests
     "types-urllib3==1.26.25.14",
     "tomli>=2",  # for mypy (Python<=3.10)
-    "pyright==1.1.382.post0",
+    "pyright==1.1.383",
     "pytest>=6.0",
 ]
 test = [
@@ -146,7 +146,6 @@ files = [
 exclude = [
     "tests/roots",
     # tests/
-    "^tests/test_events\\.py$",
     "^tests/test_quickstart\\.py$",
     "^tests/test_search\\.py$",
     # tests/test_builders
@@ -175,14 +174,12 @@ exclude = [
     # tests/test_extensions
     "^tests/test_extensions/test_ext_apidoc\\.py$",
     "^tests/test_extensions/test_ext_autodoc\\.py$",
-    "^tests/test_extensions/test_ext_autodoc_autofunction\\.py$",
     "^tests/test_extensions/test_ext_autodoc_events\\.py$",
     "^tests/test_extensions/test_ext_autodoc_mock\\.py$",
     "^tests/test_extensions/test_ext_autosummary\\.py$",
     "^tests/test_extensions/test_ext_doctest\\.py$",
     "^tests/test_extensions/test_ext_inheritance_diagram\\.py$",
     "^tests/test_extensions/test_ext_intersphinx\\.py$",
-    "^tests/test_extensions/test_ext_napoleon\\.py$",
     "^tests/test_extensions/test_ext_napoleon_docstring\\.py$",
     # tests/test_intl
     "^tests/test_intl/test_intl\\.py$",

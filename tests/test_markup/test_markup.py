@@ -30,7 +30,8 @@ def settings(app):
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
         optparser = frontend.OptionParser(
-            components=(RstParser, HTMLWriter, LaTeXWriter), defaults=default_settings
+            components=(RstParser, HTMLWriter, LaTeXWriter),  # type: ignore[arg-type]
+            defaults=default_settings,
         )
     settings = optparser.get_default_values()
     settings.smart_quotes = True
