@@ -59,6 +59,9 @@ Features added
   such as :py:mod:`time` or :py:mod:`datetime` in :file:`conf.py`.
   See :ref:`the docs <config-copyright>` for further detail.
   Patch by Adam Turner.
+* #11781: Add roles for referencing CVEs (:rst:role:`:cve: <cve>`)
+  and CWEs (:rst:role:`:cwe: <cwe>`).
+  Patch by Hugo van Kemenade.
 
 Bugs fixed
 ----------
