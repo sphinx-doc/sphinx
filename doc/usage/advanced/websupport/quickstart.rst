@@ -3,8 +3,6 @@
 Web Support Quick Start
 =======================
 
-.. py:currentmodule:: sphinxcontrib.websupport
-
 Building Documentation Data
 ----------------------------
 
@@ -12,7 +10,7 @@ To make use of the web support package in your application you'll need to build
 the data it uses.  This data includes pickle files representing documents,
 search indices, and node data that is used to track where comments and other
 things are in a document.  To do this you will need to create an instance of the
-:class:`~WebSupport` class and call its :meth:`~WebSupport.build` method::
+:class:`~.WebSupport` class and call its :meth:`~.WebSupport.build` method::
 
    from sphinxcontrib.websupport import WebSupport
 
@@ -32,14 +30,14 @@ called "static" and contains static files that should be served from "/static".
 
    If you wish to serve static files from a path other than "/static", you can
    do so by providing the *staticdir* keyword argument when creating the
-   :class:`~WebSupport` object.
+   :class:`~.WebSupport` object.
 
 
 Integrating Sphinx Documents Into Your Webapp
 ----------------------------------------------
 
 Now that the data is built, it's time to do something useful with it.  Start off
-by creating a :class:`~WebSupport` object for your application::
+by creating a :class:`~.WebSupport` object for your application::
 
    from sphinxcontrib.websupport import WebSupport
 
@@ -47,7 +45,7 @@ by creating a :class:`~WebSupport` object for your application::
                         search='xapian')
 
 You'll only need one of these for each set of documentation you will be working
-with.  You can then call its :meth:`~WebSupport.get_document` method to access
+with.  You can then call its :meth:`~.WebSupport.get_document` method to access
 individual documents::
 
    contents = support.get_document('contents')
@@ -103,7 +101,7 @@ Authentication
 To use certain features such as voting, it must be possible to authenticate
 users.  The details of the authentication are left to your application.  Once a
 user has been authenticated you can pass the user's details to certain
-:class:`~WebSupport` methods using the *username* and *moderator* keyword
+:class:`~.WebSupport` methods using the *username* and *moderator* keyword
 arguments.  The web support package will store the username with comments and
 votes.  The only caveat is that if you allow users to change their username you
 must update the websupport package's data::
@@ -132,7 +130,7 @@ whether a user is logged in and then retrieves a document is::
 The first thing to notice is that the *docname* is just the request path.  This
 makes accessing the correct document easy from a single view.  If the user is
 authenticated, then the username and moderation status are passed along with the
-docname to :meth:`~WebSupport.get_document`.  The web support package will then
+docname to :meth:`~.WebSupport.get_document`.  The web support package will then
 add this data to the ``COMMENT_OPTIONS`` that are used in the template.
 
 .. note::
@@ -164,8 +162,8 @@ would be like this::
        return render_template('doc.html', document=document)
 
 Note that we used the same template to render our search results as we did to
-render our documents.  That's because :meth:`~WebSupport.get_search_results`
-returns a context dict in the same format that :meth:`~WebSupport.get_document`
+render our documents.  That's because :meth:`~.WebSupport.get_search_results`
+returns a context dict in the same format that :meth:`~.WebSupport.get_document`
 does.
 
 
@@ -175,7 +173,7 @@ Comments & Proposals
 Now that this is done it's time to define the functions that handle the AJAX
 calls from the script.  You will need three functions.  The first function is
 used to add a new comment, and will call the web support method
-:meth:`~WebSupport.add_comment`::
+:meth:`~.WebSupport.add_comment`::
 
    @app.route('/docs/add_comment', methods=['POST'])
    def add_comment():
@@ -204,7 +202,7 @@ specific node, and is aptly named
         data = support.get_data(node_id, username, moderator)
         return jsonify(**data)
 
-The final function that is needed will call :meth:`~WebSupport.process_vote`,
+The final function that is needed will call :meth:`~.WebSupport.process_vote`,
 and will handle user votes on comments::
 
    @app.route('/docs/process_vote', methods=['POST'])
@@ -222,7 +220,7 @@ and will handle user votes on comments::
 Comment Moderation
 ------------------
 
-By default, all comments added through :meth:`~WebSupport.add_comment` are
+By default, all comments added through :meth:`~.WebSupport.add_comment` are
 automatically displayed.  If you wish to have some form of moderation, you can
 pass the ``displayed`` keyword argument::
 
@@ -245,7 +243,7 @@ displayed::
 Rejecting comments happens via comment deletion.
 
 To perform a custom action (such as emailing a moderator) when a new comment is
-added but not displayed, you can pass callable to the :class:`~WebSupport`
+added but not displayed, you can pass callable to the :class:`~.WebSupport`
 class when instantiating your support object::
 
    def moderation_callback(comment):
