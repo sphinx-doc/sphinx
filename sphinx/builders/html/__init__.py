@@ -1063,7 +1063,7 @@ class StandaloneHTMLBuilder(Builder):
 
         if self.config.html_baseurl:
             ctx['pageurl'] = posixpath.join(
-                self.config.html_baseurl, pagename + self.out_suffix
+                self.config.html_baseurl, self.get_target_uri(pagename)
             )
         else:
             ctx['pageurl'] = None
