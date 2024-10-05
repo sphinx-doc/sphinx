@@ -196,6 +196,94 @@ class AnyXRefRole(XRefRole):
         return result
 
 
+class CVE(ReferenceRole):
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        target_id = f'index-{self.env.new_serialno("index")}'
+        entries = [
+            (
+                'single',
+                _('Common Vulnerabilities and Exposures; CVE %s') % self.target,
+                target_id,
+                '',
+                None,
+            )
+        ]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['cve']
+            )
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = f'CVE {self.title}'
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error(
+                __('invalid CVE number %s') % self.target, line=self.lineno
+            )
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self) -> str:
+        base_url = self.inliner.document.settings.cve_base_url
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return f'{base_url}{ret[0]}#{ret[1]}'
+        return f'{base_url}{ret[0]}'
+
+
+class CWE(ReferenceRole):
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        target_id = f'index-{self.env.new_serialno("index")}'
+        entries = [
+            (
+                'single',
+                _('Common Weakness Enumeration; CWE %s') % self.target,
+                target_id,
+                '',
+                None,
+            )
+        ]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['cwe']
+            )
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = f'CWE {self.title}'
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error(
+                __('invalid CWE number %s') % self.target, line=self.lineno
+            )
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self) -> str:
+        base_url = self.inliner.document.settings.cwe_base_url
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return f'{base_url}{int(ret[0])}.html#{ret[1]}'
+        return f'{base_url}{int(ret[0])}.html'
+
+
 class PEP(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
@@ -454,12 +542,17 @@ specific_docroles: dict[str, RoleFunction] = {
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to anything
     'any': AnyXRefRole(warn_dangling=True),
+    # external links
+    'cve': CVE(),
+    'cwe': CWE(),
     'pep': PEP(),
     'rfc': RFC(),
+    # emphasised things
     'guilabel': GUILabel(),
     'menuselection': MenuSelection(),
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
+    # other
     'abbr': Abbreviation(),
     'manpage': Manpage(),
 }
