@@ -1723,7 +1723,7 @@ and also make use of these options.
 
 .. confval:: html_last_updated_fmt
    :type: :code-py:`str`
-   :default: :code-py:`'%b %d, %Y'`
+   :default: :code-py:`None`
 
    If set, a 'Last updated on:' timestamp is inserted into the page footer
    using the given :func:`~time.strftime` format.
