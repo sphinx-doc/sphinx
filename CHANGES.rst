@@ -6,6 +6,8 @@ Dependencies
 
 * #12756: Add lower-bounds to the ``sphinxcontrib-*`` dependencies.
   Patch by Adam Turner.
+* #12833: Update the LaTeX ``parskip`` package from 2001 to 2018.
+  Patch by Jean-François B.
 
 Incompatible changes
 --------------------
