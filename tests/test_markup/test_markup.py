@@ -162,58 +162,58 @@ def get_verifier(verify, verify_re):
     [
         (
             # cve role
-        'verify',
-        ':cve:`2020-10735`',
-        ('<p><span class="target" id="index-0"></span><a class="cve reference external" '
-         'href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735">'
-         '<strong>CVE 2020-10735</strong></a></p>'),
-        ('\\sphinxAtStartPar\n'
-         '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
-         '!CVE 2020\\sphinxhyphen{}10735@\\spxentry{CVE 2020\\sphinxhyphen{}10735}}'
-         '\\sphinxhref{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735}'
-         '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735}}'),
-    ),
-    (
-        # cve role with anchor
-        'verify',
-        ':cve:`2020-10735#id1`',
-        ('<p><span class="target" id="index-0"></span><a class="cve reference external" '
-         'href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735#id1">'
-         '<strong>CVE 2020-10735#id1</strong></a></p>'),
-        ('\\sphinxAtStartPar\n'
-         '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
-         '!CVE 2020\\sphinxhyphen{}10735\\#id1@\\spxentry{CVE 2020\\sphinxhyphen{}10735\\#id1}}'
-         '\\sphinxhref{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735\\#id1}'
-         '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735\\#id1}}'),
-    ),
-    (
-        # cwe role
-        'verify',
-        ':cwe:`787`',
-        ('<p><span class="target" id="index-0"></span><a class="cwe reference external" '
-         'href="https://cwe.mitre.org/data/definitions/787.html">'
-         '<strong>CWE 787</strong></a></p>'),
-        ('\\sphinxAtStartPar\n'
-         '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
-         '!CWE 787@\\spxentry{CWE 787}}'
-         '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html}'
-         '{\\sphinxstylestrong{CWE 787}}'),
-    ),
-    (
-        # cwe role with anchor
-        'verify',
-        ':cwe:`787#id1`',
-        ('<p><span class="target" id="index-0"></span><a class="cwe reference external" '
-         'href="https://cwe.mitre.org/data/definitions/787.html#id1">'
-         '<strong>CWE 787#id1</strong></a></p>'),
-        ('\\sphinxAtStartPar\n'
-         '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
-         '!CWE 787\\#id1@\\spxentry{CWE 787\\#id1}}'
-         '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html\\#id1}'
-         '{\\sphinxstylestrong{CWE 787\\#id1}}'),
-    ),
-    (
-        # pep role
+            'verify',
+            ':cve:`2020-10735`',
+            ('<p><span class="target" id="index-0"></span><a class="cve reference external" '
+             'href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735">'
+             '<strong>CVE 2020-10735</strong></a></p>'),
+            ('\\sphinxAtStartPar\n'
+             '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
+             '!CVE 2020\\sphinxhyphen{}10735@\\spxentry{CVE 2020\\sphinxhyphen{}10735}}'
+             '\\sphinxhref{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735}'
+             '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735}}'),
+        ),
+        (
+            # cve role with anchor
+            'verify',
+            ':cve:`2020-10735#id1`',
+            ('<p><span class="target" id="index-0"></span><a class="cve reference external" '
+             'href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735#id1">'
+             '<strong>CVE 2020-10735#id1</strong></a></p>'),
+            ('\\sphinxAtStartPar\n'
+             '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
+             '!CVE 2020\\sphinxhyphen{}10735\\#id1@\\spxentry{CVE 2020\\sphinxhyphen{}10735\\#id1}}'
+             '\\sphinxhref{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735\\#id1}'
+             '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735\\#id1}}'),
+        ),
+        (
+            # cwe role
+            'verify',
+            ':cwe:`787`',
+            ('<p><span class="target" id="index-0"></span><a class="cwe reference external" '
+             'href="https://cwe.mitre.org/data/definitions/787.html">'
+             '<strong>CWE 787</strong></a></p>'),
+            ('\\sphinxAtStartPar\n'
+             '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
+             '!CWE 787@\\spxentry{CWE 787}}'
+             '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html}'
+             '{\\sphinxstylestrong{CWE 787}}'),
+        ),
+        (
+            # cwe role with anchor
+            'verify',
+            ':cwe:`787#id1`',
+            ('<p><span class="target" id="index-0"></span><a class="cwe reference external" '
+             'href="https://cwe.mitre.org/data/definitions/787.html#id1">'
+             '<strong>CWE 787#id1</strong></a></p>'),
+            ('\\sphinxAtStartPar\n'
+             '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
+             '!CWE 787\\#id1@\\spxentry{CWE 787\\#id1}}'
+             '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html\\#id1}'
+             '{\\sphinxstylestrong{CWE 787\\#id1}}'),
+        ),
+        (
+            # pep role
             'verify',
             ':pep:`8`',
             (

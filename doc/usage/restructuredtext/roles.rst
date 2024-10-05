@@ -251,26 +251,31 @@ The following roles generate external links:
 
 .. rst:role:: cve
 
-   A reference to a Common Vulnerabilities and Exposures record.  This
-   generates appropriate index entries. The text "CVE *number*\ " is
-   generated; in the HTML output, this text is a hyperlink to an online copy
-   of the specified CVE.  You can link to a specific section by saying
-   ``:cve:`number#anchor```.
+   A reference to a `Common Vulnerabilities and Exposures`_ record.
+   This generates appropriate index entries.
+   The text "CVE *number*\ " is generated;
+   with a link to an online copy of the specified CVE.
+   You can link to a specific section by using ``:cve:`number#anchor```.
+
+   .. _Common Vulnerabilities and Exposures: https://www.cve.org/
 
    For example: :cve:`2020-10735`
 
-   .. versionadded:: 7.3
+   .. versionadded:: 8.1
 
 .. rst:role:: cwe
 
-   A reference to a Common Weakness Enumeration.  This generates appropriate
-   index entries. The text "CWE *number*\ " is generated; in the HTML output,
-   this text is a hyperlink to an online copy of the specified CWE.  You can
-   link to a specific section by saying ``:cwe:`number#anchor```.
+   A reference to a `Common Weakness Enumeration`_.
+   This generates appropriate index entries.
+   The text "CWE *number*\ " is generated; in the HTML output,
+   with a link to an online copy of the specified CWE.
+   You can link to a specific section by using ``:cwe:`number#anchor```.
+
+   .. _Common Weakness Enumeration: https://cwe.mitre.org/
 
    For example: :cwe:`787`
 
-   .. versionadded:: 7.3
+   .. versionadded:: 8.1
 
 .. rst:role:: pep
 
