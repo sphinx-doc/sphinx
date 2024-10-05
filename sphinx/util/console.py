@@ -41,8 +41,10 @@ if TYPE_CHECKING:
 try:
     # check if colorama is installed to support color on Windows
     import colorama
+
+    COLORAMA_AVAILABLE = True
 except ImportError:
-    colorama = None
+    COLORAMA_AVAILABLE = False
 
 _CSI: Final[str] = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
 
@@ -92,7 +94,7 @@ def term_width_line(text: str) -> str:
 def color_terminal() -> bool:
     if 'NO_COLOR' in os.environ:
         return False
-    if sys.platform == 'win32' and colorama is not None:
+    if sys.platform == 'win32' and COLORAMA_AVAILABLE:
         colorama.just_fix_windows_console()
         return True
     if 'FORCE_COLOR' in os.environ:
@@ -108,7 +110,7 @@ def color_terminal() -> bool:
 
 
 def nocolor() -> None:
-    if sys.platform == 'win32' and colorama is not None:
+    if sys.platform == 'win32' and COLORAMA_AVAILABLE:
         colorama.deinit()
     codes.clear()
 

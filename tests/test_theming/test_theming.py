@@ -23,10 +23,11 @@ HERE = Path(__file__).resolve().parent
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='theming',
     confoverrides={'html_theme': 'ziptheme', 'html_theme_options.testopt': 'foo'},
 )
-def test_theme_api(app, status, warning):
+def test_theme_api(app):
     themes = [
         'basic',
         'default',
@@ -72,6 +73,9 @@ def test_theme_api(app, status, warning):
     assert theme.get_config('theme', 'foobar', 'def') == 'def'
     with pytest.raises(ThemeError):
         theme.get_config('theme', 'foobar')
+    # nonexisting section
+    with pytest.raises(ThemeError):
+        theme.get_config('foobar', 'foobar')
 
     # options API
 
@@ -94,20 +98,28 @@ def test_nonexistent_theme_settings(tmp_path):
         _load_theme('', str(tmp_path))
 
 
-@pytest.mark.sphinx(testroot='double-inheriting-theme')
-def test_double_inheriting_theme(app, status, warning):
+@pytest.mark.sphinx('html', testroot='double-inheriting-theme')
+def test_double_inheriting_theme(app):
     assert app.builder.theme.name == 'base_theme2'
     app.build()  # => not raises TemplateNotFound
 
 
-@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'child'})
-def test_nested_zipped_theme(app, status, warning):
+@pytest.mark.sphinx(
+    'html',
+    testroot='theming',
+    confoverrides={'html_theme': 'child'},
+)
+def test_nested_zipped_theme(app):
     assert app.builder.theme.name == 'child'
     app.build()  # => not raises TemplateNotFound
 
 
-@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'staticfiles'})
-def test_staticfiles(app, status, warning):
+@pytest.mark.sphinx(
+    'html',
+    testroot='theming',
+    confoverrides={'html_theme': 'staticfiles'},
+)
+def test_staticfiles(app):
     app.build()
     assert (app.outdir / '_static' / 'legacytmpl.html').exists()
     assert (app.outdir / '_static' / 'legacytmpl.html').read_text(encoding='utf8') == (
@@ -124,7 +136,11 @@ def test_staticfiles(app, status, warning):
     assert '<meta name="testopt" content="optdefault" />' in result
 
 
-@pytest.mark.sphinx(testroot='theming', confoverrides={'html_theme': 'test-theme'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='theming',
+    confoverrides={'html_theme': 'test-theme'},
+)
 def test_dark_style(app, monkeypatch):
     monkeypatch.setattr(sphinx.builders.html, '_file_checksum', lambda o, f: '')
 
@@ -146,7 +162,9 @@ def test_dark_style(app, monkeypatch):
     ]
 
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
-    assert '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />' in result
+    assert (
+        '<link rel="stylesheet" type="text/css" href="_static/pygments.css" />'
+    ) in result
     assert (
         '<link id="pygments_dark_css" media="(prefers-color-scheme: dark)" '
         'rel="stylesheet" type="text/css" '
@@ -154,8 +172,8 @@ def test_dark_style(app, monkeypatch):
     ) in result
 
 
-@pytest.mark.sphinx(testroot='theming')
-def test_theme_sidebars(app, status, warning):
+@pytest.mark.sphinx('html', testroot='theming')
+def test_theme_sidebars(app):
     app.build()
 
     # test-theme specifies globaltoc and searchbox as default sidebars

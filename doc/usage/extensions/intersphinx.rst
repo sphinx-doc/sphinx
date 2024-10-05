@@ -78,7 +78,7 @@ linking:
 
    The unique identifier can be used in the :rst:role:`external` role, so that
    it is clear which intersphinx set the target belongs to.  A link like
-   ``external:python+ref:`comparison manual <comparisons>``` will link to the
+   ``:external+python:ref:`comparison manual <comparisons>``` will link to the
    label "comparisons" in the doc set "python", if it exists.
 
    **Example**
@@ -127,28 +127,6 @@ linking:
               ('https://myproj.readthedocs.io/projects/otherbook/en/latest',
                   ('../../otherbook/build/html/objects.inv', None)),
       }
-
-   **Old format for this config value**
-
-   .. deprecated:: 6.2
-
-   .. RemovedInSphinx80Warning
-
-   .. caution:: This is the format used before Sphinx 1.0.
-                It is deprecated and will be removed in Sphinx 8.0.
-
-   A dictionary mapping URIs to either ``None`` or an URI.  The keys are the
-   base URI of the foreign Sphinx documentation sets and can be local paths or
-   HTTP URIs.  The values indicate where the inventory file can be found: they
-   can be ``None`` (at the same location as the base URI) or another local or
-   HTTP URI.
-
-   Example:
-
-   .. code:: python
-
-      intersphinx_mapping = {'https://docs.python.org/': None}
-
 
 .. confval:: intersphinx_cache_limit
 

@@ -23,7 +23,7 @@ class SphinxDanglingReferences(DanglingReferences):
 
             # suppress INFO level messages for a while
             reporter.report_level = max(reporter.WARNING_LEVEL, reporter.report_level)
-            super().apply()
+            super().apply()  # type: ignore[no-untyped-call]
         finally:
             reporter.report_level = report_level
 
@@ -34,8 +34,7 @@ class SphinxDomains(SphinxTransform):
     default_priority = 850
 
     def apply(self, **kwargs: Any) -> None:
-        for domain in self.env.domains.values():
-            domain.process_doc(self.env, self.env.docname, self.document)
+        self.env.domains._process_doc(self.env, self.env.docname, self.document)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

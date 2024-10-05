@@ -1,12 +1,12 @@
-import os
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().resolve()))
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
 from sphinx import addnodes
-
-sys.path.append(os.path.abspath('.'))
 
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
@@ -70,10 +70,15 @@ latex_elements = {
 %
   shadowrule=1pt,
   shadowsep=10pt,
-  shadowsize=10pt,
-  div.topic_border-width=2pt,% alias to shadowrule
-  div.topic_padding=6pt,% alias to shadowsep
-  div.topic_box-shadow=5pt,% overrides/alias shadowsize
+  shadowsize=-10pt,
+  div.topic_border-width=2pt,
+  div.topic_padding=6pt,
+  div.topic_box-shadow=5pt,
+  div.contents_border-width=3pt,
+  div.contents_padding=10pt,
+  div.contents_box-shadow=none,
+  div.sidebar_border-width=0pt,
+  div.sidebar_border-radius=0pt,
 %
   noteBorderColor={RGB}{204,204,204},
   hintBorderColor={RGB}{204,204,204},

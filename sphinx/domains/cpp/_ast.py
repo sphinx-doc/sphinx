@@ -24,18 +24,17 @@ from sphinx.util.cfamily import (
     ASTBaseBase,
     ASTBaseParenExprList,
     NoOldIdError,
-    StringifyTransform,
     UnsupportedMultiCharacterCharLiteral,
     verify_description_mode,
 )
 
 if TYPE_CHECKING:
-
     from docutils.nodes import Element, TextElement
 
     from sphinx.addnodes import desc_signature
     from sphinx.domains.cpp._symbol import Symbol
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.cfamily import StringifyTransform
 
 
 class ASTBase(ASTBaseBase):

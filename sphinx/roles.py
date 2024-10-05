@@ -88,15 +88,15 @@ class XRefRole(ReferenceRole):
 
     def update_title_and_target(self, title: str, target: str) -> tuple[str, str]:
         if not self.has_explicit_title:
-            if title.endswith('()'):
-                # remove parentheses
-                title = title[:-2]
             if self.config.add_function_parentheses:
-                # add them back to all occurrences if configured
-                title += '()'
-        # remove parentheses from the target too
-        if target.endswith('()'):
-            target = target[:-2]
+                if not title.endswith('()'):
+                    # add parentheses to the title
+                    title += '()'
+            else:
+                # remove parentheses
+                title = title.removesuffix('()')
+        # remove parentheses from the target
+        target = target.removesuffix('()')
         return title, target
 
     def run(self) -> tuple[list[Node], list[system_message]]:
@@ -167,7 +167,11 @@ class XRefRole(ReferenceRole):
         return title, ws_re.sub(' ', target)
 
     def result_nodes(
-        self, document: nodes.document, env: BuildEnvironment, node: Element, is_ref: bool
+        self,
+        document: nodes.document,
+        env: BuildEnvironment,
+        node: Element,
+        is_ref: bool,
     ) -> tuple[list[Node], list[system_message]]:
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
@@ -192,6 +196,94 @@ class AnyXRefRole(XRefRole):
         return result
 
 
+class CVE(ReferenceRole):
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        target_id = f'index-{self.env.new_serialno("index")}'
+        entries = [
+            (
+                'single',
+                _('Common Vulnerabilities and Exposures; CVE %s') % self.target,
+                target_id,
+                '',
+                None,
+            )
+        ]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['cve']
+            )
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = f'CVE {self.title}'
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error(
+                __('invalid CVE number %s') % self.target, line=self.lineno
+            )
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self) -> str:
+        base_url = self.inliner.document.settings.cve_base_url
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return f'{base_url}{ret[0]}#{ret[1]}'
+        return f'{base_url}{ret[0]}'
+
+
+class CWE(ReferenceRole):
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        target_id = f'index-{self.env.new_serialno("index")}'
+        entries = [
+            (
+                'single',
+                _('Common Weakness Enumeration; CWE %s') % self.target,
+                target_id,
+                '',
+                None,
+            )
+        ]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['cwe']
+            )
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = f'CWE {self.title}'
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error(
+                __('invalid CWE number %s') % self.target, line=self.lineno
+            )
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self) -> str:
+        base_url = self.inliner.document.settings.cwe_base_url
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return f'{base_url}{int(ret[0])}.html#{ret[1]}'
+        return f'{base_url}{int(ret[0])}.html'
+
+
 class PEP(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
@@ -211,7 +303,9 @@ class PEP(ReferenceRole):
 
         try:
             refuri = self.build_uri()
-            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['pep'])
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['pep']
+            )
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
@@ -246,7 +340,9 @@ class RFC(ReferenceRole):
 
         try:
             refuri = self.build_uri()
-            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['rfc'])
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['rfc']
+            )
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
@@ -446,12 +542,17 @@ specific_docroles: dict[str, RoleFunction] = {
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to anything
     'any': AnyXRefRole(warn_dangling=True),
+    # external links
+    'cve': CVE(),
+    'cwe': CWE(),
     'pep': PEP(),
     'rfc': RFC(),
+    # emphasised things
     'guilabel': GUILabel(),
     'menuselection': MenuSelection(),
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
+    # other
     'abbr': Abbreviation(),
     'manpage': Manpage(),
 }

@@ -72,7 +72,9 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         # preprocess inputstring
         if isinstance(inputstring, str):
             lines = docutils.statemachine.string2lines(
-                inputstring, tab_width=document.settings.tab_width, convert_whitespace=True
+                inputstring,
+                tab_width=document.settings.tab_width,
+                convert_whitespace=True,
             )
 
             inputlines = StringList(lines, document.current_source)

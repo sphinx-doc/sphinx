@@ -18,3 +18,17 @@ the subject area they're researching.
 
 .. automodule:: relevance
    :members:
+
+Result Scoring
+--------------
+
+Many search engines assign a numeric score to documents during retrieval of
+results - and this score is often used to determine the order in which they
+will be presented to the user.
+
+For example, if a user issues a query for a two words, then documents that
+contain both of the words would typically be scored more highly than documents
+which only contain one of them.
+
+By evaluating search results and collecting user feedback over time, we can
+attempt to align document :index:`!scoring` with :index:`relevance`.

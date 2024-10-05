@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.graphviz` -- Add Graphviz graphs
 =================================================

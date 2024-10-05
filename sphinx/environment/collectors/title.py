@@ -22,8 +22,13 @@ class TitleCollector(EnvironmentCollector):
         env.titles.pop(docname, None)
         env.longtitles.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: set[str],
+        other: BuildEnvironment,
+    ) -> None:
         for docname in docnames:
             env.titles[docname] = other.titles[docname]
             env.longtitles[docname] = other.longtitles[docname]
@@ -43,7 +48,7 @@ class TitleCollector(EnvironmentCollector):
         for node in doctree.findall(nodes.section):
             visitor = SphinxContentsFilter(doctree)
             node[0].walkabout(visitor)
-            titlenode += visitor.get_entry_text()
+            titlenode += visitor.get_entry_text()  # type: ignore[no-untyped-call]
             break
         else:
             # document has no title

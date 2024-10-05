@@ -21,9 +21,8 @@ from __future__ import annotations
 __all__ = (
     'InventoryAdapter',
     'fetch_inventory',
-    'fetch_inventory_group',
     'load_mappings',
-    'normalize_intersphinx_mapping',
+    'validate_intersphinx_mapping',
     'IntersphinxRoleResolver',
     'inventory_exists',
     'install_dispatcher',
@@ -42,9 +41,8 @@ import sphinx
 from sphinx.ext.intersphinx._cli import inspect_main
 from sphinx.ext.intersphinx._load import (
     fetch_inventory,
-    fetch_inventory_group,
     load_mappings,
-    normalize_intersphinx_mapping,
+    validate_intersphinx_mapping,
 )
 from sphinx.ext.intersphinx._resolve import (
     IntersphinxDispatcher,
@@ -69,7 +67,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('intersphinx_cache_limit', 5, '')
     app.add_config_value('intersphinx_timeout', None, '')
     app.add_config_value('intersphinx_disabled_reftypes', ['std:doc'], 'env')
-    app.connect('config-inited', normalize_intersphinx_mapping, priority=800)
+    app.connect('config-inited', validate_intersphinx_mapping, priority=800)
     app.connect('builder-inited', load_mappings)
     app.connect('source-read', install_dispatcher)
     app.connect('missing-reference', missing_reference)
@@ -79,3 +77,25 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'env_version': 1,
         'parallel_read_safe': True,
     }
+
+
+# deprecated name -> (object to return, canonical path or empty string, removal version)
+_DEPRECATED_OBJECTS: dict[str, tuple[object, str, tuple[int, int]]] = {
+    'normalize_intersphinx_mapping': (
+        validate_intersphinx_mapping,
+        'sphinx.ext.intersphinx.validate_intersphinx_mapping',
+        (10, 0),
+    ),
+}
+
+
+def __getattr__(name: str) -> object:
+    if name not in _DEPRECATED_OBJECTS:
+        msg = f'module {__name__!r} has no attribute {name!r}'
+        raise AttributeError(msg)
+
+    from sphinx.deprecation import _deprecation_warning
+
+    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
+    _deprecation_warning(__name__, name, canonical_name, remove=remove)
+    return deprecated_object

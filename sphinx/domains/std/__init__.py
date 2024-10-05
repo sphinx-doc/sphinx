@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Final, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -14,7 +14,7 @@ from docutils.statemachine import StringList
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType, TitleGetter
+from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
 from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
@@ -23,12 +23,17 @@ from sphinx.util.nodes import clean_astext, make_id, make_refnode
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Set
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import ExtensionMetadata, OptionSpec, RoleFunction
+    from sphinx.util.typing import (
+        ExtensionMetadata,
+        OptionSpec,
+        RoleFunction,
+        TitleGetter,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +78,7 @@ class GenericObject(ObjectDescription[str]):
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry, node_id, '', None))
 
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains.standard_domain
         std.note_object(self.objtype, name, node_id, location=signode)
 
 
@@ -135,7 +140,8 @@ class ConfigurationValue(ObjectDescription[str]):
         self.state.document.note_explicit_target(signode)
         index_entry = self.index_template % name
         self.indexnode['entries'].append(('pair', index_entry, node_id, '', None))
-        self.env.domains['std'].note_object(self.objtype, name, node_id, location=signode)
+        domain = self.env.domains.standard_domain
+        domain.note_object(self.objtype, name, node_id, location=signode)
 
     def transform_content(self, content_node: addnodes.desc_content) -> None:
         """Insert *type* and *default* as a field list."""
@@ -206,7 +212,7 @@ class Target(SphinxDirective):
         if ':' in self.name:
             _, name = self.name.split(':', 1)
 
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains.standard_domain
         std.note_object(name, fullname, node_id, location=node)
 
         return ret
@@ -289,7 +295,7 @@ class Cmdoption(ObjectDescription[str]):
 
         self.state.document.note_explicit_target(signode)
 
-        domain = self.env.domains['std']
+        domain = self.env.domains.standard_domain
         for optname in signode.get('allnames', []):
             domain.add_program_option(currprogram, optname,
                                       self.env.docname, signode['ids'][0])
@@ -360,8 +366,7 @@ def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_k
         term['ids'].append(node_id)
         document.note_explicit_target(term)
 
-    std = cast(StandardDomain, env.get_domain('std'))
-    std._note_term(termtext, node_id, location=term)
+    env.domains.standard_domain._note_term(termtext, node_id, location=term)
 
     # add an index entry too
     indexnode = addnodes.index()
@@ -402,7 +407,7 @@ class Glossary(SphinxDirective):
         in_comment = False
         was_empty = True
         messages: list[Node] = []
-        for line, (source, lineno) in zip(self.content, self.content.items):
+        for line, (source, lineno) in zip(self.content, self.content.items, strict=True):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -534,7 +539,7 @@ class ProductionList(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        domain = cast(StandardDomain, self.env.get_domain('std'))
+        domain = self.env.domains.standard_domain
         node: Element = addnodes.productionlist()
         self.set_source_info(node)
         # The backslash handling is from ObjectDescription.get_signatures
@@ -761,7 +766,7 @@ class StandardDomain(Domain):
             if fn == docname:
                 del self.anonlabels[key]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
@@ -814,13 +819,12 @@ class StandardDomain(Domain):
                 if not sectname:
                     continue
             else:
-                if (isinstance(node, (nodes.definition_list,
-                                      nodes.field_list)) and
+                if (isinstance(node, nodes.definition_list | nodes.field_list) and
                         node.children):
                     node = cast(nodes.Element, node.children[0])
-                if isinstance(node, (nodes.field, nodes.definition_list_item)):
+                if isinstance(node, nodes.field | nodes.definition_list_item):
                     node = cast(nodes.Element, node.children[0])
-                if isinstance(node, (nodes.term, nodes.field_name)):
+                if isinstance(node, nodes.term | nodes.field_name):
                     sectname = clean_astext(node)
                 else:
                     toctree = next(node.findall(addnodes.toctree), None)
@@ -1114,7 +1118,7 @@ class StandardDomain(Domain):
                 return title_getter(elem)
             else:
                 for subnode in elem:
-                    if isinstance(subnode, (nodes.caption, nodes.title)):
+                    if isinstance(subnode, nodes.caption | nodes.title):
                         return clean_astext(subnode)
 
         return None

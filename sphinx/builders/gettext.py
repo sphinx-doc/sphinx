@@ -7,6 +7,7 @@ import time
 from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
@@ -28,7 +29,7 @@ from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
 
     from docutils.nodes import Element
 
@@ -36,13 +37,17 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
 
+DEFAULT_TEMPLATE_PATH = Path(package_dir, 'templates', 'gettext')
+
 logger = logging.getLogger(__name__)
 
 
 class Message:
     """An entry of translatable message."""
 
-    def __init__(self, text: str, locations: list[tuple[str, int]], uuids: list[str]) -> None:
+    def __init__(
+        self, text: str, locations: list[tuple[str, int]], uuids: list[str]
+    ) -> None:
         self.text = text
         self.locations = locations
         self.uuids = uuids
@@ -72,8 +77,9 @@ class Catalog:
 
     def __iter__(self) -> Iterator[Message]:
         for message in self.messages:
-            positions = sorted({(source, line) for source, line, uuid
-                               in self.metadata[message]})
+            positions = sorted({
+                (source, line) for source, line, uuid in self.metadata[message]
+            })
             uuids = [uuid for source, line, uuid in self.metadata[message]]
             yield Message(message, positions, uuids)
 
@@ -91,13 +97,15 @@ class MsgOrigin:
 
 class GettextRenderer(SphinxRenderer):
     def __init__(
-        self, template_path: list[str | os.PathLike[str]] | None = None,
-            outdir: str | os.PathLike[str] | None = None,
+        self,
+        template_path: Sequence[str | os.PathLike[str]] | None = None,
+        outdir: str | os.PathLike[str] | None = None,
     ) -> None:
         self.outdir = outdir
         if template_path is None:
-            template_path = [path.join(package_dir, 'templates', 'gettext')]
-        super().__init__(template_path)
+            super().__init__([DEFAULT_TEMPLATE_PATH])
+        else:
+            super().__init__([*template_path, DEFAULT_TEMPLATE_PATH])
 
         def escape(s: str) -> str:
             s = s.replace('\\', r'\\')
@@ -138,8 +146,9 @@ class I18nBuilder(Builder):
 
     def init(self) -> None:
         super().init()
-        self.env.set_versioning_method(self.versioning_method,
-                                       self.env.config.gettext_uuid)
+        self.env.set_versioning_method(
+            self.versioning_method, self.env.config.gettext_uuid
+        )
         self.tags = I18nTags()
         self.catalogs: defaultdict[str, Catalog] = defaultdict(Catalog)
 
@@ -196,8 +205,10 @@ def should_write(filepath: str, new_content: str) -> bool:
             new_header_index = new_content.index('"POT-Creation-Date:')
             old_body_index = old_content.index('"PO-Revision-Date:')
             new_body_index = new_content.index('"PO-Revision-Date:')
-            return ((old_content[:old_header_index] != new_content[:new_header_index]) or
-                    (new_content[new_body_index:] != old_content[old_body_index:]))
+            return (
+                old_content[:old_header_index] != new_content[:new_header_index]
+                or new_content[new_body_index:] != old_content[old_body_index:]
+            )
     except ValueError:
         pass
 
@@ -240,13 +251,14 @@ class MessageCatalogBuilder(I18nBuilder):
     def _extract_from_template(self) -> None:
         files = list(self._collect_templates())
         files.sort()
-        logger.info(bold(__('building [%s]: ')), self.name,  nonl=True)
+        logger.info(bold(__('building [%s]: ')), self.name, nonl=True)
         logger.info(__('targets for %d template files'), len(files))
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in status_iterator(files, __('reading templates... '), "purple",
-                                        len(files), self.app.verbosity):
+        for template in status_iterator(
+            files, __('reading templates... '), 'purple', len(files), self.app.verbosity
+        ):
             try:
                 with open(template, encoding='utf-8') as f:
                     context = f.read()
@@ -278,16 +290,23 @@ class MessageCatalogBuilder(I18nBuilder):
             'display_location': self.config.gettext_location,
             'display_uuid': self.config.gettext_uuid,
         }
-        for textdomain, catalog in status_iterator(self.catalogs.items(),
-                                                   __("writing message catalogs... "),
-                                                   "darkgreen", len(self.catalogs),
-                                                   self.app.verbosity,
-                                                   operator.itemgetter(0)):
+        for textdomain, catalog in status_iterator(
+            self.catalogs.items(),
+            __('writing message catalogs... '),
+            'darkgreen',
+            len(self.catalogs),
+            self.app.verbosity,
+            operator.itemgetter(0),
+        ):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             context['messages'] = list(catalog)
-            content = GettextRenderer(outdir=self.outdir).render('message.pot.jinja', context)
+            template_path = [
+                self.app.srcdir / rel_path for rel_path in self.config.templates_path
+            ]
+            renderer = GettextRenderer(template_path, outdir=self.outdir)
+            content = renderer.render('message.pot.jinja', context)
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):
@@ -312,7 +331,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
     app.add_config_value('gettext_additional_targets', [], 'env', types={set, list})
-    app.add_config_value('gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext')
+    app.add_config_value(
+        'gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext'
+    )
     app.add_config_value('gettext_language_team', 'LANGUAGE <LL@li.org>', 'gettext')
     app.connect('config-inited', _gettext_compact_validator, priority=800)
 

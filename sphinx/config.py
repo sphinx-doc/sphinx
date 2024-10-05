@@ -8,14 +8,13 @@ import traceback
 import types
 import warnings
 from os import getenv, path
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-from sphinx.util.typing import ExtensionMetadata, NoneType
 
 if sys.version_info >= (3, 11):
     from contextlib import chdir
@@ -24,16 +23,17 @@ else:
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Collection, Iterator, Sequence, Set
+    from collections.abc import Collection, Iterable, Iterator, Sequence, Set
+    from typing import TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.tags import Tags
-    from sphinx.util.typing import _ExtensionSetupFunc
+    from sphinx.util.typing import ExtensionMetadata, _ExtensionSetupFunc
 
 logger = logging.getLogger(__name__)
 
-_ConfigRebuild = Literal[
+_ConfigRebuild: TypeAlias = Literal[
     '', 'env', 'epub', 'gettext', 'html',
     # sphinxcontrib-applehelp
     'applehelp',
@@ -66,7 +66,7 @@ def is_serializable(obj: object, *, _seen: frozenset[int] = frozenset()) -> bool
             is_serializable(key, _seen=seen) and is_serializable(value, _seen=seen)
             for key, value in obj.items()
         )
-    elif isinstance(obj, (list, tuple, set, frozenset)):
+    elif isinstance(obj, list | tuple | set | frozenset):
         seen = _seen | {id(obj)}
         return all(is_serializable(item, _seen=seen) for item in obj)
 
@@ -87,13 +87,13 @@ class ENUM:
         self.candidates = candidates
 
     def match(self, value: str | list | tuple) -> bool:
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list | tuple):
             return all(item in self.candidates for item in value)
         else:
             return value in self.candidates
 
 
-_OptValidTypes = Union[tuple[()], tuple[type, ...], frozenset[type], ENUM]
+_OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
 
 
 class _Opt:
@@ -244,12 +244,12 @@ class Config:
         'template_bridge': _Opt(None, 'html', frozenset((str,))),
         'keep_warnings': _Opt(False, 'env', ()),
         'suppress_warnings': _Opt([], 'env', ()),
-        'show_warning_types': _Opt(False, 'env', frozenset((bool,))),
+        'show_warning_types': _Opt(True, 'env', frozenset((bool,))),
         'modindex_common_prefix': _Opt([], 'html', ()),
         'rst_epilog': _Opt(None, 'env', frozenset((str,))),
         'rst_prolog': _Opt(None, 'env', frozenset((str,))),
         'trim_doctest_flags': _Opt(True, 'env', ()),
-        'primary_domain': _Opt('py', 'env', frozenset((NoneType,))),
+        'primary_domain': _Opt('py', 'env', frozenset((types.NoneType,))),
         'needs_sphinx': _Opt(None, '', frozenset((str,))),
         'needs_extensions': _Opt({}, '', ()),
         'manpages_url': _Opt(None, 'env', ()),
@@ -260,7 +260,7 @@ class Config:
         'numfig_secnum_depth': _Opt(1, 'env', ()),
         'numfig_format': _Opt({}, 'env', ()),  # will be initialized in init_numfig_format()
         'maximum_signature_line_length': _Opt(
-            None, 'env', frozenset((int, NoneType))),
+            None, 'env', frozenset((int, types.NoneType))),
         'math_number_all': _Opt(False, 'env', ()),
         'math_eqref_format': _Opt(None, 'env', frozenset((str,))),
         'math_numfig': _Opt(True, 'env', ()),
@@ -271,7 +271,7 @@ class Config:
         'smartquotes': _Opt(True, 'env', ()),
         'smartquotes_action': _Opt('qDe', 'env', ()),
         'smartquotes_excludes': _Opt(
-            {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', ()),
+            {'languages': ['ja', 'zh_CN', 'zh_TW'], 'builders': ['man', 'text']}, 'env', ()),
         'option_emphasise_placeholders': _Opt(False, 'env', ()),
     }
 
@@ -416,11 +416,12 @@ class Config:
                 except ValueError as exc:
                     logger.warning("%s", exc)
                 else:
-                    self.__dict__[name] = value
+                    self.__setattr__(name, value)
                     return value
             # then check values from 'conf.py'
             if name in self._raw_config:
-                self.__dict__[name] = value = self._raw_config[name]
+                value = self._raw_config[name]
+                self.__setattr__(name, value)
                 return value
             # finally, fall back to the default value
             default = self._options[name].default
@@ -548,7 +549,7 @@ def _validate_valid_types(
 ) -> tuple[()] | tuple[type, ...] | frozenset[type] | ENUM:
     if not valid_types:
         return ()
-    if isinstance(valid_types, (frozenset, ENUM)):
+    if isinstance(valid_types, frozenset | ENUM):
         return valid_types
     if isinstance(valid_types, type):
         return frozenset((valid_types,))
@@ -581,13 +582,17 @@ def convert_source_suffix(app: Sphinx, config: Config) -> None:
         # The default filetype is determined on later step.
         # By default, it is considered as restructuredtext.
         config.source_suffix = {source_suffix: 'restructuredtext'}
-    elif isinstance(source_suffix, (list, tuple)):
+        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
+                    source_suffix, config.source_suffix)
+    elif isinstance(source_suffix, list | tuple):
         # if list, considers as all of them are default filetype
         config.source_suffix = dict.fromkeys(source_suffix, 'restructuredtext')
+        logger.info(__("Converting `source_suffix = %r` to `source_suffix = %r`."),
+                    source_suffix, config.source_suffix)
     elif not isinstance(source_suffix, dict):
-        logger.warning(__("The config value `source_suffix' expects "
-                          "a string, list of strings, or dictionary. "
-                          "But `%r' is given." % source_suffix))
+        msg = __("The config value `source_suffix' expects a dictionary, "
+                 "a string, or a list of strings. Got `%r' instead (type %s).")
+        raise ConfigError(msg % (source_suffix, type(source_suffix)))
 
 
 def convert_highlight_options(app: Sphinx, config: Config) -> None:
@@ -614,28 +619,55 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
     config.numfig_format = numfig_format
 
 
+def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
+    """Replace copyright year placeholders (%Y) with the current year."""
+    replace_yr = str(time.localtime().tm_year)
+    for k in ('copyright', 'epub_copyright'):
+        if k in config:
+            value: str | Sequence[str] = config[k]
+            if isinstance(value, str):
+                if '%Y' in value:
+                    config[k] = value.replace('%Y', replace_yr)
+            else:
+                if any('%Y' in line for line in value):
+                    items = (line.replace('%Y', replace_yr) for line in value)
+                    config[k] = type(value)(items)  # type: ignore[call-arg]
+
+
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
     """Correct values of copyright year that are not coherent with
     the SOURCE_DATE_EPOCH environment variable (if set)
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-    if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is None:
+    if source_date_epoch := int(getenv('SOURCE_DATE_EPOCH', '0')):
+        source_date_epoch_year = time.gmtime(source_date_epoch).tm_year
+    else:
         return
 
-    source_date_epoch_year = str(time.gmtime(int(source_date_epoch)).tm_year)
+    # If the current year is the replacement year, there's no work to do.
+    # We also skip replacement years that are in the future.
+    current_year = time.localtime().tm_year
+    if current_year <= source_date_epoch_year:
+        return
 
+    current_yr = str(current_year)
+    replace_yr = str(source_date_epoch_year)
     for k in ('copyright', 'epub_copyright'):
         if k in config:
             value: str | Sequence[str] = config[k]
             if isinstance(value, str):
-                config[k] = _substitute_copyright_year(value, source_date_epoch_year)
+                config[k] = _substitute_copyright_year(value, current_yr, replace_yr)
             else:
-                items = (_substitute_copyright_year(x, source_date_epoch_year) for x in value)
+                items = (
+                    _substitute_copyright_year(x, current_yr, replace_yr) for x in value
+                )
                 config[k] = type(value)(items)  # type: ignore[call-arg]
 
 
-def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
+def _substitute_copyright_year(
+    copyright_line: str, current_year: str, replace_year: str
+) -> str:
     """Replace the year in a single copyright line.
 
     Legal formats are:
@@ -643,6 +675,7 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     * ``YYYY``
     * ``YYYY,``
     * ``YYYY ``
+    * ``YYYY-YYYY``
     * ``YYYY-YYYY,``
     * ``YYYY-YYYY ``
 
@@ -651,13 +684,17 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
         return copyright_line
 
-    if copyright_line[4:5] in {'', ' ', ','}:
+    if copyright_line[:4] == current_year and copyright_line[4:5] in {'', ' ', ','}:
         return replace_year + copyright_line[4:]
 
-    if copyright_line[4] != '-':
+    if copyright_line[4:5] != '-':
         return copyright_line
 
-    if copyright_line[5:9].isdigit() and copyright_line[9:10] in {'', ' ', ','}:
+    if (
+        copyright_line[5:9].isdigit()
+        and copyright_line[5:9] == current_year
+        and copyright_line[9:10] in {'', ' ', ','}
+    ):
         return copyright_line[:5] + replace_year + copyright_line[9:]
 
     return copyright_line
@@ -734,8 +771,8 @@ def check_primary_domain(app: Sphinx, config: Config) -> None:
         config.primary_domain = None
 
 
-def check_root_doc(app: Sphinx, env: BuildEnvironment, added: set[str],
-                   changed: set[str], removed: set[str]) -> set[str]:
+def check_root_doc(app: Sphinx, env: BuildEnvironment, added: Set[str],
+                   changed: Set[str], removed: Set[str]) -> Iterable[str]:
     """Adjust root_doc to 'contents' to support an old project which does not have
     any root_doc setting.
     """
@@ -753,6 +790,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
+    app.connect('config-inited', evaluate_copyright_placeholders, priority=795)
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
     app.connect('config-inited', check_primary_domain, priority=800)

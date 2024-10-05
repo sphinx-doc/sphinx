@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatextables.sty}[2024/07/01 v7.4.0 tables]%
+\ProvidesPackage{sphinxlatextables}[2024/07/01 v7.4.0 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -108,6 +108,7 @@
     \vbox{}% get correct baseline from above
     \LTpre\z@skip\LTpost\z@skip % set to zero longtable's own skips
     \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}%
+    \spx@inframedtrue % message to sphinxheavybox
    }%
 % Compatibility with caption package
 \def\sphinxthelongtablecaptionisattop{%
@@ -121,7 +122,9 @@
 \def\sphinxatlongtableend{\@nobreakfalse % latex3/latex2e#173
     \prevdepth\z@\vskip\sphinxtablepost\relax}%
 % B. Table with tabular or tabulary
-\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax}%
+\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax
+                        \spx@inframedtrue % message to sphinxheavybox
+                        }%
 \let\sphinxattableend\sphinxatlongtableend
 % This is used by tabular and tabulary templates
 \newcommand*\sphinxcapstartof[1]{%

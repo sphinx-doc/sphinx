@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-french_stopwords = parse_stop_word('''
+french_stopwords = parse_stop_word("""
 | source: https://snowball.tartarus.org/algorithms/french/stop.txt
 au             |  a + le
 aux            |  a + les
@@ -183,7 +181,7 @@ quelle         |  which
 quelles        |  which
 sans           |  without
 soi            |  oneself
-''')
+""")
 
 
 class SearchFrench(SearchLanguage):

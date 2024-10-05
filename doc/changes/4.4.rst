@@ -1,0 +1,85 @@
+==========
+Sphinx 4.4
+==========
+
+
+Release 4.4.0 (released Jan 17, 2022)
+=====================================
+
+Dependencies
+------------
+
+* #10007: Use ``importlib_metadata`` for python-3.9 or older
+* #10007: Drop ``setuptools``
+
+Features added
+--------------
+
+* #9075: autodoc: Add a config variable :confval:`autodoc_typehints_format`
+  to suppress the leading module names of typehints of function signatures (ex.
+  ``io.StringIO`` -> ``StringIO``)
+* #9831: Autosummary now documents only the members specified in a module's
+  ``__all__`` attribute if :confval:`autosummary_ignore_module_all` is set to
+  ``False``. The default behaviour is unchanged. Autogen also now supports
+  this behavior with the ``--respect-module-all`` switch.
+* #9555: autosummary: Improve error messages on failure to load target object
+* #9800: extlinks: Emit warning if a hardcoded link is replaceable
+  by an extlink, suggesting a replacement.
+* #9961: html: Support nested <kbd> HTML elements in other HTML builders
+* #10013: html: Allow to change the loading method of JS via ``loading_method``
+  parameter for :meth:`.Sphinx.add_js_file`
+* #9551: html search: "Hide Search Matches" link removes "highlight" parameter
+  from URL
+* #9815: html theme: Wrap sidebar components in div to allow customizing their
+  layout via CSS
+* #9827: i18n: Sort items in glossary by translated terms
+* #9899: py domain: Allows to specify cross-reference specifier (``.`` and
+  ``~``) as ``:type:`` option
+* #9894: linkcheck: add option ``linkcheck_exclude_documents`` to disable link
+  checking in matched documents.
+* #9793: sphinx-build: Allow to use the parallel build feature in macOS on macOS
+  and Python3.8+
+* #10055: sphinx-build: Create directories when ``-w`` option given
+* #9993: std domain: Allow to refer an inline target (ex. ``_`target name```)
+  via :rst:role:`ref` role
+* #9981: std domain: Strip value part of the option directive from general index
+* #9391: texinfo: improve variable in ``samp`` role
+* #9578: texinfo: Add :confval:`texinfo_cross_references` to disable cross
+  references for readability with standalone readers
+* #9822, #9062: add new Intersphinx role :rst:role:`external` for explicit
+  lookup in the external projects, without resolving to the local project.
+
+Bugs fixed
+----------
+
+* #9866: autodoc: doccomment for the imported class was ignored
+* #9883: autodoc: doccomment for the alias to mocked object was ignored
+* #9908: autodoc: debug message is shown on building document using NewTypes
+  with Python 3.10
+* #9968: autodoc: instance variables are not shown if __init__ method has
+  position-only-arguments
+* #9194: autodoc: types under the "typing" module are not hyperlinked
+* #10009: autodoc: Crashes if target object raises an error on getting docstring
+* #10058: autosummary: Imported members are not shown when
+  ``autodoc_class_signature = 'separated'``
+* #9947: i18n: topic directive having a bullet list can't be translatable
+* #9878: mathjax: MathJax configuration is placed after loading MathJax itself
+* #9932: napoleon: empty "returns" section is generated even if no description
+* #9857: Generated RFC links use outdated base url
+* #9909: HTML, prevent line-wrapping in literal text.
+* #10061: html theme: Configuration values added by themes are not be able to
+  override from conf.py
+* #10073: imgconverter: Unnecessary availability check is called for "data" URIs
+* #9925: LaTeX: prohibit also with ``'xelatex'`` line splitting at dashes of
+  inline and parsed literals
+* #9944: LaTeX: extra vertical whitespace for some nested declarations
+* #9940: LaTeX: Multi-function declaration in Python domain has cramped
+  vertical spacing in latexpdf output
+* #10015: py domain: types under the "typing" module are not hyperlinked defined
+  at info-field-list
+* #9390: texinfo: Do not emit labels inside footnotes
+* #9413: xml: Invalid XML was generated when cross referencing python objects
+* #9979: Error level messages were displayed as warning messages
+* #10057: Failed to scan documents if the project is placed onto the root
+  directory
+* #9636: code-block: ``:dedent:`` without argument did strip newlines
