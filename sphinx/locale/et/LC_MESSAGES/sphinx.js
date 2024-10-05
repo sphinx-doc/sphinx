@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Otsi",
         "Hide Search Matches": "Varja otsingu tulemused",
         "Index": "Indeks",
-        "Index &ndash; %(key)s": "Indeks &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indeksi lehek\u00fcljed algust\u00e4he kaupa",
         "Indices and tables:": "Indeksid ja tabelid:",
         "Last updated on %(last_updated)s.": "Viimati uuendatud %(last_updated)s.",

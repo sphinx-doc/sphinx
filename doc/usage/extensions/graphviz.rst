@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.graphviz` -- Add Graphviz graphs
 =================================================
@@ -66,7 +66,7 @@ It adds these directives:
    .. rst:directive:option:: layout: layout type of the graph
       :type: text
 
-      The layout of the graph (ex. ``dot``, ``neato`` and so on).  A path to the
+      The layout of the graph (e.g. ``dot``, ``neato`` and so on).  A path to the
       graphviz commands are also allowed.  By default, :confval:`graphviz_dot`
       is used.
 

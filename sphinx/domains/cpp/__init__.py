@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -23,7 +23,7 @@ from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol, _DuplicateSymbolError
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
-from sphinx.roles import SphinxRole, XRefRole
+from sphinx.roles import XRefRole
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import logging
@@ -33,11 +33,11 @@ from sphinx.util.cfamily import (
     anon_identifier_re,
 )
 from sphinx.util.docfields import Field, GroupedField
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util.docutils import SphinxDirective, SphinxRole
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -46,7 +46,99 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains.cpp._symbol import LookupKey
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
+
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.cpp._ast import (  # NoQA: F401
+    ASTAlignofExpr,
+    ASTArray,
+    ASTAssignmentExpr,
+    ASTBase,
+    ASTBaseClass,
+    ASTBinOpExpr,
+    ASTBooleanLiteral,
+    ASTBracedInitList,
+    ASTCastExpr,
+    ASTCharLiteral,
+    ASTClass,
+    ASTCommaExpr,
+    ASTConcept,
+    ASTConditionalExpr,
+    ASTDeclarator,
+    ASTDeclaratorMemPtr,
+    ASTDeclaratorNameBitField,
+    ASTDeclaratorNameParamQual,
+    ASTDeclaratorParamPack,
+    ASTDeclaratorParen,
+    ASTDeclaratorPtr,
+    ASTDeclaratorRef,
+    ASTDeclSpecs,
+    ASTDeclSpecsSimple,
+    ASTDeleteExpr,
+    ASTEnum,
+    ASTEnumerator,
+    ASTExplicitCast,
+    ASTExplicitSpec,
+    ASTExpression,
+    ASTFallbackExpr,
+    ASTFoldExpr,
+    ASTFunctionParameter,
+    ASTIdExpression,
+    ASTInitializer,
+    ASTLiteral,
+    ASTNewExpr,
+    ASTNoexceptExpr,
+    ASTNoexceptSpec,
+    ASTNumberLiteral,
+    ASTOperator,
+    ASTOperatorBuildIn,
+    ASTOperatorLiteral,
+    ASTOperatorType,
+    ASTPackExpansionExpr,
+    ASTParametersQualifiers,
+    ASTParenExpr,
+    ASTParenExprList,
+    ASTPointerLiteral,
+    ASTPostfixArray,
+    ASTPostfixCallExpr,
+    ASTPostfixDec,
+    ASTPostfixExpr,
+    ASTPostfixInc,
+    ASTPostfixMember,
+    ASTPostfixMemberOfPointer,
+    ASTPostfixOp,
+    ASTRequiresClause,
+    ASTSizeofExpr,
+    ASTSizeofParamPack,
+    ASTSizeofType,
+    ASTStringLiteral,
+    ASTTemplateArgConstant,
+    ASTTemplateArgs,
+    ASTTemplateDeclarationPrefix,
+    ASTTemplateIntroduction,
+    ASTTemplateIntroductionParameter,
+    ASTTemplateKeyParamPackIdDefault,
+    ASTTemplateParam,
+    ASTTemplateParamConstrainedTypeWithInit,
+    ASTTemplateParamNonType,
+    ASTTemplateParams,
+    ASTTemplateParamTemplateType,
+    ASTTemplateParamType,
+    ASTThisLiteral,
+    ASTTrailingTypeSpec,
+    ASTTrailingTypeSpecDecltype,
+    ASTTrailingTypeSpecDecltypeAuto,
+    ASTTrailingTypeSpecFundamental,
+    ASTTrailingTypeSpecName,
+    ASTType,
+    ASTTypeId,
+    ASTTypeUsing,
+    ASTTypeWithInit,
+    ASTUnaryOpExpr,
+    ASTUnion,
+    ASTUserDefinedLiteral,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +157,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
                      can_collapse=True),
     ]
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
@@ -128,7 +220,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             except NoOldIdError:
                 assert i < _max_id
         # let's keep the newest first
-        ids = list(reversed(ids))
+        ids.reverse()
         newestId = ids[0]
         assert newestId  # shouldn't be None
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
@@ -318,7 +410,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
-            return '::'.join(parents + [name + parens])
+            return '::'.join([*parents, name + parens])
         return ''
 
 
@@ -337,18 +429,28 @@ class CPPMemberObject(CPPObject):
 class CPPFunctionObject(CPPObject):
     object_type = 'function'
 
-    doc_field_types = CPPObject.doc_field_types + [
-        GroupedField('parameter', label=_('Parameters'),
-                     names=('param', 'parameter', 'arg', 'argument'),
-                     can_collapse=True),
-        GroupedField('exceptions', label=_('Throws'), rolename='expr',
-                     names=('throws', 'throw', 'exception'),
-                     can_collapse=True),
-        GroupedField('retval', label=_('Return values'),
-                     names=('retvals', 'retval'),
-                     can_collapse=True),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
+    doc_field_types = [
+        *CPPObject.doc_field_types,
+        GroupedField(
+            "parameter",
+            label=_("Parameters"),
+            names=("param", "parameter", "arg", "argument"),
+            can_collapse=True,
+        ),
+        GroupedField(
+            "exceptions",
+            label=_("Throws"),
+            rolename="expr",
+            names=("throws", "throw", "exception"),
+            can_collapse=True,
+        ),
+        GroupedField(
+            "retval",
+            label=_("Return values"),
+            names=("retvals", "retval"),
+            can_collapse=True,
+        ),
+        Field("returnvalue", label=_("Returns"), has_arg=False, names=("returns", "return")),
     ]
 
 
@@ -384,7 +486,7 @@ class CPPNamespaceObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
@@ -415,7 +517,7 @@ class CPPNamespacePushObject(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
@@ -447,7 +549,7 @@ class CPPNamespacePopObject(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         stack = self.env.temp_data.get('cpp:namespace_stack', None)
@@ -559,7 +661,7 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            rootSymbol: Symbol = self.env.domains['cpp'].data['root_symbol']
+            rootSymbol: Symbol = self.env.domains.cpp_domain.data['root_symbol']
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 logger.debug("Target: %s", sig)
@@ -603,7 +705,7 @@ class AliasTransform(SphinxTransform):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
 
-                logger.warning("Can not find C++ declaration for alias '%s'." % ast,
+                logger.warning("Can not find C++ declaration for alias '%s'.", ast,
                                location=node)
                 node.replace_self(signode)
             else:
@@ -624,7 +726,7 @@ class AliasTransform(SphinxTransform):
 
 
 class CPPAliasObject(ObjectDescription):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
     }
@@ -661,10 +763,9 @@ class CPPAliasObject(ObjectDescription):
         for sig in signatures:
             node.append(AliasNode(sig, aliasOptions, env=self.env))
 
-        contentnode = addnodes.desc_content()
-        node.append(contentnode)
         self.before_content()
-        self.state.nested_parse(self.content, self.content_offset, contentnode)
+        content_node = addnodes.desc_content('', *self.parse_content_to_nodes())
+        node.append(content_node)
         self.env.temp_data['object'] = None
         self.after_content()
         return [node]
@@ -683,10 +784,9 @@ class CPPXRefRole(XRefRole):
         if refnode['reftype'] == 'any':
             # Assume the removal part of fix_parens for :any: refs.
             # The addition part is done with the reference is resolved.
-            if not has_explicit_title and title.endswith('()'):
-                title = title[:-2]
-            if target.endswith('()'):
-                target = target[:-2]
+            if not has_explicit_title:
+                title = title.removesuffix('()')
+            target = target.removesuffix('()')
         # TODO: should this really be here?
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
@@ -833,7 +933,7 @@ class CPPDomain(Domain):
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         if Symbol.debug_show_tree:
             logger.debug("merge_domaindata:")
             logger.debug("\tself:")
@@ -935,8 +1035,7 @@ class CPPDomain(Domain):
                 raise NoUri(txtName, typ)
             return None, None
 
-        if typ.startswith('cpp:'):
-            typ = typ[4:]
+        typ = typ.removeprefix('cpp:')
         declTyp = s.declaration.objectType
 
         def checkType() -> bool:
@@ -992,8 +1091,8 @@ class CPPDomain(Domain):
                         if typ == 'any' and displayName.endswith('()'):
                             addParen += 1
                         elif typ == 'func':
-                            if title.endswith('()') and not displayName.endswith('()'):
-                                title = title[:-2]
+                            if not displayName.endswith('()'):
+                                title = title.removesuffix('()')
                     else:
                         if displayName.endswith('()'):
                             addParen += 1
@@ -1053,11 +1152,11 @@ class CPPDomain(Domain):
         return f'{parentName}::{target}'
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
     app.add_config_value("cpp_index_common_prefix", [], 'env')
-    app.add_config_value("cpp_id_attributes", [], 'env')
-    app.add_config_value("cpp_paren_attributes", [], 'env')
+    app.add_config_value("cpp_id_attributes", [], 'env', types={list, tuple})
+    app.add_config_value("cpp_paren_attributes", [], 'env', types={list, tuple})
     app.add_config_value("cpp_maximum_signature_line_length", None, 'env', types={int, None})
     app.add_post_transform(AliasTransform)
 

@@ -22,12 +22,7 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util._io import TeeStripANSI
-from sphinx.util.console import (  # type: ignore[attr-defined]
-    color_terminal,
-    nocolor,
-    red,
-    terminal_safe,
-)
+from sphinx.util.console import color_terminal, nocolor, red, terminal_safe
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
 from sphinx.util.osutil import ensuredir
@@ -37,19 +32,23 @@ if TYPE_CHECKING:
     from typing import Protocol
 
     class SupportsWrite(Protocol):
-        def write(self, text: str, /) -> int | None:
-            ...
+        def write(self, text: str, /) -> int | None: ...  # NoQA: E704
 
 
 def handle_exception(
-    app: Sphinx | None, args: Any, exception: BaseException, stderr: TextIO = sys.stderr,
+    app: Sphinx | None,
+    args: Any,
+    exception: BaseException,
+    stderr: TextIO = sys.stderr,
 ) -> None:
     if isinstance(exception, bdb.BdbQuit):
         return
 
     if args.pdb:
-        print(red(__('Exception occurred while building, starting debugger:')),
-              file=stderr)
+        print(
+            red(__('Exception occurred while building, starting debugger:')),
+            file=stderr,
+        )
         traceback.print_exc()
         pdb.post_mortem(sys.exc_info()[2])
     else:
@@ -74,30 +73,60 @@ def handle_exception(
             print(red(__('Encoding error:')), file=stderr)
             print(terminal_safe(str(exception)), file=stderr)
             tbpath = save_traceback(app, exception)
-            print(red(__('The full traceback has been saved in %s, if you want '
-                         'to report the issue to the developers.') % tbpath),
-                  file=stderr)
-        elif isinstance(exception, RuntimeError) and 'recursion depth' in str(exception):
+            print(
+                red(
+                    __(
+                        'The full traceback has been saved in %s, if you want '
+                        'to report the issue to the developers.'
+                    )
+                    % tbpath
+                ),
+                file=stderr,
+            )
+        elif (
+            isinstance(exception, RuntimeError)
+            and 'recursion depth' in str(exception)
+        ):  # fmt: skip
             print(red(__('Recursion error:')), file=stderr)
             print(terminal_safe(str(exception)), file=stderr)
             print(file=stderr)
-            print(__('This can happen with very large or deeply nested source '
-                     'files. You can carefully increase the default Python '
-                     'recursion limit of 1000 in conf.py with e.g.:'), file=stderr)
+            print(
+                __(
+                    'This can happen with very large or deeply nested source '
+                    'files. You can carefully increase the default Python '
+                    'recursion limit of 1000 in conf.py with e.g.:'
+                ),
+                file=stderr,
+            )
             print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
         else:
             print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
             tbpath = save_traceback(app, exception)
-            print(red(__('The full traceback has been saved in %s, if you '
-                         'want to report the issue to the developers.') % tbpath),
-                  file=stderr)
-            print(__('Please also report this if it was a user error, so '
-                     'that a better error message can be provided next time.'),
-                  file=stderr)
-            print(__('A bug report can be filed in the tracker at '
-                     '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!'),
-                  file=stderr)
+            print(
+                red(
+                    __(
+                        'The full traceback has been saved in %s, if you '
+                        'want to report the issue to the developers.'
+                    )
+                    % tbpath
+                ),
+                file=stderr,
+            )
+            print(
+                __(
+                    'Please also report this if it was a user error, so '
+                    'that a better error message can be provided next time.'
+                ),
+                file=stderr,
+            )
+            print(
+                __(
+                    'A bug report can be filed in the tracker at '
+                    '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!'
+                ),
+                file=stderr,
+            )
 
 
 def jobs_argument(value: str) -> int:
@@ -111,7 +140,9 @@ def jobs_argument(value: str) -> int:
     else:
         jobs = int(value)
         if jobs <= 0:
-            raise argparse.ArgumentTypeError(__('job number should be a positive number'))
+            raise argparse.ArgumentTypeError(
+                __('job number should be a positive number')
+            )
         else:
             return jobs
 
@@ -135,83 +166,206 @@ processing.
 
 By default, everything that is outdated is built. Output only for selected
 files can be built by specifying individual filenames.
-"""))
+"""),
+    )
 
-    parser.add_argument('--version', action='version', dest='show_version',
-                        version=f'%(prog)s {__display_version__}')
+    parser.add_argument(
+        '--version',
+        action='version',
+        dest='show_version',
+        version=f'%(prog)s {__display_version__}',
+    )
 
-    parser.add_argument('sourcedir', metavar='SOURCE_DIR',
-                        help=__('path to documentation source files'))
-    parser.add_argument('outputdir', metavar='OUTPUT_DIR',
-                        help=__('path to output directory'))
-    parser.add_argument('filenames', nargs='*',
-                        help=__('(optional) a list of specific files to rebuild. '
-                                'Ignored if --write-all is specified'))
+    parser.add_argument(
+        'sourcedir', metavar='SOURCE_DIR', help=__('path to documentation source files')
+    )
+    parser.add_argument(
+        'outputdir', metavar='OUTPUT_DIR', help=__('path to output directory')
+    )
+    parser.add_argument(
+        'filenames',
+        nargs='*',
+        help=__(
+            '(optional) a list of specific files to rebuild. '
+            'Ignored if --write-all is specified'
+        ),
+    )
 
     group = parser.add_argument_group(__('general options'))
-    group.add_argument('--builder', '-b', metavar='BUILDER', dest='builder',
-                       default='html',
-                       help=__("builder to use (default: 'html')"))
-    group.add_argument('--jobs', '-j', metavar='N', default=1, type=jobs_argument,
-                       dest='jobs',
-                       help=__('run in parallel with N processes, when possible. '
-                               "'auto' uses the number of CPU cores"))
-    group.add_argument('--write-all', '-a', action='store_true', dest='force_all',
-                       help=__('write all files (default: only write new and '
-                               'changed files)'))
-    group.add_argument('--fresh-env', '-E', action='store_true', dest='freshenv',
-                       help=__("don't use a saved environment, always read "
-                               'all files'))
+    group.add_argument(
+        '--builder',
+        '-b',
+        metavar='BUILDER',
+        dest='builder',
+        default='html',
+        help=__("builder to use (default: 'html')"),
+    )
+    group.add_argument(
+        '--jobs',
+        '-j',
+        metavar='N',
+        default=1,
+        type=jobs_argument,
+        dest='jobs',
+        help=__(
+            'run in parallel with N processes, when possible. '
+            "'auto' uses the number of CPU cores"
+        ),
+    )
+    group.add_argument(
+        '--write-all',
+        '-a',
+        action='store_true',
+        dest='force_all',
+        help=__('write all files (default: only write new and ' 'changed files)'),
+    )
+    group.add_argument(
+        '--fresh-env',
+        '-E',
+        action='store_true',
+        dest='freshenv',
+        help=__("don't use a saved environment, always read " 'all files'),
+    )
 
     group = parser.add_argument_group(__('path options'))
-    group.add_argument('--doctree-dir', '-d', metavar='PATH', dest='doctreedir',
-                       help=__('directory for doctree and environment files '
-                               '(default: OUTPUT_DIR/.doctrees)'))
-    group.add_argument('--conf-dir', '-c', metavar='PATH', dest='confdir',
-                       help=__('directory for the configuration file (conf.py) '
-                               '(default: SOURCE_DIR)'))
+    group.add_argument(
+        '--doctree-dir',
+        '-d',
+        metavar='PATH',
+        dest='doctreedir',
+        help=__(
+            'directory for doctree and environment files '
+            '(default: OUTPUT_DIR/.doctrees)'
+        ),
+    )
+    group.add_argument(
+        '--conf-dir',
+        '-c',
+        metavar='PATH',
+        dest='confdir',
+        help=__(
+            'directory for the configuration file (conf.py) ' '(default: SOURCE_DIR)'
+        ),
+    )
 
     group = parser.add_argument_group('build configuration options')
-    group.add_argument('--isolated', '-C', action='store_true', dest='noconfig',
-                       help=__('use no configuration file, only use settings from -D options'))
-    group.add_argument('--define', '-D', metavar='setting=value', action='append',
-                       dest='define', default=[],
-                       help=__('override a setting in configuration file'))
-    group.add_argument('--html-define', '-A', metavar='name=value', action='append',
-                       dest='htmldefine', default=[],
-                       help=__('pass a value into HTML templates'))
-    group.add_argument('--tag', '-t', metavar='TAG', action='append',
-                       dest='tags', default=[],
-                       help=__('define tag: include "only" blocks with TAG'))
-    group.add_argument('--nitpicky', '-n', action='store_true', dest='nitpicky',
-                       help=__('nit-picky mode: warn about all missing references'))
+    group.add_argument(
+        '--isolated',
+        '-C',
+        action='store_true',
+        dest='noconfig',
+        help=__('use no configuration file, only use settings from -D options'),
+    )
+    group.add_argument(
+        '--define',
+        '-D',
+        metavar='setting=value',
+        action='append',
+        dest='define',
+        default=[],
+        help=__('override a setting in configuration file'),
+    )
+    group.add_argument(
+        '--html-define',
+        '-A',
+        metavar='name=value',
+        action='append',
+        dest='htmldefine',
+        default=[],
+        help=__('pass a value into HTML templates'),
+    )
+    group.add_argument(
+        '--tag',
+        '-t',
+        metavar='TAG',
+        action='append',
+        dest='tags',
+        default=[],
+        help=__('define tag: include "only" blocks with TAG'),
+    )
+    group.add_argument(
+        '--nitpicky',
+        '-n',
+        action='store_true',
+        dest='nitpicky',
+        help=__('nitpicky mode: warn about all missing references'),
+    )
 
     group = parser.add_argument_group(__('console output options'))
-    group.add_argument('--verbose', '-v', action='count', dest='verbosity',
-                       default=0,
-                       help=__('increase verbosity (can be repeated)'))
-    group.add_argument('--quiet', '-q', action='store_true', dest='quiet',
-                       help=__('no output on stdout, just warnings on stderr'))
-    group.add_argument('--silent', '-Q', action='store_true', dest='really_quiet',
-                       help=__('no output at all, not even warnings'))
-    group.add_argument('--color', action='store_const', dest='color',
-                       const='yes', default='auto',
-                       help=__('do emit colored output (default: auto-detect)'))
-    group.add_argument('--no-color', '-N', action='store_const', dest='color',
-                       const='no',
-                       help=__('do not emit colored output (default: auto-detect)'))
+    group.add_argument(
+        '--verbose',
+        '-v',
+        action='count',
+        dest='verbosity',
+        default=0,
+        help=__('increase verbosity (can be repeated)'),
+    )
+    group.add_argument(
+        '--quiet',
+        '-q',
+        action='store_true',
+        dest='quiet',
+        help=__('no output on stdout, just warnings on stderr'),
+    )
+    group.add_argument(
+        '--silent',
+        '-Q',
+        action='store_true',
+        dest='really_quiet',
+        help=__('no output at all, not even warnings'),
+    )
+    group.add_argument(
+        '--color',
+        action='store_const',
+        dest='color',
+        const='yes',
+        default='auto',
+        help=__('do emit colored output (default: auto-detect)'),
+    )
+    group.add_argument(
+        '--no-color',
+        '-N',
+        action='store_const',
+        dest='color',
+        const='no',
+        help=__('do not emit colored output (default: auto-detect)'),
+    )
 
     group = parser.add_argument_group(__('warning control options'))
-    group.add_argument('--warning-file', '-w', metavar='FILE', dest='warnfile',
-                       help=__('write warnings (and errors) to given file'))
-    group.add_argument('--fail-on-warning', '-W', action='store_true', dest='warningiserror',
-                       help=__('turn warnings into errors'))
-    group.add_argument('--keep-going', action='store_true', dest='keep_going',
-                       help=__("with --fail-on-warning, keep going when getting warnings"))
-    group.add_argument('--show-traceback', '-T', action='store_true', dest='traceback',
-                       help=__('show full traceback on exception'))
-    group.add_argument('--pdb', '-P', action='store_true', dest='pdb',
-                       help=__('run Pdb on exception'))
+    group.add_argument(
+        '--warning-file',
+        '-w',
+        metavar='FILE',
+        dest='warnfile',
+        help=__('write warnings (and errors) to given file'),
+    )
+    group.add_argument(
+        '--fail-on-warning',
+        '-W',
+        action='store_true',
+        dest='warningiserror',
+        help=__('turn warnings into errors'),
+    )
+    group.add_argument('--keep-going', action='store_true', help=argparse.SUPPRESS)
+    group.add_argument(
+        '--show-traceback',
+        '-T',
+        action='store_true',
+        dest='traceback',
+        help=__('show full traceback on exception'),
+    )
+    group.add_argument(
+        '--pdb', '-P', action='store_true', dest='pdb', help=__('run Pdb on exception')
+    )
+    group.add_argument(
+        '--exception-on-warning',
+        action='store_true',
+        dest='exception_on_warning',
+        help=__('raise an exception on warnings'),
+    )
+
+    if parser.prog == '__main__.py':
+        parser.prog = 'sphinx-build'
 
     return parser
 
@@ -219,11 +373,13 @@ files can be built by specifying individual filenames.
 def make_main(argv: Sequence[str]) -> int:
     """Sphinx build "make mode" entry."""
     from sphinx.cmd import make_mode
+
     return make_mode.run_make_mode(argv[1:])
 
 
-def _parse_arguments(parser: argparse.ArgumentParser,
-                     argv: Sequence[str]) -> argparse.Namespace:
+def _parse_arguments(
+    parser: argparse.ArgumentParser, argv: Sequence[str]
+) -> argparse.Namespace:
     args = parser.parse_args(argv)
     return args
 
@@ -243,7 +399,9 @@ def _parse_doctreedir(doctreedir: str, outputdir: str) -> str:
 
 
 def _validate_filenames(
-    parser: argparse.ArgumentParser, force_all: bool, filenames: list[str],
+    parser: argparse.ArgumentParser,
+    force_all: bool,
+    filenames: list[str],
 ) -> None:
     if force_all and filenames:
         parser.error(__('cannot combine -a option and filenames'))
@@ -276,10 +434,9 @@ def _parse_logging(
             warnfile = path.abspath(warnfile)
             ensuredir(path.dirname(warnfile))
             # the caller is responsible for closing this file descriptor
-            warnfp = open(warnfile, 'w', encoding="utf-8")  # NoQA: SIM115
+            warnfp = open(warnfile, 'w', encoding='utf-8')  # NoQA: SIM115
         except Exception as exc:
-            parser.error(__('cannot open warning file %r: %s') % (
-                warnfile, exc))
+            parser.error(__('cannot open warning file %r: %s') % (warnfile, exc))
         warning = TeeStripANSI(warning, warnfp)  # type: ignore[assignment]
         error = warning
 
@@ -326,19 +483,34 @@ def build_main(argv: Sequence[str]) -> int:
     _validate_filenames(parser, args.force_all, args.filenames)
     _validate_colour_support(args.color)
     args.status, args.warning, args.error, warnfp = _parse_logging(
-        parser, args.quiet, args.really_quiet, args.warnfile)
+        parser, args.quiet, args.really_quiet, args.warnfile
+    )
     args.confoverrides = _parse_confoverrides(
-        parser, args.define, args.htmldefine, args.nitpicky)
+        parser, args.define, args.htmldefine, args.nitpicky
+    )
 
     app = None
     try:
         confdir = args.confdir or args.sourcedir
         with patch_docutils(confdir), docutils_namespace():
-            app = Sphinx(args.sourcedir, args.confdir, args.outputdir,
-                         args.doctreedir, args.builder, args.confoverrides, args.status,
-                         args.warning, args.freshenv, args.warningiserror,
-                         args.tags, args.verbosity, args.jobs, args.keep_going,
-                         args.pdb)
+            app = Sphinx(
+                srcdir=args.sourcedir,
+                confdir=args.confdir,
+                outdir=args.outputdir,
+                doctreedir=args.doctreedir,
+                buildername=args.builder,
+                confoverrides=args.confoverrides,
+                status=args.status,
+                warning=args.warning,
+                freshenv=args.freshenv,
+                warningiserror=args.warningiserror,
+                tags=args.tags,
+                verbosity=args.verbosity,
+                parallel=args.jobs,
+                keep_going=False,
+                pdb=args.pdb,
+                exception_on_warning=args.exception_on_warning,
+            )
             app.build(args.force_all, args.filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
@@ -384,7 +556,9 @@ def main(argv: Sequence[str] = (), /) -> int:
     if argv[:1] == ['--bug-report']:
         return _bug_report_info()
     if argv[:1] == ['-M']:
-        return make_main(argv)
+        from sphinx.cmd import make_mode
+
+        return make_mode.run_make_mode(argv[1:])
     else:
         return build_main(argv)
 

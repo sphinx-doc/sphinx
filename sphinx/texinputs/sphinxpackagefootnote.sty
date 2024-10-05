@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{sphinxpackagefootnote}%
- [2022/08/15 v5.3.0 Sphinx custom footnotehyper package (Sphinx team)]
+ [2024/05/17 v7.3.x Sphinx custom footnotehyper package (Sphinx team)]
 %%
 %% Package: sphinxpackagefootnote
 %% Version: based on footnotehyper.sty 2021/02/04 v1.1d
@@ -409,9 +409,10 @@
     {\gdef\@thefnmark{?}% on first LaTeX run
      \refstepcounter{sphinxfootnotemark}\label{footnotemark.\thesphinxfootnotemark}%
     }%
-    {\sphinx@xdef@thefnmark{#1}% also defines \spx@footrefHref
-     \def\@makefnmark{% will be used by \H@@footnotemark
+    {\def\@makefnmark{% will be used by \H@@footnotemark
        \refstepcounter{sphinxfootnotemark}\label{footnotemark.\thesphinxfootnotemark}%
+       \sphinx@xdef@thefnmark{#1}% also defines \spx@footrefHref
+                                 % must be executed after \refstepcounter
        \hyper@linkstart{link}{\spx@footrefHref}%
        \spx@saved@makefnmark
        \hyper@linkend

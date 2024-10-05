@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from sphinx.domains.c._ast import (
     ASTAlignofExpr,
@@ -53,7 +53,6 @@ from sphinx.domains.c._ast import (
     ASTTypeWithInit,
     ASTUnaryOpExpr,
     ASTUnion,
-    DeclarationType,
 )
 from sphinx.domains.c._ids import (
     _expression_assignment_ops,
@@ -80,7 +79,9 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
+
+    from sphinx.domains.c._ast import DeclarationType
 
 
 class DefinitionParser(BaseParser):
@@ -494,9 +495,11 @@ class DefinitionParser(BaseParser):
                 self.fail("Expected identifier in nested name, "
                           "got keyword: %s" % identifier)
             if self.matched_text in self.config.c_extra_keywords:
-                msg = "Expected identifier, got user-defined keyword: %s." \
-                      + " Remove it from c_extra_keywords to allow it as identifier.\n" \
-                      + "Currently c_extra_keywords is %s."
+                msg = (
+                    'Expected identifier, got user-defined keyword: %s.'
+                    ' Remove it from c_extra_keywords to allow it as identifier.\n'
+                    'Currently c_extra_keywords is %s.'
+                )
                 self.fail(msg % (self.matched_text,
                                  str(self.config.c_extra_keywords)))
             ident = ASTIdentifier(identifier)
@@ -669,9 +672,11 @@ class DefinitionParser(BaseParser):
                     self.fail("Expected identifier, "
                               "got keyword: %s" % self.matched_text)
                 if self.matched_text in self.config.c_extra_keywords:
-                    msg = "Expected identifier, got user-defined keyword: %s." \
-                          + " Remove it from c_extra_keywords to allow it as identifier.\n" \
-                          + "Currently c_extra_keywords is %s."
+                    msg = (
+                        'Expected identifier, got user-defined keyword: %s. '
+                        'Remove it from c_extra_keywords to allow it as identifier.\n'
+                        'Currently c_extra_keywords is %s.'
+                    )
                     self.fail(msg % (self.matched_text,
                                      str(self.config.c_extra_keywords)))
                 identifier = ASTIdentifier(self.matched_text)

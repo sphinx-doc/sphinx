@@ -5,7 +5,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import typing
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -22,11 +22,10 @@ from sphinx.util.nodes import (
     find_pending_xref_condition,
     make_id,
     make_refnode,
-    nested_parse_with_titles,
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Set
 
     from docutils.nodes import Element, Node
 
@@ -34,7 +33,21 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
+
+# re-export objects for backwards compatibility
+# xref https://github.com/sphinx-doc/sphinx/issues/12295
+from sphinx.domains.python._annotations import (  # NoQA: F401
+    _parse_arglist,  # for sphinx-immaterial
+    type_to_xref,
+)
+from sphinx.domains.python._object import (  # NoQA: F401
+    PyField,
+    PyGroupedField,
+    PyTypedField,
+    PyXrefMixin,
+    py_sig_re,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +80,7 @@ class ModuleEntry(NamedTuple):
 class PyFunction(PyObject):
     """Description of a function."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()  # noqa: F821
     option_spec.update({
         'async': directives.flag,
     })
@@ -122,7 +135,7 @@ class PyDecoratorFunction(PyFunction):
 class PyVariable(PyObject):
     """Description of a variable."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
         'value': directives.unchanged,
@@ -161,7 +174,7 @@ class PyClasslike(PyObject):
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'final': directives.flag,
     })
@@ -189,7 +202,7 @@ class PyClasslike(PyObject):
 class PyMethod(PyObject):
     """Description of a method."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'abstractmethod': directives.flag,
         'async': directives.flag,
@@ -243,7 +256,7 @@ class PyMethod(PyObject):
 class PyClassMethod(PyMethod):
     """Description of a classmethod."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
 
     def run(self) -> list[Node]:
         self.name = 'py:method'
@@ -255,7 +268,7 @@ class PyClassMethod(PyMethod):
 class PyStaticMethod(PyMethod):
     """Description of a staticmethod."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
 
     def run(self) -> list[Node]:
         self.name = 'py:method'
@@ -283,7 +296,7 @@ class PyDecoratorMethod(PyMethod):
 class PyAttribute(PyObject):
     """Description of an attribute."""
 
-    option_spec: OptionSpec = PyObject.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
         'value': directives.unchanged,
@@ -376,6 +389,45 @@ class PyProperty(PyObject):
         return _('%s (%s property)') % (attrname, clsname)
 
 
+class PyTypeAlias(PyObject):
+    """Description of a type alias."""
+
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
+    option_spec.update({
+        'canonical': directives.unchanged,
+    })
+
+    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
+        return [nodes.Text('type'), addnodes.desc_sig_space()]
+
+    def handle_signature(self, sig: str, signode: desc_signature) -> tuple[str, str]:
+        fullname, prefix = super().handle_signature(sig, signode)
+        if canonical := self.options.get('canonical'):
+            canonical_annotations = _parse_annotation(canonical, self.env)
+            signode += addnodes.desc_annotation(
+                canonical, '',
+                addnodes.desc_sig_space(),
+                addnodes.desc_sig_punctuation('', '='),
+                addnodes.desc_sig_space(),
+                *canonical_annotations,
+            )
+        return fullname, prefix
+
+    def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
+        name, cls = name_cls
+        try:
+            clsname, attrname = name.rsplit('.', 1)
+            if modname and self.env.config.add_module_names:
+                clsname = f'{modname}.{clsname}'
+        except ValueError:
+            if modname:
+                return _('%s (in module %s)') % (name, modname)
+            else:
+                return name
+
+        return _('%s (type alias in %s)') % (attrname, clsname)
+
+
 class PyModule(SphinxDirective):
     """
     Directive to mark description of a new module.
@@ -385,7 +437,7 @@ class PyModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'platform': lambda x: x,
         'synopsis': lambda x: x,
         'no-index': directives.flag,
@@ -397,16 +449,19 @@ class PyModule(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        domain = cast(PythonDomain, self.env.get_domain('py'))
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # # deprecate noindex in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+
+        domain = self.env.domains.python_domain
 
         modname = self.arguments[0].strip()
-        no_index = 'no-index' in self.options or 'noindex' in self.options
+        no_index = 'no-index' in self.options
         self.env.ref_context['py:module'] = modname
 
-        content_node: Element = nodes.section()
-        # necessary so that the child nodes get the right source/line set
-        content_node.document = self.state.document
-        nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
+        content_nodes = self.parse_content_to_nodes(allow_section_headings=True)
 
         ret: list[Node] = []
         if not no_index:
@@ -430,7 +485,7 @@ class PyModule(SphinxDirective):
             # The node order is: index node first, then target node.
             ret.append(inode)
             ret.append(target)
-        ret.extend(content_node.children)
+        ret.extend(content_nodes)
         return ret
 
 
@@ -444,7 +499,7 @@ class PyCurrentModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         modname = self.arguments[0].strip()
@@ -580,6 +635,7 @@ class PythonDomain(Domain):
         'staticmethod': ObjType(_('static method'), 'meth', 'obj'),
         'attribute':    ObjType(_('attribute'),     'attr', 'obj'),
         'property':     ObjType(_('property'),      'attr', '_prop', 'obj'),
+        'type':         ObjType(_('type alias'),    'type', 'obj'),
         'module':       ObjType(_('module'),        'mod', 'obj'),
     }
 
@@ -593,6 +649,7 @@ class PythonDomain(Domain):
         'staticmethod':    PyStaticMethod,
         'attribute':       PyAttribute,
         'property':        PyProperty,
+        'type':            PyTypeAlias,
         'module':          PyModule,
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,
@@ -605,6 +662,7 @@ class PythonDomain(Domain):
         'class': PyXRefRole(),
         'const': PyXRefRole(),
         'attr':  PyXRefRole(),
+        'type':  PyXRefRole(),
         'meth':  PyXRefRole(fix_parens=True),
         'mod':   PyXRefRole(),
         'obj':   PyXRefRole(),
@@ -663,7 +721,7 @@ class PythonDomain(Domain):
             if mod.docname == docname:
                 del self.modules[modname]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates?
         for fullname, obj in otherdata['objects'].items():
             if obj.docname in docnames:
@@ -679,8 +737,7 @@ class PythonDomain(Domain):
         and/or classname.  Returns a list of (name, object entry) tuples.
         """
         # skip parens
-        if name[-2:] == '()':
-            name = name[:-2]
+        name = name.removesuffix('()')
 
         if not name:
             return []
@@ -870,7 +927,7 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
     return None
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.directives')
 
     app.add_domain(PythonDomain)

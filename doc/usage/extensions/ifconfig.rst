@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.ifconfig` -- Include content based on configuration
 ====================================================================

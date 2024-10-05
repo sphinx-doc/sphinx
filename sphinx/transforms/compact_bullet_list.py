@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):
@@ -29,8 +30,9 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         pass
 
     def visit_list_item(self, node: nodes.list_item) -> None:
-        children: list[Node] = [child for child in node.children
-                                if not isinstance(child, nodes.Invisible)]
+        children: list[Node] = [
+            child for child in node.children if not isinstance(child, nodes.Invisible)
+        ]
         if len(children) != 1:
             raise nodes.NodeFound
         if not isinstance(children[0], nodes.paragraph):
@@ -80,7 +82,7 @@ class RefOnlyBulletListTransform(SphinxTransform):
                     item.replace(para, compact_para)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_transform(RefOnlyBulletListTransform)
 
     return {

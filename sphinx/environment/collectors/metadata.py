@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -11,6 +11,7 @@ from sphinx.environment.collectors import EnvironmentCollector
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class MetadataCollector(EnvironmentCollector):
@@ -19,8 +20,13 @@ class MetadataCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.metadata.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: set[str],
+        other: BuildEnvironment,
+    ) -> None:
         for docname in docnames:
             env.metadata[docname] = other.metadata[docname]
 
@@ -29,7 +35,7 @@ class MetadataCollector(EnvironmentCollector):
 
         Keep processing minimal -- just return what docutils says.
         """
-        index = doctree.first_child_not_matching_class(nodes.PreBibliographic)
+        index = doctree.first_child_not_matching_class(nodes.PreBibliographic)  # type: ignore[arg-type]
         if index is None:
             return
         elif isinstance(doctree[index], nodes.docinfo):
@@ -60,7 +66,7 @@ class MetadataCollector(EnvironmentCollector):
             doctree.pop(index)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_env_collector(MetadataCollector)
 
     return {

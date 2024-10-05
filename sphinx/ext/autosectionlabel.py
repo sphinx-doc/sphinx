@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
 import sphinx
-from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
@@ -16,6 +15,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def get_node_depth(node: Node) -> int:
 
 
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
-    domain = cast(StandardDomain, app.env.get_domain('std'))
+    domain = app.env.domains.standard_domain
     for node in document.findall(nodes.section):
         if (app.config.autosectionlabel_maxdepth and
                 get_node_depth(node) >= app.config.autosectionlabel_maxdepth):
@@ -57,7 +57,7 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
         domain.labels[name] = docname, labelid, sectname
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('autosectionlabel_prefix_document', False, 'env')
     app.add_config_value('autosectionlabel_maxdepth', None, 'env')
     app.connect('doctree-read', register_sections_as_label)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -17,10 +17,10 @@ from sphinx.roles import XRefRole
 from sphinx.util import logging
 from sphinx.util.docfields import Field, GroupedField, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import make_id, make_refnode, nested_parse_with_titles
+from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils.nodes import Element, Node
 
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
     #: based on directive nesting
     allow_nesting = False
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -150,7 +150,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+        domain = self.env.domains.javascript_domain
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
@@ -242,7 +242,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
-            return '.'.join(parents + [name + parens])
+            return '.'.join([*parents, name + parens])
         return ''
 
 
@@ -298,7 +298,7 @@ class JSModule(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-contents-entry': directives.flag,
         'no-typesetting': directives.flag,
@@ -307,18 +307,21 @@ class JSModule(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # # deprecate noindex in Sphinx 9.0
+        if 'no-index' not in self.options and 'noindex' in self.options:
+            self.options['no-index'] = self.options['noindex']
+
         mod_name = self.arguments[0].strip()
         self.env.ref_context['js:module'] = mod_name
-        no_index = 'no-index' in self.options or 'noindex' in self.options
+        no_index = 'no-index' in self.options
 
-        content_node: Element = nodes.section()
-        # necessary so that the child nodes get the right source/line set
-        content_node.document = self.state.document
-        nested_parse_with_titles(self.state, self.content, content_node, self.content_offset)
+        content_nodes = self.parse_content_to_nodes(allow_section_headings=True)
 
         ret: list[Node] = []
         if not no_index:
-            domain = cast(JavaScriptDomain, self.env.get_domain('js'))
+            domain = self.env.domains.javascript_domain
 
             node_id = make_id(self.env, self.state.document, 'module', mod_name)
             domain.note_module(mod_name, node_id)
@@ -334,7 +337,7 @@ class JSModule(SphinxDirective):
             target = nodes.target('', '', ids=[node_id], ismod=True)
             self.state.document.note_explicit_target(target)
             ret.append(target)
-        ret.extend(content_node.children)
+        ret.extend(content_nodes)
         return ret
 
 
@@ -420,7 +423,7 @@ class JavaScriptDomain(Domain):
             if pkg_docname == docname:
                 del self.modules[modname]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates
         for fullname, (fn, node_id, objtype) in otherdata['objects'].items():
             if fn in docnames:
@@ -438,8 +441,7 @@ class JavaScriptDomain(Domain):
         typ: str | None,
         searchorder: int = 0,
     ) -> tuple[str | None, tuple[str, str, str] | None]:
-        if name[-2:] == '()':
-            name = name[:-2]
+        name = name.removesuffix('()')
 
         searches = []
         if mod_name and prefix:
@@ -498,7 +500,7 @@ class JavaScriptDomain(Domain):
             return '.'.join(filter(None, [modname, prefix, target]))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
         'javascript_maximum_signature_line_length', None, 'env', {int, type(None)},

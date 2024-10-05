@@ -11,7 +11,7 @@ import sys
 import time
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -22,17 +22,17 @@ import sphinx
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Callable, Iterable, Sequence
 
     from docutils.nodes import Element, Node, TextElement
 
     from sphinx.application import Sphinx
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
@@ -143,19 +143,19 @@ class TestDirective(SphinxDirective):
 
 
 class TestsetupDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'skipif': directives.unchanged_required,
     }
 
 
 class TestcleanupDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'skipif': directives.unchanged_required,
     }
 
 
 class DoctestDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
@@ -166,7 +166,7 @@ class DoctestDirective(TestDirective):
 
 
 class TestcodeDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'pyversion': directives.unchanged_required,
@@ -176,7 +176,7 @@ class TestcodeDirective(TestDirective):
 
 
 class TestoutputDirective(TestDirective):
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'hide': directives.flag,
         'no-trim-doctest-flags': directives.flag,
         'options': directives.unchanged,
@@ -311,12 +311,18 @@ class DocTestBuilder(Builder):
                             '==================================%s\n') %
                            (date, '=' * len(date)))
 
+    def __del__(self) -> None:
+        # free resources upon destruction (the file handler might not be
+        # closed if the builder is never used)
+        if hasattr(self, 'outfile'):
+            self.outfile.close()
+
     def _out(self, text: str) -> None:
         logger.info(text, nonl=True)
         self.outfile.write(text)
 
     def _warn_out(self, text: str) -> None:
-        if self.app.quiet or self.app.warningiserror:
+        if self.app.quiet:
             logger.warning(text)
         else:
             logger.info(text, nonl=True)
@@ -365,14 +371,13 @@ Doctest summary
         filename of the document it's included in.
         """
         try:
-            filename = relpath(node.source, self.env.srcdir)\
-                .rsplit(':docstring of ', maxsplit=1)[0]
+            filename = relpath(node.source, self.env.srcdir).rsplit(':docstring of ', maxsplit=1)[0]  # type: ignore[arg-type]  # noqa: E501
         except Exception:
-            filename = self.env.doc2path(docname, False)
+            filename = str(self.env.doc2path(docname, False))
         return filename
 
     @staticmethod
-    def get_line_number(node: Node) -> int:
+    def get_line_number(node: Node) -> int | None:
         """Get the real line number or admit we don't know."""
         # TODO:  Work out how to store or calculate real (file-relative)
         #       line numbers for doctest blocks in docstrings.
@@ -381,7 +386,7 @@ Doctest summary
             # not the file.  This is correct where it is set, in
             # `docutils.nodes.Node.setup_child`, but Sphinx should report
             # relative to the file, not the docstring.
-            return None  # type: ignore[return-value]
+            return None
         if node.line is not None:
             # TODO: find the root cause of this off by one error.
             return node.line - 1
@@ -395,7 +400,7 @@ Doctest summary
             context: dict[str, Any] = {}
             if self.config.doctest_global_setup:
                 exec(self.config.doctest_global_setup, context)  # NoQA: S102
-            should_skip = eval(condition, context)  # NoQA: PGH001
+            should_skip = eval(condition, context)  # NoQA: S307
             if self.config.doctest_global_cleanup:
                 exec(self.config.doctest_global_cleanup, context)  # NoQA: S102
             return should_skip
@@ -415,28 +420,28 @@ Doctest summary
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node: Node) -> bool:
-                return (isinstance(node, (nodes.literal_block, nodes.comment)) and
+                return (isinstance(node, nodes.literal_block | nodes.comment) and
                         'testnodetype' in node) or \
                     isinstance(node, nodes.doctest_block)
         else:
             def condition(node: Node) -> bool:
-                return isinstance(node, (nodes.literal_block, nodes.comment)) \
+                return isinstance(node, nodes.literal_block | nodes.comment) \
                     and 'testnodetype' in node
-        for node in doctree.findall(condition):  # type: Element
-            if self.skipped(node):
+        for node in doctree.findall(condition):
+            if self.skipped(node):  # type: ignore[arg-type]
                 continue
 
-            source = node['test'] if 'test' in node else node.astext()
+            source = node['test'] if 'test' in node else node.astext()  # type: ignore[index, operator]
             filename = self.get_filename_for_node(node, docname)
             line_number = self.get_line_number(node)
             if not source:
                 logger.warning(__('no code/output in %s block at %s:%s'),
-                               node.get('testnodetype', 'doctest'),
+                               node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
                                filename, line_number)
-            code = TestCode(source, type=node.get('testnodetype', 'doctest'),
-                            filename=filename, lineno=line_number,
-                            options=node.get('options'))
-            node_groups = node.get('groups', ['default'])
+            code = TestCode(source, type=node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
+                            filename=filename, lineno=line_number,  # type: ignore[arg-type]
+                            options=node.get('options'))  # type: ignore[attr-defined]
+            node_groups = node.get('groups', ['default'])  # type: ignore[attr-defined]
             if '*' in node_groups:
                 add_to_all_groups.append(code)
                 continue
@@ -503,9 +508,7 @@ Doctest summary
             old_f = runner.failures
             self.type = 'exec'  # the snippet may contain multiple statements
             runner.run(sim_doctest, out=self._warn_out, clear_globs=False)
-            if runner.failures > old_f:
-                return False
-            return True
+            return runner.failures <= old_f
 
         # run the setup code
         if not run_setup_cleanup(self.setup_runner, group.setup, 'setup'):
@@ -557,7 +560,7 @@ Doctest summary
         run_setup_cleanup(self.cleanup_runner, group.cleanup, 'cleanup')
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('testsetup', TestsetupDirective)
     app.add_directive('testcleanup', TestcleanupDirective)
     app.add_directive('doctest', DoctestDirective)
