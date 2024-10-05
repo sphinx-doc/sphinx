@@ -17,6 +17,8 @@ def terminal_supports_colour() -> bool:
     """Return True if coloured terminal output is supported."""
     if 'NO_COLOUR' in os.environ or 'NO_COLOR' in os.environ:
         return False
+    if sys.platform == 'win32':
+        colorama.just_fix_windows_console()
     if 'FORCE_COLOUR' in os.environ or 'FORCE_COLOR' in os.environ:
         return True
 
@@ -35,15 +37,11 @@ def terminal_supports_colour() -> bool:
 def disable_colour() -> None:
     global _COLOURING_DISABLED
     _COLOURING_DISABLED = True
-    if sys.platform == 'win32':
-        colorama.deinit()
 
 
 def enable_colour() -> None:
     global _COLOURING_DISABLED
     _COLOURING_DISABLED = False
-    if sys.platform == 'win32':
-        colorama.init()
 
 
 def colourise(colour_name: str, text: str, /) -> str:
