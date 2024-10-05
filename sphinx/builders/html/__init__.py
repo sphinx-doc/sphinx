@@ -42,8 +42,9 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
-from sphinx.util import isurl, logging
+from sphinx.util import logging
 from sphinx.util._timestamps import _format_rfc3339_microseconds
+from sphinx.util._uri import is_url
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
@@ -486,9 +487,9 @@ class StandaloneHTMLBuilder(Builder):
         logo = self.config.html_logo or ''
         favicon = self.config.html_favicon or ''
 
-        if not isurl(logo):
+        if not is_url(logo):
             logo = path.basename(logo)
-        if not isurl(favicon):
+        if not is_url(favicon):
             favicon = path.basename(favicon)
 
         self.relations = self.env.collect_relations()
@@ -873,7 +874,7 @@ class StandaloneHTMLBuilder(Builder):
             )
 
     def copy_html_logo(self) -> None:
-        if self.config.html_logo and not isurl(self.config.html_logo):
+        if self.config.html_logo and not is_url(self.config.html_logo):
             source_path = self.confdir / self.config.html_logo
             copyfile(
                 source_path,
@@ -882,7 +883,7 @@ class StandaloneHTMLBuilder(Builder):
             )
 
     def copy_html_favicon(self) -> None:
-        if self.config.html_favicon and not isurl(self.config.html_favicon):
+        if self.config.html_favicon and not is_url(self.config.html_favicon):
             source_path = self.confdir / self.config.html_favicon
             copyfile(
                 source_path,
@@ -1293,12 +1294,12 @@ def setup_resource_paths(
 
     # favicon_url
     favicon_url = context.get('favicon_url')
-    if favicon_url and not isurl(favicon_url):
+    if favicon_url and not is_url(favicon_url):
         context['favicon_url'] = pathto('_static/' + favicon_url, resource=True)
 
     # logo_url
     logo_url = context.get('logo_url')
-    if logo_url and not isurl(logo_url):
+    if logo_url and not is_url(logo_url):
         context['logo_url'] = pathto('_static/' + logo_url, resource=True)
 
 
@@ -1355,7 +1356,7 @@ def validate_html_logo(app: Sphinx, config: Config) -> None:
     if (
         config.html_logo
         and not path.isfile(path.join(app.confdir, config.html_logo))
-        and not isurl(config.html_logo)
+        and not is_url(config.html_logo)
     ):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
         config.html_logo = None
@@ -1366,7 +1367,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
     if (
         config.html_favicon
         and not path.isfile(path.join(app.confdir, config.html_favicon))
-        and not isurl(config.html_favicon)
+        and not is_url(config.html_favicon)
     ):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)
         config.html_favicon = None

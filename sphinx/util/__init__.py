@@ -7,12 +7,13 @@ import os
 import posixpath
 import re
 from typing import Any
-from urllib.parse import parse_qsl, quote_plus, urlencode, urlsplit, urlunsplit
 
 from sphinx.errors import FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import _files, _importer, logging
 from sphinx.util import index_entries as _index_entries
+from sphinx.util._uri import encode_uri  # NoQA: F401
+from sphinx.util._uri import is_url as isurl  # NoQA: F401
 from sphinx.util.console import strip_colors  # NoQA: F401
 from sphinx.util.matching import patfilter  # NoQA: F401
 from sphinx.util.nodes import (  # NoQA: F401
@@ -126,20 +127,6 @@ def parselinenos(spec: str, total: int) -> list[int]:
             raise ValueError(msg) from exc
 
     return items
-
-
-def encode_uri(uri: str) -> str:
-    split = list(urlsplit(uri))
-    split[1] = split[1].encode('idna').decode('ascii')
-    split[2] = quote_plus(split[2].encode(), '/')
-    query = [(q, v.encode()) for (q, v) in parse_qsl(split[3])]
-    split[3] = urlencode(query)
-    return urlunsplit(split)
-
-
-def isurl(url: str) -> bool:
-    """Check *url* is URL or not."""
-    return bool(url) and '://' in url
 
 
 # deprecated name -> (object to return, canonical path or empty string)

@@ -21,7 +21,8 @@ from requests.exceptions import Timeout as RequestTimeout
 from sphinx.builders.dummy import DummyBuilder
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
-from sphinx.util import encode_uri, logging, requests
+from sphinx.util import logging, requests
+from sphinx.util._uri import encode_uri
 from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise
 from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
