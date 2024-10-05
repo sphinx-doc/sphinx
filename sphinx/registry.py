@@ -136,6 +136,10 @@ class SphinxComponentRegistry:
         # private cache of Docutils Publishers (file type -> publisher object)
         self.publishers: dict[str, Publisher] = {}
 
+    @property
+    def autodoc_attrgettrs(self) -> dict[type, Callable[[Any, str, Any], Any]]:
+        return self.autodoc_attrgetters
+
     def add_builder(self, builder: type[Builder], override: bool = False) -> None:
         logger.debug('[app] adding builder: %r', builder)
         if not hasattr(builder, 'name'):
