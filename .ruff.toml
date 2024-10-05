@@ -473,5 +473,4 @@ exclude = [
     "sphinx/ext/todo.py",
     "sphinx/ext/viewcode.py",
     "sphinx/registry.py",
-    "sphinx/writers/*",
 ]
