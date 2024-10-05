@@ -542,15 +542,17 @@ specific_docroles: dict[str, RoleFunction] = {
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to anything
     'any': AnyXRefRole(warn_dangling=True),
-
+    # external links
     'cve': CVE(),
     'cwe': CWE(),
     'pep': PEP(),
     'rfc': RFC(),
+    # emphasised things
     'guilabel': GUILabel(),
     'menuselection': MenuSelection(),
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
+    # other
     'abbr': Abbreviation(),
     'manpage': Manpage(),
 }
