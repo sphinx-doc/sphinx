@@ -1062,9 +1062,9 @@ class StandaloneHTMLBuilder(Builder):
         default_baseuri = default_baseuri.rsplit('#', 1)[0]
 
         if self.config.html_baseurl:
-            ctx['pageurl'] = posixpath.join(self.config.html_baseurl,
-                                            self.get_target_uri(pagename
-            ))
+            ctx['pageurl'] = posixpath.join(
+                self.config.html_baseurl, self.get_target_uri(pagename)
+            )
         else:
             ctx['pageurl'] = None
 
