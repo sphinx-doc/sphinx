@@ -1,21 +1,13 @@
-"""
-    sphinx.search.de
-    ~~~~~~~~~~~~~~~~
+"""German search language: includes the JS German stemmer."""
 
-    German search language: includes the JS German stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Dict
+from __future__ import annotations
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-german_stopwords = parse_stop_word('''
-|source: http://snowball.tartarus.org/algorithms/german/stop.txt
+german_stopwords = parse_stop_word("""
+|source: https://snowball.tartarus.org/algorithms/german/stop.txt
 aber           |  but
 
 alle           |  all
@@ -293,7 +285,7 @@ zum            |  zu + dem
 zur            |  zu + der
 zwar           |  indeed
 zwischen       |  between
-''')
+""")
 
 
 class SearchGerman(SearchLanguage):
@@ -302,7 +294,7 @@ class SearchGerman(SearchLanguage):
     js_stemmer_rawcode = 'german-stemmer.js'
     stopwords = german_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('german')
 
     def stem(self, word: str) -> str:

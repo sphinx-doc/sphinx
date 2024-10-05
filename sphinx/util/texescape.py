@@ -1,15 +1,8 @@
-"""
-    sphinx.util.texescape
-    ~~~~~~~~~~~~~~~~~~~~~
+"""TeX escaping helper."""
 
-    TeX escaping helper.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import re
-from typing import Dict
 
 tex_replacements = [
     # map TeX special chars
@@ -54,8 +47,8 @@ ascii_tex_replacements = [
     # complications (whether by {}, or a macro) and is not done
     # the next two require textcomp package
     ("'", r'\textquotesingle{}'),  # else ' renders curly, and '' is a ligature
-    ('`', r'\textasciigrave{}'),   # else \` and \`\` render curly
-    ('<', r'\textless{}'),     # < is inv. exclam in OT1, << is a T1-ligature
+    ('`', r'\textasciigrave{}'),  # else \` and \`\` render curly
+    ('<', r'\textless{}'),  # < is inv. exclam in OT1, << is a T1-ligature
     ('>', r'\textgreater{}'),  # > is inv. quest. mark in 0T1, >> a T1-ligature
 ]
 
@@ -100,15 +93,15 @@ unicode_tex_replacements = [
 # %, {, }, \, #, and ~ are the only ones which must be replaced by _ character
 # It would be simpler to define it entirely here rather than in init().
 # Unicode replacements are superfluous, as idescape() uses backslashreplace
-tex_replace_map: Dict[int, str] = {}
+tex_replace_map: dict[int, str] = {}
 
-_tex_escape_map: Dict[int, str] = {}
-_tex_escape_map_without_unicode: Dict[int, str] = {}
-_tex_hlescape_map: Dict[int, str] = {}
-_tex_hlescape_map_without_unicode: Dict[int, str] = {}
+_tex_escape_map: dict[int, str] = {}
+_tex_escape_map_without_unicode: dict[int, str] = {}
+_tex_hlescape_map: dict[int, str] = {}
+_tex_hlescape_map_without_unicode: dict[int, str] = {}
 
 
-def escape(s: str, latex_engine: str = None) -> str:
+def escape(s: str, latex_engine: str | None = None) -> str:
     """Escape text for LaTeX output."""
     if latex_engine in ('lualatex', 'xelatex'):
         # unicode based LaTeX engine
@@ -117,7 +110,7 @@ def escape(s: str, latex_engine: str = None) -> str:
         return s.translate(_tex_escape_map)
 
 
-def hlescape(s: str, latex_engine: str = None) -> str:
+def hlescape(s: str, latex_engine: str | None = None) -> str:
     """Escape text for LaTeX highlighter."""
     if latex_engine in ('lualatex', 'xelatex'):
         # unicode based LaTeX engine

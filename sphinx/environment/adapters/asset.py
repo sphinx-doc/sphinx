@@ -1,14 +1,7 @@
-"""
-    sphinx.environment.adapters.asset
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Assets adapter for sphinx.environment.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+"""Assets adapter for sphinx.environment."""
 
 from sphinx.environment import BuildEnvironment
+from sphinx.util._pathlib import _StrPath
 
 
 class ImageAdapter:
@@ -17,7 +10,7 @@ class ImageAdapter:
 
     def get_original_image_uri(self, name: str) -> str:
         """Get the original image URI."""
-        while name in self.env.original_image_uri:
-            name = self.env.original_image_uri[name]
+        while _StrPath(name) in self.env.original_image_uri:
+            name = self.env.original_image_uri[_StrPath(name)]
 
         return name

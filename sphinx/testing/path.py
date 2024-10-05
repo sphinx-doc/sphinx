@@ -1,19 +1,22 @@
-"""
-    sphinx.testing.path
-    ~~~~~~~~~~~~~~~~~~~
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import builtins
 import os
 import shutil
 import sys
 import warnings
-from typing import IO, Any, Callable, List
+from typing import IO, TYPE_CHECKING, Any
 
-from sphinx.deprecation import RemovedInSphinx50Warning
+from sphinx.deprecation import RemovedInSphinx90Warning
+
+if TYPE_CHECKING:
+    import builtins
+    from collections.abc import Callable
+
+warnings.warn(
+    "'sphinx.testing.path' is deprecated. " "Use 'os.path' or 'pathlib' instead.",
+    RemovedInSphinx90Warning,
+    stacklevel=2,
+)
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -34,8 +37,10 @@ class path(str):
     Represents a path which behaves like a string.
     """
 
+    __slots__ = ()
+
     @property
-    def parent(self) -> "path":
+    def parent(self) -> path:
         """
         The name of the directory the file or directory is in.
         """
@@ -44,7 +49,7 @@ class path(str):
     def basename(self) -> str:
         return os.path.basename(self)
 
-    def abspath(self) -> "path":
+    def abspath(self) -> path:
         """
         Returns the absolute path.
         """
@@ -80,7 +85,11 @@ class path(str):
         """
         return os.path.ismount(self)
 
-    def rmtree(self, ignore_errors: bool = False, onerror: Callable = None) -> None:
+    def rmtree(
+        self,
+        ignore_errors: bool = False,
+        onerror: Callable[[Callable[..., Any], str, Any], object] | None = None,
+    ) -> None:
         """
         Removes the file or directory and any files or directories it may
         contain.
@@ -115,7 +124,7 @@ class path(str):
             # as well.  To avoid failures when adding additional files/directories
             # to the destination tree, ensure destination directories are not marked
             # read-only.
-            for root, dirs, files in os.walk(destination):
+            for root, _dirs, files in os.walk(destination):
                 os.chmod(root, 0o755 & ~UMASK)
                 for name in files:
                     os.chmod(os.path.join(root, name), 0o644 & ~UMASK)
@@ -147,8 +156,8 @@ class path(str):
     def utime(self, arg: Any) -> None:
         os.utime(self, arg)
 
-    def open(self, mode: str = 'r', **kwargs: Any) -> IO:
-        return open(self, mode, **kwargs)
+    def open(self, mode: str = 'r', **kwargs: Any) -> IO[str]:
+        return open(self, mode, **kwargs)  # NoQA: SIM115
 
     def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
         """
@@ -157,28 +166,12 @@ class path(str):
         with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
 
-    def text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
-        """
-        Returns the text in the file.
-        """
-        warnings.warn('Path.text() is deprecated.  Please use read_text() instead.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.read_text(encoding, **kwargs)
-
     def read_text(self, encoding: str = 'utf-8', **kwargs: Any) -> str:
         """
         Returns the text in the file.
         """
         with open(self, encoding=encoding, **kwargs) as f:
             return f.read()
-
-    def bytes(self) -> builtins.bytes:
-        """
-        Returns the bytes in the file.
-        """
-        warnings.warn('Path.bytes() is deprecated.  Please use read_bytes() instead.',
-                      RemovedInSphinx50Warning, stacklevel=2)
-        return self.read_bytes()
 
     def read_bytes(self) -> builtins.bytes:
         """
@@ -187,7 +180,7 @@ class path(str):
         with open(self, mode='rb') as f:
             return f.read()
 
-    def write_bytes(self, bytes: str, append: bool = False) -> None:
+    def write_bytes(self, bytes: bytes, append: bool = False) -> None:
         """
         Writes the given `bytes` to the file.
 
@@ -220,16 +213,16 @@ class path(str):
         """
         os.makedirs(self, mode, exist_ok=exist_ok)
 
-    def joinpath(self, *args: Any) -> "path":
+    def joinpath(self, *args: Any) -> path:
         """
         Joins the path with the argument given and returns the result.
         """
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
-    def listdir(self) -> List[str]:
+    def listdir(self) -> list[str]:
         return os.listdir(self)
 
     __div__ = __truediv__ = joinpath
 
     def __repr__(self) -> str:
-        return '%s(%s)' % (self.__class__.__name__, super().__repr__())
+        return f'{self.__class__.__name__}({super().__repr__()})'

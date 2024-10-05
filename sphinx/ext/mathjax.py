@@ -1,36 +1,36 @@
-"""
-    sphinx.ext.mathjax
-    ~~~~~~~~~~~~~~~~~~
+"""Allow `MathJax`_ to be used to display math in Sphinx's HTML writer.
 
-    Allow `MathJax <https://www.mathjax.org/>`_ to be used to display math in
-    Sphinx's HTML writer -- requires the MathJax JavaScript library on your
-    webserver/computer.
+This requires the MathJax JavaScript library on your webserver/computer.
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+.. _MathJax: https://www.mathjax.org/
 """
+
+from __future__ import annotations
 
 import json
-from typing import Any, Dict, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
 
 import sphinx
-from sphinx.application import Sphinx
-from sphinx.domains.math import MathDomain
+from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
-from sphinx.writers.html import HTMLTranslator
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
+    from sphinx.writers.html5 import HTML5Translator
 
 # more information for mathjax secure url is here:
-# https://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
+# https://docs.mathjax.org/en/latest/web/start.html#using-mathjax-from-a-content-delivery-network-cdn
 MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 logger = sphinx.util.logging.getLogger(__name__)
 
 
-def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
+def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
     self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
     self.body.append(self.builder.config.mathjax_inline[0] +
                      self.encode(node.astext()) +
@@ -38,7 +38,7 @@ def html_visit_math(self: HTMLTranslator, node: nodes.math) -> None:
     raise nodes.SkipNode
 
 
-def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None:
+def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> None:
     self.body.append(self.starttag(node, 'div', CLASS='math notranslate nohighlight'))
     if node['nowrap']:
         self.body.append(self.encode(node.astext()))
@@ -49,7 +49,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     if node['number']:
         number = get_node_equation_number(self, node)
         self.body.append('<span class="eqno">(%s)' % number)
-        self.add_permalink_ref(node, _('Permalink to this equation'))
+        self.add_permalink_ref(node, _('Link to this equation'))
         self.body.append('</span>')
     self.body.append(self.builder.config.mathjax_display[0])
     parts = [prt for prt in node.astext().split('\n\n') if prt.strip()]
@@ -70,35 +70,46 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     raise nodes.SkipNode
 
 
-def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: Dict,
+def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict[str, Any],
                     event_arg: Any) -> None:
-    if app.builder.format != 'html' or app.builder.math_renderer_name != 'mathjax':  # type: ignore  # NOQA
+    if (
+        app.builder.format != 'html' or
+        app.builder.math_renderer_name != 'mathjax'  # type: ignore[attr-defined]
+    ):
         return
     if not app.config.mathjax_path:
-        raise ExtensionError('mathjax_path config value must be set for the '
-                             'mathjax extension to work')
+        msg = 'mathjax_path config value must be set for the mathjax extension to work'
+        raise ExtensionError(msg)
 
-    domain = cast(MathDomain, app.env.get_domain('math'))
+    domain = app.env.domains.math_domain
+    builder = cast(StandaloneHTMLBuilder, app.builder)
     if app.registry.html_assets_policy == 'always' or domain.has_equations(pagename):
         # Enable mathjax only if equations exists
-        options = {'async': 'async'}
-        if app.config.mathjax_options:
-            options.update(app.config.mathjax_options)
-        app.add_js_file(app.config.mathjax_path, **options)  # type: ignore
-
         if app.config.mathjax2_config:
             if app.config.mathjax_path == MATHJAX_URL:
                 logger.warning(
                     'mathjax_config/mathjax2_config does not work '
                     'for the current MathJax version, use mathjax3_config instead')
             body = 'MathJax.Hub.Config(%s)' % json.dumps(app.config.mathjax2_config)
-            app.add_js_file(None, type='text/x-mathjax-config', body=body)
+            builder.add_js_file('', type='text/x-mathjax-config', body=body)
         if app.config.mathjax3_config:
             body = 'window.MathJax = %s' % json.dumps(app.config.mathjax3_config)
-            app.add_js_file(None, body=body)
+            builder.add_js_file('', body=body)
+
+        options = {}
+        if app.config.mathjax_options:
+            options.update(app.config.mathjax_options)
+        if 'async' not in options and 'defer' not in options:
+            if app.config.mathjax3_config:
+                # Load MathJax v3 via "defer" method
+                options['defer'] = 'defer'
+            else:
+                # Load other MathJax via "async" method
+                options['async'] = 'async'
+        builder.add_js_file(app.config.mathjax_path, **options)
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_html_math_renderer('mathjax',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))

@@ -1,34 +1,42 @@
+from __future__ import annotations
+
 from enum import IntEnum
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any
 
-from docutils.statemachine import StringList
-
-from sphinx.application import Sphinx
 from sphinx.ext.autodoc import ClassDocumenter, bool_option
+
+if TYPE_CHECKING:
+    from docutils.statemachine import StringList
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class IntEnumDocumenter(ClassDocumenter):
     objtype = 'intenum'
-    directivetype = 'class'
+    directivetype = ClassDocumenter.objtype
     priority = 10 + ClassDocumenter.priority
     option_spec = dict(ClassDocumenter.option_spec)
     option_spec['hex'] = bool_option
 
     @classmethod
-    def can_document_member(cls,
-                            member: Any, membername: str,
-                            isattr: bool, parent: Any) -> bool:
-        return isinstance(member, IntEnum)
+    def can_document_member(
+        cls, member: Any, membername: str, isattr: bool, parent: Any
+    ) -> bool:
+        try:
+            return issubclass(member, IntEnum)
+        except TypeError:
+            return False
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         self.add_line('   :final:', self.get_sourcename())
 
-    def add_content(self,
-                    more_content: Optional[StringList],
-                    no_docstring: bool = False
-                    ) -> None:
-
+    def add_content(
+        self,
+        more_content: StringList | None,
+        no_docstring: bool = False,
+    ) -> None:
         super().add_content(more_content, no_docstring)
 
         source_name = self.get_sourcename()
@@ -36,17 +44,19 @@ class IntEnumDocumenter(ClassDocumenter):
         use_hex = self.options.hex
         self.add_line('', source_name)
 
-        for enum_value in enum_object:
-            the_value_name = enum_value.name
-            the_value_value = enum_value.value
+        for the_member_name, enum_member in enum_object.__members__.items():
+            the_member_value = enum_member.value
             if use_hex:
-                the_value_value = hex(the_value_value)
+                the_member_value = hex(the_member_value)
 
-            self.add_line(
-                f"**{the_value_name}**: {the_value_value}", source_name)
+            self.add_line(f'**{the_member_name}**: {the_member_value}', source_name)
             self.add_line('', source_name)
 
 
-def setup(app: Sphinx) -> None:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.ext.autodoc')  # Require autodoc extension
     app.add_autodocumenter(IntEnumDocumenter)
+    return {
+        'version': '1',
+        'parallel_read_safe': True,
+    }

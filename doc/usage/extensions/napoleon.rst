@@ -26,7 +26,7 @@ Are you tired of writing docstrings that look like this::
     :rtype: BufferedFileStorage
 
 `reStructuredText`_ is great, but it creates visually dense, hard to read
-`docstrings`_. Compare the jumble above to the same thing rewritten
+:pep:`docstrings <287>`. Compare the jumble above to the same thing rewritten
 according to the `Google Python Style Guide`_::
 
     Args:
@@ -50,11 +50,10 @@ the documentation, so it doesn't modify any of the docstrings in your actual
 source code files.
 
 .. _ReStructuredText: https://docutils.sourceforge.io/rst.html
-.. _docstrings: https://www.python.org/dev/peps/pep-0287/
 .. _Google Python Style Guide:
    https://google.github.io/styleguide/pyguide.html
 .. _Google:
-   https://google.github.io/styleguide/pyguide.html#Comments
+   https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy:
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 .. _Khan Academy:
@@ -64,14 +63,14 @@ Getting Started
 ~~~~~~~~~~~~~~~
 
 1. After :doc:`setting up Sphinx </usage/quickstart>` to build your docs,
-   enable napoleon in the Sphinx `conf.py` file::
+   enable napoleon in the Sphinx ``conf.py`` file::
 
        # conf.py
 
        # Add napoleon to the extensions list
        extensions = ['sphinx.ext.napoleon']
 
-2. Use `sphinx-apidoc` to build your API documentation::
+2. Use ``sphinx-apidoc`` to build your API documentation::
 
        $ sphinx-apidoc -f -o docs/source projectdir
 
@@ -95,38 +94,38 @@ Docstring Sections
 
 All of the following section headers are supported:
 
-    * ``Args`` *(alias of Parameters)*
-    * ``Arguments`` *(alias of Parameters)*
-    * ``Attention``
-    * ``Attributes``
-    * ``Caution``
-    * ``Danger``
-    * ``Error``
-    * ``Example``
-    * ``Examples``
-    * ``Hint``
-    * ``Important``
-    * ``Keyword Args`` *(alias of Keyword Arguments)*
-    * ``Keyword Arguments``
-    * ``Methods``
-    * ``Note``
-    * ``Notes``
-    * ``Other Parameters``
-    * ``Parameters``
-    * ``Return`` *(alias of Returns)*
-    * ``Returns``
-    * ``Raise`` *(alias of Raises)*
-    * ``Raises``
-    * ``References``
-    * ``See Also``
-    * ``Tip``
-    * ``Todo``
-    * ``Warning``
-    * ``Warnings`` *(alias of Warning)*
-    * ``Warn`` *(alias of Warns)*
-    * ``Warns``
-    * ``Yield`` *(alias of Yields)*
-    * ``Yields``
+* ``Args`` *(alias of Parameters)*
+* ``Arguments`` *(alias of Parameters)*
+* ``Attention``
+* ``Attributes``
+* ``Caution``
+* ``Danger``
+* ``Error``
+* ``Example``
+* ``Examples``
+* ``Hint``
+* ``Important``
+* ``Keyword Args`` *(alias of Keyword Arguments)*
+* ``Keyword Arguments``
+* ``Methods``
+* ``Note``
+* ``Notes``
+* ``Other Parameters``
+* ``Parameters``
+* ``Return`` *(alias of Returns)*
+* ``Returns``
+* ``Raise`` *(alias of Raises)*
+* ``Raises``
+* ``References``
+* ``See Also``
+* ``Tip``
+* ``Todo``
+* ``Warning``
+* ``Warnings`` *(alias of Warning)*
+* ``Warn`` *(alias of Warns)*
+* ``Warns``
+* ``Yield`` *(alias of Yields)*
+* ``Yields``
 
 Google vs NumPy
 ~~~~~~~~~~~~~~~
@@ -137,7 +136,7 @@ separate sections, whereas NumPy uses underlines.
 
 Google style:
 
-.. code-block:: python3
+.. code-block:: python
 
     def func(arg1, arg2):
         """Summary line.
@@ -156,7 +155,7 @@ Google style:
 
 NumPy style:
 
-.. code-block:: python3
+.. code-block:: python
 
     def func(arg1, arg2):
         """Summary line.
@@ -183,8 +182,6 @@ tends to use more horizontal space. Google style tends to be easier to
 read for short and simple docstrings, whereas NumPy style tends be easier
 to read for long and in-depth docstrings.
 
-The `Khan Academy`_ recommends using Google style.
-
 The choice between styles is largely aesthetic, but the two styles should
 not be mixed. Choose one style for your project and be consistent with it.
 
@@ -199,11 +196,11 @@ not be mixed. Choose one style for your project and be consistent with it.
 Type Annotations
 ~~~~~~~~~~~~~~~~
 
-`PEP 484`_ introduced a standard way to express types in Python code.
+:pep:`484` introduced a standard way to express types in Python code.
 This is an alternative to expressing types directly in docstrings.
-One benefit of expressing types according to `PEP 484`_ is that
+One benefit of expressing types according to :pep:`484` is that
 type checkers and IDEs can take advantage of them for static code
-analysis. `PEP 484`_ was then extended by `PEP 526`_ which introduced
+analysis. :pep:`484` was then extended by :pep:`526` which introduced
 a similar way to annotate variables (and attributes).
 
 Google style with Python 3 type annotations::
@@ -222,7 +219,7 @@ Google style with Python 3 type annotations::
 
         """
         return True
-    
+
     class Class:
         """Summary line.
 
@@ -252,7 +249,7 @@ Google style with types in docstrings::
 
         """
         return True
-    
+
     class Class:
         """Summary line.
 
@@ -267,17 +264,15 @@ Google style with types in docstrings::
    `Python 2/3 compatible annotations`_ aren't currently
    supported by Sphinx and won't show up in the docs.
 
-.. _PEP 484: https://www.python.org/dev/peps/pep-0484/
-.. _PEP 526: https://www.python.org/dev/peps/pep-0526/
-.. _Python 2/3 compatible annotations: https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
+.. _Python 2/3 compatible annotations: https://peps.python.org/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
 
 
 Configuration
 -------------
 
 Listed below are all the settings used by napoleon and their default
-values. These settings can be changed in the Sphinx `conf.py` file. Make
-sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
+values. These settings can be changed in the Sphinx ``conf.py`` file. Make
+sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
 
     # conf.py
 
@@ -301,7 +296,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
     napoleon_attr_annotations = True
 
 .. _Google style:
-   https://google.github.io/styleguide/pyguide.html
+   https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
 .. _NumPy style:
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
@@ -403,7 +398,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. seealso::
 
-      :attr:`napoleon_use_admonition_for_examples`
+      :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_admonition_for_references
 
@@ -413,7 +408,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
    .. seealso::
 
-      :attr:`napoleon_use_admonition_for_examples`
+      :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_ivar
 
@@ -476,14 +471,14 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
    keywords.
    *Defaults to True.*
 
-   This behaves similarly to  :attr:`napoleon_use_param`. Note unlike docutils,
+   This behaves similarly to :confval:`napoleon_use_param`. Note unlike docutils,
    ``:keyword:`` and ``:param:`` will not be treated the same way - there will
    be a separate "Keyword Arguments" section, rendered in the same fashion as
    "Parameters" section (type links created if possible)
 
    .. seealso::
 
-      :attr:`napoleon_use_param`
+      :confval:`napoleon_use_param`
 
 .. confval:: napoleon_use_rtype
 
@@ -548,7 +543,7 @@ sure that "sphinx.ext.napoleon" is enabled in `conf.py`::
 
 .. confval:: napoleon_attr_annotations
 
-   True to allow using `PEP 526`_ attributes annotations in classes.
+   True to allow using :pep:`526` attributes annotations in classes.
    If an attribute is documented in the docstring without a type and
    has an annotation in the class body, that type is used.
 

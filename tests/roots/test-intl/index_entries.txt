@@ -20,12 +20,5 @@ various index entries
    triple: First; Second; Third
    see: Entry; Mailing List
    seealso: See; Newsletter
-   module: Module
-   keyword: Keyword
-   operator: Operator
-   object: Object
-   exception: Exception
-   statement: Statement
-   builtin: Builtin
 
 That's all.
