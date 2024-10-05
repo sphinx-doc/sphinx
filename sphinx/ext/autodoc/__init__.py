@@ -48,7 +48,9 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
-    _AutodocObjType = Literal['module', 'class', 'exception', 'function', 'method', 'attribute']
+    _AutodocObjType = Literal[
+        'module', 'class', 'exception', 'function', 'method', 'attribute'
+    ]
     _AutodocProcessDocstringListener: TypeAlias = Callable[
         [Sphinx, _AutodocObjType, str, Any, dict[str, bool], list[str]], None
     ]
