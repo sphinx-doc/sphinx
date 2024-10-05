@@ -935,6 +935,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value(
         'python_maximum_signature_line_length', None, 'env', {int, type(None)},
     )
+    app.add_config_value(
+        'python_trailing_comma_in_multi_line_signatures', True, 'env',
+    )
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)

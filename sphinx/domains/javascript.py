@@ -108,6 +108,8 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             and (len(sig) > max_len > 0)
         )
 
+        trailing_comma = self.env.config.javascript_trailing_comma_in_multi_line_signatures
+
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
@@ -128,7 +130,12 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
         return fullname, prefix
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
@@ -504,6 +511,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
         'javascript_maximum_signature_line_length', None, 'env', {int, type(None)},
+    )
+    app.add_config_value(
+        'javascript_trailing_comma_in_multi_line_signatures', True, 'env',
     )
     return {
         'version': 'builtin',
