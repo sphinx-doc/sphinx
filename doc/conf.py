@@ -186,6 +186,7 @@ nitpick_ignore = {
     ('js:func', 'number'),
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
+    ('py:class', '_AutodocProcessDocstringListener'),
     ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
     ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
