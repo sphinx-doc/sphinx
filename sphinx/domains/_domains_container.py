@@ -122,7 +122,6 @@ class _DomainsContainer:
         math: MathDomain,
         **domains: Domain,
     ) -> None:
-
         # All domains, including core.
         # Implemented as a dict for backwards compatibility.
         self._domain_instances: Mapping[str, Domain] = {
@@ -171,7 +170,9 @@ class _DomainsContainer:
         for domain in self._domain_instances.values():
             domain.clear_doc(docname)
 
-    def _merge_domain_data(self, docnames: Set[str], domain_data: dict[str, Any]) -> None:
+    def _merge_domain_data(
+        self, docnames: Set[str], domain_data: dict[str, Any]
+    ) -> None:
         for domain_name, domain in self._domain_instances.items():
             domain.merge_domaindata(docnames, domain_data[domain_name])
 
@@ -202,60 +203,47 @@ class _DomainsContainer:
     # Mapping interface: builtin domains
 
     @overload
-    def __getitem__(self, key: Literal["c"]) -> CDomain:
-        ...
+    def __getitem__(self, key: Literal['c']) -> CDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["cpp"]) -> CPPDomain:
-        ...
+    def __getitem__(self, key: Literal['cpp']) -> CPPDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["changeset"]) -> ChangeSetDomain:
-        ...
+    def __getitem__(self, key: Literal['changeset']) -> ChangeSetDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["citation"]) -> CitationDomain:
-        ...
+    def __getitem__(self, key: Literal['citation']) -> CitationDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["index"]) -> IndexDomain:
-        ...
+    def __getitem__(self, key: Literal['index']) -> IndexDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["js"]) -> JavaScriptDomain:
-        ...
+    def __getitem__(self, key: Literal['js']) -> JavaScriptDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["math"]) -> MathDomain:
-        ...
+    def __getitem__(self, key: Literal['math']) -> MathDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["py"]) -> PythonDomain:
-        ...
+    def __getitem__(self, key: Literal['py']) -> PythonDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["rst"]) -> ReSTDomain:
-        ...
+    def __getitem__(self, key: Literal['rst']) -> ReSTDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["std"]) -> StandardDomain:
-        ...
+    def __getitem__(self, key: Literal['std']) -> StandardDomain: ...  # NoQA: E704
 
     # Mapping interface: first-party domains
 
     @overload
-    def __getitem__(self, key: Literal["duration"]) -> DurationDomain:
-        ...
+    def __getitem__(self, key: Literal['duration']) -> DurationDomain: ...  # NoQA: E704
 
     @overload
-    def __getitem__(self, key: Literal["todo"]) -> TodoDomain:
-        ...
+    def __getitem__(self, key: Literal['todo']) -> TodoDomain: ...  # NoQA: E704
 
     # Mapping interface: third-party domains
 
     @overload
-    def __getitem__(self, key: str) -> Domain:
-        ...
+    def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
 
     def __getitem__(self, key: str) -> Domain:
         if domain := getattr(self, key, None):

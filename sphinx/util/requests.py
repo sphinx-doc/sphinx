@@ -11,8 +11,10 @@ from urllib3.exceptions import InsecureRequestWarning
 
 import sphinx
 
-_USER_AGENT = (f'Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0 '
-               f'Sphinx/{sphinx.__version__}')
+_USER_AGENT = (
+    f'Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0 '
+    f'Sphinx/{sphinx.__version__}'
+)
 
 
 def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
@@ -49,7 +51,9 @@ def head(url: str, **kwargs: Any) -> requests.Response:
 
 class _Session(requests.Session):
     def request(  # type: ignore[override]
-        self, method: str, url: str,
+        self,
+        method: str,
+        url: str,
         _user_agent: str = '',
         _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
         **kwargs: Any,
@@ -72,5 +76,5 @@ class _Session(requests.Session):
 
         with warnings.catch_warnings():
             # ignore InsecureRequestWarning if verify=False
-            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+            warnings.filterwarnings('ignore', category=InsecureRequestWarning)
             return super().request(method, url, **kwargs)

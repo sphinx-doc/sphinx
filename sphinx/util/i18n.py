@@ -75,7 +75,6 @@ class LocaleFileInfoBase(NamedTuple):
 
 
 class CatalogInfo(LocaleFileInfoBase):
-
     @property
     def po_file(self) -> str:
         return self.domain + '.po'
@@ -94,8 +93,9 @@ class CatalogInfo(LocaleFileInfoBase):
 
     def is_outdated(self) -> bool:
         return (
-            not path.exists(self.mo_path) or
-            _last_modified_time(self.mo_path) < _last_modified_time(self.po_path))
+            not path.exists(self.mo_path)
+            or _last_modified_time(self.mo_path) < _last_modified_time(self.po_path)
+        )  # fmt: skip
 
     def write_mo(self, locale: str, use_fuzzy: bool = False) -> None:
         with open(self.po_path, encoding=self.charset) as file_po:
@@ -115,8 +115,13 @@ class CatalogInfo(LocaleFileInfoBase):
 class CatalogRepository:
     """A repository for message catalogs."""
 
-    def __init__(self, basedir: str | os.PathLike[str], locale_dirs: list[str],
-                 language: str, encoding: str) -> None:
+    def __init__(
+        self,
+        basedir: str | os.PathLike[str],
+        locale_dirs: list[str],
+        language: str,
+        encoding: str,
+    ) -> None:
         self.basedir = basedir
         self._locale_dirs = locale_dirs
         self.language = language
@@ -205,13 +210,17 @@ date_format_mappings = {
     '%z':  'ZZZ',     # UTC offset in the form ±HHMM[SS[.ffffff]]
                       # (empty string if the object is naive).
     '%%':  '%',
-}
+}  # fmt: skip
 
 date_format_re = re.compile('(%s)' % '|'.join(date_format_mappings))
 
 
-def babel_format_date(date: datetime, format: str, locale: str,
-                      formatter: Formatter = babel.dates.format_date) -> str:
+def babel_format_date(
+    date: datetime,
+    format: str,
+    locale: str,
+    formatter: Formatter = babel.dates.format_date,
+) -> str:
     # Check if we have the tzinfo attribute. If not we cannot do any time
     # related formats.
     if not hasattr(date, 'tzinfo'):
@@ -223,8 +232,13 @@ def babel_format_date(date: datetime, format: str, locale: str,
         # fallback to English
         return formatter(date, format, locale='en')
     except AttributeError:
-        logger.warning(__('Invalid date format. Quote the string by single quote '
-                          'if you want to output it directly: %s'), format)
+        logger.warning(
+            __(
+                'Invalid date format. Quote the string by single quote '
+                'if you want to output it directly: %s'
+            ),
+            format,
+        )
         return format
 
 
@@ -267,12 +281,15 @@ def format_date(
             else:
                 function = babel.dates.format_datetime
 
-            result.append(babel_format_date(date, babel_format, locale=language,
-                                            formatter=function))
+            result.append(
+                babel_format_date(
+                    date, babel_format, locale=language, formatter=function
+                )
+            )
         else:
             result.append(token)
 
-    return "".join(result)
+    return ''.join(result)
 
 
 def get_image_filename_for_language(
