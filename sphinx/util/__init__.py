@@ -9,7 +9,6 @@ import re
 from typing import Any
 
 from sphinx.errors import FiletypeNotFoundError
-from sphinx.locale import __
 from sphinx.util import _files, _importer, logging
 from sphinx.util import index_entries as _index_entries
 from sphinx.util._lines import parse_line_num_spec as parselinenos  # NoQA: F401
@@ -71,32 +70,6 @@ def _sha1(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
     To be removed in Sphinx 9.0
     """
     return hashlib.sha1(data, usedforsecurity=False)
-
-
-class UnicodeDecodeErrorHandler:
-    """Custom error handler for open() that warns and replaces."""
-
-    def __init__(self, docname: str) -> None:
-        self.docname = docname
-
-    def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
-        linestart = error.object.rfind(b'\n', 0, error.start)
-        lineend = error.object.find(b'\n', error.start)
-        if lineend == -1:
-            lineend = len(error.object)
-        lineno = error.object.count(b'\n', 0, error.start) + 1
-        logger.warning(
-            __('undecodable source characters, replacing with "?": %r'),
-            (
-                error.object[linestart + 1 : error.start]
-                + b'>>>'
-                + error.object[error.start : error.end]
-                + b'<<<'
-                + error.object[error.end : lineend]
-            ),
-            location=(self.docname, lineno),
-        )
-        return ('?', error.end)
 
 
 # deprecated name -> (object to return, canonical path or empty string)

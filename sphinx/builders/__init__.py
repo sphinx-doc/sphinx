@@ -18,7 +18,6 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import (
-    UnicodeDecodeErrorHandler,
     get_filetype,
     logging,
     rst,
@@ -618,7 +617,8 @@ class Builder:
             rst.default_role(docname, self.config.default_role),
         ):
             # set up error_handler for the target document
-            codecs.register_error('sphinx', UnicodeDecodeErrorHandler(docname))  # type: ignore[arg-type]
+            error_handler = _UnicodeDecodeErrorHandler(docname)
+            codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
 
             publisher.set_source(source_path=filename)
             publisher.publish()
@@ -813,3 +813,29 @@ class Builder:
         except AttributeError:
             optname = f'{default}_{option}'
             return getattr(self.config, optname)
+
+
+class _UnicodeDecodeErrorHandler:
+    """Custom error handler for open() that warns and replaces."""
+
+    def __init__(self, docname: str, /) -> None:
+        self.docname = docname
+
+    def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
+        line_start = error.object.rfind(b'\n', 0, error.start)
+        line_end = error.object.find(b'\n', error.start)
+        if line_end == -1:
+            line_end = len(error.object)
+        line_num = error.object.count(b'\n', 0, error.start) + 1
+        logger.warning(
+            __('undecodable source characters, replacing with "?": %r'),
+            (
+                error.object[line_start + 1 : error.start]
+                + b'>>>'
+                + error.object[error.start : error.end]
+                + b'<<<'
+                + error.object[error.end : line_end]
+            ),
+            location=(self.docname, line_num),
+        )
+        return '?', error.end
