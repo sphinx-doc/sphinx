@@ -12,6 +12,7 @@ from sphinx.errors import FiletypeNotFoundError
 from sphinx.locale import __
 from sphinx.util import _files, _importer, logging
 from sphinx.util import index_entries as _index_entries
+from sphinx.util._lines import parse_line_num_spec as parselinenos  # NoQA: F401
 from sphinx.util._uri import encode_uri  # NoQA: F401
 from sphinx.util._uri import is_url as isurl  # NoQA: F401
 from sphinx.util.console import strip_colors  # NoQA: F401
@@ -96,37 +97,6 @@ class UnicodeDecodeErrorHandler:
             location=(self.docname, lineno),
         )
         return ('?', error.end)
-
-
-# Low-level utility functions and classes.
-
-
-def parselinenos(spec: str, total: int) -> list[int]:
-    """Parse a line number spec (such as "1,2,4-6") and return a list of
-    wanted line numbers.
-    """
-    items = []
-    parts = spec.split(',')
-    for part in parts:
-        try:
-            begend = part.strip().split('-')
-            if begend == ['', '']:
-                raise ValueError
-            if len(begend) == 1:
-                items.append(int(begend[0]) - 1)
-            elif len(begend) == 2:
-                start = int(begend[0] or 1)  # left half open (cf. -10)
-                end = int(begend[1] or max(start, total))  # right half open (cf. 10-)
-                if start > end:  # invalid range (cf. 10-1)
-                    raise ValueError
-                items.extend(range(start - 1, end))
-            else:
-                raise ValueError
-        except ValueError as exc:
-            msg = f'invalid line number spec: {spec!r}'
-            raise ValueError(msg) from exc
-
-    return items
 
 
 # deprecated name -> (object to return, canonical path or empty string)

@@ -11,7 +11,8 @@ from docutils.parsers.rst import directives
 from sphinx import addnodes
 from sphinx.directives import optional_int
 from sphinx.locale import __
-from sphinx.util import logging, parselinenos
+from sphinx.util import logging
+from sphinx.util._lines import parse_line_num_spec
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
@@ -122,7 +123,7 @@ class CodeBlock(SphinxDirective):
         if linespec:
             try:
                 nlines = len(self.content)
-                hl_lines = parselinenos(linespec, nlines)
+                hl_lines = parse_line_num_spec(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
                     logger.warning(
                         __('line number spec is out of range(1-%d): %r'),
@@ -284,7 +285,7 @@ class LiteralIncludeReader:
     ) -> list[str]:
         linespec = self.options.get('lines')
         if linespec:
-            linelist = parselinenos(linespec, len(lines))
+            linelist = parse_line_num_spec(linespec, len(lines))
             if any(i >= len(lines) for i in linelist):
                 logger.warning(
                     __('line number spec is out of range(1-%d): %r'),
@@ -471,7 +472,7 @@ class LiteralInclude(SphinxDirective):
             retnode['classes'] += self.options.get('class', [])
             extra_args = retnode['highlight_args'] = {}
             if 'emphasize-lines' in self.options:
-                hl_lines = parselinenos(self.options['emphasize-lines'], lines)
+                hl_lines = parse_line_num_spec(self.options['emphasize-lines'], lines)
                 if any(i >= lines for i in hl_lines):
                     logger.warning(
                         __('line number spec is out of range(1-%d): %r'),
