@@ -77,6 +77,7 @@ jobs:
       matrix:
         python:
         - "3.13-dev"
+        - "3.14-dev"
         docutils:
         - "0.20"
         - "0.21"
@@ -94,6 +95,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
@@ -110,6 +112,7 @@ jobs:
       matrix:
         python:
         - "3.13-dev"
+        - "3.14-dev"
         docutils:
         - "0.20"
         - "0.21"
@@ -128,6 +131,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
