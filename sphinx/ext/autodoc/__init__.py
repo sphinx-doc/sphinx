@@ -10,14 +10,12 @@ from __future__ import annotations
 import functools
 import operator
 import re
-from collections.abc import Callable
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, ClassVar, NewType, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, NewType, TypeVar
 
 from docutils.statemachine import StringList
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.config import ENUM, Config
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
@@ -42,11 +40,18 @@ from sphinx.util.typing import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
+    from typing import ClassVar, Literal, TypeAlias
 
+    from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc.directive import DocumenterBridge
+
+    _AutodocObjType = Literal['module', 'class', 'exception', 'function', 'method', 'attribute']
+    _AutodocProcessDocstringListener: TypeAlias = Callable[
+        [Sphinx, _AutodocObjType, str, Any, dict[str, bool], list[str]], None
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -178,11 +183,6 @@ def merge_members_option(options: dict) -> None:
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-_AutodocProcessDocstringListener: TypeAlias = Callable[
-    [Sphinx, str, str, Any, Any, list[str]], None
-]
-
-
 def cut_lines(
     pre: int, post: int = 0, what: str | list[str] | None = None
 ) -> _AutodocProcessDocstringListener:
@@ -199,8 +199,14 @@ def cut_lines(
     """
     what_unique = frozenset(what or ())
 
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
-                ) -> None:
+    def process(
+        app: Sphinx,
+        what_: _AutodocObjType,
+        name: str,
+        obj: Any,
+        options: dict[str, bool],
+        lines: list[str],
+    ) -> None:
         if what_ not in what_unique:
             return
         del lines[:pre]
@@ -231,8 +237,14 @@ def between(
     """
     marker_re = re.compile(marker)
 
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
-                ) -> None:
+    def process(
+        app: Sphinx,
+        what_: _AutodocObjType,
+        name: str,
+        obj: Any,
+        options: dict[str, bool],
+        lines: list[str],
+    ) -> None:
         if what and what_ not in what:
             return
         deleted = 0

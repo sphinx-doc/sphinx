@@ -48,7 +48,9 @@ def docname_join(basedocname: str, docname: str) -> str:
     return posixpath.normpath(posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
-def get_filetype(source_suffix: dict[str, str], filename: str | os.PathLike[str]) -> str:
+def get_filetype(
+    source_suffix: dict[str, str], filename: str | os.PathLike[str]
+) -> str:
     for suffix, filetype in source_suffix.items():
         if os.fspath(filename).endswith(suffix):
             # If default filetype (None), considered as restructuredtext.
