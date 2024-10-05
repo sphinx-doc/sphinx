@@ -277,7 +277,7 @@ class CWE(ReferenceRole):
         return [index, target, reference], []
 
     def build_uri(self) -> str:
-        base_url = self.inliner.document.settings.cve_base_url
+        base_url = self.inliner.document.settings.cwe_base_url
         ret = self.target.split('#', 1)
         if len(ret) == 2:
             return f'{base_url}{int(ret[0])}.html#{ret[1]}'
