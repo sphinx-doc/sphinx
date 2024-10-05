@@ -14,7 +14,11 @@ from typing import Callable, List, Optional, Union  # NoQA: UP035
 import pytest
 
 from sphinx.util import inspect
-from sphinx.util.inspect import TypeAliasForwardRef, TypeAliasNamespace, stringify_signature
+from sphinx.util.inspect import (
+    TypeAliasForwardRef,
+    TypeAliasNamespace,
+    stringify_signature,
+)
 from sphinx.util.typing import stringify_annotation
 
 
@@ -62,6 +66,7 @@ async def coroutinefunc():
 async def asyncgenerator():
     yield
 
+
 partial_func = functools.partial(func)
 partial_coroutinefunc = functools.partial(coroutinefunc)
 
@@ -83,22 +88,28 @@ def _decorator(f):
     @functools.wraps(f)
     def wrapper():
         return f()
+
     return wrapper
 
 
 def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
-    assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'example'
+    sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
+    assert sig_str == 'example'
 
-    alias = Optional[alias]
-    assert stringify_annotation(alias, 'fully-qualified-except-typing') == 'example | None'
+    alias = Optional[alias]  # NoQA: UP007
+    sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
+    assert sig_str == 'example | None'
 
 
 def test_TypeAliasNamespace():
     import logging.config
-    type_alias = TypeAliasNamespace({'logging.Filter': 'MyFilter',
-                                     'logging.Handler': 'MyHandler',
-                                     'logging.handlers.SyslogHandler': 'MySyslogHandler'})
+
+    type_alias = TypeAliasNamespace({
+        'logging.Filter': 'MyFilter',
+        'logging.Handler': 'MyHandler',
+        'logging.handlers.SyslogHandler': 'MySyslogHandler',
+    })
 
     assert type_alias['logging'].Filter == 'MyFilter'
     assert type_alias['logging'].Handler == 'MyHandler'
@@ -143,6 +154,7 @@ def test_signature():
 def test_signature_partial():
     def fun(a, b, c=1, d=2):
         pass
+
     p = functools.partial(fun, 10, c=11)
 
     sig = inspect.signature(p)
@@ -222,169 +234,161 @@ def test_signature_partialmethod():
 
 
 def test_signature_annotations():
-    from tests.test_util.typing_test_data import (
-        Node,
-        f0,
-        f1,
-        f2,
-        f3,
-        f4,
-        f5,
-        f6,
-        f7,
-        f8,
-        f9,
-        f10,
-        f11,
-        f12,
-        f13,
-        f14,
-        f15,
-        f16,
-        f17,
-        f18,
-        f19,
-        f20,
-        f21,
-        f22,
-        f23,
-        f24,
-        f25,
-    )
+    import tests.test_util.typing_test_data as mod
 
     # Class annotations
-    sig = inspect.signature(f0)
+    sig = inspect.signature(mod.f0)
     assert stringify_signature(sig) == '(x: int, y: numbers.Integral) -> None'
 
     # Generic types with concrete parameters
-    sig = inspect.signature(f1)
+    sig = inspect.signature(mod.f1)
     assert stringify_signature(sig) == '(x: list[int]) -> typing.List[int]'
 
     # TypeVars and generic types with TypeVars
-    sig = inspect.signature(f2)
-    assert stringify_signature(sig) == ('(x: typing.List[tests.test_util.typing_test_data.T],'
-                                        ' y: typing.List[tests.test_util.typing_test_data.T_co],'
-                                        ' z: tests.test_util.typing_test_data.T'
-                                        ') -> typing.List[tests.test_util.typing_test_data.T_contra]')
+    sig = inspect.signature(mod.f2)
+    assert stringify_signature(sig) == (
+        '(x: typing.List[tests.test_util.typing_test_data.T],'
+        ' y: typing.List[tests.test_util.typing_test_data.T_co],'
+        ' z: tests.test_util.typing_test_data.T'
+        ') -> typing.List[tests.test_util.typing_test_data.T_contra]'
+    )
 
     # Union types
-    sig = inspect.signature(f3)
+    sig = inspect.signature(mod.f3)
     assert stringify_signature(sig) == '(x: str | numbers.Integral) -> None'
 
     # Quoted annotations
-    sig = inspect.signature(f4)
+    sig = inspect.signature(mod.f4)
     assert stringify_signature(sig) == '(x: str, y: str) -> None'
 
     # Keyword-only arguments
-    sig = inspect.signature(f5)
+    sig = inspect.signature(mod.f5)
     assert stringify_signature(sig) == '(x: int, *, y: str, z: str) -> None'
 
     # Keyword-only arguments with varargs
-    sig = inspect.signature(f6)
+    sig = inspect.signature(mod.f6)
     assert stringify_signature(sig) == '(x: int, *args, y: str, z: str) -> None'
 
     # Space around '=' for defaults
-    sig = inspect.signature(f7)
+    sig = inspect.signature(mod.f7)
+    sig_str = stringify_signature(sig)
     if sys.version_info[:2] <= (3, 10):
-        assert stringify_signature(sig) == '(x: int | None = None, y: dict = {}) -> None'
+        assert sig_str == '(x: int | None = None, y: dict = {}) -> None'
     else:
-        assert stringify_signature(sig) == '(x: int = None, y: dict = {}) -> None'
+        assert sig_str == '(x: int = None, y: dict = {}) -> None'
 
     # Callable types
-    sig = inspect.signature(f8)
+    sig = inspect.signature(mod.f8)
     assert stringify_signature(sig) == '(x: typing.Callable[[int, str], int]) -> None'
 
-    sig = inspect.signature(f9)
+    sig = inspect.signature(mod.f9)
     assert stringify_signature(sig) == '(x: typing.Callable) -> None'
 
     # Tuple types
-    sig = inspect.signature(f10)
-    assert stringify_signature(sig) == '(x: typing.Tuple[int, str], y: typing.Tuple[int, ...]) -> None'
+    sig = inspect.signature(mod.f10)
+    sig_str = stringify_signature(sig)
+    assert sig_str == '(x: typing.Tuple[int, str], y: typing.Tuple[int, ...]) -> None'
 
     # Instance annotations
-    sig = inspect.signature(f11)
+    sig = inspect.signature(mod.f11)
     assert stringify_signature(sig) == '(x: CustomAnnotation, y: 123) -> None'
 
     # tuple with more than two items
-    sig = inspect.signature(f12)
+    sig = inspect.signature(mod.f12)
     assert stringify_signature(sig) == '() -> typing.Tuple[int, str, int]'
 
     # optional
-    sig = inspect.signature(f13)
+    sig = inspect.signature(mod.f13)
     assert stringify_signature(sig) == '() -> str | None'
 
     # optional union
-    sig = inspect.signature(f20)
-    assert stringify_signature(sig) in ('() -> int | str | None',
-                                        '() -> str | int | None')
+    sig = inspect.signature(mod.f20)
+    assert stringify_signature(sig) in (
+        '() -> int | str | None',
+        '() -> str | int | None',
+    )
 
     # Any
-    sig = inspect.signature(f14)
+    sig = inspect.signature(mod.f14)
     assert stringify_signature(sig) == '() -> typing.Any'
 
     # ForwardRef
-    sig = inspect.signature(f15)
+    sig = inspect.signature(mod.f15)
     assert stringify_signature(sig) == '(x: Unknown, y: int) -> typing.Any'
 
     # keyword only arguments (1)
-    sig = inspect.signature(f16)
+    sig = inspect.signature(mod.f16)
     assert stringify_signature(sig) == '(arg1, arg2, *, arg3=None, arg4=None)'
 
     # keyword only arguments (2)
-    sig = inspect.signature(f17)
+    sig = inspect.signature(mod.f17)
     assert stringify_signature(sig) == '(*, arg3, arg4)'
 
-    sig = inspect.signature(f18)
-    assert stringify_signature(sig) == ('(self, arg1: int | typing.Tuple = 10) -> '
-                                        'typing.List[typing.Dict]')
+    sig = inspect.signature(mod.f18)
+    assert stringify_signature(sig) == (
+        '(self, arg1: int | typing.Tuple = 10) -> typing.List[typing.Dict]'
+    )
 
     # annotations for variadic and keyword parameters
-    sig = inspect.signature(f19)
+    sig = inspect.signature(mod.f19)
     assert stringify_signature(sig) == '(*args: int, **kwargs: str)'
 
     # default value is inspect.Signature.empty
-    sig = inspect.signature(f21)
+    sig = inspect.signature(mod.f21)
     assert stringify_signature(sig) == "(arg1='whatever', arg2)"
 
     # type hints by string
-    sig = inspect.signature(Node.children)
-    assert stringify_signature(sig) == '(self) -> typing.List[tests.test_util.typing_test_data.Node]'
+    sig = inspect.signature(mod.Node.children)
+    sig_str = stringify_signature(sig)
+    assert sig_str == '(self) -> typing.List[tests.test_util.typing_test_data.Node]'
 
-    sig = inspect.signature(Node.__init__)
-    assert stringify_signature(sig) == '(self, parent: tests.test_util.typing_test_data.Node | None) -> None'
+    sig = inspect.signature(mod.Node.__init__)
+    sig_str = stringify_signature(sig)
+    assert sig_str == (
+        '(self, parent: tests.test_util.typing_test_data.Node | None) -> None'
+    )
 
     # show_annotation is False
-    sig = inspect.signature(f7)
+    sig = inspect.signature(mod.f7)
     assert stringify_signature(sig, show_annotation=False) == '(x=None, y={})'
 
     # show_return_annotation is False
-    sig = inspect.signature(f7)
+    sig = inspect.signature(mod.f7)
+    sig_str = stringify_signature(sig, show_return_annotation=False)
     if sys.version_info[:2] <= (3, 10):
-        assert stringify_signature(sig, show_return_annotation=False) == '(x: int | None = None, y: dict = {})'
+        assert sig_str == '(x: int | None = None, y: dict = {})'
     else:
-        assert stringify_signature(sig, show_return_annotation=False) == '(x: int = None, y: dict = {})'
+        assert sig_str == '(x: int = None, y: dict = {})'
 
     # unqualified_typehints is True
-    sig = inspect.signature(f7)
+    sig = inspect.signature(mod.f7)
+    sig_str = stringify_signature(sig, unqualified_typehints=True)
     if sys.version_info[:2] <= (3, 10):
-        assert stringify_signature(sig, unqualified_typehints=True) == '(x: int | None = None, y: dict = {}) -> None'
+        assert sig_str == '(x: int | None = None, y: dict = {}) -> None'
     else:
-        assert stringify_signature(sig, unqualified_typehints=True) == '(x: int = None, y: dict = {}) -> None'
+        assert sig_str == '(x: int = None, y: dict = {}) -> None'
 
     # case: separator at head
-    sig = inspect.signature(f22)
+    sig = inspect.signature(mod.f22)
     assert stringify_signature(sig) == '(*, a, b)'
 
     # case: separator in the middle
-    sig = inspect.signature(f23)
+    sig = inspect.signature(mod.f23)
     assert stringify_signature(sig) == '(a, b, /, c, d)'
 
-    sig = inspect.signature(f24)
+    sig = inspect.signature(mod.f24)
     assert stringify_signature(sig) == '(a, /, *, b)'
 
     # case: separator at tail
-    sig = inspect.signature(f25)
+    sig = inspect.signature(mod.f25)
     assert stringify_signature(sig) == '(a, b, /)'
+
+    # collapse Literal types
+    sig = inspect.signature(mod.f26)
+    sig_str = stringify_signature(sig)
+    assert sig_str == (
+        "(x: typing.Literal[1, 2, 3] = 1, y: typing.Literal['a', 'b'] = 'a') -> None"
+    )
 
 
 def test_signature_from_str_basic():
@@ -419,9 +423,11 @@ def test_signature_from_str_basic():
 
 
 def test_signature_from_str_default_values():
-    signature = ('(a=0, b=0.0, c="str", d=b"bytes", e=..., f=True, '
-                 'g=[1, 2, 3], h={"a": 1}, i={1, 2, 3}, '
-                 'j=lambda x, y: None, k=None, l=object(), m=foo.bar.CONSTANT)')
+    signature = (
+        '(a=0, b=0.0, c="str", d=b"bytes", e=..., f=True, '
+        'g=[1, 2, 3], h={"a": 1}, i={1, 2, 3}, '
+        'j=lambda x, y: None, k=None, l=object(), m=foo.bar.CONSTANT)'
+    )
     sig = inspect.signature_from_str(signature)
     assert sig.parameters['a'].default == '0'
     assert sig.parameters['b'].default == '0.0'
@@ -442,10 +448,10 @@ def test_signature_from_str_annotations():
     signature = '(a: int, *args: bytes, b: str = "blah", **kwargs: float) -> None'
     sig = inspect.signature_from_str(signature)
     assert list(sig.parameters.keys()) == ['a', 'args', 'b', 'kwargs']
-    assert sig.parameters['a'].annotation == "int"
-    assert sig.parameters['args'].annotation == "bytes"
-    assert sig.parameters['b'].annotation == "str"
-    assert sig.parameters['kwargs'].annotation == "float"
+    assert sig.parameters['a'].annotation == 'int'
+    assert sig.parameters['args'].annotation == 'bytes'
+    assert sig.parameters['b'].annotation == 'str'
+    assert sig.parameters['kwargs'].annotation == 'float'
     assert sig.return_annotation == 'None'
 
 
@@ -562,13 +568,13 @@ def test_safe_getattr_with___dict___override():
 
 
 def test_dictionary_sorting():
-    dictionary = {"c": 3, "a": 1, "d": 2, "b": 4}
+    dictionary = {'c': 3, 'a': 1, 'd': 2, 'b': 4}
     description = inspect.object_description(dictionary)
     assert description == "{'a': 1, 'b': 4, 'c': 3, 'd': 2}"
 
 
 def test_set_sorting():
-    set_ = set("gfedcba")
+    set_ = set('gfedcba')
     description = inspect.object_description(set_)
     assert description == "{'a', 'b', 'c', 'd', 'e', 'f', 'g'}"
 
@@ -581,28 +587,28 @@ def test_set_sorting_enum():
 
     set_ = set(MyEnum)
     description = inspect.object_description(set_)
-    assert description == "{MyEnum.a, MyEnum.b, MyEnum.c}"
+    assert description == '{MyEnum.a, MyEnum.b, MyEnum.c}'
 
 
 def test_set_sorting_fallback():
     set_ = {None, 1}
     description = inspect.object_description(set_)
-    assert description == "{1, None}"
+    assert description == '{1, None}'
 
 
 def test_deterministic_nested_collection_descriptions():
     # sortable
-    assert inspect.object_description([{1, 2, 3, 10}]) == "[{1, 2, 3, 10}]"
-    assert inspect.object_description(({1, 2, 3, 10},)) == "({1, 2, 3, 10},)"
+    assert inspect.object_description([{1, 2, 3, 10}]) == '[{1, 2, 3, 10}]'
+    assert inspect.object_description(({1, 2, 3, 10},)) == '({1, 2, 3, 10},)'
     # non-sortable (elements of varying datatype)
-    assert inspect.object_description([{None, 1}]) == "[{1, None}]"
-    assert inspect.object_description(({None, 1},)) == "({1, None},)"
+    assert inspect.object_description([{None, 1}]) == '[{1, None}]'
+    assert inspect.object_description(({None, 1},)) == '({1, None},)'
     assert inspect.object_description([{None, 1, 'A'}]) == "[{'A', 1, None}]"
     assert inspect.object_description(({None, 1, 'A'},)) == "({'A', 1, None},)"
 
 
 def test_frozenset_sorting():
-    frozenset_ = frozenset("gfedcba")
+    frozenset_ = frozenset('gfedcba')
     description = inspect.object_description(frozenset_)
     assert description == "frozenset({'a', 'b', 'c', 'd', 'e', 'f', 'g'})"
 
@@ -610,22 +616,22 @@ def test_frozenset_sorting():
 def test_frozenset_sorting_fallback():
     frozenset_ = frozenset((None, 1))
     description = inspect.object_description(frozenset_)
-    assert description == "frozenset({1, None})"
+    assert description == 'frozenset({1, None})'
 
 
 def test_nested_tuple_sorting():
-    tuple_ = ({"c", "b", "a"},)  # nb. trailing comma
+    tuple_ = ({'c', 'b', 'a'},)  # nb. trailing comma
     description = inspect.object_description(tuple_)
     assert description == "({'a', 'b', 'c'},)"
 
-    tuple_ = ({"c", "b", "a"}, {"f", "e", "d"})
+    tuple_ = ({'c', 'b', 'a'}, {'f', 'e', 'd'})
     description = inspect.object_description(tuple_)
     assert description == "({'a', 'b', 'c'}, {'d', 'e', 'f'})"
 
 
 def test_recursive_collection_description():
-    dict_a_, dict_b_ = {"a": 1}, {"b": 2}
-    dict_a_["link"], dict_b_["link"] = dict_b_, dict_a_
+    dict_a_, dict_b_ = {'a': 1}, {'b': 2}
+    dict_a_['link'], dict_b_['link'] = dict_b_, dict_a_
     description_a, description_b = (
         inspect.object_description(dict_a_),
         inspect.object_description(dict_b_),
@@ -641,8 +647,8 @@ def test_recursive_collection_description():
         inspect.object_description(list_d_),
     )
 
-    assert description_c == "[1, 2, 3, 4, [5, 6, 7, 8, list(...)]]"
-    assert description_d == "[5, 6, 7, 8, [1, 2, 3, 4, list(...)]]"
+    assert description_c == '[1, 2, 3, 4, [5, 6, 7, 8, list(...)]]'
+    assert description_d == '[5, 6, 7, 8, [1, 2, 3, 4, list(...)]]'
 
 
 def test_dict_customtype():
@@ -651,12 +657,12 @@ def test_dict_customtype():
             self._value = value
 
         def __repr__(self):
-            return "<CustomType(%r)>" % self._value
+            return '<CustomType(%r)>' % self._value
 
     dictionary = {CustomType(2): 2, CustomType(1): 1}
     description = inspect.object_description(dictionary)
     # Type is unsortable, just check that it does not crash
-    assert "<CustomType(2)>: 2" in description
+    assert '<CustomType(2)>: 2' in description
 
 
 def test_object_description_enum():
@@ -664,7 +670,7 @@ def test_object_description_enum():
         FOO = 1
         BAR = 2
 
-    assert inspect.object_description(MyEnum.FOO) == "MyEnum.FOO"
+    assert inspect.object_description(MyEnum.FOO) == 'MyEnum.FOO'
 
 
 def test_object_description_enum_custom_repr():
@@ -675,7 +681,7 @@ def test_object_description_enum_custom_repr():
         def __repr__(self):
             return self.name
 
-    assert inspect.object_description(MyEnum.FOO) == "FOO"
+    assert inspect.object_description(MyEnum.FOO) == 'FOO'
 
 
 def test_getslots():
@@ -689,7 +695,7 @@ def test_getslots():
         __slots__ = {'attr': 'docstring'}
 
     class Qux:
-        __slots__ = 'attr'
+        __slots__ = 'attr'  # NoQA: PLC0205
 
     assert inspect.getslots(Foo) is None
     assert inspect.getslots(Bar) == {'attr': None}
@@ -701,116 +707,133 @@ def test_getslots():
 
 
 def test_isclassmethod():
-    assert inspect.isclassmethod(Base.classmeth) is True
-    assert inspect.isclassmethod(Base.meth) is False
-    assert inspect.isclassmethod(Inherited.classmeth) is True
-    assert inspect.isclassmethod(Inherited.meth) is False
+    assert inspect.isclassmethod(Base.classmeth)
+    assert not inspect.isclassmethod(Base.meth)
+    assert inspect.isclassmethod(Inherited.classmeth)
+    assert not inspect.isclassmethod(Inherited.meth)
 
 
 def test_isstaticmethod():
-    assert inspect.isstaticmethod(Base.staticmeth, Base, 'staticmeth') is True
-    assert inspect.isstaticmethod(Base.meth, Base, 'meth') is False
-    assert inspect.isstaticmethod(Inherited.staticmeth, Inherited, 'staticmeth') is True
-    assert inspect.isstaticmethod(Inherited.meth, Inherited, 'meth') is False
+    assert inspect.isstaticmethod(Base.staticmeth, Base, 'staticmeth')
+    assert not inspect.isstaticmethod(Base.meth, Base, 'meth')
+    assert inspect.isstaticmethod(Inherited.staticmeth, Inherited, 'staticmeth')
+    assert not inspect.isstaticmethod(Inherited.meth, Inherited, 'meth')
 
 
 def test_iscoroutinefunction():
-    assert inspect.iscoroutinefunction(func) is False                   # function
-    assert inspect.iscoroutinefunction(coroutinefunc) is True           # coroutine
-    assert inspect.iscoroutinefunction(partial_coroutinefunc) is True   # partial-ed coroutine
-    assert inspect.iscoroutinefunction(Base.meth) is False              # method
-    assert inspect.iscoroutinefunction(Base.coroutinemeth) is True      # coroutine-method
-    assert inspect.iscoroutinefunction(Base.__dict__["coroutineclassmeth"]) is True      # coroutine classmethod
+    # function
+    assert not inspect.iscoroutinefunction(func)
+    # coroutine
+    assert inspect.iscoroutinefunction(coroutinefunc)
+    # partial-ed coroutine
+    assert inspect.iscoroutinefunction(partial_coroutinefunc)
+    # method
+    assert not inspect.iscoroutinefunction(Base.meth)
+    # coroutine-method
+    assert inspect.iscoroutinefunction(Base.coroutinemeth)
+    # coroutine classmethod
+    assert inspect.iscoroutinefunction(Base.__dict__['coroutineclassmeth'])
 
     # partial-ed coroutine-method
     partial_coroutinemeth = Base.__dict__['partial_coroutinemeth']
-    assert inspect.iscoroutinefunction(partial_coroutinemeth) is True
+    assert inspect.iscoroutinefunction(partial_coroutinemeth)
 
 
 def test_iscoroutinefunction_wrapped():
     # function wrapping a callable obj
-    assert inspect.isfunction(_decorator(coroutinefunc)) is True
+    assert inspect.isfunction(_decorator(coroutinefunc))
 
 
 def test_isfunction():
-    assert inspect.isfunction(func) is True                     # function
-    assert inspect.isfunction(partial_func) is True             # partial-ed function
-    assert inspect.isfunction(Base.meth) is True                # method of class
-    assert inspect.isfunction(Base.partialmeth) is True         # partial-ed method of class
-    assert inspect.isfunction(Base().meth) is False             # method of instance
-    assert inspect.isfunction(builtin_func) is False            # builtin function
-    assert inspect.isfunction(partial_builtin_func) is False    # partial-ed builtin function
+    # fmt: off
+    assert inspect.isfunction(func)                      # function
+    assert inspect.isfunction(partial_func)              # partial-ed function
+    assert inspect.isfunction(Base.meth)                 # method of class
+    assert inspect.isfunction(Base.partialmeth)          # partial-ed method of class
+    assert not inspect.isfunction(Base().meth)           # method of instance
+    assert not inspect.isfunction(builtin_func)          # builtin function
+    assert not inspect.isfunction(partial_builtin_func)  # partial-ed builtin function
+    # fmt: on
 
 
 def test_isfunction_wrapped():
     # function wrapping a callable obj
-    assert inspect.isfunction(_decorator(_Callable())) is True
+    assert inspect.isfunction(_decorator(_Callable()))
 
 
 def test_isbuiltin():
-    assert inspect.isbuiltin(builtin_func) is True          # builtin function
-    assert inspect.isbuiltin(partial_builtin_func) is True  # partial-ed builtin function
-    assert inspect.isbuiltin(func) is False                 # function
-    assert inspect.isbuiltin(partial_func) is False         # partial-ed function
-    assert inspect.isbuiltin(Base.meth) is False            # method of class
-    assert inspect.isbuiltin(Base().meth) is False          # method of instance
+    # fmt: off
+    assert inspect.isbuiltin(builtin_func)          # builtin function
+    assert inspect.isbuiltin(partial_builtin_func)  # partial-ed builtin function
+    assert not inspect.isbuiltin(func)              # function
+    assert not inspect.isbuiltin(partial_func)      # partial-ed function
+    assert not inspect.isbuiltin(Base.meth)         # method of class
+    assert not inspect.isbuiltin(Base().meth)       # method of instance
+    # fmt: on
 
 
 def test_isdescriptor():
-    assert inspect.isdescriptor(Base.prop) is True      # property of class
-    assert inspect.isdescriptor(Base().prop) is False   # property of instance
-    assert inspect.isdescriptor(Base.meth) is True      # method of class
-    assert inspect.isdescriptor(Base().meth) is True    # method of instance
-    assert inspect.isdescriptor(func) is True           # function
+    # fmt: off
+    assert inspect.isdescriptor(Base.prop)        # property of class
+    assert not inspect.isdescriptor(Base().prop)  # property of instance
+    assert inspect.isdescriptor(Base.meth)        # method of class
+    assert inspect.isdescriptor(Base().meth)      # method of instance
+    assert inspect.isdescriptor(func)             # function
+    # fmt: on
 
 
 def test_isattributedescriptor():
-    assert inspect.isattributedescriptor(Base.prop) is True                    # property
-    assert inspect.isattributedescriptor(Base.meth) is False                   # method
-    assert inspect.isattributedescriptor(Base.staticmeth) is False             # staticmethod
-    assert inspect.isattributedescriptor(Base.classmeth) is False              # classmetho
-    assert inspect.isattributedescriptor(Descriptor) is False                  # custom descriptor class
-    assert inspect.isattributedescriptor(str.join) is False                    # MethodDescriptorType
-    assert inspect.isattributedescriptor(object.__init__) is False             # WrapperDescriptorType
-    assert inspect.isattributedescriptor(dict.__dict__['fromkeys']) is False   # ClassMethodDescriptorType
-    assert inspect.isattributedescriptor(types.FrameType.f_locals) is True     # GetSetDescriptorType
-    assert inspect.isattributedescriptor(datetime.timedelta.days) is True      # MemberDescriptorType
+    # fmt: off
+    assert inspect.isattributedescriptor(Base.prop)                      # property
+    assert not inspect.isattributedescriptor(Base.meth)                  # method
+    assert not inspect.isattributedescriptor(Base.staticmeth)            # staticmethod
+    assert not inspect.isattributedescriptor(Base.classmeth)             # classmetho
+    assert not inspect.isattributedescriptor(Descriptor)                 # custom descriptor class
+    assert not inspect.isattributedescriptor(str.join)                   # MethodDescriptorType
+    assert not inspect.isattributedescriptor(object.__init__)            # WrapperDescriptorType
+    assert not inspect.isattributedescriptor(dict.__dict__['fromkeys'])  # ClassMethodDescriptorType
+    assert inspect.isattributedescriptor(types.FrameType.f_locals)       # GetSetDescriptorType
+    assert inspect.isattributedescriptor(datetime.timedelta.days)        # MemberDescriptorType
+    # fmt: on
 
     try:
         # _testcapi module cannot be importable in some distro
         # refs: https://github.com/sphinx-doc/sphinx/issues/9868
         import _testcapi
 
+        # instancemethod (C-API)
         testinstancemethod = _testcapi.instancemethod(str.__repr__)
-        assert inspect.isattributedescriptor(testinstancemethod) is False      # instancemethod (C-API)
+        assert not inspect.isattributedescriptor(testinstancemethod)
     except ImportError:
         pass
 
 
 def test_isproperty():
-    assert inspect.isproperty(Base.prop) is True        # property of class
-    assert inspect.isproperty(Base().prop) is False     # property of instance
-    assert inspect.isproperty(Base.meth) is False       # method of class
-    assert inspect.isproperty(Base().meth) is False     # method of instance
-    assert inspect.isproperty(func) is False            # function
+    # fmt: off
+    assert inspect.isproperty(Base.prop)        # property of class
+    assert not inspect.isproperty(Base().prop)  # property of instance
+    assert not inspect.isproperty(Base.meth)    # method of class
+    assert not inspect.isproperty(Base().meth)  # method of instance
+    assert not inspect.isproperty(func)         # function
+    # fmt: on
 
 
 def test_isgenericalias():
     #: A list of int
     T = List[int]  # NoQA: UP006
-    S = list[Union[str, None]]
+    S = list[Union[str, None]]  # NoQA: UP006, UP007
 
     C = Callable[[int], None]  # a generic alias not having a doccomment
 
-    assert inspect.isgenericalias(C) is True
-    assert inspect.isgenericalias(Callable) is True
-    assert inspect.isgenericalias(T) is True
-    assert inspect.isgenericalias(List) is True  # NoQA: UP006
-    assert inspect.isgenericalias(S) is True
-    assert inspect.isgenericalias(list) is False
-    assert inspect.isgenericalias([]) is False
-    assert inspect.isgenericalias(object()) is False
-    assert inspect.isgenericalias(Base) is False
+    assert inspect.isgenericalias(C)
+    assert inspect.isgenericalias(Callable)
+    assert inspect.isgenericalias(T)
+    assert inspect.isgenericalias(List)  # NoQA: UP006
+    assert inspect.isgenericalias(S)
+    assert not inspect.isgenericalias(list)
+    assert not inspect.isgenericalias([])
+    assert not inspect.isgenericalias(object())
+    assert not inspect.isgenericalias(Base)
 
 
 def test_unpartial():
@@ -818,7 +841,7 @@ def test_unpartial():
         pass
 
     func2 = functools.partial(func1, 1)
-    func2.__doc__ = "func2"
+    func2.__doc__ = 'func2'
     func3 = functools.partial(func2, 2)  # nested partial object
 
     assert inspect.unpartial(func2) is func1
@@ -840,8 +863,8 @@ def test_getdoc_inherited_classmethod():
             # inherited classmethod
             pass
 
-    assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
-    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == Foo.meth.__doc__
+    assert inspect.getdoc(Bar.meth, getattr, False, Bar, 'meth') is None
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, 'meth') == Foo.meth.__doc__
 
 
 def test_getdoc_inherited_decorated_method():
@@ -858,8 +881,8 @@ def test_getdoc_inherited_decorated_method():
             # inherited and decorated method
             pass
 
-    assert inspect.getdoc(Bar.meth, getattr, False, Bar, "meth") is None
-    assert inspect.getdoc(Bar.meth, getattr, True, Bar, "meth") == Foo.meth.__doc__
+    assert inspect.getdoc(Bar.meth, getattr, False, Bar, 'meth') is None
+    assert inspect.getdoc(Bar.meth, getattr, True, Bar, 'meth') == Foo.meth.__doc__
 
 
 def test_is_builtin_class_method():
@@ -877,4 +900,6 @@ def test_is_builtin_class_method():
         def __init__(self, mro_attr):
             self.__mro__ = mro_attr
 
-    assert not inspect.is_builtin_class_method(ObjectWithMroAttr([1, 2, 3]), 'still does not crash')
+    assert not inspect.is_builtin_class_method(
+        ObjectWithMroAttr([1, 2, 3]), 'still does not crash'
+    )

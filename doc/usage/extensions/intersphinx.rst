@@ -1,3 +1,5 @@
+.. _ext-intersphinx:
+
 :mod:`sphinx.ext.intersphinx` -- Link to other projects' documentation
 ======================================================================
 
@@ -126,28 +128,6 @@ linking:
                   ('../../otherbook/build/html/objects.inv', None)),
       }
 
-   **Old format for this config value**
-
-   .. deprecated:: 6.2
-
-   .. RemovedInSphinx80Warning
-
-   .. caution:: This is the format used before Sphinx 1.0.
-                It is deprecated and will be removed in Sphinx 8.0.
-
-   A dictionary mapping URIs to either ``None`` or an URI.  The keys are the
-   base URI of the foreign Sphinx documentation sets and can be local paths or
-   HTTP URIs.  The values indicate where the inventory file can be found: they
-   can be ``None`` (at the same location as the base URI) or another local or
-   HTTP URI.
-
-   Example:
-
-   .. code:: python
-
-      intersphinx_mapping = {'https://docs.python.org/': None}
-
-
 .. confval:: intersphinx_cache_limit
 
    The maximum number of days to cache remote inventories.  The default is
@@ -218,6 +198,7 @@ The Intersphinx extension provides the following role.
      e.g., ``:external:py:class:`zipfile.ZipFile```, or
    - ``:external:reftype:`target```,
      e.g., ``:external:doc:`installation```.
+     With this shorthand, the domain is assumed to be ``std``.
 
    If you would like to constrain the lookup to a specific external project,
    then the key of the project, as specified in :confval:`intersphinx_mapping`,

@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import locale
+import sys
 from gettext import NullTranslations, translation
 from os import path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from typing import Any, Callable
+    import os
+    from collections.abc import Callable, Iterable
+    from typing import Any
 
 
 class _TranslationProxy:
@@ -51,8 +53,10 @@ class _TranslationProxy:
         try:
             return f'i{self.__str__()!r}'
         except Exception:
-            return (self.__class__.__name__
-                    + f'({self._catalogue}, {self._namespace}, {self._message})')
+            return (
+                self.__class__.__name__
+                + f'({self._catalogue}, {self._namespace}, {self._message})'
+            )
 
     def __add__(self, other: str) -> str:
         return self.__str__() + other
@@ -95,7 +99,7 @@ translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: Iterable[str | None],
+    locale_dirs: Iterable[str | os.PathLike[str] | None],
     language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
@@ -111,11 +115,7 @@ def init(
         translator = None
 
     if language:
-        if '_' in language:
-            # for language having country code (like "de_AT")
-            languages: list[str] | None = [language, language.split('_')[0]]
-        else:
-            languages = [language]
+        languages: list[str] | None = [language]
     else:
         languages = None
 
@@ -154,21 +154,27 @@ def init_console(
     """
     if locale_dir is None:
         locale_dir = _LOCALE_DIR
-    try:
-        # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)
-    except AttributeError:
-        # LC_MESSAGES is not always defined. Fallback to the default language
-        # in case it is not.
+    if sys.platform == 'win32':
         language = None
+    else:
+        try:
+            # encoding is ignored
+            language, _ = locale.getlocale(locale.LC_MESSAGES)
+        except AttributeError:
+            # Fallback to the default language in case LC_MESSAGES is not defined.
+            language = None
     return init([locale_dir], language, catalog, 'console')
 
 
-def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
+def get_translator(
+    catalog: str = 'sphinx', namespace: str = 'general'
+) -> NullTranslations:
     return translators.get((namespace, catalog), NullTranslations())
 
 
-def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
+def is_translator_registered(
+    catalog: str = 'sphinx', namespace: str = 'general'
+) -> bool:
     return (namespace, catalog) in translators
 
 
@@ -197,6 +203,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
     .. versionadded:: 1.8
     """
+
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
@@ -220,13 +227,13 @@ __ = get_translation('sphinx', 'console')
 # labels
 admonitionlabels = {
     'attention': _('Attention'),
-    'caution':   _('Caution'),
-    'danger':    _('Danger'),
-    'error':     _('Error'),
-    'hint':      _('Hint'),
+    'caution': _('Caution'),
+    'danger': _('Danger'),
+    'error': _('Error'),
+    'hint': _('Hint'),
     'important': _('Important'),
-    'note':      _('Note'),
-    'seealso':   _('See also'),
-    'tip':       _('Tip'),
-    'warning':   _('Warning'),
+    'note': _('Note'),
+    'seealso': _('See also'),
+    'tip': _('Tip'),
+    'warning': _('Warning'),
 }

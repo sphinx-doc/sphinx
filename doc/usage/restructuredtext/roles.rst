@@ -240,7 +240,10 @@ different style:
    :rst:role:`code` role instead.
 
    .. versionchanged:: 1.8
-      Allowed to escape curly braces with backslash
+      Allowed to escape curly braces with double backslash.  For example, in
+      ``:samp:`print(f"answer=\\{1+{variable}*2\\}")```, the part ``variable``
+      would be emphasized and the escaped curly braces would be displayed:
+      :samp:`print(f"answer=\\{1+{variable}*2\\}")`
 
 There is also an :rst:role:`index` role to generate index entries.
 
@@ -265,7 +268,7 @@ The following roles generate external links:
    For example: :rfc:`2324`
 
 Note that there are no special roles for including hyperlinks as you can use
-the standard reST markup for that purpose.
+the standard reStructuredText markup for that purpose.
 
 
 .. _default-substitutions:
@@ -273,7 +276,7 @@ the standard reST markup for that purpose.
 Substitutions
 -------------
 
-The documentation system provides three substitutions that are defined by
+The documentation system provides some substitutions that are defined by
 default. They are set in the build configuration file.
 
 .. describe:: |release|

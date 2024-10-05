@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils.parsers.rst import directives
 
@@ -16,7 +16,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils.nodes import Element
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class ReSTMarkup(ObjectDescription[str]):
     Description of generic reST markup.
     """
 
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
         'no-index-entry': directives.flag,
         'no-contents-entry': directives.flag,
@@ -51,7 +51,7 @@ class ReSTMarkup(ObjectDescription[str]):
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = cast(ReSTDomain, self.env.get_domain('rst'))
+        domain = self.env.domains.restructuredtext_domain
         domain.note_object(self.objtype, name, node_id, location=signode)
 
         if 'no-index-entry' not in self.options:
@@ -142,7 +142,7 @@ class ReSTDirectiveOption(ReSTMarkup):
     Description of an option for reST directive.
     """
 
-    option_spec: OptionSpec = ReSTMarkup.option_spec.copy()
+    option_spec: ClassVar[OptionSpec] = ReSTMarkup.option_spec.copy()
     option_spec.update({
         'type': directives.unchanged,
     })
@@ -164,7 +164,7 @@ class ReSTDirectiveOption(ReSTMarkup):
         return name
 
     def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
-        domain = cast(ReSTDomain, self.env.get_domain('rst'))
+        domain = self.env.domains.restructuredtext_domain
 
         directive_name = self.current_directive
         if directive_name:
@@ -244,8 +244,8 @@ class ReSTDomain(Domain):
     def note_object(self, objtype: str, name: str, node_id: str, location: Any = None) -> None:
         if (objtype, name) in self.objects:
             docname, node_id = self.objects[objtype, name]
-            logger.warning(__('duplicate description of %s %s, other instance in %s') %
-                           (objtype, name, docname), location=location)
+            logger.warning(__('duplicate description of %s %s, other instance in %s'),
+                           objtype, name, docname, location=location)
 
         self.objects[objtype, name] = (self.env.docname, node_id)
 
@@ -254,7 +254,7 @@ class ReSTDomain(Domain):
             if doc == docname:
                 del self.objects[typ, name]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates
         for (typ, name), (doc, node_id) in otherdata['objects'].items():
             if doc in docnames:
@@ -293,7 +293,7 @@ class ReSTDomain(Domain):
             yield name, name, typ, docname, node_id, 1
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(ReSTDomain)
 
     return {

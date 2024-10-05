@@ -1,20 +1,28 @@
 import pytest
 
 
-@pytest.mark.sphinx('html', testroot='reST-code-block',
-                    confoverrides={'html_codeblock_linenos_style': 'table'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='reST-code-block',
+    confoverrides={'html_codeblock_linenos_style': 'table'},
+)
 def test_html_codeblock_linenos_style_table(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 
-    assert ('<div class="linenodiv"><pre><span class="normal">1</span>\n'
-            '<span class="normal">2</span>\n'
-            '<span class="normal">3</span>\n'
-            '<span class="normal">4</span></pre></div>') in content
+    assert (
+        '<div class="linenodiv"><pre><span class="normal">1</span>\n'
+        '<span class="normal">2</span>\n'
+        '<span class="normal">3</span>\n'
+        '<span class="normal">4</span></pre></div>'
+    ) in content
 
 
-@pytest.mark.sphinx('html', testroot='reST-code-block',
-                    confoverrides={'html_codeblock_linenos_style': 'inline'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='reST-code-block',
+    confoverrides={'html_codeblock_linenos_style': 'inline'},
+)
 def test_html_codeblock_linenos_style_inline(app):
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
@@ -38,9 +46,14 @@ def test_html_code_role(app):
         '<span class="o">+</span> '
         '<span class="s2">&quot;abc&quot;</span>'
         '<span class="p">):</span> '
-        '<span class="k">pass</span>')
-    assert ('<p>Inline <code class="code highlight python docutils literal highlight-python">' +
-            common_content + '</code> code block</p>') in content
-    assert ('<div class="highlight-python notranslate">' +
-            '<div class="highlight"><pre><span></span>' +
-            common_content) in content
+        '<span class="k">pass</span>'
+    )
+    assert (
+        '<p>Inline <code class="code highlight python docutils literal highlight-python">'
+        + common_content
+        + '</code> code block</p>'
+    ) in content
+    assert (
+        '<div class="highlight-python notranslate">'
+        '<div class="highlight"><pre><span></span>' + common_content
+    ) in content

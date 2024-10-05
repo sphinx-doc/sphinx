@@ -1,15 +1,14 @@
-"""Test the autodoc extension.  This tests mainly for private-members option.
-"""
+"""Test the autodoc extension.  This tests mainly for private-members option."""
 
 import pytest
 
-from tests.test_extensions.test_ext_autodoc import do_autodoc
+from tests.test_extensions.autodoc_util import do_autodoc
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_private_field(app):
     app.config.autoclass_content = 'class'
-    options = {"members": None}
+    options = {'members': None}
     actual = do_autodoc(app, 'module', 'target.private', options)
     assert list(actual) == [
         '',
@@ -36,8 +35,10 @@ def test_private_field(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_private_field_and_private_members(app):
     app.config.autoclass_content = 'class'
-    options = {"members": None,
-               "private-members": None}
+    options = {
+        'members': None,
+        'private-members': None,
+    }
     actual = do_autodoc(app, 'module', 'target.private', options)
     assert list(actual) == [
         '',
@@ -79,8 +80,10 @@ def test_private_field_and_private_members(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_private_members(app):
     app.config.autoclass_content = 'class'
-    options = {"members": None,
-               "private-members": "_PUBLIC_CONSTANT,_public_function"}
+    options = {
+        'members': None,
+        'private-members': '_PUBLIC_CONSTANT,_public_function',
+    }
     actual = do_autodoc(app, 'module', 'target.private', options)
     assert list(actual) == [
         '',
@@ -107,7 +110,7 @@ def test_private_members(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_private_attributes(app):
     app.config.autoclass_content = 'class'
-    options = {"members": None}
+    options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.private.Foo', options)
     assert list(actual) == [
         '',
@@ -129,8 +132,10 @@ def test_private_attributes(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_private_attributes_and_private_members(app):
     app.config.autoclass_content = 'class'
-    options = {"members": None,
-               "private-members": None}
+    options = {
+        'members': None,
+        'private-members': None,
+    }
     actual = do_autodoc(app, 'class', 'target.private.Foo', options)
     assert list(actual) == [
         '',

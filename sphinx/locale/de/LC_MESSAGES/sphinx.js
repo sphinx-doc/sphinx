@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Los",
         "Hide Search Matches": "Suchergebnisse ausblenden",
         "Index": "Stichwortverzeichnis",
-        "Index &ndash; %(key)s": "Stichwortverzeichnis &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Stichwortverzeichnis nach Anfangsbuchstabe",
         "Indices and tables:": "Verzeichnisse und Tabellen:",
         "Last updated on %(last_updated)s.": "Zuletzt aktualisiert am %(last_updated)s.",
