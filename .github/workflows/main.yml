@@ -70,7 +70,6 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes:
-    if: false
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     strategy:
@@ -95,6 +94,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
@@ -104,7 +104,6 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes-free-threraded:
-    if: false
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }}; free-threaded)
     strategy:
@@ -130,6 +129,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
