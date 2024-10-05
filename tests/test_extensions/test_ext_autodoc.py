@@ -2116,7 +2116,7 @@ def test_coroutine(app):
         '',
     ]
 
-    options = {"members": None}
+    options = {'members': None}
     actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
     assert list(actual) == [
         '',

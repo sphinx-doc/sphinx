@@ -1120,24 +1120,27 @@ class PyObjectDocumenter(Documenter):
         sourcename = self.get_sourcename()
 
         canonical_fullname = self.get_canonical_fullname()
-        if canonical_fullname and self.fullname != canonical_fullname:
-            self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
+        if (
+            not isinstance(self.object, NewType)
+            and canonical_fullname
+            and self.fullname != canonical_fullname
+        ):
+            self.add_line(f'   :canonical: {canonical_fullname}', sourcename)
 
-    def get_canonical_fullname(self) -> Optional[str]:
+    def get_canonical_fullname(self) -> str | None:
         modname = safe_getattr(self.object, '__module__', self.modname)
-        qualname = safe_getattr(self.object, '__qualname__', None)
-        if qualname is None:
-            qualname = safe_getattr(self.object, '__name__', None)
-        if qualname and '<locals>' in qualname:
-            # No valid qualname found if the object is defined as locals
-            qualname = None
-
-        if modname == 'typing' and not self.real_modname.startswith('typing'):
-            return None  # Python 3.6 TypeVars
-        elif modname and qualname:
-            return '.'.join([modname, qualname])
-        else:
+        if not modname:
             return None
+        if qualname := safe_getattr(self.object, '__qualname__', None):
+            if '<locals>' not in qualname:
+                return f'{modname}.{qualname}'
+            return None
+        if qualname := safe_getattr(self.object, '__name__', None):
+            if '<locals>' not in qualname:
+                return f'{modname}.{qualname}'
+            return None
+        # qualname doesn't exist or is not valid (object is defined as locals)
+        return None
 
 
 class ModuleLevelDocumenter(PyObjectDocumenter):
@@ -1711,11 +1714,6 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         if self.analyzer and '.'.join(self.objpath) in self.analyzer.finals:
             self.add_line('   :final:', sourcename)
-
-        canonical_fullname = self.get_canonical_fullname()
-        if (not self.doc_as_attr and not isinstance(self.object, NewType)
-                and canonical_fullname and self.fullname != canonical_fullname):
-            self.add_line('   :canonical: %s' % canonical_fullname, sourcename)
 
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:

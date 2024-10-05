@@ -167,7 +167,6 @@ def test_autoattribute_TypeVar(app):
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason='python 3.6+ is required.')
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autoattribute_hide_value(app):
     actual = do_autodoc(app, 'attribute', 'target.hide_value.Foo.SENTINEL1')
