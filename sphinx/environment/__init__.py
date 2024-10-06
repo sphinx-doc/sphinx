@@ -796,7 +796,7 @@ def _check_toc_parents(toctree_includes: dict[str, list[str]]) -> None:
 
     for doc, parents in sorted(toc_parents.items()):
         if len(parents) > 1:
-            logger.warning(
+            logger.info(
                 __(
                     'document is referenced in multiple toctrees: %s, selecting: %s <- %s'
                 ),
