@@ -66,6 +66,9 @@ Features added
   Patch by Hugo van Kemenade.
 * #11809: Improve the formatting for RFC section anchors.
   Patch by Jakub Stasiak and Adam Turner.
+* #12852: Support a :attr:`.Builder.supported_linkcode` attribute
+  for builders to enable use of :mod:`sphinx.ext.linkcode`-generated
+  references.
 
 Bugs fixed
 ----------
