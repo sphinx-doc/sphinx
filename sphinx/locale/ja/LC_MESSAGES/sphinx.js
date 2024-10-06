@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "ja",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Copyright %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", in ",
         "About these documents": "\u3053\u306e\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\u306b\u3064\u3044\u3066",
         "Automatically generated list of changes in version %(version)s": "\u30d0\u30fc\u30b8\u30e7\u30f3 %(version)s \u306e\u5909\u66f4\u70b9\uff08\u3053\u306e\u30ea\u30b9\u30c8\u306f\u81ea\u52d5\u751f\u6210\u3055\u308c\u3066\u3044\u307e\u3059\uff09",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u691c\u7d22",
         "Hide Search Matches": "\u691c\u7d22\u7d50\u679c\u3092\u96a0\u3059",
         "Index": "\u7d22\u5f15",
-        "Index &ndash; %(key)s": "\u7d22\u5f15 &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\u982d\u6587\u5b57\u5225\u7d22\u5f15",
         "Indices and tables:": "\u7d22\u5f15\u3068\u8868\u4e00\u89a7:",
         "Last updated on %(last_updated)s.": "\u6700\u7d42\u66f4\u65b0: %(last_updated)s",

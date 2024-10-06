@@ -1,13 +1,13 @@
 """Spanish search language: includes the JS Spanish stemmer."""
 
-from typing import Dict
+from __future__ import annotations
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-spanish_stopwords = parse_stop_word('''
-|source: http://snowball.tartarus.org/algorithms/spanish/stop.txt
+spanish_stopwords = parse_stop_word("""
+|source: https://snowball.tartarus.org/algorithms/spanish/stop.txt
 de             |  from, of
 la             |  the, her
 que            |  who, that
@@ -345,7 +345,7 @@ tenida
 tenidos
 tenidas
 tened
-''')
+""")
 
 
 class SearchSpanish(SearchLanguage):
@@ -354,7 +354,7 @@ class SearchSpanish(SearchLanguage):
     js_stemmer_rawcode = 'spanish-stemmer.js'
     stopwords = spanish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('spanish')
 
     def stem(self, word: str) -> str:

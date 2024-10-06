@@ -1,16 +1,19 @@
 """Utilities for Sphinx extensions."""
 
-from typing import TYPE_CHECKING, Any, Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from packaging.version import InvalidVersion, Version
 
-from sphinx.config import Config
 from sphinx.errors import VersionRequirementError
 from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +22,7 @@ class Extension:
     def __init__(self, name: str, module: Any, **kwargs: Any) -> None:
         self.name = name
         self.module = module
-        self.metadata = kwargs
+        self.metadata: ExtensionMetadata = kwargs  # type: ignore[assignment]
         self.version = kwargs.pop('version', 'unknown version')
 
         # The extension supports parallel read or not.  The default value
@@ -33,7 +36,7 @@ class Extension:
         self.parallel_write_safe = kwargs.pop('parallel_write_safe', True)
 
 
-def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
+def verify_needs_extensions(app: Sphinx, config: Config) -> None:
     """Check that extensions mentioned in :confval:`needs_extensions` satisfy the version
     requirement, and warn if an extension is not loaded.
 
@@ -48,8 +51,13 @@ def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
     for extname, reqversion in config.needs_extensions.items():
         extension = app.extensions.get(extname)
         if extension is None:
-            logger.warning(__('The %s extension is required by needs_extensions settings, '
-                              'but it is not loaded.'), extname)
+            logger.warning(
+                __(
+                    'The %s extension is required by needs_extensions settings, '
+                    'but it is not loaded.'
+                ),
+                extname,
+            )
             continue
 
         fulfilled = True
@@ -64,13 +72,17 @@ def verify_needs_extensions(app: "Sphinx", config: Config) -> None:
                     fulfilled = False
 
         if not fulfilled:
-            raise VersionRequirementError(__('This project needs the extension %s at least in '
-                                             'version %s and therefore cannot be built with '
-                                             'the loaded version (%s).') %
-                                          (extname, reqversion, extension.version))
+            raise VersionRequirementError(
+                __(
+                    'This project needs the extension %s at least in '
+                    'version %s and therefore cannot be built with '
+                    'the loaded version (%s).'
+                )
+                % (extname, reqversion, extension.version)
+            )
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', verify_needs_extensions, priority=800)
 
     return {

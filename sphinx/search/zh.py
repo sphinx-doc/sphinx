@@ -1,20 +1,23 @@
 """Chinese search language: includes routine to split words."""
 
+from __future__ import annotations
+
 import os
 import re
-from typing import Dict, List
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage
 
 try:
-    import jieba
+    import jieba  # type: ignore[import-not-found]
+
     JIEBA = True
 except ImportError:
     JIEBA = False
 
-english_stopwords = set("""
+english_stopwords = set(
+    """
 a  and  are  as  at
 be  but  by
 for
@@ -24,7 +27,8 @@ of  on  or
 such
 that  the  their  then  there  these  they  this  to
 was  will  with
-""".split())
+""".split()
+)
 
 js_porter_stemmer = """
 /**
@@ -223,9 +227,9 @@ class SearchChinese(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
     latin1_letters = re.compile(r'[a-zA-Z0-9_]+')
-    latin_terms: List[str] = []
+    latin_terms: list[str] = []
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):
@@ -233,13 +237,12 @@ class SearchChinese(SearchLanguage):
 
         self.stemmer = snowballstemmer.stemmer('english')
 
-    def split(self, input: str) -> List[str]:
-        chinese: List[str] = []
+    def split(self, input: str) -> list[str]:
+        chinese: list[str] = []
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
 
-        latin1 = \
-            [term.strip() for term in self.latin1_letters.findall(input)]
+        latin1 = [term.strip() for term in self.latin1_letters.findall(input)]
         self.latin_terms.extend(latin1)
         return chinese + latin1
 
@@ -251,9 +254,9 @@ class SearchChinese(SearchLanguage):
         # if not stemmed, but would be too short after being stemmed
         # avoids some issues with acronyms
         should_not_be_stemmed = (
-            word in self.latin_terms and
-            len(word) >= 3 and
-            len(self.stemmer.stemWord(word.lower())) < 3
+            word in self.latin_terms
+            and len(word) >= 3
+            and len(self.stemmer.stemWord(word.lower())) < 3
         )
         if should_not_be_stemmed:
             return word.lower()

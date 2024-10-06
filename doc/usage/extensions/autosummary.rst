@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.autosummary` -- Generate autodoc summaries
 ===========================================================
@@ -271,6 +271,12 @@ The following variables are available in the templates:
 
    Full name of the documented object, including module and class parts.
 
+.. data:: objtype
+
+   Type of the documented object, one of ``"module"``, ``"function"``,
+   ``"class"``, ``"method"``, ``"attribute"``, ``"data"``, ``"object"``,
+   ``"exception"``, ``"newvarattribute"``, ``"newtypedata"``, ``"property"``.
+
 .. data:: module
 
    Name of the module the documented object belongs to.
@@ -343,7 +349,7 @@ Additionally, the following filters are available
    replaces the builtin Jinja `escape filter`_ that does html-escaping.
 
 .. function:: underline(s, line='=')
-   :noindex:
+   :no-index:
 
    Add a title underline to a piece of text.
 

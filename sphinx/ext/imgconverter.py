@@ -1,16 +1,21 @@
 """Image converter extension for Sphinx"""
 
+from __future__ import annotations
+
 import subprocess
 import sys
-from subprocess import PIPE, CalledProcessError
-from typing import Any, Dict
+from subprocess import CalledProcessError
+from typing import TYPE_CHECKING
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +26,7 @@ class ImagemagickConverter(ImageConverter):
         ('image/gif', 'image/png'),
         ('application/pdf', 'image/png'),
         ('application/illustrator', 'image/png'),
+        ('image/webp', 'image/png'),
     ]
 
     def is_available(self) -> bool:
@@ -28,7 +34,7 @@ class ImagemagickConverter(ImageConverter):
         try:
             args = [self.config.image_converter, '-version']
             logger.debug('Invoking %r ...', args)
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError as exc:
             logger.warning(__(
@@ -36,7 +42,7 @@ class ImagemagickConverter(ImageConverter):
                 "'sphinx.ext.imgconverter' requires ImageMagick by default. "
                 "Ensure it is installed, or set the 'image_converter' option "
                 "to a custom conversion command.\n\n"
-                "Traceback: %s"
+                "Traceback: %s",
             ), self.config.image_converter, exc)
             return False
         except CalledProcessError as exc:
@@ -52,11 +58,11 @@ class ImagemagickConverter(ImageConverter):
             # (or first page) of image (ex. Animation GIF, PDF)
             _from += '[0]'
 
-            args = ([self.config.image_converter] +
-                    self.config.image_converter_args +
-                    [_from, _to])
+            args = ([
+                self.config.image_converter, *self.config.image_converter_args, _from, _to,
+            ])
             logger.debug('Invoking %r ...', args)
-            subprocess.run(args, stdout=PIPE, stderr=PIPE, check=True)
+            subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError:
             logger.warning(__('convert command %r cannot be run, '
@@ -69,7 +75,7 @@ class ImagemagickConverter(ImageConverter):
                                  (exc.stderr, exc.stdout)) from exc
 
 
-def setup(app: Sphinx) -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(ImagemagickConverter)
     if sys.platform == 'win32':
         # On Windows, we use Imagemagik v7 by default to avoid the trouble for

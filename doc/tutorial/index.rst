@@ -1,6 +1,5 @@
 .. _tutorial:
 
-========================
 Build your first project
 ========================
 

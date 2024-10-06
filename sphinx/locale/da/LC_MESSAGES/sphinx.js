@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "da",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Ophavsret</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Ophavsret %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", i",
         "About these documents": "Om disse dokumenter",
         "Automatically generated list of changes in version %(version)s": "Automatisk oprettet liste af \u00e6ndringer i version %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "S\u00f8g",
         "Hide Search Matches": "Skjul s\u00f8geresultater",
         "Index": "Indeks",
-        "Index &ndash; %(key)s": "Indeks &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indeks\u00e9r sider efter bogstav",
         "Indices and tables:": "Indeks og tabeller:",
         "Last updated on %(last_updated)s.": "Sidst opdateret %(last_updated)s.",

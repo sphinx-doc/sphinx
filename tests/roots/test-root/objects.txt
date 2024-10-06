@@ -34,7 +34,7 @@ Testing object descriptions
    :FIELd_name PARTial caps:
 
 .. function:: func_noindex
-   :noindex:
+   :no-index:
 
 .. function:: func_with_module
    :module: foolib
@@ -103,6 +103,22 @@ Referring to :func:`nothing <>`.
    :type hour: DuplicateType
    :param .Cls extcls: A class from another module.
 
+.. raw:: latex
+
+         \begingroup
+         \let\oldhref\href
+         \def\href{\ifnum\catcode`\-=\active\errorwithsphinxhref\fi\oldhref}
+
+.. class:: MyClass
+
+   .. attribute:: config
+      :type: sphinx.config.Config
+
+      A configuration object.
+
+.. raw:: latex
+
+         \endgroup
 
 C items
 =======
@@ -116,6 +132,8 @@ C items
 .. c:type:: SphinxType
 
 .. c:var:: int sphinx_global
+
+.. c:function:: PyObject* Py_SphinxFoo(void)
 
 
 Javascript items

@@ -1,15 +1,23 @@
 """mock for autodoc"""
 
+from __future__ import annotations
+
 import contextlib
 import os
 import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
-from typing import Any, Generator, Iterator, List, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING
 
 from sphinx.util import logging
 from sphinx.util.inspect import isboundmethod, safe_getattr
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+    from typing import Any
+
+    from typing_extensions import TypeIs
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +28,7 @@ class _MockObject:
     __display_name__ = '_MockObject'
     __name__ = ''
     __sphinx_mock__ = True
-    __sphinx_decorator_args__: Tuple[Any, ...] = ()
+    __sphinx_decorator_args__: tuple[Any, ...] = ()
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         if len(args) == 3 and isinstance(args[1], tuple):
@@ -41,16 +49,16 @@ class _MockObject:
     def __contains__(self, key: str) -> bool:
         return False
 
-    def __iter__(self) -> Iterator:
-        return iter([])
+    def __iter__(self) -> Iterator[Any]:
+        return iter(())
 
-    def __mro_entries__(self, bases: Tuple) -> Tuple:
+    def __mro_entries__(self, bases: tuple[Any, ...]) -> tuple[type, ...]:
         return (self.__class__,)
 
-    def __getitem__(self, key: Any) -> "_MockObject":
+    def __getitem__(self, key: Any) -> _MockObject:
         return _make_subclass(str(key), self.__display_name__, self.__class__)()
 
-    def __getattr__(self, key: str) -> "_MockObject":
+    def __getattr__(self, key: str) -> _MockObject:
         return _make_subclass(key, self.__display_name__, self.__class__)()
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
@@ -63,7 +71,7 @@ class _MockObject:
 
 
 def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any = None, decorator_args: Tuple = ()) -> Any:
+                   attributes: Any = None, decorator_args: tuple[Any, ...] = ()) -> Any:
     attrs = {'__module__': module,
              '__display_name__': module + '.' + name,
              '__name__': name,
@@ -75,13 +83,14 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
+
     __file__ = os.devnull
     __sphinx_mock__ = True
 
     def __init__(self, name: str) -> None:
         super().__init__(name)
-        self.__all__: List[str] = []
-        self.__path__: List[str] = []
+        self.__all__: list[str] = []
+        self.__path__: list[str] = []
 
     def __getattr__(self, name: str) -> _MockObject:
         return _make_subclass(name, self.__name__)()
@@ -92,7 +101,8 @@ class _MockModule(ModuleType):
 
 class MockLoader(Loader):
     """A loader for mocking."""
-    def __init__(self, finder: "MockFinder") -> None:
+
+    def __init__(self, finder: MockFinder) -> None:
         super().__init__()
         self.finder = finder
 
@@ -108,14 +118,14 @@ class MockLoader(Loader):
 class MockFinder(MetaPathFinder):
     """A finder for mocking."""
 
-    def __init__(self, modnames: List[str]) -> None:
+    def __init__(self, modnames: list[str]) -> None:
         super().__init__()
         self.modnames = modnames
         self.loader = MockLoader(self)
-        self.mocked_modules: List[str] = []
+        self.mocked_modules: list[str] = []
 
-    def find_spec(self, fullname: str, path: Optional[Sequence[Union[bytes, str]]],
-                  target: ModuleType = None) -> Optional[ModuleSpec]:
+    def find_spec(self, fullname: str, path: Sequence[bytes | str] | None,
+                  target: ModuleType | None = None) -> ModuleSpec | None:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
             if modname == fullname or fullname.startswith(modname + '.'):
@@ -130,15 +140,15 @@ class MockFinder(MetaPathFinder):
 
 
 @contextlib.contextmanager
-def mock(modnames: List[str]) -> Generator[None, None, None]:
+def mock(modnames: list[str]) -> Iterator[None]:
     """Insert mock modules during context::
 
-        with mock(['target.module.name']):
-            # mock modules are enabled here
-            ...
+    with mock(['target.module.name']):
+        # mock modules are enabled here
+        ...
     """
+    finder = MockFinder(modnames)
     try:
-        finder = MockFinder(modnames)
         sys.meta_path.insert(0, finder)
         yield
     finally:
@@ -146,7 +156,7 @@ def mock(modnames: List[str]) -> Generator[None, None, None]:
         finder.invalidate_caches()
 
 
-def ismockmodule(subject: Any) -> bool:
+def ismockmodule(subject: Any) -> TypeIs[_MockModule]:
     """Check if the object is a mocked module."""
     return isinstance(subject, _MockModule)
 

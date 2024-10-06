@@ -1,6 +1,6 @@
 """Turkish search language: includes the JS Turkish stemmer."""
 
-from typing import Dict, Set
+from __future__ import annotations
 
 import snowballstemmer
 
@@ -11,9 +11,9 @@ class SearchTurkish(SearchLanguage):
     lang = 'tr'
     language_name = 'Turkish'
     js_stemmer_rawcode = 'turkish-stemmer.js'
-    stopwords: Set[str] = set()
+    stopwords: set[str] = set()
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('turkish')
 
     def stem(self, word: str) -> str:

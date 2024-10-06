@@ -142,8 +142,7 @@ def example_generator(n):
         [0, 1, 2, 3]
 
     """
-    for i in range(n):
-        yield i
+    yield from range(n)
 
 
 class ExampleError(Exception):
@@ -290,6 +289,7 @@ class ExampleClass:
 
     def _private_without_docstring(self):
         pass
+
 
 class ExamplePEP526Class:
     """The summary line for a class docstring should fit on one line.

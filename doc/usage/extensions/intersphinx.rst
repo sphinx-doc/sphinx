@@ -1,3 +1,5 @@
+.. _ext-intersphinx:
+
 :mod:`sphinx.ext.intersphinx` -- Link to other projects' documentation
 ======================================================================
 
@@ -63,17 +65,7 @@ linking:
    When fetching remote inventory files, proxy settings will be read from
    the ``$HTTP_PROXY`` environment variable.
 
-   **Old format for this config value**
-
-   This is the format used before Sphinx 1.0.  It is still recognized.
-
-   A dictionary mapping URIs to either ``None`` or an URI.  The keys are the
-   base URI of the foreign Sphinx documentation sets and can be local paths or
-   HTTP URIs.  The values indicate where the inventory file can be found: they
-   can be ``None`` (at the same location as the base URI) or another local or
-   HTTP URI.
-
-   **New format for this config value**
+   **Format**
 
    .. versionadded:: 1.0
 
@@ -86,7 +78,7 @@ linking:
 
    The unique identifier can be used in the :rst:role:`external` role, so that
    it is clear which intersphinx set the target belongs to.  A link like
-   ``external:python+ref:`comparison manual <comparisons>``` will link to the
+   ``:external+python:ref:`comparison manual <comparisons>``` will link to the
    label "comparisons" in the doc set "python", if it exists.
 
    **Example**
@@ -206,6 +198,7 @@ The Intersphinx extension provides the following role.
      e.g., ``:external:py:class:`zipfile.ZipFile```, or
    - ``:external:reftype:`target```,
      e.g., ``:external:doc:`installation```.
+     With this shorthand, the domain is assumed to be ``std``.
 
    If you would like to constrain the lookup to a specific external project,
    then the key of the project, as specified in :confval:`intersphinx_mapping`,

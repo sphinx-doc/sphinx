@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "is",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "",
         "Automatically generated list of changes in version %(version)s": "",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "",
         "Hide Search Matches": "Fela leitarni\u00f0urst\u00f6\u00f0ur",
         "Index": "Yfirlit",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "",
         "Indices and tables:": "Atri\u00f0askr\u00e1 og t\u00f6flur:",
         "Last updated on %(last_updated)s.": "",

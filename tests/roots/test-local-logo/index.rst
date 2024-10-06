@@ -29,4 +29,3 @@ Among its features are the following:
 * Flexible HTML output using the Jinja 2 templating engine
 * Various extensions are available, e.g. for automatic testing of snippets
   and inclusion of appropriately formatted docstrings
-* Setuptools integration

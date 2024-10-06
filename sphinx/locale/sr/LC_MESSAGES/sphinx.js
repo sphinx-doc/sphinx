@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "sr",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", \u0443 ",
         "About these documents": "",
         "Automatically generated list of changes in version %(version)s": "",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u0422\u0440\u0430\u0436\u0438",
         "Hide Search Matches": "",
         "Index": "\u0418\u043d\u0434\u0435\u043a\u0441",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "",

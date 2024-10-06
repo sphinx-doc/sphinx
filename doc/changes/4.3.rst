@@ -1,0 +1,138 @@
+==========
+Sphinx 4.3
+==========
+
+
+Release 4.3.2 (released Dec 19, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #9917: C and C++, parse fundamental types no matter the order of simple type
+  specifiers.
+
+Release 4.3.1 (released Nov 28, 2021)
+=====================================
+
+Features added
+--------------
+
+* #9864: mathjax: Support changing the loading method of MathJax to "defer" via
+  :confval:`mathjax_options`
+
+Bugs fixed
+----------
+
+* #9838: autodoc: AttributeError is raised on building document for functions
+  decorated by functools.lru_cache
+* #9879: autodoc: AttributeError is raised on building document for an object
+  having invalid __doc__ attribute
+* #9844: autodoc: Failed to process a function wrapped with functools.partial if
+  :confval:`autodoc_preserve_defaults` enabled
+* #9872: html: Class namespace collision between autodoc signatures and
+  Docutils 0.17
+* #9868: imgmath: Crashed if the dvisvgm command failed to convert equation
+* #9864: mathjax: Failed to render equations via MathJax v2.  The loading method
+  of MathJax is back to "async" method again
+
+Release 4.3.0 (released Nov 11, 2021)
+=====================================
+
+Dependencies
+------------
+
+* Support Python 3.10
+
+Incompatible changes
+--------------------
+
+* #9649: ``searchindex.js``: the embedded data has changed format to allow
+  objects with the same name in different domains.
+* #9672: The rendering of Python domain declarations is implemented
+  with more Docutils nodes to allow better CSS styling.
+  It may break existing styling.
+* #9672: the signature of
+  ``domains.python.PyObject.get_signature_prefix`` has changed to
+  return a list of nodes instead of a plain string.
+* #9695: ``domains.js.JSObject.display_prefix`` has been changed into a method
+  ``get_display_prefix`` which now returns a list of nodes
+  instead of a plain string.
+* #9695: The rendering of Javascript domain declarations is implemented
+  with more Docutils nodes to allow better CSS styling.
+  It may break existing styling.
+* #9450: mathjax: Load MathJax via "defer" strategy
+
+Deprecated
+----------
+
+* ``sphinx.ext.autodoc.AttributeDocumenter._datadescriptor``
+* ``sphinx.writers.html.HTMLTranslator._fieldlist_row_index``
+* ``sphinx.writers.html.HTMLTranslator._table_row_index``
+* ``sphinx.writers.html5.HTML5Translator._fieldlist_row_index``
+* ``sphinx.writers.html5.HTML5Translator._table_row_index``
+
+Features added
+--------------
+
+* #9639: autodoc: Support asynchronous generator functions
+* #9664: autodoc: ``autodoc-process-bases`` supports to inject reST snippet as a
+  base class
+* #9691: C, added new info-field ``retval``
+  for :rst:dir:`c:function` and :rst:dir:`c:macro`.
+* C++, added new info-field ``retval`` for :rst:dir:`cpp:function`.
+* #9618: i18n: Add :confval:`gettext_allow_fuzzy_translations` to allow "fuzzy"
+  messages for translation
+* #9672: More CSS classes on Python domain descriptions
+* #9695: More CSS classes on Javascript domain descriptions
+* #9683: Revert the removal of ``add_stylesheet()`` API.  It will be kept until
+  the Sphinx 6.0 release
+* #2068, add :confval:`intersphinx_disabled_reftypes` for disabling
+  interphinx resolution of cross-references that do not have an explicit
+  inventory specification. Specific types of cross-references can be disabled,
+  e.g., ``std:doc`` or all cross-references in a specific domain,
+  e.g., ``std:*``.
+* #9623: Allow to suppress "toctree contains reference to excluded document"
+  warnings using :confval:`suppress_warnings`
+
+Bugs fixed
+----------
+
+* #9630: autodoc: Failed to build cross references if :confval:`primary_domain`
+  is not 'py'
+* #9644: autodoc: Crashed on getting source info from problematic object
+* #9655: autodoc: mocked object having doc comment is warned unexpectedly
+* #9651: autodoc: return type field is not generated even if
+  :confval:`autodoc_typehints_description_target` is set to "documented" when
+  its info-field-list contains ``:returns:`` field
+* #9657: autodoc: The base class for a subclass of mocked object is incorrect
+* #9607: autodoc: Incorrect base class detection for the subclasses of the
+  generic class
+* #9755: autodoc: memory addresses are shown for aliases
+* #9752: autodoc: Failed to detect type annotation for slots attribute
+* #9756: autodoc: Crashed if classmethod does not have __func__ attribute
+* #9757: autodoc: :confval:`autodoc_inherit_docstrings` does not effect to
+  overridden classmethods
+* #9781: autodoc: :confval:`autodoc_preserve_defaults` does not support
+  hexadecimal numeric
+* #9630: autosummary: Failed to build summary table if :confval:`primary_domain`
+  is not 'py'
+* #9670: html: Fix download file with special characters
+* #9710: html: Wrong styles for even/odd rows in nested tables
+* #9763: html: parameter name and its type annotation are not separated in HTML
+* #9649: HTML search: when objects have the same name but in different domains,
+  return all of them as result instead of just one.
+* #7634: intersphinx: references on the file in sub directory are broken
+* #9737: LaTeX: hlist is rendered as a list containing "aggedright" text
+* #9678: linkcheck: file extension was shown twice in warnings
+* #9697: py domain: An index entry with parens was registered for ``py:method``
+  directive with ``:property:`` option
+* #9775: py domain: Literal typehint was converted to a cross reference when
+  :confval:`autodoc_typehints`\ ``='description'``
+* #9708: needs_extension failed to check double-digit version correctly
+* #9688: Fix Sphinx patched :dudir:`code` does not recognize ``:class:`` option
+* #9733: Fix for logging handler flushing warnings in the middle of the docs
+  build
+* #9656: Fix warnings without subtype being incorrectly suppressed
+* Intersphinx, for unresolved references with an explicit inventory,
+  e.g., ``proj:myFunc``, leave the inventory prefix in the unresolved text.

@@ -1,20 +1,18 @@
 """Document tree nodes that Sphinx defines on top of those in Docutils."""
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
+from __future__ import annotations
 
-import docutils
+from typing import TYPE_CHECKING, Any
+
 from docutils import nodes
-from docutils.nodes import Element
 
 if TYPE_CHECKING:
-    from sphinx.application import Sphinx
+    from collections.abc import Sequence
 
-try:
-    from docutils.nodes import meta as docutils_meta  # type: ignore
-except ImportError:
-    # docutils-0.17 or older
-    from docutils.parsers.rst.directives.html import MetaBody
-    docutils_meta = MetaBody.meta
+    from docutils.nodes import Element
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class document(nodes.document):
@@ -27,20 +25,9 @@ class document(nodes.document):
                    in your extensions.  It will be removed without deprecation period.
     """
 
-    def set_id(self, node: Element, msgnode: Optional[Element] = None,
+    def set_id(self, node: Element, msgnode: Element | None = None,
                suggested_prefix: str = '') -> str:
-        if docutils.__version_info__ >= (0, 16):
-            ret = super().set_id(node, msgnode, suggested_prefix)  # type: ignore
-        else:
-            ret = super().set_id(node, msgnode)
-
-        if docutils.__version_info__ < (0, 17):
-            # register other node IDs forcedly
-            for node_id in node['ids']:
-                if node_id not in self.ids:
-                    self.ids[node_id] = node
-
-        return ret
+        return super().set_id(node, msgnode, suggested_prefix)
 
 
 class translatable(nodes.Node):
@@ -75,6 +62,7 @@ class translatable(nodes.Node):
 
 class not_smartquotable:
     """A node which does not support smart-quotes."""
+
     support_smartquotes = False
 
 
@@ -83,7 +71,7 @@ class toctree(nodes.General, nodes.Element, translatable):
 
     def preserve_original_messages(self) -> None:
         # toctree entries
-        rawentries = self.setdefault('rawentries', [])
+        rawentries: list[str] = self.setdefault('rawentries', [])
         for title, _docname in self['entries']:
             if title:
                 rawentries.append(title)
@@ -102,8 +90,8 @@ class toctree(nodes.General, nodes.Element, translatable):
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
-    def extract_original_messages(self) -> List[str]:
-        messages: List[str] = []
+    def extract_original_messages(self) -> list[str]:
+        messages: list[str] = []
 
         # toctree entries
         messages.extend(self.get('rawentries', []))
@@ -124,7 +112,7 @@ class _desc_classes_injector(nodes.Element, not_smartquotable):
     Use as the first base class.
     """
 
-    classes: List[str] = []
+    classes: list[str] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -159,11 +147,12 @@ class desc_signature(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.Tex
 
     This node always has the classes ``sig``, ``sig-object``, and the domain it belongs to.
     """
+
     # Note: the domain name is being added through a post-transform DescSigAddDomainAsClass
     classes = ['sig', 'sig-object']
 
     @property
-    def child_text_separator(self):
+    def child_text_separator(self) -> str:  # type: ignore[override]
         if self.get('is_multiline'):
             return ' '
         else:
@@ -177,6 +166,7 @@ class desc_signature_line(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     with ``is_multiline`` set to ``True``.
     Set ``add_permalink = True`` for the line that should get the permalink.
     """
+
     sphinx_line_type = ''
 
 
@@ -195,10 +185,11 @@ class desc_inline(_desc_classes_injector, nodes.Inline, nodes.TextElement):
     This node always has the classes ``sig``, ``sig-inline``,
     and the name of the domain it belongs to.
     """
+
     classes = ['sig', 'sig-inline']
 
     def __init__(self, domain: str, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs, domain=domain)
         self['classes'].append(domain)
 
 
@@ -215,6 +206,7 @@ class desc_name(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.FixedTex
 
     This node always has the class ``sig-name``.
     """
+
     classes = ['sig-name', 'descname']  # 'descname' is for backwards compatibility
 
 
@@ -226,6 +218,7 @@ class desc_addname(_desc_classes_injector, nodes.Part, nodes.Inline, nodes.Fixed
 
     This node always has the class ``sig-prename``.
     """
+
     # 'descclassname' is for backwards compatibility
     classes = ['sig-prename', 'descclassname']
 
@@ -246,19 +239,44 @@ class desc_returns(desc_type):
 
 
 class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
-    """Node for a general parameter list."""
+    """Node for a general parameter list.
+
+    As default the parameter list is written in line with the rest of the signature.
+    Set ``multi_line_parameter_list = True`` to describe a multi-line parameter list.
+    In that case each parameter will then be written on its own, indented line.
+    """
+
     child_text_separator = ', '
 
-    def astext(self):
-        return '({})'.format(super().astext())
+    def astext(self) -> str:
+        return f'({super().astext()})'
+
+
+class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for a general type parameter list.
+
+    As default the type parameters list is written in line with the rest of the signature.
+    Set ``multi_line_parameter_list = True`` to describe a multi-line type parameters list.
+    In that case each type parameter will then be written on its own, indented line.
+    """
+
+    child_text_separator = ', '
+
+    def astext(self) -> str:
+        return f'[{super().astext()}]'
 
 
 class desc_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for a single parameter."""
 
 
+class desc_type_parameter(nodes.Part, nodes.Inline, nodes.FixedTextElement):
+    """Node for a single type parameter."""
+
+
 class desc_optional(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     """Node for marking optional parts of the parameter list."""
+
     child_text_separator = ', '
 
     def astext(self) -> str:
@@ -272,25 +290,44 @@ class desc_annotation(nodes.Part, nodes.Inline, nodes.FixedTextElement):
 # Leaf nodes for markup of text fragments
 #########################################
 
+#: A set of classes inheriting :class:`desc_sig_element`. Each node class
+#: is expected to be handled by the builder's translator class if the latter
+#: does not inherit from SphinxTranslator.
+#:
+#: This set can be extended manually by third-party extensions or
+#: by subclassing :class:`desc_sig_element` and using the class
+#: keyword argument `_sig_element=True`.
+SIG_ELEMENTS: set[type[desc_sig_element]] = set()
+
+
 # Signature text elements, generally translated to node.inline
 # in SigElementFallbackTransform.
-# When adding a new one, add it to SIG_ELEMENTS.
+# When adding a new one, add it to SIG_ELEMENTS via the class
+# keyword argument `_sig_element=True` (e.g., see `desc_sig_space`).
 
 class desc_sig_element(nodes.inline, _desc_classes_injector):
     """Common parent class of nodes for inline text of a signature."""
-    classes: List[str] = []
+
+    classes: list[str] = []
 
     def __init__(self, rawsource: str = '', text: str = '',
                  *children: Element, **attributes: Any) -> None:
         super().__init__(rawsource, text, *children, **attributes)
         self['classes'].extend(self.classes)
 
+    def __init_subclass__(cls, *, _sig_element: bool = False, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        if _sig_element:
+            # add the class to the SIG_ELEMENTS set if asked
+            SIG_ELEMENTS.add(cls)
+
 
 # to not reinvent the wheel, the classes in the following desc_sig classes
 # are based on those used in Pygments
 
-class desc_sig_space(desc_sig_element):
+class desc_sig_space(desc_sig_element, _sig_element=True):
     """Node for a space in a signature."""
+
     classes = ["w"]
 
     def __init__(self, rawsource: str = '', text: str = ' ',
@@ -298,52 +335,52 @@ class desc_sig_space(desc_sig_element):
         super().__init__(rawsource, text, *children, **attributes)
 
 
-class desc_sig_name(desc_sig_element):
+class desc_sig_name(desc_sig_element, _sig_element=True):
     """Node for an identifier in a signature."""
+
     classes = ["n"]
 
 
-class desc_sig_operator(desc_sig_element):
+class desc_sig_operator(desc_sig_element, _sig_element=True):
     """Node for an operator in a signature."""
+
     classes = ["o"]
 
 
-class desc_sig_punctuation(desc_sig_element):
+class desc_sig_punctuation(desc_sig_element, _sig_element=True):
     """Node for punctuation in a signature."""
+
     classes = ["p"]
 
 
-class desc_sig_keyword(desc_sig_element):
+class desc_sig_keyword(desc_sig_element, _sig_element=True):
     """Node for a general keyword in a signature."""
+
     classes = ["k"]
 
 
-class desc_sig_keyword_type(desc_sig_element):
+class desc_sig_keyword_type(desc_sig_element, _sig_element=True):
     """Node for a keyword which is a built-in type in a signature."""
+
     classes = ["kt"]
 
 
-class desc_sig_literal_number(desc_sig_element):
+class desc_sig_literal_number(desc_sig_element, _sig_element=True):
     """Node for a numeric literal in a signature."""
+
     classes = ["m"]
 
 
-class desc_sig_literal_string(desc_sig_element):
+class desc_sig_literal_string(desc_sig_element, _sig_element=True):
     """Node for a string literal in a signature."""
+
     classes = ["s"]
 
 
-class desc_sig_literal_char(desc_sig_element):
+class desc_sig_literal_char(desc_sig_element, _sig_element=True):
     """Node for a character literal in a signature."""
+
     classes = ["sc"]
-
-
-SIG_ELEMENTS = [desc_sig_space,
-                desc_sig_name,
-                desc_sig_operator,
-                desc_sig_punctuation,
-                desc_sig_keyword, desc_sig_keyword_type,
-                desc_sig_literal_number, desc_sig_literal_string, desc_sig_literal_char]
 
 
 ###############################################################
@@ -352,8 +389,8 @@ SIG_ELEMENTS = [desc_sig_space,
 class versionmodified(nodes.Admonition, nodes.TextElement):
     """Node for version change entries.
 
-    Currently used for "versionadded", "versionchanged" and "deprecated"
-    directives.
+    Currently used for "versionadded", "versionchanged", "deprecated"
+    and "versionremoved" directives.
     """
 
 
@@ -390,7 +427,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
 
 class centered(nodes.Part, nodes.TextElement):
-    """This node is deprecated."""
+    """Deprecated."""
 
 
 class acks(nodes.Element):
@@ -435,13 +472,6 @@ class tabular_col_spec(nodes.Element):
     """Node for specifying tabular columns, used for LaTeX output."""
 
 
-class meta(nodes.Special, nodes.PreBibliographic, nodes.Element):
-    """Node for meta directive -- same as docutils' standard meta node,
-    but pickleable.
-    """
-    rawcontent = None
-
-
 # inline nodes
 
 class pending_xref(nodes.Inline, nodes.Element):
@@ -451,6 +481,7 @@ class pending_xref(nodes.Inline, nodes.Element):
     These nodes are resolved before writing output, in
     BuildEnvironment.resolve_references.
     """
+
     child_text_separator = ''
 
 
@@ -525,7 +556,7 @@ class manpage(nodes.Inline, nodes.FixedTextElement):
     """Node for references to manpages."""
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(toctree)
 
     app.add_node(desc)
@@ -539,7 +570,9 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(desc_type)
     app.add_node(desc_returns)
     app.add_node(desc_parameterlist)
+    app.add_node(desc_type_parameter_list)
     app.add_node(desc_parameter)
+    app.add_node(desc_type_parameter)
     app.add_node(desc_optional)
     app.add_node(desc_annotation)
 
@@ -567,9 +600,6 @@ def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_node(literal_emphasis)
     app.add_node(literal_strong)
     app.add_node(manpage)
-
-    if docutils.__version_info__ < (0, 18):
-        app.add_node(meta)
 
     return {
         'version': 'builtin',

@@ -1,50 +1,52 @@
 """Input/Output files"""
-import codecs
-import warnings
-from typing import TYPE_CHECKING, Any, List, Type
 
-import docutils
-from docutils import nodes
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 from docutils.core import Publisher
-from docutils.frontend import Values
 from docutils.io import FileInput, Input, NullOutput
-from docutils.parsers import Parser
-from docutils.parsers.rst import Parser as RSTParser
 from docutils.readers import standalone
-from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx70Warning
-from sphinx.environment import BuildEnvironment
-from sphinx.transforms import (AutoIndexUpgrader, DoctreeReadEvent, FigureAligner,
-                               SphinxTransformer)
-from sphinx.transforms.i18n import (Locale, PreserveTranslatableMessages,
-                                    RemoveTranslatableInline)
+from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
+from sphinx.transforms.i18n import (
+    Locale,
+    PreserveTranslatableMessages,
+    RemoveTranslatableInline,
+)
 from sphinx.transforms.references import SphinxDomains
-from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, logging
+from sphinx.util import logging
 from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
+    from docutils import nodes
+    from docutils.frontend import Values
+    from docutils.parsers import Parser
+    from docutils.transforms import Transform
+
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)
 
 
-class SphinxBaseReader(standalone.Reader):
+class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
     """
     A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
     """
 
-    transforms: List[Type[Transform]] = []
+    transforms: list[type[Transform]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
+
         if len(args) > 0 and isinstance(args[0], Sphinx):
             self._app = args[0]
             self._env = self._app.env
@@ -52,11 +54,11 @@ class SphinxBaseReader(standalone.Reader):
 
         super().__init__(*args, **kwargs)
 
-    def setup(self, app: "Sphinx") -> None:
-        self._app = app      # hold application object only for compatibility
+    def setup(self, app: Sphinx) -> None:
+        self._app = app  # hold application object only for compatibility
         self._env = app.env
 
-    def get_transforms(self) -> List[Type[Transform]]:
+    def get_transforms(self) -> list[type[Transform]]:
         transforms = super().get_transforms() + self.transforms
 
         # remove transforms which is not needed for Sphinx
@@ -91,13 +93,13 @@ class SphinxStandaloneReader(SphinxBaseReader):
     A basic document reader for Sphinx.
     """
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
         super().setup(app)
 
-    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:
+    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
-        if not self.parser:
+        if not self.parser:  # type: ignore[has-type]
             self.parser = parser
         self.settings = settings
         self.input = self.read_source(settings.env)
@@ -123,19 +125,25 @@ class SphinxI18nReader(SphinxBaseReader):
     Because the translated texts are partial and they don't have correct line numbers.
     """
 
-    def setup(self, app: "Sphinx") -> None:
+    def setup(self, app: Sphinx) -> None:
         super().setup(app)
 
         self.transforms = self.transforms + app.registry.get_transforms()
-        unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
-                  AutoIndexUpgrader, FigureAligner, SphinxDomains, DoctreeReadEvent,
-                  UIDTransform]
+        unused = [
+            PreserveTranslatableMessages,
+            Locale,
+            RemoveTranslatableInline,
+            AutoIndexUpgrader,
+            SphinxDomains,
+            DoctreeReadEvent,
+            UIDTransform,
+        ]
         for transform in unused:
             if transform in self.transforms:
                 self.transforms.remove(transform)
 
 
-class SphinxDummyWriter(UnfilteredWriter):
+class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
     """Dummy writer module used for generating doctree."""
 
     supported = ('html',)  # needed to keep "meta" nodes
@@ -151,44 +159,13 @@ def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
 
 class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
 
 
-def read_doc(app: "Sphinx", env: BuildEnvironment, filename: str) -> nodes.document:
-    """Parse a document and convert to doctree."""
-    warnings.warn('sphinx.io.read_doc() is deprecated.',
-                  RemovedInSphinx70Warning, stacklevel=2)
-
-    # set up error_handler for the target document
-    error_handler = UnicodeDecodeErrorHandler(env.docname)
-    codecs.register_error('sphinx', error_handler)  # type: ignore
-
-    reader = SphinxStandaloneReader()
-    reader.setup(app)
-    filetype = get_filetype(app.config.source_suffix, filename)
-    parser = app.registry.create_source_parser(app, filetype)
-    if parser.__class__.__name__ == 'CommonMarkParser' and parser.settings_spec == ():
-        # a workaround for recommonmark
-        #   If recommonmark.AutoStrictify is enabled, the parser invokes reST parser
-        #   internally.  But recommonmark-0.4.0 does not provide settings_spec for reST
-        #   parser.  As a workaround, this copies settings_spec for RSTParser to the
-        #   CommonMarkParser.
-        parser.settings_spec = RSTParser.settings_spec
-
-    pub = Publisher(reader=reader,
-                    parser=parser,
-                    writer=SphinxDummyWriter(),
-                    source_class=SphinxFileInput,
-                    destination=NullOutput())
-    pub.process_programmatic_settings(None, env.settings, None)  # type: ignore[arg-type]
-    pub.set_source(source_path=filename)
-    pub.publish()
-    return pub.document
-
-
-def create_publisher(app: "Sphinx", filetype: str) -> Publisher:
+def create_publisher(app: Sphinx, filetype: str) -> Publisher:
     reader = SphinxStandaloneReader()
     reader.setup(app)
 
@@ -201,20 +178,17 @@ def create_publisher(app: "Sphinx", filetype: str) -> Publisher:
         #   CommonMarkParser.
         from docutils.parsers.rst import Parser as RSTParser
 
-        parser.settings_spec = RSTParser.settings_spec
+        parser.settings_spec = RSTParser.settings_spec  # type: ignore[misc]
 
     pub = Publisher(
         reader=reader,
         parser=parser,
         writer=SphinxDummyWriter(),
         source_class=SphinxFileInput,
-        destination=NullOutput()
+        destination=NullOutput(),
     )
     # Propagate exceptions by default when used programmatically:
-    defaults = {"traceback": True, **app.env.settings}
+    defaults = {'traceback': True, **app.env.settings}
     # Set default settings
-    if docutils.__version_info__[:2] >= (0, 19):
-        pub.get_settings(**defaults)  # type: ignore[arg-type]
-    else:
-        pub.settings = pub.setup_option_parser(**defaults).get_default_values()  # type: ignore
+    pub.get_settings(**defaults)
     return pub

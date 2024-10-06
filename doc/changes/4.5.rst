@@ -1,0 +1,66 @@
+==========
+Sphinx 4.5
+==========
+
+
+Release 4.5.0 (released Mar 28, 2022)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #10112: extlinks: Disable hardcoded links detector by default
+* #9993, #10177: std domain: Disallow to refer an inline target via
+  :rst:role:`ref` role
+
+Deprecated
+----------
+
+* ``sphinx.ext.napoleon.docstring.GoogleDocstring._qualify_name()``
+
+Features added
+--------------
+
+* #10260: Enable ``FORCE_COLOR`` and ``NO_COLOR`` for terminal colouring
+* #10234: autosummary: Add "autosummary" CSS class to summary tables
+* #10125: extlinks: Improve suggestion message for a reference having title
+* #10112: extlinks: Add :confval:`extlinks_detect_hardcoded_links` to enable
+  hardcoded links detector feature
+* #9494, #9456: html search: Add a config variable
+  :confval:`html_show_search_summary` to enable/disable the search summaries
+* #9337: HTML theme, add option ``enable_search_shortcuts`` that enables :kbd:`/` as
+  a Quick search shortcut and :kbd:`Esc` shortcut that
+  removes search highlighting.
+* #10107: i18n: Allow to suppress translation warnings by adding ``#noqa``
+  comment to the tail of each translation message
+* #10252: C++, support attributes on classes, unions, and enums.
+* #10253: :rst:role:`pep` role now generates URLs based on `peps.python.org
+  <https://peps.python.org>`_
+
+Bugs fixed
+----------
+
+* #9876: autodoc: Failed to document an imported class that is built from native
+  binary module
+* #10133: autodoc: Crashed when mocked module is used for type annotation
+* #10146: autodoc: :confval:`autodoc_default_options` does not support
+  ``no-value`` option
+* #9971: autodoc: TypeError is raised when the target object is annotated by
+  unhashable object
+* #10205: extlinks: Failed to compile regexp on checking hardcoded links
+* #10277: html search: Could not search short words (ex. "use")
+* #9529: LaTeX: named auto numbered footnote (ex. ``[#named]``) that is referred
+  multiple times was rendered to a question mark
+* #9924: LaTeX: multi-line :rst:dir:`cpp:function` directive has big vertical
+  spacing in Latexpdf
+* #10158: LaTeX: excessive whitespace since v4.4.0 for undocumented
+  variables/structure members
+* #10175: LaTeX: named footnote reference is linked to an incorrect footnote if
+  the name is also used in the different document
+* #10269: manpage: Failed to resolve the title of :rst:role:`ref` cross references
+* #10179: i18n: suppress "rST localization" warning
+* #10118: imgconverter: Unnecessary availability check is called for remote URIs
+* #10181: napoleon: attributes are displayed like class attributes for google
+  style docstrings when :confval:`napoleon_use_ivar` is enabled
+* #10122: sphinx-build: make.bat does not check the installation of sphinx-build
+  command before showing help

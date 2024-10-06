@@ -1,13 +1,13 @@
 """Danish search language: includes the JS Danish stemmer."""
 
-from typing import Dict
+from __future__ import annotations
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-danish_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/danish/stop.txt
+danish_stopwords = parse_stop_word("""
+| source: https://snowball.tartarus.org/algorithms/danish/stop.txt
 og           | and
 i            | in
 jeg          | I
@@ -102,7 +102,7 @@ været        | be
 thi          | for (conj)
 jer          | you
 sådan        | such, like this/like that
-''')
+""")
 
 
 class SearchDanish(SearchLanguage):
@@ -111,7 +111,7 @@ class SearchDanish(SearchLanguage):
     js_stemmer_rawcode = 'danish-stemmer.js'
     stopwords = danish_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('danish')
 
     def stem(self, word: str) -> str:

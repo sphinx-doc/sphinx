@@ -1,13 +1,13 @@
 """Hungarian search language: includes the JS Hungarian stemmer."""
 
-from typing import Dict
+from __future__ import annotations
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-hungarian_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/hungarian/stop.txt
+hungarian_stopwords = parse_stop_word("""
+| source: https://snowball.tartarus.org/algorithms/hungarian/stop.txt
 | prepared by Anna Tordai
 a
 ahogy
@@ -208,7 +208,7 @@ vissza
 vele
 viszont
 volna
-''')
+""")
 
 
 class SearchHungarian(SearchLanguage):
@@ -217,7 +217,7 @@ class SearchHungarian(SearchLanguage):
     js_stemmer_rawcode = 'hungarian-stemmer.js'
     stopwords = hungarian_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('hungarian')
 
     def stem(self, word: str) -> str:

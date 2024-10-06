@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from os import path
 from typing import Union
 
@@ -17,5 +19,5 @@ class Foo:
         pass
 
 
-def bar(x: Union[int, str], y: int = 1) -> None:
+def bar(x: int | str, y: int = 1) -> None:
     pass

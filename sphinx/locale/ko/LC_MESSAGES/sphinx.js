@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "ko",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">\uc800\uc791\uad8c</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; \uc800\uc791\uad8c %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", \ubb38\uc11c - ",
         "About these documents": "\uc774 \ubb38\uc11c \uc815\ubcf4",
         "Automatically generated list of changes in version %(version)s": "\ubc84\uc804 %(version)s\uc758 \ubcc0\uacbd \uc0ac\ud56d (\uc790\ub3d9\uc73c\ub85c \uc0dd\uc131\ub41c \ubaa9\ub85d)",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\uc774\ub3d9",
         "Hide Search Matches": "\uac80\uc0c9 \uc77c\uce58 \uc228\uae30\uae30",
         "Index": "\uc0c9\uc778",
-        "Index &ndash; %(key)s": "\uc0c9\uc778 &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\uc54c\ud30c\ubcb3\ubcc4 \uc0c9\uc778",
         "Indices and tables:": "\uc0c9\uc778 \ubc0f \ud45c \ubaa9\ub85d:",
         "Last updated on %(last_updated)s.": "\ucd5c\uc885 \uc5c5\ub370\uc774\ud2b8: %(last_updated)s",
