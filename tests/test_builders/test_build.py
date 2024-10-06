@@ -103,10 +103,9 @@ def test_numbered_circular_toctree(app):
 @pytest.mark.sphinx('text', testroot='toctree-multiple-parents')
 def test_multiple_parents_toctree(app):
     app.build(force_all=True)
-    warnings = app.warning.getvalue()
     assert (
         "document is referenced in multiple toctrees: ['bravo', 'delta'], selecting: delta <- charlie"
-    ) in warnings
+    ) in app.status.getvalue()
 
 
 @pytest.mark.usefixtures('_http_teapot')
