@@ -29,9 +29,15 @@ jobs:
         run: |
           pip install -U pip
           pip install build twine
+          # resolution fails without betterproto and protobuf-specs
+          pip install "pypi-attestations~=0.0.12" "sigstore-protobuf-specs==0.3.2" "betterproto==2.0.0b6"
 
       - name: Build distribution
         run: python -m build
+
+      - name: Check distribution
+        run: |
+          twine check dist/*
 
       - name: Mint PyPI API token
         id: mint-token
@@ -59,14 +65,26 @@ jobs:
             core.setSecret(api_token)
             core.setOutput('api-token', api_token)
 
+      - name: Generate PEP 740 attestations
+        run: | 
+          python -m pypi_attestations sign dist/*
+
+      - name: Inspect PEP 740 attestations
+        run: | 
+          python -m pypi_attestations inspect dist/*.publish.attestation
+
+      - name: Verify PEP 740 attestations
+        run: | 
+          python -m pypi_attestations verify dist/*.whl --identity https://github.com/${{ github.repository }}/.github/workflows/create-release.yml@${{ github.ref }}
+          python -m pypi_attestations verify dist/*.tar.gz --identity https://github.com/${{ github.repository }}/.github/workflows/create-release.yml@${{ github.ref }}
+
       - name: Upload to PyPI
         env:
           TWINE_NON_INTERACTIVE: "true"
           TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: "${{ steps.mint-token.outputs.api-token }}"
         run: |
-          twine check dist/*
-          twine upload dist/*
+          twine upload dist/* --attestations
 
   github-release:
     runs-on: ubuntu-latest
