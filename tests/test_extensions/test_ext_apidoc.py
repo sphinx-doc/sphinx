@@ -54,6 +54,41 @@ def test_simple(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
+    coderoot='test-apidoc-custom-templates',
+    options=[
+        '--separate',
+        '--templatedir=tests/roots/test-apidoc-custom-templates/_templates',
+    ],
+)
+def test_custom_templates(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').is_file()
+    assert (outdir / 'index.rst').is_file()
+
+    template_dir = apidoc.coderoot / '_templates'
+    assert sorted(template_dir.iterdir()) == [
+        template_dir / 'module.rst.jinja',
+        template_dir / 'module.rst_t',
+        template_dir / 'package.rst_t',
+    ]
+
+    app = make_app('text', srcdir=outdir)
+    app.build()
+
+    builddir = outdir / '_build' / 'text'
+
+    # Assert that the legacy filename is discovered
+    with open(builddir / 'mypackage.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The legacy package template was found!' in txt
+
+    # Assert that the new filename is preferred
+    with open(builddir / 'mypackage.mymodule.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The Jinja module template was found!' in txt
+
+
+@pytest.mark.apidoc(
     coderoot='test-apidoc-pep420/a',
     options=['--implicit-namespaces'],
 )

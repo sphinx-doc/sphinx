@@ -6,6 +6,8 @@ Dependencies
 
 * #12756: Add lower-bounds to the ``sphinxcontrib-*`` dependencies.
   Patch by Adam Turner.
+* #12833: Update the LaTeX ``parskip`` package from 2001 to 2018.
+  Patch by Jean-François B.
 
 Incompatible changes
 --------------------
@@ -17,6 +19,7 @@ Incompatible changes
   Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
   An adjustement to existing projects is needed only if they used a custom
   :ref:`fontpkg` configuration and did not set :ref:`fvset`.
+* #12875: Disable smartquotes for languages: ``zh_CN`` and ``zh_TW`` by default.
 
 Deprecated
 ----------
@@ -48,6 +51,21 @@ Features added
 * #12743: Add :option:`sphinx-build --exception-on-warning`,
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
+* #12907: Add :confval:`html_last_updated_use_utc` to allow using
+  universal time (GMT/UTC) instead of local time for the date-time
+  supplied to :confval:`html_last_updated_fmt`.
+  Patch by Adam Turner.
+* #12910: Copyright entries now support the ``'%Y'`` placeholder
+  to substitute the current year.
+  This is helpful for reducing the reliance on Python modules
+  such as :py:mod:`time` or :py:mod:`datetime` in :file:`conf.py`.
+  See :ref:`the docs <config-copyright>` for further detail.
+  Patch by Adam Turner.
+* #11781: Add roles for referencing CVEs (:rst:role:`:cve: <cve>`)
+  and CWEs (:rst:role:`:cwe: <cwe>`).
+  Patch by Hugo van Kemenade.
+* #11809: Improve the formatting for RFC section anchors.
+  Patch by Jakub Stasiak and Adam Turner.
 
 Bugs fixed
 ----------
@@ -99,6 +117,16 @@ Bugs fixed
 * #12796: Enable parallel reading if requested,
   even if there are fewer than 6 documents.
   Patch by Matthias Geier.
+* #12844: Restore support for ``:noindex:`` for the :rst:dir:`js:module`
+  and :rst:dir:`py:module` directives.
+  Patch by Stephen Finucane.
+* #12916: Restore support for custom templates named with the legacy ``_t``
+  suffix during ``apidoc`` RST rendering (regression in 7.4.0).
+  Patch by James Addison.
+* #12451: Only substitute copyright notice years with values from
+  ``SOURCE_DATE_EPOCH`` for entries that match the current system clock year,
+  and disallow substitution of future years.
+  Patch by James Addison and Adam Turner.
 * #12888: Add a warning when document is included in multiple toctrees
   and ensure deterministic resolution of global toctree in parallel builds
   by choosing lexicographically greatest parent document.

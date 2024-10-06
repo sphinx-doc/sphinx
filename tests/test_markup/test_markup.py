@@ -30,7 +30,8 @@ def settings(app):
         # DeprecationWarning: The frontend.OptionParser class will be replaced
         # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
         optparser = frontend.OptionParser(
-            components=(RstParser, HTMLWriter, LaTeXWriter), defaults=default_settings
+            components=(RstParser, HTMLWriter, LaTeXWriter),
+            defaults=default_settings,
         )
     settings = optparser.get_default_values()
     settings.smart_quotes = True
@@ -160,6 +161,74 @@ def get_verifier(verify, verify_re):
     ('type', 'rst', 'html_expected', 'latex_expected'),
     [
         (
+            # cve role
+            'verify',
+            ':cve:`2020-10735`',
+            (
+                '<p><span class="target" id="index-0"></span><a class="cve reference external" '
+                'href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735">'
+                '<strong>CVE 2020-10735</strong></a></p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
+                '!CVE 2020\\sphinxhyphen{}10735@\\spxentry{CVE 2020\\sphinxhyphen{}10735}}'
+                '\\sphinxhref{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735}'
+                '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735}}'
+            ),
+        ),
+        (
+            # cve role with anchor
+            'verify',
+            ':cve:`2020-10735#id1`',
+            (
+                '<p><span class="target" id="index-0"></span><a class="cve reference external" '
+                'href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735#id1">'
+                '<strong>CVE 2020-10735#id1</strong></a></p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
+                '!CVE 2020\\sphinxhyphen{}10735\\#id1@\\spxentry{CVE 2020\\sphinxhyphen{}10735\\#id1}}'
+                '\\sphinxhref{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735\\#id1}'
+                '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735\\#id1}}'
+            ),
+        ),
+        (
+            # cwe role
+            'verify',
+            ':cwe:`787`',
+            (
+                '<p><span class="target" id="index-0"></span><a class="cwe reference external" '
+                'href="https://cwe.mitre.org/data/definitions/787.html">'
+                '<strong>CWE 787</strong></a></p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
+                '!CWE 787@\\spxentry{CWE 787}}'
+                '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html}'
+                '{\\sphinxstylestrong{CWE 787}}'
+            ),
+        ),
+        (
+            # cwe role with anchor
+            'verify',
+            ':cwe:`787#id1`',
+            (
+                '<p><span class="target" id="index-0"></span><a class="cwe reference external" '
+                'href="https://cwe.mitre.org/data/definitions/787.html#id1">'
+                '<strong>CWE 787#id1</strong></a></p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\index{Common Weakness Enumeration@\\spxentry{Common Weakness Enumeration}'
+                '!CWE 787\\#id1@\\spxentry{CWE 787\\#id1}}'
+                '\\sphinxhref{https://cwe.mitre.org/data/definitions/787.html\\#id1}'
+                '{\\sphinxstylestrong{CWE 787\\#id1}}'
+            ),
+        ),
+        (
             # pep role
             'verify',
             ':pep:`8`',
@@ -209,17 +278,17 @@ def get_verifier(verify, verify_re):
         (
             # rfc role with anchor
             'verify',
-            ':rfc:`2324#id1`',
+            ':rfc:`2324#section-1`',
             (
                 '<p><span class="target" id="index-0"></span><a class="rfc reference external" '
-                'href="https://datatracker.ietf.org/doc/html/rfc2324.html#id1">'
-                '<strong>RFC 2324#id1</strong></a></p>'
+                'href="https://datatracker.ietf.org/doc/html/rfc2324.html#section-1">'
+                '<strong>RFC 2324 Section 1</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\index{RFC@\\spxentry{RFC}!RFC 2324\\#id1@\\spxentry{RFC 2324\\#id1}}'
-                '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#id1}'
-                '{\\sphinxstylestrong{RFC 2324\\#id1}}'
+                '\\index{RFC@\\spxentry{RFC}!RFC 2324 Section 1@\\spxentry{RFC 2324 Section 1}}'
+                '\\sphinxhref{https://datatracker.ietf.org/doc/html/rfc2324.html\\#section-1}'
+                '{\\sphinxstylestrong{RFC 2324 Section 1}}'
             ),
         ),
         (

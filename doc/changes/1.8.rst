@@ -147,7 +147,7 @@ Bugs fixed
 ----------
 
 * #5418: Incorrect default path for sphinx-build -d/doctrees files
-* #5421: autodoc emits deprecation warning for :confval:`autodoc_default_flags`
+* #5421: autodoc emits deprecation warning for :confval:`!autodoc_default_flags`
 * #5422: lambda object causes PicklingError on storing environment
 * #5417: Sphinx fails to build with syntax error in Python 2.7.5
 * #4911: add latexpdf to make.bat for non make-mode
@@ -251,7 +251,7 @@ Deprecated
 1.8.0b1
 
 * :confval:`!source_parsers` is deprecated
-* :confval:`autodoc_default_flags` is deprecated
+* :confval:`!autodoc_default_flags` is deprecated
 * quickstart: ``--epub`` option becomes default, so it is deprecated
 * Drop function based directive support.  For now, Sphinx only supports class
   based directives (see :class:`~docutils.parsers.rst.Directive`)

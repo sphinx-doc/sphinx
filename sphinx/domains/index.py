@@ -15,7 +15,7 @@ from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import process_index_entry
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Set
 
     from docutils.nodes import Node, system_message
 
@@ -40,7 +40,7 @@ class IndexDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.entries.pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for docname in docnames:
             self.entries[docname] = otherdata['entries'][docname]
 

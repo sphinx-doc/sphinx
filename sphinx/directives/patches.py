@@ -12,7 +12,6 @@ from docutils.parsers.rst.directives.misc import Meta
 from docutils.parsers.rst.roles import set_classes
 
 from sphinx.directives import optional_int
-from sphinx.domains.math import MathDomain
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
@@ -63,10 +62,14 @@ class CSVTable(tables.CSVTable):  # type: ignore[misc]
             env = self.state.document.settings.env
             filename = self.options['file']
             if path.exists(filename):
-                logger.warning(__('":file:" option for csv-table directive now recognizes '
-                                  'an absolute path as a relative path from source directory. '
-                                  'Please update your document.'),
-                               location=(env.docname, self.lineno))
+                logger.warning(
+                    __(
+                        '":file:" option for csv-table directive now recognizes '
+                        'an absolute path as a relative path from source directory. '
+                        'Please update your document.'
+                    ),
+                    location=(env.docname, self.lineno),
+                )
             else:
                 abspath = path.join(env.srcdir, os_path(self.options['file'][1:]))
                 docdir = path.dirname(env.doc2path(env.docname))
@@ -95,10 +98,13 @@ class Code(SphinxDirective):
 
         set_classes(self.options)
         code = '\n'.join(self.content)
-        node = nodes.literal_block(code, code,
-                                   classes=self.options.get('classes', []),
-                                   force='force' in self.options,
-                                   highlight_args={})
+        node = nodes.literal_block(
+            code,
+            code,
+            classes=self.options.get('classes', []),
+            force='force' in self.options,
+            highlight_args={},
+        )
         self.add_name(node)
         set_source_info(self, node)
 
@@ -109,8 +115,9 @@ class Code(SphinxDirective):
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
-            node['language'] = self.env.temp_data.get('highlight_language',
-                                                      self.config.highlight_language)
+            node['language'] = self.env.temp_data.get(
+                'highlight_language', self.config.highlight_language
+            )
 
         if 'number-lines' in self.options:
             node['linenos'] = True
@@ -139,12 +146,15 @@ class MathDirective(SphinxDirective):
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
         label = self.options.get('label', self.options.get('name'))
-        node = nodes.math_block(latex, latex,
-                                classes=self.options.get('class', []),
-                                docname=self.env.docname,
-                                number=None,
-                                label=label,
-                                nowrap='nowrap' in self.options)
+        node = nodes.math_block(
+            latex,
+            latex,
+            classes=self.options.get('class', []),
+            docname=self.env.docname,
+            number=None,
+            label=label,
+            nowrap='nowrap' in self.options,
+        )
         self.add_name(node)
         self.set_source_info(node)
 
@@ -158,14 +168,14 @@ class MathDirective(SphinxDirective):
         # assign label automatically if math_number_all enabled
         if node['label'] == '' or (self.config.math_number_all and not node['label']):
             seq = self.env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = "%s:%d" % (self.env.docname, seq)
+            node['label'] = f'{self.env.docname}:{seq}'
 
         # no targets and numbers are needed
         if not node['label']:
             return
 
         # register label to domain
-        domain = cast(MathDomain, self.env.get_domain('math'))
+        domain = self.env.domains.math_domain
         domain.note_equation(self.env.docname, node['label'], location=node)
         node['number'] = domain.get_equation_number_for(node['label'])
 

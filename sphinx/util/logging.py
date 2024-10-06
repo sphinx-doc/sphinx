@@ -27,27 +27,36 @@ if TYPE_CHECKING:
 NAMESPACE = 'sphinx'
 VERBOSE = 15
 
-LEVEL_NAMES: defaultdict[str, int] = defaultdict(lambda: logging.WARNING, {
-    'CRITICAL': logging.CRITICAL,
-    'SEVERE': logging.CRITICAL,
-    'ERROR': logging.ERROR,
-    'WARNING': logging.WARNING,
-    'INFO': logging.INFO,
-    'VERBOSE': VERBOSE,
-    'DEBUG': logging.DEBUG,
-})
+LEVEL_NAMES: defaultdict[str, int] = defaultdict(
+    lambda: logging.WARNING,
+    {
+        'CRITICAL': logging.CRITICAL,
+        'SEVERE': logging.CRITICAL,
+        'ERROR': logging.ERROR,
+        'WARNING': logging.WARNING,
+        'INFO': logging.INFO,
+        'VERBOSE': VERBOSE,
+        'DEBUG': logging.DEBUG,
+    },
+)
 
-VERBOSITY_MAP: defaultdict[int, int] = defaultdict(lambda: logging.NOTSET, {
-    0: logging.INFO,
-    1: VERBOSE,
-    2: logging.DEBUG,
-})
+VERBOSITY_MAP: defaultdict[int, int] = defaultdict(
+    lambda: logging.NOTSET,
+    {
+        0: logging.INFO,
+        1: VERBOSE,
+        2: logging.DEBUG,
+    },
+)
 
-COLOR_MAP: defaultdict[int, str] = defaultdict(lambda: 'blue', {
-    logging.ERROR: 'darkred',
-    logging.WARNING: 'red',
-    logging.DEBUG: 'darkgray',
-})
+COLOR_MAP: defaultdict[int, str] = defaultdict(
+    lambda: 'blue',
+    {
+        logging.ERROR: 'darkred',
+        logging.WARNING: 'red',
+        logging.DEBUG: 'darkgray',
+    },
+)
 
 
 def getLogger(name: str) -> SphinxLoggerAdapter:
@@ -126,7 +135,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(  # type: ignore[override]
-        self, level: int | str, msg: str, *args: Any, **kwargs: Any,
+        self, level: int | str, msg: str, *args: Any, **kwargs: Any
     ) -> None:
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
@@ -400,14 +409,14 @@ class _RaiseOnWarningFilter(logging.Filter):
         except (TypeError, ValueError):
             message = record.msg  # use record.msg itself
         if location := getattr(record, 'location', ''):
-            message = f"{location}:{message}"
+            message = f'{location}:{message}'
         if record.exc_info is not None:
             raise SphinxWarning(message) from record.exc_info[1]
         raise SphinxWarning(message)
 
 
 def is_suppressed_warning(
-    warning_type: str, sub_type: str, suppress_warnings: Set[str] | Sequence[str],
+    warning_type: str, sub_type: str, suppress_warnings: Set[str] | Sequence[str]
 ) -> bool:
     """Check whether the warning is suppressed or not."""
     if warning_type is None or len(suppress_warnings) == 0:
@@ -546,11 +555,11 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
 def get_node_location(node: Node) -> str | None:
     source, line = get_source_line(node)
     if source and line:
-        return f"{abspath(source)}:{line}"
+        return f'{abspath(source)}:{line}'
     if source:
-        return f"{abspath(source)}:"
+        return f'{abspath(source)}:'
     if line:
-        return f"<unknown>:{line}"
+        return f'<unknown>:{line}'
     return None
 
 
@@ -580,7 +589,9 @@ class SafeEncodingWriter:
         except UnicodeEncodeError:
             # stream accept only str, not bytes.  So, we encode and replace
             # non-encodable characters, then decode them.
-            self.stream.write(data.encode(self.encoding, 'replace').decode(self.encoding))
+            self.stream.write(
+                data.encode(self.encoding, 'replace').decode(self.encoding)
+            )
 
     def flush(self) -> None:
         if hasattr(self.stream, 'flush'):

@@ -101,7 +101,7 @@ class idgen:
 
 
 @pass_context
-def warning(context: dict, message: str, *args: Any, **kwargs: Any) -> str:
+def warning(context: dict[str, Any], message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
         message = f'in rendering {filename}: {message}'
@@ -119,11 +119,22 @@ class SphinxFileSystemLoader(FileSystemLoader):
     def get_source(
         self, environment: Environment, template: str
     ) -> tuple[str, str, Callable[[], bool]]:
+        if template.endswith('.jinja'):
+            legacy_suffix = '_t'
+            legacy_template = template.removesuffix('.jinja') + legacy_suffix
+        else:
+            legacy_template = None
+
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
             if f is not None:
                 break
+            if legacy_template is not None:
+                filename = path.join(searchpath, legacy_template)
+                f = open_if_exists(filename)
+                if f is not None:
+                    break
         else:
             raise TemplateNotFound(template)
 
@@ -199,10 +210,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                 builder.app.translator
             )
 
-    def render(self, template: str, context: dict) -> str:  # type: ignore[override]
+    def render(self, template: str, context: dict[str, Any]) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
 
-    def render_string(self, source: str, context: dict) -> str:
+    def render_string(self, source: str, context: dict[str, Any]) -> str:
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:
