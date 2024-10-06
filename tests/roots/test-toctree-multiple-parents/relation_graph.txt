@@ -1,7 +1,7 @@
      index
     /     \
-   foo    baz
+ alpha   delta
     \      /
-    bar   /
+   bravo  /
       \  /
-      qux
+     charlie

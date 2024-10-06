@@ -1,6 +1,7 @@
-Foo
-===
+Bravo
+=====
+
 .. literalinclude:: relation_graph.txt
 
 .. toctree::
-   bar
+   charlie

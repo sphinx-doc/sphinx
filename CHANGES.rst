@@ -129,7 +129,7 @@ Bugs fixed
   Patch by James Addison and Adam Turner.
 * #12888: Add a warning when document is included in multiple toctrees
   and ensure deterministic resolution of global toctree in parallel builds
-  by choosing lexicographically greatest parent document.
+  by choosing the lexicographically greatest parent document.
   Patch by A. Rafey Khan
 
 

@@ -1,9 +1,9 @@
 """Test the HTML builder and check output against XPath."""
 
 import re
+from unittest.mock import patch
 
 import pytest
-from unittest.mock import patch
 
 from tests.test_builders.xpath_html_util import _intradocument_hyperlink_check
 from tests.test_builders.xpath_util import check_xpath
@@ -72,16 +72,16 @@ def test_singlehtml_hyperlinks(app, cached_etree_parse, expect):
     confoverrides={'html_theme': 'alabaster'},
 )
 def test_toctree_multiple_parents(app, cached_etree_parse):
-    # Lexicographically greatest parent of the document in global toctree
-    # should be chosen regardless of the order in which files are read
-    with patch.object(app.builder, '_read_serial') as mock_read_serial:
+    # The lexicographically greatest parent of the document in global toctree
+    # should be chosen, regardless of the order in which files are read
+    with patch.object(app.builder, '_read_serial') as m:
         # Read files in reversed order
-        _read_serial = app.builder.__class__._read_serial
-        mock_read_serial.side_effect = lambda docnames: _read_serial(
-            app.builder, list(reversed(docnames))
-        )
+        _read_serial = type(app.builder)._read_serial
+        m.side_effect = lambda docnames: _read_serial(app.builder, docnames[::-1])
         app.build()
-        # Check if qux is a child of baz in qux.html
-        xpath_baz_children = ".//ul[@class='current']//a[@href='baz.html']/../ul/li//a"
-        etree = cached_etree_parse(app.outdir / 'qux.html')
-        check_xpath(etree, 'qux.html', xpath=xpath_baz_children, check='Qux')
+        # Check if charlie is a child of delta in charlie.html
+        xpath_delta_children = (
+            ".//ul[@class='current']//a[@href='delta.html']/../ul/li//a"
+        )
+        etree = cached_etree_parse(app.outdir / 'charlie.html')
+        check_xpath(etree, 'charlie.html', xpath=xpath_delta_children, check='Charlie')

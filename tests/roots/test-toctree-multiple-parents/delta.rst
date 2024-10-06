@@ -1,6 +1,7 @@
-Baz
-===
+Delta
+=====
+
 .. literalinclude:: relation_graph.txt
 
 .. toctree::
-   qux
+   charlie

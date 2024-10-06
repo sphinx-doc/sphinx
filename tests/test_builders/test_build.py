@@ -105,7 +105,7 @@ def test_multiple_parents_toctree(app):
     app.build(force_all=True)
     warnings = app.warning.getvalue()
     assert (
-        "document is referenced in multiple toctrees: ['bar', 'baz'], selecting: baz <- qux"
+        "document is referenced in multiple toctrees: ['bravo', 'delta'], selecting: delta <- charlie"
     ) in warnings
 
 
