@@ -16,8 +16,8 @@ Incompatible changes
   Patch by Adam Turner.
 * #12822: LaTeX: for Unicode engines, the :ref:`fvset` default is changed to
   ``'\\fvset{fontsize=auto}'`` from ``'\\fvset{fontsize=\\small}'``.
-  Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
-  An adjustement to existing projects is needed only if they used a custom
+  Code-blocks are unchanged as FreeMono is now loaded with ``Scale=0.9``.
+  An adjustment to existing projects is needed only if they used a custom
   :ref:`fontpkg` configuration and did not set :ref:`fvset`.
 * #12875: Disable smartquotes for languages: ``zh_CN`` and ``zh_TW`` by default.
 
