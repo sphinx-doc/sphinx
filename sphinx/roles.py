@@ -333,7 +333,8 @@ class RFC(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
         formatted_target = _format_rfc_target(self.target)
-        entries = [('single', 'RFC; %s' % formatted_target, target_id, '', None)]
+        entries = [('single', f'RFC; {formatted_target}', target_id, '', None)]
+
         index = addnodes.index(entries=entries)
         target = nodes.target('', '', ids=[target_id])
         self.inliner.document.note_explicit_target(target)
