@@ -831,8 +831,8 @@ __ https://pygments.org/docs/lexers
    .. rst:directive:option:: class: class names
       :type: a list of class names separated by spaces
 
-      Class names to add to the code block's HTML ``class`` attribute when
-      building as HTML.
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
 
       .. versionadded:: 1.4
 
