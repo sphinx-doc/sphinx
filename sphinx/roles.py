@@ -367,21 +367,22 @@ class RFC(ReferenceRole):
             return base_url + self.inliner.rfc_url % int(ret[0])
 
 
-def _format_rfc_target(target: str) -> str:
+def _format_rfc_target(target: str, /) -> str:
     """
-    Takes an RFC number with an optional anchor (like ``123#section-2.5.3``) and attempts to
-    produce a human-friendly title for it.
+    Takes an RFC number with an optional anchor (like ``123#section-2.5.3``)
+    and attempts to produce a human-friendly title for it.
 
-    We have a set of known anchors that we format nicely, everything else we leave alone.
+    We have a set of known anchors that we format nicely,
+    everything else we leave alone.
     """
-    [number, *anchor] = target.split('#', maxsplit=1)
-    anchor_parts = anchor[0].split('-') if anchor else None
-    if not anchor_parts or anchor_parts[0] not in ['section', 'page', 'appendix']:
-        return 'RFC %s' % (target,)
-    return 'RFC %s %s' % (
-        number,
-        ' '.join([anchor_parts[0].title(), *anchor_parts[1:]]),
-    )
+    number, _, anchor = target.partition('#')
+    if anchor:
+        first, _, remaining = anchor.partition('-')
+        if first in {'appendix', 'page', 'section'}:
+            if remaining:
+                return f'RFC {number} {first.title()} {remaining}'
+            return f'RFC {number} {first.title()}'
+    return f'RFC {target}'
 
 
 class GUILabel(SphinxRole):

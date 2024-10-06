@@ -116,16 +116,22 @@ def test_samp():
     assert msg == []
 
 
-@pytest.mark.parametrize(('target', 'expected_output'), [
-    ('123', 'RFC 123'),
-    ('123#section-1', 'RFC 123 Section 1'),
-    ('123#section-2.5.3', 'RFC 123 Section 2.5.3'),
-    ('123#page-13', 'RFC 123 Page 13'),
-    ('123#appendix-B', 'RFC 123 Appendix B'),
-    # Section names are also present in some RFC anchors. Until we come up with a reliable way
-    # to reconstruct the section names from the corresponding anchors with the correct
-    # capitalization it's probably better to leave them alone.
-    ('9076#name-risks-in-the-dns-data', 'RFC 9076#name-risks-in-the-dns-data'),
-])
+@pytest.mark.parametrize(
+    ('target', 'expected_output'),
+    [
+        ('123', 'RFC 123'),
+        ('123#', 'RFC 123#'),
+        ('123#id1', 'RFC 123#id1'),
+        ('123#section', 'RFC 123 Section'),
+        ('123#section-1', 'RFC 123 Section 1'),
+        ('123#section-2.5.3', 'RFC 123 Section 2.5.3'),
+        ('123#page-13', 'RFC 123 Page 13'),
+        ('123#appendix-B', 'RFC 123 Appendix B'),
+        # Section names are also present in some RFC anchors. Until we come up with a reliable way
+        # to reconstruct the section names from the corresponding anchors with the correct
+        # capitalization it's probably better to leave them alone.
+        ('9076#name-risks-in-the-dns-data', 'RFC 9076#name-risks-in-the-dns-data'),
+    ],
+)
 def test_format_rfc_target(target: str, expected_output: str) -> None:
     assert _format_rfc_target(target) == expected_output
