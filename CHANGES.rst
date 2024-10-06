@@ -126,7 +126,7 @@ Bugs fixed
   and disallow substitution of future years.
   Patch by James Addison and Adam Turner.
 * #10605: Python autodoc: fix constructor argument types when
-  `autodoc_typehints` is `'description'` or `'both'`.
+  :confval:`autodoc_typehints` is ``'description'`` or ``'both'``.
 
 Testing
 -------
