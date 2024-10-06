@@ -11,19 +11,21 @@ import sys
 import unicodedata
 from io import StringIO
 from os import path
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import TYPE_CHECKING
 
-from sphinx.deprecation import _deprecation_warning
+from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from types import TracebackType
+    from typing import Any
 
 # SEP separates path elements in the canonical file names
 #
 # Define SEP as a manifest constant, not so much because we expect it to change
 # in the future as to avoid the suspicion that a stray "/" in the code is a
 # hangover from more *nix-oriented origins.
-SEP = "/"
+SEP = '/'
 
 
 def os_path(canonical_path: str, /) -> str:
@@ -36,7 +38,7 @@ def canon_path(native_path: str | os.PathLike[str], /) -> str:
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
-    "Normalize path separator and unicode string"
+    """Normalize path separator and unicode string"""
     new_path = canon_path(filepath)
     return unicodedata.normalize('NFC', new_path)
 
@@ -48,7 +50,7 @@ def relative_uri(base: str, to: str) -> str:
     b2 = base.split('#')[0].split(SEP)
     t2 = to.split('#')[0].split(SEP)
     # remove common segments (except the last segment)
-    for x, y in zip(b2[:-1], t2[:-1]):
+    for x, y in zip(b2[:-1], t2[:-1], strict=False):
         if x != y:
             break
         b2.pop(0)
@@ -69,47 +71,89 @@ def ensuredir(file: str | os.PathLike[str]) -> None:
     os.makedirs(file, exist_ok=True)
 
 
-def mtimes_of_files(dirnames: list[str], suffix: str) -> Iterator[float]:
-    for dirname in dirnames:
-        for root, _dirs, files in os.walk(dirname):
-            for sfile in files:
-                if sfile.endswith(suffix):
-                    with contextlib.suppress(OSError):
-                        yield path.getmtime(path.join(root, sfile))
+def _last_modified_time(source: str | os.PathLike[str], /) -> int:
+    """Return the last modified time of ``filename``.
+
+    The time is returned as integer microseconds.
+    The lowest common denominator of modern file-systems seems to be
+    microsecond-level precision.
+
+    We prefer to err on the side of re-rendering a file,
+    so we round up to the nearest microsecond.
+    """
+    st = source.stat() if isinstance(source, os.DirEntry) else os.stat(source)
+    # upside-down floor division to get the ceiling
+    return -(st.st_mtime_ns // -1_000)
 
 
-def copytimes(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
+def _copy_times(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
     """Copy a file's modification times."""
-    st = os.stat(source)
-    if hasattr(os, 'utime'):
-        os.utime(dest, (st.st_atime, st.st_mtime))
+    st = source.stat() if isinstance(source, os.DirEntry) else os.stat(source)
+    os.utime(dest, ns=(st.st_atime_ns, st.st_mtime_ns))
 
 
-def copyfile(source: str | os.PathLike[str], dest: str | os.PathLike[str]) -> None:
+def copyfile(
+    source: str | os.PathLike[str],
+    dest: str | os.PathLike[str],
+    *,
+    force: bool = False,
+) -> None:
     """Copy a file and its modification times, if possible.
 
-    Note: ``copyfile`` skips copying if the file has not been changed"""
-    if not path.exists(dest) or not filecmp.cmp(source, dest):
+    :param source: An existing source to copy.
+    :param dest: The destination path.
+    :param bool force: Overwrite the destination file even if it exists.
+    :raise FileNotFoundError: The *source* does not exist.
+
+    .. note:: :func:`copyfile` is a no-op if *source* and *dest* are identical.
+    """
+    # coerce to Path objects
+    source = Path(source)
+    dest = Path(dest)
+    if not source.exists():
+        msg = f'{source} does not exist'
+        raise FileNotFoundError(msg)
+
+    if (
+        not (dest_exists := dest.exists())
+        # comparison must be done using shallow=False since
+        # two different files might have the same size
+        or not filecmp.cmp(source, dest, shallow=False)
+    ):
+        if not force and dest_exists:
+            # sphinx.util.logging imports sphinx.util.osutil,
+            # so use a local import to avoid circular imports
+            from sphinx.util import logging
+
+            logger = logging.getLogger(__name__)
+
+            msg = __(
+                'Aborted attempted copy from %s to %s '
+                '(the destination path has existing data).'
+            )
+            logger.warning(msg, source, dest, type='misc', subtype='copy_overwrite')
+            return
+
         shutil.copyfile(source, dest)
         with contextlib.suppress(OSError):
             # don't do full copystat because the source may be read-only
-            copytimes(source, dest)
+            _copy_times(source, dest)
 
 
-no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
-project_suffix_re = re.compile(' Documentation$')
+_no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 
 def make_filename(string: str) -> str:
-    return no_fn_re.sub('', string) or 'sphinx'
+    return _no_fn_re.sub('', string) or 'sphinx'
 
 
 def make_filename_from_project(project: str) -> str:
-    return make_filename(project_suffix_re.sub('', project)).lower()
+    return make_filename(project.removesuffix(' Documentation')).lower()
 
 
-def relpath(path: str | os.PathLike[str],
-            start: str | os.PathLike[str] | None = os.curdir) -> str:
+def relpath(
+    path: str | os.PathLike[str], start: str | os.PathLike[str] | None = os.curdir
+) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -131,24 +175,27 @@ abspath = path.abspath
 
 class _chdir:
     """Remove this fall-back once support for Python 3.10 is removed."""
-    def __init__(self, target_dir: str, /):
+
+    def __init__(self, target_dir: str, /) -> None:
         self.path = target_dir
         self._dirs: list[str] = []
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self._dirs.append(os.getcwd())
         os.chdir(self.path)
 
-    def __exit__(self, _exc_type, _exc_value, _traceback, /):
+    def __exit__(
+        self,
+        type: type[BaseException] | None,
+        value: BaseException | None,
+        traceback: TracebackType | None,
+        /,
+    ) -> None:
         os.chdir(self._dirs.pop())
 
 
-@contextlib.contextmanager
-def cd(target_dir: str) -> Iterator[None]:
-    if sys.version_info[:2] >= (3, 11):
-        _deprecation_warning(__name__, 'cd', 'contextlib.chdir', remove=(8, 0))
-    with _chdir(target_dir):
-        yield
+if sys.version_info[:2] < (3, 11):
+    cd = _chdir
 
 
 class FileAvoidWrite:
@@ -163,7 +210,8 @@ class FileAvoidWrite:
 
     Objects can be used as context managers.
     """
-    def __init__(self, path: str) -> None:
+
+    def __init__(self, path: str | Path) -> None:
         self._path = path
         self._io: StringIO | None = None
 
@@ -196,7 +244,7 @@ class FileAvoidWrite:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
     ) -> bool:
         self.close()
         return True

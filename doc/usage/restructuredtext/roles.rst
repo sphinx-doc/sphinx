@@ -175,6 +175,10 @@ different style:
    ``:manpage:`ls(1)``` displays :manpage:`ls(1)`. Creates a hyperlink to an
    external site rendering the manpage if :confval:`manpages_url` is defined.
 
+   .. versionchanged:: 7.3
+      Allow specifying a target with ``<>``, like hyperlinks.
+      For example, ``:manpage:`blah <ls(1)>``` displays :manpage:`blah <ls(1)>`.
+
 .. rst:role:: menuselection
 
    Menu selections should be marked using the ``menuselection`` role.  This is
@@ -236,11 +240,42 @@ different style:
    :rst:role:`code` role instead.
 
    .. versionchanged:: 1.8
-      Allowed to escape curly braces with backslash
+      Allowed to escape curly braces with double backslash.  For example, in
+      ``:samp:`print(f"answer=\\{1+{variable}*2\\}")```, the part ``variable``
+      would be emphasized and the escaped curly braces would be displayed:
+      :samp:`print(f"answer=\\{1+{variable}*2\\}")`
 
 There is also an :rst:role:`index` role to generate index entries.
 
 The following roles generate external links:
+
+.. rst:role:: cve
+
+   A reference to a `Common Vulnerabilities and Exposures`_ record.
+   This generates appropriate index entries.
+   The text "CVE *number*\ " is generated;
+   with a link to an online copy of the specified CVE.
+   You can link to a specific section by using ``:cve:`number#anchor```.
+
+   .. _Common Vulnerabilities and Exposures: https://www.cve.org/
+
+   For example: :cve:`2020-10735`
+
+   .. versionadded:: 8.1
+
+.. rst:role:: cwe
+
+   A reference to a `Common Weakness Enumeration`_.
+   This generates appropriate index entries.
+   The text "CWE *number*\ " is generated; in the HTML output,
+   with a link to an online copy of the specified CWE.
+   You can link to a specific section by using ``:cwe:`number#anchor```.
+
+   .. _Common Weakness Enumeration: https://cwe.mitre.org/
+
+   For example: :cwe:`787`
+
+   .. versionadded:: 8.1
 
 .. rst:role:: pep
 
@@ -261,7 +296,7 @@ The following roles generate external links:
    For example: :rfc:`2324`
 
 Note that there are no special roles for including hyperlinks as you can use
-the standard reST markup for that purpose.
+the standard reStructuredText markup for that purpose.
 
 
 .. _default-substitutions:
@@ -269,7 +304,7 @@ the standard reST markup for that purpose.
 Substitutions
 -------------
 
-The documentation system provides three substitutions that are defined by
+The documentation system provides some substitutions that are defined by
 default. They are set in the build configuration file.
 
 .. describe:: |release|
@@ -293,5 +328,5 @@ default. They are set in the build configuration file.
 .. describe:: |translation progress|
 
    Replaced by the translation progress of the document.
-   This substitution is intented for use by document translators
+   This substitution is intended for use by document translators
    as a marker for the translation progress of the document.

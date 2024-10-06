@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 import posixpath
 import traceback
 from importlib import import_module
@@ -20,13 +21,15 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
 from sphinx.util.display import status_iterator
 from sphinx.util.nodes import make_refnode
+from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
+    from collections.abc import Iterable, Iterator
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -79,9 +82,7 @@ def is_supported_builder(builder: Builder) -> bool:
         return False
     if builder.name == 'singlehtml':
         return False
-    if builder.name.startswith('epub') and not builder.config.viewcode_enable_epub:
-        return False
-    return True
+    return not (builder.name.startswith('epub') and not builder.config.viewcode_enable_epub)
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
@@ -185,6 +186,7 @@ def env_purge_doc(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
 
 class ViewcodeAnchorTransform(SphinxPostTransform):
     """Convert or remove viewcode_anchor nodes depends on builder."""
+
     default_priority = 100
 
     def run(self, **kwargs: Any) -> None:
@@ -230,7 +232,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     page_filename = path.join(app.outdir, '_modules/', basename)
 
     try:
-        if path.getmtime(module_filename) <= path.getmtime(page_filename):
+        if _last_modified_time(module_filename) <= _last_modified_time(page_filename):
             # generation is not needed if the HTML page is newer than module file.
             return False
     except OSError:
@@ -239,7 +241,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
     return True
 
 
-def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], None, None]:
+def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
@@ -254,7 +256,7 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
             sorted(env._viewcode_modules.items()),
             __('highlighting module code... '), "blue",
             len(env._viewcode_modules),
-            app.verbosity, lambda x: x[0]):
+            app.verbosity, operator.itemgetter(0)):
         if not entry:
             continue
         if not should_generate_module_page(app, modname):
@@ -340,11 +342,11 @@ def collect_pages(app: Sphinx) -> Generator[tuple[str, dict[str, Any], str], Non
     yield (posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html')
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
-    app.add_config_value('viewcode_import', None, False)
-    app.add_config_value('viewcode_enable_epub', False, False)
-    app.add_config_value('viewcode_follow_imported_members', True, False)
-    app.add_config_value('viewcode_line_numbers', False, 'env', (bool,))
+def setup(app: Sphinx) -> ExtensionMetadata:
+    app.add_config_value('viewcode_import', None, '')
+    app.add_config_value('viewcode_enable_epub', False, '')
+    app.add_config_value('viewcode_follow_imported_members', True, '')
+    app.add_config_value('viewcode_line_numbers', False, 'env', bool)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('env-purge-doc', env_purge_doc)

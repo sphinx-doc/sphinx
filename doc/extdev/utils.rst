@@ -3,6 +3,7 @@ Utilities
 
 Sphinx provides utility classes and functions to develop extensions.
 
+
 Base classes for components
 ---------------------------
 
@@ -30,8 +31,22 @@ components (e.g. :class:`.Config`, :class:`.BuildEnvironment` and so on) easily.
 .. autoclass:: sphinx.transforms.post_transforms.images.ImageConverter
    :members:
 
+
 Utility components
 ------------------
 
 .. autoclass:: sphinx.events.EventManager
+   :members:
+
+
+Utility functions
+-----------------
+
+.. autofunction:: sphinx.util.parsing.nested_parse_to_nodes
+
+
+Utility types
+-------------
+
+.. autoclass:: sphinx.util.typing.ExtensionMetadata
    :members:

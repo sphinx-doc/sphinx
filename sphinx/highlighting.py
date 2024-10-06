@@ -6,6 +6,7 @@ from functools import partial
 from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
+import pygments
 from pygments import highlight
 from pygments.filters import ErrorToken
 from pygments.formatters import HtmlFormatter, LatexFormatter
@@ -30,6 +31,11 @@ if TYPE_CHECKING:
     from pygments.lexer import Lexer
     from pygments.style import Style
 
+if tuple(map(int, pygments.__version__.split('.')))[:2] < (2, 18):
+    from pygments.formatter import Formatter  # NoQA: F811
+
+    Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
+
 logger = logging.getLogger(__name__)
 
 lexers: dict[str, Lexer] = {}
@@ -42,9 +48,11 @@ lexer_classes: dict[str, type[Lexer] | partial[Lexer]] = {
 }
 
 
-escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
-                   ord('{'): '\\PYGZob{}',
-                   ord('}'): '\\PYGZcb{}'}
+escape_hl_chars = {
+    ord('\\'): '\\PYGZbs{}',
+    ord('{'): '\\PYGZob{}',
+    ord('}'): '\\PYGZcb{}',
+}
 
 # used if Pygments is available
 # MEMO: no use of \protected here to avoid having to do hyperref extras,
@@ -57,7 +65,7 @@ escape_hl_chars = {ord('\\'): '\\PYGZbs{}',
 # MEMO: the Pygments escapes with \char`\<char> syntax, if the document
 # uses old OT1 font encoding, work correctly only in monospace font.
 # MEMO: the Pygmentize output mark-up is always with a {} after.
-_LATEX_ADD_STYLES = r'''
+_LATEX_ADD_STYLES = r"""
 % Sphinx redefinitions
 % Originally to obtain a straight single quote via package textcomp, then
 % to fix problems for the 5.0.0 inline code highlighting (captions!).
@@ -82,30 +90,34 @@ _LATEX_ADD_STYLES = r'''
 % use \protected to allow syntax highlighting in captions
 \protected\def\PYG#1#2{\PYG@reset\PYG@toks#1+\relax+{\PYG@do{#2}}}
 \makeatother
-'''
+"""
 
 
 class PygmentsBridge:
     # Set these attributes if you want to have different Pygments formatters
     # than the default ones.
-    html_formatter = HtmlFormatter
-    latex_formatter = LatexFormatter
+    html_formatter = HtmlFormatter[str]
+    latex_formatter = LatexFormatter[str]
 
-    def __init__(self, dest: str = 'html', stylename: str = 'sphinx',
-                 latex_engine: str | None = None) -> None:
+    def __init__(
+        self,
+        dest: str = 'html',
+        stylename: str = 'sphinx',
+        latex_engine: str | None = None,
+    ) -> None:
         self.dest = dest
         self.latex_engine = latex_engine
 
         style = self.get_style(stylename)
         self.formatter_args: dict[str, Any] = {'style': style}
         if dest == 'html':
-            self.formatter = self.html_formatter
+            self.formatter: type[Formatter[str]] = self.html_formatter
         else:
             self.formatter = self.latex_formatter
             self.formatter_args['commandprefix'] = 'PYG'
 
-    def get_style(self, stylename: str) -> Style:
-        if stylename is None or stylename == 'sphinx':
+    def get_style(self, stylename: str) -> type[Style]:
+        if not stylename or stylename == 'sphinx':
             return SphinxStyle
         elif stylename == 'none':
             return NoneStyle
@@ -119,8 +131,14 @@ class PygmentsBridge:
         kwargs.update(self.formatter_args)
         return self.formatter(**kwargs)
 
-    def get_lexer(self, source: str, lang: str, opts: dict | None = None,
-                  force: bool = False, location: Any = None) -> Lexer:
+    def get_lexer(
+        self,
+        source: str,
+        lang: str,
+        opts: dict | None = None,
+        force: bool = False,
+        location: Any = None,
+    ) -> Lexer:
         if not opts:
             opts = {}
 
@@ -146,8 +164,9 @@ class PygmentsBridge:
                 else:
                     lexer = get_lexer_by_name(lang, **opts)
             except ClassNotFound:
-                logger.warning(__('Pygments lexer name %r is not known'), lang,
-                               location=location)
+                logger.warning(
+                    __('Pygments lexer name %r is not known'), lang, location=location
+                )
                 lexer = lexer_classes['none'](**opts)
 
         if not force:
@@ -155,8 +174,15 @@ class PygmentsBridge:
 
         return lexer
 
-    def highlight_block(self, source: str, lang: str, opts: dict | None = None,
-                        force: bool = False, location: Any = None, **kwargs: Any) -> str:
+    def highlight_block(
+        self,
+        source: str,
+        lang: str,
+        opts: dict | None = None,
+        force: bool = False,
+        location: Any = None,
+        **kwargs: Any,
+    ) -> str:
         if not isinstance(source, str):
             source = source.decode()
 
@@ -173,11 +199,17 @@ class PygmentsBridge:
                 lang = 'none'  # automatic highlighting failed.
             else:
                 logger.warning(
-                    __('Lexing literal_block %r as "%s" resulted in an error at token: %r. '
-                       'Retrying in relaxed mode.'),
-                    source, lang, str(err),
-                    type='misc', subtype='highlighting_failure',
-                    location=location)
+                    __(
+                        'Lexing literal_block %r as "%s" resulted in an error at token: %r. '
+                        'Retrying in relaxed mode.'
+                    ),
+                    source,
+                    lang,
+                    str(err),
+                    type='misc',
+                    subtype='highlighting_failure',
+                    location=location,
+                )
                 if force:
                     lang = 'none'
                 else:

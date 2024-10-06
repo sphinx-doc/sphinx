@@ -1,16 +1,10 @@
 %% PAGE STYLING
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexstylepage.sty}[2021/01/27 page styling]
+\ProvidesPackage{sphinxlatexstylepage}[2021/01/27 page styling]
 
 % Separate paragraphs by space by default.
-\IfFileExists{parskip-2001-04-09.sty}% since September 2018 TeXLive update
-% new parskip.sty, but let it rollback to old one.
-% hopefully TeX installation not broken and LaTeX kernel not too old
-   {\RequirePackage{parskip}[=v1]}
-% standard one from 1989. Admittedly \section of article/book gives possibly
-% anomalous spacing, but we can't require September 2018 release for some time.
-   {\RequirePackage{parskip}}
+\RequirePackage{parskip}
 
 % Style parameters and macros used by most documents here
 \raggedbottom

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node, TextElement
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class HighlightSetting(NamedTuple):
@@ -32,11 +33,13 @@ class HighlightLanguageTransform(SphinxTransform):
     :rst:dir:`highlight` directive.  After processing, this transform
     removes ``highlightlang`` node from doctree.
     """
+
     default_priority = 400
 
     def apply(self, **kwargs: Any) -> None:
-        visitor = HighlightLanguageVisitor(self.document,
-                                           self.config.highlight_language)
+        visitor = HighlightLanguageVisitor(
+            self.document, self.config.highlight_language
+        )
         self.document.walkabout(visitor)
 
         for node in list(self.document.findall(addnodes.highlightlang)):
@@ -68,9 +71,9 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
         self.settings.pop()
 
     def visit_highlightlang(self, node: addnodes.highlightlang) -> None:
-        self.settings[-1] = HighlightSetting(node['lang'],
-                                             node['force'],
-                                             node['linenothreshold'])
+        self.settings[-1] = HighlightSetting(
+            node['lang'], node['force'], node['linenothreshold']
+        )
 
     def visit_literal_block(self, node: nodes.literal_block) -> None:
         setting = self.settings[-1]
@@ -79,7 +82,7 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
             node['force'] = setting.force
         if 'linenos' not in node:
             lines = node.astext().count('\n')
-            node['linenos'] = (lines >= setting.lineno_threshold - 1)
+            node['linenos'] = lines >= setting.lineno_threshold - 1
 
 
 class TrimDoctestFlagsTransform(SphinxTransform):
@@ -88,6 +91,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
 
     see :confval:`trim_doctest_flags` for more information.
     """
+
     default_priority = HighlightLanguageTransform.default_priority + 1
 
     def apply(self, **kwargs: Any) -> None:
@@ -128,7 +132,7 @@ class TrimDoctestFlagsTransform(SphinxTransform):
         return False
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(HighlightLanguageTransform)
     app.add_post_transform(TrimDoctestFlagsTransform)
 

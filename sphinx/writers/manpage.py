@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ManualPageWriter(Writer):
+class ManualPageWriter(Writer):  # type: ignore[misc]
     def __init__(self, builder: Builder) -> None:
         super().__init__()
         self.builder = builder
@@ -49,12 +49,13 @@ class NestedInlineTransform:
         <strong>foo=</strong><emphasis>var</emphasis>
         <strong>&bar=</strong><emphasis>2</emphasis>
     """
+
     def __init__(self, document: nodes.document) -> None:
         self.document = document
 
     def apply(self, **kwargs: Any) -> None:
         matcher = NodeMatcher(nodes.literal, nodes.emphasis, nodes.strong)
-        for node in list(self.document.findall(matcher)):  # type: nodes.TextElement
+        for node in list(matcher.findall(self.document)):
             if any(matcher(subnode) for subnode in node):
                 pos = node.parent.index(node)
                 for subnode in reversed(list(node)):
@@ -69,7 +70,7 @@ class NestedInlineTransform:
                     node.parent.remove(node)
 
 
-class ManualPageTranslator(SphinxTranslator, BaseTranslator):
+class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
     """
     Custom man page translator.
     """
@@ -97,8 +98,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
         if self.config.today:
             self._docinfo['date'] = self.config.today
         else:
-            self._docinfo['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
-                                                language=self.config.language)
+            today_fmt = self.config.today_fmt or _('%b %d, %Y')
+            self._docinfo['date'] = format_date(
+                today_fmt, language=self.config.language
+            )
         self._docinfo['copyright'] = self.config.copyright
         self._docinfo['version'] = self.config.version
         self._docinfo['manual_group'] = self.config.project
@@ -109,11 +112,12 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- added quotes around all .TH arguments
     def header(self) -> str:
-        tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
-                " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n")
+        tmpl = (
+            '.TH "%(title_upper)s" "%(manual_section)s"'
+            ' "%(date)s" "%(version)s" "%(manual_group)s"\n'
+        )
         if self._docinfo['subtitle']:
-            tmpl += (".SH NAME\n"
-                     "%(title)s \\- %(subtitle)s\n")
+            tmpl += '.SH NAME\n' '%(title)s \\- %(subtitle)s\n'
         return tmpl % self._docinfo
 
     def visit_start_of_file(self, node: Element) -> None:
@@ -244,7 +248,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
             super().visit_term(node)
 
     # overwritten -- we don't want source comments to show up
-    def visit_comment(self, node: Element) -> None:  # type: ignore[override]
+    def visit_comment(self, node: Element) -> None:
         raise nodes.SkipNode
 
     # overwritten -- added ensure_eol()
@@ -271,12 +275,10 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.ensure_eol()
-        names = []
         self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
         productionlist = cast(Iterable[addnodes.production], node)
-        for production in productionlist:
-            names.append(production['tokenname'])
+        names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
         for production in productionlist:
@@ -309,22 +311,32 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node: Element) -> None:
+        uri = node.get('refuri', '')
+        is_safe_to_click = uri.startswith(('mailto:', 'http:', 'https:', 'ftp:'))
+        if is_safe_to_click:
+            # OSC 8 link start (using groff's device control directive).
+            self.body.append(rf"\X'tty: link {uri}'")
+
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
-        self.visit_Text(node)  # type: ignore[arg-type]
+        self.visit_Text(node)
         self.body.append(self.defs['reference'][1])
 
-        uri = node.get('refuri', '')
-        if uri.startswith(('mailto:', 'http:', 'https:', 'ftp:')):
+        if uri and not uri.startswith('#'):
             # if configured, put the URL after the link
             if self.config.man_show_urls and node.astext() != uri:
-                if uri.startswith('mailto:'):
-                    uri = uri[7:]
+                uri = uri.removeprefix('mailto:')
                 self.body.extend([
                     ' <',
-                    self.defs['strong'][0], uri, self.defs['strong'][1],
-                    '>'])
+                    self.defs['strong'][0],
+                    uri,
+                    self.defs['strong'][1],
+                    '>',
+                ])
+        if is_safe_to_click:
+            # OSC 8 link end.
+            self.body.append(r"\X'tty: link'")
         raise nodes.SkipNode
 
     def visit_number_reference(self, node: Element) -> None:
@@ -414,13 +426,19 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
 
     # overwritten: handle section titles better than in 0.6 release
     def visit_caption(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+        if (
+            isinstance(node.parent, nodes.container)
+            and node.parent.get('literal_block')
+        ):  # fmt: skip
             self.body.append('.sp\n')
         else:
             super().visit_caption(node)
 
     def depart_caption(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+        if (
+            isinstance(node.parent, nodes.container)
+            and node.parent.get('literal_block')
+        ):  # fmt: skip
             self.body.append('\n')
         else:
             super().depart_caption(node)
@@ -435,8 +453,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):
                 # skip the document title
                 raise nodes.SkipNode
             elif self.section_level == 1:
-                self.body.append('.SH %s\n' %
-                                 self.deunicode(node.astext().upper()))
+                self.body.append(f'.SH {self.deunicode(node.astext().upper())}\n')
                 raise nodes.SkipNode
         return super().visit_title(node)
 

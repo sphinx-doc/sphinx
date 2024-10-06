@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ()
+
 import base64
 import contextlib
 import re
@@ -11,7 +13,7 @@ import tempfile
 from hashlib import sha1
 from os import path
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -33,13 +35,12 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.config import Config
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.util.typing import ExtensionMetadata
+    from sphinx.writers.html5 import HTML5Translator
 
 logger = logging.getLogger(__name__)
 
 templates_path = path.join(package_dir, 'templates', 'imgmath')
-
-__all__ = ()
 
 
 class MathExtError(SphinxError):
@@ -70,7 +71,7 @@ def read_svg_depth(filename: str) -> int | None:
     """Read the depth from comment at last line of SVG file
     """
     with open(filename, encoding="utf-8") as f:
-        for line in f:  # noqa: B007
+        for line in f:  # NoQA: B007
             pass
         # Only last line is checked
         matched = depthsvgcomment_re.match(line)
@@ -102,16 +103,17 @@ def generate_latex_macro(image_format: str,
     }
 
     if config.imgmath_use_preview:
-        template_name = 'preview.tex_t'
+        template_name = 'preview.tex'
     else:
-        template_name = 'template.tex_t'
+        template_name = 'template.tex'
 
     for template_dir in config.templates_path:
-        template = path.join(confdir, template_dir, template_name)
-        if path.exists(template):
-            return LaTeXRenderer().render(template, variables)
+        for template_suffix in ('.jinja', '_t'):
+            template = path.join(confdir, template_dir, template_name + template_suffix)
+            if path.exists(template):
+                return LaTeXRenderer().render(template, variables)
 
-    return LaTeXRenderer(templates_path).render(template_name, variables)
+    return LaTeXRenderer(templates_path).render(template_name + '.jinja', variables)
 
 
 def ensure_tempdir(builder: Builder) -> str:
@@ -140,7 +142,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
     command = [builder.config.imgmath_latex]
-    if imgmath_latex_name not in ['tectonic']:
+    if imgmath_latex_name != 'tectonic':
         command.append('--interaction=nonstopmode')
     # add custom args from the config file
     command.extend(builder.config.imgmath_latex_args)
@@ -149,7 +151,7 @@ def compile_math(latex: str, builder: Builder) -> str:
     try:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
-        if imgmath_latex_name in ['xelatex', 'tectonic']:
+        if imgmath_latex_name in {'xelatex', 'tectonic'}:
             return path.join(tempdir, 'math.xdv')
         else:
             return path.join(tempdir, 'math.dvi')
@@ -384,7 +386,7 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     raise nodes.SkipNode
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_html_math_renderer('imgmath',
                                (html_visit_math, None),
                                (html_visit_displaymath, None))
@@ -402,6 +404,6 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('imgmath_latex_preamble', '', 'html')
     app.add_config_value('imgmath_add_tooltips', True, 'html')
     app.add_config_value('imgmath_font_size', 12, 'html')
-    app.add_config_value('imgmath_embed', False, 'html', [bool])
+    app.add_config_value('imgmath_embed', False, 'html', bool)
     app.connect('build-finished', clean_up_files)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

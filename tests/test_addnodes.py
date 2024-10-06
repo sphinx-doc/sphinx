@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
 
 from sphinx import addnodes
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
-@pytest.fixture()
-def sig_elements() -> set[type[addnodes.desc_sig_element]]:
+
+@pytest.fixture
+def sig_elements() -> Iterator[set[type[addnodes.desc_sig_element]]]:
     """Fixture returning the current ``addnodes.SIG_ELEMENTS`` set."""
     original = addnodes.SIG_ELEMENTS.copy()  # safe copy of the current nodes
     yield {*addnodes.SIG_ELEMENTS}  # temporary value to use during tests
@@ -17,7 +22,6 @@ def sig_elements() -> set[type[addnodes.desc_sig_element]]:
 
 def test_desc_sig_element_nodes(sig_elements):
     """Test the registration of ``desc_sig_element`` subclasses."""
-
     # expected desc_sig_* node classes (must be declared *after* reloading
     # the module since otherwise the objects are not the correct ones)
     EXPECTED_SIG_ELEMENTS = {

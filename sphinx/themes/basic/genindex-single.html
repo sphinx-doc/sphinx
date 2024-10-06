@@ -1,12 +1,4 @@
-{#
-    basic/genindex-single.html
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    Template for a "single" page of a split index.
-
-    :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-#}
+{# Template for a "single" page of a split index. #}
 {% macro indexentries(firstname, links) %}
   {%- if links -%}
     <a href="{{ links[0][1] }}">
@@ -30,7 +22,8 @@
 {% set title = _('Index') %}
 {% block body %}
 
-<h1 id="index">{% trans key=key %}Index &ndash; {{ key }}{% endtrans %}</h1>
+{# We use ``&#x2013;`` instead of ``&ndash;`` for XHTML compatibility #}
+<h1 id="index">{% trans key=key %}Index &#x2013; {{ key }}{% endtrans %}</h1>
 
 <table style="width: 100%" class="indextable"><tr>
   {%- for column in entries|slice(2) if column %}

@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage
 
-english_stopwords = set("""
+english_stopwords = set(
+    """
 a  and  are  as  at
 be  but  by
 for
@@ -18,7 +17,8 @@ of  on  or
 such
 that  the  their  then  there  these  they  this  to
 was  will  with
-""".split())
+""".split()
+)
 
 js_porter_stemmer = """
 /**
@@ -213,7 +213,7 @@ class SearchEnglish(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('porter')
 
     def stem(self, word: str) -> str:

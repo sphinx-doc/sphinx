@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
 
 
-class XMLWriter(BaseXMLWriter):
+class XMLWriter(BaseXMLWriter):  # type: ignore[misc]
     output: str
 
     def __init__(self, builder: Builder) -> None:
@@ -18,19 +18,20 @@ class XMLWriter(BaseXMLWriter):
         self.builder = builder
 
         # A lambda function to generate translator lazily
-        self.translator_class = lambda document: self.builder.create_translator(document)
+        self.translator_class = lambda document: self.builder.create_translator(
+            document
+        )
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
-        self.document.settings.newlines = \
-            self.document.settings.indents = \
+        self.document.settings.newlines = self.document.settings.indents = (
             self.builder.env.config.xml_pretty
+        )
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
         return super().translate()
 
 
-class PseudoXMLWriter(BaseXMLWriter):
-
+class PseudoXMLWriter(BaseXMLWriter):  # type: ignore[misc]
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""
 
@@ -48,5 +49,5 @@ class PseudoXMLWriter(BaseXMLWriter):
         self.output = self.document.pformat()
 
     def supports(self, format: str) -> bool:
-        """This writer supports all format-specific elements."""
+        """All format-specific elements are supported."""
         return True

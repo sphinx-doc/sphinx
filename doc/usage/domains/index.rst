@@ -1,5 +1,7 @@
 .. highlight:: rst
 
+.. _usage-domains:
+
 =======
 Domains
 =======
@@ -121,7 +123,7 @@ This is particularly useful for literate programming:
    .. py:function:: spam(eggs)
       :no-typesetting:
 
-   .. code::
+   .. code:: python
 
       def spam(eggs):
           pass
@@ -156,19 +158,22 @@ giving the domain name, i.e. ::
 Cross-referencing syntax
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-For cross-reference roles provided by domains, the same facilities exist as for
-general cross-references.  See :ref:`xref-syntax`.
-
+For cross-reference roles provided by domains,
+the same :ref:`cross-referencing modifiers <xref-modifiers>` exist
+as for general cross-references.
 In short:
 
-* You may supply an explicit title and reference target: ``:role:`title
-  <target>``` will refer to *target*, but the link text will be *title*.
+* You may supply an explicit title and reference target:
+  ``:py:mod:`mathematical functions <math>``` will refer to the ``math`` module,
+  but the link text will be "mathematical functions".
 
-* If you prefix the content with ``!``, no reference/hyperlink will be created.
+* If you prefix the content with an exclamation mark (``!``),
+  no reference/hyperlink will be created.
 
 * If you prefix the content with ``~``, the link text will only be the last
-  component of the target.  For example, ``:py:meth:`~Queue.Queue.get``` will
-  refer to ``Queue.Queue.get`` but only display ``get`` as the link text.
+  component of the target.
+  For example, ``:py:meth:`~queue.Queue.get``` will
+  refer to ``queue.Queue.get`` but only display ``get`` as the link text.
 
 Built-in domains
 ----------------

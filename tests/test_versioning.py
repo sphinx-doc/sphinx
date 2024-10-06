@@ -22,7 +22,7 @@ def _setup_module(rootdir, sphinx_test_tempdir):
     app.connect('doctree-resolved', on_doctree_resolved)
     app.build()
     original = doctrees['original']
-    original_uids = [n.uid for n in add_uids(original, is_paragraph)]
+    original_uids = [n.uid for n in add_uids(original, is_paragraph)]  # type: ignore[attr-defined]
     yield
     app.cleanup()
 
@@ -115,6 +115,6 @@ def test_insert_similar():
     new_nodes = list(merge_doctrees(original, insert_similar, is_paragraph))
     uids = [n.uid for n in insert_similar.findall(is_paragraph)]
     assert len(new_nodes) == 1
-    assert new_nodes[0].rawsource == 'Anyway I need more'
+    assert new_nodes[0].rawsource == 'Anyway I need more'  # type: ignore[attr-defined]
     assert original_uids[0] == uids[0]
     assert original_uids[1:] == uids[2:]

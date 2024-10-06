@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -15,20 +15,21 @@ from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import process_index_entry
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Set
 
     from docutils.nodes import Node, system_message
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
 
 
 class IndexDomain(Domain):
-    """Mathematics domain."""
+    """Index domain."""
+
     name = 'index'
     label = 'index'
 
@@ -39,7 +40,7 @@ class IndexDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.entries.pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for docname in docnames:
             self.entries[docname] = otherdata['entries'][docname]
 
@@ -62,11 +63,12 @@ class IndexDirective(SphinxDirective):
     """
     Directive to add entries to the index.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'name': directives.unchanged,
     }
 
@@ -113,7 +115,7 @@ class IndexRole(ReferenceRole):
         return [index, target, text], []
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(IndexDomain)
     app.add_directive('index', IndexDirective)
     app.add_role('index', IndexRole())

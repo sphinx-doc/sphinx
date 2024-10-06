@@ -13,7 +13,7 @@ urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
 license.text = "BSD-2-Clause"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 # Classifiers list: https://pypi.org/classifiers/
 classifiers = [
@@ -30,7 +30,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -38,6 +37,7 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Framework :: Sphinx",
+    "Framework :: Sphinx :: Domain",
     "Framework :: Sphinx :: Extension",
     "Framework :: Sphinx :: Theme",
     "Topic :: Documentation",
@@ -55,23 +55,23 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "sphinxcontrib-applehelp",
-    "sphinxcontrib-devhelp",
-    "sphinxcontrib-jsmath",
-    "sphinxcontrib-htmlhelp>=2.0.0",
+    "sphinxcontrib-applehelp>=1.0.7",
+    "sphinxcontrib-devhelp>=1.0.6",
+    "sphinxcontrib-htmlhelp>=2.0.6",
+    "sphinxcontrib-jsmath>=1.0.1",
+    "sphinxcontrib-qthelp>=1.0.6",
     "sphinxcontrib-serializinghtml>=1.1.9",
-    "sphinxcontrib-qthelp",
-    "Jinja2>=3.0",
-    "Pygments>=2.14",
-    "docutils>=0.18.1,<0.21",
-    "snowballstemmer>=2.0",
-    "babel>=2.9",
-    "alabaster>=0.7,<0.8",
+    "Jinja2>=3.1",
+    "Pygments>=2.17",
+    "docutils>=0.20,<0.22",
+    "snowballstemmer>=2.2",
+    "babel>=2.13",
+    "alabaster>=0.7.14",
     "imagesize>=1.3",
-    "requests>=2.25.0",
-    "packaging>=21.0",
-    "importlib-metadata>=4.8; python_version < '3.10'",
-    "colorama>=0.4.5; sys_platform == 'win32'",
+    "requests>=2.30.0",
+    "packaging>=23.0",
+    "tomli>=2; python_version < '3.11'",
+    "colorama>=0.4.6; sys_platform == 'win32'",
 ]
 dynamic = ["version"]
 
@@ -80,21 +80,27 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "flake8>=3.5.0",
-    "flake8-simplify",
-    "isort",
-    "ruff",
-    "mypy>=0.990",
-    "sphinx-lint",
-    "docutils-stubs",
-    "types-requests",
+    "flake8>=6.0",
+    "ruff==0.6.8",
+    "mypy==1.11.1",
+    "sphinx-lint>=0.9",
+    "types-colorama==0.4.15.20240311",
+    "types-defusedxml==0.7.0.20240218",
+    "types-docutils==0.21.0.20241005",
+    "types-Pillow==10.2.0.20240822",
+    "types-Pygments==2.18.0.20240506",
+    "types-requests==2.32.0.20240914",  # align with requests
+    "types-urllib3==1.26.25.14",
+    "tomli>=2",  # for mypy (Python<=3.10)
+    "pyright==1.1.383",
+    "pytest>=6.0",
 ]
 test = [
-    "pytest>=4.6",
-    "html5lib",
+    "pytest>=8.0",
+    "defusedxml>=0.7.1", # for secure XML/HTML parsing
     "cython>=3.0",
-    "setuptools>=67.0",  # for Cython compilation
-    "filelock",
+    "setuptools>=70.0",  # for Cython compilation
+    "typing_extensions>=4.9",  # for typing_extensions.Unpack
 ]
 
 [[project.authors]]
@@ -130,305 +136,140 @@ exclude = [
     "doc/_build",
 ]
 
-[tool.isort]
-line_length = 95
-profile = "black"
-remove_redundant_aliases = true
-
-[tool.ruff]
-target-version = "py39"  # Pin Ruff to Python 3.9
-line-length = 95
-show-source = true
-exclude = [
-    ".git",
-    ".tox",
-    ".venv",
-    "tests/roots/*",
-    "build/*",
-    "doc/_build/*",
-    "sphinx/search/*",
-    "doc/usage/extensions/example*.py",
-]
-ignore = [
-    # pycodestyle
-    "E251",  # unexpected spaces around equals
-    "E721",  # do not compare types, use isinstance()
-    "E741",  # ambiguous variable name
-    "F821",  # undefined name
-    "W291",  # trailing whitespace
-    # flake8-builtins
-    "A001",  # variable is shadowing a python builtin
-    "A002",  # argument is shadowing a python builtin
-    "A003",  # class attribute is shadowing a python builtin
-    # flake8-annotations
-    "ANN001",  # missing type annotation for function argument
-    "ANN002",  # missing type annotation for *args
-    "ANN003",  # missing type annotation for **kwargs
-    "ANN101",  # missing type annotation for self in method
-    "ANN102",  # missing type annotation for cls in classmethod
-    "ANN201",  # missing type annotation for public function
-    "ANN202",  # missing type annotation for private function
-    "ANN204",  # missing type annotation for special method
-    "ANN205",  # missing type annotation for static method
-    "ANN206",  # missing type annotation for classmethod
-    "ANN401",  # dynamically typed expressions (typing.Any) are disallowed
-    # flake8-unused-arguments
-    "ARG001",  #  unused function argument
-    "ARG002",  #  unused method argument
-    "ARG003",  #  unused class method argument
-    "ARG005",  #  unused lambda argument
-    # flake8-blind-except
-    "BLE001",  # do not catch blind exception
-    # mccabe
-    "C901",  # ... is too complex
-    # pydocstyle
-    "D",
-    # flake8-django
-    "DJ",  # Django is not used in Sphinx
-    # eradicate
-    "ERA001",  # found commented-out code
-    # flake8-future-annotations
-    "FA100",  # missing from __future__ import annotations
-    "FA102",  # missing from __future__ import annotations
-    # flake8-boolean-trap
-    "FBT001",  # boolean positional arg in function definition
-    "FBT002",  # boolean default value in function definition
-    "FBT003",  # boolean positional value in function call
-    # flake8-fixme
-    "FIX001",  # line contains FIXME
-    "FIX002",  # line contains TODO
-    "FIX003",  # line contains XXX
-    "FIX004",  # line contains HACK
-    # flynt
-    "FLY002",  # Consider f-string instead of string join
-    # flake8-logging-format
-    "G002",  # logging statement uses `%`
-    "G003",  # logging statement uses `+`
-    # flake8-implicit-str-concat
-    "ISC001",  # implicitly concatenated string literals on one line
-    "ISC002",  # implicitly concatenated string literals over multiple lines
-    "ISC003",  # explicitly concatenated string should be implicitly concatenated
-    # pep8-naming
-    "N",
-    # NumPy-specific rules
-    "NPY",  # numpy is not used in Sphinx
-    # pandas-vet
-    "PD",  # pandas is not used in Sphinx
-    # Perflint
-    "PERF101",  # do not cast an iterable to list before iterating over it
-    "PERF102",  # use either dict.keys() or dict.values()
-    "PERF203",  # try-except within a loop incurs performance overhead
-    "PERF401",  # Use a list comprehension to create a transformed list
-    "PERF402",  # Use list or list.copy to create a copy of a list
-    # flake8-pie
-    "PIE790",   # unnecessary 'pass' statement
-    # pylint
-    "PLC0205",  # Class __slots__ should be a non-string iterable
-    "PLC0208",  # Use a sequence type instead of a set when iterating over values
-    "PLC1901",  # simplify truthy/falsey string comparisons
-    "PLR0124",  # Name compared with itself
-    "PLR1714",  # Consider merging multiple comparisons
-    "PLR2004",  # avoid magic values
-    "PLR0911",  # too many return statements
-    "PLR0912",  # too many branches
-    "PLR0913",  # too many arguments to function call
-    "PLR0915",  # too many statements
-    "PLR5501",  # consider using elif to remove an indentation level
-    "PLW0603",  # using the global statement to update variables is discouraged
-    "PLW2901",  # outer loop variable overwritten by inner assignment
-    # flake8-use-pathlib
-    "PTH",
-    # flake8-pyi
-    "PYI",
-    # flake8-quotes
-    "Q000",  # double quotes found but single quotes preferred
-    "Q001",  # single quote docstring found but double quotes preferred
-    # flake8-return
-    "RET503",  # missing explicit return at the end of function able to return non-None value
-    "RET504",  # unnecessary variable assignment before `return` statement
-    "RET505",  # unnecessary `else` after `return` statement
-    "RET506",  # Unnecessary {branch} after raise statement
-    # Ruff-specific rules
-    "RUF001",  # string contains ambiguous unicode character
-    "RUF003",  # comment contains ambiguous unicode character
-    "RUF005",  # consider unpacking instead of concatenation
-    "RUF012",  # mutable class attributes should be annotated with typing.ClassVar
-    "RUF013",  # PEP 484 prohibits implicit Optional
-    "RUF015",  # prefer next({iterable}) over single element slice
-    "RUF100",  # unused noqa directive
-    # flake8-bandit
-    "S101",  # assert used
-    "S105",  # possible hardcoded password
-    "S110",  # try/except/pass detected
-    "S113",  # probable use of requests call without timeout
-    "S301",  # 'pickle' unsafe when loading untrusted data
-    "S307",  # use of possibly insecure function (eval)
-    "S324",  # probable use of insecure hash functions
-    "S603",  # subprocess call: check for execution of untrusted input
-    "S607",  # Starting a process with a partial executable path
-    "S701",  # use autoescape=True for Jinja
-    # flake8-simplify
-    "SIM102", # nested 'if' statements
-    "SIM103", # return condition directly
-    "SIM108", # use ternary operator
-    # flake8-self
-    "SLF001",  # private member accessed
-    # flake8-todo
-    "TD001",  # invalid TODO tag
-    "TD002",  # missing author in TODO
-    "TD003",  # missing issue link on the line following this TODO
-    "TD004",  # missing colon in TODO
-    "TD005",  # missing issue description after TODO
-    # tryceratops
-    "TRY",
-    # pyupgrade
-    "UP031", # replace with format specifiers
-    "UP032", # use f-string instead of format call
-]
-external = [  # Whitelist for RUF100 unknown code warnings
-    "E704",
-    "SIM113",
-]
-select = [
-    "ALL",  # every check supported by Ruff
-    # nursery rules
-    "E111",  # Indentation is not a multiple of {indent_size}
-    "E112",  # Expected an indented block
-    "E113",  # Unexpected indentation
-    "E114",  # Indentation is not a multiple of {indent_size} (comment)
-    "E115",  # Expected an indented block (comment)
-    "E116",  # Unexpected indentation (comment)
-    "E117",  # Over-indented (comment)
-    "E201",  # Whitespace after '{symbol}'
-    "E201",  # Whitespace after '{symbol}'
-    "E202",  # Whitespace before '{symbol}'
-    "E203",  # Whitespace before '{punctuation}'
-    "E211",  # Whitespace before '{bracket}'
-    "E221",  # Multiple spaces before operator
-    "E222",  # Multiple spaces after operator
-    "E223",  # Tab before operator
-    "E224",  # Tab after operator
-    "E225",  # Missing whitespace around operator
-    "E226",  # Missing whitespace around arithmetic operator
-    "E227",  # Missing whitespace around bitwise or shift operator
-    "E228",  # Missing whitespace around modulo operator
-    "E231",  # Missing whitespace after '{token}'
-    "E241",  # Multiple spaces after comma
-    "E242",  # Tab after comma
-    "E252",  # Missing whitespace around parameter equals
-    "E261",  # Insert at least two spaces before an inline comment
-    "E262",  # Inline comment should start with `# `
-    "E265",  # Block comment should start with `# `
-    "E266",  # Too many leading `#` before block comment
-    "E271",  # Multiple spaces after keyword
-    "E272",  # Multiple spaces before keyword
-    "E273",  # Tab after keyword
-    "E274",  # Tab before keyword
-    "E275",  # Missing whitespace after keyword
-]
-
-[tool.ruff.per-file-ignores]
-"doc/conf.py" = ["INP001"]
-"doc/development/tutorials/examples/*" = ["INP001"]
-# allow print() in the tutorial
-"doc/development/tutorials/examples/recipe.py" = ["T201"]
-
-# from .flake8
-"sphinx/*" = ["E241"]
-
-# whitelist ``print`` for stdout messages
-"sphinx/cmd/build.py" = ["T201"]
-"sphinx/cmd/make_mode.py" = ["T201"]
-"sphinx/cmd/quickstart.py" = ["T201"]
-
-"sphinx/environment/collectors/toctree.py" = ["B026"]
-"sphinx/environment/adapters/toctree.py" = ["B026"]
-
-# whitelist ``print`` for stdout messages
-"sphinx/ext/intersphinx.py" = ["T201"]
-
-# whitelist ``print`` for stdout messages
-"sphinx/testing/fixtures.py" = ["T201"]
-
-# Ruff bug: https://github.com/astral-sh/ruff/issues/6540
-"sphinx/transforms/i18n.py" = ["PGH004"]
-
-"tests/*" = [
-    "E501",
-    "T201"  # whitelist ``print`` for tests
-]
-
-# these tests need old ``typing`` generic aliases
-"tests/test_util_typing.py" = ["UP006", "UP035"]
-"tests/typing_test_data.py" = ["UP006", "UP035"]
-
-# whitelist ``print`` for stdout messages
-"utils/*" = ["T201"]
-
-[tool.ruff.flake8-quotes]
-inline-quotes = "single"
-
 [tool.mypy]
-check_untyped_defs = true
-disallow_incomplete_defs = true
-follow_imports = "skip"
-ignore_missing_imports = true
-no_implicit_optional = true
-python_version = "3.9"
+files = [
+    "doc/conf.py",
+    "sphinx",
+    "tests",
+    "utils",
+]
+exclude = [
+    "tests/roots",
+    # tests/
+    "^tests/test_quickstart\\.py$",
+    "^tests/test_search\\.py$",
+    # tests/test_builders
+    "^tests/test_builders/test_build_epub\\.py$",
+    "^tests/test_builders/test_build_gettext\\.py$",
+    "^tests/test_builders/test_build_latex\\.py$",
+    "^tests/test_builders/test_build_texinfo\\.py$",
+    # tests/test_config
+    "^tests/test_config/test_config\\.py$",
+    # tests/test_directives
+    "^tests/test_directives/test_directive_only\\.py$",
+    "^tests/test_directives/test_directive_other\\.py$",
+    "^tests/test_directives/test_directive_patch\\.py$",
+    # tests/test_domains
+    "^tests/test_domains/test_domain_c\\.py$",
+    "^tests/test_domains/test_domain_cpp\\.py$",
+    "^tests/test_domains/test_domain_js\\.py$",
+    "^tests/test_domains/test_domain_py\\.py$",
+    "^tests/test_domains/test_domain_py_fields\\.py$",
+    "^tests/test_domains/test_domain_py_pyfunction\\.py$",
+    "^tests/test_domains/test_domain_py_pyobject\\.py$",
+    "^tests/test_domains/test_domain_rst\\.py$",
+    "^tests/test_domains/test_domain_std\\.py$",
+    # tests/test_environment
+    "^tests/test_environment/test_environment_toctree\\.py$",
+    # tests/test_extensions
+    "^tests/test_extensions/test_ext_apidoc\\.py$",
+    "^tests/test_extensions/test_ext_autodoc\\.py$",
+    "^tests/test_extensions/test_ext_autodoc_events\\.py$",
+    "^tests/test_extensions/test_ext_autodoc_mock\\.py$",
+    "^tests/test_extensions/test_ext_autosummary\\.py$",
+    "^tests/test_extensions/test_ext_doctest\\.py$",
+    "^tests/test_extensions/test_ext_inheritance_diagram\\.py$",
+    "^tests/test_extensions/test_ext_intersphinx\\.py$",
+    "^tests/test_extensions/test_ext_napoleon_docstring\\.py$",
+    # tests/test_intl
+    "^tests/test_intl/test_intl\\.py$",
+    # tests/test_pycode
+    "^tests/test_pycode/test_pycode\\.py$",
+    "^tests/test_pycode/test_pycode_ast\\.py$",
+    # tests/test_transforms
+    "^tests/test_transforms/test_transforms_post_transforms\\.py$",
+    # tests/test_util
+    "^tests/test_util/test_util_fileutil\\.py$",
+    "^tests/test_util/test_util_i18n\\.py$",
+    "^tests/test_util/test_util_inspect\\.py$",
+    "^tests/test_util/test_util_logging\\.py$",
+    "^tests/test_util/test_util_nodes\\.py$",
+    "^tests/test_util/test_util_rst\\.py$",
+    "^tests/test_util/test_util_template\\.py$",
+    "^tests/test_util/test_util_typing\\.py$",
+    "^tests/test_util/typing_test_data\\.py$",
+    # tests/test_writers
+]
+python_version = "3.10"
+strict = true
 show_column_numbers = true
-show_error_codes = true
 show_error_context = true
-strict_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-disallow_any_generics = true
+strict_equality = false
+warn_return_any = false
+enable_error_code = [
+    "type-arg",
+    "redundant-self",
+    "truthy-iterable",
+    "ignore-without-code",
+    "unused-awaitable",
+]
 
 [[tool.mypy.overrides]]
 module = [
     "sphinx.domains.c",
+    "sphinx.domains.c._ast",
+    "sphinx.domains.c._parser",
+    "sphinx.domains.c._symbol",
     "sphinx.domains.cpp",
+    "sphinx.domains.cpp._ast",
+    "sphinx.domains.cpp._parser",
+    "sphinx.domains.cpp._symbol",
 ]
 strict_optional = false
 
 [[tool.mypy.overrides]]
 module = [
     "sphinx.application",
-    "sphinx.builders._epub_base",
-    "sphinx.builders.html",
-    "sphinx.builders.linkcheck",
-    "sphinx.cmd.quickstart",
     "sphinx.config",
     "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.environment.*",
     "sphinx.events",
-    "sphinx.ext.*",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autodoc.importer",
+    "sphinx.ext.doctest",
+    "sphinx.ext.graphviz",
+    "sphinx.ext.inheritance_diagram",
     "sphinx.highlighting",
     "sphinx.jinja2glue",
     "sphinx.registry",
-    "sphinx.roles",
-    "sphinx.search.*",
-    "sphinx.testing.*",
-    "sphinx.util",
-    "sphinx.util.display",
+    "sphinx.search",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
-    "sphinx.util.fileutil",
-    "sphinx.util.i18n",
     "sphinx.util.inspect",
-    "sphinx.util.inventory",
     "sphinx.util.logging",
-    "sphinx.util.nodes",
     "sphinx.util.parallel",
-    "sphinx.util.template",
 ]
 disallow_any_generics = false
 
+[[tool.mypy.overrides]]
+module = [
+    "imagesize",
+    "snowballstemmer",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+]
+disallow_untyped_defs = false
+
 [tool.pytest.ini_options]
-minversion = 4.6
+minversion = "6.0"
 addopts = [
-    "--import-mode=importlib",
+    "-ra",
+    "--import-mode=prepend",
 #    "--pythonwarnings=error",
     "--strict-config",
     "--strict-markers",
@@ -437,9 +278,12 @@ empty_parameter_set_mark = "xfail"
 filterwarnings = [
     "all",
     "ignore::DeprecationWarning:docutils.io",
+    "ignore:Distutils was imported before Setuptools:UserWarning:_distutils_hack",
+    "ignore:Setuptools is replacing distutils:UserWarning:_distutils_hack",
     "ignore::DeprecationWarning:pyximport.pyximport",
     "ignore::ImportWarning:importlib._bootstrap",
 ]
+log_cli_level = "INFO"
 markers = [
     "apidoc",
 ]
@@ -461,3 +305,62 @@ exclude_lines = [
     'if __name__ == .__main__.:',
 ]
 ignore_errors = true
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = [
+    "doc/conf.py",
+    "utils", 
+    "sphinx",
+    "tests", 
+]
+
+reportArgumentType = "none"
+reportAssignmentType = "none"
+reportAttributeAccessIssue = "none"
+reportCallIssue = "none"
+reportConstantRedefinition = "none"
+reportDeprecated = "none"
+reportGeneralTypeIssues = "none"
+reportIncompatibleMethodOverride = "none"
+reportIncompatibleVariableOverride = "none"
+reportInconsistentOverload = "none"
+reportIndexIssue = "none"
+reportInvalidTypeArguments = "none"
+reportInvalidTypeForm = "none"
+reportInvalidTypeVarUse = "none"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"
+reportMissingParameterType = "none"
+reportMissingTypeArgument = "none"
+reportMissingTypeStubs = "none"
+reportOperatorIssue = "none"
+reportOptionalIterable = "none"
+reportOptionalMemberAccess = "none"
+reportOptionalOperand = "none"
+reportOptionalSubscript = "none"
+reportPossiblyUnboundVariable = "none"
+reportPrivateUsage = "none"
+reportRedeclaration = "none"
+reportReturnType = "none"
+reportSelfClsParameterName = "none"
+reportTypeCommentUsage = "none"
+reportTypedDictNotRequiredAccess = "none"
+reportUndefinedVariable = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnknownMemberType = "none"
+reportUnknownParameterType = "none"
+reportUnknownVariableType = "none"
+reportUnnecessaryComparison = "none"
+reportUnnecessaryContains = "none"
+reportUnnecessaryIsInstance = "none"
+reportUnsupportedDunderAll = "none"
+reportUntypedBaseClass = "none"
+reportUntypedFunctionDecorator = "none"
+reportUntypedNamedTuple = "none"
+reportUnusedClass = "none"
+reportUnusedFunction = "none"
+reportUnusedImport = "none"
+reportUnusedVariable = "none"
+reportWildcardImportFromLibrary = "none"

@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import logging.handlers
 from collections import defaultdict
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
@@ -16,7 +16,8 @@ from sphinx.util.console import colorize
 from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator, Sequence, Set
+    from typing import NoReturn
 
     from docutils.nodes import Node
 
@@ -26,27 +27,36 @@ if TYPE_CHECKING:
 NAMESPACE = 'sphinx'
 VERBOSE = 15
 
-LEVEL_NAMES: defaultdict[str, int] = defaultdict(lambda: logging.WARNING, {
-    'CRITICAL': logging.CRITICAL,
-    'SEVERE': logging.CRITICAL,
-    'ERROR': logging.ERROR,
-    'WARNING': logging.WARNING,
-    'INFO': logging.INFO,
-    'VERBOSE': VERBOSE,
-    'DEBUG': logging.DEBUG,
-})
+LEVEL_NAMES: defaultdict[str, int] = defaultdict(
+    lambda: logging.WARNING,
+    {
+        'CRITICAL': logging.CRITICAL,
+        'SEVERE': logging.CRITICAL,
+        'ERROR': logging.ERROR,
+        'WARNING': logging.WARNING,
+        'INFO': logging.INFO,
+        'VERBOSE': VERBOSE,
+        'DEBUG': logging.DEBUG,
+    },
+)
 
-VERBOSITY_MAP: defaultdict[int, int] = defaultdict(lambda: logging.NOTSET, {
-    0: logging.INFO,
-    1: VERBOSE,
-    2: logging.DEBUG,
-})
+VERBOSITY_MAP: defaultdict[int, int] = defaultdict(
+    lambda: logging.NOTSET,
+    {
+        0: logging.INFO,
+        1: VERBOSE,
+        2: logging.DEBUG,
+    },
+)
 
-COLOR_MAP: defaultdict[int, str] = defaultdict(lambda: 'blue', {
-    logging.ERROR: 'darkred',
-    logging.WARNING: 'red',
-    logging.DEBUG: 'darkgray',
-})
+COLOR_MAP: defaultdict[int, str] = defaultdict(
+    lambda: 'blue',
+    {
+        logging.ERROR: 'darkred',
+        logging.WARNING: 'red',
+        logging.DEBUG: 'darkgray',
+    },
+)
 
 
 def getLogger(name: str) -> SphinxLoggerAdapter:
@@ -85,6 +95,7 @@ def convert_serializable(records: list[logging.LogRecord]) -> None:
 
 class SphinxLogRecord(logging.LogRecord):
     """Log record class supporting location"""
+
     prefix = ''
     location: Any = None
 
@@ -101,11 +112,13 @@ class SphinxLogRecord(logging.LogRecord):
 
 class SphinxInfoLogRecord(SphinxLogRecord):
     """Info log record class supporting location"""
+
     prefix = ''  # do not show any prefix for INFO messages
 
 
 class SphinxWarningLogRecord(SphinxLogRecord):
     """Warning log record class supporting location"""
+
     @property
     def prefix(self) -> str:  # type: ignore[override]
         if self.levelno >= logging.CRITICAL:
@@ -118,10 +131,11 @@ class SphinxWarningLogRecord(SphinxLogRecord):
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
+
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
 
     def log(  # type: ignore[override]
-        self, level: int | str, msg: str, *args: Any, **kwargs: Any,
+        self, level: int | str, msg: str, *args: Any, **kwargs: Any
     ) -> None:
         if isinstance(level, int):
             super().log(level, msg, *args, **kwargs)
@@ -143,9 +157,56 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def handle(self, record: logging.LogRecord) -> None:
         self.logger.handle(record)
 
+    def warning(  # type: ignore[override]
+        self,
+        msg: object,
+        *args: object,
+        type: None | str = None,
+        subtype: None | str = None,
+        location: None | str | tuple[str | None, int | None] | Node = None,
+        nonl: bool = True,
+        color: str | None = None,
+        once: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        """Log a sphinx warning.
+
+        It is recommended to include a ``type`` and ``subtype`` for warnings as
+        these can be displayed to the user using :confval:`show_warning_types`
+        and used in :confval:`suppress_warnings` to suppress specific warnings.
+
+        It is also recommended to specify a ``location`` whenever possible
+        to help users in correcting the warning.
+
+        :param msg: The message, which may contain placeholders for ``args``.
+        :param args: The arguments to substitute into ``msg``.
+        :param type: The type of the warning.
+        :param subtype: The subtype of the warning.
+        :param location: The source location of the warning's origin,
+            which can be a string (the ``docname`` or ``docname:lineno``),
+            a tuple of ``(docname, lineno)``,
+            or the docutils node object.
+        :param nonl: Whether to append a new line terminator to the message.
+        :param color: A color code for the message.
+        :param once: Do not log this warning,
+            if a previous warning already has same ``msg``, ``args`` and ``once=True``.
+        """
+        return super().warning(
+            msg,
+            *args,
+            type=type,
+            subtype=subtype,
+            location=location,
+            nonl=nonl,
+            color=color,
+            once=once,
+            **kwargs,
+        )
+
 
 class WarningStreamHandler(logging.StreamHandler):
     """StreamHandler for warnings."""
+
     pass
 
 
@@ -195,7 +256,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
 
 @contextmanager
-def pending_warnings() -> Generator[logging.Handler, None, None]:
+def pending_warnings() -> Iterator[logging.Handler]:
     """Context manager to postpone logging warnings temporarily.
 
     Similar to :func:`pending_logging`.
@@ -223,7 +284,7 @@ def pending_warnings() -> Generator[logging.Handler, None, None]:
 
 
 @contextmanager
-def suppress_logging() -> Generator[MemoryHandler, None, None]:
+def suppress_logging() -> Iterator[MemoryHandler]:
     """Context manager to suppress logging all logs temporarily.
 
     For example::
@@ -252,7 +313,7 @@ def suppress_logging() -> Generator[MemoryHandler, None, None]:
 
 
 @contextmanager
-def pending_logging() -> Generator[MemoryHandler, None, None]:
+def pending_logging() -> Iterator[MemoryHandler]:
     """Context manager to postpone logging all logs temporarily.
 
     For example::
@@ -271,28 +332,11 @@ def pending_logging() -> Generator[MemoryHandler, None, None]:
         memhandler.flushTo(logger)
 
 
-@contextmanager
-def skip_warningiserror(skip: bool = True) -> Generator[None, None, None]:
-    """Context manager to skip WarningIsErrorFilter temporarily."""
-    logger = logging.getLogger(NAMESPACE)
-
-    if skip is False:
-        yield
-    else:
-        try:
-            disabler = DisableWarningIsErrorFilter()
-            for handler in logger.handlers:
-                # use internal method; filters.insert() directly to install disabler
-                # before WarningIsErrorFilter
-                handler.filters.insert(0, disabler)
-            yield
-        finally:
-            for handler in logger.handlers:
-                handler.removeFilter(disabler)
+skip_warningiserror = nullcontext  # Deprecate in Sphinx 10
 
 
 @contextmanager
-def prefixed_warnings(prefix: str) -> Generator[None, None, None]:
+def prefixed_warnings(prefix: str) -> Iterator[None]:
     """Context manager to prepend prefix to all warning log records temporarily.
 
     For example::
@@ -342,7 +386,7 @@ class LogCollector:
         self.logs: list[logging.LogRecord] = []
 
     @contextmanager
-    def collect(self) -> Generator[None, None, None]:
+    def collect(self) -> Iterator[None]:
         with pending_logging() as memhandler:
             yield
 
@@ -356,23 +400,33 @@ class InfoFilter(logging.Filter):
         return record.levelno < logging.WARNING
 
 
-def is_suppressed_warning(type: str, subtype: str, suppress_warnings: list[str]) -> bool:
+class _RaiseOnWarningFilter(logging.Filter):
+    """Raise exception if a warning is emitted."""
+
+    def filter(self, record: logging.LogRecord) -> NoReturn:
+        try:
+            message = record.msg % record.args
+        except (TypeError, ValueError):
+            message = record.msg  # use record.msg itself
+        if location := getattr(record, 'location', ''):
+            message = f'{location}:{message}'
+        if record.exc_info is not None:
+            raise SphinxWarning(message) from record.exc_info[1]
+        raise SphinxWarning(message)
+
+
+def is_suppressed_warning(
+    warning_type: str, sub_type: str, suppress_warnings: Set[str] | Sequence[str]
+) -> bool:
     """Check whether the warning is suppressed or not."""
-    if type is None:
+    if warning_type is None or len(suppress_warnings) == 0:
         return False
-
-    subtarget: str | None
-
-    for warning_type in suppress_warnings:
-        if '.' in warning_type:
-            target, subtarget = warning_type.split('.', 1)
-        else:
-            target, subtarget = warning_type, None
-
-        if target == type and subtarget in (None, subtype, "*"):
-            return True
-
-    return False
+    suppressed_warnings = frozenset(suppress_warnings)
+    if warning_type in suppressed_warnings:
+        return True
+    if f'{warning_type}.*' in suppressed_warnings:
+        return True
+    return f'{warning_type}.{sub_type}' in suppressed_warnings
 
 
 class WarningSuppressor(logging.Filter):
@@ -390,51 +444,13 @@ class WarningSuppressor(logging.Filter):
             suppress_warnings = self.app.config.suppress_warnings
         except AttributeError:
             # config is not initialized yet (ex. in conf.py)
-            suppress_warnings = []
+            suppress_warnings = ()
 
         if is_suppressed_warning(type, subtype, suppress_warnings):
             return False
         else:
             self.app._warncount += 1
             return True
-
-
-class WarningIsErrorFilter(logging.Filter):
-    """Raise exception if warning emitted."""
-
-    def __init__(self, app: Sphinx) -> None:
-        self.app = app
-        super().__init__()
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        if getattr(record, 'skip_warningsiserror', False):
-            # disabled by DisableWarningIsErrorFilter
-            return True
-        elif self.app.warningiserror:
-            location = getattr(record, 'location', '')
-            try:
-                message = record.msg % record.args
-            except (TypeError, ValueError):
-                message = record.msg  # use record.msg itself
-
-            if location:
-                exc = SphinxWarning(location + ":" + str(message))
-            else:
-                exc = SphinxWarning(message)
-            if record.exc_info is not None:
-                raise exc from record.exc_info[1]
-            else:
-                raise exc
-        else:
-            return True
-
-
-class DisableWarningIsErrorFilter(logging.Filter):
-    """Disable WarningIsErrorFilter if this filter installed."""
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        record.skip_warningsiserror = True
-        return True
 
 
 class MessagePrefixFilter(logging.Filter):
@@ -475,7 +491,9 @@ class SphinxLogRecordTranslator(logging.Filter):
 
     * Make a instance of SphinxLogRecord
     * docname to path if location given
+    * append warning type/subtype to message if :confval:`show_warning_types` is ``True``
     """
+
     LogRecordClass: type[logging.LogRecord]
 
     def __init__(self, app: Sphinx) -> None:
@@ -507,24 +525,41 @@ class SphinxLogRecordTranslator(logging.Filter):
 
 class InfoLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for INFO level log records."""
+
     LogRecordClass = SphinxInfoLogRecord
 
 
 class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     """LogRecordTranslator for WARNING level log records."""
+
     LogRecordClass = SphinxWarningLogRecord
+
+    def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
+        ret = super().filter(record)
+
+        try:
+            show_warning_types = self.app.config.show_warning_types
+        except AttributeError:
+            # config is not initialized yet (ex. in conf.py)
+            show_warning_types = False
+        if show_warning_types:
+            if log_type := getattr(record, 'type', ''):
+                if log_subtype := getattr(record, 'subtype', ''):
+                    record.msg += f' [{log_type}.{log_subtype}]'
+                else:
+                    record.msg += f' [{log_type}]'
+
+        return ret
 
 
 def get_node_location(node: Node) -> str | None:
     source, line = get_source_line(node)
-    if source:
-        source = abspath(source)
     if source and line:
-        return f"{source}:{line}"
+        return f'{abspath(source)}:{line}'
     if source:
-        return f"{source}:"
+        return f'{abspath(source)}:'
     if line:
-        return f"<unknown>:{line}"
+        return f'<unknown>:{line}'
     return None
 
 
@@ -543,6 +578,7 @@ class ColorizeFormatter(logging.Formatter):
 
 class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
+
     def __init__(self, stream: IO) -> None:
         self.stream = stream
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
@@ -553,7 +589,9 @@ class SafeEncodingWriter:
         except UnicodeEncodeError:
             # stream accept only str, not bytes.  So, we encode and replace
             # non-encodable characters, then decode them.
-            self.stream.write(data.encode(self.encoding, 'replace').decode(self.encoding))
+            self.stream.write(
+                data.encode(self.encoding, 'replace').decode(self.encoding)
+            )
 
     def flush(self) -> None:
         if hasattr(self.stream, 'flush'):
@@ -562,6 +600,7 @@ class SafeEncodingWriter:
 
 class LastMessagesWriter:
     """Stream writer storing last 10 messages in memory to save trackback"""
+
     def __init__(self, app: Sphinx, stream: IO) -> None:
         self.app = app
 
@@ -586,9 +625,10 @@ def setup(app: Sphinx, status: IO, warning: IO) -> None:
     info_handler.setFormatter(ColorizeFormatter())
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
+    if app._exception_on_warning:
+        warning_handler.addFilter(_RaiseOnWarningFilter())
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
-    warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.addFilter(OnceFilter())
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())

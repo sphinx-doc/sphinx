@@ -25,24 +25,27 @@ SPHINX_VERSION_PREFIX = 'Sphinx=='
 
 for file in DOCKERFILE_BASE, DOCKERFILE_LATEXPDF:
     content = file.read_text(encoding='utf-8')
-    content = re.sub(rf'{re.escape(OPENCONTAINERS_VERSION_PREFIX)} = "{VERSION_PATTERN}"',
-                     rf'{OPENCONTAINERS_VERSION_PREFIX} = "{VERSION}"',
-                     content)
-    content = re.sub(rf'{re.escape(SPHINX_VERSION_PREFIX)}{VERSION_PATTERN}',
-                     rf'{SPHINX_VERSION_PREFIX}{VERSION}',
-                     content)
+    content = re.sub(
+        rf'{re.escape(OPENCONTAINERS_VERSION_PREFIX)}="{VERSION_PATTERN}"',
+        rf'{OPENCONTAINERS_VERSION_PREFIX}="{VERSION}"',
+        content,
+    )
+    content = re.sub(
+        rf'{re.escape(SPHINX_VERSION_PREFIX)}{VERSION_PATTERN}',
+        rf'{SPHINX_VERSION_PREFIX}{VERSION}',
+        content,
+    )
     file.write_text(content, encoding='utf-8')
 
 
-def git(*args):
-    ret = subprocess.run(('git', *args),
-                         capture_output=True,
-                         cwd=DOCKER_ROOT,
-                         check=True,
-                         text=True,
-                         encoding='utf-8')
-    print(ret.stdout)
-    print(ret.stderr, file=sys.stderr)
+def git(*args: str) -> None:
+    subprocess.run(
+        ('git', *args),
+        cwd=DOCKER_ROOT,
+        check=True,
+        text=True,
+        encoding='utf-8',
+    )
 
 
 git('checkout', 'master')

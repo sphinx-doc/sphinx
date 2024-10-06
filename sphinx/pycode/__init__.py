@@ -52,7 +52,9 @@ class ModuleAnalyzer:
             try:
                 filename = loader.get_filename(modname)
             except ImportError as err:
-                raise PycodeError('error getting filename for %r' % modname, err) from err
+                raise PycodeError(
+                    'error getting filename for %r' % modname, err
+                ) from err
         if filename is None:
             # all methods for getting filename failed, so raise...
             raise PycodeError('no source found for module %r' % modname)
@@ -69,12 +71,18 @@ class ModuleAnalyzer:
         return filename, None
 
     @classmethod
-    def for_string(cls, string: str, modname: str, srcname: str = '<string>',
-                   ) -> ModuleAnalyzer:
+    def for_string(
+        cls: type[ModuleAnalyzer],
+        string: str,
+        modname: str,
+        srcname: str = '<string>',
+    ) -> ModuleAnalyzer:
         return cls(string, modname, srcname)
 
     @classmethod
-    def for_file(cls, filename: str, modname: str) -> ModuleAnalyzer:
+    def for_file(
+        cls: type[ModuleAnalyzer], filename: str, modname: str
+    ) -> ModuleAnalyzer:
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
@@ -87,7 +95,7 @@ class ModuleAnalyzer:
         return obj
 
     @classmethod
-    def for_module(cls, modname: str) -> ModuleAnalyzer:
+    def for_module(cls: type[ModuleAnalyzer], modname: str) -> ModuleAnalyzer:
         if ('module', modname) in cls.cache:
             entry = cls.cache['module', modname]
             if isinstance(entry, PycodeError):
@@ -125,9 +133,9 @@ class ModuleAnalyzer:
             parser.parse()
 
             self.attr_docs = {}
-            for (scope, comment) in parser.comments.items():
+            for scope, comment in parser.comments.items():
                 if comment:
-                    self.attr_docs[scope] = comment.splitlines() + ['']
+                    self.attr_docs[scope] = [*comment.splitlines(), '']
                 else:
                     self.attr_docs[scope] = ['']
 

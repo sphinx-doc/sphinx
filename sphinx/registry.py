@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import sys
 import traceback
 from importlib import import_module
+from importlib.metadata import entry_points
 from types import MethodType
-from typing import TYPE_CHECKING, Any, Callable
-
-if sys.version_info >= (3, 10):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
+from typing import TYPE_CHECKING, Any
 
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
@@ -25,7 +20,7 @@ from sphinx.util import logging
 from sphinx.util.logging import prefixed_warnings
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
 
     from docutils import nodes
     from docutils.core import Publisher
@@ -39,7 +34,12 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
-    from sphinx.util.typing import RoleFunction, TitleGetter
+    from sphinx.util.typing import (
+        ExtensionMetadata,
+        RoleFunction,
+        TitleGetter,
+        _ExtensionSetupFunc,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -47,15 +47,17 @@ logger = logging.getLogger(__name__)
 # Values are Sphinx version that merge the extension.
 EXTENSION_BLACKLIST = {
     "sphinxjp.themecore": "1.2",
+    'sphinxcontrib-napoleon': '1.3',
+    "sphinxprettysearchresults": "2.0.0",
 }
 
 
 class SphinxComponentRegistry:
     def __init__(self) -> None:
         #: special attrgetter for autodoc; class object -> attrgetter
-        self.autodoc_attrgettrs: dict[type, Callable[[Any, str, Any], Any]] = {}
+        self.autodoc_attrgetters: dict[type, Callable[[Any, str, Any], Any]] = {}
 
-        #: builders; a dict of builder name -> bulider class
+        #: builders; a dict of builder name -> builder class
         self.builders: dict[str, type[Builder]] = {}
 
         #: autodoc documenters; a dict of documenter name -> documenter class
@@ -111,7 +113,7 @@ class SphinxComponentRegistry:
         #: post transforms; list of transforms
         self.post_transforms: list[type[Transform]] = []
 
-        #: source paresrs; file type -> parser class
+        #: source parsers; file type -> parser class
         self.source_parsers: dict[str, type[Parser]] = {}
 
         #: source suffix: suffix -> file type
@@ -129,6 +131,10 @@ class SphinxComponentRegistry:
 
         # private cache of Docutils Publishers (file type -> publisher object)
         self.publishers: dict[str, Publisher] = {}
+
+    @property
+    def autodoc_attrgettrs(self) -> dict[type, Callable[[Any, str, Any], Any]]:
+        return self.autodoc_attrgetters
 
     def add_builder(self, builder: type[Builder], override: bool = False) -> None:
         logger.debug('[app] adding builder: %r', builder)
@@ -375,7 +381,7 @@ class SphinxComponentRegistry:
 
     def add_autodoc_attrgetter(self, typ: type,
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
-        self.autodoc_attrgettrs[typ] = attrgetter
+        self.autodoc_attrgetters[typ] = attrgetter
 
     def add_css_files(self, filename: str, **attributes: Any) -> None:
         self.css_files.append((filename, attributes))
@@ -450,11 +456,11 @@ class SphinxComponentRegistry:
                 raise ExtensionError(__('Could not import extension %s') % extname,
                                      err) from err
 
-            setup = getattr(mod, 'setup', None)
+            setup: _ExtensionSetupFunc | None = getattr(mod, 'setup', None)
             if setup is None:
                 logger.warning(__('extension %r has no setup() function; is it really '
                                   'a Sphinx extension module?'), extname)
-                metadata: dict[str, Any] = {}
+                metadata: ExtensionMetadata = {}
             else:
                 try:
                     metadata = setup(app)
@@ -476,7 +482,7 @@ class SphinxComponentRegistry:
 
             app.extensions[extname] = Extension(extname, mod, **metadata)
 
-    def get_envversion(self, app: Sphinx) -> dict[str, str]:
+    def get_envversion(self, app: Sphinx) -> dict[str, int]:
         from sphinx.environment import ENV_VERSION
         envversion = {ext.name: ext.metadata['env_version'] for ext in app.extensions.values()
                       if ext.metadata.get('env_version')}
@@ -498,16 +504,20 @@ def merge_source_suffix(app: Sphinx, config: Config) -> None:
     for suffix, filetype in app.registry.source_suffix.items():
         if suffix not in app.config.source_suffix:  # NoQA: SIM114
             app.config.source_suffix[suffix] = filetype
-        elif app.config.source_suffix[suffix] is None:
-            # filetype is not specified (default filetype).
+        elif app.config.source_suffix[suffix] == 'restructuredtext':
+            # The filetype is not specified (default filetype).
             # So it overrides default filetype by extensions setting.
+            app.config.source_suffix[suffix] = filetype
+        elif app.config.source_suffix[suffix] is None:
+            msg = __('`None` is not a valid filetype for %r.') % suffix
+            logger.warning(msg)
             app.config.source_suffix[suffix] = filetype
 
     # copy config.source_suffix to registry
     app.registry.source_suffix = app.config.source_suffix
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', merge_source_suffix, priority=800)
 
     return {

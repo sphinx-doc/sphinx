@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 .. _math-support:
 
@@ -316,5 +316,5 @@ package jsMath_.  It provides this config value:
 .. _dvisvgm: https://dvisvgm.de/
 .. _dvisvgm FAQ: https://dvisvgm.de/FAQ
 .. _MathJax: https://www.mathjax.org/
-.. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
+.. _jsMath: https://www.math.union.edu/~dpvc/jsmath/
 .. _LaTeX preview package: https://www.gnu.org/software/auctex/preview-latex.html

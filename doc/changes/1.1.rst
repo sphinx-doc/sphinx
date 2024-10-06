@@ -1,0 +1,206 @@
+==========
+Sphinx 1.1
+==========
+
+
+Release 1.1.3 (Mar 10, 2012)
+============================
+
+* PR#40: Fix ``safe_repr`` function to decode bytestrings with non-ASCII
+  characters correctly.
+
+* PR#37: Allow configuring sphinx-apidoc via ``SPHINX_APIDOC_OPTIONS``.
+
+* PR#34: Restore Python 2.4 compatibility.
+
+* PR#36: Make the "bibliography to TOC" fix in LaTeX output specific to
+  the document class.
+
+* #695: When the highlight language "python" is specified explicitly,
+  do not try to parse the code to recognize non-Python snippets.
+
+* #859: Fix exception under certain circumstances when not finding
+  appropriate objects to link to.
+
+* #860: Do not crash when encountering invalid doctest examples, just
+  emit a warning.
+
+* #864: Fix crash with some settings of :confval:`modindex_common_prefix`.
+
+* #862: Fix handling of ``-D`` and ``-A`` options on Python 3.
+
+* #851: Recognize and warn about circular toctrees, instead of running
+  into recursion errors.
+
+* #853: Restore compatibility with Docutils trunk.
+
+* #852: Fix HtmlHelp index entry links again.
+
+* #854: Fix inheritance_diagram raising attribute errors on builtins.
+
+* #832: Fix crashes when putting comments or lone terms in a glossary.
+
+* #834, #818: Fix HTML help language/encoding mapping for all Sphinx
+  supported languages.
+
+* #844: Fix crashes when dealing with Unicode output in doctest extension.
+
+* #831: Provide ``--project`` flag in setup_command as advertised.
+
+* #875: Fix reading config files under Python 3.
+
+* #876: Fix quickstart test under Python 3.
+
+* #870: Fix spurious KeyErrors when removing documents.
+
+* #892: Fix single-HTML builder misbehaving with the master document in a
+  subdirectory.
+
+* #873: Fix assertion errors with empty ``only`` directives.
+
+* #816: Fix encoding issues in the Qt help builder.
+
+
+Release 1.1.2 (Nov 1, 2011) -- 1.1.1 is a silly version number anyway!
+======================================================================
+
+* #809: Include custom fixers in the source distribution.
+
+
+Release 1.1.1 (Nov 1, 2011)
+===========================
+
+* #791: Fix QtHelp, DevHelp and HtmlHelp index entry links.
+
+* #792: Include "sphinx-apidoc" in the source distribution.
+
+* #797: Don't crash on a misformatted glossary.
+
+* #801: Make intersphinx work properly without SSL support.
+
+* #805: Make the ``Sphinx.add_index_to_domain`` method work correctly.
+
+* #780: Fix Python 2.5 compatibility.
+
+
+Release 1.1 (Oct 9, 2011)
+=========================
+
+Incompatible changes
+--------------------
+
+* The ``py:module`` directive doesn't output its ``platform`` option
+  value anymore.  (It was the only thing that the directive did output, and
+  therefore quite inconsistent.)
+
+* Removed support for old dependency versions; requirements are now:
+
+  - Pygments >= 1.2
+  - Docutils >= 0.7
+  - Jinja2   >= 2.3
+
+Features added
+--------------
+
+* Added Python 3.x support.
+
+* New builders and subsystems:
+
+  - Added a Texinfo builder.
+  - Added i18n support for content, a ``gettext`` builder and related
+    utilities.
+  - Added the ``websupport`` library and builder.
+  - #98: Added a ``sphinx-apidoc`` script that autogenerates a hierarchy
+    of source files containing autodoc directives to document modules
+    and packages.
+  - #273: Add an API for adding full-text search support for languages
+    other than English.  Add support for Japanese.
+
+* Markup:
+
+  - #138: Added an :rst:role:`index` role, to make inline index entries.
+  - #454: Added more index markup capabilities: marking see/seealso entries,
+    and main entries for a given key.
+  - #460: Allowed limiting the depth of section numbers for HTML using the
+    :rst:dir:`toctree`\'s ``numbered`` option.
+  - #586: Implemented improved :rst:dir:`glossary` markup which allows
+    multiple terms per definition.
+  - #478: Added ``py:decorator`` directive to describe decorators.
+  - C++ domain now supports array definitions.
+  - C++ domain now supports doc fields (``:param x:`` inside directives).
+  - Section headings in :rst:dir:`only` directives are now correctly
+    handled.
+  - Added ``emphasize-lines`` option to source code directives.
+  - #678: C++ domain now supports superclasses.
+
+* HTML builder:
+
+  - Added ``pyramid`` theme.
+  - #559: ``html_add_permalinks`` is now a string giving the
+    text to display in permalinks.
+  - #259: HTML table rows now have even/odd CSS classes to enable
+    "Zebra styling".
+  - #554: Add theme option ``sidebarwidth`` to the basic theme.
+
+* Other builders:
+
+  - #516: Added new value of the :confval:`latex_show_urls` option to
+    show the URLs in footnotes.
+  - #209: Added :confval:`text_newlines` and :confval:`text_sectionchars`
+    config values.
+  - Added :confval:`man_show_urls` config value.
+  - #472: linkcheck builder: Check links in parallel, use HTTP HEAD
+    requests and allow configuring the timeout.  New config values:
+    :confval:`linkcheck_timeout` and :confval:`linkcheck_workers`.
+  - #521: Added :confval:`linkcheck_ignore` config value.
+  - #28: Support row/colspans in tables in the LaTeX builder.
+
+* Configuration and extensibility:
+
+  - #537: Added :confval:`nitpick_ignore`.
+  - #306: Added :event:`env-get-outdated` event.
+  - :meth:`!Application.add_stylesheet` now accepts full URIs.
+
+* Autodoc:
+
+  - #564: Add :confval:`autodoc_docstring_signature`.  When enabled (the
+    default), autodoc retrieves the signature from the first line of the
+    docstring, if it is found there.
+  - #176: Provide ``private-members`` option for autodoc directives.
+  - #520: Provide ``special-members`` option for autodoc directives.
+  - #431: Doc comments for attributes can now be given on the same line
+    as the assignment.
+  - #437: autodoc now shows values of class data attributes.
+  - autodoc now supports documenting the signatures of
+    ``functools.partial`` objects.
+
+* Other extensions:
+
+  - Added the :mod:`sphinx.ext.mathjax` extension.
+  - #443: Allow referencing external graphviz files.
+  - Added ``inline`` option to graphviz directives, and fixed the
+    default (block-style) in LaTeX output.
+  - #590: Added ``caption`` option to graphviz directives.
+  - #553: Added ``testcleanup`` blocks in the doctest extension.
+  - #594: ``trim_doctest_flags`` now also removes ``<BLANKLINE>``
+    indicators.
+  - #367: Added automatic exclusion of hidden members in inheritance
+    diagrams, and an option to selectively enable it.
+  - Added ``pngmath_add_tooltips``.
+  - The math extension displaymath directives now support ``name`` in
+    addition to ``label`` for giving the equation label, for compatibility
+    with Docutils.
+
+* New locales:
+
+  - #221: Added Swedish locale.
+  - #526: Added Iranian locale.
+  - #694: Added Latvian locale.
+  - Added Nepali locale.
+  - #714: Added Korean locale.
+  - #766: Added Estonian locale.
+
+* Bugs fixed:
+
+  - #778: Fix "hide search matches" link on pages linked by search.
+  - Fix the source positions referenced by the "viewcode" extension.

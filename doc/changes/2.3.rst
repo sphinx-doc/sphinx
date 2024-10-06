@@ -1,0 +1,106 @@
+==========
+Sphinx 2.3
+==========
+
+
+Release 2.3.1 (released Dec 22, 2019)
+=====================================
+
+Bugs fixed
+----------
+
+* #6936: sphinx-autogen: raises AttributeError
+
+Release 2.3.0 (released Dec 15, 2019)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #6742: ``end-before`` option of :rst:dir:`literalinclude` directive does not
+  match the first line of the code block.
+* #1331: Change default User-Agent header to ``"Sphinx/X.Y.Z requests/X.Y.Z
+  python/X.Y.Z"``.  It can be changed via :confval:`user_agent`.
+* #6867: text: content of admonitions starts after a blank line
+
+Deprecated
+----------
+
+* ``sphinx.builders.gettext.POHEADER``
+* ``sphinx.io.SphinxStandaloneReader.app``
+* ``sphinx.io.SphinxStandaloneReader.env``
+* ``sphinx.util.texescape.tex_escape_map``
+* ``sphinx.util.texescape.tex_hl_escape_map_new``
+* ``sphinx.writers.latex.LaTeXTranslator.no_contractions``
+
+Features added
+--------------
+
+* #6707: C++, support bit-fields.
+* #267: html: Eliminate prompt characters of doctest block from copyable text
+* #6548: html: Use favicon for OpenSearch if available
+* #6729: html theme: agogo theme now supports ``rightsidebar`` option
+* #6780: Add PEP-561 Support
+* #6762: latex: Allow to load additional LaTeX packages via ``extrapackages`` key
+  of :confval:`latex_elements`
+* #1331: Add new config variable: :confval:`user_agent`
+* #6000: LaTeX: have backslash also be an inline literal word wrap break
+  character
+* #4186: LaTeX: Support upLaTeX as a new :confval:`latex_engine` (experimental)
+* #6812: Improve a warning message when extensions are not parallel safe
+* #6818: Improve Intersphinx performance for multiple remote inventories.
+* #2546: apidoc: .so file support
+* #6798: autosummary: emit ``autodoc-skip-member`` event on generating stub file
+* #6483: i18n: make explicit titles in toctree translatable
+* #6816: linkcheck: Add :confval:`linkcheck_auth` option to provide
+  authentication information when doing ``linkcheck`` builds
+* #6872: linkcheck: Handles HTTP 308 Permanent Redirect
+* #6613: html: Wrap section number in span tag
+* #6781: gettext: Add :confval:`gettext_last_translator` and
+  :confval:`gettext_language_team` to customize headers of POT file
+
+Bugs fixed
+----------
+
+* #6668: LaTeX: Longtable before header has incorrect distance
+  (refs: `latex3/latex2e#173`_)
+
+  .. _latex3/latex2e#173: https://github.com/latex3/latex2e/issues/173
+* #6618: LaTeX: Avoid section names at the end of a page
+* #6738: LaTeX: Do not replace unicode characters by LaTeX macros on unicode
+  supported LaTeX engines: ¶, §, €, ∞, ±, →, ‣, –, superscript and subscript
+  digits go through "as is" (as default OpenType font supports them)
+* #6704: linkcheck: Be defensive and handle newly defined HTTP error code
+* #6806: linkcheck: Failure on parsing content
+* #6655: image URLs containing ``data:`` causes gettext builder crashed
+* #6584: i18n: Error when compiling message catalogs on Hindi
+* #6718: i18n: KeyError is raised if section title and table title are same
+* #6743: i18n: :confval:`rst_prolog` breaks the translation
+* #6708: mathbase: Some deprecated functions have removed
+* #6709: autodoc: mock object does not work as a class decorator
+* #5070: epub: Wrong internal href fragment links
+* #6712: Allow not to install sphinx.testing as runtime (mainly for ALT Linux)
+* #6741: html: search result was broken with empty :confval:`html_file_suffix`
+* #6001: LaTeX does not wrap long code lines at backslash character
+* #6804: LaTeX: PDF build breaks if admonition of danger type contains
+  code-block long enough not to fit on one page
+* #6809: LaTeX: code-block in a danger type admonition can easily spill over
+  bottom of page
+* #6793: texinfo: Code examples broken following "sidebar"
+* #6813: An orphan warning is emitted for included document on Windows.  Thanks
+  to @drillan
+* #6850: Fix smartypants module calls re.sub() with wrong options
+* #6824: HTML search: If a search term is partially matched in the title and
+  fully matched in a text paragraph on the same page, the search does not
+  include this match.
+* #6848: config.py shouldn't pop extensions from overrides
+* #6867: text: extra spaces are inserted to hyphenated words on folding lines
+* #6886: LaTeX: xelatex converts straight double quotes into right curly ones
+  (shows when :confval:`smartquotes` is ``False``)
+* #6890: LaTeX: even with smartquotes off, PDF output transforms straight
+  quotes and consecutive hyphens into curly quotes and dashes
+* #6876: LaTeX: multi-line display of authors on title page has ragged edges
+* #6887: Sphinx crashes with Docutils 0.16b0
+* #6920: sphinx-build: A console message is wrongly highlighted
+* #6900: sphinx-build: ``-D`` option does not considers ``0`` and ``1`` as a
+  boolean value

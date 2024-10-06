@@ -11,11 +11,11 @@ from hashlib import sha1
 from itertools import chain
 from os import path
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 
 import sphinx
 from sphinx.errors import SphinxError
@@ -31,8 +31,8 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
-    from sphinx.util.typing import OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
+    from sphinx.writers.html5 import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
     from sphinx.writers.manpage import ManualPageTranslator
     from sphinx.writers.texinfo import TexinfoTranslator
@@ -47,6 +47,7 @@ class GraphvizError(SphinxError):
 
 class ClickableMapDefinition:
     """A manipulator for clickable map file of graphviz."""
+
     maptag_re = re.compile('<map id="(.*?)"')
     href_re = re.compile('href=".*?"')
 
@@ -81,7 +82,7 @@ class ClickableMapDefinition:
         If not exists, this only returns empty string.
         """
         if self.clickable:
-            return '\n'.join([self.content[0]] + self.clickable + [self.content[-1]])
+            return '\n'.join((self.content[0], *self.clickable, self.content[-1]))
         else:
             return ''
 
@@ -90,12 +91,12 @@ class graphviz(nodes.General, nodes.Inline, nodes.Element):
     pass
 
 
-def figure_wrapper(directive: Directive, node: graphviz, caption: str) -> nodes.figure:
+def figure_wrapper(directive: SphinxDirective, node: graphviz, caption: str) -> nodes.figure:
     figure_node = nodes.figure('', node)
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')
 
-    inodes, messages = directive.state.inline_text(caption, directive.lineno)
+    inodes, messages = directive.parse_inline(caption)
     caption_node = nodes.caption(caption, '', *inodes)
     caption_node.extend(messages)
     set_source_info(directive, caption_node)
@@ -111,11 +112,12 @@ class Graphviz(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,
@@ -179,11 +181,12 @@ class GraphvizSimple(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,
@@ -330,7 +333,7 @@ def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: d
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
 
-    classes = [imgcls, 'graphviz'] + node.get('classes', [])
+    classes = [imgcls, 'graphviz', *node.get('classes', [])]
     imgcls = ' '.join(filter(None, classes))
 
     if fname is None:
@@ -449,7 +452,7 @@ def on_config_inited(_app: Sphinx, config: Config) -> None:
     config.html_static_path.append(css_path)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),

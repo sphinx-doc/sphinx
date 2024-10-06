@@ -75,7 +75,7 @@ Cross-referencing Python objects
 
 By default, most of these directives generate entities that can be
 cross-referenced from any part of the documentation by using
-:ref:`a corresponding role <python-roles>`. For the case of functions,
+:ref:`a corresponding role <python-xref-roles>`. For the case of functions,
 you can use :rst:role:`py:func` for that, as follows:
 
 .. code-block:: rst
@@ -228,7 +228,7 @@ for easy examination. It is now time to fix the function:
    def get_random_ingredients(kind=None):
        return ["shells", "gorgonzola", "parsley"]
 
-And finally, ``make test`` reports success!
+And finally, ``make doctest`` reports success!
 
 For big projects though, this manual approach can become a bit tedious.
 In the next section, you will see :doc:`how to automate the
@@ -246,7 +246,7 @@ C, C++, JavaScript, and reStructuredText. Third-party extensions may
 define domains for more languages, such as
 
 - `Fortran <https://sphinx-fortran.readthedocs.io>`_,
-- `Julia <http://bastikr.github.io/sphinx-julia>`_, or
+- `Julia <https://bastikr.github.io/sphinx-julia>`_, or
 - `PHP <https://github.com/markstory/sphinxcontrib-phpdomain>`_.
 
 For example, to document a C++ type definition, you would use the built-in

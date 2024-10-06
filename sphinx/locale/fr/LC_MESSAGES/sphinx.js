@@ -2,7 +2,7 @@ Documentation.addTranslations({
     "locale": "fr",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; %(copyright_prefix)s %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "&#169; %(copyright_prefix)s %(copyright)s.",
         ", in ": ", dans ",
         "About these documents": "\u00c0 propos de ces documents",
         "Automatically generated list of changes in version %(version)s": "Liste auto-g\u00e9n\u00e9r\u00e9e des modifications dans la version %(version)s",
@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Go",
         "Hide Search Matches": "Cacher les r\u00e9sultats de la recherche",
         "Index": "Index",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indexer les pages par lettre",
         "Indices and tables:": "Index et tables :",
         "Last updated on %(last_updated)s.": "Mis \u00e0 jour le %(last_updated)s.",

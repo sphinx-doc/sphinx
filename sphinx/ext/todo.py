@@ -7,7 +7,9 @@ with a backlink to the original location.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+import functools
+import operator
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -22,12 +24,14 @@ from sphinx.util import logging, texescape
 from sphinx.util.docutils import SphinxDirective, new_document
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import OptionSpec
-    from sphinx.writers.html import HTML5Translator
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
+    from sphinx.writers.html5 import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
 
 logger = logging.getLogger(__name__)
@@ -51,7 +55,7 @@ class Todo(BaseAdmonition, SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'class': directives.class_option,
         'name': directives.unchanged,
     }
@@ -85,7 +89,7 @@ class TodoDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.todos.pop(docname, None)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for docname in docnames:
             self.todos[docname] = otherdata['todos'][docname]
 
@@ -110,7 +114,7 @@ class TodoList(SphinxDirective):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {}
+    option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
         # Simply insert an empty todolist node which will be replaced later
@@ -123,13 +127,14 @@ class TodoListProcessor:
         self.builder = app.builder
         self.config = app.config
         self.env = app.env
-        self.domain = cast(TodoDomain, app.env.get_domain('todo'))
+        self.domain = app.env.domains['todo']
         self.document = new_document('')
 
         self.process(doctree, docname)
 
     def process(self, doctree: nodes.document, docname: str) -> None:
-        todos: list[todo_node] = sum(self.domain.todos.values(), [])
+        todos: list[todo_node] = functools.reduce(
+            operator.iadd, self.domain.todos.values(), [])
         for node in list(doctree.findall(todolist)):
             if not self.config.todo_include_todos:
                 node.parent.remove(node)
@@ -206,22 +211,26 @@ def depart_todo_node(self: HTML5Translator, node: todo_node) -> None:
 
 def latex_visit_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
     if self.config.todo_include_todos:
-        self.body.append('\n\\begin{sphinxadmonition}{note}{')
+        self.body.append('\n\\begin{sphinxtodo}{')
         self.body.append(self.hypertarget_to(node))
 
         title_node = cast(nodes.title, node[0])
         title = texescape.escape(title_node.astext(), self.config.latex_engine)
         self.body.append('%s:}' % title)
+        self.no_latex_floats += 1
+        if self.table:
+            self.table.has_problematic = True
         node.pop(0)
     else:
         raise nodes.SkipNode
 
 
 def latex_depart_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
-    self.body.append('\\end{sphinxadmonition}\n')
+    self.body.append('\\end{sphinxtodo}\n')
+    self.no_latex_floats -= 1
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_event('todo-defined')
     app.add_config_value('todo_include_todos', False, 'html')
     app.add_config_value('todo_link_only', False, 'html')

@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-dutch_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/dutch/stop.txt
+dutch_stopwords = parse_stop_word("""
+| source: https://snowball.tartarus.org/algorithms/dutch/stop.txt
 de             |  the
 en             |  and
 van            |  of, from
@@ -111,7 +109,7 @@ uw             |  your
 iemand         |  somebody
 geweest        |  been; past participle of 'be'
 andere         |  other
-''')
+""")
 
 
 class SearchDutch(SearchLanguage):
@@ -120,7 +118,7 @@ class SearchDutch(SearchLanguage):
     js_stemmer_rawcode = 'dutch-stemmer.js'
     stopwords = dutch_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('dutch')
 
     def stem(self, word: str) -> str:

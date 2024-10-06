@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Siirry",
         "Hide Search Matches": "Piilota l\u00f6ydetyt",
         "Index": "Sis\u00e4llysluettelo",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Hakemisto aakkostus sivuttain",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "",
