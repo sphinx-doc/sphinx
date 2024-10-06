@@ -6,10 +6,11 @@ import os
 import time
 import traceback
 from math import sqrt
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 try:
     import multiprocessing
+
     HAS_MULTIPROCESSING = True
 except ImportError:
     HAS_MULTIPROCESSING = False
@@ -18,12 +19,12 @@ from sphinx.errors import SphinxParallelError
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
 logger = logging.getLogger(__name__)
 
 # our parallel functionality only works for the forking Process
-parallel_available = multiprocessing and os.name == 'posix'
+parallel_available = HAS_MULTIPROCESSING and os.name == 'posix'
 
 
 class SerialTasks:
@@ -33,7 +34,7 @@ class SerialTasks:
         pass
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
     ) -> None:
         if arg is not None:
             res = task_func(arg)
@@ -83,7 +84,7 @@ class ParallelTasks:
         pipe.send((failed, collector.logs, ret))
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
     ) -> None:
         tid = self._taskid
         self._taskid += 1
@@ -94,7 +95,12 @@ class ParallelTasks:
         proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
         self._precvsWaiting[tid] = precv
-        self._join_one()
+        try:
+            self._join_one()
+        except Exception:
+            # shutdown other child processes on failure
+            # (e.g. OSError: Failed to allocate memory)
+            self.terminate()
 
     def join(self) -> None:
         try:
@@ -151,4 +157,4 @@ def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> lis
     if rest:
         nchunks += 1
     # partition documents in "chunks" that will be written by one Process
-    return [arguments[i * chunksize:(i + 1) * chunksize] for i in range(nchunks)]
+    return [arguments[i * chunksize : (i + 1) * chunksize] for i in range(nchunks)]

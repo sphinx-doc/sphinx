@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
 from sphinx.errors import SphinxParallelError
-from sphinx.util.console import strip_colors
+from sphinx.util.console import strip_escape_sequences
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -31,11 +31,18 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
         last_msgs = exts_list = ''
     else:
         extensions = app.extensions.values()
-        last_msgs = '\n'.join(f'#   {strip_colors(s).strip()}' for s in app.messagelog)
-        exts_list = '\n'.join(f'#   {ext.name} ({ext.version})' for ext in extensions
-                              if ext.version != 'builtin')
+        last_msgs = '\n'.join(
+            f'#   {strip_escape_sequences(s).strip()}' for s in app.messagelog
+        )
+        exts_list = '\n'.join(
+            f'#   {ext.name} ({ext.version})'
+            for ext in extensions
+            if ext.version != 'builtin'
+        )
 
-    with NamedTemporaryFile('w', suffix='.log', prefix='sphinx-err-', delete=False) as f:
+    with NamedTemporaryFile(
+        'w', suffix='.log', prefix='sphinx-err-', delete=False
+    ) as f:
         f.write(f"""\
 # Platform:         {sys.platform}; ({platform.platform()})
 # Sphinx version:   {sphinx.__display_version__}

@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 .. _math-support:
 
@@ -75,7 +75,7 @@ are built:
    :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
    option should be preferable, like this::
 
-      sphinx-build -b html -D imgmath_latex=C:\tex\latex.exe . _build/html
+      sphinx-build -M html -D imgmath_latex=C:\tex\latex.exe . _build
 
    This value should only contain the path to the latex executable, not further
    arguments; use :confval:`imgmath_latex_args` for that purpose.
@@ -316,5 +316,5 @@ package jsMath_.  It provides this config value:
 .. _dvisvgm: https://dvisvgm.de/
 .. _dvisvgm FAQ: https://dvisvgm.de/FAQ
 .. _MathJax: https://www.mathjax.org/
-.. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
+.. _jsMath: https://www.math.union.edu/~dpvc/jsmath/
 .. _LaTeX preview package: https://www.gnu.org/software/auctex/preview-latex.html

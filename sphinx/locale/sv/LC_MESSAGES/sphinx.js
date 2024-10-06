@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "G\u00e5",
         "Hide Search Matches": "D\u00f6lj S\u00f6kresultat",
         "Index": "Index",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Inneh\u00e5llsf\u00f6rteckning per inledande bokstav",
         "Indices and tables:": "Index och tabeller",
         "Last updated on %(last_updated)s.": "Senast uppdaterad %(last_updated)s.",

@@ -5,20 +5,24 @@ from __future__ import annotations
 import os
 from glob import glob
 from os import path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Node
 from docutils.utils import relative_path
 
 from sphinx import addnodes
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
+
+if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +33,13 @@ class ImageCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.images.purge_doc(docname)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: set[str],
+        other: BuildEnvironment,
+    ) -> None:
         env.images.merge_other(docnames, other.images)
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
@@ -82,17 +91,26 @@ class ImageCollector(EnvironmentCollector):
             for imgpath in candidates.values():
                 app.env.dependencies[docname].add(imgpath)
                 if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
-                    logger.warning(__('image file not readable: %s') % imgpath,
-                                   location=node, type='image', subtype='not_readable')
+                    logger.warning(
+                        __('image file not readable: %s'),
+                        imgpath,
+                        location=node,
+                        type='image',
+                        subtype='not_readable',
+                    )
                     continue
                 app.env.images.add_file(docname, imgpath)
 
-    def collect_candidates(self, env: BuildEnvironment, imgpath: str,
-                           candidates: dict[str, str], node: Node) -> None:
+    def collect_candidates(
+        self,
+        env: BuildEnvironment,
+        imgpath: str,
+        candidates: dict[str, str],
+        node: Node,
+    ) -> None:
         globbed: dict[str, list[str]] = {}
         for filename in glob(imgpath):
-            new_imgpath = relative_path(path.join(env.srcdir, 'dummy'),
-                                        filename)
+            new_imgpath = relative_path(path.join(env.srcdir, 'dummy'), filename)
             try:
                 mimetype = guess_mimetype(filename)
                 if mimetype is None:
@@ -101,10 +119,16 @@ class ImageCollector(EnvironmentCollector):
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath)
             except OSError as err:
-                logger.warning(__('image file %s not readable: %s') % (filename, err),
-                               location=node, type='image', subtype='not_readable')
+                logger.warning(
+                    __('image file %s not readable: %s'),
+                    filename,
+                    err,
+                    location=node,
+                    type='image',
+                    subtype='not_readable',
+                )
         for key, files in globbed.items():
-            candidates[key] = sorted(files, key=len)[0]  # select by similarity
+            candidates[key] = min(files, key=len)  # select by similarity
 
 
 class DownloadFileCollector(EnvironmentCollector):
@@ -113,12 +137,17 @@ class DownloadFileCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.dlfiles.purge_doc(docname)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: set[str],
+        other: BuildEnvironment,
+    ) -> None:
         env.dlfiles.merge_other(docnames, other.dlfiles)
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
-        """Process downloadable file paths. """
+        """Process downloadable file paths."""
         for node in doctree.findall(addnodes.download_reference):
             targetname = node['reftarget']
             if '://' in targetname:
@@ -127,13 +156,20 @@ class DownloadFileCollector(EnvironmentCollector):
                 rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
                 app.env.dependencies[app.env.docname].add(rel_filename)
                 if not os.access(filename, os.R_OK):
-                    logger.warning(__('download file not readable: %s') % filename,
-                                   location=node, type='download', subtype='not_readable')
+                    logger.warning(
+                        __('download file not readable: %s'),
+                        filename,
+                        location=node,
+                        type='download',
+                        subtype='not_readable',
+                    )
                     continue
-                node['filename'] = app.env.dlfiles.add_file(app.env.docname, rel_filename)
+                node['filename'] = app.env.dlfiles.add_file(
+                    app.env.docname, rel_filename
+                )
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_env_collector(ImageCollector)
     app.add_env_collector(DownloadFileCollector)
 

@@ -1,21 +1,16 @@
 """Input/Output files"""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import docutils
-from docutils import nodes
 from docutils.core import Publisher
-from docutils.frontend import Values
 from docutils.io import FileInput, Input, NullOutput
-from docutils.parsers import Parser
 from docutils.readers import standalone
-from docutils.transforms import Transform
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
 
 from sphinx import addnodes
-from sphinx.environment import BuildEnvironment
 from sphinx.transforms import AutoIndexUpgrader, DoctreeReadEvent, SphinxTransformer
 from sphinx.transforms.i18n import (
     Locale,
@@ -28,13 +23,19 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
+    from docutils import nodes
+    from docutils.frontend import Values
+    from docutils.parsers import Parser
+    from docutils.transforms import Transform
+
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
 
 
 logger = logging.getLogger(__name__)
 
 
-class SphinxBaseReader(standalone.Reader):
+class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
     """
     A base class of readers for Sphinx.
 
@@ -45,6 +46,7 @@ class SphinxBaseReader(standalone.Reader):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         from sphinx.application import Sphinx
+
         if len(args) > 0 and isinstance(args[0], Sphinx):
             self._app = args[0]
             self._env = self._app.env
@@ -53,7 +55,7 @@ class SphinxBaseReader(standalone.Reader):
         super().__init__(*args, **kwargs)
 
     def setup(self, app: Sphinx) -> None:
-        self._app = app      # hold application object only for compatibility
+        self._app = app  # hold application object only for compatibility
         self._env = app.env
 
     def get_transforms(self) -> list[type[Transform]]:
@@ -95,9 +97,9 @@ class SphinxStandaloneReader(SphinxBaseReader):
         self.transforms = self.transforms + app.registry.get_transforms()
         super().setup(app)
 
-    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:
+    def read(self, source: Input, parser: Parser, settings: Values) -> nodes.document:  # type: ignore[type-arg]
         self.source = source
-        if not self.parser:
+        if not self.parser:  # type: ignore[has-type]
             self.parser = parser
         self.settings = settings
         self.input = self.read_source(settings.env)
@@ -127,15 +129,21 @@ class SphinxI18nReader(SphinxBaseReader):
         super().setup(app)
 
         self.transforms = self.transforms + app.registry.get_transforms()
-        unused = [PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
-                  AutoIndexUpgrader, SphinxDomains, DoctreeReadEvent,
-                  UIDTransform]
+        unused = [
+            PreserveTranslatableMessages,
+            Locale,
+            RemoveTranslatableInline,
+            AutoIndexUpgrader,
+            SphinxDomains,
+            DoctreeReadEvent,
+            UIDTransform,
+        ]
         for transform in unused:
             if transform in self.transforms:
                 self.transforms.remove(transform)
 
 
-class SphinxDummyWriter(UnfilteredWriter):
+class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
     """Dummy writer module used for generating doctree."""
 
     supported = ('html',)  # needed to keep "meta" nodes
@@ -151,6 +159,7 @@ def SphinxDummySourceClass(source: Any, *args: Any, **kwargs: Any) -> Any:
 
 class SphinxFileInput(FileInput):
     """A basic FileInput for Sphinx."""
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         kwargs['error_handler'] = 'sphinx'
         super().__init__(*args, **kwargs)
@@ -169,7 +178,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
         #   CommonMarkParser.
         from docutils.parsers.rst import Parser as RSTParser
 
-        parser.settings_spec = RSTParser.settings_spec
+        parser.settings_spec = RSTParser.settings_spec  # type: ignore[misc]
 
     pub = Publisher(
         reader=reader,
@@ -179,10 +188,7 @@ def create_publisher(app: Sphinx, filetype: str) -> Publisher:
         destination=NullOutput(),
     )
     # Propagate exceptions by default when used programmatically:
-    defaults = {"traceback": True, **app.env.settings}
+    defaults = {'traceback': True, **app.env.settings}
     # Set default settings
-    if docutils.__version_info__[:2] >= (0, 19):
-        pub.get_settings(**defaults)
-    else:
-        pub.settings = pub.setup_option_parser(**defaults).get_default_values()
+    pub.get_settings(**defaults)
     return pub

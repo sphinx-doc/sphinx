@@ -27,7 +27,7 @@ Sphinx uses these facilities to translate whole documents.
 
 Initially project maintainers have to collect all translatable strings (also
 referred to as *messages*) to make them known to translators.  Sphinx extracts
-these through invocation of ``sphinx-build -b gettext``.
+these through invocation of :command:`sphinx-build -M gettext`.
 
 Every single element in the doctree will end up in a single message which
 results in lists being equally split into different chunks while large
@@ -51,13 +51,13 @@ through :program:`msgfmt` for efficiency reasons.  If you make these files
 discoverable with :confval:`locale_dirs` for your :confval:`language`, Sphinx
 will pick them up automatically.
 
-An example: you have a document ``usage.rst`` in your Sphinx project.  The
-*gettext* builder will put its messages into ``usage.pot``.  Imagine you have
-Spanish translations [2]_ stored in ``usage.po`` --- for your builds to
+An example: you have a document :file:`usage.rst` in your Sphinx project.  The
+*gettext* builder will put its messages into :file:`usage.pot`.  Imagine you have
+Spanish translations [2]_ stored in :file:`usage.po` --- for your builds to
 be translated you need to follow these instructions:
 
 * Compile your message catalog to a locale directory, say ``locale``, so it
-  ends up in ``./locale/es/LC_MESSAGES/usage.mo`` in your source directory
+  ends up in :file:`./locale/es/LC_MESSAGES/usage.mo` in your source directory
   (where ``es`` is the language code for Spanish.) ::
 
         msgfmt "usage.po" -o "locale/es/LC_MESSAGES/usage.mo"
@@ -101,7 +101,7 @@ section describe an easy way to translate with *sphinx-intl*.
 
       $ pip install sphinx-intl
 
-#. Add configurations to ``conf.py``.
+#. Add configurations to :file:`conf.py`.
 
    ::
 
@@ -119,6 +119,11 @@ section describe an easy way to translate with *sphinx-intl*.
       $ make gettext
 
    The generated pot files will be placed in the ``_build/gettext`` directory.
+   If you want to customize the output beyond what can be done via the
+   :ref:`intl-options`, the
+   :download:`default pot file template <../../../sphinx/templates/gettext/message.pot.jinja>`
+   can be replaced by a custom :file:`message.pot.jinja` file placed in any
+   directory listed in :confval:`templates_path`.
 
 #. Generate po files.
 
@@ -137,7 +142,7 @@ section describe an easy way to translate with *sphinx-intl*.
 #. Translate po files.
 
    As noted above, these are located in the ``./locale/<lang>/LC_MESSAGES``
-   directory.  An example of one such file, from Sphinx, ``builders.po``, is
+   directory.  An example of one such file, from Sphinx, :file:`builders.po`, is
    given below.
 
    .. code-block:: po
@@ -160,12 +165,12 @@ section describe an easy way to translate with *sphinx-intl*.
       "FILL HERE BY TARGET LANGUAGE FILL HERE BY TARGET LANGUAGE FILL HERE "
       "BY TARGET LANGUAGE :ref:`EXTENSIONS <extensions>` FILL HERE."
 
-   Please be careful not to break reST notation.  Most po-editors will help you
-   with that.
+   Please be careful not to break reStructuredText notation.
+   Most po-editors will help you with that.
 
 #. Build translated document.
 
-   You need a :confval:`language` parameter in ``conf.py`` or you may also
+   You need a :confval:`language` parameter in :file:`conf.py` or you may also
    specify the parameter on the command line.
 
    For BSD/GNU make, run:
@@ -176,17 +181,17 @@ section describe an easy way to translate with *sphinx-intl*.
 
    For Windows :command:`cmd.exe`, run:
 
-   .. code-block:: console
+   .. code-block:: doscon
 
       > set SPHINXOPTS=-D language=de
       > .\make.bat html
 
    For PowerShell, run:
 
-   .. code-block:: console
+   .. code-block:: ps1con
 
-      > Set-Item env:SPHINXOPTS "-D language=de"
-      > .\make.bat html
+      PS> Set-Item env:SPHINXOPTS "-D language=de"
+      PS> .\make.bat html
 
 Congratulations! You got the translated documentation in the ``_build/html``
 directory.
@@ -218,23 +223,27 @@ Using Transifex service for team translation
 --------------------------------------------
 
 Transifex_ is one of several services that allow collaborative translation via a
-web interface.  It has a nifty Python-based command line client that makes it
+web interface.  It has a nifty Go-based command line client that makes it
 easy to fetch and push translations.
 
 .. TODO: why use transifex?
 
 
-#. Install `transifex-client`_.
+#. Install the `Transifex CLI tool`_.
 
-   You need :command:`tx` command to upload resources (pot files).
+   You need the :command:`tx` command line tool for uploading resources (pot files).
+   The official installation process place the :file:`tx` binary file in
+   the current directory along with a README and a LICENSE file, and adds
+   the current directory to ``$PATH``.
 
    .. code-block:: console
 
-      $ pip install transifex-client
+      $ curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 
    .. seealso:: `Transifex Client documentation`_
 
-#. Create your Transifex_ account and create new project for your document.
+#. Create your Transifex_ account and create a new project and an organization
+   for your document.
 
    Currently, Transifex does not allow for a translation project to have more
    than one version of the document, so you'd better include a version number in
@@ -242,45 +251,75 @@ easy to fetch and push translations.
 
    For example:
 
+   :Organization ID: ``sphinx-document``
    :Project ID: ``sphinx-document-test_1_0``
    :Project URL: ``https://www.transifex.com/projects/p/sphinx-document-test_1_0/``
 
-#. Create config files for :command:`tx` command.
+#. Create an API token to be used in the command-line.
 
-   This process will create ``.tx/config`` in the current directory, as well as
-   a ``~/.transifexrc`` file that includes auth information.
+   Go to your `Transifex API token`_ page and generate a token.
+   Copy the generated token now, as you will not be able to see it again later.
+
+#. Set your Transifex API token in the user configuration file
+   :file:`$HOME/.transifexrc`.
+
+   .. code-block:: ini
+
+      [https://app.transifex.com]
+      rest_hostname = https://rest.api.transifex.com
+      token         = paste_your_api_token_here
+
+#. Alternatively, you can store your Transifex API token as the environment variable
+   ``TX_TOKEN``, which is recognized and used by :command:`tx`.
 
    .. code-block:: console
 
+      $ export TX_TOKEN=paste_your_api_token_here
+
+#. Create the project's config file for :command:`tx` command.
+
+   This process will create ``.tx/config`` in the current directory.
+
+   .. code-block:: console
+
+      $ cd /your/document/root
       $ tx init
-      Creating .tx folder...
-      Transifex instance [https://www.transifex.com]:
-      ...
-      Please enter your transifex username: <transifex-username>
-      Password: <transifex-password>
-      ...
-      Done.
+
+      Successful creation of '.tx/config' file
 
 #. Upload pot files to Transifex service.
 
-   Register pot files to ``.tx/config`` file:
+   Register pot files to ``.tx/config`` file using
+   :command:`sphinx-intl update-txconfig-resources`, adjusting
+   ``--pot-dir`` value to your project's pot files' directory:
 
    .. code-block:: console
 
       $ cd /your/document/root
       $ sphinx-intl update-txconfig-resources --pot-dir _build/locale \
-        --transifex-project-name sphinx-document-test_1_0
+        --transifex-organization-name=sphinx-document \
+        --transifex-project-name=sphinx-document-test_1_0
+
+   You can use the ``SPHINXINTL_TRANSIFEX_ORGANIZATION_NAME`` and
+   ``SPHINXINTL_TRANSIFEX_PROJECT_NAME`` environment variables
+   instead of the respective command line arguments.
+
+   .. seealso:: `sphinx-intl update-txconfig-resources documentation`_
 
    and upload pot files:
 
    .. code-block:: console
 
       $ tx push -s
-      Pushing translations for resource sphinx-document-test_1_0.builders:
-      Pushing source file (locale/pot/builders.pot)
-      Resource does not exist.  Creating...
-      ...
-      Done.
+      # Getting info about resources
+
+      sphinx-document-test_1_0.builders - Getting info
+      sphinx-document-test_1_0.builders - Done
+
+      # Pushing source files
+
+      sphinx-document-test_1_0.builders - Uploading file
+      sphinx-document-test_1_0.builders - Done
 
 #. Forward the translation on Transifex.
 
@@ -295,12 +334,18 @@ easy to fetch and push translations.
 
       $ cd /your/document/root
       $ tx pull -l de
-      Pulling translations for resource sphinx-document-test_1_0.builders (...)
-       -> de: locale/de/LC_MESSAGES/builders.po
-      ...
-      Done.
+      # Getting info about resources
 
-   Invoke :command:`make html` (for BSD/GNU make):
+      sphinx-document-test_1_0.builders - Getting info
+      sphinx-document-test_1_0.builders - Done
+
+      # Pulling files
+
+      sphinx-document-test_1_0.builders [de] - Pulling file
+      sphinx-document-test_1_0.builders [de] - Creating download job
+      sphinx-document-test_1_0.builders [de] - Done
+
+   Invoke :command:`make html` (for BSD/GNU make) passing the language code:
 
    .. code-block:: console
 
@@ -338,7 +383,8 @@ There is a `sphinx translation page`_ for Sphinx (master) documentation.
 4. Wait acceptance by Transifex sphinx translation maintainers.
 5. (After acceptance) Translate on Transifex.
 
-Detail is here: https://docs.transifex.com/getting-started-1/translators
+Detail is here:
+https://help.transifex.com/en/articles/6248698-getting-started-as-a-translator
 
 
 Translation progress and statistics
@@ -364,9 +410,11 @@ percentage of nodes that have been translated on a per-document basis.
        for details on that software suite.
 .. [2] Because nobody expects the Spanish Inquisition!
 
-.. _`transifex-client`: https://pypi.org/project/transifex-client/
+.. _`Transifex CLI tool`: https://github.com/transifex/cli/
 .. _`sphinx-intl`: https://pypi.org/project/sphinx-intl/
-.. _Transifex: https://www.transifex.com/
+.. _Transifex: https://app.transifex.com/
 .. _Weblate's documentation: https://docs.weblate.org/en/latest/devel/sphinx.html
-.. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc/
-.. _`Transifex Client documentation`: https://docs.transifex.com/client/introduction/
+.. _`sphinx translation page`: https://app.transifex.com/sphinx-doc/sphinx-doc/
+.. _`Transifex Client documentation`: https://developers.transifex.com/docs/using-the-client
+.. _`Transifex API token`: https://app.transifex.com/user/settings/api/
+.. _`sphinx-intl update-txconfig-resources documentation`: https://sphinx-intl.readthedocs.io/en/master/refs.html#sphinx-intl-update-txconfig-resources

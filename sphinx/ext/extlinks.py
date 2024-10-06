@@ -20,19 +20,24 @@ Both, the url string and the caption string must escape ``%`` as ``%%``.
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes, utils
-from docutils.nodes import Node, system_message
-from docutils.parsers.rst.states import Inliner
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging, rst
 from sphinx.util.nodes import split_explicit_title
-from sphinx.util.typing import RoleFunction
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from docutils.nodes import Node, system_message
+    from docutils.parsers.rst.states import Inliner
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata, RoleFunction
 
 logger = logging.getLogger(__name__)
 
@@ -86,12 +91,13 @@ class ExternalLinksChecker(SphinxPostTransform):
 
 def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     # Check whether we have base_url and caption strings have an '%s' for
-    # expansion.  If not, fall back the the old behaviour and use the string as
+    # expansion.  If not, fall back to the old behaviour and use the string as
     # a prefix.
-    # Remark: It is an implementation detail that we use Pythons %-formatting.
+    # Remark: It is an implementation detail that we use Python's %-formatting.
     # So far we only expose ``%s`` and require quoting of ``%`` using ``%%``.
     def role(typ: str, rawtext: str, text: str, lineno: int,
-             inliner: Inliner, options: dict = {}, content: list[str] = [],
+             inliner: Inliner, options: dict[str, Any] | None = None,
+             content: Sequence[str] = (),
              ) -> tuple[list[Node], list[system_message]]:
         text = utils.unescape(text)
         has_explicit_title, title, part = split_explicit_title(text)
@@ -102,6 +108,7 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
             else:
                 title = caption % part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
+        pnode["classes"].append(f"extlink-{name}")
         return [pnode], []
     return role
 
@@ -111,7 +118,7 @@ def setup_link_roles(app: Sphinx) -> None:
         app.add_role(name, make_link_role(name, base_url, caption))
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('extlinks', {}, 'env')
     app.add_config_value('extlinks_detect_hardcoded_links', False, 'env')
 

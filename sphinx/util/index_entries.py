@@ -14,12 +14,14 @@ def split_index_msg(entry_type: str, value: str) -> list[str]:
         return _split_into(3, 'triple', value)
     if entry_type in {'see', 'seealso'}:
         return _split_into(2, 'see', value)
-    raise ValueError(f'invalid {entry_type} index entry {value!r}')
+    msg = f'invalid {entry_type} index entry {value!r}'
+    raise ValueError(msg)
 
 
 def _split_into(n: int, type: str, value: str) -> list[str]:
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
     if len(list(filter(None, parts))) < n:
-        raise ValueError(f'invalid {type} index entry {value!r}')
+        msg = f'invalid {type} index entry {value!r}'
+        raise ValueError(msg)
     return parts

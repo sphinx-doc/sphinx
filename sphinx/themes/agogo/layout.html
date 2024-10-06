@@ -1,13 +1,4 @@
-{#
-    agogo/layout.html
-    ~~~~~~~~~~~~~~~~~
-
-    Sphinx layout template for the agogo theme, originally written
-    by Andi Albrecht.
-
-    :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-#}
+{# Sphinx layout template for the agogo theme. #}
 {%- extends "basic/layout.html" %}
 
 {% block header %}
@@ -15,14 +6,14 @@
       <div class="header">
         {%- if logo_url %}
           <p class="logo"><a href="{{ pathto(root_doc)|e }}">
-            <img class="logo" src="{{ logo_url|e }}" alt="Logo"/>
+            <img class="logo" src="{{ logo_url|e }}" alt="{{ logo_alt|e }}"/>
           </a></p>
         {%- endif %}
         {%- block headertitle %}
         <div class="headertitle"><a
           href="{{ pathto(root_doc)|e }}">{{ shorttitle|e }}</a></div>
         {%- endblock %}
-        <div class="rel" role="navigation" aria-label="related navigation">
+        <div class="rel" role="navigation" aria-label="Related">
           {%- for rellink in rellinks|reverse %}
           <a href="{{ pathto(rellink[0])|e }}" title="{{ rellink[1]|striptags|e }}"
              {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a>
@@ -39,13 +30,13 @@
           {{ toctree(includehidden=True) }}
           {%- endblock %}
           {%- block sidebarsearch %}
-          <div role="search">
+          <search role="search">
             <h3 style="margin-top: 1.5em;">{{ _('Search') }}</h3>
             <form class="search" action="{{ pathto('search') }}" method="get">
                 <input type="text" name="q" />
                 <input type="submit" value="{{ _('Go') }}" />
             </form>
-          </div>
+          </search>
           {%- endblock %}
 {% endmacro %}
 
@@ -76,7 +67,7 @@
     <div class="footer-wrapper">
       <div class="footer">
         <div class="left">
-          <div role="navigation" aria-label="related navigaton">
+          <div role="navigation" aria-label="Related">
             {%- for rellink in rellinks|reverse %}
             <a href="{{ pathto(rellink[0])|e }}" title="{{ rellink[1]|striptags|e }}"
               {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a>

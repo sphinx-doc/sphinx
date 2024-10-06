@@ -1,7 +1,7 @@
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexnumfig.sty}[2021/01/27 numbering]
+\ProvidesPackage{sphinxlatexnumfig}[2024/07/31 v8.1.0 numbering]
 
 % Requires: remreset (old LaTeX only)
 % relates to numfig and numfig_secnum_depth configuration variables
@@ -37,7 +37,11 @@
       \def\theequation{\arabic{equation}}%
     \fi
 \else
-\let\spx@preAthefigure\@empty
+% See apologetic comments on TeX wizardry at bottom of file.
+% The reason for this one is to catch case where there will be only
+% the number with no prefix from enclosing sectioning (can happen
+% with latex_toplevel_sectioning='part').
+\def\spx@preAthefigure{\expandafter\spx@magicsep@s\romannumeral-`0}
 \let\spx@preBthefigure\@empty
 % \ifspx@opt@usespart  % <-- LaTeX writer could pass such a 'usespart' boolean
 %                      %     as sphinx.sty package option
@@ -51,7 +55,7 @@
 \ifnum\spx@opt@numfigreset>0
     \ltx@ifundefined{c@chapter}
       {}
-      {\g@addto@macro\spx@preAthefigure{\ifnum\c@chapter>\z@\arabic{chapter}.}%
+      {\g@addto@macro\spx@preAthefigure{\ifnum\c@chapter>\z@\arabic{chapter}\spx@magicsep}%
        \g@addto@macro\spx@preBthefigure{\fi}}%
 \fi
 \ifnum\spx@opt@numfigreset>1
@@ -61,7 +65,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{section}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@section>\z@\arabic{section}\spx@magicsep}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>2
@@ -71,7 +75,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsection}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsection>\z@\arabic{subsection}\spx@magicsep}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>3
@@ -81,7 +85,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subsubsection}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubsection>\z@\arabic{subsubsection}\spx@magicsep}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>4
@@ -91,7 +95,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{paragraph}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subparagraph>\z@\arabic{subparagraph}\spx@magicsep}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \ifnum\spx@opt@numfigreset>5
@@ -101,7 +105,7 @@
     \ifspx@opt@mathnumfig
       \@addtoreset{equation}{subparagraph}%
     \fi%
-    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}.}%
+    \g@addto@macro\spx@preAthefigure{\ifnum\c@subsubparagraph>\z@\arabic{subsubparagraph}\spx@magicsep}%
     \g@addto@macro\spx@preBthefigure{\fi}%
 \fi
 \expandafter\g@addto@macro
@@ -114,9 +118,18 @@
 \g@addto@macro\theliteralblock{\arabic{literalblock}}%
   \ifspx@opt@mathnumfig
     \let\theequation\spx@preAthefigure
-    \g@addto@macro\theequation{\arabic{equation}}%
+    \g@addto@macro\theequation{E}%
   \fi
 \fi
 }% end of big \AtBeginDocument
 
+% Sorry for TeX wizardry here.  We need to keep expandability.  Explaining
+% the mechanism is not really feasible to non TeX-experts, but the idea
+% is to force next `\ifnum` conditional so we can check what comes next.
+% All cases are accounted for (i.e. not an equation, or an equation at top
+% level, or an equation in some section at some depth).
+\def\spx@magicsep{\expandafter\spx@magicsep@i\romannumeral-`0}
+\def\spx@magicsep@i#1{\if#1E\spx@opt@mathnumsep\arabic{equation}\else.#1\fi}
+%
+\def\spx@magicsep@s#1{\if#1E\arabic{equation}\else#1\fi}
 \endinput

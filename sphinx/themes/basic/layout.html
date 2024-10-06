@@ -1,12 +1,4 @@
-{#
-    basic/layout.html
-    ~~~~~~~~~~~~~~~~~
-
-    Master layout template for Sphinx themes.
-
-    :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-#}
+{# Master layout template for Sphinx themes. #}
 {%- block doctype -%}
 <!DOCTYPE html>
 {%- endblock %}
@@ -22,7 +14,7 @@
 {%- endif %}
 
 {%- macro relbar() %}
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>{{ _('Navigation') }}</h3>
       <ul>
         {%- for rellink in rellinks %}
@@ -45,12 +37,12 @@
 
 {%- macro sidebar() %}
       {%- if render_sidebar %}
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
           {%- block sidebarlogo %}
           {%- if logo_url %}
             <p class="logo"><a href="{{ pathto(root_doc)|e }}">
-              <img class="logo" src="{{ logo_url|e }}" alt="Logo"/>
+              <img class="logo" src="{{ logo_url|e }}" alt="{{ logo_alt|e }}"/>
             </a></p>
           {%- endif %}
           {%- endblock %}
@@ -70,9 +62,6 @@
             {%- block sidebarsourcelink %}
             {%- include "sourcelink.html" %}
             {%- endblock %}
-            {%- if customsidebar %}
-            {%- include customsidebar %}
-            {%- endif %}
             {%- block sidebarsearch %}
             {%- include "searchbox.html" %}
             {%- endblock %}

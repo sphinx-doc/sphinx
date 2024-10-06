@@ -7,13 +7,15 @@ from inspect import Parameter, Signature, getsource
 from typing import TYPE_CHECKING, Any, cast
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.pycode.ast import unparse as ast_unparse
 from sphinx.util import inspect, logging
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -66,9 +68,10 @@ def signature_from_ast(node: ast.FunctionDef, bound_method: bool,
         params.pop(0)
 
     # merge type_comment into signature
-    if not_suppressed(type_comment.argtypes):  # type: ignore
+    if not_suppressed(type_comment.argtypes):  # type: ignore[attr-defined]
         for i, param in enumerate(params):
-            params[i] = param.replace(annotation=type_comment.argtypes[i])  # type: ignore
+            params[i] = param.replace(
+                annotation=type_comment.argtypes[i])  # type: ignore[attr-defined]
 
     if node.returns:
         return Signature(params, return_annotation=node.returns)
@@ -132,7 +135,7 @@ def update_annotations_using_type_comments(app: Sphinx, obj: Any, bound_method: 
         logger.warning(__("Failed to parse type_comment for %r: %s"), obj, exc)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('autodoc-before-process-signature', update_annotations_using_type_comments)
 
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -6,7 +6,11 @@ class DocHere(Foo):
     pass
 
 
-class DocLowerLevel(DocHere):
+class DocSubDir1(DocHere):
+    pass
+
+
+class DocSubDir2(DocSubDir1):
     pass
 
 

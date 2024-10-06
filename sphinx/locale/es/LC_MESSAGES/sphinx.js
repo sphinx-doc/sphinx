@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Ir a",
         "Hide Search Matches": "Ocultar coincidencias de la b\u00fasqueda",
         "Index": "\u00cdndice",
-        "Index &ndash; %(key)s": "\u00cdndice &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\u00cdndice alfab\u00e9tico de p\u00e1ginas",
         "Indices and tables:": "\u00cdndices y tablas:",
         "Last updated on %(last_updated)s.": "Actualizado por \u00faltima vez en %(last_updated)s.",

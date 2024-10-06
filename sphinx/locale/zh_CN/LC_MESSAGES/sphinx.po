@@ -1,5 +1,5 @@
 # Translations template for Sphinx.
-# Copyright (C) 2023 ORGANIZATION
+# Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
@@ -25,32 +25,32 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-07-24 12:38+0000\n"
+"POT-Creation-Date: 2024-04-14 23:27+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Adam Turner, 2023\n"
 "Language-Team: Chinese (China) (http://app.transifex.com/sphinx-doc/sphinx-1/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.12.1\n"
+"Generated-By: Babel 2.14.0\n"
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: sphinx/application.py:153
+#: sphinx/application.py:157
 #, python-format
 msgid "Cannot find source directory (%s)"
 msgstr "无法找到源文件目录（%s）"
 
-#: sphinx/application.py:157
+#: sphinx/application.py:161
 #, python-format
 msgid "Output directory (%s) is not a directory"
 msgstr "输出目录（%s）不是一个目录"
 
-#: sphinx/application.py:161
+#: sphinx/application.py:165
 msgid "Source directory and destination directory cannot be identical"
 msgstr "源文件目录和目标目录不能是同一目录"
 
-#: sphinx/application.py:193
+#: sphinx/application.py:197
 #, python-format
 msgid "Running Sphinx v%s"
 msgstr "正在运行 Sphinx v%s"
@@ -66,7 +66,7 @@ msgstr "该项目需要 Sphinx v%s 及以上版本，当前使用版本不能构
 msgid "making output directory"
 msgstr "正在创建输出目录"
 
-#: sphinx/application.py:240 sphinx/registry.py:438
+#: sphinx/application.py:240 sphinx/registry.py:450
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "在设置扩展名 %s 时："
@@ -83,7 +83,7 @@ msgstr "当前 conf.py 中定义的 'setup' 不是一个 Python 的可调用对�
 msgid "loading translations [%s]... "
 msgstr "正在加载翻译 [%s]…"
 
-#: sphinx/application.py:294 sphinx/util/display.py:83
+#: sphinx/application.py:294 sphinx/util/display.py:85
 msgid "done"
 msgstr "完成"
 
@@ -91,7 +91,7 @@ msgstr "完成"
 msgid "not available for built-in messages"
 msgstr "没有找到内置信息的译文"
 
-#: sphinx/application.py:312
+#: sphinx/application.py:310
 msgid "loading pickled environment"
 msgstr "正在加载 Pickle 序列化的环境"
 
@@ -137,22 +137,22 @@ msgstr "构建%s，%s 条警告。"
 msgid "build %s."
 msgstr "构建%s。"
 
-#: sphinx/application.py:611
+#: sphinx/application.py:610
 #, python-format
 msgid "node class %r is already registered, its visitors will be overridden"
 msgstr "节点类 %r 已经注册过了，其访问者将被覆盖"
 
-#: sphinx/application.py:690
+#: sphinx/application.py:689
 #, python-format
 msgid "directive %r is already registered, it will be overridden"
 msgstr "指令 %r 已经注册过了，将被覆盖"
 
-#: sphinx/application.py:712 sphinx/application.py:734
+#: sphinx/application.py:711 sphinx/application.py:733
 #, python-format
 msgid "role %r is already registered, it will be overridden"
 msgstr "角色 %r 已经注册过了，将被覆盖"
 
-#: sphinx/application.py:1280
+#: sphinx/application.py:1282
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel reading, "
@@ -160,12 +160,12 @@ msgid ""
 "explicit"
 msgstr "扩展 %s 没有声明是否并行读取安全，默认假定为否—请联系扩展作者检查是否支持该特性并显式声明"
 
-#: sphinx/application.py:1284
+#: sphinx/application.py:1286
 #, python-format
 msgid "the %s extension is not safe for parallel reading"
 msgstr "扩展 %s 不是并行读取安全的"
 
-#: sphinx/application.py:1287
+#: sphinx/application.py:1289
 #, python-format
 msgid ""
 "the %s extension does not declare if it is safe for parallel writing, "
@@ -173,70 +173,75 @@ msgid ""
 "explicit"
 msgstr "%s 扩展没有声明是否并行写入安全，默认假定为否—请联系扩展作者检查是否支持该特性并显式声明"
 
-#: sphinx/application.py:1291
+#: sphinx/application.py:1293
 #, python-format
 msgid "the %s extension is not safe for parallel writing"
 msgstr "扩展 %s 不是并行写入安全的"
 
-#: sphinx/application.py:1299 sphinx/application.py:1303
+#: sphinx/application.py:1301 sphinx/application.py:1305
 #, python-format
 msgid "doing serial %s"
 msgstr "执行串行 %s"
 
-#: sphinx/config.py:175
+#: sphinx/config.py:309
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "配置目录中缺少 conf.py 文件（%s）"
 
-#: sphinx/config.py:184
+#: sphinx/config.py:318
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid language code. Falling back to 'en' (English)."
 msgstr "发现无效的配置值：“language = None”。请修改为有效的语言代码。回退至“en”（英语）。"
 
-#: sphinx/config.py:213
+#: sphinx/config.py:341
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "不能覆盖字典配置项 %r，已忽略 （请用 %r 方式逐一修改字典成员）"
 
-#: sphinx/config.py:222
+#: sphinx/config.py:350
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "%r 不是有效整数，配置项 %r 的值只能是整数，已忽略"
 
-#: sphinx/config.py:227
+#: sphinx/config.py:355
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "无法用不支持的类型覆盖配置项 %r，已忽略"
 
-#: sphinx/config.py:256
+#: sphinx/config.py:378
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "配置覆盖中包含未知的配置项 %r，已忽略"
 
-#: sphinx/config.py:284
+#: sphinx/config.py:418
 #, python-format
-msgid "No such config value: %s"
-msgstr "不存在此配置项：%s"
+msgid "No such config value: %r"
+msgstr ""
 
-#: sphinx/config.py:308
+#: sphinx/config.py:440
 #, python-format
 msgid "Config value %r already present"
 msgstr "配置项 %r 已存在"
 
-#: sphinx/config.py:356
+#: sphinx/config.py:473
+#, python-format
+msgid "cannot cache unpickable configuration value: %r"
+msgstr ""
+
+#: sphinx/config.py:509
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "配置文件中存在语法错误：%s\n"
 
-#: sphinx/config.py:359
+#: sphinx/config.py:512
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "配置文件（或配置文件导入的模块）调用了 sys.exit()"
 
-#: sphinx/config.py:366
+#: sphinx/config.py:519
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -244,1002 +249,1042 @@ msgid ""
 "%s"
 msgstr "配置文件中有程序上的错误：\n\n%s"
 
-#: sphinx/config.py:389
+#: sphinx/config.py:540
+#, python-format
+msgid "Failed to convert %r to a set or tuple"
+msgstr ""
+
+#: sphinx/config.py:565
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a string, list of strings, or "
 "dictionary. But `%r' is given."
 msgstr "配置项“source_suffix”的值应为字符串、字符串列表或字典。但给定的值是“%r”。"
 
-#: sphinx/config.py:408
+#: sphinx/config.py:585
 #, python-format
 msgid "Section %s"
 msgstr "节 %s"
 
-#: sphinx/config.py:409
+#: sphinx/config.py:586
 #, python-format
 msgid "Fig. %s"
 msgstr "图 %s"
 
-#: sphinx/config.py:410
+#: sphinx/config.py:587
 #, python-format
 msgid "Table %s"
 msgstr "表 %s"
 
-#: sphinx/config.py:411
+#: sphinx/config.py:588
 #, python-format
 msgid "Listing %s"
 msgstr "列表 %s"
 
-#: sphinx/config.py:448
+#: sphinx/config.py:663
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "配置项“{name}”的值只能在“{candidates}”中选取，而当前给定的值是“{current}”。"
 
-#: sphinx/config.py:466
+#: sphinx/config.py:687
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "配置项“{name}”的值被配置成“{current.__name__}”类型，应为{permitted}。"
 
-#: sphinx/config.py:478
+#: sphinx/config.py:700
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "配置项“{name}”的值被配置成“{current.__name__}”类型，默认为“{default.__name__}”。"
 
-#: sphinx/config.py:488
+#: sphinx/config.py:711
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r 不存在，已忽略。"
 
-#: sphinx/config.py:500
+#: sphinx/config.py:723
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
 msgstr "自 v2.0 起，Sphinx 采用“index”作为 root_doc 的默认值。请在你的 conf.py 中添加“root_doc = 'contents'”。"
 
-#: sphinx/events.py:62
+#: sphinx/events.py:64
 #, python-format
 msgid "Event %r already present"
 msgstr "事件 %r 已存在"
 
-#: sphinx/events.py:68
+#: sphinx/events.py:70
 #, python-format
 msgid "Unknown event name: %s"
 msgstr "未知的事件名称：%s"
 
-#: sphinx/events.py:107
+#: sphinx/events.py:109
 #, python-format
 msgid "Handler %r for event %r threw an exception"
 msgstr "事件处理函数 %r 在处理事件 %r 时抛出了异常"
 
-#: sphinx/extension.py:53
+#: sphinx/extension.py:55
 #, python-format
 msgid ""
 "The %s extension is required by needs_extensions settings, but it is not "
 "loaded."
 msgstr "未能加载 needs_extensions 配置项指定的 %s 扩展。"
 
-#: sphinx/extension.py:69
+#: sphinx/extension.py:76
 #, python-format
 msgid ""
 "This project needs the extension %s at least in version %s and therefore "
 "cannot be built with the loaded version (%s)."
 msgstr "该项目要求扩展 %s 至少是 %s 版本，当前加载版本（%s）无法构建文档。"
 
-#: sphinx/highlighting.py:147
+#: sphinx/highlighting.py:155
 #, python-format
 msgid "Pygments lexer name %r is not known"
 msgstr "未知的 Pygments 词法分析器 %r"
 
-#: sphinx/highlighting.py:173
+#: sphinx/highlighting.py:189
 #, python-format
-msgid "Could not lex literal_block %r as \"%s\". Highlighting skipped."
-msgstr "Could not lex literal_block %r as \"%s\". Highlighting skipped."
+msgid ""
+"Lexing literal_block %r as \"%s\" resulted in an error at token: %r. "
+"Retrying in relaxed mode."
+msgstr ""
 
-#: sphinx/project.py:51
+#: sphinx/project.py:66
 #, python-format
 msgid ""
 "multiple files found for the document \"%s\": %r\n"
 "Use %r for the build."
 msgstr "发现多个文件对应文档“%s”：%r\n将采用 %r 用于构建。"
 
-#: sphinx/project.py:57
-msgid "document not readable. Ignored."
-msgstr "无法读取文档源文件，已忽略。"
+#: sphinx/project.py:81
+#, python-format
+msgid "Ignored unreadable document %r."
+msgstr ""
 
-#: sphinx/registry.py:132
+#: sphinx/registry.py:142
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "构建器 %s 未包含“name”属性"
 
-#: sphinx/registry.py:134
+#: sphinx/registry.py:144
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "构建器 %r 已存在（见模块 %s）"
 
-#: sphinx/registry.py:147
+#: sphinx/registry.py:157
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "构建器 %s 未注册或在入口点不可用"
 
-#: sphinx/registry.py:155
+#: sphinx/registry.py:164
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "构建器 %s 未注册"
 
-#: sphinx/registry.py:162
+#: sphinx/registry.py:171
 #, python-format
 msgid "domain %s already registered"
 msgstr "域 %s 已经注册过了"
 
-#: sphinx/registry.py:185 sphinx/registry.py:198 sphinx/registry.py:209
+#: sphinx/registry.py:194 sphinx/registry.py:207 sphinx/registry.py:218
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "域 %s 未注册"
 
-#: sphinx/registry.py:189
+#: sphinx/registry.py:198
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "指令 %r 已经在域 %s 上注册过了"
 
-#: sphinx/registry.py:201
+#: sphinx/registry.py:210
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "角色 %r 已经在域 %s 上注册过了"
 
-#: sphinx/registry.py:212
+#: sphinx/registry.py:221
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "索引 %r 已经在域 %s 上注册过了"
 
-#: sphinx/registry.py:243
+#: sphinx/registry.py:252
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "对象类型 %r 已经注册过了"
 
-#: sphinx/registry.py:269
+#: sphinx/registry.py:278
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "交叉引用类型 %r 已经注册过了"
 
-#: sphinx/registry.py:276
+#: sphinx/registry.py:285
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "源文件扩展名 %r 已经注册过了"
 
-#: sphinx/registry.py:285
+#: sphinx/registry.py:294
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "%r 的源文件解析器已经注册过了"
 
-#: sphinx/registry.py:293
+#: sphinx/registry.py:302
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "未注册 %s 的源代码语法分析器"
 
-#: sphinx/registry.py:309
+#: sphinx/registry.py:318
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "翻译器已存在 %r"
 
-#: sphinx/registry.py:325
+#: sphinx/registry.py:334
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "add_node() 的关键字参数必须是 (visit, depart) 形式的函数元组：%r=%r"
 
-#: sphinx/registry.py:407
+#: sphinx/registry.py:417
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "可枚举节点 %r 已经注册过了"
 
-#: sphinx/registry.py:419
+#: sphinx/registry.py:429
 #, python-format
 msgid "math renderer %s is already registered"
 msgstr "公式渲染器 %s 已经注册过了"
 
-#: sphinx/registry.py:432
+#: sphinx/registry.py:444
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "扩展 %r 自 Sphinx %s 版本起合并至 Sphinx；因此，该扩展被忽略。"
 
-#: sphinx/registry.py:443
+#: sphinx/registry.py:455
 msgid "Original exception:\n"
 msgstr "原始异常：\n"
 
-#: sphinx/registry.py:444
+#: sphinx/registry.py:456
 #, python-format
 msgid "Could not import extension %s"
 msgstr "无法导入扩展 %s"
 
-#: sphinx/registry.py:449
+#: sphinx/registry.py:461
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "扩展 %r 缺少 setup() 函数；它确实是一个 Sphinx 扩展模块吗？"
 
-#: sphinx/registry.py:458
+#: sphinx/registry.py:470
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "该项目所用扩展 %s 需要 Sphinx %s 或以上版本；当前版本无法构建文档。"
 
-#: sphinx/registry.py:466
+#: sphinx/registry.py:478
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
 "should return None or a metadata dictionary"
 msgstr "扩展 %r 在其 setup() 函数中返回了一个不支持的对象；该函数应返回 None 或一个元数据字典"
 
-#: sphinx/roles.py:175
+#: sphinx/roles.py:201
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python 增强建议；PEP %s"
 
-#: sphinx/roles.py:191
+#: sphinx/roles.py:222
 #, python-format
 msgid "invalid PEP number %s"
 msgstr "无效的 PEP 编号%s"
 
-#: sphinx/roles.py:225
+#: sphinx/roles.py:257
 #, python-format
 msgid "invalid RFC number %s"
 msgstr "无效的 RFC 编号 %s"
 
-#: sphinx/theming.py:75
-#, python-format
-msgid "theme %r doesn't have \"theme\" setting"
-msgstr "主题 %r 未包含“theme”配置项"
-
-#: sphinx/theming.py:77
-#, python-format
-msgid "theme %r doesn't have \"inherit\" setting"
-msgstr "主题 %r 未包含“inherit”配置项"
-
-#: sphinx/theming.py:83
-#, python-format
-msgid "no theme named %r found, inherited by %r"
-msgstr "未找到主题 %r；由于 %r 继承了它，无法继续。"
-
-#: sphinx/theming.py:106
+#: sphinx/theming.py:125
 #, python-format
 msgid "setting %s.%s occurs in none of the searched theme configs"
 msgstr "所有已找到的主题配置均未包含配置项 %s.%s"
 
-#: sphinx/theming.py:124
+#: sphinx/theming.py:140
 #, python-format
 msgid "unsupported theme option %r given"
 msgstr "不支持的主题选项 %r"
 
-#: sphinx/theming.py:214
+#: sphinx/theming.py:206
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
 msgstr "主题路径对应的文件 %r 是一个无效的或不包含主题的 zip 文件"
 
-#: sphinx/theming.py:228
+#: sphinx/theming.py:226
 #, python-format
-msgid "no theme named %r found (missing theme.conf?)"
-msgstr "未找到主题 %r（可能是因为缺少 theme.conf）"
+msgid "no theme named %r found (missing theme.toml?)"
+msgstr ""
 
-#: sphinx/builders/__init__.py:180
+#: sphinx/theming.py:259
+#, python-format
+msgid "The %r theme has circular inheritance"
+msgstr ""
+
+#: sphinx/theming.py:262
+#, python-format
+msgid ""
+"The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
+"are: %s"
+msgstr ""
+
+#: sphinx/theming.py:269
+#, python-format
+msgid "The %r theme has too many ancestors"
+msgstr ""
+
+#: sphinx/theming.py:295
+#, python-format
+msgid "no theme configuration file found in %r"
+msgstr ""
+
+#: sphinx/theming.py:323 sphinx/theming.py:374
+#, python-format
+msgid "theme %r doesn't have the \"theme\" table"
+msgstr ""
+
+#: sphinx/theming.py:327
+#, python-format
+msgid "The %r theme \"[theme]\" table is not a table"
+msgstr ""
+
+#: sphinx/theming.py:331 sphinx/theming.py:377
+#, python-format
+msgid "The %r theme must define the \"theme.inherit\" setting"
+msgstr ""
+
+#: sphinx/theming.py:335
+#, python-format
+msgid "The %r theme \"[options]\" table is not a table"
+msgstr ""
+
+#: sphinx/theming.py:353
+#, python-format
+msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
+msgstr ""
+
+#: sphinx/builders/__init__.py:183
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "没有找到适合 %s 构建器的图像：%s（%s）"
 
-#: sphinx/builders/__init__.py:184
+#: sphinx/builders/__init__.py:187
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "没有找到适合 %s 构建器的图像：%s"
 
-#: sphinx/builders/__init__.py:204
+#: sphinx/builders/__init__.py:207
 msgid "building [mo]: "
 msgstr "正在构建 [mo]： "
 
-#: sphinx/builders/__init__.py:205 sphinx/builders/__init__.py:571
-#: sphinx/builders/__init__.py:598
+#: sphinx/builders/__init__.py:208 sphinx/builders/__init__.py:574
+#: sphinx/builders/__init__.py:601
 msgid "writing output... "
 msgstr "正在写入输出……"
 
-#: sphinx/builders/__init__.py:214
+#: sphinx/builders/__init__.py:217
 #, python-format
 msgid "all of %d po files"
 msgstr "所有的 %d po 文件"
 
-#: sphinx/builders/__init__.py:232
+#: sphinx/builders/__init__.py:235
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "指定了 %d 个 po 文件的目标文件"
 
-#: sphinx/builders/__init__.py:240
+#: sphinx/builders/__init__.py:243
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "%d 个 po 文件的目标文件已过期"
 
-#: sphinx/builders/__init__.py:249
+#: sphinx/builders/__init__.py:252
 msgid "all source files"
 msgstr "所有源文件"
 
-#: sphinx/builders/__init__.py:259
+#: sphinx/builders/__init__.py:262
 #, python-format
 msgid "file %r given on command line does not exist, "
 msgstr "命令行给定的文件 %r 不存在"
 
-#: sphinx/builders/__init__.py:264
+#: sphinx/builders/__init__.py:267
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "源文件目录中不存在命令行给定的文件 %r，将被忽略"
 
-#: sphinx/builders/__init__.py:270
+#: sphinx/builders/__init__.py:273
 #, python-format
 msgid "file %r given on command line is not a valid document, ignoring"
 msgstr "命令行给定的文件 %r 不是有效文档，将被忽略"
 
-#: sphinx/builders/__init__.py:279
+#: sphinx/builders/__init__.py:282
 #, python-format
 msgid "%d source files given on command line"
 msgstr "命令行给定了 %d 个源文件"
 
-#: sphinx/builders/__init__.py:291
+#: sphinx/builders/__init__.py:294
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "%d 个源文件的目标文件已过期"
 
-#: sphinx/builders/__init__.py:306 sphinx/builders/gettext.py:240
+#: sphinx/builders/__init__.py:309 sphinx/builders/gettext.py:243
 #, python-format
 msgid "building [%s]: "
 msgstr "正在构建 [%s]： "
 
-#: sphinx/builders/__init__.py:313
+#: sphinx/builders/__init__.py:316
 msgid "looking for now-outdated files... "
 msgstr "正在查找当前已过期的文件……"
 
-#: sphinx/builders/__init__.py:318
+#: sphinx/builders/__init__.py:320
 #, python-format
 msgid "%d found"
 msgstr "找到 %d 个已过期文件"
 
-#: sphinx/builders/__init__.py:320
+#: sphinx/builders/__init__.py:322
 msgid "none found"
 msgstr "没有找到已过期文件"
 
-#: sphinx/builders/__init__.py:325
+#: sphinx/builders/__init__.py:327
 msgid "pickling environment"
 msgstr "正在 Pickle 序列化环境"
 
-#: sphinx/builders/__init__.py:331
+#: sphinx/builders/__init__.py:333
 msgid "checking consistency"
 msgstr "正在校验一致性"
 
-#: sphinx/builders/__init__.py:335
+#: sphinx/builders/__init__.py:337
 msgid "no targets are out of date."
 msgstr "没有过期的目标文件。"
 
-#: sphinx/builders/__init__.py:374
+#: sphinx/builders/__init__.py:376
 msgid "updating environment: "
 msgstr "正在更新环境："
 
-#: sphinx/builders/__init__.py:395
+#: sphinx/builders/__init__.py:397
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "有 %s 个新增文件，有 %s 个文件已被修改，有 %s 个文件已被移除"
 
-#: sphinx/builders/__init__.py:433 sphinx/builders/__init__.py:445
+#: sphinx/builders/__init__.py:435 sphinx/builders/__init__.py:447
 msgid "reading sources... "
 msgstr "正在读取源文件……"
 
-#: sphinx/builders/__init__.py:546
+#: sphinx/builders/__init__.py:549
 #, python-format
 msgid "docnames to write: %s"
 msgstr "待写入文档名称：%s"
 
-#: sphinx/builders/__init__.py:555 sphinx/builders/singlehtml.py:148
+#: sphinx/builders/__init__.py:558 sphinx/builders/singlehtml.py:157
 msgid "preparing documents"
 msgstr "正在准备写入文档"
 
-#: sphinx/builders/__init__.py:558
+#: sphinx/builders/__init__.py:561
 msgid "copying assets"
 msgstr "正在复制资产文件"
 
-#: sphinx/builders/_epub_base.py:214
+#: sphinx/builders/_epub_base.py:215
 #, python-format
 msgid "duplicated ToC entry found: %s"
 msgstr "发现重复的目录条目：%s"
 
-#: sphinx/builders/_epub_base.py:402 sphinx/builders/html/__init__.py:770
-#: sphinx/builders/latex/__init__.py:420 sphinx/builders/texinfo.py:178
+#: sphinx/builders/_epub_base.py:404 sphinx/builders/html/__init__.py:758
+#: sphinx/builders/latex/__init__.py:432 sphinx/builders/texinfo.py:187
 msgid "copying images... "
 msgstr "正在复制图像文件……"
 
-#: sphinx/builders/_epub_base.py:409
+#: sphinx/builders/_epub_base.py:411
 #, python-format
 msgid "cannot read image file %r: copying it instead"
 msgstr "无法读取图像文件 %r：改为直接复制"
 
-#: sphinx/builders/_epub_base.py:415 sphinx/builders/html/__init__.py:778
-#: sphinx/builders/latex/__init__.py:428 sphinx/builders/texinfo.py:188
+#: sphinx/builders/_epub_base.py:417 sphinx/builders/html/__init__.py:766
+#: sphinx/builders/latex/__init__.py:440 sphinx/builders/texinfo.py:197
 #, python-format
 msgid "cannot copy image file %r: %s"
 msgstr "无法复制图像文件 %r：%s"
 
-#: sphinx/builders/_epub_base.py:432
+#: sphinx/builders/_epub_base.py:434
 #, python-format
 msgid "cannot write image file %r: %s"
 msgstr "无法写入图像文件 %r：%s"
 
-#: sphinx/builders/_epub_base.py:442
+#: sphinx/builders/_epub_base.py:444
 msgid "Pillow not found - copying image files"
 msgstr "未找到 Pillow - 正在复制图像文件"
 
-#: sphinx/builders/_epub_base.py:468
+#: sphinx/builders/_epub_base.py:470
 msgid "writing mimetype file..."
 msgstr "正在写入 mimetype 文件……"
 
-#: sphinx/builders/_epub_base.py:473
+#: sphinx/builders/_epub_base.py:475
 msgid "writing META-INF/container.xml file..."
 msgstr "正在写入 META-INF/container.xml 文件……"
 
-#: sphinx/builders/_epub_base.py:501
+#: sphinx/builders/_epub_base.py:508
 msgid "writing content.opf file..."
 msgstr "正在写入 content.opf 文件……"
 
-#: sphinx/builders/_epub_base.py:527
+#: sphinx/builders/_epub_base.py:539
 #, python-format
 msgid "unknown mimetype for %s, ignoring"
 msgstr "%s 的 MIME 类型未知，已忽略"
 
-#: sphinx/builders/_epub_base.py:674
+#: sphinx/builders/_epub_base.py:686
 msgid "writing toc.ncx file..."
 msgstr "正在写入 toc.ncx 文件……"
 
-#: sphinx/builders/_epub_base.py:699
+#: sphinx/builders/_epub_base.py:711
 #, python-format
 msgid "writing %s file..."
 msgstr "正在写入 %s 文件……"
 
-#: sphinx/builders/changes.py:28
+#: sphinx/builders/changes.py:32
 #, python-format
 msgid "The overview file is in %(outdir)s."
 msgstr "概览文件保存在 %(outdir)s 目录 。"
 
-#: sphinx/builders/changes.py:54
+#: sphinx/builders/changes.py:59
 #, python-format
 msgid "no changes in version %s."
 msgstr "%s 版本中没有做出修改。"
 
-#: sphinx/builders/changes.py:56
+#: sphinx/builders/changes.py:61
 msgid "writing summary file..."
 msgstr "正在写入摘要文件……"
 
-#: sphinx/builders/changes.py:71
+#: sphinx/builders/changes.py:76
 msgid "Builtins"
 msgstr "内置模块"
 
-#: sphinx/builders/changes.py:73
+#: sphinx/builders/changes.py:78
 msgid "Module level"
 msgstr "模块级"
 
-#: sphinx/builders/changes.py:116
+#: sphinx/builders/changes.py:123
 msgid "copying source files..."
 msgstr "正在复制源文件……"
 
-#: sphinx/builders/changes.py:123
+#: sphinx/builders/changes.py:130
 #, python-format
 msgid "could not read %r for changelog creation"
 msgstr "无法读取用于创建变更记录的 %r"
 
-#: sphinx/builders/dummy.py:16
+#: sphinx/builders/dummy.py:19
 msgid "The dummy builder generates no files."
 msgstr "伪构建器不生成文件。"
 
-#: sphinx/builders/epub3.py:77
+#: sphinx/builders/epub3.py:81
 #, python-format
 msgid "The ePub file is in %(outdir)s."
 msgstr "ePub 文件保存在 %(outdir)s。"
 
-#: sphinx/builders/epub3.py:175
+#: sphinx/builders/epub3.py:185
 msgid "writing nav.xhtml file..."
 msgstr "正在写入 nav.xhtml 文件……"
 
-#: sphinx/builders/epub3.py:201
+#: sphinx/builders/epub3.py:211
 msgid "conf value \"epub_language\" (or \"language\") should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_language”（或“language”）的值不能为空"
 
-#: sphinx/builders/epub3.py:205
+#: sphinx/builders/epub3.py:215
 msgid "conf value \"epub_uid\" should be XML NAME for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_uid”的值应为 XML 名称格式的字符串"
 
-#: sphinx/builders/epub3.py:208
+#: sphinx/builders/epub3.py:218
 msgid "conf value \"epub_title\" (or \"html_title\") should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_title”（或“html_title”）的值不能为空"
 
-#: sphinx/builders/epub3.py:212
+#: sphinx/builders/epub3.py:222
 msgid "conf value \"epub_author\" should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_author”的值不能为空"
 
-#: sphinx/builders/epub3.py:215
+#: sphinx/builders/epub3.py:225
 msgid "conf value \"epub_contributor\" should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_contributor”的值不能为空"
 
-#: sphinx/builders/epub3.py:218
+#: sphinx/builders/epub3.py:228
 msgid "conf value \"epub_description\" should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_description”的值不能为空"
 
-#: sphinx/builders/epub3.py:221
+#: sphinx/builders/epub3.py:231
 msgid "conf value \"epub_publisher\" should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_publisher”的值不能为空"
 
-#: sphinx/builders/epub3.py:224
+#: sphinx/builders/epub3.py:234
 msgid "conf value \"epub_copyright\" (or \"copyright\")should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_copyright”（或“copyright”）不能为空"
 
-#: sphinx/builders/epub3.py:228
+#: sphinx/builders/epub3.py:238
 msgid "conf value \"epub_identifier\" should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“epub_identifier”的值不能为空"
 
-#: sphinx/builders/epub3.py:231
+#: sphinx/builders/epub3.py:241
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "对于 EPUB3 格式，配置项“version”的值不能为空"
 
-#: sphinx/builders/epub3.py:245 sphinx/builders/html/__init__.py:1164
+#: sphinx/builders/epub3.py:255 sphinx/builders/html/__init__.py:1187
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "无效的 css_file：%r，已忽略"
 
-#: sphinx/builders/gettext.py:219
+#: sphinx/builders/gettext.py:222
 #, python-format
 msgid "The message catalogs are in %(outdir)s."
 msgstr "消息目录保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/gettext.py:241
+#: sphinx/builders/gettext.py:244
 #, python-format
 msgid "targets for %d template files"
 msgstr "%d 个模板文件的目标文件"
 
-#: sphinx/builders/gettext.py:245
+#: sphinx/builders/gettext.py:248
 msgid "reading templates... "
 msgstr "正在读取模板……"
 
-#: sphinx/builders/gettext.py:278
+#: sphinx/builders/gettext.py:282
 msgid "writing message catalogs... "
 msgstr "正在写入消息目录... "
 
-#: sphinx/builders/linkcheck.py:53
+#: sphinx/builders/linkcheck.py:59
 #, python-format
 msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
 msgstr "请在上述输出或 %(outdir)s/output.txt 中查找错误"
 
-#: sphinx/builders/linkcheck.py:102
+#: sphinx/builders/linkcheck.py:137
 #, python-format
 msgid "broken link: %s (%s)"
 msgstr "损坏的链接：%s（%s）"
 
-#: sphinx/builders/linkcheck.py:598
+#: sphinx/builders/linkcheck.py:660
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr "无法编译 linkcheck_allowed_redirects 配置项中的正则表达式：%r %s"
 
-#: sphinx/builders/manpage.py:33
+#: sphinx/builders/manpage.py:37
 #, python-format
 msgid "The manual pages are in %(outdir)s."
 msgstr "手册页保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/manpage.py:40
+#: sphinx/builders/manpage.py:44
 msgid "no \"man_pages\" config value found; no manual pages will be written"
 msgstr "未找到“man_pages”配置项，不会写入手册页"
 
-#: sphinx/builders/latex/__init__.py:304 sphinx/builders/manpage.py:49
-#: sphinx/builders/singlehtml.py:156 sphinx/builders/texinfo.py:105
+#: sphinx/builders/latex/__init__.py:314 sphinx/builders/manpage.py:53
+#: sphinx/builders/singlehtml.py:165 sphinx/builders/texinfo.py:112
 msgid "writing"
 msgstr "正在写入"
 
-#: sphinx/builders/manpage.py:64
+#: sphinx/builders/manpage.py:68
 #, python-format
 msgid "\"man_pages\" config value references unknown document %s"
 msgstr "配置项“man_pages”引用的文档 %s 不存在"
 
-#: sphinx/builders/singlehtml.py:29
+#: sphinx/builders/singlehtml.py:34
 #, python-format
 msgid "The HTML page is in %(outdir)s."
 msgstr "HTML 页面保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/singlehtml.py:151
+#: sphinx/builders/singlehtml.py:160
 msgid "assembling single document"
 msgstr "正在装配成单页面文档"
 
-#: sphinx/builders/singlehtml.py:169
+#: sphinx/builders/singlehtml.py:178
 msgid "writing additional files"
 msgstr "正在写入附加文件"
 
-#: sphinx/builders/texinfo.py:41
+#: sphinx/builders/texinfo.py:48
 #, python-format
 msgid "The Texinfo files are in %(outdir)s."
 msgstr "Texinfo 文件保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/texinfo.py:43
+#: sphinx/builders/texinfo.py:50
 msgid ""
 "\n"
 "Run 'make' in that directory to run these through makeinfo\n"
 "(use 'make info' here to do that automatically)."
 msgstr "\n在该目录下运行“make”命令以通过 makeinfo 处理这些 Texinfo 文件\n（在此处用“make info”即可自动执行上述操作）。"
 
-#: sphinx/builders/texinfo.py:70
+#: sphinx/builders/texinfo.py:77
 msgid "no \"texinfo_documents\" config value found; no documents will be written"
 msgstr "未找到“texinfo_documents”配置项，不会写入文档"
 
-#: sphinx/builders/texinfo.py:78
+#: sphinx/builders/texinfo.py:85
 #, python-format
 msgid "\"texinfo_documents\" config value references unknown document %s"
 msgstr "配置项“texinfo_documents”引用了文档 %s 不存在"
 
-#: sphinx/builders/latex/__init__.py:286 sphinx/builders/texinfo.py:101
+#: sphinx/builders/latex/__init__.py:296 sphinx/builders/texinfo.py:108
 #, python-format
 msgid "processing %s"
 msgstr "正在处理 %s"
 
-#: sphinx/builders/latex/__init__.py:359 sphinx/builders/texinfo.py:154
+#: sphinx/builders/latex/__init__.py:369 sphinx/builders/texinfo.py:161
 msgid "resolving references..."
 msgstr "正在解析引用……"
 
-#: sphinx/builders/latex/__init__.py:369 sphinx/builders/texinfo.py:163
+#: sphinx/builders/latex/__init__.py:380 sphinx/builders/texinfo.py:171
 msgid " (in "
 msgstr " (在 "
 
-#: sphinx/builders/texinfo.py:193
+#: sphinx/builders/texinfo.py:202
 msgid "copying Texinfo support files"
 msgstr "正在复制 Texinfo 支持文件"
 
-#: sphinx/builders/texinfo.py:197
+#: sphinx/builders/texinfo.py:206
 #, python-format
 msgid "error writing file Makefile: %s"
 msgstr "写入 Makefile 文件时出错：%s"
 
-#: sphinx/builders/text.py:24
+#: sphinx/builders/text.py:30
 #, python-format
 msgid "The text files are in %(outdir)s."
 msgstr "文本文件保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/html/__init__.py:1117 sphinx/builders/text.py:71
-#: sphinx/builders/xml.py:89
+#: sphinx/builders/html/__init__.py:1138 sphinx/builders/text.py:77
+#: sphinx/builders/xml.py:96
 #, python-format
 msgid "error writing file %s: %s"
 msgstr "写入文件 %s 时发生错误：%s"
 
-#: sphinx/builders/xml.py:29
+#: sphinx/builders/xml.py:36
 #, python-format
 msgid "The XML files are in %(outdir)s."
 msgstr "XML 文件保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/xml.py:101
+#: sphinx/builders/xml.py:109
 #, python-format
 msgid "The pseudo-XML files are in %(outdir)s."
 msgstr "伪 XML 文件保存在 %(outdir)s。"
 
-#: sphinx/builders/html/__init__.py:160
+#: sphinx/builders/html/__init__.py:130
 #, python-format
 msgid "build info file is broken: %r"
 msgstr "构建信息文件损坏：%r"
 
-#: sphinx/builders/html/__init__.py:197
+#: sphinx/builders/html/__init__.py:168
 #, python-format
 msgid "The HTML pages are in %(outdir)s."
 msgstr "HTML 页面保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/html/__init__.py:409
+#: sphinx/builders/html/__init__.py:394
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "读取构建信息文件失败：%r"
 
-#: sphinx/builders/html/__init__.py:503 sphinx/builders/latex/__init__.py:182
-#: sphinx/transforms/__init__.py:109 sphinx/writers/manpage.py:96
-#: sphinx/writers/texinfo.py:223
+#: sphinx/builders/html/__init__.py:487 sphinx/builders/latex/__init__.py:189
+#: sphinx/transforms/__init__.py:119 sphinx/writers/manpage.py:101
+#: sphinx/writers/texinfo.py:227
 #, python-format
 msgid "%b %d, %Y"
 msgstr "%Y 年 %m 月 %d 日"
 
-#: sphinx/builders/html/__init__.py:522 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html/__init__.py:506 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "总索引"
 
-#: sphinx/builders/html/__init__.py:522
+#: sphinx/builders/html/__init__.py:506
 msgid "index"
 msgstr "索引"
 
-#: sphinx/builders/html/__init__.py:588
+#: sphinx/builders/html/__init__.py:579
 msgid "next"
 msgstr "下一页"
 
-#: sphinx/builders/html/__init__.py:597
+#: sphinx/builders/html/__init__.py:588
 msgid "previous"
 msgstr "上一页"
 
-#: sphinx/builders/html/__init__.py:694
+#: sphinx/builders/html/__init__.py:684
 msgid "generating indices"
 msgstr "正在生成索引"
 
-#: sphinx/builders/html/__init__.py:709
+#: sphinx/builders/html/__init__.py:699
 msgid "writing additional pages"
 msgstr "正在写入附加页面"
 
-#: sphinx/builders/html/__init__.py:788
+#: sphinx/builders/html/__init__.py:776
 msgid "copying downloadable files... "
 msgstr "正在复制可下载文件……"
 
-#: sphinx/builders/html/__init__.py:796
+#: sphinx/builders/html/__init__.py:784
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "无法复制可下载文件 %r：%s"
 
-#: sphinx/builders/html/__init__.py:829 sphinx/builders/html/__init__.py:841
+#: sphinx/builders/html/__init__.py:817 sphinx/builders/html/__init__.py:829
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "无法复制 html_static_file 中的文件：%s: %r"
 
-#: sphinx/builders/html/__init__.py:862
+#: sphinx/builders/html/__init__.py:850
 msgid "copying static files"
 msgstr "正在复制静态文件"
 
-#: sphinx/builders/html/__init__.py:878
+#: sphinx/builders/html/__init__.py:866
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "无法复制静态文件 %r"
 
-#: sphinx/builders/html/__init__.py:883
+#: sphinx/builders/html/__init__.py:871
 msgid "copying extra files"
 msgstr "正在复制额外文件"
 
-#: sphinx/builders/html/__init__.py:889
+#: sphinx/builders/html/__init__.py:877
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "无法复制额外文件 %r"
 
-#: sphinx/builders/html/__init__.py:896
+#: sphinx/builders/html/__init__.py:884
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "写入构建信息文件失败：%r"
 
-#: sphinx/builders/html/__init__.py:944
+#: sphinx/builders/html/__init__.py:933
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "无法加载搜索索引，不会构建所有文档：索引将不完整。"
 
-#: sphinx/builders/html/__init__.py:1005
+#: sphinx/builders/html/__init__.py:978
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "页面 %s 同时符合两条 html_sidebars 规则：%r 和 %r"
 
-#: sphinx/builders/html/__init__.py:1100
+#: sphinx/builders/html/__init__.py:1121
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "在渲染页面 %s 时发生了 Unicode 错误。请确保所有包含非 ASCII 字符的配置项均为 Unicode 字符串。"
 
-#: sphinx/builders/html/__init__.py:1105
+#: sphinx/builders/html/__init__.py:1126
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "渲染页面 %s 时发生了错误。\n原因：%r"
 
-#: sphinx/builders/html/__init__.py:1134
+#: sphinx/builders/html/__init__.py:1154
 msgid "dumping object inventory"
 msgstr "正在导出对象清单"
 
-#: sphinx/builders/html/__init__.py:1139
+#: sphinx/builders/html/__init__.py:1162
 #, python-format
 msgid "dumping search index in %s"
 msgstr "正在导出 %s 的搜索索引"
 
-#: sphinx/builders/html/__init__.py:1181
+#: sphinx/builders/html/__init__.py:1210
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "无效的 js_file：%r，已忽略"
 
-#: sphinx/builders/html/__init__.py:1285
+#: sphinx/builders/html/__init__.py:1238
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "注册了多个 math_renderer，但没有选择 math_renderer。"
 
-#: sphinx/builders/html/__init__.py:1288
+#: sphinx/builders/html/__init__.py:1241
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "给定的 math_renderer %r 不存在。"
 
-#: sphinx/builders/html/__init__.py:1296
+#: sphinx/builders/html/__init__.py:1249
 #, python-format
 msgid "html_extra_path entry %r does not exist"
 msgstr "html_extra_path 入口 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1300
+#: sphinx/builders/html/__init__.py:1253
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path 入口 %r 被置于输出目录内"
 
-#: sphinx/builders/html/__init__.py:1309
+#: sphinx/builders/html/__init__.py:1262
 #, python-format
 msgid "html_static_path entry %r does not exist"
 msgstr "html_static_path 入口 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1313
+#: sphinx/builders/html/__init__.py:1266
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path 入口 %r 置于输出目录内"
 
-#: sphinx/builders/html/__init__.py:1322 sphinx/builders/latex/__init__.py:432
+#: sphinx/builders/html/__init__.py:1275 sphinx/builders/latex/__init__.py:444
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "logo 文件 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1331
+#: sphinx/builders/html/__init__.py:1284
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "favicon 文件 %r 不存在"
 
-#: sphinx/builders/html/__init__.py:1338
+#: sphinx/builders/html/__init__.py:1291
 msgid ""
 "HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
 "configuration options)"
 msgstr "Sphinx 不再支持 HTML 4。（在配置项中检测到了“html4_writer=True”）"
 
-#: sphinx/builders/html/__init__.py:1353
+#: sphinx/builders/html/__init__.py:1306
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s 文档"
 
-#: sphinx/builders/latex/__init__.py:108
+#: sphinx/builders/latex/__init__.py:115
 #, python-format
 msgid "The LaTeX files are in %(outdir)s."
 msgstr "LaTex 文件保存在 %(outdir)s 目录。"
 
-#: sphinx/builders/latex/__init__.py:110
+#: sphinx/builders/latex/__init__.py:117
 msgid ""
 "\n"
 "Run 'make' in that directory to run these through (pdf)latex\n"
 "(use `make latexpdf' here to do that automatically)."
 msgstr "\n在该目录下运行“make”以通过 (pdf)latex 处理这些 LaTex 文件\n（在此处用“make latexpdf”即可自动执行上述操作）。"
 
-#: sphinx/builders/latex/__init__.py:145
+#: sphinx/builders/latex/__init__.py:152
 msgid "no \"latex_documents\" config value found; no documents will be written"
 msgstr "未找到“latex_documents”配置项，不会写入文档"
 
-#: sphinx/builders/latex/__init__.py:153
+#: sphinx/builders/latex/__init__.py:160
 #, python-format
 msgid "\"latex_documents\" config value references unknown document %s"
 msgstr "配置项“latex_documents”引用的文档 %s 不存在"
 
-#: sphinx/builders/latex/__init__.py:189 sphinx/domains/std.py:553
-#: sphinx/domains/std.py:565 sphinx/templates/latex/latex.tex_t:106
+#: sphinx/builders/latex/__init__.py:196 sphinx/domains/std/__init__.py:559
+#: sphinx/domains/std/__init__.py:571 sphinx/templates/latex/latex.tex_t:106
 #: sphinx/themes/basic/genindex-single.html:30
 #: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:11 sphinx/themes/basic/genindex.html:34
 #: sphinx/themes/basic/genindex.html:67 sphinx/themes/basic/layout.html:138
-#: sphinx/writers/texinfo.py:491
+#: sphinx/writers/texinfo.py:497
 msgid "Index"
 msgstr "索引"
 
-#: sphinx/builders/latex/__init__.py:192 sphinx/templates/latex/latex.tex_t:91
+#: sphinx/builders/latex/__init__.py:199 sphinx/templates/latex/latex.tex_t:91
 msgid "Release"
 msgstr "发行版本"
 
-#: sphinx/builders/latex/__init__.py:206 sphinx/writers/latex.py:366
+#: sphinx/builders/latex/__init__.py:213 sphinx/writers/latex.py:370
 #, python-format
 msgid "no Babel option known for language %r"
 msgstr "没有语种 %r 的 Babel 选项"
 
-#: sphinx/builders/latex/__init__.py:382
+#: sphinx/builders/latex/__init__.py:394
 msgid "copying TeX support files"
 msgstr "正在复制 TeX 支持文件"
 
-#: sphinx/builders/latex/__init__.py:398
+#: sphinx/builders/latex/__init__.py:410
 msgid "copying TeX support files..."
 msgstr "正在复制 TeX 支持文件……"
 
-#: sphinx/builders/latex/__init__.py:411
+#: sphinx/builders/latex/__init__.py:423
 msgid "copying additional files"
 msgstr "正在复制附加文件"
 
-#: sphinx/builders/latex/__init__.py:454
+#: sphinx/builders/latex/__init__.py:466
 #, python-format
 msgid "Unknown configure key: latex_elements[%r], ignored."
 msgstr "未知配置项：latex_elements[%r]，已忽略。"
 
-#: sphinx/builders/latex/__init__.py:462
+#: sphinx/builders/latex/__init__.py:474
 #, python-format
 msgid "Unknown theme option: latex_theme_options[%r], ignored."
 msgstr "未知主题选项：latex_theme_options[%r]，已忽略。"
 
-#: sphinx/builders/latex/theming.py:84
+#: sphinx/builders/latex/theming.py:87
 #, python-format
 msgid "%r doesn't have \"theme\" setting"
 msgstr "%r 中缺少“theme”配置项"
 
-#: sphinx/builders/latex/theming.py:87
+#: sphinx/builders/latex/theming.py:90
 #, python-format
 msgid "%r doesn't have \"%s\" setting"
 msgstr "%r 中缺少“%s”配置项"
 
-#: sphinx/builders/latex/transforms.py:114
+#: sphinx/builders/latex/transforms.py:120
 msgid "Failed to get a docname!"
 msgstr "无法获取文档名称！"
 
-#: sphinx/builders/latex/transforms.py:115
+#: sphinx/builders/latex/transforms.py:121
 msgid "Failed to get a docname for source {source!r}!"
 msgstr "无法获取文档源码 {source!r} 的文档名称！"
 
-#: sphinx/builders/latex/transforms.py:476
+#: sphinx/builders/latex/transforms.py:482
 #, python-format
 msgid "No footnote was found for given reference node %r"
 msgstr "给定的引用节点 %r 没有对应的脚注"
 
-#: sphinx/cmd/build.py:37
+#: sphinx/cmd/build.py:46
 msgid "Exception occurred while building, starting debugger:"
 msgstr "构建时抛出异常，正在启动调试器："
 
-#: sphinx/cmd/build.py:52
+#: sphinx/cmd/build.py:61
 msgid "Interrupted!"
 msgstr "已中断！"
 
-#: sphinx/cmd/build.py:54
+#: sphinx/cmd/build.py:63
 msgid "reST markup error:"
 msgstr "reST 标记错误："
 
-#: sphinx/cmd/build.py:60
+#: sphinx/cmd/build.py:69
 msgid "Encoding error:"
 msgstr "编码错误："
 
-#: sphinx/cmd/build.py:63 sphinx/cmd/build.py:78
+#: sphinx/cmd/build.py:72 sphinx/cmd/build.py:87
 #, python-format
 msgid ""
 "The full traceback has been saved in %s, if you want to report the issue to "
 "the developers."
 msgstr "如果你想向开发者报告问题，可以查阅已经保存在 %s 的完整 Traceback 信息 。"
 
-#: sphinx/cmd/build.py:67
+#: sphinx/cmd/build.py:76
 msgid "Recursion error:"
 msgstr "递归错误："
 
-#: sphinx/cmd/build.py:70
+#: sphinx/cmd/build.py:79
 msgid ""
 "This can happen with very large or deeply nested source files. You can "
 "carefully increase the default Python recursion limit of 1000 in conf.py "
 "with e.g.:"
 msgstr "Python 中默认递归层数上限为 1000，可以像这样在 conf.py 中增大这一上限，请谨慎修改:"
 
-#: sphinx/cmd/build.py:75
+#: sphinx/cmd/build.py:84
 msgid "Exception occurred:"
 msgstr "抛出异常："
 
-#: sphinx/cmd/build.py:81
+#: sphinx/cmd/build.py:90
 msgid ""
 "Please also report this if it was a user error, so that a better error "
 "message can be provided next time."
 msgstr "即便抛出的错误时是用户导致的，也请向我们投递报告，以便将来可以提示更友好、更详细的错误信息。"
 
-#: sphinx/cmd/build.py:84
+#: sphinx/cmd/build.py:93
 msgid ""
 "A bug report can be filed in the tracker at <https://github.com/sphinx-"
 "doc/sphinx/issues>. Thanks!"
 msgstr "Bug 报告可以在 Bug 追踪系统 <https://github.com/sphinx-doc/sphinx/issues> 处投递。谢谢！"
 
-#: sphinx/cmd/build.py:100
+#: sphinx/cmd/build.py:109
 msgid "job number should be a positive number"
 msgstr "并发任务数应为正值"
 
-#: sphinx/cmd/build.py:108 sphinx/cmd/quickstart.py:468
-#: sphinx/ext/apidoc.py:300 sphinx/ext/autosummary/generate.py:641
+#: sphinx/cmd/build.py:117 sphinx/cmd/quickstart.py:474
+#: sphinx/ext/apidoc.py:317 sphinx/ext/autosummary/generate.py:689
 msgid "For more information, visit <https://www.sphinx-doc.org/>."
 msgstr "想要了解更多信息，请访问 <https://www.sphinx-doc.org/>。"
 
-#: sphinx/cmd/build.py:109
+#: sphinx/cmd/build.py:118
 msgid ""
 "\n"
 "Generate documentation from source files.\n"
@@ -1258,266 +1303,273 @@ msgid ""
 "files can be built by specifying individual filenames.\n"
 msgstr "\n从源文件生成文档。\n\nsphinx-build 从 SOURCEDIR 中的文件生成文档，并保存在 OUTPUTDIR。\n它从 SOURCEDIR 的“conf.py”中读取配置。“sphinx-quickstart”工具可以生\n成包括“conf.py”在内的模板文件。\n\nsphinx-build 可以生成多种格式的文档。在命令行中指定构建器名称即可\n选择文档格式，默认是 HTML。构建器也可以执行文档处理相关的其他\n任务。\n\n默认只会重新构建过期内容。如果指定了文件名，那么只会产生这些文件\n的输出。\n"
 
-#: sphinx/cmd/build.py:130
+#: sphinx/cmd/build.py:139
 msgid "path to documentation source files"
 msgstr "文档源文件的路径"
 
-#: sphinx/cmd/build.py:132
+#: sphinx/cmd/build.py:141
 msgid "path to output directory"
 msgstr "输出目录的路径"
 
-#: sphinx/cmd/build.py:134
-msgid "a list of specific files to rebuild. Ignored if -a is specified"
-msgstr "指定重新构建的文件列表。如果指定了 -a 参数，则忽略此项"
+#: sphinx/cmd/build.py:143
+msgid ""
+"(optional) a list of specific files to rebuild. Ignored if --write-all is "
+"specified"
+msgstr ""
 
-#: sphinx/cmd/build.py:137
+#: sphinx/cmd/build.py:146
 msgid "general options"
 msgstr "通用选项"
 
-#: sphinx/cmd/build.py:140
-msgid "builder to use (default: html)"
-msgstr "构建器（默认：html）"
-
-#: sphinx/cmd/build.py:142
-msgid "write all files (default: only write new and changed files)"
-msgstr "写入所有文件（默认：只写入新文件和修改过的文件）"
-
-#: sphinx/cmd/build.py:145
-msgid "don't use a saved environment, always read all files"
-msgstr "不使用已保存的环境，始终读取全部文件"
-
-#: sphinx/cmd/build.py:148
-msgid ""
-"path for the cached environment and doctree files (default: "
-"OUTPUTDIR/.doctrees)"
-msgstr "已缓存的环境和 doctree 文件路径（默认：OUTPUTDIR/.doctrees）"
+#: sphinx/cmd/build.py:149
+msgid "builder to use (default: 'html')"
+msgstr ""
 
 #: sphinx/cmd/build.py:152
 msgid ""
-"build in parallel with N processes where possible (special value \"auto\" "
-"will set N to cpu-count)"
-msgstr "如果可能，用 N 个进程并行构建文档（如果指定为“auto”，则 N 为 CPU 数量）"
+"run in parallel with N processes, when possible. 'auto' uses the number of "
+"CPU cores"
+msgstr ""
 
-#: sphinx/cmd/build.py:156
+#: sphinx/cmd/build.py:155
+msgid "write all files (default: only write new and changed files)"
+msgstr "写入所有文件（默认：只写入新文件和修改过的文件）"
+
+#: sphinx/cmd/build.py:158
+msgid "don't use a saved environment, always read all files"
+msgstr "不使用已保存的环境，始终读取全部文件"
+
+#: sphinx/cmd/build.py:161
+msgid "path options"
+msgstr ""
+
+#: sphinx/cmd/build.py:163
 msgid ""
-"path where configuration file (conf.py) is located (default: same as "
-"SOURCEDIR)"
-msgstr "配置文件（conf.py）所在目录路径（默认：与 SOURCEDIR 相同）"
+"directory for doctree and environment files (default: OUTPUT_DIR/.doctrees)"
+msgstr ""
 
-#: sphinx/cmd/build.py:159
-msgid "use no config file at all, only -D options"
-msgstr "不应用配置文件中的配置，只让 -D 选项中的配置项生效。"
+#: sphinx/cmd/build.py:166
+msgid "directory for the configuration file (conf.py) (default: SOURCE_DIR)"
+msgstr ""
 
-#: sphinx/cmd/build.py:162
+#: sphinx/cmd/build.py:171
+msgid "use no configuration file, only use settings from -D options"
+msgstr ""
+
+#: sphinx/cmd/build.py:174
 msgid "override a setting in configuration file"
 msgstr "覆盖配置文件中的配置项"
 
-#: sphinx/cmd/build.py:165
+#: sphinx/cmd/build.py:177
 msgid "pass a value into HTML templates"
 msgstr "向 HTML 模板传值"
 
-#: sphinx/cmd/build.py:168
+#: sphinx/cmd/build.py:180
 msgid "define tag: include \"only\" blocks with TAG"
 msgstr "定义标签，把涉及标签 TAG 的“only”块纳入到构建中"
 
-#: sphinx/cmd/build.py:170
-msgid "nit-picky mode, warn about all missing references"
-msgstr "挑刺模式，在引用了不存在的内容时发出警告"
+#: sphinx/cmd/build.py:182
+msgid "nit-picky mode: warn about all missing references"
+msgstr ""
 
-#: sphinx/cmd/build.py:173
+#: sphinx/cmd/build.py:184
 msgid "console output options"
 msgstr "控制台输出选项"
 
-#: sphinx/cmd/build.py:175
+#: sphinx/cmd/build.py:187
 msgid "increase verbosity (can be repeated)"
 msgstr "输出更详细的日志（甚至可能重复）"
 
-#: sphinx/cmd/build.py:177 sphinx/ext/apidoc.py:323
+#: sphinx/cmd/build.py:189 sphinx/ext/apidoc.py:340
 msgid "no output on stdout, just warnings on stderr"
 msgstr "不输出到 stdout，只在 stderr 上输出警告"
 
-#: sphinx/cmd/build.py:179
+#: sphinx/cmd/build.py:191
 msgid "no output at all, not even warnings"
 msgstr "无任何输出，甚至不会输出警告"
 
-#: sphinx/cmd/build.py:182
+#: sphinx/cmd/build.py:194
 msgid "do emit colored output (default: auto-detect)"
 msgstr "着色输出（默认：自动检测）"
 
-#: sphinx/cmd/build.py:185
+#: sphinx/cmd/build.py:197
 msgid "do not emit colored output (default: auto-detect)"
 msgstr "不着色输出（默认：自动检测）"
 
-#: sphinx/cmd/build.py:188
+#: sphinx/cmd/build.py:199
+msgid "warning control options"
+msgstr ""
+
+#: sphinx/cmd/build.py:201
 msgid "write warnings (and errors) to given file"
 msgstr "把警告（以及错误）信息写入给定的文件"
 
-#: sphinx/cmd/build.py:190
+#: sphinx/cmd/build.py:203
 msgid "turn warnings into errors"
 msgstr "把警告视为错误"
 
-#: sphinx/cmd/build.py:192
-msgid "with -W, keep going when getting warnings"
-msgstr "与 -W 配合使用，在发出警告时继续运行"
+#: sphinx/cmd/build.py:205
+msgid "with --fail-on-warning, keep going when getting warnings"
+msgstr ""
 
-#: sphinx/cmd/build.py:194
+#: sphinx/cmd/build.py:207
 msgid "show full traceback on exception"
 msgstr "发生异常时显示完整回溯信息"
 
-#: sphinx/cmd/build.py:196
+#: sphinx/cmd/build.py:209
 msgid "run Pdb on exception"
 msgstr "发生异常时运行 Pdb"
 
-#: sphinx/cmd/build.py:220
+#: sphinx/cmd/build.py:244
 msgid "cannot combine -a option and filenames"
 msgstr "-a 选项和文件名不能同时使用"
 
-#: sphinx/cmd/build.py:241
+#: sphinx/cmd/build.py:276
 #, python-format
 msgid "cannot open warning file %r: %s"
 msgstr "无法打开用于保存警告信息的文件 %r：%s"
 
-#: sphinx/cmd/build.py:255
+#: sphinx/cmd/build.py:296
 msgid "-D option argument must be in the form name=value"
 msgstr "-D 选项的参数必须是 name=value 形式"
 
-#: sphinx/cmd/build.py:262
+#: sphinx/cmd/build.py:303
 msgid "-A option argument must be in the form name=value"
 msgstr "-A 选项的参数必须是 name=value 形式"
 
-#: sphinx/cmd/quickstart.py:39
+#: sphinx/cmd/quickstart.py:42
 msgid "automatically insert docstrings from modules"
 msgstr "自动插入模块中的文档字符串"
 
-#: sphinx/cmd/quickstart.py:40
+#: sphinx/cmd/quickstart.py:43
 msgid "automatically test code snippets in doctest blocks"
 msgstr "自动运行 doctest 块中的测试代码片段"
 
-#: sphinx/cmd/quickstart.py:41
+#: sphinx/cmd/quickstart.py:44
 msgid "link between Sphinx documentation of different projects"
 msgstr "链接不同项目的 Sphinx 文档"
 
-#: sphinx/cmd/quickstart.py:42
+#: sphinx/cmd/quickstart.py:45
 msgid "write \"todo\" entries that can be shown or hidden on build"
 msgstr "编写在构建时可以选择显示、隐藏的“todo”条目"
 
-#: sphinx/cmd/quickstart.py:43
+#: sphinx/cmd/quickstart.py:46
 msgid "checks for documentation coverage"
 msgstr "检查文档覆盖率"
 
-#: sphinx/cmd/quickstart.py:44
+#: sphinx/cmd/quickstart.py:47
 msgid "include math, rendered as PNG or SVG images"
 msgstr "支持数学公式，渲染成 PNG 或 SVG 图像"
 
-#: sphinx/cmd/quickstart.py:45
+#: sphinx/cmd/quickstart.py:48
 msgid "include math, rendered in the browser by MathJax"
 msgstr "支持数学公式，用 MathJax 在浏览器中渲染"
 
-#: sphinx/cmd/quickstart.py:46
+#: sphinx/cmd/quickstart.py:49
 msgid "conditional inclusion of content based on config values"
 msgstr "基于配置值控制构建中包含哪些文档内容"
 
-#: sphinx/cmd/quickstart.py:47
+#: sphinx/cmd/quickstart.py:50
 msgid "include links to the source code of documented Python objects"
 msgstr "支持链接到文档涉及的 Python 对象源码"
 
-#: sphinx/cmd/quickstart.py:48
+#: sphinx/cmd/quickstart.py:51
 msgid "create .nojekyll file to publish the document on GitHub pages"
 msgstr "创建 .nojekyll 文件，用于在 GitHub Pages 服务发布文档"
 
-#: sphinx/cmd/quickstart.py:90
+#: sphinx/cmd/quickstart.py:93
 msgid "Please enter a valid path name."
 msgstr "请输入有效的路径名。"
 
-#: sphinx/cmd/quickstart.py:106
+#: sphinx/cmd/quickstart.py:109
 msgid "Please enter some text."
 msgstr "请输入文本。"
 
-#: sphinx/cmd/quickstart.py:113
+#: sphinx/cmd/quickstart.py:116
 #, python-format
 msgid "Please enter one of %s."
 msgstr "请输入 %s 之一。"
 
-#: sphinx/cmd/quickstart.py:120
+#: sphinx/cmd/quickstart.py:123
 msgid "Please enter either 'y' or 'n'."
 msgstr "请输入“y”或“n”。"
 
-#: sphinx/cmd/quickstart.py:126
+#: sphinx/cmd/quickstart.py:129
 msgid "Please enter a file suffix, e.g. '.rst' or '.txt'."
 msgstr "请输入文件后缀，例如：“.rst”或者“.txt”。"
 
-#: sphinx/cmd/quickstart.py:206
+#: sphinx/cmd/quickstart.py:208
 #, python-format
 msgid "Welcome to the Sphinx %s quickstart utility."
 msgstr "欢迎使用 Sphinx %s 快速配置工具。"
 
-#: sphinx/cmd/quickstart.py:208
+#: sphinx/cmd/quickstart.py:210
 msgid ""
 "Please enter values for the following settings (just press Enter to\n"
 "accept a default value, if one is given in brackets)."
 msgstr "请输入接下来各项设定的值（如果方括号中指定了默认值，直接\n按回车即可使用默认值）。"
 
-#: sphinx/cmd/quickstart.py:213
+#: sphinx/cmd/quickstart.py:215
 #, python-format
 msgid "Selected root path: %s"
 msgstr "已选择根路径：%s"
 
-#: sphinx/cmd/quickstart.py:216
+#: sphinx/cmd/quickstart.py:218
 msgid "Enter the root path for documentation."
 msgstr "输入文档的根路径。"
 
-#: sphinx/cmd/quickstart.py:217
+#: sphinx/cmd/quickstart.py:219
 msgid "Root path for the documentation"
 msgstr "文档的根路径"
 
-#: sphinx/cmd/quickstart.py:222
+#: sphinx/cmd/quickstart.py:224
 msgid "Error: an existing conf.py has been found in the selected root path."
 msgstr "错误：选择的根路径中已存在 conf.py 文件。"
 
-#: sphinx/cmd/quickstart.py:224
+#: sphinx/cmd/quickstart.py:226
 msgid "sphinx-quickstart will not overwrite existing Sphinx projects."
 msgstr "sphinx-quickstart 不会覆盖已有的 Sphinx 项目。"
 
-#: sphinx/cmd/quickstart.py:226
+#: sphinx/cmd/quickstart.py:228
 msgid "Please enter a new root path (or just Enter to exit)"
 msgstr "请输入新的根路径（或按回车退出）"
 
-#: sphinx/cmd/quickstart.py:233
+#: sphinx/cmd/quickstart.py:235
 msgid ""
 "You have two options for placing the build directory for Sphinx output.\n"
 "Either, you use a directory \"_build\" within the root path, or you separate\n"
 "\"source\" and \"build\" directories within the root path."
 msgstr "有两种方式来设置用于放置 Sphinx 输出的构建目录：\n一是在根路径下创建“_build”目录，二是在根路径下创建“source”\n和“build”两个独立的目录。"
 
-#: sphinx/cmd/quickstart.py:236
+#: sphinx/cmd/quickstart.py:238
 msgid "Separate source and build directories (y/n)"
 msgstr "独立的源文件和构建目录（y/n）"
 
-#: sphinx/cmd/quickstart.py:240
+#: sphinx/cmd/quickstart.py:242
 msgid ""
 "Inside the root directory, two more directories will be created; \"_templates\"\n"
 "for custom HTML templates and \"_static\" for custom stylesheets and other static\n"
 "files. You can enter another prefix (such as \".\") to replace the underscore."
 msgstr "这个选项将在根目录中创建两个新目录：\n“_templates”用于放置自定义 HTML 模板文件，“_static”用于自定义样\n式表及其他静态文件。您可以输入其他的前缀（比如“.”）代替下划线。"
 
-#: sphinx/cmd/quickstart.py:243
+#: sphinx/cmd/quickstart.py:245
 msgid "Name prefix for templates and static dir"
 msgstr "模板目录和静态目录的名称前缀"
 
-#: sphinx/cmd/quickstart.py:247
+#: sphinx/cmd/quickstart.py:249
 msgid ""
 "The project name will occur in several places in the built documentation."
 msgstr "项目名称将会出现在文档的许多地方。"
 
-#: sphinx/cmd/quickstart.py:248
+#: sphinx/cmd/quickstart.py:250
 msgid "Project name"
 msgstr "项目名称"
 
-#: sphinx/cmd/quickstart.py:250
+#: sphinx/cmd/quickstart.py:252
 msgid "Author name(s)"
 msgstr "作者名称"
 
-#: sphinx/cmd/quickstart.py:254
+#: sphinx/cmd/quickstart.py:256
 msgid ""
 "Sphinx has the notion of a \"version\" and a \"release\" for the\n"
 "software. Each version can have multiple releases. For example, for\n"
@@ -1526,15 +1578,15 @@ msgid ""
 "just set both to the same value."
 msgstr "在 Sphinx 中，会区分“版本”和“发行版本”两个概念。同一版本可以\n有多个发行版本。例如，Python 版本可以是 2.5 或 3.0，而发行版\n本则是 2.5.1 或 3.0a1。如果你不需要这样的双重版本结构，请把这\n两个选项设置为相同值。"
 
-#: sphinx/cmd/quickstart.py:259
+#: sphinx/cmd/quickstart.py:261
 msgid "Project version"
 msgstr "项目版本"
 
-#: sphinx/cmd/quickstart.py:261
+#: sphinx/cmd/quickstart.py:263
 msgid "Project release"
 msgstr "项目发行版本"
 
-#: sphinx/cmd/quickstart.py:265
+#: sphinx/cmd/quickstart.py:267
 msgid ""
 "If the documents are to be written in a language other than English,\n"
 "you can select a language here by its language code. Sphinx will then\n"
@@ -1544,21 +1596,21 @@ msgid ""
 "https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language."
 msgstr "如果用英语以外的语言编写文档，\n你可以在此按语言代码选择语种。\nSphinx 会把内置文本翻译成相应语言的版本。\n\n支持的语言代码列表见：\nhttps://www.sphinx-doc.org/en/master/usage/configuration.html#confval-language。"
 
-#: sphinx/cmd/quickstart.py:273
+#: sphinx/cmd/quickstart.py:275
 msgid "Project language"
 msgstr "项目语种"
 
-#: sphinx/cmd/quickstart.py:279
+#: sphinx/cmd/quickstart.py:281
 msgid ""
 "The file name suffix for source files. Commonly, this is either \".txt\"\n"
 "or \".rst\". Only files with this suffix are considered documents."
 msgstr "源文件的文件名后缀。一般是“.txt”或“.rst”。只有此后缀的文件才会\n被视为文档的源文件。"
 
-#: sphinx/cmd/quickstart.py:281
+#: sphinx/cmd/quickstart.py:283
 msgid "Source file suffix"
 msgstr "源文件后缀"
 
-#: sphinx/cmd/quickstart.py:285
+#: sphinx/cmd/quickstart.py:287
 msgid ""
 "One document is special in that it is considered the top node of the\n"
 "\"contents tree\", that is, it is the root of the hierarchical structure\n"
@@ -1566,91 +1618,91 @@ msgid ""
 "document is a custom template, you can also set this to another filename."
 msgstr "有一种特殊的文档被视作“目录树”的树顶节点，即文档层级结构的\n根。通常情况下，这个文档是“index”，但是如果你的“index”文档\n使用了自定义模板，你也可以使用其它文件名。"
 
-#: sphinx/cmd/quickstart.py:289
+#: sphinx/cmd/quickstart.py:291
 msgid "Name of your master document (without suffix)"
 msgstr "主文档文件名（不含后缀）"
 
-#: sphinx/cmd/quickstart.py:294
+#: sphinx/cmd/quickstart.py:296
 #, python-format
 msgid ""
 "Error: the master file %s has already been found in the selected root path."
 msgstr "错误：选择的根目录下已存在主文档文件 %s。"
 
-#: sphinx/cmd/quickstart.py:296
+#: sphinx/cmd/quickstart.py:298
 msgid "sphinx-quickstart will not overwrite the existing file."
 msgstr "sphinx-quickstart 不会覆盖已有的文件。"
 
-#: sphinx/cmd/quickstart.py:298
+#: sphinx/cmd/quickstart.py:300
 msgid ""
 "Please enter a new file name, or rename the existing file and press Enter"
 msgstr "请输入新文件名，若要重命名现有文件请按回车"
 
-#: sphinx/cmd/quickstart.py:302
+#: sphinx/cmd/quickstart.py:304
 msgid "Indicate which of the following Sphinx extensions should be enabled:"
 msgstr "指出下列 Sphinx 扩展中，需要启用的有哪些："
 
-#: sphinx/cmd/quickstart.py:310
+#: sphinx/cmd/quickstart.py:312
 msgid ""
 "Note: imgmath and mathjax cannot be enabled at the same time. imgmath has "
 "been deselected."
 msgstr "注意：imgmath 和 mathjax 不能同时启用。已取消选择 imgmath。"
 
-#: sphinx/cmd/quickstart.py:316
+#: sphinx/cmd/quickstart.py:318
 msgid ""
 "A Makefile and a Windows command file can be generated for you so that you\n"
 "only have to run e.g. `make html' instead of invoking sphinx-build\n"
 "directly."
 msgstr "生成 Makefile 和 Windows 批处理文件，可以直接像“make html”这样\n运行，而不需要直接调用 sphinx-build。"
 
-#: sphinx/cmd/quickstart.py:319
+#: sphinx/cmd/quickstart.py:321
 msgid "Create Makefile? (y/n)"
 msgstr "是否创建 Makefile？（y/n）"
 
-#: sphinx/cmd/quickstart.py:322
+#: sphinx/cmd/quickstart.py:324
 msgid "Create Windows command file? (y/n)"
 msgstr "是否创建 Windows 批处理文件？（y/n）"
 
-#: sphinx/cmd/quickstart.py:366 sphinx/ext/apidoc.py:86
+#: sphinx/cmd/quickstart.py:368 sphinx/ext/apidoc.py:93
 #, python-format
 msgid "Creating file %s."
 msgstr "正在创建文件 %s。"
 
-#: sphinx/cmd/quickstart.py:371 sphinx/ext/apidoc.py:83
+#: sphinx/cmd/quickstart.py:373 sphinx/ext/apidoc.py:90
 #, python-format
 msgid "File %s already exists, skipping."
 msgstr "文件 %s 已存在，已跳过。"
 
-#: sphinx/cmd/quickstart.py:413
+#: sphinx/cmd/quickstart.py:418
 msgid "Finished: An initial directory structure has been created."
 msgstr "完成：已创建初始目录结构。"
 
-#: sphinx/cmd/quickstart.py:415
+#: sphinx/cmd/quickstart.py:420
 #, python-format
 msgid ""
 "You should now populate your master file %s and create other documentation\n"
 "source files. "
 msgstr "你现在可以填写主文档文件 %s 然后创建其他文档源文件了。 "
 
-#: sphinx/cmd/quickstart.py:418
+#: sphinx/cmd/quickstart.py:423
 msgid ""
 "Use the Makefile to build the docs, like so:\n"
 "   make builder"
 msgstr "像这样用 Makefile 构建文档：\n  make builder"
 
-#: sphinx/cmd/quickstart.py:421
+#: sphinx/cmd/quickstart.py:426
 #, python-format
 msgid ""
 "Use the sphinx-build command to build the docs, like so:\n"
 "   sphinx-build -b builder %s %s"
 msgstr "像这样用 sphinx-build 命令构建文档：\n  sphinx-build -b builder %s %s"
 
-#: sphinx/cmd/quickstart.py:423
+#: sphinx/cmd/quickstart.py:428
 msgid ""
 "where \"builder\" is one of the supported builders, e.g. html, latex or "
 "linkcheck."
 msgstr "此处的“builder”代指支持的构建器名称，比如 html、latex 或 linkcheck。"
 
-#: sphinx/cmd/quickstart.py:458
+#: sphinx/cmd/quickstart.py:464
 msgid ""
 "\n"
 "Generate required files for a Sphinx project.\n"
@@ -1660,226 +1712,226 @@ msgid ""
 "Makefile to be used with sphinx-build.\n"
 msgstr "\n生成 Sphinx 项目的必需文件。\n\nsphinx-quickstart 是一个交互式工具，询问一些关于项目的问题，生成\n完整的文档目录和用于 sphinx-build 的示例 Makefile。\n"
 
-#: sphinx/cmd/quickstart.py:473
+#: sphinx/cmd/quickstart.py:479
 msgid "quiet mode"
 msgstr "静默模式"
 
-#: sphinx/cmd/quickstart.py:478
+#: sphinx/cmd/quickstart.py:484
 msgid "project root"
 msgstr "项目根目录"
 
-#: sphinx/cmd/quickstart.py:480
+#: sphinx/cmd/quickstart.py:486
 msgid "Structure options"
 msgstr "目录结构选项"
 
-#: sphinx/cmd/quickstart.py:482
+#: sphinx/cmd/quickstart.py:488
 msgid "if specified, separate source and build dirs"
 msgstr "如果指定了此选项，将分别建立源文件目录和构建目录"
 
-#: sphinx/cmd/quickstart.py:484
+#: sphinx/cmd/quickstart.py:490
 msgid "if specified, create build dir under source dir"
 msgstr "如果指定了此选项，在源文件目录下创建构建目录"
 
-#: sphinx/cmd/quickstart.py:486
+#: sphinx/cmd/quickstart.py:492
 msgid "replacement for dot in _templates etc."
 msgstr "用句点替代“ _templates”等文件夹名称中的下划线。"
 
-#: sphinx/cmd/quickstart.py:488
+#: sphinx/cmd/quickstart.py:494
 msgid "Project basic options"
 msgstr "项目基本参数"
 
-#: sphinx/cmd/quickstart.py:490
+#: sphinx/cmd/quickstart.py:496
 msgid "project name"
 msgstr "项目名称"
 
-#: sphinx/cmd/quickstart.py:492
+#: sphinx/cmd/quickstart.py:498
 msgid "author names"
 msgstr "作者名称"
 
-#: sphinx/cmd/quickstart.py:494
+#: sphinx/cmd/quickstart.py:500
 msgid "version of project"
 msgstr "项目版本"
 
-#: sphinx/cmd/quickstart.py:496
+#: sphinx/cmd/quickstart.py:502
 msgid "release of project"
 msgstr "项目发行版本"
 
-#: sphinx/cmd/quickstart.py:498
+#: sphinx/cmd/quickstart.py:504
 msgid "document language"
 msgstr "项目语种"
 
-#: sphinx/cmd/quickstart.py:500
+#: sphinx/cmd/quickstart.py:506
 msgid "source file suffix"
 msgstr "源文件后缀"
 
-#: sphinx/cmd/quickstart.py:502
+#: sphinx/cmd/quickstart.py:508
 msgid "master document name"
 msgstr "主文档名"
 
-#: sphinx/cmd/quickstart.py:504
+#: sphinx/cmd/quickstart.py:510
 msgid "use epub"
 msgstr "启用 ePub 支持"
 
-#: sphinx/cmd/quickstart.py:506
+#: sphinx/cmd/quickstart.py:512
 msgid "Extension options"
 msgstr "扩展程序选项"
 
-#: sphinx/cmd/quickstart.py:510 sphinx/ext/apidoc.py:383
+#: sphinx/cmd/quickstart.py:516 sphinx/ext/apidoc.py:400
 #, python-format
 msgid "enable %s extension"
 msgstr "启用 %s 扩展"
 
-#: sphinx/cmd/quickstart.py:512 sphinx/ext/apidoc.py:379
+#: sphinx/cmd/quickstart.py:518 sphinx/ext/apidoc.py:396
 msgid "enable arbitrary extensions"
 msgstr "启用多个扩展"
 
-#: sphinx/cmd/quickstart.py:514
+#: sphinx/cmd/quickstart.py:520
 msgid "Makefile and Batchfile creation"
 msgstr "创建 Makefile 和批处理文件"
 
-#: sphinx/cmd/quickstart.py:516
+#: sphinx/cmd/quickstart.py:522
 msgid "create makefile"
 msgstr "创建 Makefile"
 
-#: sphinx/cmd/quickstart.py:518
+#: sphinx/cmd/quickstart.py:524
 msgid "do not create makefile"
 msgstr "不创建 Makefile"
 
-#: sphinx/cmd/quickstart.py:520
+#: sphinx/cmd/quickstart.py:526
 msgid "create batchfile"
 msgstr "创建批处理文件"
 
-#: sphinx/cmd/quickstart.py:523
+#: sphinx/cmd/quickstart.py:529
 msgid "do not create batchfile"
 msgstr "不创建批处理文件"
 
-#: sphinx/cmd/quickstart.py:526
+#: sphinx/cmd/quickstart.py:532
 msgid "use make-mode for Makefile/make.bat"
 msgstr "Makefile/make.bat 采用 Sphinx 的 make 模式"
 
-#: sphinx/cmd/quickstart.py:529
+#: sphinx/cmd/quickstart.py:535
 msgid "do not use make-mode for Makefile/make.bat"
 msgstr "Makefile/make.bat 不采用 Sphinx 的 make 模式"
 
-#: sphinx/cmd/quickstart.py:531 sphinx/ext/apidoc.py:385
+#: sphinx/cmd/quickstart.py:537 sphinx/ext/apidoc.py:402
 msgid "Project templating"
 msgstr "项目模板"
 
-#: sphinx/cmd/quickstart.py:534 sphinx/ext/apidoc.py:388
+#: sphinx/cmd/quickstart.py:540 sphinx/ext/apidoc.py:405
 msgid "template directory for template files"
 msgstr "放置模板文件的模板目录"
 
-#: sphinx/cmd/quickstart.py:537
+#: sphinx/cmd/quickstart.py:543
 msgid "define a template variable"
 msgstr "定义一个模板变量"
 
-#: sphinx/cmd/quickstart.py:570
+#: sphinx/cmd/quickstart.py:576
 msgid "\"quiet\" is specified, but any of \"project\" or \"author\" is not specified."
 msgstr "指定了“quiet”，但是没有指定“project”和“author”。"
 
-#: sphinx/cmd/quickstart.py:584
+#: sphinx/cmd/quickstart.py:590
 msgid ""
 "Error: specified path is not a directory, or sphinx files already exist."
 msgstr "错误：指定的路径不是一个目录，或是 Sphinx 文件已存在。"
 
-#: sphinx/cmd/quickstart.py:586
+#: sphinx/cmd/quickstart.py:592
 msgid ""
 "sphinx-quickstart only generate into a empty directory. Please specify a new"
 " root path."
 msgstr "sphinx-quickstart 只会在空目录中生成文件。请指定一个新的根路径。"
 
-#: sphinx/cmd/quickstart.py:601
+#: sphinx/cmd/quickstart.py:607
 #, python-format
 msgid "Invalid template variable: %s"
 msgstr "无效模板变量：%s"
 
-#: sphinx/directives/code.py:60
+#: sphinx/directives/code.py:61
 msgid "non-whitespace stripped by dedent"
 msgstr "取消缩进操作清除了空白字符"
 
-#: sphinx/directives/code.py:81
+#: sphinx/directives/code.py:82
 #, python-format
 msgid "Invalid caption: %s"
 msgstr "无效的标题：%s"
 
-#: sphinx/directives/code.py:126 sphinx/directives/code.py:276
-#: sphinx/directives/code.py:452
+#: sphinx/directives/code.py:127 sphinx/directives/code.py:277
+#: sphinx/directives/code.py:453
 #, python-format
 msgid "line number spec is out of range(1-%d): %r"
 msgstr "指定的行号超出范围（1-%d）：%r"
 
-#: sphinx/directives/code.py:205
+#: sphinx/directives/code.py:206
 #, python-format
 msgid "Cannot use both \"%s\" and \"%s\" options"
 msgstr "“%s”和“%s”选项不可联用"
 
-#: sphinx/directives/code.py:219
+#: sphinx/directives/code.py:220
 #, python-format
 msgid "Include file %r not found or reading it failed"
 msgstr "要包含的文件 %r 不存在或读取失败"
 
-#: sphinx/directives/code.py:222
+#: sphinx/directives/code.py:223
 #, python-format
 msgid ""
 "Encoding %r used for reading included file %r seems to be wrong, try giving "
 "an :encoding: option"
 msgstr "用于读取包含文件 %r 的编码 %r 不正确，请重新给定 encoding: 选项"
 
-#: sphinx/directives/code.py:259
+#: sphinx/directives/code.py:260
 #, python-format
 msgid "Object named %r not found in include file %r"
 msgstr "对象 %r 未出现在包含文件 %r 中"
 
-#: sphinx/directives/code.py:285
+#: sphinx/directives/code.py:286
 msgid "Cannot use \"lineno-match\" with a disjoint set of \"lines\""
 msgstr "不能在不连续的“lines”上使用“lineno-match”选项"
 
-#: sphinx/directives/code.py:290
+#: sphinx/directives/code.py:291
 #, python-format
 msgid "Line spec %r: no lines pulled from include file %r"
 msgstr "指定的行 %r：未能从包含文件 %r 中拉取指定的行"
 
-#: sphinx/directives/other.py:108
+#: sphinx/directives/other.py:120
 #, python-format
 msgid "toctree glob pattern %r didn't match any documents"
 msgstr "目录树 glob 规则 %r 未能匹配到文档"
 
-#: sphinx/directives/other.py:129 sphinx/environment/adapters/toctree.py:183
+#: sphinx/directives/other.py:146 sphinx/environment/adapters/toctree.py:324
 #, python-format
 msgid "toctree contains reference to excluded document %r"
 msgstr "目录树中引用了已排除的文档 %r"
 
-#: sphinx/directives/other.py:132 sphinx/environment/adapters/toctree.py:187
+#: sphinx/directives/other.py:149 sphinx/environment/adapters/toctree.py:328
 #, python-format
 msgid "toctree contains reference to nonexisting document %r"
 msgstr "目录树中引用的文档 %r 不存在"
 
-#: sphinx/directives/other.py:142
+#: sphinx/directives/other.py:160
 #, python-format
 msgid "duplicated entry found in toctree: %s"
 msgstr "目录树中存在重复的条目：%s"
 
-#: sphinx/directives/other.py:174
+#: sphinx/directives/other.py:193
 msgid "Section author: "
 msgstr "节作者： "
 
-#: sphinx/directives/other.py:176
+#: sphinx/directives/other.py:195
 msgid "Module author: "
 msgstr "模块作者： "
 
-#: sphinx/directives/other.py:178
+#: sphinx/directives/other.py:197
 msgid "Code author: "
 msgstr "代码作者： "
 
-#: sphinx/directives/other.py:180
+#: sphinx/directives/other.py:199
 msgid "Author: "
 msgstr "作者： "
 
-#: sphinx/directives/other.py:252
+#: sphinx/directives/other.py:275
 msgid ".. acks content is not a list"
 msgstr ".. acks 的内容不是列表"
 
-#: sphinx/directives/other.py:277
+#: sphinx/directives/other.py:301
 msgid ".. hlist content is not a list"
 msgstr ".. hlist 的内容不是列表"
 
@@ -1889,549 +1941,554 @@ msgid ""
 " a relative path from source directory. Please update your document."
 msgstr "csv-table 指令的“:file”选项现在会将绝对路径视为源文件目录的相对路径。请更新你的文档内容。"
 
-#: sphinx/domains/__init__.py:394
+#: sphinx/domains/__init__.py:397
 #, python-format
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:2036 sphinx/domains/c.py:3308
+#: sphinx/domains/changeset.py:23
+#, python-format
+msgid "Added in version %s"
+msgstr ""
+
+#: sphinx/domains/changeset.py:24
+#, python-format
+msgid "Changed in version %s"
+msgstr "在 %s 版本发生变更"
+
+#: sphinx/domains/changeset.py:25
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "自 %s 版本弃用"
+
+#: sphinx/domains/changeset.py:26
+#, python-format
+msgid "Removed in version %s"
+msgstr ""
+
+#: sphinx/domains/citation.py:71
+#, python-format
+msgid "duplicate citation %s, other instance in %s"
+msgstr "重复的引文 %s，另一引文出现在 %s"
+
+#: sphinx/domains/citation.py:82
+#, python-format
+msgid "Citation [%s] is not referenced."
+msgstr "引文 [%s] 没有被引用过。"
+
+#: sphinx/domains/javascript.py:165
+#, python-format
+msgid "%s() (built-in function)"
+msgstr "%s() （内置函数）"
+
+#: sphinx/domains/javascript.py:166 sphinx/domains/python/__init__.py:240
+#, python-format
+msgid "%s() (%s method)"
+msgstr "%s() （%s 方法）"
+
+#: sphinx/domains/javascript.py:168
+#, python-format
+msgid "%s() (class)"
+msgstr "%s()（类）"
+
+#: sphinx/domains/javascript.py:170
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s（全局变量或常量）"
+
+#: sphinx/domains/javascript.py:172 sphinx/domains/python/__init__.py:325
+#, python-format
+msgid "%s (%s attribute)"
+msgstr "%s（%s 属性）"
+
+#: sphinx/domains/javascript.py:255
+msgid "Arguments"
+msgstr "参数"
+
+#: sphinx/domains/cpp/__init__.py:350 sphinx/domains/javascript.py:258
+msgid "Throws"
+msgstr "抛出"
+
+#: sphinx/domains/c/__init__.py:251 sphinx/domains/cpp/__init__.py:361
+#: sphinx/domains/javascript.py:261 sphinx/domains/python/_object.py:175
+msgid "Returns"
+msgstr "返回"
+
+#: sphinx/domains/c/__init__.py:253 sphinx/domains/javascript.py:263
+#: sphinx/domains/python/_object.py:177
+msgid "Return type"
+msgstr "返回类型"
+
+#: sphinx/domains/javascript.py:331
+#, python-format
+msgid "%s (module)"
+msgstr "%s（模块）"
+
+#: sphinx/domains/c/__init__.py:622 sphinx/domains/cpp/__init__.py:764
+#: sphinx/domains/javascript.py:368 sphinx/domains/python/__init__.py:574
+msgid "function"
+msgstr "函数"
+
+#: sphinx/domains/javascript.py:369 sphinx/domains/python/__init__.py:578
+msgid "method"
+msgstr "方法"
+
+#: sphinx/domains/cpp/__init__.py:762 sphinx/domains/javascript.py:370
+#: sphinx/domains/python/__init__.py:576
+msgid "class"
+msgstr "类"
+
+#: sphinx/domains/javascript.py:371 sphinx/domains/python/__init__.py:575
+msgid "data"
+msgstr "数据"
+
+#: sphinx/domains/javascript.py:372 sphinx/domains/python/__init__.py:581
+msgid "attribute"
+msgstr "属性"
+
+#: sphinx/domains/javascript.py:373 sphinx/domains/python/__init__.py:583
+msgid "module"
+msgstr "模块"
+
+#: sphinx/domains/javascript.py:404
+#, python-format
+msgid "duplicate %s description of %s, other %s in %s"
+msgstr "重复的 %s描述 %s，其他的 %s 描述出现在 %s"
+
+#: sphinx/domains/math.py:63
+#, python-format
+msgid "duplicate label of equation %s, other instance in %s"
+msgstr "重复的公式标签 %s，另一公式出现在 %s"
+
+#: sphinx/domains/math.py:118 sphinx/writers/latex.py:2252
+#, python-format
+msgid "Invalid math_eqref_format: %r"
+msgstr "无效的 math_eqref_format：%r"
+
+#: sphinx/domains/rst.py:127 sphinx/domains/rst.py:184
+#, python-format
+msgid "%s (directive)"
+msgstr "%s（指令）"
+
+#: sphinx/domains/rst.py:185 sphinx/domains/rst.py:189
+#, python-format
+msgid ":%s: (directive option)"
+msgstr ":%s:（指令选项）"
+
+#: sphinx/domains/rst.py:213
+#, python-format
+msgid "%s (role)"
+msgstr "%s（角色）"
+
+#: sphinx/domains/rst.py:223
+msgid "directive"
+msgstr "指令"
+
+#: sphinx/domains/rst.py:224
+msgid "directive-option"
+msgstr "指令-选项"
+
+#: sphinx/domains/rst.py:225
+msgid "role"
+msgstr "角色"
+
+#: sphinx/domains/rst.py:247
+#, python-format
+msgid "duplicate description of %s %s, other instance in %s"
+msgstr "重复的 %s %s 描述，另一描述出现在 %s"
+
+#: sphinx/domains/c/__init__.py:146
+#, python-format
+msgid "%s (C %s)"
+msgstr "%s（C %s）"
+
+#: sphinx/domains/c/__init__.py:207 sphinx/domains/c/_symbol.py:552
 #, python-format
 msgid ""
 "Duplicate C declaration, also defined at %s:%s.\n"
 "Declaration is '.. c:%s:: %s'."
 msgstr "重复的 C 声明，已经在 %s:%s 处声明。\n声明为“.. c:%s:: %s”。"
 
-#: sphinx/domains/c.py:3247
-#, python-format
-msgid "%s (C %s)"
-msgstr "%s（C %s）"
-
-#: sphinx/domains/c.py:3346 sphinx/domains/cpp.py:7453
-#: sphinx/domains/python.py:674 sphinx/ext/napoleon/docstring.py:755
+#: sphinx/domains/c/__init__.py:245 sphinx/domains/cpp/__init__.py:344
+#: sphinx/domains/python/_object.py:163 sphinx/ext/napoleon/docstring.py:762
 msgid "Parameters"
 msgstr "参数"
 
-#: sphinx/domains/c.py:3349 sphinx/domains/cpp.py:7459
+#: sphinx/domains/c/__init__.py:248 sphinx/domains/cpp/__init__.py:357
 msgid "Return values"
 msgstr "返回值"
 
-#: sphinx/domains/c.py:3352 sphinx/domains/cpp.py:7462
-#: sphinx/domains/javascript.py:250 sphinx/domains/python.py:686
-msgid "Returns"
-msgstr "返回"
-
-#: sphinx/domains/c.py:3354 sphinx/domains/javascript.py:252
-#: sphinx/domains/python.py:688
-msgid "Return type"
-msgstr "返回类型"
-
-#: sphinx/domains/c.py:3720 sphinx/domains/cpp.py:7866
+#: sphinx/domains/c/__init__.py:620 sphinx/domains/cpp/__init__.py:765
 msgid "member"
 msgstr "成员"
 
-#: sphinx/domains/c.py:3721
+#: sphinx/domains/c/__init__.py:621
 msgid "variable"
 msgstr "变量"
 
-#: sphinx/domains/c.py:3722 sphinx/domains/cpp.py:7865
-#: sphinx/domains/javascript.py:352 sphinx/domains/python.py:1442
-msgid "function"
-msgstr "函数"
-
-#: sphinx/domains/c.py:3723
+#: sphinx/domains/c/__init__.py:623
 msgid "macro"
 msgstr "宏"
 
-#: sphinx/domains/c.py:3724
+#: sphinx/domains/c/__init__.py:624
 msgid "struct"
 msgstr "结构体"
 
-#: sphinx/domains/c.py:3725 sphinx/domains/cpp.py:7864
+#: sphinx/domains/c/__init__.py:625 sphinx/domains/cpp/__init__.py:763
 msgid "union"
 msgstr "联合体"
 
-#: sphinx/domains/c.py:3726 sphinx/domains/cpp.py:7869
+#: sphinx/domains/c/__init__.py:626 sphinx/domains/cpp/__init__.py:768
 msgid "enum"
 msgstr "枚举"
 
-#: sphinx/domains/c.py:3727 sphinx/domains/cpp.py:7870
+#: sphinx/domains/c/__init__.py:627 sphinx/domains/cpp/__init__.py:769
 msgid "enumerator"
 msgstr "枚举成员"
 
-#: sphinx/domains/c.py:3728 sphinx/domains/cpp.py:7867
+#: sphinx/domains/c/__init__.py:628 sphinx/domains/cpp/__init__.py:766
 msgid "type"
 msgstr "类型"
 
-#: sphinx/domains/c.py:3730 sphinx/domains/cpp.py:7872
+#: sphinx/domains/c/__init__.py:630 sphinx/domains/cpp/__init__.py:771
 msgid "function parameter"
 msgstr "函数参数"
 
-#: sphinx/domains/changeset.py:22
-#, python-format
-msgid "New in version %s"
-msgstr "在 %s 版本加入"
+#: sphinx/domains/cpp/__init__.py:63
+msgid "Template Parameters"
+msgstr "模板参数"
 
-#: sphinx/domains/changeset.py:23
+#: sphinx/domains/cpp/__init__.py:185
 #, python-format
-msgid "Changed in version %s"
-msgstr "在 %s 版本发生变更"
+msgid "%s (C++ %s)"
+msgstr "%s（C++ %s）"
 
-#: sphinx/domains/changeset.py:24
-#, python-format
-msgid "Deprecated since version %s"
-msgstr "自 %s 版本弃用"
-
-#: sphinx/domains/citation.py:69
-#, python-format
-msgid "duplicate citation %s, other instance in %s"
-msgstr "重复的引文 %s，另一引文出现在 %s"
-
-#: sphinx/domains/citation.py:80
-#, python-format
-msgid "Citation [%s] is not referenced."
-msgstr "引文 [%s] 没有被引用过。"
-
-#: sphinx/domains/cpp.py:4918 sphinx/domains/cpp.py:7408
+#: sphinx/domains/cpp/__init__.py:268 sphinx/domains/cpp/_symbol.py:790
 #, python-format
 msgid ""
 "Duplicate C++ declaration, also defined at %s:%s.\n"
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "重复的 C++ 声明，已经在 %s:%s 处声明。\n声明为“.. cpp:%s:: %s”。"
 
-#: sphinx/domains/cpp.py:7206
-msgid "Template Parameters"
-msgstr "模板参数"
-
-#: sphinx/domains/cpp.py:7325
-#, python-format
-msgid "%s (C++ %s)"
-msgstr "%s（C++ %s）"
-
-#: sphinx/domains/cpp.py:7456 sphinx/domains/javascript.py:247
-msgid "Throws"
-msgstr "抛出"
-
-#: sphinx/domains/cpp.py:7863 sphinx/domains/javascript.py:354
-#: sphinx/domains/python.py:1444
-msgid "class"
-msgstr "类"
-
-#: sphinx/domains/cpp.py:7868
+#: sphinx/domains/cpp/__init__.py:767
 msgid "concept"
 msgstr "概念"
 
-#: sphinx/domains/cpp.py:7873
+#: sphinx/domains/cpp/__init__.py:772
 msgid "template parameter"
 msgstr "模板参数"
 
-#: sphinx/domains/javascript.py:154
-#, python-format
-msgid "%s() (built-in function)"
-msgstr "%s() （内置函数）"
-
-#: sphinx/domains/javascript.py:155 sphinx/domains/python.py:1113
-#, python-format
-msgid "%s() (%s method)"
-msgstr "%s() （%s 方法）"
-
-#: sphinx/domains/javascript.py:157
-#, python-format
-msgid "%s() (class)"
-msgstr "%s()（类）"
-
-#: sphinx/domains/javascript.py:159
-#, python-format
-msgid "%s (global variable or constant)"
-msgstr "%s（全局变量或常量）"
-
-#: sphinx/domains/javascript.py:161 sphinx/domains/python.py:1198
-#, python-format
-msgid "%s (%s attribute)"
-msgstr "%s（%s 属性）"
-
-#: sphinx/domains/javascript.py:244
-msgid "Arguments"
-msgstr "参数"
-
-#: sphinx/domains/javascript.py:319
-#, python-format
-msgid "%s (module)"
-msgstr "%s（模块）"
-
-#: sphinx/domains/javascript.py:353 sphinx/domains/python.py:1446
-msgid "method"
-msgstr "方法"
-
-#: sphinx/domains/javascript.py:355 sphinx/domains/python.py:1443
-msgid "data"
-msgstr "数据"
-
-#: sphinx/domains/javascript.py:356 sphinx/domains/python.py:1449
-msgid "attribute"
-msgstr "属性"
-
-#: sphinx/domains/javascript.py:357 sphinx/domains/python.py:1451
-msgid "module"
-msgstr "模块"
-
-#: sphinx/domains/javascript.py:388
-#, python-format
-msgid "duplicate %s description of %s, other %s in %s"
-msgstr "重复的 %s描述 %s，其他的 %s 描述出现在 %s"
-
-#: sphinx/domains/math.py:59
-#, python-format
-msgid "duplicate label of equation %s, other instance in %s"
-msgstr "重复的公式标签 %s，另一公式出现在 %s"
-
-#: sphinx/domains/math.py:114 sphinx/writers/latex.py:2238
-#, python-format
-msgid "Invalid math_eqref_format: %r"
-msgstr "无效的 math_eqref_format：%r"
-
-#: sphinx/domains/python.py:679
-msgid "Variables"
-msgstr "变量"
-
-#: sphinx/domains/python.py:683
-msgid "Raises"
-msgstr "抛出"
-
-#: sphinx/domains/python.py:967 sphinx/domains/python.py:1104
+#: sphinx/domains/python/__init__.py:94 sphinx/domains/python/__init__.py:231
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s()（在 %s 模块中）"
 
-#: sphinx/domains/python.py:1027 sphinx/domains/python.py:1194
-#: sphinx/domains/python.py:1245
+#: sphinx/domains/python/__init__.py:154 sphinx/domains/python/__init__.py:321
+#: sphinx/domains/python/__init__.py:372
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s()（在 %s 模块中）"
 
-#: sphinx/domains/python.py:1029
+#: sphinx/domains/python/__init__.py:156
 #, python-format
 msgid "%s (built-in variable)"
 msgstr "%s（内置变量）"
 
-#: sphinx/domains/python.py:1054
+#: sphinx/domains/python/__init__.py:181
 #, python-format
 msgid "%s (built-in class)"
 msgstr "%s（内置类）"
 
-#: sphinx/domains/python.py:1055
+#: sphinx/domains/python/__init__.py:182
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s（%s 中的类）"
 
-#: sphinx/domains/python.py:1109
+#: sphinx/domains/python/__init__.py:236
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s()（%s 类方法）"
 
-#: sphinx/domains/python.py:1111
+#: sphinx/domains/python/__init__.py:238
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s()（%s 静态方法）"
 
-#: sphinx/domains/python.py:1249
+#: sphinx/domains/python/__init__.py:376
 #, python-format
 msgid "%s (%s property)"
 msgstr "%s（%s 属性）"
 
-#: sphinx/domains/python.py:1371
+#: sphinx/domains/python/__init__.py:502
 msgid "Python Module Index"
 msgstr "Python 模块索引"
 
-#: sphinx/domains/python.py:1372
+#: sphinx/domains/python/__init__.py:503
 msgid "modules"
 msgstr "模块"
 
-#: sphinx/domains/python.py:1421
+#: sphinx/domains/python/__init__.py:552
 msgid "Deprecated"
 msgstr "已弃用"
 
-#: sphinx/domains/python.py:1445
+#: sphinx/domains/python/__init__.py:577
 msgid "exception"
 msgstr "异常"
 
-#: sphinx/domains/python.py:1447
+#: sphinx/domains/python/__init__.py:579
 msgid "class method"
 msgstr "类方法"
 
-#: sphinx/domains/python.py:1448
+#: sphinx/domains/python/__init__.py:580
 msgid "static method"
 msgstr "静态方法"
 
-#: sphinx/domains/python.py:1450
+#: sphinx/domains/python/__init__.py:582
 msgid "property"
 msgstr "托管属性"
 
-#: sphinx/domains/python.py:1508
+#: sphinx/domains/python/__init__.py:640
 #, python-format
 msgid ""
-"duplicate object description of %s, other instance in %s, use :noindex: for "
-"one of them"
-msgstr "重复的 %s 对象描述，另一对象描述出现在 %s，请向二者之一添加 :noindex: 标记。"
+"duplicate object description of %s, other instance in %s, use :no-index: for"
+" one of them"
+msgstr ""
 
-#: sphinx/domains/python.py:1628
+#: sphinx/domains/python/__init__.py:760
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "交叉引用 %r 找到了多个目标：%s"
 
-#: sphinx/domains/python.py:1689
+#: sphinx/domains/python/__init__.py:821
 msgid " (deprecated)"
 msgstr "（已弃用）"
 
-#: sphinx/domains/rst.py:116 sphinx/domains/rst.py:172
-#, python-format
-msgid "%s (directive)"
-msgstr "%s（指令）"
+#: sphinx/domains/python/_object.py:168
+msgid "Variables"
+msgstr "变量"
 
-#: sphinx/domains/rst.py:173 sphinx/domains/rst.py:177
-#, python-format
-msgid ":%s: (directive option)"
-msgstr ":%s:（指令选项）"
+#: sphinx/domains/python/_object.py:172
+msgid "Raises"
+msgstr "抛出"
 
-#: sphinx/domains/rst.py:200
-#, python-format
-msgid "%s (role)"
-msgstr "%s（角色）"
-
-#: sphinx/domains/rst.py:209
-msgid "directive"
-msgstr "指令"
-
-#: sphinx/domains/rst.py:210
-msgid "directive-option"
-msgstr "指令-选项"
-
-#: sphinx/domains/rst.py:211
-msgid "role"
-msgstr "角色"
-
-#: sphinx/domains/rst.py:233
-#, python-format
-msgid "duplicate description of %s %s, other instance in %s"
-msgstr "重复的 %s %s 描述，另一描述出现在 %s"
-
-#: sphinx/domains/std.py:77 sphinx/domains/std.py:94
+#: sphinx/domains/std/__init__.py:80 sphinx/domains/std/__init__.py:97
 #, python-format
 msgid "environment variable; %s"
 msgstr "环境变量; %s"
 
-#: sphinx/domains/std.py:153
+#: sphinx/domains/std/__init__.py:157
 #, python-format
 msgid ""
 "Malformed option description %r, should look like \"opt\", \"-opt args\", \""
 "--opt args\", \"/opt args\" or \"+opt args\""
 msgstr "畸形的选项描述 %r，应是“opt”、“-opt args”、“--opt args”、“/opt args”或“+opt args”形式"
 
-#: sphinx/domains/std.py:224
+#: sphinx/domains/std/__init__.py:228
 #, python-format
 msgid "%s command line option"
 msgstr "%s命令行选项"
 
-#: sphinx/domains/std.py:226
+#: sphinx/domains/std/__init__.py:230
 msgid "command line option"
 msgstr "命令行选项"
 
-#: sphinx/domains/std.py:344
+#: sphinx/domains/std/__init__.py:348
 msgid "glossary term must be preceded by empty line"
 msgstr "术语词汇前必须有空行"
 
-#: sphinx/domains/std.py:352
+#: sphinx/domains/std/__init__.py:356
 msgid "glossary terms must not be separated by empty lines"
 msgstr "术语词汇不能用空行分隔"
 
-#: sphinx/domains/std.py:358 sphinx/domains/std.py:371
+#: sphinx/domains/std/__init__.py:362 sphinx/domains/std/__init__.py:375
 msgid "glossary seems to be misformatted, check indentation"
 msgstr "术语词汇格式不正确，请检查缩进"
 
-#: sphinx/domains/std.py:512
+#: sphinx/domains/std/__init__.py:518
 msgid "glossary term"
 msgstr "术语词汇"
 
-#: sphinx/domains/std.py:513
+#: sphinx/domains/std/__init__.py:519
 msgid "grammar token"
 msgstr "语法记号"
 
-#: sphinx/domains/std.py:514
+#: sphinx/domains/std/__init__.py:520
 msgid "reference label"
 msgstr "引用标签"
 
-#: sphinx/domains/std.py:516
+#: sphinx/domains/std/__init__.py:522
 msgid "environment variable"
 msgstr "环境变量"
 
-#: sphinx/domains/std.py:517
+#: sphinx/domains/std/__init__.py:523
 msgid "program option"
 msgstr "程序选项"
 
-#: sphinx/domains/std.py:518
+#: sphinx/domains/std/__init__.py:524
 msgid "document"
 msgstr "文档"
 
-#: sphinx/domains/std.py:554 sphinx/domains/std.py:566
+#: sphinx/domains/std/__init__.py:560 sphinx/domains/std/__init__.py:572
 msgid "Module Index"
 msgstr "模块索引"
 
-#: sphinx/domains/std.py:555 sphinx/domains/std.py:567
+#: sphinx/domains/std/__init__.py:561 sphinx/domains/std/__init__.py:573
 #: sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "搜索页面"
 
-#: sphinx/domains/std.py:610 sphinx/domains/std.py:716
-#: sphinx/ext/autosectionlabel.py:49
+#: sphinx/domains/std/__init__.py:616 sphinx/domains/std/__init__.py:722
+#: sphinx/ext/autosectionlabel.py:53
 #, python-format
 msgid "duplicate label %s, other instance in %s"
 msgstr "重复的标签 %s，另一标签出现在 %s"
 
-#: sphinx/domains/std.py:629
+#: sphinx/domains/std/__init__.py:635
 #, python-format
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "重复的 %s 描述 %s，另一描述出现在 %s"
 
-#: sphinx/domains/std.py:833
+#: sphinx/domains/std/__init__.py:841
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig 已禁用，忽略 :numref:。"
 
-#: sphinx/domains/std.py:841
+#: sphinx/domains/std/__init__.py:849
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "无法创建交叉引用。未指定题图数字：%s"
 
-#: sphinx/domains/std.py:853
+#: sphinx/domains/std/__init__.py:861
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "链接没有标题：%s"
 
-#: sphinx/domains/std.py:867
+#: sphinx/domains/std/__init__.py:875
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "无效的 numfig_format：%s（%r）"
 
-#: sphinx/domains/std.py:870
+#: sphinx/domains/std/__init__.py:878
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "无效的 numfig_format：%s"
 
-#: sphinx/domains/std.py:1100
+#: sphinx/domains/std/__init__.py:1109
 #, python-format
 msgid "undefined label: %r"
 msgstr "标签未定义：%r"
 
-#: sphinx/domains/std.py:1102
+#: sphinx/domains/std/__init__.py:1111
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr "无法创建交叉引用，缺少标题或图题：%r"
 
-#: sphinx/environment/__init__.py:67
+#: sphinx/environment/__init__.py:71
 msgid "new config"
 msgstr "新配置"
 
-#: sphinx/environment/__init__.py:68
+#: sphinx/environment/__init__.py:72
 msgid "config changed"
 msgstr "配置发生了变化"
 
-#: sphinx/environment/__init__.py:69
+#: sphinx/environment/__init__.py:73
 msgid "extensions changed"
 msgstr "扩展发生了变化"
 
-#: sphinx/environment/__init__.py:271
+#: sphinx/environment/__init__.py:279
 msgid "build environment version not current"
 msgstr "构建环境版本与当前环境不符"
 
-#: sphinx/environment/__init__.py:273
+#: sphinx/environment/__init__.py:281
 msgid "source directory has changed"
 msgstr "源文件目录发生了变化"
 
-#: sphinx/environment/__init__.py:352
+#: sphinx/environment/__init__.py:360
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "本环境与选择的构建器不兼容，请选择其他的文档树目录。"
 
-#: sphinx/environment/__init__.py:451
+#: sphinx/environment/__init__.py:459
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "无法在 %s 中扫描文档：%r"
 
-#: sphinx/environment/__init__.py:582
+#: sphinx/environment/__init__.py:596
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "未注册的域 %r"
 
-#: sphinx/environment/__init__.py:684
-msgid "self referenced toctree found. Ignored."
-msgstr "目录树存在自引用，已忽略。"
-
-#: sphinx/environment/__init__.py:726
+#: sphinx/environment/__init__.py:730
 msgid "document isn't included in any toctree"
 msgstr "文档没有加入到任何目录树中"
 
-#: sphinx/environment/adapters/indexentries.py:66
+#: sphinx/environment/__init__.py:766
+msgid "self referenced toctree found. Ignored."
+msgstr "目录树存在自引用，已忽略。"
+
+#: sphinx/environment/adapters/indexentries.py:69
 #, python-format
 msgid "see %s"
 msgstr "见 %s"
 
-#: sphinx/environment/adapters/indexentries.py:70
+#: sphinx/environment/adapters/indexentries.py:73
 #, python-format
 msgid "see also %s"
 msgstr "另请参见 %s"
 
-#: sphinx/environment/adapters/indexentries.py:73
+#: sphinx/environment/adapters/indexentries.py:76
 #, python-format
 msgid "unknown index entry type %r"
 msgstr "未知的索引条目类型 %r"
 
-#: sphinx/environment/adapters/indexentries.py:184
+#: sphinx/environment/adapters/indexentries.py:187
 #: sphinx/templates/latex/sphinxmessages.sty_t:11
 msgid "Symbols"
 msgstr "符号"
 
-#: sphinx/environment/adapters/toctree.py:156
+#: sphinx/environment/adapters/toctree.py:297
 #, python-format
 msgid "circular toctree references detected, ignoring: %s <- %s"
 msgstr "在文档树中检测到循环引用，已忽略：%s <- %s"
 
-#: sphinx/environment/adapters/toctree.py:177
+#: sphinx/environment/adapters/toctree.py:317
 #, python-format
 msgid ""
 "toctree contains reference to document %r that doesn't have a title: no link"
 " will be generated"
 msgstr "目录树引用的文档 %r 缺少标题：不会生成链接"
 
-#: sphinx/environment/adapters/toctree.py:185
+#: sphinx/environment/adapters/toctree.py:326
 #, python-format
 msgid "toctree contains reference to non-included document %r"
 msgstr "目录树引用了未包含的文档 %r"
 
-#: sphinx/environment/collectors/asset.py:82
+#: sphinx/environment/collectors/asset.py:89
 #, python-format
 msgid "image file not readable: %s"
 msgstr "无法读取图像文件：%s"
 
-#: sphinx/environment/collectors/asset.py:101
+#: sphinx/environment/collectors/asset.py:108
 #, python-format
 msgid "image file %s not readable: %s"
 msgstr "无法读取图像文件 %s：%s"
 
-#: sphinx/environment/collectors/asset.py:127
+#: sphinx/environment/collectors/asset.py:134
 #, python-format
 msgid "download file not readable: %s"
 msgstr "无法读取下载文件：%s"
 
-#: sphinx/environment/collectors/toctree.py:219
+#: sphinx/environment/collectors/toctree.py:225
 #, python-format
 msgid "%s is already assigned section numbers (nested numbered toctree?)"
 msgstr "已经给 %s 分配了章节编号（嵌套的带编号文档树？）"
 
-#: sphinx/ext/apidoc.py:79
+#: sphinx/ext/apidoc.py:86
 #, python-format
 msgid "Would create file %s."
 msgstr "将会创建文件 %s。"
 
-#: sphinx/ext/apidoc.py:301
+#: sphinx/ext/apidoc.py:318
 msgid ""
 "\n"
 "Look recursively in <MODULE_PATH> for Python modules and packages and create\n"
@@ -2443,231 +2500,226 @@ msgid ""
 "Note: By default this script will not overwrite already created files."
 msgstr "\n在 <MODULE_PATH> 中递归查找 Python 模块和包，然后在 <OUTPUT_PATH> 中为每个使用了\nautomodule 指令的包创建一个 reST 文件。\n\n<EXCLUDE_PATTERN> 可以排除生成符合规则的文件/目录的文档。\n\n提示：本脚本默认不会覆盖已有文件。"
 
-#: sphinx/ext/apidoc.py:314
+#: sphinx/ext/apidoc.py:331
 msgid "path to module to document"
 msgstr "指定模块的路径，用于生成该模块的文档"
 
-#: sphinx/ext/apidoc.py:316
+#: sphinx/ext/apidoc.py:333
 msgid ""
 "fnmatch-style file and/or directory patterns to exclude from generation"
 msgstr "以 fnmatch 风格的文件/目录规则，不生成与该规则匹配的文档"
 
-#: sphinx/ext/apidoc.py:321
+#: sphinx/ext/apidoc.py:338
 msgid "directory to place all output"
 msgstr "存放输出内容的目录"
 
-#: sphinx/ext/apidoc.py:326
+#: sphinx/ext/apidoc.py:343
 msgid "maximum depth of submodules to show in the TOC (default: 4)"
 msgstr "在目录树中展示子模块的最大深度（默认：4）"
 
-#: sphinx/ext/apidoc.py:329
+#: sphinx/ext/apidoc.py:346
 msgid "overwrite existing files"
 msgstr "覆盖已有文件"
 
-#: sphinx/ext/apidoc.py:332
+#: sphinx/ext/apidoc.py:349
 msgid ""
 "follow symbolic links. Powerful when combined with "
 "collective.recipe.omelette."
 msgstr "遵循符号链接。配合 collective.recipe.omelette 使用尤其奏效。"
 
-#: sphinx/ext/apidoc.py:335
+#: sphinx/ext/apidoc.py:352
 msgid "run the script without creating files"
 msgstr "运行脚本，但不创建文件"
 
-#: sphinx/ext/apidoc.py:338
+#: sphinx/ext/apidoc.py:355
 msgid "put documentation for each module on its own page"
 msgstr "给模块创建各自的文档页"
 
-#: sphinx/ext/apidoc.py:341
+#: sphinx/ext/apidoc.py:358
 msgid "include \"_private\" modules"
 msgstr "包含“_private”模块"
 
-#: sphinx/ext/apidoc.py:343
+#: sphinx/ext/apidoc.py:360
 msgid "filename of table of contents (default: modules)"
 msgstr "目录的文件名（默认：modules）"
 
-#: sphinx/ext/apidoc.py:345
+#: sphinx/ext/apidoc.py:362
 msgid "don't create a table of contents file"
 msgstr "不创建目录文件"
 
-#: sphinx/ext/apidoc.py:348
+#: sphinx/ext/apidoc.py:365
 msgid ""
 "don't create headings for the module/package packages (e.g. when the "
 "docstrings already contain them)"
 msgstr "不创建模块/包的标题（比如当 docstring 中已经有标题时，可以使用这个选项）"
 
-#: sphinx/ext/apidoc.py:353
+#: sphinx/ext/apidoc.py:370
 msgid "put module documentation before submodule documentation"
 msgstr "把模块文档放置在子模块文档之前"
 
-#: sphinx/ext/apidoc.py:357
+#: sphinx/ext/apidoc.py:374
 msgid ""
 "interpret module paths according to PEP-0420 implicit namespaces "
 "specification"
 msgstr "根据 PEP-0420 隐式命名空间规范解释模块路径"
 
-#: sphinx/ext/apidoc.py:361
+#: sphinx/ext/apidoc.py:378
 msgid "file suffix (default: rst)"
 msgstr "文件后缀（默认：rst）"
 
-#: sphinx/ext/apidoc.py:363
+#: sphinx/ext/apidoc.py:380
 msgid "generate a full project with sphinx-quickstart"
 msgstr "用 sphinx-quickstart 生成完整项目"
 
-#: sphinx/ext/apidoc.py:366
+#: sphinx/ext/apidoc.py:383
 msgid "append module_path to sys.path, used when --full is given"
 msgstr "当指定了 --full 选项，把 module_path 附加到 sys.path"
 
-#: sphinx/ext/apidoc.py:368
+#: sphinx/ext/apidoc.py:385
 msgid "project name (default: root module name)"
 msgstr "项目名称（默认：根模块名）"
 
-#: sphinx/ext/apidoc.py:370
+#: sphinx/ext/apidoc.py:387
 msgid "project author(s), used when --full is given"
 msgstr "项目作者，指定了 --full 选项时使用"
 
-#: sphinx/ext/apidoc.py:372
+#: sphinx/ext/apidoc.py:389
 msgid "project version, used when --full is given"
 msgstr "项目版本，指定了 --full 选项时使用"
 
-#: sphinx/ext/apidoc.py:374
+#: sphinx/ext/apidoc.py:391
 msgid "project release, used when --full is given, defaults to --doc-version"
 msgstr "项目发行版本，指定了 --full 选项时使用，默认为 --doc-version 的值"
 
-#: sphinx/ext/apidoc.py:377
+#: sphinx/ext/apidoc.py:394
 msgid "extension options"
 msgstr "扩展选项"
 
-#: sphinx/ext/apidoc.py:410
+#: sphinx/ext/apidoc.py:427
 #, python-format
 msgid "%s is not a directory."
 msgstr "%s 不是一个目录。"
 
-#: sphinx/ext/autosectionlabel.py:45
+#: sphinx/ext/autosectionlabel.py:49
 #, python-format
 msgid "section \"%s\" gets labeled as \"%s\""
 msgstr "为“%s”一节增加标签“%s”"
 
-#: sphinx/ext/coverage.py:40
+#: sphinx/ext/coverage.py:46
 #, python-format
 msgid "invalid regex %r in %s"
 msgstr "无效的正则表达式 %r 出现在 %s"
 
-#: sphinx/ext/coverage.py:49
+#: sphinx/ext/coverage.py:75
 #, python-format
 msgid ""
 "Testing of coverage in the sources finished, look at the results in "
 "%(outdir)spython.txt."
 msgstr "已完成源文件的覆盖率测试，结果保存在 %(outdir)s/python.txt 中，请查阅。"
 
-#: sphinx/ext/coverage.py:63
+#: sphinx/ext/coverage.py:89
 #, python-format
 msgid "invalid regex %r in coverage_c_regexes"
 msgstr "coverage_c_regexes 中有无效的正则表达式 %r"
 
-#: sphinx/ext/coverage.py:124
+#: sphinx/ext/coverage.py:157
 #, python-format
 msgid "undocumented c api: %s [%s] in file %s"
 msgstr "缺少文档的 C API：%s [%s] 在 %s 文件中"
 
-#: sphinx/ext/coverage.py:156
+#: sphinx/ext/coverage.py:189
 #, python-format
 msgid "module %s could not be imported: %s"
 msgstr "无法导入模块 %s：%s"
 
-#: sphinx/ext/coverage.py:252
+#: sphinx/ext/coverage.py:340
 #, python-format
 msgid "undocumented python function: %s :: %s"
 msgstr "缺少文档的 Python 函数： %s :: %s"
 
-#: sphinx/ext/coverage.py:268
+#: sphinx/ext/coverage.py:356
 #, python-format
 msgid "undocumented python class: %s :: %s"
 msgstr "缺少文档的 Python 类：%s :: %s"
 
-#: sphinx/ext/coverage.py:281
+#: sphinx/ext/coverage.py:369
 #, python-format
 msgid "undocumented python method: %s :: %s :: %s"
 msgstr "缺少文档的 Python 方法：%s :: %s :: %s"
 
-#: sphinx/ext/doctest.py:112
+#: sphinx/ext/doctest.py:115
 #, python-format
 msgid "missing '+' or '-' in '%s' option."
 msgstr "“%s”选项中缺少“+”或“-”。"
 
-#: sphinx/ext/doctest.py:117
+#: sphinx/ext/doctest.py:120
 #, python-format
 msgid "'%s' is not a valid option."
 msgstr "无效的选项“%s”。"
 
-#: sphinx/ext/doctest.py:131
+#: sphinx/ext/doctest.py:134
 #, python-format
 msgid "'%s' is not a valid pyversion option"
 msgstr "无效的 pyversion 选项“%s”"
 
-#: sphinx/ext/doctest.py:217
+#: sphinx/ext/doctest.py:220
 msgid "invalid TestCode type"
 msgstr "无效的 TestCode 类型"
 
-#: sphinx/ext/doctest.py:275
+#: sphinx/ext/doctest.py:281
 #, python-format
 msgid ""
 "Testing of doctests in the sources finished, look at the results in "
 "%(outdir)s/output.txt."
 msgstr "已完成源文件的文档测试，结果保存在 %(outdir)s/output.txt 中，请查阅。"
 
-#: sphinx/ext/doctest.py:425
+#: sphinx/ext/doctest.py:438
 #, python-format
 msgid "no code/output in %s block at %s:%s"
 msgstr "块 %s 没有代码或没有输出，该块出现在 %s:%s"
 
-#: sphinx/ext/doctest.py:511
+#: sphinx/ext/doctest.py:526
 #, python-format
 msgid "ignoring invalid doctest code: %r"
 msgstr "已忽略无效的文档代码：%r"
 
-#: sphinx/ext/duration.py:74
+#: sphinx/ext/duration.py:77
 msgid ""
 "====================== slowest reading durations ======================="
 msgstr "====================== 最长读取耗时 ======================="
 
-#: sphinx/ext/extlinks.py:77
+#: sphinx/ext/extlinks.py:82
 #, python-format
 msgid ""
 "hardcoded link %r could be replaced by an extlink (try using %r instead)"
 msgstr "可以用 extlink 替换硬编码链接 %r（请尝试改用 %r）"
 
-#: sphinx/ext/graphviz.py:128
+#: sphinx/ext/graphviz.py:135
 msgid "Graphviz directive cannot have both content and a filename argument"
 msgstr "不能同时指定 Graphviz 指令的内容和文件名参数"
 
-#: sphinx/ext/graphviz.py:138
+#: sphinx/ext/graphviz.py:145
 #, python-format
 msgid "External Graphviz file %r not found or reading it failed"
 msgstr "外部 Graphviz 文件 %r 不存在或读取失败"
 
-#: sphinx/ext/graphviz.py:145
+#: sphinx/ext/graphviz.py:152
 msgid "Ignoring \"graphviz\" directive without content."
 msgstr "已忽略无内容的“graphviz”指令。"
 
-#: sphinx/ext/graphviz.py:254
+#: sphinx/ext/graphviz.py:268
 #, python-format
-msgid ""
-"dot did not produce an output file:\n"
-"[stderr]\n"
-"%r\n"
-"[stdout]\n"
-"%r"
-msgstr "dot 未生成输出文件：\n[stderr]\n%r\n[stdout]\n%r"
+msgid "graphviz_dot executable path must be set! %r"
+msgstr ""
 
-#: sphinx/ext/graphviz.py:258
+#: sphinx/ext/graphviz.py:303
 #, python-format
 msgid ""
 "dot command %r cannot be run (needed for graphviz output), check the "
 "graphviz_dot setting"
 msgstr "无法运行 dot 命令 %r（为输出 graphviz 所必需），请检查 graphviz_dot 的设置"
 
-#: sphinx/ext/graphviz.py:265
+#: sphinx/ext/graphviz.py:310
 #, python-format
 msgid ""
 "dot exited with error:\n"
@@ -2677,27 +2729,37 @@ msgid ""
 "%r"
 msgstr "dot 发生错误并退出：\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/graphviz.py:276
+#: sphinx/ext/graphviz.py:313
+#, python-format
+msgid ""
+"dot did not produce an output file:\n"
+"[stderr]\n"
+"%r\n"
+"[stdout]\n"
+"%r"
+msgstr "dot 未生成输出文件：\n[stderr]\n%r\n[stdout]\n%r"
+
+#: sphinx/ext/graphviz.py:329
 #, python-format
 msgid "graphviz_output_format must be one of 'png', 'svg', but is %r"
 msgstr "graphviz_output_format 的值只能是“png”或“svg”，但现在给定的是 %r"
 
-#: sphinx/ext/graphviz.py:280 sphinx/ext/graphviz.py:333
-#: sphinx/ext/graphviz.py:370
+#: sphinx/ext/graphviz.py:333 sphinx/ext/graphviz.py:386
+#: sphinx/ext/graphviz.py:423
 #, python-format
 msgid "dot code %r: %s"
 msgstr "dot 代码 %r: %s"
 
-#: sphinx/ext/graphviz.py:383 sphinx/ext/graphviz.py:391
+#: sphinx/ext/graphviz.py:436 sphinx/ext/graphviz.py:444
 #, python-format
 msgid "[graph: %s]"
 msgstr "[图表：%s]"
 
-#: sphinx/ext/graphviz.py:385 sphinx/ext/graphviz.py:393
+#: sphinx/ext/graphviz.py:438 sphinx/ext/graphviz.py:446
 msgid "[graph]"
 msgstr "[图表]"
 
-#: sphinx/ext/imgconverter.py:36
+#: sphinx/ext/imgconverter.py:39
 #, python-format
 msgid ""
 "Unable to run the image conversion command %r. 'sphinx.ext.imgconverter' requires ImageMagick by default. Ensure it is installed, or set the 'image_converter' option to a custom conversion command.\n"
@@ -2705,7 +2767,7 @@ msgid ""
 "Traceback: %s"
 msgstr "无法运行图像转换命令 %r。“sphinx.ext.imgconverter”默认依赖于 ImageMagick。请确保已安装了它，或者可以自定义“image_converter”选项，设置一个其他的转换命令。\n\n回溯信息：%s"
 
-#: sphinx/ext/imgconverter.py:45 sphinx/ext/imgconverter.py:69
+#: sphinx/ext/imgconverter.py:48 sphinx/ext/imgconverter.py:72
 #, python-format
 msgid ""
 "convert exited with error:\n"
@@ -2715,40 +2777,40 @@ msgid ""
 "%r"
 msgstr "格式转换发生错误并退出：\n[stderr]\n%r\n[stdout]\n%r"
 
-#: sphinx/ext/imgconverter.py:64
+#: sphinx/ext/imgconverter.py:67
 #, python-format
 msgid "convert command %r cannot be run, check the image_converter setting"
 msgstr "无法运行格式转换命令 %r，请检查 image_converter 的设置"
 
-#: sphinx/ext/imgmath.py:150
+#: sphinx/ext/imgmath.py:158
 #, python-format
 msgid ""
 "LaTeX command %r cannot be run (needed for math display), check the "
 "imgmath_latex setting"
 msgstr "无法运行 LaTeX 命令 %r （显示数学公式所必需），请检查 imgmath_latex 的设置"
 
-#: sphinx/ext/imgmath.py:164
+#: sphinx/ext/imgmath.py:173
 #, python-format
 msgid ""
 "%s command %r cannot be run (needed for math display), check the imgmath_%s "
 "setting"
 msgstr "无法运行 %s 命令 %r （显示数学公式所必需），请检查 imgmath_%s 的设置"
 
-#: sphinx/ext/imgmath.py:320
+#: sphinx/ext/imgmath.py:327
 #, python-format
 msgid "display latex %r: %s"
 msgstr "显示 LaTeX %r：%s"
 
-#: sphinx/ext/imgmath.py:354
+#: sphinx/ext/imgmath.py:361
 #, python-format
 msgid "inline latex %r: %s"
 msgstr "内联 LaTeX %r：%s"
 
-#: sphinx/ext/imgmath.py:361 sphinx/ext/mathjax.py:49
-msgid "Permalink to this equation"
-msgstr "此公式的永久链接"
+#: sphinx/ext/imgmath.py:368 sphinx/ext/mathjax.py:53
+msgid "Link to this equation"
+msgstr ""
 
-#: sphinx/ext/intersphinx.py:194
+#: sphinx/ext/intersphinx.py:195
 #, python-format
 msgid "intersphinx inventory has moved: %s -> %s"
 msgstr "intersphinx 清单被移动过：%s -> %s"
@@ -2778,110 +2840,115 @@ msgstr "（在 %s v%s）"
 msgid "(in %s)"
 msgstr "（在 %s）"
 
-#: sphinx/ext/intersphinx.py:537
+#: sphinx/ext/intersphinx.py:538
 #, python-format
-msgid "inventory for external cross-reference not found: %s"
-msgstr "未找到用于外部交叉引用的清单：%s"
+msgid "inventory for external cross-reference not found: %r"
+msgstr ""
 
-#: sphinx/ext/intersphinx.py:543
+#: sphinx/ext/intersphinx.py:546
 #, python-format
-msgid "role for external cross-reference not found: %s"
-msgstr "未找到用于外部交叉引用的角色：%s"
+msgid "invalid external cross-reference suffix: %r"
+msgstr ""
 
-#: sphinx/ext/intersphinx.py:627
+#: sphinx/ext/intersphinx.py:557
+#, python-format
+msgid "domain for external cross-reference not found: %r"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:750
 #, python-format
 msgid "external %s:%s reference target not found: %s"
 msgstr "未找到外部 %s:%s 引用目标：%s"
 
-#: sphinx/ext/intersphinx.py:652
+#: sphinx/ext/intersphinx.py:775
 #, python-format
 msgid "intersphinx identifier %r is not string. Ignored"
 msgstr "intersphinx 标识符 %r 不是字符串，已忽略"
 
-#: sphinx/ext/intersphinx.py:674
+#: sphinx/ext/intersphinx.py:797
 #, python-format
 msgid "Failed to read intersphinx_mapping[%s], ignored: %r"
 msgstr "无法读取 intersphinx_mapping[%s]，已忽略：%r"
 
-#: sphinx/ext/linkcode.py:65 sphinx/ext/viewcode.py:180
+#: sphinx/ext/linkcode.py:69 sphinx/ext/viewcode.py:199
 msgid "[source]"
 msgstr "[源代码]"
 
-#: sphinx/ext/todo.py:64
+#: sphinx/ext/todo.py:69
 msgid "Todo"
 msgstr "待处理"
 
-#: sphinx/ext/todo.py:97
+#: sphinx/ext/todo.py:102
 #, python-format
 msgid "TODO entry found: %s"
 msgstr "发现待处理条目：%s"
 
-#: sphinx/ext/todo.py:155
+#: sphinx/ext/todo.py:161
 msgid "<<original entry>>"
 msgstr "<<original entry>>"
 
-#: sphinx/ext/todo.py:157
+#: sphinx/ext/todo.py:163
 #, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
 msgstr "(<<original entry>> 见 %s，第 %d 行。)"
 
-#: sphinx/ext/todo.py:167
+#: sphinx/ext/todo.py:173
 msgid "original entry"
 msgstr "原始条目"
 
-#: sphinx/ext/viewcode.py:237
+#: sphinx/ext/viewcode.py:256
 msgid "highlighting module code... "
 msgstr "正在高亮模块代码……"
 
-#: sphinx/ext/viewcode.py:269
+#: sphinx/ext/viewcode.py:284
 msgid "[docs]"
 msgstr "[文档]"
 
-#: sphinx/ext/viewcode.py:283
+#: sphinx/ext/viewcode.py:304
 msgid "Module code"
 msgstr "模块代码"
 
-#: sphinx/ext/viewcode.py:289
+#: sphinx/ext/viewcode.py:310
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>%s 源代码</h1>"
 
-#: sphinx/ext/viewcode.py:315
+#: sphinx/ext/viewcode.py:336
 msgid "Overview: module code"
 msgstr "概览：模块代码"
 
-#: sphinx/ext/viewcode.py:316
+#: sphinx/ext/viewcode.py:337
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>代码可用的所有模块</h1>"
 
-#: sphinx/ext/autodoc/__init__.py:134
+#: sphinx/ext/autodoc/__init__.py:135
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr "无效的 member-order 选项值：%s"
 
-#: sphinx/ext/autodoc/__init__.py:142
+#: sphinx/ext/autodoc/__init__.py:143
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr "无效的 class-doc-from 选项值：%s"
 
-#: sphinx/ext/autodoc/__init__.py:394
+#: sphinx/ext/autodoc/__init__.py:399
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "无效的 auto%s 签名（%r）"
 
-#: sphinx/ext/autodoc/__init__.py:510
+#: sphinx/ext/autodoc/__init__.py:515
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "在格式化 %s 的参数时报错：%s"
 
-#: sphinx/ext/autodoc/__init__.py:777
+#: sphinx/ext/autodoc/__init__.py:798
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc：无法确定是否生成 %s.%s (%r) 的文档，抛出了下列异常：\n%s"
 
-#: sphinx/ext/autodoc/__init__.py:872
+#: sphinx/ext/autodoc/__init__.py:893
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -2889,112 +2956,112 @@ msgid ""
 "explicit module name)"
 msgstr "无法判断导入哪个模块以自动生成文档 %r（尝试在文档中使用“module”或“currentmodule”指令，或者显式给定模块名）"
 
-#: sphinx/ext/autodoc/__init__.py:916
+#: sphinx/ext/autodoc/__init__.py:937
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "检测到仿制的对象：%r"
 
-#: sphinx/ext/autodoc/__init__.py:935
+#: sphinx/ext/autodoc/__init__.py:956
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "在格式化 %s 的签名时发生错误：%s"
 
-#: sphinx/ext/autodoc/__init__.py:995
+#: sphinx/ext/autodoc/__init__.py:1019
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "automodule 名中的“::”无意义"
 
-#: sphinx/ext/autodoc/__init__.py:1002
+#: sphinx/ext/autodoc/__init__.py:1026
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "automodule %s 给定了函数签名参数或返回类型标注"
 
-#: sphinx/ext/autodoc/__init__.py:1015
+#: sphinx/ext/autodoc/__init__.py:1039
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__  应是一个字符串列表，而不是 %r （出现在模块 %s 中） -- 已忽略__all__"
 
-#: sphinx/ext/autodoc/__init__.py:1081
+#: sphinx/ext/autodoc/__init__.py:1105
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ":members: 选项中涉及的属性不存在：模块 %s，属性%s"
 
-#: sphinx/ext/autodoc/__init__.py:1285 sphinx/ext/autodoc/__init__.py:1362
-#: sphinx/ext/autodoc/__init__.py:2750
+#: sphinx/ext/autodoc/__init__.py:1327 sphinx/ext/autodoc/__init__.py:1404
+#: sphinx/ext/autodoc/__init__.py:2824
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "无法获取函数 %s 的签名：%s"
 
-#: sphinx/ext/autodoc/__init__.py:1571
+#: sphinx/ext/autodoc/__init__.py:1618
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "无法获取构造函数 %s 的签名：%s"
 
-#: sphinx/ext/autodoc/__init__.py:1697
+#: sphinx/ext/autodoc/__init__.py:1745
 #, python-format
 msgid "Bases: %s"
 msgstr "基类：%s"
 
-#: sphinx/ext/autodoc/__init__.py:1711
+#: sphinx/ext/autodoc/__init__.py:1759
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "指定了 %s 属性，但对象 %s 缺少该属性"
 
-#: sphinx/ext/autodoc/__init__.py:1811 sphinx/ext/autodoc/__init__.py:1848
-#: sphinx/ext/autodoc/__init__.py:1931
+#: sphinx/ext/autodoc/__init__.py:1858 sphinx/ext/autodoc/__init__.py:1895
+#: sphinx/ext/autodoc/__init__.py:1990
 #, python-format
 msgid "alias of %s"
 msgstr "%s 的别名"
 
-#: sphinx/ext/autodoc/__init__.py:1831
+#: sphinx/ext/autodoc/__init__.py:1878
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s) 的别名"
 
-#: sphinx/ext/autodoc/__init__.py:2152 sphinx/ext/autodoc/__init__.py:2249
+#: sphinx/ext/autodoc/__init__.py:2216 sphinx/ext/autodoc/__init__.py:2316
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "无法获取方法 %s 的签名：%s"
 
-#: sphinx/ext/autodoc/__init__.py:2377
+#: sphinx/ext/autodoc/__init__.py:2447
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "%s 上有无效的 __slots__，已忽略。"
 
-#: sphinx/ext/autodoc/preserve_defaults.py:115
+#: sphinx/ext/autodoc/preserve_defaults.py:190
 #, python-format
 msgid "Failed to parse a default argument value for %r: %s"
 msgstr "无法解析 %r 的默认参数值：%s"
 
-#: sphinx/ext/autodoc/type_comment.py:127
+#: sphinx/ext/autodoc/type_comment.py:132
 #, python-format
 msgid "Failed to update signature for %r: parameter not found: %s"
 msgstr "无法更新 %r 的签名：未找到参数：%s"
 
-#: sphinx/ext/autodoc/type_comment.py:130
+#: sphinx/ext/autodoc/type_comment.py:135
 #, python-format
 msgid "Failed to parse type_comment for %r: %s"
 msgstr "无法解析 %r 的类型注释：%s"
 
-#: sphinx/ext/autosummary/__init__.py:244
+#: sphinx/ext/autosummary/__init__.py:251
 #, python-format
 msgid "autosummary references excluded document %r. Ignored."
 msgstr "自动摘要引用了排除的文档 %r，已忽略。"
 
-#: sphinx/ext/autosummary/__init__.py:246
+#: sphinx/ext/autosummary/__init__.py:253
 #, python-format
 msgid ""
 "autosummary: stub file not found %r. Check your autosummary_generate "
 "setting."
 msgstr "自动摘要：无法找到存根文件 %r。请检查你的 autosummary_generate 设置。"
 
-#: sphinx/ext/autosummary/__init__.py:265
+#: sphinx/ext/autosummary/__init__.py:272
 msgid "A captioned autosummary requires :toctree: option. ignored."
 msgstr "在自动摘要中指定标题时也需要指定 :toctree: 选项，已忽略。"
 
-#: sphinx/ext/autosummary/__init__.py:318
+#: sphinx/ext/autosummary/__init__.py:325
 #, python-format
 msgid ""
 "autosummary: failed to import %s.\n"
@@ -3002,46 +3069,46 @@ msgid ""
 "%s"
 msgstr "自动摘要：无法导入 %s。\n可能原因：\n%s"
 
-#: sphinx/ext/autosummary/__init__.py:332
+#: sphinx/ext/autosummary/__init__.py:339
 #, python-format
 msgid "failed to parse name %s"
 msgstr "无法解析名称 %s"
 
-#: sphinx/ext/autosummary/__init__.py:337
+#: sphinx/ext/autosummary/__init__.py:344
 #, python-format
 msgid "failed to import object %s"
 msgstr "无法导入对象 %s"
 
-#: sphinx/ext/autosummary/__init__.py:792
+#: sphinx/ext/autosummary/__init__.py:802
 #, python-format
 msgid "autosummary_generate: file not found: %s"
 msgstr "autosummary_generate 配置项：文件 %s 不存在"
 
-#: sphinx/ext/autosummary/__init__.py:800
+#: sphinx/ext/autosummary/__init__.py:810
 msgid ""
-"autosummary generats .rst files internally. But your source_suffix does not "
-"contain .rst. Skipped."
-msgstr "自动摘要内部会生成 .rst 文件，但是 source_suffix 中未包含 .rst，已跳过。"
+"autosummary generates .rst files internally. But your source_suffix does not"
+" contain .rst. Skipped."
+msgstr ""
 
-#: sphinx/ext/autosummary/generate.py:165
-#: sphinx/ext/autosummary/generate.py:238
+#: sphinx/ext/autosummary/generate.py:200
+#: sphinx/ext/autosummary/generate.py:358
 #, python-format
 msgid ""
 "autosummary: failed to determine %r to be documented, the following exception was raised:\n"
 "%s"
 msgstr "自动摘要：无法判断是否生成 %r 的文档。抛出了下列异常：\n%s"
 
-#: sphinx/ext/autosummary/generate.py:422
+#: sphinx/ext/autosummary/generate.py:470
 #, python-format
 msgid "[autosummary] generating autosummary for: %s"
 msgstr "[自动摘要] 正在生成自动摘要：%s"
 
-#: sphinx/ext/autosummary/generate.py:426
+#: sphinx/ext/autosummary/generate.py:474
 #, python-format
 msgid "[autosummary] writing to %s"
 msgstr "[自动摘要] 正在写入 %s"
 
-#: sphinx/ext/autosummary/generate.py:469
+#: sphinx/ext/autosummary/generate.py:517
 #, python-format
 msgid ""
 "[autosummary] failed to import %s.\n"
@@ -3049,7 +3116,7 @@ msgid ""
 "%s"
 msgstr "[自动摘要]无法导入 %s。\n可能原因：\n%s"
 
-#: sphinx/ext/autosummary/generate.py:642
+#: sphinx/ext/autosummary/generate.py:690
 msgid ""
 "\n"
 "Generate ReStructuredText using autosummary directives.\n"
@@ -3064,129 +3131,129 @@ msgid ""
 "  pydoc sphinx.ext.autosummary\n"
 msgstr "\n用 autosummary 指令生成 ReStructuredText\n\nsphinx-autogen 是 sphinx.ext.autosummary.generate 的前端，它根据\n给定输入文件中的 autosummary 指令生成 reStructuredText 文件。\n\nautosummary 指令的格式见 Python 模块 ``sphinx.ext.autosummary`` 的\n文档。可以这样调出文档以供阅读::\n\n  pydoc sphinx.ext.autosummary\n"
 
-#: sphinx/ext/autosummary/generate.py:659
+#: sphinx/ext/autosummary/generate.py:707
 msgid "source files to generate rST files for"
 msgstr "用于生成 rst 文件的源文件"
 
-#: sphinx/ext/autosummary/generate.py:663
+#: sphinx/ext/autosummary/generate.py:711
 msgid "directory to place all output in"
 msgstr "存放输出内容的目录"
 
-#: sphinx/ext/autosummary/generate.py:666
+#: sphinx/ext/autosummary/generate.py:714
 #, python-format
 msgid "default suffix for files (default: %(default)s)"
 msgstr "默认的文件名后缀（默认：%(default)s）"
 
-#: sphinx/ext/autosummary/generate.py:670
+#: sphinx/ext/autosummary/generate.py:718
 #, python-format
 msgid "custom template directory (default: %(default)s)"
 msgstr "自定义模板目录（默认：%(default)s）"
 
-#: sphinx/ext/autosummary/generate.py:674
+#: sphinx/ext/autosummary/generate.py:722
 #, python-format
 msgid "document imported members (default: %(default)s)"
 msgstr "文档导入的成员（默认：%(default)s）"
 
-#: sphinx/ext/autosummary/generate.py:678
+#: sphinx/ext/autosummary/generate.py:726
 #, python-format
 msgid ""
 "document exactly the members in module __all__ attribute. (default: "
 "%(default)s)"
 msgstr "仅生成模块中 __all__ 属性成员的文档。（默认值：%(default)s）"
 
-#: sphinx/ext/napoleon/__init__.py:336 sphinx/ext/napoleon/docstring.py:722
+#: sphinx/ext/napoleon/__init__.py:341 sphinx/ext/napoleon/docstring.py:728
 msgid "Keyword Arguments"
 msgstr "关键字参数"
 
-#: sphinx/ext/napoleon/docstring.py:676
+#: sphinx/ext/napoleon/docstring.py:682
 msgid "Example"
 msgstr "示例"
 
-#: sphinx/ext/napoleon/docstring.py:677
+#: sphinx/ext/napoleon/docstring.py:683
 msgid "Examples"
 msgstr "示例"
 
-#: sphinx/ext/napoleon/docstring.py:737
+#: sphinx/ext/napoleon/docstring.py:744
 msgid "Notes"
 msgstr "备注"
 
-#: sphinx/ext/napoleon/docstring.py:746
+#: sphinx/ext/napoleon/docstring.py:753
 msgid "Other Parameters"
 msgstr "其他参数"
 
-#: sphinx/ext/napoleon/docstring.py:782
+#: sphinx/ext/napoleon/docstring.py:789
 msgid "Receives"
 msgstr "接受"
 
-#: sphinx/ext/napoleon/docstring.py:786
+#: sphinx/ext/napoleon/docstring.py:793
 msgid "References"
 msgstr "引用"
 
-#: sphinx/ext/napoleon/docstring.py:818
+#: sphinx/ext/napoleon/docstring.py:825
 msgid "Warns"
 msgstr "警告"
 
-#: sphinx/ext/napoleon/docstring.py:822
+#: sphinx/ext/napoleon/docstring.py:829
 msgid "Yields"
 msgstr "生成器"
 
-#: sphinx/ext/napoleon/docstring.py:980
+#: sphinx/ext/napoleon/docstring.py:987
 #, python-format
 msgid "invalid value set (missing closing brace): %s"
 msgstr "无效的值集合（缺少右括号）：%s"
 
-#: sphinx/ext/napoleon/docstring.py:987
+#: sphinx/ext/napoleon/docstring.py:994
 #, python-format
 msgid "invalid value set (missing opening brace): %s"
 msgstr "无效的值集合（缺少左括号）：%s"
 
-#: sphinx/ext/napoleon/docstring.py:994
+#: sphinx/ext/napoleon/docstring.py:1001
 #, python-format
 msgid "malformed string literal (missing closing quote): %s"
 msgstr "异常的字符串字面量（缺少右引号）：%s"
 
-#: sphinx/ext/napoleon/docstring.py:1001
+#: sphinx/ext/napoleon/docstring.py:1008
 #, python-format
 msgid "malformed string literal (missing opening quote): %s"
 msgstr "异常的字符串字面量（缺少左引号）：%s"
 
-#: sphinx/locale/__init__.py:215
+#: sphinx/locale/__init__.py:228
 msgid "Attention"
 msgstr "注意"
 
-#: sphinx/locale/__init__.py:216
+#: sphinx/locale/__init__.py:229
 msgid "Caution"
 msgstr "小心"
 
-#: sphinx/locale/__init__.py:217
+#: sphinx/locale/__init__.py:230
 msgid "Danger"
 msgstr "危险"
 
-#: sphinx/locale/__init__.py:218
+#: sphinx/locale/__init__.py:231
 msgid "Error"
 msgstr "错误"
 
-#: sphinx/locale/__init__.py:219
+#: sphinx/locale/__init__.py:232
 msgid "Hint"
 msgstr "提示"
 
-#: sphinx/locale/__init__.py:220
+#: sphinx/locale/__init__.py:233
 msgid "Important"
 msgstr "重要"
 
-#: sphinx/locale/__init__.py:221
+#: sphinx/locale/__init__.py:234
 msgid "Note"
 msgstr "备注"
 
-#: sphinx/locale/__init__.py:222
+#: sphinx/locale/__init__.py:235
 msgid "See also"
 msgstr "参见"
 
-#: sphinx/locale/__init__.py:223
+#: sphinx/locale/__init__.py:236
 msgid "Tip"
 msgstr "小技巧"
 
-#: sphinx/locale/__init__.py:224
+#: sphinx/locale/__init__.py:237
 msgid "Warning"
 msgstr "警告"
 
@@ -3218,7 +3285,7 @@ msgid "Table of Contents"
 msgstr "目录"
 
 #: sphinx/themes/agogo/layout.html:43 sphinx/themes/basic/layout.html:141
-#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:22
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
 msgid "Search"
 msgstr "搜索"
 
@@ -3351,33 +3418,21 @@ msgstr "下一主题"
 msgid "next chapter"
 msgstr "下一章"
 
-#: sphinx/themes/basic/search.html:27
+#: sphinx/themes/basic/search.html:28
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
 msgstr "请激活 JavaScript 以开启搜索功能。"
 
-#: sphinx/themes/basic/search.html:35
+#: sphinx/themes/basic/search.html:36
 msgid ""
 "Searching for multiple words only shows matches that contain\n"
 "    all words."
 msgstr "当搜索多个关键词时，只会显示同时包含所有关键词的内容。"
 
-#: sphinx/themes/basic/search.html:42
+#: sphinx/themes/basic/search.html:43
 msgid "search"
 msgstr "搜索"
-
-#: sphinx/themes/basic/search.html:48
-#: sphinx/themes/basic/static/searchtools.js:105
-msgid "Search Results"
-msgstr "搜索结果"
-
-#: sphinx/themes/basic/search.html:50
-#: sphinx/themes/basic/static/searchtools.js:107
-msgid ""
-"Your search did not match any documents. Please make sure that all words are"
-" spelled correctly and that you've selected enough categories."
-msgstr "您的搜索没有匹配到文档。请确保关键词拼写正确，并且选择了合适的分类。"
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -3415,24 +3470,34 @@ msgstr "C API 的变更"
 msgid "Other changes"
 msgstr "其他变更"
 
-#: sphinx/themes/basic/static/searchtools.js:111
+#: sphinx/themes/basic/static/searchtools.js:112
+msgid "Search Results"
+msgstr "搜索结果"
+
+#: sphinx/themes/basic/static/searchtools.js:114
+msgid ""
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "您的搜索没有匹配到文档。请确保关键词拼写正确，并且选择了合适的分类。"
+
+#: sphinx/themes/basic/static/searchtools.js:118
 msgid ""
 "Search finished, found ${resultCount} page(s) matching the search query."
 msgstr "搜索完成，匹配到 ${resultCount} 页。"
 
-#: sphinx/themes/basic/static/searchtools.js:209
+#: sphinx/themes/basic/static/searchtools.js:246
 msgid "Searching"
 msgstr "正在搜索中"
 
-#: sphinx/themes/basic/static/searchtools.js:225
+#: sphinx/themes/basic/static/searchtools.js:262
 msgid "Preparing search..."
 msgstr "正在准备搜索……"
 
-#: sphinx/themes/basic/static/searchtools.js:413
+#: sphinx/themes/basic/static/searchtools.js:463
 msgid ", in "
 msgstr "，在 "
 
-#: sphinx/themes/basic/static/sphinx_highlight.js:107
+#: sphinx/themes/basic/static/sphinx_highlight.js:112
 msgid "Hide Search Matches"
 msgstr "隐藏搜索结果"
 
@@ -3449,91 +3514,99 @@ msgstr "展开边栏"
 msgid "Contents"
 msgstr "目录"
 
-#: sphinx/transforms/__init__.py:217
+#: sphinx/transforms/__init__.py:128
+msgid "could not calculate translation progress!"
+msgstr ""
+
+#: sphinx/transforms/__init__.py:133
+msgid "no translated elements!"
+msgstr ""
+
+#: sphinx/transforms/__init__.py:250
 #, python-format
 msgid ""
 "4 column based index found. It might be a bug of extensions you use: %r"
 msgstr "索引页使用了 4 列布局，可能是你所用的扩展出现了 Bug：%r"
 
-#: sphinx/transforms/__init__.py:256
+#: sphinx/transforms/__init__.py:291
 #, python-format
 msgid "Footnote [%s] is not referenced."
 msgstr "脚注 [%s] 没有被引用过。"
 
-#: sphinx/transforms/__init__.py:262
+#: sphinx/transforms/__init__.py:297
 msgid "Footnote [#] is not referenced."
 msgstr "脚注 [#] 没有被引用过。"
 
-#: sphinx/transforms/i18n.py:201 sphinx/transforms/i18n.py:268
+#: sphinx/transforms/i18n.py:205 sphinx/transforms/i18n.py:270
 msgid ""
 "inconsistent footnote references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "译文中的脚注引用与原文不一致。原文中为：{0}，翻文中为：{1}"
 
-#: sphinx/transforms/i18n.py:241
+#: sphinx/transforms/i18n.py:245
 msgid ""
 "inconsistent references in translated message. original: {0}, translated: "
 "{1}"
 msgstr "译文中的引用与原文不一致。原文中为：{0}，译文中为：{1}"
 
-#: sphinx/transforms/i18n.py:283
+#: sphinx/transforms/i18n.py:285
 msgid ""
 "inconsistent citation references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "译文中的引文引用与原文不一致。原文中为：{0}，译文中为：{1}"
 
-#: sphinx/transforms/i18n.py:300
+#: sphinx/transforms/i18n.py:302
 msgid ""
 "inconsistent term references in translated message. original: {0}, "
 "translated: {1}"
 msgstr "译文中的术语引用与原文不一致。原文中为：{0}，译文中为：{1}"
 
-#: sphinx/transforms/post_transforms/__init__.py:112
+#: sphinx/transforms/post_transforms/__init__.py:116
 msgid ""
 "Could not determine the fallback text for the cross-reference. Might be a "
 "bug."
 msgstr "无法确定交叉引用的回退文本。可能是 Bug。"
 
-#: sphinx/transforms/post_transforms/__init__.py:154
+#: sphinx/transforms/post_transforms/__init__.py:158
 #, python-format
 msgid "more than one target found for 'any' cross-reference %r: could be %s"
 msgstr "“any”交叉引用 %r 的目标不唯一：可能是 %s"
 
-#: sphinx/transforms/post_transforms/__init__.py:205
+#: sphinx/transforms/post_transforms/__init__.py:209
 #, python-format
 msgid "%s:%s reference target not found: %s"
 msgstr "未找到 %s:%s 的引用目标: %s"
 
-#: sphinx/transforms/post_transforms/__init__.py:208
+#: sphinx/transforms/post_transforms/__init__.py:212
 #, python-format
 msgid "%r reference target not found: %s"
 msgstr "未找到 %r 的引用目标：%s"
 
-#: sphinx/transforms/post_transforms/images.py:77
+#: sphinx/transforms/post_transforms/images.py:89
 #, python-format
 msgid "Could not fetch remote image: %s [%d]"
 msgstr "无法拉取远程图像：%s [%d]"
 
-#: sphinx/transforms/post_transforms/images.py:105
+#: sphinx/transforms/post_transforms/images.py:117
 #, python-format
 msgid "Could not fetch remote image: %s [%s]"
 msgstr "无法拉取远程图像：%s [%s]"
 
-#: sphinx/transforms/post_transforms/images.py:123
+#: sphinx/transforms/post_transforms/images.py:135
 #, python-format
 msgid "Unknown image format: %s..."
 msgstr "未知的图像格式：%s……"
 
-#: sphinx/util/__init__.py:191
+#: sphinx/util/__init__.py:168
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "源码中存在编码无法识别的字符，已经替换为“?”：%r"
 
-#: sphinx/util/display.py:76
+#: sphinx/util/display.py:78
 msgid "skipped"
 msgstr "已跳过"
 
-#: sphinx/util/display.py:81
+#: sphinx/util/display.py:83
 msgid "failed"
 msgstr "失败"
 
@@ -3544,153 +3617,153 @@ msgid ""
 "not in the domain."
 msgstr "%s 域中的问题：字段应采用“%s”角色，但域中并不包含该角色。"
 
-#: sphinx/util/docutils.py:307
+#: sphinx/util/docutils.py:295
 #, python-format
 msgid "unknown directive or role name: %s:%s"
 msgstr "未知的指令或角色名称：%s:%s"
 
-#: sphinx/util/docutils.py:595
+#: sphinx/util/docutils.py:591
 #, python-format
 msgid "unknown node type: %r"
 msgstr "未知节点类型：%r"
 
-#: sphinx/util/i18n.py:61
+#: sphinx/util/i18n.py:94
 #, python-format
 msgid "reading error: %s, %s"
 msgstr "读取时发生错误：%s，%s"
 
-#: sphinx/util/i18n.py:68
+#: sphinx/util/i18n.py:101
 #, python-format
 msgid "writing error: %s, %s"
 msgstr "写入时发生错误：%s，%s"
 
-#: sphinx/util/i18n.py:92
+#: sphinx/util/i18n.py:125
 #, python-format
-msgid "locale_dir %s does not exists"
-msgstr "locale_dir %s不存在 "
+msgid "locale_dir %s does not exist"
+msgstr ""
 
-#: sphinx/util/i18n.py:183
+#: sphinx/util/i18n.py:215
 #, python-format
 msgid ""
 "Invalid date format. Quote the string by single quote if you want to output "
 "it directly: %s"
 msgstr "无效的日期格式。如果你想直接输出日期字符串，请用单引号包裹该字符串：%s"
 
-#: sphinx/util/nodes.py:372
+#: sphinx/util/nodes.py:386
 #, python-format
 msgid ""
 "%r is deprecated for index entries (from entry %r). Use 'pair: %s' instead."
 msgstr "%r 不再适用于索引款目（源自 %r 款目）。请使用“pair: %s”作为替代。"
 
-#: sphinx/util/nodes.py:420
+#: sphinx/util/nodes.py:439
 #, python-format
 msgid "toctree contains ref to nonexisting file %r"
 msgstr "目录树引用的文件 %r 不存在"
 
-#: sphinx/util/nodes.py:607
+#: sphinx/util/nodes.py:637
 #, python-format
 msgid "exception while evaluating only directive expression: %s"
 msgstr "only 指令的表达式求值时抛出异常：%s"
 
-#: sphinx/util/rst.py:66
+#: sphinx/util/rst.py:71
 #, python-format
 msgid "default role %s not found"
 msgstr "未找到默认角色 %s"
 
-#: sphinx/writers/html5.py:98 sphinx/writers/html5.py:107
-msgid "Permalink to this definition"
-msgstr "永久链接至目标"
+#: sphinx/writers/html5.py:100 sphinx/writers/html5.py:109
+msgid "Link to this definition"
+msgstr ""
 
-#: sphinx/writers/html5.py:395
+#: sphinx/writers/html5.py:397
 #, python-format
 msgid "numfig_format is not defined for %s"
 msgstr "未定义 %s 的 numfig_format"
 
-#: sphinx/writers/html5.py:405
+#: sphinx/writers/html5.py:407
 #, python-format
 msgid "Any IDs not assigned for %s node"
 msgstr "没有给 %s 节点分配 ID"
 
-#: sphinx/writers/html5.py:459
-msgid "Permalink to this term"
-msgstr "此术语词汇的永久链接"
+#: sphinx/writers/html5.py:462
+msgid "Link to this term"
+msgstr ""
 
-#: sphinx/writers/html5.py:482 sphinx/writers/html5.py:487
-msgid "Permalink to this heading"
-msgstr "此标题的永久链接"
+#: sphinx/writers/html5.py:496 sphinx/writers/html5.py:501
+msgid "Link to this heading"
+msgstr ""
 
-#: sphinx/writers/html5.py:491
-msgid "Permalink to this table"
-msgstr "此表格的永久链接"
+#: sphinx/writers/html5.py:505
+msgid "Link to this table"
+msgstr ""
 
-#: sphinx/writers/html5.py:534
-msgid "Permalink to this code"
-msgstr "此代码块的永久链接"
+#: sphinx/writers/html5.py:548
+msgid "Link to this code"
+msgstr ""
 
-#: sphinx/writers/html5.py:536
-msgid "Permalink to this image"
-msgstr "此图像的永久链接"
+#: sphinx/writers/html5.py:550
+msgid "Link to this image"
+msgstr ""
 
-#: sphinx/writers/html5.py:538
-msgid "Permalink to this toctree"
-msgstr "此目录树的永久链接"
+#: sphinx/writers/html5.py:552
+msgid "Link to this toctree"
+msgstr ""
 
-#: sphinx/writers/html5.py:675
+#: sphinx/writers/html5.py:688
 msgid "Could not obtain image size. :scale: option is ignored."
 msgstr "无法获取图像尺寸，已忽略 :scale: 选项。"
 
-#: sphinx/writers/latex.py:331
+#: sphinx/writers/latex.py:335
 #, python-format
 msgid "unknown %r toplevel_sectioning for class %r"
 msgstr "未知的 %r toplevel_sectioning 被用于 %r 类"
 
-#: sphinx/writers/latex.py:382
+#: sphinx/writers/latex.py:386
 msgid "too large :maxdepth:, ignored."
 msgstr ":mathdepth: 值过大，已忽略。"
 
-#: sphinx/writers/latex.py:621
+#: sphinx/writers/latex.py:625
 msgid "document title is not a single Text node"
 msgstr "文档标题不是一个单纯文本节点"
 
-#: sphinx/writers/latex.py:652 sphinx/writers/texinfo.py:620
+#: sphinx/writers/latex.py:656 sphinx/writers/texinfo.py:626
 msgid ""
 "encountered title node not in section, topic, table, admonition or sidebar"
 msgstr "在节、话题、表格、警示或边栏以外的位置发现标题节点"
 
-#: sphinx/writers/latex.py:954 sphinx/writers/manpage.py:254
-#: sphinx/writers/texinfo.py:635
+#: sphinx/writers/latex.py:959 sphinx/writers/manpage.py:259
+#: sphinx/writers/texinfo.py:641
 msgid "Footnotes"
 msgstr "脚注"
 
-#: sphinx/writers/latex.py:1021
+#: sphinx/writers/latex.py:1028
 msgid ""
 "both tabularcolumns and :widths: option are given. :widths: is ignored."
 msgstr "同时指定了 tabularcolumns 和 :widths: 选项，已忽略 :widths:。"
 
-#: sphinx/writers/latex.py:1370
+#: sphinx/writers/latex.py:1388
 #, python-format
 msgid "dimension unit %s is invalid. Ignored."
 msgstr "无效的量纲单位 %s，已忽略。"
 
-#: sphinx/writers/latex.py:1708
+#: sphinx/writers/latex.py:1722
 #, python-format
 msgid "unknown index entry type %s found"
 msgstr "发现未知的索引条目类型 %s"
 
-#: sphinx/writers/manpage.py:302 sphinx/writers/text.py:912
+#: sphinx/writers/manpage.py:305 sphinx/writers/text.py:907
 #, python-format
 msgid "[image: %s]"
 msgstr "[图片： %s]"
 
-#: sphinx/writers/manpage.py:303 sphinx/writers/text.py:913
+#: sphinx/writers/manpage.py:306 sphinx/writers/text.py:908
 msgid "[image]"
 msgstr "[图片]"
 
-#: sphinx/writers/texinfo.py:1191
+#: sphinx/writers/texinfo.py:1197
 msgid "caption not inside a figure."
 msgstr "在图示之外发现了图题。"
 
-#: sphinx/writers/texinfo.py:1278
+#: sphinx/writers/texinfo.py:1284
 #, python-format
 msgid "unimplemented node type: %r"
 msgstr "未实现的节点类型：%r"

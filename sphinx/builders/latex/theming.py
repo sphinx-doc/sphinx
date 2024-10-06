@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import configparser
 from os import path
+from typing import TYPE_CHECKING
 
-from sphinx.application import Sphinx
-from sphinx.config import Config
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -81,11 +84,11 @@ class UserTheme(Theme):
                 value = self.config.get('theme', key)
                 setattr(self, key, value)
             except configparser.NoSectionError as exc:
-                raise ThemeError(__('%r doesn\'t have "theme" setting') %
-                                 filename) from exc
+                msg = __('%r doesn\'t have "theme" setting') % filename
+                raise ThemeError(msg) from exc
             except configparser.NoOptionError as exc:
-                raise ThemeError(__('%r doesn\'t have "%s" setting') %
-                                 (filename, exc.args[0])) from exc
+                msg = __('%r doesn\'t have "%s" setting') % (filename, exc.args[0])
+                raise ThemeError(msg) from exc
 
         for key in self.OPTIONAL_CONFIG_KEYS:
             try:
@@ -100,7 +103,9 @@ class ThemeFactory:
 
     def __init__(self, app: Sphinx) -> None:
         self.themes: dict[str, Theme] = {}
-        self.theme_paths = [path.join(app.srcdir, p) for p in app.config.latex_theme_path]
+        self.theme_paths = [
+            path.join(app.srcdir, p) for p in app.config.latex_theme_path
+        ]
         self.config = app.config
         self.load_builtin_themes(app.config)
 

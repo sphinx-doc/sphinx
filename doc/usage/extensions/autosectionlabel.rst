@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.autosectionlabel` -- Allow reference sections using its title
 ==============================================================================
@@ -51,6 +51,6 @@ Debugging
 ---------
 
 The ``WARNING: undefined label`` indicates that your reference in
-:rst:role:`ref` is mis-spelled. Invoking :program:`sphinx-build` with ``-vv``
+:rst:role:`ref` is mis-spelled. Invoking :program:`sphinx-build` with ``-vvv``
 (see :option:`-v`) will print all section names and the labels that have been
 generated for them. This output can help finding the right reference label.

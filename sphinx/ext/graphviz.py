@@ -11,31 +11,32 @@ from hashlib import sha1
 from itertools import chain
 from os import path
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
-from docutils.nodes import Node
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.docutils import SphinxDirective, SphinxTranslator
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
-from sphinx.util.typing import OptionSpec
-from sphinx.writers.html import HTML5Translator
-from sphinx.writers.latex import LaTeXTranslator
-from sphinx.writers.manpage import ManualPageTranslator
-from sphinx.writers.texinfo import TexinfoTranslator
-from sphinx.writers.text import TextTranslator
 
 if TYPE_CHECKING:
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
+    from sphinx.writers.html5 import HTML5Translator
+    from sphinx.writers.latex import LaTeXTranslator
+    from sphinx.writers.manpage import ManualPageTranslator
+    from sphinx.writers.texinfo import TexinfoTranslator
+    from sphinx.writers.text import TextTranslator
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,7 @@ class GraphvizError(SphinxError):
 
 class ClickableMapDefinition:
     """A manipulator for clickable map file of graphviz."""
+
     maptag_re = re.compile('<map id="(.*?)"')
     href_re = re.compile('href=".*?"')
 
@@ -80,7 +82,7 @@ class ClickableMapDefinition:
         If not exists, this only returns empty string.
         """
         if self.clickable:
-            return '\n'.join([self.content[0]] + self.clickable + [self.content[-1]])
+            return '\n'.join((self.content[0], *self.clickable, self.content[-1]))
         else:
             return ''
 
@@ -89,12 +91,12 @@ class graphviz(nodes.General, nodes.Inline, nodes.Element):
     pass
 
 
-def figure_wrapper(directive: Directive, node: graphviz, caption: str) -> nodes.figure:
+def figure_wrapper(directive: SphinxDirective, node: graphviz, caption: str) -> nodes.figure:
     figure_node = nodes.figure('', node)
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')
 
-    inodes, messages = directive.state.inline_text(caption, directive.lineno)
+    inodes, messages = directive.parse_inline(caption)
     caption_node = nodes.caption(caption, '', *inodes)
     caption_node.extend(messages)
     set_source_info(directive, caption_node)
@@ -110,11 +112,12 @@ class Graphviz(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
+
     has_content = True
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,
@@ -178,11 +181,12 @@ class GraphvizSimple(SphinxDirective):
     """
     Directive to insert arbitrary dot markup.
     """
+
     has_content = True
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'alt': directives.unchanged,
         'align': align_spec,
         'caption': directives.unchanged,
@@ -217,7 +221,8 @@ class GraphvizSimple(SphinxDirective):
             return [figure]
 
 
-def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
+def fix_svg_relative_paths(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
+                           filepath: str) -> None:
     """Change relative links in generated svg files to be relative to imgpath."""
     tree = ET.parse(filepath)  # NoQA: S314
     root = tree.getroot()
@@ -229,16 +234,20 @@ def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
         root.findall('.//svg:image[@xlink:href]', ns),
         root.findall('.//svg:a[@xlink:href]', ns),
     ):
-        scheme, hostname, url, query, fragment = urlsplit(element.attrib[href_name])
+        scheme, hostname, rel_uri, query, fragment = urlsplit(element.attrib[href_name])
         if hostname:
             # not a relative link
             continue
 
-        old_path = path.join(self.builder.outdir, url)
-        new_path = path.relpath(
-            old_path,
-            start=path.join(self.builder.outdir, self.builder.imgpath),
-        )
+        docname = self.builder.env.path2doc(self.document["source"])
+        if docname is None:
+            # This shouldn't happen!
+            continue
+        doc_dir = self.builder.app.outdir.joinpath(docname).resolve().parent
+
+        old_path = doc_dir / rel_uri
+        img_path = doc_dir / self.builder.imgpath
+        new_path = path.relpath(old_path, start=img_path)
         modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
 
         element.set(href_name, modified_url)
@@ -248,7 +257,8 @@ def fix_svg_relative_paths(self: SphinxTranslator, filepath: str) -> None:
         tree.write(filepath)
 
 
-def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
+def render_dot(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
+               code: str, options: dict, format: str,
                prefix: str = 'graphviz', filename: str | None = None,
                ) -> tuple[str | None, str | None]:
     """Render graphviz code into a PNG or PDF output file."""
@@ -293,8 +303,8 @@ def render_dot(self: SphinxTranslator, code: str, options: dict, format: str,
         logger.warning(__('dot command %r cannot be run (needed for graphviz '
                           'output), check the graphviz_dot setting'), graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
-            self.builder._graphviz_warned_dot = {}  # type: ignore
-        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore
+            self.builder._graphviz_warned_dot = {}  # type: ignore[union-attr]
+        self.builder._graphviz_warned_dot[graphviz_dot] = True
         return None, None
     except CalledProcessError as exc:
         raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'
@@ -323,7 +333,7 @@ def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: d
         logger.warning(__('dot code %r: %s'), code, exc)
         raise nodes.SkipNode from exc
 
-    classes = [imgcls, 'graphviz'] + node.get('classes', [])
+    classes = [imgcls, 'graphviz', *node.get('classes', [])]
     imgcls = ' '.join(filter(None, classes))
 
     if fname is None:
@@ -442,7 +452,7 @@ def on_config_inited(_app: Sphinx, config: Config) -> None:
     config.html_static_path.append(css_path)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),

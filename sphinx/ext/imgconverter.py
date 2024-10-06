@@ -5,14 +5,17 @@ from __future__ import annotations
 import subprocess
 import sys
 from subprocess import CalledProcessError
-from typing import Any
+from typing import TYPE_CHECKING
 
 import sphinx
-from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
 from sphinx.locale import __
 from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +26,7 @@ class ImagemagickConverter(ImageConverter):
         ('image/gif', 'image/png'),
         ('application/pdf', 'image/png'),
         ('application/illustrator', 'image/png'),
+        ('image/webp', 'image/png'),
     ]
 
     def is_available(self) -> bool:
@@ -54,9 +58,9 @@ class ImagemagickConverter(ImageConverter):
             # (or first page) of image (ex. Animation GIF, PDF)
             _from += '[0]'
 
-            args = ([self.config.image_converter] +
-                    self.config.image_converter_args +
-                    [_from, _to])
+            args = ([
+                self.config.image_converter, *self.config.image_converter_args, _from, _to,
+            ])
             logger.debug('Invoking %r ...', args)
             subprocess.run(args, capture_output=True, check=True)
             return True
@@ -71,7 +75,7 @@ class ImagemagickConverter(ImageConverter):
                                  (exc.stderr, exc.stdout)) from exc
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_post_transform(ImagemagickConverter)
     if sys.platform == 'win32':
         # On Windows, we use Imagemagik v7 by default to avoid the trouble for
