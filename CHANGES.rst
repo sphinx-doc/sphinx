@@ -19,7 +19,9 @@ Incompatible changes
   Code-blocks are unchanged as FreeMono is now loaded with ``Scale=0.9``.
   An adjustment to existing projects is needed only if they used a custom
   :ref:`fontpkg` configuration and did not set :ref:`fvset`.
+  Patch by Jean-François B.
 * #12875: Disable smartquotes for languages: ``zh_CN`` and ``zh_TW`` by default.
+  Patch by A. Rafey Khan.
 
 Deprecated
 ----------
@@ -36,6 +38,7 @@ Features added
 
 * #11328: Mention evaluation of templated content during production of static
   output files.
+  Patch by James Addison.
 * #12704: LaTeX: make :dudir:`contents <table-of-contents>`, :dudir:`topic`,
   and :dudir:`sidebar` directives separately customizable for PDF output.
   Patch by Jean-François B. and Bénédikt Tran.
@@ -69,6 +72,7 @@ Features added
 * #12852: Support a :attr:`.Builder.supported_linkcode` attribute
   for builders to enable use of :mod:`sphinx.ext.linkcode`-generated
   references.
+  Patch by James Knight.
 
 Bugs fixed
 ----------
@@ -88,6 +92,7 @@ Bugs fixed
 * #12778: LaTeX: let :ref:`'sphinxsetup' <latexsphinxsetup>`
   ``div.topic_box-shadow`` key if used with only one dimension set both
   x-offset and y-offset as per documentation.
+  Patch by Jean-François B.
 * #12587: Do not warn when potential ambiguity detected during Intersphinx
   resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
@@ -110,7 +115,7 @@ Bugs fixed
   references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
-  Patch by James Addison (with reference to prior work by Eric Norige)
+  Patch by James Addison (with reference to prior work by Eric Norige).
 * #12735: Fix :pep:`695` generic classes LaTeX output formatting.
   Patch by Jean-François B. and Bénédikt Tran.
 * #12782: intersphinx: fix double forward slashes when generating the inventory
