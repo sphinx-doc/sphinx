@@ -1004,58 +1004,67 @@ def test_autodoc_typehints_none_for_overload(app):
 def test_autodoc_typehints_description(app):
     app.build()
     context = (app.outdir / 'index.txt').read_text(encoding='utf8')
-    assert ('target.typehints.incr(a, b=1)\n'
-            '\n'
-            '   Parameters:\n'
-            '      * **a** (*int*) --\n'
-            '\n'
-            '      * **b** (*int*) --\n'
-            '\n'
-            '   Return type:\n'
-            '      int\n'
-            in context)
-    assert ('target.typehints.tuple_args(x)\n'
-            '\n'
-            '   Parameters:\n'
-            '      **x** (*tuple**[**int**, **int** | **str**]*) --\n'
-            '\n'
-            '   Return type:\n'
-            '      *tuple*[int, int]\n'
-            in context)
-    assert ('class target.typehints.NewComment(i)\n'
-            '\n'
-            '   Parameters:\n'
-            '      **i** (**int** | **None**) --\n'
-            in context)
+    assert (
+        'target.typehints.incr(a, b=1)\n'
+        '\n'
+        '   Parameters:\n'
+        '      * **a** (*int*)\n'
+        '\n'
+        '      * **b** (*int*)\n'
+        '\n'
+        '   Return type:\n'
+        '      int\n'
+    ) in context
+    assert (
+        'target.typehints.tuple_args(x)\n'
+        '\n'
+        '   Parameters:\n'
+        '      **x** (*tuple**[**int**, **int** | **str**]*)\n'
+        '\n'
+        '   Return type:\n'
+        '      tuple[int, int]\n'
+    ) in context
+    assert (
+        'class target.typehints.NewComment(i)\n'
+        '\n'
+        '   Parameters:\n'
+        '      **i** (**int** | **None**) --\n'
+    ) in context
 
     # Overloads still get displayed in the signature
-    assert ('target.overload.sum(x: int, y: int = 0) -> int\n'
-            'target.overload.sum(x: float, y: float = 0.0) -> float\n'
-            'target.overload.sum(x: str, y: str = None) -> str\n'
-            '\n'
-            '   docstring\n'
-            in context)
+    assert (
+        'target.overload.sum(x: int, y: int = 0) -> int\n'
+        'target.overload.sum(x: float, y: float = 0.0) -> float\n'
+        'target.overload.sum(x: str, y: str = None) -> str\n'
+        '\n'
+        '   docstring\n'
+    ) in context
 
 
-@pytest.mark.sphinx('text', testroot='ext-autodoc',
-                    confoverrides={'autodoc_typehints': "description"})
+@pytest.mark.sphinx(
+    'text',
+    testroot='ext-autodoc',
+    confoverrides={'autodoc_typehints': 'description'},
+)
 def test_autodoc_lazy_typehints_description(app):
     app.build()
     context = (app.outdir / 'index_py37.txt').read_text(encoding='utf8')
-    assert ('class target.typehints_lazy.LazyInit(x)\n'
-            '\n'
-            '   I am lazy!\n'
-            '\n'
-            '   Parameters:\n'
-            '      **x** (*Optional**[**int**]*) -- this is x\n'
-            in context)
-    assert ('class target.typehints_lazy.LazyGeneric(x)\n'
-            '\n'
-            '   Generic docstring ;)\n'
-            '\n'
-            '   Parameters:\n'
-            '      **x** (*Optional**[**T**]*) -- maybe also generic\n'
-            in context)
+    assert (
+        'class target.typehints_lazy.LazyInit(x)\n'
+        '\n'
+        '   I am lazy!\n'
+        '\n'
+        '   Parameters:\n'
+        '      **x** (*Optional**[**int**]*) -- this is x\n'
+    ) in context
+    assert (
+        'class target.typehints_lazy.LazyGeneric(x)\n'
+        '\n'
+        '   Generic docstring ;)\n'
+        '\n'
+        '   Parameters:\n'
+        '      **x** (*Optional**[**T**]*) -- maybe also generic\n'
+    ) in context
 
 
 @pytest.mark.sphinx(
