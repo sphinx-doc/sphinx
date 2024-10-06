@@ -135,7 +135,23 @@ class AutodocDirective(SphinxDirective):
 
         # generate the output
         params = DocumenterBridge(self.env, reporter, documenter_options, lineno, self.state)
-        documenter = doccls(params, self.arguments[0])
+
+        modname = self.env.ref_context.get('py:module')
+        clsname = self.env.ref_context.get('py:class')
+        if modname is not None:
+            prefix = modname + "::"
+        else:
+            prefix = ''
+        if clsname is not None:
+            prefix = prefix + clsname + "."
+
+        if ((objtype == 'method' or objtype == 'property') and
+                (not self.arguments[0].startswith(prefix))):
+            fullname = prefix + self.arguments[0]
+        else:
+            fullname = self.arguments[0]
+
+        documenter = doccls(params, fullname)
         documenter.generate(more_content=self.content)
         if not params.result:
             return []
