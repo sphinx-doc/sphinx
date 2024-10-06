@@ -64,6 +64,8 @@ Features added
 * #11781: Add roles for referencing CVEs (:rst:role:`:cve: <cve>`)
   and CWEs (:rst:role:`:cwe: <cwe>`).
   Patch by Hugo van Kemenade.
+* #11809: Improve the formatting for RFC section anchors.
+  Patch by Jakub Stasiak and Adam Turner.
 
 Bugs fixed
 ----------
