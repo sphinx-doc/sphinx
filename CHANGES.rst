@@ -135,6 +135,10 @@ Bugs fixed
   ``SOURCE_DATE_EPOCH`` for entries that match the current system clock year,
   and disallow substitution of future years.
   Patch by James Addison and Adam Turner.
+* #12905: intersphinx: fix flipped use of :confval:`intersphinx_cache_limit`,
+  which always kept the cache for positive values, and always refreshed it for
+  negative ones.
+  Patch by Nico Madysa.
 
 Testing
 -------
