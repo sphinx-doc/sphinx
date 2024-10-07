@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-portuguese_stopwords = parse_stop_word('''
+portuguese_stopwords = parse_stop_word("""
 | source: https://snowball.tartarus.org/algorithms/portuguese/stop.txt
 de             |  of, from
 a              |  the; to, at; her
@@ -245,7 +243,7 @@ terão
 teria
 teríamos
 teriam
-''')
+""")
 
 
 class SearchPortuguese(SearchLanguage):

@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.domains import Domain
     from sphinx.environment import BuildEnvironment
+    from sphinx.ext.autodoc import _AutodocProcessDocstringListener
     from sphinx.ext.todo import todo_node
 
 
@@ -265,19 +266,7 @@ class EventManager:
     def connect(
         self,
         name: Literal['autodoc-process-docstring'],
-        callback: Callable[
-            [
-                Sphinx,
-                Literal[
-                    'module', 'class', 'exception', 'function', 'method', 'attribute'
-                ],
-                str,
-                Any,
-                dict[str, bool],
-                Sequence[str],
-            ],
-            None,
-        ],
+        callback: _AutodocProcessDocstringListener,
         priority: int,
     ) -> int: ...
 

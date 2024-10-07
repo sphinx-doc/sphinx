@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-italian_stopwords = parse_stop_word('''
+italian_stopwords = parse_stop_word("""
 | source: https://snowball.tartarus.org/algorithms/italian/stop.txt
 ad             |  a (to) before vowel
 al             |  a + il
@@ -300,7 +298,7 @@ stessi
 stesse
 stessimo
 stessero
-''')
+""")
 
 
 class SearchItalian(SearchLanguage):
