@@ -135,6 +135,8 @@ Bugs fixed
   ``SOURCE_DATE_EPOCH`` for entries that match the current system clock year,
   and disallow substitution of future years.
   Patch by James Addison and Adam Turner.
+* #10605: Python autodoc: fix constructor argument types when
+  :confval:`autodoc_typehints` is ``'description'`` or ``'both'``.
 
 Testing
 -------

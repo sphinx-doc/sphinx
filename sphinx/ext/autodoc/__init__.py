@@ -1320,6 +1320,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         try:
             self.env.app.emit('autodoc-before-process-signature', self.object, False)
             sig = inspect.signature(self.object, type_aliases=self.config.autodoc_type_aliases)
+            self.env.app.emit('autodoc-after-inspection', self.object, self.fullname, sig)
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(__("Failed to get a function signature for %s: %s"),
@@ -1556,6 +1557,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             try:
                 sig = inspect.signature(call, bound_method=True,
                                         type_aliases=self.config.autodoc_type_aliases)
+                self.env.app.emit('autodoc-after-inspection', self.object, self.fullname,
+                                  sig)
                 return type(self.object), '__call__', sig
             except ValueError:
                 pass
@@ -1572,6 +1575,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             try:
                 sig = inspect.signature(new, bound_method=True,
                                         type_aliases=self.config.autodoc_type_aliases)
+                self.env.app.emit('autodoc-after-inspection', self.object, self.fullname,
+                                  sig)
                 return self.object, '__new__', sig
             except ValueError:
                 pass
@@ -1583,6 +1588,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             try:
                 sig = inspect.signature(init, bound_method=True,
                                         type_aliases=self.config.autodoc_type_aliases)
+                self.env.app.emit('autodoc-after-inspection', self.object, self.fullname,
+                                  sig)
                 return self.object, '__init__', sig
             except ValueError:
                 pass
@@ -1595,6 +1602,8 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         try:
             sig = inspect.signature(self.object, bound_method=False,
                                     type_aliases=self.config.autodoc_type_aliases)
+            self.env.app.emit('autodoc-after-inspection', self.object, self.fullname,
+                              sig)
             return None, None, sig
         except ValueError:
             pass
@@ -2193,6 +2202,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                     self.env.app.emit('autodoc-before-process-signature', self.object, True)
                     sig = inspect.signature(self.object, bound_method=True,
                                             type_aliases=self.config.autodoc_type_aliases)
+                self.env.app.emit('autodoc-after-inspection', self.object, self.fullname, sig)
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(__("Failed to get a method signature for %s: %s"),
@@ -2858,6 +2868,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('autodoc_warningiserror', True, 'env')
     app.add_config_value('autodoc_inherit_docstrings', True, 'env')
     app.add_event('autodoc-before-process-signature')
+    app.add_event('autodoc-after-inspection')
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')

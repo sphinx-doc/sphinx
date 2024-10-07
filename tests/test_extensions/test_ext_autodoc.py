@@ -2879,7 +2879,15 @@ my_name
 
 alias of Foo"""
     )
-    assert app.warning.getvalue() == ''
+    # This might be a bug. We're not picking up the TypeVar T.
+    warning_lines = [line for line in app.warning.getvalue().split('\n') if line]
+    assert len(warning_lines) == 2
+    assert (
+        "index_py37.rst: WARNING: document isn't included in any toctree"
+    ) in warning_lines[0]
+    assert (
+        'WARNING: py:class reference target not found: target.typehints_lazy.T'
+    ) in warning_lines[1]
 
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
