@@ -746,7 +746,13 @@ if TYPE_CHECKING:
 
 @pytest.mark.sphinx('html', testroot='root')
 @pytest.mark.parametrize(
-    ('cache_limit', 'expected_expired'), [(5, False), (1, True), (-1, False)]
+    ('cache_limit', 'expected_expired'),
+    [
+        (5, False),
+        (1, True),
+        (0, True),
+        (-1, False),
+    ],
 )
 def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired):
     url = 'https://example.org/'
@@ -762,11 +768,11 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
 
     # The test's `now` is two days after the cache was created.
     now = 2 * 86400
-    monkeypatch.setattr('time.time', mock.Mock(name='time.time', return_value=now))
+    monkeypatch.setattr('time.time', lambda: now)
 
-    # `_fetch_inventory_group` calls `_fetch_inventory`. We replace it
-    # with a mock to test whether it has been called or not. If it has
-    # been called, it means the cache had expired.
+    # `_fetch_inventory_group` calls `_fetch_inventory`.
+    # We replace it with a mock to test whether it has been called.
+    # If it has been called, it means the cache had expired.
     mock_fetch_inventory = mock.Mock(return_value=('inv', now, {}))
     monkeypatch.setattr(
         'sphinx.ext.intersphinx._load._fetch_inventory', mock_fetch_inventory
@@ -786,10 +792,10 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
         # file. That would've been an error, and `updated` would've been
         # False even if the cache had expired. The mock makes it behave
         # "correctly".
-        assert updated == expected_expired
+        assert updated is expected_expired
     # Double-check: If the cache was expired, `mock_fetch_inventory`
     # must've been called.
-    assert mock_fetch_inventory.called == expected_expired
+    assert mock_fetch_inventory.called is expected_expired
 
 
 def test_intersphinx_fetch_inventory_group_url():
