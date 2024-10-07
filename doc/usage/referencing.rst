@@ -1,14 +1,19 @@
-.. _xref-syntax:
+.. _xref:
 
-========================
-Cross-referencing syntax
-========================
+================
+Cross-references
+================
 
 One of Sphinx's most useful features is creating automatic cross-references
 through semantic cross-referencing roles.
 A cross reference to an object description, such as ``:func:`spam```,
 will create a link to the place where ``spam()`` is documented,
 appropriate to each output format (HTML, PDF, ePUB, etc.).
+
+.. _xref-syntax:
+
+Syntax
+------
 
 Sphinx supports various cross-referencing roles to create links
 to other elements in the documentation.
