@@ -108,7 +108,7 @@ Features added
   functions in source code and keep them not evaluated for readability.
 * #8619: html: kbd role generates customizable HTML tags for compound keys
 * #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
-  for :meth:`.Sphinx.add_js_file()` and :meth:`.Sphinx.add_css_file()`
+  for :meth:`.Sphinx.add_js_file` and :meth:`.Sphinx.add_css_file`
 * #6241: html: Allow to add JS/CSS files to the specific page when an extension
   calls ``app.add_js_file()`` or ``app.add_css_file()`` on
   :event:`html-page-context` event

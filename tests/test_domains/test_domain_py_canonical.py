@@ -38,7 +38,7 @@ def test_domain_py_canonical(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_canonical(app):
     text = '.. py:class:: io.StringIO\n   :canonical: _io.StringIO'
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -75,7 +75,7 @@ def test_canonical_definition_overrides(app):
     restructuredtext.parse(app, text)
     assert app.warning.getvalue() == ''
 
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     assert domain.objects['_io.StringIO'] == ('index', 'id0', 'class', False)
 
 
@@ -90,7 +90,7 @@ def test_canonical_definition_skip(app):
     restructuredtext.parse(app, text)
     assert app.warning.getvalue() == ''
 
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     assert domain.objects['_io.StringIO'] == ('index', 'io.StringIO', 'class', False)
 
 

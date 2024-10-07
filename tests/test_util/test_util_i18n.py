@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import time
 
 import babel
 import pytest
@@ -93,6 +94,24 @@ def test_format_date():
     assert i18n.format_date(format, date=datet, language='en') == '+0000'
 
 
+def test_format_date_timezone():
+    dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.timezone.utc)
+    if time.localtime(dt.timestamp()).tm_gmtoff == 0:
+        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101
+
+    fmt = '%Y-%m-%d %H:%M:%S'
+
+    iso_gmt = dt.isoformat(' ').split('+')[0]
+    fd_gmt = i18n.format_date(fmt, date=dt, language='en', local_time=False)
+    assert fd_gmt == '2016-08-07 05:11:17'
+    assert fd_gmt == iso_gmt
+
+    iso_local = dt.astimezone().isoformat(' ').split('+')[0]
+    fd_local = i18n.format_date(fmt, date=dt, language='en', local_time=True)
+    assert fd_local == iso_local
+    assert fd_local != fd_gmt
+
+
 @pytest.mark.sphinx('html', testroot='root')
 def test_get_filename_for_language(app):
     get_filename = i18n.get_image_filename_for_language
@@ -179,13 +198,13 @@ def test_CatalogRepository(tmp_path):
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # no languages
-    repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # unknown locale_dirs
-    repo = i18n.CatalogRepository(tmp_path, ['loc3'], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, ['loc3'], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # no locale_dirs
-    repo = i18n.CatalogRepository(tmp_path, [], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, [], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []

@@ -6,6 +6,8 @@ Dependencies
 
 * #12756: Add lower-bounds to the ``sphinxcontrib-*`` dependencies.
   Patch by Adam Turner.
+* #12833: Update the LaTeX ``parskip`` package from 2001 to 2018.
+  Patch by Jean-François B.
 
 Incompatible changes
 --------------------
@@ -14,9 +16,12 @@ Incompatible changes
   Patch by Adam Turner.
 * #12822: LaTeX: for Unicode engines, the :ref:`fvset` default is changed to
   ``'\\fvset{fontsize=auto}'`` from ``'\\fvset{fontsize=\\small}'``.
-  Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
-  An adjustement to existing projects is needed only if they used a custom
+  Code-blocks are unchanged as FreeMono is now loaded with ``Scale=0.9``.
+  An adjustment to existing projects is needed only if they used a custom
   :ref:`fontpkg` configuration and did not set :ref:`fvset`.
+  Patch by Jean-François B.
+* #12875: Disable smartquotes for languages: ``zh_CN`` and ``zh_TW`` by default.
+  Patch by A. Rafey Khan.
 
 Deprecated
 ----------
@@ -33,6 +38,7 @@ Features added
 
 * #11328: Mention evaluation of templated content during production of static
   output files.
+  Patch by James Addison.
 * #12704: LaTeX: make :dudir:`contents <table-of-contents>`, :dudir:`topic`,
   and :dudir:`sidebar` directives separately customizable for PDF output.
   Patch by Jean-François B. and Bénédikt Tran.
@@ -48,6 +54,25 @@ Features added
 * #12743: Add :option:`sphinx-build --exception-on-warning`,
   to raise an exception when warnings are emitted during the build.
   Patch by Adam Turner and Jeremy Maitin-Shepard.
+* #12907: Add :confval:`html_last_updated_use_utc` to allow using
+  universal time (GMT/UTC) instead of local time for the date-time
+  supplied to :confval:`html_last_updated_fmt`.
+  Patch by Adam Turner.
+* #12910: Copyright entries now support the ``'%Y'`` placeholder
+  to substitute the current year.
+  This is helpful for reducing the reliance on Python modules
+  such as :py:mod:`time` or :py:mod:`datetime` in :file:`conf.py`.
+  See :ref:`the docs <config-copyright>` for further detail.
+  Patch by Adam Turner.
+* #11781: Add roles for referencing CVEs (:rst:role:`:cve: <cve>`)
+  and CWEs (:rst:role:`:cwe: <cwe>`).
+  Patch by Hugo van Kemenade.
+* #11809: Improve the formatting for RFC section anchors.
+  Patch by Jakub Stasiak and Adam Turner.
+* #12852: Support a :attr:`.Builder.supported_linkcode` attribute
+  for builders to enable use of :mod:`sphinx.ext.linkcode`-generated
+  references.
+  Patch by James Knight.
 
 Bugs fixed
 ----------
@@ -67,6 +92,7 @@ Bugs fixed
 * #12778: LaTeX: let :ref:`'sphinxsetup' <latexsphinxsetup>`
   ``div.topic_box-shadow`` key if used with only one dimension set both
   x-offset and y-offset as per documentation.
+  Patch by Jean-François B.
 * #12587: Do not warn when potential ambiguity detected during Intersphinx
   resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
@@ -83,17 +109,32 @@ Bugs fixed
   rise to nested ``\DUrole``'s, rather than a single one with comma separated
   classes.
   Patch by Jean-François B.
+* #12831: LaTeX: avoid large voids sometimes occurring at page bottoms.
+  Patch by Jean-François B.
 * #11970, #12551: singlehtml builder: make target URIs to be same-document
   references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
-  Patch by James Addison (with reference to prior work by Eric Norige)
+  Patch by James Addison (with reference to prior work by Eric Norige).
 * #12735: Fix :pep:`695` generic classes LaTeX output formatting.
   Patch by Jean-François B. and Bénédikt Tran.
 * #12782: intersphinx: fix double forward slashes when generating the inventory
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
+* #12796: Enable parallel reading if requested,
+  even if there are fewer than 6 documents.
+  Patch by Matthias Geier.
+* #12844: Restore support for ``:noindex:`` for the :rst:dir:`js:module`
+  and :rst:dir:`py:module` directives.
+  Patch by Stephen Finucane.
+* #12916: Restore support for custom templates named with the legacy ``_t``
+  suffix during ``apidoc`` RST rendering (regression in 7.4.0).
+  Patch by James Addison.
+* #12451: Only substitute copyright notice years with values from
+  ``SOURCE_DATE_EPOCH`` for entries that match the current system clock year,
+  and disallow substitution of future years.
+  Patch by James Addison and Adam Turner.
 
 Testing
 -------

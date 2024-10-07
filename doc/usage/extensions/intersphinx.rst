@@ -78,7 +78,7 @@ linking:
 
    The unique identifier can be used in the :rst:role:`external` role, so that
    it is clear which intersphinx set the target belongs to.  A link like
-   ``external:python+ref:`comparison manual <comparisons>``` will link to the
+   ``:external+python:ref:`comparison manual <comparisons>``` will link to the
    label "comparisons" in the doc set "python", if it exists.
 
    **Example**

@@ -205,7 +205,7 @@ class CoverageBuilder(Builder):
 
     def build_c_coverage(self) -> None:
         c_objects = {}
-        for obj in self.env.domains['c'].get_objects():
+        for obj in self.env.domains.c_domain.get_objects():
             c_objects[obj[2]] = obj[1]
         for filename in self.c_sourcefiles:
             undoc: set[tuple[str, str]] = set()

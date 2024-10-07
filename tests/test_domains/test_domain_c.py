@@ -804,7 +804,7 @@ def test_domain_c_build_field_role(app):
 
 
 def _get_obj(app, queryName):
-    domain = app.env.get_domain('c')
+    domain = app.env.domains.c_domain
     for name, _dispname, objectType, docname, anchor, _prio in domain.get_objects():
         if name == queryName:
             return docname, anchor, objectType
