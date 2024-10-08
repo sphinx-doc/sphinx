@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     name: PyPI Release
     environment: release
+    if: github.repository_owner == 'sphinx-doc'
     permissions:
       id-token: write  # for PyPI trusted publishing
     steps:
@@ -72,6 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     name: GitHub release
     environment: release
+    if: github.repository_owner == 'sphinx-doc'
     permissions:
       contents: write  # for softprops/action-gh-release to create GitHub release
     steps:
