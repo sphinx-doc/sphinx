@@ -24,6 +24,7 @@ jobs:
     environment: release
     if: github.repository_owner == 'sphinx-doc'
     permissions:
+      attestations: write  # for actions/attest
       id-token: write  # for PyPI trusted publishing
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +41,9 @@ jobs:
 
       - name: Install build dependencies (pypa/build, twine)
         run: |
-          uv pip install build twine
+          uv pip install build "twine>=5.1"
+          # resolution fails without betterproto and protobuf-specs
+          uv pip install "pypi-attestations~=0.0.12" "sigstore-protobuf-specs==0.3.2" "betterproto==2.0.0b6"
 
       - name: Build distribution
         run: python -m build
@@ -48,6 +51,38 @@ jobs:
       - name: Check distribution
         run: |
           twine check dist/*
+
+      - name: Create Sigstore attestations for built distributions
+        uses: actions/attest@v1
+        id: attest
+        with:
+          subject-path: "dist/*"
+          predicate-type: "https://docs.pypi.org/attestations/publish/v1"
+          predicate: "null"
+          show-summary: "true"
+
+      - name: Convert attestations to PEP 740
+        # workflow_ref example: sphinx-doc/sphinx/.github/workflows/create-release.yml@refs/heads/master
+        run: >
+          python utils/convert_attestations.py
+          "${{ steps.attest.outputs.bundle-path }}"
+          "https://github.com/${{ github.workflow_ref }}"
+
+      - name: Inspect PEP 740 attestations
+        run: |
+          python -m pypi_attestations inspect dist/*.publish.attestation
+
+      - name: Prepare attestation bundles for uploading
+        run: |
+          mkdir -p /tmp/attestation-bundles
+          cp "${{ steps.attest.outputs.bundle-path }}" /tmp/attestation-bundles/
+          cp dist/*.publish.attestation /tmp/attestation-bundles/
+
+      - name: Upload attestation bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: attestation-bundles
+          path: /tmp/attestation-bundles/
 
       - name: Mint PyPI API token
         id: mint-token
@@ -81,7 +116,7 @@ jobs:
           TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: "${{ steps.mint-token.outputs.api-token }}"
         run: |
-          twine upload dist/*
+          twine upload dist/* --attestations
 
   github-release:
     runs-on: ubuntu-latest
