@@ -18,8 +18,8 @@ They are written as ``:rolename:`content```.
 See :doc:`/usage/domains/index` for roles added by domains.
 
 
-Cross-referencing syntax
-------------------------
+Cross-references
+----------------
 
 See :doc:`/usage/referencing/`.
 

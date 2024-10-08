@@ -18,7 +18,7 @@ Sphinx
    .. admonition:: 🔗 Powerful Cross-Referencing
       :class: sphinx-feature
 
-      Create :ref:`cross-references <xref-syntax>`
+      Create :ref:`cross-references <xref>`
       within your project,
       and even across :ref:`different projects <ext-intersphinx>`.
       Include references to
