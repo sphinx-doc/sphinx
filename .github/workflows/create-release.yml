@@ -36,7 +36,7 @@ jobs:
       - name: Install build dependencies (pypa/build, twine)
         run: |
           pip install -U pip
-          pip install build twine
+          pip install build "twine>=5.1"
           # resolution fails without betterproto and protobuf-specs
           pip install "pypi-attestations~=0.0.12" "sigstore-protobuf-specs==0.3.2" "betterproto==2.0.0b6"
 
@@ -47,7 +47,8 @@ jobs:
         run: |
           twine check dist/*
 
-      - uses: actions/attest@v1
+      - name: Create Sigstore attestations for built distributions
+        uses: actions/attest@v1
         id: attest
         with:
           subject-path: "dist/*"
