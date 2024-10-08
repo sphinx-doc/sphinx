@@ -784,7 +784,8 @@ def _differing_config_keys(old: Config, new: Config) -> frozenset[str]:
     new_vals = {c.name: c.value for c in new}
     not_in_both = old_vals.keys() ^ new_vals.keys()
     different_values = {
-        key for key in old_vals.keys() & new_vals.keys()
+        key
+        for key in old_vals.keys() & new_vals.keys()
         if stable_str(old_vals[key]) != stable_str(new_vals[key])
     }
     return frozenset(not_in_both | different_values)
