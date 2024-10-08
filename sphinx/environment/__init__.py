@@ -267,7 +267,7 @@ class BuildEnvironment:
         # The old config is self.config, restored from the pickled environment.
         # The new config is app.config, always recreated from ``conf.py``
         self.config_status, self.config_status_extra = self._config_status(
-            old_config=self.config, new_config=app.config
+            old_config=self.config, new_config=app.config, verbosity=app.verbosity
         )
         self.config = app.config
 
@@ -275,7 +275,7 @@ class BuildEnvironment:
         self._update_settings(app.config)
 
     @staticmethod
-    def _config_status(*, old_config: Config | None, new_config: Config) -> tuple[int, str]:
+    def _config_status(*, old_config: Config | None, new_config: Config, verbosity: int) -> tuple[int, str]:
         """Report the differences between two Config objects.
 
         Returns a triple of:
@@ -305,7 +305,7 @@ class BuildEnvironment:
                     __('The configuration has changed (1 option: %r'),
                     changed_keys[0],
                 )
-            elif changed_num <= 10:
+            elif changed_num <= 5 or verbosity >= 1:
                 logger.info(
                     __('The configuration has changed (%d options: %s'),
                     changed_num,
@@ -315,7 +315,7 @@ class BuildEnvironment:
                 logger.info(
                     __('The configuration has changed (%d options: %s, ...)'),
                     changed_num,
-                    ', '.join(map(repr, changed_keys[:10])),
+                    ', '.join(map(repr, changed_keys[:5])),
                 )
 
         # check if a config value was changed that affects how doctrees are read
