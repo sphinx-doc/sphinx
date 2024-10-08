@@ -302,20 +302,20 @@ class BuildEnvironment:
             changed_num = len(changed_keys)
             if changed_num == 1:
                 logger.info(
-                    __('1 configuration option has changed: %s'),
+                    __('The configuration has changed (1 option: %r'),
                     changed_keys[0],
                 )
             elif changed_num <= 10:
                 logger.info(
-                    __('%d configuration options have changed: %s'),
+                    __('The configuration has changed (%d options: %s'),
                     changed_num,
-                    ', '.join(changed_keys),
+                    ', '.join(map(repr, changed_keys)),
                 )
             else:
                 logger.info(
-                    __('%d configuration options have changed: %s, ...'),
+                    __('The configuration has changed (%d options: %s, ...)'),
                     changed_num,
-                    ', '.join(changed_keys[:10]),
+                    ', '.join(map(repr, changed_keys[:10])),
                 )
 
         # check if a config value was changed that affects how doctrees are read
