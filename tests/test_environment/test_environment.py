@@ -16,7 +16,7 @@ from sphinx.environment import (
     CONFIG_OK,
     _differing_config_keys,
 )
-from sphinx.util import strip_colors
+from sphinx.util.console import strip_colors
 
 
 @pytest.mark.sphinx('dummy', testroot='basic')
