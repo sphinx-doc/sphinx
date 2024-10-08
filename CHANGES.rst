@@ -53,6 +53,9 @@ Features added
   GMT (universal time) instead of local time for the date-time
   supplied to :confval:`html_last_updated_fmt`.
   Patch by Adam Turner.
+* #12949: Print configuration options that differ from the pickled environment.
+  This can be helpful in diagnosing the cause of a full rebuild.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
