@@ -2,7 +2,7 @@ Projects using Sphinx
 =====================
 
 This is an incomplete list of projects that use Sphinx for their documentation.
-If you like to be included, please create a `pull request on GitHub
+If you would like to add a project, please create a `pull request on GitHub
 <https://github.com/sphinx-doc/sphinx/>`_ or mail to the
 `sphinx-users Google group <https://groups.google.com/forum/#!forum/sphinx-users>`_.
 
@@ -314,7 +314,7 @@ Documentation using Sphinx Bootstrap Theme
 * `PyUblas <https://documen.tician.de/pyublas/>`__
 * `seaborn <https://seaborn.pydata.org/>`__
 
-Documentation using Pydata Sphinx Theme
+Documentation using PyData Sphinx Theme
 ---------------------------------------
 
 `Pydata Sphinx Theme documentation <https://pydata-sphinx-theme.readthedocs.io/>`__
