@@ -33,8 +33,8 @@ called "static" and contains static files that should be served from "/static".
    :class:`~.WebSupport` object.
 
 
-Integrating Sphinx documents into your webapp
----------------------------------------------
+Integrating Sphinx documents into your web-app
+----------------------------------------------
 
 Now that the data is built, it's time to do something useful with it.  Start off
 by creating a :class:`~.WebSupport` object for your application::
