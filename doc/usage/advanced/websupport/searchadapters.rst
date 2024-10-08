@@ -2,7 +2,7 @@
 
 .. currentmodule:: sphinxcontrib.websupport.search
 
-Search Adapters
+Search adapters
 ===============
 
 To create a custom search adapter you will need to subclass the
