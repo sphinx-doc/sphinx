@@ -15,6 +15,7 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   publish-pypi:
@@ -30,13 +31,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3"
-          cache: pip
-          cache-dependency-path: .github/workflows/create-release.yml
+      - name: Install uv
+        run: >
+          curl --no-progress-meter --location --fail
+          --proto '=https' --tlsv1.2
+          "https://astral.sh/uv/install.sh"
+          | sh
 
       - name: Install build dependencies (pypa/build, twine)
         run: |
-          pip install -U pip
-          pip install build twine
+          uv pip install build twine
 
       - name: Build distribution
         run: python -m build
