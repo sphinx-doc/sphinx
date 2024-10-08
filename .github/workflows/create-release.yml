@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3"
           cache: pip
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: .github/workflows/create-release.yml
 
       - name: Install build dependencies (pypa/build, twine)
         run: |
