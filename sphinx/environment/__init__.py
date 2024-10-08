@@ -31,7 +31,7 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import _last_modified_time, canon_path, os_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Sequence
+    from collections.abc import Callable, Iterable, Iterator
     from pathlib import Path
     from typing import Any, Literal
 
@@ -275,7 +275,9 @@ class BuildEnvironment:
         self._update_settings(app.config)
 
     @staticmethod
-    def _config_status(*, old_config: Config | None, new_config: Config, verbosity: int) -> tuple[int, str]:
+    def _config_status(
+        *, old_config: Config | None, new_config: Config, verbosity: int
+    ) -> tuple[int, str]:
         """Report the differences between two Config objects.
 
         Returns a triple of:
@@ -302,20 +304,20 @@ class BuildEnvironment:
             changed_num = len(changed_keys)
             if changed_num == 1:
                 logger.info(
-                    __('The configuration has changed (1 option: %r'),
-                    changed_keys[0],
+                    __('The configuration has changed (1 option: %r)'),
+                    next(iter(changed_keys)),
                 )
             elif changed_num <= 5 or verbosity >= 1:
                 logger.info(
-                    __('The configuration has changed (%d options: %s'),
+                    __('The configuration has changed (%d options: %s)'),
                     changed_num,
-                    ', '.join(map(repr, changed_keys)),
+                    ', '.join(map(repr, sorted(changed_keys))),
                 )
             else:
                 logger.info(
                     __('The configuration has changed (%d options: %s, ...)'),
                     changed_num,
-                    ', '.join(map(repr, changed_keys[:5])),
+                    ', '.join(map(repr, sorted(changed_keys)[:5])),
                 )
 
         # check if a config value was changed that affects how doctrees are read
@@ -736,8 +738,8 @@ class BuildEnvironment:
         self.events.emit('env-check-consistency', self)
 
 
-def _differing_config_keys(old: Config, new: Config) -> Sequence[str]:
-    """Return a sorted list of keys that differ between two config objects."""
+def _differing_config_keys(old: Config, new: Config) -> frozenset[str]:
+    """Return a set of keys that differ between two config objects."""
     old_vals = {c.name: c.value for c in old}
     new_vals = {c.name: c.value for c in new}
     not_in_both = old_vals.keys() ^ new_vals.keys()
@@ -745,7 +747,7 @@ def _differing_config_keys(old: Config, new: Config) -> Sequence[str]:
         key for key in old_vals.keys() & new_vals.keys()
         if stable_str(old_vals[key]) != stable_str(new_vals[key])
     }
-    return sorted(not_in_both | different_values)
+    return frozenset(not_in_both | different_values)
 
 
 def _traverse_toctree(
