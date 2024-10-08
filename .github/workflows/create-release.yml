@@ -57,6 +57,7 @@ jobs:
         id: attest
         with:
           subject-path: "dist/*"
+          subject-digest: ${{ steps.push.outputs.digest }}
           predicate-type: "https://docs.pypi.org/attestations/publish/v1"
           predicate: "null"
           show-summary: "true"
