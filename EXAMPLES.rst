@@ -2,9 +2,8 @@ Projects using Sphinx
 =====================
 
 This is an incomplete list of projects that use Sphinx for their documentation.
-If you would like to add a project, please create a `pull request on GitHub
-<https://github.com/sphinx-doc/sphinx/>`_ or mail to the
-`sphinx-users Google group <https://groups.google.com/forum/#!forum/sphinx-users>`_.
+If you would like to add a project, please `create an issue or pull request
+on GitHub <https://github.com/sphinx-doc/sphinx/>`_.
 
 I've grouped the list into sections to make it easier to find
 interesting examples.
