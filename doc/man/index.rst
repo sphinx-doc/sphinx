@@ -1,4 +1,4 @@
-Command-Line tools
+Command-line tools
 ==================
 
 These are the applications provided as part of Sphinx.
