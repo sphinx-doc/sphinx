@@ -151,6 +151,8 @@ def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table)
 # -- autodoc integration -------------------------------------------------------
 
 class FakeApplication:
+    verbosity = 0
+
     def __init__(self) -> None:
         self.doctreedir = None
         self.events = None

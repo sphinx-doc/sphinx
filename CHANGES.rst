@@ -73,6 +73,9 @@ Features added
   for builders to enable use of :mod:`sphinx.ext.linkcode`-generated
   references.
   Patch by James Knight.
+* #12949: Print configuration options that differ from the pickled environment.
+  This can be helpful in diagnosing the cause of a full rebuild.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
