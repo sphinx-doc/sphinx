@@ -11,7 +11,7 @@ import functools
 import operator
 import re
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, ClassVar, NewType, TypeVar
+from typing import TYPE_CHECKING, Any, NewType, TypeVar
 
 from docutils.statemachine import StringList
 
@@ -42,10 +42,18 @@ from sphinx.util.typing import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
+    from typing import ClassVar, Literal, TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc.directive import DocumenterBridge
+
+    _AutodocObjType = Literal[
+        'module', 'class', 'exception', 'function', 'method', 'attribute'
+    ]
+    _AutodocProcessDocstringListener: TypeAlias = Callable[
+        [Sphinx, _AutodocObjType, str, Any, dict[str, bool], list[str]], None
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -177,7 +185,9 @@ def merge_members_option(options: dict) -> None:
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-def cut_lines(pre: int, post: int = 0, what: Sequence[str] | None = None) -> Callable:
+def cut_lines(
+    pre: int, post: int = 0, what: str | list[str] | None = None
+) -> _AutodocProcessDocstringListener:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
@@ -191,8 +201,14 @@ def cut_lines(pre: int, post: int = 0, what: Sequence[str] | None = None) -> Cal
     """
     what_unique = frozenset(what or ())
 
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
-                ) -> None:
+    def process(
+        app: Sphinx,
+        what_: _AutodocObjType,
+        name: str,
+        obj: Any,
+        options: dict[str, bool],
+        lines: list[str],
+    ) -> None:
         if what_ not in what_unique:
             return
         del lines[:pre]
@@ -212,7 +228,7 @@ def between(
     what: Sequence[str] | None = None,
     keepempty: bool = False,
     exclude: bool = False,
-) -> Callable:
+) -> _AutodocProcessDocstringListener:
     """Return a listener that either keeps, or if *exclude* is True excludes,
     lines between lines that match the *marker* regular expression.  If no line
     matches, the resulting docstring would be empty, so no change will be made
@@ -223,8 +239,14 @@ def between(
     """
     marker_re = re.compile(marker)
 
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
-                ) -> None:
+    def process(
+        app: Sphinx,
+        what_: _AutodocObjType,
+        name: str,
+        obj: Any,
+        options: dict[str, bool],
+        lines: list[str],
+    ) -> None:
         if what and what_ not in what:
             return
         deleted = 0
@@ -249,7 +271,7 @@ def between(
 
 # This class is used only in ``sphinx.ext.autodoc.directive``,
 # But we define this class here to keep compatibility (see #4538)
-class Options(dict):
+class Options(dict[str, Any]):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
 
     def copy(self) -> Options:
@@ -1079,7 +1101,8 @@ class ModuleDocumenter(Documenter):
                 else:
                     logger.warning(__('missing attribute mentioned in :members: option: '
                                       'module %s, attribute %s'),
-                                   safe_getattr(self.object, '__name__', '???', name),
+                                   safe_getattr(self.object, '__name__', '???'),
+                                   name,
                                    type='autodoc')
             return False, ret
 
@@ -2506,7 +2529,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         return self.objpath[-1] in annotations
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the exisitence of uninitialized instance attribute when failed to import
+        """Check the existence of uninitialized instance attribute when failed to import
         the attribute.
         """
         try:
@@ -2727,7 +2750,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the exisitence of uninitialized instance attribute when failed to import
+        """Check the existence of uninitialized instance attribute when failed to import
         the attribute.
         """
         ret = super().import_object(raiseerror)
@@ -2800,7 +2823,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
 
 def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     """Alternative getattr() for types"""
-    for typ, func in app.registry.autodoc_attrgettrs.items():
+    for typ, func in app.registry.autodoc_attrgetters.items():
         if isinstance(obj, typ):
             return func(obj, name, *defargs)
 

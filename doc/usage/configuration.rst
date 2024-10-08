@@ -114,6 +114,8 @@ Project information
 
       author = 'Joe Bloggs'
 
+.. _config-copyright:
+
 .. confval:: copyright
              project_copyright
    :type: :code-py:`str | Sequence[str]`
@@ -128,12 +130,23 @@ Project information
    * :code-py:`copyright = 'YYYY-YYYY, Author Name'`
    * :code-py:`copyright = 'YYYY-YYYY Author Name'`
 
+   If the string :code-py:`'%Y'` appears in a copyright line,
+   it will be replaced with the current four-digit year.
+   For example:
+
+   * :code-py:`copyright = '%Y'`
+   * :code-py:`copyright = '%Y, Author Name'`
+   * :code-py:`copyright = 'YYYY-%Y, Author Name'`
+
    .. versionadded:: 3.5
       The :code-py:`project_copyright` alias.
 
    .. versionchanged:: 7.1
       The value may now be a sequence of copyright statements in the above form,
       which will be displayed each to their own line.
+
+   .. versionchanged:: 8.1
+      Copyright statements support the :code-py:`'%Y'` placeholder.
 
 .. confval:: version
    :type: :code-py:`str`
@@ -1710,18 +1723,18 @@ and also make use of these options.
 
 .. confval:: html_last_updated_fmt
    :type: :code-py:`str`
-   :default: :code-py:`'%b %d, %Y'`
+   :default: :code-py:`None`
 
    If set, a 'Last updated on:' timestamp is inserted into the page footer
    using the given :func:`~time.strftime` format.
    The empty string is equivalent to :code-py:`'%b %d, %Y'`
    (or a locale-dependent equivalent).
 
-.. confval:: html_last_updated_time_zone
-   :type: :code-py:`'local' | 'GMT'`
-   :default: :code-py:`'local'`
+.. confval:: html_last_updated_use_utc
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
-   Choose GMT (+00:00) or the system's local time zone
+   Use GMT/UTC (+00:00) instead of the system's local time zone
    for the time supplied to :confval:`html_last_updated_fmt`.
    This is most useful when the format used includes the time.
 
@@ -2528,6 +2541,7 @@ so the HTML options also apply where appropriate.
    :default: The value of **copyright**
 
    The copyright of the document.
+   See :confval:`copyright` for permitted formats.
 
 .. confval:: epub_identifier
    :type: :code-py:`str`

@@ -101,7 +101,7 @@ class idgen:
 
 
 @pass_context
-def warning(context: dict, message: str, *args: Any, **kwargs: Any) -> str:
+def warning(context: dict[str, Any], message: str, *args: Any, **kwargs: Any) -> str:
     if 'pagename' in context:
         filename = context.get('pagename') + context.get('file_suffix', '')
         message = f'in rendering {filename}: {message}'
@@ -210,10 +210,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                 builder.app.translator
             )
 
-    def render(self, template: str, context: dict) -> str:  # type: ignore[override]
+    def render(self, template: str, context: dict[str, Any]) -> str:  # type: ignore[override]
         return self.environment.get_template(template).render(context)
 
-    def render_string(self, source: str, context: dict) -> str:
+    def render_string(self, source: str, context: dict[str, Any]) -> str:
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self) -> float:

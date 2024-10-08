@@ -143,7 +143,7 @@ class SphinxI18nReader(SphinxBaseReader):
                 self.transforms.remove(transform)
 
 
-class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[misc]
+class SphinxDummyWriter(UnfilteredWriter):  # type: ignore[type-arg]
     """Dummy writer module used for generating doctree."""
 
     supported = ('html',)  # needed to keep "meta" nodes

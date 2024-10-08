@@ -18,19 +18,20 @@ class XMLWriter(BaseXMLWriter):  # type: ignore[misc]
         self.builder = builder
 
         # A lambda function to generate translator lazily
-        self.translator_class = lambda document: self.builder.create_translator(document)
+        self.translator_class = lambda document: self.builder.create_translator(
+            document
+        )
 
     def translate(self, *args: Any, **kwargs: Any) -> None:
-        self.document.settings.newlines = \
-            self.document.settings.indents = \
+        self.document.settings.newlines = self.document.settings.indents = (
             self.builder.env.config.xml_pretty
+        )
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
         return super().translate()
 
 
 class PseudoXMLWriter(BaseXMLWriter):  # type: ignore[misc]
-
     supported = ('pprint', 'pformat', 'pseudoxml')
     """Formats this writer supports."""
 

@@ -72,10 +72,15 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
     if app is not None:
         extensions = app.extensions.values()
         last_msgs = '\n'.join(f'* {strip_colors(s)}' for s in app.messagelog)
-        exts_list = '\n'.join(f'* {ext.name} ({ext.version})' for ext in extensions
-                              if ext.version != 'builtin')
+        exts_list = '\n'.join(
+            f'* {ext.name} ({ext.version})'
+            for ext in extensions
+            if ext.version != 'builtin'
+        )
 
-    with tempfile.NamedTemporaryFile(suffix='.log', prefix='sphinx-err-', delete=False) as f:
+    with tempfile.NamedTemporaryFile(
+        suffix='.log', prefix='sphinx-err-', delete=False
+    ) as f:
         f.write(error_info(last_msgs, exts_list, exc_format).encode('utf-8'))
 
     return f.name
@@ -143,9 +148,13 @@ def handle_exception(
         print_red(__('Recursion error:'))
         print_err(str(exception))
         print_err()
-        print_err(__('This can happen with very large or deeply nested source '
-                     'files. You can carefully increase the default Python '
-                     'recursion limit of 1000 in conf.py with e.g.:'))
+        print_err(
+            __(
+                'This can happen with very large or deeply nested source '
+                'files. You can carefully increase the default Python '
+                'recursion limit of 1000 in conf.py with e.g.:'
+            )
+        )
         print_err('\n    import sys\n    sys.setrecursionlimit(1_500)\n')
         return
 
@@ -159,7 +168,15 @@ def handle_exception(
     print_err(__('The full traceback has been saved in:'))
     print_err(traceback_info_path)
     print_err()
-    print_err(__('To report this error to the developers, please open an issue '
-                 'at <https://github.com/sphinx-doc/sphinx/issues/>. Thanks!'))
-    print_err(__('Please also report this if it was a user error, so '
-                 'that a better error message can be provided next time.'))
+    print_err(
+        __(
+            'To report this error to the developers, please open an issue '
+            'at <https://github.com/sphinx-doc/sphinx/issues/>. Thanks!'
+        )
+    )
+    print_err(
+        __(
+            'Please also report this if it was a user error, so '
+            'that a better error message can be provided next time.'
+        )
+    )

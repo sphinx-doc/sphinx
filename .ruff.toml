@@ -7,7 +7,7 @@ extend-exclude = [
     "tests/js/roots/*",
     "build/*",
     "doc/_build/*",
-    "sphinx/search/*",
+#    "sphinx/search/*",
     "doc/usage/extensions/example*.py",
 ]
 
@@ -411,6 +411,8 @@ select = [
 "sphinx/ext/autodoc/importer.py" = ["D402"]
 "sphinx/util/requests.py" = ["D402"]
 
+"sphinx/search/*" = ["E501"]
+
 "tests/*" = [
     "E501",
     "ANN",  # tests don't need annotations
@@ -442,15 +444,31 @@ forced-separate = [
 preview = true
 quote-style = "single"
 exclude = [
-    "sphinx/_cli/*",
     "sphinx/addnodes.py",
     "sphinx/application.py",
-    "sphinx/builders/*",
-    "sphinx/cmd/*",
+    "sphinx/builders/latex/constants.py",
     "sphinx/config.py",
-    "sphinx/directives/*",
-    "sphinx/domains/*",
-    "sphinx/environment/*",
+    "sphinx/domains/__init__.py",
+    "sphinx/domains/c/_parser.py",
+    "sphinx/domains/c/_ids.py",
+    "sphinx/domains/c/__init__.py",
+    "sphinx/domains/c/_symbol.py",
+    "sphinx/domains/c/_ast.py",
+    "sphinx/domains/changeset.py",
+    "sphinx/domains/citation.py",
+    "sphinx/domains/cpp/_parser.py",
+    "sphinx/domains/cpp/_ids.py",
+    "sphinx/domains/cpp/__init__.py",
+    "sphinx/domains/cpp/_symbol.py",
+    "sphinx/domains/cpp/_ast.py",
+    "sphinx/domains/index.py",
+    "sphinx/domains/javascript.py",
+    "sphinx/domains/math.py",
+    "sphinx/domains/python/_annotations.py",
+    "sphinx/domains/python/__init__.py",
+    "sphinx/domains/python/_object.py",
+    "sphinx/domains/rst.py",
+    "sphinx/domains/std/__init__.py",
     "sphinx/ext/autodoc/__init__.py",
     "sphinx/ext/autodoc/directive.py",
     "sphinx/ext/autodoc/importer.py",
@@ -470,19 +488,9 @@ exclude = [
     "sphinx/ext/imgconverter.py",
     "sphinx/ext/imgmath.py",
     "sphinx/ext/inheritance_diagram.py",
-    "sphinx/ext/intersphinx/*",
     "sphinx/ext/linkcode.py",
     "sphinx/ext/mathjax.py",
-    "sphinx/ext/napoleon/__init__.py",
-    "sphinx/ext/napoleon/docstring.py",
     "sphinx/ext/todo.py",
     "sphinx/ext/viewcode.py",
-    "sphinx/pycode/*",
-    "sphinx/pygments_styles.py",
     "sphinx/registry.py",
-    "sphinx/search/*",
-    "sphinx/testing/*",
-    "sphinx/transforms/*",
-    "sphinx/util/*",
-    "sphinx/writers/*",
 ]

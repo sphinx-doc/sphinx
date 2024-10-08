@@ -63,8 +63,10 @@ class ImageDownloader(BaseImageConverter):
                 basename = basename.split('?')[0]
             if basename == '' or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
-                basename = sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
-            basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
+                basename = (
+                    sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
+                )
+            basename = CRITICAL_PATH_CHAR_RE.sub('_', basename)
 
             uri_hash = sha1(node['uri'].encode(), usedforsecurity=False).hexdigest()
             path = Path(self.imagedir, uri_hash, basename)
@@ -83,7 +85,8 @@ class ImageDownloader(BaseImageConverter):
 
         config = self.app.config
         r = requests.get(
-            node['uri'], headers=headers,
+            node['uri'],
+            headers=headers,
             _user_agent=config.user_agent,
             _tls_info=(config.tls_verify, config.tls_cacerts),
         )
@@ -134,8 +137,9 @@ class DataURIExtractor(BaseImageConverter):
         assert image is not None
         ext = get_image_extension(image.mimetype)
         if ext is None:
-            logger.warning(__('Unknown image format: %s...'), node['uri'][:32],
-                           location=node)
+            logger.warning(
+                __('Unknown image format: %s...'), node['uri'][:32], location=node
+            )
             return
 
         ensuredir(os.path.join(self.imagedir, 'embeded'))
@@ -155,7 +159,7 @@ class DataURIExtractor(BaseImageConverter):
 
 def get_filename_for(filename: str, mimetype: str) -> str:
     basename = os.path.basename(filename)
-    basename = CRITICAL_PATH_CHAR_RE.sub("_", basename)
+    basename = CRITICAL_PATH_CHAR_RE.sub('_', basename)
     return os.path.splitext(basename)[0] + (get_image_extension(mimetype) or '')
 
 
@@ -206,7 +210,9 @@ class ImageConverter(BaseImageConverter):
             return False
         if '?' in node['candidates']:
             return False
-        if set(self.guess_mimetypes(node)) & set(self.app.builder.supported_image_types):
+        node_mime_types = set(self.guess_mimetypes(node))
+        supported_image_types = set(self.app.builder.supported_image_types)
+        if node_mime_types & supported_image_types:
             # builder supports the image; no need to convert
             return False
         if self.available is None:

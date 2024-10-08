@@ -1,14 +1,19 @@
-.. _xref-syntax:
+.. _xref:
 
-========================
-Cross-referencing syntax
-========================
+================
+Cross-references
+================
 
 One of Sphinx's most useful features is creating automatic cross-references
 through semantic cross-referencing roles.
 A cross reference to an object description, such as ``:func:`spam```,
 will create a link to the place where ``spam()`` is documented,
 appropriate to each output format (HTML, PDF, ePUB, etc.).
+
+.. _xref-syntax:
+
+Syntax
+------
 
 Sphinx supports various cross-referencing roles to create links
 to other elements in the documentation.
@@ -41,7 +46,7 @@ The behavior can be modified in the following ways:
 
 * **Modified domain reference:**
   When :ref:`referencing domain objects <ref-objects>`,
-  a tilde ``~`` prefix shortens the link text the last component of the target.
+  a tilde ``~`` prefix shortens the link text to the last component of the target.
   For example, ``:py:meth:`~queue.Queue.get``` will
   refer to ``queue.Queue.get`` but only display ``get`` as the link text.
 
@@ -49,26 +54,6 @@ The behavior can be modified in the following ways:
   (that is e.g. shown as a tool-tip on mouse-hover)
   will always be the full target name.
 
-Some of the built-in cross-reference roles are:
-
-* :rst:role:`:any: <any>`,
-  :rst:role:`:doc: <doc>`,
-  :rst:role:`:ref: <ref>`
-* :rst:role:`:confval: <confval>`,
-  :rst:role:`:envvar: <envvar>`,
-  :rst:role:`:option: <option>`
-* :rst:role:`:manpage: <manpage>`,
-  :rst:role:`:pep: <pep>`,
-  :rst:role:`:rfc: <rfc>`
-* :rst:role:`download`,
-  :rst:role:`:index: <index>`
-  :rst:role:`:numref: <numref>`,
-  :rst:role:`:keyword: <keyword>`,
-  :rst:role:`:term: <term>`,
-  :rst:role:`:token: <token>`
-* :rst:role:`!:func:`
-  (this uses the :confval:`primary_domain`, e.g. :rst:role:`:py:func: <py:func>`)
-* :ref:`Domain cross-reference roles <ref-objects>`
 
 .. _ref-objects:
 
