@@ -691,6 +691,9 @@ class Builder:
                     docnames.add(tocdocname)
         docnames.add(self.config.root_doc)
 
+        # sort to ensure deterministic toctree generation
+        self.env.toctree_includes = dict(sorted(self.env.toctree_includes.items()))
+
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
 

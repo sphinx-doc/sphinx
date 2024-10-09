@@ -142,6 +142,11 @@ Bugs fixed
   which always kept the cache for positive values, and always refreshed it for
   negative ones.
   Patch by Nico Madysa.
+* #12888: Add a warning when document is included in multiple toctrees
+  and ensure deterministic resolution of global toctree in parallel builds
+  by choosing the lexicographically greatest parent document.
+  Patch by A. Rafey Khan
+
 
 Testing
 -------
