@@ -23,6 +23,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
+from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
@@ -270,7 +271,7 @@ class BuildEnvironment:
         # The old config is self.config, restored from the pickled environment.
         # The new config is app.config, always recreated from ``conf.py``
         self.config_status, self.config_status_extra = self._config_status(
-            old_config=self.config, new_config=app.config
+            old_config=self.config, new_config=app.config, verbosity=app.verbosity
         )
         self.config = app.config
 
@@ -279,7 +280,7 @@ class BuildEnvironment:
 
     @staticmethod
     def _config_status(
-        *, old_config: Config | None, new_config: Config
+        *, old_config: Config | None, new_config: Config, verbosity: int
     ) -> tuple[int, str]:
         """Report the differences between two Config objects.
 
@@ -301,6 +302,27 @@ class BuildEnvironment:
             else:
                 extension = f'{len(extensions)}'
             return CONFIG_EXTENSIONS_CHANGED, f' ({extension!r})'
+
+        # Log any changes in configuration keys
+        if changed_keys := _differing_config_keys(old_config, new_config):
+            changed_num = len(changed_keys)
+            if changed_num == 1:
+                logger.info(
+                    __('The configuration has changed (1 option: %r)'),
+                    next(iter(changed_keys)),
+                )
+            elif changed_num <= 5 or verbosity >= 1:
+                logger.info(
+                    __('The configuration has changed (%d options: %s)'),
+                    changed_num,
+                    ', '.join(map(repr, sorted(changed_keys))),
+                )
+            else:
+                logger.info(
+                    __('The configuration has changed (%d options: %s, ...)'),
+                    changed_num,
+                    ', '.join(map(repr, sorted(changed_keys)[:5])),
+                )
 
         # check if a config value was changed that affects how doctrees are read
         for item in new_config.filter(frozenset({'env'})):
@@ -758,6 +780,19 @@ class BuildEnvironment:
         # call check-consistency for all extensions
         self.domains._check_consistency()
         self.events.emit('env-check-consistency', self)
+
+
+def _differing_config_keys(old: Config, new: Config) -> frozenset[str]:
+    """Return a set of keys that differ between two config objects."""
+    old_vals = {c.name: c.value for c in old}
+    new_vals = {c.name: c.value for c in new}
+    not_in_both = old_vals.keys() ^ new_vals.keys()
+    different_values = {
+        key
+        for key in old_vals.keys() & new_vals.keys()
+        if stable_str(old_vals[key]) != stable_str(new_vals[key])
+    }
+    return frozenset(not_in_both | different_values)
 
 
 def _traverse_toctree(

@@ -2,7 +2,7 @@
 
 .. _html-themes:
 
-HTML Theming
+HTML theming
 ============
 
 Sphinx provides a number of builders for HTML and HTML-based formats.

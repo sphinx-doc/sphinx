@@ -18,7 +18,7 @@ Sphinx
    .. admonition:: 🔗 Powerful Cross-Referencing
       :class: sphinx-feature
 
-      Create :ref:`cross-references <xref-syntax>`
+      Create :ref:`cross-references <xref>`
       within your project,
       and even across :ref:`different projects <ext-intersphinx>`.
       Include references to
@@ -137,8 +137,8 @@ creating and building your own documentation from scratch.
 
 .. _user-guides:
 
-User Guides
-===========
+User guide
+==========
 
 These sections cover various topics in using and extending Sphinx for various
 use-cases. They are a comprehensive guide to using Sphinx in many contexts and
@@ -147,7 +147,7 @@ starting with :ref:`get-started`.
 
 .. toctree::
    :maxdepth: 2
-   :caption: User Guides
+   :caption: User guide
 
    usage/index
    development/index

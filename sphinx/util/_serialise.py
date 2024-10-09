@@ -44,7 +44,7 @@ def _stable_str_prep(obj: Any) -> dict[str, Any] | list[Any] | str:
         return dict(obj)
     if isinstance(obj, list | tuple | set | frozenset):
         # Convert to a sorted list
-        return sorted(map(_stable_str_prep, obj))
+        return sorted(map(_stable_str_prep, obj), key=str)
     if isinstance(obj, type | types.FunctionType):
         # The default repr() of functions includes the ID, which is not ideal.
         # We use the fully qualified name instead.
