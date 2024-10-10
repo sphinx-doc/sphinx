@@ -146,13 +146,13 @@ Bugs fixed
   and ensure deterministic resolution of global toctree in parallel builds
   by choosing the lexicographically greatest parent document.
   Patch by A. Rafey Khan
-
 * #12767: :py:meth:`.Builder.write` is typed as ``final``, meaning that the
   :event:`write-started` event may be relied upon by extensions.
   A new :py:meth:`.Builder.write_documents` method has been added to
   control how documents are written.
   This is intended for builders that do not output a file for each document.
   Patch by Adam Turner.
+
 
 Testing
 -------
