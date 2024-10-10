@@ -41,13 +41,15 @@ Builder API
    .. automethod:: write_doctree
    .. automethod:: write
 
-   .. rubric:: Overridable Methods
+   .. rubric:: Abstract Methods
 
    These must be implemented in builder sub-classes:
 
    .. automethod:: get_outdated_docs
    .. automethod:: write_doc
    .. automethod:: get_target_uri
+
+   .. rubric:: Overridable Methods
 
    These methods can be overridden in builder sub-classes:
 
