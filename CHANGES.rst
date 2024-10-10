@@ -146,6 +146,9 @@ Bugs fixed
   and ensure deterministic resolution of global toctree in parallel builds
   by choosing the lexicographically greatest parent document.
   Patch by A. Rafey Khan
+* #12995: Significantly improve performance when building the search index
+  for Chinese languages.
+  Patch by Adam Turner.
 
 
 Testing
