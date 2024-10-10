@@ -188,18 +188,18 @@ of targets and allows testing against multiple different Python environments:
 
      tox -av
 
-* To run unit tests for a specific Python version, such as Python 3.12:
+* To run unit tests for a specific Python version, such as Python 3.13:
 
   .. code-block:: shell
 
-     tox -e py312
+     tox -e py313
 
 * Arguments to :program:`pytest` can be passed via :program:`tox`,
   e.g., in order to run a particular test:
 
   .. code-block:: shell
 
-     tox -e py312 tests/test_module.py::test_new_feature
+     tox -e py313 tests/test_module.py::test_new_feature
 
 You can also test by installing dependencies in your local environment:
 

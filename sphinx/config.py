@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import sys
 import time
 import traceback
 import types
 import warnings
+from contextlib import chdir
 from os import getenv, path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
@@ -15,11 +15,6 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-
-if sys.version_info >= (3, 11):
-    from contextlib import chdir
-else:
-    from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
     import os

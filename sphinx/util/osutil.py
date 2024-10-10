@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from types import TracebackType
     from typing import Any
 
 # SEP separates path elements in the canonical file names
@@ -171,31 +170,6 @@ fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 abspath = path.abspath
-
-
-class _chdir:
-    """Remove this fall-back once support for Python 3.10 is removed."""
-
-    def __init__(self, target_dir: str, /) -> None:
-        self.path = target_dir
-        self._dirs: list[str] = []
-
-    def __enter__(self) -> None:
-        self._dirs.append(os.getcwd())
-        os.chdir(self.path)
-
-    def __exit__(
-        self,
-        type: type[BaseException] | None,
-        value: BaseException | None,
-        traceback: TracebackType | None,
-        /,
-    ) -> None:
-        os.chdir(self._dirs.pop())
-
-
-if sys.version_info[:2] < (3, 11):
-    cd = _chdir
 
 
 class FileAvoidWrite:
