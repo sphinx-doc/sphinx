@@ -3046,8 +3046,11 @@ These options influence LaTeX output.
          Please update your project to use the
          :ref:`latex table color configuration <tablecolors>` keys instead.
 
-   Each table can override the global style via ``:class:`` option,
-   or ``.. rst-class::`` for no-directive tables (cf.  :ref:`table-directives`).
+   To customize the styles on an individual table, either set the ``:class:``
+   option when the table's contents are documented inside a table directive,
+   or, otherwise, add a preceding :ref:`rst-class <rstclass>` directive
+   (cf. :ref:`table-directives`).
+
    Currently recognised classes are ``booktabs``, ``borderless``,
    ``standard``, ``colorrows``, ``nocolorrows``.
    The latter two can be combined with any of the first three.
