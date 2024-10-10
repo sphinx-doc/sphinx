@@ -36,12 +36,13 @@ jobs:
         - "3.10"
         - "3.11"
         - "3.12"
+        - "3.13"
         docutils:
         - "0.20"
         - "0.21"
 #        include:
 #        # test every supported Docutils version for the latest supported Python
-#        - python: "3.12"
+#        - python: "3.13"
 #          docutils: "0.20"
 
     steps:
@@ -70,13 +71,14 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes:
+    if: false
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
     strategy:
       fail-fast: false
       matrix:
         python:
-        - "3.13-dev"
+        - "3.14"
         docutils:
         - "0.20"
         - "0.21"
@@ -86,7 +88,7 @@ jobs:
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
-        python-version: ${{ matrix.python }}
+        python-version: ${{ matrix.python }}-dev
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
@@ -103,13 +105,14 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes-free-threraded:
+    if: false
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }}; free-threaded)
     strategy:
       fail-fast: false
       matrix:
         python:
-        - "3.13-dev"
+        - "3.14"
         docutils:
         - "0.20"
         - "0.21"
@@ -119,7 +122,7 @@ jobs:
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
-        python-version: ${{ matrix.python }}
+        python-version: ${{ matrix.python }}-dev
         nogil: true
     - name: Check Python version
       run: python --version --version

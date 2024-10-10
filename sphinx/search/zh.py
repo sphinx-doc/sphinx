@@ -255,10 +255,8 @@ class SearchChinese(SearchLanguage):
         # avoids some issues with acronyms
         stemmed = self.stemmer.stemWord(word.lower())
         should_not_be_stemmed = (
-            word in self.latin_terms
-            and len(word) >= 3
-            and len(stemmed) < 3
-        )
+            word in self.latin_terms and len(word) >= 3 > len(stemmed)
+        )  # fmt: skip
         if should_not_be_stemmed:
             return word.lower()
         return stemmed
