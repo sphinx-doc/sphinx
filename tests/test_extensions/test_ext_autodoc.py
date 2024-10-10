@@ -2098,8 +2098,63 @@ def test_bound_method(app):
         '',
         '.. py:function:: bound_method()',
         '   :module: target.bound_method',
+        '   :canonical: target.bound_method.Cls.method',
         '',
         '   Method docstring',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_coroutine(app):
+    actual = do_autodoc(app, 'function', 'target.functions.coroutinefunc')
+    assert list(actual) == [
+        '',
+        '.. py:function:: coroutinefunc()',
+        '   :module: target.functions',
+        '   :async:',
+        '',
+    ]
+
+    options = {'members': None}
+    actual = do_autodoc(app, 'class', 'target.coroutine.AsyncClass', options)
+    assert list(actual) == [
+        '',
+        '.. py:class:: AsyncClass()',
+        '   :module: target.coroutine',
+        '',
+        '',
+        '   .. py:method:: AsyncClass.do_coroutine()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '',
+        '      A documented coroutine function',
+        '',
+        '',
+        '   .. py:method:: AsyncClass.do_coroutine2()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '      :classmethod:',
+        '',
+        '      A documented coroutine classmethod',
+        '',
+        '',
+        '   .. py:method:: AsyncClass.do_coroutine3()',
+        '      :module: target.coroutine',
+        '      :async:',
+        '      :staticmethod:',
+        '',
+        '      A documented coroutine staticmethod',
+        '',
+    ]
+
+    # force-synchronized wrapper
+    actual = do_autodoc(app, 'function', 'target.coroutine.sync_func')
+    assert list(actual) == [
+        '',
+        '.. py:function:: sync_func()',
+        '   :module: target.coroutine',
+        '   :canonical: target.coroutine._other_coro_func',
         '',
     ]
 
@@ -3067,8 +3122,16 @@ def test_canonical(app):
         '',
         '   .. py:method:: Foo.meth()',
         '      :module: target.canonical',
+        '      :canonical: target.canonical.original.Foo.meth',
         '',
         '      docstring',
+        '',
+        '',
+        '.. py:function:: bar()',
+        '   :module: target.canonical',
+        '   :canonical: target.canonical.original.bar',
+        '',
+        '   docstring',
         '',
     ]
 
