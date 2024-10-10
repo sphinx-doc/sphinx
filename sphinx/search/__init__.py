@@ -19,7 +19,7 @@ from sphinx import addnodes, package_dir
 from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
 
     from sphinx.environment import BuildEnvironment
 
@@ -525,47 +525,12 @@ class IndexBuilder:
         self._index_entries[docname] = sorted(_index_entries)
 
     def _word_collector(self, doctree: nodes.document) -> WordStore:
-        def _visit_nodes(node: nodes.Node) -> None:
-            if isinstance(node, nodes.comment):
-                return
-            elif isinstance(node, nodes.raw):
-                if 'html' in node.get('format', '').split():
-                    # Some people might put content in raw HTML that should be searched,
-                    # so we just amateurishly strip HTML tags and index the remaining
-                    # content
-                    nodetext = re.sub(
-                        r'<style.*?</style>',
-                        '',
-                        node.astext(),
-                        flags=re.IGNORECASE | re.DOTALL,
-                    )
-                    nodetext = re.sub(
-                        r'<script.*?</script>',
-                        '',
-                        nodetext,
-                        flags=re.IGNORECASE | re.DOTALL,
-                    )
-                    nodetext = re.sub(r'<[^<]+?>', '', nodetext)
-                    word_store.words.extend(split(nodetext))
-                return
-            elif isinstance(node, nodes.meta) and _is_meta_keywords(node, language):
-                keywords = [keyword.strip() for keyword in node['content'].split(',')]
-                word_store.words.extend(keywords)
-            elif isinstance(node, nodes.Text):
-                word_store.words.extend(split(node.astext()))
-            elif isinstance(node, nodes.title):
-                title, is_main_title = node.astext(), len(word_store.titles) == 0
-                ids = node.parent['ids']
-                title_node_id = None if is_main_title else ids[0] if ids else None
-                word_store.titles.append((title, title_node_id))
-                word_store.title_words.extend(split(title))
-            for child in node.children:
-                _visit_nodes(child)
-
         word_store = WordStore()
         split = self.lang.split
         language = self.lang.lang
-        _visit_nodes(doctree)
+        _feed_visit_nodes(
+            doctree, word_store=word_store, split=split, language=language
+        )
         return word_store
 
     def context_for_searchtool(self) -> dict[str, Any]:
@@ -611,3 +576,47 @@ class IndexBuilder:
             )
         else:
             return self.lang.js_stemmer_code
+
+
+def _feed_visit_nodes(
+    node: nodes.Node,
+    *,
+    word_store: WordStore,
+    split: Callable[[str], list[str]],
+    language: str,
+) -> None:
+    if isinstance(node, nodes.comment):
+        return
+    elif isinstance(node, nodes.raw):
+        if 'html' in node.get('format', '').split():
+            # Some people might put content in raw HTML that should be searched,
+            # so we just amateurishly strip HTML tags and index the remaining
+            # content
+            nodetext = re.sub(
+                r'<style.*?</style>',
+                '',
+                node.astext(),
+                flags=re.IGNORECASE | re.DOTALL,
+            )
+            nodetext = re.sub(
+                r'<script.*?</script>',
+                '',
+                nodetext,
+                flags=re.IGNORECASE | re.DOTALL,
+            )
+            nodetext = re.sub(r'<[^<]+?>', '', nodetext)
+            word_store.words.extend(split(nodetext))
+        return
+    elif isinstance(node, nodes.meta) and _is_meta_keywords(node, language):
+        keywords = [keyword.strip() for keyword in node['content'].split(',')]
+        word_store.words.extend(keywords)
+    elif isinstance(node, nodes.Text):
+        word_store.words.extend(split(node.astext()))
+    elif isinstance(node, nodes.title):
+        title, is_main_title = node.astext(), len(word_store.titles) == 0
+        ids = node.parent['ids']
+        title_node_id = None if is_main_title else ids[0] if ids else None
+        word_store.titles.append((title, title_node_id))
+        word_store.title_words.extend(split(title))
+    for child in node.children:
+        _feed_visit_nodes(child, word_store=word_store, split=split, language=language)
