@@ -692,7 +692,6 @@ def test_mocked_module_imports(app):
     confoverrides={'autodoc_typehints': 'signature'},
 )
 def test_autodoc_typehints_signature(app):
-    type_o = '~typing.Any'
     if sys.version_info[:2] >= (3, 13):
         type_ppp = 'pathlib._local.PurePosixPath'
     else:
