@@ -64,7 +64,7 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterator, Set
     from typing import TypeAlias
 
     from docutils.nodes import Node
@@ -420,7 +420,7 @@ class StandaloneHTMLBuilder(Builder):
         self._publisher.publish()
         return self._publisher.writer.parts
 
-    def prepare_writing(self, docnames: set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
         # create the search indexer
         self.indexer = None
         if self.search:
@@ -965,9 +965,9 @@ class StandaloneHTMLBuilder(Builder):
                 node.replace_self(reference)
                 reference.append(node)
 
-    def load_indexer(self, docnames: Iterable[str]) -> None:
+    def load_indexer(self, docnames: Set[str]) -> None:
         assert self.indexer is not None
-        keep = set(self.env.all_docs) - set(docnames)
+        keep = set(self.env.all_docs).difference(docnames)
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:

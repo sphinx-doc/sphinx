@@ -20,6 +20,8 @@ from sphinx.util.osutil import ensuredir, make_filename_from_project
 from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
@@ -55,7 +57,7 @@ class ManualPageBuilder(Builder):
         return ''
 
     @progress_message(__('writing'))
-    def write(self, *ignored: Any) -> None:
+    def write_documents(self, _docnames: Set[str]) -> None:
         docwriter = ManualPageWriter(self)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', category=DeprecationWarning)

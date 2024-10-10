@@ -41,7 +41,7 @@ from sphinx import directives  # NoQA: F401  isort:skip
 from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Sequence, Set
 
     from docutils.nodes import Node
 
@@ -664,6 +664,7 @@ class Builder:
         if _cache:
             self.env._write_doc_doctree_cache[docname] = doctree
 
+    @final
     def write(
         self,
         build_docnames: Iterable[str] | None,
@@ -685,11 +686,12 @@ class Builder:
         logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed
-        for docname in list(docnames):
+        extra = {self.config.root_doc}
+        for docname in docnames:
             for tocdocname in self.env.files_to_rebuild.get(docname, set()):
                 if tocdocname in self.env.found_docs:
-                    docnames.add(tocdocname)
-        docnames.add(self.config.root_doc)
+                    extra.add(tocdocname)
+        docnames |= extra
 
         # sort to ensure deterministic toctree generation
         self.env.toctree_includes = dict(sorted(self.env.toctree_includes.items()))
@@ -700,12 +702,21 @@ class Builder:
         with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
+        self.write_documents(docnames)
+
+    def write_documents(self, docnames: Set[str]) -> None:
+        """Write all documents in *docnames*.
+
+        This method can be overridden if a builder does not create
+        output files for each document.
+        """
+        sorted_docnames = sorted(docnames)
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
-            self._write_parallel(sorted(docnames), nproc=self.app.parallel - 1)
+            self._write_parallel(sorted_docnames, nproc=self.app.parallel - 1)
         else:
-            self._write_serial(sorted(docnames))
+            self._write_serial(sorted_docnames)
 
     def _write_serial(self, docnames: Sequence[str]) -> None:
         with (
@@ -769,9 +780,9 @@ class Builder:
         tasks.join()
         logger.info('')
 
-    def prepare_writing(self, docnames: set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
-        raise NotImplementedError
+        pass
 
     def copy_assets(self) -> None:
         """Where assets (images, static files, etc) are copied before writing"""
