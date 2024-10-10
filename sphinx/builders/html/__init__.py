@@ -984,7 +984,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def load_indexer(self, docnames: Set[str]) -> None:
         assert self.indexer is not None
-        keep = set(self.env.all_docs) - docnames
+        keep = set(self.env.all_docs).difference(docnames)
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:

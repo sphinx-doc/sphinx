@@ -357,7 +357,7 @@ Doctest summary
 
     def write_documents(self, docnames: Set[str]) -> None:
         logger.info(bold('running tests...'))
-        for docname in docnames:
+        for docname in sorted(docnames):
             # no need to resolve the doctree
             doctree = self.env.get_doctree(docname)
             self.test_doc(docname, doctree)
