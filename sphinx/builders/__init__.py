@@ -677,7 +677,7 @@ class Builder:
 
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
-            build_docnames = self.env.all_docs
+            build_docnames = self.env.found_docs
         if method == 'update':
             # build updated ones as well
             docnames = set(build_docnames) | set(updated_docnames)
