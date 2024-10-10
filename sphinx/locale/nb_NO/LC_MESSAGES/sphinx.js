@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "S\u00f8k",
         "Search Page": "S\u00f8keside",
         "Search Results": "S\u00f8keresultat",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "S\u00f8ket fullf\u00f8rt, fant ${resultCount} side(r) som samsvarer med s\u00f8kestrengen.",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "S\u00f8k blant %(docstitle)s",
         "Searching": "S\u00f8ker",
         "Searching for multiple words only shows matches that contain\n    all words.": "S\u00f8k etter flere ord viser bare treff som inneholder\n\u00a0 alle ord",

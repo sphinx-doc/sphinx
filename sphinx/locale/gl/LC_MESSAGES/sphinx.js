@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Busca",
         "Search Page": "P\u00e1xina de busca",
         "Search Results": "Resultados da busca",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "Busca finalizada, atoparonse ${resultCount} p\u00e1xinas coincidentes coa consulta de busca.",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Buscar dentro do/a %(docstitle)s",
         "Searching": "Buscando",
         "Searching for multiple words only shows matches that contain\n    all words.": "Ao buscar varias palabras s\u00f3 se amosan as coincidencias que\n    conte\u00f1an todas as palabras.",
