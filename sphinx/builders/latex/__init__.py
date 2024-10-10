@@ -367,6 +367,9 @@ class LaTeXBuilder(Builder):
 
         return contentsname
 
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        pass
+
     def update_doc_context(self, title: str, author: str, theme: Theme) -> None:
         self.context['title'] = title
         self.context['author'] = author

@@ -26,6 +26,8 @@ from sphinx.util.inspect import safe_getattr
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence, Set
 
+    from docutils import nodes
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -202,6 +204,12 @@ class CoverageBuilder(Builder):
         self.c_undoc: dict[str, Set[tuple[str, str]]] = {}
         self.build_c_coverage()
         self.write_c_coverage()
+
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
+        return ''
+
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        pass
 
     def build_c_coverage(self) -> None:
         c_objects = {}

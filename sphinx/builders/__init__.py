@@ -6,6 +6,7 @@ import codecs
 import pickle
 import re
 import time
+from abc import ABC, abstractmethod
 from contextlib import nullcontext
 from os import path
 from typing import TYPE_CHECKING, Any, Literal, final
@@ -54,7 +55,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Builder:
+class Builder(ABC):
     """
     Builds target formats from the reST sources.
     """
@@ -129,7 +130,7 @@ class Builder:
         return self.app.registry.create_translator(self, *args)
 
     # helper methods
-    def init(self) -> None:
+    def init(self) -> None:  # NoQA: B027
         """Load necessary templates and perform initialization.  The default
         implementation does nothing.
         """
@@ -148,13 +149,14 @@ class Builder:
 
             self.templates = BuiltinTemplateLoader()
 
+    @abstractmethod
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         """Return the target URI for a document name.
 
         *typ* can be used to qualify the link characteristic for individual
         builders.
         """
-        raise NotImplementedError
+        ...
 
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         """Return a relative URI between two source filenames.
@@ -166,6 +168,7 @@ class Builder:
             self.get_target_uri(to, typ),
         )
 
+    @abstractmethod
     def get_outdated_docs(self) -> str | Iterable[str]:
         """Return an iterable of output files that are outdated, or a string
         describing what an update build will build.
@@ -174,7 +177,7 @@ class Builder:
         source files, return a string here.  If it does, return an iterable
         of those files that need to be written.
         """
-        raise NotImplementedError
+        ...
 
     def get_asset_paths(self) -> list[str]:
         """Return list of paths for assets (ex. templates, CSS, etc.)."""
@@ -780,32 +783,33 @@ class Builder:
         tasks.join()
         logger.info('')
 
-    def prepare_writing(self, docnames: Set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:  # NoQA: B027
         """A place where you can add logic before :meth:`write_doc` is run"""
         pass
 
-    def copy_assets(self) -> None:
+    def copy_assets(self) -> None:  # NoQA: B027
         """Where assets (images, static files, etc) are copied before writing"""
         pass
 
+    @abstractmethod
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         """Where you actually write something to the filesystem."""
-        raise NotImplementedError
+        ...
 
-    def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
+    def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:  # NoQA: B027
         """Handle parts of write_doc that must be called in the main process
         if parallel build is active.
         """
         pass
 
-    def finish(self) -> None:
+    def finish(self) -> None:  # NoQA: B027
         """Finish the building process.
 
         The default implementation does nothing.
         """
         pass
 
-    def cleanup(self) -> None:
+    def cleanup(self) -> None:  # NoQA: B027
         """Cleanup any resources.
 
         The default implementation does nothing.

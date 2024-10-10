@@ -18,6 +18,8 @@ from sphinx.util.osutil import ensuredir, os_path
 if TYPE_CHECKING:
     from collections.abc import Set
 
+    from docutils import nodes
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -164,6 +166,12 @@ class ChangesBuilder(Builder):
             self.outdir / 'basic.css',
             force=True,
         )
+
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
+        return ''
+
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        pass
 
     def hl(self, text: str, version: str) -> str:
         text = html.escape(text)

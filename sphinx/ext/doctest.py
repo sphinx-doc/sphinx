@@ -362,6 +362,9 @@ Doctest summary
             doctree = self.env.get_doctree(docname)
             self.test_doc(docname, doctree)
 
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        pass
+
     def get_filename_for_node(self, node: Node, docname: str) -> str:
         """Try to get the file which actually contains the doctest, not the
         filename of the document it's included in.

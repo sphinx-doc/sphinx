@@ -22,6 +22,8 @@ from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 if TYPE_CHECKING:
     from collections.abc import Set
 
+    from docutils import nodes
+
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
@@ -113,6 +115,9 @@ class ManualPageBuilder(Builder):
                 pendingnode.replace_self(pendingnode.children)
 
             docwriter.write(largetree, destination)
+
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        pass
 
     def finish(self) -> None:
         pass
