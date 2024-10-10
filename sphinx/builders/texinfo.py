@@ -141,6 +141,9 @@ class TexinfoBuilder(Builder):
                 docwriter.write(doctree, destination)
                 self.copy_image_files(targetname[:-5])
 
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
+        pass
+
     def assemble_doctree(
         self,
         indexfile: str,
