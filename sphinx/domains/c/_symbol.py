@@ -12,8 +12,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-
-    from typing_extensions import Self
+    from typing import Self
 
     from sphinx.environment import BuildEnvironment
 

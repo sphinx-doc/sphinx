@@ -10,6 +10,7 @@ import os
 import shutil
 import sys
 import tempfile
+import tomllib
 from importlib.metadata import entry_points
 from os import path
 from typing import TYPE_CHECKING, Any
@@ -22,17 +23,9 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir
 
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
-
-
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import TypedDict
-
-    from typing_extensions import Required
+    from typing import Required, TypedDict
 
     from sphinx.application import Sphinx
 

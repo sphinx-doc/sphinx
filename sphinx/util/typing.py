@@ -18,6 +18,7 @@ from typing import (
     TypedDict,
     TypeVar,
     Union,
+    Unpack,
 )
 
 from docutils import nodes
@@ -121,8 +122,7 @@ TitleGetter: TypeAlias = Callable[[nodes.Node], str]
 # Readable file stream for inventory loading
 if TYPE_CHECKING:
     from types import TracebackType
-
-    from typing_extensions import Self
+    from typing import Self
 
     _T_co = TypeVar('_T_co', str, bytes, covariant=True)
 
@@ -221,19 +221,7 @@ def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
 
 def _is_unpack_form(obj: Any) -> bool:
     """Check if the object is :class:`typing.Unpack` or equivalent."""
-    if sys.version_info >= (3, 11):
-        from typing import Unpack
-
-        # typing_extensions.Unpack != typing.Unpack for 3.11, but we assume
-        # that typing_extensions.Unpack should not be used in that case
-        return typing.get_origin(obj) is Unpack
-
-    # Python 3.10 requires typing_extensions.Unpack
-    origin = typing.get_origin(obj)
-    return (
-        getattr(origin, '__module__', None) == 'typing_extensions'
-        and origin.__name__ == 'Unpack'
-    )
+    return typing.get_origin(obj) is Unpack
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
@@ -361,7 +349,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return rf'{text}\ [{args}]'
         elif isinstance(cls, typing._SpecialForm):
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
-        elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
+        elif cls is typing.Any:
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
         elif hasattr(cls, '__qualname__'):

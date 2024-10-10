@@ -1571,13 +1571,11 @@ class _EnumFormatter:
                 '(value, names=None, *values, module=None, '
                 'qualname=None, type=None, start=1, boundary=None)'
             )
-        elif sys.version_info[:2] >= (3, 11):
+        else:
             args = (
                 '(value, names=None, *, module=None, qualname=None, '
                 'type=None, start=1, boundary=None)'
             )
-        else:
-            args = '(value)'
 
         return self._node('class', self.name, doc, args=args, indent=indent, **options)
 
