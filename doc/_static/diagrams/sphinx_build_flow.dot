@@ -8,30 +8,51 @@ digraph build {
         shape=rect
         style=rounded
     ];
+    // note: outline color of node indicates method type:
+    // darkgreen = abstract
+    // orange = overridable
+    // red = final
 
     "Sphinx" [
         shape=record
         label = "Sphinx | <init> __init__ | <build> build"
     ];
+    "Builder.init" [color=red];
+    "Builder.build_all" [color=red];
+    "Builder.build_specific" [color=red];
+    "Builder.build_update" [color=red];
+
     "Sphinx":init -> "Builder.init";
     "Sphinx":build -> "Builder.build_all";
     "Sphinx":build -> "Builder.build_specific";
-    "Builder.build_update" [
-        shape=record
-        label = "<p1> Builder.build_update | Builder.get_outdated_docs"
-    ];
-    "Sphinx":build -> "Builder.build_update":p1 ;
+    "Sphinx":build -> "Builder.build_update";
+
+    "Builder.get_outdated_docs" [color=darkgreen];
+    "Builder.build_update" -> "Builder.get_outdated_docs";
+
+    "Builder.build" [color=red];
 
     "Builder.build_all" -> "Builder.build";
     "Builder.build_specific" -> "Builder.build";
     "Builder.build_update":p1 -> "Builder.build";
 
+    "Builder.read" [color=red];
+    "Builder.write" [color=red];
+    "Builder.finish" [color=orange];
+
     "Builder.build" -> "Builder.read";
     "Builder.build" -> "Builder.write";
     "Builder.build" -> "Builder.finish";
 
+    "Builder.read_doc" [color=red];
+    "Builder.write_doctree" [color=red];
+
     "Builder.read" -> "Builder.read_doc";
     "Builder.read_doc" -> "Builder.write_doctree";
+
+    "Builder.prepare_writing" [color=orange];
+    "Builder.copy_assets" [color=orange];
+    "Builder.write_documents" [color=orange];
 
     "Builder.write":p1 -> "Builder.prepare_writing";
     "Builder.write":p1 -> "Builder.copy_assets";
@@ -41,8 +62,13 @@ digraph build {
     ];
     "Builder.write":p1 -> "Builder.write_documents";
 
+    "Builder.write_doc" [color=darkgreen];
+    "Builder.get_relative_uri" [color=orange];
+
     "Builder.write_documents":p1 -> "Builder.write_doc";
     "Builder.write_doc" -> "Builder.get_relative_uri";
+
+    "Builder.get_target_uri" [color=darkgreen];
 
     "Builder.get_relative_uri" -> "Builder.get_target_uri";
 }
