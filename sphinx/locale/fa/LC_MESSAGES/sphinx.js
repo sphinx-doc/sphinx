@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "\u062c\u0633\u062a\u062c\u0648",
         "Search Page": "\u0635\u0641\u062d\u0647 \u062c\u0633\u062a\u062c\u0648",
         "Search Results": "\u0646\u062a\u0627\u06cc\u062c \u062c\u0633\u062a\u062c\u0648",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "\u062c\u0633\u062a\u062c\u0648 \u062f\u0631 %(docstitle)s",
         "Searching": "\u062f\u0631 \u062d\u0627\u0644 \u062c\u0633\u062a \u0648 \u062c\u0648",
         "Searching for multiple words only shows matches that contain\n    all words.": "\u062f\u0631 \u062d\u0627\u0644 \u062c\u0633\u062a\u062c\u0648 \u0628\u0631\u0627\u06cc \u0686\u0646\u062f\u06cc\u0646 \u0648\u0627\u0698\u0647. \u0641\u0642\u0637 \u0648\u0627\u0698\u06af\u0627\u0646\u06cc \u0631\u0627 \u0646\u0634\u0627\u0646 \u0645\u06cc\u200c\u062f\u0647\u062f \u06a9\u0647 \u0634\u0627\u0645\u0644 \u0627\u06cc\u0646 \u0645\u0648\u0627\u0631\u062f \u0628\u0627\u0634\u062f:\n    \u0647\u0645\u0647\u200c\u06cc \u06a9\u0644\u0645\u0647\u200c\u0647\u0627.",
