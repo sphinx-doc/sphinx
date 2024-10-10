@@ -17,7 +17,7 @@ digraph build {
         shape=record
         label = "Sphinx | <init> __init__ | <build> build"
     ];
-    "Builder.init" [color=red];
+    "Builder.init" [color=orange];
     "Builder.build_all" [color=red];
     "Builder.build_specific" [color=red];
     "Builder.build_update" [color=red];
