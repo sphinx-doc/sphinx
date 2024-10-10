@@ -36,16 +36,18 @@ class KeyboardTransform(SphinxPostTransform):
     default_priority = 400
     formats = ('html',)
     pattern = re.compile(r'(?<=.)(-|\+|\^|\s+)(?=.)')
-    multiwords_keys = (('caps', 'lock'),
-                       ('page', 'down'),
-                       ('page', 'up'),
-                       ('scroll', 'lock'),
-                       ('num', 'lock'),
-                       ('sys', 'rq'),
-                       ('back', 'space'))
+    multiwords_keys = (
+        ('caps', 'lock'),
+        ('page', 'down'),
+        ('page', 'up'),
+        ('scroll', 'lock'),
+        ('num', 'lock'),
+        ('sys', 'rq'),
+        ('back', 'space'),
+    )
 
     def run(self, **kwargs: Any) -> None:
-        matcher = NodeMatcher(nodes.literal, classes=["kbd"])
+        matcher = NodeMatcher(nodes.literal, classes=['kbd'])
         # this list must be pre-created as during iteration new nodes
         # are added which match the condition in the NodeMatcher.
         for node in list(matcher.findall(self.document)):
@@ -61,7 +63,7 @@ class KeyboardTransform(SphinxPostTransform):
                     parts[:3] = []
                 else:
                     key = parts.pop(0)
-                node += nodes.literal('', key, classes=["kbd"])
+                node += nodes.literal('', key, classes=['kbd'])
 
                 try:
                     # key separator (ex. -, +, ^)

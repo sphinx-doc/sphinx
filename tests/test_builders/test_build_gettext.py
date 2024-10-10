@@ -47,6 +47,7 @@ def test_Catalog_duplicated_message():
 
 @pytest.mark.sphinx(
     'gettext',
+    testroot='root',
     srcdir='root-gettext',
 )
 def test_build_gettext(app):
@@ -66,6 +67,7 @@ def test_build_gettext(app):
 
 @pytest.mark.sphinx(
     'gettext',
+    testroot='root',
     srcdir='root-gettext',
 )
 def test_msgfmt(app):
@@ -201,8 +203,18 @@ def test_gettext_template_msgid_order_in_sphinxpot(app):
     )
 
 
+@pytest.mark.sphinx('gettext', testroot='gettext-custom-output-template')
+def test_gettext_custom_output_template(app):
+    app.build(force_all=True)
+    assert (app.outdir / 'index.pot').is_file()
+
+    result = (app.outdir / 'index.pot').read_text(encoding='utf8')
+    assert 'EVEN MORE DESCRIPTIVE TITLE' in result
+
+
 @pytest.mark.sphinx(
     'gettext',
+    testroot='root',
     srcdir='root-gettext',
     confoverrides={'gettext_compact': 'documentation'},
 )
@@ -274,6 +286,7 @@ def test_gettext_prolog_epilog_substitution_excluded(app):
 
 @pytest.mark.sphinx(
     'gettext',
+    testroot='root',
     srcdir='gettext',
     confoverrides={
         'gettext_compact': False,

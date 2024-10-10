@@ -12,6 +12,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.config import Config
 from sphinx.errors import ConfigError
 from sphinx.ext.intersphinx import (
     inspect_main,
@@ -70,6 +71,7 @@ def set_config(app, mapping):
 
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
 @mock.patch('sphinx.ext.intersphinx._load._read_from_url')
+@pytest.mark.sphinx('html', testroot='root')
 def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQA: PT019
     intersphinx_setup(app)
     _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
@@ -136,6 +138,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
     assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -227,6 +230,7 @@ def test_missing_reference(tmp_path, app):
     assert rn['refuri'] == 'https://docs.python.org/docname.html'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_pydomain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -260,6 +264,7 @@ def test_missing_reference_pydomain(tmp_path, app):
     assert rn.astext() == 'Foo.bar'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_stddomain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -320,6 +325,7 @@ def test_missing_reference_stddomain(tmp_path, app):
         ('B TERM', True),
     ],
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_ambiguous_reference_handling(term, expected_ambiguity, tmp_path, app, warning):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_AMBIGUOUS_TERMS)
@@ -378,6 +384,7 @@ def test_missing_reference_cppdomain(tmp_path, app):
     ) in html
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_jsdomain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -405,6 +412,7 @@ def test_missing_reference_jsdomain(tmp_path, app):
     assert rn.astext() == 'baz()'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_missing_reference_disabled_domain(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -470,6 +478,7 @@ def test_missing_reference_disabled_domain(tmp_path, app):
     case(term=False, doc=False, py=False)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_inventory_not_having_version(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2_NO_VERSION)
@@ -491,6 +500,7 @@ def test_inventory_not_having_version(tmp_path, app):
     assert rn[0].astext() == 'Long Module desc'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_validate_intersphinx_mapping_warnings(app):
     """Check warnings in :func:`sphinx.ext.intersphinx.validate_intersphinx_mapping`."""
     bad_intersphinx_mapping = {
@@ -544,6 +554,7 @@ def test_validate_intersphinx_mapping_warnings(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_load_mappings_fallback(tmp_path, app):
     inv_file = tmp_path / 'inventory'
     inv_file.write_bytes(INVENTORY_V2)
@@ -733,27 +744,125 @@ if TYPE_CHECKING:
     from sphinx.ext.intersphinx._shared import InventoryCacheEntry
 
 
-def test_intersphinx_cache_limit(app):
+@pytest.mark.sphinx('html', testroot='root')
+@pytest.mark.parametrize(
+    ('cache_limit', 'expected_expired'),
+    [
+        (5, False),
+        (1, True),
+        (0, True),
+        (-1, False),
+    ],
+)
+def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired):
     url = 'https://example.org/'
-    app.config.intersphinx_cache_limit = -1
+    app.config.intersphinx_cache_limit = cache_limit
     app.config.intersphinx_mapping = {
         'inv': (url, None),
     }
     # load the inventory and check if it's done correctly
     intersphinx_cache: dict[str, InventoryCacheEntry] = {
-        url: ('', 0, {}),  # 0 is a timestamp, make sure the entry is expired
+        url: ('inv', 0, {}),  # Timestamp of last cache write is zero.
     }
     validate_intersphinx_mapping(app, app.config)
-    load_mappings(app)
 
-    now = int(time.time())
+    # The test's `now` is two days after the cache was created.
+    now = 2 * 86400
+    monkeypatch.setattr('time.time', lambda: now)
+
+    # `_fetch_inventory_group` calls `_fetch_inventory`.
+    # We replace it with a mock to test whether it has been called.
+    # If it has been called, it means the cache had expired.
+    mock_fetch_inventory = mock.Mock(return_value=('inv', now, {}))
+    monkeypatch.setattr(
+        'sphinx.ext.intersphinx._load._fetch_inventory', mock_fetch_inventory
+    )
+
     for name, (uri, locations) in app.config.intersphinx_mapping.values():
         project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
-        # no need to read from remote
-        assert not _fetch_inventory_group(
+        updated = _fetch_inventory_group(
             project=project,
             cache=intersphinx_cache,
             now=now,
             config=app.config,
             srcdir=app.srcdir,
+        )
+        # If we hadn't mocked `_fetch_inventory`, it would've made
+        # a request to `https://example.org/` and found no inventory
+        # file. That would've been an error, and `updated` would've been
+        # False even if the cache had expired. The mock makes it behave
+        # "correctly".
+        assert updated is expected_expired
+    # Double-check: If the cache was expired, `mock_fetch_inventory`
+    # must've been called.
+    assert mock_fetch_inventory.called is expected_expired
+
+
+def test_intersphinx_fetch_inventory_group_url():
+    class InventoryHandler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200, 'OK')
+            self.end_headers()
+            self.wfile.write(INVENTORY_V2)
+
+        def log_message(*args, **kwargs):
+            # Silenced.
+            pass
+
+    with http_server(InventoryHandler) as server:
+        url1 = f'http://localhost:{server.server_port}'
+        url2 = f'http://localhost:{server.server_port}/'
+
+        config = Config()
+        config.intersphinx_cache_limit = -1
+        config.intersphinx_mapping = {
+            '1': (url1, None),
+            '2': (url2, None),
+        }
+
+        now = int(time.time())
+        # we can use 'srcdir=None' since we are raising in _fetch_inventory
+        kwds = {'cache': {}, 'now': now, 'config': config, 'srcdir': None}
+        # We need an exception with its 'args' attribute set (see error
+        # handling in sphinx.ext.intersphinx._load._fetch_inventory_group).
+        side_effect = ValueError('')
+
+        project1 = _IntersphinxProject(
+            name='1', target_uri=url1, locations=(url1, None)
+        )
+        with mock.patch(
+            'sphinx.ext.intersphinx._load._fetch_inventory', side_effect=side_effect
+        ) as mockfn:
+            assert not _fetch_inventory_group(project=project1, **kwds)
+        mockfn.assert_any_call(
+            target_uri=url1,
+            inv_location=url1,
+            config=config,
+            srcdir=None,
+        )
+        mockfn.assert_any_call(
+            target_uri=url1,
+            inv_location=url1 + '/' + INVENTORY_FILENAME,
+            config=config,
+            srcdir=None,
+        )
+
+        project2 = _IntersphinxProject(
+            name='2', target_uri=url2, locations=(url2, None)
+        )
+        with mock.patch(
+            'sphinx.ext.intersphinx._load._fetch_inventory', side_effect=side_effect
+        ) as mockfn:
+            assert not _fetch_inventory_group(project=project2, **kwds)
+        mockfn.assert_any_call(
+            target_uri=url2,
+            inv_location=url2,
+            config=config,
+            srcdir=None,
+        )
+        mockfn.assert_any_call(
+            target_uri=url2,
+            inv_location=url2 + INVENTORY_FILENAME,
+            config=config,
+            srcdir=None,
         )

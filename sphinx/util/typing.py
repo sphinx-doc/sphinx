@@ -23,6 +23,8 @@ from typing import (
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
 
+from sphinx.util import logging
+
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from typing import Final, Literal, Protocol, TypeAlias
@@ -40,6 +42,8 @@ if TYPE_CHECKING:
         'fully-qualified',
         'smart',
     ]
+
+logger = logging.getLogger(__name__)
 
 
 # classes that have an incorrect .__module__ attribute
@@ -88,8 +92,9 @@ PathMatcher: TypeAlias = Callable[[str], bool]
 
 # common role functions
 if TYPE_CHECKING:
+
     class RoleFunction(Protocol):
-        def __call__(
+        def __call__(  # NoQA: E704
             self,
             name: str,
             rawtext: str,
@@ -99,8 +104,8 @@ if TYPE_CHECKING:
             /,
             options: dict[str, Any] | None = None,
             content: Sequence[str] = (),
-        ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
-            ...
+        ) -> tuple[list[nodes.Node], list[nodes.system_message]]: ...
+
 else:
     RoleFunction: TypeAlias = Callable[
         [str, str, str, int, Inliner, dict[str, Any], Sequence[str]],
@@ -112,6 +117,27 @@ OptionSpec: TypeAlias = dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter: TypeAlias = Callable[[nodes.Node], str]
+
+# Readable file stream for inventory loading
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from typing_extensions import Self
+
+    _T_co = TypeVar('_T_co', str, bytes, covariant=True)
+
+    class _ReadableStream(Protocol[_T_co]):
+        def read(self, size: int = ...) -> _T_co: ...  # NoQA: E704
+
+        def __enter__(self) -> Self: ...  # NoQA: E704
+
+        def __exit__(  # NoQA: E704
+            self,
+            exc_type: type[BaseException] | None,
+            exc_val: BaseException | None,
+            exc_tb: TracebackType | None,
+        ) -> None: ...
+
 
 # inventory data on memory
 InventoryItem: TypeAlias = tuple[
@@ -162,7 +188,9 @@ def get_type_hints(
     from sphinx.util.inspect import safe_getattr  # lazy loading
 
     try:
-        return typing.get_type_hints(obj, globalns, localns, include_extras=include_extras)
+        return typing.get_type_hints(
+            obj, globalns, localns, include_extras=include_extras
+        )
     except NameError:
         # Failed to evaluate ForwardRef (maybe TYPE_CHECKING)
         return safe_getattr(obj, '__annotations__', {})
@@ -185,7 +213,10 @@ def is_system_TypeVar(typ: Any) -> bool:
 
 def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
     """Check if *obj* is an annotated type."""
-    return typing.get_origin(obj) is Annotated or str(obj).startswith('typing.Annotated')
+    return (
+        typing.get_origin(obj) is Annotated
+        or str(obj).startswith('typing.Annotated')
+    )  # fmt: skip
 
 
 def _is_unpack_form(obj: Any) -> bool:
@@ -259,18 +290,21 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 elif dataclasses.is_dataclass(m):
                     # use restify for the repr of field values rather than repr
                     d_fields = ', '.join([
-                        fr"{f.name}=\ {restify(getattr(m, f.name), mode)}"
-                        for f in dataclasses.fields(m) if f.repr
+                        rf'{f.name}=\ {restify(getattr(m, f.name), mode)}'
+                        for f in dataclasses.fields(m)
+                        if f.repr
                     ])
-                    meta_args.append(fr'{restify(type(m), mode)}\ ({d_fields})')
+                    meta_args.append(rf'{restify(type(m), mode)}\ ({d_fields})')
                 else:
                     meta_args.append(repr(m))
             meta = ', '.join(meta_args)
             if sys.version_info[:2] <= (3, 11):
                 # Hardcoded to fix errors on Python 3.11 and earlier.
-                return fr':py:class:`~typing.Annotated`\ [{args}, {meta}]'
-            return (f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-                    fr'\ [{args}, {meta}]')
+                return rf':py:class:`~typing.Annotated`\ [{args}, {meta}]'
+            return (
+                f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
+                rf'\ [{args}, {meta}]'
+            )
         elif isinstance(cls, NewType):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif isinstance(cls, types.UnionType):
@@ -280,14 +314,14 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         elif cls.__module__ in ('__builtin__', 'builtins'):
             if hasattr(cls, '__args__'):
                 if not cls.__args__:  # Empty tuple, list, ...
-                    return fr':py:class:`{cls.__name__}`\ [{cls.__args__!r}]'
+                    return rf':py:class:`{cls.__name__}`\ [{cls.__args__!r}]'
 
-                concatenated_args = ', '.join(restify(arg, mode) for arg in cls.__args__)
-                return fr':py:class:`{cls.__name__}`\ [{concatenated_args}]'
+                concatenated_args = ', '.join(
+                    restify(arg, mode) for arg in cls.__args__
+                )
+                return rf':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             return f':py:class:`{cls.__name__}`'
-        elif (isgenericalias(cls)
-              and cls_module_is_typing
-              and cls.__origin__ is Union):
+        elif isgenericalias(cls) and cls_module_is_typing and cls.__origin__ is Union:
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif isgenericalias(cls):
@@ -311,19 +345,20 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             if (
                 (cls_module_is_typing and cls.__name__ == 'Callable')
                 or (cls.__module__ == 'collections.abc' and cls.__name__ == 'Callable')
-            ):
+            ):  # fmt: skip
                 args = ', '.join(restify(a, mode) for a in __args__[:-1])
                 returns = restify(__args__[-1], mode)
-                return fr'{text}\ [[{args}], {returns}]'
+                return rf'{text}\ [[{args}], {returns}]'
 
             if cls_module_is_typing and cls.__origin__.__name__ == 'Literal':
-                args = ', '.join(_format_literal_arg_restify(a, mode=mode)
-                                 for a in cls.__args__)
-                return fr'{text}\ [{args}]'
+                args = ', '.join(
+                    _format_literal_arg_restify(a, mode=mode) for a in cls.__args__
+                )
+                return rf'{text}\ [{args}]'
 
             # generic representation of the parameters
             args = ', '.join(restify(a, mode) for a in __args__)
-            return fr'{text}\ [{args}]'
+            return rf'{text}\ [{args}]'
         elif isinstance(cls, typing._SpecialForm):
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
         elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
@@ -336,7 +371,8 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
         else:
             # not a class (ex. TypeVar) but should have a __name__
             return f':py:obj:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-    except (AttributeError, TypeError):
+    except (AttributeError, TypeError) as exc:
+        logger.debug('restify on %r in mode %r failed: %r', cls, mode, exc)
         return object_description(cls)
 
 
@@ -347,7 +383,9 @@ def _format_literal_arg_restify(arg: Any, /, *, mode: str) -> str:
         enum_cls = arg.__class__
         if mode == 'smart' or enum_cls.__module__ == 'typing':
             # MyEnum.member
-            return f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+            return (
+                f':py:attr:`~{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
+            )
         # module.MyEnum.member
         return f':py:attr:`{enum_cls.__module__}.{enum_cls.__qualname__}.{arg.name}`'
     return repr(arg)
@@ -403,7 +441,10 @@ def stringify_annotation(
     # Extract the annotation's base type by considering formattable cases
     if isinstance(annotation, TypeVar) and not _is_unpack_form(annotation):
         # typing_extensions.Unpack is incorrectly determined as a TypeVar
-        if annotation_module_is_typing and mode in {'fully-qualified-except-typing', 'smart'}:
+        if annotation_module_is_typing and mode in {
+            'fully-qualified-except-typing',
+            'smart',
+        }:
             return annotation_name
         return module_prefix + f'{annotation_module}.{annotation_name}'
     elif isinstance(annotation, NewType):
@@ -433,7 +474,9 @@ def stringify_annotation(
 
     module_prefix = f'{annotation_module}.'
     annotation_forward_arg: str | None = getattr(annotation, '__forward_arg__', None)
-    if annotation_qualname or (annotation_module_is_typing and not annotation_forward_arg):
+    if annotation_qualname or (
+        annotation_module_is_typing and not annotation_forward_arg
+    ):
         if mode == 'smart':
             module_prefix = f'~{module_prefix}'
         if annotation_module_is_typing and mode == 'fully-qualified-except-typing':
@@ -456,7 +499,8 @@ def stringify_annotation(
                 # in this case, we know that the annotation is a member
                 # of ``typing`` and all of them define ``__origin__``
                 qualname = stringify_annotation(
-                    annotation.__origin__, 'fully-qualified-except-typing',
+                    annotation.__origin__,
+                    'fully-qualified-except-typing',
                 ).replace('typing.', '')  # ex. Union
     elif annotation_qualname:
         qualname = annotation_qualname
@@ -477,21 +521,25 @@ def stringify_annotation(
         if (
             qualname in {'Union', 'types.UnionType'}
             and all(getattr(a, '__origin__', ...) is typing.Literal for a in annotation_args)
-        ):
+        ):  # fmt: skip
             # special case to flatten a Union of Literals into a literal
             flattened_args = typing.Literal[annotation_args].__args__  # type: ignore[attr-defined]
-            args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
-                             for a in flattened_args)
+            args = ', '.join(
+                _format_literal_arg_stringify(a, mode=mode) for a in flattened_args
+            )
             return f'{module_prefix}Literal[{args}]'
         if qualname in {'Optional', 'Union', 'types.UnionType'}:
             return ' | '.join(stringify_annotation(a, mode) for a in annotation_args)
         elif qualname == 'Callable':
-            args = ', '.join(stringify_annotation(a, mode) for a in annotation_args[:-1])
+            args = ', '.join(
+                stringify_annotation(a, mode) for a in annotation_args[:-1]
+            )
             returns = stringify_annotation(annotation_args[-1], mode)
             return f'{module_prefix}Callable[[{args}], {returns}]'
         elif qualname == 'Literal':
-            args = ', '.join(_format_literal_arg_stringify(a, mode=mode)
-                             for a in annotation_args)
+            args = ', '.join(
+                _format_literal_arg_stringify(a, mode=mode) for a in annotation_args
+            )
             return f'{module_prefix}Literal[{args}]'
         elif _is_annotated_form(annotation):  # for py310+
             args = stringify_annotation(annotation_args[0], mode)
@@ -502,10 +550,13 @@ def stringify_annotation(
                 elif dataclasses.is_dataclass(m):
                     # use stringify_annotation for the repr of field values rather than repr
                     d_fields = ', '.join([
-                        f"{f.name}={stringify_annotation(getattr(m, f.name), mode)}"
-                        for f in dataclasses.fields(m) if f.repr
+                        f'{f.name}={stringify_annotation(getattr(m, f.name), mode)}'
+                        for f in dataclasses.fields(m)
+                        if f.repr
                     ])
-                    meta_args.append(f'{stringify_annotation(type(m), mode)}({d_fields})')
+                    meta_args.append(
+                        f'{stringify_annotation(type(m), mode)}({d_fields})'
+                    )
                 else:
                     meta_args.append(repr(m))
             meta = ', '.join(meta_args)
@@ -540,7 +591,7 @@ def _format_literal_arg_stringify(arg: Any, /, *, mode: str) -> str:
 
 # deprecated name -> (object to return, canonical path or empty string, removal version)
 _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-}
+}  # fmt: skip
 
 
 def __getattr__(name: str) -> Any:

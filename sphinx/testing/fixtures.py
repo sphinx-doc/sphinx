@@ -28,7 +28,7 @@ DEFAULT_ENABLED_MARKERS = [
         'testroot="root", srcdir=None, '
         'confoverrides=None, freshenv=False, '
         'warningiserror=False, tags=None, verbosity=0, parallel=0, '
-        'keep_going=False, builddir=None, docutils_conf=None'
+        'builddir=None, docutils_conf=None'
         '): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
@@ -86,7 +86,7 @@ def app_params(
     kwargs: dict[str, Any] = {}
 
     # to avoid stacking positional args
-    for info in reversed(list(request.node.iter_markers("sphinx"))):
+    for info in reversed(list(request.node.iter_markers('sphinx'))):
         pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
@@ -203,6 +203,7 @@ def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp
             app_ = SphinxTestApp(*args, **kwargs)
         apps.append(app_)
         return app_
+
     yield make
 
     sys.path[:] = syspath
@@ -239,7 +240,7 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
+def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Temporary directory."""
     return tmp_path_factory.getbasetemp()
 

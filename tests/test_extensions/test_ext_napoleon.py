@@ -110,7 +110,7 @@ class TestProcessDocstring:
 
 class TestSetup:
     def test_unknown_app_type(self):
-        setup(object())
+        setup(object())  # type: ignore[arg-type]
 
     def test_add_config_values(self):
         app = mock.Mock(Sphinx)
@@ -141,7 +141,14 @@ class TestSetup:
 
 
 class TestSkipMember:
-    def assert_skip(self, what, member, obj, expect_default_skip, config_name):
+    def assert_skip(
+        self,
+        what: str,
+        member: str,
+        obj: object,
+        expect_default_skip: bool,
+        config_name: str,
+    ) -> None:
         skip = True
         app = mock.Mock()
         app.config = Config()

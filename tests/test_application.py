@@ -25,7 +25,6 @@ if TYPE_CHECKING:
 def test_instantiation(
     tmp_path_factory: pytest.TempPathFactory,
     rootdir: str | os.PathLike[str] | None,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Given
     src_dir = tmp_path_factory.getbasetemp() / 'root'
@@ -49,6 +48,7 @@ def test_instantiation(
     assert isinstance(app_, sphinx.application.Sphinx)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_events(app):
     def empty():
         pass
@@ -75,24 +75,27 @@ def test_events(app):
     assert app.emit('my_event', *emit_args) == [], 'Callback called when disconnected'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_emit_with_nonascii_name_node(app):
     node = nodes.section(names=['\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_extensions(app):
     app.setup_extension('shutil')
     warning = strip_colors(app.warning.getvalue())
     assert "extension 'shutil' has no setup() function" in warning
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_extension_in_blacklist(app):
     app.setup_extension('sphinxjp.themecore')
     msg = strip_colors(app.warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
-@pytest.mark.sphinx(testroot='add_source_parser')
+@pytest.mark.sphinx('html', testroot='add_source_parser')
 def test_add_source_parser(app):
     assert set(app.config.source_suffix) == {'.rst', '.test'}
 
@@ -106,7 +109,7 @@ def test_add_source_parser(app):
     assert app.registry.get_source_parsers()['test'].__name__ == 'TestSourceParser'
 
 
-@pytest.mark.sphinx(testroot='extensions')
+@pytest.mark.sphinx('html', testroot='extensions')
 def test_add_is_parallel_allowed(app):
     logging.setup(app, app.status, app.warning)
 

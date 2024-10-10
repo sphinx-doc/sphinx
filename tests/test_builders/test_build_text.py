@@ -14,12 +14,7 @@ if TYPE_CHECKING:
 
 
 def with_text_app(*args: Any, **kw: Any) -> pytest.MarkDecorator:
-    default_kw = {
-        'buildername': 'text',
-        'testroot': 'build-text',
-    }
-    default_kw.update(kw)
-    return pytest.mark.sphinx(*args, **default_kw)
+    return pytest.mark.sphinx(*args, buildername='text', testroot='build-text', **kw)
 
 
 @with_text_app()
@@ -62,7 +57,7 @@ def test_lineblock(app):
 
 @with_text_app()
 def test_nonascii_title_line(app):
-    app.build()
+    app.build(force_all=True)
     result = (app.outdir / 'nonascii_title.txt').read_text(encoding='utf8')
     expect_underline = '*********'
     result_underline = result.splitlines()[1].strip()

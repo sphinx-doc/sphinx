@@ -1,5 +1,5 @@
 ===============
-Getting Started
+Getting started
 ===============
 
 Sphinx is a *documentation generator* or a tool that translates a set of plain

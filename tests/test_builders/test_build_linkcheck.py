@@ -91,7 +91,7 @@ class ConnectionMeasurement:
 
     def _collect_connections(self) -> Callable[[object, str], HTTPConnectionPool]:
         def connection_collector(obj, url):
-            connection = self.urllib3_connection_from_url(obj, url)
+            connection = self.urllib3_connection_from_url(obj, url)  # type: ignore[no-untyped-call]
             self.connections.add(connection)
             return connection
 
@@ -1145,6 +1145,7 @@ class FakeResponse:
     url = 'http://localhost/'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_limit_rate_default_sleep(app: SphinxTestApp) -> None:
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), {})
     with mock.patch('time.time', return_value=0.0):
@@ -1154,7 +1155,9 @@ def test_limit_rate_default_sleep(app: SphinxTestApp) -> None:
     assert next_check == 60.0
 
 
-@pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 0.0})
+@pytest.mark.sphinx(
+    'html', testroot='root', confoverrides={'linkcheck_rate_limit_timeout': 0.0}
+)
 def test_limit_rate_user_max_delay(app: SphinxTestApp) -> None:
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), {})
     next_check = worker.limit_rate(
@@ -1163,6 +1166,7 @@ def test_limit_rate_user_max_delay(app: SphinxTestApp) -> None:
     assert next_check is None
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_limit_rate_doubles_previous_wait_time(app: SphinxTestApp) -> None:
     rate_limits = {'localhost': RateLimit(60.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
@@ -1173,7 +1177,9 @@ def test_limit_rate_doubles_previous_wait_time(app: SphinxTestApp) -> None:
     assert next_check == 120.0
 
 
-@pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 90})
+@pytest.mark.sphinx(
+    'html', testroot='root', confoverrides={'linkcheck_rate_limit_timeout': 90}
+)
 def test_limit_rate_clips_wait_time_to_max_time(app: SphinxTestApp) -> None:
     rate_limits = {'localhost': RateLimit(60.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
@@ -1185,7 +1191,9 @@ def test_limit_rate_clips_wait_time_to_max_time(app: SphinxTestApp) -> None:
     assert app.warning.getvalue() == ''
 
 
-@pytest.mark.sphinx(confoverrides={'linkcheck_rate_limit_timeout': 90.0})
+@pytest.mark.sphinx(
+    'html', testroot='root', confoverrides={'linkcheck_rate_limit_timeout': 90.0}
+)
 def test_limit_rate_bails_out_after_waiting_max_time(app: SphinxTestApp) -> None:
     rate_limits = {'localhost': RateLimit(90.0, 0.0)}
     worker = HyperlinkAvailabilityCheckWorker(app.config, Queue(), Queue(), rate_limits)
@@ -1197,6 +1205,7 @@ def test_limit_rate_bails_out_after_waiting_max_time(app: SphinxTestApp) -> None
 
 
 @mock.patch('sphinx.util.requests.requests.Session.get_adapter')
+@pytest.mark.sphinx('html', testroot='root')
 def test_connection_contention(get_adapter, app, capsys):
     # Create a shared, but limited-size, connection pool
     import requests

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
 
 from docutils import nodes
 
@@ -12,6 +12,8 @@ from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -96,7 +98,7 @@ class VersionChange(SphinxDirective):
                                    translatable=False)
             node.append(para)
 
-        domain = cast(ChangeSetDomain, self.env.get_domain('changeset'))
+        domain = self.env.domains.changeset_domain
         domain.note_changeset(node)
 
         ret: list[Node] = [node]
@@ -132,7 +134,7 @@ class ChangeSetDomain(Domain):
                 if changeset.docname == docname:
                     changes.remove(changeset)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for version, otherchanges in otherdata['changes'].items():
             changes = self.changesets.setdefault(version, [])

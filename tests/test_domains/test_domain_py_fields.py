@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pytest
 from docutils import nodes
 
 from sphinx import addnodes
@@ -20,6 +21,7 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_info_field_list(app):
     text = (
         '.. py:module:: example\n'
@@ -195,6 +197,7 @@ def test_info_field_list(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_info_field_list_piped_type(app):
     text = (
         '.. py:module:: example\n'
@@ -268,6 +271,7 @@ def test_info_field_list_piped_type(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_info_field_list_Literal(app):
     text = (
         '.. py:module:: example\n'
@@ -338,6 +342,7 @@ def test_info_field_list_Literal(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_info_field_list_var(app):
     text = '.. py:class:: Class\n\n   :var int attr: blah blah\n'
     doctree = restructuredtext.parse(app, text)
@@ -376,6 +381,7 @@ def test_info_field_list_var(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_info_field_list_napoleon_deliminator_of(app):
     text = (
         '.. py:module:: example\n'
@@ -421,6 +427,7 @@ def test_info_field_list_napoleon_deliminator_of(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_info_field_list_napoleon_deliminator_or(app):
     text = (
         '.. py:module:: example\n'
@@ -466,6 +473,7 @@ def test_info_field_list_napoleon_deliminator_or(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_type_field(app):
     text = (
         '.. py:data:: var1\n'

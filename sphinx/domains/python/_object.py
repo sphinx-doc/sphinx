@@ -337,7 +337,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = self.env.domains['py']
+        domain = self.env.domains.python_domain
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         canonical_name = self.options.get('canonical')

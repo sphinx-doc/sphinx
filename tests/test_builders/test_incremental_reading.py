@@ -7,6 +7,7 @@ import pytest
 
 @pytest.mark.sphinx(
     'dummy',
+    testroot='root',
     srcdir='test_builder',
     freshenv=True,
 )

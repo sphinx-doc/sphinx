@@ -134,6 +134,7 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
 )
 @pytest.mark.sphinx(
     'latex',
+    testroot='root',
     freshenv=True,
 )
 def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_length):
@@ -163,7 +164,7 @@ def test_build_latex_doc(app, engine, docclass, python_maximum_signature_line_le
     compile_latex_document(app, 'sphinxtests.tex', docclass)
 
 
-@pytest.mark.sphinx('latex')
+@pytest.mark.sphinx('latex', testroot='root')
 def test_writer(app):
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.tex').read_text(encoding='utf8')
@@ -658,25 +659,25 @@ def test_latex_obey_numfig_secnum_depth_is_zero(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'SphinxManual.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,nonumfigreset,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,nonumfigreset,mathnumfig,mathnumsep={.}]{sphinx}' in result
 
     result = (app.outdir / 'SphinxHowTo.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,nonumfigreset,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,nonumfigreset,mathnumfig,mathnumsep={.}]{sphinx}' in result
 
 
 @pytest.mark.sphinx(
     'latex',
     testroot='latex-numfig',
-    confoverrides={'numfig': True, 'numfig_secnum_depth': 2},
+    confoverrides={'numfig': True, 'numfig_secnum_depth': 2, 'math_numsep': '-'},
 )
 def test_latex_obey_numfig_secnum_depth_is_two(app):
     app.build(force_all=True)
 
     result = (app.outdir / 'SphinxManual.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,numfigreset=2,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,numfigreset=2,mathnumfig,mathnumsep={-}]{sphinx}' in result
 
     result = (app.outdir / 'SphinxHowTo.tex').read_text(encoding='utf8')
-    assert '\\usepackage[,numfigreset=3,mathnumfig]{sphinx}' in result
+    assert '\\usepackage[,numfigreset=3,mathnumfig,mathnumsep={-}]{sphinx}' in result
 
 
 @pytest.mark.sphinx(
@@ -928,7 +929,7 @@ def test_polyglossia_with_language_de_1901(app):
     assert r'\addto\captionsgerman{\renewcommand{\tablename}{Table.\@{} }}' in result
 
 
-@pytest.mark.sphinx('latex')
+@pytest.mark.sphinx('latex', testroot='root')
 def test_footnote(app):
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.tex').read_text(encoding='utf8')
@@ -1015,7 +1016,8 @@ def test_reference_in_caption_and_codeblock_in_footnote(app):
     assert (
         'This is a reference to the code\\sphinxhyphen{}block in the footnote:\n'
         '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
-        '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}'
+        '{\\sphinxcrossref{\\DUrole{std}{\\DUrole{std-ref}'
+        '{I am in a footnote}}}}}'
     ) in result
     assert (
         '&\n\\sphinxAtStartPar\nThis is one more footnote with some code in it %\n'
@@ -2157,6 +2159,7 @@ def test_latex_code_role(app):
     ) in content
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('latex', testroot='images')
 def test_copy_images(app):
     app.build()
@@ -2180,10 +2183,6 @@ def test_copy_images(app):
 def test_duplicated_labels_before_module(app):
     app.build()
     content: str = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
-
-    def count_label(name):
-        text = r'\phantomsection\label{\detokenize{%s}}' % name
-        return content.count(text)
 
     pattern = (
         r'\\phantomsection\\label\{\\detokenize\{index:label-(?:auto-)?\d+[a-z]*}}'
@@ -2227,43 +2226,71 @@ def test_one_parameter_per_line(app):
 
     # TODO: should these asserts check presence or absence of a final \sphinxparamcomma?
     # signature of 23 characters is too short to trigger one-param-per-line mark-up
-    assert '\\pysiglinewithargsret{\\sphinxbfcode{\\sphinxupquote{hello}}}' in result
+    assert (
+        '\\pysiglinewithargsret\n'
+        '{\\sphinxbfcode{\\sphinxupquote{hello}}}\n'
+        '{\\sphinxparam{' in result
+    )
 
-    assert '\\pysigwithonelineperarg{\\sphinxbfcode{\\sphinxupquote{foo}}}' in result
+    assert (
+        '\\pysigwithonelineperarg\n'
+        '{\\sphinxbfcode{\\sphinxupquote{foo}}}\n'
+        '{\\sphinxoptional{\\sphinxparam{' in result
+    )
 
     # generic_arg[T]
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_arg}}}'
-        '{\\sphinxtypeparam{\\DUrole{n}{T}}}{}{}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_arg}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # generic_foo[T]()
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_foo}}}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_foo}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # generic_bar[T](x: list[T])
     assert (
-        '\\pysigwithonelineperargwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_bar}}}'
-    ) in result
+        '\\pysigwithonelineperargwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_bar}}}\n'
+        '{\\sphinxtypeparam{' in result
+    )
 
     # generic_ret[R]() -> R
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_ret}}}'
-        '{\\sphinxtypeparam{\\DUrole{n}{R}}}{}{{ $\\rightarrow$ R}}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_ret}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{R}}}\n'
+        '{}\n'
+        '{{ $\\rightarrow$ R}}\n' in result
+    )
 
     # MyGenericClass[X]
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
-        '}}}\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
+        '\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{X}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # MyList[T](list[T])
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
-        '}}}\\sphinxbfcode{\\sphinxupquote{MyList}}}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
+        '\\sphinxbfcode{\\sphinxupquote{MyList}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{\\sphinxparam{list{[}T{]}}}\n'
+        '{}\n' in result
+    )
 
 
 @pytest.mark.sphinx('latex', testroot='markup-rubric')
@@ -2272,3 +2299,30 @@ def test_latex_rubric(app):
     content = (app.outdir / 'test.tex').read_text(encoding='utf8')
     assert r'\subsubsection*{This is a rubric}' in content
     assert r'\subsection*{A rubric with a heading level 2}' in content
+
+
+@pytest.mark.sphinx('latex', testroot='latex-contents-topic-sidebar')
+def test_latex_contents_topic_sidebar(app):
+    app.build()
+    result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
+
+    assert '\\begin{sphinxcontents}\n\\sphinxstylecontentstitle{Contents}\n' in result
+
+    assert (
+        '\\begin{sphinxtopic}\n'
+        '\\sphinxstyletopictitle{Title of topic}\n'
+        '\n'
+        '\\sphinxAtStartPar\n'
+        'text of topic\n'
+        '\\end{sphinxtopic}\n'
+    ) in result
+
+    assert (
+        '\\begin{sphinxsidebar}\n'
+        '\\sphinxstylesidebartitle{Title of sidebar}\n'
+        '\\sphinxstylesidebarsubtitle{sub\\sphinxhyphen{}title}\n'
+        '\n'
+        '\\sphinxAtStartPar\n'
+        'text of sidebar\n'
+        '\\end{sphinxsidebar}\n'
+    ) in result

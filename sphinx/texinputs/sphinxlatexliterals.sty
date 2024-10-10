@@ -512,6 +512,9 @@
     \setbox\spx@tempboxa
     \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
           \doublehyphendemerits\z@\finalhyphendemerits\z@
+% Avoid TeX reporting Overfull \hbox'es during this measuring phase. Setting
+% \hbadness to \@M to avoid Underfull reports is unneeded due to \raggedright.
+          \hfuzz\maxdimen
           \spx@everypar{}\noindent\strut\FV@Line\strut\spx@par
           \spx@verb@getwidths}%
     \ifdim\spx@verb@maxwidth>

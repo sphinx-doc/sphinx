@@ -117,7 +117,7 @@ The ``toctree`` directive is the central element.
    .. versionchanged:: 0.6
       Added support for external links and "self" references.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: class: class names
       :type: a list of class names, separated by spaces
@@ -562,6 +562,27 @@ Presentational
    A rubric is like an informal heading that doesn't correspond to the document's structure,
    i.e. it does not create a table of contents node.
 
+   .. note::
+
+      If the *title* of the rubric is "Footnotes" (or the selected language's
+      equivalent), this rubric is ignored by the LaTeX writer, since it is
+      assumed to only contain footnote definitions and therefore would create an
+      empty heading.
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
+
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
+
    .. rst:directive:option:: heading-level: n
       :type: number from 1 to 6
 
@@ -572,12 +593,6 @@ Presentational
       or as the corresponding non-numbered sectioning command for LaTeX
       (see :confval:`latex_toplevel_sectioning`).
 
-   .. note::
-
-      If the *title* of the rubric is "Footnotes" (or the selected language's
-      equivalent), this rubric is ignored by the LaTeX writer, since it is
-      assumed to only contain footnote definitions and therefore would create an
-      empty heading.
 
 .. rst:directive:: centered
 
@@ -594,17 +609,22 @@ Presentational
    compact list by either distributing more than one item horizontally, or
    reducing spacing between items, depending on the builder.
 
-   For builders that support the horizontal distribution, there is a ``columns``
-   option that specifies the number of columns; it defaults to 2.  Example::
+   .. rubric:: Options
 
-      .. hlist::
-         :columns: 3
+   .. rst:directive:option:: columns: n
+      :type: int
 
-         * A list of
-         * short items
-         * that should be
-         * displayed
-         * horizontally
+      The number of columns; defaults to 2.
+      For example::
+
+         .. hlist::
+            :columns: 3
+
+            * A list of
+            * short items
+            * that should be
+            * displayed
+            * horizontally
 
    .. versionadded:: 0.6
 
@@ -678,7 +698,7 @@ __ https://pygments.org/docs/lexers
    As discussed previously, *language* can be any lexer alias supported by
    Pygments.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: linenothreshold: threshold
       :type: number (optional)
@@ -723,7 +743,7 @@ __ https://pygments.org/docs/lexers
    .. versionchanged:: 2.0
       The ``language`` argument becomes optional.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: linenos
       :type: no value
@@ -766,12 +786,12 @@ __ https://pygments.org/docs/lexers
       .. versionchanged:: 1.6.6
          LaTeX supports the ``emphasize-lines`` option.
 
-   .. rst:directive:option: force
+   .. rst:directive:option:: force
       :type: no value
 
-      Ignore minor errors on highlighting
+      Ignore minor errors on highlighting.
 
-      .. versionchanged:: 2.1
+      .. versionadded:: 2.1
 
    .. rst:directive:option:: caption: caption of code block
       :type: text
@@ -811,7 +831,8 @@ __ https://pygments.org/docs/lexers
    .. rst:directive:option:: class: class names
       :type: a list of class names separated by spaces
 
-      The class name of the graph.
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
 
       .. versionadded:: 1.4
 
@@ -820,7 +841,7 @@ __ https://pygments.org/docs/lexers
 
       Strip indentation characters from the code block.  When number given,
       leading N characters are removed.  When no argument given, leading spaces
-      are removed via :func:`textwrap.dedent()`.  For example::
+      are removed via :func:`textwrap.dedent`.  For example::
 
          .. code-block:: ruby
             :linenos:
@@ -832,19 +853,14 @@ __ https://pygments.org/docs/lexers
       .. versionchanged:: 3.5
          Support automatic dedent.
 
-   .. rst:directive:option:: force
-      :type: no value
-
-      If given, minor errors on highlighting are ignored.
-
-      .. versionadded:: 2.1
-
 .. rst:directive:: .. literalinclude:: filename
 
    Longer displays of verbatim text may be included by storing the example text
    in an external file containing only plain text.  The file may be included
-   using the ``literalinclude`` directive. [#]_ For example, to include the
-   Python source file :file:`example.py`, use::
+   using the ``literalinclude`` directive. [#]_
+   For example, to include the Python source file :file:`example.py`, use:
+
+   .. code-block:: rst
 
       .. literalinclude:: example.py
 
@@ -852,150 +868,240 @@ __ https://pygments.org/docs/lexers
    it is absolute (starting with ``/``), it is relative to the top source
    directory.
 
-   **Additional options**
+   .. rubric:: General options
 
-   Like :rst:dir:`code-block`, the directive supports the ``linenos`` flag
-   option to switch on line numbers, the ``lineno-start`` option to select the
-   first line number, the ``emphasize-lines`` option to emphasize particular
-   lines, the ``name`` option to provide an implicit target name, the
-   ``dedent`` option to strip indentation characters for the code block, and a
-   ``language`` option to select a language different from the current file's
-   standard language. In addition, it supports the ``caption`` option; however,
-   this can be provided with no argument to use the filename as the caption.
-   Example with options::
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
 
-      .. literalinclude:: example.rb
-         :language: ruby
-         :emphasize-lines: 12,15-18
-         :linenos:
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
 
-   Tabs in the input are expanded if you give a ``tab-width`` option with the
-   desired tab width.
+      .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
 
-   Include files are assumed to be encoded in the :confval:`source_encoding`.
-   If the file has a different encoding, you can specify it with the
-   ``encoding`` option::
+      .. versionadded:: 1.4
 
-      .. literalinclude:: example.py
-         :encoding: latin-1
+   .. rst:directive:option:: name: label
+      :type: text
 
-   The directive also supports including only parts of the file.  If it is a
-   Python module, you can select a class, function or method to include using
-   the ``pyobject`` option::
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
 
-      .. literalinclude:: example.py
-         :pyobject: Timer.start
+      .. versionadded:: 1.3
 
-   This would only include the code lines belonging to the ``start()`` method
-   in the ``Timer`` class within the file.
+   .. rst:directive:option:: caption: caption
+      :type: text
 
-   Alternately, you can specify exactly which lines to include by giving a
-   ``lines`` option::
+      Add a caption above the included content.
+      If no argument is given, the filename is used as the caption.
 
-      .. literalinclude:: example.py
-         :lines: 1,3,5-10,20-
+      .. versionadded:: 1.3
 
-   This includes the lines 1, 3, 5 to 10 and lines 20 to the last line.
+   .. rubric:: Options for formatting
 
-   Another way to control which part of the file is included is to use the
-   ``start-after`` and ``end-before`` options (or only one of them).  If
-   ``start-after`` is given as a string option, only lines that follow the
-   first line containing that string are included.  If ``end-before`` is given
-   as a string option, only lines that precede the first lines containing that
-   string are included. The ``start-at`` and ``end-at`` options behave in a
-   similar way, but the lines containing the matched string are included.
+   .. rst:directive:option:: dedent: number
+      :type: number or no value
 
-   ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
-   ``start-after``/``start-at`` filter lines before the line that contains
-   option string (``start-at`` will keep the line). Then ``end-before``/``end-at``
-   filter lines after the line that contains option string (``end-at`` will keep
-   the line and ``end-before`` skip the first line).
+      Strip indentation characters from the included content.
+      When a number is given, the leading N characters are removed.
+      When no argument given, all common leading indentation is removed
+      (using :func:`textwrap.dedent`).
 
-   .. note::
+      .. versionadded:: 1.3
+      .. versionchanged:: 3.5
+         Support automatic dedent.
 
-      If you want to select only ``[second-section]`` of ini file like the
-      following, you can use ``:start-at: [second-section]`` and
-      ``:end-before: [third-section]``:
+   .. rst:directive:option:: tab-width: N
+      :type: number
 
-      .. code-block:: ini
+      Expand tabs to N spaces.
 
-         [first-section]
+      .. versionadded:: 1.0
 
-         var_in_first=true
+   .. rst:directive:option:: encoding
+      :type: text
 
-         [second-section]
+      Explicitly specify the encoding of the file.
+      This overwrites the default encoding (:confval:`source_encoding`).
+      For example:
 
-         var_in_second=true
+      .. code-block:: rst
 
-         [third-section]
+         .. literalinclude:: example.txt
+            :encoding: latin-1
 
-         var_in_third=true
+      .. versionadded:: 0.4.3
 
-      Useful cases of these option is working with tag comments.
-      ``:start-after: [initialize]`` and ``:end-before: [initialized]`` options
-      keep lines between comments:
+   .. rst:directive:option:: linenos
+      :type: no value
 
-      .. code-block:: py
+      Show line numbers alongside the included content.
+      By default, line numbers are counted from 1.
+      This can be changed by the options ``:lineno-start:`` and ``:lineno-match:``.
 
-         if __name__ == "__main__":
-             # [initialize]
-             app.start(":8000")
-             # [initialized]
+   .. rst:directive:option:: lineno-start: number
+      :type: number
 
+      Set line number for the first line to show.
+      If given, this automatically activates ``:linenos:``.
 
-   When lines have been selected in any of the ways described above, the line
-   numbers in ``emphasize-lines`` refer to those selected lines, counted
-   consecutively starting at ``1``.
+   .. rst:directive:option:: lineno-match
 
-   When specifying particular parts of a file to display, it can be useful to
-   display the original line numbers. This can be done using the
-   ``lineno-match`` option, which is however allowed only when the selection
-   consists of contiguous lines.
+      When including only parts of a file and show the original line numbers.
+      This is only allowed only when the selection consists of contiguous lines.
 
-   You can prepend and/or append a line to the included code, using the
-   ``prepend`` and ``append`` option, respectively.  This is useful e.g. for
-   highlighting PHP code that doesn't include the ``<?php``/``?>`` markers.
+      .. versionadded:: 1.3
 
-   If you want to show the diff of the code, you can specify the old file by
-   giving a ``diff`` option::
+   .. rst:directive:option:: emphasize-lines: line numbers
+      :type: comma separated numbers
 
-      .. literalinclude:: example.py
-         :diff: example.py.orig
+      Emphasise particular lines of the included content.
+      For example:
 
-   This shows the diff between ``example.py`` and ``example.py.orig`` with
-   unified diff format.
+      .. code-block:: rst
 
-   A ``force`` option can ignore minor errors on highlighting.
+         .. literalinclude:: example.txt
+            :emphasize-lines: 1,2,4-6
 
-   .. versionchanged:: 0.4.3
-      Added the ``encoding`` option.
+   .. rst:directive:option:: language: language
+      :type: text
+
+      Select a highlighting language (`Pygments lexer`_) different from
+      the current file's standard language
+      (set by :rst:dir:`highlight` or :confval:`highlight_language`).
+
+      .. _Pygments lexer: https://pygments.org/docs/lexers/
+
+   .. rst:directive:option:: force
+      :type: no value
+
+      Ignore minor errors in highlighting.
+
+      .. versionadded:: 2.1
+
+   .. rubric:: Options for selecting the content to include
+
+   .. rst:directive:option:: pyobject: object
+      :type: text
+
+      For Python files, only include the specified class, function or method:
+
+      .. code-block:: rst
+
+         .. literalinclude:: example.py
+            :pyobject: Timer.start
+
+      .. versionadded:: 0.6
+
+   .. rst:directive:option:: lines: line numbers
+      :type: comma separated numbers
+
+      Specify exactly which lines to include::
+
+         .. literalinclude:: example.py
+            :lines: 1,3,5-10,20-
+
+      This includes line 1, line 3, lines 5 to 10, and line 20 to the end.
+
+      .. versionadded:: 0.6
+
+   .. rst:directive:option:: start-at: text
+                             start-after: text
+                             end-before: text
+                             end-at: text
+
+      Another way to control which part of the file is included is to use
+      the ``start-after`` and ``end-before`` options (or only one of them).
+      If ``start-after`` is given as a string option,
+      only lines that follow the first line containing that string are included.
+      If ``end-before`` is given as a string option,
+      only lines that precede the first lines containing that string are included.
+      The ``start-at`` and ``end-at`` options behave in a similar way,
+      but the lines containing the matched string are included.
+
+      ``start-after``/``start-at`` and ``end-before``/``end-at`` can have same string.
+      ``start-after``/``start-at`` filter lines before the line
+      that contains the option string
+      (``start-at`` will keep the line).
+      Then ``end-before``/``end-at`` filter lines after the line
+      that contains the option string
+      (``end-at`` will keep the line and ``end-before`` skip the first line).
+
+      .. versionadded:: 0.6
+         Added the ``start-after`` and ``end-before`` options.
+      .. versionadded:: 1.5
+         Added the ``start-at``, and ``end-at`` options.
+
+      .. tip::
+
+         To only select ``[second-section]`` of an INI file such as the following,
+         use ``:start-at: [second-section]`` and ``:end-before: [third-section]``:
+
+         .. code-block:: ini
+
+            [first-section]
+            var_in_first=true
+
+            [second-section]
+            var_in_second=true
+
+            [third-section]
+            var_in_third=true
+
+         These options can be useful when working with tag comments.
+         Using ``:start-after: [initialise]`` and ``:end-before: [initialised]``
+         keeps the lines between between the two comments below:
+
+         .. code-block:: py
+
+            if __name__ == "__main__":
+                # [initialise]
+                app.start(":8000")
+                # [initialised]
+
+         When lines have been selected in any of the ways described above,
+         the line numbers in ``emphasize-lines`` refer to these selected lines,
+         counted consecutively starting from 1.
+
+   .. rst:directive:option:: prepend: line
+      :type: text
+
+      Prepend a line before the included code.
+      This can be useful for example when highlighting
+      PHP code that doesn't include the ``<?php`` or ``?>`` markers.
+
+      .. versionadded:: 1.0
+
+   .. rst:directive:option:: append: line
+      :type: text
+
+      Append a line after the included code.
+      This can be useful for example when highlighting
+      PHP code that doesn't include the ``<?php`` or ``?>`` markers.
+
+      .. versionadded:: 1.0
+
+   .. rst:directive:option:: diff: filename
+
+      Show the diff of two files.
+      For example:
+
+      .. code-block:: rst
+
+         .. literalinclude:: example.txt
+            :diff: example.txt.orig
+
+      This shows the diff between ``example.txt`` and ``example.txt.orig``
+      with unified diff format.
+
+      .. versionadded:: 1.3
 
    .. versionchanged:: 0.6
-      Added the ``pyobject``, ``lines``, ``start-after`` and ``end-before``
-      options, as well as support for absolute filenames.
-
-   .. versionchanged:: 1.0
-      Added the ``prepend``, ``append``, and ``tab-width`` options.
-
-   .. versionchanged:: 1.3
-      Added the ``diff``, ``lineno-match``, ``caption``, ``name``, and
-      ``dedent`` options.
-
-   .. versionchanged:: 1.4
-      Added the ``class`` option.
-
-   .. versionchanged:: 1.5
-      Added the ``start-at``, and ``end-at`` options.
+      Added support for absolute filenames.
 
    .. versionchanged:: 1.6
-      With both ``start-after`` and ``lines`` in use, the first line as per
-      ``start-after`` is considered to be with line number ``1`` for ``lines``.
-
-   .. versionchanged:: 2.1
-      Added the ``force`` option.
-
-   .. versionchanged:: 3.5
-      Support automatic dedent.
+      With both ``start-after`` and ``lines`` in use,
+      the first line as per ``start-after`` is considered to be
+      with line number ``1`` for ``lines``.
 
 .. _glossary-directive:
 
@@ -1050,9 +1156,6 @@ Glossary
    text only have "term" part. In this case, translated "localized term" will be
    categorized in "key" group.
 
-   .. versionadded:: 0.6
-      You can now give the glossary directive a ``:sorted:`` flag that will
-      automatically sort the entries alphabetically.
 
    .. versionchanged:: 1.1
       Now supports multiple terms and inline markup in terms.
@@ -1060,9 +1163,19 @@ Glossary
    .. versionchanged:: 1.4
       Index key for glossary term should be considered *experimental*.
 
-   .. versionchanged:: 4.4
-      In internationalized documentation, the ``:sorted:`` flag sorts
-      according to translated terms.
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: sorted
+
+      Sort the entries alphabetically.
+
+      .. versionadded:: 0.6
+
+      .. versionchanged:: 4.4
+         In internationalized documentation, sort according to translated terms.
+
+
 
 Meta-information markup
 -----------------------
@@ -1211,7 +1324,7 @@ mainly contained in information units, such as the language reference.
    .. versionchanged:: 1.1
       Added ``see`` and ``seealso`` types, as well as marking main entries.
 
-   .. rubric:: options
+   .. rubric:: Options
 
    .. rst:directive:option:: name: a label for hyperlink
       :type: text
@@ -1415,23 +1528,45 @@ or use Python raw strings (``r"raw"``).
 
       .. math:: (a + b)^2 = a^2 + 2ab + b^2
 
-   Normally, equations are not numbered.  If you want your equation to get a
-   number, use the ``label`` option.  When given, it selects an internal label
-   for the equation, by which it can be cross-referenced, and causes an equation
-   number to be issued.  See :rst:role:`eq` for an example.  The numbering
-   style depends on the output format.
+   .. rubric:: Options
 
-   There is also an option ``nowrap`` that prevents any wrapping of the given
-   math in a math environment.  When you give this option, you must make sure
-   yourself that the math is properly set up.  For example::
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
 
-      .. math::
-         :nowrap:
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
 
-         \begin{eqnarray}
-            y    & = & ax^2 + bx + c \\
-            f(x) & = & x^2 + 2xy + y^2
-         \end{eqnarray}
+      .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
+
+   .. rst:directive:option:: name: label
+      :type: text
+
+      An implicit target name that can be referenced using :rst:role:`ref`.
+      This is a :dudir:`common option <common-options>`.
+
+   .. rst:directive:option:: label: label
+      :type: text
+
+      Normally, equations are not numbered.  If you want your equation to get a
+      number, use the ``label`` option.  When given, it selects an internal label
+      for the equation, by which it can be cross-referenced, and causes an equation
+      number to be issued.  See :rst:role:`eq` for an example.  The numbering
+      style depends on the output format.
+
+   .. rst:directive:option:: nowrap
+
+      Prevent wrapping of the given math in a math environment.
+      When you give this option, you must make sure
+      yourself that the math is properly set up.
+      For example::
+
+         .. math::
+            :nowrap:
+
+            \begin{eqnarray}
+               y    & = & ax^2 + bx + c \\
+               f(x) & = & x^2 + 2xy + y^2
+            \end{eqnarray}
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
 

@@ -263,7 +263,7 @@ To build the documentation, run the following command:
 
 .. code-block:: shell
 
-   sphinx-build -M html ./doc ./build/sphinx --fail-on-warning --keep-going
+   sphinx-build -M html ./doc ./build/sphinx --fail-on-warning
 
 This will parse the Sphinx documentation's source files and generate HTML for
 you to preview in :file:`build/sphinx/html`.

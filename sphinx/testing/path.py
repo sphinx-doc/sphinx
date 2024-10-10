@@ -12,9 +12,11 @@ if TYPE_CHECKING:
     import builtins
     from collections.abc import Callable
 
-warnings.warn("'sphinx.testing.path' is deprecated. "
-              "Use 'os.path' or 'pathlib' instead.",
-              RemovedInSphinx90Warning, stacklevel=2)
+warnings.warn(
+    "'sphinx.testing.path' is deprecated. " "Use 'os.path' or 'pathlib' instead.",
+    RemovedInSphinx90Warning,
+    stacklevel=2,
+)
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -86,7 +88,7 @@ class path(str):
     def rmtree(
         self,
         ignore_errors: bool = False,
-        onerror:  Callable[[Callable[..., Any], str, Any], object] | None = None,
+        onerror: Callable[[Callable[..., Any], str, Any], object] | None = None,
     ) -> None:
         """
         Removes the file or directory and any files or directories it may
@@ -178,7 +180,7 @@ class path(str):
         with open(self, mode='rb') as f:
             return f.read()
 
-    def write_bytes(self, bytes: str, append: bool = False) -> None:
+    def write_bytes(self, bytes: bytes, append: bool = False) -> None:
         """
         Writes the given `bytes` to the file.
 

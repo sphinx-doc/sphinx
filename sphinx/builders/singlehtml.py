@@ -54,7 +54,6 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     def fix_refuris(self, tree: Node) -> None:
         # fix refuris with double anchor
-        fname = self.config.root_doc + self.out_suffix
         for refnode in tree.findall(nodes.reference):
             if 'refuri' not in refnode:
                 continue
@@ -64,9 +63,12 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 continue
             hashindex = refuri.find('#', hashindex + 1)
             if hashindex >= 0:
-                refnode['refuri'] = fname + refuri[hashindex:]
+                # all references are on the same page...
+                refnode['refuri'] = refuri[hashindex:]
 
-    def _get_local_toctree(self, docname: str, collapse: bool = True, **kwargs: Any) -> str:
+    def _get_local_toctree(
+        self, docname: str, collapse: bool = True, **kwargs: Any
+    ) -> str:
         if isinstance(includehidden := kwargs.get('includehidden'), str):
             if includehidden.lower() == 'false':
                 kwargs['includehidden'] = False
@@ -74,7 +76,9 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 kwargs['includehidden'] = True
         if kwargs.get('maxdepth') == '':
             kwargs.pop('maxdepth')
-        toctree = global_toctree_for_doc(self.env, docname, self, collapse=collapse, **kwargs)
+        toctree = global_toctree_for_doc(
+            self.env, docname, self, collapse=collapse, **kwargs
+        )
         if toctree is not None:
             self.fix_refuris(toctree)
         return self.render_partial(toctree)['fragment']
@@ -102,12 +106,14 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         new_secnumbers: dict[str, tuple[int, ...]] = {}
         for docname, secnums in self.env.toc_secnumbers.items():
             for id, secnum in secnums.items():
-                alias = f"{docname}/{id}"
+                alias = f'{docname}/{id}'
                 new_secnumbers[alias] = secnum
 
         return {self.config.root_doc: new_secnumbers}
 
-    def assemble_toc_fignumbers(self) -> dict[str, dict[str, dict[str, tuple[int, ...]]]]:
+    def assemble_toc_fignumbers(
+        self,
+    ) -> dict[str, dict[str, dict[str, tuple[int, ...]]]]:
         # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
         # Merge all fignumbers to single fignumber.
         #
@@ -121,7 +127,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # {'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, 'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in self.env.toc_fignumbers.items():
             for figtype, fignums in fignumlist.items():
-                alias = f"{docname}/{figtype}"
+                alias = f'{docname}/{figtype}'
                 new_fignumbers.setdefault(alias, {})
                 for id, fignum in fignums.items():
                     new_fignumbers[alias][id] = fignum
@@ -130,7 +136,9 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
     def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         # no relation links...
-        toctree = global_toctree_for_doc(self.env, self.config.root_doc, self, collapse=False)
+        toctree = global_toctree_for_doc(
+            self.env, self.config.root_doc, self, collapse=False
+        )
         # if there is no toctree, toc is None
         if toctree:
             self.fix_refuris(toctree)

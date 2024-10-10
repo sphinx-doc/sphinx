@@ -1,9 +1,9 @@
 """Tests the C Domain"""
 
 import itertools
+import xml.etree.ElementTree as ET
 import zlib
 from io import StringIO
-from xml.etree import ElementTree
 
 import pytest
 
@@ -717,7 +717,7 @@ def extract_role_links(app, filename):
     lis = [l for l in t.split('\n') if l.startswith('<li')]
     entries = []
     for l in lis:
-        li = ElementTree.fromstring(l)  # NoQA: S314  # using known data in tests
+        li = ET.fromstring(l)  # NoQA: S314  # using known data in tests
         aList = list(li.iter('a'))
         assert len(aList) == 1
         a = aList[0]
@@ -731,14 +731,14 @@ def extract_role_links(app, filename):
     return entries
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'index')
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_namespace(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'namespace')
@@ -748,7 +748,7 @@ def test_domain_c_build_namespace(app):
         assert f'id="c.{id_}"' in t
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_anon_dup_decl(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'anon-dup-decl')
@@ -757,7 +757,7 @@ def test_domain_c_build_anon_dup_decl(app):
     assert 'WARNING: c:identifier reference target not found: @b' in ws[1]
 
 
-@pytest.mark.sphinx(confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='root', confoverrides={'nitpicky': True})
 def test_domain_c_build_semicolon(app):
     text = """
 .. c:member:: int member;
@@ -776,7 +776,7 @@ def test_domain_c_build_semicolon(app):
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_function_param_target(app):
     # the anchor for function parameters should be the function
     app.build(force_all=True)
@@ -789,14 +789,14 @@ def test_domain_c_build_function_param_target(app):
     ]
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_ns_lookup(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'ns_lookup')
     assert len(ws) == 0
 
 
-@pytest.mark.sphinx(testroot='domain-c', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx('html', testroot='domain-c', confoverrides={'nitpicky': True})
 def test_domain_c_build_field_role(app):
     app.build(force_all=True)
     ws = filter_warnings(app.warning, 'field-role')
@@ -804,14 +804,16 @@ def test_domain_c_build_field_role(app):
 
 
 def _get_obj(app, queryName):
-    domain = app.env.get_domain('c')
+    domain = app.env.domains.c_domain
     for name, _dispname, objectType, docname, anchor, _prio in domain.get_objects():
         if name == queryName:
             return docname, anchor, objectType
     return queryName, 'not', 'found'
 
 
-@pytest.mark.sphinx(testroot='domain-c-intersphinx', confoverrides={'nitpicky': True})
+@pytest.mark.sphinx(
+    'html', testroot='domain-c-intersphinx', confoverrides={'nitpicky': True}
+)
 def test_domain_c_build_intersphinx(tmp_path, app):
     # a splitting of test_ids_vs_tags0 into the primary directives in a remote project,
     # and then the references in the test project
@@ -865,6 +867,7 @@ _var c:member 1 index.html#c.$ -
     assert len(ws) == 0
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_domain_c_parse_cfunction(app):
     text = (
         '.. c:function:: PyObject* '
@@ -884,6 +887,7 @@ def test_domain_c_parse_cfunction(app):
     assert entry == ('index', 'c.PyType_GenericAlloc', 'function')
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_domain_c_parse_cmember(app):
     text = '.. c:member:: PyObject* PyTypeObject.tp_bases'
     doctree = restructuredtext.parse(app, text)
@@ -900,6 +904,7 @@ def test_domain_c_parse_cmember(app):
     assert entry == ('index', 'c.PyTypeObject.tp_bases', 'member')
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_domain_c_parse_cvar(app):
     text = '.. c:var:: PyObject* PyClass_Type'
     doctree = restructuredtext.parse(app, text)
@@ -916,6 +921,7 @@ def test_domain_c_parse_cvar(app):
     assert entry == ('index', 'c.PyClass_Type', 'member')
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_domain_c_parse_no_index_entry(app):
     text = (
         '.. c:function:: void f()\n'
@@ -934,6 +940,7 @@ def test_domain_c_parse_no_index_entry(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -994,6 +1001,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_equal(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1054,6 +1062,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_force_single(a
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1112,6 +1121,7 @@ def test_cfunction_signature_with_c_maximum_signature_line_length_break(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1172,6 +1182,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_equal(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1232,6 +1243,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_force_single(app
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'maximum_signature_line_length': len('str hello(str name)'),
     },
@@ -1290,6 +1302,7 @@ def test_cfunction_signature_with_maximum_signature_line_length_break(app):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'c_maximum_signature_line_length': len('str hello(str name)'),
         'maximum_signature_line_length': 1,

@@ -111,7 +111,7 @@ def run_extract() -> None:
                     catalogue.add(
                         message,
                         None,
-                        [(str(filename), lineno)],
+                        [(str(relative_name), lineno)],
                         auto_comments=comments,
                         context=context,
                     )

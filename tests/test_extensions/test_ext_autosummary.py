@@ -2,8 +2,8 @@
 
 import sys
 from io import StringIO
-from pathlib import Path
 from unittest.mock import Mock, patch
+from xml.etree.ElementTree import Element
 
 import pytest
 from docutils import nodes
@@ -33,14 +33,10 @@ except ImportError:
 html_warnfile = StringIO()
 
 
-default_kw = {
-    'testroot': 'autosummary',
-    'confoverrides': {
-        'extensions': ['sphinx.ext.autosummary'],
-        'autosummary_generate': True,
-        'autosummary_generate_overwrite': False,
-        'source_suffix': '.rst',
-    },
+defaults = {
+    'extensions': ['sphinx.ext.autosummary'],
+    'autosummary_generate': True,
+    'autosummary_generate_overwrite': False,
 }
 
 
@@ -50,7 +46,7 @@ def _unload_target_module():
 
 
 def test_mangle_signature():
-    TEST = """
+    TEST_SIGNATURE = """
     () :: ()
     (a, b, c, d, e) :: (a, b, c, d, e)
     (a, b, c=1, d=2, e=3) :: (a, b[, c, d, e])
@@ -71,7 +67,11 @@ def test_mangle_signature():
     (a: Tuple[int, str], b: int) -> str :: (a, b)
     """
 
-    TEST = [[y.strip() for y in x.split('::')] for x in TEST.split('\n') if '::' in x]
+    TEST = [
+        list(map(str.strip, x.split('::')))
+        for x in TEST_SIGNATURE.split('\n')
+        if '::' in x
+    ]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace('\u00a0', ' ')
         assert res == outp, f"'{inp}' -> '{res}' != '{outp}'"
@@ -146,7 +146,7 @@ def test_extract_summary(capsys):
     assert err == ''
 
 
-@pytest.mark.sphinx('dummy', **default_kw)
+@pytest.mark.sphinx('dummy', testroot='autosummary', confoverrides=defaults.copy())
 def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary
     import sphinx.ext.autosummary.generate
@@ -211,28 +211,25 @@ def test_get_items_summary(make_app, app_params):
     assert autosummary_items['func'] == func_attrs
 
 
-def str_content(elem):
+def str_content(elem: Element) -> str:
     if elem.text is not None:
         return elem.text
     else:
         return ''.join(str_content(e) for e in elem)
 
 
-@pytest.mark.sphinx('xml', **default_kw)
+@pytest.mark.sphinx('xml', testroot='autosummary', confoverrides=defaults.copy())
 def test_escaping(app):
     app.build(force_all=True)
 
-    outdir = Path(app.builder.outdir)
-
-    docpage = outdir / 'underscore_module_.xml'
+    docpage = app.builder.outdir / 'underscore_module_.xml'
     assert docpage.exists()
 
     title = etree_parse(docpage).find('section/title')
-
     assert str_content(title) == 'underscore_module_'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module(app):
     import autosummary_dummy_module
 
@@ -292,7 +289,7 @@ def test_autosummary_generate_content_for_module(app):
     assert context['objtype'] == 'module'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module___all__(app):
     import autosummary_dummy_module
 
@@ -337,7 +334,7 @@ def test_autosummary_generate_content_for_module___all__(app):
     assert context['objtype'] == 'module'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_skipped(app):
     import autosummary_dummy_module
 
@@ -383,7 +380,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     assert context['exceptions'] == []
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_imported_members(app):
     import autosummary_dummy_module
 
@@ -449,7 +446,7 @@ def test_autosummary_generate_content_for_module_imported_members(app):
     assert context['objtype'] == 'module'
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary')
+@pytest.mark.sphinx('html', testroot='ext-autosummary')
 def test_autosummary_generate_content_for_module_imported_members_inherited_module(app):
     import autosummary_dummy_inherited_module
 
@@ -752,7 +749,7 @@ def test_autosummary_filename_map(app):
     assert html_warnings == ''
 
 
-@pytest.mark.sphinx('latex', **default_kw)
+@pytest.mark.sphinx('latex', testroot='autosummary', confoverrides=defaults.copy())
 def test_autosummary_latex_table_colspec(app):
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -844,6 +841,7 @@ def test_autosummary_module_all(app):
 
 
 @pytest.mark.sphinx(
+    'html',
     testroot='ext-autodoc',
     confoverrides={'extensions': ['sphinx.ext.autosummary']},
 )
@@ -865,7 +863,7 @@ def test_generate_autosummary_docs_property(app):
     )
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary-skip-member')
+@pytest.mark.sphinx('html', testroot='ext-autosummary-skip-member')
 def test_autosummary_skip_member(app):
     app.build()
 
@@ -874,7 +872,7 @@ def test_autosummary_skip_member(app):
     assert 'Foo._privatemeth' in content
 
 
-@pytest.mark.sphinx(testroot='ext-autosummary-template')
+@pytest.mark.sphinx('html', testroot='ext-autosummary-template')
 def test_autosummary_template(app):
     app.build()
 

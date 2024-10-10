@@ -206,8 +206,8 @@ def test_domain_py_xrefs_abbreviations(app):
 def test_domain_py_objects(app):
     app.build(force_all=True)
 
-    modules = app.env.domains['py'].data['modules']
-    objects = app.env.domains['py'].data['objects']
+    modules = app.env.domains.python_domain.data['modules']
+    objects = app.env.domains.python_domain.data['objects']
 
     assert 'module_a.submodule' in modules
     assert 'module_a.submodule' in objects
@@ -264,7 +264,7 @@ def test_resolve_xref_for_properties(app):
 @pytest.mark.sphinx('dummy', testroot='domain-py')
 def test_domain_py_find_obj(app):
     def find_obj(modname, prefix, obj_name, obj_type, searchmode=0):
-        return app.env.domains['py'].find_obj(
+        return app.env.domains.python_domain.find_obj(
             app.env, modname, prefix, obj_name, obj_type, searchmode
         )
 
@@ -315,6 +315,7 @@ def test_domain_py_find_obj(app):
     ]
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_get_full_qualified_name():
     env = Mock(domaindata={})
     domain = PythonDomain(env)
@@ -343,6 +344,7 @@ def test_get_full_qualified_name():
     assert domain.get_full_qualified_name(node) == 'module1.Class.func'
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_parse_annotation(app):
     doctree = _parse_annotation('int', app.env)
     assert_node(doctree, ([pending_xref, 'int'],))
@@ -502,6 +504,7 @@ def test_parse_annotation(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_parse_annotation_suppress(app):
     doctree = _parse_annotation('~typing.Dict[str, str]', app.env)
     assert_node(
@@ -521,6 +524,7 @@ def test_parse_annotation_suppress(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_parse_annotation_Literal(app):
     doctree = _parse_annotation('Literal[True, False]', app.env)
     assert_node(
@@ -554,7 +558,7 @@ def test_parse_annotation_Literal(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx('html', testroot='root', freshenv=True)
 def test_module_index(app):
     text = (
         '.. py:module:: docutils\n'
@@ -565,7 +569,7 @@ def test_module_index(app):
         '.. py:module:: sphinx_intl\n'
     )
     restructuredtext.parse(app, text)
-    index = PythonModuleIndex(app.env.get_domain('py'))
+    index = PythonModuleIndex(app.env.domains.python_domain)
     assert index.generate() == (
         [
             ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
@@ -604,11 +608,11 @@ def test_module_index(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx('html', testroot='root', freshenv=True)
 def test_module_index_submodule(app):
     text = '.. py:module:: sphinx.config\n'
     restructuredtext.parse(app, text)
-    index = PythonModuleIndex(app.env.get_domain('py'))
+    index = PythonModuleIndex(app.env.domains.python_domain)
     assert index.generate() == (
         [
             (
@@ -625,11 +629,11 @@ def test_module_index_submodule(app):
     )
 
 
-@pytest.mark.sphinx(freshenv=True)
+@pytest.mark.sphinx('html', testroot='root', freshenv=True)
 def test_module_index_not_collapsed(app):
     text = '.. py:module:: docutils\n.. py:module:: sphinx\n'
     restructuredtext.parse(app, text)
-    index = PythonModuleIndex(app.env.get_domain('py'))
+    index = PythonModuleIndex(app.env.domains.python_domain)
     assert index.generate() == (
         [
             ('d', [IndexEntry('docutils', 0, 'index', 'module-docutils', '', '', '')]),
@@ -640,6 +644,8 @@ def test_module_index_not_collapsed(app):
 
 
 @pytest.mark.sphinx(
+    'html',
+    testroot='root',
     freshenv=True,
     confoverrides={'modindex_common_prefix': ['sphinx.']},
 )
@@ -653,7 +659,7 @@ def test_modindex_common_prefix(app):
         '.. py:module:: sphinx_intl\n'
     )
     restructuredtext.parse(app, text)
-    index = PythonModuleIndex(app.env.get_domain('py'))
+    index = PythonModuleIndex(app.env.domains.python_domain)
     assert index.generate() == (
         [
             (
@@ -702,6 +708,7 @@ def test_modindex_common_prefix(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_no_index_entry(app):
     text = '.. py:function:: f()\n.. py:function:: g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
@@ -770,8 +777,8 @@ def test_warn_missing_reference(app):
     ) in app.warning.getvalue()
 
 
-@pytest.mark.sphinx(confoverrides={'nitpicky': True})
 @pytest.mark.parametrize('include_options', [True, False])
+@pytest.mark.sphinx('html', testroot='root', confoverrides={'nitpicky': True})
 def test_signature_line_number(app, include_options):
     text = '.. py:function:: foo(bar : string)\n' + (
         '   :no-index-entry:\n' if include_options else ''
@@ -786,6 +793,7 @@ def test_signature_line_number(app, include_options):
 
 @pytest.mark.sphinx(
     'html',
+    testroot='root',
     confoverrides={
         'python_maximum_signature_line_length': len('hello(name: str) -> str'),
         'maximum_signature_line_length': 1,
@@ -959,6 +967,7 @@ def test_domain_py_python_maximum_signature_line_length_in_text(app):
     assert expected_parameter_list_foo in content
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_module_content_line_number(app):
     text = '.. py:module:: foo\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
@@ -970,6 +979,8 @@ def test_module_content_line_number(app):
 
 
 @pytest.mark.sphinx(
+    'html',
+    testroot='root',
     freshenv=True,
     confoverrides={'python_display_short_literal_types': True},
 )
@@ -1072,6 +1083,7 @@ def test_short_literal_types(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_function_pep_695(app):
     text = """.. py:function:: func[\
         S,\
@@ -1198,6 +1210,7 @@ def test_function_pep_695(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_class_def_pep_695(app):
     # Non-concrete unbound generics are allowed at runtime but type checkers
     # should fail (https://peps.python.org/pep-0695/#type-parameter-scopes)
@@ -1250,6 +1263,7 @@ def test_class_def_pep_695(app):
     )
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_class_def_pep_696(app):
     # test default values for type variables without using PEP 696 AST parser
     text = """.. py:class:: Class[\
@@ -1442,6 +1456,7 @@ def test_class_def_pep_696(app):
         ("[T:Annotated[int,ctype('char')]]", "[T: Annotated[int, ctype('char')]]"),
     ],
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
@@ -1455,6 +1470,7 @@ def test_pep_695_and_pep_696_whitespaces_in_bound(app, tp_list, tptext):
         ('[T:(int|str,*Ts)]', '[T: (int | str, *Ts)]'),
     ],
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
@@ -1478,6 +1494,7 @@ def test_pep_695_and_pep_696_whitespaces_in_constraints(app, tp_list, tptext):
         ('[**P=[int,A[int,ctype("char")]]]', '[**P = [int, A[int, ctype("char")]]]'),
     ],
 )
+@pytest.mark.sphinx('html', testroot='root')
 def test_pep_695_and_pep_696_whitespaces_in_default(app, tp_list, tptext):
     text = f'.. py:function:: f{tp_list}()'
     doctree = restructuredtext.parse(app, text)
