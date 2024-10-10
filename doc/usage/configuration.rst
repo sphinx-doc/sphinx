@@ -3047,8 +3047,8 @@ These options influence LaTeX output.
          :ref:`latex table color configuration <tablecolors>` keys instead.
 
    To customize the styles on an individual table, either set the ``:class:``
-   option when the table's contents are documented inside a table directive,
-   or, otherwise, add a preceding :ref:`rst-class <rstclass>` directive
+   option on the enclosing table directive - if there is one - or insert a
+   :ref:`rst-class <rstclass>` directive before the table otherwise
    (cf. :ref:`table-directives`).
 
    Currently recognised classes are ``booktabs``, ``borderless``,
