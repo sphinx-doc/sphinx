@@ -64,7 +64,7 @@ from sphinx.writers.html import HTMLWriter
 from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
     from typing import TypeAlias
 
     from docutils.nodes import Node
