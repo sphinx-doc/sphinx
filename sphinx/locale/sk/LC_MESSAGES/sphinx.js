@@ -36,7 +36,12 @@ Documentation.addTranslations({
         "Search": "H\u013eada\u0165",
         "Search Page": "Str\u00e1nka h\u013eadania",
         "Search Results": "V\u00fdsledky h\u013eadania",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "H\u013eada\u0165 v %(docstitle)s",
         "Searching": "H\u013eadanie",
         "Searching for multiple words only shows matches that contain\n    all words.": "H\u013eadanie viacer\u00fdch slov vracia len zhody, ktor\u00e9 obsahuj\u00fa\n    v\u0161etky slov\u00e1.",

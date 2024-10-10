@@ -36,7 +36,12 @@ Documentation.addTranslations({
         "Search": "I\u0161\u010di",
         "Search Page": "Iskalnik",
         "Search Results": "Rezultati Iskanja",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "I\u0161\u010di med %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",
