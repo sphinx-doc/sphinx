@@ -4,7 +4,8 @@ Release 8.1.1 (in development)
 Bugs fixed
 ----------
 
-* Use the preferred https://www.cve.org/ URL for the :rst:role:`cve` role.
+* #13006: Use the preferred https://www.cve.org/ URL for
+  the :rst:role:`:cve: <cve>` role.
   Patch by Hugo van Kemenade.
 * #13007: LaTeX: Improve resiliency when the required
   ``fontawesome`` or ``fontawesome5`` packages are not installed.
