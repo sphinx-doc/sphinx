@@ -12,7 +12,7 @@ Builder API
    It follows this basic workflow:
 
    .. graphviz:: /_static/diagrams/sphinx_build_flow.dot
-      :caption: UML for the standard Sphinx build workflow
+      :caption: Call graph for the standard Sphinx build workflow
 
    .. rubric:: Overridable Attributes
 
