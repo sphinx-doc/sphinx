@@ -8,16 +8,23 @@ digraph build {
         shape=rect
         style=rounded
     ];
-    // note: outline color of node indicates method type:
-    // darkgreen = abstract
-    // orange = overridable
-    // red = final
 
     "Sphinx" [
         shape=record
         label = "Sphinx | <init> __init__ | <build> build"
     ];
-    "Builder.init" [color=orange];
+    "legend" [
+        shape=record
+        label = <<table border="0" cellborder="0" cellspacing="0">
+            <tr><td align="center"><u><b>Method types</b></u></td></tr>
+            <tr><td align="left"><font color="red">Final</font></td></tr>
+            <tr><td align="left"><font color="darkorange">Overridable</font></td></tr>
+            <tr><td align="left"><font color="darkgreen">Abstract</font></td></tr>
+        </table>>
+    ];
+    {rank=same; "Sphinx" "legend" };
+
+    "Builder.init" [color=darkorange];
     "Builder.build_all" [color=red];
     "Builder.build_specific" [color=red];
     "Builder.build_update" [color=red];
@@ -38,7 +45,7 @@ digraph build {
 
     "Builder.read" [color=red];
     "Builder.write" [color=red];
-    "Builder.finish" [color=orange];
+    "Builder.finish" [color=darkorange];
 
     "Builder.build" -> "Builder.read";
     "Builder.build" -> "Builder.write";
@@ -50,9 +57,9 @@ digraph build {
     "Builder.read" -> "Builder.read_doc";
     "Builder.read_doc" -> "Builder.write_doctree";
 
-    "Builder.prepare_writing" [color=orange];
-    "Builder.copy_assets" [color=orange];
-    "Builder.write_documents" [color=orange];
+    "Builder.prepare_writing" [color=darkorange];
+    "Builder.copy_assets" [color=darkorange];
+    "Builder.write_documents" [color=darkorange];
 
     "Builder.write":p1 -> "Builder.prepare_writing";
     "Builder.write":p1 -> "Builder.copy_assets";
@@ -63,7 +70,7 @@ digraph build {
     "Builder.write":p1 -> "Builder.write_documents";
 
     "Builder.write_doc" [color=darkgreen];
-    "Builder.get_relative_uri" [color=orange];
+    "Builder.get_relative_uri" [color=darkorange];
 
     "Builder.write_documents":p1 -> "Builder.write_doc";
     "Builder.write_doc" -> "Builder.get_relative_uri";
