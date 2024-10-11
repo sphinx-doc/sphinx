@@ -234,7 +234,7 @@ class SearchChinese(SearchLanguage):
 
     def init(self, options: dict[str, str]) -> None:
         if JIEBA:
-            dict_path = options.get('dict')
+            dict_path = options.get('dict', jieba.get_dict_file().name)
             if dict_path and os.path.isfile(dict_path):
                 jieba.load_userdict(dict_path)
 
