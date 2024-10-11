@@ -16,7 +16,7 @@ Builder API
 
    .. rubric:: Overridable Attributes
 
-   These attributes should be set on builder sub-classes:
+   These class attributes should be set on builder sub-classes:
 
    .. autoattribute:: name
    .. autoattribute:: format
@@ -29,8 +29,7 @@ Builder API
 
    .. rubric:: Core Methods
 
-   These methods are predefined and should generally not be overridden,
-   since they form the core of the build process:
+   These methods are define the core build workflow and cannot be overridden:
 
    .. automethod:: build_all
    .. automethod:: build_specific
@@ -70,9 +69,10 @@ Builder API
 
    .. rubric:: Overridable Attributes (extensions)
 
-   Builder sub-classes can set these attributes to support built-in extensions:
+   Builder sub-classes can set these class attributes to support built-in extensions:
 
    .. attribute:: supported_linkcode
+      :type: str
 
       By default, the :mod:`linkcode <sphinx.ext.linkcode>` extension will
       only inject references for an ``html`` builder.
