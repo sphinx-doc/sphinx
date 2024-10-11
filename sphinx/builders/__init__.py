@@ -164,7 +164,7 @@ class Builder:
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         """Return a relative URI between two source filenames.
 
-        Raise :exc:`!sphinx.errors.NoUri` if there's no way to return a sensible URI.
+        :raises: :exc:`!sphinx.errors.NoUri` if there's no way to return a sensible URI.
         """
         return relative_uri(
             self.get_target_uri(from_),
@@ -795,10 +795,10 @@ class Builder:
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         """
-        Write the output file for the document given by
-        :term:`docname <document name>`.
+        Write the output file for the document
 
-        *doctree* defines the content to be written.
+        :param docname: the :term:`docname <document name>`.
+        :param doctree: defines the content to be written.
 
         The output filename must be determined within this method, typically by
         calling :meth:`~.Builder.get_target_uri` or

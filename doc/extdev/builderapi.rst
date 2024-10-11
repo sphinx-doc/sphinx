@@ -29,7 +29,7 @@ Builder API
 
    .. rubric:: Core Methods
 
-   These methods are define the core build workflow and cannot be overridden:
+   These methods define the core build workflow and should not be overridden:
 
    .. automethod:: build_all
    .. automethod:: build_specific
