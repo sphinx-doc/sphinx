@@ -1130,21 +1130,21 @@ Options for source files
    :type: :code-py:`str`
    :default: :code-py:`'index'`
 
-   Sphinx builds a tree of documents based on the :rst:dir:`toctree` directives
-   contained within the source files.
-   This sets the name of the document containing the master ``toctree`` directive,
-   and hence the root of the entire tree.
-   Example:
+   The :term:`document name` of the root document.
+
+   Starting with the root document, Sphinx builds a tree of documents from
+   :rst:dir:`toctree` directives within the source files. Example:
 
    .. code-block:: python
 
-      master_doc = 'contents'
+      root_doc = 'contents'
 
    .. versionchanged:: 2.0
       Default is :code-py:`'index'` (previously :code-py:`'contents'`).
 
    .. versionadded:: 4.0
-      The :confval:`!root_doc` alias.
+      :confval:`!master_doc` was renamed to :confval:`!root_doc`. The name
+      :confval:`!master_doc` will still be supported for backward compatibility.
 
 .. confval:: source_encoding
    :type: :code-py:`str`
@@ -2868,11 +2868,11 @@ These options influence LaTeX output.
 
    *startdocname*
       String that specifies the :term:`document name` of
-      the LaTeX file's master document.
+      the LaTeX file's root document.
       All documents referenced by the *startdoc* document in
       ToC trees will be included in the LaTeX file.
-      (If you want to use the default master document for your LaTeX build,
-      provide your :confval:`master_doc` here.)
+      (If you want to use the default root document for your LaTeX build,
+      provide your :confval:`root_doc` here.)
 
    *targetname*
       File name of the LaTeX file in the output directory.
@@ -3326,11 +3326,11 @@ These options influence manual page output.
 
    *startdocname*
      String that specifies the :term:`document name` of
-     the manual page's master document.
+     the manual page's root document.
      All documents referenced by the *startdoc* document in
      ToC trees will be included in the manual page.
-     (If you want to use the default master document for your manual pages build,
-     provide your :confval:`master_doc` here.)
+     (If you want to use the default root document for your manual pages build,
+     provide your :confval:`root_doc` here.)
 
    *name*
      Name of the manual page.
@@ -3397,11 +3397,11 @@ These options influence Texinfo output.
 
    *startdocname*
       String that specifies the :term:`document name` of
-      the Texinfo file's master document.
+      the Texinfo file's root document.
       All documents referenced by the *startdoc* document in
       ToC trees will be included in the Texinfo file.
-      (If you want to use the default master document for your Texinfo build,
-      provide your :confval:`master_doc` here.)
+      (If you want to use the default root document for your Texinfo build,
+      provide your :confval:`root_doc` here.)
 
    *targetname*
       File name (no extension) of the Texinfo file in the output directory.
@@ -4186,7 +4186,7 @@ Example configuration file
    ]
    extensions = []
    language = 'en'
-   master_doc = 'index'
+   root_doc = 'index'
    pygments_style = 'sphinx'
    source_suffix = '.rst'
    templates_path = ['_templates']

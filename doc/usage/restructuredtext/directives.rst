@@ -141,7 +141,7 @@ The ``toctree`` directive is the central element.
       For example::
 
           .. toctree::
-             :name: mastertoc
+             :name: root_toc
 
              foo
 
