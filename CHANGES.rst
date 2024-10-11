@@ -1,3 +1,12 @@
+Release 8.1.1 (in development)
+==============================
+
+Bugs fixed
+----------
+
+* Use the preferred https://www.cve.org/ URL for the :rst:role:`cve` role.
+  Patch by Hugo van Kemenade.
+
 Release 8.1.0 (released Oct 10, 2024)
 =====================================
 
