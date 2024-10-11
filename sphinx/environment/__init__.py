@@ -54,7 +54,7 @@ default_settings: dict[str, Any] = {
     'image_loading': 'link',
     'embed_stylesheet': False,
     'cloak_email_addresses': True,
-    'cve_base_url': 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-',
+    'cve_base_url': 'https://www.cve.org/CVERecord?id=CVE-',
     'cve_references': None,
     'cwe_base_url': 'https://cwe.mitre.org/data/definitions/',
     'cwe_references': None,

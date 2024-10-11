@@ -166,14 +166,14 @@ def get_verifier(verify, verify_re):
             ':cve:`2020-10735`',
             (
                 '<p><span class="target" id="index-0"></span><a class="cve reference external" '
-                'href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735">'
+                'href="https://www.cve.org/CVERecord?id=CVE-2020-10735">'
                 '<strong>CVE 2020-10735</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
                 '!CVE 2020\\sphinxhyphen{}10735@\\spxentry{CVE 2020\\sphinxhyphen{}10735}}'
-                '\\sphinxhref{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735}'
+                '\\sphinxhref{https://www.cve.org/CVERecord?id=CVE-2020-10735}'
                 '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735}}'
             ),
         ),
@@ -183,14 +183,14 @@ def get_verifier(verify, verify_re):
             ':cve:`2020-10735#id1`',
             (
                 '<p><span class="target" id="index-0"></span><a class="cve reference external" '
-                'href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735#id1">'
+                'href="https://www.cve.org/CVERecord?id=CVE-2020-10735#id1">'
                 '<strong>CVE 2020-10735#id1</strong></a></p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
                 '\\index{Common Vulnerabilities and Exposures@\\spxentry{Common Vulnerabilities and Exposures}'
                 '!CVE 2020\\sphinxhyphen{}10735\\#id1@\\spxentry{CVE 2020\\sphinxhyphen{}10735\\#id1}}'
-                '\\sphinxhref{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-10735\\#id1}'
+                '\\sphinxhref{https://www.cve.org/CVERecord?id=CVE-2020-10735\\#id1}'
                 '{\\sphinxstylestrong{CVE 2020\\sphinxhyphen{}10735\\#id1}}'
             ),
         ),
