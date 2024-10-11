@@ -17,6 +17,7 @@ from sphinx.util.docutils import ReferenceRole, SphinxRole
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Final
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -197,6 +198,8 @@ class AnyXRefRole(XRefRole):
 
 
 class CVE(ReferenceRole):
+    _BASE_URL: Final = 'https://www.cve.org/CVERecord?id=CVE-'
+
     def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = f'index-{self.env.new_serialno("index")}'
         entries = [
@@ -233,14 +236,15 @@ class CVE(ReferenceRole):
         return [index, target, reference], []
 
     def build_uri(self) -> str:
-        base_url = self.inliner.document.settings.cve_base_url
         ret = self.target.split('#', 1)
         if len(ret) == 2:
-            return f'{base_url}{ret[0]}#{ret[1]}'
-        return f'{base_url}{ret[0]}'
+            return f'{CVE._BASE_URL}{ret[0]}#{ret[1]}'
+        return f'{CVE._BASE_URL}{ret[0]}'
 
 
 class CWE(ReferenceRole):
+    _BASE_URL: Final = 'https://cwe.mitre.org/data/definitions/'
+
     def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = f'index-{self.env.new_serialno("index")}'
         entries = [
@@ -277,11 +281,10 @@ class CWE(ReferenceRole):
         return [index, target, reference], []
 
     def build_uri(self) -> str:
-        base_url = self.inliner.document.settings.cwe_base_url
         ret = self.target.split('#', 1)
         if len(ret) == 2:
-            return f'{base_url}{int(ret[0])}.html#{ret[1]}'
-        return f'{base_url}{int(ret[0])}.html'
+            return f'{CWE._BASE_URL}{int(ret[0])}.html#{ret[1]}'
+        return f'{CWE._BASE_URL}{int(ret[0])}.html'
 
 
 class PEP(ReferenceRole):
