@@ -59,18 +59,19 @@ class Builder:
     Builds target formats from the reST sources.
     """
 
-    #: The builder's name. This is the name used for the
-    #: :option:`sphinx-build -b` command line option.
+    #: The builder's name.
+    #: This is the value used to select builders on the command line.
     name: str = ''
     #: The builder's output format, or '' if no document output is produced.
-    #: This is commonly the file extension, e.g. "html", but can technically
-    #: be any string. Its value can be used by various components such as
-    #: :class:`.SphinxPostTransform` or extensions to determine whether they
-    #: can work with the builder.
+    #: This is commonly the file extension, e.g. "html",
+    #: though any string value is accepted.
+    #: The builder's format string can be used by various components
+    #: such as :class:`.SphinxPostTransform` or extensions to determine
+    #: their compatibility with the builder.
     format: str = ''
-    #: The message emitted upon successful build completion. This can be a
-    #: printf-style template string with the following keys: ``outdir``,
-    #: ``project``
+    #: The message emitted upon successful build completion.
+    #: This can be a printf-style template string
+    #: with the following keys: ``outdir``, ``project``
     epilog: str = ''
 
     #: default translator class for the builder.  This can be overridden by
@@ -164,7 +165,7 @@ class Builder:
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         """Return a relative URI between two source filenames.
 
-        :raises: :exc:`!sphinx.errors.NoUri` if there's no way to return a sensible URI.
+        :raises: :exc:`!NoUri` if there's no way to return a sensible URI.
         """
         return relative_uri(
             self.get_target_uri(from_),
@@ -800,9 +801,9 @@ class Builder:
         :param docname: the :term:`docname <document name>`.
         :param doctree: defines the content to be written.
 
-        The output filename must be determined within this method, typically by
-        calling :meth:`~.Builder.get_target_uri` or
-        :meth:`~.Builder.get_relative_uri`.
+        The output filename must be determined within this method,
+        typically by calling :meth:`~.Builder.get_target_uri`
+        or :meth:`~.Builder.get_relative_uri`.
         """
         raise NotImplementedError
 
