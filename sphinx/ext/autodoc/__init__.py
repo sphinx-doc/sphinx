@@ -209,7 +209,7 @@ def cut_lines(
         options: dict[str, bool],
         lines: list[str],
     ) -> None:
-        if what_ not in what_unique:
+        if what_unique and what_ not in what_unique:
             return
         del lines[:pre]
         if post:
