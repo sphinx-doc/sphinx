@@ -4,6 +4,8 @@ Release 8.1.3 (in development)
 Bugs fixed
 ----------
 
+* #13013: Restore support for :func:`!cut_lines` with no object type.
+  Patch by Adam Turner.
 
 Release 8.1.2 (released Oct 12, 2024)
 =====================================
