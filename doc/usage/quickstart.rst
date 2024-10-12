@@ -140,6 +140,16 @@ Sphinx will build HTML files.
 |more| Refer to the :doc:`sphinx-build man page </man/sphinx-build>` for all
 options that :program:`sphinx-build` supports.
 
+You can also build a **live version of the documentation** that you can preview
+in the browser. It will detect changes and reload the page any time you make
+edits. To do so, use `sphinx-autobuild
+<https://github.com/sphinx-doc/sphinx-autobuild>`_ to run the following
+command:
+
+.. code-block:: console
+
+   $ sphinx-autobuild sourcedir outputdir
+
 However, :program:`sphinx-quickstart` script creates a :file:`Makefile` and a
 :file:`make.bat` which make life even easier for you. These can be executed by
 running :command:`make` with the name of the builder. For example.

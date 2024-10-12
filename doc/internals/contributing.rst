@@ -269,7 +269,9 @@ you to preview in ``build/sphinx/html``.
 
 You can also build a **live version of the documentation** that you can preview
 in the browser. It will detect changes and reload the page any time you make
-edits. To do so, run the following command::
+edits. To do so, use `sphinx-autobuild
+<https://github.com/sphinx-doc/sphinx-autobuild>`_ to run the following
+command::
 
     sphinx-autobuild ./doc ./build/sphinx/
 
