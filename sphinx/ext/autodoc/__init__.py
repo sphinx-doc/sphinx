@@ -200,7 +200,7 @@ def cut_lines(
     This can (and should) be used in place of :confval:`automodule_skip_lines`.
     """
     if not what:
-        what_unique = frozenset()
+        what_unique: frozenset[str] = frozenset()
     elif isinstance(what, str):  # strongly discouraged
         what_unique = frozenset({what})
     else:

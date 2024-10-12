@@ -74,7 +74,7 @@ def test_cut_lines_no_objtype():
         'second line',
         '---',
         'third line ',
-        ''
+        '',
     ]
 
 
