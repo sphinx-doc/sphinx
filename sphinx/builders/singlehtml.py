@@ -16,6 +16,8 @@ from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -160,11 +162,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             'display_toc': display_toc,
         }
 
-    def write(self, *ignored: Any) -> None:
-        docnames = self.env.all_docs
-
-        with progress_message(__('preparing documents')):
-            self.prepare_writing(docnames)  # type: ignore[arg-type]
+    def write_documents(self, _docnames: Set[str]) -> None:
+        self.prepare_writing(self.env.all_docs.keys())
 
         with progress_message(__('assembling single document'), nonl=False):
             doctree = self.assemble_doctree()

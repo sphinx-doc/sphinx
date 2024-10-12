@@ -1,11 +1,34 @@
-Release 8.1.0 (in development)
+Release 8.1.2 (in development)
 ==============================
+
+Bugs fixed
+----------
+
+
+Release 8.1.1 (released Oct 11, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* #13006: Use the preferred https://www.cve.org/ URL for
+  the :rst:role:`:cve: <cve>` role.
+  Patch by Hugo van Kemenade.
+* #13007: LaTeX: Improve resiliency when the required
+  ``fontawesome`` or ``fontawesome5`` packages are not installed.
+  Patch by Jean-François B.
+
+
+Release 8.1.0 (released Oct 10, 2024)
+=====================================
 
 Dependencies
 ------------
 
 * #12756: Add lower-bounds to the ``sphinxcontrib-*`` dependencies.
   Patch by Adam Turner.
+* #12833: Update the LaTeX ``parskip`` package from 2001 to 2018.
+  Patch by Jean-François B.
 
 Incompatible changes
 --------------------
@@ -14,10 +37,12 @@ Incompatible changes
   Patch by Adam Turner.
 * #12822: LaTeX: for Unicode engines, the :ref:`fvset` default is changed to
   ``'\\fvset{fontsize=auto}'`` from ``'\\fvset{fontsize=\\small}'``.
-  Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
-  An adjustement to existing projects is needed only if they used a custom
+  Code-blocks are unchanged as FreeMono is now loaded with ``Scale=0.9``.
+  An adjustment to existing projects is needed only if they used a custom
   :ref:`fontpkg` configuration and did not set :ref:`fvset`.
+  Patch by Jean-François B.
 * #12875: Disable smartquotes for languages: ``zh_CN`` and ``zh_TW`` by default.
+  Patch by A. Rafey Khan.
 
 Deprecated
 ----------
@@ -34,6 +59,7 @@ Features added
 
 * #11328: Mention evaluation of templated content during production of static
   output files.
+  Patch by James Addison.
 * #12704: LaTeX: make :dudir:`contents <table-of-contents>`, :dudir:`topic`,
   and :dudir:`sidebar` directives separately customizable for PDF output.
   Patch by Jean-François B. and Bénédikt Tran.
@@ -62,6 +88,15 @@ Features added
 * #11781: Add roles for referencing CVEs (:rst:role:`:cve: <cve>`)
   and CWEs (:rst:role:`:cwe: <cwe>`).
   Patch by Hugo van Kemenade.
+* #11809: Improve the formatting for RFC section anchors.
+  Patch by Jakub Stasiak and Adam Turner.
+* #12852: Support a :attr:`.Builder.supported_linkcode` attribute
+  for builders to enable use of :mod:`sphinx.ext.linkcode`-generated
+  references.
+  Patch by James Knight.
+* #12949: Print configuration options that differ from the pickled environment.
+  This can be helpful in diagnosing the cause of a full rebuild.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
@@ -81,6 +116,7 @@ Bugs fixed
 * #12778: LaTeX: let :ref:`'sphinxsetup' <latexsphinxsetup>`
   ``div.topic_box-shadow`` key if used with only one dimension set both
   x-offset and y-offset as per documentation.
+  Patch by Jean-François B.
 * #12587: Do not warn when potential ambiguity detected during Intersphinx
   resolution occurs due to duplicate targets that differ case-insensitively.
   Patch by James Addison.
@@ -103,7 +139,7 @@ Bugs fixed
   references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
   e.g., ``index.html#foo`` becomes ``#foo``.
   (note: continuation of a partial fix added in Sphinx 7.3.0)
-  Patch by James Addison (with reference to prior work by Eric Norige)
+  Patch by James Addison (with reference to prior work by Eric Norige).
 * #12735: Fix :pep:`695` generic classes LaTeX output formatting.
   Patch by Jean-François B. and Bénédikt Tran.
 * #12782: intersphinx: fix double forward slashes when generating the inventory
@@ -123,6 +159,24 @@ Bugs fixed
   ``SOURCE_DATE_EPOCH`` for entries that match the current system clock year,
   and disallow substitution of future years.
   Patch by James Addison and Adam Turner.
+* #12905: intersphinx: fix flipped use of :confval:`intersphinx_cache_limit`,
+  which always kept the cache for positive values, and always refreshed it for
+  negative ones.
+  Patch by Nico Madysa.
+* #12888: Add a warning when document is included in multiple toctrees
+  and ensure deterministic resolution of global toctree in parallel builds
+  by choosing the lexicographically greatest parent document.
+  Patch by A. Rafey Khan
+* #12995: Significantly improve performance when building the search index
+  for Chinese languages.
+  Patch by Adam Turner.
+* #12767: :py:meth:`.Builder.write` is typed as ``final``, meaning that the
+  :event:`write-started` event may be relied upon by extensions.
+  A new :py:meth:`.Builder.write_documents` method has been added to
+  control how documents are written.
+  This is intended for builders that do not output a file for each document.
+  Patch by Adam Turner.
+
 
 Testing
 -------

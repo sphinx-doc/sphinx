@@ -41,7 +41,7 @@ from sphinx import directives  # NoQA: F401  isort:skip
 from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Sequence, Set
 
     from docutils.nodes import Node
 
@@ -59,14 +59,20 @@ class Builder:
     Builds target formats from the reST sources.
     """
 
-    #: The builder's name, for the -b command line option.
-    name = ''
+    #: The builder's name.
+    #: This is the value used to select builders on the command line.
+    name: str = ''
     #: The builder's output format, or '' if no document output is produced.
-    format = ''
-    #: The message emitted upon successful build completion. This can be a
-    #: printf-style template string with the following keys: ``outdir``,
-    #: ``project``
-    epilog = ''
+    #: This is commonly the file extension, e.g. "html",
+    #: though any string value is accepted.
+    #: The builder's format string can be used by various components
+    #: such as :class:`.SphinxPostTransform` or extensions to determine
+    #: their compatibility with the builder.
+    format: str = ''
+    #: The message emitted upon successful build completion.
+    #: This can be a printf-style template string
+    #: with the following keys: ``outdir``, ``project``
+    epilog: str = ''
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
@@ -74,8 +80,8 @@ class Builder:
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
-    #: allow parallel write_doc() calls
-    allow_parallel = False
+    #: Whether it is safe to make parallel :meth:`~.Builder.write_doc()` calls.
+    allow_parallel: bool = False
     # support translation
     use_message_catalog = True
 
@@ -83,9 +89,9 @@ class Builder:
     #: Image files are searched in the order in which they appear here.
     supported_image_types: list[str] = []
     #: The builder can produce output documents that may fetch external images when opened.
-    supported_remote_images = False
+    supported_remote_images: bool = False
     #: The file format produced by the builder allows images to be embedded using data-URIs.
-    supported_data_uri_images = False
+    supported_data_uri_images: bool = False
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         self.srcdir = app.srcdir
@@ -159,7 +165,7 @@ class Builder:
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         """Return a relative URI between two source filenames.
 
-        May raise environment.NoUri if there's no way to return a sensible URI.
+        :raises: :exc:`!NoUri` if there's no way to return a sensible URI.
         """
         return relative_uri(
             self.get_target_uri(from_),
@@ -664,6 +670,7 @@ class Builder:
         if _cache:
             self.env._write_doc_doctree_cache[docname] = doctree
 
+    @final
     def write(
         self,
         build_docnames: Iterable[str] | None,
@@ -685,11 +692,15 @@ class Builder:
         logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed
-        for docname in list(docnames):
+        extra = {self.config.root_doc}
+        for docname in docnames:
             for tocdocname in self.env.files_to_rebuild.get(docname, set()):
                 if tocdocname in self.env.found_docs:
-                    docnames.add(tocdocname)
-        docnames.add(self.config.root_doc)
+                    extra.add(tocdocname)
+        docnames |= extra
+
+        # sort to ensure deterministic toctree generation
+        self.env.toctree_includes = dict(sorted(self.env.toctree_includes.items()))
 
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
@@ -697,12 +708,21 @@ class Builder:
         with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
+        self.write_documents(docnames)
+
+    def write_documents(self, docnames: Set[str]) -> None:
+        """Write all documents in *docnames*.
+
+        This method can be overridden if a builder does not create
+        output files for each document.
+        """
+        sorted_docnames = sorted(docnames)
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
-            self._write_parallel(sorted(docnames), nproc=self.app.parallel - 1)
+            self._write_parallel(sorted_docnames, nproc=self.app.parallel - 1)
         else:
-            self._write_serial(sorted(docnames))
+            self._write_serial(sorted_docnames)
 
     def _write_serial(self, docnames: Sequence[str]) -> None:
         with (
@@ -766,16 +786,25 @@ class Builder:
         tasks.join()
         logger.info('')
 
-    def prepare_writing(self, docnames: set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
-        raise NotImplementedError
+        pass
 
     def copy_assets(self) -> None:
         """Where assets (images, static files, etc) are copied before writing"""
         pass
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        """Where you actually write something to the filesystem."""
+        """
+        Write the output file for the document
+
+        :param docname: the :term:`docname <document name>`.
+        :param doctree: defines the content to be written.
+
+        The output filename must be determined within this method,
+        typically by calling :meth:`~.Builder.get_target_uri`
+        or :meth:`~.Builder.get_relative_uri`.
+        """
         raise NotImplementedError
 
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:

@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
-    from sphinx.ext.autodoc import Documenter
+    from sphinx.ext.autodoc import Documenter, _AutodocProcessDocstringListener
     from sphinx.ext.todo import todo_node
     from sphinx.extension import Extension
     from sphinx.roles import XRefRole
@@ -668,17 +668,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-process-docstring'],
-        callback: Callable[
-            [
-                Sphinx,
-                Literal['module', 'class', 'exception', 'function', 'method', 'attribute'],
-                str,
-                Any,
-                dict[str, bool],
-                Sequence[str],
-            ],
-            None,
-        ],
+        callback: _AutodocProcessDocstringListener,
         priority: int = 500
     ) -> int:
         ...

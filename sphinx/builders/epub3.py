@@ -21,6 +21,8 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import make_filename
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -120,7 +122,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         metadata['epub_version'] = self.config.epub_version
         return metadata
 
-    def prepare_writing(self, docnames: set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
         super().prepare_writing(docnames)
 
         writing_mode = self.config.epub_writing_mode

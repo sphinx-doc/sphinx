@@ -38,7 +38,7 @@ from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 from docutils import nodes  # isort:skip
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Set
 
     from docutils.nodes import Node
 
@@ -291,13 +291,17 @@ class LaTeXBuilder(Builder):
             )
             f.write(highlighter.get_stylesheet())
 
+    def prepare_writing(self, docnames: Set[str]) -> None:
+        self.init_document_data()
+        self.write_stylesheet()
+
     def copy_assets(self) -> None:
         self.copy_support_files()
 
         if self.config.latex_additional_files:
             self.copy_latex_additional_files()
 
-    def write(self, *ignored: Any) -> None:
+    def write_documents(self, _docnames: Set[str]) -> None:
         docwriter = LaTeXWriter(self)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -308,10 +312,6 @@ class LaTeXBuilder(Builder):
                 components=(docwriter,),
                 read_config_files=True,
             ).get_default_values()
-
-        self.init_document_data()
-        self.write_stylesheet()
-        self.copy_assets()
 
         for entry in self.document_data:
             docname, targetname, title, author, themename = entry[:5]

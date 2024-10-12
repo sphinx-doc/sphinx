@@ -9,6 +9,7 @@ description = "Python documentation generator"
 readme = "README.rst"
 urls.Changelog = "https://www.sphinx-doc.org/en/master/changes.html"
 urls.Code = "https://github.com/sphinx-doc/sphinx"
+urls.Documentation = "https://www.sphinx-doc.org/"
 urls.Download = "https://pypi.org/project/Sphinx/"
 urls.Homepage = "https://www.sphinx-doc.org/"
 urls."Issue tracker" = "https://github.com/sphinx-doc/sphinx/issues"
@@ -81,7 +82,7 @@ docs = [
 ]
 lint = [
     "flake8>=6.0",
-    "ruff==0.6.8",
+    "ruff==0.6.9",
     "mypy==1.11.1",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -92,7 +93,7 @@ lint = [
     "types-requests==2.32.0.20240914",  # align with requests
     "types-urllib3==1.26.25.14",
     "tomli>=2",  # for mypy (Python<=3.10)
-    "pyright==1.1.383",
+    "pyright==1.1.384",
     "pytest>=6.0",
 ]
 test = [
@@ -199,6 +200,7 @@ exclude = [
     "^tests/test_util/test_util_typing\\.py$",
     "^tests/test_util/typing_test_data\\.py$",
     # tests/test_writers
+    "^utils/convert_attestations\\.py$",
 ]
 python_version = "3.10"
 strict = true
@@ -244,7 +246,6 @@ module = [
     "sphinx.jinja2glue",
     "sphinx.registry",
     "sphinx.search",
-    "sphinx.util",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
     "sphinx.util.inspect",
