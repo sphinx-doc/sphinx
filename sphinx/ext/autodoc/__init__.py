@@ -1153,15 +1153,12 @@ class PyObjectDocumenter(Documenter):
         modname = safe_getattr(self.object, '__module__', self.modname)
         if not modname:
             return None
-        if qualname := safe_getattr(self.object, '__qualname__', None):
-            if '<locals>' not in qualname:
-                return f'{modname}.{qualname}'
-            return None
-        if qualname := safe_getattr(self.object, '__name__', None):
-            if '<locals>' not in qualname:
-                return f'{modname}.{qualname}'
-            return None
-        # qualname doesn't exist or is not valid (object is defined as locals)
+        for attr in ('__qualname__', '__name__'):
+            if qualname := safe_getattr(self.object, attr, None):
+                if all(map(str.isidentifier, qualname.split('.'))):
+                    return f'{modname}.{qualname}'
+                return None
+        # qualname doesn't exist or is not valid (e.g. object is defined as locals)
         return None
 
 
