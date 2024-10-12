@@ -1,3 +1,10 @@
+Release 8.1.3 (in development)
+==============================
+
+Bugs fixed
+----------
+
+
 Release 8.1.2 (released Oct 12, 2024)
 =====================================
 
@@ -23,7 +30,6 @@ Bugs fixed
 * #13007: LaTeX: Improve resiliency when the required
   ``fontawesome`` or ``fontawesome5`` packages are not installed.
   Patch by Jean-François B.
-
 
 Release 8.1.0 (released Oct 10, 2024)
 =====================================
