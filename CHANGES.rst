@@ -4,6 +4,12 @@ Release 8.1.2 (in development)
 Bugs fixed
 ----------
 
+* #13012: Expose :exc:`sphinx.errors.ExtensionError` in ``sphinx.util``
+  for backwards compatibility.
+  This will be removed in Sphinx 9, as exposing the exception
+  in ``sphinx.util`` was never intentional.
+  :exc:`!ExtensionError` has been part of ``sphinx.errors`` since Sphinx 0.9.
+  Patch by Adam Turner.
 
 Release 8.1.1 (released Oct 11, 2024)
 =====================================
