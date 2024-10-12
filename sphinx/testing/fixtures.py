@@ -28,7 +28,7 @@ DEFAULT_ENABLED_MARKERS = [
         'testroot="root", srcdir=None, '
         'confoverrides=None, freshenv=False, '
         'warningiserror=False, tags=None, verbosity=0, parallel=0, '
-        'keep_going=False, builddir=None, docutils_conf=None'
+        'builddir=None, docutils_conf=None'
         '): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
@@ -42,7 +42,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 @pytest.fixture(scope='session')
-def rootdir() -> str | None:
+def rootdir() -> Path | None:
     return None
 
 
@@ -68,13 +68,13 @@ class SharedResult:
         }
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_params(
     request: Any,
-    test_params: dict,
+    test_params: dict[str, Any],
     shared_result: SharedResult,
     sphinx_test_tempdir: str,
-    rootdir: str,
+    rootdir: Path,
 ) -> _app_params:
     """
     Parameters that are specified by 'pytest.mark.sphinx' for
@@ -86,7 +86,7 @@ def app_params(
     kwargs: dict[str, Any] = {}
 
     # to avoid stacking positional args
-    for info in reversed(list(request.node.iter_markers("sphinx"))):
+    for info in reversed(list(request.node.iter_markers('sphinx'))):
         pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
@@ -117,8 +117,8 @@ def app_params(
 _app_params = namedtuple('_app_params', 'args,kwargs')
 
 
-@pytest.fixture()
-def test_params(request: Any) -> dict:
+@pytest.fixture
+def test_params(request: Any) -> dict[str, Any]:
     """
     Test parameters that are specified by 'pytest.mark.test_params'
 
@@ -141,11 +141,11 @@ def test_params(request: Any) -> dict:
     return result
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(
-    test_params: dict,
-    app_params: tuple[dict, dict],
-    make_app: Callable,
+    test_params: dict[str, Any],
+    app_params: _app_params,
+    make_app: Callable[[], SphinxTestApp],
     shared_result: SharedResult,
 ) -> Iterator[SphinxTestApp]:
     """
@@ -159,14 +159,14 @@ def app(
     print('# builder:', app_.builder.name)
     print('# srcdir:', app_.srcdir)
     print('# outdir:', app_.outdir)
-    print('# status:', '\n' + app_._status.getvalue())
-    print('# warning:', '\n' + app_._warning.getvalue())
+    print('# status:', '\n' + app_.status.getvalue())
+    print('# warning:', '\n' + app_.warning.getvalue())
 
     if test_params['shared_result']:
         shared_result.store(test_params['shared_result'], app_)
 
 
-@pytest.fixture()
+@pytest.fixture
 def status(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -174,7 +174,7 @@ def status(app: SphinxTestApp) -> StringIO:
     return app.status
 
 
-@pytest.fixture()
+@pytest.fixture
 def warning(app: SphinxTestApp) -> StringIO:
     """
     Back-compatibility for testing with previous @with_app decorator
@@ -182,8 +182,8 @@ def warning(app: SphinxTestApp) -> StringIO:
     return app.warning
 
 
-@pytest.fixture()
-def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
+@pytest.fixture
+def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp]]:
     """
     Provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
@@ -196,11 +196,14 @@ def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_: Any = SphinxTestApp(*args, **kwargs)
-        apps.append(app_)
+        app_: SphinxTestApp
         if test_params['shared_result']:
-            app_ = SphinxTestAppWrapperForSkipBuilding(app_)
+            app_ = SphinxTestAppWrapperForSkipBuilding(*args, **kwargs)
+        else:
+            app_ = SphinxTestApp(*args, **kwargs)
+        apps.append(app_)
         return app_
+
     yield make
 
     sys.path[:] = syspath
@@ -208,7 +211,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
         app_.cleanup()
 
 
-@pytest.fixture()
+@pytest.fixture
 def shared_result() -> SharedResult:
     return SharedResult()
 
@@ -218,7 +221,7 @@ def _shared_result_cache() -> None:
     SharedResult.cache.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
     """
     The test will be skipped when using 'if_graphviz_found' fixture and graphviz
@@ -237,12 +240,12 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
+def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Temporary directory."""
     return tmp_path_factory.getbasetemp()
 
 
-@pytest.fixture()
+@pytest.fixture
 def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
     """
     Rollback sys.modules to its value before testing to unload modules

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Final, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, system_message
@@ -14,20 +14,26 @@ from docutils.statemachine import StringList
 from sphinx import addnodes
 from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, ObjType, TitleGetter
+from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
 from sphinx.roles import EmphasizedLiteral, XRefRole
 from sphinx.util import docname_join, logging, ws_re
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import clean_astext, make_id, make_refnode
+from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Set
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import ExtensionMetadata, OptionSpec, RoleFunction
+    from sphinx.util.typing import (
+        ExtensionMetadata,
+        OptionSpec,
+        RoleFunction,
+        TitleGetter,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +78,7 @@ class GenericObject(ObjectDescription[str]):
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry, node_id, '', None))
 
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains.standard_domain
         std.note_object(self.objtype, name, node_id, location=signode)
 
 
@@ -99,6 +105,77 @@ class EnvVarXRefRole(XRefRole):
         targetnode = nodes.target('', '', ids=[tgtid])
         document.note_explicit_target(targetnode)
         return [indexnode, targetnode, node], []
+
+
+class ConfigurationValue(ObjectDescription[str]):
+    index_template: str = _('%s; configuration value')
+    option_spec: ClassVar[OptionSpec] = {
+        'no-index': directives.flag,
+        'no-index-entry': directives.flag,
+        'no-contents-entry': directives.flag,
+        'no-typesetting': directives.flag,
+        'type': directives.unchanged_required,
+        'default': directives.unchanged_required,
+    }
+
+    def handle_signature(self, sig: str, sig_node: desc_signature) -> str:
+        sig_node.clear()
+        sig_node += addnodes.desc_name(sig, sig)
+        name = ws_re.sub(' ', sig)
+        sig_node['fullname'] = name
+        return name
+
+    def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        return (sig_node['fullname'],)
+
+    def _toc_entry_name(self, sig_node: desc_signature) -> str:
+        if not sig_node.get('_toc_parts'):
+            return ''
+        name, = sig_node['_toc_parts']
+        return name
+
+    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
+        node_id = make_id(self.env, self.state.document, self.objtype, name)
+        signode['ids'].append(node_id)
+        self.state.document.note_explicit_target(signode)
+        index_entry = self.index_template % name
+        self.indexnode['entries'].append(('pair', index_entry, node_id, '', None))
+        domain = self.env.domains.standard_domain
+        domain.note_object(self.objtype, name, node_id, location=signode)
+
+    def transform_content(self, content_node: addnodes.desc_content) -> None:
+        """Insert *type* and *default* as a field list."""
+        field_list = nodes.field_list()
+        if 'type' in self.options:
+            field, msgs = self.format_type(self.options['type'])
+            field_list.append(field)
+            field_list += msgs
+        if 'default' in self.options:
+            field, msgs = self.format_default(self.options['default'])
+            field_list.append(field)
+            field_list += msgs
+        if len(field_list.children) > 0:
+            content_node.insert(0, field_list)
+
+    def format_type(self, type_: str) -> tuple[nodes.field, list[system_message]]:
+        """Formats the ``:type:`` option."""
+        parsed, msgs = self.parse_inline(type_, lineno=self.lineno)
+        field = nodes.field(
+            '',
+            nodes.field_name('', _('Type')),
+            nodes.field_body('', *parsed),
+        )
+        return field, msgs
+
+    def format_default(self, default: str) -> tuple[nodes.field, list[system_message]]:
+        """Formats the ``:default:`` option."""
+        parsed, msgs = self.parse_inline(default, lineno=self.lineno)
+        field = nodes.field(
+            '',
+            nodes.field_name('', _('Default')),
+            nodes.field_body('', *parsed),
+        )
+        return field, msgs
 
 
 class Target(SphinxDirective):
@@ -135,7 +212,7 @@ class Target(SphinxDirective):
         if ':' in self.name:
             _, name = self.name.split(':', 1)
 
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains.standard_domain
         std.note_object(name, fullname, node_id, location=node)
 
         return ret
@@ -218,7 +295,7 @@ class Cmdoption(ObjectDescription[str]):
 
         self.state.document.note_explicit_target(signode)
 
-        domain = self.env.domains['std']
+        domain = self.env.domains.standard_domain
         for optname in signode.get('allnames', []):
             domain.add_program_option(currprogram, optname,
                                       self.env.docname, signode['ids'][0])
@@ -260,13 +337,18 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
-def split_term_classifiers(line: str) -> list[str | None]:
+_term_classifiers_re = re.compile(' +: +')
+
+
+def split_term_classifiers(line: str) -> tuple[str, str | None]:
     # split line into a term and classifiers. if no classifier, None is used..
-    parts: list[str | None] = [*re.split(' +: +', line), None]
-    return parts
+    parts = _term_classifiers_re.split(line)
+    term = parts[0]
+    first_classifier = parts[1] if len(parts) >= 2 else None
+    return term, first_classifier
 
 
-def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str,
+def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str | None,
                        source: str, lineno: int, node_id: str | None, document: nodes.document,
                        ) -> nodes.term:
     # get a text-only representation of the term and register it
@@ -284,8 +366,7 @@ def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_k
         term['ids'].append(node_id)
         document.note_explicit_target(term)
 
-    std = cast(StandardDomain, env.get_domain('std'))
-    std._note_term(termtext, node_id, location=term)
+    env.domains.standard_domain._note_term(termtext, node_id, location=term)
 
     # add an index entry too
     indexnode = addnodes.index()
@@ -326,7 +407,7 @@ class Glossary(SphinxDirective):
         in_comment = False
         was_empty = True
         messages: list[Node] = []
-        for line, (source, lineno) in zip(self.content, self.content.items):
+        for line, (source, lineno) in zip(self.content, self.content.items, strict=True):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -382,15 +463,14 @@ class Glossary(SphinxDirective):
             termnodes: list[Node] = []
             system_messages: list[Node] = []
             for line, source, lineno in terms:
-                parts = split_term_classifiers(line)
+                term_, first_classifier = split_term_classifiers(line)
                 # parse the term with inline markup
                 # classifiers (parts[1:]) will not be shown on doctree
-                textnodes, sysmsg = self.state.inline_text(parts[0],
-                                                           lineno)
+                textnodes, sysmsg = self.parse_inline(term_, lineno=lineno)
 
                 # use first classifier as a index key
                 term = make_glossary_term(self.env, textnodes,
-                                          parts[1], source, lineno,  # type: ignore[arg-type]
+                                          first_classifier, source, lineno,
                                           node_id=None, document=self.state.document)
                 term.rawsource = line
                 system_messages.extend(sysmsg)
@@ -398,11 +478,14 @@ class Glossary(SphinxDirective):
 
             termnodes.extend(system_messages)
 
-            defnode = nodes.definition()
             if definition:
-                self.state.nested_parse(definition, definition.items[0][1],
-                                        defnode)
-            termnodes.append(defnode)
+                offset = definition.items[0][1]
+                definition_nodes = nested_parse_to_nodes(
+                    self.state, definition, offset=offset, allow_section_headings=False,
+                )
+            else:
+                definition_nodes = []
+            termnodes.append(nodes.definition('', *definition_nodes))
             items.append(nodes.definition_list_item('', *termnodes))
 
         dlist = nodes.definition_list('', *items)
@@ -456,7 +539,7 @@ class ProductionList(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        domain = cast(StandardDomain, self.env.get_domain('std'))
+        domain = self.env.domains.standard_domain
         node: Element = addnodes.productionlist()
         self.set_source_info(node)
         # The backslash handling is from ObjectDescription.get_signatures
@@ -519,6 +602,7 @@ class StandardDomain(Domain):
         'token': ObjType(_('grammar token'), 'token', searchprio=-1),
         'label': ObjType(_('reference label'), 'ref', 'keyword',
                          searchprio=-1),
+        'confval': ObjType('configuration value', 'confval'),
         'envvar': ObjType(_('environment variable'), 'envvar'),
         'cmdoption': ObjType(_('program option'), 'option'),
         'doc': ObjType(_('document'), 'doc', searchprio=-1),
@@ -528,12 +612,14 @@ class StandardDomain(Domain):
         'program': Program,
         'cmdoption': Cmdoption,  # old name for backwards compatibility
         'option': Cmdoption,
+        'confval': ConfigurationValue,
         'envvar': EnvVar,
         'glossary': Glossary,
         'productionlist': ProductionList,
     }
     roles: dict[str, RoleFunction | XRefRole] = {
         'option':  OptionXRefRole(warn_dangling=True),
+        'confval': XRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   TokenXRefRole(),
@@ -680,7 +766,7 @@ class StandardDomain(Domain):
             if fn == docname:
                 del self.anonlabels[key]
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
@@ -733,13 +819,12 @@ class StandardDomain(Domain):
                 if not sectname:
                     continue
             else:
-                if (isinstance(node, (nodes.definition_list,
-                                      nodes.field_list)) and
+                if (isinstance(node, nodes.definition_list | nodes.field_list) and
                         node.children):
                     node = cast(nodes.Element, node.children[0])
-                if isinstance(node, (nodes.field, nodes.definition_list_item)):
+                if isinstance(node, nodes.field | nodes.definition_list_item):
                     node = cast(nodes.Element, node.children[0])
-                if isinstance(node, (nodes.term, nodes.field_name)):
+                if isinstance(node, nodes.term | nodes.field_name):
                     sectname = clean_astext(node)
                 else:
                     toctree = next(node.findall(addnodes.toctree), None)
@@ -1033,7 +1118,7 @@ class StandardDomain(Domain):
                 return title_getter(elem)
             else:
                 for subnode in elem:
-                    if isinstance(subnode, (nodes.caption, nodes.title)):
+                    if isinstance(subnode, nodes.caption | nodes.title):
                         return clean_astext(subnode)
 
         return None

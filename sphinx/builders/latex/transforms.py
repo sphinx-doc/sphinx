@@ -15,7 +15,6 @@ from sphinx.builders.latex.nodes import (
     math_reference,
     thebibliography,
 )
-from sphinx.domains.citation import CitationDomain
 from sphinx.locale import __
 from sphinx.transforms import SphinxTransform
 from sphinx.transforms.post_transforms import SphinxPostTransform
@@ -90,8 +89,7 @@ class ShowUrlsTransform(SphinxPostTransform):
         for node in list(self.document.findall(nodes.reference)):
             uri = node.get('refuri', '')
             if uri.startswith(URI_SCHEMES):
-                if uri.startswith('mailto:'):
-                    uri = uri[7:]
+                uri = uri.removeprefix('mailto:')
                 if node.astext() != uri:
                     index = node.parent.index(node)
                     docname = self.get_docname_for_node(node)
@@ -102,7 +100,7 @@ class ShowUrlsTransform(SphinxPostTransform):
 
                         self.expanded = True
                     else:  # all other true values (b/w compat)
-                        textnode = nodes.Text(" (%s)" % uri)
+                        textnode = nodes.Text(' (%s)' % uri)
                         node.parent.insert(index + 1, textnode)
 
     def get_docname_for_node(self, node: Node) -> str:
@@ -118,11 +116,11 @@ class ShowUrlsTransform(SphinxPostTransform):
             source = node['source']
         except TypeError:
             raise ValueError(__('Failed to get a docname!')) from None
-        raise ValueError(__('Failed to get a docname '
-                            'for source {source!r}!').format(source=source))
+        msg = __('Failed to get a docname for source %r!') % source
+        raise ValueError(msg)
 
     def create_footnote(
-        self, uri: str, docname: str,
+        self, uri: str, docname: str
     ) -> tuple[nodes.footnote, nodes.footnote_reference]:
         reference = nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True)
         footnote = nodes.footnote(uri, auto=1, docname=docname)
@@ -131,8 +129,9 @@ class ShowUrlsTransform(SphinxPostTransform):
         footnote += nodes.paragraph('', '', reference)
         self.document.note_autofootnote(footnote)
 
-        footnote_ref = nodes.footnote_reference('[#]_', auto=1,
-                                                refid=footnote['ids'][0], docname=docname)
+        footnote_ref = nodes.footnote_reference(
+            '[#]_', auto=1, refid=footnote['ids'][0], docname=docname
+        )
         footnote_ref += nodes.Text('#')
         self.document.note_autofootnote_ref(footnote_ref)
         footnote.add_backref(footnote_ref['ids'][0])
@@ -371,7 +370,9 @@ class LaTeXFootnoteTransform(SphinxPostTransform):
 
 
 class LaTeXFootnoteVisitor(nodes.NodeVisitor):
-    def __init__(self, document: nodes.document, footnotes: list[nodes.footnote]) -> None:
+    def __init__(
+        self, document: nodes.document, footnotes: list[nodes.footnote]
+    ) -> None:
         self.appeared: dict[tuple[str, str], nodes.footnote] = {}
         self.footnotes: list[nodes.footnote] = footnotes
         self.pendings: list[nodes.footnote] = []
@@ -393,7 +394,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         if self.restricted == node:
             self.restricted = None
             pos = node.parent.index(node)
-            for i, footnote, in enumerate(self.pendings):
+            for i, footnote in enumerate(self.pendings):
                 fntext = footnotetext('', *footnote.children, ids=footnote['ids'])
                 node.parent.insert(pos + i + 1, fntext)
             self.pendings = []
@@ -417,7 +418,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         self.unrestrict(node)
 
     def visit_title(self, node: nodes.title) -> None:
-        if isinstance(node.parent, (nodes.section, nodes.table)):
+        if isinstance(node.parent, nodes.section | nodes.table):
             self.restrict(node)
 
     def depart_title(self, node: nodes.title) -> None:
@@ -455,7 +456,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         docname = node['docname']
         if (docname, number) in self.appeared:
             footnote = self.appeared[(docname, number)]
-            footnote["referred"] = True
+            footnote['referred'] = True
 
             mark = footnotemark('', number, refid=node['refid'])
             node.replace_self(mark)
@@ -473,7 +474,9 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
             self.appeared[(docname, number)] = footnote
         raise nodes.SkipNode
 
-    def get_footnote_by_reference(self, node: nodes.footnote_reference) -> nodes.footnote:
+    def get_footnote_by_reference(
+        self, node: nodes.footnote_reference
+    ) -> nodes.footnote:
         docname = node['docname']
         for footnote in self.footnotes:
             if docname == footnote['docname'] and footnote['ids'][0] == node['refid']:
@@ -537,13 +540,16 @@ class CitationReferenceTransform(SphinxPostTransform):
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
-        matcher = NodeMatcher(addnodes.pending_xref, refdomain='citation', reftype='ref')
+        domain = self.env.domains.citation_domain
+        matcher = NodeMatcher(
+            addnodes.pending_xref, refdomain='citation', reftype='ref'
+        )
         for node in matcher.findall(self.document):
             docname, labelid, _ = domain.citations.get(node['reftarget'], ('', '', 0))
             if docname:
-                citation_ref = nodes.citation_reference('', '', *node.children,
-                                                        docname=docname, refname=labelid)
+                citation_ref = nodes.citation_reference(
+                    '', '', *node.children, docname=docname, refname=labelid
+                )
                 node.replace_self(citation_ref)
 
 
@@ -558,12 +564,14 @@ class MathReferenceTransform(SphinxPostTransform):
     formats = ('latex',)
 
     def run(self, **kwargs: Any) -> None:
-        equations = self.env.get_domain('math').data['objects']
+        equations = self.env.domains.math_domain.data['objects']
         for node in self.document.findall(addnodes.pending_xref):
             if node['refdomain'] == 'math' and node['reftype'] in ('eq', 'numref'):
                 docname, _ = equations.get(node['reftarget'], (None, None))
                 if docname:
-                    refnode = math_reference('', docname=docname, target=node['reftarget'])
+                    refnode = math_reference(
+                        '', docname=docname, target=node['reftarget']
+                    )
                     node.replace_self(refnode)
 
 

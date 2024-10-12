@@ -62,7 +62,15 @@ class IngredientIndex(Index):
         for ingredient, recipe_names in ingredient_recipes.items():
             for recipe_name in recipe_names:
                 dispname, typ, docname, anchor = recipes[recipe_name]
-                content[ingredient].append((dispname, 0, docname, anchor, docname, '', typ))
+                content[ingredient].append((
+                    dispname,
+                    0,
+                    docname,
+                    anchor,
+                    docname,
+                    '',
+                    typ,
+                ))
 
         # convert the dict to the sorted list of tuples expected
         content = sorted(content.items())
@@ -122,6 +130,7 @@ class RecipeDomain(Domain):
         'recipes': [],  # object list
         'recipe_ingredients': {},  # name -> object
     }
+    data_version = 0
 
     def get_full_qualified_name(self, node):
         return f'recipe.{node.arguments[0]}'
@@ -152,7 +161,14 @@ class RecipeDomain(Domain):
 
         self.data['recipe_ingredients'][name] = ingredients
         # name, dispname, type, docname, anchor, priority
-        self.data['recipes'].append((name, signature, 'Recipe', self.env.docname, anchor, 0))
+        self.data['recipes'].append((
+            name,
+            signature,
+            'Recipe',
+            self.env.docname,
+            anchor,
+            0,
+        ))
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

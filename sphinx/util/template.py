@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from functools import partial
 from os import path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from jinja2 import TemplateNotFound
 from jinja2.loaders import BaseLoader
@@ -17,7 +17,7 @@ from sphinx.locale import get_translator
 from sphinx.util import rst, texescape
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from jinja2.environment import Environment
 
@@ -38,7 +38,7 @@ class BaseRenderer:
 
 class FileRenderer(BaseRenderer):
     def __init__(self, search_path: Sequence[str | os.PathLike[str]]) -> None:
-        if isinstance(search_path, (str, os.PathLike)):
+        if isinstance(search_path, str | os.PathLike):
             search_path = [search_path]
         else:
             # filter "None" paths
@@ -49,7 +49,7 @@ class FileRenderer(BaseRenderer):
 
     @classmethod
     def render_from_file(
-        cls: type[FileRenderer], filename: str, context: dict[str, Any],
+        cls: type[FileRenderer], filename: str, context: dict[str, Any]
     ) -> str:
         dirname = os.path.dirname(filename)
         basename = os.path.basename(filename)
@@ -57,21 +57,26 @@ class FileRenderer(BaseRenderer):
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None) -> None:
+    def __init__(
+        self, template_path: Sequence[str | os.PathLike[str]] | None = None
+    ) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super().__init__(template_path)
 
     @classmethod
     def render_from_file(
-        cls: type[FileRenderer], filename: str, context: dict[str, Any],
+        cls: type[FileRenderer], filename: str, context: dict[str, Any]
     ) -> str:
         return FileRenderer.render_from_file(filename, context)
 
 
 class LaTeXRenderer(SphinxRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None,
-                 latex_engine: str | None = None) -> None:
+    def __init__(
+        self,
+        template_path: Sequence[str | os.PathLike[str]] | None = None,
+        latex_engine: str | None = None,
+    ) -> None:
         if template_path is None:
             template_path = [os.path.join(package_dir, 'templates', 'latex')]
         super().__init__(template_path)
@@ -93,8 +98,11 @@ class LaTeXRenderer(SphinxRenderer):
 
 
 class ReSTRenderer(SphinxRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None,
-                 language: str | None = None) -> None:
+    def __init__(
+        self,
+        template_path: Sequence[str | os.PathLike[str]] | None = None,
+        language: str | None = None,
+    ) -> None:
         super().__init__(template_path)
 
         # add language to environment
@@ -109,9 +117,12 @@ class ReSTRenderer(SphinxRenderer):
 class SphinxTemplateLoader(BaseLoader):
     """A loader supporting template inheritance"""
 
-    def __init__(self, confdir: str | os.PathLike[str],
-                 templates_paths: Sequence[str | os.PathLike[str]],
-                 system_templates_paths: Sequence[str | os.PathLike[str]]) -> None:
+    def __init__(
+        self,
+        confdir: str | os.PathLike[str],
+        templates_paths: Sequence[str | os.PathLike[str]],
+        system_templates_paths: Sequence[str | os.PathLike[str]],
+    ) -> None:
         self.loaders = []
         self.sysloaders = []
 
@@ -124,7 +135,11 @@ class SphinxTemplateLoader(BaseLoader):
             self.loaders.append(loader)
             self.sysloaders.append(loader)
 
-    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable]:
+    def get_source(
+        self,
+        environment: Environment,
+        template: str,
+    ) -> tuple[str, str, Callable[[], bool]]:
         if template.startswith('!'):
             # search a template from ``system_templates_paths``
             loaders = self.sysloaders

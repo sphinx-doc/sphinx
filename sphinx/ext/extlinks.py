@@ -91,9 +91,9 @@ class ExternalLinksChecker(SphinxPostTransform):
 
 def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
     # Check whether we have base_url and caption strings have an '%s' for
-    # expansion.  If not, fall back the the old behaviour and use the string as
+    # expansion.  If not, fall back to the old behaviour and use the string as
     # a prefix.
-    # Remark: It is an implementation detail that we use Pythons %-formatting.
+    # Remark: It is an implementation detail that we use Python's %-formatting.
     # So far we only expose ``%s`` and require quoting of ``%`` using ``%%``.
     def role(typ: str, rawtext: str, text: str, lineno: int,
              inliner: Inliner, options: dict[str, Any] | None = None,
@@ -108,6 +108,7 @@ def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
             else:
                 title = caption % part
         pnode = nodes.reference(title, title, internal=False, refuri=full_url)
+        pnode["classes"].append(f"extlink-{name}")
         return [pnode], []
     return role
 

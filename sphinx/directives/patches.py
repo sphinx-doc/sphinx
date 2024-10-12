@@ -12,7 +12,6 @@ from docutils.parsers.rst.directives.misc import Meta
 from docutils.parsers.rst.roles import set_classes
 
 from sphinx.directives import optional_int
-from sphinx.domains.math import MathDomain
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
@@ -27,7 +26,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class Figure(images.Figure):
+class Figure(images.Figure):  # type: ignore[misc]
     """The figure directive which applies `:name:` option to the figure node
     instead of the image node.
     """
@@ -53,7 +52,7 @@ class Figure(images.Figure):
         return [figure_node]
 
 
-class CSVTable(tables.CSVTable):
+class CSVTable(tables.CSVTable):  # type: ignore[misc]
     """The csv-table directive which searches a CSV file from Sphinx project's source
     directory when an absolute path is given via :file: option.
     """
@@ -63,10 +62,14 @@ class CSVTable(tables.CSVTable):
             env = self.state.document.settings.env
             filename = self.options['file']
             if path.exists(filename):
-                logger.warning(__('":file:" option for csv-table directive now recognizes '
-                                  'an absolute path as a relative path from source directory. '
-                                  'Please update your document.'),
-                               location=(env.docname, self.lineno))
+                logger.warning(
+                    __(
+                        '":file:" option for csv-table directive now recognizes '
+                        'an absolute path as a relative path from source directory. '
+                        'Please update your document.'
+                    ),
+                    location=(env.docname, self.lineno),
+                )
             else:
                 abspath = path.join(env.srcdir, os_path(self.options['file'][1:]))
                 docdir = path.dirname(env.doc2path(env.docname))
@@ -95,10 +98,13 @@ class Code(SphinxDirective):
 
         set_classes(self.options)
         code = '\n'.join(self.content)
-        node = nodes.literal_block(code, code,
-                                   classes=self.options.get('classes', []),
-                                   force='force' in self.options,
-                                   highlight_args={})
+        node = nodes.literal_block(
+            code,
+            code,
+            classes=self.options.get('classes', []),
+            force='force' in self.options,
+            highlight_args={},
+        )
         self.add_name(node)
         set_source_info(self, node)
 
@@ -109,8 +115,9 @@ class Code(SphinxDirective):
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
-            node['language'] = self.env.temp_data.get('highlight_language',
-                                                      self.config.highlight_language)
+            node['language'] = self.env.temp_data.get(
+                'highlight_language', self.config.highlight_language
+            )
 
         if 'number-lines' in self.options:
             node['linenos'] = True
@@ -139,12 +146,15 @@ class MathDirective(SphinxDirective):
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
         label = self.options.get('label', self.options.get('name'))
-        node = nodes.math_block(latex, latex,
-                                classes=self.options.get('class', []),
-                                docname=self.env.docname,
-                                number=None,
-                                label=label,
-                                nowrap='nowrap' in self.options)
+        node = nodes.math_block(
+            latex,
+            latex,
+            classes=self.options.get('class', []),
+            docname=self.env.docname,
+            number=None,
+            label=label,
+            nowrap='nowrap' in self.options,
+        )
         self.add_name(node)
         self.set_source_info(node)
 
@@ -158,14 +168,14 @@ class MathDirective(SphinxDirective):
         # assign label automatically if math_number_all enabled
         if node['label'] == '' or (self.config.math_number_all and not node['label']):
             seq = self.env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = "%s:%d" % (self.env.docname, seq)
+            node['label'] = f'{self.env.docname}:{seq}'
 
         # no targets and numbers are needed
         if not node['label']:
             return
 
         # register label to domain
-        domain = cast(MathDomain, self.env.get_domain('math'))
+        domain = self.env.domains.math_domain
         domain.note_equation(self.env.docname, node['label'], location=node)
         node['number'] = domain.get_equation_number_for(node['label'])
 
@@ -176,12 +186,38 @@ class MathDirective(SphinxDirective):
         ret.insert(0, target)
 
 
+class Rubric(SphinxDirective):
+    """A patch of the docutils' :rst:dir:`rubric` directive,
+    which adds a level option to specify the heading level of the rubric.
+    """
+
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {
+        'class': directives.class_option,
+        'name': directives.unchanged,
+        'heading-level': lambda c: directives.choice(c, ('1', '2', '3', '4', '5', '6')),
+    }
+
+    def run(self) -> list[nodes.rubric | nodes.system_message]:
+        set_classes(self.options)
+        rubric_text = self.arguments[0]
+        textnodes, messages = self.parse_inline(rubric_text, lineno=self.lineno)
+        if 'heading-level' in self.options:
+            self.options['heading-level'] = int(self.options['heading-level'])
+        rubric = nodes.rubric(rubric_text, '', *textnodes, **self.options)
+        self.add_name(rubric)
+        return [rubric, *messages]
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
     directives.register_directive('csv-table', CSVTable)
     directives.register_directive('code', Code)
     directives.register_directive('math', MathDirective)
+    directives.register_directive('rubric', Rubric)
 
     return {
         'version': 'builtin',

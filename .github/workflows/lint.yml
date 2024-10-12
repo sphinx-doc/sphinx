@@ -14,24 +14,28 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
+  # If you update any of these commands, don't forget to update the equivalent
+  # tox environment
   ruff:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install pip
-      run: python -m pip install --upgrade pip
+    - name: Get Ruff version from pyproject.toml
+      run: |
+        RUFF_VERSION=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
+        echo "RUFF_VERSION=$RUFF_VERSION" >> $GITHUB_ENV
 
     - name: Install Ruff
-      run: |
-          ruff_version=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
-          python -m pip install "ruff==${ruff_version}"
+      run: >
+        curl --no-progress-meter --location --fail
+        --proto '=https' --tlsv1.2
+        --write-out "%{stderr}Downloaded: %{url}\n"
+        "https://astral.sh/ruff/$RUFF_VERSION/install.sh"
+        | sh
 
     - name: Lint with Ruff
       run: ruff check . --output-format github
@@ -48,10 +52,14 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3"
+    - name: Install uv
+      run: >
+        curl --no-progress-meter --location --fail
+        --proto '=https' --tlsv1.2
+        "https://astral.sh/uv/install.sh"
+        | sh
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade "flake8>=3.5.0"
+      run: uv pip install --upgrade "flake8>=6.0"
     - name: Lint with flake8
       run: flake8 .
 
@@ -64,12 +72,36 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3"
+    - name: Install uv
+      run: >
+        curl --no-progress-meter --location --fail
+        --proto '=https' --tlsv1.2
+        "https://astral.sh/uv/install.sh"
+        | sh
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install ".[lint,test]"
+      run: uv pip install ".[lint,test]"
     - name: Type check with mypy
       run: mypy
+
+  pyright:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Install uv
+      run: >
+        curl --no-progress-meter --location --fail
+        --proto '=https' --tlsv1.2
+        "https://astral.sh/uv/install.sh"
+        | sh
+    - name: Install dependencies
+      run: uv pip install ".[lint,test]"
+    - name: Type check with pyright
+      run: pyright
 
   docs-lint:
     runs-on: ubuntu-latest
@@ -80,10 +112,14 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3"
+    - name: Install uv
+      run: >
+        curl --no-progress-meter --location --fail
+        --proto '=https' --tlsv1.2
+        "https://astral.sh/uv/install.sh"
+        | sh
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade sphinx-lint
+      run: uv pip install --upgrade sphinx-lint
     - name: Lint documentation with sphinx-lint
       run: make doclinter
 
@@ -96,10 +132,14 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3"
+    - name: Install uv
+      run: >
+        curl --no-progress-meter --location --fail
+        --proto '=https' --tlsv1.2
+        "https://astral.sh/uv/install.sh"
+        | sh
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade twine build
+      run: uv pip install --upgrade twine build
     - name: Lint with twine
       run: |
         python -m build .

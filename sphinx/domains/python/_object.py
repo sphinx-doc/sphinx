@@ -25,7 +25,6 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
-
     from docutils.nodes import Node
     from docutils.parsers.rst.states import Inliner
 
@@ -89,6 +88,10 @@ class PyXrefMixin:
 
         return result
 
+    _delimiters_re = re.compile(
+        r'(\s*[\[\]\(\),](?:\s*o[rf]\s)?\s*|\s+o[rf]\s+|\s*\|\s*|\.\.\.)'
+    )
+
     def make_xrefs(
         self,
         rolename: str,
@@ -100,9 +103,7 @@ class PyXrefMixin:
         inliner: Inliner | None = None,
         location: Node | None = None,
     ) -> list[Node]:
-        delims = r'(\s*[\[\]\(\),](?:\s*o[rf]\s)?\s*|\s+o[rf]\s+|\s*\|\s*|\.\.\.)'
-        delims_re = re.compile(delims)
-        sub_targets = re.split(delims, target)
+        sub_targets = self._delimiters_re.split(target)
 
         split_contnode = bool(contnode and contnode.astext() == target)
 
@@ -112,13 +113,13 @@ class PyXrefMixin:
             if split_contnode:
                 contnode = nodes.Text(sub_target)
 
-            if in_literal or delims_re.match(sub_target):
+            if in_literal or self._delimiters_re.match(sub_target):
                 results.append(contnode or innernode(sub_target, sub_target))  # type: ignore[call-arg]
             else:
                 results.append(self.make_xref(rolename, domain, sub_target,
                                               innernode, contnode, env, inliner, location))
 
-            if sub_target in ('Literal', 'typing.Literal', '~typing.Literal'):
+            if sub_target in {'Literal', 'typing.Literal', '~typing.Literal'}:
                 in_literal = True
 
         return results
@@ -336,7 +337,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
 
-        domain = self.env.domains['py']
+        domain = self.env.domains.python_domain
         domain.note_object(fullname, self.objtype, node_id, location=signode)
 
         canonical_name = self.options.get('canonical')

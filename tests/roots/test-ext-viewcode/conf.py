@@ -1,9 +1,8 @@
-import os
 import sys
+from pathlib import Path
 
-source_dir = os.path.abspath('.')
-if source_dir not in sys.path:
-    sys.path.insert(0, source_dir)
+sys.path.insert(0, str(Path.cwd().resolve()))
+
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 exclude_patterns = ['_build']
 

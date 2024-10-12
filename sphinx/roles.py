@@ -17,6 +17,7 @@ from sphinx.util.docutils import ReferenceRole, SphinxRole
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Final
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -88,15 +89,15 @@ class XRefRole(ReferenceRole):
 
     def update_title_and_target(self, title: str, target: str) -> tuple[str, str]:
         if not self.has_explicit_title:
-            if title.endswith('()'):
-                # remove parentheses
-                title = title[:-2]
             if self.config.add_function_parentheses:
-                # add them back to all occurrences if configured
-                title += '()'
-        # remove parentheses from the target too
-        if target.endswith('()'):
-            target = target[:-2]
+                if not title.endswith('()'):
+                    # add parentheses to the title
+                    title += '()'
+            else:
+                # remove parentheses
+                title = title.removesuffix('()')
+        # remove parentheses from the target
+        target = target.removesuffix('()')
         return title, target
 
     def run(self) -> tuple[list[Node], list[system_message]]:
@@ -167,7 +168,11 @@ class XRefRole(ReferenceRole):
         return title, ws_re.sub(' ', target)
 
     def result_nodes(
-        self, document: nodes.document, env: BuildEnvironment, node: Element, is_ref: bool
+        self,
+        document: nodes.document,
+        env: BuildEnvironment,
+        node: Element,
+        is_ref: bool,
     ) -> tuple[list[Node], list[system_message]]:
         """Called before returning the finished nodes.  *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
@@ -192,6 +197,96 @@ class AnyXRefRole(XRefRole):
         return result
 
 
+class CVE(ReferenceRole):
+    _BASE_URL: Final = 'https://www.cve.org/CVERecord?id=CVE-'
+
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        target_id = f'index-{self.env.new_serialno("index")}'
+        entries = [
+            (
+                'single',
+                _('Common Vulnerabilities and Exposures; CVE %s') % self.target,
+                target_id,
+                '',
+                None,
+            )
+        ]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['cve']
+            )
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = f'CVE {self.title}'
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error(
+                __('invalid CVE number %s') % self.target, line=self.lineno
+            )
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self) -> str:
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return f'{CVE._BASE_URL}{ret[0]}#{ret[1]}'
+        return f'{CVE._BASE_URL}{ret[0]}'
+
+
+class CWE(ReferenceRole):
+    _BASE_URL: Final = 'https://cwe.mitre.org/data/definitions/'
+
+    def run(self) -> tuple[list[Node], list[system_message]]:
+        target_id = f'index-{self.env.new_serialno("index")}'
+        entries = [
+            (
+                'single',
+                _('Common Weakness Enumeration; CWE %s') % self.target,
+                target_id,
+                '',
+                None,
+            )
+        ]
+
+        index = addnodes.index(entries=entries)
+        target = nodes.target('', '', ids=[target_id])
+        self.inliner.document.note_explicit_target(target)
+
+        try:
+            refuri = self.build_uri()
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['cwe']
+            )
+            if self.has_explicit_title:
+                reference += nodes.strong(self.title, self.title)
+            else:
+                title = f'CWE {self.title}'
+                reference += nodes.strong(title, title)
+        except ValueError:
+            msg = self.inliner.reporter.error(
+                __('invalid CWE number %s') % self.target, line=self.lineno
+            )
+            prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
+            return [prb], [msg]
+
+        return [index, target, reference], []
+
+    def build_uri(self) -> str:
+        ret = self.target.split('#', 1)
+        if len(ret) == 2:
+            return f'{CWE._BASE_URL}{int(ret[0])}.html#{ret[1]}'
+        return f'{CWE._BASE_URL}{int(ret[0])}.html'
+
+
 class PEP(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
@@ -211,7 +306,9 @@ class PEP(ReferenceRole):
 
         try:
             refuri = self.build_uri()
-            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['pep'])
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['pep']
+            )
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
@@ -238,7 +335,8 @@ class PEP(ReferenceRole):
 class RFC(ReferenceRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         target_id = 'index-%s' % self.env.new_serialno('index')
-        entries = [('single', 'RFC; RFC %s' % self.target, target_id, '', None)]
+        formatted_target = _format_rfc_target(self.target)
+        entries = [('single', f'RFC; {formatted_target}', target_id, '', None)]
 
         index = addnodes.index(entries=entries)
         target = nodes.target('', '', ids=[target_id])
@@ -246,11 +344,13 @@ class RFC(ReferenceRole):
 
         try:
             refuri = self.build_uri()
-            reference = nodes.reference('', '', internal=False, refuri=refuri, classes=['rfc'])
+            reference = nodes.reference(
+                '', '', internal=False, refuri=refuri, classes=['rfc']
+            )
             if self.has_explicit_title:
                 reference += nodes.strong(self.title, self.title)
             else:
-                title = 'RFC ' + self.title
+                title = formatted_target
                 reference += nodes.strong(title, title)
         except ValueError:
             msg = self.inliner.reporter.error(
@@ -268,6 +368,24 @@ class RFC(ReferenceRole):
             return base_url + self.inliner.rfc_url % int(ret[0]) + '#' + ret[1]
         else:
             return base_url + self.inliner.rfc_url % int(ret[0])
+
+
+def _format_rfc_target(target: str, /) -> str:
+    """
+    Takes an RFC number with an optional anchor (like ``123#section-2.5.3``)
+    and attempts to produce a human-friendly title for it.
+
+    We have a set of known anchors that we format nicely,
+    everything else we leave alone.
+    """
+    number, _, anchor = target.partition('#')
+    if anchor:
+        first, _, remaining = anchor.partition('-')
+        if first in {'appendix', 'page', 'section'}:
+            if remaining:
+                return f'RFC {number} {first.title()} {remaining}'
+            return f'RFC {number} {first.title()}'
+    return f'RFC {target}'
 
 
 class GUILabel(SphinxRole):
@@ -374,7 +492,7 @@ class Manpage(ReferenceRole):
         inner: nodes.Node
         text = self.title[1:] if self.disabled else self.title
         if not self.disabled and self.config.manpages_url:
-            uri = self.config.manpages_url.format(**info)
+            uri = self.config.manpages_url.format_map(info)
             inner = nodes.reference('', text, classes=[self.name], refuri=uri)
         else:
             inner = nodes.Text(text)
@@ -446,12 +564,17 @@ specific_docroles: dict[str, RoleFunction] = {
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to anything
     'any': AnyXRefRole(warn_dangling=True),
+    # external links
+    'cve': CVE(),
+    'cwe': CWE(),
     'pep': PEP(),
     'rfc': RFC(),
+    # emphasised things
     'guilabel': GUILabel(),
     'menuselection': MenuSelection(),
     'file': EmphasizedLiteral(),
     'samp': EmphasizedLiteral(),
+    # other
     'abbr': Abbreviation(),
     'manpage': Manpage(),
 }
