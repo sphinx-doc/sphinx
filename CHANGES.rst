@@ -1,6 +1,8 @@
 Release 8.1.3 (released Oct 13, 2024)
 =====================================
 
+* #11778: Add the possibility to use custom Project class.
+
 Bugs fixed
 ----------
 
