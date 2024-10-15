@@ -34,6 +34,8 @@ document metadata, and is not displayed in the output.
    *docinfo* as normal and will be displayed in the output.
 
 
+.. _special-metadata-fields:
+
 Special metadata fields
 -----------------------
 
@@ -76,3 +78,12 @@ At the moment, these metadata fields are recognized:
    .. note:: object search is still available even if ``nosearch`` option is set.
 
    .. versionadded:: 3.0
+
+``notranslate``
+   If set, no paragraphs from this document will be added to Gettext message
+   catalogs. This may be useful to save work to the translators, e.g., if you
+   want to internationalize tutorials but not technical reference material. When
+   found in a document ``.../index``, this recursively applies to all
+   documents in the directory ``.../``.
+
+   .. versionadded:: 7.3.0
