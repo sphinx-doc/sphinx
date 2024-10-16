@@ -90,7 +90,7 @@ lint = [
     "types-docutils==0.21.0.20241005",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.18.0.20240506",
-    "types-requests==2.32.0.20240914",  # align with requests
+    "types-requests==2.32.0.20241016",  # align with requests
     "types-urllib3==1.26.25.14",
     "tomli>=2",  # for mypy (Python<=3.10)
     "pyright==1.1.384",
