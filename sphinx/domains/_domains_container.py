@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Set
-    from typing import Any, Final, Literal, NoReturn
+    from typing import Any, Final, Literal, NoReturn, Self
 
     from docutils import nodes
-    from typing_extensions import Self
 
     from sphinx.domains import Domain
     from sphinx.domains.c import CDomain

@@ -4,17 +4,12 @@ import gettext
 import os
 import re
 import subprocess
-import sys
+from contextlib import chdir
 from subprocess import CalledProcessError
 
 import pytest
 
 from sphinx.builders.gettext import Catalog, MsgOrigin
-
-if sys.version_info[:2] >= (3, 11):
-    from contextlib import chdir
-else:
-    from sphinx.util.osutil import _chdir as chdir
 
 _MSGID_PATTERN = re.compile(r'msgid "((?:\n|.)*?)"\nmsgstr', re.MULTILINE)
 

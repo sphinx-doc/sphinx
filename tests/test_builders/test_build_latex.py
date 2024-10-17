@@ -4,6 +4,7 @@ import http.server
 import os
 import re
 import subprocess
+from contextlib import chdir
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
@@ -19,11 +20,6 @@ from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
 from tests.utils import http_server
-
-try:
-    from contextlib import chdir
-except ImportError:
-    from sphinx.util.osutil import _chdir as chdir
 
 STYLEFILES = [
     'article.cls',
