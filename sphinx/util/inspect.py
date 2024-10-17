@@ -747,14 +747,14 @@ def _evaluate(
     """Evaluate unresolved type annotation."""
     try:
         if isinstance(annotation, str):
-            ref = ForwardRef(annotation, True)
+            ref = ForwardRef(annotation)
             annotation = _evaluate_forwardref(ref, globalns, localns)
 
             if isinstance(annotation, ForwardRef):
                 annotation = _evaluate_forwardref(ref, globalns, localns)
             elif isinstance(annotation, str):
                 # might be a ForwardRef'ed annotation in overloaded functions
-                ref = ForwardRef(annotation, True)
+                ref = ForwardRef(annotation)
                 annotation = _evaluate_forwardref(ref, globalns, localns)
     except (NameError, TypeError):
         # failed to evaluate type. skipped.
