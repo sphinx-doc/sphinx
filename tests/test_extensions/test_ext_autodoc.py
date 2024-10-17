@@ -1562,7 +1562,7 @@ class _EnumFormatter:
             doc
         ), f'enumeration class {self.target!r} should have an explicit docstring'
 
-        args = self._preamble_args()
+        args = self._preamble_args(functional_constructor=False)
         return self._preamble(doc=doc, args=args, indent=indent, **options)
 
     def preamble_constructor(
@@ -1572,7 +1572,7 @@ class _EnumFormatter:
             doc
         ), f'enumeration class {self.target!r} should have an explicit docstring'
 
-        args = self._preamble_args()
+        args = self._preamble_args(functional_constructor=True)
         return self._preamble(doc=doc, args=args, indent=indent, **options)
 
     def _preamble(
@@ -1582,12 +1582,25 @@ class _EnumFormatter:
         return self._node('class', self.name, doc, args=args, indent=indent, **options)
 
     @staticmethod
-    def _preamble_args():
+    def _preamble_args(functional_constructor: bool = False):
         """EnumType.__call__() is a dual-purpose method:
 
         * Look an enum member (valid only if the enum has members)
         * Create a new enum class (functional API)
         """
+        if sys.version_info[:2] >= (3, 13) or sys.version_info[:3] >= (3, 12, 3):
+            if functional_constructor:
+                return (
+                    '(new_class_name, /, names, *, module=None, '
+                    'qualname=None, type=None, start=1, boundary=None)'
+                )
+            else:
+                return '(*values)'
+        if sys.version_info[:2] >= (3, 12):
+            return (
+                '(value, names=None, *values, module=None, '
+                'qualname=None, type=None, start=1, boundary=None)'
+            )
         return '(value)'
 
     def method(
