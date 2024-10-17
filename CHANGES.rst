@@ -1,3 +1,25 @@
+Release 8.2.0 (in development)
+==============================
+
+Dependencies
+------------
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+-------
+
+
 Release 8.1.3 (released Oct 13, 2024)
 =====================================
 
