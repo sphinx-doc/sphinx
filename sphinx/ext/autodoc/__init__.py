@@ -186,7 +186,7 @@ def merge_members_option(options: dict) -> None:
 # Some useful event listener factories for autodoc-process-docstring.
 
 def cut_lines(
-    pre: int, post: int = 0, what: str | list[str] | None = None
+    pre: int, post: int = 0, what: Sequence[str] | None = None
 ) -> _AutodocProcessDocstringListener:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
@@ -199,7 +199,12 @@ def cut_lines(
 
     This can (and should) be used in place of :confval:`automodule_skip_lines`.
     """
-    what_unique = frozenset(what or ())
+    if not what:
+        what_unique: frozenset[str] = frozenset()
+    elif isinstance(what, str):  # strongly discouraged
+        what_unique = frozenset({what})
+    else:
+        what_unique = frozenset(what)
 
     def process(
         app: Sphinx,
@@ -209,7 +214,7 @@ def cut_lines(
         options: dict[str, bool],
         lines: list[str],
     ) -> None:
-        if what_ not in what_unique:
+        if what_unique and what_ not in what_unique:
             return
         del lines[:pre]
         if post:
