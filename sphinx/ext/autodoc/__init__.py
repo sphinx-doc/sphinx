@@ -1451,15 +1451,15 @@ class DecoratorDocumenter(FunctionDocumenter):
 # Types which have confusing metaclass signatures it would be best not to show.
 # These are listed by name, rather than storing the objects themselves, to avoid
 # needing to import the modules.
-_METACLASS_CALL_BLACKLIST = [
+_METACLASS_CALL_BLACKLIST = frozenset({
     'enum.EnumMeta.__call__',
-]
+})
 
 
 # Types whose __new__ signature is a pass-through.
-_CLASS_NEW_BLACKLIST = [
+_CLASS_NEW_BLACKLIST = frozenset({
     'typing.Generic.__new__',
-]
+})
 
 
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
