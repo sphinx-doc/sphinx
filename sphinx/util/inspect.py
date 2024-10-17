@@ -24,7 +24,7 @@ from sphinx.util import logging
 from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
     from typing import Final, Protocol, TypeAlias
@@ -583,7 +583,7 @@ class TypeAliasModule:
                     return getattr(self.__module, name)
 
 
-class TypeAliasNamespace(dict[str, Any]):
+class TypeAliasNamespace(Mapping[str, Any]):
     """Pseudo namespace class for :confval:`autodoc_type_aliases`.
 
     Useful for looking up nested objects via ``namespace.foo.bar.Class``.
@@ -593,7 +593,9 @@ class TypeAliasNamespace(dict[str, Any]):
         super().__init__()
         self.__mapping = mapping
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: object) -> Any:
+        if not isinstance(key, str):
+            raise KeyError
         if key in self.__mapping:
             # exactly matched
             return TypeAliasForwardRef(self.__mapping[key])
@@ -605,6 +607,22 @@ class TypeAliasNamespace(dict[str, Any]):
                 return TypeAliasModule(key, nested)
             else:
                 raise KeyError
+
+    def __contains__(self, key: object) -> bool:
+        if not isinstance(key, str):
+            return False
+        ns = self.__mapping
+        prefix = f'{key}.'
+        return key in ns or any(k.startswith(prefix) for k in ns)
+
+    def __iter__(self) -> Iterator[str]:
+        for k in self.__mapping:
+            yield k
+            for i in range(k.count('.')):
+                yield k.rsplit('.', i + 1)[0]
+
+    def __len__(self) -> int:
+        return sum(k.count('.') + 1 for k in self.__mapping)
 
 
 def _should_unwrap(subject: _SignatureType) -> bool:
