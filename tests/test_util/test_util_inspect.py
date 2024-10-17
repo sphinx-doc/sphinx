@@ -94,11 +94,11 @@ def _decorator(f):
 def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
-    assert sig_str == 'example'
+    assert sig_str == "TypeAliasForwardRef('example')"
 
     alias = Optional[alias]  # NoQA: UP007
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
-    assert sig_str == 'example | None'
+    assert sig_str == "TypeAliasForwardRef('example') | None"
 
 
 def test_TypeAliasNamespace():
