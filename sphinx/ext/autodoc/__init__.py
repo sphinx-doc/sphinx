@@ -1452,7 +1452,7 @@ class DecoratorDocumenter(FunctionDocumenter):
 # These are listed by name, rather than storing the objects themselves, to avoid
 # needing to import the modules.
 _METACLASS_CALL_BLACKLIST = frozenset({
-    'enum.EnumMeta.__call__',
+    'enum.EnumType.__call__',
 })
 
 

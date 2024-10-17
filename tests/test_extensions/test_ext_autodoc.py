@@ -1561,22 +1561,7 @@ class _EnumFormatter:
             doc
         ), f'enumeration class {self.target!r} should have an explicit docstring'
 
-        if sys.version_info[:2] >= (3, 13) or sys.version_info[:3] >= (3, 12, 3):
-            args = (
-                '(value, names=<not given>, *values, module=None, '
-                'qualname=None, type=None, start=1, boundary=None)'
-            )
-        elif sys.version_info[:2] >= (3, 12):
-            args = (
-                '(value, names=None, *values, module=None, '
-                'qualname=None, type=None, start=1, boundary=None)'
-            )
-        else:
-            args = (
-                '(value, names=None, *, module=None, qualname=None, '
-                'type=None, start=1, boundary=None)'
-            )
-
+        args = '(value)'
         return self._node('class', self.name, doc, args=args, indent=indent, **options)
 
     def method(
