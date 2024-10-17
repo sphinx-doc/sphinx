@@ -210,7 +210,7 @@ class WordCollector(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, lang: SearchLanguage) -> None:
         super().__init__(document)
         self.found_words: list[str] = []
-        self.found_titles: list[tuple[str, str]] = []
+        self.found_titles: list[tuple[str, str | None]] = []
         self.found_title_words: list[str] = []
         self.lang = lang
 
@@ -241,8 +241,10 @@ class WordCollector(nodes.NodeVisitor):
             self.found_words.extend(self.lang.split(node.astext()))
         elif isinstance(node, nodes.title):
             title = node.astext()
-            ids = node.parent['ids']
-            self.found_titles.append((title, ids[0] if ids else None))
+            if ids := node.parent['ids']:
+                self.found_titles.append((title, ids[0]))
+            else:
+                self.found_titles.append((title, None))
             self.found_title_words.extend(self.lang.split(title))
         elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):  # type: ignore[arg-type]
             keywords = node['content']
