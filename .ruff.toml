@@ -36,8 +36,11 @@ ignore = [
     "PERF203",  # `try`-`except` within a loop incurs performance overhead
     # flake8-pie ('PIE')
     "PIE790",  # Unnecessary `pass` statement
-    # pylint
+    # pylint ('PLC')
+    "PLC0206",  # Extracting value from dictionary without calling `.items()`
+    "PLC0415",  # `import` should be at the top-level of a file
     "PLC1901",  # simplify truthy/falsey string comparisons
+    "PLC2701",  # Private name import `{name}` from external module `{module}`
     # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
@@ -171,20 +174,7 @@ select = [
     # flake8-pie ('PIE')
     "PIE",
     # pylint ('PLC')
-    "PLC0105",  # `{kind}` name "{param_name}" does not reflect its {variance}; consider renaming it to "{replacement_name}"
-    "PLC0131",  # `{kind}` cannot be both covariant and contravariant
-    "PLC0132",  # `{kind}` name `{param_name}` does not match assigned variable name `{var_name}`
-    "PLC0205",  # Class `__slots__` should be a non-string iterable
-#    "PLC0206",  # Extracting value from dictionary without calling `.items()`
-    "PLC0208",  # Use a sequence type instead of a `set` when iterating over values
-    "PLC0414",  # Import alias does not rename original package
-#    "PLC0415",  # `import` should be at the top-level of a file
-    "PLC1901",  # `{existing}` can be simplified to `{replacement}` as an empty string is falsey
-    "PLC2401",  # {kind} name `{name}` contains a non-ASCII character
-    "PLC2403",  # Module alias `{name}` contains a non-ASCII character
-#    "PLC2701",  # Private name import `{name}` from external module `{module}`
-    "PLC2801",  # Unnecessary dunder call to `{method}`. {replacement}.
-    "PLC3002",  # Lambda expression called directly. Execute the expression inline instead.
+    "PLC",
     # pylint ('PLE')
     "PLE0100",  # `__init__` method is a generator
     "PLE0101",  # Explicit return in `__init__`
