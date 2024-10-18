@@ -1588,6 +1588,14 @@ class _EnumFormatter:
         * Look an enum member (valid only if the enum has members)
         * Create a new enum class (functional API)
         """
+        if sys.version_info[:2] >= (3, 14):
+            if functional_constructor:
+                return (
+                    '(new_class_name, /, names, *, module=None, '
+                    'qualname=None, type=None, start=1, boundary=None)'
+                )
+            else:
+                return '(*values)'
         if sys.version_info[:2] >= (3, 13) or sys.version_info[:3] >= (3, 12, 3):
             if functional_constructor:
                 return (

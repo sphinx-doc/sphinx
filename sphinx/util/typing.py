@@ -425,6 +425,9 @@ def stringify_annotation(
     annotation_module: str = getattr(annotation, '__module__', '')
     annotation_name: str = getattr(annotation, '__name__', '')
     annotation_module_is_typing = annotation_module == 'typing'
+    if sys.version_info[:2] >= (3, 14) and isinstance(annotation, ForwardRef):
+        # ForwardRef moved from `typing` to `annotationlib` in Python 3.14.
+        annotation_module_is_typing = True
 
     # Extract the annotation's base type by considering formattable cases
     if isinstance(annotation, TypeVar) and not _is_unpack_form(annotation):

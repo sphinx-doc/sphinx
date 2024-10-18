@@ -727,6 +727,10 @@ def _evaluate_forwardref(
     localns: dict[str, Any] | None,
 ) -> Any:
     """Evaluate a forward reference."""
+    if sys.version_info[:2] >= (3, 14):
+        # https://docs.python.org/dev/library/annotationlib.html#annotationlib.ForwardRef.evaluate
+        # https://docs.python.org/dev/library/typing.html#typing.evaluate_forward_ref
+        return typing.evaluate_forward_ref(ref, globals=globalns, locals=localns)
     if sys.version_info >= (3, 12, 4):
         # ``type_params`` were added in 3.13 and the signature of _evaluate()
         # is not backward-compatible (it was backported to 3.12.4, so anything
