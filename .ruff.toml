@@ -347,9 +347,7 @@ select = [
     "TD006",  # Invalid TODO capitalization: `{tag}` should be `TODO`
     "TD007",  # Missing space after colon in TODO
     # flake8-tidy-imports ('TID')
-    "TID251",  # `{name}` is banned: {message}
-    "TID252",  # Relative imports from parent modules are banned
-    "TID253",  # `{name}` is banned at the module level
+    "TID",
     # flake8-trio ('TRIO')
       # Trio is not used in Sphinx
     # tryceratops ('TRY')
