@@ -256,7 +256,7 @@ select = [
     "RET507",  # Unnecessary `{branch}` after `continue` statement
     "RET508",  # Unnecessary `{branch}` after `break` statement
     # flake8-raise ('RSE')
-    "RSE102",  # Unnecessary parentheses on raised exception
+    "RSE",
     # ruff-specific rules ('RUF')
 #    "RUF001",  # String contains ambiguous {}. Did you mean {}?
     "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
