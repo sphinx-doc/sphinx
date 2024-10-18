@@ -322,9 +322,16 @@ select = [
     "RUF018",  # Avoid assignment expressions in `assert` statements
     "RUF019",  # Unnecessary key check before dictionary access
     "RUF020",  # `{never_like} | T` is equivalent to `T`
+#    "RUF021",  # Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
+#    "RUF022",  # `__all__` is not sorted
+#    "RUF023",  # `{}.__slots__` is not sorted
     "RUF024",  # Do not pass mutable objects as values to `dict.fromkeys`
     "RUF026",  # `default_factory` is a positional-only argument to `defaultdict`
+#    "RUF027",  # Possible f-string without an `f` prefix
+#    "RUF028",  # This suppression comment is invalid because {}
+#    "RUF029",  # Function `{name}` is declared `async`, but doesn't `await` or use `async` features.
     "RUF030",  # `print()` expression in `assert` statement is likely unintentional
+#    "RUF031",  # Use parentheses for tuples in subscripts.
     "RUF032",  # `Decimal()` called with float literal argument
     "RUF033",  # `__post_init__` method with argument defaults
     "RUF034",  # Useless if-else condition
