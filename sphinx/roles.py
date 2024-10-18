@@ -62,6 +62,9 @@ class XRefRole(ReferenceRole):
       * `lowercase` to lowercase the target
       * `nodeclass` and `innernodeclass` select the node classes for
         the reference and the content node
+      * `title_fmt`: an optional format string using one ``{title}`` variable
+        that can be used to customize the rendered text, e.g.
+        ``title_fmt=":{title}:"`
 
     * Subclassing and overwriting `process_link()` and/or `result_nodes()`.
     """
@@ -76,6 +79,7 @@ class XRefRole(ReferenceRole):
         nodeclass: type[Element] | None = None,
         innernodeclass: type[TextElement] | None = None,
         warn_dangling: bool = False,
+        title_fmt: str | None = None,
     ) -> None:
         self.fix_parens = fix_parens
         self.lowercase = lowercase
@@ -84,6 +88,7 @@ class XRefRole(ReferenceRole):
             self.nodeclass = nodeclass
         if innernodeclass is not None:
             self.innernodeclass = innernodeclass
+        self.title_fmt = title_fmt
 
         super().__init__()
 
@@ -146,6 +151,8 @@ class XRefRole(ReferenceRole):
             self.env, refnode, self.has_explicit_title, title, target
         )
         refnode['reftarget'] = target
+        if self.title_fmt is not None:
+            title = self.title_fmt.format(title=title)
         refnode += self.innernodeclass(self.rawtext, title, classes=self.classes)
 
         return self.result_nodes(self.inliner.document, self.env, refnode, is_ref=True)
