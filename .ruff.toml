@@ -34,6 +34,8 @@ ignore = [
     "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
     # perflint
     "PERF203",  # `try`-`except` within a loop incurs performance overhead
+    # flake8-pie ('PIE')
+    "PIE790",  # Unnecessary `pass` statement
     # pylint
     "PLC1901",  # simplify truthy/falsey string comparisons
     # flake8-simplify
@@ -165,13 +167,7 @@ select = [
     # pygrep-hooks ('PGH')
     "PGH",
     # flake8-pie ('PIE')
-#    "PIE790",  # Unnecessary `pass` statement
-    "PIE794",  # Class field `{name}` is defined multiple times
-    "PIE796",  # Enum contains duplicate value: `{value}`
-    "PIE800",  # Unnecessary spread `**`
-    "PIE804",  # Unnecessary `dict` kwargs
-    "PIE807",  # Prefer `list` over useless lambda
-    "PIE810",  # Call `{attr}` once with a `tuple`
+    "PIE",
     # pylint ('PLC')
     "PLC0105",  # `{kind}` name "{param_name}" does not reflect its {variance}; consider renaming it to "{replacement_name}"
     "PLC0131",  # `{kind}` cannot be both covariant and contravariant
