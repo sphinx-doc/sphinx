@@ -116,9 +116,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
         match result.status:
             case LinkStatus.IGNORED:
                 msg = (
-                    darkgray('-ignored- ') + result.uri + f': {result.message}'
-                    if result.message
-                    else ''
+                    darkgray('-ignored- ')
+                    + result.uri
+                    + (f': {result.message}' if result.message else '')
                 )
                 logger.info(msg)
             case LinkStatus.WORKING:
