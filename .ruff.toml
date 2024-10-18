@@ -336,6 +336,8 @@ select = [
 #    "S110",  # `try`-`except`-`pass` detected, consider logging the exception
     "S112",  # `try`-`except`-`continue` detected, consider logging the exception
 #    "S113",  # Probable use of `{module}` call without timeout
+    "S201",  # Use of `debug=True` in Flask app detected
+    "S202",  # Uses of `tarfile.extractall()`
 #    "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
     "S302",  # Deserialization with the `marshal` module is possibly dangerous
     "S303",  # Use of insecure MD2, MD4, MD5, or SHA1 hash function
@@ -358,8 +360,23 @@ select = [
     "S321",  # FTP-related functions are being called. FTP is considered insecure. Use SSH/SFTP/SCP or some other encrypted protocol.
     "S323",  # Python allows using an insecure context via the `_create_unverified_context` that reverts to the previous behavior that does not validate certificates or perform hostname checks.
 #    "S324",  # Probable use of insecure hash functions in `{library}`: `{string}`
+    "S401",  # `telnetlib` and related modules are considered insecure. Use SSH or another encrypted protocol.
+    "S402",  # `ftplib` and related modules are considered insecure. Use SSH, SFTP, SCP, or another encrypted protocol.
+    "S406",  # `xml.sax` methods are vulnerable to XML attacks
+    "S407",  # `xml.dom.expatbuilder` is vulnerable to XML attacks
+    "S408",  # `xml.dom.minidom` is vulnerable to XML attacks
+    "S409",  # `xml.dom.pulldom` is vulnerable to XML attacks
+    "S411",  # XMLRPC is vulnerable to remote XML attacks
+    "S412",  # `httpoxy` is a set of vulnerabilities that affect application code running inCGI, or CGI-like environments. The use of CGI for web applications should be avoided
+    "S413",  # `pycrypto` library is known to have publicly disclosed buffer overflow vulnerability
+    "S415",  # An IPMI-related module is being imported. Prefer an encrypted protocol over IPMI.
     "S501",  # Probable use of `{string}` call with `verify=False` disabling SSL certificate checks
+    "S502",  # Call made with insecure SSL protocol: `{protocol}`
+    "S503",  # Argument default set to insecure SSL protocol: `{protocol}`
+    "S504",  # `ssl.wrap_socket` called without an `ssl_version``
+    "S505",  # {cryptographic_key} key sizes below {minimum_key_size} bits are considered breakable
     "S506",  # Probable use of unsafe loader `{name}` with `yaml.load`. Allows instantiation of arbitrary objects. Consider `yaml.safe_load`.
+    "S507",  # Paramiko call with policy set to automatically trust the unknown host key
     "S508",  # The use of SNMPv1 and SNMPv2 is insecure. Use SNMPv3 if able.
     "S509",  # You should not use SNMPv3 without encryption. `noAuthNoPriv` & `authNoPriv` is insecure.
     "S601",  # Possible shell injection via Paramiko call; check inputs are properly sanitized
@@ -371,6 +388,8 @@ select = [
 #    "S607",  # Starting a process with a partial executable path
     "S608",  # Possible SQL injection vector through string-based query construction
     "S609",  # Possible wildcard injection in call due to `*` usage
+    "S610",  # Use of Django `extra` can lead to SQL injection vulnerabilities
+    "S611",  # Use of `RawSQL` can lead to SQL injection vulnerabilities
     "S612",  # Use of insecure `logging.config.listen` detected
 #    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
 #    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
