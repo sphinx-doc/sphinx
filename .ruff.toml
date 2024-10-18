@@ -134,6 +134,8 @@ select = [
     "F",
     # flake8-future-annotations ('FA')
     "FA",
+    # flake8-fastapi ('FAST')
+      # FastAPI is not used in Sphinx
     # flake8-boolean-trap ('FBT')
       # NOT YET USED
     # flake8-fixme ('FIX')
