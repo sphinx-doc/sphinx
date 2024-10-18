@@ -241,7 +241,7 @@ select = [
     # flake8-use-pathlib ('PTH')
       # NOT YET USED
     # flake8-pyi ('PYI')
-      # NOT YET USED
+      # Stub files are not used in Sphinx
     # flake8-quotes ('Q')
 #    "Q000",  # Double quotes found but single quotes preferred
 #    "Q001",  # Single quote multiline found but double quotes preferred
