@@ -105,15 +105,12 @@ jobs:
 
   free-threaded:
     runs-on: ubuntu-latest
-    name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }}; free-threaded)
+    name: Python ${{ matrix.python }} (free-threaded)
     strategy:
       fail-fast: false
       matrix:
         python:
         - "3.13"
-        docutils:
-        - "0.20"
-        - "0.21"
 
     steps:
     - uses: actions/checkout@v4
@@ -130,8 +127,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install .[test]
-    - name: Install Docutils ${{ matrix.docutils }}
-      run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
     # markupsafe._speedups has not declared that it can run safely without the GIL
     - name: Remove markupsafe._speedups
       run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
@@ -142,15 +137,12 @@ jobs:
 
   deadsnakes-free-threaded:
     runs-on: ubuntu-latest
-    name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }}; free-threaded)
+    name: Python ${{ matrix.python }} (free-threaded)
     strategy:
       fail-fast: false
       matrix:
         python:
         - "3.14"
-        docutils:
-        - "0.20"
-        - "0.21"
 
     steps:
     - uses: actions/checkout@v4
@@ -168,8 +160,6 @@ jobs:
         python -m pip install --upgrade pip
         sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
-    - name: Install Docutils ${{ matrix.docutils }}
-      run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
     # markupsafe._speedups has not declared that it can run safely without the GIL
     - name: Remove markupsafe._speedups
       run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
