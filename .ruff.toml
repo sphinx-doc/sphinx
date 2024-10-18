@@ -335,12 +335,12 @@ select = [
     "S108",  # Probable insecure usage of temporary file or directory: "{}"
 #    "S110",  # `try`-`except`-`pass` detected, consider logging the exception
     "S112",  # `try`-`except`-`continue` detected, consider logging the exception
-#    "S113",  # Probable use of requests call without timeout
+#    "S113",  # Probable use of `{module}` call without timeout
 #    "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
     "S302",  # Deserialization with the `marshal` module is possibly dangerous
     "S303",  # Use of insecure MD2, MD4, MD5, or SHA1 hash function
     "S304",  # Use of insecure cipher, replace with a known secure cipher such as AES
-    "S305",  # Use of insecure cipher mode, replace with a known secure cipher such as AES
+    "S305",  # Use of insecure block cipher mode, replace with a known secure mode such as CBC or CTR
     "S306",  # Use of insecure and deprecated function (`mktemp`)
     "S307",  # Use of possibly insecure function; consider using `ast.literal_eval`
     "S308",  # Use of `mark_safe` may expose cross-site scripting vulnerabilities
@@ -357,7 +357,7 @@ select = [
     "S320",  # Using `lxml` to parse untrusted data is known to be vulnerable to XML attacks
     "S321",  # FTP-related functions are being called. FTP is considered insecure. Use SSH/SFTP/SCP or some other encrypted protocol.
     "S323",  # Python allows using an insecure context via the `_create_unverified_context` that reverts to the previous behavior that does not validate certificates or perform hostname checks.
-#    "S324",  # Probable use of insecure hash functions in `hashlib`: `{string}`
+#    "S324",  # Probable use of insecure hash functions in `{library}`: `{string}`
     "S501",  # Probable use of `{string}` call with `verify=False` disabling SSL certificate checks
     "S506",  # Probable use of unsafe loader `{name}` with `yaml.load`. Allows instantiation of arbitrary objects. Consider `yaml.safe_load`.
     "S508",  # The use of SNMPv1 and SNMPv2 is insecure. Use SNMPv3 if able.
