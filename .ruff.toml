@@ -27,6 +27,8 @@ ignore = [
     "E741",  # Ambiguous variable name: `{name}`
     # pyflakes
     "F841",  # Local variable `{name}` is assigned to but never used
+    # flake8-logging-format
+    "G003",  # Logging statement uses `+`
     # refurb
     "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
     "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
@@ -137,14 +139,7 @@ select = [
     # refurb ('FURB')
     "FURB",
     # flake8-logging-format ('G')
-    "G001",  # Logging statement uses `str.format`
-    "G002",  # Logging statement uses `%`
-#    "G003",  # Logging statement uses `+`
-    "G004",  # Logging statement uses f-string
-    "G010",  # Logging statement uses `warn` instead of `warning`
-    "G101",  # Logging statement uses an `extra` field that clashes with a `LogRecord` field: `{key}`
-    "G201",  # Logging `.exception(...)` should be used instead of `.error(..., exc_info=True)`
-    "G202",  # Logging statement has redundant `exc_info`
+    "G",
     # isort ('I')
     "I",
     # flake8-import-conventions ('ICN')
