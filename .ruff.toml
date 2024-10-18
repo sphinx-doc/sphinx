@@ -246,14 +246,23 @@ select = [
     # pylint ('PLW')
     "PLW0120",  # `else` clause on loop without a `break` statement; remove the `else` and dedent its contents
     "PLW0127",  # Self-assignment of variable `{name}`
+    "PLW0128",  # Redeclared variable `{name}` in assignment
     "PLW0129",  # Asserting on an empty string literal will never pass
     "PLW0131",  # Named expression used without context
+    "PLW0133",  # Missing `raise` statement on exception
+    "PLW0177",  # Comparing against a NaN value; use `math.isnan` instead
+    "PLW0245",  # `super` call is missing parentheses
     "PLW0406",  # Module `{name}` imports itself
     "PLW0602",  # Using global for `{name}` but no assignment is done
 #    "PLW0603",  # Using the global statement to update `{name}` is discouraged
+    "PLW0604",  # `global` at module level is redundant
+    "PLW0642",  # Reassigned `{}` variable in {method_type} method
     "PLW0711",  # Exception to catch is the result of a binary `and` operation
+    "PLW1501",  # `{mode}` is not a valid mode for `open`
     "PLW1508",  # Invalid type for environment variable default; expected `str` or `None`
     "PLW1509",  # `preexec_fn` argument is unsafe when using threads
+    "PLW1510",  # `subprocess.run` without explicit `check` argument
+    "PLW2101",  # Threading lock directly created in `with` statement has no effect
 #    "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
     "PLW3301",  # Nested `{func}` calls can be flattened
     # flake8-pytest-style ('PT')
