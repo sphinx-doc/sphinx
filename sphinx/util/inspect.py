@@ -24,7 +24,7 @@ from sphinx.util import logging
 from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
     from typing import Final, Protocol, TypeAlias
@@ -547,7 +547,7 @@ class TypeAliasForwardRef:
         return hash(self.name)
 
     def __repr__(self) -> str:
-        return self.name
+        return f'{self.__class__.__name__}({self.name!r})'
 
 
 class TypeAliasModule:
@@ -583,7 +583,7 @@ class TypeAliasModule:
                     return getattr(self.__module, name)
 
 
-class TypeAliasNamespace(dict[str, Any]):
+class TypeAliasNamespace(Mapping[str, Any]):
     """Pseudo namespace class for :confval:`autodoc_type_aliases`.
 
     Useful for looking up nested objects via ``namespace.foo.bar.Class``.
@@ -593,7 +593,9 @@ class TypeAliasNamespace(dict[str, Any]):
         super().__init__()
         self.__mapping = mapping
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: object) -> Any:
+        if not isinstance(key, str):
+            raise KeyError
         if key in self.__mapping:
             # exactly matched
             return TypeAliasForwardRef(self.__mapping[key])
@@ -605,6 +607,22 @@ class TypeAliasNamespace(dict[str, Any]):
                 return TypeAliasModule(key, nested)
             else:
                 raise KeyError
+
+    def __contains__(self, key: object) -> bool:
+        if not isinstance(key, str):
+            return False
+        ns = self.__mapping
+        prefix = f'{key}.'
+        return key in ns or any(k.startswith(prefix) for k in ns)
+
+    def __iter__(self) -> Iterator[str]:
+        for k in self.__mapping:
+            yield k
+            for i in range(k.count('.')):
+                yield k.rsplit('.', i + 1)[0]
+
+    def __len__(self) -> int:
+        return sum(k.count('.') + 1 for k in self.__mapping)
 
 
 def _should_unwrap(subject: _SignatureType) -> bool:
@@ -709,14 +727,20 @@ def _evaluate_forwardref(
     localns: dict[str, Any] | None,
 ) -> Any:
     """Evaluate a forward reference."""
+    if sys.version_info[:2] >= (3, 14):
+        # https://docs.python.org/dev/library/annotationlib.html#annotationlib.ForwardRef.evaluate
+        # https://docs.python.org/dev/library/typing.html#typing.evaluate_forward_ref
+        return typing.evaluate_forward_ref(ref, globals=globalns, locals=localns)
     if sys.version_info >= (3, 12, 4):
         # ``type_params`` were added in 3.13 and the signature of _evaluate()
         # is not backward-compatible (it was backported to 3.12.4, so anything
         # before 3.12.4 still has the old signature).
         #
         # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(globalns, localns, {}, recursive_guard=frozenset())  # type: ignore[arg-type, misc]
-    return ref._evaluate(globalns, localns, frozenset())
+        return ref._evaluate(
+            globalns, localns, type_params=(), recursive_guard=frozenset()
+        )  # type: ignore[call-arg]
+    return ref._evaluate(globalns, localns, recursive_guard=frozenset())
 
 
 def _evaluate(
@@ -727,14 +751,14 @@ def _evaluate(
     """Evaluate unresolved type annotation."""
     try:
         if isinstance(annotation, str):
-            ref = ForwardRef(annotation, True)
+            ref = ForwardRef(annotation)
             annotation = _evaluate_forwardref(ref, globalns, localns)
 
             if isinstance(annotation, ForwardRef):
                 annotation = _evaluate_forwardref(ref, globalns, localns)
             elif isinstance(annotation, str):
                 # might be a ForwardRef'ed annotation in overloaded functions
-                ref = ForwardRef(annotation, True)
+                ref = ForwardRef(annotation)
                 annotation = _evaluate_forwardref(ref, globalns, localns)
     except (NameError, TypeError):
         # failed to evaluate type. skipped.

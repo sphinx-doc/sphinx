@@ -8,6 +8,7 @@ import posixpath
 import re
 from typing import Any
 
+from sphinx.errors import ExtensionError as _ExtensionError
 from sphinx.errors import FiletypeNotFoundError
 from sphinx.util import _files, _importer, logging
 from sphinx.util import index_entries as _index_entries
@@ -86,6 +87,7 @@ _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
         'sphinx.util.index_entries.split_into',
         (9, 0),
     ),
+    'ExtensionError': (_ExtensionError, 'sphinx.errors.ExtensionError', (9, 0)),
     'md5': (_md5, '', (9, 0)),
     'sha1': (_sha1, '', (9, 0)),
     'import_object': (_importer.import_object, '', (10, 0)),

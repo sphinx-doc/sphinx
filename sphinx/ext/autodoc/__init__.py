@@ -10,6 +10,7 @@ from __future__ import annotations
 import functools
 import operator
 import re
+import sys
 from inspect import Parameter, Signature
 from typing import TYPE_CHECKING, Any, NewType, TypeVar
 
@@ -186,7 +187,7 @@ def merge_members_option(options: dict) -> None:
 # Some useful event listener factories for autodoc-process-docstring.
 
 def cut_lines(
-    pre: int, post: int = 0, what: str | list[str] | None = None
+    pre: int, post: int = 0, what: Sequence[str] | None = None
 ) -> _AutodocProcessDocstringListener:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
@@ -199,7 +200,12 @@ def cut_lines(
 
     This can (and should) be used in place of :confval:`automodule_skip_lines`.
     """
-    what_unique = frozenset(what or ())
+    if not what:
+        what_unique: frozenset[str] = frozenset()
+    elif isinstance(what, str):  # strongly discouraged
+        what_unique = frozenset({what})
+    else:
+        what_unique = frozenset(what)
 
     def process(
         app: Sphinx,
@@ -209,7 +215,7 @@ def cut_lines(
         options: dict[str, bool],
         lines: list[str],
     ) -> None:
-        if what_ not in what_unique:
+        if what_unique and what_ not in what_unique:
             return
         del lines[:pre]
         if post:
@@ -1446,15 +1452,15 @@ class DecoratorDocumenter(FunctionDocumenter):
 # Types which have confusing metaclass signatures it would be best not to show.
 # These are listed by name, rather than storing the objects themselves, to avoid
 # needing to import the modules.
-_METACLASS_CALL_BLACKLIST = [
-    'enum.EnumMeta.__call__',
-]
+_METACLASS_CALL_BLACKLIST = frozenset({
+    'enum.EnumType.__call__',
+})
 
 
 # Types whose __new__ signature is a pass-through.
-_CLASS_NEW_BLACKLIST = [
+_CLASS_NEW_BLACKLIST = frozenset({
     'typing.Generic.__new__',
-]
+})
 
 
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
@@ -1538,10 +1544,15 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # This sequence is copied from inspect._signature_from_callable.
         # ValueError means that no signature could be found, so we keep going.
 
-        # First, we check the obj has a __signature__ attribute
-        if (hasattr(self.object, '__signature__') and
-                isinstance(self.object.__signature__, Signature)):
-            return None, None, self.object.__signature__
+        # First, we check if obj has a __signature__ attribute
+        if hasattr(self.object, '__signature__'):
+            object_sig = self.object.__signature__
+            if isinstance(object_sig, Signature):
+                return None, None, object_sig
+            if sys.version_info[:2] in {(3, 12), (3, 13)} and callable(object_sig):
+                # Support for enum.Enum.__signature__ in Python 3.12
+                if isinstance(object_sig_str := object_sig(), str):
+                    return None, None, inspect.signature_from_str(object_sig_str)
 
         # Next, let's see if it has an overloaded __call__ defined
         # in its metaclass

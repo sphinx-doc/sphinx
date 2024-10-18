@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from os import path
 from typing import TYPE_CHECKING, NamedTuple
 
@@ -60,10 +59,7 @@ if TYPE_CHECKING:
 
     Formatter: TypeAlias = DateFormatter | TimeFormatter | DatetimeFormatter
 
-if sys.version_info[:2] >= (3, 11):
-    from datetime import UTC
-else:
-    UTC = timezone.utc
+from datetime import UTC
 
 logger = logging.getLogger(__name__)
 

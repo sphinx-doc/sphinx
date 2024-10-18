@@ -95,7 +95,7 @@ def test_format_date():
 
 
 def test_format_date_timezone():
-    dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.timezone.utc)
+    dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.UTC)
     if time.localtime(dt.timestamp()).tm_gmtoff == 0:
         raise pytest.skip('Local time zone is GMT')  # NoQA: EM101
 
