@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 15:47+0000\n"
+"POT-Creation-Date: 2024-10-13 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Steven Hsu <hsuhaochun@gmail.com>, 2021-2024\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/sphinx-doc/sphinx-1/language/zh_TW/)\n"
@@ -192,37 +192,37 @@ msgstr "%s 擴充套件對於平行寫入是不安全的"
 msgid "doing serial %s"
 msgstr "執行串列 %s"
 
-#: roles.py:205
+#: roles.py:208
 #, python-format
 msgid "Common Vulnerabilities and Exposures; CVE %s"
 msgstr ""
 
-#: roles.py:228
+#: roles.py:231
 #, python-format
 msgid "invalid CVE number %s"
 msgstr ""
 
-#: roles.py:249
+#: roles.py:253
 #, python-format
 msgid "Common Weakness Enumeration; CWE %s"
 msgstr ""
 
-#: roles.py:272
+#: roles.py:276
 #, python-format
 msgid "invalid CWE number %s"
 msgstr ""
 
-#: roles.py:293
+#: roles.py:296
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python Enhancement Proposals; PEP %s"
 
-#: roles.py:316
+#: roles.py:319
 #, python-format
 msgid "invalid PEP number %s"
 msgstr "無效的 PEP 號碼 %s"
 
-#: roles.py:354
+#: roles.py:357
 #, python-format
 msgid "invalid RFC number %s"
 msgstr "無效的 RFC 號碼 %s"
@@ -761,66 +761,66 @@ msgstr "重複公式標籤 %s，亦出現於 %s"
 msgid "Invalid math_eqref_format: %r"
 msgstr "無效的 math_eqref_format: %r"
 
-#: environment/__init__.py:86
+#: environment/__init__.py:82
 msgid "new config"
 msgstr "新的組態"
 
-#: environment/__init__.py:87
+#: environment/__init__.py:83
 msgid "config changed"
 msgstr "組態已變更"
 
-#: environment/__init__.py:88
+#: environment/__init__.py:84
 msgid "extensions changed"
 msgstr "擴充套件已變更"
 
-#: environment/__init__.py:249
+#: environment/__init__.py:245
 msgid "build environment version not current"
 msgstr "建立環境的版本不是目前的"
 
-#: environment/__init__.py:251
+#: environment/__init__.py:247
 msgid "source directory has changed"
 msgstr "來源資料夾已變更"
 
-#: environment/__init__.py:311
+#: environment/__init__.py:307
 #, python-format
 msgid "The configuration has changed (1 option: %r)"
 msgstr ""
 
-#: environment/__init__.py:316
+#: environment/__init__.py:312
 #, python-format
 msgid "The configuration has changed (%d options: %s)"
 msgstr ""
 
-#: environment/__init__.py:322
+#: environment/__init__.py:318
 #, python-format
 msgid "The configuration has changed (%d options: %s, ...)"
 msgstr ""
 
-#: environment/__init__.py:364
+#: environment/__init__.py:360
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "這個環境與所選的 builder 不相容，請選擇另一個 doctree 資料夾。"
 
-#: environment/__init__.py:473
+#: environment/__init__.py:469
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "無法掃描 %s 中的文件： %r"
 
-#: environment/__init__.py:622
+#: environment/__init__.py:618
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "Domain %r 未被註冊"
 
-#: environment/__init__.py:773
+#: environment/__init__.py:769
 msgid "document isn't included in any toctree"
 msgstr "文件未被包含於任何 toctree"
 
-#: environment/__init__.py:806
+#: environment/__init__.py:802
 msgid "self referenced toctree found. Ignored."
 msgstr "找到自我參照的 toctree。已略過。"
 
-#: environment/__init__.py:835
+#: environment/__init__.py:831
 #, python-format
 msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
 msgstr ""
@@ -1616,7 +1616,7 @@ msgstr "錯誤寫入檔案 Makefile： %s"
 msgid "The message catalogs are in %(outdir)s."
 msgstr "訊息目錄是在 %(outdir)s"
 
-#: builders/__init__.py:371 builders/gettext.py:251
+#: builders/__init__.py:377 builders/gettext.py:251
 #, python-format
 msgid "building [%s]: "
 msgstr "正在建立 [%s]："
@@ -1634,104 +1634,104 @@ msgstr "正在讀取模板..."
 msgid "writing message catalogs... "
 msgstr "正在寫入訊息目錄..."
 
-#: builders/__init__.py:200
+#: builders/__init__.py:206
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "未找到對於 %s builder 適用的圖片：%s (%s)"
 
-#: builders/__init__.py:208
+#: builders/__init__.py:214
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "未找到對於 %s builder 適用的圖片：%s"
 
-#: builders/__init__.py:231
+#: builders/__init__.py:237
 msgid "building [mo]: "
 msgstr "建立 [mo]："
 
-#: builders/__init__.py:234 builders/__init__.py:729 builders/__init__.py:761
+#: builders/__init__.py:240 builders/__init__.py:735 builders/__init__.py:767
 msgid "writing output... "
 msgstr "編寫輸出..."
 
-#: builders/__init__.py:251
+#: builders/__init__.py:257
 #, python-format
 msgid "all of %d po files"
 msgstr "所有的 %d po 檔"
 
-#: builders/__init__.py:273
+#: builders/__init__.py:279
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "對於指定的 po 檔 %d 的目標"
 
-#: builders/__init__.py:285
+#: builders/__init__.py:291
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "對於已過期 po 檔 %d 的目標"
 
-#: builders/__init__.py:295
+#: builders/__init__.py:301
 msgid "all source files"
 msgstr "所有原始檔案"
 
-#: builders/__init__.py:307
+#: builders/__init__.py:313
 #, python-format
 msgid "file %r given on command line does not exist, "
 msgstr "在命令列給的檔案 %r 不存在，"
 
-#: builders/__init__.py:313
+#: builders/__init__.py:319
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "在命令列給的檔案 %r 不在來源資料夾下，忽略中"
 
-#: builders/__init__.py:324
+#: builders/__init__.py:330
 #, python-format
 msgid "file %r given on command line is not a valid document, ignoring"
 msgstr "在命令列給的檔案 %r 不是有效的文件，忽略中"
 
-#: builders/__init__.py:339
+#: builders/__init__.py:345
 #, python-format
 msgid "%d source files given on command line"
 msgstr "在命令列給了 %d 個原始檔案"
 
-#: builders/__init__.py:354
+#: builders/__init__.py:360
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "%d 個過時原始檔案的目標"
 
-#: builders/__init__.py:382
+#: builders/__init__.py:388
 msgid "looking for now-outdated files... "
 msgstr "正在尋找目前已過期的檔案..."
 
-#: builders/__init__.py:386
+#: builders/__init__.py:392
 #, python-format
 msgid "%d found"
 msgstr "已找到 %d"
 
-#: builders/__init__.py:388
+#: builders/__init__.py:394
 msgid "none found"
 msgstr "找不到任何結果"
 
-#: builders/__init__.py:395
+#: builders/__init__.py:401
 msgid "pickling environment"
 msgstr "正在 pickle 環境"
 
-#: builders/__init__.py:402
+#: builders/__init__.py:408
 msgid "checking consistency"
 msgstr "正在檢查一致性"
 
-#: builders/__init__.py:406
+#: builders/__init__.py:412
 msgid "no targets are out of date."
 msgstr "沒有過時的目標。"
 
-#: builders/__init__.py:446
+#: builders/__init__.py:452
 msgid "updating environment: "
 msgstr "正在更新環境："
 
-#: builders/__init__.py:471
+#: builders/__init__.py:477
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s 已新增， %s 已變更， %s 已移除"
 
-#: builders/__init__.py:507
+#: builders/__init__.py:513
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches a "
@@ -1739,7 +1739,7 @@ msgid ""
 " location."
 msgstr ""
 
-#: builders/__init__.py:516
+#: builders/__init__.py:522
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches an "
@@ -1747,7 +1747,7 @@ msgid ""
 "conf.py."
 msgstr ""
 
-#: builders/__init__.py:527
+#: builders/__init__.py:533
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it is not included"
@@ -1755,31 +1755,31 @@ msgid ""
 "include_patterns matches the master document."
 msgstr ""
 
-#: builders/__init__.py:534
+#: builders/__init__.py:540
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s). The master document must "
 "be within the source directory or a subdirectory of it."
 msgstr ""
 
-#: builders/__init__.py:553 builders/__init__.py:569
+#: builders/__init__.py:559 builders/__init__.py:575
 msgid "reading sources... "
 msgstr "正在讀取來源..."
 
-#: builders/__init__.py:686
+#: builders/__init__.py:692
 #, python-format
 msgid "docnames to write: %s"
 msgstr "待寫入的 docname: %s"
 
-#: builders/__init__.py:699
+#: builders/__init__.py:705
 msgid "preparing documents"
 msgstr "正在準備文件"
 
-#: builders/__init__.py:702
+#: builders/__init__.py:708
 msgid "copying assets"
 msgstr "正在複製資產 (asset)"
 
-#: builders/__init__.py:845
+#: builders/__init__.py:860
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "無法解碼的原始字元，以 \"?\" 取代： %r"
@@ -3989,24 +3989,24 @@ msgstr "對於 member-order 選項無效的值： %s"
 msgid "invalid value for class-doc-from option: %s"
 msgstr "對於 class-doc-from 選項無效的值： %s"
 
-#: ext/autodoc/__init__.py:408
+#: ext/autodoc/__init__.py:413
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "無效的簽章給 auto%s (%r)"
 
-#: ext/autodoc/__init__.py:525
+#: ext/autodoc/__init__.py:530
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "在為 %s 格式化引數時有錯誤： %s"
 
-#: ext/autodoc/__init__.py:795
+#: ext/autodoc/__init__.py:800
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc: 決定 %s.%s (%r) 被文件化失敗，引發以下的例外：\n%s"
 
-#: ext/autodoc/__init__.py:890
+#: ext/autodoc/__init__.py:895
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -4014,76 +4014,76 @@ msgid ""
 "explicit module name)"
 msgstr "不清楚要 import 哪個模組來 autodocument %r （試試看在文件中加入 \"module\" 或 \"currentmodule\" 指令，或是給予一個明確的模組名稱）"
 
-#: ext/autodoc/__init__.py:934
+#: ext/autodoc/__init__.py:939
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "一個 mocked 物件被偵測到： %r"
 
-#: ext/autodoc/__init__.py:953
+#: ext/autodoc/__init__.py:958
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "正在為 %s 格式化簽名時發生錯誤： %s"
 
-#: ext/autodoc/__init__.py:1016
+#: ext/autodoc/__init__.py:1021
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "\"::\" 在 automodule 的名稱中並不合理"
 
-#: ext/autodoc/__init__.py:1023
+#: ext/autodoc/__init__.py:1028
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "簽名引數或回傳註釋給予 automodule %s"
 
-#: ext/autodoc/__init__.py:1036
+#: ext/autodoc/__init__.py:1041
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__  應該是一個字串的列表，不是 %r （在 %s 模組中）-- 正在忽略 __all__"
 
-#: ext/autodoc/__init__.py:1102
+#: ext/autodoc/__init__.py:1107
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "缺少 :members: 選項中所述的屬性：模組 %s ，屬性 %s"
 
-#: ext/autodoc/__init__.py:1325 ext/autodoc/__init__.py:1402
-#: ext/autodoc/__init__.py:2810
+#: ext/autodoc/__init__.py:1330 ext/autodoc/__init__.py:1407
+#: ext/autodoc/__init__.py:2815
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "無法取得一個函式簽名給 %s: %s"
 
-#: ext/autodoc/__init__.py:1616
+#: ext/autodoc/__init__.py:1621
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "無法取得一個 constructor 簽名給 %s: %s"
 
-#: ext/autodoc/__init__.py:1743
+#: ext/autodoc/__init__.py:1748
 #, python-format
 msgid "Bases: %s"
 msgstr "基礎類別：%s"
 
-#: ext/autodoc/__init__.py:1757
+#: ext/autodoc/__init__.py:1762
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "遺漏屬性 %s 在物件 %s"
 
-#: ext/autodoc/__init__.py:1838 ext/autodoc/__init__.py:1875
-#: ext/autodoc/__init__.py:1970
+#: ext/autodoc/__init__.py:1843 ext/autodoc/__init__.py:1880
+#: ext/autodoc/__init__.py:1975
 #, python-format
 msgid "alias of %s"
 msgstr "%s 的別名"
 
-#: ext/autodoc/__init__.py:1858
+#: ext/autodoc/__init__.py:1863
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s) 的別名"
 
-#: ext/autodoc/__init__.py:2198 ext/autodoc/__init__.py:2298
+#: ext/autodoc/__init__.py:2203 ext/autodoc/__init__.py:2303
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "無法取得一個 method 簽名給 %s: %s"
 
-#: ext/autodoc/__init__.py:2429
+#: ext/autodoc/__init__.py:2434
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "在 %s 找到無效的 __slots__。已略過。"

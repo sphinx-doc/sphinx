@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 15:47+0000\n"
+"POT-Creation-Date: 2024-10-13 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2019-2024\n"
 "Language-Team: Portuguese (Brazil) (http://app.transifex.com/sphinx-doc/sphinx-1/language/pt_BR/)\n"
@@ -190,37 +190,37 @@ msgstr "a extensão %s não é segura para escrita em paralelo"
 msgid "doing serial %s"
 msgstr "fazendo serial %s"
 
-#: roles.py:205
+#: roles.py:208
 #, python-format
 msgid "Common Vulnerabilities and Exposures; CVE %s"
 msgstr "Common Vulnerabilities and Exposures; CVE %s"
 
-#: roles.py:228
+#: roles.py:231
 #, python-format
 msgid "invalid CVE number %s"
 msgstr "número de CVE inválido %s"
 
-#: roles.py:249
+#: roles.py:253
 #, python-format
 msgid "Common Weakness Enumeration; CWE %s"
 msgstr "Common Weakness Enumeration; CWE %s"
 
-#: roles.py:272
+#: roles.py:276
 #, python-format
 msgid "invalid CWE number %s"
 msgstr "número de CWE inválido %s"
 
-#: roles.py:293
+#: roles.py:296
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Propostas de Melhorias do Python; PEP %s"
 
-#: roles.py:316
+#: roles.py:319
 #, python-format
 msgid "invalid PEP number %s"
 msgstr "Número de PEP inválido %s"
 
-#: roles.py:354
+#: roles.py:357
 #, python-format
 msgid "invalid RFC number %s"
 msgstr "Número de RFC inválido %s"
@@ -759,69 +759,69 @@ msgstr "rótulo duplicado da equação %s, outra instância em %s"
 msgid "Invalid math_eqref_format: %r"
 msgstr "math_eqref_format inválido: %r"
 
-#: environment/__init__.py:86
+#: environment/__init__.py:82
 msgid "new config"
 msgstr "nova configuração"
 
-#: environment/__init__.py:87
+#: environment/__init__.py:83
 msgid "config changed"
 msgstr "configuração alterada"
 
-#: environment/__init__.py:88
+#: environment/__init__.py:84
 msgid "extensions changed"
 msgstr "extensões alteradas"
 
-#: environment/__init__.py:249
+#: environment/__init__.py:245
 msgid "build environment version not current"
 msgstr "a versão do ambiente de construção não é a atual"
 
-#: environment/__init__.py:251
+#: environment/__init__.py:247
 msgid "source directory has changed"
 msgstr "diretório de fontes foi alterado"
 
-#: environment/__init__.py:311
+#: environment/__init__.py:307
 #, python-format
 msgid "The configuration has changed (1 option: %r)"
-msgstr ""
+msgstr "A configuração foi alterada (1 opção: %r)"
 
-#: environment/__init__.py:316
+#: environment/__init__.py:312
 #, python-format
 msgid "The configuration has changed (%d options: %s)"
-msgstr ""
+msgstr "A configuração foi alterada (%d opções: %s)"
 
-#: environment/__init__.py:322
+#: environment/__init__.py:318
 #, python-format
 msgid "The configuration has changed (%d options: %s, ...)"
-msgstr ""
+msgstr "A configuração foi alterada (%d opções: %s, ...)"
 
-#: environment/__init__.py:364
+#: environment/__init__.py:360
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "Este ambiente é incompatível com o construtor selecionado, por favor escolha outro diretório de doctree."
 
-#: environment/__init__.py:473
+#: environment/__init__.py:469
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "Falha ao procurar documentos em %s: %r"
 
-#: environment/__init__.py:622
+#: environment/__init__.py:618
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "O domínio %r ainda não está registrado"
 
-#: environment/__init__.py:773
+#: environment/__init__.py:769
 msgid "document isn't included in any toctree"
 msgstr "o documento não está incluído em nenhum toctree"
 
-#: environment/__init__.py:806
+#: environment/__init__.py:802
 msgid "self referenced toctree found. Ignored."
 msgstr "toctree autorreferenciada encontrada. Ignorado."
 
-#: environment/__init__.py:835
+#: environment/__init__.py:831
 #, python-format
 msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
-msgstr ""
+msgstr "o documento é referenciado em vários toctrees: %s, selecionando: %s <- %s"
 
 #: locale/__init__.py:229
 msgid "Attention"
@@ -1614,7 +1614,7 @@ msgstr "erro ao escrever o arquivo Makefile: %s"
 msgid "The message catalogs are in %(outdir)s."
 msgstr "Os catálogos de mensagens estão em %(outdir)s."
 
-#: builders/__init__.py:371 builders/gettext.py:251
+#: builders/__init__.py:377 builders/gettext.py:251
 #, python-format
 msgid "building [%s]: "
 msgstr "construindo [%s]: "
@@ -1632,104 +1632,104 @@ msgstr "lendo modelos… "
 msgid "writing message catalogs... "
 msgstr "escrevendo catálogos de mensagens… "
 
-#: builders/__init__.py:200
+#: builders/__init__.py:206
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "uma imagem adequada para o construtor %s não encontrada: %s (%s)"
 
-#: builders/__init__.py:208
+#: builders/__init__.py:214
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "uma imagem adequada para o construtor %s não encontrada: %s"
 
-#: builders/__init__.py:231
+#: builders/__init__.py:237
 msgid "building [mo]: "
 msgstr "construindo [mo]: "
 
-#: builders/__init__.py:234 builders/__init__.py:729 builders/__init__.py:761
+#: builders/__init__.py:240 builders/__init__.py:735 builders/__init__.py:767
 msgid "writing output... "
 msgstr "escrevendo saída… "
 
-#: builders/__init__.py:251
+#: builders/__init__.py:257
 #, python-format
 msgid "all of %d po files"
 msgstr "todos os %d arquivos po"
 
-#: builders/__init__.py:273
+#: builders/__init__.py:279
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "alvos para %d arquivos po que estão especificados"
 
-#: builders/__init__.py:285
+#: builders/__init__.py:291
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "alvos para %d arquivos po que estão desatualizados"
 
-#: builders/__init__.py:295
+#: builders/__init__.py:301
 msgid "all source files"
 msgstr "todos os arquivos-fonte"
 
-#: builders/__init__.py:307
+#: builders/__init__.py:313
 #, python-format
 msgid "file %r given on command line does not exist, "
 msgstr "arquivo %r fornecido na linha de comando não existe,"
 
-#: builders/__init__.py:313
+#: builders/__init__.py:319
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "o arquivo %r fornecido na linha de comando não está dentro do diretório fonte, ignorando"
 
-#: builders/__init__.py:324
+#: builders/__init__.py:330
 #, python-format
 msgid "file %r given on command line is not a valid document, ignoring"
 msgstr "o arquivo %r fornecido na linha de comando não é um documento válido, ignorando"
 
-#: builders/__init__.py:339
+#: builders/__init__.py:345
 #, python-format
 msgid "%d source files given on command line"
 msgstr "%d arquivos-fonte dados na linha de comando"
 
-#: builders/__init__.py:354
+#: builders/__init__.py:360
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "alvos para %d arquivos fonte que estão desatualizados"
 
-#: builders/__init__.py:382
+#: builders/__init__.py:388
 msgid "looking for now-outdated files... "
 msgstr "procurando por arquivos agora desatualizados… "
 
-#: builders/__init__.py:386
+#: builders/__init__.py:392
 #, python-format
 msgid "%d found"
 msgstr "%d encontrado"
 
-#: builders/__init__.py:388
+#: builders/__init__.py:394
 msgid "none found"
 msgstr "nenhum encontrado"
 
-#: builders/__init__.py:395
+#: builders/__init__.py:401
 msgid "pickling environment"
 msgstr "tornando um ambiente pickle"
 
-#: builders/__init__.py:402
+#: builders/__init__.py:408
 msgid "checking consistency"
 msgstr "verificando consistência"
 
-#: builders/__init__.py:406
+#: builders/__init__.py:412
 msgid "no targets are out of date."
 msgstr "nenhum alvo está desatualizado."
 
-#: builders/__init__.py:446
+#: builders/__init__.py:452
 msgid "updating environment: "
 msgstr "atualizando ambiente: "
 
-#: builders/__init__.py:471
+#: builders/__init__.py:477
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s adicionado(s), %s alterado(s), %s removido(s)"
 
-#: builders/__init__.py:507
+#: builders/__init__.py:513
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches a "
@@ -1737,7 +1737,7 @@ msgid ""
 " location."
 msgstr "O Sphinx não consegue carregar o documento mestre (%s) porque ele corresponde a um padrão de exclusão embutido %r. Mova seu documento mestre para um local diferente."
 
-#: builders/__init__.py:516
+#: builders/__init__.py:522
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches an "
@@ -1745,7 +1745,7 @@ msgid ""
 "conf.py."
 msgstr "O Sphinx não consegue carregar o documento mestre (%s) porque ele corresponde a um padrão de exclusão especificado no conf.py, %r.  Remova este padrão do conf.py."
 
-#: builders/__init__.py:527
+#: builders/__init__.py:533
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it is not included"
@@ -1753,31 +1753,31 @@ msgid ""
 "include_patterns matches the master document."
 msgstr "O Sphinx não consegue carregar o documento mestre (%s) porque ele não está incluído no include_patterns = %r personalizado. Certifique-se de que um padrão em include_patterns corresponda ao documento mestre."
 
-#: builders/__init__.py:534
+#: builders/__init__.py:540
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s). The master document must "
 "be within the source directory or a subdirectory of it."
 msgstr "O Sphinx não consegue carregar o documento mestre (%s). O documento mestre deve estar no diretório fonte ou em um subdiretório dele."
 
-#: builders/__init__.py:553 builders/__init__.py:569
+#: builders/__init__.py:559 builders/__init__.py:575
 msgid "reading sources... "
 msgstr "lendo fontes… "
 
-#: builders/__init__.py:686
+#: builders/__init__.py:692
 #, python-format
 msgid "docnames to write: %s"
 msgstr "docnames para escrever: %s"
 
-#: builders/__init__.py:699
+#: builders/__init__.py:705
 msgid "preparing documents"
 msgstr "preparando documentos"
 
-#: builders/__init__.py:702
+#: builders/__init__.py:708
 msgid "copying assets"
 msgstr "copiando ativos"
 
-#: builders/__init__.py:845
+#: builders/__init__.py:860
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "caracteres de origem não codificáveis, substituindo por “?”: %r"
@@ -3989,24 +3989,24 @@ msgstr "valor inválido para a opção member-order: %s"
 msgid "invalid value for class-doc-from option: %s"
 msgstr "valor inválido para a opção class-doc-from: %s"
 
-#: ext/autodoc/__init__.py:408
+#: ext/autodoc/__init__.py:413
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "assinatura inválida para auto%s (%r)"
 
-#: ext/autodoc/__init__.py:525
+#: ext/autodoc/__init__.py:530
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "erro ao formatar argumentos para %s: %s"
 
-#: ext/autodoc/__init__.py:795
+#: ext/autodoc/__init__.py:800
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc: falhou em determinar %s.%s (%r) a ser documentado, a seguinte exceção foi levantada:\n%s"
 
-#: ext/autodoc/__init__.py:890
+#: ext/autodoc/__init__.py:895
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -4014,76 +4014,76 @@ msgid ""
 "explicit module name)"
 msgstr "não sei qual módulo importar para documentação automática %r (tente colocar uma diretiva “module” ou “currentmodule” no documento ou forneça um nome explícito para o módulo)"
 
-#: ext/autodoc/__init__.py:934
+#: ext/autodoc/__init__.py:939
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "Um objeto simulado foi detectado: %r"
 
-#: ext/autodoc/__init__.py:953
+#: ext/autodoc/__init__.py:958
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "erro ao formatar assinatura para %s: %s"
 
-#: ext/autodoc/__init__.py:1016
+#: ext/autodoc/__init__.py:1021
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "“::” no nome de automodule não faz sentido"
 
-#: ext/autodoc/__init__.py:1023
+#: ext/autodoc/__init__.py:1028
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "argumentos de assinatura ou anotação de retorno fornecidos para automodule %s"
 
-#: ext/autodoc/__init__.py:1036
+#: ext/autodoc/__init__.py:1041
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ deve ser uma lista de strings, não %r (no módulo %s) -- ignorando __all__"
 
-#: ext/autodoc/__init__.py:1102
+#: ext/autodoc/__init__.py:1107
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "faltando atributo mencionado na opção :members: : módulo %s, atributo %s"
 
-#: ext/autodoc/__init__.py:1325 ext/autodoc/__init__.py:1402
-#: ext/autodoc/__init__.py:2810
+#: ext/autodoc/__init__.py:1330 ext/autodoc/__init__.py:1407
+#: ext/autodoc/__init__.py:2815
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de função para %s: %s"
 
-#: ext/autodoc/__init__.py:1616
+#: ext/autodoc/__init__.py:1621
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de construtor para %s: %s"
 
-#: ext/autodoc/__init__.py:1743
+#: ext/autodoc/__init__.py:1748
 #, python-format
 msgid "Bases: %s"
 msgstr "Base: %s"
 
-#: ext/autodoc/__init__.py:1757
+#: ext/autodoc/__init__.py:1762
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "faltando atributo %s no objeto %s"
 
-#: ext/autodoc/__init__.py:1838 ext/autodoc/__init__.py:1875
-#: ext/autodoc/__init__.py:1970
+#: ext/autodoc/__init__.py:1843 ext/autodoc/__init__.py:1880
+#: ext/autodoc/__init__.py:1975
 #, python-format
 msgid "alias of %s"
 msgstr "apelido de %s"
 
-#: ext/autodoc/__init__.py:1858
+#: ext/autodoc/__init__.py:1863
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "apelido de TypeVar(%s)"
 
-#: ext/autodoc/__init__.py:2198 ext/autodoc/__init__.py:2298
+#: ext/autodoc/__init__.py:2203 ext/autodoc/__init__.py:2303
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "Falha ao obter uma assinatura de método para %s: %s"
 
-#: ext/autodoc/__init__.py:2429
+#: ext/autodoc/__init__.py:2434
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "__slots__ inválido encontrado em %s. Ignorado."

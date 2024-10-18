@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 15:47+0000\n"
+"POT-Creation-Date: 2024-10-13 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Slavko <linux@slavino.sk>, 2013-2019,2021\n"
 "Language-Team: Slovak (http://app.transifex.com/sphinx-doc/sphinx-1/language/sk/)\n"
@@ -187,37 +187,37 @@ msgstr "rozšírenie %s nie je bezpečné pre paralelné zostavenie"
 msgid "doing serial %s"
 msgstr "sériové spracovanie %s"
 
-#: roles.py:205
+#: roles.py:208
 #, python-format
 msgid "Common Vulnerabilities and Exposures; CVE %s"
 msgstr ""
 
-#: roles.py:228
+#: roles.py:231
 #, python-format
 msgid "invalid CVE number %s"
 msgstr ""
 
-#: roles.py:249
+#: roles.py:253
 #, python-format
 msgid "Common Weakness Enumeration; CWE %s"
 msgstr ""
 
-#: roles.py:272
+#: roles.py:276
 #, python-format
 msgid "invalid CWE number %s"
 msgstr ""
 
-#: roles.py:293
+#: roles.py:296
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python Enhancement Proposals; PEP %s"
 
-#: roles.py:316
+#: roles.py:319
 #, python-format
 msgid "invalid PEP number %s"
 msgstr ""
 
-#: roles.py:354
+#: roles.py:357
 #, python-format
 msgid "invalid RFC number %s"
 msgstr ""
@@ -756,66 +756,66 @@ msgstr "duplicitná menovka vzorca %s, ďalší výskyt v %s"
 msgid "Invalid math_eqref_format: %r"
 msgstr "neplatný math_eqref_format: %r"
 
-#: environment/__init__.py:86
+#: environment/__init__.py:82
 msgid "new config"
 msgstr "nová konfigurácia"
 
-#: environment/__init__.py:87
+#: environment/__init__.py:83
 msgid "config changed"
 msgstr "zmenená konfigurácia"
 
-#: environment/__init__.py:88
+#: environment/__init__.py:84
 msgid "extensions changed"
 msgstr "zmenené rozšírenie"
 
-#: environment/__init__.py:249
+#: environment/__init__.py:245
 msgid "build environment version not current"
 msgstr "prostredie zostavenia nie je aktuálne"
 
-#: environment/__init__.py:251
+#: environment/__init__.py:247
 msgid "source directory has changed"
 msgstr "zdrojový adresár zmenený"
 
-#: environment/__init__.py:311
+#: environment/__init__.py:307
 #, python-format
 msgid "The configuration has changed (1 option: %r)"
 msgstr ""
 
-#: environment/__init__.py:316
+#: environment/__init__.py:312
 #, python-format
 msgid "The configuration has changed (%d options: %s)"
 msgstr ""
 
-#: environment/__init__.py:322
+#: environment/__init__.py:318
 #, python-format
 msgid "The configuration has changed (%d options: %s, ...)"
 msgstr ""
 
-#: environment/__init__.py:364
+#: environment/__init__.py:360
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "Toto prostredie nie je kompatibilné zo zvoleným zostavovačom, prosím, zvoľte iný adresár doctree."
 
-#: environment/__init__.py:473
+#: environment/__init__.py:469
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "Zlyhalo skenovanie dokumentov v %s: %r"
 
-#: environment/__init__.py:622
+#: environment/__init__.py:618
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "Doména %r nie je zaregistrovaná"
 
-#: environment/__init__.py:773
+#: environment/__init__.py:769
 msgid "document isn't included in any toctree"
 msgstr "dokument nie je zahrnutý v žiadnom strome obsahu"
 
-#: environment/__init__.py:806
+#: environment/__init__.py:802
 msgid "self referenced toctree found. Ignored."
 msgstr "nájdený na seba odkazujúci strom obsahu. Ignorované."
 
-#: environment/__init__.py:835
+#: environment/__init__.py:831
 #, python-format
 msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
 msgstr ""
@@ -1611,7 +1611,7 @@ msgstr "chyba zápisu súboru Makefile: %s"
 msgid "The message catalogs are in %(outdir)s."
 msgstr "Katalógy správ sú v %(outdir)s."
 
-#: builders/__init__.py:371 builders/gettext.py:251
+#: builders/__init__.py:377 builders/gettext.py:251
 #, python-format
 msgid "building [%s]: "
 msgstr "zostavovanie [%s]: "
@@ -1629,104 +1629,104 @@ msgstr "čítanie šablón… "
 msgid "writing message catalogs... "
 msgstr "zapisovanie katalógov správ…"
 
-#: builders/__init__.py:200
+#: builders/__init__.py:206
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "vhodný obrázok pre zostavovač %s nenájdený: %s (%s)"
 
-#: builders/__init__.py:208
+#: builders/__init__.py:214
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "vhodný obrázok pre zostavovač %s nenájdený: %s"
 
-#: builders/__init__.py:231
+#: builders/__init__.py:237
 msgid "building [mo]: "
 msgstr "zostavenie [mo]: "
 
-#: builders/__init__.py:234 builders/__init__.py:729 builders/__init__.py:761
+#: builders/__init__.py:240 builders/__init__.py:735 builders/__init__.py:767
 msgid "writing output... "
 msgstr "zápis výstupu…"
 
-#: builders/__init__.py:251
+#: builders/__init__.py:257
 #, python-format
 msgid "all of %d po files"
 msgstr "všetky z %d súborov po"
 
-#: builders/__init__.py:273
+#: builders/__init__.py:279
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "ciele pre %d po súborov, ktoré boli zadané"
 
-#: builders/__init__.py:285
+#: builders/__init__.py:291
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "ciele pre %d po súborov, ktoré sú zastarané"
 
-#: builders/__init__.py:295
+#: builders/__init__.py:301
 msgid "all source files"
 msgstr "všetky zdrojové súbory"
 
-#: builders/__init__.py:307
+#: builders/__init__.py:313
 #, python-format
 msgid "file %r given on command line does not exist, "
 msgstr ""
 
-#: builders/__init__.py:313
+#: builders/__init__.py:319
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "súbor %r zadaný v príkazovom riadku nie je v zdrojovom adresári, ignorujem"
 
-#: builders/__init__.py:324
+#: builders/__init__.py:330
 #, python-format
 msgid "file %r given on command line is not a valid document, ignoring"
 msgstr ""
 
-#: builders/__init__.py:339
+#: builders/__init__.py:345
 #, python-format
 msgid "%d source files given on command line"
 msgstr "%d zdrojové súbory zadané v príkazovom riadku"
 
-#: builders/__init__.py:354
+#: builders/__init__.py:360
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "ciele pre %d zdrojových súborov, ktoré sú zastarané"
 
-#: builders/__init__.py:382
+#: builders/__init__.py:388
 msgid "looking for now-outdated files... "
 msgstr "hľadanie zastaraných súborov…"
 
-#: builders/__init__.py:386
+#: builders/__init__.py:392
 #, python-format
 msgid "%d found"
 msgstr "%d nájdené"
 
-#: builders/__init__.py:388
+#: builders/__init__.py:394
 msgid "none found"
 msgstr "nenájdené"
 
-#: builders/__init__.py:395
+#: builders/__init__.py:401
 msgid "pickling environment"
 msgstr "ukladanie prostredia"
 
-#: builders/__init__.py:402
+#: builders/__init__.py:408
 msgid "checking consistency"
 msgstr "kontrolovanie konzistencie"
 
-#: builders/__init__.py:406
+#: builders/__init__.py:412
 msgid "no targets are out of date."
 msgstr "žiadne ciele nie sú zastarané."
 
-#: builders/__init__.py:446
+#: builders/__init__.py:452
 msgid "updating environment: "
 msgstr "aktualizácia prostredia:"
 
-#: builders/__init__.py:471
+#: builders/__init__.py:477
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s pridané, %s zmenené, %s odstránené"
 
-#: builders/__init__.py:507
+#: builders/__init__.py:513
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches a "
@@ -1734,7 +1734,7 @@ msgid ""
 " location."
 msgstr ""
 
-#: builders/__init__.py:516
+#: builders/__init__.py:522
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches an "
@@ -1742,7 +1742,7 @@ msgid ""
 "conf.py."
 msgstr ""
 
-#: builders/__init__.py:527
+#: builders/__init__.py:533
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it is not included"
@@ -1750,31 +1750,31 @@ msgid ""
 "include_patterns matches the master document."
 msgstr ""
 
-#: builders/__init__.py:534
+#: builders/__init__.py:540
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s). The master document must "
 "be within the source directory or a subdirectory of it."
 msgstr ""
 
-#: builders/__init__.py:553 builders/__init__.py:569
+#: builders/__init__.py:559 builders/__init__.py:575
 msgid "reading sources... "
 msgstr "čítanie zdrojov…"
 
-#: builders/__init__.py:686
+#: builders/__init__.py:692
 #, python-format
 msgid "docnames to write: %s"
 msgstr "mená dokumentov na zapísanie: %s"
 
-#: builders/__init__.py:699
+#: builders/__init__.py:705
 msgid "preparing documents"
 msgstr "príprava dokumentov"
 
-#: builders/__init__.py:702
+#: builders/__init__.py:708
 msgid "copying assets"
 msgstr ""
 
-#: builders/__init__.py:845
+#: builders/__init__.py:860
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "nedekódovateľné zdrojové znaky, nahradené „?”: %r"
@@ -3987,24 +3987,24 @@ msgstr ""
 msgid "invalid value for class-doc-from option: %s"
 msgstr ""
 
-#: ext/autodoc/__init__.py:408
+#: ext/autodoc/__init__.py:413
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr ""
 
-#: ext/autodoc/__init__.py:525
+#: ext/autodoc/__init__.py:530
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "chyba formátovania argumentov %s: %s"
 
-#: ext/autodoc/__init__.py:795
+#: ext/autodoc/__init__.py:800
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: ext/autodoc/__init__.py:890
+#: ext/autodoc/__init__.py:895
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -4012,76 +4012,76 @@ msgid ""
 "explicit module name)"
 msgstr ""
 
-#: ext/autodoc/__init__.py:934
+#: ext/autodoc/__init__.py:939
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr ""
 
-#: ext/autodoc/__init__.py:953
+#: ext/autodoc/__init__.py:958
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr ""
 
-#: ext/autodoc/__init__.py:1016
+#: ext/autodoc/__init__.py:1021
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "„::” v automodule nedáva zmysel"
 
-#: ext/autodoc/__init__.py:1023
+#: ext/autodoc/__init__.py:1028
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr ""
 
-#: ext/autodoc/__init__.py:1036
+#: ext/autodoc/__init__.py:1041
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ má byť zoznam reťazcov, nie %r (v module %s) -- ignorované __all__"
 
-#: ext/autodoc/__init__.py:1102
+#: ext/autodoc/__init__.py:1107
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "chýbajúci atribút spomenutý vo voľbe :members: : modul %s, atribút %s"
 
-#: ext/autodoc/__init__.py:1325 ext/autodoc/__init__.py:1402
-#: ext/autodoc/__init__.py:2810
+#: ext/autodoc/__init__.py:1330 ext/autodoc/__init__.py:1407
+#: ext/autodoc/__init__.py:2815
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr ""
 
-#: ext/autodoc/__init__.py:1616
+#: ext/autodoc/__init__.py:1621
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr ""
 
-#: ext/autodoc/__init__.py:1743
+#: ext/autodoc/__init__.py:1748
 #, python-format
 msgid "Bases: %s"
 msgstr "Základ: %s"
 
-#: ext/autodoc/__init__.py:1757
+#: ext/autodoc/__init__.py:1762
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "chýba atribút %s objektu %s"
 
-#: ext/autodoc/__init__.py:1838 ext/autodoc/__init__.py:1875
-#: ext/autodoc/__init__.py:1970
+#: ext/autodoc/__init__.py:1843 ext/autodoc/__init__.py:1880
+#: ext/autodoc/__init__.py:1975
 #, python-format
 msgid "alias of %s"
 msgstr "alias pre %s"
 
-#: ext/autodoc/__init__.py:1858
+#: ext/autodoc/__init__.py:1863
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "alias pre TypeVar(%s)"
 
-#: ext/autodoc/__init__.py:2198 ext/autodoc/__init__.py:2298
+#: ext/autodoc/__init__.py:2203 ext/autodoc/__init__.py:2303
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr ""
 
-#: ext/autodoc/__init__.py:2429
+#: ext/autodoc/__init__.py:2434
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "Neplatné __slots__ nájdené v %s. Ignorované."
