@@ -116,7 +116,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
         match result.status:
             case LinkStatus.IGNORED:
-                msg = darkgray('-ignored- ') + result.uri + f': {result.message}' if result.message else ''  # NoQA: E501
+                msg = (
+                    darkgray('-ignored- ') + result.uri + f': {result.message}'
+                    if result.message
+                    else ''
+                )
                 logger.info(msg)
             case LinkStatus.WORKING:
                 msg = darkgreen('ok        ') + result.uri + result.message
@@ -128,8 +132,13 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 else:
                     msg = red('timeout   ') + result.uri + red(' - ' + result.message)
                     logger.info(msg)
-                self.write_entry(result.status, result.docname, filename, result.lineno,
-                                 result.uri + ': ' + result.message)
+                self.write_entry(
+                    result.status,
+                    result.docname,
+                    filename,
+                    result.lineno,
+                    result.uri + ': ' + result.message,
+                )
                 self.timed_out_hyperlinks += 1
             case LinkStatus.BROKEN:
                 if self.app.quiet or self.app.warningiserror:
@@ -139,8 +148,13 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 else:
                     msg = red('broken    ') + result.uri + red(f' - {result.message}')
                     logger.info(msg)
-                self.write_entry(result.status, result.docname, filename, result.lineno,
-                                 result.uri + ': ' + result.message)
+                self.write_entry(
+                    result.status,
+                    result.docname,
+                    filename,
+                    result.lineno,
+                    result.uri + ': ' + result.message,
+                )
                 self.broken_hyperlinks += 1
             case LinkStatus.REDIRECTED:
                 try:
@@ -158,11 +172,20 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     location = (result.docname, result.lineno)
                     logger.warning(msg, location=location)
                 else:
-                    msg = color('redirect  ') + result.uri + color(f' - {text} to {result.message}')  # NoQA: E501
+                    msg = (
+                        color('redirect  ')
+                        + result.uri
+                        + color(f' - {text} to {result.message}')
+                    )
                     logger.info(msg)
-                self.write_entry(result.status, result.docname, filename,
-                                 result.lineno, result.uri + ' to ' + result.message,
-                                 context=' ' + text)
+                self.write_entry(
+                    result.status,
+                    result.docname,
+                    filename,
+                    result.lineno,
+                    result.uri + ' to ' + result.message,
+                    context=' ' + text,
+                )
             case _:
                 raise ValueError('Unknown status %s.' % result.status)
 
@@ -170,8 +193,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
-    def write_entry(self, what: LinkStatus, docname: str, filename: str, line: int,
-                    uri: str, context: str = '') -> None:
+    def write_entry(
+        self,
+        what: LinkStatus,
+        docname: str,
+        filename: str,
+        line: int,
+        uri: str,
+        context: str = '',
+    ) -> None:
         self.txt_outfile.write(f'{filename}:{line}: [{what}{context}] {uri}\n')
 
 
@@ -271,8 +301,14 @@ class HyperlinkAvailabilityChecker:
         total_links = 0
         for hyperlink in hyperlinks.values():
             if self.is_ignored_uri(hyperlink.uri):
-                yield CheckResult(hyperlink.uri, hyperlink.docname, hyperlink.lineno,
-                                  LinkStatus(LinkStatus.IGNORED), '', 0)
+                yield CheckResult(
+                    hyperlink.uri,
+                    hyperlink.docname,
+                    hyperlink.lineno,
+                    LinkStatus(LinkStatus.IGNORED),
+                    '',
+                    0,
+                )
             else:
                 self.wqueue.put(CheckRequest(CHECK_IMMEDIATELY, hyperlink), False)
                 total_links += 1
@@ -394,7 +430,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 continue
             status, info, code = self._check(docname, uri, hyperlink)
             if status == LinkStatus.RATE_LIMITED:
-                logger.info(darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...'))
+                logger.info(
+                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')
+                )
             else:
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
@@ -509,7 +547,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 status_code = response.status_code
                 redirect_status_code = (
                     response.history[-1].status_code if response.history else None
-                )  # NoQA: E501
+                )
                 retry_after = response.headers.get('Retry-After', '')
                 response_url = f'{response.url}'
                 response.raise_for_status()
@@ -565,9 +603,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         netloc = urlsplit(req_url).netloc
         self.rate_limits.pop(netloc, None)
 
-        if ((response_url.rstrip('/') == req_url.rstrip('/'))
-                or _allowed_redirect(req_url, response_url,
-                                     self.allowed_redirects)):
+        if (response_url.rstrip('/') == req_url.rstrip('/')) or _allowed_redirect(
+            req_url, response_url, self.allowed_redirects
+        ):
             return LinkStatus(LinkStatus.WORKING), '', 0
         elif redirect_status_code is not None:
             return LinkStatus(LinkStatus.REDIRECTED), response_url, redirect_status_code
