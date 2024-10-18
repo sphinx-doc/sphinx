@@ -322,7 +322,14 @@ select = [
     "RUF018",  # Avoid assignment expressions in `assert` statements
     "RUF019",  # Unnecessary key check before dictionary access
     "RUF020",  # `{never_like} | T` is equivalent to `T`
+    "RUF024",  # Do not pass mutable objects as values to `dict.fromkeys`
+    "RUF026",  # `default_factory` is a positional-only argument to `defaultdict`
+    "RUF030",  # `print()` expression in `assert` statement is likely unintentional
+    "RUF032",  # `Decimal()` called with float literal argument
+    "RUF033",  # `__post_init__` method with argument defaults
+    "RUF034",  # Useless if-else condition
 #    "RUF100",  # Unused `noqa` directive
+    "RUF101",  # `{original}` is a redirect to `{target}`
     "RUF200",  # Failed to parse pyproject.toml: {message}
     # flake8-bandit ('S')
 #    "S101",  # Use of `assert` detected
