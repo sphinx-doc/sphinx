@@ -69,6 +69,20 @@ ignore = [
     "PLW1641",  # Object does not implement `__hash__` method
     "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
     "PLW3201",  # Dunder method `{name}` has no special meaning in Python 3
+    # flake8-bandit ('S')
+    "S101",  # Use of `assert` detected
+    "S105",  # Possible hardcoded password assigned to: "{}"
+    "S110",  # `try`-`except`-`pass` detected, consider logging the exception
+    "S113",  # Probable use of `{module}` call without timeout
+    "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
+    "S324",  # Probable use of insecure hash functions in `{library}`: `{string}`
+    "S403",  # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
+    "S404",  # `subprocess` module is possibly insecure
+    "S405",  # `xml.etree` methods are vulnerable to XML attacks
+    "S603",  # `subprocess` call: check for execution of untrusted input
+    "S607",  # Starting a process with a partial executable path
+    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
+    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
     # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
@@ -261,77 +275,7 @@ select = [
     "RUF101",  # `{original}` is a redirect to `{target}`
     "RUF200",  # Failed to parse pyproject.toml: {message}
     # flake8-bandit ('S')
-#    "S101",  # Use of `assert` detected
-    "S102",  # Use of `exec` detected
-    "S103",  # `os.chmod` setting a permissive mask `{mask:#o}` on file or directory
-    "S104",  # Possible binding to all interfaces
-#    "S105",  # Possible hardcoded password assigned to: "{}"
-    "S106",  # Possible hardcoded password assigned to argument: "{}"
-    "S107",  # Possible hardcoded password assigned to function default: "{}"
-    "S108",  # Probable insecure usage of temporary file or directory: "{}"
-#    "S110",  # `try`-`except`-`pass` detected, consider logging the exception
-    "S112",  # `try`-`except`-`continue` detected, consider logging the exception
-#    "S113",  # Probable use of `{module}` call without timeout
-    "S201",  # Use of `debug=True` in Flask app detected
-    "S202",  # Uses of `tarfile.extractall()`
-#    "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
-    "S302",  # Deserialization with the `marshal` module is possibly dangerous
-    "S303",  # Use of insecure MD2, MD4, MD5, or SHA1 hash function
-    "S304",  # Use of insecure cipher, replace with a known secure cipher such as AES
-    "S305",  # Use of insecure block cipher mode, replace with a known secure mode such as CBC or CTR
-    "S306",  # Use of insecure and deprecated function (`mktemp`)
-    "S307",  # Use of possibly insecure function; consider using `ast.literal_eval`
-    "S308",  # Use of `mark_safe` may expose cross-site scripting vulnerabilities
-    "S310",  # Audit URL open for permitted schemes. Allowing use of `file:` or custom schemes is often unexpected.
-    "S311",  # Standard pseudo-random generators are not suitable for cryptographic purposes
-    "S312",  # Telnet-related functions are being called. Telnet is considered insecure. Use SSH or some other encrypted protocol.
-    "S313",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S314",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S315",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S316",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S317",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S318",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S319",  # Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents
-    "S320",  # Using `lxml` to parse untrusted data is known to be vulnerable to XML attacks
-    "S321",  # FTP-related functions are being called. FTP is considered insecure. Use SSH/SFTP/SCP or some other encrypted protocol.
-    "S323",  # Python allows using an insecure context via the `_create_unverified_context` that reverts to the previous behavior that does not validate certificates or perform hostname checks.
-#    "S324",  # Probable use of insecure hash functions in `{library}`: `{string}`
-    "S401",  # `telnetlib` and related modules are considered insecure. Use SSH or another encrypted protocol.
-    "S402",  # `ftplib` and related modules are considered insecure. Use SSH, SFTP, SCP, or another encrypted protocol.
-#    "S403",  # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
-#    "S404",  # `subprocess` module is possibly insecure
-#    "S405",  # `xml.etree` methods are vulnerable to XML attacks
-    "S406",  # `xml.sax` methods are vulnerable to XML attacks
-    "S407",  # `xml.dom.expatbuilder` is vulnerable to XML attacks
-    "S408",  # `xml.dom.minidom` is vulnerable to XML attacks
-    "S409",  # `xml.dom.pulldom` is vulnerable to XML attacks
-    "S411",  # XMLRPC is vulnerable to remote XML attacks
-    "S412",  # `httpoxy` is a set of vulnerabilities that affect application code running inCGI, or CGI-like environments. The use of CGI for web applications should be avoided
-    "S413",  # `pycrypto` library is known to have publicly disclosed buffer overflow vulnerability
-    "S415",  # An IPMI-related module is being imported. Prefer an encrypted protocol over IPMI.
-    "S501",  # Probable use of `{string}` call with `verify=False` disabling SSL certificate checks
-    "S502",  # Call made with insecure SSL protocol: `{protocol}`
-    "S503",  # Argument default set to insecure SSL protocol: `{protocol}`
-    "S504",  # `ssl.wrap_socket` called without an `ssl_version``
-    "S505",  # {cryptographic_key} key sizes below {minimum_key_size} bits are considered breakable
-    "S506",  # Probable use of unsafe loader `{name}` with `yaml.load`. Allows instantiation of arbitrary objects. Consider `yaml.safe_load`.
-    "S507",  # Paramiko call with policy set to automatically trust the unknown host key
-    "S508",  # The use of SNMPv1 and SNMPv2 is insecure. Use SNMPv3 if able.
-    "S509",  # You should not use SNMPv3 without encryption. `noAuthNoPriv` & `authNoPriv` is insecure.
-    "S601",  # Possible shell injection via Paramiko call; check inputs are properly sanitized
-    "S602",  # `subprocess` call with `shell=True` seems safe, but may be changed in the future; consider rewriting without `shell`
-#    "S603",  # `subprocess` call: check for execution of untrusted input
-    "S604",  # Function call with `shell=True` parameter identified, security issue
-    "S605",  # Starting a process with a shell: seems safe, but may be changed in the future; consider rewriting without `shell`
-    "S606",  # Starting a process without a shell
-#    "S607",  # Starting a process with a partial executable path
-    "S608",  # Possible SQL injection vector through string-based query construction
-    "S609",  # Possible wildcard injection in call due to `*` usage
-    "S610",  # Use of Django `extra` can lead to SQL injection vulnerabilities
-    "S611",  # Use of `RawSQL` can lead to SQL injection vulnerabilities
-    "S612",  # Use of insecure `logging.config.listen` detected
-#    "S701",  # Using jinja2 templates with `autoescape=False` is dangerous and can lead to XSS. Ensure `autoescape=True` or use the `select_autoescape` function.
-#    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
+    "S",
     # flake8-simplify ('SIM')
     "SIM",  # flake8-simplify
     # flake8-self ('SLF')
