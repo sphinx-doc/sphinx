@@ -135,7 +135,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 self.write_entry(
                     result.status,
                     result.docname,
-                    filename,
+                    str(filename),
                     result.lineno,
                     result.uri + ': ' + result.message,
                 )
@@ -151,7 +151,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 self.write_entry(
                     result.status,
                     result.docname,
-                    filename,
+                    str(filename),
                     result.lineno,
                     result.uri + ': ' + result.message,
                 )
@@ -181,7 +181,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 self.write_entry(
                     result.status,
                     result.docname,
-                    filename,
+                    str(filename),
                     result.lineno,
                     result.uri + ' to ' + result.message,
                     context=' ' + text,
@@ -390,9 +390,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
         if config.linkcheck_report_timeouts_as_broken:
-            self._timeout_status = 'broken'
+            self._timeout_status = LinkStatus.BROKEN
         else:
-            self._timeout_status = 'timeout'
+            self._timeout_status = LinkStatus.TIMEOUT
 
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
@@ -535,10 +535,14 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         try:
                             found = contains_anchor(response, anchor)
                         except UnicodeDecodeError:
-                            return 'ignored', 'unable to decode response content', 0
+                            return (
+                                LinkStatus.IGNORED,
+                                'unable to decode response content',
+                                0,
+                            )
                         if not found:
                             return (
-                                'broken',
+                                LinkStatus.BROKEN,
                                 __("Anchor '%s' not found") % quote(anchor),
                                 0,
                             )
