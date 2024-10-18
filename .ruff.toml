@@ -362,6 +362,9 @@ select = [
 #    "S324",  # Probable use of insecure hash functions in `{library}`: `{string}`
     "S401",  # `telnetlib` and related modules are considered insecure. Use SSH or another encrypted protocol.
     "S402",  # `ftplib` and related modules are considered insecure. Use SSH, SFTP, SCP, or another encrypted protocol.
+#    "S403",  # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
+#    "S404",  # `subprocess` module is possibly insecure
+#    "S405",  # `xml.etree` methods are vulnerable to XML attacks
     "S406",  # `xml.sax` methods are vulnerable to XML attacks
     "S407",  # `xml.dom.expatbuilder` is vulnerable to XML attacks
     "S408",  # `xml.dom.minidom` is vulnerable to XML attacks
