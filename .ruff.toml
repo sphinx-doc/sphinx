@@ -201,14 +201,8 @@ select = [
     "PGH",
     # flake8-pie ('PIE')
     "PIE",
-    # pylint ('PLC')
-    "PLC",
-    # pylint ('PLE')
-    "PLE",
-    # pylint ('PLR')
-    "PLR",
-    # pylint ('PLW')
-    "PLW",
+    # pylint ('PL', 'PLC', 'PLE', 'PLR', 'PLW')
+    "PL",
     # flake8-pytest-style ('PT')
     "PT",
     # flake8-use-pathlib ('PTH')
