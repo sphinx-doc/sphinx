@@ -336,8 +336,7 @@ select = [
     # flake8-debugger ('T10')
     "T10",
     # flake8-print ('T20')
-    "T201",  # `print` found
-    "T203",  # `pprint` found
+    "T20",
     # flake8-type-checking ('TCH')
     "TCH",
     # flake8-todos ('TD')
