@@ -21,6 +21,8 @@ ignore = [
     "ARG002",  # Unused method argument: `{name}`
     "ARG003",  # Unused class method argument: `{name}`
     "ARG005",  # Unused lambda argument: `{name}`
+    # flake8-commas ('COM')
+    "COM812",  # Trailing comma missing
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
     # pyflakes
@@ -61,8 +63,7 @@ select = [
     # mccabe ('C90')
 #    "C901",  # `{name}` is too complex ({complexity} > {max_complexity})
     # flake8-commas ('COM')
-    "COM818",  # Trailing comma on bare tuple prohibited
-    "COM819",  # Trailing comma prohibited
+    "COM",  # Trailing comma prohibited
     # flake8-copyright ('CPY')
       # NOT YET USED
     # pydocstyle ('D')
