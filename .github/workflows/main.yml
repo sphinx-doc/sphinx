@@ -140,7 +140,7 @@ jobs:
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
-  deadsnakes-free-threraded:
+  deadsnakes-free-threaded:
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }}; free-threaded)
     strategy:
