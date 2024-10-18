@@ -16,6 +16,11 @@ preview = true
 ignore = [
     # flake8-annotations
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
+    # flake8-unused-arguments ('ARG')
+    "ARG001",  # Unused function argument: `{name}`
+    "ARG002",  # Unused method argument: `{name}`
+    "ARG003",  # Unused class method argument: `{name}`
+    "ARG005",  # Unused lambda argument: `{name}`
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
     # pyflakes
@@ -44,7 +49,7 @@ select = [
     # flake8-annotations ('ANN')
     "ANN",
     # flake8-unused-arguments ('ARG')
-    "ARG004",  # Unused static method argument: `{name}`
+    "ARG",
     # flake8-async ('ASYNC')
     "ASYNC",
     # flake8-bugbear ('B')
