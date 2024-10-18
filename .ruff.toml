@@ -225,6 +225,8 @@ select = [
     # pylint ('PLR')
 #    "PLR0124",  # Name compared with itself, consider replacing `{actual}`
     "PLR0133",  # Two constants compared in a comparison, consider replacing `{left_constant} {op} {right_constant}`
+    "PLR0202",  # Class method defined without decorator
+    "PLR0203",  # Static method defined without decorator
     "PLR0206",  # Cannot have defined parameters for properties
     "PLR0402",  # Use `from {module} import {name}` in lieu of alias
 #    "PLR0911",  # Too many return statements ({returns} > {max_returns})
@@ -233,8 +235,13 @@ select = [
 #    "PLR0915",  # Too many statements ({statements} > {max_statements})
     "PLR1711",  # Useless `return` statement at end of function
 #    "PLR1714",  # Consider merging multiple comparisons: `{expression}`. Use a `set` if the elements are hashable.
+    "PLR1716",  # Contains chained boolean comparison that can be simplified
     "PLR1722",  # Use `sys.exit()` instead of `{name}`
+    "PLR1730",  # Replace `if` statement with `{replacement}`
+    "PLR1733",  # Unnecessary lookup of dictionary value by key
+    "PLR1736",  # List index lookup in `enumerate()` loop
 #    "PLR2004",  # Magic value used in comparison, consider replacing `{value}` with a constant variable
+    "PLR2044",  # Line with empty comment
 #    "PLR5501",  # Use `elif` instead of `else` then `if`, to reduce indentation
     # pylint ('PLW')
     "PLW0120",  # `else` clause on loop without a `break` statement; remove the `else` and dedent its contents
