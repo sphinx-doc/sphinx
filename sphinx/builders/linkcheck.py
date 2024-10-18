@@ -107,9 +107,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
         }
         self.write_linkstat(linkstat)
 
-        match result.status:
-            case LinkStatus.UNCHECKED:
-                return
+        if result.status == LinkStatus.UNCHECKED:
+            return
 
         if result.lineno:
             logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
