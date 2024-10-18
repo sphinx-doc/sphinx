@@ -11,6 +11,9 @@ Incompatible changes
 
 Deprecated
 ----------
+* #13037: Deprecate the ``SingleHTMLBuilder.fix_refuris`` method, with removal
+  planned for version 9.0 of Sphinx.
+  Patch by James Addison.
 
 Features added
 --------------
