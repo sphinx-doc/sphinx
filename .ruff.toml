@@ -175,6 +175,7 @@ select = [
     "PLC0131",  # `{kind}` cannot be both covariant and contravariant
     "PLC0132",  # `{kind}` name `{param_name}` does not match assigned variable name `{var_name}`
     "PLC0205",  # Class `__slots__` should be a non-string iterable
+#    "PLC0206",  # Extracting value from dictionary without calling `.items()`
     "PLC0208",  # Use a sequence type instead of a `set` when iterating over values
     "PLC0414",  # Import alias does not rename original package
 #    "PLC0415",  # `import` should be at the top-level of a file
@@ -203,6 +204,7 @@ select = [
     "PLE0604",  # Invalid object in `__all__`, must contain only strings
     "PLE0605",  # Invalid format for `__all__`, must be `tuple` or `list`
     "PLE0643",  # Expression is likely to raise `IndexError`
+#    "PLE0704",  # Bare `raise` statement is not inside an exception handler
     "PLE1132",  # Repeated keyword argument: `{duplicate_keyword}`
     "PLE1141",  # Unpacking a dictionary in iteration without calling `.items()`
     "PLE1142",  # `await` should be used within an async function
@@ -229,10 +231,16 @@ select = [
     "PLR0203",  # Static method defined without decorator
     "PLR0206",  # Cannot have defined parameters for properties
     "PLR0402",  # Use `from {module} import {name}` in lieu of alias
+#    "PLR0904",  # Too many public methods ({methods} > {max_methods})
 #    "PLR0911",  # Too many return statements ({returns} > {max_returns})
 #    "PLR0912",  # Too many branches ({branches} > {max_branches})
 #    "PLR0913",  # Too many arguments in function definition ({c_args} > {max_args})
+#    "PLR0914",  # Too many local variables ({current_amount}/{max_amount})
 #    "PLR0915",  # Too many statements ({statements} > {max_statements})
+#    "PLR0916",  # Too many Boolean expressions ({expressions} > {max_expressions})
+#    "PLR0917",  # Too many positional arguments ({c_pos}/{max_pos})
+#    "PLR1702",  # Too many nested blocks ({nested_blocks} > {max_nested_blocks})
+#    "PLR1704",  # Redefining argument with the local name `{name}`
     "PLR1711",  # Useless `return` statement at end of function
 #    "PLR1714",  # Consider merging multiple comparisons: `{expression}`. Use a `set` if the elements are hashable.
     "PLR1716",  # Contains chained boolean comparison that can be simplified
@@ -243,7 +251,11 @@ select = [
 #    "PLR2004",  # Magic value used in comparison, consider replacing `{value}` with a constant variable
     "PLR2044",  # Line with empty comment
 #    "PLR5501",  # Use `elif` instead of `else` then `if`, to reduce indentation
+#    "PLR6104",  # Use `{operator}` to perform an augmented assignment directly
+#    "PLR6201",  # Use a set literal when testing for membership
+#    "PLR6301",  # Method `{method_name}` could be a function, class method, or static method
     # pylint ('PLW')
+#    "PLW0108",  # Lambda may be unnecessary; consider inlining inner function
     "PLW0120",  # `else` clause on loop without a `break` statement; remove the `else` and dedent its contents
     "PLW0127",  # Self-assignment of variable `{name}`
     "PLW0128",  # Redeclared variable `{name}` in assignment
@@ -251,6 +263,7 @@ select = [
     "PLW0131",  # Named expression used without context
     "PLW0133",  # Missing `raise` statement on exception
     "PLW0177",  # Comparing against a NaN value; use `math.isnan` instead
+#    "PLW0211",  # First argument of a static method should not be named `{argument_name}`
     "PLW0245",  # `super` call is missing parentheses
     "PLW0406",  # Module `{name}` imports itself
     "PLW0602",  # Using global for `{name}` but no assignment is done
@@ -262,8 +275,11 @@ select = [
     "PLW1508",  # Invalid type for environment variable default; expected `str` or `None`
     "PLW1509",  # `preexec_fn` argument is unsafe when using threads
     "PLW1510",  # `subprocess.run` without explicit `check` argument
+#    "PLW1514",  # `{function_name}` in text mode without explicit `encoding` argument
+#    "PLW1641",  # Object does not implement `__hash__` method
     "PLW2101",  # Threading lock directly created in `with` statement has no effect
 #    "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
+#    "PLW3201",  # Dunder method `{name}` has no special meaning in Python 3
     "PLW3301",  # Nested `{func}` calls can be flattened
     # flake8-pytest-style ('PT')
     "PT",
