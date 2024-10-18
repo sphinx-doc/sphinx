@@ -41,6 +41,8 @@ ignore = [
     "PLC0415",  # `import` should be at the top-level of a file
     "PLC1901",  # simplify truthy/falsey string comparisons
     "PLC2701",  # Private name import `{name}` from external module `{module}`
+    # pylint ('PLE')
+    "PLE0704",  # Bare `raise` statement is not inside an exception handler
     # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
@@ -176,44 +178,7 @@ select = [
     # pylint ('PLC')
     "PLC",
     # pylint ('PLE')
-    "PLE0100",  # `__init__` method is a generator
-    "PLE0101",  # Explicit return in `__init__`
-    "PLE0115",  # Name `{name}` is both `nonlocal` and `global`
-    "PLE0116",  # `continue` not supported inside `finally` clause
-    "PLE0117",  # Nonlocal name `{name}` found without binding
-    "PLE0118",  # Name `{name}` is used prior to global declaration on {row}
-    "PLE0237",  # Attribute `{name}` is not defined in class's `__slots__`
-    "PLE0241",  # Duplicate base `{base}` for class `{class}`
-    "PLE0302",  # The special method `{}` expects {}, {} {} given
-    "PLE0303",  # `__len__` does not return a non-negative integer
-    "PLE0304",  # `__bool__` does not return `bool`
-    "PLE0305",  # `__index__` does not return an integer
-    "PLE0307",  # `__str__` does not return `str`
-    "PLE0308",  # `__bytes__` does not return `bytes`
-    "PLE0309",  # `__hash__` does not return an integer
-    "PLE0604",  # Invalid object in `__all__`, must contain only strings
-    "PLE0605",  # Invalid format for `__all__`, must be `tuple` or `list`
-    "PLE0643",  # Expression is likely to raise `IndexError`
-#    "PLE0704",  # Bare `raise` statement is not inside an exception handler
-    "PLE1132",  # Repeated keyword argument: `{duplicate_keyword}`
-    "PLE1141",  # Unpacking a dictionary in iteration without calling `.items()`
-    "PLE1142",  # `await` should be used within an async function
-    "PLE1205",  # Too many arguments for `logging` format string
-    "PLE1206",  # Not enough arguments for `logging` format string
-    "PLE1300",  # Unsupported format character '{format_char}'
-    "PLE1307",  # Format type does not match argument type
-    "PLE1310",  # String `{strip}` call contains duplicate characters (did you mean `{removal}`?)
-    "PLE1507",  # Invalid type for initial `os.getenv` argument; expected `str`
-    "PLE1519",  # `@singledispatch` decorator should not be used on methods
-    "PLE1520",  # `@singledispatchmethod` decorator should not be used on non-method functions
-    "PLE1700",  # `yield from` statement in async function; use `async for` instead
-    "PLE2502",  # Contains control characters that can permit obfuscated code
-    "PLE2510",  # Invalid unescaped character backspace, use "\b" instead
-    "PLE2512",  # Invalid unescaped character SUB, use "\x1A" instead
-    "PLE2513",  # Invalid unescaped character ESC, use "\x1B" instead
-    "PLE2514",  # Invalid unescaped character NUL, use "\0" instead
-    "PLE2515",  # Invalid unescaped character zero-width-space, use "\u200B" instead
-    "PLE4703",  # Iterated set `{name}` is modified within the `for` loop
+    "PLE",
     # pylint ('PLR')
 #    "PLR0124",  # Name compared with itself, consider replacing `{actual}`
     "PLR0133",  # Two constants compared in a comparison, consider replacing `{left_constant} {op} {right_constant}`
