@@ -193,7 +193,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 result.uri + ' to ' + result.message,
             )
         else:
-            raise ValueError('Unknown status %s.' % result.status)
+            msg = f'Unknown status {result.status!r}.'
+            raise ValueError(msg)
 
     def write_linkstat(self, data: dict[str, str | int]) -> None:
         self.json_outfile.write(json.dumps(data))
@@ -464,12 +465,13 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return 'broken', '', 0
 
         # need to actually check the URI
+        status, info, code = '', '', 0
         for _ in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
             if status != 'broken':
                 return status, info, code
 
-        return '', '', 0
+        return status, info, code
 
     def _retrieval_methods(
         self,
