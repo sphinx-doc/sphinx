@@ -201,12 +201,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write('\n')
 
     def write_entry(
-        self,
-        what: _Status | str,
-        docname: str,
-        filename: _StrPath,
-        line: int,
-        uri: str,
+        self, what: _Status | str, docname: str, filename: _StrPath, line: int, uri: str
     ) -> None:
         self.txt_outfile.write(f'{filename}:{line}: [{what}] {uri}\n')
 
