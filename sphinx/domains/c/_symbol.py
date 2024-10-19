@@ -508,9 +508,14 @@ class Symbol:
                     name = str(ourChild.declaration)
                     msg = __("Duplicate C declaration, also defined at %s:%s.\n"
                              "Declaration is '.. c:%s:: %s'.")
-                    msg = msg % (ourChild.docname, ourChild.line,
-                                 ourChild.declaration.directiveType, name)
-                    logger.warning(msg, location=(otherChild.docname, otherChild.line))
+                    logger.warning(
+                        msg,
+                        ourChild.docname,
+                        ourChild.line,
+                        ourChild.declaration.directiveType,
+                        name,
+                        location=(otherChild.docname, otherChild.line),
+                    )
                 else:
                     # Both have declarations, and in the same docname.
                     # This can apparently happen, it should be safe to
