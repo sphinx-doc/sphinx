@@ -39,7 +39,6 @@ ignore = [
     "PLC0415",  # `import` should be at the top-level of a file
     "PLC2701",  # Private name import `{name}` from external module `{module}`
     # pylint ('PLR')
-    "PLR0124",  # Name compared with itself, consider replacing `{actual}`
     "PLR0904",  # Too many public methods ({methods} > {max_methods})
     "PLR0911",  # Too many return statements ({returns} > {max_returns})
     "PLR0912",  # Too many branches ({branches} > {max_branches})
