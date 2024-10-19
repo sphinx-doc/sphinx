@@ -290,7 +290,7 @@ class CMemberObject(CObject):
     @property
     def display_object_type(self) -> str:
         # the distinction between var and member is only cosmetic
-        assert self.objtype in ('member', 'var')
+        assert self.objtype in {'member', 'var'}
         return self.objtype
 
 
@@ -354,7 +354,7 @@ class CNamespaceObject(SphinxDirective):
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['c']['root_symbol']
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             symbol = rootSymbol
             stack: list[Symbol] = []
         else:
@@ -383,7 +383,7 @@ class CNamespacePushObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             return []
         parser = DefinitionParser(self.arguments[0],
                                   location=self.get_location(),

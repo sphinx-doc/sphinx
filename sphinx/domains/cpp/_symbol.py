@@ -799,7 +799,7 @@ class Symbol:
                     if (otherChild.declaration.objectType ==
                             ourChild.declaration.objectType and
                             otherChild.declaration.objectType in
-                            ('templateParam', 'functionParam') and
+                            {'templateParam', 'functionParam'} and
                             ourChild.parent.declaration == otherChild.parent.declaration):
                         # `ourChild` was just created during merging by the call
                         # to `_fill_empty` on the parent and can be ignored.

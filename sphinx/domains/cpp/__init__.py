@@ -460,7 +460,7 @@ class CPPClassObject(CPPObject):
     @property
     def display_object_type(self) -> str:
         # the distinction between class and struct is only cosmetic
-        assert self.objtype in ('class', 'struct')
+        assert self.objtype in {'class', 'struct'}
         return self.objtype
 
 
@@ -490,7 +490,7 @@ class CPPNamespaceObject(SphinxDirective):
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             symbol = rootSymbol
             stack: list[Symbol] = []
         else:
@@ -520,7 +520,7 @@ class CPPNamespacePushObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             return []
         parser = DefinitionParser(self.arguments[0],
                                   location=self.get_location(),
@@ -628,7 +628,7 @@ class AliasTransform(SphinxTransform):
             for sChild in s._children:
                 if sChild.declaration is None:
                     continue
-                if sChild.declaration.objectType in ("templateParam", "functionParam"):
+                if sChild.declaration.objectType in {"templateParam", "functionParam"}:
                     continue
                 childNodes = self._render_symbol(
                     sChild, maxdepth=maxdepth, skipThis=False,
@@ -961,7 +961,7 @@ class CPPDomain(Domain):
                             typ: str, target: str, node: pending_xref,
                             contnode: Element) -> tuple[Element | None, str | None]:
         # add parens again for those that could be functions
-        if typ in ('any', 'func'):
+        if typ in {'any', 'func'}:
             target += '()'
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
@@ -1081,7 +1081,7 @@ class CPPDomain(Domain):
                     if (env.config.add_function_parentheses and typ == 'func' and
                             title.endswith('operator()')):
                         addParen += 1
-                    if (typ in ('any', 'func') and
+                    if (typ in {'any', 'func'} and
                             title.endswith('operator') and
                             displayName.endswith('operator()')):
                         addParen += 1

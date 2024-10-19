@@ -1673,7 +1673,7 @@ class Sphinx:
 
         .. versionadded: 4.1
         """
-        if policy not in ('always', 'per_page'):
+        if policy not in {'always', 'per_page'}:
             raise ValueError('policy %s is not supported' % policy)
         self.registry.html_assets_policy = policy
 

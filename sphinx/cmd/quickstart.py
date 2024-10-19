@@ -121,9 +121,9 @@ def choice(*l: str) -> Callable[[str], str]:
 
 
 def boolean(x: str) -> bool:
-    if x.upper() not in ('Y', 'YES', 'N', 'NO'):
+    if x.upper() not in {'Y', 'YES', 'N', 'NO'}:
         raise ValidationError(__("Please enter either 'y' or 'n'."))
-    return x.upper() in ('Y', 'YES')
+    return x.upper() in {'Y', 'YES'}
 
 
 def suffix(x: str) -> str:

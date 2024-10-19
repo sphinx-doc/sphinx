@@ -302,7 +302,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             # are printed natively and ``None``-like types are kept as is.
             # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
-        elif cls.__module__ in ('__builtin__', 'builtins'):
+        elif cls.__module__ in {'__builtin__', 'builtins'}:
             if hasattr(cls, '__args__'):
                 if not cls.__args__:  # Empty tuple, list, ...
                     return rf':py:class:`{cls.__name__}`\ [{cls.__args__!r}]'

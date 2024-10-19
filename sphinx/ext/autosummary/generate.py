@@ -358,7 +358,7 @@ def generate_autosummary_content(
     if modname is None or qualname is None:
         modname, qualname = _split_full_qualified_name(name)
 
-    if doc.objtype in ('method', 'attribute', 'property'):
+    if doc.objtype in {'method', 'attribute', 'property'}:
         ns['class'] = qualname.rsplit('.', 1)[0]
 
     if doc.objtype == 'class':

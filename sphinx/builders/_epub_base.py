@@ -580,7 +580,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 if ext not in self.media_types:
                     # we always have JS and potentially OpenSearch files, don't
                     # always warn about them
-                    if ext not in ('.js', '.xml'):
+                    if ext not in {'.js', '.xml'}:
                         logger.warning(
                             __('unknown mimetype for %s, ignoring'),
                             filename,

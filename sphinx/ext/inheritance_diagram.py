@@ -166,7 +166,7 @@ class InheritanceGraph:
 
     def _class_info(self, classes: list[Any], show_builtins: bool, private_bases: bool,
                     parts: int, aliases: dict[str, str] | None, top_classes: Sequence[Any],
-                    ) -> list[tuple[str, str, list[str], str]]:
+                    ) -> list[tuple[str, str, Sequence[str], str | None]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
 
@@ -221,7 +221,11 @@ class InheritanceGraph:
         for cls in classes:
             recurse(cls)
 
-        return list(all_classes.values())  # type: ignore[arg-type]
+        return [
+            (cls_name, fullname, tuple(bases), tooltip)
+            for (cls_name, fullname, bases, tooltip)
+            in all_classes.values()
+        ]
 
     def class_name(
         self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None,
@@ -232,7 +236,7 @@ class InheritanceGraph:
         completely general.
         """
         module = cls.__module__
-        if module in ('__builtin__', 'builtins'):
+        if module in {'__builtin__', 'builtins'}:
             fullname = cls.__name__
         else:
             fullname = f'{module}.{cls.__qualname__}'

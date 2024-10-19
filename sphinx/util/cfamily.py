@@ -90,7 +90,7 @@ char_literal_re = re.compile(
 
 
 def verify_description_mode(mode: str) -> None:
-    if mode not in ('lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'):
+    if mode not in {'lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'}:
         raise Exception("Description mode '%s' is invalid." % mode)
 
 

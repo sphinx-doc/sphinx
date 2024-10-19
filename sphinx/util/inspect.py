@@ -799,11 +799,11 @@ def stringify_signature(
         ):
             # PEP-570: Separator for Positional Only Parameter: /
             args.append('/')
-        if param.kind == Parameter.KEYWORD_ONLY and last_kind in (
+        if param.kind == Parameter.KEYWORD_ONLY and last_kind in {
             Parameter.POSITIONAL_OR_KEYWORD,
             Parameter.POSITIONAL_ONLY,
             None,
-        ):
+        }:
             # PEP-3102: Separator for Keyword Only Parameter: *
             args.append('*')
 

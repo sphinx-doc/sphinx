@@ -291,7 +291,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
     amount, unit = match.groups()[:2]
     if scale == 100:
         float(amount)  # validate amount is float
-        if unit in ('', 'px'):
+        if unit in {'', 'px'}:
             res = r'%s\sphinxpxdimen' % amount
         elif unit == 'pt':
             res = '%sbp' % amount  # convert to 'bp'
@@ -299,7 +299,7 @@ def rstdim_to_latexdim(width_str: str, scale: int = 100) -> str:
             res = r'%.3f\linewidth' % (float(amount) / 100.0)
     else:
         amount_float = float(amount) * scale / 100.0
-        if unit in ('', 'px'):
+        if unit in {'', 'px'}:
             res = r'%.5f\sphinxpxdimen' % amount_float
         elif unit == 'pt':
             res = '%.5fbp' % amount_float
@@ -1090,7 +1090,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.no_latex_floats -= 1
 
     def visit_rubric(self, node: nodes.rubric) -> None:
-        if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
+        if len(node) == 1 and node.astext() in {'Footnotes', _('Footnotes')}:
             raise nodes.SkipNode
         tag = 'subsubsection'
         if 'heading-level' in node:
@@ -1684,7 +1684,7 @@ class LaTeXTranslator(SphinxTranslator):
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append(r'\capstart')
             self.context.append(r'\end{sphinxfigure-in-table}\relax' + CR)
-        elif node.get('align', '') in ('left', 'right'):
+        elif node.get('align', '') in {'left', 'right'}:
             length = None
             if 'width' in node:
                 length = self.latex_image_length(node['width'])

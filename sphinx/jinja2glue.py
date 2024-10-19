@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 def _tobool(val: str) -> bool:
     if isinstance(val, str):
-        return val.lower() in ('true', '1', 'yes', 'on')
+        return val.lower() in {'true', '1', 'yes', 'on'}
     return bool(val)
 
 

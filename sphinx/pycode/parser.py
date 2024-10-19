@@ -47,14 +47,14 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
         self_id = self.arg
 
     node_name = node.__class__.__name__
-    if node_name in ('Constant', 'Index', 'Slice', 'Subscript'):
+    if node_name in {'Constant', 'Index', 'Slice', 'Subscript'}:
         raise TypeError('%r does not create new variable' % node)
     if node_name == 'Name':
         if self is None or node.id == self_id:  # type: ignore[attr-defined]
             return [node.id]  # type: ignore[attr-defined]
         else:
             raise TypeError('The assignment %r is not instance variable' % node)
-    elif node_name in ('Tuple', 'List'):
+    elif node_name in {'Tuple', 'List'}:
         members = []
         for elt in node.elts:  # type: ignore[attr-defined]
             with contextlib.suppress(TypeError):
