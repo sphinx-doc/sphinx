@@ -40,7 +40,7 @@ STYLEFILES = [
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)  # NoQA: S607
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
