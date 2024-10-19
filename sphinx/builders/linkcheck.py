@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
-    _Statuses: TypeAlias = Literal[
+    _Status: TypeAlias = Literal[
         'broken',
         'ignored',
         'local',
@@ -96,7 +96,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat: dict[str, str | int | _Statuses] = {
+        linkstat: dict[str, str | int | _Status] = {
             'filename': str(filename),
             'lineno': result.lineno,
             'status': result.status,
@@ -202,7 +202,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def write_entry(
         self,
-        what: _Statuses | str,
+        what: _Status | str,
         docname: str,
         filename: _StrPath,
         line: int,
@@ -347,7 +347,7 @@ class CheckResult(NamedTuple):
     uri: str
     docname: str
     lineno: int
-    status: _Statuses | Literal['']
+    status: _Status | Literal['']
     message: str
     code: int
 
@@ -441,7 +441,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
     def _check(
         self, docname: str, uri: str, hyperlink: Hyperlink
-    ) -> tuple[_Statuses | Literal[''], str, int]:
+    ) -> tuple[_Status | Literal[''], str, int]:
         # check for various conditions without bothering the network
 
         for doc_matcher in self.documents_exclude:
@@ -465,11 +465,12 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return 'broken', '', 0
 
         # need to actually check the URI
+        status: _Status | Literal['']
         status, info, code = '', '', 0
         for _ in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
             if status != 'broken':
-                return status, info, code
+                break
 
         return status, info, code
 
@@ -482,7 +483,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             yield self._session.head, {'allow_redirects': True}
         yield self._session.get, {'stream': True}
 
-    def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[_Statuses, str, int]:
+    def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[_Status, str, int]:
         req_url, delimiter, anchor = uri.partition('#')
         if delimiter and anchor:
             for rex in self.anchors_ignore:
