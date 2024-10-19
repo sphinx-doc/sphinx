@@ -468,7 +468,7 @@ class DefinitionParser(BaseParser):
                     #  | typename-specifier "(" expression-list [opt] ")"
                     #  | typename-specifier braced-init-list
                     self.skip_ws()
-                    if self.current_char != '(' and self.current_char != '{':
+                    if self.current_char not in {'(', '{'}:
                         self.fail("Expecting '(' or '{' after type in cast expression.")
                 except DefinitionError as eInner:
                     self.pos = pos
@@ -1632,7 +1632,7 @@ class DefinitionParser(BaseParser):
             # we parsed an expression, so we must have a , or a >,
             # otherwise the expression didn't get everything
             self.skip_ws()
-            if self.current_char != ',' and self.current_char != '>':
+            if self.current_char not in {',', '>'}:
                 # pretend it didn't happen
                 self.pos = pos
                 init = None

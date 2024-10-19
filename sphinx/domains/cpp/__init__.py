@@ -969,7 +969,7 @@ class CPPDomain(Domain):
         except DefinitionError as e:
             # as arg to stop flake8 from complaining
             def findWarning(e: Exception) -> tuple[str, Exception]:
-                if typ != 'any' and typ != 'func':
+                if typ not in {"any", "func"}:
                     return target, e
                 # hax on top of the paren hax to try to get correct errors
                 parser2 = DefinitionParser(target[:-2],
