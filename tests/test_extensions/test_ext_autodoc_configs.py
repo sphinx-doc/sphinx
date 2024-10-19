@@ -10,11 +10,6 @@ from sphinx.testing import restructuredtext
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
-skip_py314_segfault = pytest.mark.skipif(
-    sys.version_info[:2] >= (3, 14),
-    reason='Segmentation fault: https://github.com/python/cpython/issues/125017',
-)
-
 IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
@@ -187,7 +182,6 @@ def test_autodoc_class_signature_separated_init(app):
     ]
 
 
-@skip_py314_segfault
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_class_signature_separated_new(app):
     app.config.autodoc_class_signature = 'separated'
@@ -371,7 +365,6 @@ def test_autodoc_inherit_docstrings_for_inherited_members(app):
     ]
 
 
-@skip_py314_segfault
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
     options = {'members': None, 'special-members': '__init__, __new__'}
