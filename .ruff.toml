@@ -62,7 +62,6 @@ ignore = [
     "S101",  # Use of `assert` detected
     "S105",  # Possible hardcoded password assigned to: "{}"
     "S110",  # `try`-`except`-`pass` detected, consider logging the exception
-    "S113",  # Probable use of `{module}` call without timeout
     "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
     "S324",  # Probable use of insecure hash functions in `{library}`: `{string}`
     "S403",  # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
