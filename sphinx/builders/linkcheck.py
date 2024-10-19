@@ -43,7 +43,7 @@ class LinkStatus(StrEnum):
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import Any, Literal, TypeAlias
+    from typing import Any, Literal, Union, TypeAlias
 
     from requests import Response
 
@@ -52,20 +52,10 @@ if TYPE_CHECKING:
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
-    _Status: TypeAlias = Literal[
-        LinkStatus.BROKEN,
-        LinkStatus.IGNORED,
-        LinkStatus.LOCAL,
-        LinkStatus.TIMEOUT,
-        LinkStatus.RATE_LIMITED,
-        LinkStatus.REDIRECTED,
-        LinkStatus.UNCHECKED,
-        LinkStatus.UNKNOWN,
-        LinkStatus.WORKING,
-    ]
-    _StatusUnknown: TypeAlias = _Status | Literal['']
-    _URIProperties: TypeAlias = tuple[_Status, str, int]
-    _URIPropertiesUnknown: TypeAlias = tuple[_StatusUnknown, str, int]
+    _Status: TypeAlias = LinkStatus
+    _StatusUnknown: TypeAlias = Union[LinkStatus, None]
+    _URIProperties: TypeAlias = tuple[LinkStatus, str, int]
+    _URIPropertiesUnknown: TypeAlias = tuple[LinkStatus | None, str, int]
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +104,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat: dict[str, str | int | _Status] = {
+        linkstat: dict[str, str | int | _StatusUnknown] = {
             'filename': str(filename),
             'lineno': result.lineno,
             'status': result.status,
@@ -218,7 +208,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             msg = f'Unknown status {result.status!r}.'
             raise ValueError(msg)
 
-    def write_linkstat(self, data: dict[str, str | int]) -> None:
+    def write_linkstat(self, data: dict[str, str | int | _StatusUnknown]) -> None:
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
@@ -488,7 +478,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
         # need to actually check the URI
         status: _StatusUnknown
-        status, info, code = '', '', 0
+        status, info, code = None, '', 0
         for _ in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
             if status != LinkStatus.BROKEN:
