@@ -28,6 +28,18 @@ from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise
 from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
+
+class LinkStatus(StrEnum):
+    BROKEN = 'broken'
+    IGNORED = 'ignored'
+    TIMEOUT = 'timeout'
+    RATE_LIMITED = 'rate-limited'
+    REDIRECTED = 'redirected'
+    UNCHECKED = 'unchecked'
+    UNKNOWN = 'unknown'
+    WORKING = 'working'
+
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from typing import Any, Literal, TypeAlias
@@ -40,14 +52,14 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
     _Status: TypeAlias = Literal[
-        'broken',
-        'ignored',
-        'local',
-        'rate-limited',
-        'redirected',
-        'timeout',
-        'unchecked',
-        'working',
+        LinkStatus.BROKEN,
+        LinkStatus.IGNORED,
+        LinkStatus.TIMEOUT,
+        LinkStatus.RATE_LIMITED,
+        LinkStatus.REDIRECTED,
+        LinkStatus.UNCHECKED,
+        LinkStatus.UNKNOWN,
+        LinkStatus.WORKING,
     ]
     _StatusUnknown: TypeAlias = _Status | Literal['']
     _URIProperties: TypeAlias = tuple[_Status, str, int]
@@ -64,17 +76,6 @@ DEFAULT_REQUEST_HEADERS = {
 CHECK_IMMEDIATELY = 0
 QUEUE_POLL_SECS = 1
 DEFAULT_DELAY = 60.0
-
-
-class LinkStatus(StrEnum):
-    BROKEN = 'broken'
-    IGNORED = 'ignored'
-    TIMEOUT = 'timeout'
-    RATE_LIMITED = 'rate-limited'
-    REDIRECTED = 'redirected'
-    UNCHECKED = 'unchecked'
-    UNKNOWN = 'unknown'
-    WORKING = 'working'
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
