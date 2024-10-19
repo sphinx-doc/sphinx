@@ -32,6 +32,7 @@ from sphinx.util.nodes import get_node_line
 class LinkStatus(StrEnum):
     BROKEN = 'broken'
     IGNORED = 'ignored'
+    LOCAL = 'local'
     TIMEOUT = 'timeout'
     RATE_LIMITED = 'rate-limited'
     REDIRECTED = 'redirected'
