@@ -138,7 +138,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
         elif result.status == LinkStatus.LOCAL:
             logger.info(darkgray('-local-   ') + result.uri)
             self.write_entry(
-                result.status, result.docname, filename, result.lineno, result.uri
+                LinkStatus.LOCAL,
+                result.docname,
+                filename,
+                result.lineno,
+                result.uri,
             )
         elif result.status == LinkStatus.WORKING:
             logger.info(darkgreen('ok        ') + result.uri + result.message)
@@ -173,7 +177,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     red('broken    ') + result.uri + red(' - ' + result.message)
                 )
             self.write_entry(
-                result.status,
+                LinkStatus.BROKEN,
                 result.docname,
                 filename,
                 result.lineno,
