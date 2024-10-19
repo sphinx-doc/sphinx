@@ -41,7 +41,6 @@ class MathDomain(Domain):
 
     initial_data: dict[str, Any] = {
         'objects': {},  # labelid -> (docname, eqno)
-        'has_equations': {},  # docname -> bool
     }
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
@@ -71,27 +70,15 @@ class MathDomain(Domain):
         else:
             return None
 
-    def process_doc(self, env: BuildEnvironment, docname: str,
-                    document: nodes.document) -> None:
-        def math_node(node: Node) -> bool:
-            return isinstance(node, nodes.math | nodes.math_block)
-
-        self.data['has_equations'][docname] = any(document.findall(math_node))
-
     def clear_doc(self, docname: str) -> None:
         for equation_id, (doc, _eqno) in list(self.equations.items()):
             if doc == docname:
                 del self.equations[equation_id]
 
-        self.data['has_equations'].pop(docname, None)
-
     def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.equations[labelid] = (doc, eqno)
-
-        for docname in docnames:
-            self.data['has_equations'][docname] = otherdata['has_equations'][docname]
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
@@ -135,15 +122,6 @@ class MathDomain(Domain):
 
     def get_objects(self) -> Iterable[tuple[str, str, str, str, str, int]]:
         return []
-
-    def has_equations(self, docname: str | None = None) -> bool:
-        if not docname:
-            return any(self.data['has_equations'].values())
-
-        return (
-            self.data['has_equations'].get(docname, False)
-            or any(map(self.has_equations, self.env.toctree_includes.get(docname, ())))
-        )
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
