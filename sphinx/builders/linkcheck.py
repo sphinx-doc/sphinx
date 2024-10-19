@@ -29,7 +29,7 @@ from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import Any
+    from typing import Any, Literal, TypeAlias
 
     from requests import Response
 
@@ -37,6 +37,17 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
+
+    _Statuses: TypeAlias = Literal[
+        'broken',
+        'ignored',
+        'local',
+        'rate-limited',
+        'redirected',
+        'timeout',
+        'unchecked',
+        'working',
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +96,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat: dict[str, str | int] = {
+        linkstat: dict[str, str | int | _Statuses] = {
             'filename': str(filename),
             'lineno': result.lineno,
             'status': result.status,
@@ -189,7 +200,12 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write('\n')
 
     def write_entry(
-        self, what: str, docname: str, filename: _StrPath, line: int, uri: str
+        self,
+        what: _Statuses | str,
+        docname: str,
+        filename: _StrPath,
+        line: int,
+        uri: str,
     ) -> None:
         self.txt_outfile.write(f'{filename}:{line}: [{what}] {uri}\n')
 
@@ -330,7 +346,7 @@ class CheckResult(NamedTuple):
     uri: str
     docname: str
     lineno: int
-    status: str
+    status: _Statuses | Literal['']
     message: str
     code: int
 
@@ -373,6 +389,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
+        self._timeout_status: Literal['broken', 'timeout']
         if config.linkcheck_report_timeouts_as_broken:
             self._timeout_status = 'broken'
         else:
@@ -423,7 +440,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
     def _check(
         self, docname: str, uri: str, hyperlink: Hyperlink
-    ) -> tuple[str, str, int]:
+    ) -> tuple[_Statuses | Literal[''], str, int]:
         # check for various conditions without bothering the network
 
         for doc_matcher in self.documents_exclude:
@@ -447,13 +464,12 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return 'broken', '', 0
 
         # need to actually check the URI
-        status, info, code = '', '', 0
         for _ in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
             if status != 'broken':
-                break
+                return status, info, code
 
-        return status, info, code
+        return '', '', 0
 
     def _retrieval_methods(
         self,
@@ -464,7 +480,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             yield self._session.head, {'allow_redirects': True}
         yield self._session.get, {'stream': True}
 
-    def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
+    def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[_Statuses, str, int]:
         req_url, delimiter, anchor = uri.partition('#')
         if delimiter and anchor:
             for rex in self.anchors_ignore:
@@ -556,8 +572,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
                 # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
-                    status = 'working' if self._allow_unauthorized else 'broken'
-                    return status, 'unauthorized', 0
+                    if self._allow_unauthorized:
+                        return 'working', 'unauthorized', 0
+                    else:
+                        return 'broken', 'unauthorized', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
                 if status_code == 429:
