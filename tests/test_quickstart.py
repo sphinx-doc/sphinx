@@ -31,9 +31,9 @@ def mock_input(
                 'answer for %r missing and no default present' % prompt
             )
         called.add(prompt)
-        for question in answers:
+        for question, answer in answers.items():
             if prompt.startswith(qs.PROMPT_PREFIX + question):
-                return answers[question]
+                return answer
         if needanswer:
             raise AssertionError('answer for %r missing' % prompt)
         return ''

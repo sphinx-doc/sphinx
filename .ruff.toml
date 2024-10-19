@@ -36,7 +36,6 @@ ignore = [
     # flake8-pie ('PIE')
     "PIE790",  # Unnecessary `pass` statement
     # pylint ('PLC')
-    "PLC0206",  # Extracting value from dictionary without calling `.items()`
     "PLC0415",  # `import` should be at the top-level of a file
     "PLC1901",  # simplify truthy/falsey string comparisons
     "PLC2701",  # Private name import `{name}` from external module `{module}`
