@@ -29,7 +29,7 @@ from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import Any
+    from typing import Any, LiteralString
 
     from requests import Response
 
@@ -189,7 +189,12 @@ class CheckExternalLinksBuilder(DummyBuilder):
         self.json_outfile.write('\n')
 
     def write_entry(
-        self, what: str, docname: str, filename: _StrPath, line: int, uri: str
+        self,
+        what: LiteralString,
+        docname: str,
+        filename: _StrPath,
+        line: int,
+        uri: str,
     ) -> None:
         self.txt_outfile.write(f'{filename}:{line}: [{what}] {uri}\n')
 
@@ -330,7 +335,7 @@ class CheckResult(NamedTuple):
     uri: str
     docname: str
     lineno: int
-    status: str
+    status: LiteralString
     message: str
     code: int
 
@@ -374,7 +379,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
         if config.linkcheck_report_timeouts_as_broken:
-            self._timeout_status = 'broken'
+            self._timeout_status: LiteralString = 'broken'
         else:
             self._timeout_status = 'timeout'
 
@@ -423,7 +428,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
     def _check(
         self, docname: str, uri: str, hyperlink: Hyperlink
-    ) -> tuple[str, str, int]:
+    ) -> tuple[LiteralString, str, int]:
         # check for various conditions without bothering the network
 
         for doc_matcher in self.documents_exclude:
@@ -464,7 +469,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             yield self._session.head, {'allow_redirects': True}
         yield self._session.get, {'stream': True}
 
-    def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[str, str, int]:
+    def _check_uri(
+        self,
+        uri: str,
+        hyperlink: Hyperlink,
+    ) -> tuple[LiteralString, str, int]:
         req_url, delimiter, anchor = uri.partition('#')
         if delimiter and anchor:
             for rex in self.anchors_ignore:
