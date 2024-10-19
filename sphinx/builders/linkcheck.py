@@ -48,6 +48,9 @@ if TYPE_CHECKING:
         'unchecked',
         'working',
     ]
+    _StatusUnknown: TypeAlias = _Status | Literal['']
+    _URIProperties: TypeAlias = tuple[_Status, str, int]
+    _URIPropertiesUnknown: TypeAlias = tuple[_StatusUnknown, str, int]
 
 logger = logging.getLogger(__name__)
 
@@ -342,7 +345,7 @@ class CheckResult(NamedTuple):
     uri: str
     docname: str
     lineno: int
-    status: _Status | Literal['']
+    status: _StatusUnknown
     message: str
     code: int
 
@@ -436,7 +439,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
     def _check(
         self, docname: str, uri: str, hyperlink: Hyperlink
-    ) -> tuple[_Status | Literal[''], str, int]:
+    ) -> _URIPropertiesUnknown:
         # check for various conditions without bothering the network
 
         for doc_matcher in self.documents_exclude:
@@ -460,7 +463,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return 'broken', '', 0
 
         # need to actually check the URI
-        status: _Status | Literal['']
+        status: _StatusUnknown
         status, info, code = '', '', 0
         for _ in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
@@ -478,7 +481,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             yield self._session.head, {'allow_redirects': True}
         yield self._session.get, {'stream': True}
 
-    def _check_uri(self, uri: str, hyperlink: Hyperlink) -> tuple[_Status, str, int]:
+    def _check_uri(self, uri: str, hyperlink: Hyperlink) -> _URIProperties:
         req_url, delimiter, anchor = uri.partition('#')
         if delimiter and anchor:
             for rex in self.anchors_ignore:
