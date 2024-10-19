@@ -69,7 +69,6 @@ ignore = [
     "S404",  # `subprocess` module is possibly insecure
     "S405",  # `xml.etree` methods are vulnerable to XML attacks
     "S603",  # `subprocess` call: check for execution of untrusted input
-    "S702",  # Mako templates allow HTML and JavaScript rendering by default and are inherently open to XSS attacks
     # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
