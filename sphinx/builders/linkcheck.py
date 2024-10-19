@@ -43,7 +43,7 @@ class LinkStatus(StrEnum):
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
-    from typing import Any, Literal, Union, TypeAlias
+    from typing import Any, Literal, TypeAlias
 
     from requests import Response
 
@@ -53,7 +53,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
     _Status: TypeAlias = LinkStatus
-    _StatusUnknown: TypeAlias = Union[LinkStatus, None]
+    _StatusUnknown: TypeAlias = LinkStatus | None
     _URIProperties: TypeAlias = tuple[LinkStatus, str, int]
     _URIPropertiesUnknown: TypeAlias = tuple[LinkStatus | None, str, int]
 
