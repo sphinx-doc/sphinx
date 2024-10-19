@@ -7,7 +7,6 @@ extend-exclude = [
     "tests/js/roots/*",
     "build/*",
     "doc/_build/*",
-#    "sphinx/search/*",
     "doc/usage/extensions/example*.py",
 ]
 
