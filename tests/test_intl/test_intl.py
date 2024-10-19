@@ -368,7 +368,7 @@ def test_gettext_section(app):
     # --- section
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
     actual = read_po(app.outdir / 'section.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
 
@@ -538,13 +538,13 @@ def test_gettext_toctree(app):
     # --- toctree (index.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'index.po')
     actual = read_po(app.outdir / 'index.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
     # --- toctree (toctree.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'toctree.po')
     actual = read_po(app.outdir / 'toctree.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
 
@@ -557,7 +557,7 @@ def test_gettext_table(app):
     # --- toctree
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
     actual = read_po(app.outdir / 'table.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
 
@@ -599,7 +599,7 @@ def test_gettext_topic(app):
     # --- topic
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
     actual = read_po(app.outdir / 'topic.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
 
@@ -626,7 +626,7 @@ def test_gettext_definition_terms(app):
         app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'definition_terms.po'
     )
     actual = read_po(app.outdir / 'definition_terms.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
 
@@ -639,7 +639,7 @@ def test_gettext_glossary_terms(app):
     # --- glossary terms: regression test for #1090
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms.po')
     actual = read_po(app.outdir / 'glossary_terms.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
     warnings = app.warning.getvalue().replace(os.sep, '/')
@@ -656,7 +656,7 @@ def test_gettext_glossary_term_inconsistencies(app):
         app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po'
     )
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
 
@@ -669,7 +669,7 @@ def test_gettext_literalblock(app):
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'literalblock.po')
     actual = read_po(app.outdir / 'literalblock.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         if len(expect_msg.id.splitlines()) == 1:
             # compare translations only labels
@@ -686,7 +686,7 @@ def test_gettext_buildr_ignores_only_directive(app):
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'only.po')
     actual = read_po(app.outdir / 'only.pot')
-    actual_msg_ids = {msg.id for msg in actual if msg.id}
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
     for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.id in actual_msg_ids
 
