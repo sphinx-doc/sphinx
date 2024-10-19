@@ -54,6 +54,7 @@ if TYPE_CHECKING:
     _Status: TypeAlias = Literal[
         LinkStatus.BROKEN,
         LinkStatus.IGNORED,
+        LinkStatus.LOCAL,
         LinkStatus.TIMEOUT,
         LinkStatus.RATE_LIMITED,
         LinkStatus.REDIRECTED,
@@ -133,10 +134,10 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
             else:
                 logger.info(darkgray('-ignored- ') + result.uri)
-        elif result.status == 'local':
+        elif result.status == LinkStatus.LOCAL:
             logger.info(darkgray('-local-   ') + result.uri)
             self.write_entry(
-                'local', result.docname, filename, result.lineno, result.uri
+                result.status, result.docname, filename, result.lineno, result.uri
             )
         elif result.status == LinkStatus.WORKING:
             logger.info(darkgreen('ok        ') + result.uri + result.message)
