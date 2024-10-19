@@ -40,8 +40,6 @@ ignore = [
     "PLC0415",  # `import` should be at the top-level of a file
     "PLC1901",  # simplify truthy/falsey string comparisons
     "PLC2701",  # Private name import `{name}` from external module `{module}`
-    # pylint ('PLE')
-    "PLE0704",  # Bare `raise` statement is not inside an exception handler
     # pylint ('PLR')
     "PLR0124",  # Name compared with itself, consider replacing `{actual}`
     "PLR0904",  # Too many public methods ({methods} > {max_methods})

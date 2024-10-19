@@ -735,7 +735,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 navstack[-1].children.append(navpoint)
                 navstack.append(navpoint)
             else:
-                raise
+                msg = __('node has an invalid level')
+                raise ValueError(msg)
             lastnode = node
 
         return navstack[0].children
