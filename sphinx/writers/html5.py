@@ -287,7 +287,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         level = self.optional_param_level
         if self.multi_line_parameter_list:
             max_level = self.max_optional_param_level
-            is_last_group = self.param_group_index + 1 == len(self.list_is_required_param)
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
             # If it's the first time we go down one level, add the separator before the
             # bracket, except if this is the last parameter and the parameter list
             # should not feature a trailing comma.
