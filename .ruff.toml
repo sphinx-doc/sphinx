@@ -63,7 +63,6 @@ ignore = [
     "S105",  # Possible hardcoded password assigned to: "{}"
     "S110",  # `try`-`except`-`pass` detected, consider logging the exception
     "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
-    "S324",  # Probable use of insecure hash functions in `{library}`: `{string}`
     "S403",  # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
     "S404",  # `subprocess` module is possibly insecure
     "S405",  # `xml.etree` methods are vulnerable to XML attacks
