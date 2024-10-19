@@ -828,10 +828,11 @@ def _check_toc_parents(toctree_includes: dict[str, list[str]], root_doc: str) ->
 
     def _find_toc_parents_dfs(node: str) -> None:
         for child in toctree_includes.get(node, []):
+            already_visited = child in toc_parents
             toc_parents.setdefault(child, []).append(node)
-            is_child_already_visited = len(toc_parents[child]) > 1
-            if not is_child_already_visited:
-                _find_toc_parents_dfs(child)
+            if already_visited:
+                continue
+            _find_toc_parents_dfs(child)
 
     _find_toc_parents_dfs(root_doc)
     for doc, parents in sorted(toc_parents.items()):
