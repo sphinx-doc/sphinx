@@ -60,7 +60,6 @@ ignore = [
     "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
     # flake8-bandit ('S')
     "S101",  # Use of `assert` detected
-    "S105",  # Possible hardcoded password assigned to: "{}"
     "S110",  # `try`-`except`-`pass` detected, consider logging the exception
     "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
     "S403",  # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
@@ -326,6 +325,9 @@ select = [
 # whitelist ``print`` for stdout messages
 "sphinx/ext/intersphinx/_cli.py" = ["T201"]
 
+# whitelist ``token`` in docstring parsing
+"sphinx/ext/napoleon/docstring.py" = ["S105"]
+
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
 
@@ -337,6 +339,12 @@ select = [
 "sphinx/util/requests.py" = ["D402"]
 
 "sphinx/search/*" = ["E501"]
+
+# whitelist ``token`` in date format parsing
+"sphinx/util/i18n.py" = ["S105"]
+
+# whitelist ``token`` in literal parsing
+"sphinx/writers/html5.py" = ["S105"]
 
 "tests/*" = [
     "E501",
