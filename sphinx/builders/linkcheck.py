@@ -407,7 +407,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
         self._timeout_status: Literal[LinkStatus.BROKEN, LinkStatus.TIMEOUT]
         if config.linkcheck_report_timeouts_as_broken:
-            self._timeout_status: LinkStatus.BROKEN
+            self._timeout_status = LinkStatus.BROKEN
         else:
             self._timeout_status = LinkStatus.TIMEOUT
 
