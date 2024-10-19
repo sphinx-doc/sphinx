@@ -29,6 +29,7 @@ jobs:
   ubuntu:
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -72,6 +73,7 @@ jobs:
   deadsnakes:
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -106,6 +108,7 @@ jobs:
   free-threaded:
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (free-threaded)
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -138,6 +141,7 @@ jobs:
   deadsnakes-free-threaded:
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (free-threaded)
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -171,6 +175,7 @@ jobs:
   windows:
     runs-on: windows-2019
     name: Windows
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v4
@@ -196,6 +201,7 @@ jobs:
   docutils-latest:
     runs-on: ubuntu-latest
     name: Docutils HEAD
+    timeout-minutes: 15
 
     steps:
     - name: Install epubcheck
@@ -233,6 +239,7 @@ jobs:
   oldest-supported:
     runs-on: ubuntu-latest
     name: Oldest supported
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v4
@@ -262,6 +269,7 @@ jobs:
   latex:
     runs-on: ubuntu-latest
     name: LaTeX
+    timeout-minutes: 15
     container:
       image: ghcr.io/sphinx-doc/sphinx-ci
 
@@ -291,6 +299,7 @@ jobs:
     if: github.event_name == 'push' && github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
     name: Coverage
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v4
