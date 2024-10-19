@@ -587,7 +587,7 @@ class Documenter:
                                   self.objtype, self.fullname, self.object,
                                   self.options, docstringlines)
 
-                if docstringlines and docstringlines[-1] != '':
+                if docstringlines and docstringlines[-1]:
                     # append a blank line to the end of the docstring
                     docstringlines.append('')
 
@@ -2053,7 +2053,7 @@ class DataDocumenter(GenericAliasMixin,
             analyzer = ModuleAnalyzer.for_module(self.modname)
             analyzer.analyze()
             for (classname, attrname), annotation in analyzer.annotations.items():
-                if classname == '' and attrname not in annotations:
+                if not classname and attrname not in annotations:
                     annotations[attrname] = annotation
         except PycodeError:
             pass

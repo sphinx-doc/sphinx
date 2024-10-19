@@ -37,7 +37,6 @@ ignore = [
     "PIE790",  # Unnecessary `pass` statement
     # pylint ('PLC')
     "PLC0415",  # `import` should be at the top-level of a file
-    "PLC1901",  # simplify truthy/falsey string comparisons
     "PLC2701",  # Private name import `{name}` from external module `{module}`
     # pylint ('PLR')
     "PLR0124",  # Name compared with itself, consider replacing `{actual}`
@@ -354,6 +353,7 @@ select = [
     "E501",
     "ANN",  # tests don't need annotations
     "D402",
+    "PLC1901",  # whitelist comparisons to the empty string ('')
     "T201",  # whitelist ``print`` for tests
 ]
 

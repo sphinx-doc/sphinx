@@ -1337,7 +1337,7 @@ class LaTeXTranslator(SphinxTranslator):
             if (
                 len(node) == 1
                 and isinstance(node[0], nodes.paragraph)
-                and node.astext() == ''
+                and not node.astext()
             ):
                 pass
             else:

@@ -309,7 +309,7 @@ class ASTNestedName(ASTBase):
                     dest += addnodes.desc_sig_space()
                 first = False
                 txt_nne = str(nne)
-                if txt_nne != '':
+                if txt_nne:
                     if nne.templateArgs and iTemplateParams < len(templateParams):
                         templateParamsPrefix += str(templateParams[iTemplateParams])
                         iTemplateParams += 1

@@ -249,7 +249,7 @@ class LaTeXBuilder(Builder):
                 )
             else:
                 self.context['textgreek'] = ''
-            if self.context['substitutefont'] == '':
+            if not self.context['substitutefont']:
                 self.context['fontsubstitution'] = ''
 
         # 'babel' key is public and user setting must be obeyed

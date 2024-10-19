@@ -461,7 +461,7 @@ def _get_module_attrs(name: str, members: Any) -> tuple[list[str], list[str]]:
         analyzer = ModuleAnalyzer.for_module(name)
         attr_docs = analyzer.find_attr_docs()
         for namespace, attr_name in attr_docs:
-            if namespace == '' and attr_name in members:
+            if not namespace and attr_name in members:
                 attrs.append(attr_name)
                 if not attr_name.startswith('_'):
                     public.append(attr_name)

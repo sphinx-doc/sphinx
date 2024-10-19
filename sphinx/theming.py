@@ -509,7 +509,7 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
     ]
 
     stylesheet = _cfg_parser.get('theme', 'stylesheet', fallback=...)
-    if stylesheet == '':
+    if not stylesheet:
         toml_lines.append('stylesheets = []')
     elif stylesheet is not ...:
         toml_lines.append('stylesheets = [')
@@ -517,7 +517,7 @@ def _migrate_conf_to_toml(argv: list[str]) -> int:
         toml_lines.append(']')
 
     sidebar = _cfg_parser.get('theme', 'sidebars', fallback=...)
-    if sidebar == '':
+    if not sidebar:
         toml_lines.append('sidebars = []')
     elif sidebar is not ...:
         toml_lines.append('sidebars = [')

@@ -74,7 +74,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 kwargs['includehidden'] = False
             elif includehidden.lower() == 'true':
                 kwargs['includehidden'] = True
-        if kwargs.get('maxdepth') == '':
+        if kwargs.get('maxdepth') == '':  # NoQA: PLC1901
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(
             self.env, docname, self, collapse=collapse, **kwargs

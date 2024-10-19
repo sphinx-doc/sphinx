@@ -1270,7 +1270,7 @@ class NumpyDocstring(GoogleDocstring):
         return (
             not self._lines
             or self._is_section_header()
-            or (line1 == line2 == '')
+            or (not line1 and not line2)
             or (
                 self._is_in_section
                 and line1

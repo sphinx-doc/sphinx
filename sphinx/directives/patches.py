@@ -166,7 +166,7 @@ class MathDirective(SphinxDirective):
         node = cast(nodes.math_block, ret[0])
 
         # assign label automatically if math_number_all enabled
-        if node['label'] == '' or (self.config.math_number_all and not node['label']):
+        if node['label'] == '' or (self.config.math_number_all and not node['label']):  # NoQA: PLC1901
             seq = self.env.new_serialno('sphinx.ext.math#equations')
             node['label'] = f'{self.env.docname}:{seq}'
 

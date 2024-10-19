@@ -96,8 +96,8 @@ def is_path(x: str) -> str:
 
 
 def is_path_or_empty(x: str) -> str:
-    if x == '':
-        return x
+    if not x:
+        return ''
     return is_path(x)
 
 

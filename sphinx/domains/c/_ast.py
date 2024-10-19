@@ -175,7 +175,7 @@ class ASTNestedName(ASTBase):
                     prefix += '.'
                 first = False
                 txt_ident = str(ident)
-                if txt_ident != '':
+                if txt_ident:
                     ident.describe_signature(dest, 'markType', env, prefix, symbol)
                 prefix += txt_ident
             if mode == 'lastIsName':
