@@ -58,7 +58,6 @@ ignore = [
     "PLR6301",  # Method `{method_name}` could be a function, class method, or static method
     # pylint ('PLW')
     "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
-    "PLW3201",  # Dunder method `{name}` has no special meaning in Python 3
     # flake8-bandit ('S')
     "S101",  # Use of `assert` detected
     "S105",  # Possible hardcoded password assigned to: "{}"
