@@ -3896,6 +3896,9 @@ class ASTTemplateParamNonType(ASTTemplateParam):
             and self.parameterPack == other.parameterPack
         )
 
+    def __hash__(self) -> int:
+        return hash((self.param, self.parameterPack))
+
     @property
     def name(self) -> ASTNestedName:
         id = self.get_identifier()
@@ -4260,6 +4263,19 @@ class ASTDeclaration(ASTBase):
             and self.enumeratorScopedSymbol == other.enumeratorScopedSymbol
         )
 
+    def __hash__(self) -> int:
+        return hash((
+            self.objectType,
+            self.directiveType,
+            self.visibility,
+            self.templatePrefix,
+            self.declaration,
+            self.trailingRequiresClause,
+            self.semicolon,
+            self.symbol,
+            self.enumeratorScopedSymbol,
+        ))
+
     def clone(self) -> ASTDeclaration:
         templatePrefixClone = self.templatePrefix.clone() if self.templatePrefix else None
         trailingRequiresClasueClone = self.trailingRequiresClause.clone() \
@@ -4422,6 +4438,9 @@ class ASTNamespace(ASTBase):
             self.nestedName == other.nestedName
             and self.templatePrefix == other.templatePrefix
         )
+
+    def __hash__(self) -> int:
+        return hash((self.nestedName, self.templatePrefix))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []

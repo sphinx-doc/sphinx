@@ -123,6 +123,9 @@ class Token:
         else:
             raise ValueError('Unknown value: %r' % other)
 
+    def __hash__(self) -> int:
+        return hash((self.kind, self.value, self.start, self.end, self.source))
+
     def match(self, *conditions: Any) -> bool:
         return any(self == candidate for candidate in conditions)
 

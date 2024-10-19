@@ -54,6 +54,9 @@ class ASTIdentifier(ASTBaseBase):
             return NotImplemented
         return self.name == other.name
 
+    def __hash__(self) -> int:
+        return hash((self.name, self.is_anonymous))
+
     def is_anon(self) -> bool:
         return self.is_anonymous
 
@@ -1770,6 +1773,16 @@ class ASTDeclaration(ASTBaseBase):
             and self.symbol == other.symbol
             and self.enumeratorScopedSymbol == other.enumeratorScopedSymbol
         )
+
+    def __hash__(self) -> int:
+        return hash((
+            self.objectType,
+            self.directiveType,
+            self.declaration,
+            self.semicolon,
+            self.symbol,
+            self.enumeratorScopedSymbol,
+        ))
 
     def clone(self) -> ASTDeclaration:
         return ASTDeclaration(self.objectType, self.directiveType,

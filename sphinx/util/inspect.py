@@ -523,6 +523,9 @@ class DefaultValue:
     def __eq__(self, other: object) -> bool:
         return self.value == other
 
+    def __hash__(self) -> int:
+        return hash(self.value)
+
     def __repr__(self) -> str:
         return self.value
 

@@ -57,7 +57,6 @@ ignore = [
     "PLR6201",  # Use a set literal when testing for membership
     "PLR6301",  # Method `{method_name}` could be a function, class method, or static method
     # pylint ('PLW')
-    "PLW1641",  # Object does not implement `__hash__` method
     "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
     "PLW3201",  # Dunder method `{name}` has no special meaning in Python 3
     # flake8-bandit ('S')

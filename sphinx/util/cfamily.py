@@ -108,6 +108,9 @@ class ASTBaseBase:
         except AttributeError:
             return False
 
+    def __hash__(self) -> int:
+        return hash(sorted(self.__dict__.items()))
+
     def clone(self) -> Any:
         return deepcopy(self)
 
