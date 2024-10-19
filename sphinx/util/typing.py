@@ -313,11 +313,10 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 return rf':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             return f':py:class:`{cls.__name__}`'
         elif isgenericalias(cls):
-            if isinstance(cls.__origin__, typing._SpecialForm):
-                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard; TypeIs
-                # Required/NotRequired
-                text = restify(cls.__origin__, mode)
-            elif cls.__name__:
+            if cls.__name__ and not isinstance(cls.__origin__, typing._SpecialForm):
+                # Represent generic aliases as the classes in ``typing`` rather
+                # than the underlying aliased classes,
+                # e.g. ``~typing.Tuple`` instead of ``tuple``.
                 text = f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
             else:
                 text = restify(cls.__origin__, mode)
