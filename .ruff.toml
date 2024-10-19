@@ -61,8 +61,6 @@ ignore = [
     # flake8-bandit ('S')
     "S101",  # Use of `assert` detected
     "S110",  # `try`-`except`-`pass` detected, consider logging the exception
-    "S301",  # `pickle` and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue
-    "S403",  # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
     "S404",  # `subprocess` module is possibly insecure
     "S405",  # `xml.etree` methods are vulnerable to XML attacks
     "S603",  # `subprocess` call: check for execution of untrusted input
@@ -314,6 +312,12 @@ select = [
 # whitelist ``print`` for stdout messages
 "sphinx/_cli/__init__.py" = ["T201"]
 
+# allow use of ``pickle``
+"sphinx/{application,builders/__init__,environment/__init__,ext/coverage,search/__init__,versioning}.py" = [
+    "S301",
+    "S403",
+]
+
 # whitelist ``print`` for stdout messages
 "sphinx/cmd/build.py" = ["T201"]
 "sphinx/cmd/make_mode.py" = ["T201"]
@@ -351,6 +355,8 @@ select = [
     "ANN",  # tests don't need annotations
     "D402",
     "PLC1901",  # whitelist comparisons to the empty string ('')
+    "S301",  # allow use of ``pickle``
+    "S403",  # allow use of ``pickle``
     "T201",  # whitelist ``print`` for tests
 ]
 
