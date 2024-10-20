@@ -1,6 +1,5 @@
 """Test the Theme class."""
 
-import os
 import shutil
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
@@ -88,7 +87,7 @@ def test_theme_api(app):
 
     # cleanup temp directories
     theme._cleanup()
-    assert not any(map(os.path.exists, theme._tmp_dirs))
+    assert not any(p.exists() for p in theme._tmp_dirs)
 
 
 def test_nonexistent_theme_settings(tmp_path):
