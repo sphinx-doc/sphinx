@@ -28,19 +28,6 @@ from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise
 from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
-
-class LinkStatus(StrEnum):
-    BROKEN = 'broken'
-    IGNORED = 'ignored'
-    LOCAL = 'local'
-    TIMEOUT = 'timeout'
-    RATE_LIMITED = 'rate-limited'
-    REDIRECTED = 'redirected'
-    UNCHECKED = 'unchecked'
-    UNKNOWN = 'unknown'
-    WORKING = 'working'
-
-
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from typing import Any, Literal, TypeAlias
@@ -52,10 +39,21 @@ if TYPE_CHECKING:
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
-    _Status: TypeAlias = LinkStatus
-    _StatusUnknown: TypeAlias = LinkStatus | None
-    _URIProperties: TypeAlias = tuple[LinkStatus, str, int]
-    _URIPropertiesUnknown: TypeAlias = tuple[LinkStatus | None, str, int]
+    _URIProperties: TypeAlias = tuple["_Status", str, int]
+    _URIPropertiesUnknown: TypeAlias = tuple["_Status" | None, str, int]
+
+
+class _Status(StrEnum):
+    BROKEN = 'broken'
+    IGNORED = 'ignored'
+    LOCAL = 'local'
+    TIMEOUT = 'timeout'
+    RATE_LIMITED = 'rate-limited'
+    REDIRECTED = 'redirected'
+    UNCHECKED = 'unchecked'
+    UNKNOWN = 'unknown'
+    WORKING = 'working'
+
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +102,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat: dict[str, str | int | _StatusUnknown] = {
+        linkstat: dict[str, str | int | _Status | None] = {
             'filename': str(filename),
             'lineno': result.lineno,
             'status': result.status,
@@ -114,29 +112,29 @@ class CheckExternalLinksBuilder(DummyBuilder):
         }
         self.write_linkstat(linkstat)
 
-        if result.status == LinkStatus.UNCHECKED:
+        if result.status == _Status.UNCHECKED:
             return
-        if result.status == LinkStatus.WORKING and result.message == 'old':
+        if result.status == _Status.WORKING and result.message == 'old':
             return
         if result.lineno:
             logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
-        if result.status == LinkStatus.IGNORED:
+        if result.status == _Status.IGNORED:
             if result.message:
                 logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
             else:
                 logger.info(darkgray('-ignored- ') + result.uri)
-        elif result.status == LinkStatus.LOCAL:
+        elif result.status == _Status.LOCAL:
             logger.info(darkgray('-local-   ') + result.uri)
             self.write_entry(
-                LinkStatus.LOCAL,
+                _Status.LOCAL,
                 result.docname,
                 filename,
                 result.lineno,
                 result.uri,
             )
-        elif result.status == LinkStatus.WORKING:
+        elif result.status == _Status.WORKING:
             logger.info(darkgreen('ok        ') + result.uri + result.message)
-        elif result.status == LinkStatus.TIMEOUT:
+        elif result.status == _Status.TIMEOUT:
             if self.app.quiet:
                 logger.warning(
                     'timeout   ' + result.uri + result.message,
@@ -147,14 +145,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     red('timeout   ') + result.uri + red(' - ' + result.message)
                 )
             self.write_entry(
-                LinkStatus.TIMEOUT,
+                _Status.TIMEOUT,
                 result.docname,
                 filename,
                 result.lineno,
                 result.uri + ': ' + result.message,
             )
             self.timed_out_hyperlinks += 1
-        elif result.status == LinkStatus.BROKEN:
+        elif result.status == _Status.BROKEN:
             if self.app.quiet:
                 logger.warning(
                     __('broken link: %s (%s)'),
@@ -167,14 +165,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     red('broken    ') + result.uri + red(' - ' + result.message)
                 )
             self.write_entry(
-                LinkStatus.BROKEN,
+                _Status.BROKEN,
                 result.docname,
                 filename,
                 result.lineno,
                 result.uri + ': ' + result.message,
             )
             self.broken_hyperlinks += 1
-        elif result.status == LinkStatus.REDIRECTED:
+        elif result.status == _Status.REDIRECTED:
             try:
                 text, color = {
                     301: ('permanently', purple),
@@ -208,7 +206,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             msg = f'Unknown status {result.status!r}.'
             raise ValueError(msg)
 
-    def write_linkstat(self, data: dict[str, str | int | _StatusUnknown]) -> None:
+    def write_linkstat(self, data: dict[str, str | int | _Status | None]) -> None:
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
@@ -318,7 +316,7 @@ class HyperlinkAvailabilityChecker:
                     uri=hyperlink.uri,
                     docname=hyperlink.docname,
                     lineno=hyperlink.lineno,
-                    status=LinkStatus.IGNORED,
+                    status=_Status.IGNORED,
                     message='',
                     code=0,
                 )
@@ -359,7 +357,7 @@ class CheckResult(NamedTuple):
     uri: str
     docname: str
     lineno: int
-    status: _StatusUnknown
+    status: _Status | None
     message: str
     code: int
 
@@ -402,11 +400,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.retries: int = config.linkcheck_retries
         self.rate_limit_timeout = config.linkcheck_rate_limit_timeout
         self._allow_unauthorized = config.linkcheck_allow_unauthorized
-        self._timeout_status: Literal[LinkStatus.BROKEN, LinkStatus.TIMEOUT]
+        self._timeout_status: Literal[_Status.BROKEN, _Status.TIMEOUT]
         if config.linkcheck_report_timeouts_as_broken:
-            self._timeout_status = LinkStatus.BROKEN
+            self._timeout_status = _Status.BROKEN
         else:
-            self._timeout_status = LinkStatus.TIMEOUT
+            self._timeout_status = _Status.TIMEOUT
 
         self.user_agent = config.user_agent
         self.tls_verify = config.tls_verify
@@ -443,7 +441,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.wqueue.task_done()
                 continue
             status, info, code = self._check(docname, uri, hyperlink)
-            if status == LinkStatus.RATE_LIMITED:
+            if status == _Status.RATE_LIMITED:
                 logger.info(
                     darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')
                 )
@@ -462,26 +460,26 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                     f'{docname} matched {doc_matcher.pattern} from '
                     'linkcheck_exclude_documents'
                 )
-                return LinkStatus.IGNORED, info, 0
+                return _Status.IGNORED, info, 0
 
         if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'tel:')):
-            return LinkStatus.UNCHECKED, '', 0
+            return _Status.UNCHECKED, '', 0
         if not uri.startswith(('http:', 'https:')):
             if uri_re.match(uri):
                 # Non-supported URI schemes (ex. ftp)
-                return LinkStatus.UNCHECKED, '', 0
+                return _Status.UNCHECKED, '', 0
 
             src_dir = path.dirname(hyperlink.docpath)
             if path.exists(path.join(src_dir, uri)):
-                return LinkStatus.WORKING, '', 0
-            return LinkStatus.BROKEN, '', 0
+                return _Status.WORKING, '', 0
+            return _Status.BROKEN, '', 0
 
         # need to actually check the URI
-        status: _StatusUnknown
+        status: _Status | None
         status, info, code = None, '', 0
         for _ in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
-            if status != LinkStatus.BROKEN:
+            if status != _Status.BROKEN:
                 break
 
         return status, info, code
@@ -550,14 +548,10 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         try:
                             found = contains_anchor(response, anchor)
                         except UnicodeDecodeError:
-                            return (
-                                LinkStatus.IGNORED,
-                                'unable to decode response content',
-                                0,
-                            )
+                            return _Status.IGNORED, 'unable to decode response content', 0
                         if not found:
                             return (
-                                LinkStatus.BROKEN,
+                                _Status.BROKEN,
                                 __("Anchor '%s' not found") % quote(anchor),
                                 0,
                             )
@@ -578,7 +572,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             except SSLError as err:
                 # SSL failure; report that the link is broken.
-                return LinkStatus.BROKEN, str(err), 0
+                return _Status.BROKEN, str(err), 0
 
             except (ConnectionError, TooManyRedirects) as err:
                 # Servers drop the connection on HEAD requests, causing
@@ -592,20 +586,20 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Unauthorized: the client did not provide required credentials
                 if status_code == 401:
                     if self._allow_unauthorized:
-                        return LinkStatus.WORKING, 'unauthorized', 0
+                        return _Status.WORKING, 'unauthorized', 0
                     else:
-                        return LinkStatus.BROKEN, 'unauthorized', 0
+                        return _Status.BROKEN, 'unauthorized', 0
 
                 # Rate limiting; back-off if allowed, or report failure otherwise
                 if status_code == 429:
                     if next_check := self.limit_rate(response_url, retry_after):
                         self.wqueue.put(CheckRequest(next_check, hyperlink), False)
-                        return LinkStatus.RATE_LIMITED, '', 0
-                    return LinkStatus.BROKEN, error_message, 0
+                        return _Status.RATE_LIMITED, '', 0
+                    return _Status.BROKEN, error_message, 0
 
                 # Don't claim success/failure during server-side outages
                 if status_code == 503:
-                    return LinkStatus.IGNORED, 'service unavailable', 0
+                    return _Status.IGNORED, 'service unavailable', 0
 
                 # For most HTTP failures, continue attempting alternate retrieval methods
                 continue
@@ -613,12 +607,12 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             except Exception as err:
                 # Unhandled exception (intermittent or permanent); report that
                 # the link is broken.
-                return LinkStatus.BROKEN, str(err), 0
+                return _Status.BROKEN, str(err), 0
 
         else:
             # All available retrieval methods have been exhausted; report
             # that the link is broken.
-            return LinkStatus.BROKEN, error_message, 0
+            return _Status.BROKEN, error_message, 0
 
         # Success; clear rate limits for the origin
         netloc = urlsplit(req_url).netloc
@@ -628,11 +622,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             (response_url.rstrip('/') == req_url.rstrip('/'))
             or _allowed_redirect(req_url, response_url, self.allowed_redirects)
         ):  # fmt: skip
-            return LinkStatus.WORKING, '', 0
+            return _Status.WORKING, '', 0
         elif redirect_status_code is not None:
-            return LinkStatus.REDIRECTED, response_url, redirect_status_code
+            return _Status.REDIRECTED, response_url, redirect_status_code
         else:
-            return LinkStatus.REDIRECTED, response_url, 0
+            return _Status.REDIRECTED, response_url, 0
 
     def limit_rate(self, response_url: str, retry_after: str | None) -> float | None:
         delay = DEFAULT_DELAY
