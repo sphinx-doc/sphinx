@@ -111,99 +111,93 @@ class CheckExternalLinksBuilder(DummyBuilder):
         }
         self.write_linkstat(linkstat)
 
-        if result.status == _Status.UNCHECKED:
-            return
-        if result.status == _Status.WORKING and result.message == 'old':
-            return
-        if result.lineno:
+        if result.lineno and result.status != _Status.UNCHECKED:
+            # unchecked links are not logged
             logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
-        if result.status == _Status.IGNORED:
-            if result.message:
-                logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
-            else:
-                logger.info(darkgray('-ignored- ') + result.uri)
-        elif result.status == _Status.LOCAL:
-            logger.info(darkgray('-local-   ') + result.uri)
-            self.write_entry(
-                _Status.LOCAL,
-                result.docname,
-                filename,
-                result.lineno,
-                result.uri,
-            )
-        elif result.status == _Status.WORKING:
-            logger.info(darkgreen('ok        ') + result.uri + result.message)
-        elif result.status == _Status.TIMEOUT:
-            if self.app.quiet:
-                logger.warning(
-                    'timeout   ' + result.uri + result.message,
-                    location=(result.docname, result.lineno),
-                )
-            else:
-                logger.info(
-                    red('timeout   ') + result.uri + red(' - ' + result.message)
-                )
-            self.write_entry(
-                _Status.TIMEOUT,
-                result.docname,
-                filename,
-                result.lineno,
-                result.uri + ': ' + result.message,
-            )
-            self.timed_out_hyperlinks += 1
-        elif result.status == _Status.BROKEN:
-            if self.app.quiet:
-                logger.warning(
-                    __('broken link: %s (%s)'),
+
+        match result.status:
+            case _Status.RATE_LIMITED | _Status.UNCHECKED:
+                pass
+            case _Status.IGNORED:
+                if result.message:
+                    msg = darkgray('-ignored- ') + result.uri + ': ' + result.message
+                else:
+                    msg = darkgray('-ignored- ') + result.uri
+                logger.info(msg)
+            case _Status.LOCAL:
+                logger.info(darkgray('-local-   ') + result.uri)
+                self.write_entry(
+                    _Status.LOCAL,
+                    result.docname,
+                    filename,
+                    result.lineno,
                     result.uri,
-                    result.message,
-                    location=(result.docname, result.lineno),
                 )
-            else:
-                logger.info(
-                    red('broken    ') + result.uri + red(' - ' + result.message)
+            case _Status.WORKING:
+                logger.info(darkgreen('ok        ') + result.uri + result.message)
+            case _Status.TIMEOUT:
+                if self.app.quiet:
+                    msg = 'timeout   ' + result.uri + result.message
+                    logger.warning(msg, location=(result.docname, result.lineno))
+                else:
+                    msg = red('timeout   ') + result.uri + red(' - ' + result.message)
+                    logger.info(msg)
+                self.write_entry(
+                    _Status.TIMEOUT,
+                    result.docname,
+                    filename,
+                    result.lineno,
+                    result.uri + ': ' + result.message,
                 )
-            self.write_entry(
-                _Status.BROKEN,
-                result.docname,
-                filename,
-                result.lineno,
-                result.uri + ': ' + result.message,
-            )
-            self.broken_hyperlinks += 1
-        elif result.status == _Status.REDIRECTED:
-            try:
-                text, color = {
-                    301: ('permanently', purple),
-                    302: ('with Found', purple),
-                    303: ('with See Other', purple),
-                    307: ('temporarily', turquoise),
-                    308: ('permanently', purple),
-                }[result.code]
-            except KeyError:
-                text, color = ('with unknown code', purple)
-            linkstat['text'] = text
-            if self.config.linkcheck_allowed_redirects:
-                logger.warning(
-                    'redirect  ' + result.uri + ' - ' + text + ' to ' + result.message,
-                    location=(result.docname, result.lineno),
+                self.timed_out_hyperlinks += 1
+            case _Status.BROKEN:
+                if self.app.quiet:
+                    logger.warning(
+                        __('broken link: %s (%s)'),
+                        result.uri,
+                        result.message,
+                        location=(result.docname, result.lineno),
+                    )
+                else:
+                    msg = red('broken    ') + result.uri + red(' - ' + result.message)
+                    logger.info(msg)
+                self.write_entry(
+                    _Status.BROKEN,
+                    result.docname,
+                    filename,
+                    result.lineno,
+                    result.uri + ': ' + result.message,
                 )
-            else:
-                logger.info(
-                    color('redirect  ')
-                    + result.uri
-                    + color(' - ' + text + ' to ' + result.message)
+                self.broken_hyperlinks += 1
+            case _Status.REDIRECTED:
+                try:
+                    text, color = {
+                        301: ('permanently', purple),
+                        302: ('with Found', purple),
+                        303: ('with See Other', purple),
+                        307: ('temporarily', turquoise),
+                        308: ('permanently', purple),
+                    }[result.code]
+                except KeyError:
+                    text, color = ('with unknown code', purple)
+                linkstat['text'] = text
+                redirection = text + ' to ' + result.message
+                if self.config.linkcheck_allowed_redirects:
+                    msg = 'redirect  ' + result.uri + ' - ' + redirection
+                    logger.warning(msg, location=(result.docname, result.lineno))
+                else:
+                    msg = color('redirect  ') + result.uri + color(' - ' + redirection)
+                    logger.info(msg)
+                self.write_entry(
+                    'redirected ' + text,
+                    result.docname,
+                    filename,
+                    result.lineno,
+                    result.uri + ' to ' + result.message,
                 )
-            self.write_entry(
-                'redirected ' + text,
-                result.docname,
-                filename,
-                result.lineno,
-                result.uri + ' to ' + result.message,
-            )
-        else:
-            msg = f'Unknown status {result.status!r}.'
-            raise ValueError(msg)
+            case _Status.UNKNOWN:
+                msg = 'Unknown status.'
+                raise ValueError(msg)
 
     def write_linkstat(self, data: dict[str, str | int | _Status]) -> None:
         self.json_outfile.write(json.dumps(data))
