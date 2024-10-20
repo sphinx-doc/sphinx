@@ -66,7 +66,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self._table_row_indices = [0]
         self._fieldlist_row_indices = [0]
         self.required_params_left = 0
-        self.has_equations: bool = False
+        self._has_equations: bool = False
 
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
@@ -959,7 +959,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             node['classes'].append('field-odd')
 
     def visit_math(self, node: Element, math_env: str = '') -> None:
-        self.has_equations = True
+        self._has_equations = True
 
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
@@ -967,8 +967,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         visit(self, node)
 
     def depart_math(self, node: Element, math_env: str = '') -> None:
-        self.has_equations = True
-
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         _, depart = self.builder.app.registry.html_inline_math_renderers[name]
@@ -976,7 +974,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
-        self.has_equations = True
+        self._has_equations = True
 
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
@@ -984,8 +982,6 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         visit(self, node)
 
     def depart_math_block(self, node: Element, math_env: str = '') -> None:
-        self.has_equations = True
-
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         _, depart = self.builder.app.registry.html_block_math_renderers[name]

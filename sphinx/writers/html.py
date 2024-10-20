@@ -24,11 +24,10 @@ class HTMLWriter(Writer):  # type: ignore[misc]
     # override embed-stylesheet default value to False.
     settings_default_overrides = {'embed_stylesheet': False}
 
-    has_equations: bool = False
-
     def __init__(self, builder: StandaloneHTMLBuilder) -> None:
         super().__init__()
         self.builder = builder
+        self._has_equations: bool = False
 
     def translate(self) -> None:
         # sadly, this is mostly copied from parent class
@@ -59,4 +58,4 @@ class HTMLWriter(Writer):  # type: ignore[misc]
         ):
             setattr(self, attr, getattr(visitor, attr, None))
         self.clean_meta = ''.join(self.visitor.meta[2:])
-        self.has_equations = getattr(visitor, 'has_equations', False)
+        self._has_equations = getattr(visitor, '_has_equations', False)

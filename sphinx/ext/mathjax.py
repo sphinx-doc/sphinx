@@ -82,7 +82,7 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict
         raise ExtensionError(msg)
 
     builder = cast(StandaloneHTMLBuilder, app.builder)
-    if app.registry.html_assets_policy == 'always' or context.get('has_equations'):
+    if app.registry.html_assets_policy == 'always' or context.get('_has_equations'):
         # Enable mathjax only if equations exists
         if app.config.mathjax2_config:
             if app.config.mathjax_path == MATHJAX_URL:
