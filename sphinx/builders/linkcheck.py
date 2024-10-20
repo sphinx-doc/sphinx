@@ -111,13 +111,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
         }
         self.write_linkstat(linkstat)
 
-        if result.lineno:
-            if result.status == _Status.UNCHECKED:
-                pass  # unchecked links are not logged
-            else:
-                logger.info(
-                    '(%16s: line %4d) ', result.docname, result.lineno, nonl=True
-                )
+        if result.lineno and result.status != _Status.UNCHECKED:
+            # unchecked links are not logged
+            logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
 
         match result.status:
             case _Status.RATE_LIMITED | _Status.UNCHECKED:
