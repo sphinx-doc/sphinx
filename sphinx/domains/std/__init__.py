@@ -749,22 +749,25 @@ class StandardDomain(Domain):
         return self.data.setdefault('anonlabels', {})  # labelname -> docname, labelid
 
     def clear_doc(self, docname: str) -> None:
-        key: Any = None
-        for key, (fn, _l) in list(self.progoptions.items()):
-            if fn == docname:
-                del self.progoptions[key]
-        for key, (fn, _l) in list(self.objects.items()):
-            if fn == docname:
-                del self.objects[key]
-        for key, (fn, _l) in list(self._terms.items()):
-            if fn == docname:
-                del self._terms[key]
-        for key, (fn, _l, _l) in list(self.labels.items()):
-            if fn == docname:
-                del self.labels[key]
-        for key, (fn, _l) in list(self.anonlabels.items()):
-            if fn == docname:
-                del self.anonlabels[key]
+        to_remove1 = [key for key, (fn, _l) in self.progoptions.items() if fn == docname]
+        for key1 in to_remove1:
+            del self.progoptions[key1]
+
+        to_remove2 = [key for key, (fn, _l) in self.objects.items() if fn == docname]
+        for key2 in to_remove2:
+            del self.objects[key2]
+
+        to_remove3 = [key for key, (fn, _l) in self._terms.items() if fn == docname]
+        for key3 in to_remove3:
+            del self._terms[key3]
+
+        to_remove3 = [key for key, (fn, _l, _l) in self.labels.items() if fn == docname]
+        for key3 in to_remove3:
+            del self.labels[key3]
+
+        to_remove3 = [key for key, (fn, _l) in self.anonlabels.items() if fn == docname]
+        for key3 in to_remove3:
+            del self.anonlabels[key3]
 
     def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?

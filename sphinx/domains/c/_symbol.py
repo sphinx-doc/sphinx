@@ -135,7 +135,8 @@ class Symbol:
     def _remove_child(self, child: Symbol) -> None:
         name = child.ident.name
         self._children_by_name.pop(name, None)
-        self._children_by_docname.get(child.docname, {}).pop(name, None)
+        if children := self._children_by_docname.get(child.docname):
+            children.pop(name, None)
         if child.ident.is_anonymous:
             self._anon_children.discard(child)
 

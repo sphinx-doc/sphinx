@@ -17,7 +17,7 @@ env:
   UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
-  build:
+  verbose:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +40,7 @@ jobs:
       run: >
         sphinx-build
         -M html ./doc ./build/sphinx
-        -vv
+        --verbose
         --jobs=auto
         --show-traceback
         --fail-on-warning

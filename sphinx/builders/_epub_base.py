@@ -24,6 +24,8 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import copyfile, ensuredir, relpath
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from docutils.nodes import Element, Node
 
 try:
@@ -487,7 +489,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         pagename: str,
         addctx: dict[str, Any],
         templatename: str = 'page.html',
-        outfilename: str | None = None,
+        *,
+        outfilename: Path | None = None,
         event_arg: Any = None,
     ) -> None:
         """Create a rendered page.
@@ -500,7 +503,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 return
             self.fix_genindex(addctx['genindexentries'])
         addctx['doctype'] = self.doctype
-        super().handle_page(pagename, addctx, templatename, outfilename, event_arg)
+        super().handle_page(
+            pagename, addctx, templatename, outfilename=outfilename, event_arg=event_arg
+        )
 
     def build_mimetype(self) -> None:
         """Write the metainfo file mimetype."""
