@@ -111,11 +111,15 @@ class CheckExternalLinksBuilder(DummyBuilder):
         }
         self.write_linkstat(linkstat)
 
-        if result.status == _Status.UNCHECKED:
-            return
         if result.lineno:
-            logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
+            if result.status == _Status.UNCHECKED:
+                pass  # unchecked links are not logged
+            else:
+                logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
+
         match result.status:
+            case _Status.RATE_LIMITED | _Status.UNCHECKED:
+                pass
             case _Status.IGNORED:
                 if result.message:
                     msg = darkgray('-ignored- ') + result.uri + ': ' + result.message
@@ -193,8 +197,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     result.lineno,
                     result.uri + ' to ' + result.message,
                 )
-            case _:
-                msg = f'Unknown status {result.status!r}.'
+            case _Status.UNKNOWN:
+                msg = 'Unknown status.'
                 raise ValueError(msg)
 
     def write_linkstat(self, data: dict[str, str | int | _Status]) -> None:
