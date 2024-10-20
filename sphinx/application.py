@@ -1586,7 +1586,7 @@ class Sphinx:
         logger.debug('[app] adding environment collector: %r', collector)
         collector().enable(self)
 
-    def add_html_theme(self, name: str, theme_path: str) -> None:
+    def add_html_theme(self, name: str, theme_path: str | os.PathLike[str]) -> None:
         """Register a HTML Theme.
 
         The *name* is a name of theme, and *theme_path* is a full path to the
