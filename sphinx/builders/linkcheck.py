@@ -448,9 +448,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
             self.wqueue.task_done()
 
-    def _check(
-        self, docname: str, uri: str, hyperlink: Hyperlink
-    ) -> _URIProperties:
+    def _check(self, docname: str, uri: str, hyperlink: Hyperlink) -> _URIProperties:
         # check for various conditions without bothering the network
 
         for doc_matcher in self.documents_exclude:
