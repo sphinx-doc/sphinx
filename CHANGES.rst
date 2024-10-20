@@ -10,7 +10,7 @@ Incompatible changes
 --------------------
 
 * #13044: Remove the internal and undocumented ``has_equations`` data and
-  :py:meth:`!has_equations` method from the :py:class:`MathDomain`` domain.
+  :py:meth:`!has_equations` method from the :py:class:`!MathDomain`` domain.
   Patch by Adam Turner.
 
 Deprecated
