@@ -39,8 +39,8 @@ if TYPE_CHECKING:
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
-    _URIProperties: TypeAlias = tuple["_Status", str, int]
-    _URIPropertiesUnknown: TypeAlias = tuple["_Status" | None, str, int]
+    _URIProperties: TypeAlias = tuple['_Status', str, int]
+    _URIPropertiesUnknown: TypeAlias = tuple['_Status' | None, str, int]
 
 
 class _Status(StrEnum):
@@ -548,7 +548,11 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                         try:
                             found = contains_anchor(response, anchor)
                         except UnicodeDecodeError:
-                            return _Status.IGNORED, 'unable to decode response content', 0
+                            return (
+                                _Status.IGNORED,
+                                'unable to decode response content',
+                                0,
+                            )
                         if not found:
                             return (
                                 _Status.BROKEN,
