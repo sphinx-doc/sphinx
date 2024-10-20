@@ -4,6 +4,7 @@ import http.server
 import os
 import re
 import subprocess
+from contextlib import chdir
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
@@ -19,11 +20,6 @@ from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
 from tests.utils import http_server
-
-try:
-    from contextlib import chdir
-except ImportError:
-    from sphinx.util.osutil import _chdir as chdir
 
 STYLEFILES = [
     'article.cls',
@@ -44,7 +40,7 @@ STYLEFILES = [
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)  # NoQA: S607
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -2193,7 +2189,7 @@ def test_duplicated_labels_before_module(app):
     tested_labels = set()
 
     # iterate over the (explicit) labels in the corresponding index.rst
-    for rst_label_name in [
+    for rst_label_name in (
         'label_1a',
         'label_1b',
         'label_2',
@@ -2202,7 +2198,7 @@ def test_duplicated_labels_before_module(app):
         'label_auto_1b',
         'label_auto_2',
         'label_auto_3',
-    ]:
+    ):
         tex_label_name = 'index:' + rst_label_name.replace('_', '-')
         tex_label_code = r'\phantomsection\label{\detokenize{%s}}' % tex_label_name
         assert (

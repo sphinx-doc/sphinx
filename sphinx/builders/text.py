@@ -18,7 +18,7 @@ from sphinx.util.osutil import (
 from sphinx.writers.text import TextTranslator, TextWriter
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils import nodes
 
@@ -64,7 +64,7 @@ class TextBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames: set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
         self.writer = TextWriter(self)
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
@@ -78,7 +78,7 @@ class TextBuilder(Builder):
             with open(outfilename, 'w', encoding='utf-8') as f:
                 f.write(self.writer.output)
         except OSError as err:
-            logger.warning(__("error writing file %s: %s"), outfilename, err)
+            logger.warning(__('error writing file %s: %s'), outfilename, err)
 
     def finish(self) -> None:
         pass

@@ -161,7 +161,7 @@ def update_defvalue(app: Sphinx, obj: Any, bound_method: bool) -> None:
                     # Consume kw_defaults for kwonly args
                     kw_defaults.pop(0)
             else:
-                if param.kind in (param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD):
+                if param.kind in {param.POSITIONAL_ONLY, param.POSITIONAL_OR_KEYWORD}:
                     default = defaults.pop(0)
                     value = get_default_value(lines, default)
                     if value is None:

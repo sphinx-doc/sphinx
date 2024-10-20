@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Keres\u00e9s",
         "Search Page": "Keres\u00e9s",
         "Search Results": "Keres\u00e9si Eredm\u00e9nyek",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Keres\u00e9s k\u00f6zt\u00fck: %(docstitle)s",
         "Searching": "Keres\u00e9s folyamatban",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

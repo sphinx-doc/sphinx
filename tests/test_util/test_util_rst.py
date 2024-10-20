@@ -165,7 +165,7 @@ def test_textwidth():
 
 
 def test_heading():
-    env = Environment()
+    env = Environment(autoescape=True)
     env.extend(language=None)
 
     assert heading(env, 'Hello') == 'Hello\n====='

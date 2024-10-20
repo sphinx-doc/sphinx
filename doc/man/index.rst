@@ -1,9 +1,9 @@
-Command-Line Tools
+Command-line tools
 ==================
 
 These are the applications provided as part of Sphinx.
 
-Core Applications
+Core applications
 -----------------
 
 .. toctree::
@@ -12,7 +12,7 @@ Core Applications
    sphinx-quickstart
    sphinx-build
 
-Additional Applications
+Additional applications
 -----------------------
 
 .. toctree::

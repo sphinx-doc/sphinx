@@ -1,8 +1,11 @@
 """Test the sphinx.quickstart module."""
 
 import time
+from collections.abc import Callable
 from io import StringIO
 from os import path
+from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -17,18 +20,20 @@ def setup_module():
     nocolor()
 
 
-def mock_input(answers, needanswer=False):
+def mock_input(
+    answers: dict[str, str], needanswer: bool = False
+) -> Callable[[str], str]:
     called = set()
 
-    def input_(prompt):
+    def input_(prompt: str) -> str:
         if prompt in called:
             raise AssertionError(
                 'answer for %r missing and no default present' % prompt
             )
         called.add(prompt)
-        for question in answers:
+        for question, answer in answers.items():
             if prompt.startswith(qs.PROMPT_PREFIX + question):
-                return answers[question]
+                return answer
         if needanswer:
             raise AssertionError('answer for %r missing' % prompt)
         return ''
@@ -36,7 +41,7 @@ def mock_input(answers, needanswer=False):
     return input_
 
 
-real_input = input
+real_input: Callable[[str], str] = input
 
 
 def teardown_module():
@@ -95,13 +100,13 @@ def test_quickstart_defaults(tmp_path):
         'Project version': '0.1',
     }
     qs.term_input = mock_input(answers)
-    d = {}
+    d: dict[str, Any] = {}
     qs.ask_user(d)
     qs.generate(d)
 
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
-    ns = {}
+    ns: dict[str, Any] = {}
     exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
@@ -145,13 +150,13 @@ def test_quickstart_all_answers(tmp_path):
         'Do you want to use the epub builder': 'yes',
     }
     qs.term_input = mock_input(answers, needanswer=True)
-    d = {}
+    d: dict[str, Any] = {}
     qs.ask_user(d)
     qs.generate(d)
 
     conffile = tmp_path / 'source' / 'conf.py'
     assert conffile.is_file()
-    ns = {}
+    ns: dict[str, Any] = {}
     exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == [
         'sphinx.ext.autodoc',
@@ -184,11 +189,11 @@ def test_generated_files_eol(tmp_path):
         'Project version': '0.1',
     }
     qs.term_input = mock_input(answers)
-    d = {}
+    d: dict[str, Any] = {}
     qs.ask_user(d)
     qs.generate(d)
 
-    def assert_eol(filename, eol):
+    def assert_eol(filename: Path, eol: str) -> None:
         content = filename.read_bytes().decode()
         assert all(l[-len(eol) :] == eol for l in content.splitlines(keepends=True))
 
@@ -204,7 +209,7 @@ def test_quickstart_and_build(tmp_path):
         'Project version': '0.1',
     }
     qs.term_input = mock_input(answers)
-    d = {}
+    d: dict[str, Any] = {}
     qs.ask_user(d)
     qs.generate(d)
 
@@ -223,13 +228,13 @@ def test_default_filename(tmp_path):
         'Project version': '0.1',
     }
     qs.term_input = mock_input(answers)
-    d = {}
+    d: dict[str, Any] = {}
     qs.ask_user(d)
     qs.generate(d)
 
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
-    ns = {}
+    ns: dict[str, Any] = {}
     exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
 
 
@@ -247,7 +252,7 @@ def test_extensions(tmp_path):
 
     conffile = tmp_path / 'conf.py'
     assert conffile.is_file()
-    ns = {}
+    ns: dict[str, Any] = {}
     exec(conffile.read_text(encoding='utf8'), ns)  # NoQA: S102
     assert ns['extensions'] == ['foo', 'bar', 'baz']
 
@@ -263,6 +268,6 @@ def test_exits_when_existing_confpy(monkeypatch):
     qs.term_input = mock_input({
         'Please enter a new root path (or just Enter to exit)': '',
     })
-    d = {}
+    d: dict[str, Any] = {}
     with pytest.raises(SystemExit):
         qs.ask_user(d)

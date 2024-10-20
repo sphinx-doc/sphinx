@@ -51,7 +51,7 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
-    from sphinx.ext.autodoc import Documenter
+    from sphinx.ext.autodoc import Documenter, _AutodocProcessDocstringListener
     from sphinx.ext.todo import todo_node
     from sphinx.extension import Extension
     from sphinx.roles import XRefRole
@@ -218,7 +218,7 @@ class Sphinx:
 
         # keep last few messages for traceback
         # This will be filled by sphinx.util.logging.LastMessagesWriter
-        self.messagelog: deque = deque(maxlen=10)
+        self.messagelog: deque[str] = deque(maxlen=10)
 
         # say hello to the world
         logger.info(bold(__('Running Sphinx v%s')), sphinx.__display_version__)
@@ -668,17 +668,7 @@ class Sphinx:
     def connect(
         self,
         event: Literal['autodoc-process-docstring'],
-        callback: Callable[
-            [
-                Sphinx,
-                Literal['module', 'class', 'exception', 'function', 'method', 'attribute'],
-                str,
-                Any,
-                dict[str, bool],
-                Sequence[str],
-            ],
-            None,
-        ],
+        callback: _AutodocProcessDocstringListener,
         priority: int = 500
     ) -> int:
         ...
@@ -1596,7 +1586,7 @@ class Sphinx:
         logger.debug('[app] adding environment collector: %r', collector)
         collector().enable(self)
 
-    def add_html_theme(self, name: str, theme_path: str) -> None:
+    def add_html_theme(self, name: str, theme_path: str | os.PathLike[str]) -> None:
         """Register a HTML Theme.
 
         The *name* is a name of theme, and *theme_path* is a full path to the
@@ -1683,7 +1673,7 @@ class Sphinx:
 
         .. versionadded: 4.1
         """
-        if policy not in ('always', 'per_page'):
+        if policy not in {'always', 'per_page'}:
             raise ValueError('policy %s is not supported' % policy)
         self.registry.html_assets_policy = policy
 
@@ -1718,7 +1708,7 @@ class TemplateBridge:
         """
         return 0
 
-    def render(self, template: str, context: dict) -> None:
+    def render(self, template: str, context: dict[str, Any]) -> None:
         """Called by the builder to render a template given as a filename with
         a specified context (a Python dictionary).
         """

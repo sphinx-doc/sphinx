@@ -45,7 +45,7 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
 def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element) -> None:
     if domain != 'py':
         return
-    if app.config.autodoc_typehints not in ('both', 'description'):
+    if app.config.autodoc_typehints not in {'both', 'description'}:
         return
 
     try:
@@ -177,14 +177,14 @@ def augment_descriptions_with_types(
         elif parts[0] == 'type':
             name = ' '.join(parts[1:])
             has_type.add(name)
-        elif parts[0] in ('return', 'returns'):
+        elif parts[0] in {'return', 'returns'}:
             has_description.add('return')
         elif parts[0] == 'rtype':
             has_type.add('return')
 
     # Add 'type' for parameters with a description but no declared type.
     for name, annotation in annotations.items():
-        if name in ('return', 'returns'):
+        if name in {'return', 'returns'}:
             continue
 
         if '*' + name in has_description:

@@ -263,7 +263,7 @@ def test_create_index_with_name(app):
     assert index[2] == ('S', [('Sphinx', ([('', '#index-0')], [], None))])
 
     # check the reference labels are created correctly
-    std = app.env.get_domain('std')
+    std = app.env.domains.standard_domain
     assert std.anonlabels['ref1'] == ('index', 'ref1')
     assert std.anonlabels['ref2'] == ('index', 'ref2')
 

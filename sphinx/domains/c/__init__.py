@@ -33,7 +33,7 @@ from sphinx.util.docutils import SphinxDirective, SphinxRole
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -259,8 +259,14 @@ class CObject(ObjectDescription[ASTDeclaration]):
             self.env.temp_data['c:last_symbol'] = e.symbol
             msg = __("Duplicate C declaration, also defined at %s:%s.\n"
                      "Declaration is '.. c:%s:: %s'.")
-            msg = msg % (e.symbol.docname, e.symbol.line, self.display_object_type, sig)
-            logger.warning(msg, location=signode)
+            logger.warning(
+                msg,
+                e.symbol.docname,
+                e.symbol.line,
+                self.display_object_type,
+                sig,
+                location=signode,
+            )
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -290,7 +296,7 @@ class CMemberObject(CObject):
     @property
     def display_object_type(self) -> str:
         # the distinction between var and member is only cosmetic
-        assert self.objtype in ('member', 'var')
+        assert self.objtype in {'member', 'var'}
         return self.objtype
 
 
@@ -354,7 +360,7 @@ class CNamespaceObject(SphinxDirective):
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['c']['root_symbol']
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             symbol = rootSymbol
             stack: list[Symbol] = []
         else:
@@ -383,7 +389,7 @@ class CNamespacePushObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             return []
         parser = DefinitionParser(self.arguments[0],
                                   location=self.get_location(),
@@ -526,7 +532,7 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            rootSymbol: Symbol = self.env.domains['c'].data['root_symbol']
+            rootSymbol: Symbol = self.env.domains.c_domain.data['root_symbol']
             parentSymbol: Symbol | None = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 logger.debug("Target: %s", sig)
@@ -745,7 +751,7 @@ class CDomain(Domain):
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         if Symbol.debug_show_tree:
             logger.debug("merge_domaindata:")
             logger.debug("\tself:")

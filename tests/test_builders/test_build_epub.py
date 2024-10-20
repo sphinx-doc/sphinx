@@ -456,7 +456,7 @@ def test_run_epubcheck(app):
 
     try:
         subprocess.run(
-            ['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],
+            ['java', '-jar', epubcheck, app.outdir / 'SphinxTests.epub'],  # NoQA: S607
             capture_output=True,
             check=True,
         )

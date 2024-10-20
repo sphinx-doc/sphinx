@@ -1,9 +1,10 @@
 """Test the autosummary extension."""
 
 import sys
+from contextlib import chdir
 from io import StringIO
-from pathlib import Path
 from unittest.mock import Mock, patch
+from xml.etree.ElementTree import Element
 
 import pytest
 from docutils import nodes
@@ -25,11 +26,6 @@ from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
 
-try:
-    from contextlib import chdir
-except ImportError:
-    from sphinx.util.osutil import _chdir as chdir
-
 html_warnfile = StringIO()
 
 
@@ -37,7 +33,6 @@ defaults = {
     'extensions': ['sphinx.ext.autosummary'],
     'autosummary_generate': True,
     'autosummary_generate_overwrite': False,
-    'source_suffix': '.rst',
 }
 
 
@@ -47,7 +42,7 @@ def _unload_target_module():
 
 
 def test_mangle_signature():
-    TEST = """
+    TEST_SIGNATURE = """
     () :: ()
     (a, b, c, d, e) :: (a, b, c, d, e)
     (a, b, c=1, d=2, e=3) :: (a, b[, c, d, e])
@@ -68,7 +63,11 @@ def test_mangle_signature():
     (a: Tuple[int, str], b: int) -> str :: (a, b)
     """
 
-    TEST = [[y.strip() for y in x.split('::')] for x in TEST.split('\n') if '::' in x]
+    TEST = [
+        list(map(str.strip, x.split('::')))
+        for x in TEST_SIGNATURE.split('\n')
+        if '::' in x
+    ]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace('\u00a0', ' ')
         assert res == outp, f"'{inp}' -> '{res}' != '{outp}'"
@@ -208,7 +207,7 @@ def test_get_items_summary(make_app, app_params):
     assert autosummary_items['func'] == func_attrs
 
 
-def str_content(elem):
+def str_content(elem: Element) -> str:
     if elem.text is not None:
         return elem.text
     else:
@@ -219,13 +218,10 @@ def str_content(elem):
 def test_escaping(app):
     app.build(force_all=True)
 
-    outdir = Path(app.builder.outdir)
-
-    docpage = outdir / 'underscore_module_.xml'
+    docpage = app.builder.outdir / 'underscore_module_.xml'
     assert docpage.exists()
 
     title = etree_parse(docpage).find('section/title')
-
     assert str_content(title) == 'underscore_module_'
 
 
@@ -341,7 +337,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     template = Mock()
 
     def skip_member(app, what, name, obj, skip, options):
-        if name in ('Foo', 'bar', 'Exc'):
+        if name in {'Foo', 'bar', 'Exc'}:
             return True
         return None
 
