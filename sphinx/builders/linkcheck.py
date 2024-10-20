@@ -120,10 +120,10 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 pass
             case _Status.IGNORED:
                 if result.message:
-                    msg = darkgray('-ignored- ') + result.uri + ': ' + result.message
+                    msg = f'{result.uri}: {result.message}'
                 else:
-                    msg = darkgray('-ignored- ') + result.uri
-                logger.info(msg)
+                    msg = result.uri
+                logger.info(darkgray('-ignored- ') + msg)
             case _Status.LOCAL:
                 logger.info(darkgray('-local-   ') + result.uri)
                 self.write_entry(
@@ -134,20 +134,20 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     result.uri,
                 )
             case _Status.WORKING:
-                logger.info(darkgreen('ok        ') + result.uri + result.message)
+                logger.info(darkgreen('ok        ') + f'{result.uri}{result.message}')
             case _Status.TIMEOUT:
                 if self.app.quiet:
-                    msg = 'timeout   ' + result.uri + result.message
+                    msg = 'timeout   ' + f'{result.uri}{result.message}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
-                    msg = red('timeout   ') + result.uri + red(' - ' + result.message)
+                    msg = red('timeout   ') + result.uri + red(f' - {result.message}')
                     logger.info(msg)
                 self.write_entry(
                     _Status.TIMEOUT,
                     result.docname,
                     filename,
                     result.lineno,
-                    result.uri + ': ' + result.message,
+                    f'{result.uri}: {result.message}',
                 )
                 self.timed_out_hyperlinks += 1
             case _Status.BROKEN:
@@ -159,14 +159,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
                         location=(result.docname, result.lineno),
                     )
                 else:
-                    msg = red('broken    ') + result.uri + red(' - ' + result.message)
+                    msg = red('broken    ') + result.uri + red(f' - {result.message}')
                     logger.info(msg)
                 self.write_entry(
                     _Status.BROKEN,
                     result.docname,
                     filename,
                     result.lineno,
-                    result.uri + ': ' + result.message,
+                    f'{result.uri}: {result.message}',
                 )
                 self.broken_hyperlinks += 1
             case _Status.REDIRECTED:
@@ -181,19 +181,19 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 except KeyError:
                     text, color = ('with unknown code', purple)
                 linkstat['text'] = text
-                redirection = text + ' to ' + result.message
+                redirection = f'{text} to {result.message}'
                 if self.config.linkcheck_allowed_redirects:
-                    msg = 'redirect  ' + result.uri + ' - ' + redirection
+                    msg = f'redirect  {result.uri} - {redirection}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
                     msg = color('redirect  ') + result.uri + color(' - ' + redirection)
                     logger.info(msg)
                 self.write_entry(
-                    'redirected ' + text,
+                    f'redirected {text}',
                     result.docname,
                     filename,
                     result.lineno,
-                    result.uri + ' to ' + result.message,
+                    f'{result.uri} to {result.message}',
                 )
             case _Status.UNKNOWN:
                 msg = 'Unknown status.'
