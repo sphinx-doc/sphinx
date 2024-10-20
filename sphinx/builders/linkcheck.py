@@ -40,7 +40,6 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
     _URIProperties: TypeAlias = tuple['_Status', str, int]
-    _URIPropertiesUnknown: TypeAlias = tuple['_Status' | None, str, int]
 
 
 class _Status(StrEnum):
@@ -102,7 +101,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
 
-        linkstat: dict[str, str | int | _Status | None] = {
+        linkstat: dict[str, str | int | _Status] = {
             'filename': str(filename),
             'lineno': result.lineno,
             'status': result.status,
@@ -206,7 +205,7 @@ class CheckExternalLinksBuilder(DummyBuilder):
             msg = f'Unknown status {result.status!r}.'
             raise ValueError(msg)
 
-    def write_linkstat(self, data: dict[str, str | int | _Status | None]) -> None:
+    def write_linkstat(self, data: dict[str, str | int | _Status]) -> None:
         self.json_outfile.write(json.dumps(data))
         self.json_outfile.write('\n')
 
@@ -357,7 +356,7 @@ class CheckResult(NamedTuple):
     uri: str
     docname: str
     lineno: int
-    status: _Status | None
+    status: _Status
     message: str
     code: int
 
@@ -451,7 +450,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
     def _check(
         self, docname: str, uri: str, hyperlink: Hyperlink
-    ) -> _URIPropertiesUnknown:
+    ) -> _URIProperties:
         # check for various conditions without bothering the network
 
         for doc_matcher in self.documents_exclude:
@@ -475,8 +474,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             return _Status.BROKEN, '', 0
 
         # need to actually check the URI
-        status: _Status | None
-        status, info, code = None, '', 0
+        status: _Status
+        status, info, code = _Status.UNKNOWN, '', 0
         for _ in range(self.retries):
             status, info, code = self._check_uri(uri, hyperlink)
             if status != _Status.BROKEN:
