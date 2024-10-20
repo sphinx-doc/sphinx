@@ -13,9 +13,12 @@ from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util._lines import parse_line_num_spec
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
+    import os
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
@@ -197,8 +200,10 @@ class LiteralIncludeReader:
         ('diff', 'end-at'),
     ]
 
-    def __init__(self, filename: str, options: dict[str, Any], config: Config) -> None:
-        self.filename = filename
+    def __init__(
+        self, filename: str | os.PathLike[str], options: dict[str, Any], config: Config
+    ) -> None:
+        self.filename = _StrPath(filename)
         self.options = options
         self.encoding = options.get('encoding', config.source_encoding)
         self.lineno_start = self.options.get('lineno-start', 1)
@@ -212,7 +217,7 @@ class LiteralIncludeReader:
                 raise ValueError(msg)
 
     def read_file(
-        self, filename: str, location: tuple[str, int] | None = None
+        self, filename: str | os.PathLike[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:

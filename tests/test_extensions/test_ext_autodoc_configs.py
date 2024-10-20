@@ -2,7 +2,9 @@
 
 import platform
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
+from pathlib import Path
 
 import pytest
 
@@ -19,7 +21,7 @@ IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
 @contextmanager
-def overwrite_file(path, content):
+def overwrite_file(path: Path, content: str) -> Iterator[None]:
     current_content = path.read_bytes() if path.exists() else None
     try:
         path.write_text(content, encoding='utf-8')
