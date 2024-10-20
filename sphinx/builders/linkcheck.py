@@ -119,9 +119,10 @@ class CheckExternalLinksBuilder(DummyBuilder):
             logger.info('(%16s: line %4d) ', result.docname, result.lineno, nonl=True)
         if result.status == _Status.IGNORED:
             if result.message:
-                logger.info(darkgray('-ignored- ') + result.uri + ': ' + result.message)
+                msg = darkgray('-ignored- ') + result.uri + ': ' + result.message
             else:
-                logger.info(darkgray('-ignored- ') + result.uri)
+                msg = darkgray('-ignored- ') + result.uri
+            logger.info(msg)
         elif result.status == _Status.LOCAL:
             logger.info(darkgray('-local-   ') + result.uri)
             self.write_entry(
@@ -135,14 +136,11 @@ class CheckExternalLinksBuilder(DummyBuilder):
             logger.info(darkgreen('ok        ') + result.uri + result.message)
         elif result.status == _Status.TIMEOUT:
             if self.app.quiet:
-                logger.warning(
-                    'timeout   ' + result.uri + result.message,
-                    location=(result.docname, result.lineno),
-                )
+                msg = 'timeout   ' + result.uri + result.message
+                logger.warning(msg, location=(result.docname, result.lineno))
             else:
-                logger.info(
-                    red('timeout   ') + result.uri + red(' - ' + result.message)
-                )
+                msg = red('timeout   ') + result.uri + red(' - ' + result.message)
+                logger.info(msg)
             self.write_entry(
                 _Status.TIMEOUT,
                 result.docname,
@@ -160,9 +158,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     location=(result.docname, result.lineno),
                 )
             else:
-                logger.info(
-                    red('broken    ') + result.uri + red(' - ' + result.message)
-                )
+                msg = red('broken    ') + result.uri + red(' - ' + result.message)
+                logger.info(msg)
             self.write_entry(
                 _Status.BROKEN,
                 result.docname,
@@ -183,17 +180,13 @@ class CheckExternalLinksBuilder(DummyBuilder):
             except KeyError:
                 text, color = ('with unknown code', purple)
             linkstat['text'] = text
+            redirection = text + ' to ' + result.message
             if self.config.linkcheck_allowed_redirects:
-                logger.warning(
-                    'redirect  ' + result.uri + ' - ' + text + ' to ' + result.message,
-                    location=(result.docname, result.lineno),
-                )
+                msg = 'redirect  ' + result.uri + ' - ' + redirection
+                logger.warning(msg, location=(result.docname, result.lineno))
             else:
-                logger.info(
-                    color('redirect  ')
-                    + result.uri
-                    + color(' - ' + text + ' to ' + result.message)
-                )
+                msg = color('redirect  ') + result.uri + color(' - ' + redirection)
+                logger.info(msg)
             self.write_entry(
                 'redirected ' + text,
                 result.docname,
