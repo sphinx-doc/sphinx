@@ -87,7 +87,8 @@ Bugs fixed
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
-* #12811: Stop gobbling escape key
+* #12813: Stop gobbling escape key
+  Patch by Gabriel Fouasnon.
 
 Testing
 -------
