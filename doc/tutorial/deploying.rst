@@ -189,7 +189,7 @@ contents:
        steps:
        - uses: actions/checkout@v4
        - name: Build HTML
-         uses: ammaraskar/sphinx-action@master
+         uses: ammaraskar/sphinx-action@8.0.2
        - name: Upload artifacts
          uses: actions/upload-artifact@v4
          with:
