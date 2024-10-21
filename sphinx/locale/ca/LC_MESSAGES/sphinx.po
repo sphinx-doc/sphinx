@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 15:47+0000\n"
+"POT-Creation-Date: 2024-10-13 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>, 2023-2024\n"
 "Language-Team: Catalan (http://app.transifex.com/sphinx-doc/sphinx-1/language/ca/)\n"
@@ -107,40 +107,40 @@ msgstr "No s'ha seleccionat cap constructor, s'usa el predeterminat: html"
 
 #: application.py:394
 msgid "build finished with problems."
-msgstr "la construcció ha finalitzat amb problemes."
+msgstr "la compilació ha finalitzat amb problemes."
 
 #: application.py:396
 msgid "build succeeded."
-msgstr "la construcció ha tingut èxit."
+msgstr "la compilació ha tingut èxit."
 
 #: application.py:400
 msgid ""
 "build finished with problems, 1 warning (with warnings treated as errors)."
-msgstr "la construcció ha finalitzat amb problemes, 1 avís (amb els avisos tractats com a errors)."
+msgstr "la compilació ha finalitzat amb problemes, 1 avís (amb els avisos tractats com a errors)."
 
 #: application.py:403
 msgid "build finished with problems, 1 warning."
-msgstr "la construcció ha finalitzat amb problemes, 1 avís."
+msgstr "la compilació ha finalitzat amb problemes, 1 avís."
 
 #: application.py:405
 msgid "build succeeded, 1 warning."
-msgstr "la construcció ha tingut èxit, 1 avís."
+msgstr "la compilació ha tingut èxit, 1 avís."
 
 #: application.py:410
 #, python-format
 msgid ""
 "build finished with problems, %s warnings (with warnings treated as errors)."
-msgstr ""
+msgstr "la compilació ha acabat amb problemes, %s avisos (amb avisos tractats com a errors)."
 
 #: application.py:413
 #, python-format
 msgid "build finished with problems, %s warnings."
-msgstr ""
+msgstr "la compilació ha acabat amb problemes, %s avisos."
 
 #: application.py:415
 #, python-format
 msgid "build succeeded, %s warnings."
-msgstr ""
+msgstr "la compilació ha tingut èxit, %s avisos."
 
 #: application.py:964
 #, python-format
@@ -188,37 +188,37 @@ msgstr "l'extensió %s no és segura per a l'escriptura en paral·lel"
 msgid "doing serial %s"
 msgstr "s'està executant %s en sèrie"
 
-#: roles.py:205
+#: roles.py:208
 #, python-format
 msgid "Common Vulnerabilities and Exposures; CVE %s"
-msgstr ""
+msgstr "Vulnerabilitats i exposicions comuns (CVE %s)"
 
-#: roles.py:228
+#: roles.py:231
 #, python-format
 msgid "invalid CVE number %s"
-msgstr ""
+msgstr "número %s de CVE no vàlid"
 
-#: roles.py:249
+#: roles.py:253
 #, python-format
 msgid "Common Weakness Enumeration; CWE %s"
-msgstr ""
+msgstr "Enumeració de les debilitats comuns (CWE %s)"
 
-#: roles.py:272
+#: roles.py:276
 #, python-format
 msgid "invalid CWE number %s"
-msgstr ""
+msgstr "número %s de CWE no vàlid"
 
-#: roles.py:293
+#: roles.py:296
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Propostes de millora a Python; PEP %s"
 
-#: roles.py:316
+#: roles.py:319
 #, python-format
 msgid "invalid PEP number %s"
 msgstr "número de PEP no vàlid %s"
 
-#: roles.py:354
+#: roles.py:357
 #, python-format
 msgid "invalid RFC number %s"
 msgstr "número de RFC no vàlid %s"
@@ -353,14 +353,14 @@ msgstr "l'extensió %r ha retornat un objecte no admès des de la seva funció s
 #: registry.py:512
 #, python-format
 msgid "`None` is not a valid filetype for %r."
-msgstr ""
+msgstr "«Cap» no és un tipus de fitxer vàlid per a %r."
 
 #: project.py:71
 #, python-format
 msgid ""
 "multiple files found for the document \"%s\": %s\n"
 "Use %r for the build."
-msgstr ""
+msgstr "S'han trobat múltiples fitxers per al document «%s»: %s\nUseu %r per a la compilació."
 
 #: project.py:87
 #, python-format
@@ -398,7 +398,7 @@ msgstr "Aquest projecte necessita l'extensió %s almenys a la versió %s i, per 
 msgid ""
 "Theme configuration sections other than [theme] and [options] are not "
 "supported (tried to get a value from %r)."
-msgstr ""
+msgstr "No s'admeten les seccions de configuració del tema que no siguin [theme] i [options] (s'ha intentat obtenir un valor des de %r)."
 
 #: theming.py:127
 #, python-format
@@ -543,14 +543,14 @@ msgstr "Ha fallat en convertir %r en un conjunt o tupla"
 #: config.py:585 config.py:590
 #, python-format
 msgid "Converting `source_suffix = %r` to `source_suffix = %r`."
-msgstr ""
+msgstr "S'està convertint «source_suffix = %r» a «source_suffix = %r»."
 
 #: config.py:593
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a dictionary, a string, or a list "
 "of strings. Got `%r' instead (type %s)."
-msgstr ""
+msgstr "El valor de configuració «source_suffix» espera un diccionari, una cadena o una llista de cadenes. En lloc d'això, s'ha obtingut «%r» (escriviu %s)."
 
 #: config.py:612
 #, python-format
@@ -757,66 +757,66 @@ msgstr "etiqueta duplicada de l'equació %s, una altra instància a %s"
 msgid "Invalid math_eqref_format: %r"
 msgstr "math_eqref_format no vàlid: %r"
 
-#: environment/__init__.py:86
+#: environment/__init__.py:82
 msgid "new config"
 msgstr "configuració nova"
 
-#: environment/__init__.py:87
+#: environment/__init__.py:83
 msgid "config changed"
 msgstr "configuració modificada"
 
-#: environment/__init__.py:88
+#: environment/__init__.py:84
 msgid "extensions changed"
 msgstr "extensions modificades"
 
-#: environment/__init__.py:249
+#: environment/__init__.py:245
 msgid "build environment version not current"
 msgstr "la versió de l'entorn de compilació no és actual"
 
-#: environment/__init__.py:251
+#: environment/__init__.py:247
 msgid "source directory has changed"
 msgstr "el directori d'origen ha estat modificat"
 
-#: environment/__init__.py:311
+#: environment/__init__.py:307
 #, python-format
 msgid "The configuration has changed (1 option: %r)"
-msgstr ""
+msgstr "La configuració ha estat canviada (1 opció: %r)"
 
-#: environment/__init__.py:316
+#: environment/__init__.py:312
 #, python-format
 msgid "The configuration has changed (%d options: %s)"
-msgstr ""
+msgstr "La configuració ha estat canviada (%d opcions: %s)"
 
-#: environment/__init__.py:322
+#: environment/__init__.py:318
 #, python-format
 msgid "The configuration has changed (%d options: %s, ...)"
-msgstr ""
+msgstr "La configuració ha estat canviada (%d opcions: %s, «...»)"
 
-#: environment/__init__.py:364
+#: environment/__init__.py:360
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "Aquest entorn és incompatible amb el constructor seleccionat, trieu un altre directori doctree."
 
-#: environment/__init__.py:473
+#: environment/__init__.py:469
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "Ha fallat en escanejar els documents a %s: %r"
 
-#: environment/__init__.py:622
+#: environment/__init__.py:618
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "El domini %r no està registrat"
 
-#: environment/__init__.py:773
+#: environment/__init__.py:769
 msgid "document isn't included in any toctree"
 msgstr "el document no està inclòs en cap toctree"
 
-#: environment/__init__.py:806
+#: environment/__init__.py:802
 msgid "self referenced toctree found. Ignored."
 msgstr "S'ha trobat un toctree autoreferenciat. S'ignora."
 
-#: environment/__init__.py:835
+#: environment/__init__.py:831
 #, python-format
 msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
 msgstr ""
@@ -1612,7 +1612,7 @@ msgstr "error en escriure el fitxer Makefile: %s"
 msgid "The message catalogs are in %(outdir)s."
 msgstr "Els catàlegs de missatges es troben a %(outdir)s."
 
-#: builders/__init__.py:371 builders/gettext.py:251
+#: builders/__init__.py:377 builders/gettext.py:251
 #, python-format
 msgid "building [%s]: "
 msgstr "s'està construint [%s]: "
@@ -1630,104 +1630,104 @@ msgstr "s'estan llegint les plantilles... "
 msgid "writing message catalogs... "
 msgstr "s'estan escrivint els catàlegs de missatges... "
 
-#: builders/__init__.py:200
+#: builders/__init__.py:206
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "no s'ha trobat una imatge adequada per al constructor %s: %s (%s)"
 
-#: builders/__init__.py:208
+#: builders/__init__.py:214
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "no s'ha trobat una imatge adequada per al constructor %s: %s"
 
-#: builders/__init__.py:231
+#: builders/__init__.py:237
 msgid "building [mo]: "
 msgstr "s'estan construint [mo]:"
 
-#: builders/__init__.py:234 builders/__init__.py:729 builders/__init__.py:761
+#: builders/__init__.py:240 builders/__init__.py:735 builders/__init__.py:767
 msgid "writing output... "
 msgstr "s'està escrivint la sortida..."
 
-#: builders/__init__.py:251
+#: builders/__init__.py:257
 #, python-format
 msgid "all of %d po files"
 msgstr "tots els %d fitxers PO"
 
-#: builders/__init__.py:273
+#: builders/__init__.py:279
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "objectius per als %d fitxers PO que s'han especificat"
 
-#: builders/__init__.py:285
+#: builders/__init__.py:291
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "objectius per als %d fitxers PO que estan desfasats"
 
-#: builders/__init__.py:295
+#: builders/__init__.py:301
 msgid "all source files"
 msgstr "tots els fitxers font"
 
-#: builders/__init__.py:307
+#: builders/__init__.py:313
 #, python-format
 msgid "file %r given on command line does not exist, "
 msgstr "el fitxer %r proporcionat a la línia d'ordres no existeix, "
 
-#: builders/__init__.py:313
+#: builders/__init__.py:319
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "el fitxer %r proporcionat a la línia d'ordres no es troba sota el directori d'origen, s'ignora"
 
-#: builders/__init__.py:324
+#: builders/__init__.py:330
 #, python-format
 msgid "file %r given on command line is not a valid document, ignoring"
 msgstr "el fitxer %r proporcionat a la línia d'ordres no és un document vàlid, s'ignora"
 
-#: builders/__init__.py:339
+#: builders/__init__.py:345
 #, python-format
 msgid "%d source files given on command line"
 msgstr "%d fitxers font proporcionats a la línia d'ordres"
 
-#: builders/__init__.py:354
+#: builders/__init__.py:360
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "els objectius per a %d fitxers font que estan desfasats"
 
-#: builders/__init__.py:382
+#: builders/__init__.py:388
 msgid "looking for now-outdated files... "
 msgstr "s'està cercant per fitxers sense actualitzar... "
 
-#: builders/__init__.py:386
+#: builders/__init__.py:392
 #, python-format
 msgid "%d found"
 msgstr "s'han trobat %d"
 
-#: builders/__init__.py:388
+#: builders/__init__.py:394
 msgid "none found"
 msgstr "no se n'ha trobat cap"
 
-#: builders/__init__.py:395
+#: builders/__init__.py:401
 msgid "pickling environment"
 msgstr "s'està preparant l'ambient"
 
-#: builders/__init__.py:402
+#: builders/__init__.py:408
 msgid "checking consistency"
 msgstr "s'està comprovant la coherència"
 
-#: builders/__init__.py:406
+#: builders/__init__.py:412
 msgid "no targets are out of date."
 msgstr "no hi ha cap objectiu desfasat."
 
-#: builders/__init__.py:446
+#: builders/__init__.py:452
 msgid "updating environment: "
 msgstr "s'està actualitzant l'entorn: "
 
-#: builders/__init__.py:471
+#: builders/__init__.py:477
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s afegits, %s canviats, %s eliminats"
 
-#: builders/__init__.py:507
+#: builders/__init__.py:513
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches a "
@@ -1735,7 +1735,7 @@ msgid ""
 " location."
 msgstr ""
 
-#: builders/__init__.py:516
+#: builders/__init__.py:522
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches an "
@@ -1743,7 +1743,7 @@ msgid ""
 "conf.py."
 msgstr ""
 
-#: builders/__init__.py:527
+#: builders/__init__.py:533
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it is not included"
@@ -1751,31 +1751,31 @@ msgid ""
 "include_patterns matches the master document."
 msgstr ""
 
-#: builders/__init__.py:534
+#: builders/__init__.py:540
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s). The master document must "
 "be within the source directory or a subdirectory of it."
 msgstr ""
 
-#: builders/__init__.py:553 builders/__init__.py:569
+#: builders/__init__.py:559 builders/__init__.py:575
 msgid "reading sources... "
 msgstr "s'estan llegint les fonts... "
 
-#: builders/__init__.py:686
+#: builders/__init__.py:692
 #, python-format
 msgid "docnames to write: %s"
 msgstr "els docname que s'escriuran: %s"
 
-#: builders/__init__.py:699
+#: builders/__init__.py:705
 msgid "preparing documents"
 msgstr "s'estan preparant els documents"
 
-#: builders/__init__.py:702
+#: builders/__init__.py:708
 msgid "copying assets"
 msgstr "s'estan copiant els recursos"
 
-#: builders/__init__.py:845
+#: builders/__init__.py:860
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "caràcters font no codificables, substituint per «?»: %r"
@@ -3986,24 +3986,24 @@ msgstr "valor no vàlid per a l'opció de l'ordre de membre: %s"
 msgid "invalid value for class-doc-from option: %s"
 msgstr "valor no vàlid per a l'opció des de la documentació de classes: %s"
 
-#: ext/autodoc/__init__.py:408
+#: ext/autodoc/__init__.py:413
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "signatura no vàlida per a auto%s (%r)"
 
-#: ext/autodoc/__init__.py:525
+#: ext/autodoc/__init__.py:530
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "error mentre es donava format als arguments per a %s: %s"
 
-#: ext/autodoc/__init__.py:795
+#: ext/autodoc/__init__.py:800
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc: ha fallat en determinar %s. %s (%r) que s'ha de documentar, s'ha plantejat l'excepció següent:\n%s"
 
-#: ext/autodoc/__init__.py:890
+#: ext/autodoc/__init__.py:895
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -4011,76 +4011,76 @@ msgid ""
 "explicit module name)"
 msgstr "es desconeix quin és el mòdul que s'importarà per al document automàtic %r (proveu de col·locar una directiva «module» o «currentmodule» en el document o doneu-li un nom explícit al mòdul)"
 
-#: ext/autodoc/__init__.py:934
+#: ext/autodoc/__init__.py:939
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "S'ha detectat un objecte simulat: %r"
 
-#: ext/autodoc/__init__.py:953
+#: ext/autodoc/__init__.py:958
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "error mentre es donava format a la signatura per a %s: %s"
 
-#: ext/autodoc/__init__.py:1016
+#: ext/autodoc/__init__.py:1021
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "«::» en el nom de l'«automodule» no té sentit"
 
-#: ext/autodoc/__init__.py:1023
+#: ext/autodoc/__init__.py:1028
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "arguments de signatura o anotació de retorn indicats per a «automodule» %s"
 
-#: ext/autodoc/__init__.py:1036
+#: ext/autodoc/__init__.py:1041
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ ha de ser una llista de cadenes, no %r (en el mòdul %s) -s'ignora __all__-"
 
-#: ext/autodoc/__init__.py:1102
+#: ext/autodoc/__init__.py:1107
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "manca l'atribut esmentat a l'opció «:members:»: mòdul %s, atribut %s"
 
-#: ext/autodoc/__init__.py:1325 ext/autodoc/__init__.py:1402
-#: ext/autodoc/__init__.py:2810
+#: ext/autodoc/__init__.py:1330 ext/autodoc/__init__.py:1407
+#: ext/autodoc/__init__.py:2815
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "Ha fallat en obtenir una signatura de funció per a %s: %s"
 
-#: ext/autodoc/__init__.py:1616
+#: ext/autodoc/__init__.py:1621
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "Ha fallat en obtenir un constructor de funció per a %s: %s"
 
-#: ext/autodoc/__init__.py:1743
+#: ext/autodoc/__init__.py:1748
 #, python-format
 msgid "Bases: %s"
 msgstr "Bases: %s"
 
-#: ext/autodoc/__init__.py:1757
+#: ext/autodoc/__init__.py:1762
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "manca l'atribut %s a l'objecte %s"
 
-#: ext/autodoc/__init__.py:1838 ext/autodoc/__init__.py:1875
-#: ext/autodoc/__init__.py:1970
+#: ext/autodoc/__init__.py:1843 ext/autodoc/__init__.py:1880
+#: ext/autodoc/__init__.py:1975
 #, python-format
 msgid "alias of %s"
 msgstr "àlies de %s"
 
-#: ext/autodoc/__init__.py:1858
+#: ext/autodoc/__init__.py:1863
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "àlies de TypeVar(%s)"
 
-#: ext/autodoc/__init__.py:2198 ext/autodoc/__init__.py:2298
+#: ext/autodoc/__init__.py:2203 ext/autodoc/__init__.py:2303
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "Ha fallat en obtenir una signatura de mètode per a %s: %s"
 
-#: ext/autodoc/__init__.py:2429
+#: ext/autodoc/__init__.py:2434
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "S'han trobat __slots__ no vàlids a %s. S'ignora."
