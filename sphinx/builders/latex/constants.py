@@ -58,10 +58,12 @@ XELATEX_DEFAULT_FONTPKG = r'''
 ]
 '''
 
-XELATEX_GREEK_DEFAULT_FONTPKG = (XELATEX_DEFAULT_FONTPKG +
-                                 '\n\\newfontfamily\\greekfont{FreeSerif}' +
-                                 '\n\\newfontfamily\\greekfontsf{FreeSans}' +
-                                 '\n\\newfontfamily\\greekfonttt{FreeMono}')
+XELATEX_GREEK_DEFAULT_FONTPKG = (
+    XELATEX_DEFAULT_FONTPKG
+    + '\n\\newfontfamily\\greekfont{FreeSerif}'
+    + '\n\\newfontfamily\\greekfontsf{FreeSans}'
+    + '\n\\newfontfamily\\greekfonttt{FreeMono}'
+)
 
 LUALATEX_DEFAULT_FONTPKG = XELATEX_DEFAULT_FONTPKG
 

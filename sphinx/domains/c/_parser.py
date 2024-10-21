@@ -608,7 +608,7 @@ class DefinitionParser(BaseParser):
                     if self.skip_word('register'):
                         storage = 'register'
                         continue
-                if outer in ('member', 'function'):
+                if outer in {'member', 'function'}:
                     if self.skip_word('static'):
                         storage = 'static'
                         continue
@@ -649,7 +649,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_decl_specs(self, outer: str | None, typed: bool = True) -> ASTDeclSpecs:
         if outer:
-            if outer not in ('type', 'member', 'function'):
+            if outer not in {'type', 'member', 'function'}:
                 raise Exception('Internal error, unknown outer "%s".' % outer)
         leftSpecs = self._parse_decl_specs_simple(outer, typed)
         rightSpecs = None
@@ -664,7 +664,7 @@ class DefinitionParser(BaseParser):
     def _parse_declarator_name_suffix(
             self, named: bool | str, paramMode: str, typed: bool,
     ) -> ASTDeclarator:
-        assert named in (True, False, 'single')
+        assert named in {True, False, 'single'}
         # now we should parse the name, and then suffixes
         if named == 'single':
             if self.match(identifier_re):
@@ -747,7 +747,7 @@ class DefinitionParser(BaseParser):
     def _parse_declarator(self, named: bool | str, paramMode: str,
                           typed: bool = True) -> ASTDeclarator:
         # 'typed' here means 'parse return type stuff'
-        if paramMode not in ('type', 'function'):
+        if paramMode not in {'type', 'function'}:
             raise Exception(
                 "Internal error, unknown paramMode '%s'." % paramMode)
         prevErrors = []
@@ -860,7 +860,7 @@ class DefinitionParser(BaseParser):
         doesn't need to name the arguments, but otherwise is a single name
         """
         if outer:  # always named
-            if outer not in ('type', 'member', 'function'):
+            if outer not in {'type', 'member', 'function'}:
                 raise Exception('Internal error, unknown outer "%s".' % outer)
             assert named
 
@@ -915,7 +915,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_type_with_init(self, named: bool | str, outer: str | None) -> ASTTypeWithInit:
         if outer:
-            assert outer in ('type', 'member', 'function')
+            assert outer in {'type', 'member', 'function'}
         type = self._parse_type(outer=outer, named=named)
         init = self._parse_initializer(outer=outer)
         return ASTTypeWithInit(type, init)
@@ -987,11 +987,11 @@ class DefinitionParser(BaseParser):
         return ASTEnumerator(name, init, attrs)
 
     def parse_declaration(self, objectType: str, directiveType: str) -> ASTDeclaration:
-        if objectType not in ('function', 'member',
-                              'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
+        if objectType not in {'function', 'member',
+                              'macro', 'struct', 'union', 'enum', 'enumerator', 'type'}:
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
-        if directiveType not in ('function', 'member', 'var',
-                                 'macro', 'struct', 'union', 'enum', 'enumerator', 'type'):
+        if directiveType not in {'function', 'member', 'var',
+                                 'macro', 'struct', 'union', 'enum', 'enumerator', 'type'}:
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
 
         declaration: DeclarationType | None = None

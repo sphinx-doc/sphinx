@@ -90,6 +90,32 @@ def test_ja_html_builder(app):
     'html',
     testroot='smartquotes',
     freshenv=True,
+    confoverrides={'language': 'zh_CN'},
+)
+def test_zh_cn_html_builder(app):
+    app.build()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+    confoverrides={'language': 'zh_TW'},
+)
+def test_zh_tw_html_builder(app):
+    app.build()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
     confoverrides={'smartquotes': False},
 )
 def test_smartquotes_disabled(app):

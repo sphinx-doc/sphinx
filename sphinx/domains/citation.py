@@ -14,6 +14,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import copy_source_info, make_refnode
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Element
 
     from sphinx.application import Sphinx
@@ -53,7 +55,7 @@ class CitationDomain(Domain):
             elif docname in docnames:
                 docnames.remove(docname)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX duplicates?
         for key, data in otherdata['citations'].items():
             if data[0] in docnames:
@@ -108,7 +110,7 @@ class CitationDefinitionTransform(SphinxTransform):
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
+        domain = self.env.domains.citation_domain
         for node in self.document.findall(nodes.citation):
             # register citation node to domain
             node['docname'] = self.env.docname
@@ -128,7 +130,7 @@ class CitationReferenceTransform(SphinxTransform):
     default_priority = 619
 
     def apply(self, **kwargs: Any) -> None:
-        domain = cast(CitationDomain, self.env.get_domain('citation'))
+        domain = self.env.domains.citation_domain
         for node in self.document.findall(nodes.citation_reference):
             target = node.astext()
             ref = pending_xref(target, refdomain='citation', reftype='ref',

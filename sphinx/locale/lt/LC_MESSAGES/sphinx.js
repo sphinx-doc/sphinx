@@ -36,7 +36,12 @@ Documentation.addTranslations({
         "Search": "Paie\u0161ka",
         "Search Page": "Paie\u0161kos puslapis",
         "Search Results": "Paie\u0161kos rezultatai",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Ie\u0161koti tarp %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

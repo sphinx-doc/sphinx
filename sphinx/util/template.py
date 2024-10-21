@@ -49,7 +49,7 @@ class FileRenderer(BaseRenderer):
 
     @classmethod
     def render_from_file(
-        cls: type[FileRenderer], filename: str, context: dict[str, Any],
+        cls: type[FileRenderer], filename: str, context: dict[str, Any]
     ) -> str:
         dirname = os.path.dirname(filename)
         basename = os.path.basename(filename)
@@ -57,21 +57,26 @@ class FileRenderer(BaseRenderer):
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None) -> None:
+    def __init__(
+        self, template_path: Sequence[str | os.PathLike[str]] | None = None
+    ) -> None:
         if template_path is None:
             template_path = os.path.join(package_dir, 'templates')
         super().__init__(template_path)
 
     @classmethod
     def render_from_file(
-        cls: type[FileRenderer], filename: str, context: dict[str, Any],
+        cls: type[FileRenderer], filename: str, context: dict[str, Any]
     ) -> str:
         return FileRenderer.render_from_file(filename, context)
 
 
 class LaTeXRenderer(SphinxRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None,
-                 latex_engine: str | None = None) -> None:
+    def __init__(
+        self,
+        template_path: Sequence[str | os.PathLike[str]] | None = None,
+        latex_engine: str | None = None,
+    ) -> None:
         if template_path is None:
             template_path = [os.path.join(package_dir, 'templates', 'latex')]
         super().__init__(template_path)
@@ -93,8 +98,11 @@ class LaTeXRenderer(SphinxRenderer):
 
 
 class ReSTRenderer(SphinxRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None,
-                 language: str | None = None) -> None:
+    def __init__(
+        self,
+        template_path: Sequence[str | os.PathLike[str]] | None = None,
+        language: str | None = None,
+    ) -> None:
         super().__init__(template_path)
 
         # add language to environment
@@ -109,9 +117,12 @@ class ReSTRenderer(SphinxRenderer):
 class SphinxTemplateLoader(BaseLoader):
     """A loader supporting template inheritance"""
 
-    def __init__(self, confdir: str | os.PathLike[str],
-                 templates_paths: Sequence[str | os.PathLike[str]],
-                 system_templates_paths: Sequence[str | os.PathLike[str]]) -> None:
+    def __init__(
+        self,
+        confdir: str | os.PathLike[str],
+        templates_paths: Sequence[str | os.PathLike[str]],
+        system_templates_paths: Sequence[str | os.PathLike[str]],
+    ) -> None:
         self.loaders = []
         self.sysloaders = []
 

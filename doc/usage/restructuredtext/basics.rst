@@ -203,6 +203,8 @@ Two more syntaxes are supported: *CSV tables* and *List tables*. They use an
 Hyperlinks
 ----------
 
+.. _rst-external-links:
+
 External links
 ~~~~~~~~~~~~~~
 

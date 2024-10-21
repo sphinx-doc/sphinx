@@ -37,7 +37,7 @@ from sphinx.util.docutils import SphinxDirective, SphinxRole
 from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -359,9 +359,14 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             self.env.temp_data['cpp:last_symbol'] = e.symbol
             msg = __("Duplicate C++ declaration, also defined at %s:%s.\n"
                      "Declaration is '.. cpp:%s:: %s'.")
-            msg = msg % (e.symbol.docname, e.symbol.line,
-                         self.display_object_type, sig)
-            logger.warning(msg, location=signode)
+            logger.warning(
+                msg,
+                e.symbol.docname,
+                e.symbol.line,
+                self.display_object_type,
+                sig,
+                location=signode,
+            )
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -460,7 +465,7 @@ class CPPClassObject(CPPObject):
     @property
     def display_object_type(self) -> str:
         # the distinction between class and struct is only cosmetic
-        assert self.objtype in ('class', 'struct')
+        assert self.objtype in {'class', 'struct'}
         return self.objtype
 
 
@@ -490,7 +495,7 @@ class CPPNamespaceObject(SphinxDirective):
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             symbol = rootSymbol
             stack: list[Symbol] = []
         else:
@@ -520,7 +525,7 @@ class CPPNamespacePushObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             return []
         parser = DefinitionParser(self.arguments[0],
                                   location=self.get_location(),
@@ -628,7 +633,7 @@ class AliasTransform(SphinxTransform):
             for sChild in s._children:
                 if sChild.declaration is None:
                     continue
-                if sChild.declaration.objectType in ("templateParam", "functionParam"):
+                if sChild.declaration.objectType in {"templateParam", "functionParam"}:
                     continue
                 childNodes = self._render_symbol(
                     sChild, maxdepth=maxdepth, skipThis=False,
@@ -661,7 +666,7 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            rootSymbol: Symbol = self.env.domains['cpp'].data['root_symbol']
+            rootSymbol: Symbol = self.env.domains.cpp_domain.data['root_symbol']
             parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
             if not parentSymbol:
                 logger.debug("Target: %s", sig)
@@ -784,10 +789,9 @@ class CPPXRefRole(XRefRole):
         if refnode['reftype'] == 'any':
             # Assume the removal part of fix_parens for :any: refs.
             # The addition part is done with the reference is resolved.
-            if not has_explicit_title and title.endswith('()'):
-                title = title[:-2]
-            if target.endswith('()'):
-                target = target[:-2]
+            if not has_explicit_title:
+                title = title.removesuffix('()')
+            target = target.removesuffix('()')
         # TODO: should this really be here?
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
@@ -934,7 +938,7 @@ class CPPDomain(Domain):
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         if Symbol.debug_show_tree:
             logger.debug("merge_domaindata:")
             logger.debug("\tself:")
@@ -962,7 +966,7 @@ class CPPDomain(Domain):
                             typ: str, target: str, node: pending_xref,
                             contnode: Element) -> tuple[Element | None, str | None]:
         # add parens again for those that could be functions
-        if typ in ('any', 'func'):
+        if typ in {'any', 'func'}:
             target += '()'
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
@@ -970,7 +974,7 @@ class CPPDomain(Domain):
         except DefinitionError as e:
             # as arg to stop flake8 from complaining
             def findWarning(e: Exception) -> tuple[str, Exception]:
-                if typ != 'any' and typ != 'func':
+                if typ not in {"any", "func"}:
                     return target, e
                 # hax on top of the paren hax to try to get correct errors
                 parser2 = DefinitionParser(target[:-2],
@@ -1036,8 +1040,7 @@ class CPPDomain(Domain):
                 raise NoUri(txtName, typ)
             return None, None
 
-        if typ.startswith('cpp:'):
-            typ = typ[4:]
+        typ = typ.removeprefix('cpp:')
         declTyp = s.declaration.objectType
 
         def checkType() -> bool:
@@ -1083,7 +1086,7 @@ class CPPDomain(Domain):
                     if (env.config.add_function_parentheses and typ == 'func' and
                             title.endswith('operator()')):
                         addParen += 1
-                    if (typ in ('any', 'func') and
+                    if (typ in {'any', 'func'} and
                             title.endswith('operator') and
                             displayName.endswith('operator()')):
                         addParen += 1
@@ -1093,8 +1096,8 @@ class CPPDomain(Domain):
                         if typ == 'any' and displayName.endswith('()'):
                             addParen += 1
                         elif typ == 'func':
-                            if title.endswith('()') and not displayName.endswith('()'):
-                                title = title[:-2]
+                            if not displayName.endswith('()'):
+                                title = title.removesuffix('()')
                     else:
                         if displayName.endswith('()'):
                             addParen += 1

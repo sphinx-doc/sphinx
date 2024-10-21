@@ -29,7 +29,7 @@ def test_process_docstring(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_process_docstring_for_nondatadescriptor(app):
     def on_process_docstring(app, what, name, obj, options, lines):
-        raise
+        raise RuntimeError
 
     app.connect('autodoc-process-docstring', on_process_docstring)
 
@@ -54,6 +54,26 @@ def test_cut_lines(app):
         '   :module: target.process_docstring',
         '',
         '   second line',
+        '',
+    ]
+
+
+def test_cut_lines_no_objtype():
+    docstring_lines = [
+        'first line',
+        '---',
+        'second line',
+        '---',
+        'third line ',
+        '',
+    ]
+    process = cut_lines(2)
+
+    process(None, 'function', 'func', None, {}, docstring_lines)  # type: ignore[arg-type]
+    assert docstring_lines == [
+        'second line',
+        '---',
+        'third line ',
         '',
     ]
 

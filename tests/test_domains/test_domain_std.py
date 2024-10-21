@@ -110,7 +110,7 @@ def test_cmd_option_with_optional_value(app):
         entries=[('pair', 'command line option; -j', 'cmdoption-j', '', None)],
     )
 
-    objects = list(app.env.get_domain('std').get_objects())
+    objects = list(app.env.domains.standard_domain.get_objects())
     assert ('-j', '-j', 'cmdoption', 'index', 'cmdoption-j', 1) in objects
 
 
@@ -134,7 +134,7 @@ def test_cmd_option_starting_with_bracket(app):
             ],
         ),
     )
-    objects = list(app.env.get_domain('std').get_objects())
+    objects = list(app.env.domains.standard_domain.get_objects())
     assert (
         '[enable',
         '[enable',
@@ -209,7 +209,7 @@ def test_glossary(app):
     assert_node(doctree[0][0][2][1], [nodes.definition, nodes.paragraph, 'description'])
 
     # index
-    domain = app.env.get_domain('std')
+    domain = app.env.domains.standard_domain
     objects = list(domain.get_objects())
     assert ('term1', 'term1', 'term', 'index', 'term-term1', -1) in objects
     assert ('TERM2', 'TERM2', 'term', 'index', 'term-TERM2', -1) in objects
@@ -375,7 +375,7 @@ def test_glossary_sorted(app):
 def test_glossary_alphanumeric(app):
     text = '.. glossary::\n\n   1\n   /\n'
     restructuredtext.parse(app, text)
-    objects = list(app.env.get_domain('std').get_objects())
+    objects = list(app.env.domains.standard_domain.get_objects())
     assert ('1', '1', 'term', 'index', 'term-1', -1) in objects
     assert ('/', '/', 'term', 'index', 'term-0', -1) in objects
 
@@ -384,14 +384,14 @@ def test_glossary_alphanumeric(app):
 def test_glossary_conflicted_labels(app):
     text = '.. _term-foo:\n.. glossary::\n\n   foo\n'
     restructuredtext.parse(app, text)
-    objects = list(app.env.get_domain('std').get_objects())
+    objects = list(app.env.domains.standard_domain.get_objects())
     assert ('foo', 'foo', 'term', 'index', 'term-0', -1) in objects
 
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_cmdoption(app):
     text = '.. program:: ls\n\n.. option:: -l\n'
-    domain = app.env.get_domain('std')
+    domain = app.env.domains.standard_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -418,7 +418,7 @@ def test_cmdoption(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_cmdoption_for_None(app):
     text = '.. program:: ls\n.. program:: None\n\n.. option:: -l\n'
-    domain = app.env.get_domain('std')
+    domain = app.env.domains.standard_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -445,7 +445,7 @@ def test_cmdoption_for_None(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_multiple_cmdoptions(app):
     text = '.. program:: cmd\n\n.. option:: -o directory, --output directory\n'
-    domain = app.env.get_domain('std')
+    domain = app.env.domains.standard_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,
@@ -577,7 +577,7 @@ def test_labeled_rubric(app):
     text = '.. _label:\n.. rubric:: blah *blah* blah\n'
     restructuredtext.parse(app, text)
 
-    domain = app.env.get_domain('std')
+    domain = app.env.domains.standard_domain
     assert 'label' in domain.labels
     assert domain.labels['label'] == ('index', 'label', 'blah blah blah')
 
@@ -598,7 +598,7 @@ def test_labeled_definition(app):
     )
     restructuredtext.parse(app, text)
 
-    domain = app.env.get_domain('std')
+    domain = app.env.domains.standard_domain
     assert 'label1' in domain.labels
     assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
     assert 'label2' in domain.labels
@@ -621,7 +621,7 @@ def test_labeled_field(app):
     )
     restructuredtext.parse(app, text)
 
-    domain = app.env.get_domain('std')
+    domain = app.env.domains.standard_domain
     assert 'label1' in domain.labels
     assert domain.labels['label1'] == ('index', 'label1', 'Foo blah blah blah')
     assert 'label2' in domain.labels

@@ -270,7 +270,7 @@ class ASTNestedName(ASTBase):
             assert len(self.names) == 1
             assert not self.templates[0]
             self.names[0].describe_signature(signode, 'param', env, '', symbol)
-        elif mode in ('markType', 'lastIsName', 'markName'):
+        elif mode in {'markType', 'lastIsName', 'markName'}:
             # Each element should be a pending xref targeting the complete
             # prefix. however, only the identifier part should be a link, such
             # that template args can be a link as well.
@@ -309,7 +309,7 @@ class ASTNestedName(ASTBase):
                     dest += addnodes.desc_sig_space()
                 first = False
                 txt_nne = str(nne)
-                if txt_nne != '':
+                if txt_nne:
                     if nne.templateArgs and iTemplateParams < len(templateParams):
                         templateParamsPrefix += str(templateParams[iTemplateParams])
                         iTemplateParams += 1
@@ -1541,7 +1541,7 @@ class ASTOperatorBuildIn(ASTOperator):
         return ids[self.op]
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        if self.op in ('new', 'new[]', 'delete', 'delete[]') or self.op[0] in "abcnox":
+        if self.op in {'new', 'new[]', 'delete', 'delete[]'} or self.op[0] in "abcnox":
             return 'operator ' + self.op
         else:
             return 'operator' + self.op
@@ -1549,7 +1549,7 @@ class ASTOperatorBuildIn(ASTOperator):
     def _describe_identifier(self, signode: TextElement, identnode: TextElement,
                              env: BuildEnvironment, symbol: Symbol) -> None:
         signode += addnodes.desc_sig_keyword('operator', 'operator')
-        if self.op in ('new', 'new[]', 'delete', 'delete[]') or self.op[0] in "abcnox":
+        if self.op in {'new', 'new[]', 'delete', 'delete[]'} or self.op[0] in "abcnox":
             signode += addnodes.desc_sig_space()
         identnode += addnodes.desc_sig_operator(self.op, self.op)
 
@@ -2099,7 +2099,7 @@ class ASTParametersQualifiers(ASTBase):
             signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_punctuation('=', '=')
             signode += addnodes.desc_sig_space()
-            assert self.initializer in ('0', 'delete', 'default')
+            assert self.initializer in {'0', 'delete', 'default'}
             if self.initializer == '0':
                 signode += addnodes.desc_sig_literal_number('0', '0')
             else:
@@ -3896,6 +3896,9 @@ class ASTTemplateParamNonType(ASTTemplateParam):
             and self.parameterPack == other.parameterPack
         )
 
+    def __hash__(self) -> int:
+        return hash((self.param, self.parameterPack))
+
     @property
     def name(self) -> ASTNestedName:
         id = self.get_identifier()
@@ -4260,6 +4263,19 @@ class ASTDeclaration(ASTBase):
             and self.enumeratorScopedSymbol == other.enumeratorScopedSymbol
         )
 
+    def __hash__(self) -> int:
+        return hash((
+            self.objectType,
+            self.directiveType,
+            self.visibility,
+            self.templatePrefix,
+            self.declaration,
+            self.trailingRequiresClause,
+            self.semicolon,
+            self.symbol,
+            self.enumeratorScopedSymbol,
+        ))
+
     def clone(self) -> ASTDeclaration:
         templatePrefixClone = self.templatePrefix.clone() if self.templatePrefix else None
         trailingRequiresClasueClone = self.trailingRequiresClause.clone() \
@@ -4374,7 +4390,7 @@ class ASTDeclaration(ASTBase):
         elif self.objectType in {'member', 'function'}:
             pass
         elif self.objectType == 'class':
-            assert self.directiveType in ('class', 'struct')
+            assert self.directiveType in {'class', 'struct'}
             mainDeclNode += addnodes.desc_sig_keyword(self.directiveType, self.directiveType)
             mainDeclNode += addnodes.desc_sig_space()
         elif self.objectType == 'union':
@@ -4422,6 +4438,9 @@ class ASTNamespace(ASTBase):
             self.nestedName == other.nestedName
             and self.templatePrefix == other.templatePrefix
         )
+
+    def __hash__(self) -> int:
+        return hash((self.nestedName, self.templatePrefix))
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []

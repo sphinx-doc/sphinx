@@ -97,4 +97,13 @@ The reStructuredText domain (name **rst**) provides the following directives:
 These roles are provided to refer to the described objects:
 
 .. rst:role:: rst:dir
-              rst:role
+
+   Reference directives and directive options. Examples:
+
+   * Use ``:rst:dir:`my-directive``` to reference a directive.
+   * Use ``:rst:dir:`my-directive:my-option``` to reference a
+     directive option.
+
+.. rst:role:: rst:role
+
+   Reference a role. Example: ``:rst:role:`my-role```.

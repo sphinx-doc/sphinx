@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Go",
         "Hide Search Matches": "Cacher les r\u00e9sultats de la recherche",
         "Index": "Index",
-        "Index &#x2013; %(key)s": "",
+        "Index &#x2013; %(key)s": "Index &#x2013; %(key)s",
         "Index pages by letter": "Indexer les pages par lettre",
         "Indices and tables:": "Index et tables :",
         "Last updated on %(last_updated)s.": "Mis \u00e0 jour le %(last_updated)s.",
@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Recherche",
         "Search Page": "Page de recherche",
         "Search Results": "R\u00e9sultats de la recherche",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "Recherche termin\u00e9e, ${resultCount} page(s) correspondant \u00e0 la requ\u00eate de recherche ont \u00e9t\u00e9 trouv\u00e9es.",
+        "Search finished, found one page matching the search query.": [
+            "La recherche est termin\u00e9e, une page correspondant \u00e0 la requ\u00eate a \u00e9t\u00e9 trouv\u00e9e.",
+            "Recherche termin\u00e9e, ${resultCount} pages trouv\u00e9es correspondant \u00e0 la requ\u00eate.",
+            "Recherche termin\u00e9e, ${resultCount} pages trouv\u00e9es correspondant \u00e0 la requ\u00eate."
+        ],
         "Search within %(docstitle)s": "Recherchez dans %(docstitle)s",
         "Searching": "Recherche en cours",
         "Searching for multiple words only shows matches that contain\n    all words.": "Une recherche sur plusieurs mots ne retourne que les r\u00e9sultats contenant tous les mots.",
