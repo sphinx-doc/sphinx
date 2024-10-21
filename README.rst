@@ -18,6 +18,11 @@
    :target: https://opensource.org/licenses/BSD-2-Clause
    :alt: BSD 2 Clause
 
+.. image:: https://img.shields.io/badge/Gurubase-Ask%20Sphinx%20Guru-006BFF
+   :target: https://gurubase.io/g/sphinx
+   :alt: Sphinx Guru
+
+
 **Sphinx makes it easy to create intelligent and beautiful documentation.**
 
 Sphinx uses reStructuredText as its markup language, and many of its strengths
