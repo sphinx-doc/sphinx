@@ -80,7 +80,7 @@ def test_read_inventory_v2_not_having_version():
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_ambiguous_definition_warning(app):
+def test_load_ambiguous_definition_warning(app):
     f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
     InventoryFile.load(f, '/util', posixpath.join)
 
@@ -96,6 +96,16 @@ def test_ambiguous_definition_warning(app):
     assert mult_defs_a not in app.status.getvalue().lower()
     assert mult_defs_b not in app.warning.getvalue().lower()
     assert mult_defs_b in app.status.getvalue().lower()
+
+
+@pytest.mark.sphinx('html', testroot='ext-intersphinx-labels')
+def test_dump_ambiguous_definition_warning(app):
+    app.build()
+
+    # NOTE: commented-out because grouping key is not part of the intersphinx id for glossary terms
+    # assert "multiple definitions of 'term' found" not in app.warning.getvalue()
+    assert "multiple definitions of 'nice' found" in app.warning.getvalue()
+    assert "multiple definitions of 't' found" in app.warning.getvalue()
 
 
 def _write_appconfig(dir: Path, language: str, prefix: str | None = None) -> Path:
