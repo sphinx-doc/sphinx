@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "",
         "Hide Search Matches": "Fela leitarni\u00f0urst\u00f6\u00f0ur",
         "Index": "Yfirlit",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "",
         "Indices and tables:": "Atri\u00f0askr\u00e1 og t\u00f6flur:",
         "Last updated on %(last_updated)s.": "",
@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Leit",
         "Search Page": "Leitars\u00ed\u00f0a",
         "Search Results": "Leitarni\u00f0urst\u00f6\u00f0ur",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Leita \u00ed %(docstitle)s",
         "Searching": "Leitar",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

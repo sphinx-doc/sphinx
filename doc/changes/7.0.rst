@@ -1,0 +1,52 @@
+==========
+Sphinx 7.0
+==========
+
+
+Release 7.0.1 (released May 12, 2023)
+=====================================
+
+Dependencies
+------------
+
+* #11411: Support `Docutils 0.20`_. Patch by Adam Turner.
+
+.. _Docutils 0.20: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-20-2023-05-04
+
+Bugs fixed
+----------
+
+* #11418: Clean up remaining references to ``sphinx.setup_command``
+  following the removal of support for setuptools.
+  Patch by Willem Mulder.
+
+Release 7.0.0 (released Apr 29, 2023)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #11359: Remove long-deprecated aliases for ``MecabSplitter`` and
+  ``DefaultSplitter`` in ``sphinx.search.ja``.
+* #11360: Remove deprecated ``make_old_id`` functions in domain object
+  description classes.
+* #11363: Remove the Setuptools integration (``build_sphinx`` hook in
+  ``setup.py``).
+* #11364: Remove deprecated ``sphinx.ext.napoleon.iterators`` module.
+* #11365: Remove support for the ``jsdump`` format in ``sphinx.search``.
+* #11366: Make ``locale`` a required argument to
+  ``sphinx.util.i18n.format_date()``.
+* #11370: Remove deprecated ``sphinx.util.stemmer`` module.
+* #11371: Remove deprecated ``sphinx.pycode.ast.parse()`` function.
+* #11372: Remove deprecated ``sphinx.io.read_doc()`` function.
+* #11373: Removed deprecated ``sphinx.util.get_matching_files()`` function.
+* #11378: Remove deprecated ``sphinx.util.docutils.is_html5_writer_available()``
+  function.
+* #11379: Make the ``env`` argument to ``Builder`` subclasses required.
+* #11380: autosummary: Always emit grouped import exceptions.
+* #11381: Remove deprecated ``style`` key for HTML templates.
+* #11382: Remove deprecated ``sphinx.writers.latex.LaTeXTranslator.docclasses``
+  attribute.
+* #11383: Remove deprecated ``sphinx.builders.html.html5_ready`` and
+  ``sphinx.builders.html.HTMLTranslator`` attributes.
+* #11385: Remove support for HTML 4 output.

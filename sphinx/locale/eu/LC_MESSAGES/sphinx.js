@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Joan",
         "Hide Search Matches": "Bilaketa bat-etortzeak ezkutatu",
         "Index": "Indizea",
-        "Index &ndash; %(key)s": "Indizea &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indize orriak hizkika",
         "Indices and tables:": "Indizeak eta taulak:",
         "Last updated on %(last_updated)s.": "Azken aldaketa: %(last_updated)s.",
@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Bilatu",
         "Search Page": "Bilaketa orria",
         "Search Results": "Bilaketa emaitzak",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Bilatu %(docstitle)s(e)n",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

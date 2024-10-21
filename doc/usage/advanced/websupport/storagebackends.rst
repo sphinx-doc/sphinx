@@ -2,12 +2,12 @@
 
 .. currentmodule:: sphinxcontrib.websupport.storage
 
-Storage Backends
+Storage backends
 ================
 
 To create a custom storage backend you will need to subclass the
 :class:`StorageBackend` class.  Then create an instance of the new class and
-pass that as the `storage` keyword argument when you create the
+pass that as the *storage* keyword argument when you create the
 :class:`~.WebSupport` object::
 
    support = WebSupport(srcdir=srcdir,

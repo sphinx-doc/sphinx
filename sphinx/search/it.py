@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-italian_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/italian/stop.txt
+italian_stopwords = parse_stop_word("""
+| source: https://snowball.tartarus.org/algorithms/italian/stop.txt
 ad             |  a (to) before vowel
 al             |  a + il
 allo           |  a + lo
@@ -300,7 +298,7 @@ stessi
 stesse
 stessimo
 stessero
-''')
+""")
 
 
 class SearchItalian(SearchLanguage):
@@ -309,7 +307,7 @@ class SearchItalian(SearchLanguage):
     js_stemmer_rawcode = 'italian-stemmer.js'
     stopwords = italian_stopwords
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('italian')
 
     def stem(self, word: str) -> str:

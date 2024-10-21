@@ -1,15 +1,15 @@
-.. highlight:: rest
+.. highlight:: rst
 
-:mod:`sphinx.ext.autosectionlabel` -- Allow reference sections using its title
-==============================================================================
+:mod:`sphinx.ext.autosectionlabel` -- Allow referencing sections by their title
+===============================================================================
 
 .. module:: sphinx.ext.autosectionlabel
-   :synopsis: Allow reference section its title.
+   :synopsis: Allow referencing sections by their title.
 
 .. versionadded:: 1.4
 
-This extension allows you to refer sections its title.  This affects to the
-reference role (:rst:role:`ref`).
+By default, cross-references to sections use labels (see :rst:role:`ref`).
+This extension allows you to instead refer to sections by their title.
 
 For example::
 
@@ -32,6 +32,8 @@ Configuration
 -------------
 
 .. confval:: autosectionlabel_prefix_document
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    True to prefix each section label with the name of the document it is in,
    followed by a colon. For example, ``index:Introduction`` for a section
@@ -40,17 +42,19 @@ Configuration
    documents.
 
 .. confval:: autosectionlabel_maxdepth
+   :type: :code-py:`int | None`
+   :default: :code-py:`None`
 
    If set, autosectionlabel chooses the sections for labeling by its depth. For
    example, when set 1 to ``autosectionlabel_maxdepth``, labels are generated
    only for top level sections, and deeper sections are not labeled.  It
-   defaults to ``None`` (disabled).
+   defaults to ``None`` (i.e. all sections are labeled).
 
 
 Debugging
 ---------
 
 The ``WARNING: undefined label`` indicates that your reference in
-:rst:role:`ref` is mis-spelled. Invoking :program:`sphinx-build` with ``-vv``
+:rst:role:`ref` is mis-spelled. Invoking :program:`sphinx-build` with ``-vvv``
 (see :option:`-v`) will print all section names and the labels that have been
 generated for them. This output can help finding the right reference label.

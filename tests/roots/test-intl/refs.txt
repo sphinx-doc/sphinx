@@ -6,7 +6,7 @@ Translation Tips
 
 .. _download Sphinx: https://pypi.org/project/Sphinx/
 .. _Docutils site: https://docutils.sourceforge.io/
-.. _Sphinx site: http://sphinx-doc.org/
+.. _Sphinx site: https://sphinx-doc.org/
 
 
 A-1. Here's how you can `download Sphinx`_.

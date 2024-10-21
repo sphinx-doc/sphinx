@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import os.path
 import re
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from sphinx.util.osutil import canon_path, path_stabilize
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
 
 
 def _translate_pattern(pat: str) -> str:
@@ -91,7 +91,8 @@ _pat_cache: dict[str, re.Pattern[str]] = {}
 
 def patmatch(name: str, pat: str) -> re.Match[str] | None:
     """Return if name matches the regular expression (pattern)
-    ``pat```. Adapted from fnmatch module."""
+    ``pat```. Adapted from fnmatch module.
+    """
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     return _pat_cache[pat].match(name)
@@ -111,7 +112,7 @@ def patfilter(names: Iterable[str], pat: str) -> list[str]:
 
 def get_matching_files(
     dirname: str | os.PathLike[str],
-    include_patterns: Iterable[str] = ("**",),
+    include_patterns: Iterable[str] = ('**',),
     exclude_patterns: Iterable[str] = (),
 ) -> Iterator[str]:
     """Get all file names in a directory, recursively.
@@ -131,8 +132,8 @@ def get_matching_files(
 
     for root, dirs, files in os.walk(dirname, followlinks=True):
         relative_root = os.path.relpath(root, dirname)
-        if relative_root == ".":
-            relative_root = ""  # suppress dirname for files on the target dir
+        if relative_root == '.':
+            relative_root = ''  # suppress dirname for files on the target dir
 
         # Filter files
         included_files = []

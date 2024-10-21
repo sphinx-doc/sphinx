@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.builders import Builder
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from docutils.nodes import Node
+    from docutils import nodes
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class DummyBuilder(Builder):
@@ -28,17 +29,14 @@ class DummyBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames: set[str]) -> None:
-        pass
-
-    def write_doc(self, docname: str, doctree: Node) -> None:
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
         pass
 
     def finish(self) -> None:
         pass
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(DummyBuilder)
 
     return {

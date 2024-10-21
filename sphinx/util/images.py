@@ -13,8 +13,10 @@ if TYPE_CHECKING:
 
 try:
     from PIL import Image
+
+    PILLOW_AVAILABLE = True
 except ImportError:
-    Image = None
+    PILLOW_AVAILABLE = False
 
 mime_suffixes = {
     '.gif': 'image/gif',
@@ -24,6 +26,7 @@ mime_suffixes = {
     '.svg': 'image/svg+xml',
     '.svgz': 'image/svg+xml',
     '.ai': 'application/illustrator',
+    '.webp': 'image/webp',
 }
 _suffix_from_mime = {v: k for k, v in reversed(mime_suffixes.items())}
 
@@ -42,7 +45,7 @@ def get_image_size(filename: str) -> tuple[int, int] | None:
         elif isinstance(size[0], float) or isinstance(size[1], float):
             size = (int(size[0]), int(size[1]))
 
-        if size is None and Image:  # fallback to Pillow
+        if size is None and PILLOW_AVAILABLE:  # fallback to Pillow
             with Image.open(filename) as im:
                 size = im.size
 
@@ -52,13 +55,13 @@ def get_image_size(filename: str) -> tuple[int, int] | None:
 
 
 @overload
-def guess_mimetype(filename: PathLike[str] | str, default: str) -> str:
-    ...
+def guess_mimetype(filename: PathLike[str] | str, default: str) -> str: ...  # NoQA: E704
 
 
 @overload
-def guess_mimetype(filename: PathLike[str] | str, default: None = None) -> str | None:
-    ...
+def guess_mimetype(  # NoQA: E704
+    filename: PathLike[str] | str, default: None = None
+) -> str | None: ...
 
 
 def guess_mimetype(
@@ -119,12 +122,12 @@ def _image_type_from_file(filename: PathLike[str] | str) -> str:
 
     # JPEG data
     # https://en.wikipedia.org/wiki/JPEG_File_Interchange_Format#File_format_structure
-    if header.startswith(b'\xFF\xD8'):
+    if header.startswith(b'\xff\xd8'):
         return 'jpeg'
 
     # Portable Network Graphics
     # https://en.wikipedia.org/wiki/PNG#File_header
-    if header.startswith(b'\x89PNG\r\n\x1A\n'):
+    if header.startswith(b'\x89PNG\r\n\x1a\n'):
         return 'png'
 
     # Scalable Vector Graphics

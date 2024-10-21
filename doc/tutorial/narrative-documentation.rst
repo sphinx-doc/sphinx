@@ -73,7 +73,7 @@ Adding cross-references
 -----------------------
 
 One powerful feature of Sphinx is the ability to seamlessly add
-:ref:`cross-references <xref-syntax>` to specific parts of the documentation:
+:ref:`cross-references <xref>` to specific parts of the documentation:
 a document, a section, a figure, a code object, etc.  This tutorial is full of
 them!
 
@@ -85,7 +85,7 @@ introduction paragraph in ``index.rst``:
 
    Check out the :doc:`usage` section for further information.
 
-The :rst:role:`doc` :ref:`role <rst-roles-alt>` you used automatically
+The :rst:role:`doc` :ref:`role <rst-roles>` you used automatically
 references a specific document in the project, in this case the ``usage.rst``
 you created earlier.
 

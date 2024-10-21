@@ -3,8 +3,8 @@
 Web Support Quick Start
 =======================
 
-Building Documentation Data
-----------------------------
+Building documentation data
+---------------------------
 
 To make use of the web support package in your application you'll need to build
 the data it uses.  This data includes pickle files representing documents,
@@ -21,7 +21,7 @@ things are in a document.  To do this you will need to create an instance of the
    support.build()
 
 This will read reStructuredText sources from ``srcdir`` and place the necessary
-data in ``builddir``.  The ``builddir`` will contain two sub-directories: one
+data in ``builddir``.  The ``builddir`` will contain two subdirectories: one
 named "data" that contains all the data needed to display documents, search
 through documents, and add comments to documents.  The other directory will be
 called "static" and contains static files that should be served from "/static".
@@ -33,7 +33,7 @@ called "static" and contains static files that should be served from "/static".
    :class:`~.WebSupport` object.
 
 
-Integrating Sphinx Documents Into Your Webapp
+Integrating Sphinx documents into your web-app
 ----------------------------------------------
 
 Now that the data is built, it's time to do something useful with it.  Start off
@@ -137,7 +137,7 @@ add this data to the ``COMMENT_OPTIONS`` that are used in the template.
 
    This only works if your documentation is served from your
    document root. If it is served from another directory, you will
-   need to prefix the url route with that directory, and give the `docroot`
+   need to prefix the url route with that directory, and give the *docroot*
    keyword argument when creating the web support object::
 
       support = WebSupport(..., docroot='docs')
@@ -145,12 +145,12 @@ add this data to the ``COMMENT_OPTIONS`` that are used in the template.
       @app.route('/docs/<path:docname>')
 
 
-Performing Searches
+Performing searches
 -------------------
 
 To use the search form built-in to the Sphinx sidebar, create a function to
 handle requests to the URL 'search' relative to the documentation root.  The
-user's search query will be in the GET parameters, with the key `q`.  Then use
+user's search query will be in the GET parameters, with the key ``q``.  Then use
 the :meth:`~sphinxcontrib.websupport.WebSupport.get_search_results` method to
 retrieve search results. In `Flask <https://flask.palletsprojects.com/>`_ that
 would be like this::
@@ -167,7 +167,7 @@ returns a context dict in the same format that :meth:`~.WebSupport.get_document`
 does.
 
 
-Comments & Proposals
+Comments & proposals
 --------------------
 
 Now that this is done it's time to define the functions that handle the AJAX
@@ -217,7 +217,7 @@ and will handle user votes on comments::
        return "success"
 
 
-Comment Moderation
+Comment moderation
 ------------------
 
 By default, all comments added through :meth:`~.WebSupport.add_comment` are

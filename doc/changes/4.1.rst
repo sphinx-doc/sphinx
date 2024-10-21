@@ -1,0 +1,150 @@
+==========
+Sphinx 4.1
+==========
+
+
+Release 4.1.2 (released Jul 27, 2021)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #9435: linkcheck: Disable checking automatically generated anchors on
+  github.com (ex. anchors in reST/Markdown documents)
+
+Bugs fixed
+----------
+
+* #9489: autodoc: Custom types using ``typing.NewType`` are not displayed well
+  with the HEAD of 3.10
+* #9490: autodoc: Some objects under ``typing`` module are not displayed well
+  with the HEAD of 3.10
+* #9436, #9471: autodoc: crashed if ``autodoc_class_signature = "separated"``
+* #9456: html search: html_copy_source can't control the search summaries
+* #9500: LaTeX: Failed to build Japanese document on Windows
+* #9435: linkcheck: Failed to check anchors in github.com
+
+Release 4.1.1 (released Jul 15, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9434: sphinxcontrib-htmlhelp-2.0.0 or above
+* #9434: sphinxcontrib-serializinghtml-1.1.5 or above
+
+Bugs fixed
+----------
+
+* #9438: html: HTML logo or Favicon specified as file not being found on output
+
+Release 4.1.0 (released Jul 12, 2021)
+=====================================
+
+Dependencies
+------------
+
+* Support jinja2-3.0
+
+Deprecated
+----------
+
+* The ``app`` argument of ``sphinx.environment.BuildEnvironment`` becomes
+  required
+* ``sphinx.application.Sphinx.html_theme``
+* ``sphinx.ext.autosummary._app``
+* ``sphinx.util.docstrings.extract_metadata()``
+
+Features added
+--------------
+
+* #8107: autodoc: Add ``class-doc-from`` option to :rst:dir:`autoclass`
+  directive to control the content of the specific class like
+  :confval:`autoclass_content`
+* #8588: autodoc: :confval:`autodoc_type_aliases` now supports dotted name. It
+  allows you to define an alias for a class with module name like
+  ``foo.bar.BazClass``
+* #9175: autodoc: Special member is not documented in the module
+* #9195: autodoc: The arguments of ``typing.Literal`` are wrongly rendered
+* #9185: autodoc: :confval:`autodoc_typehints` allows ``'both'`` setting to
+  allow typehints to be included both in the signature and description
+* #4257: autodoc: Add :confval:`autodoc_class_signature` to separate the class
+  entry and the definition of ``__init__()`` method
+* #8061, #9218: autodoc: Support variable comment for alias classes
+* #3014: autodoc: Add :event:`autodoc-process-bases` to modify the base classes
+  of the class definitions
+* #9272: autodoc: Render enum values for the default argument value better
+* #9384: autodoc: ``autodoc_typehints='none'`` now erases typehints for
+  variables, attributes and properties
+* #3257: autosummary: Support instance attributes for classes
+* #9358: html: Add "heading" role to the toctree items
+* #9225: html: Add span tag to the return typehint of method/function
+* #9129: html search: Show search summaries when ``html_copy_source = False``
+* #9307: html search: Prevent corrections and completions in search field
+* #9120: html theme: Eliminate prompt characters of code-block from copyable
+  text
+* #9176: i18n: Emit a debug message if message catalog file not found under
+  :confval:`locale_dirs`
+* #9414: LaTeX: Add xeCJKVerbAddon to default fvset config for Chinese documents
+* #9016: linkcheck: Support checking anchors on github.com
+* #9016: linkcheck: Add a new event :event:`linkcheck-process-uri` to modify
+  URIs before checking hyperlinks
+* #6525: linkcheck: Add :confval:`linkcheck_allowed_redirects` to mark
+  hyperlinks that are redirected to expected URLs as "working"
+* #1874: py domain: Support union types using ``|`` in info-field-list
+* #9268: py domain: :confval:`python_use_unqualified_type_names` supports type
+  field in info-field-list
+* #9097: Optimize the parallel build
+* #9131: Add :confval:`nitpick_ignore_regex` to ignore nitpicky warnings using
+  regular expressions
+* #9174: Add ``Sphinx.set_html_assets_policy`` to tell extensions to include
+  HTML assets in all the pages. Extensions can check this via
+  ``Sphinx.registry.html_assets_policy``
+* C++, add support for
+
+  - ``inline`` variables,
+  - ``consteval`` functions,
+  - ``constinit`` variables,
+  - ``char8_t``,
+  - ``explicit(<constant expression>)`` specifier,
+  - digit separators in literals, and
+  - constraints in placeholder type specifiers, aka. adjective syntax
+    (e.g., ``Sortable auto &v``).
+
+* C, add support for digit separators in literals.
+* #9166: LaTeX: support containers in LaTeX output
+
+
+Bugs fixed
+----------
+
+* #8872: autodoc: stacked singledispatches are wrongly rendered
+* #8597: autodoc: a docsting having metadata only should be treated as
+  undocumented
+* #9185: autodoc: typehints for overloaded functions and methods are inaccurate
+* #9250: autodoc: The inherited method not having docstring is wrongly parsed
+* #9283: autodoc: autoattribute directive failed to generate document for an
+  attribute not having any comment
+* #9364: autodoc: single element tuple on the default argument value is wrongly
+  rendered
+* #9362: autodoc: AttributeError is raised on processing a subclass of Tuple[()]
+* #9404: autodoc: TypeError is raised on processing dict-like object (not a
+  class) via autoclass directive
+* #9317: html: Pushing left key causes visiting the next page at the first page
+* #9381: html: URL for html_favicon and html_log does not work
+* #9270: html theme : pyramid theme generates incorrect logo links
+* #9217: manpage: The name of manpage directory that is generated by
+  :confval:`man_make_section_directory` is not correct
+* #9350: manpage: Fix font isn't reset after keyword at the top of samp role
+* #9306: Linkcheck reports broken link when remote server closes the connection
+  on HEAD request
+* #9280: py domain: "exceptions" module is not displayed
+* #9418: py domain: a Callable annotation with no parameters
+  (e.g. ``Callable[[], None])`` will be rendered with a bracket missing
+  (``Callable[], None]``)
+* #9319: quickstart: Make sphinx-quickstart exit when conf.py already exists
+* #9387: xml: XML Builder ignores custom visitors
+* #9224: ``:param:`` and ``:type:`` fields does not support a type containing
+  whitespace (ex. ``Dict[str, str]``)
+* #8945: when transforming typed fields, call the specified role instead of
+  making an single xref. For C and C++, use the ``expr`` role for typed fields.

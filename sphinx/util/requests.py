@@ -11,15 +11,17 @@ from urllib3.exceptions import InsecureRequestWarning
 
 import sphinx
 
-_USER_AGENT = (f'Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0 '
-               f'Sphinx/{sphinx.__version__}')
+_USER_AGENT = (
+    f'Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0 '
+    f'Sphinx/{sphinx.__version__}'
+)
 
 
 def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
     """Get additional CA cert for a specific URL."""
     if not certs:
         return True
-    elif isinstance(certs, (str, tuple)):
+    elif isinstance(certs, str | tuple):
         return certs
     else:
         hostname = urlsplit(url).netloc
@@ -30,31 +32,36 @@ def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
 
 
 def get(url: str, **kwargs: Any) -> requests.Response:
-    """Sends a GET request like requests.get().
+    """Sends a GET request like ``requests.get()``.
 
-    This sets up User-Agent header and TLS verification automatically."""
+    This sets up User-Agent header and TLS verification automatically.
+    """
     with _Session() as session:
         return session.get(url, **kwargs)
 
 
 def head(url: str, **kwargs: Any) -> requests.Response:
-    """Sends a HEAD request like requests.head().
+    """Sends a HEAD request like ``requests.head()``.
 
-    This sets up User-Agent header and TLS verification automatically."""
+    This sets up User-Agent header and TLS verification automatically.
+    """
     with _Session() as session:
         return session.head(url, **kwargs)
 
 
 class _Session(requests.Session):
     def request(  # type: ignore[override]
-        self, method: str, url: str,
+        self,
+        method: str,
+        url: str,
         _user_agent: str = '',
         _tls_info: tuple[bool, str | dict[str, str] | None] = (),  # type: ignore[assignment]
         **kwargs: Any,
     ) -> requests.Response:
         """Sends a request with an HTTP verb and url.
 
-        This sets up User-Agent header and TLS verification automatically."""
+        This sets up User-Agent header and TLS verification automatically.
+        """
         headers = kwargs.setdefault('headers', {})
         headers.setdefault('User-Agent', _user_agent or _USER_AGENT)
         if _tls_info:
@@ -69,5 +76,5 @@ class _Session(requests.Session):
 
         with warnings.catch_warnings():
             # ignore InsecureRequestWarning if verify=False
-            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+            warnings.filterwarnings('ignore', category=InsecureRequestWarning)
             return super().request(method, url, **kwargs)

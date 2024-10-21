@@ -3,22 +3,27 @@
 from __future__ import annotations
 
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.io import StringOutput
 
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.osutil import (
+    _last_modified_time,
+    ensuredir,
+    os_path,
+)
 from sphinx.writers.text import TextTranslator, TextWriter
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Set
 
-    from docutils.nodes import Node
+    from docutils import nodes
 
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -45,11 +50,11 @@ class TextBuilder(Builder):
                 continue
             targetname = path.join(self.outdir, docname + self.out_suffix)
             try:
-                targetmtime = path.getmtime(targetname)
+                targetmtime = _last_modified_time(targetname)
             except Exception:
                 targetmtime = 0
             try:
-                srcmtime = path.getmtime(self.env.doc2path(docname))
+                srcmtime = _last_modified_time(self.env.doc2path(docname))
                 if srcmtime > targetmtime:
                     yield docname
             except OSError:
@@ -59,10 +64,10 @@ class TextBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames: set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
         self.writer = TextWriter(self)
 
-    def write_doc(self, docname: str, doctree: Node) -> None:
+    def write_doc(self, docname: str, doctree: nodes.document) -> None:
         self.current_docname = docname
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
@@ -73,13 +78,13 @@ class TextBuilder(Builder):
             with open(outfilename, 'w', encoding='utf-8') as f:
                 f.write(self.writer.output)
         except OSError as err:
-            logger.warning(__("error writing file %s: %s"), outfilename, err)
+            logger.warning(__('error writing file %s: %s'), outfilename, err)
 
     def finish(self) -> None:
         pass
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TextBuilder)
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')

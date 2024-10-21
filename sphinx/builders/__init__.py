@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import codecs
 import pickle
+import re
 import time
+from contextlib import nullcontext
 from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, final
 
 from docutils import nodes
 from docutils.utils import DependencyList
@@ -15,21 +17,31 @@ from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironmen
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
-from sphinx.util import UnicodeDecodeErrorHandler, get_filetype, import_object, logging, rst
+from sphinx.util import (
+    get_filetype,
+    logging,
+    rst,
+)
+from sphinx.util._importer import import_object
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold  # type: ignore[attr-defined]
+from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
-from sphinx.util.osutil import SEP, ensuredir, relative_uri, relpath
-from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, parallel_available
+from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
+from sphinx.util.parallel import (
+    ParallelTasks,
+    SerialTasks,
+    make_chunks,
+    parallel_available,
+)
 
 # side effect: registers roles and directives
-from sphinx import directives  # noqa: F401  isort:skip
-from sphinx import roles  # noqa: F401  isort:skip
+from sphinx import directives  # NoQA: F401  isort:skip
+from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Sequence, Set
 
     from docutils.nodes import Node
 
@@ -37,7 +49,6 @@ if TYPE_CHECKING:
     from sphinx.config import Config
     from sphinx.events import EventManager
     from sphinx.util.tags import Tags
-    from sphinx.util.typing import NoneType
 
 
 logger = logging.getLogger(__name__)
@@ -48,14 +59,20 @@ class Builder:
     Builds target formats from the reST sources.
     """
 
-    #: The builder's name, for the -b command line option.
-    name = ''
+    #: The builder's name.
+    #: This is the value used to select builders on the command line.
+    name: str = ''
     #: The builder's output format, or '' if no document output is produced.
-    format = ''
-    #: The message emitted upon successful build completion. This can be a
-    #: printf-style template string with the following keys: ``outdir``,
-    #: ``project``
-    epilog = ''
+    #: This is commonly the file extension, e.g. "html",
+    #: though any string value is accepted.
+    #: The builder's format string can be used by various components
+    #: such as :class:`.SphinxPostTransform` or extensions to determine
+    #: their compatibility with the builder.
+    format: str = ''
+    #: The message emitted upon successful build completion.
+    #: This can be a printf-style template string
+    #: with the following keys: ``outdir``, ``project``
+    epilog: str = ''
 
     #: default translator class for the builder.  This can be overridden by
     #: :py:meth:`~sphinx.application.Sphinx.set_translator`.
@@ -63,18 +80,18 @@ class Builder:
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
-    #: allow parallel write_doc() calls
-    allow_parallel = False
+    #: Whether it is safe to make parallel :meth:`~.Builder.write_doc()` calls.
+    allow_parallel: bool = False
     # support translation
     use_message_catalog = True
 
     #: The list of MIME types of image formats supported by the builder.
     #: Image files are searched in the order in which they appear here.
     supported_image_types: list[str] = []
-    #: The builder supports remote images or not.
-    supported_remote_images = False
-    #: The builder supports data URIs or not.
-    supported_data_uri_images = False
+    #: The builder can produce output documents that may fetch external images when opened.
+    supported_remote_images: bool = False
+    #: The file format produced by the builder allows images to be embedded using data-URIs.
+    supported_data_uri_images: bool = False
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         self.srcdir = app.srcdir
@@ -85,22 +102,21 @@ class Builder:
 
         self.app: Sphinx = app
         self.env: BuildEnvironment = env
-        self.env.set_versioning_method(self.versioning_method,
-                                       self.versioning_compare)
+        self.env.set_versioning_method(self.versioning_method, self.versioning_compare)
         self.events: EventManager = app.events
         self.config: Config = app.config
         self.tags: Tags = app.tags
         self.tags.add(self.format)
         self.tags.add(self.name)
-        self.tags.add("format_%s" % self.format)
-        self.tags.add("builder_%s" % self.name)
+        self.tags.add(f'format_{self.format}')
+        self.tags.add(f'builder_{self.name}')
 
         # images that need to be copied over (source -> dest)
         self.images: dict[str, str] = {}
         # basename of images directory
-        self.imagedir = ""
+        self.imagedir = ''
         # relative path to image directory from current docname (used at writing docs)
-        self.imgpath = ""
+        self.imgpath = ''
 
         # these get set later
         self.parallel_ok = False
@@ -128,10 +144,14 @@ class Builder:
     def create_template_bridge(self) -> None:
         """Return the template bridge configured."""
         if self.config.template_bridge:
-            self.templates = import_object(self.config.template_bridge,
-                                           'template_bridge setting')()
+            template_bridge_cls = import_object(
+                self.config.template_bridge,
+                source='template_bridge setting',
+            )
+            self.templates = template_bridge_cls()
         else:
             from sphinx.jinja2glue import BuiltinTemplateLoader
+
             self.templates = BuiltinTemplateLoader()
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
@@ -145,10 +165,12 @@ class Builder:
     def get_relative_uri(self, from_: str, to: str, typ: str | None = None) -> str:
         """Return a relative URI between two source filenames.
 
-        May raise environment.NoUri if there's no way to return a sensible URI.
+        :raises: :exc:`!NoUri` if there's no way to return a sensible URI.
         """
-        return relative_uri(self.get_target_uri(from_),
-                            self.get_target_uri(to, typ))
+        return relative_uri(
+            self.get_target_uri(from_),
+            self.get_target_uri(to, typ),
+        )
 
     def get_outdated_docs(self) -> str | Iterable[str]:
         """Return an iterable of output files that are outdated, or a string
@@ -180,12 +202,20 @@ class Builder:
                     mimetypes = sorted(node['candidates'])
                     image_uri = images.get_original_image_uri(node['uri'])
                     if mimetypes:
-                        logger.warning(__('a suitable image for %s builder not found: '
-                                          '%s (%s)'),
-                                       self.name, mimetypes, image_uri, location=node)
+                        logger.warning(
+                            __('a suitable image for %s builder not found: ' '%s (%s)'),
+                            self.name,
+                            mimetypes,
+                            image_uri,
+                            location=node,
+                        )
                     else:
-                        logger.warning(__('a suitable image for %s builder not found: %s'),
-                                       self.name, image_uri, location=node)
+                        logger.warning(
+                            __('a suitable image for %s builder not found: %s'),
+                            self.name,
+                            image_uri,
+                            location=node,
+                        )
                     continue
                 node['uri'] = candidate
             else:
@@ -205,15 +235,25 @@ class Builder:
             return relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
         logger.info(bold(__('building [mo]: ')) + message)
-        for catalog in status_iterator(catalogs, __('writing output... '), "darkgreen",
-                                       len(catalogs), self.app.verbosity,
-                                       stringify_func=cat2relpath):
-            catalog.write_mo(self.config.language,
-                             self.config.gettext_allow_fuzzy_translations)
+        for catalog in status_iterator(
+            catalogs,
+            __('writing output... '),
+            'darkgreen',
+            len(catalogs),
+            self.app.verbosity,
+            stringify_func=cat2relpath,
+        ):
+            catalog.write_mo(
+                self.config.language, self.config.gettext_allow_fuzzy_translations
+            )
 
     def compile_all_catalogs(self) -> None:
-        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                 self.config.language, self.config.source_encoding)
+        repo = CatalogRepository(
+            self.srcdir,
+            self.config.locale_dirs,
+            self.config.language,
+            self.config.source_encoding,
+        )
         message = __('all of %d po files') % len(list(repo.catalogs))
         self.compile_catalogs(set(repo.catalogs), message)
 
@@ -227,8 +267,12 @@ class Builder:
 
         catalogs = set()
         domains = set(map(to_domain, specified_files))
-        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                 self.config.language, self.config.source_encoding)
+        repo = CatalogRepository(
+            self.srcdir,
+            self.config.locale_dirs,
+            self.config.language,
+            self.config.source_encoding,
+        )
         for catalog in repo.catalogs:
             if catalog.domain in domains and catalog.is_outdated():
                 catalogs.add(catalog)
@@ -237,20 +281,26 @@ class Builder:
 
     # TODO(stephenfin): This would make more sense as 'compile_outdated_catalogs'
     def compile_update_catalogs(self) -> None:
-        repo = CatalogRepository(self.srcdir, self.config.locale_dirs,
-                                 self.config.language, self.config.source_encoding)
+        repo = CatalogRepository(
+            self.srcdir,
+            self.config.locale_dirs,
+            self.config.language,
+            self.config.source_encoding,
+        )
         catalogs = {c for c in repo.catalogs if c.is_outdated()}
         message = __('targets for %d po files that are out of date') % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
     # build methods
 
+    @final
     def build_all(self) -> None:
         """Build all source files."""
         self.compile_all_catalogs()
 
         self.build(None, summary=__('all source files'), method='all')
 
+    @final
     def build_specific(self, filenames: list[str]) -> None:
         """Only rebuild as much as needed for changes in the *filenames*."""
         docnames: list[str] = []
@@ -259,28 +309,43 @@ class Builder:
             filename = path.normpath(path.abspath(filename))
 
             if not path.isfile(filename):
-                logger.warning(__('file %r given on command line does not exist, '),
-                               filename)
+                logger.warning(
+                    __('file %r given on command line does not exist, '), filename
+                )
                 continue
 
             if not filename.startswith(str(self.srcdir)):
-                logger.warning(__('file %r given on command line is not under the '
-                                  'source directory, ignoring'), filename)
+                logger.warning(
+                    __(
+                        'file %r given on command line is not under the '
+                        'source directory, ignoring'
+                    ),
+                    filename,
+                )
                 continue
 
             docname = self.env.path2doc(filename)
             if not docname:
-                logger.warning(__('file %r given on command line is not a valid '
-                                  'document, ignoring'), filename)
+                logger.warning(
+                    __(
+                        'file %r given on command line is not a valid '
+                        'document, ignoring'
+                    ),
+                    filename,
+                )
                 continue
 
             docnames.append(docname)
 
         self.compile_specific_catalogs(filenames)
 
-        self.build(docnames, method='specific',
-                   summary=__('%d source files given on command line') % len(docnames))
+        self.build(
+            docnames,
+            method='specific',
+            summary=__('%d source files given on command line') % len(docnames),
+        )
 
+    @final
     def build_update(self) -> None:
         """Only rebuild what was changed or added since last build."""
         self.compile_update_catalogs()
@@ -290,32 +355,38 @@ class Builder:
             self.build(['__all__'], to_build)
         else:
             to_build = list(to_build)
-            self.build(to_build,
-                       summary=__('targets for %d source files that are out of date') %
-                       len(to_build))
+            self.build(
+                to_build,
+                summary=__('targets for %d source files that are out of date')
+                % len(to_build),
+            )
 
+    @final
     def build(
         self,
         docnames: Iterable[str] | None,
         summary: str | None = None,
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
-        """Main build method.
+        """Main build method, usually called by a specific ``build_*`` method.
 
         First updates the environment, and then calls
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ') % self.name) + summary)
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)
 
         # while reading, collect all warnings from docutils
-        with logging.pending_warnings():
+        with (
+            nullcontext()
+            if self.app._exception_on_warning
+            else logging.pending_warnings()
+        ):
             updated_docnames = set(self.read())
 
         doccount = len(updated_docnames)
         logger.info(bold(__('looking for now-outdated files... ')), nonl=True)
-        for docname in self.env.check_dependents(self.app, updated_docnames):
-            updated_docnames.add(docname)
+        updated_docnames.update(self.env.check_dependents(self.app, updated_docnames))
         outdated = len(updated_docnames) - doccount
         if outdated:
             logger.info(__('%d found'), outdated)
@@ -325,8 +396,11 @@ class Builder:
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            with progress_message(__('pickling environment')), \
-                    open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f:
+
+            with (
+                progress_message(__('pickling environment')),
+                open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f,
+            ):
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
             # global actions
@@ -368,6 +442,7 @@ class Builder:
         # wait for all tasks
         self.finish_tasks.join()
 
+    @final
     def read(self) -> list[str]:
         """(Re-)read all files new or changed since last update.
 
@@ -377,11 +452,13 @@ class Builder:
         logger.info(bold(__('updating environment: ')), nonl=True)
 
         self.env.find_files(self.config, self)
-        updated = (self.env.config_status != CONFIG_OK)
+        updated = self.env.config_status != CONFIG_OK
         added, changed, removed = self.env.get_outdated_files(updated)
 
         # allow user intervention as well
-        for docs in self.events.emit('env-get-outdated', self.env, added, changed, removed):
+        for docs in self.events.emit(
+            'env-get-outdated', self.env, added, changed, removed
+        ):
             changed.update(set(docs) & self.env.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees
@@ -391,12 +468,17 @@ class Builder:
             changed.update(self.env.glob_toctrees & self.env.found_docs)
 
         if updated:  # explain the change iff build config status was not ok
-            reason = (CONFIG_CHANGED_REASON.get(self.env.config_status, '') +
-                      (self.env.config_status_extra or ''))
+            reason = CONFIG_CHANGED_REASON.get(self.env.config_status, '') + (
+                self.env.config_status_extra or ''
+            )
             logger.info('[%s] ', reason, nonl=True)
 
-        logger.info(__('%s added, %s changed, %s removed'),
-                    len(added), len(changed), len(removed))
+        logger.info(
+            __('%s added, %s changed, %s removed'),
+            len(added),
+            len(changed),
+            len(removed),
+        )
 
         # clear all files no longer present
         for docname in removed:
@@ -409,7 +491,7 @@ class Builder:
         self.events.emit('env-before-read-docs', self.env, docnames)
 
         # check if we should do parallel or serial read
-        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
+        if parallel_available and self.app.parallel > 1:
             par_ok = self.app.is_parallel_allowed('read')
         else:
             par_ok = False
@@ -419,9 +501,48 @@ class Builder:
         else:
             self._read_serial(docnames)
 
-        if self.config.root_doc not in self.env.all_docs:
-            raise SphinxError('root file %s not found' %
-                              self.env.doc2path(self.config.root_doc))
+        if self.config.master_doc not in self.env.all_docs:
+            from sphinx.project import EXCLUDE_PATHS
+            from sphinx.util.matching import _translate_pattern
+
+            master_doc_path = self.env.doc2path(self.config.master_doc)
+            master_doc_canon = canon_path(master_doc_path)
+            for pat in EXCLUDE_PATHS:
+                if not re.match(_translate_pattern(pat), master_doc_canon):
+                    continue
+                msg = __(
+                    'Sphinx is unable to load the master document (%s) '
+                    'because it matches a built-in exclude pattern %r. '
+                    'Please move your master document to a different location.'
+                )
+                raise SphinxError(msg % (master_doc_path, pat))
+            for pat in self.config.exclude_patterns:
+                if not re.match(_translate_pattern(pat), master_doc_canon):
+                    continue
+                msg = __(
+                    'Sphinx is unable to load the master document (%s) '
+                    'because it matches an exclude pattern specified '
+                    'in conf.py, %r. '
+                    'Please remove this pattern from conf.py.'
+                )
+                raise SphinxError(msg % (master_doc_path, pat))
+            if set(self.config.include_patterns) != {'**'} and not any(
+                re.match(_translate_pattern(pat), master_doc_canon)
+                for pat in self.config.include_patterns
+            ):
+                msg = __(
+                    'Sphinx is unable to load the master document (%s) '
+                    'because it is not included in the custom include_patterns = %r. '
+                    'Ensure that a pattern in include_patterns matches the '
+                    'master document.'
+                )
+                raise SphinxError(msg % (master_doc_path, self.config.include_patterns))
+            msg = __(
+                'Sphinx is unable to load the master document (%s). '
+                'The master document must be within the source directory '
+                'or a subdirectory of it.'
+            )
+            raise SphinxError(msg % master_doc_path)
 
         for retval in self.events.emit('env-updated', self.env):
             if retval is not None:
@@ -433,8 +554,13 @@ class Builder:
         return sorted(docnames)
 
     def _read_serial(self, docnames: list[str]) -> None:
-        for docname in status_iterator(docnames, __('reading sources... '), "purple",
-                                       len(docnames), self.app.verbosity):
+        for docname in status_iterator(
+            docnames,
+            __('reading sources... '),
+            'purple',
+            len(docnames),
+            self.app.verbosity,
+        ):
             # remove all inventory entries for that file
             self.events.emit('env-purge-doc', self.env, docname)
             self.env.clear_doc(docname)
@@ -445,8 +571,9 @@ class Builder:
 
         # create a status_iterator to step progressbar after reading a document
         # (see: ``merge()`` function)
-        progress = status_iterator(chunks, __('reading sources... '), "purple",
-                                   len(chunks), self.app.verbosity)
+        progress = status_iterator(
+            chunks, __('reading sources... '), 'purple', len(chunks), self.app.verbosity
+        )
 
         # clear all outdated docs at once
         for docname in docnames:
@@ -474,6 +601,7 @@ class Builder:
         tasks.join()
         logger.info('')
 
+    @final
     def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
         self.env.prepare_settings(docname)
@@ -483,16 +611,20 @@ class Builder:
         if path.isfile(docutilsconf):
             self.env.note_dependency(docutilsconf)
 
-        filename = self.env.doc2path(docname)
+        filename = str(self.env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
+        self.env.temp_data['_parser'] = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
         publisher.settings.record_dependencies = DependencyList()
-        with sphinx_domains(self.env), rst.default_role(docname, self.config.default_role):
+        with (
+            sphinx_domains(self.env),
+            rst.default_role(docname, self.config.default_role),
+        ):
             # set up error_handler for the target document
-            codecs.register_error('sphinx',
-                                  UnicodeDecodeErrorHandler(docname))  # type: ignore[arg-type]
+            error_handler = _UnicodeDecodeErrorHandler(docname)
+            codecs.register_error('sphinx', error_handler)  # type: ignore[arg-type]
 
             publisher.set_source(source_path=filename)
             publisher.publish()
@@ -507,10 +639,15 @@ class Builder:
 
         self.write_doctree(docname, doctree, _cache=_cache)
 
+    @final
     def write_doctree(
-        self, docname: str, doctree: nodes.document, *, _cache: bool = True,
+        self,
+        docname: str,
+        doctree: nodes.document,
+        *,
+        _cache: bool = True,
     ) -> None:
-        """Write the doctree to a file."""
+        """Write the doctree to a file, to be used as a cache by re-builds."""
         # make it picklable
         doctree.reporter = None  # type: ignore[assignment]
         doctree.transformer = None  # type: ignore[assignment]
@@ -520,7 +657,7 @@ class Builder:
         doctree.settings = doctree.settings.copy()
         doctree.settings.warning_stream = None
         doctree.settings.env = None
-        doctree.settings.record_dependencies = None  # type: ignore[assignment]
+        doctree.settings.record_dependencies = None
 
         doctree_filename = path.join(self.doctreedir, docname + '.doctree')
         ensuredir(path.dirname(doctree_filename))
@@ -533,12 +670,17 @@ class Builder:
         if _cache:
             self.env._write_doc_doctree_cache[docname] = doctree
 
+    @final
     def write(
         self,
         build_docnames: Iterable[str] | None,
         updated_docnames: Sequence[str],
-        method: str = 'update',
+        method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
+        """Write builder specific output files."""
+        # Allow any extensions to perform setup for writing
+        self.events.emit('write-started', self)
+
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
             build_docnames = self.env.found_docs
@@ -550,30 +692,51 @@ class Builder:
         logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed
-        for docname in list(docnames):
+        extra = {self.config.root_doc}
+        for docname in docnames:
             for tocdocname in self.env.files_to_rebuild.get(docname, set()):
                 if tocdocname in self.env.found_docs:
-                    docnames.add(tocdocname)
-        docnames.add(self.config.root_doc)
+                    extra.add(tocdocname)
+        docnames |= extra
+
+        # sort to ensure deterministic toctree generation
+        self.env.toctree_includes = dict(sorted(self.env.toctree_includes.items()))
 
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
 
-        with progress_message(__('copying assets')):
+        with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
+        self.write_documents(docnames)
+
+    def write_documents(self, docnames: Set[str]) -> None:
+        """Write all documents in *docnames*.
+
+        This method can be overridden if a builder does not create
+        output files for each document.
+        """
+        sorted_docnames = sorted(docnames)
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
-            self._write_parallel(sorted(docnames),
-                                 nproc=self.app.parallel - 1)
+            self._write_parallel(sorted_docnames, nproc=self.app.parallel - 1)
         else:
-            self._write_serial(sorted(docnames))
+            self._write_serial(sorted_docnames)
 
     def _write_serial(self, docnames: Sequence[str]) -> None:
-        with logging.pending_warnings():
-            for docname in status_iterator(docnames, __('writing output... '), "darkgreen",
-                                           len(docnames), self.app.verbosity):
+        with (
+            nullcontext()
+            if self.app._exception_on_warning
+            else logging.pending_warnings()
+        ):
+            for docname in status_iterator(
+                docnames,
+                __('writing output... '),
+                'darkgreen',
+                len(docnames),
+                self.app.verbosity,
+            ):
                 self.app.phase = BuildPhase.RESOLVING
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.app.phase = BuildPhase.WRITING
@@ -599,10 +762,15 @@ class Builder:
 
         # create a status_iterator to step progressbar after writing a document
         # (see: ``on_chunk_done()`` function)
-        progress = status_iterator(chunks, __('writing output... '), "darkgreen",
-                                   len(chunks), self.app.verbosity)
+        progress = status_iterator(
+            chunks,
+            __('writing output... '),
+            'darkgreen',
+            len(chunks),
+            self.app.verbosity,
+        )
 
-        def on_chunk_done(args: list[tuple[str, NoneType]], result: NoneType) -> None:
+        def on_chunk_done(args: list[tuple[str, nodes.document]], result: None) -> None:
             next(progress)
 
         self.app.phase = BuildPhase.RESOLVING
@@ -618,16 +786,25 @@ class Builder:
         tasks.join()
         logger.info('')
 
-    def prepare_writing(self, docnames: set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
         """A place where you can add logic before :meth:`write_doc` is run"""
-        raise NotImplementedError
+        pass
 
     def copy_assets(self) -> None:
         """Where assets (images, static files, etc) are copied before writing"""
         pass
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        """Where you actually write something to the filesystem."""
+        """
+        Write the output file for the document
+
+        :param docname: the :term:`docname <document name>`.
+        :param doctree: defines the content to be written.
+
+        The output filename must be determined within this method,
+        typically by calling :meth:`~.Builder.get_target_uri`
+        or :meth:`~.Builder.get_relative_uri`.
+        """
         raise NotImplementedError
 
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
@@ -665,3 +842,29 @@ class Builder:
         except AttributeError:
             optname = f'{default}_{option}'
             return getattr(self.config, optname)
+
+
+class _UnicodeDecodeErrorHandler:
+    """Custom error handler for open() that warns and replaces."""
+
+    def __init__(self, docname: str, /) -> None:
+        self.docname = docname
+
+    def __call__(self, error: UnicodeDecodeError) -> tuple[str, int]:
+        line_start = error.object.rfind(b'\n', 0, error.start)
+        line_end = error.object.find(b'\n', error.start)
+        if line_end == -1:
+            line_end = len(error.object)
+        line_num = error.object.count(b'\n', 0, error.start) + 1
+        logger.warning(
+            __('undecodable source characters, replacing with "?": %r'),
+            (
+                error.object[line_start + 1 : error.start]
+                + b'>>>'
+                + error.object[error.start : error.end]
+                + b'<<<'
+                + error.object[error.end : line_end]
+            ),
+            location=(self.docname, line_num),
+        )
+        return '?', error.end

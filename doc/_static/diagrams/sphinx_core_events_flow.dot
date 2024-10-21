@@ -1,0 +1,125 @@
+// A flow graph of the Sphinx build process, highlighting event callbacks
+
+digraph events {
+    graph [
+        rankdir=TB
+    ];
+    node [
+        shape=rect
+        style=rounded
+    ];
+    "Sphinx" [
+        shape=record
+        label = "<init> Sphinx.__init__() | <build> Sphinx.build()"
+    ];
+
+    // During initialization
+    "config-inited"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Sphinx":init -> "config-inited";
+    "builder-inited"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Sphinx":init -> "builder-inited";
+
+    // During build
+    "Builder" [label = "Builder.build()"]
+    "Sphinx":build -> "Builder";
+    "Builder.build" [
+        shape=record
+        label = "
+            <before_read> before read |
+            <read> read |
+            <after_read> after read |
+            <write> write |
+            <finalize> finalize"
+    ];
+    "Builder" -> "Builder.build";
+
+    "env-get-outdated"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Builder.build":before_read -> "env-get-outdated";
+    remove_each_doc [shape="ellipse", label="for removed"];
+    "Builder.build":before_read -> "remove_each_doc";
+    "env-purge-doc"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "remove_each_doc" -> "env-purge-doc";
+    "env-before-read-docs"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Builder.build":before_read -> "env-before-read-docs";
+
+    // during read phase
+    "Builder.read" [label = "Builder.read()"]
+    "Builder.build":read -> "Builder.read";
+    read_each_doc [shape="ellipse", label="for added | changed"];
+    "Builder.read" -> "read_each_doc";
+    merge_each_process [
+    shape="ellipse", label="for each process\n(parallel only)"
+    ];
+    "Builder.read" -> merge_each_process;
+    "env-updated"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Builder.read" -> "env-updated"
+
+    // during read phase, for each document/process
+    "env-purge-doc"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "read_each_doc" -> "env-purge-doc";
+    "source-read"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "read_each_doc" -> "source-read";
+    "Include" [label="Include\ndirective"]
+    "read_each_doc" -> "Include";
+    "include-read"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Include" -> "include-read";
+    "ObjectDescription" [label="ObjectDescription\ndirective"]
+    "read_each_doc" -> "ObjectDescription";
+    "object-description-transform"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "ObjectDescription" -> "object-description-transform";
+    "doctree-read"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "read_each_doc" -> "doctree-read";
+    "env-merge-info"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "merge_each_process" -> "env-merge-info";
+
+    // after read phase
+    "env-get-updated"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Builder.build":after_read -> "env-get-updated";
+    if_read_changes [shape="diamond", label="if changed\ndocuments"];
+    "Builder.build":after_read -> if_read_changes;
+    if_read_changes -> "cache the\nBuild.Environment";
+    "env-check-consistency"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    if_read_changes -> "env-check-consistency";
+
+    // during write phase
+    "write-started"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Builder.write" [label = "Builder.write()"]
+    "Builder.build":write -> "Builder.write";
+    "Builder.write" -> "write-started";
+    write_each_doc [shape="ellipse", label="for updated"];
+    "Builder.write" -> write_each_doc;
+    "ReferenceResolver" [
+    label="ReferenceResolver\nPost-transform"
+    ]
+    write_each_doc -> "ReferenceResolver";
+    "missing-reference"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    ReferenceResolver -> "missing-reference";
+    "warn-missing-reference"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    ReferenceResolver -> "warn-missing-reference";
+    "HyperlinkCollector" [
+    label="HyperlinkCollector\nPost-transform"
+    ]
+    write_each_doc -> "HyperlinkCollector";
+    "linkcheck-process-uri"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    HyperlinkCollector -> "linkcheck-process-uri";
+    "doctree-resolved"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    write_each_doc -> "doctree-resolved";
+    "html-page-context"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    write_each_doc -> "html-page-context";
+
+    // html only
+    "html-collect-pages"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Builder.build":finalize -> "html-collect-pages";
+
+    // finalize build
+    "build-finished"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
+    "Builder.build":finalize -> "build-finished";
+
+    // constrain layout ordering
+    {rank=same "config-inited" "builder-inited"};
+    {rank=same; "env-get-outdated" "env-before-read-docs" "env-get-updated"};
+    {rank=same; "env-purge-doc" "source-read" "doctree-read", "merge_each_process"};
+    {rank=same; "env-updated" "env-check-consistency"};
+    {rank=same; "env-merge-info" "Builder.write"};
+    {rank=max; "build-finished"};
+}

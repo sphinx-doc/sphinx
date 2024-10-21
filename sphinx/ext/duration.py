@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 from itertools import islice
 from operator import itemgetter
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.domains import Domain
@@ -13,15 +13,22 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+    from typing import TypedDict
+
     from docutils import nodes
 
     from sphinx.application import Sphinx
+
+    class _DurationDomainData(TypedDict):
+        reading_durations: dict[str, float]
 
 logger = logging.getLogger(__name__)
 
 
 class DurationDomain(Domain):
     """A domain for durations of Sphinx processing."""
+
     name = 'duration'
 
     @property
@@ -37,9 +44,11 @@ class DurationDomain(Domain):
     def clear_doc(self, docname: str) -> None:
         self.reading_durations.pop(docname, None)
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, float]) -> None:
-        for docname, duration in otherdata.items():
-            if docname in docnames:
+    def merge_domaindata(self, docnames: Set[str], otherdata: _DurationDomainData) -> None:  # type: ignore[override]
+        other_reading_durations = otherdata.get('reading_durations', {})
+        docnames_set = frozenset(docnames)
+        for docname, duration in other_reading_durations.items():
+            if docname in docnames_set:
                 self.reading_durations[docname] = duration
 
 
@@ -48,7 +57,7 @@ def on_builder_inited(app: Sphinx) -> None:
 
     This clears the results of the last build.
     """
-    domain = cast(DurationDomain, app.env.get_domain('duration'))
+    domain = app.env.domains['duration']
     domain.clear()
 
 
@@ -61,13 +70,13 @@ def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     """Record a reading duration."""
     started_at = app.env.temp_data['started_at']
     duration = time.monotonic() - started_at
-    domain = cast(DurationDomain, app.env.get_domain('duration'))
+    domain = app.env.domains['duration']
     domain.note_reading_duration(duration)
 
 
 def on_build_finished(app: Sphinx, error: Exception) -> None:
     """Display duration ranking on the current build."""
-    domain = cast(DurationDomain, app.env.get_domain('duration'))
+    domain = app.env.domains['duration']
     if not domain.reading_durations:
         return
     durations = sorted(domain.reading_durations.items(), key=itemgetter(1), reverse=True)

@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Ir a",
         "Hide Search Matches": "Ocultar coincidencias de la b\u00fasqueda",
         "Index": "\u00cdndice",
-        "Index &ndash; %(key)s": "\u00cdndice &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\u00cdndice alfab\u00e9tico de p\u00e1ginas",
         "Indices and tables:": "\u00cdndices y tablas:",
         "Last updated on %(last_updated)s.": "Actualizado por \u00faltima vez en %(last_updated)s.",
@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "B\u00fasqueda",
         "Search Page": "P\u00e1gina de B\u00fasqueda",
         "Search Results": "Resultados de la b\u00fasqueda",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "B\u00fasqueda finalizada, se encontraron ${resultCount} p\u00e1ginas que coinciden con la consulta de b\u00fasqueda.",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Buscar en %(docstitle)s",
         "Searching": "Buscando",
         "Searching for multiple words only shows matches that contain\n    all words.": "La b\u00fasqueda de varias palabras solo muestra coincidencias que contienen\n    todas las palabras.",

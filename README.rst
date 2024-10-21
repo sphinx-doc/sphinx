@@ -40,7 +40,7 @@ Features
 * **Language Support**: Python, C, C++, JavaScript, mathematics, and many other
   languages through extensions.
 
-For more information, refer to the `the documentation`_.
+For more information, refer to `the documentation`_.
 
 Installation
 ============
@@ -48,7 +48,7 @@ Installation
 The following command installs Sphinx from the `Python Package Index`_. You will
 need a working installation of Python and pip.
 
-.. code-block:: sh
+.. code-block:: shell
 
    pip install -U sphinx
 

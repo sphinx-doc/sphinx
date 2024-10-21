@@ -1,7 +1,7 @@
 %% TABLES (WITH SUPPORT FOR MERGED CELLS OF GENERAL CONTENTS)
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatextables.sty}[2022/08/15 tables]%
+\ProvidesPackage{sphinxlatextables}[2024/07/01 v7.4.0 tables]%
 
 % Provides support for this output mark-up from Sphinx latex writer
 % and table templates:
@@ -42,6 +42,11 @@
 % - \sphinxthistablewithnocolorrowsstyle
 % - \sphinxthistablewithvlinesstyle
 % - \sphinxthistablewithnovlinesstyle
+% 
+% Also provides user command (see docs)
+% - \sphixncolorblend
+%   (Sphinx 7.4.0 now requires xcolor, so \sphinxcolorblend does not check
+%    its availability anymore) 
 %
 % Executes \RequirePackage for:
 %
@@ -103,6 +108,7 @@
     \vbox{}% get correct baseline from above
     \LTpre\z@skip\LTpost\z@skip % set to zero longtable's own skips
     \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}%
+    \spx@inframedtrue % message to sphinxheavybox
    }%
 % Compatibility with caption package
 \def\sphinxthelongtablecaptionisattop{%
@@ -116,7 +122,9 @@
 \def\sphinxatlongtableend{\@nobreakfalse % latex3/latex2e#173
     \prevdepth\z@\vskip\sphinxtablepost\relax}%
 % B. Table with tabular or tabulary
-\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax}%
+\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax
+                        \spx@inframedtrue % message to sphinxheavybox
+                        }%
 \let\sphinxattableend\sphinxatlongtableend
 % This is used by tabular and tabulary templates
 \newcommand*\sphinxcapstartof[1]{%
@@ -513,19 +521,6 @@
     \fi
 }
 \def\sphinxcolorblend#1{\gdef\spx@colorblendparam{{#1}}\spx@table@hackCT@colorblend}
-% Either xcolor.sty exists on user system and has been loaded by sphinx.sty,
-% or it does not exist, so we can use \@ifpackageloaded without delaying.
-\@ifpackageloaded{xcolor}%
-  {}%
-  {\def\sphinxcolorblend#1{%
-\PackageWarning{sphinx}{This table uses \string\sphinxcolorblend\space
-  but xcolor is not in\MessageBreak
-  the TeX/LaTeX installation, the command will be\MessageBreak
-  ignored in this and the next tables}%
-   \global\let\sphinxcolorblend\@gobble
-   \sphinxbuildwarning{colorblend}%
-   }%
-  }
 
 
 %%%%%%%%%%%%%%%%%%
@@ -564,7 +559,7 @@
 % 99% or use case.  Or perhaps some trick with storing in a \vbox and recovering
 % via some \vsplit but this becomes complicated... perhaps in future.
 %
-% In passing we obtain baseline alignements across rows (only if
+% In passing we obtain baseline alignments across rows (only if
 % \arraystretch is 1, as LaTeX's does not obey \arraystretch in "p"
 % multi-line contents, only first and last line...)
 %

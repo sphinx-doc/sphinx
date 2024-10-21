@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u0422\u0440\u0430\u0436\u0438",
         "Hide Search Matches": "",
         "Index": "\u0418\u043d\u0434\u0435\u043a\u0441",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "",
@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "\u041f\u0440\u0435\u0442\u0440\u0430\u0433\u0430",
         "Search Page": "",
         "Search Results": "\u0420\u0435\u0437\u0443\u043b\u0442\u0430\u0442\u0438 \u043f\u0440\u0435\u0442\u0440\u0430\u0433\u0435",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "",
         "Searching": "\u041f\u0440\u0435\u0442\u0440\u0430\u0436\u0443\u0458\u0435 \u0441\u0435",
         "Searching for multiple words only shows matches that contain\n    all words.": "",
