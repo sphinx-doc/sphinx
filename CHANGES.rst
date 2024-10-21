@@ -87,7 +87,7 @@ Bugs fixed
   file URL (user-defined base URL of an intersphinx project are left untouched
   even if they end with double forward slashes).
   Patch by Bénédikt Tran.
-* #12811: Bail on escape key press if focus is on anything (other than a link)
+* #12811: Stop gobbling escape key
 
 Testing
 -------
