@@ -133,7 +133,7 @@ def test_format_signature(app):
         return None
 
     def skip_member(app, what, name, obj, skip, options):
-        if name in ('__special1__', '__special2__'):
+        if name in {'__special1__', '__special2__'}:
             return skip
         if name.startswith('__'):
             return True

@@ -569,17 +569,17 @@ See the documentation on :ref:`intl` for details.
 
 .. confval:: locale_dirs
    :type: :code-py:`list[str]`
-   :default: :code-py:`['locale']`
+   :default: :code-py:`['locales']`
 
    Directories in which to search for additional message catalogs
    (see :confval:`language`), relative to the source directory.
    The directories on this path are searched by the :mod:`gettext` module.
 
    Internal messages are fetched from a text domain of ``sphinx``;
-   so if you add the directory :file:`./locale` to this setting,
+   so if you add the directory :file:`./locales` to this setting,
    the message catalogs
    (compiled from ``.po`` format using :program:`msgfmt`)
-   must be in :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.
+   must be in :file:`./locales/{language}/LC_MESSAGES/sphinx.mo`.
    The text domain of individual documents
    depends on :confval:`gettext_compact`.
 

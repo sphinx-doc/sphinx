@@ -41,7 +41,7 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
         )
 
     with NamedTemporaryFile(
-        'w', suffix='.log', prefix='sphinx-err-', delete=False
+        'w', encoding='utf-8', suffix='.log', prefix='sphinx-err-', delete=False
     ) as f:
         f.write(f"""\
 # Platform:         {sys.platform}; ({platform.platform()})

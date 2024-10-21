@@ -299,10 +299,10 @@ def test_signature_annotations():
 
     # optional union
     sig = inspect.signature(mod.f20)
-    assert stringify_signature(sig) in (
+    assert stringify_signature(sig) in {
         '() -> int | str | None',
         '() -> str | int | None',
-    )
+    }
 
     # Any
     sig = inspect.signature(mod.f14)

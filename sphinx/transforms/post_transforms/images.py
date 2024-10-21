@@ -61,7 +61,7 @@ class ImageDownloader(BaseImageConverter):
             basename = os.path.basename(node['uri'])
             if '?' in basename:
                 basename = basename.split('?')[0]
-            if basename == '' or len(basename) > MAX_FILENAME_LEN:
+            if not basename or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
                 basename = (
                     sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
@@ -109,7 +109,7 @@ class ImageDownloader(BaseImageConverter):
         self.app.env.original_image_uri[str_path] = node['uri']
 
         mimetype = guess_mimetype(path, default='*')
-        if mimetype != '*' and path.suffix == '':
+        if mimetype != '*' and not path.suffix:
             # append a suffix if URI does not contain suffix
             ext = get_image_extension(mimetype) or ''
             with_ext = path.with_name(path.name + ext)

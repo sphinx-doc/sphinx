@@ -316,9 +316,9 @@ class Sphinx:
                 catalog.write_mo(self.config.language,
                                  self.config.gettext_allow_fuzzy_translations)
 
-        locale_dirs: list[str | None] = list(repo.locale_dirs)
+        locale_dirs: list[_StrPath | None] = list(repo.locale_dirs)
         locale_dirs += [None]
-        locale_dirs += [path.join(package_dir, 'locale')]
+        locale_dirs += [_StrPath(package_dir, 'locale')]
 
         self.translator, has_translation = locale.init(locale_dirs, self.config.language)
         if has_translation or self.config.language == 'en':
@@ -1586,7 +1586,7 @@ class Sphinx:
         logger.debug('[app] adding environment collector: %r', collector)
         collector().enable(self)
 
-    def add_html_theme(self, name: str, theme_path: str) -> None:
+    def add_html_theme(self, name: str, theme_path: str | os.PathLike[str]) -> None:
         """Register a HTML Theme.
 
         The *name* is a name of theme, and *theme_path* is a full path to the
@@ -1673,7 +1673,7 @@ class Sphinx:
 
         .. versionadded: 4.1
         """
-        if policy not in ('always', 'per_page'):
+        if policy not in {'always', 'per_page'}:
             raise ValueError('policy %s is not supported' % policy)
         self.registry.html_assets_policy = policy
 

@@ -246,7 +246,7 @@ class ReferencesResolver(SphinxPostTransform):
             return
         elif domain and typ in domain.dangling_warnings:
             msg = domain.dangling_warnings[typ] % {'target': target}
-        elif node.get('refdomain', 'std') not in ('', 'std'):
+        elif node.get('refdomain', 'std') not in {'', 'std'}:
             msg = __('%s:%s reference target not found: %s') % (
                 node['refdomain'],
                 typ,

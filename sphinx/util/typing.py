@@ -295,11 +295,14 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             )
         elif isinstance(cls, NewType):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
-        elif isinstance(cls, types.UnionType):
+        elif isinstance(cls, types.UnionType) or (
+            isgenericalias(cls) and cls_module_is_typing and cls.__origin__ is Union
+        ):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
+            # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
-        elif cls.__module__ in ('__builtin__', 'builtins'):
+        elif cls.__module__ in {'__builtin__', 'builtins'}:
             if hasattr(cls, '__args__'):
                 if not cls.__args__:  # Empty tuple, list, ...
                     return rf':py:class:`{cls.__name__}`\ [{cls.__args__!r}]'
@@ -309,15 +312,11 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 )
                 return rf':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             return f':py:class:`{cls.__name__}`'
-        elif isgenericalias(cls) and cls_module_is_typing and cls.__origin__ is Union:
-            # *cls* is defined in ``typing``, and thus ``__args__`` must exist
-            return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif isgenericalias(cls):
-            if isinstance(cls.__origin__, typing._SpecialForm):
-                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard; TypeIs
-                # Required/NotRequired
-                text = restify(cls.__origin__, mode)
-            elif cls.__name__:
+            if cls.__name__ and not isinstance(cls.__origin__, typing._SpecialForm):
+                # Represent generic aliases as the classes in ``typing`` rather
+                # than the underlying aliased classes,
+                # e.g. ``~typing.Tuple`` instead of ``tuple``.
                 text = f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
             else:
                 text = restify(cls.__origin__, mode)

@@ -365,7 +365,7 @@ def test_toc_all_references_should_exist_pep420_enabled(apidoc):
     found_refs = []
     missing_files = []
     for ref in refs:
-        if ref and ref[0] in (':', '#'):
+        if ref and ref[0] in {':', '#'}:
             continue
         found_refs.append(ref)
         filename = f'{ref}.rst'
@@ -396,7 +396,7 @@ def test_toc_all_references_should_exist_pep420_disabled(apidoc):
     found_refs = []
     missing_files = []
     for ref in refs:
-        if ref and ref[0] in (':', '#'):
+        if ref and ref[0] in {':', '#'}:
             continue
         filename = f'{ref}.rst'
         found_refs.append(ref)

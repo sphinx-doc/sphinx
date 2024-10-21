@@ -73,7 +73,7 @@ class KeyboardTransform(SphinxPostTransform):
                     pass
 
     def is_multiwords_key(self, parts: list[str]) -> bool:
-        if len(parts) >= 3 and parts[1].strip() == '':
+        if len(parts) >= 3 and not parts[1].strip():
             name = parts[0].lower(), parts[2].lower()
             return name in self.multiwords_keys
         else:

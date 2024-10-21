@@ -714,12 +714,16 @@ class PythonDomain(Domain):
                                          synopsis, platform, deprecated)
 
     def clear_doc(self, docname: str) -> None:
-        for fullname, obj in list(self.objects.items()):
-            if obj.docname == docname:
-                del self.objects[fullname]
-        for modname, mod in list(self.modules.items()):
-            if mod.docname == docname:
-                del self.modules[modname]
+        to_remove = [
+            fullname for fullname, obj in self.objects.items() if obj.docname == docname
+        ]
+        for fullname in to_remove:
+            del self.objects[fullname]
+        to_remove = [
+            modname for modname, mod in self.modules.items() if mod.docname == docname
+        ]
+        for fullname in to_remove:
+            del self.modules[fullname]
 
     def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         # XXX check duplicates?
@@ -913,9 +917,9 @@ def builtin_resolver(app: Sphinx, env: BuildEnvironment,
 
     if node.get('refdomain') != 'py':
         return None
-    elif node.get('reftype') in ('class', 'obj') and node.get('reftarget') == 'None':
+    elif node.get('reftype') in {'class', 'obj'} and node.get('reftarget') == 'None':
         return contnode
-    elif node.get('reftype') in ('class', 'obj', 'exc'):
+    elif node.get('reftype') in {'class', 'obj', 'exc'}:
         reftarget = node.get('reftarget')
         if inspect.isclass(getattr(builtins, reftarget, None)):
             # built-in class

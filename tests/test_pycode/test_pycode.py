@@ -40,7 +40,7 @@ def test_ModuleAnalyzer_for_file():
 def test_ModuleAnalyzer_for_module(rootdir):
     analyzer = ModuleAnalyzer.for_module('sphinx')
     assert analyzer.modname == 'sphinx'
-    assert analyzer.srcname in (SPHINX_MODULE_PATH, os.path.abspath(SPHINX_MODULE_PATH))
+    assert analyzer.srcname in {SPHINX_MODULE_PATH, os.path.abspath(SPHINX_MODULE_PATH)}
 
     saved_path = sys.path.copy()
     sys.path.insert(0, str(rootdir / 'test-pycode'))

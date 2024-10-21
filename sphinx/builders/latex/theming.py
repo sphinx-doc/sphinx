@@ -55,7 +55,7 @@ class BuiltInTheme(Theme):
         else:
             self.docclass = config.latex_docclass.get('manual', 'report')
 
-        if name in ('manual', 'howto'):
+        if name in {'manual', 'howto'}:
             self.wrapperclass = 'sphinx' + name
         else:
             self.wrapperclass = name

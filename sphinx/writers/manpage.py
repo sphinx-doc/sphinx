@@ -259,7 +259,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
     # overwritten -- handle footnotes rubric
     def visit_rubric(self, node: Element) -> None:
         self.ensure_eol()
-        if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
+        if len(node) == 1 and node.astext() in {'Footnotes', _('Footnotes')}:
             self.body.append('.SH ' + self.deunicode(node.astext()).upper() + '\n')
             raise nodes.SkipNode
         self.body.append('.sp\n')

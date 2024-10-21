@@ -29,7 +29,7 @@ def test_process_docstring(app):
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_process_docstring_for_nondatadescriptor(app):
     def on_process_docstring(app, what, name, obj, options, lines):
-        raise
+        raise RuntimeError
 
     app.connect('autodoc-process-docstring', on_process_docstring)
 

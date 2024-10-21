@@ -6,6 +6,7 @@ import dataclasses
 import functools
 import html
 import json
+import os
 import pickle
 import re
 from importlib import import_module
@@ -473,11 +474,15 @@ class IndexBuilder:
             wordnames.intersection_update(docnames)
 
     def feed(
-        self, docname: str, filename: str, title: str, doctree: nodes.document
+        self,
+        docname: str,
+        filename: str | os.PathLike[str],
+        title: str,
+        doctree: nodes.document,
     ) -> None:
         """Feed a doctree to the index."""
         self._titles[docname] = title
-        self._filenames[docname] = filename
+        self._filenames[docname] = os.fspath(filename)
 
         word_store = self._word_collector(doctree)
 

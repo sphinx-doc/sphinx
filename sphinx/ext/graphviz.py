@@ -325,7 +325,7 @@ def render_dot_html(self: HTML5Translator, node: graphviz, code: str, options: d
                     ) -> tuple[str, str]:
     format = self.builder.config.graphviz_output_format
     try:
-        if format not in ('png', 'svg'):
+        if format not in {'png', 'svg'}:
             raise GraphvizError(__("graphviz_output_format must be one of 'png', "
                                    "'svg', but is %r") % format)
         fname, outfn = render_dot(self, code, options, format, prefix, filename)

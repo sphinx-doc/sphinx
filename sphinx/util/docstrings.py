@@ -20,7 +20,7 @@ def separate_metadata(s: str | None) -> tuple[str | None, dict[str, str]]:
         return s, metadata
 
     for line in prepare_docstring(s):
-        if line.strip() == '':
+        if not line.strip():
             in_other_element = False
             lines.append(line)
         else:
