@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from sphinx.ext.linkcode import add_linkcode_domain
+
 sys.path.insert(0, str(Path.cwd().resolve()))
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
@@ -25,4 +27,4 @@ if 'test_linkcode' in tags:
             raise AssertionError()
 
     def setup(app):
-        app.add_linkcode_domain("rst", ["fullname"])
+        add_linkcode_domain("rst", ["fullname"])

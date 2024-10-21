@@ -50,13 +50,20 @@ Configuration
           filename = info['module'].replace('.', '/')
           return "https://somesite/sourcerepo/%s.py" % filename
 
-   Support for other domains can be added by extensions with
-   :py:meth:`.Sphinx.add_linkcode_domain()`.
-   For example, a Sphinx extension that adds support for the ``php`` domain
-   could use the following code to add support for the ``php`` domain
-   in :mod:`~sphinx.ext.linkcode`:
 
-   .. code-block:: python
+Third-party domains
+-------------------
 
-      def setup(app):
-          app.add_linkcode_domain('php', ['namespace', 'class', 'fullname'])
+Support for other domains can be added by extensions with
+:py:func:`.add_linkcode_domain()`.
+For example, a Sphinx extension that provides a ``php`` domain
+could use the following code to support :mod:`~sphinx.ext.linkcode`:
+
+.. code-block:: python
+
+   from sphinx.ext.linkcode import add_linkcode_domain
+
+   def setup(app):
+       add_linkcode_domain('php', ['namespace', 'class', 'fullname'])
+
+.. autofunction:: add_linkcode_domain
