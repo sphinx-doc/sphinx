@@ -3,7 +3,6 @@
 import time
 from collections.abc import Callable
 from io import StringIO
-from os import path
 from pathlib import Path
 from typing import Any
 
@@ -260,10 +259,7 @@ def test_extensions(tmp_path):
 def test_exits_when_existing_confpy(monkeypatch):
     # The code detects existing conf.py with path.is_file()
     # so we mock it as True with pytest's monkeypatch
-    def mock_isfile(path):
-        return True
-
-    monkeypatch.setattr(path, 'isfile', mock_isfile)
+    monkeypatch.setattr('os.path.isfile', lambda path: True)
 
     qs.term_input = mock_input({
         'Please enter a new root path (or just Enter to exit)': '',
