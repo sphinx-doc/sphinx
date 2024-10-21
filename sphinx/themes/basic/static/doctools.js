@@ -104,7 +104,7 @@ const Documentation = {
       return;
 
     document.addEventListener("keydown", (event) => {
-      // bail if browser focus is on anything but a link
+      // bail if browser focus is on anything but a link (or the body)
       const focusEl = document.activeElement;
       if (focusEl && (focusEl !== document.body || focusEl.tagName !== "A")) return;
       // bail with special keys
