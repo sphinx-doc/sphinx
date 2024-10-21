@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-danish_stopwords = parse_stop_word('''
+danish_stopwords = parse_stop_word("""
 | source: https://snowball.tartarus.org/algorithms/danish/stop.txt
 og           | and
 i            | in
@@ -104,7 +102,7 @@ været        | be
 thi          | for (conj)
 jer          | you
 sådan        | such, like this/like that
-''')
+""")
 
 
 class SearchDanish(SearchLanguage):

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import sys
 import time
 import traceback
 import types
 import warnings
+from contextlib import chdir
 from os import getenv, path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
@@ -15,11 +15,6 @@ from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
 from sphinx.util.osutil import fs_encoding
-
-if sys.version_info >= (3, 11):
-    from contextlib import chdir
-else:
-    from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
     import os
@@ -271,7 +266,7 @@ class Config:
         'smartquotes': _Opt(True, 'env', ()),
         'smartquotes_action': _Opt('qDe', 'env', ()),
         'smartquotes_excludes': _Opt(
-            {'languages': ['ja'], 'builders': ['man', 'text']}, 'env', ()),
+            {'languages': ['ja', 'zh_CN', 'zh_TW'], 'builders': ['man', 'text']}, 'env', ()),
         'option_emphasise_placeholders': _Opt(False, 'env', ()),
     }
 
@@ -619,28 +614,55 @@ def init_numfig_format(app: Sphinx, config: Config) -> None:
     config.numfig_format = numfig_format
 
 
+def evaluate_copyright_placeholders(_app: Sphinx, config: Config) -> None:
+    """Replace copyright year placeholders (%Y) with the current year."""
+    replace_yr = str(time.localtime().tm_year)
+    for k in ('copyright', 'epub_copyright'):
+        if k in config:
+            value: str | Sequence[str] = config[k]
+            if isinstance(value, str):
+                if '%Y' in value:
+                    config[k] = value.replace('%Y', replace_yr)
+            else:
+                if any('%Y' in line for line in value):
+                    items = (line.replace('%Y', replace_yr) for line in value)
+                    config[k] = type(value)(items)  # type: ignore[call-arg]
+
+
 def correct_copyright_year(_app: Sphinx, config: Config) -> None:
     """Correct values of copyright year that are not coherent with
     the SOURCE_DATE_EPOCH environment variable (if set)
 
     See https://reproducible-builds.org/specs/source-date-epoch/
     """
-    if (source_date_epoch := getenv('SOURCE_DATE_EPOCH')) is None:
+    if source_date_epoch := int(getenv('SOURCE_DATE_EPOCH', '0')):
+        source_date_epoch_year = time.gmtime(source_date_epoch).tm_year
+    else:
         return
 
-    source_date_epoch_year = str(time.gmtime(int(source_date_epoch)).tm_year)
+    # If the current year is the replacement year, there's no work to do.
+    # We also skip replacement years that are in the future.
+    current_year = time.localtime().tm_year
+    if current_year <= source_date_epoch_year:
+        return
 
+    current_yr = str(current_year)
+    replace_yr = str(source_date_epoch_year)
     for k in ('copyright', 'epub_copyright'):
         if k in config:
             value: str | Sequence[str] = config[k]
             if isinstance(value, str):
-                config[k] = _substitute_copyright_year(value, source_date_epoch_year)
+                config[k] = _substitute_copyright_year(value, current_yr, replace_yr)
             else:
-                items = (_substitute_copyright_year(x, source_date_epoch_year) for x in value)
+                items = (
+                    _substitute_copyright_year(x, current_yr, replace_yr) for x in value
+                )
                 config[k] = type(value)(items)  # type: ignore[call-arg]
 
 
-def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
+def _substitute_copyright_year(
+    copyright_line: str, current_year: str, replace_year: str
+) -> str:
     """Replace the year in a single copyright line.
 
     Legal formats are:
@@ -648,6 +670,7 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     * ``YYYY``
     * ``YYYY,``
     * ``YYYY ``
+    * ``YYYY-YYYY``
     * ``YYYY-YYYY,``
     * ``YYYY-YYYY ``
 
@@ -656,13 +679,17 @@ def _substitute_copyright_year(copyright_line: str, replace_year: str) -> str:
     if len(copyright_line) < 4 or not copyright_line[:4].isdigit():
         return copyright_line
 
-    if copyright_line[4:5] in {'', ' ', ','}:
+    if copyright_line[:4] == current_year and copyright_line[4:5] in {'', ' ', ','}:
         return replace_year + copyright_line[4:]
 
-    if copyright_line[4] != '-':
+    if copyright_line[4:5] != '-':
         return copyright_line
 
-    if copyright_line[5:9].isdigit() and copyright_line[9:10] in {'', ' ', ','}:
+    if (
+        copyright_line[5:9].isdigit()
+        and copyright_line[5:9] == current_year
+        and copyright_line[9:10] in {'', ' ', ','}
+    ):
         return copyright_line[:5] + replace_year + copyright_line[9:]
 
     return copyright_line
@@ -758,6 +785,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('config-inited', convert_source_suffix, priority=800)
     app.connect('config-inited', convert_highlight_options, priority=800)
     app.connect('config-inited', init_numfig_format, priority=800)
+    app.connect('config-inited', evaluate_copyright_placeholders, priority=795)
     app.connect('config-inited', correct_copyright_year, priority=800)
     app.connect('config-inited', check_confval_types, priority=800)
     app.connect('config-inited', check_primary_domain, priority=800)

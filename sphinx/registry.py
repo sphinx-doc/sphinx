@@ -17,9 +17,11 @@ from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.logging import prefixed_warnings
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Callable, Iterator, Sequence
 
     from docutils import nodes
@@ -55,7 +57,7 @@ EXTENSION_BLACKLIST = {
 class SphinxComponentRegistry:
     def __init__(self) -> None:
         #: special attrgetter for autodoc; class object -> attrgetter
-        self.autodoc_attrgettrs: dict[type, Callable[[Any, str, Any], Any]] = {}
+        self.autodoc_attrgetters: dict[type, Callable[[Any, str, Any], Any]] = {}
 
         #: builders; a dict of builder name -> builder class
         self.builders: dict[str, type[Builder]] = {}
@@ -100,7 +102,7 @@ class SphinxComponentRegistry:
         self.html_assets_policy: str = 'per_page'
 
         #: HTML themes
-        self.html_themes: dict[str, str] = {}
+        self.html_themes: dict[str, _StrPath] = {}
 
         #: js_files; list of JS paths or URLs
         self.js_files: list[tuple[str | None, dict[str, Any]]] = []
@@ -113,7 +115,7 @@ class SphinxComponentRegistry:
         #: post transforms; list of transforms
         self.post_transforms: list[type[Transform]] = []
 
-        #: source paresrs; file type -> parser class
+        #: source parsers; file type -> parser class
         self.source_parsers: dict[str, type[Parser]] = {}
 
         #: source suffix: suffix -> file type
@@ -131,6 +133,10 @@ class SphinxComponentRegistry:
 
         # private cache of Docutils Publishers (file type -> publisher object)
         self.publishers: dict[str, Publisher] = {}
+
+    @property
+    def autodoc_attrgettrs(self) -> dict[type, Callable[[Any, str, Any], Any]]:
+        return self.autodoc_attrgetters
 
     def add_builder(self, builder: type[Builder], override: bool = False) -> None:
         logger.debug('[app] adding builder: %r', builder)
@@ -377,7 +383,7 @@ class SphinxComponentRegistry:
 
     def add_autodoc_attrgetter(self, typ: type,
                                attrgetter: Callable[[Any, str, Any], Any]) -> None:
-        self.autodoc_attrgettrs[typ] = attrgetter
+        self.autodoc_attrgetters[typ] = attrgetter
 
     def add_css_files(self, filename: str, **attributes: Any) -> None:
         self.css_files.append((filename, attributes))
@@ -429,8 +435,8 @@ class SphinxComponentRegistry:
         if block_renderers is not None:
             self.html_block_math_renderers[name] = block_renderers
 
-    def add_html_theme(self, name: str, theme_path: str) -> None:
-        self.html_themes[name] = theme_path
+    def add_html_theme(self, name: str, theme_path: str | os.PathLike[str]) -> None:
+        self.html_themes[name] = _StrPath(theme_path)
 
     def load_extension(self, app: Sphinx, extname: str) -> None:
         """Load a Sphinx extension."""

@@ -37,10 +37,7 @@ def test_sectioning(app):
     doctree = app.env.get_doctree('only')
     app.env.apply_post_transforms(doctree, 'only')
 
-    parts = [
-        getsects(n)
-        for n in [_n for _n in doctree.children if isinstance(_n, nodes.section)]
-    ]
+    parts = [getsects(n) for n in doctree.children if isinstance(n, nodes.section)]
     for i, s in enumerate(parts):
         testsects(str(i + 1) + '.', s, 4)
     actual_headings = '\n'.join(p[0] for p in parts)

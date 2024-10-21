@@ -2,6 +2,8 @@
 
 import datetime
 import os
+import time
+from pathlib import Path
 
 import babel
 import pytest
@@ -17,16 +19,16 @@ def test_catalog_info_for_file_and_path():
     cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
     assert cat.po_file == 'domain.po'
     assert cat.mo_file == 'domain.mo'
-    assert cat.po_path == os.path.join('path', 'domain.po')
-    assert cat.mo_path == os.path.join('path', 'domain.mo')
+    assert cat.po_path == str(Path('path', 'domain.po'))
+    assert cat.mo_path == str(Path('path', 'domain.mo'))
 
 
 def test_catalog_info_for_sub_domain_file_and_path():
     cat = i18n.CatalogInfo('path', 'sub/domain', 'utf-8')
     assert cat.po_file == 'sub/domain.po'
     assert cat.mo_file == 'sub/domain.mo'
-    assert cat.po_path == os.path.join('path', 'sub/domain.po')
-    assert cat.mo_path == os.path.join('path', 'sub/domain.mo')
+    assert cat.po_path == str(Path('path', 'sub', 'domain.po'))
+    assert cat.mo_path == str(Path('path', 'sub', 'domain.mo'))
 
 
 def test_catalog_outdated(tmp_path):
@@ -47,8 +49,9 @@ def test_catalog_write_mo(tmp_path):
     (tmp_path / 'test.po').write_text('#', encoding='utf8')
     cat = i18n.CatalogInfo(tmp_path, 'test', 'utf-8')
     cat.write_mo('en')
-    assert os.path.exists(cat.mo_path)
-    with open(cat.mo_path, 'rb') as f:
+    mo_path = Path(cat.mo_path)
+    assert mo_path.exists()
+    with open(mo_path, 'rb') as f:
         assert read_mo(f) is not None
 
 
@@ -91,6 +94,24 @@ def test_format_date():
     assert i18n.format_date(format, date=datet, language='en') == 'UTC'
     format = '%z'
     assert i18n.format_date(format, date=datet, language='en') == '+0000'
+
+
+def test_format_date_timezone():
+    dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.UTC)
+    if time.localtime(dt.timestamp()).tm_gmtoff == 0:
+        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101
+
+    fmt = '%Y-%m-%d %H:%M:%S'
+
+    iso_gmt = dt.isoformat(' ').split('+')[0]
+    fd_gmt = i18n.format_date(fmt, date=dt, language='en', local_time=False)
+    assert fd_gmt == '2016-08-07 05:11:17'
+    assert fd_gmt == iso_gmt
+
+    iso_local = dt.astimezone().isoformat(' ').split('+')[0]
+    fd_local = i18n.format_date(fmt, date=dt, language='en', local_time=True)
+    assert fd_local == iso_local
+    assert fd_local != fd_gmt
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -179,13 +200,13 @@ def test_CatalogRepository(tmp_path):
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # no languages
-    repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # unknown locale_dirs
-    repo = i18n.CatalogRepository(tmp_path, ['loc3'], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, ['loc3'], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []
 
     # no locale_dirs
-    repo = i18n.CatalogRepository(tmp_path, [], None, 'utf-8')
+    repo = i18n.CatalogRepository(tmp_path, [], '', 'utf-8')
     assert sorted(c.domain for c in repo.catalogs) == []

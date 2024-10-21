@@ -10,8 +10,9 @@ from __future__ import annotations
 import functools
 import operator
 import re
+import sys
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, ClassVar, NewType, TypeVar
+from typing import TYPE_CHECKING, Any, NewType, TypeVar
 
 from docutils.statemachine import StringList
 
@@ -42,10 +43,18 @@ from sphinx.util.typing import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType
+    from typing import ClassVar, Literal, TypeAlias
 
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc.directive import DocumenterBridge
+
+    _AutodocObjType = Literal[
+        'module', 'class', 'exception', 'function', 'method', 'attribute'
+    ]
+    _AutodocProcessDocstringListener: TypeAlias = Callable[
+        [Sphinx, _AutodocObjType, str, Any, dict[str, bool], list[str]], None
+    ]
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +107,7 @@ SLOTSATTR = object()
 
 def members_option(arg: Any) -> object | list[str]:
     """Used to convert the :members: option to auto directives."""
-    if arg in (None, True):
+    if arg in {None, True}:
         return ALL
     elif arg is False:
         return None
@@ -108,14 +117,14 @@ def members_option(arg: Any) -> object | list[str]:
 
 def exclude_members_option(arg: Any) -> object | set[str]:
     """Used to convert the :exclude-members: option."""
-    if arg in (None, True):
+    if arg in {None, True}:
         return EMPTY
     return {x.strip() for x in arg.split(',') if x.strip()}
 
 
 def inherited_members_option(arg: Any) -> set[str]:
     """Used to convert the :inherited-members: option to auto directives."""
-    if arg in (None, True):
+    if arg in {None, True}:
         return {'object'}
     elif arg:
         return {x.strip() for x in arg.split(',')}
@@ -125,9 +134,9 @@ def inherited_members_option(arg: Any) -> set[str]:
 
 def member_order_option(arg: Any) -> str | None:
     """Used to convert the :member-order: option to auto directives."""
-    if arg in (None, True):
+    if arg in {None, True}:
         return None
-    elif arg in ('alphabetical', 'bysource', 'groupwise'):
+    elif arg in {'alphabetical', 'bysource', 'groupwise'}:
         return arg
     else:
         raise ValueError(__('invalid value for member-order option: %s') % arg)
@@ -135,7 +144,7 @@ def member_order_option(arg: Any) -> str | None:
 
 def class_doc_from_option(arg: Any) -> str | None:
     """Used to convert the :class-doc-from: option to autoclass directives."""
-    if arg in ('both', 'class', 'init'):
+    if arg in {'both', 'class', 'init'}:
         return arg
     else:
         raise ValueError(__('invalid value for class-doc-from option: %s') % arg)
@@ -145,7 +154,7 @@ SUPPRESS = object()
 
 
 def annotation_option(arg: Any) -> Any:
-    if arg in (None, True):
+    if arg in {None, True}:
         # suppress showing the representation of the object
         return SUPPRESS
     else:
@@ -169,15 +178,18 @@ def merge_members_option(options: dict) -> None:
 
     members = options.setdefault('members', [])
     for key in ('private-members', 'special-members'):
-        if key in options and options[key] not in (ALL, None):
-            for member in options[key]:
+        other_members = options.get(key)
+        if other_members is not None and other_members is not ALL:
+            for member in other_members:
                 if member not in members:
                     members.append(member)
 
 
 # Some useful event listener factories for autodoc-process-docstring.
 
-def cut_lines(pre: int, post: int = 0, what: str | None = None) -> Callable:
+def cut_lines(
+    pre: int, post: int = 0, what: Sequence[str] | None = None
+) -> _AutodocProcessDocstringListener:
     """Return a listener that removes the first *pre* and last *post*
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
@@ -185,13 +197,26 @@ def cut_lines(pre: int, post: int = 0, what: str | None = None) -> Callable:
     Use like this (e.g. in the ``setup()`` function of :file:`conf.py`)::
 
        from sphinx.ext.autodoc import cut_lines
-       app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
+       app.connect('autodoc-process-docstring', cut_lines(4, what={'module'}))
 
     This can (and should) be used in place of :confval:`automodule_skip_lines`.
     """
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
-                ) -> None:
-        if what and what_ not in what:
+    if not what:
+        what_unique: frozenset[str] = frozenset()
+    elif isinstance(what, str):  # strongly discouraged
+        what_unique = frozenset({what})
+    else:
+        what_unique = frozenset(what)
+
+    def process(
+        app: Sphinx,
+        what_: _AutodocObjType,
+        name: str,
+        obj: Any,
+        options: dict[str, bool],
+        lines: list[str],
+    ) -> None:
+        if what_unique and what_ not in what_unique:
             return
         del lines[:pre]
         if post:
@@ -210,7 +235,7 @@ def between(
     what: Sequence[str] | None = None,
     keepempty: bool = False,
     exclude: bool = False,
-) -> Callable:
+) -> _AutodocProcessDocstringListener:
     """Return a listener that either keeps, or if *exclude* is True excludes,
     lines between lines that match the *marker* regular expression.  If no line
     matches, the resulting docstring would be empty, so no change will be made
@@ -221,8 +246,14 @@ def between(
     """
     marker_re = re.compile(marker)
 
-    def process(app: Sphinx, what_: str, name: str, obj: Any, options: Any, lines: list[str],
-                ) -> None:
+    def process(
+        app: Sphinx,
+        what_: _AutodocObjType,
+        name: str,
+        obj: Any,
+        options: dict[str, bool],
+        lines: list[str],
+    ) -> None:
         if what and what_ not in what:
             return
         deleted = 0
@@ -247,7 +278,7 @@ def between(
 
 # This class is used only in ``sphinx.ext.autodoc.directive``,
 # But we define this class here to keep compatibility (see #4538)
-class Options(dict):
+class Options(dict[str, Any]):
     """A dict/attribute hybrid that returns None on nonexisting keys."""
 
     def copy(self) -> Options:
@@ -557,7 +588,7 @@ class Documenter:
                                   self.objtype, self.fullname, self.object,
                                   self.options, docstringlines)
 
-                if docstringlines and docstringlines[-1] != '':
+                if docstringlines and docstringlines[-1]:
                     # append a blank line to the end of the docstring
                     docstringlines.append('')
 
@@ -1077,7 +1108,8 @@ class ModuleDocumenter(Documenter):
                 else:
                     logger.warning(__('missing attribute mentioned in :members: option: '
                                       'module %s, attribute %s'),
-                                   safe_getattr(self.object, '__name__', '???', name),
+                                   safe_getattr(self.object, '__name__', '???'),
+                                   name,
                                    type='autodoc')
             return False, ret
 
@@ -1287,7 +1319,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in ('none', 'description'):
+        if self.config.autodoc_typehints in {'none', 'description'}:
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
@@ -1421,15 +1453,15 @@ class DecoratorDocumenter(FunctionDocumenter):
 # Types which have confusing metaclass signatures it would be best not to show.
 # These are listed by name, rather than storing the objects themselves, to avoid
 # needing to import the modules.
-_METACLASS_CALL_BLACKLIST = [
-    'enum.EnumMeta.__call__',
-]
+_METACLASS_CALL_BLACKLIST = frozenset({
+    'enum.EnumType.__call__',
+})
 
 
 # Types whose __new__ signature is a pass-through.
-_CLASS_NEW_BLACKLIST = [
+_CLASS_NEW_BLACKLIST = frozenset({
     'typing.Generic.__new__',
-]
+})
 
 
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
@@ -1513,10 +1545,15 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # This sequence is copied from inspect._signature_from_callable.
         # ValueError means that no signature could be found, so we keep going.
 
-        # First, we check the obj has a __signature__ attribute
-        if (hasattr(self.object, '__signature__') and
-                isinstance(self.object.__signature__, Signature)):
-            return None, None, self.object.__signature__
+        # First, we check if obj has a __signature__ attribute
+        if hasattr(self.object, '__signature__'):
+            object_sig = self.object.__signature__
+            if isinstance(object_sig, Signature):
+                return None, None, object_sig
+            if sys.version_info[:2] in {(3, 12), (3, 13)} and callable(object_sig):
+                # Support for enum.Enum.__signature__ in Python 3.12
+                if isinstance(object_sig_str := object_sig(), str):
+                    return None, None, inspect.signature_from_str(object_sig_str)
 
         # Next, let's see if it has an overloaded __call__ defined
         # in its metaclass
@@ -1579,7 +1616,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return None, None, None
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in ('none', 'description'):
+        if self.config.autodoc_typehints in {'none', 'description'}:
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
@@ -1761,7 +1798,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
-        if classdoc_from in ('both', 'init'):
+        if classdoc_from in {'both', 'init'}:
             __init__ = self.get_attr(self.object, '__init__', None)
             initdocstring = getdoc(__init__, self.get_attr,
                                    self.config.autodoc_inherit_docstrings,
@@ -2017,7 +2054,7 @@ class DataDocumenter(GenericAliasMixin,
             analyzer = ModuleAnalyzer.for_module(self.modname)
             analyzer.analyze()
             for (classname, attrname), annotation in analyzer.annotations.items():
-                if classname == '' and attrname not in annotations:
+                if not classname and attrname not in annotations:
                     annotations[attrname] = annotation
         except PycodeError:
             pass
@@ -2147,7 +2184,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return ret
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in ('none', 'description'):
+        if self.config.autodoc_typehints in {'none', 'description'}:
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
@@ -2504,7 +2541,7 @@ class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
         return self.objpath[-1] in annotations
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the exisitence of uninitialized instance attribute when failed to import
+        """Check the existence of uninitialized instance attribute when failed to import
         the attribute.
         """
         try:
@@ -2725,7 +2762,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
             return False
 
     def import_object(self, raiseerror: bool = False) -> bool:
-        """Check the exisitence of uninitialized instance attribute when failed to import
+        """Check the existence of uninitialized instance attribute when failed to import
         the attribute.
         """
         ret = super().import_object(raiseerror)
@@ -2798,7 +2835,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
 
 def autodoc_attrgetter(app: Sphinx, obj: Any, name: str, *defargs: Any) -> Any:
     """Alternative getattr() for types"""
-    for typ, func in app.registry.autodoc_attrgettrs.items():
+    for typ, func in app.registry.autodoc_attrgetters.items():
         if isinstance(obj, typ):
             return func(obj, name, *defargs)
 

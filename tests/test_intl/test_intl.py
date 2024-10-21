@@ -66,7 +66,7 @@ def _info(app):
 
 
 def elem_gettexts(elem):
-    return [_f for _f in [s.strip() for s in elem.itertext()] if _f]
+    return list(filter(None, map(str.strip, elem.itertext())))
 
 
 def elem_getref(elem):
@@ -368,8 +368,9 @@ def test_gettext_section(app):
     # --- section
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
     actual = read_po(app.outdir / 'section.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -380,7 +381,7 @@ def test_text_section(app):
     # --- section
     result = (app.outdir / 'section.txt').read_text(encoding='utf8')
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'section.po')
-    for expect_msg in [m for m in expect if m.id]:
+    for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.string in result
 
 
@@ -537,13 +538,15 @@ def test_gettext_toctree(app):
     # --- toctree (index.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'index.po')
     actual = read_po(app.outdir / 'index.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
     # --- toctree (toctree.rst)
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'toctree.po')
     actual = read_po(app.outdir / 'toctree.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -554,8 +557,9 @@ def test_gettext_table(app):
     # --- toctree
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
     actual = read_po(app.outdir / 'table.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -566,7 +570,7 @@ def test_text_table(app):
     # --- toctree
     result = (app.outdir / 'table.txt').read_text(encoding='utf8')
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'table.po')
-    for expect_msg in [m for m in expect if m.id]:
+    for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.string in result
 
 
@@ -595,8 +599,9 @@ def test_gettext_topic(app):
     # --- topic
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
     actual = read_po(app.outdir / 'topic.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -607,7 +612,7 @@ def test_text_topic(app):
     # --- topic
     result = (app.outdir / 'topic.txt').read_text(encoding='utf8')
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'topic.po')
-    for expect_msg in [m for m in expect if m.id]:
+    for expect_msg in (msg for msg in expect if msg.id):
         assert expect_msg.string in result
 
 
@@ -621,8 +626,9 @@ def test_gettext_definition_terms(app):
         app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'definition_terms.po'
     )
     actual = read_po(app.outdir / 'definition_terms.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -633,8 +639,9 @@ def test_gettext_glossary_terms(app):
     # --- glossary terms: regression test for #1090
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms.po')
     actual = read_po(app.outdir / 'glossary_terms.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
     warnings = app.warning.getvalue().replace(os.sep, '/')
     assert 'term not in glossary' not in warnings
 
@@ -649,8 +656,9 @@ def test_gettext_glossary_term_inconsistencies(app):
         app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'glossary_terms_inconsistency.po'
     )
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -661,10 +669,11 @@ def test_gettext_literalblock(app):
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'literalblock.po')
     actual = read_po(app.outdir / 'literalblock.pot')
-    for expect_msg in [m for m in expect if m.id]:
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
         if len(expect_msg.id.splitlines()) == 1:
             # compare translations only labels
-            assert expect_msg.id in [m.id for m in actual if m.id]
+            assert expect_msg.id in actual_msg_ids
         else:
             pass  # skip code-blocks and literalblocks
 
@@ -677,8 +686,9 @@ def test_gettext_buildr_ignores_only_directive(app):
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / _CATALOG_LOCALE / 'LC_MESSAGES' / 'only.po')
     actual = read_po(app.outdir / 'only.pot')
-    for expect_msg in [m for m in expect if m.id]:
-        assert expect_msg.id in [m.id for m in actual if m.id]
+    actual_msg_ids = {msg.id for msg in actual if msg.id}  # pyright: ignore[reportUnhashable]
+    for expect_msg in (msg for msg in expect if msg.id):
+        assert expect_msg.id in actual_msg_ids
 
 
 @sphinx_intl
@@ -809,9 +819,7 @@ class _MockUnixClock(_MockClock):
 
 
 @pytest.fixture
-def mock_time_and_i18n(
-    monkeypatch: pytest.MonkeyPatch,
-) -> tuple[pytest.MonkeyPatch, _MockClock]:
+def mock_time_and_i18n() -> tuple[pytest.MonkeyPatch, _MockClock]:
     from sphinx.util.i18n import CatalogInfo
 
     # save the 'original' definition

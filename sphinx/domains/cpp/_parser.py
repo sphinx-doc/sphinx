@@ -468,7 +468,7 @@ class DefinitionParser(BaseParser):
                     #  | typename-specifier "(" expression-list [opt] ")"
                     #  | typename-specifier braced-init-list
                     self.skip_ws()
-                    if self.current_char != '(' and self.current_char != '{':
+                    if self.current_char not in {'(', '{'}:
                         self.fail("Expecting '(' or '{' after type in cast expression.")
                 except DefinitionError as eInner:
                     self.pos = pos
@@ -483,7 +483,7 @@ class DefinitionParser(BaseParser):
         postFixes: list[ASTPostfixOp] = []
         while True:
             self.skip_ws()
-            if prefixType in ('expr', 'cast', 'typeid'):
+            if prefixType in {'expr', 'cast', 'typeid'}:
                 if self.skip_string_and_ws('['):
                     expr = self._parse_expression()
                     self.skip_ws()
@@ -967,15 +967,15 @@ class DefinitionParser(BaseParser):
         while self.match(_simple_type_specifiers_re):
             t = self.matched_text
             names.append(t)
-            if t in ('auto', 'void', 'bool',
+            if t in {'auto', 'void', 'bool',
                      'char', 'wchar_t', 'char8_t', 'char16_t', 'char32_t',
                      'int', '__int64', '__int128',
                      'float', 'double',
-                     '__float80', '_Float64x', '__float128', '_Float128'):
+                     '__float80', '_Float64x', '__float128', '_Float128'}:
                 if typ is not None:
                     self.fail(f"Can not have both {t} and {typ}.")
                 typ = t
-            elif t in ('signed', 'unsigned'):
+            elif t in {'signed', 'unsigned'}:
                 if signedness is not None:
                     self.fail(f"Can not have both {t} and {signedness}.")
                 signedness = t
@@ -987,7 +987,7 @@ class DefinitionParser(BaseParser):
                 if len(width) != 0 and width[0] != 'long':
                     self.fail(f"Can not have both {t} and {width[0]}.")
                 width.append(t)
-            elif t in ('_Imaginary', '_Complex'):
+            elif t in {'_Imaginary', '_Complex'}:
                 if modifier is not None:
                     self.fail(f"Can not have both {t} and {modifier}.")
                 modifier = t
@@ -995,9 +995,9 @@ class DefinitionParser(BaseParser):
         if len(names) == 0:
             return None
 
-        if typ in ('auto', 'void', 'bool',
+        if typ in {'auto', 'void', 'bool',
                    'wchar_t', 'char8_t', 'char16_t', 'char32_t',
-                   '__float80', '_Float64x', '__float128', '_Float128'):
+                   '__float80', '_Float64x', '__float128', '_Float128'}:
             if modifier is not None:
                 self.fail(f"Can not have both {typ} and {modifier}.")
             if signedness is not None:
@@ -1012,7 +1012,7 @@ class DefinitionParser(BaseParser):
         elif typ == 'int':
             if modifier is not None:
                 self.fail(f"Can not have both {typ} and {modifier}.")
-        elif typ in ('__int64', '__int128'):
+        elif typ in {'__int64', '__int128'}:
             if modifier is not None:
                 self.fail(f"Can not have both {typ} and {modifier}.")
             if len(width) != 0:
@@ -1211,7 +1211,7 @@ class DefinitionParser(BaseParser):
                 if volatile:
                     continue
             if not storage:
-                if outer in ('member', 'function'):
+                if outer in {'member', 'function'}:
                     if self.skip_word('static'):
                         storage = 'static'
                         continue
@@ -1225,11 +1225,11 @@ class DefinitionParser(BaseParser):
                 if self.skip_word('register'):
                     storage = 'register'
                     continue
-            if not inline and outer in ('function', 'member'):
+            if not inline and outer in {'function', 'member'}:
                 inline = self.skip_word('inline')
                 if inline:
                     continue
-            if not constexpr and outer in ('member', 'function'):
+            if not constexpr and outer in {'member', 'function'}:
                 constexpr = self.skip_word("constexpr")
                 if constexpr:
                     continue
@@ -1281,7 +1281,7 @@ class DefinitionParser(BaseParser):
 
     def _parse_decl_specs(self, outer: str, typed: bool = True) -> ASTDeclSpecs:
         if outer:
-            if outer not in ('type', 'member', 'function', 'templateParam'):
+            if outer not in {'type', 'member', 'function', 'templateParam'}:
                 raise Exception('Internal error, unknown outer "%s".' % outer)
         """
         storage-class-specifier function-specifier "constexpr"
@@ -1364,7 +1364,7 @@ class DefinitionParser(BaseParser):
                           typed: bool = True,
                           ) -> ASTDeclarator:
         # 'typed' here means 'parse return type stuff'
-        if paramMode not in ('type', 'function', 'operatorCast', 'new'):
+        if paramMode not in {'type', 'function', 'operatorCast', 'new'}:
             raise Exception(
                 "Internal error, unknown paramMode '%s'." % paramMode)
         prevErrors = []
@@ -1532,12 +1532,12 @@ class DefinitionParser(BaseParser):
         outer == operatorCast: annoying case, we should not take the params
         """
         if outer:  # always named
-            if outer not in ('type', 'member', 'function',
-                             'operatorCast', 'templateParam'):
+            if outer not in {'type', 'member', 'function',
+                             'operatorCast', 'templateParam'}:
                 raise Exception('Internal error, unknown outer "%s".' % outer)
             if outer != 'operatorCast':
                 assert named
-        if outer in ('type', 'function'):
+        if outer in {'type', 'function'}:
             # We allow type objects to just be a name.
             # Some functions don't have normal return types: constructors,
             # destructors, cast operators
@@ -1616,7 +1616,7 @@ class DefinitionParser(BaseParser):
             self, named: bool | str,
             outer: str) -> ASTTypeWithInit | ASTTemplateParamConstrainedTypeWithInit:
         if outer:
-            assert outer in ('type', 'member', 'function', 'templateParam')
+            assert outer in {'type', 'member', 'function', 'templateParam'}
         type = self._parse_type(outer=outer, named=named)
         if outer != 'templateParam':
             init = self._parse_initializer(outer=outer)
@@ -1632,7 +1632,7 @@ class DefinitionParser(BaseParser):
             # we parsed an expression, so we must have a , or a >,
             # otherwise the expression didn't get everything
             self.skip_ws()
-            if self.current_char != ',' and self.current_char != '>':
+            if self.current_char not in {',', '>'}:
                 # pretend it didn't happen
                 self.pos = pos
                 init = None
@@ -1993,12 +1993,12 @@ class DefinitionParser(BaseParser):
         return templatePrefix
 
     def parse_declaration(self, objectType: str, directiveType: str) -> ASTDeclaration:
-        if objectType not in ('class', 'union', 'function', 'member', 'type',
-                              'concept', 'enum', 'enumerator'):
+        if objectType not in {'class', 'union', 'function', 'member', 'type',
+                              'concept', 'enum', 'enumerator'}:
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
-        if directiveType not in ('class', 'struct', 'union', 'function', 'member', 'var',
+        if directiveType not in {'class', 'struct', 'union', 'function', 'member', 'var',
                                  'type', 'concept',
-                                 'enum', 'enum-struct', 'enum-class', 'enumerator'):
+                                 'enum', 'enum-struct', 'enum-class', 'enumerator'}:
             raise Exception('Internal error, unknown directiveType "%s".' % directiveType)
         visibility = None
         templatePrefix = None
@@ -2009,7 +2009,7 @@ class DefinitionParser(BaseParser):
         if self.match(_visibility_re):
             visibility = self.matched_text
 
-        if objectType in ('type', 'concept', 'member', 'function', 'class', 'union'):
+        if objectType in {'type', 'concept', 'member', 'function', 'class', 'union'}:
             templatePrefix = self._parse_template_declaration_prefix(objectType)
 
         if objectType == 'type':

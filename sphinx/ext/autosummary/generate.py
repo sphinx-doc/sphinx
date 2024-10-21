@@ -358,7 +358,7 @@ def generate_autosummary_content(
     if modname is None or qualname is None:
         modname, qualname = _split_full_qualified_name(name)
 
-    if doc.objtype in ('method', 'attribute', 'property'):
+    if doc.objtype in {'method', 'attribute', 'property'}:
         ns['class'] = qualname.rsplit('.', 1)[0]
 
     if doc.objtype == 'class':
@@ -461,7 +461,7 @@ def _get_module_attrs(name: str, members: Any) -> tuple[list[str], list[str]]:
         analyzer = ModuleAnalyzer.for_module(name)
         attr_docs = analyzer.find_attr_docs()
         for namespace, attr_name in attr_docs:
-            if namespace == '' and attr_name in members:
+            if not namespace and attr_name in members:
                 attrs.append(attr_name)
                 if not attr_name.startswith('_'):
                     public.append(attr_name)
@@ -722,9 +722,7 @@ def find_autosummary_in_lines(
 
             m = autosummary_item_re.match(line)
             if m:
-                name = m.group(1).strip()
-                if name.startswith('~'):
-                    name = name[1:]
+                name = m.group(1).strip().removeprefix('~')
                 if current_module and not name.startswith(current_module + '.'):
                     name = f'{current_module}.{name}'
                 documented.append(AutosummaryEntry(name, toctree, template, recursive))

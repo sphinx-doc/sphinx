@@ -89,7 +89,7 @@ To see an example of use of these objects, refer to
 
 .. _build-phases:
 
-Build Phases
+Build phases
 ------------
 
 One thing that is vital in order to understand extension mechanisms is the way

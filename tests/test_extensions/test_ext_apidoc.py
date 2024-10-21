@@ -54,6 +54,41 @@ def test_simple(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
+    coderoot='test-apidoc-custom-templates',
+    options=[
+        '--separate',
+        '--templatedir=tests/roots/test-apidoc-custom-templates/_templates',
+    ],
+)
+def test_custom_templates(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').is_file()
+    assert (outdir / 'index.rst').is_file()
+
+    template_dir = apidoc.coderoot / '_templates'
+    assert sorted(template_dir.iterdir()) == [
+        template_dir / 'module.rst.jinja',
+        template_dir / 'module.rst_t',
+        template_dir / 'package.rst_t',
+    ]
+
+    app = make_app('text', srcdir=outdir)
+    app.build()
+
+    builddir = outdir / '_build' / 'text'
+
+    # Assert that the legacy filename is discovered
+    with open(builddir / 'mypackage.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The legacy package template was found!' in txt
+
+    # Assert that the new filename is preferred
+    with open(builddir / 'mypackage.mymodule.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The Jinja module template was found!' in txt
+
+
+@pytest.mark.apidoc(
     coderoot='test-apidoc-pep420/a',
     options=['--implicit-namespaces'],
 )
@@ -302,7 +337,7 @@ def test_multibyte_parameters(make_app, apidoc):
     coderoot='test-root',
     options=['--ext-mathjax'],
 )
-def test_extension_parsed(make_app, apidoc):
+def test_extension_parsed(apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
 
@@ -315,7 +350,7 @@ def test_extension_parsed(make_app, apidoc):
     coderoot='test-apidoc-toc/mypackage',
     options=['--implicit-namespaces'],
 )
-def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
+def test_toc_all_references_should_exist_pep420_enabled(apidoc):
     """All references in toc should exist. This test doesn't say if
     directories with empty __init__.py and and nothing else should be
     skipped, just ensures consistency between what's referenced in the toc
@@ -330,7 +365,7 @@ def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
     found_refs = []
     missing_files = []
     for ref in refs:
-        if ref and ref[0] in (':', '#'):
+        if ref and ref[0] in {':', '#'}:
             continue
         found_refs.append(ref)
         filename = f'{ref}.rst'
@@ -346,7 +381,7 @@ def test_toc_all_references_should_exist_pep420_enabled(make_app, apidoc):
 @pytest.mark.apidoc(
     coderoot='test-apidoc-toc/mypackage',
 )
-def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
+def test_toc_all_references_should_exist_pep420_disabled(apidoc):
     """All references in toc should exist. This test doesn't say if
     directories with empty __init__.py and and nothing else should be
     skipped, just ensures consistency between what's referenced in the toc
@@ -361,7 +396,7 @@ def test_toc_all_references_should_exist_pep420_disabled(make_app, apidoc):
     found_refs = []
     missing_files = []
     for ref in refs:
-        if ref and ref[0] in (':', '#'):
+        if ref and ref[0] in {':', '#'}:
             continue
         filename = f'{ref}.rst'
         found_refs.append(ref)
@@ -394,7 +429,7 @@ def extract_toc(path):
     coderoot='test-apidoc-subpackage-in-toc',
     options=['--separate'],
 )
-def test_subpackage_in_toc(make_app, apidoc):
+def test_subpackage_in_toc(apidoc):
     """Make sure that empty subpackages with non-empty subpackages in them
     are not skipped (issue #4520)
     """

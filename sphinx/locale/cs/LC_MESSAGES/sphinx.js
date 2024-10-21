@@ -36,7 +36,12 @@ Documentation.addTranslations({
         "Search": "Vyhled\u00e1v\u00e1n\u00ed",
         "Search Page": "Vyhled\u00e1vac\u00ed str\u00e1nka",
         "Search Results": "V\u00fdsledky vyhled\u00e1v\u00e1n\u00ed",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Prohledat %(docstitle)s",
         "Searching": "Prob\u00edh\u00e1 vyhled\u00e1n\u00ed",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

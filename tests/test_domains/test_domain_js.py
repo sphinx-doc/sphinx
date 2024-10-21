@@ -102,8 +102,8 @@ def test_domain_js_xrefs(app):
 def test_domain_js_objects(app):
     app.build(force_all=True)
 
-    modules = app.env.domains['js'].data['modules']
-    objects = app.env.domains['js'].data['objects']
+    modules = app.env.domains.javascript_domain.data['modules']
+    objects = app.env.domains.javascript_domain.data['objects']
 
     assert 'module_a.submodule' in modules
     assert 'module_a.submodule' in objects
@@ -131,7 +131,7 @@ def test_domain_js_objects(app):
 @pytest.mark.sphinx('dummy', testroot='domain-js')
 def test_domain_js_find_obj(app):
     def find_obj(mod_name, prefix, obj_name, obj_type, searchmode=0):
-        return app.env.domains['js'].find_obj(
+        return app.env.domains.javascript_domain.find_obj(
             app.env, mod_name, prefix, obj_name, obj_type, searchmode
         )
 

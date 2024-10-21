@@ -1,10 +1,9 @@
 Projects using Sphinx
 =====================
 
-This is an (incomplete) alphabetic list of projects that use Sphinx or
-are experimenting with using it for their documentation.  If you like to
-be included, please mail to `the Google group
-<https://groups.google.com/forum/#!forum/sphinx-users>`_.
+This is an incomplete list of projects that use Sphinx for their documentation.
+If you would like to add a project, please `create an issue or pull request
+on GitHub <https://github.com/sphinx-doc/sphinx/>`_.
 
 I've grouped the list into sections to make it easier to find
 interesting examples.
@@ -37,7 +36,6 @@ Documentation using the alabaster theme
 * `PyCUDA <https://documen.tician.de/pycuda/>`__
 * `PyOpenCL <https://documen.tician.de/pyopencl/>`__
 * `PyLangAcq <https://pylangacq.org/>`__
-* `pytest <https://docs.pytest.org/>`__ (customized)
 * `python-apt <https://apt-team.pages.debian.net/python-apt/>`__
 * `PyVisfile <https://documen.tician.de/pyvisfile/>`__
 * `Requests <https://requests.readthedocs.io/>`__
@@ -151,8 +149,10 @@ Documentation using another builtin theme
 * `Sphinx <https://www.sphinx-doc.org/>`__ (sphinx13) :-)
 * `Valence <https://docs.valence.desire2learn.com/>`__ (haiku, customized)
 
-Documentation using sphinx_rtd_theme
-------------------------------------
+Documentation using Read the Docs Sphinx Theme
+----------------------------------------------
+
+`Read the Docs Sphinx Theme documentation <https://sphinx-rtd-theme.readthedocs.io/>`__
 
 * `Aesara (fork of Theano) <https://aesara.readthedocs.io/>`__
 * `Annotator <https://docs.annotatorjs.org/>`__
@@ -296,8 +296,10 @@ Documentation using sphinx_rtd_theme
 * `Zeek <https://docs.zeek.org/>`__
 * `Zulip <https://zulip.readthedocs.io/>`__
 
-Documentation using sphinx_bootstrap_theme
+Documentation using Sphinx Bootstrap Theme
 ------------------------------------------
+
+`Sphinx Bootstrap Theme documentation <https://ryan-roemer.github.io/sphinx-bootstrap-theme/>`__
 
 * `Bootstrap Theme <https://ryan-roemer.github.io/sphinx-bootstrap-theme/>`__
 * `C/C++ Software Development with Eclipse <https://eclipsebook.in/>`__
@@ -311,10 +313,13 @@ Documentation using sphinx_bootstrap_theme
 * `PyUblas <https://documen.tician.de/pyublas/>`__
 * `seaborn <https://seaborn.pydata.org/>`__
 
-Documentation using pydata_sphinx_theme
+Documentation using PyData Sphinx Theme
 ---------------------------------------
 
+`Pydata Sphinx Theme documentation <https://pydata-sphinx-theme.readthedocs.io/>`__
+
 * `Arviz <https://python.arviz.org/en/stable/>`__
+* `Astropy <https://docs.astropy.org/>`__
 * `Binder <https://mybinder.readthedocs.io/en/latest/>`__
 * `Bokeh <https://docs.bokeh.org/en/latest/>`__
 * `CuPy <https://docs.cupy.dev/en/stable/>`__
@@ -329,17 +334,28 @@ Documentation using pydata_sphinx_theme
 * `NetworkX <https://networkx.org/documentation/stable/>`__
 * `Numpy <https://numpy.org/doc/stable/>`__
 * `Pandas <https://pandas.pydata.org/docs/>`__
+* `PhaseFieldX <https://phasefieldx.readthedocs.io/>`__
 * `Pystra (continuation of PyRe) <https://pystra.github.io/pystra/>`__
 * `PyVista <https://docs.pyvista.org/>`__
 * `SciPy <https://docs.scipy.org/doc/scipy/>`__
+* `Seaborn <https://seaborn.pydata.org/>`__
 * `SEPAL <https://docs.sepal.io/en/latest/index.html>`__
+
+Documentation using Furo theme
+------------------------------
+
+`Furo theme documentation <https://pradyunsg.me/furo/>`__
+
+* `Furo theme <https://pradyunsg.me/furo/>`__
+* `pytest <https://docs.pytest.org/>`__
+* `Python Packaging User Guide <https://packaging.python.org/>`__
+* `Python Developer's Guide <https://devguide.python.org/>`__
 
 Documentation using a custom theme or integrated in a website
 -------------------------------------------------------------
 
 * `AIOHTTP <https://docs.aiohttp.org/>`__
 * `Apache Cassandra <https://cassandra.apache.org/doc/>`__
-* `Astropy <https://docs.astropy.org/>`__
 * `Boto 3 <https://boto3.readthedocs.io/>`__
 * `CakePHP <https://book.cakephp.org/>`__
 * `Ceph <https://docs.ceph.com/docs/master/>`__
@@ -392,7 +408,6 @@ Documentation using a custom theme or integrated in a website
 * `SaltStack <https://docs.saltstack.com/>`__
 * `scikit-learn <https://scikit-learn.org/stable/>`__
 * `Scrapy <https://doc.scrapy.org/>`__
-* `Seaborn <https://seaborn.pydata.org/>`__
 * `Selenium <https://docs.seleniumhq.org/docs/>`__
 * `Self <https://www.selflanguage.org/>`__
 * `Substance D <https://docs.pylonsproject.org/projects/substanced/>`__

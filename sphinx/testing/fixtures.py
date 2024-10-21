@@ -86,7 +86,7 @@ def app_params(
     kwargs: dict[str, Any] = {}
 
     # to avoid stacking positional args
-    for info in reversed(list(request.node.iter_markers("sphinx"))):
+    for info in reversed(list(request.node.iter_markers('sphinx'))):
         pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
@@ -203,6 +203,7 @@ def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp
             app_ = SphinxTestApp(*args, **kwargs)
         apps.append(app_)
         return app_
+
     yield make
 
     sys.path[:] = syspath

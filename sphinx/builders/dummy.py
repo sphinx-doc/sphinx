@@ -29,9 +29,6 @@ class DummyBuilder(Builder):
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
         return ''
 
-    def prepare_writing(self, docnames: set[str]) -> None:
-        pass
-
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
         pass
 

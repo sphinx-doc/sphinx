@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 from textwrap import dedent
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from docutils import frontend, nodes
@@ -21,12 +21,15 @@ from sphinx.util.nodes import (
     split_explicit_title,
 )
 
+if TYPE_CHECKING:
+    from docutils.nodes import document
 
-def _transform(doctree):
+
+def _transform(doctree) -> None:
     ApplySourceWorkaround(doctree).apply()
 
 
-def create_new_document():
+def create_new_document() -> document:
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', category=DeprecationWarning)
         # DeprecationWarning: The frontend.OptionParser class will be replaced
@@ -44,7 +47,7 @@ def _get_doctree(text):
     return document
 
 
-def assert_node_count(messages, node_type, expect_count):
+def assert_node_count(messages, node_type, expect_count) -> None:
     count = 0
     node_list = [node for node, msg in messages]
     for node in node_list:

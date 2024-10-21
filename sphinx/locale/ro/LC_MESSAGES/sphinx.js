@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "C\u0103utare",
         "Search Page": "Pagin\u0103 de C\u0103utare",
         "Search Results": "Rezultatele C\u0103ut\u0103rii",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Caut\u0103 \u00een %(docstitle)s",
         "Searching": "C\u0103utare",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

@@ -33,9 +33,10 @@ _MSG = (
 # https://docs.python.org/3/library/stdtypes.html#string-methods
 
 if sys.platform == 'win32':
+
     class _StrPath(WindowsPath):
         def replace(  # type: ignore[override]
-            self, old: str, new: str, count: int = -1, /,
+            self, old: str, new: str, count: int = -1, /
         ) -> str:
             # replace exists in both Path and str;
             # in Path it makes filesystem changes, so we use the safer str version
@@ -81,10 +82,12 @@ if sys.platform == 'win32':
         def __len__(self) -> int:
             warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
             return len(self.__str__())
+
 else:
+
     class _StrPath(PosixPath):
         def replace(  # type: ignore[override]
-            self, old: str, new: str, count: int = -1, /,
+            self, old: str, new: str, count: int = -1, /
         ) -> str:
             # replace exists in both Path and str;
             # in Path it makes filesystem changes, so we use the safer str version

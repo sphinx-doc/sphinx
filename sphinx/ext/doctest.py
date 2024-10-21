@@ -27,7 +27,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Callable, Set
 
     from docutils.nodes import Element, Node, TextElement
 
@@ -86,7 +86,7 @@ class TestDirective(SphinxDirective):
                     test = code
                 code = doctestopt_re.sub('', code)
         nodetype: type[TextElement] = nodes.literal_block
-        if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
+        if self.name in {'testsetup', 'testcleanup'} or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:
             groups = [x.strip() for x in self.arguments[0].split(',')]
@@ -105,7 +105,7 @@ class TestDirective(SphinxDirective):
             # don't try to highlight output
             node['language'] = 'none'
         node['options'] = {}
-        if self.name in ('doctest', 'testoutput') and 'options' in self.options:
+        if self.name in {'doctest', 'testoutput'} and 'options' in self.options:
             # parse doctest-like output comparison flags
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:
@@ -355,13 +355,9 @@ Doctest summary
         if self.total_failures or self.setup_failures or self.cleanup_failures:
             self.app.statuscode = 1
 
-    def write(self, build_docnames: Iterable[str] | None, updated_docnames: Sequence[str],
-              method: str = 'update') -> None:
-        if build_docnames is None:
-            build_docnames = sorted(self.env.all_docs)
-
+    def write_documents(self, docnames: Set[str]) -> None:
         logger.info(bold('running tests...'))
-        for docname in build_docnames:
+        for docname in sorted(docnames):
             # no need to resolve the doctree
             doctree = self.env.get_doctree(docname)
             self.test_doc(docname, doctree)

@@ -151,6 +151,8 @@ def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table)
 # -- autodoc integration -------------------------------------------------------
 
 class FakeApplication:
+    verbosity = 0
+
     def __init__(self) -> None:
         self.doctreedir = None
         self.events = None
@@ -754,7 +756,7 @@ class AutoLink(SphinxRole):
     """
 
     def run(self) -> tuple[list[Node], list[system_message]]:
-        pyobj_role = self.env.get_domain('py').role('obj')
+        pyobj_role = self.env.domains.python_domain.role('obj')
         assert pyobj_role is not None
         objects, errors = pyobj_role('obj', self.rawtext, self.text, self.lineno,
                                      self.inliner, self.options, self.content)

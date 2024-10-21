@@ -36,7 +36,7 @@ def test_pyfunction(app):
         '.. py:function:: func2\n'
         '   :async:\n'
     )
-    domain = app.env.get_domain('py')
+    domain = app.env.domains.python_domain
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,

@@ -4,6 +4,7 @@ import http.server
 import os
 import re
 import subprocess
+from contextlib import chdir
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
@@ -19,11 +20,6 @@ from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
 from tests.utils import http_server
-
-try:
-    from contextlib import chdir
-except ImportError:
-    from sphinx.util.osutil import _chdir as chdir
 
 STYLEFILES = [
     'article.cls',
@@ -44,7 +40,7 @@ STYLEFILES = [
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)  # NoQA: S607
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -2184,10 +2180,6 @@ def test_duplicated_labels_before_module(app):
     app.build()
     content: str = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
-    def count_label(name):
-        text = r'\phantomsection\label{\detokenize{%s}}' % name
-        return content.count(text)
-
     pattern = (
         r'\\phantomsection\\label\{\\detokenize\{index:label-(?:auto-)?\d+[a-z]*}}'
     )
@@ -2197,7 +2189,7 @@ def test_duplicated_labels_before_module(app):
     tested_labels = set()
 
     # iterate over the (explicit) labels in the corresponding index.rst
-    for rst_label_name in [
+    for rst_label_name in (
         'label_1a',
         'label_1b',
         'label_2',
@@ -2206,7 +2198,7 @@ def test_duplicated_labels_before_module(app):
         'label_auto_1b',
         'label_auto_2',
         'label_auto_3',
-    ]:
+    ):
         tex_label_name = 'index:' + rst_label_name.replace('_', '-')
         tex_label_code = r'\phantomsection\label{\detokenize{%s}}' % tex_label_name
         assert (
@@ -2230,43 +2222,71 @@ def test_one_parameter_per_line(app):
 
     # TODO: should these asserts check presence or absence of a final \sphinxparamcomma?
     # signature of 23 characters is too short to trigger one-param-per-line mark-up
-    assert '\\pysiglinewithargsret{\\sphinxbfcode{\\sphinxupquote{hello}}}' in result
+    assert (
+        '\\pysiglinewithargsret\n'
+        '{\\sphinxbfcode{\\sphinxupquote{hello}}}\n'
+        '{\\sphinxparam{' in result
+    )
 
-    assert '\\pysigwithonelineperarg{\\sphinxbfcode{\\sphinxupquote{foo}}}' in result
+    assert (
+        '\\pysigwithonelineperarg\n'
+        '{\\sphinxbfcode{\\sphinxupquote{foo}}}\n'
+        '{\\sphinxoptional{\\sphinxparam{' in result
+    )
 
     # generic_arg[T]
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_arg}}}'
-        '{\\sphinxtypeparam{\\DUrole{n}{T}}}{}{}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_arg}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # generic_foo[T]()
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_foo}}}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_foo}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # generic_bar[T](x: list[T])
     assert (
-        '\\pysigwithonelineperargwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_bar}}}'
-    ) in result
+        '\\pysigwithonelineperargwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_bar}}}\n'
+        '{\\sphinxtypeparam{' in result
+    )
 
     # generic_ret[R]() -> R
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{generic\\_ret}}}'
-        '{\\sphinxtypeparam{\\DUrole{n}{R}}}{}{{ $\\rightarrow$ R}}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{generic\\_ret}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{R}}}\n'
+        '{}\n'
+        '{{ $\\rightarrow$ R}}\n' in result
+    )
 
     # MyGenericClass[X]
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
-        '}}}\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
+        '\\sphinxbfcode{\\sphinxupquote{MyGenericClass}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{X}}}\n'
+        '{}\n'
+        '{}\n' in result
+    )
 
     # MyList[T](list[T])
     assert (
-        '\\pysiglinewithargsretwithtypelist{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ '
-        '}}}\\sphinxbfcode{\\sphinxupquote{MyList}}}'
-    ) in result
+        '\\pysiglinewithargsretwithtypelist\n'
+        '{\\sphinxbfcode{\\sphinxupquote{class\\DUrole{w}{ }}}'
+        '\\sphinxbfcode{\\sphinxupquote{MyList}}}\n'
+        '{\\sphinxtypeparam{\\DUrole{n}{T}}}\n'
+        '{\\sphinxparam{list{[}T{]}}}\n'
+        '{}\n' in result
+    )
 
 
 @pytest.mark.sphinx('latex', testroot='markup-rubric')
