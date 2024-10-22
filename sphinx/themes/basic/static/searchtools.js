@@ -547,7 +547,7 @@ const Search = {
 
         // set score for the word in each file
         recordFiles.forEach((file) => {
-          if (!scoreMap.has(file)) scoreMap.set(file, {});
+          if (!scoreMap.has(file)) scoreMap.set(file, new Map());
           scoreMap.get(file)[word] = record.score;
         });
       });
