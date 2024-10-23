@@ -68,15 +68,35 @@ def test_autodata_type_comment(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodata_GenericAlias(app):
-    actual = do_autodoc(app, 'data', 'target.genericalias.T')
+    actual = do_autodoc(app, 'data', 'target.genericalias.T3')
     assert list(actual) == [
         '',
-        '.. py:data:: T',
+        '.. py:data:: T3',
+        '   :module: target.genericalias',
+        '',
+        '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+        '',
+    ]
+
+
+@pytest.mark.sphinx('html', testroot='ext-autodoc')
+def test_autodata_GenericAlias_having_doccomment(app):
+    actual = do_autodoc(app, 'data', 'target.genericalias.T1')
+    assert list(actual) == [
+        '',
+        '.. py:data:: T1',
         '   :module: target.genericalias',
         '',
         '   A list of int',
         '',
-        '   alias of :py:class:`~typing.List`\\ [:py:class:`int`]',
+    ]
+    actual = do_autodoc(app, 'data', 'target.genericalias.T2')
+    assert list(actual) == [
+        '',
+        '.. py:data:: T2',
+        '   :module: target.genericalias',
+        '',
+        '   Another list of int.',
         '',
     ]
 
