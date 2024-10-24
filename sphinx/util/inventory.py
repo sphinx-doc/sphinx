@@ -200,6 +200,8 @@ class InventoryFile:
         def escape(string: str) -> str:
             return re.sub('\\s+', ' ', string)
 
+        potential_ambiguities: dict[str, tuple[int, str, str]] = {}
+        actual_ambiguities = set()
         with open(filename, 'wb') as f:
             # header
             f.write(
@@ -224,6 +226,31 @@ class InventoryFile:
                         uri += '#' + anchor
                     if dispname == fullname:
                         dispname = '-'
+                    if domain.name == 'std' and type in {'label', 'term'}:
+                        if uri.endswith('$'):
+                            uri = uri[:-1] + fullname
+                        # Some types require case insensitive matches; see 'Inventory.load_v2'
+                        content = prio, uri, dispname
+                        lowercase_name = fullname.lower()
+                        if lowercase_name in potential_ambiguities:
+                            if potential_ambiguities[lowercase_name] != content:
+                                actual_ambiguities.add(fullname)
+                            else:
+                                logger.debug(
+                                    __('duplicate definitions of %r found'),
+                                    fullname,
+                                    type='intersphinx',
+                                    subtype='ambiguous_definitions',
+                                )
+                        else:
+                            potential_ambiguities[lowercase_name] = content
                     entry = f'{fullname} {domain.name}:{type} {prio} {uri} {dispname}\n'
                     f.write(compressor.compress(entry.encode()))
+            for ambiguity in actual_ambiguities:
+                logger.warning(
+                    __('multiple definitions of %r found'),
+                    ambiguity,
+                    type='intersphinx',
+                    subtype='ambiguous_definitions',
+                )
             f.write(compressor.flush())
