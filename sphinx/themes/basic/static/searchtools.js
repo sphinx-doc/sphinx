@@ -514,8 +514,8 @@ const Search = {
     searchTerms.forEach((word) => {
       const files = [];
       const arr = [
-        { files: terms[word], score: Scorer.term },
-        { files: titleTerms[word], score: Scorer.title },
+        { files: terms.hasOwnProperty(word) ? terms[word] : [], score: Scorer.term },
+        { files: titleTerms.hasOwnProperty(word) ? titleTerms[word] : [], score: Scorer.title },
       ];
       // add support for partial matches
       if (word.length > 2) {
