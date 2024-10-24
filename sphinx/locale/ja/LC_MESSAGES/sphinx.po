@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 15:47+0000\n"
+"POT-Creation-Date: 2024-10-20 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: Takayuki SHIMIZUKAWA <shimizukawa@gmail.com>, 2016-2017,2019,2024\n"
 "Language-Team: Japanese (http://app.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
@@ -80,7 +80,7 @@ msgstr "このプロジェクトはSphinx v%s以降のバージョンでなけ�
 msgid "making output directory"
 msgstr "出力先ディレクトリを作成しています"
 
-#: application.py:267 registry.py:450
+#: application.py:267 registry.py:452
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "拡張機能のセットアップ中 %s:"
@@ -201,169 +201,169 @@ msgstr "%s拡張は並列書き込みに対して安全ではありません"
 msgid "doing serial %s"
 msgstr "直列で %sします"
 
-#: roles.py:205
+#: roles.py:208
 #, python-format
 msgid "Common Vulnerabilities and Exposures; CVE %s"
 msgstr ""
 
-#: roles.py:228
+#: roles.py:231
 #, python-format
 msgid "invalid CVE number %s"
 msgstr ""
 
-#: roles.py:249
+#: roles.py:253
 #, python-format
 msgid "Common Weakness Enumeration; CWE %s"
 msgstr ""
 
-#: roles.py:272
+#: roles.py:276
 #, python-format
 msgid "invalid CWE number %s"
 msgstr ""
 
-#: roles.py:293
+#: roles.py:296
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python Enhancement Proposals; PEP %s"
 
-#: roles.py:316
+#: roles.py:319
 #, python-format
 msgid "invalid PEP number %s"
 msgstr "無効なPEP番号 %s"
 
-#: roles.py:354
+#: roles.py:357
 #, python-format
 msgid "invalid RFC number %s"
 msgstr "無効なRFC番号 %s"
 
-#: registry.py:142
+#: registry.py:144
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "ビルダークラス %s には\"name\"属性がありません"
 
-#: registry.py:144
+#: registry.py:146
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "ビルダー %r (モジュール %s) がすでに登録されています"
 
-#: registry.py:157
+#: registry.py:159
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "ビルダー名 %s は登録されておらず、entry pointにもありません"
 
-#: registry.py:164
+#: registry.py:166
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "ビルダー名 %s は登録されていません"
 
-#: registry.py:171
+#: registry.py:173
 #, python-format
 msgid "domain %s already registered"
 msgstr "ドメイン %s はすでに登録されています"
 
-#: registry.py:194 registry.py:207 registry.py:218
+#: registry.py:196 registry.py:209 registry.py:220
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "ドメイン %s はまだ登録されていません"
 
-#: registry.py:198
+#: registry.py:200
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "ディレクティブ %r は既に%sドメインに登録されています"
 
-#: registry.py:210
+#: registry.py:212
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "ロール %r は既にドメイン%sに登録されています"
 
-#: registry.py:221
+#: registry.py:223
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "インデックス %r はすでに%sドメインに登録されています"
 
-#: registry.py:252
+#: registry.py:254
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "object_type %r はすでに登録されています"
 
-#: registry.py:278
+#: registry.py:280
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "classref_type %r はすでに登録されています"
 
-#: registry.py:285
+#: registry.py:287
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "source_suffix %r はすでに登録されています"
 
-#: registry.py:294
+#: registry.py:296
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "%r のsource_parserはすでに登録されています"
 
-#: registry.py:302
+#: registry.py:304
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "%s のsource_parserは登録されていません"
 
-#: registry.py:318
+#: registry.py:320
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "%r のTranslatorはすでに登録されています"
 
-#: registry.py:334
+#: registry.py:336
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "add_node() のキーワード引数は (visit, depart) の形式で関数をタプルで指定してください: %r=%r"
 
-#: registry.py:417
+#: registry.py:419
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "enumerable_node %r はすでに登録されています"
 
-#: registry.py:429
+#: registry.py:431
 #, python-format
 msgid "math renderer %s is already registered"
 msgstr "math renderer %s はすでに登録されています"
 
-#: registry.py:444
+#: registry.py:446
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "拡張 %r はSphinxのバージョン%sでSphinxに統合されています。この拡張は無視されます。"
 
-#: registry.py:455
+#: registry.py:457
 msgid "Original exception:\n"
 msgstr "元の例外:\n"
 
-#: registry.py:456
+#: registry.py:458
 #, python-format
 msgid "Could not import extension %s"
 msgstr "拡張 %s をimportできません"
 
-#: registry.py:461
+#: registry.py:463
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "拡張 %r には setup() 関数がありません。これは本当にSphinx拡張ですか？"
 
-#: registry.py:470
+#: registry.py:472
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "このプロジェクトで使われている拡張 %s はSphinx v%s 以降が必要なため、現在のバージョンではビルドできません。"
 
-#: registry.py:478
+#: registry.py:480
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
 "should return None or a metadata dictionary"
 msgstr "拡張 %r のsetup()関数が、対応していないオブジェクトを返しました。Noneまたはメタデータ辞書を返してください"
 
-#: registry.py:512
+#: registry.py:514
 #, python-format
 msgid "`None` is not a valid filetype for %r."
 msgstr ""
@@ -406,141 +406,141 @@ msgid ""
 "cannot be built with the loaded version (%s)."
 msgstr "このプロジェクトは拡張 %s の %s 以降のバージョンが必要なため、現在のバージョン(%s)ではビルドできません。"
 
-#: theming.py:121
+#: theming.py:114
 #, python-format
 msgid ""
 "Theme configuration sections other than [theme] and [options] are not "
 "supported (tried to get a value from %r)."
 msgstr ""
 
-#: theming.py:127
+#: theming.py:120
 #, python-format
 msgid "setting %s.%s occurs in none of the searched theme configs"
 msgstr "設定 %s.%s がテーマ設定にありません"
 
-#: theming.py:142
+#: theming.py:135
 #, python-format
 msgid "unsupported theme option %r given"
 msgstr "サポートされていないテーマオプション %r が指定されました"
 
-#: theming.py:215
+#: theming.py:207
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
 msgstr "テーマパス上のファイル %r は正しいzipファイルではないか、テーマを含んでいません"
 
-#: theming.py:236
+#: theming.py:228
 #, python-format
 msgid "no theme named %r found (missing theme.toml?)"
 msgstr ""
 
-#: theming.py:276
+#: theming.py:268
 #, python-format
 msgid "The %r theme has circular inheritance"
 msgstr ""
 
-#: theming.py:283
+#: theming.py:275
 #, python-format
 msgid ""
 "The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
 "are: %s"
 msgstr ""
 
-#: theming.py:290
+#: theming.py:282
 #, python-format
 msgid "The %r theme has too many ancestors"
 msgstr ""
 
-#: theming.py:318
+#: theming.py:310
 #, python-format
 msgid "no theme configuration file found in %r"
 msgstr ""
 
-#: theming.py:346 theming.py:399
+#: theming.py:335 theming.py:388
 #, python-format
 msgid "theme %r doesn't have the \"theme\" table"
 msgstr ""
 
-#: theming.py:350
+#: theming.py:339
 #, python-format
 msgid "The %r theme \"[theme]\" table is not a table"
 msgstr ""
 
-#: theming.py:354 theming.py:402
+#: theming.py:343 theming.py:391
 #, python-format
 msgid "The %r theme must define the \"theme.inherit\" setting"
 msgstr ""
 
-#: theming.py:358
+#: theming.py:347
 #, python-format
 msgid "The %r theme \"[options]\" table is not a table"
 msgstr ""
 
-#: theming.py:377
+#: theming.py:366
 #, python-format
 msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
 msgstr ""
 
-#: config.py:314
+#: config.py:309
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "conf.py が設定ディレクトリに存在しません (%s)"
 
-#: config.py:323
+#: config.py:318
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid language code. Falling back to 'en' (English)."
 msgstr "無効な設定値が見つかりました: 'language = None' 。設定を有効な言語コードに更新してください。 'en' （英語）にフォールバックしています。"
 
-#: config.py:346
+#: config.py:341
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "設定値の辞書 %r は上書きないため無視されました (%r を使って個別に設定してください)"
 
-#: config.py:355
+#: config.py:350
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "%r は設定値 %r の正しい値ではないため無視されました"
 
-#: config.py:361
+#: config.py:356
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "%r は正しい型ではないため無視されました"
 
-#: config.py:382
+#: config.py:377
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "不明な設定値 %r による上書きは無視されました"
 
-#: config.py:435
+#: config.py:430
 #, python-format
 msgid "No such config value: %r"
 msgstr ""
 
-#: config.py:458
+#: config.py:453
 #, python-format
 msgid "Config value %r already present"
 msgstr "設定値 %r は既に登録済みです"
 
-#: config.py:494
+#: config.py:489
 #, python-format
 msgid ""
 "cannot cache unpickable configuration value: %r (because it contains a "
 "function, class, or module object)"
 msgstr ""
 
-#: config.py:531
+#: config.py:526
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "設定ファイルに文法エラーが見つかりました: %s\n"
 
-#: config.py:534
+#: config.py:529
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "設定ファイル（あるいはインポートしたどれかのモジュール）がsys.exit()を呼びました"
 
-#: config.py:541
+#: config.py:536
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -548,67 +548,67 @@ msgid ""
 "%s"
 msgstr "設定ファイルにプログラム上のエラーがあります:\n\n%s"
 
-#: config.py:564
+#: config.py:559
 #, python-format
 msgid "Failed to convert %r to a set or tuple"
 msgstr ""
 
-#: config.py:585 config.py:590
+#: config.py:580 config.py:585
 #, python-format
 msgid "Converting `source_suffix = %r` to `source_suffix = %r`."
 msgstr ""
 
-#: config.py:593
+#: config.py:588
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a dictionary, a string, or a list "
 "of strings. Got `%r' instead (type %s)."
 msgstr "設定値 `source_suffix' に `%r' （%s型）が指定されましたが、文字列、文字列のリスト、辞書、のいずれかを指定してください。"
 
-#: config.py:612
+#: config.py:607
 #, python-format
 msgid "Section %s"
 msgstr "%s 章"
 
-#: config.py:613
+#: config.py:608
 #, python-format
 msgid "Fig. %s"
 msgstr "図 %s"
 
-#: config.py:614
+#: config.py:609
 #, python-format
 msgid "Table %s"
 msgstr "表 %s"
 
-#: config.py:615
+#: config.py:610
 #, python-format
 msgid "Listing %s"
 msgstr "リスト %s"
 
-#: config.py:722
+#: config.py:717
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr " 設定値 `{name}` に `{current}` が指定されましたが、  {candidates} のいずれかを指定してください。"
 
-#: config.py:746
+#: config.py:741
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "設定値 `{name}' に `{current.__name__}' 型が指定されていますが、 {permitted} 型を指定してください。"
 
-#: config.py:759
+#: config.py:754
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "設定値 `{name}' に `{current.__name__}' 型が指定されています。デフォルト値は `{default.__name__}' です。"
 
-#: config.py:770
+#: config.py:765
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r が見つかりません。無視します。"
 
-#: config.py:782
+#: config.py:777
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -675,16 +675,16 @@ msgstr "%s (%s の属性)"
 msgid "Arguments"
 msgstr "引数"
 
-#: domains/cpp/__init__.py:442 domains/javascript.py:258
+#: domains/cpp/__init__.py:447 domains/javascript.py:258
 msgid "Throws"
 msgstr "例外"
 
-#: domains/c/__init__.py:304 domains/cpp/__init__.py:453
+#: domains/c/__init__.py:310 domains/cpp/__init__.py:458
 #: domains/javascript.py:261 domains/python/_object.py:176
 msgid "Returns"
 msgstr "戻り値"
 
-#: domains/c/__init__.py:306 domains/javascript.py:263
+#: domains/c/__init__.py:312 domains/javascript.py:263
 #: domains/python/_object.py:178
 msgid "Return type"
 msgstr "戻り値の型"
@@ -694,7 +694,7 @@ msgstr "戻り値の型"
 msgid "%s (module)"
 msgstr "%s (モジュール)"
 
-#: domains/c/__init__.py:675 domains/cpp/__init__.py:854
+#: domains/c/__init__.py:681 domains/cpp/__init__.py:859
 #: domains/javascript.py:371 domains/python/__init__.py:629
 msgid "function"
 msgstr "の関数"
@@ -703,7 +703,7 @@ msgstr "の関数"
 msgid "method"
 msgstr "メソッド"
 
-#: domains/cpp/__init__.py:852 domains/javascript.py:373
+#: domains/cpp/__init__.py:857 domains/javascript.py:373
 #: domains/python/__init__.py:631
 msgid "class"
 msgstr "クラス"
@@ -770,66 +770,66 @@ msgstr "数式 %s のラベルはすでに %s で使われています"
 msgid "Invalid math_eqref_format: %r"
 msgstr "無効な math_eqref_format: %r"
 
-#: environment/__init__.py:86
+#: environment/__init__.py:82
 msgid "new config"
 msgstr "新しい設定"
 
-#: environment/__init__.py:87
+#: environment/__init__.py:83
 msgid "config changed"
 msgstr "変更された設定"
 
-#: environment/__init__.py:88
+#: environment/__init__.py:84
 msgid "extensions changed"
 msgstr "変更された拡張"
 
-#: environment/__init__.py:249
+#: environment/__init__.py:245
 msgid "build environment version not current"
 msgstr "ビルド環境のバージョンが最新ではありません"
 
-#: environment/__init__.py:251
+#: environment/__init__.py:247
 msgid "source directory has changed"
 msgstr "ソースディレクトリが変更されました"
 
-#: environment/__init__.py:311
+#: environment/__init__.py:307
 #, python-format
 msgid "The configuration has changed (1 option: %r)"
 msgstr ""
 
-#: environment/__init__.py:316
+#: environment/__init__.py:312
 #, python-format
 msgid "The configuration has changed (%d options: %s)"
 msgstr ""
 
-#: environment/__init__.py:322
+#: environment/__init__.py:318
 #, python-format
 msgid "The configuration has changed (%d options: %s, ...)"
 msgstr ""
 
-#: environment/__init__.py:364
+#: environment/__init__.py:360
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "この環境は選択したビルダーと互換性がありません。別の doctree ディレクトリーを選択してください。"
 
-#: environment/__init__.py:473
+#: environment/__init__.py:469
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "%s のドキュメントをスキャンできませんでした: %r "
 
-#: environment/__init__.py:622
+#: environment/__init__.py:618
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "ドメイン %r はまだ登録されていません"
 
-#: environment/__init__.py:773
+#: environment/__init__.py:769
 msgid "document isn't included in any toctree"
 msgstr "ドキュメントはどの toctree にも含まれていません"
 
-#: environment/__init__.py:806
+#: environment/__init__.py:802
 msgid "self referenced toctree found. Ignored."
 msgstr "自己参照している toctree が見つかりました。無視します。"
 
-#: environment/__init__.py:835
+#: environment/__init__.py:831
 #, python-format
 msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
 msgstr ""
@@ -1494,41 +1494,41 @@ msgstr "-Aオプション引数は name = value の形式でなければなり�
 msgid "The dummy builder generates no files."
 msgstr "dummyビルダーはファイルを出力しません"
 
-#: builders/linkcheck.py:60
+#: builders/linkcheck.py:76
 #, python-format
 msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
 msgstr "上記の出力結果、または %(outdir)s /output.txt を見てエラーを確認してください"
 
-#: builders/linkcheck.py:137
+#: builders/linkcheck.py:157
 #, python-format
 msgid "broken link: %s (%s)"
 msgstr "リンクが切れています: %s (%s)"
 
-#: builders/linkcheck.py:526
+#: builders/linkcheck.py:556
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "アンカー '%s' が見つかりません"
 
-#: builders/linkcheck.py:726
+#: builders/linkcheck.py:758
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr "linkcheck_allowed_redirects 内の正規表現のコンパイルに失敗しました: %r %s"
 
-#: builders/singlehtml.py:36
+#: builders/singlehtml.py:35
 #, python-format
 msgid "The HTML page is in %(outdir)s."
 msgstr "HTML ページは%(outdir)sにあります。"
 
-#: builders/singlehtml.py:168
+#: builders/singlehtml.py:167
 msgid "assembling single document"
 msgstr "ドキュメントを1ページにまとめています"
 
 #: builders/latex/__init__.py:349 builders/manpage.py:59
-#: builders/singlehtml.py:173 builders/texinfo.py:120
+#: builders/singlehtml.py:172 builders/texinfo.py:120
 msgid "writing"
 msgstr "書き込み中"
 
-#: builders/singlehtml.py:186
+#: builders/singlehtml.py:185
 msgid "writing additional files"
 msgstr "追加のファイルを出力"
 
@@ -1551,7 +1551,7 @@ msgstr "設定値 \"man_pages\" が不明なドキュメント %s を参照し�
 msgid "The text files are in %(outdir)s."
 msgstr "テキストファイルは%(outdir)sにあります。"
 
-#: builders/html/__init__.py:1213 builders/text.py:81 builders/xml.py:97
+#: builders/html/__init__.py:1234 builders/text.py:81 builders/xml.py:97
 #, python-format
 msgid "error writing file %s: %s"
 msgstr "ファイル書き込みエラー %s: %s"
@@ -1600,12 +1600,12 @@ msgstr "参照を解決しています..."
 msgid " (in "
 msgstr " (in "
 
-#: builders/_epub_base.py:421 builders/html/__init__.py:757
+#: builders/_epub_base.py:423 builders/html/__init__.py:773
 #: builders/latex/__init__.py:485 builders/texinfo.py:201
 msgid "copying images... "
 msgstr "画像をコピー中... "
 
-#: builders/_epub_base.py:443 builders/latex/__init__.py:500
+#: builders/_epub_base.py:445 builders/latex/__init__.py:500
 #: builders/texinfo.py:218
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -1625,7 +1625,7 @@ msgstr "Makefile の書き込みエラー: %s"
 msgid "The message catalogs are in %(outdir)s."
 msgstr "メッセージカタログは%(outdir)sにあります。"
 
-#: builders/__init__.py:371 builders/gettext.py:251
+#: builders/__init__.py:377 builders/gettext.py:251
 #, python-format
 msgid "building [%s]: "
 msgstr "ビルド中 [%s]: "
@@ -1643,104 +1643,104 @@ msgstr "テンプレートの読み込み中..."
 msgid "writing message catalogs... "
 msgstr "メッセージカタログを出力中... "
 
-#: builders/__init__.py:200
+#: builders/__init__.py:206
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "%sビルダー向けの画像形式が見つかりません: %s (%s)"
 
-#: builders/__init__.py:208
+#: builders/__init__.py:214
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "%sビルダー向けの画像形式が見つかりません: %s"
 
-#: builders/__init__.py:231
+#: builders/__init__.py:237
 msgid "building [mo]: "
 msgstr "ビルド中 [mo]: "
 
-#: builders/__init__.py:234 builders/__init__.py:729 builders/__init__.py:761
+#: builders/__init__.py:240 builders/__init__.py:735 builders/__init__.py:767
 msgid "writing output... "
 msgstr "出力中..."
 
-#: builders/__init__.py:251
+#: builders/__init__.py:257
 #, python-format
 msgid "all of %d po files"
 msgstr "全%d件のpoファイル"
 
-#: builders/__init__.py:273
+#: builders/__init__.py:279
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "指定された %d 件のpoファイル"
 
-#: builders/__init__.py:285
+#: builders/__init__.py:291
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "更新された %d 件のpoファイル"
 
-#: builders/__init__.py:295
+#: builders/__init__.py:301
 msgid "all source files"
 msgstr "全てのソースファイル"
 
-#: builders/__init__.py:307
+#: builders/__init__.py:313
 #, python-format
 msgid "file %r given on command line does not exist, "
 msgstr "コマンドラインに指定されたファイル %r がないため, "
 
-#: builders/__init__.py:313
+#: builders/__init__.py:319
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "コマンドラインに指定されたファイル %r はソースディレクトリ以下にないため無視されます"
 
-#: builders/__init__.py:324
+#: builders/__init__.py:330
 #, python-format
 msgid "file %r given on command line is not a valid document, ignoring"
 msgstr ""
 
-#: builders/__init__.py:339
+#: builders/__init__.py:345
 #, python-format
 msgid "%d source files given on command line"
 msgstr "コマンドラインで指定された%d件のソースファイル"
 
-#: builders/__init__.py:354
+#: builders/__init__.py:360
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "更新された %d 件のソースファイル"
 
-#: builders/__init__.py:382
+#: builders/__init__.py:388
 msgid "looking for now-outdated files... "
 msgstr "更新されたファイルを探しています... "
 
-#: builders/__init__.py:386
+#: builders/__init__.py:392
 #, python-format
 msgid "%d found"
 msgstr "%d 件見つかりました"
 
-#: builders/__init__.py:388
+#: builders/__init__.py:394
 msgid "none found"
 msgstr "見つかりませんでした"
 
-#: builders/__init__.py:395
+#: builders/__init__.py:401
 msgid "pickling environment"
 msgstr "環境データを保存中"
 
-#: builders/__init__.py:402
+#: builders/__init__.py:408
 msgid "checking consistency"
 msgstr "整合性をチェック中"
 
-#: builders/__init__.py:406
+#: builders/__init__.py:412
 msgid "no targets are out of date."
 msgstr "更新が必要な対象はありませんでした"
 
-#: builders/__init__.py:446
+#: builders/__init__.py:452
 msgid "updating environment: "
 msgstr "環境データを更新中"
 
-#: builders/__init__.py:471
+#: builders/__init__.py:477
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s 件追加, %s 件更新, %s 件削除"
 
-#: builders/__init__.py:507
+#: builders/__init__.py:513
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches a "
@@ -1748,7 +1748,7 @@ msgid ""
 " location."
 msgstr ""
 
-#: builders/__init__.py:516
+#: builders/__init__.py:522
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches an "
@@ -1756,7 +1756,7 @@ msgid ""
 "conf.py."
 msgstr ""
 
-#: builders/__init__.py:527
+#: builders/__init__.py:533
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it is not included"
@@ -1764,31 +1764,31 @@ msgid ""
 "include_patterns matches the master document."
 msgstr ""
 
-#: builders/__init__.py:534
+#: builders/__init__.py:540
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s). The master document must "
 "be within the source directory or a subdirectory of it."
 msgstr ""
 
-#: builders/__init__.py:553 builders/__init__.py:569
+#: builders/__init__.py:559 builders/__init__.py:575
 msgid "reading sources... "
 msgstr "ソースを読み込み中..."
 
-#: builders/__init__.py:686
+#: builders/__init__.py:692
 #, python-format
 msgid "docnames to write: %s"
 msgstr "書き込むdocname: %s"
 
-#: builders/__init__.py:699
+#: builders/__init__.py:705
 msgid "preparing documents"
 msgstr "ドキュメントの出力準備中"
 
-#: builders/__init__.py:702
+#: builders/__init__.py:708
 msgid "copying assets"
 msgstr ""
 
-#: builders/__init__.py:845
+#: builders/__init__.py:860
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "デコードできないソース文字です。\"?\" に置き換えます: %r"
@@ -1842,52 +1842,56 @@ msgstr "EPUB3出力では設定値 \"epub_identifier\" の指定が必要です"
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "EPUB3出力では設定値 \"version\" が必要です"
 
-#: builders/epub3.py:279 builders/html/__init__.py:1262
+#: builders/epub3.py:279 builders/html/__init__.py:1284
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "無効な css_file %r は無視されました"
 
-#: builders/_epub_base.py:220
+#: builders/_epub_base.py:222
 #, python-format
 msgid "duplicated ToC entry found: %s"
 msgstr "Tocエントリーが重複しています: %s"
 
-#: builders/_epub_base.py:432
+#: builders/_epub_base.py:434
 #, python-format
 msgid "cannot read image file %r: copying it instead"
 msgstr "画像ファイル %r をPILで読み込めないため、そのままコピーします"
 
-#: builders/_epub_base.py:463
+#: builders/_epub_base.py:465
 #, python-format
 msgid "cannot write image file %r: %s"
 msgstr "画像ファイル %r を書き込めません: %s"
 
-#: builders/_epub_base.py:475
+#: builders/_epub_base.py:477
 msgid "Pillow not found - copying image files"
 msgstr "Pillowがインストールされていません。代わりに画像をコピーします"
 
-#: builders/_epub_base.py:507
+#: builders/_epub_base.py:512
 msgid "writing mimetype file..."
 msgstr "mimetype を書き込み中..."
 
-#: builders/_epub_base.py:516
+#: builders/_epub_base.py:521
 msgid "writing META-INF/container.xml file..."
 msgstr "META-INF/container.xml を書き込み中..."
 
-#: builders/_epub_base.py:553
+#: builders/_epub_base.py:558
 msgid "writing content.opf file..."
 msgstr "content.opf を書き込み中..."
 
-#: builders/_epub_base.py:585
+#: builders/_epub_base.py:590
 #, python-format
 msgid "unknown mimetype for %s, ignoring"
 msgstr "不明なmimetype %sのため無視します"
 
-#: builders/_epub_base.py:756
+#: builders/_epub_base.py:743
+msgid "node has an invalid level"
+msgstr ""
+
+#: builders/_epub_base.py:762
 msgid "writing toc.ncx file..."
 msgstr "tox.ncx を書き込み中..."
 
-#: builders/_epub_base.py:785
+#: builders/_epub_base.py:791
 #, python-format
 msgid "writing %s file..."
 msgstr "ファイル %s を書き込み中..."
@@ -1935,7 +1939,7 @@ msgid ""
 "not in the domain."
 msgstr ""
 
-#: util/osutil.py:130
+#: util/osutil.py:129
 #, python-format
 msgid ""
 "Aborted attempted copy from %s to %s (the destination path has existing "
@@ -1998,22 +2002,22 @@ msgstr "スキップしました"
 msgid "failed"
 msgstr "失敗しました"
 
-#: util/i18n.py:105
+#: util/i18n.py:103
 #, python-format
 msgid "reading error: %s, %s"
 msgstr "読み取りエラー: %s, %s"
 
-#: util/i18n.py:112
+#: util/i18n.py:110
 #, python-format
 msgid "writing error: %s, %s"
 msgstr "書き込みエラー: %s, %s"
 
-#: util/i18n.py:141
+#: util/i18n.py:138
 #, python-format
 msgid "locale_dir %s does not exist"
 msgstr ""
 
-#: util/i18n.py:236
+#: util/i18n.py:230
 #, python-format
 msgid ""
 "Invalid date format. Quote the string by single quote if you want to output "
@@ -2181,7 +2185,7 @@ msgstr ""
 msgid "See 'sphinx --help'.\n"
 msgstr ""
 
-#: builders/html/__init__.py:478 builders/latex/__init__.py:201
+#: builders/html/__init__.py:486 builders/latex/__init__.py:201
 #: transforms/__init__.py:133 writers/manpage.py:101 writers/texinfo.py:218
 #, python-format
 msgid "%b %d, %Y"
@@ -2608,7 +2612,7 @@ msgstr ""
 msgid "section \"%s\" gets labeled as \"%s\""
 msgstr ""
 
-#: domains/std/__init__.py:702 domains/std/__init__.py:808
+#: domains/std/__init__.py:702 domains/std/__init__.py:811
 #: ext/autosectionlabel.py:52
 #, python-format
 msgid "duplicate label %s, other instance in %s"
@@ -2849,36 +2853,36 @@ msgstr "検索ページ"
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "%s の記述 %s はすでに %s で使われています"
 
-#: domains/std/__init__.py:926
+#: domains/std/__init__.py:929
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig は無効です。:numref: は無視されます。"
 
-#: domains/std/__init__.py:934
+#: domains/std/__init__.py:937
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "クロスリファレンスの作成に失敗しました。番号が割り当てられていません: %s"
 
-#: domains/std/__init__.py:946
+#: domains/std/__init__.py:949
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "リンクにキャプションがありません: %s"
 
-#: domains/std/__init__.py:960
+#: domains/std/__init__.py:963
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "無効な numfig_format: %s (%r)"
 
-#: domains/std/__init__.py:963
+#: domains/std/__init__.py:966
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "無効な numfig_format: %s"
 
-#: domains/std/__init__.py:1194
+#: domains/std/__init__.py:1197
 #, python-format
 msgid "undefined label: %r"
 msgstr ""
 
-#: domains/std/__init__.py:1196
+#: domains/std/__init__.py:1199
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr ""
@@ -2968,16 +2972,16 @@ msgid ""
 " one of them"
 msgstr ""
 
-#: domains/python/__init__.py:817
+#: domains/python/__init__.py:821
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "相互参照 %r に複数のターゲットが見つかりました: %s"
 
-#: domains/python/__init__.py:878
+#: domains/python/__init__.py:882
 msgid " (deprecated)"
 msgstr " (非推奨)"
 
-#: domains/c/__init__.py:298 domains/cpp/__init__.py:436
+#: domains/c/__init__.py:304 domains/cpp/__init__.py:441
 #: domains/python/_object.py:164 ext/napoleon/docstring.py:786
 msgid "Parameters"
 msgstr "パラメータ"
@@ -3002,43 +3006,43 @@ msgid ""
 "Declaration is '.. c:%s:: %s'."
 msgstr ""
 
-#: domains/c/__init__.py:301 domains/cpp/__init__.py:449
+#: domains/c/__init__.py:307 domains/cpp/__init__.py:454
 msgid "Return values"
 msgstr "戻り値"
 
-#: domains/c/__init__.py:673 domains/cpp/__init__.py:855
+#: domains/c/__init__.py:679 domains/cpp/__init__.py:860
 msgid "member"
 msgstr "のメンバ変数"
 
-#: domains/c/__init__.py:674
+#: domains/c/__init__.py:680
 msgid "variable"
 msgstr "変数"
 
-#: domains/c/__init__.py:676
+#: domains/c/__init__.py:682
 msgid "macro"
 msgstr "のマクロ"
 
-#: domains/c/__init__.py:677
+#: domains/c/__init__.py:683
 msgid "struct"
 msgstr "struct"
 
-#: domains/c/__init__.py:678 domains/cpp/__init__.py:853
+#: domains/c/__init__.py:684 domains/cpp/__init__.py:858
 msgid "union"
 msgstr "union"
 
-#: domains/c/__init__.py:679 domains/cpp/__init__.py:858
+#: domains/c/__init__.py:685 domains/cpp/__init__.py:863
 msgid "enum"
 msgstr "列挙型"
 
-#: domains/c/__init__.py:680 domains/cpp/__init__.py:859
+#: domains/c/__init__.py:686 domains/cpp/__init__.py:864
 msgid "enumerator"
 msgstr "enumerator"
 
-#: domains/c/__init__.py:681 domains/cpp/__init__.py:856
+#: domains/c/__init__.py:687 domains/cpp/__init__.py:861
 msgid "type"
 msgstr "のデータ型"
 
-#: domains/c/__init__.py:683 domains/cpp/__init__.py:861
+#: domains/c/__init__.py:689 domains/cpp/__init__.py:866
 msgid "function parameter"
 msgstr "関数パラメータ"
 
@@ -3058,11 +3062,11 @@ msgid ""
 "Declaration is '.. cpp:%s:: %s'."
 msgstr ""
 
-#: domains/cpp/__init__.py:857
+#: domains/cpp/__init__.py:862
 msgid "concept"
 msgstr "コンセプト"
 
-#: domains/cpp/__init__.py:862
+#: domains/cpp/__init__.py:867
 msgid "template parameter"
 msgstr "テンプレート・パラメータ"
 
@@ -3195,7 +3199,7 @@ msgstr "モジュール総索引"
 msgid "quick access to all modules"
 msgstr "全モジュール早見表"
 
-#: builders/html/__init__.py:499 themes/basic/defindex.html:23
+#: builders/html/__init__.py:507 themes/basic/defindex.html:23
 msgid "General Index"
 msgstr "総合索引"
 
@@ -3355,7 +3359,7 @@ msgstr "%sも参照"
 msgid "unknown index entry type %r"
 msgstr "不明なインデックスエントリタイプ %r"
 
-#: environment/adapters/indexentries.py:273
+#: environment/adapters/indexentries.py:270
 #: templates/latex/sphinxmessages.sty.jinja:11
 msgid "Symbols"
 msgstr "記号"
@@ -3377,190 +3381,190 @@ msgstr ""
 msgid "The HTML pages are in %(outdir)s."
 msgstr "HTMLページは%(outdir)sにあります。"
 
-#: builders/html/__init__.py:340
+#: builders/html/__init__.py:348
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "build info ファイルの読み込みに失敗しました: %r"
 
-#: builders/html/__init__.py:355
+#: builders/html/__init__.py:363
 msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
 msgstr ""
 
-#: builders/html/__init__.py:358
+#: builders/html/__init__.py:366
 msgid "building [html]: "
 msgstr ""
 
-#: builders/html/__init__.py:374
+#: builders/html/__init__.py:382
 #, python-format
 msgid ""
 "template %s has been changed since the previous build, all docs will be "
 "rebuilt"
 msgstr ""
 
-#: builders/html/__init__.py:499
+#: builders/html/__init__.py:507
 msgid "index"
 msgstr "索引"
 
-#: builders/html/__init__.py:547
+#: builders/html/__init__.py:555
 #, python-format
 msgid "Logo of %s"
 msgstr ""
 
-#: builders/html/__init__.py:572
+#: builders/html/__init__.py:584
 msgid "next"
 msgstr "次へ"
 
-#: builders/html/__init__.py:581
+#: builders/html/__init__.py:593
 msgid "previous"
 msgstr "前へ"
 
-#: builders/html/__init__.py:678
+#: builders/html/__init__.py:690
 msgid "generating indices"
 msgstr "索引を生成中"
 
-#: builders/html/__init__.py:693
+#: builders/html/__init__.py:705
 msgid "writing additional pages"
 msgstr "追加のページを出力中"
 
-#: builders/html/__init__.py:772
+#: builders/html/__init__.py:788
 #, python-format
 msgid "cannot copy image file '%s': %s"
 msgstr ""
 
-#: builders/html/__init__.py:784
+#: builders/html/__init__.py:800
 msgid "copying downloadable files... "
 msgstr "ダウンロードファイルをコピー中..."
 
-#: builders/html/__init__.py:796
+#: builders/html/__init__.py:812
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "ダウンロードファイル %r をコピーできません: %s"
 
-#: builders/html/__init__.py:843
+#: builders/html/__init__.py:858
 #, python-format
 msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
 msgstr ""
 
-#: builders/html/__init__.py:861
+#: builders/html/__init__.py:876
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "html_static_file 内のファイルのコピーに失敗しました: %s: %r"
 
-#: builders/html/__init__.py:896
+#: builders/html/__init__.py:911
 msgid "copying static files"
 msgstr "静的ファイルをコピー中"
 
-#: builders/html/__init__.py:912
+#: builders/html/__init__.py:928
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "静的ファイル %r をコピーできません"
 
-#: builders/html/__init__.py:917
+#: builders/html/__init__.py:933
 msgid "copying extra files"
 msgstr "extraファイルをコピー中"
 
-#: builders/html/__init__.py:927
+#: builders/html/__init__.py:943
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "extraファイル %r をコピーできませんでした"
 
-#: builders/html/__init__.py:933
+#: builders/html/__init__.py:949
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "build info ファイル %r の出力に失敗しました"
 
-#: builders/html/__init__.py:982
+#: builders/html/__init__.py:998
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "検索インデックスを読み込めず、ドキュメントビルドの一部が不完全です。"
 
-#: builders/html/__init__.py:1027
+#: builders/html/__init__.py:1046
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "ページ %s がhtml_sidebarsの複数のパターンに一致しました: %r と %r"
 
-#: builders/html/__init__.py:1188
+#: builders/html/__init__.py:1208
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "ページ%sの読み込み中にUnicodeエラーが発生しました。非アスキー文字を含む設定値は全てUnicode文字列にしてください。"
 
-#: builders/html/__init__.py:1197
+#: builders/html/__init__.py:1217
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "%sページのレンダリング中にエラーが発生しました。\n理由: %r "
 
-#: builders/html/__init__.py:1229
+#: builders/html/__init__.py:1250
 msgid "dumping object inventory"
 msgstr "オブジェクト インベントリを出力"
 
-#: builders/html/__init__.py:1237
+#: builders/html/__init__.py:1258
 #, python-format
 msgid "dumping search index in %s"
 msgstr "%s の検索インデックスを出力"
 
-#: builders/html/__init__.py:1279
+#: builders/html/__init__.py:1301
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "無効な js_file %r は無視されました"
 
-#: builders/html/__init__.py:1312
+#: builders/html/__init__.py:1334
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "複数の math_renderer が登録されています。しかし math_renderer は選択されていません。"
 
-#: builders/html/__init__.py:1317
+#: builders/html/__init__.py:1339
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "不明な math_renderer %r が指定されました。"
 
-#: builders/html/__init__.py:1325
-#, python-format
-msgid "html_extra_path entry %r does not exist"
-msgstr "html_extra_path %r が見つかりません"
-
-#: builders/html/__init__.py:1332
+#: builders/html/__init__.py:1353
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path %r がoutdir内に配置されます"
 
-#: builders/html/__init__.py:1342
+#: builders/html/__init__.py:1358
 #, python-format
-msgid "html_static_path entry %r does not exist"
-msgstr "html_static_path %r が見つかりません"
+msgid "html_extra_path entry %r does not exist"
+msgstr "html_extra_path %r が見つかりません"
 
-#: builders/html/__init__.py:1349
+#: builders/html/__init__.py:1373
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path %r がoutdir内に配置されます"
 
-#: builders/html/__init__.py:1361 builders/latex/__init__.py:507
+#: builders/html/__init__.py:1378
+#, python-format
+msgid "html_static_path entry %r does not exist"
+msgstr "html_static_path %r が見つかりません"
+
+#: builders/html/__init__.py:1389 builders/latex/__init__.py:507
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "ロゴファイル %r がありません"
 
-#: builders/html/__init__.py:1372
+#: builders/html/__init__.py:1400
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "favicon ファイル %r がありません"
 
-#: builders/html/__init__.py:1384
+#: builders/html/__init__.py:1412
 #, python-format
 msgid ""
 "Values in 'html_sidebars' must be a list of strings. At least one pattern "
 "has a string value: %s. Change to `html_sidebars = %r`."
 msgstr ""
 
-#: builders/html/__init__.py:1397
+#: builders/html/__init__.py:1425
 msgid ""
 "HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
 "configuration options)"
 msgstr ""
 
-#: builders/html/__init__.py:1414
+#: builders/html/__init__.py:1442
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s ドキュメント"
@@ -3988,34 +3992,34 @@ msgstr "%r のシグネチャの更新に失敗しました: パラメータが�
 msgid "Failed to parse type_comment for %r: %s"
 msgstr "%rのtype_commentを解析できませんでした: %s"
 
-#: ext/autodoc/__init__.py:141
+#: ext/autodoc/__init__.py:142
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr "member-order オプションに無効な値があります: %s"
 
-#: ext/autodoc/__init__.py:149
+#: ext/autodoc/__init__.py:150
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr "class-doc-from オプションに無効な値があります: %s"
 
-#: ext/autodoc/__init__.py:408
+#: ext/autodoc/__init__.py:415
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "auto%s (%r) の署名が無効です"
 
-#: ext/autodoc/__init__.py:525
+#: ext/autodoc/__init__.py:532
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "%sの引数のフォーマット中にエラーが発生しました: %s "
 
-#: ext/autodoc/__init__.py:795
+#: ext/autodoc/__init__.py:802
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr ""
 
-#: ext/autodoc/__init__.py:890
+#: ext/autodoc/__init__.py:897
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -4023,76 +4027,76 @@ msgid ""
 "explicit module name)"
 msgstr "ドキュメントの自動生成 %r のためにどのモジュールをインポートするのか分かりません (ドキュメントに \"module\"または \"currentmodule\"ディレクティブを配置するか、明示的なモジュール名を指定してください)"
 
-#: ext/autodoc/__init__.py:934
+#: ext/autodoc/__init__.py:941
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "モックオブジェクトが検出されました: %r"
 
-#: ext/autodoc/__init__.py:953
+#: ext/autodoc/__init__.py:960
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "%s のシグネチャをフォーマット中にエラーが発生しました: %s"
 
-#: ext/autodoc/__init__.py:1016
+#: ext/autodoc/__init__.py:1023
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "automodule 名の \"::\" は意味がありません"
 
-#: ext/autodoc/__init__.py:1023
+#: ext/autodoc/__init__.py:1030
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "automodule に与えられた署名引数、または戻り値となるアノテーション %s"
 
-#: ext/autodoc/__init__.py:1036
+#: ext/autodoc/__init__.py:1043
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__ は文字列のリストでなければなりません。%r (%s モジュールの中) ではないです -- ignoring __all__"
 
-#: ext/autodoc/__init__.py:1102
+#: ext/autodoc/__init__.py:1109
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr "members: オプションで指定された属性がありません: モジュール %s、属性 %s"
 
-#: ext/autodoc/__init__.py:1325 ext/autodoc/__init__.py:1402
-#: ext/autodoc/__init__.py:2810
+#: ext/autodoc/__init__.py:1332 ext/autodoc/__init__.py:1409
+#: ext/autodoc/__init__.py:2822
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s の関数シグネチャの取得に失敗しました: %s"
 
-#: ext/autodoc/__init__.py:1616
+#: ext/autodoc/__init__.py:1628
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "%s のコンストラクタ署名の取得に失敗しました: %s"
 
-#: ext/autodoc/__init__.py:1743
+#: ext/autodoc/__init__.py:1755
 #, python-format
 msgid "Bases: %s"
 msgstr "ベースクラス: %s"
 
-#: ext/autodoc/__init__.py:1757
+#: ext/autodoc/__init__.py:1769
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "オブジェクト %s に属性 %s がありません"
 
-#: ext/autodoc/__init__.py:1838 ext/autodoc/__init__.py:1875
-#: ext/autodoc/__init__.py:1970
+#: ext/autodoc/__init__.py:1850 ext/autodoc/__init__.py:1887
+#: ext/autodoc/__init__.py:1982
 #, python-format
 msgid "alias of %s"
 msgstr "%sの別名です。"
 
-#: ext/autodoc/__init__.py:1858
+#: ext/autodoc/__init__.py:1870
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s)のエイリアスです。"
 
-#: ext/autodoc/__init__.py:2198 ext/autodoc/__init__.py:2298
+#: ext/autodoc/__init__.py:2210 ext/autodoc/__init__.py:2310
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s のメソッド・シグネチャの取得に失敗しました: %s"
 
-#: ext/autodoc/__init__.py:2429
+#: ext/autodoc/__init__.py:2441
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "無効な __slots__ が %s で見つかりました。無視されました。"

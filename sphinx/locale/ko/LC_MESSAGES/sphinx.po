@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-10 15:47+0000\n"
+"POT-Creation-Date: 2024-10-20 22:40+0000\n"
 "PO-Revision-Date: 2013-04-02 08:44+0000\n"
 "Last-Translator: YT H <dev@theYT.net>, 2019-2022\n"
 "Language-Team: Korean (http://app.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
@@ -65,7 +65,7 @@ msgstr "이 프로젝트는 최소 Sphinx 버전 %s이(가) 필요하므로 현�
 msgid "making output directory"
 msgstr "출력 디렉토리 만드는 중"
 
-#: application.py:267 registry.py:450
+#: application.py:267 registry.py:452
 #, python-format
 msgid "while setting up extension %s:"
 msgstr "확장 기능 %s 설정 중:"
@@ -186,169 +186,169 @@ msgstr "%s 확장 기능은 병렬 쓰기에 안전하지 않습니다"
 msgid "doing serial %s"
 msgstr "병렬 %s 처리"
 
-#: roles.py:205
+#: roles.py:208
 #, python-format
 msgid "Common Vulnerabilities and Exposures; CVE %s"
 msgstr ""
 
-#: roles.py:228
+#: roles.py:231
 #, python-format
 msgid "invalid CVE number %s"
 msgstr ""
 
-#: roles.py:249
+#: roles.py:253
 #, python-format
 msgid "Common Weakness Enumeration; CWE %s"
 msgstr ""
 
-#: roles.py:272
+#: roles.py:276
 #, python-format
 msgid "invalid CWE number %s"
 msgstr ""
 
-#: roles.py:293
+#: roles.py:296
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python 향상 제안; PEP %s"
 
-#: roles.py:316
+#: roles.py:319
 #, python-format
 msgid "invalid PEP number %s"
 msgstr "잘못된 PEP 번호 %s"
 
-#: roles.py:354
+#: roles.py:357
 #, python-format
 msgid "invalid RFC number %s"
 msgstr "잘못된 RFC 번호 %s"
 
-#: registry.py:142
+#: registry.py:144
 #, python-format
 msgid "Builder class %s has no \"name\" attribute"
 msgstr "빌더 클래스 %s에 \"name\" 속성이 없습니다"
 
-#: registry.py:144
+#: registry.py:146
 #, python-format
 msgid "Builder %r already exists (in module %s)"
 msgstr "%r 빌더가 이미 존재합니다 (%s 모듈에 있음)"
 
-#: registry.py:157
+#: registry.py:159
 #, python-format
 msgid "Builder name %s not registered or available through entry point"
 msgstr "빌더 이름 %s이(가) 등록되지 않았거나 진입점을 통해서만 사용할 수 있습니다"
 
-#: registry.py:164
+#: registry.py:166
 #, python-format
 msgid "Builder name %s not registered"
 msgstr "빌더 이름 %s이(가) 등록되지 않았습니다"
 
-#: registry.py:171
+#: registry.py:173
 #, python-format
 msgid "domain %s already registered"
 msgstr "%s 영역이 이미 등록되었습니다"
 
-#: registry.py:194 registry.py:207 registry.py:218
+#: registry.py:196 registry.py:209 registry.py:220
 #, python-format
 msgid "domain %s not yet registered"
 msgstr "%s 영역이 아직 등록되지 않았습니다"
 
-#: registry.py:198
+#: registry.py:200
 #, python-format
 msgid "The %r directive is already registered to domain %s"
 msgstr "%r 지시문이 %s 영역에 이미 등록되었습니다"
 
-#: registry.py:210
+#: registry.py:212
 #, python-format
 msgid "The %r role is already registered to domain %s"
 msgstr "%r 역할이 %s 영역에 이미 등록되었습니다"
 
-#: registry.py:221
+#: registry.py:223
 #, python-format
 msgid "The %r index is already registered to domain %s"
 msgstr "%r 색인이 %s 영역에 이미 등록되었습니다"
 
-#: registry.py:252
+#: registry.py:254
 #, python-format
 msgid "The %r object_type is already registered"
 msgstr "%r object_type이 이미 등록되었습니다"
 
-#: registry.py:278
+#: registry.py:280
 #, python-format
 msgid "The %r crossref_type is already registered"
 msgstr "%r crossref_type이 이미 등록되었습니다"
 
-#: registry.py:285
+#: registry.py:287
 #, python-format
 msgid "source_suffix %r is already registered"
 msgstr "source_suffix %r이(가) 이미 등록되었습니다"
 
-#: registry.py:294
+#: registry.py:296
 #, python-format
 msgid "source_parser for %r is already registered"
 msgstr "%r에 대한 source_parser가 이미 등록되었습니다"
 
-#: registry.py:302
+#: registry.py:304
 #, python-format
 msgid "Source parser for %s not registered"
 msgstr "%s에 대한 소스 해석기가 등록되지 않았습니다"
 
-#: registry.py:318
+#: registry.py:320
 #, python-format
 msgid "Translator for %r already exists"
 msgstr "%r에 대한 변환기가 이미 존재합니다"
 
-#: registry.py:334
+#: registry.py:336
 #, python-format
 msgid "kwargs for add_node() must be a (visit, depart) function tuple: %r=%r"
 msgstr "add_node()에 대한 kwargs는 반드시 (visit, depart)의 함수 튜플이어야 합니다: %r=%r"
 
-#: registry.py:417
+#: registry.py:419
 #, python-format
 msgid "enumerable_node %r already registered"
 msgstr "enumerable_node %r이(가) 이미 등록되었습니다"
 
-#: registry.py:429
+#: registry.py:431
 #, python-format
 msgid "math renderer %s is already registered"
 msgstr "수식 렌더러 %s이(가) 이미 등록되었습니다"
 
-#: registry.py:444
+#: registry.py:446
 #, python-format
 msgid ""
 "the extension %r was already merged with Sphinx since version %s; this "
 "extension is ignored."
 msgstr "%r 확장 기능은 Sphinx에 버전 %s 이후로 이미 병합되었습니다. 이 확장 기능은 무시됩니다."
 
-#: registry.py:455
+#: registry.py:457
 msgid "Original exception:\n"
 msgstr "원래 예외:\n"
 
-#: registry.py:456
+#: registry.py:458
 #, python-format
 msgid "Could not import extension %s"
 msgstr "확장 기능 %s을(를) 가져올 수 없습니다"
 
-#: registry.py:461
+#: registry.py:463
 #, python-format
 msgid ""
 "extension %r has no setup() function; is it really a Sphinx extension "
 "module?"
 msgstr "확장 기능 %r에 setup() 함수가 없습니다. Sphinx 확장 모듈이 맞습니까?"
 
-#: registry.py:470
+#: registry.py:472
 #, python-format
 msgid ""
 "The %s extension used by this project needs at least Sphinx v%s; it "
 "therefore cannot be built with this version."
 msgstr "이 프로젝트에서 사용하는 %s 확장 기능에는 최소한 Sphinx v%s이(가) 필요합니다. 따라서 이 버전으로 빌드 할 수 없습니다."
 
-#: registry.py:478
+#: registry.py:480
 #, python-format
 msgid ""
 "extension %r returned an unsupported object from its setup() function; it "
 "should return None or a metadata dictionary"
 msgstr "확장 기능 %r이(가) setup() 함수에서 지원되지 않는 개체를 반환했습니다. None 또는 메타데이터 dictionary를 반환해야 합니다"
 
-#: registry.py:512
+#: registry.py:514
 #, python-format
 msgid "`None` is not a valid filetype for %r."
 msgstr ""
@@ -391,141 +391,141 @@ msgid ""
 "cannot be built with the loaded version (%s)."
 msgstr "이 프로젝트에는 최소한 %s 버전의 %s 확장 기능이 필요하므로 로드 된 버전(%s)으로 빌드 할 수 없습니다."
 
-#: theming.py:121
+#: theming.py:114
 #, python-format
 msgid ""
 "Theme configuration sections other than [theme] and [options] are not "
 "supported (tried to get a value from %r)."
 msgstr ""
 
-#: theming.py:127
+#: theming.py:120
 #, python-format
 msgid "setting %s.%s occurs in none of the searched theme configs"
 msgstr "검색된 테마 구성에서 %s.%s 설정이 존재하지 않습니다"
 
-#: theming.py:142
+#: theming.py:135
 #, python-format
 msgid "unsupported theme option %r given"
 msgstr "지원하지 않는 테마 옵션 %r을(를) 설정했습니다"
 
-#: theming.py:215
+#: theming.py:207
 #, python-format
 msgid "file %r on theme path is not a valid zipfile or contains no theme"
 msgstr "테마 경로의 %r 파일이 유효한 ZIP 파일이 아니거나 테마를 포함하지 않습니다"
 
-#: theming.py:236
+#: theming.py:228
 #, python-format
 msgid "no theme named %r found (missing theme.toml?)"
 msgstr ""
 
-#: theming.py:276
+#: theming.py:268
 #, python-format
 msgid "The %r theme has circular inheritance"
 msgstr ""
 
-#: theming.py:283
+#: theming.py:275
 #, python-format
 msgid ""
 "The %r theme inherits from %r, which is not a loaded theme. Loaded themes "
 "are: %s"
 msgstr ""
 
-#: theming.py:290
+#: theming.py:282
 #, python-format
 msgid "The %r theme has too many ancestors"
 msgstr ""
 
-#: theming.py:318
+#: theming.py:310
 #, python-format
 msgid "no theme configuration file found in %r"
 msgstr ""
 
-#: theming.py:346 theming.py:399
+#: theming.py:335 theming.py:388
 #, python-format
 msgid "theme %r doesn't have the \"theme\" table"
 msgstr ""
 
-#: theming.py:350
+#: theming.py:339
 #, python-format
 msgid "The %r theme \"[theme]\" table is not a table"
 msgstr ""
 
-#: theming.py:354 theming.py:402
+#: theming.py:343 theming.py:391
 #, python-format
 msgid "The %r theme must define the \"theme.inherit\" setting"
 msgstr ""
 
-#: theming.py:358
+#: theming.py:347
 #, python-format
 msgid "The %r theme \"[options]\" table is not a table"
 msgstr ""
 
-#: theming.py:377
+#: theming.py:366
 #, python-format
 msgid "The \"theme.pygments_style\" setting must be a table. Hint: \"%s\""
 msgstr ""
 
-#: config.py:314
+#: config.py:309
 #, python-format
 msgid "config directory doesn't contain a conf.py file (%s)"
 msgstr "설정 디렉토리에 conf.py 파일이 없습니다 (%s)"
 
-#: config.py:323
+#: config.py:318
 msgid ""
 "Invalid configuration value found: 'language = None'. Update your "
 "configuration to a valid language code. Falling back to 'en' (English)."
 msgstr "잘못된 구성 값을 찾았습니다: 'language = None'. 유효한 언어 코드로 구성을 업데이트하십시오. 대신 'en'(영어)을 사용합니다."
 
-#: config.py:346
+#: config.py:341
 #, python-format
 msgid ""
 "cannot override dictionary config setting %r, ignoring (use %r to set "
 "individual elements)"
 msgstr "Dictionary 구성 설정 %r을(를) 재정의할 수 없으며, 무시합니다 (개별 요소를 설정하기 위해 %r 사용)"
 
-#: config.py:355
+#: config.py:350
 #, python-format
 msgid "invalid number %r for config value %r, ignoring"
 msgstr "숫자 %r이(가) 설정값 %r에 대해 유효하지 않으며, 무시합니다"
 
-#: config.py:361
+#: config.py:356
 #, python-format
 msgid "cannot override config setting %r with unsupported type, ignoring"
 msgstr "지원되지 않는 유형의 구성 설정 %r을(를) 재정의 할 수 없으며, 무시합니다"
 
-#: config.py:382
+#: config.py:377
 #, python-format
 msgid "unknown config value %r in override, ignoring"
 msgstr "재정의 중 알 수 없는 설정값 %r, 무시합니다"
 
-#: config.py:435
+#: config.py:430
 #, python-format
 msgid "No such config value: %r"
 msgstr ""
 
-#: config.py:458
+#: config.py:453
 #, python-format
 msgid "Config value %r already present"
 msgstr "설정값 %r이(가) 이미 존재합니다"
 
-#: config.py:494
+#: config.py:489
 #, python-format
 msgid ""
 "cannot cache unpickable configuration value: %r (because it contains a "
 "function, class, or module object)"
 msgstr ""
 
-#: config.py:531
+#: config.py:526
 #, python-format
 msgid "There is a syntax error in your configuration file: %s\n"
 msgstr "구성 파일에 구문 오류가 있습니다: %s\n"
 
-#: config.py:534
+#: config.py:529
 msgid ""
 "The configuration file (or one of the modules it imports) called sys.exit()"
 msgstr "구성 파일(또는 가져온 모듈 중 하나)에서 sys.exit()을 호출했습니다"
 
-#: config.py:541
+#: config.py:536
 #, python-format
 msgid ""
 "There is a programmable error in your configuration file:\n"
@@ -533,67 +533,67 @@ msgid ""
 "%s"
 msgstr "구성 파일에 프로그램 오류가 있습니다:\n\n%s"
 
-#: config.py:564
+#: config.py:559
 #, python-format
 msgid "Failed to convert %r to a set or tuple"
 msgstr ""
 
-#: config.py:585 config.py:590
+#: config.py:580 config.py:585
 #, python-format
 msgid "Converting `source_suffix = %r` to `source_suffix = %r`."
 msgstr ""
 
-#: config.py:593
+#: config.py:588
 #, python-format
 msgid ""
 "The config value `source_suffix' expects a dictionary, a string, or a list "
 "of strings. Got `%r' instead (type %s)."
 msgstr ""
 
-#: config.py:612
+#: config.py:607
 #, python-format
 msgid "Section %s"
 msgstr "제 %s 절"
 
-#: config.py:613
+#: config.py:608
 #, python-format
 msgid "Fig. %s"
 msgstr "그림 %s"
 
-#: config.py:614
+#: config.py:609
 #, python-format
 msgid "Table %s"
 msgstr "표 %s"
 
-#: config.py:615
+#: config.py:610
 #, python-format
 msgid "Listing %s"
 msgstr "예시 %s"
 
-#: config.py:722
+#: config.py:717
 msgid ""
 "The config value `{name}` has to be a one of {candidates}, but `{current}` "
 "is given."
 msgstr "설정값 `{name}`은(는) {candidates} 중 하나여야 하지만, `{current}`이(가) 지정되었습니다."
 
-#: config.py:746
+#: config.py:741
 msgid ""
 "The config value `{name}' has type `{current.__name__}'; expected "
 "{permitted}."
 msgstr "설정값 `{name}'은(는) `{current.__name__}' 유형이지만, {permitted} 유형을 기대했습니다."
 
-#: config.py:759
+#: config.py:754
 msgid ""
 "The config value `{name}' has type `{current.__name__}', defaults to "
 "`{default.__name__}'."
 msgstr "설정값 `{name}'은(는) `{current.__name__}' 유형이지만, 기본값은 `{default.__name__}'입니다."
 
-#: config.py:770
+#: config.py:765
 #, python-format
 msgid "primary_domain %r not found, ignored."
 msgstr "primary_domain %r(이)가 없으므로, 무시합니다."
 
-#: config.py:782
+#: config.py:777
 msgid ""
 "Since v2.0, Sphinx uses \"index\" as root_doc by default. Please add "
 "\"root_doc = 'contents'\" to your conf.py."
@@ -660,16 +660,16 @@ msgstr "%s (%s의 속성)"
 msgid "Arguments"
 msgstr "인수"
 
-#: domains/cpp/__init__.py:442 domains/javascript.py:258
+#: domains/cpp/__init__.py:447 domains/javascript.py:258
 msgid "Throws"
 msgstr "예외"
 
-#: domains/c/__init__.py:304 domains/cpp/__init__.py:453
+#: domains/c/__init__.py:310 domains/cpp/__init__.py:458
 #: domains/javascript.py:261 domains/python/_object.py:176
 msgid "Returns"
 msgstr "반환"
 
-#: domains/c/__init__.py:306 domains/javascript.py:263
+#: domains/c/__init__.py:312 domains/javascript.py:263
 #: domains/python/_object.py:178
 msgid "Return type"
 msgstr "반환 형식"
@@ -679,7 +679,7 @@ msgstr "반환 형식"
 msgid "%s (module)"
 msgstr "%s (모듈)"
 
-#: domains/c/__init__.py:675 domains/cpp/__init__.py:854
+#: domains/c/__init__.py:681 domains/cpp/__init__.py:859
 #: domains/javascript.py:371 domains/python/__init__.py:629
 msgid "function"
 msgstr "함수"
@@ -688,7 +688,7 @@ msgstr "함수"
 msgid "method"
 msgstr "메서드"
 
-#: domains/cpp/__init__.py:852 domains/javascript.py:373
+#: domains/cpp/__init__.py:857 domains/javascript.py:373
 #: domains/python/__init__.py:631
 msgid "class"
 msgstr "클래스"
@@ -755,66 +755,66 @@ msgstr "중복 레이블의 수식 %s, 다른 인스턴스는 %s에 있음"
 msgid "Invalid math_eqref_format: %r"
 msgstr "잘못된 math_eqref_format: %r"
 
-#: environment/__init__.py:86
+#: environment/__init__.py:82
 msgid "new config"
 msgstr "새로운 설정"
 
-#: environment/__init__.py:87
+#: environment/__init__.py:83
 msgid "config changed"
 msgstr "설정이 변경됨"
 
-#: environment/__init__.py:88
+#: environment/__init__.py:84
 msgid "extensions changed"
 msgstr "확장 기능이 변경됨"
 
-#: environment/__init__.py:249
+#: environment/__init__.py:245
 msgid "build environment version not current"
 msgstr "빌드 환경 버전이 최신이 아님"
 
-#: environment/__init__.py:251
+#: environment/__init__.py:247
 msgid "source directory has changed"
 msgstr "원본 디렉토리가 변경됨"
 
-#: environment/__init__.py:311
+#: environment/__init__.py:307
 #, python-format
 msgid "The configuration has changed (1 option: %r)"
 msgstr ""
 
-#: environment/__init__.py:316
+#: environment/__init__.py:312
 #, python-format
 msgid "The configuration has changed (%d options: %s)"
 msgstr ""
 
-#: environment/__init__.py:322
+#: environment/__init__.py:318
 #, python-format
 msgid "The configuration has changed (%d options: %s, ...)"
 msgstr ""
 
-#: environment/__init__.py:364
+#: environment/__init__.py:360
 msgid ""
 "This environment is incompatible with the selected builder, please choose "
 "another doctree directory."
 msgstr "이 환경은 선택한 빌더와 호환되지 않습니다. 다른 doctree 디렉토리를 선택하십시오."
 
-#: environment/__init__.py:473
+#: environment/__init__.py:469
 #, python-format
 msgid "Failed to scan documents in %s: %r"
 msgstr "%s에서 문서를 탐색하지 못했습니다: %r"
 
-#: environment/__init__.py:622
+#: environment/__init__.py:618
 #, python-format
 msgid "Domain %r is not registered"
 msgstr "%r 영역이 등록되지 않았습니다"
 
-#: environment/__init__.py:773
+#: environment/__init__.py:769
 msgid "document isn't included in any toctree"
 msgstr "문서가 어느 toctree에도 포함되어 있지 않음"
 
-#: environment/__init__.py:806
+#: environment/__init__.py:802
 msgid "self referenced toctree found. Ignored."
 msgstr "자체 참조된 toctree가 발견되었습니다. 무시합니다."
 
-#: environment/__init__.py:835
+#: environment/__init__.py:831
 #, python-format
 msgid "document is referenced in multiple toctrees: %s, selecting: %s <- %s"
 msgstr ""
@@ -1479,41 +1479,41 @@ msgstr "-A 옵션 인수는 name=value 형식이어야 합니다"
 msgid "The dummy builder generates no files."
 msgstr "더미 빌더는 파일을 생성하지 않습니다."
 
-#: builders/linkcheck.py:60
+#: builders/linkcheck.py:76
 #, python-format
 msgid "Look for any errors in the above output or in %(outdir)s/output.txt"
 msgstr "위의 출력 또는 %(outdir)s/output.txt 파일에서 오류를 확인하십시오"
 
-#: builders/linkcheck.py:137
+#: builders/linkcheck.py:157
 #, python-format
 msgid "broken link: %s (%s)"
 msgstr "끊어진 링크: %s (%s)"
 
-#: builders/linkcheck.py:526
+#: builders/linkcheck.py:556
 #, python-format
 msgid "Anchor '%s' not found"
 msgstr "앵커 '%s'을(를) 찾을 수 없습니다"
 
-#: builders/linkcheck.py:726
+#: builders/linkcheck.py:758
 #, python-format
 msgid "Failed to compile regex in linkcheck_allowed_redirects: %r %s"
 msgstr "linkcheck_allowed_redirects에서 정규식을 컴파일하지 못했습니다: %r %s"
 
-#: builders/singlehtml.py:36
+#: builders/singlehtml.py:35
 #, python-format
 msgid "The HTML page is in %(outdir)s."
 msgstr "HTML 페이지는 %(outdir)s에 있습니다."
 
-#: builders/singlehtml.py:168
+#: builders/singlehtml.py:167
 msgid "assembling single document"
 msgstr "단일 문서 조합 중"
 
 #: builders/latex/__init__.py:349 builders/manpage.py:59
-#: builders/singlehtml.py:173 builders/texinfo.py:120
+#: builders/singlehtml.py:172 builders/texinfo.py:120
 msgid "writing"
 msgstr "작성 중"
 
-#: builders/singlehtml.py:186
+#: builders/singlehtml.py:185
 msgid "writing additional files"
 msgstr "추가 파일 작성 중"
 
@@ -1536,7 +1536,7 @@ msgstr "\"man_pages\" 설정값이 알 수 없는 문서 %s을(를) 참조합니
 msgid "The text files are in %(outdir)s."
 msgstr "텍스트 파일은 %(outdir)s에 있습니다."
 
-#: builders/html/__init__.py:1213 builders/text.py:81 builders/xml.py:97
+#: builders/html/__init__.py:1234 builders/text.py:81 builders/xml.py:97
 #, python-format
 msgid "error writing file %s: %s"
 msgstr "%s 파일 쓰기 오류: %s"
@@ -1585,12 +1585,12 @@ msgstr "참조 처리 중…"
 msgid " (in "
 msgstr " (문서 "
 
-#: builders/_epub_base.py:421 builders/html/__init__.py:757
+#: builders/_epub_base.py:423 builders/html/__init__.py:773
 #: builders/latex/__init__.py:485 builders/texinfo.py:201
 msgid "copying images... "
 msgstr "이미지를 복사하는 중… "
 
-#: builders/_epub_base.py:443 builders/latex/__init__.py:500
+#: builders/_epub_base.py:445 builders/latex/__init__.py:500
 #: builders/texinfo.py:218
 #, python-format
 msgid "cannot copy image file %r: %s"
@@ -1610,7 +1610,7 @@ msgstr "Makefile 쓰기 오류: %s"
 msgid "The message catalogs are in %(outdir)s."
 msgstr "메시지 카탈로그는 %(outdir)s에 있습니다."
 
-#: builders/__init__.py:371 builders/gettext.py:251
+#: builders/__init__.py:377 builders/gettext.py:251
 #, python-format
 msgid "building [%s]: "
 msgstr "빌드 중 [%s]: "
@@ -1628,104 +1628,104 @@ msgstr "템플릿을 읽는 중… "
 msgid "writing message catalogs... "
 msgstr "메시지 카탈로그 작성 중… "
 
-#: builders/__init__.py:200
+#: builders/__init__.py:206
 #, python-format
 msgid "a suitable image for %s builder not found: %s (%s)"
 msgstr "%s 빌더에 적합한 이미지를 찾을 수 없음: %s (%s)"
 
-#: builders/__init__.py:208
+#: builders/__init__.py:214
 #, python-format
 msgid "a suitable image for %s builder not found: %s"
 msgstr "%s 빌더에 적합한 이미지를 찾을 수 없음: %s"
 
-#: builders/__init__.py:231
+#: builders/__init__.py:237
 msgid "building [mo]: "
 msgstr "빌드 중 [mo]: "
 
-#: builders/__init__.py:234 builders/__init__.py:729 builders/__init__.py:761
+#: builders/__init__.py:240 builders/__init__.py:735 builders/__init__.py:767
 msgid "writing output... "
 msgstr "출력을 쓰는 중… "
 
-#: builders/__init__.py:251
+#: builders/__init__.py:257
 #, python-format
 msgid "all of %d po files"
 msgstr "모든 %d 개의 po 파일"
 
-#: builders/__init__.py:273
+#: builders/__init__.py:279
 #, python-format
 msgid "targets for %d po files that are specified"
 msgstr "지정된 %d 개의 po 파일 대상"
 
-#: builders/__init__.py:285
+#: builders/__init__.py:291
 #, python-format
 msgid "targets for %d po files that are out of date"
 msgstr "오래된 %d 개의 po 파일 대상"
 
-#: builders/__init__.py:295
+#: builders/__init__.py:301
 msgid "all source files"
 msgstr "모든 원본 파일"
 
-#: builders/__init__.py:307
+#: builders/__init__.py:313
 #, python-format
 msgid "file %r given on command line does not exist, "
 msgstr ""
 
-#: builders/__init__.py:313
+#: builders/__init__.py:319
 #, python-format
 msgid ""
 "file %r given on command line is not under the source directory, ignoring"
 msgstr "명령줄에 지정된 파일 %r이(가) 원본 디렉토리에 있지 않으므로, 무시합니다"
 
-#: builders/__init__.py:324
+#: builders/__init__.py:330
 #, python-format
 msgid "file %r given on command line is not a valid document, ignoring"
 msgstr ""
 
-#: builders/__init__.py:339
+#: builders/__init__.py:345
 #, python-format
 msgid "%d source files given on command line"
 msgstr "명령줄에 지정된 %d 개의 원본 파일"
 
-#: builders/__init__.py:354
+#: builders/__init__.py:360
 #, python-format
 msgid "targets for %d source files that are out of date"
 msgstr "오래된 %d 개의 원본 파일 대상"
 
-#: builders/__init__.py:382
+#: builders/__init__.py:388
 msgid "looking for now-outdated files... "
 msgstr "오래된 파일을 찾는 중… "
 
-#: builders/__init__.py:386
+#: builders/__init__.py:392
 #, python-format
 msgid "%d found"
 msgstr "%d 개 찾음"
 
-#: builders/__init__.py:388
+#: builders/__init__.py:394
 msgid "none found"
 msgstr "찾은 것이 없음"
 
-#: builders/__init__.py:395
+#: builders/__init__.py:401
 msgid "pickling environment"
 msgstr "pickle로 환경을 저장하는 중"
 
-#: builders/__init__.py:402
+#: builders/__init__.py:408
 msgid "checking consistency"
 msgstr "일관성 확인 중"
 
-#: builders/__init__.py:406
+#: builders/__init__.py:412
 msgid "no targets are out of date."
 msgstr "오래된 대상이 없습니다."
 
-#: builders/__init__.py:446
+#: builders/__init__.py:452
 msgid "updating environment: "
 msgstr "환경을 갱신하는 중: "
 
-#: builders/__init__.py:471
+#: builders/__init__.py:477
 #, python-format
 msgid "%s added, %s changed, %s removed"
 msgstr "%s 개 추가됨, %s 개 변경됨, %s 개 제거됨"
 
-#: builders/__init__.py:507
+#: builders/__init__.py:513
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches a "
@@ -1733,7 +1733,7 @@ msgid ""
 " location."
 msgstr ""
 
-#: builders/__init__.py:516
+#: builders/__init__.py:522
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it matches an "
@@ -1741,7 +1741,7 @@ msgid ""
 "conf.py."
 msgstr ""
 
-#: builders/__init__.py:527
+#: builders/__init__.py:533
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s) because it is not included"
@@ -1749,31 +1749,31 @@ msgid ""
 "include_patterns matches the master document."
 msgstr ""
 
-#: builders/__init__.py:534
+#: builders/__init__.py:540
 #, python-format
 msgid ""
 "Sphinx is unable to load the master document (%s). The master document must "
 "be within the source directory or a subdirectory of it."
 msgstr ""
 
-#: builders/__init__.py:553 builders/__init__.py:569
+#: builders/__init__.py:559 builders/__init__.py:575
 msgid "reading sources... "
 msgstr "원본을 읽는 중… "
 
-#: builders/__init__.py:686
+#: builders/__init__.py:692
 #, python-format
 msgid "docnames to write: %s"
 msgstr "기록할 문서 이름: %s"
 
-#: builders/__init__.py:699
+#: builders/__init__.py:705
 msgid "preparing documents"
 msgstr "문서 준비 중"
 
-#: builders/__init__.py:702
+#: builders/__init__.py:708
 msgid "copying assets"
 msgstr ""
 
-#: builders/__init__.py:845
+#: builders/__init__.py:860
 #, python-format
 msgid "undecodable source characters, replacing with \"?\": %r"
 msgstr "디코드 할 수 없는 원본 문자이며, \"?\"로 대체합니다: %r"
@@ -1827,52 +1827,56 @@ msgstr "설정값 \"epub_identifier\"는 EPUB3의 경우 비워 둘 수 없습�
 msgid "conf value \"version\" should not be empty for EPUB3"
 msgstr "설정값 \"version\"은 EPUB3의 경우 비워 둘 수 없습니다"
 
-#: builders/epub3.py:279 builders/html/__init__.py:1262
+#: builders/epub3.py:279 builders/html/__init__.py:1284
 #, python-format
 msgid "invalid css_file: %r, ignored"
 msgstr "잘못된 css_file: %r, 무시합니다"
 
-#: builders/_epub_base.py:220
+#: builders/_epub_base.py:222
 #, python-format
 msgid "duplicated ToC entry found: %s"
 msgstr "중복된 목차 항목 발견: %s"
 
-#: builders/_epub_base.py:432
+#: builders/_epub_base.py:434
 #, python-format
 msgid "cannot read image file %r: copying it instead"
 msgstr "이미지 파일 %r을(를) 읽을 수 없으며, 대신 복사합니다"
 
-#: builders/_epub_base.py:463
+#: builders/_epub_base.py:465
 #, python-format
 msgid "cannot write image file %r: %s"
 msgstr "이미지 파일 %r을(를) 기록할 수 없습니다: %s"
 
-#: builders/_epub_base.py:475
+#: builders/_epub_base.py:477
 msgid "Pillow not found - copying image files"
 msgstr "Pillow를 찾을 수 없습니다 - 이미지 파일을 복사합니다"
 
-#: builders/_epub_base.py:507
+#: builders/_epub_base.py:512
 msgid "writing mimetype file..."
 msgstr "mimetype 파일 쓰는 중…"
 
-#: builders/_epub_base.py:516
+#: builders/_epub_base.py:521
 msgid "writing META-INF/container.xml file..."
 msgstr "META-INF/container.xml 파일 쓰는 중…"
 
-#: builders/_epub_base.py:553
+#: builders/_epub_base.py:558
 msgid "writing content.opf file..."
 msgstr "content.opf 파일 쓰는 중…"
 
-#: builders/_epub_base.py:585
+#: builders/_epub_base.py:590
 #, python-format
 msgid "unknown mimetype for %s, ignoring"
 msgstr "%s은(는) 알 수 없는 MIME 유형이며, 무시합니다"
 
-#: builders/_epub_base.py:756
+#: builders/_epub_base.py:743
+msgid "node has an invalid level"
+msgstr ""
+
+#: builders/_epub_base.py:762
 msgid "writing toc.ncx file..."
 msgstr "toc.ncx 파일 쓰는 중…"
 
-#: builders/_epub_base.py:785
+#: builders/_epub_base.py:791
 #, python-format
 msgid "writing %s file..."
 msgstr "%s 파일을 기록하는 중…"
@@ -1920,7 +1924,7 @@ msgid ""
 "not in the domain."
 msgstr "%s 영역에서 문제 발생: 필드가 '%s' 역할을 사용해야 하지만, 해당 역할이 도메인에 없습니다."
 
-#: util/osutil.py:130
+#: util/osutil.py:129
 #, python-format
 msgid ""
 "Aborted attempted copy from %s to %s (the destination path has existing "
@@ -1983,22 +1987,22 @@ msgstr "건너뜀"
 msgid "failed"
 msgstr "실패"
 
-#: util/i18n.py:105
+#: util/i18n.py:103
 #, python-format
 msgid "reading error: %s, %s"
 msgstr "읽기 오류: %s, %s"
 
-#: util/i18n.py:112
+#: util/i18n.py:110
 #, python-format
 msgid "writing error: %s, %s"
 msgstr "쓰기 오류: %s, %s"
 
-#: util/i18n.py:141
+#: util/i18n.py:138
 #, python-format
 msgid "locale_dir %s does not exist"
 msgstr ""
 
-#: util/i18n.py:236
+#: util/i18n.py:230
 #, python-format
 msgid ""
 "Invalid date format. Quote the string by single quote if you want to output "
@@ -2166,7 +2170,7 @@ msgstr ""
 msgid "See 'sphinx --help'.\n"
 msgstr ""
 
-#: builders/html/__init__.py:478 builders/latex/__init__.py:201
+#: builders/html/__init__.py:486 builders/latex/__init__.py:201
 #: transforms/__init__.py:133 writers/manpage.py:101 writers/texinfo.py:218
 #, python-format
 msgid "%b %d, %Y"
@@ -2593,7 +2597,7 @@ msgstr ""
 msgid "section \"%s\" gets labeled as \"%s\""
 msgstr ""
 
-#: domains/std/__init__.py:702 domains/std/__init__.py:808
+#: domains/std/__init__.py:702 domains/std/__init__.py:811
 #: ext/autosectionlabel.py:52
 #, python-format
 msgid "duplicate label %s, other instance in %s"
@@ -2834,36 +2838,36 @@ msgstr "검색 페이지"
 msgid "duplicate %s description of %s, other instance in %s"
 msgstr "중복된 %s 설명 (%s에 대한), 다른 인스턴스는 %s에 있음"
 
-#: domains/std/__init__.py:926
+#: domains/std/__init__.py:929
 msgid "numfig is disabled. :numref: is ignored."
 msgstr "numfig가 비활성화되었습니다. :numref:는 무시됩니다."
 
-#: domains/std/__init__.py:934
+#: domains/std/__init__.py:937
 #, python-format
 msgid "Failed to create a cross reference. Any number is not assigned: %s"
 msgstr "상호 참조를 생성하지 못했습니다. 어떤 번호도 할당되지 않았습니다: %s"
 
-#: domains/std/__init__.py:946
+#: domains/std/__init__.py:949
 #, python-format
 msgid "the link has no caption: %s"
 msgstr "링크에 캡션이 없습니다: %s"
 
-#: domains/std/__init__.py:960
+#: domains/std/__init__.py:963
 #, python-format
 msgid "invalid numfig_format: %s (%r)"
 msgstr "잘못된 numfig_format: %s (%r)"
 
-#: domains/std/__init__.py:963
+#: domains/std/__init__.py:966
 #, python-format
 msgid "invalid numfig_format: %s"
 msgstr "잘못된 numfig_format: %s"
 
-#: domains/std/__init__.py:1194
+#: domains/std/__init__.py:1197
 #, python-format
 msgid "undefined label: %r"
 msgstr "정의되지 않은 레이블: %r"
 
-#: domains/std/__init__.py:1196
+#: domains/std/__init__.py:1199
 #, python-format
 msgid "Failed to create a cross reference. A title or caption not found: %r"
 msgstr "상호 참조를 생성하지 못했습니다. 제목 또는 캡션을 찾을 수 없습니다: %r"
@@ -2953,16 +2957,16 @@ msgid ""
 " one of them"
 msgstr ""
 
-#: domains/python/__init__.py:817
+#: domains/python/__init__.py:821
 #, python-format
 msgid "more than one target found for cross-reference %r: %s"
 msgstr "상호 참조 %r에 대해 둘 이상의 대상을 찾았습니다: %s"
 
-#: domains/python/__init__.py:878
+#: domains/python/__init__.py:882
 msgid " (deprecated)"
 msgstr " (폐지됨)"
 
-#: domains/c/__init__.py:298 domains/cpp/__init__.py:436
+#: domains/c/__init__.py:304 domains/cpp/__init__.py:441
 #: domains/python/_object.py:164 ext/napoleon/docstring.py:786
 msgid "Parameters"
 msgstr "매개변수"
@@ -2987,43 +2991,43 @@ msgid ""
 "Declaration is '.. c:%s:: %s'."
 msgstr "중복 C 선언이며, %s:%s에 정의되었습니다.\n선언은 '.. c:%s:: %s' 입니다."
 
-#: domains/c/__init__.py:301 domains/cpp/__init__.py:449
+#: domains/c/__init__.py:307 domains/cpp/__init__.py:454
 msgid "Return values"
 msgstr "반환값"
 
-#: domains/c/__init__.py:673 domains/cpp/__init__.py:855
+#: domains/c/__init__.py:679 domains/cpp/__init__.py:860
 msgid "member"
 msgstr "멤버 변수"
 
-#: domains/c/__init__.py:674
+#: domains/c/__init__.py:680
 msgid "variable"
 msgstr "변수"
 
-#: domains/c/__init__.py:676
+#: domains/c/__init__.py:682
 msgid "macro"
 msgstr "매크로"
 
-#: domains/c/__init__.py:677
+#: domains/c/__init__.py:683
 msgid "struct"
 msgstr "구조체"
 
-#: domains/c/__init__.py:678 domains/cpp/__init__.py:853
+#: domains/c/__init__.py:684 domains/cpp/__init__.py:858
 msgid "union"
 msgstr "공용체"
 
-#: domains/c/__init__.py:679 domains/cpp/__init__.py:858
+#: domains/c/__init__.py:685 domains/cpp/__init__.py:863
 msgid "enum"
 msgstr "열거형"
 
-#: domains/c/__init__.py:680 domains/cpp/__init__.py:859
+#: domains/c/__init__.py:686 domains/cpp/__init__.py:864
 msgid "enumerator"
 msgstr "열거자"
 
-#: domains/c/__init__.py:681 domains/cpp/__init__.py:856
+#: domains/c/__init__.py:687 domains/cpp/__init__.py:861
 msgid "type"
 msgstr "자료형"
 
-#: domains/c/__init__.py:683 domains/cpp/__init__.py:861
+#: domains/c/__init__.py:689 domains/cpp/__init__.py:866
 msgid "function parameter"
 msgstr "함수 매개변수"
 
@@ -3043,11 +3047,11 @@ msgid ""
 "Declaration is '.. cpp:%s:: %s'."
 msgstr "중복 C++ 선언이며, %s:%s에 정의되었습니다.\n선언은 '.. cpp:%s:: %s' 입니다."
 
-#: domains/cpp/__init__.py:857
+#: domains/cpp/__init__.py:862
 msgid "concept"
 msgstr "콘셉트"
 
-#: domains/cpp/__init__.py:862
+#: domains/cpp/__init__.py:867
 msgid "template parameter"
 msgstr "템플릿 매개변수"
 
@@ -3180,7 +3184,7 @@ msgstr "모듈 총 색인"
 msgid "quick access to all modules"
 msgstr "모든 모듈 조견표"
 
-#: builders/html/__init__.py:499 themes/basic/defindex.html:23
+#: builders/html/__init__.py:507 themes/basic/defindex.html:23
 msgid "General Index"
 msgstr "전체 색인"
 
@@ -3340,7 +3344,7 @@ msgstr "%s 참조"
 msgid "unknown index entry type %r"
 msgstr "알 수 없는 색인 항목 유형 %r"
 
-#: environment/adapters/indexentries.py:273
+#: environment/adapters/indexentries.py:270
 #: templates/latex/sphinxmessages.sty.jinja:11
 msgid "Symbols"
 msgstr "기호"
@@ -3362,190 +3366,190 @@ msgstr ""
 msgid "The HTML pages are in %(outdir)s."
 msgstr "HTML 페이지는 %(outdir)s에 있습니다."
 
-#: builders/html/__init__.py:340
+#: builders/html/__init__.py:348
 #, python-format
 msgid "Failed to read build info file: %r"
 msgstr "빌드 정보 파일을 읽을 수 없습니다: %r"
 
-#: builders/html/__init__.py:355
+#: builders/html/__init__.py:363
 msgid "build_info mismatch, copying .buildinfo to .buildinfo.bak"
 msgstr ""
 
-#: builders/html/__init__.py:358
+#: builders/html/__init__.py:366
 msgid "building [html]: "
 msgstr ""
 
-#: builders/html/__init__.py:374
+#: builders/html/__init__.py:382
 #, python-format
 msgid ""
 "template %s has been changed since the previous build, all docs will be "
 "rebuilt"
 msgstr ""
 
-#: builders/html/__init__.py:499
+#: builders/html/__init__.py:507
 msgid "index"
 msgstr "색인"
 
-#: builders/html/__init__.py:547
+#: builders/html/__init__.py:555
 #, python-format
 msgid "Logo of %s"
 msgstr ""
 
-#: builders/html/__init__.py:572
+#: builders/html/__init__.py:584
 msgid "next"
 msgstr "다음"
 
-#: builders/html/__init__.py:581
+#: builders/html/__init__.py:593
 msgid "previous"
 msgstr "이전"
 
-#: builders/html/__init__.py:678
+#: builders/html/__init__.py:690
 msgid "generating indices"
 msgstr "색인 생성 중"
 
-#: builders/html/__init__.py:693
+#: builders/html/__init__.py:705
 msgid "writing additional pages"
 msgstr "추가 페이지 작성 중"
 
-#: builders/html/__init__.py:772
+#: builders/html/__init__.py:788
 #, python-format
 msgid "cannot copy image file '%s': %s"
 msgstr ""
 
-#: builders/html/__init__.py:784
+#: builders/html/__init__.py:800
 msgid "copying downloadable files... "
 msgstr "다운로드 가능한 파일을 복사하는 중… "
 
-#: builders/html/__init__.py:796
+#: builders/html/__init__.py:812
 #, python-format
 msgid "cannot copy downloadable file %r: %s"
 msgstr "다운로드 가능한 파일 %r을(를) 복사할 수 없습니다: %s"
 
-#: builders/html/__init__.py:843
+#: builders/html/__init__.py:858
 #, python-format
 msgid "Failed to copy a file in the theme's 'static' directory: %s: %r"
 msgstr ""
 
-#: builders/html/__init__.py:861
+#: builders/html/__init__.py:876
 #, python-format
 msgid "Failed to copy a file in html_static_file: %s: %r"
 msgstr "html_static_file에 있는 파일을 복사할 수 없습니다: %s: %r"
 
-#: builders/html/__init__.py:896
+#: builders/html/__init__.py:911
 msgid "copying static files"
 msgstr "정적 파일을 복사하는 중"
 
-#: builders/html/__init__.py:912
+#: builders/html/__init__.py:928
 #, python-format
 msgid "cannot copy static file %r"
 msgstr "정적 파일을 복사할 수 없습니다: %r"
 
-#: builders/html/__init__.py:917
+#: builders/html/__init__.py:933
 msgid "copying extra files"
 msgstr "추가 파일을 복사하는 중"
 
-#: builders/html/__init__.py:927
+#: builders/html/__init__.py:943
 #, python-format
 msgid "cannot copy extra file %r"
 msgstr "추가 파일을 복사할 수 없습니다: %r"
 
-#: builders/html/__init__.py:933
+#: builders/html/__init__.py:949
 #, python-format
 msgid "Failed to write build info file: %r"
 msgstr "빌드 정보 파일 쓰기 실패: %r"
 
-#: builders/html/__init__.py:982
+#: builders/html/__init__.py:998
 msgid ""
 "search index couldn't be loaded, but not all documents will be built: the "
 "index will be incomplete."
 msgstr "검색 색인을 불러올 수 없지만 모든 문서가 작성되지는 않은 것은 아닙니다. 색인이 불완전합니다."
 
-#: builders/html/__init__.py:1027
+#: builders/html/__init__.py:1046
 #, python-format
 msgid "page %s matches two patterns in html_sidebars: %r and %r"
 msgstr "%s 페이지가 html_sidebars의 두 패턴(%r 및 %r)과 일치합니다"
 
-#: builders/html/__init__.py:1188
+#: builders/html/__init__.py:1208
 #, python-format
 msgid ""
 "a Unicode error occurred when rendering the page %s. Please make sure all "
 "config values that contain non-ASCII content are Unicode strings."
 msgstr "%s 페이지를 렌더링 할 때 유니코드 오류가 발생했습니다. ASCII가 아닌 내용을 포함하는 모든 설정값이 유니코드 문자열인지 확인하십시오."
 
-#: builders/html/__init__.py:1197
+#: builders/html/__init__.py:1217
 #, python-format
 msgid ""
 "An error happened in rendering the page %s.\n"
 "Reason: %r"
 msgstr "%s 페이지를 렌더링하는 중에 오류가 발생했습니다.\n원인: %r"
 
-#: builders/html/__init__.py:1229
+#: builders/html/__init__.py:1250
 msgid "dumping object inventory"
 msgstr "객체 인벤토리 덤프 중"
 
-#: builders/html/__init__.py:1237
+#: builders/html/__init__.py:1258
 #, python-format
 msgid "dumping search index in %s"
 msgstr "%s에서 검색 인덱스 덤프 중"
 
-#: builders/html/__init__.py:1279
+#: builders/html/__init__.py:1301
 #, python-format
 msgid "invalid js_file: %r, ignored"
 msgstr "잘못된 js_file: %r, 무시합니다"
 
-#: builders/html/__init__.py:1312
+#: builders/html/__init__.py:1334
 msgid "Many math_renderers are registered. But no math_renderer is selected."
 msgstr "여러 math_renderers가 등록되어 있습니다. 하지만 math_renderer가 선택되지 않았습니다."
 
-#: builders/html/__init__.py:1317
+#: builders/html/__init__.py:1339
 #, python-format
 msgid "Unknown math_renderer %r is given."
 msgstr "알 수 없는 math_renderer %r이(가) 지정되었습니다."
 
-#: builders/html/__init__.py:1325
-#, python-format
-msgid "html_extra_path entry %r does not exist"
-msgstr "html_extra_path 항목 %r이(가) 없습니다"
-
-#: builders/html/__init__.py:1332
+#: builders/html/__init__.py:1353
 #, python-format
 msgid "html_extra_path entry %r is placed inside outdir"
 msgstr "html_extra_path 항목 %r이(가) outdir 안에 있습니다"
 
-#: builders/html/__init__.py:1342
+#: builders/html/__init__.py:1358
 #, python-format
-msgid "html_static_path entry %r does not exist"
-msgstr "html_static_path 항목 %r이(가) 없습니다"
+msgid "html_extra_path entry %r does not exist"
+msgstr "html_extra_path 항목 %r이(가) 없습니다"
 
-#: builders/html/__init__.py:1349
+#: builders/html/__init__.py:1373
 #, python-format
 msgid "html_static_path entry %r is placed inside outdir"
 msgstr "html_static_path 항목 %r이(가) outdir 안에 있습니다"
 
-#: builders/html/__init__.py:1361 builders/latex/__init__.py:507
+#: builders/html/__init__.py:1378
+#, python-format
+msgid "html_static_path entry %r does not exist"
+msgstr "html_static_path 항목 %r이(가) 없습니다"
+
+#: builders/html/__init__.py:1389 builders/latex/__init__.py:507
 #, python-format
 msgid "logo file %r does not exist"
 msgstr "로고 파일 %r이(가) 존재하지 않습니다"
 
-#: builders/html/__init__.py:1372
+#: builders/html/__init__.py:1400
 #, python-format
 msgid "favicon file %r does not exist"
 msgstr "Favicon 파일 %r이(가) 존재하지 않습니다"
 
-#: builders/html/__init__.py:1384
+#: builders/html/__init__.py:1412
 #, python-format
 msgid ""
 "Values in 'html_sidebars' must be a list of strings. At least one pattern "
 "has a string value: %s. Change to `html_sidebars = %r`."
 msgstr ""
 
-#: builders/html/__init__.py:1397
+#: builders/html/__init__.py:1425
 msgid ""
 "HTML 4 is no longer supported by Sphinx. (\"html4_writer=True\" detected in "
 "configuration options)"
 msgstr ""
 
-#: builders/html/__init__.py:1414
+#: builders/html/__init__.py:1442
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s 문서"
@@ -3973,34 +3977,34 @@ msgstr "%r에 대한 서명을 업데이트하지 못했습니다. 매개변수�
 msgid "Failed to parse type_comment for %r: %s"
 msgstr "%r에 대한 type_comment를 해석하지 못했습니다: %s"
 
-#: ext/autodoc/__init__.py:141
+#: ext/autodoc/__init__.py:142
 #, python-format
 msgid "invalid value for member-order option: %s"
 msgstr "member-order 옵션에 대해 잘못된 값: %s"
 
-#: ext/autodoc/__init__.py:149
+#: ext/autodoc/__init__.py:150
 #, python-format
 msgid "invalid value for class-doc-from option: %s"
 msgstr "class-doc-from 옵션에 대해 잘못된 값: %s"
 
-#: ext/autodoc/__init__.py:408
+#: ext/autodoc/__init__.py:415
 #, python-format
 msgid "invalid signature for auto%s (%r)"
 msgstr "auto%s (%r)에 대한 잘못된 서명"
 
-#: ext/autodoc/__init__.py:525
+#: ext/autodoc/__init__.py:532
 #, python-format
 msgid "error while formatting arguments for %s: %s"
 msgstr "%s에 대한 인수를 서식화하는 동안 오류 발생: %s"
 
-#: ext/autodoc/__init__.py:795
+#: ext/autodoc/__init__.py:802
 #, python-format
 msgid ""
 "autodoc: failed to determine %s.%s (%r) to be documented, the following exception was raised:\n"
 "%s"
 msgstr "autodoc: 문서화 할 %s.%s (%r) 을(를) 결정하지 못했으며, 다음 예외가 발생했습니다:\n%s"
 
-#: ext/autodoc/__init__.py:890
+#: ext/autodoc/__init__.py:897
 #, python-format
 msgid ""
 "don't know which module to import for autodocumenting %r (try placing a "
@@ -4008,76 +4012,76 @@ msgid ""
 "explicit module name)"
 msgstr "%r의 자동 문서화를 위해 가져올 모듈을 알 수 없습니다 (문서에 \"module\" 또는 \"currentmodule\" 지시문을 배치하거나, 명시적으로 모듈 이름을 지정해 보십시오)"
 
-#: ext/autodoc/__init__.py:934
+#: ext/autodoc/__init__.py:941
 #, python-format
 msgid "A mocked object is detected: %r"
 msgstr "모의 객체가 감지되었습니다: %r"
 
-#: ext/autodoc/__init__.py:953
+#: ext/autodoc/__init__.py:960
 #, python-format
 msgid "error while formatting signature for %s: %s"
 msgstr "%s에 대한 서명을 서식화하는 동안 오류 발생: %s"
 
-#: ext/autodoc/__init__.py:1016
+#: ext/autodoc/__init__.py:1023
 msgid "\"::\" in automodule name doesn't make sense"
 msgstr "automodule 이름의 \"::\"은 의미가 없음"
 
-#: ext/autodoc/__init__.py:1023
+#: ext/autodoc/__init__.py:1030
 #, python-format
 msgid "signature arguments or return annotation given for automodule %s"
 msgstr "automodule %s에 대해 서명 인수 또는 반환 값 주석이 지정됨"
 
-#: ext/autodoc/__init__.py:1036
+#: ext/autodoc/__init__.py:1043
 #, python-format
 msgid ""
 "__all__ should be a list of strings, not %r (in module %s) -- ignoring "
 "__all__"
 msgstr "__all__은 %r이(가) 아닌 문자열의 목록이어야 합니다 (모듈 %s) -- __all__을 무시합니다"
 
-#: ext/autodoc/__init__.py:1102
+#: ext/autodoc/__init__.py:1109
 #, python-format
 msgid ""
 "missing attribute mentioned in :members: option: module %s, attribute %s"
 msgstr ":members: 옵션에 언급된 속성이 없습니다: 모듈 %s, 속성 %s"
 
-#: ext/autodoc/__init__.py:1325 ext/autodoc/__init__.py:1402
-#: ext/autodoc/__init__.py:2810
+#: ext/autodoc/__init__.py:1332 ext/autodoc/__init__.py:1409
+#: ext/autodoc/__init__.py:2822
 #, python-format
 msgid "Failed to get a function signature for %s: %s"
 msgstr "%s에 대한 함수 서명을 가져오지 못했습니다: %s"
 
-#: ext/autodoc/__init__.py:1616
+#: ext/autodoc/__init__.py:1628
 #, python-format
 msgid "Failed to get a constructor signature for %s: %s"
 msgstr "%s에 대한 생성자 서명을 가져오지 못했습니다: %s"
 
-#: ext/autodoc/__init__.py:1743
+#: ext/autodoc/__init__.py:1755
 #, python-format
 msgid "Bases: %s"
 msgstr "기반 클래스: %s"
 
-#: ext/autodoc/__init__.py:1757
+#: ext/autodoc/__init__.py:1769
 #, python-format
 msgid "missing attribute %s in object %s"
 msgstr "%s 속성이 %s 객체에 없음"
 
-#: ext/autodoc/__init__.py:1838 ext/autodoc/__init__.py:1875
-#: ext/autodoc/__init__.py:1970
+#: ext/autodoc/__init__.py:1850 ext/autodoc/__init__.py:1887
+#: ext/autodoc/__init__.py:1982
 #, python-format
 msgid "alias of %s"
 msgstr "%s의 별칭"
 
-#: ext/autodoc/__init__.py:1858
+#: ext/autodoc/__init__.py:1870
 #, python-format
 msgid "alias of TypeVar(%s)"
 msgstr "TypeVar(%s)의 별칭"
 
-#: ext/autodoc/__init__.py:2198 ext/autodoc/__init__.py:2298
+#: ext/autodoc/__init__.py:2210 ext/autodoc/__init__.py:2310
 #, python-format
 msgid "Failed to get a method signature for %s: %s"
 msgstr "%s에 대한 메소드 서명을 가져오지 못했습니다: %s"
 
-#: ext/autodoc/__init__.py:2429
+#: ext/autodoc/__init__.py:2441
 #, python-format
 msgid "Invalid __slots__ found on %s. Ignored."
 msgstr "%s에서 잘못된 __slots__ 가 발견되었습니다. 무시합니다."
