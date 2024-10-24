@@ -45,7 +45,6 @@ if TYPE_CHECKING:
 class _Status(StrEnum):
     BROKEN = 'broken'
     IGNORED = 'ignored'
-    LOCAL = 'local'
     RATE_LIMITED = 'rate-limited'
     REDIRECTED = 'redirected'
     TIMEOUT = 'timeout'
@@ -124,15 +123,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 else:
                     msg = result.uri
                 logger.info(darkgray('-ignored- ') + msg)
-            case _Status.LOCAL:
-                logger.info(darkgray('-local-   ') + result.uri)
-                self.write_entry(
-                    _Status.LOCAL,
-                    result.docname,
-                    filename,
-                    result.lineno,
-                    result.uri,
-                )
             case _Status.WORKING:
                 logger.info(darkgreen('ok        ') + f'{result.uri}{result.message}')
             case _Status.TIMEOUT:
