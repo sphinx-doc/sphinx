@@ -505,10 +505,15 @@ class StandaloneHTMLBuilder(Builder):
         rellinks: list[tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for indexname, indexcls, _content, _collapse in self.domain_indices:
+        for index_name, index_cls, _content, _collapse in self.domain_indices:
             # if it has a short name
-            if indexcls.shortname:
-                rellinks.append((indexname, indexcls.localname, '', indexcls.shortname))
+            if index_cls.shortname:
+                rellinks.append((
+                    index_name,
+                    index_cls.localname,
+                    '',
+                    index_cls.shortname,
+                ))
 
         # add assets registered after ``Builder.init()``.
         for css_filename, attrs in self.app.registry.css_files:
@@ -755,14 +760,14 @@ class StandaloneHTMLBuilder(Builder):
             self.handle_page('genindex', genindexcontext, 'genindex.html')
 
     def write_domain_indices(self) -> None:
-        for indexname, indexcls, content, collapse in self.domain_indices:
-            indexcontext = {
-                'indextitle': indexcls.localname,
+        for index_name, index_cls, content, collapse in self.domain_indices:
+            index_context = {
+                'indextitle': index_cls.localname,
                 'content': content,
                 'collapse_index': collapse,
             }
-            logger.info(indexname + ' ', nonl=True)
-            self.handle_page(indexname, indexcontext, 'domainindex.html')
+            logger.info('%s ', index_name, nonl=True)
+            self.handle_page(index_name, index_context, 'domainindex.html')
 
     def copy_image_files(self) -> None:
         if self.images:
