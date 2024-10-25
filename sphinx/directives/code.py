@@ -219,6 +219,7 @@ class LiteralIncludeReader:
     def read_file(
         self, filename: str | os.PathLike[str], location: tuple[str, int] | None = None
     ) -> list[str]:
+        filename = _StrPath(filename)
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:
                 text = f.read()
@@ -227,11 +228,11 @@ class LiteralIncludeReader:
 
                 return text.splitlines(True)
         except OSError as exc:
-            msg = __('Include file %r not found or reading it failed') % filename
+            msg = __("Include file '%s' not found or reading it failed") % filename
             raise OSError(msg) from exc
         except UnicodeError as exc:
             msg = __(
-                'Encoding %r used for reading included file %r seems to '
+                "Encoding %r used for reading included file '%s' seems to "
                 'be wrong, try giving an :encoding: option'
             ) % (self.encoding, filename)
             raise UnicodeError(msg) from exc
