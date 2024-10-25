@@ -21,5 +21,8 @@ Features added
 Bugs fixed
 ----------
 
+* #13060: HTML Search: use ``Map`` to store per-file term scores.
+  Patch by James Addison
+
 Testing
 -------
