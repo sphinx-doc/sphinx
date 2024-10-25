@@ -59,7 +59,7 @@ jobs:
         "https://astral.sh/uv/install.sh"
         | sh
     - name: Install dependencies
-      run: uv pip install --upgrade "flake8>=6.0"
+      run: uv pip install --group lint
     - name: Lint with flake8
       run: flake8 .
 
@@ -79,7 +79,7 @@ jobs:
         "https://astral.sh/uv/install.sh"
         | sh
     - name: Install dependencies
-      run: uv pip install ".[lint,test]"
+      run: uv pip install --group types
     - name: Type check with mypy
       run: mypy
 
@@ -99,7 +99,7 @@ jobs:
         "https://astral.sh/uv/install.sh"
         | sh
     - name: Install dependencies
-      run: uv pip install ".[lint,test]"
+      run: uv pip install --group types
     - name: Type check with pyright
       run: pyright
 
@@ -119,7 +119,7 @@ jobs:
         "https://astral.sh/uv/install.sh"
         | sh
     - name: Install dependencies
-      run: uv pip install --upgrade sphinx-lint
+      run: uv pip install --group lint
     - name: Lint documentation with sphinx-lint
       run: make doclinter
 
