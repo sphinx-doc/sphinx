@@ -558,26 +558,32 @@ class PythonModuleIndex(Index):
     name = 'modindex'
     localname = _('Python Module Index')
     shortname = _('modules')
+    domain: PythonDomain
 
     def generate(self, docnames: Iterable[str] | None = None,
                  ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
+        doc_names = frozenset(docnames) if docnames is not None else None
+
         content: dict[str, list[IndexEntry]] = {}
         # list of prefixes to ignore
-        ignores: list[str] = self.domain.env.config['modindex_common_prefix']
-        ignores = sorted(ignores, key=len, reverse=True)
+        ignores: list[str] = sorted(
+            self.domain.env.config['modindex_common_prefix'], key=len, reverse=True
+        )
+
         # list of all modules, sorted by module name
-        modules = sorted(self.domain.data['modules'].items(),
-                         key=lambda x: x[0].lower())
+        modules = sorted(self.domain.modules.items(), key=lambda t: t[0].lower())
+
         # sort out collapsible modules
         prev_modname = ''
-        num_toplevels = 0
-        for modname, (docname, node_id, synopsis, platforms, deprecated) in modules:
-            if docnames and docname not in docnames:
+
+        num_top_levels = 0
+        for modname, module in modules:
+            if doc_names and module.docname not in doc_names:
                 continue
 
             for ignore in ignores:
                 if modname.startswith(ignore):
-                    modname = modname[len(ignore):]
+                    modname = modname.removeprefix(ignore)
                     stripped = ignore
                     break
             else:
@@ -589,7 +595,7 @@ class PythonModuleIndex(Index):
 
             entries = content.setdefault(modname[0].lower(), [])
 
-            package = modname.split('.')[0]
+            package = modname.split('.', maxsplit=1)[0]
             if package != modname:
                 # it's a submodule
                 if prev_modname == package:
@@ -619,7 +625,7 @@ class PythonModuleIndex(Index):
                     entries.append(dummy_entry)
                 subtype = 2
             else:
-                num_toplevels += 1
+                num_top_levels += 1
                 subtype = 0
 
             entry = IndexEntry(
@@ -637,7 +643,7 @@ class PythonModuleIndex(Index):
         # apply heuristics when to collapse modindex at page load:
         # only collapse if number of toplevel modules is larger than
         # number of submodules
-        collapse = len(modules) - num_toplevels < num_toplevels
+        collapse = len(modules) - num_top_levels < num_top_levels
 
         # sort by first letter
         sorted_content = sorted(content.items())
@@ -885,9 +891,10 @@ class PythonDomain(Domain):
                 continue
 
             if obj[2] == 'module':
-                results.append(('py:mod',
-                                self._make_module_refnode(builder, fromdocname,
-                                                          name, contnode)))
+                results.append((
+                    'py:mod',
+                    self._make_module_refnode(builder, fromdocname, name, contnode)
+                ))
             else:
                 # determine the content of the reference by conditions
                 content = find_pending_xref_condition(node, 'resolved')
@@ -905,16 +912,18 @@ class PythonDomain(Domain):
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,
                              contnode: Node) -> Element:
         # get additional info for modules
-        module = self.modules[name]
-        title = name
+        module: ModuleEntry = self.modules[name]
+        title_parts = [name]
         if module.synopsis:
-            title += ': ' + module.synopsis
+            title_parts.append(f': {module.synopsis}')
         if module.deprecated:
-            title += _(' (deprecated)')
+            title_parts.append(_(' (deprecated)'))
         if module.platform:
-            title += ' (' + module.platform + ')'
-        return make_refnode(builder, fromdocname, module.docname, module.node_id,
-                            contnode, title)
+            title_parts.append(f' ({module.platform})')
+        title = ''.join(title_parts)
+        return make_refnode(
+            builder, fromdocname, module.docname, module.node_id, contnode, title
+        )
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         for modname, mod in self.modules.items():
