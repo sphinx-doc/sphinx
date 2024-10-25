@@ -1,9 +1,9 @@
 """Test sphinx.ext.inheritance_diagram extension."""
 
-import os
 import re
 import sys
 import zlib
+from pathlib import Path
 
 import pytest
 
@@ -26,7 +26,7 @@ def test_inheritance_diagram(app):
     def new_run(self):
         result = orig_run(self)
         node = result[0]
-        source = os.path.basename(node.document.current_source).replace('.rst', '')
+        source = Path(node.document.current_source).stem
         graphs[source] = node['graph']
         return result
 

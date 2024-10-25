@@ -4,7 +4,6 @@ Runs the text builder in the test root.
 """
 
 import os
-import os.path
 import re
 import shutil
 import time
