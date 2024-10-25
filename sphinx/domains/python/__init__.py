@@ -471,11 +471,13 @@ class PyModule(SphinxDirective):
             self.set_source_info(target)
             self.state.document.note_explicit_target(target)
 
-            domain.note_module(modname,
-                               node_id,
-                               self.options.get('synopsis', ''),
-                               self.options.get('platform', ''),
-                               'deprecated' in self.options)
+            domain.note_module(
+                name=modname,
+                node_id=node_id,
+                synopsis=self.options.get('synopsis', ''),
+                platform=self.options.get('platform', ''),
+                deprecated='deprecated' in self.options,
+            )
             domain.note_object(modname, 'module', node_id, location=target)
 
             # the platform and synopsis aren't printed; in fact, they are only
@@ -727,14 +729,20 @@ class PythonDomain(Domain):
     def modules(self) -> dict[str, ModuleEntry]:
         return self.data.setdefault('modules', {})  # modname -> ModuleEntry
 
-    def note_module(self, name: str, node_id: str, synopsis: str,
-                    platform: str, deprecated: bool) -> None:
+    def note_module(
+        self, name: str, node_id: str, synopsis: str, platform: str, deprecated: bool
+    ) -> None:
         """Note a python module for cross reference.
 
         .. versionadded:: 2.1
         """
-        self.modules[name] = ModuleEntry(self.env.docname, node_id,
-                                         synopsis, platform, deprecated)
+        self.modules[name] = ModuleEntry(
+            docname=self.env.docname,
+            node_id=node_id,
+            synopsis=synopsis,
+            platform=platform,
+            deprecated=deprecated,
+        )
 
     def clear_doc(self, docname: str) -> None:
         to_remove = [
