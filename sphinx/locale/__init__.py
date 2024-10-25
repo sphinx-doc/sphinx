@@ -5,7 +5,7 @@ from __future__ import annotations
 import locale
 import sys
 from gettext import NullTranslations, translation
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -141,11 +141,11 @@ def init(
     return translator, has_translation
 
 
-_LOCALE_DIR = path.abspath(path.dirname(__file__))
+_LOCALE_DIR = Path(__file__).parent.resolve()
 
 
 def init_console(
-    locale_dir: str | None = None,
+    locale_dir: str | os.PathLike[str] | None = None,
     catalog: str = 'sphinx',
 ) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.

@@ -1616,7 +1616,7 @@ class Sphinx:
         """
         self.registry.add_html_math_renderer(name, inline_renderers, block_renderers)
 
-    def add_message_catalog(self, catalog: str, locale_dir: str) -> None:
+    def add_message_catalog(self, catalog: str, locale_dir: str | os.PathLike[str]) -> None:
         """Register a message catalog.
 
         :param catalog: The name of the catalog
