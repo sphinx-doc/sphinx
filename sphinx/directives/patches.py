@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from docutils import nodes
@@ -16,7 +16,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import SEP, os_path, relpath
+from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -60,8 +60,8 @@ class CSVTable(tables.CSVTable):  # type: ignore[misc]
     def run(self) -> list[Node]:
         if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
             env = self.state.document.settings.env
-            filename = self.options['file']
-            if path.exists(filename):
+            filename = Path(self.options['file'])
+            if filename.exists():
                 logger.warning(
                     __(
                         '":file:" option for csv-table directive now recognizes '
@@ -71,9 +71,9 @@ class CSVTable(tables.CSVTable):  # type: ignore[misc]
                     location=(env.docname, self.lineno),
                 )
             else:
-                abspath = path.join(env.srcdir, os_path(self.options['file'][1:]))
-                docdir = path.dirname(env.doc2path(env.docname))
-                self.options['file'] = relpath(abspath, docdir)
+                abspath = env.srcdir / self.options['file'][1:]
+                doc_dir = env.doc2path(env.docname).parent
+                self.options['file'] = relpath(abspath, doc_dir)
 
         return super().run()
 
