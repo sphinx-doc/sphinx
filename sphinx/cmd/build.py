@@ -7,11 +7,10 @@ import bdb
 import contextlib
 import locale
 import multiprocessing
-import os
 import pdb  # NoQA: T100
 import sys
 import traceback
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, TextIO
 
 from docutils.utils import SystemMessage
@@ -22,6 +21,7 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
 from sphinx.util._io import TeeStripANSI
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.console import color_terminal, nocolor, red, terminal_safe
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
@@ -392,10 +392,10 @@ def _parse_confdir(noconfig: bool, confdir: str, sourcedir: str) -> str | None:
     return confdir
 
 
-def _parse_doctreedir(doctreedir: str, outputdir: str) -> str:
+def _parse_doctreedir(doctreedir: str, outputdir: str) -> _StrPath:
     if doctreedir:
-        return doctreedir
-    return os.path.join(outputdir, '.doctrees')
+        return _StrPath(doctreedir)
+    return _StrPath(outputdir, '.doctrees')
 
 
 def _validate_filenames(
@@ -431,12 +431,12 @@ def _parse_logging(
     warnfp = None
     if warning and warnfile:
         try:
-            warnfile = path.abspath(warnfile)
-            ensuredir(path.dirname(warnfile))
+            warn_file = Path(warnfile).resolve()
+            ensuredir(warn_file.parent)
             # the caller is responsible for closing this file descriptor
-            warnfp = open(warnfile, 'w', encoding='utf-8')  # NoQA: SIM115
+            warnfp = open(warn_file, 'w', encoding='utf-8')  # NoQA: SIM115
         except Exception as exc:
-            parser.error(__('cannot open warning file %r: %s') % (warnfile, exc))
+            parser.error(__("cannot open warning file '%s': %s") % (warn_file, exc))
         warning = TeeStripANSI(warning, warnfp)  # type: ignore[assignment]
         error = warning
 
