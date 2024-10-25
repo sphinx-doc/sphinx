@@ -594,19 +594,42 @@ class PythonModuleIndex(Index):
                     # first submodule - make parent a group head
                     if entries:
                         last = entries[-1]
-                        entries[-1] = IndexEntry(last[0], 1, last[2], last[3],
-                                                 last[4], last[5], last[6])
+                        entries[-1] = IndexEntry(
+                            name=last.name,
+                            subtype=1,
+                            docname=last.docname,
+                            anchor=last.anchor,
+                            extra=last.extra,
+                            qualifier=last.qualifier,
+                            descr=last.descr,
+                        )
                 elif not prev_modname.startswith(package):
                     # submodule without parent in list, add dummy entry
-                    entries.append(IndexEntry(stripped + package, 1, '', '', '', '', ''))
+                    dummy_entry = IndexEntry(
+                        name=stripped + package,
+                        subtype=1,
+                        docname='',
+                        anchor='',
+                        extra='',
+                        qualifier='',
+                        descr='',
+                    )
+                    entries.append(dummy_entry)
                 subtype = 2
             else:
                 num_toplevels += 1
                 subtype = 0
 
-            qualifier = _('Deprecated') if deprecated else ''
-            entries.append(IndexEntry(stripped + modname, subtype, docname,
-                                      node_id, platforms, qualifier, synopsis))
+            entry = IndexEntry(
+                name=stripped + modname,
+                subtype=subtype,
+                docname=module.docname,
+                anchor=module.node_id,
+                extra=module.platform,
+                qualifier=_('Deprecated') if module.deprecated else '',
+                descr=module.synopsis,
+            )
+            entries.append(entry)
             prev_modname = modname
 
         # apply heuristics when to collapse modindex at page load:
