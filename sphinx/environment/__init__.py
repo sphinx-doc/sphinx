@@ -841,7 +841,7 @@ def _check_toc_parents(toctree_includes: dict[str, list[str]], root_doc: str) ->
                 __(
                     'document is referenced in multiple toctrees: %s, selecting: %s <- %s'
                 ),
-                sorted(parents),
+                parents,
                 max(parents),
                 doc,
                 location=doc,
