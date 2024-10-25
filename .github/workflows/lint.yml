@@ -55,7 +55,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install ".[lint,test]"
+      run: uv pip install -r pyproject.toml --group package --group test --group types
     - name: Type check with mypy
       run: mypy
 
@@ -76,7 +76,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install ".[lint,test]"
+      run: uv pip install -r pyproject.toml --group package --group test --group types
     - name: Type check with pyright
       run: pyright
 
@@ -97,7 +97,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install --upgrade sphinx-lint
+      run: uv pip install --group lint
     - name: Lint documentation with sphinx-lint
       run: make doclinter
 
@@ -118,7 +118,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install --upgrade twine build
+      run: uv pip install --group package
     - name: Lint with twine
       run: |
         python -m build .

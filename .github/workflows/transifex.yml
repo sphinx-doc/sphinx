@@ -41,7 +41,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install --upgrade babel jinja2
+      run: uv pip install --group translations
     - name: Extract translations from source code
       run: python utils/babel_runner.py extract
     - name: Push translations to transifex.com
@@ -77,7 +77,7 @@ jobs:
         version: latest
         enable-cache: false
     - name: Install dependencies
-      run: uv pip install --upgrade babel jinja2
+      run: uv pip install --group translations
     - name: Extract translations from source code
       run: python utils/babel_runner.py extract
     - name: Pull translations from transifex.com
