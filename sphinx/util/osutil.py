@@ -236,7 +236,7 @@ class FileAvoidWrite:
         return getattr(self._io, name)
 
 
-def rmtree(path: str) -> None:
+def rmtree(path: str | os.PathLike[str], /) -> None:
     if os.path.isdir(path):
         shutil.rmtree(path)
     else:
