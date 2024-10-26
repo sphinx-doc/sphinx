@@ -769,6 +769,26 @@ def test_translation_progress_classes_true(app):
     assert len(doctree[0]) == 20
 
 
+@pytest.mark.sphinx(
+    'html',
+    testroot='intl',
+    freshenv=True,
+    confoverrides={
+        'language': _CATALOG_LOCALE,
+        'locale_dirs': ['.'],
+        'gettext_compact': False,
+        'translation_progress_classes': '0',
+    },
+)
+def test_translation_progress_classes_disabled(app):
+    app.build(filenames=[app.srcdir / 'translation_progress.txt'])
+
+    doctree = app.env.get_doctree('translation_progress')
+
+    # title
+    assert 'translated' not in doctree[0][0]['classes']
+
+
 class _MockClock:
     """Object for mocking :func:`time.time_ns` (if needed).
 

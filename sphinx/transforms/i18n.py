@@ -652,8 +652,10 @@ class AddTranslationClasses(SphinxTransform):
         if not self.config.translation_progress_classes:
             return
 
-        if self.config.translation_progress_classes is True:
+        if self.config.translation_progress_classes in (True, '1'):
             add_translated = add_untranslated = True
+        elif self.config.translation_progress_classes in (False, '0'):
+            add_translated = add_untranslated = False
         elif self.config.translation_progress_classes == 'translated':
             add_translated = True
             add_untranslated = False
@@ -663,7 +665,7 @@ class AddTranslationClasses(SphinxTransform):
         else:
             msg = (
                 'translation_progress_classes must be '
-                'True, False, "translated" or "untranslated"'
+                'True, False, 1, 0, "translated" or "untranslated"'
             )
             raise ConfigError(msg)
 

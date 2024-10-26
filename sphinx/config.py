@@ -213,7 +213,7 @@ class Config:
         'figure_language_filename': _Opt('{root}.{language}{ext}', 'env', frozenset((str,))),
         'gettext_allow_fuzzy_translations': _Opt(False, 'gettext', ()),
         'translation_progress_classes': _Opt(
-            False, 'env', ENUM(True, False, 'translated', 'untranslated')),
+            False, 'env', ENUM(True, False, '1', '0', 'translated', 'untranslated')),
 
         'master_doc': _Opt('index', 'env', ()),
         'root_doc': _Opt(lambda config: config.master_doc, 'env', ()),
