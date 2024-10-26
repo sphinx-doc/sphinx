@@ -18,7 +18,7 @@ Features added
 Bugs fixed
 ----------
 
-* #12975: No trailing comma in C/C++ multi-line signatures
+* #12975: Avoid rendering a trailing comma in C/C++ multi-line signatures.
 
 Testing
 -------
