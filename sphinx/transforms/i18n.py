@@ -665,7 +665,7 @@ class AddTranslationClasses(SphinxTransform):
         else:
             msg = (
                 'translation_progress_classes must be '
-                'True, False, 1, 0, "translated" or "untranslated"'
+                'True, False, "1", "0", "translated" or "untranslated"'
             )
             raise ConfigError(msg)
 
