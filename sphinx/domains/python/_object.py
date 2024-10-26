@@ -279,7 +279,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         if tp_list:
             try:
                 signode += _parse_type_list(
-                    tp_list, self.env, multi_line_type_parameter_list, trailing_comma
+                    tp_list, self.env, multi_line_type_parameter_list, trailing_comma,
                 )
             except Exception as exc:
                 logger.warning("could not parse tp_list (%r): %s", tp_list, exc,
@@ -288,7 +288,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         if arglist:
             try:
                 signode += _parse_arglist(
-                    arglist, self.env, multi_line_parameter_list, trailing_comma
+                    arglist, self.env, multi_line_parameter_list, trailing_comma,
                 )
             except SyntaxError:
                 # fallback to parse arglist original parser
@@ -296,14 +296,14 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 # as a list of bases when documenting a class)
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
                 _pseudo_parse_arglist(
-                    signode, arglist, multi_line_parameter_list, trailing_comma
+                    signode, arglist, multi_line_parameter_list, trailing_comma,
                 )
             except (NotImplementedError, ValueError) as exc:
                 # duplicated parameter names raise ValueError and not a SyntaxError
                 logger.warning("could not parse arglist (%r): %s", arglist, exc,
                                location=signode)
                 _pseudo_parse_arglist(
-                    signode, arglist, multi_line_parameter_list, trailing_comma
+                    signode, arglist, multi_line_parameter_list, trailing_comma,
                 )
         else:
             if self.needs_arglist():
