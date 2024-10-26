@@ -27,7 +27,7 @@ jobs:
       with:
         python-version: "3"
     - name: Install graphviz
-      run: sudo apt-get install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
       run: >
         curl --no-progress-meter --location --fail
