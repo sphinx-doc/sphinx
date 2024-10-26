@@ -513,7 +513,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'javascript_maximum_signature_line_length', None, 'env', {int, type(None)},
     )
     app.add_config_value(
-        'javascript_trailing_comma_in_multi_line_signatures', True, 'env',
+        'javascript_trailing_comma_in_multi_line_signatures', True, 'env', bool,
     )
     return {
         'version': 'builtin',
