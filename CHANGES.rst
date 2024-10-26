@@ -23,7 +23,7 @@ Javascript multi-line signatures, via
 Bugs fixed
 ----------
 
-* #12975: Avoid rendering a trailing comma in C/C++ multi-line signatures.
+* #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
 
 Testing
 -------
