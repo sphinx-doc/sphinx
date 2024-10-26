@@ -133,10 +133,14 @@ def copyfile(
             logger.warning(msg, source, dest, type='misc', subtype='copy_overwrite')
             return
 
-        shutil.copyfile(source, dest)
-        with contextlib.suppress(OSError):
-            # don't do full copystat because the source may be read-only
-            _copy_times(source, dest)
+        if sys.platform == 'win32':
+            # copy2() uses Windows API calls
+            shutil.copy2(source, dest)
+        else:
+            shutil.copyfile(source, dest)
+            with contextlib.suppress(OSError):
+                # don't do full copystat because the source may be read-only
+                _copy_times(source, dest)
 
 
 _no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')

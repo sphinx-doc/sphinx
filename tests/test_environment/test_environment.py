@@ -1,6 +1,5 @@
 """Test the BuildEnvironment class."""
 
-import os
 import shutil
 from pathlib import Path
 
@@ -41,8 +40,8 @@ def test_config_status(make_app, app_params):
 
     # incremental build (config entry changed)
     app3 = make_app(*args, confoverrides={'root_doc': 'indexx'}, **kwargs)
-    fname = os.path.join(app3.srcdir, 'index.rst')
-    assert os.path.isfile(fname)
+    fname = app3.srcdir / 'index.rst'
+    assert fname.is_file()
     shutil.move(fname, fname[:-4] + 'x.rst')
     assert app3.env.config_status == CONFIG_CHANGED
     app3.build()

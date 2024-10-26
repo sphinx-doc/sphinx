@@ -17,9 +17,11 @@ from sphinx.locale import __
 from sphinx.parsers import Parser as SphinxParser
 from sphinx.roles import XRefRole
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.logging import prefixed_warnings
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Callable, Iterator, Sequence
 
     from docutils import nodes
@@ -100,7 +102,7 @@ class SphinxComponentRegistry:
         self.html_assets_policy: str = 'per_page'
 
         #: HTML themes
-        self.html_themes: dict[str, str] = {}
+        self.html_themes: dict[str, _StrPath] = {}
 
         #: js_files; list of JS paths or URLs
         self.js_files: list[tuple[str | None, dict[str, Any]]] = []
@@ -433,8 +435,8 @@ class SphinxComponentRegistry:
         if block_renderers is not None:
             self.html_block_math_renderers[name] = block_renderers
 
-    def add_html_theme(self, name: str, theme_path: str) -> None:
-        self.html_themes[name] = theme_path
+    def add_html_theme(self, name: str, theme_path: str | os.PathLike[str]) -> None:
+        self.html_themes[name] = _StrPath(theme_path)
 
     def load_extension(self, app: Sphinx, extname: str) -> None:
         """Load a Sphinx extension."""

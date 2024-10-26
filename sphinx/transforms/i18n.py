@@ -420,7 +420,7 @@ class Locale(SphinxTransform):
             if not isinstance(node, LITERAL_TYPE_NODES):
                 msgstr, _ = parse_noqa(msgstr)
 
-            if msgstr.strip() == '':
+            if not msgstr.strip():
                 # as-of-yet untranslated
                 node['translated'] = False
                 continue

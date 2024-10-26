@@ -758,7 +758,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     caches the result of docutils' and use it on second call for instantiation.
     This makes an instantiation of document nodes much faster.
     """
-    global __document_cache__
+    global __document_cache__  # NoQA: PLW0603
     try:
         cached_settings, reporter = __document_cache__
     except NameError:

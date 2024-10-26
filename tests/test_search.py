@@ -62,20 +62,6 @@ class DummyDomain:
         return self.data
 
 
-settings = parser = None
-
-
-def setup_module():
-    global settings, parser
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        # DeprecationWarning: The frontend.OptionParser class will be replaced
-        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        optparser = frontend.OptionParser(components=(rst.Parser,))
-    settings = optparser.get_default_values()
-    parser = rst.Parser()
-
-
 def load_searchindex(path: Path) -> Any:
     searchindex = path.read_text(encoding='utf8')
     assert searchindex.startswith('Search.setIndex(')
@@ -166,8 +152,8 @@ def test_term_in_heading_and_section(app):
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert '"textinhead": 2' in searchindex
-    assert '"textinhead": 0' in searchindex
+    assert '"textinhead":2' in searchindex
+    assert '"textinhead":0' in searchindex
 
 
 @pytest.mark.sphinx('html', testroot='search')
@@ -180,6 +166,14 @@ def test_term_in_raw_directive(app):
 
 
 def test_IndexBuilder():
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        optparser = frontend.OptionParser(components=(rst.Parser,))
+    settings = optparser.get_default_values()
+    parser = rst.Parser()
+
     domain1 = DummyDomain(
         'dummy1',
         [

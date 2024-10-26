@@ -187,6 +187,9 @@ class _DomainsContainer:
             return NotImplemented
         return self._domain_instances == other._domain_instances
 
+    def __hash__(self) -> int:
+        return hash(sorted(self._domain_instances.items()))
+
     def __setattr__(self, key: str, value: object) -> None:
         if key in self._core_domains:
             msg = f'{self.__class__.__name__!r} object does not support assignment to {key!r}'

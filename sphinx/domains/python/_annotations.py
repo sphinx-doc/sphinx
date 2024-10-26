@@ -140,7 +140,7 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
             result.append(addnodes.desc_sig_punctuation('', ']'))
 
             # Wrap the Text nodes inside brackets by literal node if the subscript is a Literal
-            if result[0] in ('Literal', 'typing.Literal'):
+            if result[0] in {'Literal', 'typing.Literal'}:
                 for i, subnode in enumerate(result[1:], start=1):
                     if isinstance(subnode, nodes.Text):
                         result[i] = nodes.literal('', '', subnode)
@@ -441,9 +441,9 @@ def _parse_arglist(
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
             params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
-        if param.kind == param.KEYWORD_ONLY and last_kind in (param.POSITIONAL_OR_KEYWORD,
+        if param.kind == param.KEYWORD_ONLY and last_kind in {param.POSITIONAL_OR_KEYWORD,
                                                               param.POSITIONAL_ONLY,
-                                                              None):
+                                                              None}:
             # PEP-3102: Separator for Keyword Only Parameter: *
             params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*'))
 

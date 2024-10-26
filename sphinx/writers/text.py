@@ -45,7 +45,7 @@ class Cell:
         return hash((self.col, self.row))
 
     def __bool__(self) -> bool:
-        return self.text != '' and self.col is not None and self.row is not None
+        return bool(self.text) and self.col is not None and self.row is not None
 
     def wrap(self, width: int) -> None:
         self.wrapped = my_wrap(self.text, width)
@@ -292,7 +292,7 @@ class TextWrapper(textwrap.TextWrapper):
 
             width = self.width - column_width(indent)
 
-            if self.drop_whitespace and chunks[-1].strip() == '' and lines:
+            if self.drop_whitespace and not chunks[-1].strip() and lines:
                 del chunks[-1]
 
             while chunks:
@@ -308,7 +308,7 @@ class TextWrapper(textwrap.TextWrapper):
             if chunks and column_width(chunks[-1]) > width:
                 self._handle_long_word(chunks, cur_line, cur_len, width)
 
-            if self.drop_whitespace and cur_line and cur_line[-1].strip() == '':
+            if self.drop_whitespace and cur_line and not cur_line[-1].strip():
                 del cur_line[-1]
 
             if cur_line:

@@ -96,7 +96,7 @@ def generate_latex_macro(image_format: str,
         'fontsize': config.imgmath_font_size,
         'baselineskip': int(round(config.imgmath_font_size * 1.2)),
         'preamble': config.imgmath_latex_preamble,
-        # the dvips option is important when imgmath_latex in ["xelatex", "tectonic"],
+        # the dvips option is important when imgmath_latex in {"xelatex", "tectonic"},
         # it has no impact when imgmath_latex="latex"
         'tightpage': '' if image_format == 'png' else ',dvips,tightpage',
         'math': math,

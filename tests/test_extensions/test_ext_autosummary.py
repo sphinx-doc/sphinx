@@ -337,7 +337,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     template = Mock()
 
     def skip_member(app, what, name, obj, skip, options):
-        if name in ('Foo', 'bar', 'Exc'):
+        if name in {'Foo', 'bar', 'Exc'}:
             return True
         return None
 

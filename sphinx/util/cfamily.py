@@ -90,7 +90,7 @@ char_literal_re = re.compile(
 
 
 def verify_description_mode(mode: str) -> None:
-    if mode not in ('lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'):
+    if mode not in {'lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'}:
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
@@ -107,6 +107,9 @@ class ASTBaseBase:
             return self.__dict__ == other.__dict__
         except AttributeError:
             return False
+
+    def __hash__(self) -> int:
+        return hash(sorted(self.__dict__.items()))
 
     def clone(self) -> Any:
         return deepcopy(self)

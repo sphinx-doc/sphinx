@@ -359,9 +359,14 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             self.env.temp_data['cpp:last_symbol'] = e.symbol
             msg = __("Duplicate C++ declaration, also defined at %s:%s.\n"
                      "Declaration is '.. cpp:%s:: %s'.")
-            msg = msg % (e.symbol.docname, e.symbol.line,
-                         self.display_object_type, sig)
-            logger.warning(msg, location=signode)
+            logger.warning(
+                msg,
+                e.symbol.docname,
+                e.symbol.line,
+                self.display_object_type,
+                sig,
+                location=signode,
+            )
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -460,7 +465,7 @@ class CPPClassObject(CPPObject):
     @property
     def display_object_type(self) -> str:
         # the distinction between class and struct is only cosmetic
-        assert self.objtype in ('class', 'struct')
+        assert self.objtype in {'class', 'struct'}
         return self.objtype
 
 
@@ -490,7 +495,7 @@ class CPPNamespaceObject(SphinxDirective):
 
     def run(self) -> list[Node]:
         rootSymbol = self.env.domaindata['cpp']['root_symbol']
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             symbol = rootSymbol
             stack: list[Symbol] = []
         else:
@@ -520,7 +525,7 @@ class CPPNamespacePushObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+        if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             return []
         parser = DefinitionParser(self.arguments[0],
                                   location=self.get_location(),
@@ -628,7 +633,7 @@ class AliasTransform(SphinxTransform):
             for sChild in s._children:
                 if sChild.declaration is None:
                     continue
-                if sChild.declaration.objectType in ("templateParam", "functionParam"):
+                if sChild.declaration.objectType in {"templateParam", "functionParam"}:
                     continue
                 childNodes = self._render_symbol(
                     sChild, maxdepth=maxdepth, skipThis=False,
@@ -961,7 +966,7 @@ class CPPDomain(Domain):
                             typ: str, target: str, node: pending_xref,
                             contnode: Element) -> tuple[Element | None, str | None]:
         # add parens again for those that could be functions
-        if typ in ('any', 'func'):
+        if typ in {'any', 'func'}:
             target += '()'
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
@@ -969,7 +974,7 @@ class CPPDomain(Domain):
         except DefinitionError as e:
             # as arg to stop flake8 from complaining
             def findWarning(e: Exception) -> tuple[str, Exception]:
-                if typ != 'any' and typ != 'func':
+                if typ not in {"any", "func"}:
                     return target, e
                 # hax on top of the paren hax to try to get correct errors
                 parser2 = DefinitionParser(target[:-2],
@@ -1081,7 +1086,7 @@ class CPPDomain(Domain):
                     if (env.config.add_function_parentheses and typ == 'func' and
                             title.endswith('operator()')):
                         addParen += 1
-                    if (typ in ('any', 'func') and
+                    if (typ in {'any', 'func'} and
                             title.endswith('operator') and
                             displayName.endswith('operator()')):
                         addParen += 1

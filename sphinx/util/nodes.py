@@ -593,7 +593,7 @@ def make_id(
             node_id = None
     elif term:
         node_id = _make_id(term)
-        if node_id == '':
+        if not node_id:
             node_id = None  # fallback to None
 
     while node_id is None or node_id in document.ids:

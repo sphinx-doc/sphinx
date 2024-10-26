@@ -6,6 +6,7 @@ import dataclasses
 import functools
 import html
 import json
+import os
 import pickle
 import re
 from importlib import import_module
@@ -163,7 +164,8 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        return self.PREFIX + json.dumps(data, sort_keys=True) + self.SUFFIX
+        data_json = json.dumps(data, separators=(',', ':'), sort_keys=True)
+        return self.PREFIX + data_json + self.SUFFIX
 
     def loads(self, s: str) -> Any:
         data = s[len(self.PREFIX) : -len(self.SUFFIX)]
@@ -473,11 +475,15 @@ class IndexBuilder:
             wordnames.intersection_update(docnames)
 
     def feed(
-        self, docname: str, filename: str, title: str, doctree: nodes.document
+        self,
+        docname: str,
+        filename: str | os.PathLike[str],
+        title: str,
+        doctree: nodes.document,
     ) -> None:
         """Feed a doctree to the index."""
         self._titles[docname] = title
-        self._filenames[docname] = filename
+        self._filenames[docname] = os.fspath(filename)
 
         word_store = self._word_collector(doctree)
 

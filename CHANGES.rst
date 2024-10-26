@@ -24,6 +24,8 @@ Bugs fixed
 ----------
 
 * #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
+* #13060: HTML Search: use ``Map`` to store per-file term scores.
+  Patch by James Addison
 
 Testing
 -------

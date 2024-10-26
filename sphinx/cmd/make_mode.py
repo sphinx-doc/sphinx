@@ -106,7 +106,7 @@ class Make:
         try:
             with chdir(self.build_dir_join('latex')):
                 if '-Q' in self.opts:
-                    with open('__LATEXSTDOUT__', 'w') as outfile:
+                    with open('__LATEXSTDOUT__', 'w', encoding='utf-8') as outfile:
                         returncode = subprocess.call(
                             [
                                 makecmd,

@@ -50,7 +50,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
     if key is None:
         key = name
     key += ' '
-    if name in ('function', 'member'):
+    if name in {'function', 'member'}:
         inputActual = input
         outputAst = output
         outputAsText = output
@@ -270,7 +270,7 @@ def test_domain_cpp_ast_expressions():
         ".D'E'Fp1'2'3",
         "A'B'C.D'E'Fp1'2'3",
     ]
-    for suffix in ['', 'f', 'F', 'l', 'L']:
+    for suffix in ('', 'f', 'F', 'l', 'L'):
         for e in decimalFloats:
             expr = e + suffix
             exprCheck(expr, 'L' + expr.replace("'", '') + 'E')

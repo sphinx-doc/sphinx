@@ -107,7 +107,7 @@ SLOTSATTR = object()
 
 def members_option(arg: Any) -> object | list[str]:
     """Used to convert the :members: option to auto directives."""
-    if arg in (None, True):
+    if arg in {None, True}:
         return ALL
     elif arg is False:
         return None
@@ -117,14 +117,14 @@ def members_option(arg: Any) -> object | list[str]:
 
 def exclude_members_option(arg: Any) -> object | set[str]:
     """Used to convert the :exclude-members: option."""
-    if arg in (None, True):
+    if arg in {None, True}:
         return EMPTY
     return {x.strip() for x in arg.split(',') if x.strip()}
 
 
 def inherited_members_option(arg: Any) -> set[str]:
     """Used to convert the :inherited-members: option to auto directives."""
-    if arg in (None, True):
+    if arg in {None, True}:
         return {'object'}
     elif arg:
         return {x.strip() for x in arg.split(',')}
@@ -134,9 +134,9 @@ def inherited_members_option(arg: Any) -> set[str]:
 
 def member_order_option(arg: Any) -> str | None:
     """Used to convert the :member-order: option to auto directives."""
-    if arg in (None, True):
+    if arg in {None, True}:
         return None
-    elif arg in ('alphabetical', 'bysource', 'groupwise'):
+    elif arg in {'alphabetical', 'bysource', 'groupwise'}:
         return arg
     else:
         raise ValueError(__('invalid value for member-order option: %s') % arg)
@@ -144,7 +144,7 @@ def member_order_option(arg: Any) -> str | None:
 
 def class_doc_from_option(arg: Any) -> str | None:
     """Used to convert the :class-doc-from: option to autoclass directives."""
-    if arg in ('both', 'class', 'init'):
+    if arg in {'both', 'class', 'init'}:
         return arg
     else:
         raise ValueError(__('invalid value for class-doc-from option: %s') % arg)
@@ -154,7 +154,7 @@ SUPPRESS = object()
 
 
 def annotation_option(arg: Any) -> Any:
-    if arg in (None, True):
+    if arg in {None, True}:
         # suppress showing the representation of the object
         return SUPPRESS
     else:
@@ -178,8 +178,9 @@ def merge_members_option(options: dict) -> None:
 
     members = options.setdefault('members', [])
     for key in ('private-members', 'special-members'):
-        if key in options and options[key] not in (ALL, None):
-            for member in options[key]:
+        other_members = options.get(key)
+        if other_members is not None and other_members is not ALL:
+            for member in other_members:
                 if member not in members:
                     members.append(member)
 
@@ -587,7 +588,7 @@ class Documenter:
                                   self.objtype, self.fullname, self.object,
                                   self.options, docstringlines)
 
-                if docstringlines and docstringlines[-1] != '':
+                if docstringlines and docstringlines[-1]:
                     # append a blank line to the end of the docstring
                     docstringlines.append('')
 
@@ -1318,7 +1319,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
                 (inspect.isroutine(member) and isinstance(parent, ModuleDocumenter)))
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in ('none', 'description'):
+        if self.config.autodoc_typehints in {'none', 'description'}:
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
@@ -1615,7 +1616,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         return None, None, None
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in ('none', 'description'):
+        if self.config.autodoc_typehints in {'none', 'description'}:
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)
@@ -1797,7 +1798,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
-        if classdoc_from in ('both', 'init'):
+        if classdoc_from in {'both', 'init'}:
             __init__ = self.get_attr(self.object, '__init__', None)
             initdocstring = getdoc(__init__, self.get_attr,
                                    self.config.autodoc_inherit_docstrings,
@@ -2053,7 +2054,7 @@ class DataDocumenter(GenericAliasMixin,
             analyzer = ModuleAnalyzer.for_module(self.modname)
             analyzer.analyze()
             for (classname, attrname), annotation in analyzer.annotations.items():
-                if classname == '' and attrname not in annotations:
+                if not classname and attrname not in annotations:
                     annotations[attrname] = annotation
         except PycodeError:
             pass
@@ -2183,7 +2184,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         return ret
 
     def format_args(self, **kwargs: Any) -> str:
-        if self.config.autodoc_typehints in ('none', 'description'):
+        if self.config.autodoc_typehints in {'none', 'description'}:
             kwargs.setdefault('show_annotation', False)
         if self.config.autodoc_typehints_format == "short":
             kwargs.setdefault('unqualified_typehints', True)

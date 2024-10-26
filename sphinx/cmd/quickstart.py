@@ -96,8 +96,8 @@ def is_path(x: str) -> str:
 
 
 def is_path_or_empty(x: str) -> str:
-    if x == '':
-        return x
+    if not x:
+        return ''
     return is_path(x)
 
 
@@ -121,9 +121,9 @@ def choice(*l: str) -> Callable[[str], str]:
 
 
 def boolean(x: str) -> bool:
-    if x.upper() not in ('Y', 'YES', 'N', 'NO'):
+    if x.upper() not in {'Y', 'YES', 'N', 'NO'}:
         raise ValidationError(__("Please enter either 'y' or 'n'."))
-    return x.upper() in ('Y', 'YES')
+    return x.upper() in {'Y', 'YES'}
 
 
 def suffix(x: str) -> str:
