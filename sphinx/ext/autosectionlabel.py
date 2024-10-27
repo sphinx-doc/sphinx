@@ -9,7 +9,7 @@ from docutils import nodes
 import sphinx
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.nodes import clean_astext
+from sphinx.util.nodes import clean_astext, make_id
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
@@ -28,6 +28,15 @@ def get_node_depth(node: Node) -> int:
         i += 1
     return i
 
+def get_node_parents(node: Node) -> list[str]:
+    parents = []
+    cur_node = node
+    while cur_node.parent != node.document:
+        cur_node = cur_node.parent
+        title = cast(nodes.title, cur_node[0])
+        ref_name = getattr(title, 'rawsource', title.astext())
+        parents.append(ref_name)
+    return parents
 
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
     domain = app.env.domains.standard_domain
@@ -40,7 +49,15 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
         title = cast(nodes.title, node[0])
         ref_name = getattr(title, 'rawsource', title.astext())
         if app.config.autosectionlabel_prefix_document:
-            name = nodes.fully_normalize_name(docname + ':' + ref_name)
+            if app.config.autosectionlabel_full_reference:
+                id_array = get_node_parents(node)
+                id_array.append(docname)
+                id_array.reverse()
+                id_array.append(ref_name)
+                name = nodes.fully_normalize_name(':'.join(id_array))
+                labelid = make_id(app.env, document, '', '.'.join(id_array))
+            else:
+                name = nodes.fully_normalize_name(docname + ':' + ref_name)
         else:
             name = nodes.fully_normalize_name(ref_name)
         sectname = clean_astext(title)
@@ -60,6 +77,7 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('autosectionlabel_prefix_document', False, 'env')
     app.add_config_value('autosectionlabel_maxdepth', None, 'env')
+    app.add_config_value('autosectionlabel_full_reference', False, 'env')
     app.connect('doctree-read', register_sections_as_label)
 
     return {

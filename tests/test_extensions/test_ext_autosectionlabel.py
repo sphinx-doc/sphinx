@@ -98,3 +98,78 @@ def test_autosectionlabel_maxdepth(app):
     assert re.search(html, content, re.DOTALL)
 
     assert "WARNING: undefined label: 'linux'" in app.warning.getvalue()
+
+
+@pytest.mark.sphinx('html', testroot='ext-autosectionlabel-full-reference')
+def test_autosectionlabel_full_reference(app):
+    app.build(force_all=True)
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    html = (
+        '<li><p><a class="reference internal" href="#index.Introduction-of-Sphinx">'
+        '<span class="std std-ref">Introduction of Sphinx</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation">'
+        '<span class="std std-ref">Installation</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation.For-Windows-users">'
+        '<span class="std std-ref">For Windows users</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation.For-Windows-users.Windows">'
+        '<span class="std std-ref">Windows</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation.For-Windows-users.Windows.Command">'
+        '<span class="std std-ref">Command</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation.For-UNIX-users">'
+        '<span class="std std-ref">For UNIX users</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation.For-UNIX-users.Linux">'
+        '<span class="std std-ref">Linux</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation.For-UNIX-users.Linux.Command">'
+        '<span class="std std-ref">Command</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation.For-UNIX-users.FreeBSD">'
+        '<span class="std std-ref">FreeBSD</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    html = (
+        '<li><p><a class="reference internal" href="#index.Installation.For-UNIX-users.FreeBSD.Command">'
+        '<span class="std std-ref">Command</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
+
+    # for smart_quotes (refs: #4027)
+    html = (
+        '<li><p><a class="reference internal" '
+        'href="#index.Installation.This-one-s-got-an-apostrophe">'
+        '<span class="std std-ref">This one’s got an apostrophe'
+        '</span></a></p></li>'
+    )
+    assert re.search(html, content, re.DOTALL)
