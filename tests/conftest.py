@@ -7,6 +7,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
+import contextlib_chdir
+
 import docutils
 import pytest
 

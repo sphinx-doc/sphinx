@@ -7,7 +7,10 @@ import json
 import re
 import socket
 import time
-from enum import StrEnum
+
+# from enum import StrEnum
+from strenum import StrEnum
+
 from html.parser import HTMLParser
 from os import path
 from queue import PriorityQueue, Queue

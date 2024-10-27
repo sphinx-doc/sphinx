@@ -9,7 +9,10 @@ import contextlib
 import shutil
 import sys
 import tempfile
-import tomllib
+
+# import tomllib
+import tomli as tomllib
+
 from importlib.metadata import entry_points
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
