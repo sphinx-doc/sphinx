@@ -198,6 +198,7 @@ nitpick_ignore = {
     ('py:class', 'Path'),  # sphinx.application.Sphinx.connect
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
+    ('py:class', 'BaseRenderer'),  # sphinx.utils.fileutil.copy_asset_file
     ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
     ('py:class', 'SearchLanguage'),  # sphinx.application.Sphinx.add_search_language
     ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
