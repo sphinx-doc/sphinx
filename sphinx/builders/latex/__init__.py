@@ -249,7 +249,7 @@ class LaTeXBuilder(Builder):
                 )
             else:
                 self.context['textgreek'] = ''
-            if self.context['substitutefont'] == '':
+            if not self.context['substitutefont']:
                 self.context['fontsubstitution'] = ''
 
         # 'babel' key is public and user setting must be obeyed
@@ -555,7 +555,7 @@ def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
 
 def install_packages_for_ja(app: Sphinx) -> None:
     """Install packages for Japanese."""
-    if app.config.language == 'ja' and app.config.latex_engine in ('platex', 'uplatex'):
+    if app.config.language == 'ja' and app.config.latex_engine in {'platex', 'uplatex'}:
         app.add_latex_package('pxjahyper', after_hyperref=True)
 
 

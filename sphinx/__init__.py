@@ -1,6 +1,6 @@
 """The Sphinx documentation toolchain."""
 
-__version__ = '8.1.3'
+__version__ = '8.2.0'
 __display_version__ = __version__  # used for command line version
 
 # Keep this file executable as-is in Python 3!
@@ -30,7 +30,7 @@ warnings.filterwarnings(
 #:
 #: .. versionadded:: 1.2
 #:    Before version 1.2, check the string ``sphinx.__version__``.
-version_info = (8, 1, 3, 'beta', 0)
+version_info = (8, 2, 0, 'beta', 0)
 
 package_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -41,7 +41,7 @@ if _in_development:
 
     try:
         if ret := subprocess.run(
-            ['git', 'rev-parse', '--short', 'HEAD'],
+            ['git', 'rev-parse', '--short', 'HEAD'],  # NoQA: S607
             cwd=package_dir,
             capture_output=True,
             check=False,

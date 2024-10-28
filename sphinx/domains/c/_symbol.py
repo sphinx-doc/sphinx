@@ -12,8 +12,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-
-    from typing_extensions import Self
+    from typing import Self
 
     from sphinx.environment import BuildEnvironment
 
@@ -136,7 +135,8 @@ class Symbol:
     def _remove_child(self, child: Symbol) -> None:
         name = child.ident.name
         self._children_by_name.pop(name, None)
-        self._children_by_docname.get(child.docname, {}).pop(name, None)
+        if children := self._children_by_docname.get(child.docname):
+            children.pop(name, None)
         if child.ident.is_anonymous:
             self._anon_children.discard(child)
 
@@ -509,9 +509,14 @@ class Symbol:
                     name = str(ourChild.declaration)
                     msg = __("Duplicate C declaration, also defined at %s:%s.\n"
                              "Declaration is '.. c:%s:: %s'.")
-                    msg = msg % (ourChild.docname, ourChild.line,
-                                 ourChild.declaration.directiveType, name)
-                    logger.warning(msg, location=(otherChild.docname, otherChild.line))
+                    logger.warning(
+                        msg,
+                        ourChild.docname,
+                        ourChild.line,
+                        ourChild.declaration.directiveType,
+                        name,
+                        location=(otherChild.docname, otherChild.line),
+                    )
                 else:
                     # Both have declarations, and in the same docname.
                     # This can apparently happen, it should be safe to

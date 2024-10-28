@@ -166,7 +166,7 @@ class InheritanceGraph:
 
     def _class_info(self, classes: list[Any], show_builtins: bool, private_bases: bool,
                     parts: int, aliases: dict[str, str] | None, top_classes: Sequence[Any],
-                    ) -> list[tuple[str, str, list[str], str]]:
+                    ) -> list[tuple[str, str, Sequence[str], str | None]]:
         """Return name and bases for all classes that are ancestors of
         *classes*.
 
@@ -221,7 +221,11 @@ class InheritanceGraph:
         for cls in classes:
             recurse(cls)
 
-        return list(all_classes.values())  # type: ignore[arg-type]
+        return [
+            (cls_name, fullname, tuple(bases), tooltip)
+            for (cls_name, fullname, bases, tooltip)
+            in all_classes.values()
+        ]
 
     def class_name(
         self, cls: Any, parts: int = 0, aliases: dict[str, str] | None = None,
@@ -232,7 +236,7 @@ class InheritanceGraph:
         completely general.
         """
         module = cls.__module__
-        if module in ('__builtin__', 'builtins'):
+        if module in {'__builtin__', 'builtins'}:
             fullname = cls.__name__
         else:
             fullname = f'{module}.{cls.__qualname__}'
@@ -312,19 +316,19 @@ class InheritanceGraph:
             self._format_graph_attrs(g_attrs),
         ]
 
-        for name, fullname, bases, tooltip in sorted(self.class_info):
+        for cls_name, fullname, bases, tooltip in sorted(self.class_info):
             # Write the node
             this_node_attrs = n_attrs.copy()
             if fullname in urls:
-                this_node_attrs["URL"] = '"%s"' % urls[fullname]
+                this_node_attrs["URL"] = f'"{urls[fullname]}"'
                 this_node_attrs["target"] = '"_top"'
             if tooltip:
                 this_node_attrs["tooltip"] = tooltip
-            res.append('  "%s" [%s];\n' % (name, self._format_node_attrs(this_node_attrs)))
+            res.append(f'  "{cls_name}" [{self._format_node_attrs(this_node_attrs)}];\n')
 
             # Write the edges
             res.extend(
-                '  "%s" -> "%s" [%s];\n' % (base_name, name, self._format_node_attrs(e_attrs))
+                f'  "{base_name}" -> "{cls_name}" [{self._format_node_attrs(e_attrs)}];\n'
                 for base_name in bases
             )
         res.append("}\n")

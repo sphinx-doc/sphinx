@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import os
 import re
-import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from os import path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING
 
 import babel.dates
 from babel.messages.mofile import write_mo
@@ -16,11 +15,11 @@ from babel.messages.pofile import read_po
 from sphinx.errors import SphinxError
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.osutil import (
     SEP,
     _last_modified_time,
     canon_path,
-    relpath,
 )
 
 if TYPE_CHECKING:
@@ -60,42 +59,41 @@ if TYPE_CHECKING:
 
     Formatter: TypeAlias = DateFormatter | TimeFormatter | DatetimeFormatter
 
-if sys.version_info[:2] >= (3, 11):
-    from datetime import UTC
-else:
-    UTC = timezone.utc
+from datetime import UTC
 
 logger = logging.getLogger(__name__)
 
 
-class LocaleFileInfoBase(NamedTuple):
-    base_dir: str
-    domain: str
-    charset: str
+class CatalogInfo:
+    __slots__ = ('base_dir', 'domain', 'charset')
 
+    def __init__(
+        self, base_dir: str | os.PathLike[str], domain: str, charset: str
+    ) -> None:
+        self.base_dir = _StrPath(base_dir)
+        self.domain = domain
+        self.charset = charset
 
-class CatalogInfo(LocaleFileInfoBase):
     @property
     def po_file(self) -> str:
-        return self.domain + '.po'
+        return f'{self.domain}.po'
 
     @property
     def mo_file(self) -> str:
-        return self.domain + '.mo'
+        return f'{self.domain}.mo'
 
     @property
-    def po_path(self) -> str:
-        return path.join(self.base_dir, self.po_file)
+    def po_path(self) -> _StrPath:
+        return self.base_dir / self.po_file
 
     @property
-    def mo_path(self) -> str:
-        return path.join(self.base_dir, self.mo_file)
+    def mo_path(self) -> _StrPath:
+        return self.base_dir / self.mo_file
 
     def is_outdated(self) -> bool:
-        return (
-            not path.exists(self.mo_path)
-            or _last_modified_time(self.mo_path) < _last_modified_time(self.po_path)
-        )  # fmt: skip
+        return not self.mo_path.exists() or (
+            _last_modified_time(self.mo_path) < _last_modified_time(self.po_path)
+        )
 
     def write_mo(self, locale: str, use_fuzzy: bool = False) -> None:
         with open(self.po_path, encoding=self.charset) as file_po:
@@ -122,37 +120,33 @@ class CatalogRepository:
         language: str,
         encoding: str,
     ) -> None:
-        self.basedir = basedir
+        self.basedir = _StrPath(basedir)
         self._locale_dirs = locale_dirs
         self.language = language
         self.encoding = encoding
 
     @property
-    def locale_dirs(self) -> Iterator[str]:
+    def locale_dirs(self) -> Iterator[_StrPath]:
         if not self.language:
             return
 
         for locale_dir in self._locale_dirs:
-            locale_dir = path.join(self.basedir, locale_dir)
-            locale_path = path.join(locale_dir, self.language, 'LC_MESSAGES')
-            if path.exists(locale_path):
-                yield locale_dir
+            locale_path = self.basedir / locale_dir / self.language / 'LC_MESSAGES'
+            if locale_path.exists():
+                yield self.basedir / locale_dir
             else:
                 logger.verbose(__('locale_dir %s does not exist'), locale_path)
 
     @property
-    def pofiles(self) -> Iterator[tuple[str, str]]:
+    def pofiles(self) -> Iterator[tuple[_StrPath, _StrPath]]:
         for locale_dir in self.locale_dirs:
-            basedir = path.join(locale_dir, self.language, 'LC_MESSAGES')
-            for root, dirnames, filenames in os.walk(basedir):
+            locale_path = locale_dir / self.language / 'LC_MESSAGES'
+            for abs_path in locale_path.rglob('*.po'):
+                rel_path = abs_path.relative_to(locale_path)
                 # skip dot-directories
-                for dirname in [d for d in dirnames if d.startswith('.')]:
-                    dirnames.remove(dirname)
-
-                for filename in filenames:
-                    if filename.endswith('.po'):
-                        fullpath = path.join(root, filename)
-                        yield basedir, relpath(fullpath, basedir)
+                if any(part.startswith('.') for part in rel_path.parts[:-1]):
+                    continue
+                yield locale_path, rel_path
 
     @property
     def catalogs(self) -> Iterator[CatalogInfo]:

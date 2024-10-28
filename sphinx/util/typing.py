@@ -18,6 +18,7 @@ from typing import (
     TypedDict,
     TypeVar,
     Union,
+    Unpack,
 )
 
 from docutils import nodes
@@ -121,8 +122,7 @@ TitleGetter: TypeAlias = Callable[[nodes.Node], str]
 # Readable file stream for inventory loading
 if TYPE_CHECKING:
     from types import TracebackType
-
-    from typing_extensions import Self
+    from typing import Self
 
     _T_co = TypeVar('_T_co', str, bytes, covariant=True)
 
@@ -221,19 +221,7 @@ def _is_annotated_form(obj: Any) -> TypeIs[Annotated[Any, ...]]:
 
 def _is_unpack_form(obj: Any) -> bool:
     """Check if the object is :class:`typing.Unpack` or equivalent."""
-    if sys.version_info >= (3, 11):
-        from typing import Unpack
-
-        # typing_extensions.Unpack != typing.Unpack for 3.11, but we assume
-        # that typing_extensions.Unpack should not be used in that case
-        return typing.get_origin(obj) is Unpack
-
-    # Python 3.10 requires typing_extensions.Unpack
-    origin = typing.get_origin(obj)
-    return (
-        getattr(origin, '__module__', None) == 'typing_extensions'
-        and origin.__name__ == 'Unpack'
-    )
+    return typing.get_origin(obj) is Unpack
 
 
 def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> str:
@@ -307,11 +295,14 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             )
         elif isinstance(cls, NewType):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
-        elif isinstance(cls, types.UnionType):
+        elif isinstance(cls, types.UnionType) or (
+            isgenericalias(cls) and cls_module_is_typing and cls.__origin__ is Union
+        ):
             # Union types (PEP 585) retain their definition order when they
             # are printed natively and ``None``-like types are kept as is.
+            # *cls* is defined in ``typing``, and thus ``__args__`` must exist
             return ' | '.join(restify(a, mode) for a in cls.__args__)
-        elif cls.__module__ in ('__builtin__', 'builtins'):
+        elif cls.__module__ in {'__builtin__', 'builtins'}:
             if hasattr(cls, '__args__'):
                 if not cls.__args__:  # Empty tuple, list, ...
                     return rf':py:class:`{cls.__name__}`\ [{cls.__args__!r}]'
@@ -321,15 +312,11 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
                 )
                 return rf':py:class:`{cls.__name__}`\ [{concatenated_args}]'
             return f':py:class:`{cls.__name__}`'
-        elif isgenericalias(cls) and cls_module_is_typing and cls.__origin__ is Union:
-            # *cls* is defined in ``typing``, and thus ``__args__`` must exist
-            return ' | '.join(restify(a, mode) for a in cls.__args__)
         elif isgenericalias(cls):
-            if isinstance(cls.__origin__, typing._SpecialForm):
-                # ClassVar; Concatenate; Final; Literal; Unpack; TypeGuard; TypeIs
-                # Required/NotRequired
-                text = restify(cls.__origin__, mode)
-            elif cls.__name__:
+            if cls.__name__ and not isinstance(cls.__origin__, typing._SpecialForm):
+                # Represent generic aliases as the classes in ``typing`` rather
+                # than the underlying aliased classes,
+                # e.g. ``~typing.Tuple`` instead of ``tuple``.
                 text = f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
             else:
                 text = restify(cls.__origin__, mode)
@@ -361,7 +348,7 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return rf'{text}\ [{args}]'
         elif isinstance(cls, typing._SpecialForm):
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'  # type: ignore[attr-defined]
-        elif sys.version_info[:2] >= (3, 11) and cls is typing.Any:
+        elif cls is typing.Any:
             # handle bpo-46998
             return f':py:obj:`~{cls.__module__}.{cls.__name__}`'
         elif hasattr(cls, '__qualname__'):
@@ -437,6 +424,9 @@ def stringify_annotation(
     annotation_module: str = getattr(annotation, '__module__', '')
     annotation_name: str = getattr(annotation, '__name__', '')
     annotation_module_is_typing = annotation_module == 'typing'
+    if sys.version_info[:2] >= (3, 14) and isinstance(annotation, ForwardRef):
+        # ForwardRef moved from `typing` to `annotationlib` in Python 3.14.
+        annotation_module_is_typing = True
 
     # Extract the annotation's base type by considering formattable cases
     if isinstance(annotation, TypeVar) and not _is_unpack_form(annotation):

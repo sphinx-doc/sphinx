@@ -2,7 +2,9 @@
 
 import platform
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
+from pathlib import Path
 
 import pytest
 
@@ -10,11 +12,16 @@ from sphinx.testing import restructuredtext
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
+skip_py314_segfault = pytest.mark.skipif(
+    sys.version_info[:2] >= (3, 14),
+    reason='Segmentation fault: https://github.com/python/cpython/issues/125017',
+)
+
 IS_PYPY = platform.python_implementation() == 'PyPy'
 
 
 @contextmanager
-def overwrite_file(path, content):
+def overwrite_file(path: Path, content: str) -> Iterator[None]:
     current_content = path.read_bytes() if path.exists() else None
     try:
         path.write_text(content, encoding='utf-8')
@@ -182,6 +189,7 @@ def test_autodoc_class_signature_separated_init(app):
     ]
 
 
+@skip_py314_segfault
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_class_signature_separated_new(app):
     app.config.autodoc_class_signature = 'separated'
@@ -365,6 +373,7 @@ def test_autodoc_inherit_docstrings_for_inherited_members(app):
     ]
 
 
+@skip_py314_segfault
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_docstring_signature(app):
     options = {'members': None, 'special-members': '__init__, __new__'}
@@ -692,10 +701,6 @@ def test_mocked_module_imports(app):
     confoverrides={'autodoc_typehints': 'signature'},
 )
 def test_autodoc_typehints_signature(app):
-    if sys.version_info[:2] <= (3, 10):
-        type_o = '~typing.Any | None'
-    else:
-        type_o = '~typing.Any'
     if sys.version_info[:2] >= (3, 13):
         type_ppp = 'pathlib._local.PurePosixPath'
     else:
@@ -732,7 +737,7 @@ def test_autodoc_typehints_signature(app):
         '   docstring',
         '',
         '',
-        '.. py:class:: Math(s: str, o: %s = None)' % type_o,
+        '.. py:class:: Math(s: str, o: ~typing.Any = None)',
         '   :module: target.typehints',
         '',
         '',
@@ -1511,10 +1516,6 @@ def test_autodoc_typehints_description_and_type_aliases(app):
     confoverrides={'autodoc_typehints_format': 'fully-qualified'},
 )
 def test_autodoc_typehints_format_fully_qualified(app):
-    if sys.version_info[:2] <= (3, 10):
-        type_o = 'typing.Any | None'
-    else:
-        type_o = 'typing.Any'
     if sys.version_info[:2] >= (3, 13):
         type_ppp = 'pathlib._local.PurePosixPath'
     else:
@@ -1550,7 +1551,7 @@ def test_autodoc_typehints_format_fully_qualified(app):
         '   docstring',
         '',
         '',
-        '.. py:class:: Math(s: str, o: %s = None)' % type_o,
+        '.. py:class:: Math(s: str, o: typing.Any = None)',
         '   :module: target.typehints',
         '',
         '',

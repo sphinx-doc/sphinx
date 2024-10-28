@@ -78,7 +78,7 @@ def test_strip_ansi_short_forms():
     # some messages use '\x1b[0m' instead of ``reset(s)``, so we
     # test whether this alternative form is supported or not.
 
-    for strip_function in [strip_colors, strip_escape_sequences]:
+    for strip_function in strip_colors, strip_escape_sequences:
         # \x1b[m and \x1b[0m are equivalent to \x1b[00m
         assert strip_function('\x1b[m') == ''
         assert strip_function('\x1b[0m') == ''

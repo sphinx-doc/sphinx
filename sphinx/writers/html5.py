@@ -820,7 +820,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 if token.strip():
                     # protect literal text from line wrapping
                     self.body.append('<span class="pre">%s</span>' % token)
-                elif token in ' \n':
+                elif token in {' ', '\n'}:
                     # allow breaks at whitespace
                     self.body.append(token)
                 else:

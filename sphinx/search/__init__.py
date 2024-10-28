@@ -6,6 +6,7 @@ import dataclasses
 import functools
 import html
 import json
+import os
 import pickle
 import re
 from importlib import import_module
@@ -163,7 +164,8 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        return self.PREFIX + json.dumps(data, sort_keys=True) + self.SUFFIX
+        data_json = json.dumps(data, separators=(',', ':'), sort_keys=True)
+        return self.PREFIX + data_json + self.SUFFIX
 
     def loads(self, s: str) -> Any:
         data = s[len(self.PREFIX) : -len(self.SUFFIX)]
@@ -210,7 +212,7 @@ class WordCollector(nodes.NodeVisitor):
     def __init__(self, document: nodes.document, lang: SearchLanguage) -> None:
         super().__init__(document)
         self.found_words: list[str] = []
-        self.found_titles: list[tuple[str, str]] = []
+        self.found_titles: list[tuple[str, str | None]] = []
         self.found_title_words: list[str] = []
         self.lang = lang
 
@@ -241,8 +243,10 @@ class WordCollector(nodes.NodeVisitor):
             self.found_words.extend(self.lang.split(node.astext()))
         elif isinstance(node, nodes.title):
             title = node.astext()
-            ids = node.parent['ids']
-            self.found_titles.append((title, ids[0] if ids else None))
+            if ids := node.parent['ids']:
+                self.found_titles.append((title, ids[0]))
+            else:
+                self.found_titles.append((title, None))
             self.found_title_words.extend(self.lang.split(title))
         elif isinstance(node, Element) and _is_meta_keywords(node, self.lang.lang):  # type: ignore[arg-type]
             keywords = node['content']
@@ -471,11 +475,15 @@ class IndexBuilder:
             wordnames.intersection_update(docnames)
 
     def feed(
-        self, docname: str, filename: str, title: str, doctree: nodes.document
+        self,
+        docname: str,
+        filename: str | os.PathLike[str],
+        title: str,
+        doctree: nodes.document,
     ) -> None:
         """Feed a doctree to the index."""
         self._titles[docname] = title
-        self._filenames[docname] = filename
+        self._filenames[docname] = os.fspath(filename)
 
         word_store = self._word_collector(doctree)
 

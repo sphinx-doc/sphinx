@@ -57,13 +57,9 @@ def _filter_enum_dict(
     # names that are ignored by default
     ignore_names = Enum.__dict__.keys() - public_names
 
-    def is_native_api(obj: object, name: str) -> bool:
-        """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
-        return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
-
     def should_ignore(name: str, value: Any) -> bool:
         if name in sunder_names:
-            return is_native_api(value, name)
+            return _is_native_enum_api(value, name)
         return name in ignore_names
 
     sentinel = object()
@@ -101,10 +97,15 @@ def _filter_enum_dict(
     special_names &= Enum.__dict__.keys()
     for name in special_names:
         if (
-            not is_native_api(enum_class_dict[name], name)
+            not _is_native_enum_api(enum_class_dict[name], name)
             and (item := query(name, enum_class)) is not None
         ):
             yield item
+
+
+def _is_native_enum_api(obj: object, name: str) -> bool:
+    """Check whether *obj* is the same as ``Enum.__dict__[name]``."""
+    return unwrap_all(obj) is unwrap_all(Enum.__dict__[name])
 
 
 def mangle(subject: Any, name: str) -> str:

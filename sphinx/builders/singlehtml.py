@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from os import path
 from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
@@ -74,7 +73,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 kwargs['includehidden'] = False
             elif includehidden.lower() == 'true':
                 kwargs['includehidden'] = True
-        if kwargs.get('maxdepth') == '':
+        if kwargs.get('maxdepth') == '':  # NoQA: PLC1901
             kwargs.pop('maxdepth')
         toctree = global_toctree_for_doc(
             self.env, docname, self, collapse=collapse, **kwargs
@@ -194,8 +193,12 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         if self.config.html_use_opensearch:
             logger.info(' opensearch', nonl=True)
-            fn = path.join(self.outdir, '_static', 'opensearch.xml')
-            self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
+            self.handle_page(
+                'opensearch',
+                {},
+                'opensearch.xml',
+                outfilename=self._static_dir / 'opensearch.xml',
+            )
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

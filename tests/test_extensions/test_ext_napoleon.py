@@ -48,15 +48,15 @@ class SampleClass:
     def _private_undoc(self):
         pass
 
-    def __special_doc__(self):
+    def __special_doc__(self):  # NoQA: PLW3201
         """SampleClass.__special_doc__.DOCSTRING"""
         pass
 
-    def __special_undoc__(self):
+    def __special_undoc__(self):  # NoQA: PLW3201
         pass
 
     @simple_decorator
-    def __decorated_func__(self):
+    def __decorated_func__(self):  # NoQA: PLW3201
         """Doc"""
         pass
 
@@ -69,11 +69,11 @@ class SampleError(Exception):
     def _private_undoc(self):
         pass
 
-    def __special_doc__(self):
+    def __special_doc__(self):  # NoQA: PLW3201
         """SampleError.__special_doc__.DOCSTRING"""
         pass
 
-    def __special_undoc__(self):
+    def __special_undoc__(self):  # NoQA: PLW3201
         pass
 
 

@@ -29,11 +29,11 @@ jobs:
   ubuntu:
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         python:
-        - "3.10"
         - "3.11"
         - "3.12"
         - "3.13"
@@ -71,9 +71,9 @@ jobs:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   deadsnakes:
-    if: false
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -96,6 +96,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
@@ -104,18 +105,48 @@ jobs:
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
 
-  deadsnakes-free-threraded:
-    if: false
+  free-threaded:
     runs-on: ubuntu-latest
-    name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }}; free-threaded)
+    name: Python ${{ matrix.python }} (free-threaded)
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+        - "3.13"
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python }} (deadsnakes)
+      uses: deadsnakes/action@v3.2.0
+      with:
+        python-version: ${{ matrix.python }}
+        nogil: true
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install .[test]
+    # markupsafe._speedups has not declared that it can run safely without the GIL
+    - name: Remove markupsafe._speedups
+      run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
+
+  deadsnakes-free-threaded:
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }} (free-threaded)
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         python:
         - "3.14"
-        docutils:
-        - "0.20"
-        - "0.21"
 
     steps:
     - uses: actions/checkout@v4
@@ -131,9 +162,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
-    - name: Install Docutils ${{ matrix.docutils }}
-      run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
     # markupsafe._speedups has not declared that it can run safely without the GIL
     - name: Remove markupsafe._speedups
       run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
@@ -145,6 +175,7 @@ jobs:
   windows:
     runs-on: windows-2019
     name: Windows
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v4
@@ -170,6 +201,7 @@ jobs:
   docutils-latest:
     runs-on: ubuntu-latest
     name: Docutils HEAD
+    timeout-minutes: 15
 
     steps:
     - name: Install epubcheck
@@ -207,6 +239,7 @@ jobs:
   oldest-supported:
     runs-on: ubuntu-latest
     name: Oldest supported
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v4
@@ -236,6 +269,7 @@ jobs:
   latex:
     runs-on: ubuntu-latest
     name: LaTeX
+    timeout-minutes: 15
     container:
       image: ghcr.io/sphinx-doc/sphinx-ci
 
@@ -265,6 +299,7 @@ jobs:
     if: github.event_name == 'push' && github.repository_owner == 'sphinx-doc'
     runs-on: ubuntu-latest
     name: Coverage
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v4

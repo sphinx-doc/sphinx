@@ -240,7 +240,7 @@ class TexinfoTranslator(SphinxTranslator):
         # filename
         if not elements['filename']:
             elements['filename'] = self.document.get('source') or 'untitled'
-            if elements['filename'][-4:] in ('.txt', '.rst'):  # type: ignore[index]
+            if elements['filename'][-4:] in {'.txt', '.rst'}:  # type: ignore[index]
                 elements['filename'] = elements['filename'][:-4]  # type: ignore[index]
             elements['filename'] += '.info'  # type: ignore[operator]
         # direntry
@@ -657,7 +657,7 @@ class TexinfoTranslator(SphinxTranslator):
         self.body.append('\n\n')
 
     def visit_rubric(self, node: Element) -> None:
-        if len(node) == 1 and node.astext() in ('Footnotes', _('Footnotes')):
+        if len(node) == 1 and node.astext() in {'Footnotes', _('Footnotes')}:
             raise nodes.SkipNode
         try:
             rubric = self.rubrics[self.section_level]

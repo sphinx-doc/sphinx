@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Set
-    from typing import Any, Final, Literal, NoReturn
+    from typing import Any, Final, Literal, NoReturn, Self
 
     from docutils import nodes
-    from typing_extensions import Self
 
     from sphinx.domains import Domain
     from sphinx.domains.c import CDomain
@@ -187,6 +186,9 @@ class _DomainsContainer:
         if not isinstance(other, _DomainsContainer):
             return NotImplemented
         return self._domain_instances == other._domain_instances
+
+    def __hash__(self) -> int:
+        return hash(sorted(self._domain_instances.items()))
 
     def __setattr__(self, key: str, value: object) -> None:
         if key in self._core_domains:

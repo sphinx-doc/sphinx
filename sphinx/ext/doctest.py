@@ -86,7 +86,7 @@ class TestDirective(SphinxDirective):
                     test = code
                 code = doctestopt_re.sub('', code)
         nodetype: type[TextElement] = nodes.literal_block
-        if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
+        if self.name in {'testsetup', 'testcleanup'} or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:
             groups = [x.strip() for x in self.arguments[0].split(',')]
@@ -105,7 +105,7 @@ class TestDirective(SphinxDirective):
             # don't try to highlight output
             node['language'] = 'none'
         node['options'] = {}
-        if self.name in ('doctest', 'testoutput') and 'options' in self.options:
+        if self.name in {'doctest', 'testoutput'} and 'options' in self.options:
             # parse doctest-like output comparison flags
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:

@@ -91,7 +91,7 @@ def test_progress_message(app):
     # error case
     try:
         with progress_message('testing'):
-            raise
+            raise RuntimeError
     except Exception:
         pass
 

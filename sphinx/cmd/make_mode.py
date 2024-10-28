@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from contextlib import chdir
 from os import path
 from typing import TYPE_CHECKING
 
@@ -19,11 +20,6 @@ import sphinx
 from sphinx.cmd.build import build_main
 from sphinx.util.console import blue, bold, color_terminal, nocolor
 from sphinx.util.osutil import rmtree
-
-if sys.version_info >= (3, 11):
-    from contextlib import chdir
-else:
-    from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -110,7 +106,7 @@ class Make:
         try:
             with chdir(self.build_dir_join('latex')):
                 if '-Q' in self.opts:
-                    with open('__LATEXSTDOUT__', 'w') as outfile:
+                    with open('__LATEXSTDOUT__', 'w', encoding='utf-8') as outfile:
                         returncode = subprocess.call(
                             [
                                 makecmd,

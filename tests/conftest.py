@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 def _init_console(
-    locale_dir: str | None = sphinx.locale._LOCALE_DIR,
+    locale_dir: str | os.PathLike[str] | None = sphinx.locale._LOCALE_DIR,
     catalog: str = 'sphinx',
 ) -> tuple[gettext.NullTranslations, bool]:
     """Monkeypatch ``init_console`` to skip its action.

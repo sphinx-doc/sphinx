@@ -1,6 +1,5 @@
 """Test the sphinx.apidoc module."""
 
-import os.path
 from collections import namedtuple
 from pathlib import Path
 
@@ -365,7 +364,7 @@ def test_toc_all_references_should_exist_pep420_enabled(apidoc):
     found_refs = []
     missing_files = []
     for ref in refs:
-        if ref and ref[0] in (':', '#'):
+        if ref and ref[0] in {':', '#'}:
             continue
         found_refs.append(ref)
         filename = f'{ref}.rst'
@@ -396,7 +395,7 @@ def test_toc_all_references_should_exist_pep420_disabled(apidoc):
     found_refs = []
     missing_files = []
     for ref in refs:
-        if ref and ref[0] in (':', '#'):
+        if ref and ref[0] in {':', '#'}:
             continue
         filename = f'{ref}.rst'
         found_refs.append(ref)
@@ -732,7 +731,7 @@ def test_no_duplicates(rootdir, tmp_path):
         apidoc_main(['-o', str(outdir), '-T', str(package), '--implicit-namespaces'])
 
         # Ensure the module has been documented
-        assert os.path.isfile(outdir / 'fish_licence.rst')
+        assert (outdir / 'fish_licence.rst').is_file()
 
         # Ensure the submodule only appears once
         text = (outdir / 'fish_licence.rst').read_text(encoding='utf-8')

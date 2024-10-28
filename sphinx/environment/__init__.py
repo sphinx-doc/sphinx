@@ -463,7 +463,7 @@ class BuildEnvironment:
                 for docname in self.found_docs:
                     domain = docname_to_domain(docname, self.config.gettext_compact)
                     if domain in mo_paths:
-                        self.dependencies[docname].add(mo_paths[domain])
+                        self.dependencies[docname].add(str(mo_paths[domain]))
         except OSError as exc:
             raise DocumentError(
                 __('Failed to scan documents in %s: %r') % (self.srcdir, exc)

@@ -635,7 +635,7 @@ class GoogleDocstring:
     def _parse(self) -> None:
         self._parsed_lines = self._consume_empty()
 
-        if self._name and self._what in ('attribute', 'data', 'property'):
+        if self._name and self._what in {'attribute', 'data', 'property'}:
             res: list[str] = []
             with contextlib.suppress(StopIteration):
                 res = self._parse_attribute_docstring()
@@ -893,7 +893,7 @@ class GoogleDocstring:
 
     def _lookup_annotation(self, _name: str) -> str:
         if self._config.napoleon_attr_annotations:
-            if self._what in ('module', 'class', 'exception') and self._obj:
+            if self._what in {'module', 'class', 'exception'} and self._obj:
                 # cache the class annotations
                 if not hasattr(self, '_annotations'):
                     localns = getattr(self._config, 'autodoc_type_aliases', {})
@@ -1038,7 +1038,7 @@ def _token_type(token: str, location: str | None = None) -> str:
             location=location,
         )
         type_ = 'literal'
-    elif token in ('optional', 'default'):
+    elif token in {'optional', 'default'}:
         # default is not a official keyword (yet) but supported by the
         # reference implementation (numpydoc) and widely used
         type_ = 'control'
@@ -1270,7 +1270,7 @@ class NumpyDocstring(GoogleDocstring):
         return (
             not self._lines
             or self._is_section_header()
-            or (line1 == line2 == '')
+            or (not line1 and not line2)
             or (
                 self._is_in_section
                 and line1

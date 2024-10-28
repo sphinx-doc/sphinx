@@ -96,7 +96,7 @@ class MathDomain(Domain):
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
                      ) -> Element | None:
-        assert typ in ('eq', 'numref')
+        assert typ in {'eq', 'numref'}
         result = self.equations.get(target)
         if result:
             docname, number = result

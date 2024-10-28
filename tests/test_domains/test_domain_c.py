@@ -48,7 +48,7 @@ def _check(name, input, idDict, output, key, asTextOutput):
     if key is None:
         key = name
     key += ' '
-    if name in ('function', 'member'):
+    if name in {'function', 'member'}:
         inputActual = input
         outputAst = output
         outputAsText = output
@@ -192,8 +192,8 @@ def test_domain_c_ast_expressions():
                 exprCheck(expr)
                 expr = i + l + u
                 exprCheck(expr)
-    for suffix in ['', 'f', 'F', 'l', 'L']:
-        for e in [
+    for suffix in ('', 'f', 'F', 'l', 'L'):
+        for e in (
             '5e42',
             '5e+42',
             '5e-42',
@@ -213,10 +213,10 @@ def test_domain_c_ast_expressions():
             "1'2'3.e7'8'9",
             ".4'5'6e7'8'9",
             "1'2'3.4'5'6e7'8'9",
-        ]:
+        ):
             expr = e + suffix
             exprCheck(expr)
-        for e in [
+        for e in (
             'ApF',
             'Ap+F',
             'Ap-F',
@@ -236,12 +236,12 @@ def test_domain_c_ast_expressions():
             "A'B'C.p1'2'3",
             ".D'E'Fp1'2'3",
             "A'B'C.D'E'Fp1'2'3",
-        ]:
+        ):
             expr = '0x' + e + suffix
             exprCheck(expr)
     exprCheck('"abc\\"cba"')  # string
     # character literals
-    for p in ['', 'u8', 'u', 'U', 'L']:
+    for p in ('', 'u8', 'u', 'U', 'L'):
         exprCheck(p + "'a'")
         exprCheck(p + "'\\n'")
         exprCheck(p + "'\\012'")
