@@ -403,7 +403,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.app.config
+        config = self.env.config
         objtype = sig_node.parent.get('objtype')
         if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'

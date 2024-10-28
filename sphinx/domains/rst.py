@@ -75,7 +75,7 @@ class ReSTMarkup(ObjectDescription[str]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.app.config
+        config = self.env.config
         objtype = sig_node.parent.get('objtype')
         *parents, name = sig_node['_toc_parts']
         if objtype == 'directive:option':
