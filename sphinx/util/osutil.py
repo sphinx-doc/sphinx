@@ -73,13 +73,23 @@ def relative_uri(base: str, to: str) -> str:
     # many "folders" we need to go up before we can then go to
     # the "to" destination.
     if not to.startswith(base):
-        count = base.count("/")
-        # If there aren't any "/", it is a top-level doc, so we
-        # can just go straight there.
-        if count == 0:
-            return to
-        # Otherwise we need to step up for each /.
-        return "../" * count + to
+        # PJC: simplified this code on 28/10/24 'cos the links for
+        # the Solutions Hub documentation were wrong with the "../" in.
+        #
+        # If something else breaks because this is now commented out, any
+        # code change has to be tested against the SolHub documentation
+        # specifically the Next Previous buttons.
+
+        # count = base.count("/")
+        # # If there aren't any "/", it is a top-level doc, so we
+        # # can just go straight there.
+        # if count == 0:
+        #     print(f"Returning {to}")
+        #     return to
+        # # Otherwise we need to step up for each /.
+        # print("Returning:", "../" * count + to)
+        # return "../" * count + to
+        return to
     #
     # Calculate the overlap. Strip that overlap from the beginning
     # of to and then prefix it with the last leaf from base.
