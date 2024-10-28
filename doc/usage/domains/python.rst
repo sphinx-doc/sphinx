@@ -716,18 +716,45 @@ a matching identifier is found:
 
    .. versionadded:: 0.4
 
-The name enclosed in this markup can include a module name and/or a class name.
-For example, ``:py:func:`filter``` could refer to a function named ``filter``
-in the current module, or the built-in function of that name.  In contrast,
-``:py:func:`foo.filter``` clearly refers to the ``filter`` function in the
-``foo`` module.
 
-Normally, names in these roles are searched first without any further
-qualification, then with the current module name prepended, then with the
-current module and class name (if any) prepended.  If you prefix the name with
-a dot, this order is reversed.  For example, in the documentation of Python's
-:mod:`codecs` module, ``:py:func:`open``` always refers to the built-in
-function, while ``:py:func:`.open``` refers to :func:`codecs.open`.
+Target specification
+^^^^^^^^^^^^^^^^^^^^
+
+The target can be specified as a fully qualified name
+(e.g. ``:py:meth:`my_module.MyClass.my_method```)
+or any shortened version
+(e.g. ``:py:meth:`MyClass.my_method``` or ``:py:meth:`my_method```).
+See `target resolution`_ for details on the resolution of shortened names.
+
+:ref:`Cross-referencing modifiers <xref-modifiers>` can be applied.
+In short:
+
+* You may supply an explicit title and reference target:
+  ``:py:mod:`mathematical functions <math>``` will refer to the ``math`` module,
+  but the link text will be "mathematical functions".
+
+* If you prefix the content with an exclamation mark (``!``),
+  no reference/hyperlink will be created.
+
+* If you prefix the content with ``~``, the link text will only be the last
+  component of the target.
+  For example, ``:py:meth:`~queue.Queue.get``` will
+  refer to ``queue.Queue.get`` but only display ``get`` as the link text.
+
+
+Target resolution
+^^^^^^^^^^^^^^^^^
+
+A given link target name is resolved to an object using the following strategy:
+
+Names in these roles are searched first without any further qualification,
+then with the current module name prepended,
+then with the current module and class name (if any) prepended.
+
+If you prefix the name with a dot (``.``), this order is reversed.
+For example, in the documentation of Python's :py:mod:`codecs` module,
+``:py:func:`open``` always refers to the built-in function,
+while ``:py:func:`.open``` refers to :func:`codecs.open`.
 
 A similar heuristic is used to determine whether the name is an attribute of
 the currently documented class.

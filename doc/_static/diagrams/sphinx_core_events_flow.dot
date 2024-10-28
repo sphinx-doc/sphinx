@@ -83,9 +83,9 @@ digraph events {
 
     // during write phase
     "write-started"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
-    "Builder.build":write -> "write-started";
     "Builder.write" [label = "Builder.write()"]
     "Builder.build":write -> "Builder.write";
+    "Builder.write" -> "write-started";
     write_each_doc [shape="ellipse", label="for updated"];
     "Builder.write" -> write_each_doc;
     "ReferenceResolver" [
@@ -120,6 +120,6 @@ digraph events {
     {rank=same; "env-get-outdated" "env-before-read-docs" "env-get-updated"};
     {rank=same; "env-purge-doc" "source-read" "doctree-read", "merge_each_process"};
     {rank=same; "env-updated" "env-check-consistency"};
-    {rank=same; "env-merge-info" "write-started" "Builder.write"};
+    {rank=same; "env-merge-info" "Builder.write"};
     {rank=max; "build-finished"};
 }

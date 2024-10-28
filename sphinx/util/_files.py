@@ -36,7 +36,9 @@ class FilenameUniqDict(dict[str, tuple[set[str], str]]):
                 del self[filename]
                 self._existing.discard(unique)
 
-    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
+    def merge_other(
+        self, docnames: set[str], other: dict[str, tuple[set[str], Any]]
+    ) -> None:
         for filename, (docs, _unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)
@@ -70,7 +72,9 @@ class DownloadFiles(dict[str, tuple[set[str], str]]):
             if not docs:
                 del self[filename]
 
-    def merge_other(self, docnames: set[str], other: dict[str, tuple[set[str], Any]]) -> None:
+    def merge_other(
+        self, docnames: set[str], other: dict[str, tuple[set[str], Any]]
+    ) -> None:
         for filename, (docs, _dest) in other.items():
             for docname in docs & set(docnames):
                 self.add_file(docname, filename)

@@ -1,7 +1,5 @@
 """Test the code-block directive."""
 
-import os.path
-
 import pytest
 from docutils import nodes
 
@@ -257,12 +255,13 @@ def test_LiteralIncludeReader_tabwidth_dedent(testroot):
 
 
 def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
-    options = {'diff': testroot / 'literal-diff.inc'}
+    literal_diff_path = testroot / 'literal-diff.inc'
+    options = {'diff': literal_diff_path}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == (
-        '--- ' + os.path.join(testroot, 'literal-diff.inc') + '\n'
-        '+++ ' + os.path.join(testroot, 'literal.inc') + '\n'
+        f'--- {literal_diff_path}\n'
+        f'+++ {literal_inc_path}\n'
         '@@ -6,8 +6,8 @@\n'
         '     pass\n'
         ' \n'

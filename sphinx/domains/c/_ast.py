@@ -54,6 +54,9 @@ class ASTIdentifier(ASTBaseBase):
             return NotImplemented
         return self.name == other.name
 
+    def __hash__(self) -> int:
+        return hash((self.name, self.is_anonymous))
+
     def is_anon(self) -> bool:
         return self.is_anonymous
 
@@ -148,7 +151,7 @@ class ASTNestedName(ASTBase):
             assert not self.rooted, str(self)
             assert len(self.names) == 1
             self.names[0].describe_signature(signode, 'noneIsName', env, '', symbol)
-        elif mode in ('markType', 'lastIsName', 'markName'):
+        elif mode in {'markType', 'lastIsName', 'markName'}:
             # Each element should be a pending xref targeting the complete
             # prefix.
             prefix = ''
@@ -175,7 +178,7 @@ class ASTNestedName(ASTBase):
                     prefix += '.'
                 first = False
                 txt_ident = str(ident)
-                if txt_ident != '':
+                if txt_ident:
                     ident.describe_signature(dest, 'markType', env, prefix, symbol)
                 prefix += txt_ident
             if mode == 'lastIsName':
@@ -1770,6 +1773,16 @@ class ASTDeclaration(ASTBaseBase):
             and self.symbol == other.symbol
             and self.enumeratorScopedSymbol == other.enumeratorScopedSymbol
         )
+
+    def __hash__(self) -> int:
+        return hash((
+            self.objectType,
+            self.directiveType,
+            self.declaration,
+            self.semicolon,
+            self.symbol,
+            self.enumeratorScopedSymbol,
+        ))
 
     def clone(self) -> ASTDeclaration:
         return ASTDeclaration(self.objectType, self.directiveType,

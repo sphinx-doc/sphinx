@@ -1,6 +1,7 @@
 """Test the autosummary extension."""
 
 import sys
+from contextlib import chdir
 from io import StringIO
 from unittest.mock import Mock, patch
 from xml.etree.ElementTree import Element
@@ -24,11 +25,6 @@ from sphinx.ext.autosummary.generate import (
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
-
-try:
-    from contextlib import chdir
-except ImportError:
-    from sphinx.util.osutil import _chdir as chdir
 
 html_warnfile = StringIO()
 
@@ -341,7 +337,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     template = Mock()
 
     def skip_member(app, what, name, obj, skip, options):
-        if name in ('Foo', 'bar', 'Exc'):
+        if name in {'Foo', 'bar', 'Exc'}:
             return True
         return None
 

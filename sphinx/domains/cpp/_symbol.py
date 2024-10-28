@@ -792,14 +792,19 @@ class Symbol:
                     name = str(ourChild.declaration)
                     msg = __("Duplicate C++ declaration, also defined at %s:%s.\n"
                              "Declaration is '.. cpp:%s:: %s'.")
-                    msg = msg % (ourChild.docname, ourChild.line,
-                                 ourChild.declaration.directiveType, name)
-                    logger.warning(msg, location=(otherChild.docname, otherChild.line))
+                    logger.warning(
+                        msg,
+                        ourChild.docname,
+                        ourChild.line,
+                        ourChild.declaration.directiveType,
+                        name,
+                        location=(otherChild.docname, otherChild.line),
+                    )
                 else:
                     if (otherChild.declaration.objectType ==
                             ourChild.declaration.objectType and
                             otherChild.declaration.objectType in
-                            ('templateParam', 'functionParam') and
+                            {'templateParam', 'functionParam'} and
                             ourChild.parent.declaration == otherChild.parent.declaration):
                         # `ourChild` was just created during merging by the call
                         # to `_fill_empty` on the parent and can be ignored.

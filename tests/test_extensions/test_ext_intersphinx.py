@@ -745,30 +745,57 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.sphinx('html', testroot='root')
-def test_intersphinx_cache_limit(app):
+@pytest.mark.parametrize(
+    ('cache_limit', 'expected_expired'),
+    [
+        (5, False),
+        (1, True),
+        (0, True),
+        (-1, False),
+    ],
+)
+def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired):
     url = 'https://example.org/'
-    app.config.intersphinx_cache_limit = -1
+    app.config.intersphinx_cache_limit = cache_limit
     app.config.intersphinx_mapping = {
         'inv': (url, None),
     }
     # load the inventory and check if it's done correctly
     intersphinx_cache: dict[str, InventoryCacheEntry] = {
-        url: ('', 0, {}),  # 0 is a timestamp, make sure the entry is expired
+        url: ('inv', 0, {}),  # Timestamp of last cache write is zero.
     }
     validate_intersphinx_mapping(app, app.config)
-    load_mappings(app)
 
-    now = int(time.time())
+    # The test's `now` is two days after the cache was created.
+    now = 2 * 86400
+    monkeypatch.setattr('time.time', lambda: now)
+
+    # `_fetch_inventory_group` calls `_fetch_inventory`.
+    # We replace it with a mock to test whether it has been called.
+    # If it has been called, it means the cache had expired.
+    mock_fetch_inventory = mock.Mock(return_value=('inv', now, {}))
+    monkeypatch.setattr(
+        'sphinx.ext.intersphinx._load._fetch_inventory', mock_fetch_inventory
+    )
+
     for name, (uri, locations) in app.config.intersphinx_mapping.values():
         project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
-        # no need to read from remote
-        assert not _fetch_inventory_group(
+        updated = _fetch_inventory_group(
             project=project,
             cache=intersphinx_cache,
             now=now,
             config=app.config,
             srcdir=app.srcdir,
         )
+        # If we hadn't mocked `_fetch_inventory`, it would've made
+        # a request to `https://example.org/` and found no inventory
+        # file. That would've been an error, and `updated` would've been
+        # False even if the cache had expired. The mock makes it behave
+        # "correctly".
+        assert updated is expected_expired
+    # Double-check: If the cache was expired, `mock_fetch_inventory`
+    # must've been called.
+    assert mock_fetch_inventory.called is expected_expired
 
 
 def test_intersphinx_fetch_inventory_group_url():

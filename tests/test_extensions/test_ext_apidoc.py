@@ -1,6 +1,5 @@
 """Test the sphinx.apidoc module."""
 
-import os.path
 from collections import namedtuple
 from pathlib import Path
 
@@ -51,6 +50,41 @@ def test_simple(make_app, apidoc):
     app.build()
     print(app._status.getvalue())
     print(app._warning.getvalue())
+
+
+@pytest.mark.apidoc(
+    coderoot='test-apidoc-custom-templates',
+    options=[
+        '--separate',
+        '--templatedir=tests/roots/test-apidoc-custom-templates/_templates',
+    ],
+)
+def test_custom_templates(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').is_file()
+    assert (outdir / 'index.rst').is_file()
+
+    template_dir = apidoc.coderoot / '_templates'
+    assert sorted(template_dir.iterdir()) == [
+        template_dir / 'module.rst.jinja',
+        template_dir / 'module.rst_t',
+        template_dir / 'package.rst_t',
+    ]
+
+    app = make_app('text', srcdir=outdir)
+    app.build()
+
+    builddir = outdir / '_build' / 'text'
+
+    # Assert that the legacy filename is discovered
+    with open(builddir / 'mypackage.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The legacy package template was found!' in txt
+
+    # Assert that the new filename is preferred
+    with open(builddir / 'mypackage.mymodule.txt', encoding='utf-8') as f:
+        txt = f.read()
+        assert 'The Jinja module template was found!' in txt
 
 
 @pytest.mark.apidoc(
@@ -330,7 +364,7 @@ def test_toc_all_references_should_exist_pep420_enabled(apidoc):
     found_refs = []
     missing_files = []
     for ref in refs:
-        if ref and ref[0] in (':', '#'):
+        if ref and ref[0] in {':', '#'}:
             continue
         found_refs.append(ref)
         filename = f'{ref}.rst'
@@ -361,7 +395,7 @@ def test_toc_all_references_should_exist_pep420_disabled(apidoc):
     found_refs = []
     missing_files = []
     for ref in refs:
-        if ref and ref[0] in (':', '#'):
+        if ref and ref[0] in {':', '#'}:
             continue
         filename = f'{ref}.rst'
         found_refs.append(ref)
@@ -697,7 +731,7 @@ def test_no_duplicates(rootdir, tmp_path):
         apidoc_main(['-o', str(outdir), '-T', str(package), '--implicit-namespaces'])
 
         # Ensure the module has been documented
-        assert os.path.isfile(outdir / 'fish_licence.rst')
+        assert (outdir / 'fish_licence.rst').is_file()
 
         # Ensure the submodule only appears once
         text = (outdir / 'fish_licence.rst').read_text(encoding='utf-8')

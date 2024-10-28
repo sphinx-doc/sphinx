@@ -324,7 +324,7 @@ class JSModule(SphinxDirective):
             domain = self.env.domains.javascript_domain
 
             node_id = make_id(self.env, self.state.document, 'module', mod_name)
-            domain.note_module(mod_name, node_id)
+            domain.note_module(modname=mod_name, node_id=node_id)
             # Make a duplicate entry in 'objects' to facilitate searching for
             # the module in JavaScriptDomain.find_obj()
             domain.note_object(mod_name, 'module', node_id,

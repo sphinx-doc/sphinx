@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from types import TracebackType
     from typing import Any
 
 # SEP separates path elements in the canonical file names
@@ -25,7 +24,7 @@ if TYPE_CHECKING:
 # Define SEP as a manifest constant, not so much because we expect it to change
 # in the future as to avoid the suspicion that a stray "/" in the code is a
 # hangover from more *nix-oriented origins.
-SEP = "/"
+SEP = '/'
 
 
 def os_path(canonical_path: str, /) -> str:
@@ -115,27 +114,33 @@ def copyfile(
         raise FileNotFoundError(msg)
 
     if (
-        not (dest_exists := dest.exists()) or
+        not (dest_exists := dest.exists())
         # comparison must be done using shallow=False since
         # two different files might have the same size
-        not filecmp.cmp(source, dest, shallow=False)
+        or not filecmp.cmp(source, dest, shallow=False)
     ):
         if not force and dest_exists:
             # sphinx.util.logging imports sphinx.util.osutil,
             # so use a local import to avoid circular imports
             from sphinx.util import logging
+
             logger = logging.getLogger(__name__)
 
-            msg = __('Aborted attempted copy from %s to %s '
-                     '(the destination path has existing data).')
-            logger.warning(msg, source, dest,
-                           type='misc', subtype='copy_overwrite')
+            msg = __(
+                'Aborted attempted copy from %s to %s '
+                '(the destination path has existing data).'
+            )
+            logger.warning(msg, source, dest, type='misc', subtype='copy_overwrite')
             return
 
-        shutil.copyfile(source, dest)
-        with contextlib.suppress(OSError):
-            # don't do full copystat because the source may be read-only
-            _copy_times(source, dest)
+        if sys.platform == 'win32':
+            # copy2() uses Windows API calls
+            shutil.copy2(source, dest)
+        else:
+            shutil.copyfile(source, dest)
+            with contextlib.suppress(OSError):
+                # don't do full copystat because the source may be read-only
+                _copy_times(source, dest)
 
 
 _no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
@@ -149,8 +154,9 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project.removesuffix(' Documentation')).lower()
 
 
-def relpath(path: str | os.PathLike[str],
-            start: str | os.PathLike[str] | None = os.curdir) -> str:
+def relpath(
+    path: str | os.PathLike[str], start: str | os.PathLike[str] | None = os.curdir
+) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -168,31 +174,6 @@ fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 abspath = path.abspath
-
-
-class _chdir:
-    """Remove this fall-back once support for Python 3.10 is removed."""
-
-    def __init__(self, target_dir: str, /) -> None:
-        self.path = target_dir
-        self._dirs: list[str] = []
-
-    def __enter__(self) -> None:
-        self._dirs.append(os.getcwd())
-        os.chdir(self.path)
-
-    def __exit__(
-        self,
-        type: type[BaseException] | None,
-        value: BaseException | None,
-        traceback: TracebackType | None,
-        /,
-    ) -> None:
-        os.chdir(self._dirs.pop())
-
-
-if sys.version_info[:2] < (3, 11):
-    cd = _chdir
 
 
 class FileAvoidWrite:
@@ -241,7 +222,7 @@ class FileAvoidWrite:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
+        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
     ) -> bool:
         self.close()
         return True

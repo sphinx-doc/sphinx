@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-import os.path
+import sys
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -8,6 +9,11 @@ import pytest
 from sphinx.cmd import make_mode
 from sphinx.cmd.build import get_parser
 from sphinx.cmd.make_mode import run_make_mode
+
+broken_argparse = (
+    sys.version_info[:3] <= (3, 12, 6)
+    or sys.version_info[:3] == (3, 13, 0)
+)  # fmt: skip
 
 DEFAULTS = {
     'filenames': [],
@@ -46,8 +52,8 @@ EXPECTED_BUILD_MAIN = {
 EXPECTED_MAKE_MODE = {
     'builder': 'html',
     'sourcedir': 'source_dir',
-    'outputdir': os.path.join('build_dir', 'html'),
-    'doctreedir': os.path.join('build_dir', 'doctrees'),
+    'outputdir': str(Path('build_dir', 'html')),
+    'doctreedir': str(Path('build_dir', 'doctrees')),
     'filenames': ['filename1', 'filename2'],
     'freshenv': True,
     'noconfig': True,
@@ -79,7 +85,6 @@ LATE_OPTS = [
     '--isolated',
 ]
 OPTS = EARLY_OPTS + LATE_OPTS
-OPTS_BUILD_MAIN = BUILDER_BUILD_MAIN + OPTS
 
 
 def parse_arguments(args: list[str]) -> dict[str, Any]:
@@ -116,7 +121,10 @@ def test_build_main_parse_arguments_pos_middle() -> None:
     assert parse_arguments(args) == EXPECTED_BUILD_MAIN
 
 
-@pytest.mark.xfail(reason='sphinx-build does not yet support filenames after options')
+@pytest.mark.xfail(
+    broken_argparse,
+    reason='sphinx-build does not yet support filenames after options',
+)
 def test_build_main_parse_arguments_filenames_last() -> None:
     args = [
         *POSITIONAL_DIRS,
@@ -136,10 +144,13 @@ def test_build_main_parse_arguments_pos_intermixed(
         *LATE_OPTS,
         *POSITIONAL_FILENAMES,
     ]
-    with pytest.raises(SystemExit):
-        parse_arguments(args)
-    stderr = capsys.readouterr().err.splitlines()
-    assert stderr[-1].endswith('error: unrecognized arguments: filename1 filename2')
+    if broken_argparse:
+        with pytest.raises(SystemExit):
+            parse_arguments(args)
+        stderr = capsys.readouterr().err.splitlines()
+        assert stderr[-1].endswith('error: unrecognized arguments: filename1 filename2')
+    else:
+        assert parse_arguments(args) == EXPECTED_BUILD_MAIN
 
 
 def test_make_mode_parse_arguments_pos_first(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -185,10 +196,14 @@ def test_make_mode_parse_arguments_pos_middle(
     assert stderr[-1].endswith('error: argument --builder/-b: expected one argument')
 
 
-@pytest.mark.xfail(reason='sphinx-build does not yet support filenames after options')
+@pytest.mark.xfail(
+    broken_argparse,
+    reason='sphinx-build does not yet support filenames after options',
+)
 def test_make_mode_parse_arguments_filenames_last(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # -M <positional...> <opts> <filenames...>
     monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
     args = [
         *BUILDER_MAKE_MODE,
@@ -203,6 +218,7 @@ def test_make_mode_parse_arguments_pos_intermixed(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    # -M <opts> <positional...> <opts> <filenames...>
     monkeypatch.setattr(make_mode, 'build_main', parse_arguments)
     args = [
         *EARLY_OPTS,

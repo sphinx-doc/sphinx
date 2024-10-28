@@ -9,9 +9,7 @@ from sphinx.util.console import bold, color_terminal
 if False:
     from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
-    from typing import Any, TypeVar
-
-    from typing_extensions import ParamSpec
+    from typing import Any, ParamSpec, TypeVar
 
     T = TypeVar('T')
     P = ParamSpec('P')
@@ -78,7 +76,7 @@ class progress_message:
         val: BaseException | None,
         tb: TracebackType | None,
     ) -> bool:
-        prefix = "" if self.nonl else bold(self.message + ': ')
+        prefix = '' if self.nonl else bold(self.message + ': ')
         if isinstance(val, SkipProgressMessage):
             logger.info(prefix + __('skipped'))
             if val.args:

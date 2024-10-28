@@ -20,6 +20,8 @@ from sphinx.util.osutil import ensuredir, make_filename_from_project
 from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
@@ -41,8 +43,12 @@ class ManualPageBuilder(Builder):
 
     def init(self) -> None:
         if not self.config.man_pages:
-            logger.warning(__('no "man_pages" config value found; no manual pages '
-                              'will be written'))
+            logger.warning(
+                __(
+                    'no "man_pages" config value found; no manual pages '
+                    'will be written'
+                )
+            )
 
     def get_outdated_docs(self) -> str | list[str]:
         return 'all manpages'  # for now
@@ -51,7 +57,7 @@ class ManualPageBuilder(Builder):
         return ''
 
     @progress_message(__('writing'))
-    def write(self, *ignored: Any) -> None:
+    def write_documents(self, _docnames: Set[str]) -> None:
         docwriter = ManualPageWriter(self)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -60,13 +66,16 @@ class ManualPageBuilder(Builder):
             docsettings: Any = OptionParser(
                 defaults=self.env.settings,
                 components=(docwriter,),
-                read_config_files=True).get_default_values()
+                read_config_files=True,
+            ).get_default_values()
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
             if docname not in self.env.all_docs:
-                logger.warning(__('"man_pages" config value references unknown '
-                                  'document %s'), docname)
+                logger.warning(
+                    __('"man_pages" config value references unknown ' 'document %s'),
+                    docname,
+                )
                 continue
             if isinstance(authors, str):
                 if authors:
@@ -88,13 +97,14 @@ class ManualPageBuilder(Builder):
 
             logger.info(darkgreen(targetname) + ' { ')
             destination = FileOutput(
-                destination_path=path.join(self.outdir, targetname),
-                encoding='utf-8')
+                destination_path=path.join(self.outdir, targetname), encoding='utf-8'
+            )
 
             tree = self.env.get_doctree(docname)
             docnames: set[str] = set()
-            largetree = inline_all_toctrees(self, docnames, docname, tree,
-                                            darkgreen, [docname])
+            largetree = inline_all_toctrees(
+                self, docnames, docname, tree, darkgreen, [docname]
+            )
             largetree.settings = docsettings
             logger.info('} ', nonl=True)
             self.env.resolve_references(largetree, docname, self)
@@ -111,8 +121,15 @@ class ManualPageBuilder(Builder):
 def default_man_pages(config: Config) -> list[tuple[str, str, str, list[str], int]]:
     """Better default man_pages settings."""
     filename = make_filename_from_project(config.project)
-    return [(config.root_doc, filename, f'{config.project} {config.release}',
-             [config.author], 1)]
+    return [
+        (
+            config.root_doc,
+            filename,
+            f'{config.project} {config.release}',
+            [config.author],
+            1,
+        )
+    ]
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

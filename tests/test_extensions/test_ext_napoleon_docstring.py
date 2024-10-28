@@ -1579,12 +1579,13 @@ class TestNumpyDocstring:
         config = Config()
         for section, admonition in admonition_map.items():
             # Multiline
+            underline = '-' * len(section)
             actual = NumpyDocstring(
-                f"{section}\n"
-                f"{'-' * len(section)}\n"
-                "    this is the first line\n"
-                "\n"
-                "    and this is the second line\n",
+                f'{section}\n'
+                f'{underline}\n'
+                '    this is the first line\n'
+                '\n'
+                '    and this is the second line\n',
                 config,
             )
             expect = (

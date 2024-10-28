@@ -36,7 +36,9 @@ Documentation.addTranslations({
         "Search": "T\u00ecm Ki\u1ebfm",
         "Search Page": "",
         "Search Results": "",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "T\u00ecm ki\u1ebfm trong %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

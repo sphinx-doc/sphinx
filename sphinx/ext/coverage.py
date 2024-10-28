@@ -192,7 +192,7 @@ class CoverageBuilder(Builder):
     def get_outdated_docs(self) -> str:
         return 'coverage overview'
 
-    def write(self, *ignored: Any) -> None:
+    def write_documents(self, _docnames: Set[str]) -> None:
         self.py_undoc: dict[str, dict[str, Any]] = {}
         self.py_undocumented: dict[str, Set[str]] = {}
         self.py_documented: dict[str, Set[str]] = {}

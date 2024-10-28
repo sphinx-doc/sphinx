@@ -1,7 +1,7 @@
 """Inventory utility functions for Sphinx."""
+
 from __future__ import annotations
 
-import os
 import re
 import zlib
 from typing import TYPE_CHECKING
@@ -13,6 +13,7 @@ BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Callable, Iterator
 
     from sphinx.builders import Builder
@@ -41,7 +42,7 @@ class InventoryFileReader:
         pos = self.buffer.find(b'\n')
         if pos != -1:
             line = self.buffer[:pos].decode()
-            self.buffer = self.buffer[pos + 1:]
+            self.buffer = self.buffer[pos + 1 :]
         elif self.eof:
             line = self.buffer.decode()
             self.buffer = b''
@@ -72,7 +73,7 @@ class InventoryFileReader:
             pos = buf.find(b'\n')
             while pos != -1:
                 yield buf[:pos].decode()
-                buf = buf[pos + 1:]
+                buf = buf[pos + 1 :]
                 pos = buf.find(b'\n')
 
 
@@ -135,8 +136,11 @@ class InventoryFile:
 
         for line in stream.read_compressed_lines():
             # be careful to handle names with embedded spaces correctly
-            m = re.match(r'(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
-                         line.rstrip(), flags=re.VERBOSE)
+            m = re.match(
+                r'(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
+                line.rstrip(),
+                flags=re.VERBOSE,
+            )
             if not m:
                 continue
             name, type, prio, location, dispname = m.groups()
@@ -155,15 +159,20 @@ class InventoryFile:
                 # Some types require case insensitive matches:
                 # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
                 # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
-                definition = f"{type}:{name}"
+                definition = f'{type}:{name}'
                 content = prio, location, dispname
                 lowercase_definition = definition.lower()
                 if lowercase_definition in potential_ambiguities:
                     if potential_ambiguities[lowercase_definition] != content:
                         actual_ambiguities.add(definition)
                     else:
-                        logger.debug(__("inventory <%s> contains duplicate definitions of %s"),
-                                     uri, definition, type='intersphinx',  subtype='external')
+                        logger.debug(
+                            __('inventory <%s> contains duplicate definitions of %s'),
+                            uri,
+                            definition,
+                            type='intersphinx',
+                            subtype='external',
+                        )
                 else:
                     potential_ambiguities[lowercase_definition] = content
             if location.endswith('$'):
@@ -172,25 +181,35 @@ class InventoryFile:
             inv_item: InventoryItem = projname, version, location, dispname
             invdata.setdefault(type, {})[name] = inv_item
         for ambiguity in actual_ambiguities:
-            logger.info(__("inventory <%s> contains multiple definitions for %s"),
-                        uri, ambiguity, type='intersphinx',  subtype='external')
+            logger.info(
+                __('inventory <%s> contains multiple definitions for %s'),
+                uri,
+                ambiguity,
+                type='intersphinx',
+                subtype='external',
+            )
         return invdata
 
     @classmethod
     def dump(
-        cls: type[InventoryFile], filename: str, env: BuildEnvironment, builder: Builder,
+        cls: type[InventoryFile],
+        filename: str | os.PathLike[str],
+        env: BuildEnvironment,
+        builder: Builder,
     ) -> None:
         def escape(string: str) -> str:
-            return re.sub("\\s+", " ", string)
+            return re.sub('\\s+', ' ', string)
 
-        with open(os.path.join(filename), 'wb') as f:
+        with open(filename, 'wb') as f:
             # header
-            f.write(('# Sphinx inventory version 2\n'
-                     '# Project: %s\n'
-                     '# Version: %s\n'
-                     '# The remainder of this file is compressed using zlib.\n' %
-                     (escape(env.config.project),
-                      escape(env.config.version))).encode())
+            f.write(
+                (
+                    '# Sphinx inventory version 2\n'
+                    f'# Project: {escape(env.config.project)}\n'
+                    f'# Version: {escape(env.config.version)}\n'
+                    '# The remainder of this file is compressed using zlib.\n'
+                ).encode()
+            )
 
             # body
             compressor = zlib.compressobj(9)
@@ -205,7 +224,6 @@ class InventoryFile:
                         uri += '#' + anchor
                     if dispname == fullname:
                         dispname = '-'
-                    entry = ('%s %s:%s %s %s %s\n' %
-                             (fullname, domain.name, type, prio, uri, dispname))
+                    entry = f'{fullname} {domain.name}:{type} {prio} {uri} {dispname}\n'
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())

@@ -3,17 +3,9 @@ from __future__ import annotations
 
 import os
 import re
-import time
 from typing import TYPE_CHECKING
 
-from sphinx import __display_version__, addnodes
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from docutils import nodes
+from sphinx import __display_version__
 
 os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
@@ -34,7 +26,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = f'2007-{time.strftime("%Y")}, the Sphinx developers'
+copyright = '2007-%Y, the Sphinx developers'
 release = version = __display_version__
 show_authors = True
 nitpicky = True
@@ -53,7 +45,6 @@ html_additional_pages = {'contents': 'contents.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
 html_favicon = '_static/favicon.svg'
-html_last_updated_time_zone = 'GMT'
 
 htmlhelp_basename = 'Sphinxdoc'
 
@@ -195,6 +186,7 @@ nitpick_ignore = {
     ('js:func', 'number'),
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
+    ('py:class', '_AutodocProcessDocstringListener'),
     ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
     ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
@@ -263,10 +255,20 @@ nitpick_ignore = {
 
 # -- Extension interface -------------------------------------------------------
 
+from sphinx import addnodes  # NoQA: E402
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from docutils.nodes import Element
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+
 _event_sig_re = re.compile(r'([a-zA-Z-]+)\s*\((.*)\)')
 
 
-def parse_event(_env: BuildEnvironment, sig: str, signode: nodes.Element) -> str:
+def parse_event(_env: BuildEnvironment, sig: str, signode: Element) -> str:
     m = _event_sig_re.match(sig)
     if m is None:
         signode += addnodes.desc_name(sig, sig)
@@ -339,10 +341,8 @@ def build_redirects(app: Sphinx, exception: Exception | None) -> None:
 
 
 def setup(app: Sphinx) -> None:
-    from sphinx.ext.autodoc import cut_lines
     from sphinx.util.docfields import GroupedField
 
-    app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))
     app.connect('include-read', linkify_issues_in_changelog)
     app.connect('build-finished', build_redirects)
     fdesc = GroupedField(
