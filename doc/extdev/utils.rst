@@ -44,6 +44,9 @@ Utility functions
 
 .. autofunction:: sphinx.util.parsing.nested_parse_to_nodes
 
+.. autofunction:: sphinx.util.fileutil.copy_asset
+
+.. autofunction:: sphinx.util.fileutil.copy_asset_file
 
 Utility types
 -------------

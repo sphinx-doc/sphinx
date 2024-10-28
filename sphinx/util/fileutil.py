@@ -53,6 +53,8 @@ def copy_asset_file(
     :param context: The template variables.  If not given, template files are simply copied
     :param renderer: The template engine.  If not given, SphinxRenderer is used by default
     :param bool force: Overwrite the destination file even if it exists.
+
+    .. versionadded:: 1.5
     """
     if not os.path.exists(source):
         return
@@ -115,7 +117,7 @@ def copy_asset(
     On copying, it expands the template variables if context argument is given and
     the asset is a template file.
 
-    Use ``copy_asset_file`` instead to copy a single file.
+    Use :func:`copy_asset_file` instead to copy a single file.
 
     :param source: The path to source file or directory
     :param destination: The path to destination directory
@@ -124,6 +126,8 @@ def copy_asset(
     :param renderer: The template engine.  If not given, SphinxRenderer is used by default
     :param onerror: The error handler.
     :param bool force: Overwrite the destination file even if it exists.
+
+    .. versionadded:: 1.5
     """
     if not os.path.exists(source):
         return
