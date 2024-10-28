@@ -28,6 +28,7 @@ def get_node_depth(node: Node) -> int:
         i += 1
     return i
 
+
 def get_node_parents(node: Node) -> list[str]:
     parents = []
     cur_node = node
@@ -37,6 +38,7 @@ def get_node_parents(node: Node) -> list[str]:
         ref_name = getattr(title, 'rawsource', title.astext())
         parents.append(ref_name)
     return parents
+
 
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
     domain = app.env.domains.standard_domain
@@ -55,7 +57,7 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
                 id_array.reverse()
                 id_array.append(ref_name)
                 name = nodes.fully_normalize_name(':'.join(id_array))
-                labelid = make_id(app.env, document, '', '.'.join(id_array))
+                labelid = make_id(app.env, node.document, '', '.'.join(id_array))
             else:
                 name = nodes.fully_normalize_name(docname + ':' + ref_name)
         else:
