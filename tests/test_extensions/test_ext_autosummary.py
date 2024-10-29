@@ -573,6 +573,8 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
 ):
     import autosummary_dummy_complex_inheritance_module
 
+    built_in_attr = autosummary_dummy_complex_inheritance_module.built_in_attr
+    
     template_jerry = Mock()
 
     generate_autosummary_content(
@@ -604,11 +606,7 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
     ]
 
     assert context['all_attributes'] == [
-        '__annotations__',
-        '__dict__',
-        '__doc__',
-        '__module__',
-        '__weakref__',
+        *built_in_attr,
         'relation',
     ]
     assert context['all_methods'] == [
@@ -774,11 +772,7 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
 
     assert context2['all_attributes'] == [
         '__private_baby_name',
-        '__annotations__',
-        '__dict__',
-        '__doc__',
-        '__module__',
-        '__weakref__',
+        *built_in_attr,
         'relation',
     ]
     assert context2['all_methods'] == [

@@ -1,3 +1,4 @@
+import sys
 
 class Parent:
 
@@ -77,3 +78,14 @@ class Jerry(Architect, Child):
 
 
 __all__ = ["Parent", "Child", "Baby", "Job", "Architect", "Jerry"]
+
+
+if sys.version_info[:2] >= (3, 14):
+	built_in_attr = ['__annotate__', '__annotations__', '__dict__', '__doc__', '__firstlineno__',
+                     '__module__', '__static_attributes__', '__weakref__', 'relation']
+elif sys.version_info[:2] >= (3, 13):
+	built_in_attr = ['__annotations__', '__dict__', '__doc__', '__firstlineno__', '__module__',
+                     '__static_attributes__', '__weakref__', 'relation']
+elif sys.version_info[:2] >= (3, 12):
+	built_in_attr = ['__annotations__', '__dict__', '__doc__', '__module__', '__weakref__',
+                     'relation']
