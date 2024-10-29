@@ -100,5 +100,8 @@ if sys.version_info[:2] >= (3, 13):
     built_in_attr = concat_and_sort(built_in_attr, add_3_13)
     built_in_members = concat_and_sort(built_in_members, add_3_13)
 
+built_in_members2 = members_3_11
+
 if sys.version_info[:2] >= (3, 14):
     built_in_attr = concat_and_sort(built_in_attr, ['__annotate__'])
+    built_in_members2 = concat_and_sort(built_in_members, ['__annotate__'])

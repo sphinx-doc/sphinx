@@ -575,6 +575,7 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
 
     built_in_attr = autosummary_dummy_complex_inheritance_module.built_in_attr
     built_in_members = autosummary_dummy_complex_inheritance_module.built_in_members
+    built_in_members2 = autosummary_dummy_complex_inheritance_module.built_in_members2
 
     template_jerry = Mock()
 
@@ -850,7 +851,7 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
         'BabyInnerClass',
         '__private_baby_name',
         '__annotations__',
-        *built_in_members,
+        *built_in_members2,
         'addition',
         'get_age',
         'get_name',
