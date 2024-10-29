@@ -52,6 +52,7 @@ Contributors
 * Hugo van Kemenade -- support FORCE_COLOR and NO_COLOR
 * Ian Lee -- quickstart improvements
 * Jacob Mason -- websupport library (GSOC project)
+* James Addison -- fixes and test maintenance for linkcheck and HTML search
 * Jeppe Pihl -- literalinclude improvements
 * Joel Wurtz -- cellspanning support in LaTeX
 * John Waltman -- Texinfo builder
