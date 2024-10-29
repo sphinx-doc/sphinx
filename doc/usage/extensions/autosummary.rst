@@ -305,9 +305,9 @@ The following variables are available in the templates:
 
 .. data:: inherited_qualnames
 
-   List containing the fully qualified names of each inherited member. Will return
-   just the closest parent from which this class was inherited. Only available
-   for classes.
+   List containing the fully qualified names of each inherited member including
+   private ones. Will return just the closest parent from which this class was
+   inherited. Only available for classes.
 
    The following example assumes that this code block has been written as
    part of a module ``mypackage.test``
