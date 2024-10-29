@@ -94,13 +94,13 @@ def concat_and_sort(list1, list2):
 
 built_in_attr = attr_3_11
 built_in_members = members_3_11
+built_in_members2 = ['__annotations__', *members_3_11]
 
 if sys.version_info[:2] >= (3, 13):
     add_3_13 = ['__firstlineno__', '__static_attributes__']
     built_in_attr = concat_and_sort(built_in_attr, add_3_13)
     built_in_members = concat_and_sort(built_in_members, add_3_13)
-
-built_in_members2 = built_in_members
+    built_in_members2 = concat_and_sort(built_in_members2, add_3_13)
 
 if sys.version_info[:2] >= (3, 14):
     built_in_attr = concat_and_sort(built_in_attr, ['__annotate__'])

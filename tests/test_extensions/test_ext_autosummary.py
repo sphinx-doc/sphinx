@@ -850,7 +850,6 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
     assert context2['members'] == [
         'BabyInnerClass',
         '__private_baby_name',
-        '__annotations__',
         *built_in_members2,
         'addition',
         'get_age',
