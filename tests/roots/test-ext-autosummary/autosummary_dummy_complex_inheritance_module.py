@@ -79,6 +79,10 @@ class Jerry(Architect, Child):
 
 __all__ = ["Parent", "Child", "Baby", "Job", "Architect", "Jerry"]
 
+# The following is used to process the expected builtin members for different
+# versions of Python. The base list is for v3.11 (the latest testing when added)
+# and new builtin attributes/methods in later versions can be appended below.
+
 members_3_11 = ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__',
                 '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__',
                 '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__',
@@ -94,6 +98,7 @@ def concat_and_sort(list1, list2):
 
 built_in_attr = attr_3_11
 built_in_members = members_3_11
+# The second test has an extra builtin member
 built_in_members2 = ['__annotations__', *members_3_11]
 
 if sys.version_info[:2] >= (3, 13):
