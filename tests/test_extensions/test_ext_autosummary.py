@@ -574,7 +574,7 @@ def test_autosummary_generate_content_for_module_imported_members_complex_inheri
     import autosummary_dummy_complex_inheritance_module
 
     built_in_attr = autosummary_dummy_complex_inheritance_module.built_in_attr
-    
+
     template_jerry = Mock()
 
     generate_autosummary_content(
