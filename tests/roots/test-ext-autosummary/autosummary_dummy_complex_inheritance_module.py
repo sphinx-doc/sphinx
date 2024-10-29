@@ -79,12 +79,23 @@ class Jerry(Architect, Child):
 
 __all__ = ["Parent", "Child", "Baby", "Job", "Architect", "Jerry"]
 
+members_3_11 = ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', 
+                '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', 
+                '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', 
+                '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', 
+                '__sizeof__', '__str__', '__subclasshook__', '__weakref__']
+members_3_13 = ['__firstlineno__', '__static_attributes__']
+
 
 if sys.version_info[:2] >= (3, 14):
-	built_in_attr = ['__annotate__', '__annotations__', '__dict__', '__doc__', '__firstlineno__',
+    built_in_attr = ['__annotate__', '__annotations__', '__dict__', '__doc__', '__firstlineno__',
                      '__module__', '__static_attributes__', '__weakref__']
+    built_in_members = (members_3_11 + members_3_13).sort()
 elif sys.version_info[:2] >= (3, 13):
-	built_in_attr = ['__annotations__', '__dict__', '__doc__', '__firstlineno__', '__module__',
+    built_in_attr = ['__annotations__', '__dict__', '__doc__', '__firstlineno__', '__module__',
                      '__static_attributes__', '__weakref__']
+    built_in_members = (members_3_11 + members_3_13).sort()
 elif sys.version_info[:2] >= (3, 11):
-	built_in_attr = ['__annotations__', '__dict__', '__doc__', '__module__', '__weakref__']
+    built_in_attr = ['__annotations__', '__dict__', '__doc__', '__module__', '__weakref__']
+    built_in_members = members_3_11
+
