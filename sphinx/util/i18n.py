@@ -65,7 +65,7 @@ logger = logging.getLogger(__name__)
 
 
 class CatalogInfo:
-    __slots__ = ('base_dir', 'domain', 'charset')
+    __slots__ = ('base_dir', 'charset', 'domain')
 
     def __init__(
         self, base_dir: str | os.PathLike[str], domain: str, charset: str
