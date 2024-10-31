@@ -30,13 +30,13 @@ class InventoryEntry:
     """Entry in the Intersphinx inventory."""
 
     __slots__ = (
-        'name',
+        'anchor',
         'display_name',
         'domain_name',
+        'name',
         'object_type',
-        'uri',
-        'anchor',
         'priority',
+        'uri',
     )
 
     def __init__(

@@ -423,11 +423,11 @@ def _convert_theme_conf(cfg: configparser.RawConfigParser, /) -> _ConfigFile:
 
 class _ConfigFile:
     __slots__ = (
-        'stylesheets',
-        'sidebar_templates',
-        'pygments_style_default',
-        'pygments_style_dark',
         'options',
+        'pygments_style_dark',
+        'pygments_style_default',
+        'sidebar_templates',
+        'stylesheets',
     )
 
     def __init__(

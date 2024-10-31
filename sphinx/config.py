@@ -92,7 +92,7 @@ _OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENU
 
 
 class _Opt:
-    __slots__ = 'default', 'rebuild', 'valid_types', 'description'
+    __slots__ = 'default', 'description', 'rebuild', 'valid_types'
 
     default: Any
     rebuild: _ConfigRebuild

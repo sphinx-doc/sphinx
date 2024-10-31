@@ -47,13 +47,13 @@ class _IntersphinxProject:
     locations: tuple[InventoryLocation, ...]
 
     __slots__ = {
+        'locations':  'A tuple of local or remote targets containing '
+                      'the inventory data to fetch. '
+                      'None indicates the default inventory file name.',
         'name':       'The inventory name. '
                       'It is unique and in bijection with an remote inventory URL.',
         'target_uri': 'The inventory project URL to which links are resolved. '
                       'It is unique and in bijection with an inventory name.',
-        'locations':  'A tuple of local or remote targets containing '
-                      'the inventory data to fetch. '
-                      'None indicates the default inventory file name.',
     }  # fmt: skip
 
     def __init__(
