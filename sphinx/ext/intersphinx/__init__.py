@@ -19,20 +19,20 @@ This works as follows:
 from __future__ import annotations
 
 __all__ = (
-    'InventoryAdapter',
-    'fetch_inventory',
-    'load_mappings',
-    'validate_intersphinx_mapping',
-    'IntersphinxRoleResolver',
-    'inventory_exists',
-    'install_dispatcher',
-    'resolve_reference_in_inventory',
-    'resolve_reference_any_inventory',
-    'resolve_reference_detect_inventory',
-    'missing_reference',
     'IntersphinxDispatcher',
     'IntersphinxRole',
+    'IntersphinxRoleResolver',
+    'InventoryAdapter',
+    'fetch_inventory',
     'inspect_main',
+    'install_dispatcher',
+    'inventory_exists',
+    'load_mappings',
+    'missing_reference',
+    'resolve_reference_any_inventory',
+    'resolve_reference_detect_inventory',
+    'resolve_reference_in_inventory',
+    'validate_intersphinx_mapping',
 )
 
 from typing import TYPE_CHECKING
