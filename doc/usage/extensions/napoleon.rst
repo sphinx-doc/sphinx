@@ -546,6 +546,7 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
    True to allow using :pep:`526` attributes annotations in classes.
    If an attribute is documented in the docstring without a type and
    has an annotation in the class body, that type is used.
+   *Defaults to True.*
 
    .. versionadded:: 3.4
 
