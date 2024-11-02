@@ -209,6 +209,29 @@ describe('Basic html theme search', function() {
 
   });
 
+  describe('can handle edge-case search queries', function() {
+
+    it('can search for the javascript prototype property', function() {
+      eval(loadFixture("ecmascript/searchindex.js"));
+
+      searchParameters = Search._parseQuery('__proto__');
+
+      hits = [
+        [
+          'index',
+          'Object.__proto__',
+          '#Object.__proto__',
+          'JavaScript attribute, in ECMAScript',
+          16,
+          'index.rst',
+          'object'
+        ]
+      ];
+      expect(Search._performSearch(...searchParameters)).toEqual(hits);
+    });
+
+  });
+
 });
 
 describe("htmlToText", function() {
