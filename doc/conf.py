@@ -173,7 +173,6 @@ intersphinx_mapping = {
 }
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
-locale_dirs = ['locale/']
 gettext_compact = False
 
 nitpick_ignore = {
