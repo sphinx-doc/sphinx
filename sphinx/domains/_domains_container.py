@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.duration import DurationDomain
     from sphinx.ext.todo import TodoDomain
+    from sphinx.registry import SphinxComponentRegistry
 
 
 class _DomainsContainer:
@@ -71,8 +72,10 @@ class _DomainsContainer:
     })
 
     @classmethod
-    def _from_environment(cls, env: BuildEnvironment, /) -> Self:
-        create_domains = env.app.registry.create_domains
+    def _from_environment(
+        cls, env: BuildEnvironment, /, *, registry: SphinxComponentRegistry
+    ) -> Self:
+        create_domains = registry.create_domains
         # Initialise domains
         if domains := {domain.name: domain for domain in create_domains(env)}:
             return cls(**domains)  # type: ignore[arg-type]

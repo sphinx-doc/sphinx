@@ -220,7 +220,9 @@ class BuildEnvironment:
         self._search_index_objnames: dict[int, tuple[str, str, str]] = {}
 
         # all the registered domains, set by the application
-        self.domains: _DomainsContainer = _DomainsContainer._from_environment(self)
+        self.domains: _DomainsContainer = _DomainsContainer._from_environment(
+            self, registry=app.registry
+        )
 
         # set up environment
         self.setup(app)
@@ -259,7 +261,9 @@ class BuildEnvironment:
         # initialise domains
         if self.domains is None:
             # if we are unpickling an environment, we need to recreate the domains
-            self.domains = _DomainsContainer._from_environment(self)
+            self.domains = _DomainsContainer._from_environment(
+                self, registry=app.registry
+            )
         # setup domains (must do after all initialization)
         self.domains._setup()
 
