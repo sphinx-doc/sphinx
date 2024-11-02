@@ -19,16 +19,16 @@ def test_catalog_info_for_file_and_path():
     cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
     assert cat.po_file == 'domain.po'
     assert cat.mo_file == 'domain.mo'
-    assert cat.po_path == str(Path('path', 'domain.po'))
-    assert cat.mo_path == str(Path('path', 'domain.mo'))
+    assert cat.po_path == Path('path', 'domain.po')
+    assert cat.mo_path == Path('path', 'domain.mo')
 
 
 def test_catalog_info_for_sub_domain_file_and_path():
     cat = i18n.CatalogInfo('path', 'sub/domain', 'utf-8')
     assert cat.po_file == 'sub/domain.po'
     assert cat.mo_file == 'sub/domain.mo'
-    assert cat.po_path == str(Path('path', 'sub', 'domain.po'))
-    assert cat.mo_path == str(Path('path', 'sub', 'domain.mo'))
+    assert cat.po_path == Path('path', 'sub', 'domain.po')
+    assert cat.mo_path == Path('path', 'sub', 'domain.mo')
 
 
 def test_catalog_outdated(tmp_path):
@@ -178,8 +178,8 @@ def test_CatalogRepository(tmp_path):
     # for language xx
     repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], 'xx', 'utf-8')
     assert list(repo.locale_dirs) == [
-        str(tmp_path / 'loc1'),
-        str(tmp_path / 'loc2'),
+        tmp_path / 'loc1',
+        tmp_path / 'loc2',
     ]
     assert all(isinstance(c, i18n.CatalogInfo) for c in repo.catalogs)
     assert sorted(c.domain for c in repo.catalogs) == [

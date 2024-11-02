@@ -41,11 +41,12 @@ def test_config_status(make_app, app_params):
     # incremental build (config entry changed)
     app3 = make_app(*args, confoverrides={'root_doc': 'indexx'}, **kwargs)
     fname = app3.srcdir / 'index.rst'
+    other_fname = app3.srcdir / 'indexx.rst'
     assert fname.is_file()
-    shutil.move(fname, fname[:-4] + 'x.rst')
+    shutil.move(fname, other_fname)
     assert app3.env.config_status == CONFIG_CHANGED
     app3.build()
-    shutil.move(fname[:-4] + 'x.rst', fname)
+    shutil.move(other_fname, fname)
     output = strip_colors(app3.status.getvalue())
     assert 'The configuration has changed' in output
     assert "[config changed ('master_doc')] 1 added," in output
