@@ -18,6 +18,7 @@ from sphinx.util.nodes import make_id, make_refnode
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
 
+    from docutils import nodes
     from docutils.nodes import Element
 
     from sphinx.addnodes import desc_signature, pending_xref
@@ -262,7 +263,7 @@ class ReSTDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         objtypes = self.objtypes_for_role(typ)
         if not objtypes:
             return None
@@ -276,8 +277,8 @@ class ReSTDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
-        results: list[tuple[str, Element]] = []
+                         ) -> list[tuple[str, nodes.reference]]:
+        results: list[tuple[str, nodes.reference]] = []
         for objtype in self.object_types:
             result = self.objects.get((objtype, target))
             if result:

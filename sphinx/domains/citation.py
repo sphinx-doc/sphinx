@@ -86,7 +86,7 @@ class CitationDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         docname, labelid, lineno = self.citations.get(target, ('', '', 0))
         if not docname:
             return None
@@ -96,7 +96,7 @@ class CitationDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+                         ) -> list[tuple[str, nodes.reference]]:
         refnode = self.resolve_xref(env, fromdocname, builder, 'ref', target, node, contnode)
         if refnode is None:
             return []

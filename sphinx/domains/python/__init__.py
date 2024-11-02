@@ -828,7 +828,7 @@ class PythonDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      type: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         modname = node.get('py:module')
         clsname = node.get('py:class')
         searchmode = 1 if node.hasattr('refspecific') else 0
@@ -875,10 +875,10 @@ class PythonDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+                         ) -> list[tuple[str, nodes.reference]]:
         modname = node.get('py:module')
         clsname = node.get('py:class')
-        results: list[tuple[str, Element]] = []
+        results: list[tuple[str, nodes.reference]] = []
 
         # always search in "refspecific" mode with the :any: role
         matches = self.find_obj(env, modname, clsname, target, None, 1)
@@ -910,7 +910,7 @@ class PythonDomain(Domain):
         return results
 
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,
-                             contnode: Node) -> Element:
+                             contnode: Node) -> nodes.reference:
         # get additional info for modules
         module: ModuleEntry = self.modules[name]
         title_parts = [name]
