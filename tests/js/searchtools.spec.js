@@ -25,6 +25,35 @@ describe('Basic html theme search', function() {
     expect(nextExpected).toEqual(undefined);
   }
 
+  describe('index immutability', function() {
+
+    it('should not be possible to modify index contents', function() {
+      eval(loadFixture("cpp/searchindex.js"));
+
+      // record some initial state
+      const initialTitle = Search._index.titles[0];
+      const initialTitlesProto = Search._index.titles.__proto__;
+      const initialTerms = Search._index.terms;
+      const initialDocNames = [...Search._index.docnames];
+
+      // attempt to mutate the index state
+      try { Search._index.docnames.pop(); } catch {};
+      try { Search._index.docnames.push('extra'); } catch {};
+      Search._index.titles[0] += 'modified';
+      Search._index.titles.__proto__ = 'anotherProto';
+      Search._index.terms = {'fake': [1, 2, 3]};
+      Search._index.__proto__ = 'otherProto';
+
+      // ensure that none of the modifications were applied
+      expect(Search._index.__proto__).toBe(undefined);
+      expect(Search._index.terms).toEqual(initialTerms);
+      expect(Search._index.titles.__proto__).toEqual(initialTitlesProto);
+      expect(Search._index.titles[0]).toEqual(initialTitle);
+      expect(Search._index.docnames).toEqual(initialDocNames);
+    });
+
+  });
+
   describe('terms search', function() {
 
     it('should find "C++" when in index', function() {

@@ -219,7 +219,14 @@ const Search = {
     (document.body.appendChild(document.createElement("script")).src = url),
 
   setIndex: (index) => {
-    Search._index = index;
+    const sanitiseRecursive = function(obj) {
+        if (obj instanceof Object && !Array.isArray(obj)) {
+            Object.entries(obj).map(([k, v]) => obj[k] = sanitiseRecursive(v));
+            return Object.freeze(Object.assign(Object.create(null), obj));
+        }
+        return Object.freeze(obj);
+    }
+    Search._index = sanitiseRecursive(index);
     if (Search._queued_query !== null) {
       const query = Search._queued_query;
       Search._queued_query = null;
@@ -474,7 +481,7 @@ const Search = {
       const descr = objName + _(", in ") + title;
 
       // add custom score for some objects according to scorer
-      if (Scorer.objPrio.hasOwnProperty(match[2]))
+      if (match[2] in Scorer.objPrio)
         score += Scorer.objPrio[match[2]];
       else score += Scorer.objPrioDefault;
 
@@ -520,13 +527,13 @@ const Search = {
       // add support for partial matches
       if (word.length > 2) {
         const escapedWord = _escapeRegExp(word);
-        if (!terms.hasOwnProperty(word)) {
+        if (!(word in terms)) {
           Object.keys(terms).forEach((term) => {
             if (term.match(escapedWord))
               arr.push({ files: terms[term], score: Scorer.partialTerm });
           });
         }
-        if (!titleTerms.hasOwnProperty(word)) {
+        if (!(word in titleTerms)) {
           Object.keys(titleTerms).forEach((term) => {
             if (term.match(escapedWord))
               arr.push({ files: titleTerms[term], score: Scorer.partialTitle });
