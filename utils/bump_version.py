@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Literal
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
-script_dir = Path(__file__).parent
+script_dir = Path(__file__).resolve().parent
 package_dir = script_dir.parent
 
 

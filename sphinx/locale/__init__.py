@@ -141,7 +141,7 @@ def init(
     return translator, has_translation
 
 
-_LOCALE_DIR = Path(__file__).parent.resolve()
+_LOCALE_DIR = Path(__file__).resolve().parent
 
 
 def init_console(

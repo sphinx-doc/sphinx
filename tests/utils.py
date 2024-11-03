@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
 #     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
-TESTS_ROOT: Final[Path] = Path(__file__).parent
+TESTS_ROOT: Final[Path] = Path(__file__).resolve().parent
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
