@@ -69,11 +69,14 @@ Where to put your own extensions?
 Extensions local to a project should be put within the project's directory
 structure.  Set Python's module search path, ``sys.path``, accordingly so that
 Sphinx can find them.  For example, if your extension ``foo.py`` lies in the
-``exts`` subdirectory of the project root, put into :file:`conf.py`::
+``exts`` subdirectory of the project root, put into :file:`conf.py`:
 
-   import sys, os
+.. code-block:: python
 
-   sys.path.append(os.path.abspath('exts'))
+   import sys
+   from pathlib import Path
+
+   sys.path.append(str(Path('exts').resolve()))
 
    extensions = ['foo']
 

@@ -223,11 +223,14 @@ General configuration
 
    Ensure that absolute paths are used when modifying :data:`sys.path`.
    If your custom extensions live in a directory that is relative to the
-   :term:`configuration directory`, use :func:`os.path.abspath` like so:
+   :term:`configuration directory`, use :meth:`pathlib.Path.resolve` like so:
 
    .. code-block:: python
 
-      import os, sys; sys.path.append(os.path.abspath('sphinxext'))
+      import sys
+      from pathlib import Path
+
+      sys.path.append(str(Path('sphinxext').resolve()))
 
       extensions = [
          ...
