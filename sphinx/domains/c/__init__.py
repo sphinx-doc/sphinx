@@ -837,7 +837,7 @@ class CDomain(Domain):
             objectType = symbol.declaration.objectType
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
-            yield (name, dispname, objectType, docname, newestId, 1)
+            yield name, dispname, objectType, docname, newestId, 1
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

@@ -203,7 +203,7 @@ class Builder:
                     image_uri = images.get_original_image_uri(node['uri'])
                     if mimetypes:
                         logger.warning(
-                            __('a suitable image for %s builder not found: ' '%s (%s)'),
+                            __('a suitable image for %s builder not found: %s (%s)'),
                             self.name,
                             mimetypes,
                             image_uri,

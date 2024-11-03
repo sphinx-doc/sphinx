@@ -166,10 +166,7 @@ class LaTeXBuilder(Builder):
             docname = entry[0]
             if docname not in self.env.all_docs:
                 logger.warning(
-                    __(
-                        '"latex_documents" config value references unknown '
-                        'document %s'
-                    ),
+                    __('"latex_documents" config value references unknown document %s'),
                     docname,
                 )
                 continue

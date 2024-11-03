@@ -311,7 +311,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
             'body': (_('<h1>Source code for %s</h1>') % modname +
                      '\n'.join(lines)),
         }
-        yield (pagename, context, 'page.html')
+        yield pagename, context, 'page.html'
 
     if not modnames:
         return
@@ -339,7 +339,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
                  ''.join(html)),
     }
 
-    yield (posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html')
+    yield posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html'
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

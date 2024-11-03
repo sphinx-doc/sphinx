@@ -159,7 +159,7 @@ def test_domain_cpp_ast_fundamental_types(type_, id_v2):
     id1 = make_id_v1()
     id2 = make_id_v2()
 
-    input = f"void f({type_.replace(' ', '  ')} arg)"
+    input = f'void f({type_.replace(" ", "  ")} arg)'
     output = f'void f({type_} arg)'
 
     check('function', input, {1: id1, 2: id2}, output=output)
@@ -167,7 +167,7 @@ def test_domain_cpp_ast_fundamental_types(type_, id_v2):
         # try permutations of all components
         tcs = type_.split()
         for p in itertools.permutations(tcs):
-            input = f"void f({' '.join(p)} arg)"
+            input = f'void f({" ".join(p)} arg)'
             check('function', input, {1: id1, 2: id2})
 
 
@@ -1347,8 +1347,7 @@ def test_domain_cpp_ast_template_args():
     # from breathe#218
     check(
         'function',
-        'template<typename F> '
-        'void allow(F *f, typename func<F, B, G != 1>::type tt)',
+        'template<typename F> void allow(F *f, typename func<F, B, G != 1>::type tt)',
         {
             2: 'I0E5allowP1FN4funcI1F1BXG != 1EE4typeE',
             3: 'I0E5allowP1FN4funcI1F1BXne1GL1EEE4typeE',
@@ -1906,9 +1905,7 @@ _var cpp:member 1 index.html#_CPPv44$ -
 @pytest.mark.sphinx('html', testroot='root')
 def test_domain_cpp_parse_no_index_entry(app):
     text = (
-        '.. cpp:function:: void f()\n'
-        '.. cpp:function:: void g()\n'
-        '   :no-index-entry:\n'
+        '.. cpp:function:: void f()\n.. cpp:function:: void g()\n   :no-index-entry:\n'
     )
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))

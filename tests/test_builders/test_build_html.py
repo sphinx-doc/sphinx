@@ -300,9 +300,7 @@ def test_html_raw_directive(app):
     [
         (".//link[@href='_static/persistent.css'][@rel='stylesheet']", '', True),
         (
-            ".//link[@href='_static/default.css']"
-            "[@rel='stylesheet']"
-            "[@title='Default']",
+            ".//link[@href='_static/default.css'][@rel='stylesheet'][@title='Default']",
             '',
             True,
         ),
@@ -338,8 +336,7 @@ def test_html_raw_directive(app):
             True,
         ),
         (
-            ".//link[@href='_static/more_alternate2.css']"
-            "[@rel='alternate stylesheet']",
+            ".//link[@href='_static/more_alternate2.css'][@rel='alternate stylesheet']",
             '',
             True,
         ),

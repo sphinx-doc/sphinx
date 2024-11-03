@@ -1089,23 +1089,23 @@ class StandardDomain(Domain):
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         # handle the special 'doc' reference here
         for doc in self.env.all_docs:
-            yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
+            yield doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1
         for (prog, option), info in self.progoptions.items():
             if prog:
                 fullname = f'{prog}.{option}'
-                yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
+                yield fullname, fullname, 'cmdoption', info[0], info[1], 1
             else:
-                yield (option, option, 'cmdoption', info[0], info[1], 1)
+                yield option, option, 'cmdoption', info[0], info[1], 1
         for (type, name), info in self.objects.items():
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
         for name, (docname, labelid, sectionname) in self.labels.items():
-            yield (name, sectionname, 'label', docname, labelid, -1)
+            yield name, sectionname, 'label', docname, labelid, -1
         # add anonymous-only labels as well
         non_anon_labels = set(self.labels)
         for name, (docname, labelid) in self.anonlabels.items():
             if name not in non_anon_labels:
-                yield (name, name, 'label', docname, labelid, -1)
+                yield name, name, 'label', docname, labelid, -1
 
     def get_type_name(self, type: ObjType, primary: bool = False) -> str:
         # never prepend "Default"

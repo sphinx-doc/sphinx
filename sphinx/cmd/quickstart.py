@@ -507,7 +507,7 @@ def generate(
         end='',
     )
     if d['makefile'] or d['batchfile']:
-        print(__('Use the Makefile to build the docs, like so:\n' '   make builder'))
+        print(__('Use the Makefile to build the docs, like so:\n   make builder'))
     else:
         print(
             __(

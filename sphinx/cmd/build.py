@@ -217,14 +217,14 @@ files can be built by specifying individual filenames.
         '-a',
         action='store_true',
         dest='force_all',
-        help=__('write all files (default: only write new and ' 'changed files)'),
+        help=__('write all files (default: only write new and changed files)'),
     )
     group.add_argument(
         '--fresh-env',
         '-E',
         action='store_true',
         dest='freshenv',
-        help=__("don't use a saved environment, always read " 'all files'),
+        help=__("don't use a saved environment, always read all files"),
     )
 
     group = parser.add_argument_group(__('path options'))
@@ -243,9 +243,7 @@ files can be built by specifying individual filenames.
         '-c',
         metavar='PATH',
         dest='confdir',
-        help=__(
-            'directory for the configuration file (conf.py) ' '(default: SOURCE_DIR)'
-        ),
+        help=__('directory for the configuration file (conf.py) (default: SOURCE_DIR)'),
     )
 
     group = parser.add_argument_group('build configuration options')

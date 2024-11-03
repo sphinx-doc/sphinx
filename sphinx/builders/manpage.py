@@ -44,10 +44,7 @@ class ManualPageBuilder(Builder):
     def init(self) -> None:
         if not self.config.man_pages:
             logger.warning(
-                __(
-                    'no "man_pages" config value found; no manual pages '
-                    'will be written'
-                )
+                __('no "man_pages" config value found; no manual pages will be written')
             )
 
     def get_outdated_docs(self) -> str | list[str]:
@@ -73,7 +70,7 @@ class ManualPageBuilder(Builder):
             docname, name, description, authors, section = info
             if docname not in self.env.all_docs:
                 logger.warning(
-                    __('"man_pages" config value references unknown ' 'document %s'),
+                    __('"man_pages" config value references unknown document %s'),
                     docname,
                 )
                 continue

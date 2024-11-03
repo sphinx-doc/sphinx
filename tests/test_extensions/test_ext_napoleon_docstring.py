@@ -443,9 +443,7 @@ class TestGoogleDocstring:
             assert str(actual) == expect
 
             # Single line
-            actual = GoogleDocstring(
-                f'{section}:\n' '    this is a single line\n', config
-            )
+            actual = GoogleDocstring(f'{section}:\n    this is a single line\n', config)
             expect = f'.. {admonition}:: this is a single line\n'
             assert str(actual) == expect
 
@@ -1599,7 +1597,7 @@ class TestNumpyDocstring:
 
             # Single line
             actual = NumpyDocstring(
-                f"{section}\n{'-' * len(section)}\n    this is a single line\n",
+                f'{section}\n{"-" * len(section)}\n    this is a single line\n',
                 config,
             )
             expect = f'.. {admonition}:: this is a single line\n'

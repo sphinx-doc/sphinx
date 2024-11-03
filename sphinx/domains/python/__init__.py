@@ -927,14 +927,14 @@ class PythonDomain(Domain):
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         for modname, mod in self.modules.items():
-            yield (modname, modname, 'module', mod.docname, mod.node_id, 0)
+            yield modname, modname, 'module', mod.docname, mod.node_id, 0
         for refname, obj in self.objects.items():
             if obj.objtype != 'module':  # modules are already handled
                 if obj.aliased:
                     # aliased names are not full-text searchable.
-                    yield (refname, refname, obj.objtype, obj.docname, obj.node_id, -1)
+                    yield refname, refname, obj.objtype, obj.docname, obj.node_id, -1
                 else:
-                    yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
+                    yield refname, refname, obj.objtype, obj.docname, obj.node_id, 1
 
     def get_full_qualified_name(self, node: Element) -> str | None:
         modname = node.get('py:module')

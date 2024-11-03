@@ -168,12 +168,7 @@ def test_graphviz_parse_mapfile():
     assert cmap.generate_clickable_map() == ''
 
     # normal graph
-    code = (
-        'digraph {\n'
-        '  foo [href="https://www.google.com/"];\n'
-        '  foo -> bar;\n'
-        '}\n'
-    )
+    code = 'digraph {\n  foo [href="https://www.google.com/"];\n  foo -> bar;\n}\n'
     content = (
         '<map id="%3" name="%3">\n'
         '<area shape="poly" id="node1" href="https://www.google.com/" title="foo" alt=""'

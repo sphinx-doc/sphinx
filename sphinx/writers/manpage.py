@@ -117,7 +117,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
             ' "%(date)s" "%(version)s" "%(manual_group)s"\n'
         )
         if self._docinfo['subtitle']:
-            tmpl += '.SH NAME\n' '%(title)s \\- %(subtitle)s\n'
+            tmpl += '.SH NAME\n%(title)s \\- %(subtitle)s\n'
         return tmpl % self._docinfo
 
     def visit_start_of_file(self, node: Element) -> None:

@@ -99,15 +99,15 @@ def parse_directive(d: str) -> tuple[str, str]:
     dir = d.strip()
     if not dir.startswith('.'):
         # Assume it is a directive without syntax
-        return (dir, '')
+        return dir, ''
     m = dir_sig_re.match(dir)
     if not m:
-        return (dir, '')
+        return dir, ''
     parsed_dir, parsed_args = m.groups()
     if parsed_args.strip():
-        return (parsed_dir.strip(), ' ' + parsed_args.strip())
+        return parsed_dir.strip(), ' ' + parsed_args.strip()
     else:
-        return (parsed_dir.strip(), '')
+        return parsed_dir.strip(), ''
 
 
 class ReSTDirective(ReSTMarkup):
