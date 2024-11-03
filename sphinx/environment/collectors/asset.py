@@ -89,7 +89,7 @@ class ImageCollector(EnvironmentCollector):
             # map image paths to unique image names (so that they can be put
             # into a single directory)
             for imgpath in candidates.values():
-                app.env.dependencies[docname].add(imgpath)
+                app.env.note_dependency(imgpath)
                 if not os.access(os.path.join(app.srcdir, imgpath), os.R_OK):
                     logger.warning(
                         __('image file not readable: %s'),
@@ -154,7 +154,7 @@ class DownloadFileCollector(EnvironmentCollector):
                 node['refuri'] = targetname
             else:
                 rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
-                app.env.dependencies[app.env.docname].add(rel_filename)
+                app.env.note_dependency(rel_filename)
                 if not os.access(filename, os.R_OK):
                     logger.warning(
                         __('download file not readable: %s'),

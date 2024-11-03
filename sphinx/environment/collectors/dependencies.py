@@ -49,7 +49,7 @@ class DependenciesCollector(EnvironmentCollector):
             if isinstance(dep, bytes):
                 dep = dep.decode(fs_encoding)
             relpath = relative_path(frompath, os.path.normpath(os.path.join(cwd, dep)))
-            app.env.dependencies[app.env.docname].add(relpath)
+            app.env.note_dependency(relpath)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

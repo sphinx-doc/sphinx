@@ -467,7 +467,7 @@ class BuildEnvironment:
                 for docname in self.found_docs:
                     domain = docname_to_domain(docname, self.config.gettext_compact)
                     if domain in mo_paths:
-                        self.dependencies[docname].add(str(mo_paths[domain]))
+                        self.note_dependency(mo_paths[domain], docname=docname)
         except OSError as exc:
             raise DocumentError(
                 __('Failed to scan documents in %s: %r') % (self.srcdir, exc)
@@ -585,14 +585,18 @@ class BuildEnvironment:
         self.temp_data[key] = cur + 1
         return cur
 
-    def note_dependency(self, filename: str) -> None:
+    def note_dependency(
+        self, filename: str | os.PathLike[str], *, docname: str | None = None
+    ) -> None:
         """Add *filename* as a dependency of the current document.
 
         This means that the document will be rebuilt if this file changes.
 
         *filename* should be absolute or relative to the source directory.
         """
-        self.dependencies[self.docname].add(filename)
+        if docname is None:
+            docname = self.docname
+        self.dependencies[docname].add(os.fspath(filename))
 
     def note_included(self, filename: str) -> None:
         """Add *filename* as a included from other document.
