@@ -15,6 +15,11 @@ Deprecated
 Features added
 --------------
 
+* #13098: HTML Search: the contents of the search index are sanitised
+  (reassigned to frozen null-prototype JavaScript objects), to reduce
+  the risk of unintended access or modification.
+  Patch by James Addison
+
 Bugs fixed
 ----------
 
