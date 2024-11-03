@@ -598,7 +598,7 @@ class BuildEnvironment:
             docname = self.docname
         self.dependencies[docname].add(os.fspath(filename))
 
-    def note_included(self, filename: str) -> None:
+    def note_included(self, filename: str | os.PathLike[str]) -> None:
         """Add *filename* as a included from other document.
 
         This means the document is not orphaned.
