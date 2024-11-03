@@ -5,12 +5,12 @@ from __future__ import annotations
 import contextlib
 import filecmp
 import os
+import os.path
 import re
 import shutil
 import sys
 import unicodedata
 from io import StringIO
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -28,12 +28,12 @@ SEP = '/'
 
 
 def os_path(canonical_path: str, /) -> str:
-    return canonical_path.replace(SEP, path.sep)
+    return canonical_path.replace(SEP, os.path.sep)
 
 
 def canon_path(native_path: str | os.PathLike[str], /) -> str:
     """Return path in OS-independent form"""
-    return os.fspath(native_path).replace(path.sep, SEP)
+    return os.fspath(native_path).replace(os.path.sep, SEP)
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
@@ -173,7 +173,7 @@ safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-abspath = path.abspath
+abspath = os.path.abspath
 
 
 class FileAvoidWrite:

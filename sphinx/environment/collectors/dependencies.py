@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from os import path
+import os.path
 from typing import TYPE_CHECKING
 
 from docutils.utils import relative_path
@@ -39,7 +39,7 @@ class DependenciesCollector(EnvironmentCollector):
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process docutils-generated dependency info."""
         cwd = os.getcwd()
-        frompath = path.join(path.normpath(app.srcdir), 'dummy')
+        frompath = os.path.join(os.path.normpath(app.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
         if not deps:
             return
@@ -48,7 +48,7 @@ class DependenciesCollector(EnvironmentCollector):
             # one relative to the srcdir
             if isinstance(dep, bytes):
                 dep = dep.decode(fs_encoding)
-            relpath = relative_path(frompath, path.normpath(path.join(cwd, dep)))
+            relpath = relative_path(frompath, os.path.normpath(os.path.join(cwd, dep)))
             app.env.dependencies[app.env.docname].add(relpath)
 
 

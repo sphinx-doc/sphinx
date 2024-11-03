@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import operator
+import os.path
 import posixpath
 import traceback
 from importlib import import_module
-from os import path
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -229,7 +229,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
 
     builder = cast(StandaloneHTMLBuilder, app.builder)
     basename = modname.replace('.', '/') + builder.out_suffix
-    page_filename = path.join(app.outdir, '_modules/', basename)
+    page_filename = os.path.join(app.outdir, '_modules/', basename)
 
     try:
         if _last_modified_time(module_filename) <= _last_modified_time(page_filename):

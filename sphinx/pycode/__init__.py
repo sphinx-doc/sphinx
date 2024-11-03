@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import os
+import os.path
 import tokenize
 from importlib import import_module
-from os import path
 from typing import TYPE_CHECKING, Any, Literal
 
 from sphinx.errors import PycodeError
@@ -60,15 +60,15 @@ class ModuleAnalyzer:
         if filename is None:
             # all methods for getting filename failed, so raise...
             raise PycodeError('no source found for module %r' % modname)
-        filename = path.normpath(path.abspath(filename))
+        filename = os.path.normpath(os.path.abspath(filename))
         if filename.lower().endswith(('.pyo', '.pyc')):
             filename = filename[:-1]
-            if not path.isfile(filename) and path.isfile(filename + 'w'):
+            if not os.path.isfile(filename) and os.path.isfile(filename + 'w'):
                 filename += 'w'
         elif not filename.lower().endswith(('.py', '.pyw')):
             raise PycodeError('source is not a .py file: %r' % filename)
 
-        if not path.isfile(filename):
+        if not os.path.isfile(filename):
             raise PycodeError('source file is not present: %r' % filename)
         return filename, None
 

@@ -19,11 +19,11 @@ import importlib
 import inspect
 import locale
 import os
+import os.path
 import pkgutil
 import pydoc
 import re
 import sys
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NamedTuple
 
@@ -853,7 +853,7 @@ def main(argv: Sequence[str] = (), /) -> None:
     args = get_parser().parse_args(argv or sys.argv[1:])
 
     if args.templates:
-        app.config.templates_path.append(path.abspath(args.templates))
+        app.config.templates_path.append(os.path.abspath(args.templates))
     app.config.autosummary_ignore_module_all = not args.respect_module_all
 
     written_files = generate_autosummary_docs(

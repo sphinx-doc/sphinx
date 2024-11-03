@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import functools
 import os
+import os.path
 import pickle
 from collections import defaultdict
 from copy import copy
-from os import path
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
@@ -424,12 +424,12 @@ class BuildEnvironment:
         if filename.startswith(('/', os.sep)):
             rel_fn = filename[1:]
         else:
-            docdir = path.dirname(self.doc2path(docname or self.docname, base=False))
-            rel_fn = path.join(docdir, filename)
+            docdir = os.path.dirname(self.doc2path(docname or self.docname, base=False))
+            rel_fn = os.path.join(docdir, filename)
 
         return (
-            canon_path(path.normpath(rel_fn)),
-            path.normpath(path.join(self.srcdir, rel_fn)),
+            canon_path(os.path.normpath(rel_fn)),
+            os.path.normpath(os.path.join(self.srcdir, rel_fn)),
         )
 
     @property
@@ -493,8 +493,8 @@ class BuildEnvironment:
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
-                filename = path.join(self.doctreedir, docname + '.doctree')
-                if not path.isfile(filename):
+                filename = os.path.join(self.doctreedir, docname + '.doctree')
+                if not os.path.isfile(filename):
                     logger.debug('[build target] changed %r', docname)
                     changed.add(docname)
                     continue
@@ -519,8 +519,8 @@ class BuildEnvironment:
                 for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
-                        deppath = path.join(self.srcdir, dep)
-                        if not path.isfile(deppath):
+                        deppath = os.path.join(self.srcdir, dep)
+                        if not os.path.isfile(deppath):
                             logger.debug(
                                 '[build target] changed %r missing dependency %r',
                                 docname,
@@ -629,7 +629,7 @@ class BuildEnvironment:
         try:
             serialised = self._pickled_doctree_cache[docname]
         except KeyError:
-            filename = path.join(self.doctreedir, docname + '.doctree')
+            filename = os.path.join(self.doctreedir, docname + '.doctree')
             with open(filename, 'rb') as f:
                 serialised = self._pickled_doctree_cache[docname] = f.read()
 

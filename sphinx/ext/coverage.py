@@ -8,12 +8,12 @@ from __future__ import annotations
 
 import glob
 import inspect
+import os.path
 import pickle
 import pkgutil
 import re
 import sys
 from importlib import import_module
-from os import path
 from typing import IO, TYPE_CHECKING, Any, TextIO
 
 import sphinx
@@ -161,12 +161,12 @@ class CoverageBuilder(Builder):
 
     name = 'coverage'
     epilog = __('Testing of coverage in the sources finished, look at the '
-                'results in %(outdir)s' + path.sep + 'python.txt.')
+                'results in %(outdir)s' + os.path.sep + 'python.txt.')
 
     def init(self) -> None:
         self.c_sourcefiles: list[str] = []
         for pattern in self.config.coverage_c_path:
-            pattern = path.join(self.srcdir, pattern)
+            pattern = os.path.join(self.srcdir, pattern)
             self.c_sourcefiles.extend(glob.glob(pattern))
 
         self.c_regexes: list[tuple[str, re.Pattern[str]]] = []
@@ -230,7 +230,7 @@ class CoverageBuilder(Builder):
                 self.c_undoc[filename] = undoc
 
     def write_c_coverage(self) -> None:
-        output_file = path.join(self.outdir, 'c.txt')
+        output_file = os.path.join(self.outdir, 'c.txt')
         with open(output_file, 'w', encoding="utf-8") as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented C API elements', '=')
@@ -395,7 +395,7 @@ class CoverageBuilder(Builder):
             op.write(f'{line}\n')
 
     def write_py_coverage(self) -> None:
-        output_file = path.join(self.outdir, 'python.txt')
+        output_file = os.path.join(self.outdir, 'python.txt')
         failed = []
         with open(output_file, 'w', encoding="utf-8") as op:
             if self.config.coverage_write_headline:
@@ -472,7 +472,7 @@ class CoverageBuilder(Builder):
 
     def finish(self) -> None:
         # dump the coverage data to a pickle file too
-        picklepath = path.join(self.outdir, 'undoc.pickle')
+        picklepath = os.path.join(self.outdir, 'undoc.pickle')
         with open(picklepath, 'wb') as dumpfile:
             pickle.dump((self.py_undoc, self.c_undoc,
                          self.py_undocumented, self.py_documented), dumpfile)

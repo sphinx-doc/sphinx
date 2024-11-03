@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import base64
-from os import path
+import os.path
 from typing import TYPE_CHECKING, NamedTuple, overload
 
 import imagesize
@@ -68,10 +68,10 @@ def guess_mimetype(
     filename: PathLike[str] | str = '',
     default: str | None = None,
 ) -> str | None:
-    ext = path.splitext(filename)[1].lower()
+    ext = os.path.splitext(filename)[1].lower()
     if ext in mime_suffixes:
         return mime_suffixes[ext]
-    if path.exists(filename):
+    if os.path.exists(filename):
         try:
             imgtype = _image_type_from_file(filename)
         except ValueError:

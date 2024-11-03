@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import os.path
 import re
 import textwrap
 from collections.abc import Iterable, Iterator
-from os import path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
@@ -1232,7 +1232,7 @@ class TexinfoTranslator(SphinxTranslator):
         if uri.find('://') != -1:
             # ignore remote images
             return
-        name, ext = path.splitext(uri)
+        name, ext = os.path.splitext(uri)
         # width and height ignored in non-tex output
         width = self.tex_image_length(node.get('width', ''))
         height = self.tex_image_length(node.get('height', ''))

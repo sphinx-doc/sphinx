@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+import os.path
 import warnings
-from os import path
 from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
@@ -87,14 +87,15 @@ class ManualPageBuilder(Builder):
 
             if self.config.man_make_section_directory:
                 dirname = 'man%s' % section
-                ensuredir(path.join(self.outdir, dirname))
+                ensuredir(os.path.join(self.outdir, dirname))
                 targetname = f'{dirname}/{name}.{section}'
             else:
                 targetname = f'{name}.{section}'
 
             logger.info(darkgreen(targetname) + ' { ')
             destination = FileOutput(
-                destination_path=path.join(self.outdir, targetname), encoding='utf-8'
+                destination_path=os.path.join(self.outdir, targetname),
+                encoding='utf-8',
             )
 
             tree = self.env.get_doctree(docname)

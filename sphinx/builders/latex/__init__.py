@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import os
+import os.path
 import warnings
-from os import path
 from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
@@ -199,7 +199,7 @@ class LaTeXBuilder(Builder):
             self.context['date'] = format_date(today_fmt, language=self.config.language)
 
         if self.config.latex_logo:
-            self.context['logofilename'] = path.basename(self.config.latex_logo)
+            self.context['logofilename'] = os.path.basename(self.config.latex_logo)
 
         # for compatibilities
         self.context['indexname'] = _('Index')
@@ -276,7 +276,7 @@ class LaTeXBuilder(Builder):
 
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
-        stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
+        stylesheet = os.path.join(self.outdir, 'sphinxhighlight.sty')
         with open(stylesheet, 'w', encoding='utf-8') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
             f.write(
@@ -317,7 +317,7 @@ class LaTeXBuilder(Builder):
             if len(entry) > 5:
                 toctree_only = entry[5]
             destination = SphinxFileOutput(
-                destination_path=path.join(self.outdir, targetname),
+                destination_path=os.path.join(self.outdir, targetname),
                 encoding='utf-8',
                 overwrite_if_changed=True,
             )
@@ -443,11 +443,11 @@ class LaTeXBuilder(Builder):
             'xindy_lang_option': xindy_lang_option,
             'xindy_cyrillic': xindy_cyrillic,
         }
-        staticdirname = path.join(package_dir, 'texinputs')
+        staticdirname = os.path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
                 copy_asset_file(
-                    path.join(staticdirname, filename),
+                    os.path.join(staticdirname, filename),
                     self.outdir,
                     context=context,
                     force=True,
@@ -455,9 +455,9 @@ class LaTeXBuilder(Builder):
 
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
-            staticdirname = path.join(package_dir, 'texinputs_win')
+            staticdirname = os.path.join(package_dir, 'texinputs_win')
             copy_asset_file(
-                path.join(staticdirname, 'Makefile.jinja'),
+                os.path.join(staticdirname, 'Makefile.jinja'),
                 self.outdir,
                 context=context,
                 force=True,
@@ -495,11 +495,11 @@ class LaTeXBuilder(Builder):
                 except Exception as err:
                     logger.warning(
                         __('cannot copy image file %r: %s'),
-                        path.join(self.srcdir, src),
+                        os.path.join(self.srcdir, src),
                         err,
                     )
         if self.config.latex_logo:
-            if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
+            if not os.path.isfile(os.path.join(self.confdir, self.config.latex_logo)):
                 raise SphinxError(
                     __('logo file %r does not exist') % self.config.latex_logo
                 )
@@ -522,7 +522,7 @@ class LaTeXBuilder(Builder):
         if self.context['babel'] or self.context['polyglossia']:
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
-        filename = path.join(
+        filename = os.path.join(
             package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja'
         )
         copy_asset_file(

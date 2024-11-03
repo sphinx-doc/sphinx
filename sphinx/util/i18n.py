@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import os
+import os.path
 import re
 from datetime import datetime
-from os import path
 from typing import TYPE_CHECKING
 
 import babel.dates
@@ -151,7 +151,7 @@ class CatalogRepository:
     @property
     def catalogs(self) -> Iterator[CatalogInfo]:
         for basedir, filename in self.pofiles:
-            domain = canon_path(path.splitext(filename)[0])
+            domain = canon_path(os.path.splitext(filename)[0])
             yield CatalogInfo(basedir, domain, self.encoding)
 
 
@@ -290,15 +290,15 @@ def get_image_filename_for_language(
     filename: str | os.PathLike[str],
     env: BuildEnvironment,
 ) -> str:
-    root, ext = path.splitext(filename)
-    dirname = path.dirname(root)
-    docpath = path.dirname(env.docname)
+    root, ext = os.path.splitext(filename)
+    dirname = os.path.dirname(root)
+    docpath = os.path.dirname(env.docname)
     try:
         return env.config.figure_language_filename.format(
             root=root,
             ext=ext,
             path=dirname and dirname + SEP,
-            basename=path.basename(root),
+            basename=os.path.basename(root),
             docpath=docpath and docpath + SEP,
             language=env.config.language,
         )
@@ -310,7 +310,7 @@ def get_image_filename_for_language(
 def search_image_for_language(filename: str, env: BuildEnvironment) -> str:
     translated = get_image_filename_for_language(filename, env)
     _, abspath = env.relfn2path(translated)
-    if path.exists(abspath):
+    if os.path.exists(abspath):
         return translated
     else:
         return filename
