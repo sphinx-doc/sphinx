@@ -203,10 +203,10 @@ using the :meth:`~sphinx.application.Sphinx.add_html_theme` API:
 .. code-block:: python
 
     # your_theme_package.py
-    from os import path
+    from pathlib import Path
 
     def setup(app):
-        app.add_html_theme('name_of_theme', path.abspath(path.dirname(__file__)))
+        app.add_html_theme('name_of_theme', Path(__file__).resolve().parent)
 
 If your theme package contains two or more themes, please call
 ``add_html_theme()`` twice or more.
