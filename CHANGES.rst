@@ -15,6 +15,8 @@ Deprecated
 Features added
 --------------
 
+* #13076: Add autosectionlabel_full_reference configuration variable.
+
 Bugs fixed
 ----------
 

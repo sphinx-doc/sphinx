@@ -1,17 +1,15 @@
 Introduction of Sphinx
 ======================
 
+
+Directives
+----------
+
+
 Installation
 ============
 
-For Windows users
------------------
-
-Windows
-^^^^^^^
-
-Command
-'''''''
+.. include:: windows.rst
 
 For UNIX users
 --------------
@@ -19,14 +17,14 @@ For UNIX users
 Linux
 ^^^^^
 
-Command
-'''''''
+Command1
+''''''''
 
 FreeBSD
 ^^^^^^^
 
-Command
-'''''''
+2nd Command
+'''''''''''
 
 This one's got an apostrophe
 ----------------------------
@@ -35,14 +33,17 @@ This one's got an apostrophe
 References
 ==========
 
-* :ref:`index:Introduction of Sphinx`
+* :ref:`index:Introduction-of-Sphinx`
 * :ref:`index:Installation`
-* :ref:`index:Installation:For Windows users`
-* :ref:`index:Installation:For Windows users:Windows`
-* :ref:`index:Installation:For Windows users:Windows:Command`
-* :ref:`index:Installation:For UNIX users`
-* :ref:`index:Installation:For UNIX users:Linux`
-* :ref:`index:Installation:For UNIX users:Linux:Command`
-* :ref:`index:Installation:For UNIX users:FreeBSD`
-* :ref:`index:Installation:For UNIX users:FreeBSD:Command`
-* :ref:`index:Installation:This one's got an apostrophe`
+* :ref:`index:Installation:For-Windows-users`
+* :ref:`index:Installation:For-Windows-users:Windows`
+* :ref:`index:Installation:For-Windows-users:Windows:Command`
+* :ref:`index:Installation:For-Windows-users:Windows:Command0`
+* :ref:`index:Installation:For-Windows-users:Windows:Command1`
+* :ref:`index:Installation:For-UNIX-users`
+* :ref:`index:Installation:For-UNIX-users:Linux`
+* :ref:`index:Installation:For-UNIX-users:Linux:Command1`
+* :ref:`index:Installation:For-UNIX-users:FreeBSD`
+* :ref:`index:Installation:For-UNIX-users:FreeBSD:2nd-Command`
+* :ref:`index:Installation:This-one-s-got-an-apostrophe`
+

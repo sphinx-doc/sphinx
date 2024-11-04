@@ -25,9 +25,11 @@ Internally, this extension generates the labels for each section.  If same
 section names are used in whole of document, any one is used for a target by
 default. The ``autosectionlabel_prefix_document`` configuration variable can be
 used to make headings which appear multiple times but in different documents
-unique. Also the ``autosectionlabel_full_reference`` configuration variable can
-help ensure the generated refereences are unique across a document with similar
-section names at different levels.
+unique.
+
+Use the :conf:`autosectionlabel_full_reference` configuration variable
+to guarantee that the generated references are unique across a document
+with similar section names at different levels.
 
 
 Configuration
@@ -56,8 +58,12 @@ Configuration
    :type: :code-py:`bool`
    :default: :code-py:`False`
 
+.. versionadded:: 8.2
+
    True to make each section label include all the parent sections separated by
-   a colon. For example::
+   a colon. For instance, if the following appears in document ``index.rst``:
+
+   .. code-block:: rst
 
       Title
       =====
@@ -68,7 +74,7 @@ Configuration
       Sub Section
       ~~~~~~~~~~~
 
-   Then the reference of the third level section is
+   The reference of the third level section ("Sub Section") will be
    ``index:Title:Section:Sub Section``.
 
 Debugging
