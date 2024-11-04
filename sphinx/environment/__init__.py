@@ -32,7 +32,6 @@ from sphinx.util.osutil import _last_modified_time, canon_path, os_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
-    from pathlib import Path
     from typing import Any, Literal
 
     from docutils import nodes
@@ -102,8 +101,8 @@ class BuildEnvironment:
 
     def __init__(self, app: Sphinx) -> None:
         self.app: Sphinx = app
-        self.doctreedir: Path = app.doctreedir
-        self.srcdir: Path = app.srcdir
+        self.doctreedir: _StrPath = app.doctreedir
+        self.srcdir: _StrPath = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''

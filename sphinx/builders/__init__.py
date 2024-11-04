@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.events import EventManager
+    from sphinx.util._pathlib import _StrPath
     from sphinx.util.tags import Tags
 
 
@@ -94,10 +95,10 @@ class Builder:
     supported_data_uri_images: bool = False
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
-        self.srcdir = app.srcdir
-        self.confdir = app.confdir
-        self.outdir = app.outdir
-        self.doctreedir = app.doctreedir
+        self.srcdir: _StrPath = app.srcdir
+        self.confdir: _StrPath = app.confdir
+        self.outdir: _StrPath = app.outdir
+        self.doctreedir: _StrPath = app.doctreedir
         ensuredir(self.doctreedir)
 
         self.app: Sphinx = app

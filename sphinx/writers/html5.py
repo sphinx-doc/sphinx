@@ -752,7 +752,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
             if not ('width' in node and 'height' in node):
-                path = os.path.join(self.builder.srcdir, olduri)  # type: ignore[has-type]
+                path = os.path.join(self.builder.srcdir, olduri)
                 size = get_image_size(path)
                 if size is None:
                     logger.warning(
