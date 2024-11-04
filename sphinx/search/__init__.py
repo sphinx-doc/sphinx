@@ -9,6 +9,7 @@ import json
 import os
 import pickle
 import re
+from collections import Counter
 from importlib import import_module
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any
@@ -358,10 +359,11 @@ class IndexBuilder:
 
     def get_objects(
         self, fn2index: dict[str, int]
-    ) -> dict[str, list[tuple[int, int, int, str, str]]]:
-        rv: dict[str, list[tuple[int, int, int, str, str]]] = {}
+    ) -> dict[str, dict[int, tuple[int, int, int, str, str]]]:
+        rv: dict[str, dict[int, tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
+        prefix_count = Counter()
         for domain in self.env.domains.sorted():
             sorted_objects = sorted(domain.get_objects())
             for fullname, dispname, type, docname, anchor, prio in sorted_objects:
@@ -372,7 +374,8 @@ class IndexBuilder:
                 fullname = html.escape(fullname)
                 dispname = html.escape(dispname)
                 prefix, _, name = dispname.rpartition('.')
-                plist = rv.setdefault(prefix, [])
+                index = prefix_count[prefix]
+                plist = rv.setdefault(prefix, {})
                 try:
                     typeindex = otypes[domain.name, type]
                 except KeyError:
@@ -394,7 +397,8 @@ class IndexBuilder:
                     shortanchor = '-'
                 else:
                     shortanchor = anchor
-                plist.append((fn2index[docname], typeindex, prio, shortanchor, name))
+                plist[index] = (fn2index[docname], typeindex, prio, shortanchor, name)
+                prefix_count[prefix] += 1
         return rv
 
     def get_terms(
@@ -429,19 +433,24 @@ class IndexBuilder:
         objtypes = {v: k[0] + ':' + k[1] for (k, v) in self._objtypes.items()}
         objnames = self._objnames
 
-        alltitles: dict[str, list[tuple[int, str | None]]] = {}
+        alltitles_count = Counter()
+        alltitles: dict[str, dict[int, tuple[int, str | None]]] = {}
         for docname, titlelist in sorted(self._all_titles.items()):
             for title, titleid in titlelist:
-                alltitles.setdefault(title, []).append((fn2index[docname], titleid))
+                count = alltitles_count[title]
+                alltitles.setdefault(title, {})[count] = (fn2index[docname], titleid)
+                alltitles_count[title] += 1
 
-        index_entries: dict[str, list[tuple[int, str, bool]]] = {}
+        index_entry_count = Counter()
+        index_entries: dict[str, dict[int, tuple[int, str, bool]]] = {}
         for docname, entries in self._index_entries.items():
             for entry, entry_id, main_entry in entries:
-                index_entries.setdefault(entry.lower(), []).append((
+                count = index_entry_count[entry]
+                index_entries.setdefault(entry.lower(), {})[count] = (
                     fn2index[docname],
                     entry_id,
                     main_entry == 'main',
-                ))
+                )
 
         return {
             'docnames': docnames,

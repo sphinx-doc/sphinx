@@ -344,7 +344,7 @@ const Search = {
     const queryLower = query.toLowerCase().trim();
     for (const [title, foundTitles] of Object.entries(allTitles)) {
       if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
-        for (const [file, id] of foundTitles) {
+        for (const [file, id] of Object.values(foundTitles)) {
           const score = Math.round(Scorer.title * queryLower.length / title.length);
           const boost = titles[file] === title ? 1 : 0;  // add a boost for document titles
           normalResults.push([
@@ -363,7 +363,7 @@ const Search = {
     // search for explicit entries in index directives
     for (const [entry, foundEntries] of Object.entries(indexEntries)) {
       if (entry.includes(queryLower) && (queryLower.length >= entry.length/2)) {
-        for (const [file, id, isMain] of foundEntries) {
+        for (const [file, id, isMain] of Object.values(foundEntries)) {
           const score = Math.round(100 * queryLower.length / entry.length);
           const result = [
             docNames[file],
@@ -498,7 +498,7 @@ const Search = {
       ]);
     };
     Object.keys(objects).forEach((prefix) =>
-      objects[prefix].forEach((array) =>
+      Object.values(objects[prefix]).forEach((array) =>
         objectSearchCallback(prefix, array)
       )
     );
