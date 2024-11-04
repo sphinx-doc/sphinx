@@ -169,6 +169,22 @@ def relpath(
         return str(path)
 
 
+def _relative_path(path: Path, root: Path, /) -> Path:
+    """Return a relative filepath to *path* from the given *root* directory.
+
+    This is an alternative of ``Path.relative_to``.
+    It returns the original path if *path* and *root* are on different drives,
+    which may happen on Windows.
+    """
+    if path.anchor != root.anchor or '..' in root.parts:
+        # If the drives are different, no relative path exists.
+        # Path.relative_to() requires fully-resolved paths (no '..').
+        return path
+    if sys.version_info[:2] < (3, 12):
+        return Path(os.path.relpath(path, root))
+    return path.relative_to(root, walk_up=True)
+
+
 safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 

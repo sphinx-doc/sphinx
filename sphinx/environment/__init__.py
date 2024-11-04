@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import functools
 import os
-import os.path
 import pickle
 from collections import defaultdict
 from copy import copy
@@ -28,7 +27,7 @@ from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import _last_modified_time, canon_path, os_path
+from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
@@ -419,17 +418,15 @@ class BuildEnvironment:
         source dir, while relative filenames are relative to the dir of the
         containing document.
         """
-        filename = os_path(filename)
-        if filename.startswith(('/', os.sep)):
-            rel_fn = filename[1:]
+        filename = canon_path(filename)
+        if filename.startswith('/'):
+            abs_fn = (self.srcdir / filename[1:]).resolve()
         else:
-            docdir = os.path.dirname(self.doc2path(docname or self.docname, base=False))
-            rel_fn = os.path.join(docdir, filename)
+            doc_dir = self.doc2path(docname or self.docname, base=False).parent
+            abs_fn = (self.srcdir / doc_dir / filename).resolve()
 
-        return (
-            canon_path(os.path.normpath(rel_fn)),
-            os.path.normpath(os.path.join(self.srcdir, rel_fn)),
-        )
+        rel_fn = _relative_path(abs_fn, self.srcdir)
+        return canon_path(rel_fn), os.fspath(abs_fn)
 
     @property
     def found_docs(self) -> set[str]:
@@ -492,8 +489,8 @@ class BuildEnvironment:
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
-                filename = os.path.join(self.doctreedir, docname + '.doctree')
-                if not os.path.isfile(filename):
+                filename = self.doctreedir / f'{docname}.doctree'
+                if not filename.is_file():
                     logger.debug('[build target] changed %r', docname)
                     changed.add(docname)
                     continue
@@ -518,21 +515,21 @@ class BuildEnvironment:
                 for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
-                        deppath = os.path.join(self.srcdir, dep)
-                        if not os.path.isfile(deppath):
+                        dep_path = self.srcdir / dep
+                        if not dep_path.is_file():
                             logger.debug(
                                 '[build target] changed %r missing dependency %r',
                                 docname,
-                                deppath,
+                                dep_path,
                             )
                             changed.add(docname)
                             break
-                        depmtime = _last_modified_time(deppath)
+                        depmtime = _last_modified_time(dep_path)
                         if depmtime > mtime:
                             logger.debug(
                                 '[build target] outdated %r from dependency %r: %s -> %s',
                                 docname,
-                                deppath,
+                                dep_path,
                                 _format_rfc3339_microseconds(mtime),
                                 _format_rfc3339_microseconds(depmtime),
                             )
@@ -632,7 +629,7 @@ class BuildEnvironment:
         try:
             serialised = self._pickled_doctree_cache[docname]
         except KeyError:
-            filename = os.path.join(self.doctreedir, docname + '.doctree')
+            filename = self.doctreedir / f'{docname}.doctree'
             with open(filename, 'rb') as f:
                 serialised = self._pickled_doctree_cache[docname] = f.read()
 
