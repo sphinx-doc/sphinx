@@ -20,7 +20,6 @@ from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
-from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
@@ -56,6 +55,7 @@ from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import (
     SEP,
     _last_modified_time,
+    _relative_path,
     copyfile,
     ensuredir,
     relative_uri,
@@ -795,7 +795,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)
+            return _relative_path(Path(f), self.srcdir).as_posix()
 
         # copy downloadable files
         if self.env.dlfiles:
