@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import os
+import os.path
 from glob import glob
-from os import path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -90,7 +90,7 @@ class ImageCollector(EnvironmentCollector):
             # into a single directory)
             for imgpath in candidates.values():
                 app.env.dependencies[docname].add(imgpath)
-                if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
+                if not os.access(os.path.join(app.srcdir, imgpath), os.R_OK):
                     logger.warning(
                         __('image file not readable: %s'),
                         imgpath,
@@ -110,11 +110,11 @@ class ImageCollector(EnvironmentCollector):
     ) -> None:
         globbed: dict[str, list[str]] = {}
         for filename in glob(imgpath):
-            new_imgpath = relative_path(path.join(env.srcdir, 'dummy'), filename)
+            new_imgpath = relative_path(os.path.join(env.srcdir, 'dummy'), filename)
             try:
                 mimetype = guess_mimetype(filename)
                 if mimetype is None:
-                    basename, suffix = path.splitext(filename)
+                    basename, suffix = os.path.splitext(filename)
                     mimetype = 'image/x-' + suffix[1:]
                 if mimetype not in candidates:
                     globbed.setdefault(mimetype, []).append(new_imgpath)

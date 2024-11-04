@@ -165,10 +165,7 @@ def test_pydata_with_union_type_operator(app):
 @pytest.mark.sphinx('html', testroot='root')
 def test_pyobject_prefix(app):
     text = (
-        '.. py:class:: Foo\n'
-        '\n'
-        '   .. py:method:: Foo.say\n'
-        '   .. py:method:: FooBar.say'
+        '.. py:class:: Foo\n\n   .. py:method:: Foo.say\n   .. py:method:: FooBar.say'
     )
     doctree = restructuredtext.parse(app, text)
     assert_node(

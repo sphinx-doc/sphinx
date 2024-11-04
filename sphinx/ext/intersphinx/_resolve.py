@@ -516,9 +516,9 @@ class IntersphinxRole(SphinxRole):
             return None
 
         if domain and self.is_existent_role(domain, role):
-            return (domain, role)
+            return domain, role
         elif self.is_existent_role('std', role):
-            return ('std', role)
+            return 'std', role
         else:
             return None
 

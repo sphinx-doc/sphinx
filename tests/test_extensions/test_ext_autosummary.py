@@ -192,9 +192,9 @@ def test_get_items_summary(make_app, app_params):
         'C.C2': 'This is a nested inner class docstring',
     }
     for key, expected in expected_values.items():
-        assert (
-            autosummary_items[key][2] == expected
-        ), f'Summary for {key} was {autosummary_items[key]!r} - expected {expected!r}'
+        assert autosummary_items[key][2] == expected, (
+            f'Summary for {key} was {autosummary_items[key]!r} - expected {expected!r}'
+        )
 
     # check an item in detail
     assert 'func' in autosummary_items
@@ -566,11 +566,7 @@ def test_autosummary_generate(app):
     Foo = path.read_text(encoding='utf8')
     assert '.. automethod:: __init__' in Foo
     assert (
-        '   .. autosummary::\n'
-        '   \n'
-        '      ~Foo.__init__\n'
-        '      ~Foo.bar\n'
-        '   \n'
+        '   .. autosummary::\n   \n      ~Foo.__init__\n      ~Foo.bar\n   \n'
     ) in Foo
     assert (
         '   .. autosummary::\n'
@@ -591,9 +587,7 @@ def test_autosummary_generate(app):
     path = app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.value.rst'
     Foo_value = path.read_text(encoding='utf8')
     assert (
-        '.. currentmodule:: autosummary_dummy_module\n'
-        '\n'
-        '.. autoattribute:: Foo.value'
+        '.. currentmodule:: autosummary_dummy_module\n\n.. autoattribute:: Foo.value'
     ) in Foo_value
 
     path = app.srcdir / 'generated' / 'autosummary_dummy_module.qux.rst'
@@ -820,17 +814,10 @@ def test_autosummary_module_all(app):
         ).read_text(encoding='utf8')
         assert '   .. autosummary::\n   \n      PublicBar\n   \n' in module
         assert (
-            '   .. autosummary::\n'
-            '   \n'
-            '      public_foo\n'
-            '      public_baz\n'
-            '   \n'
+            '   .. autosummary::\n   \n      public_foo\n      public_baz\n   \n'
         ) in module
         assert (
-            '.. autosummary::\n'
-            '   :toctree:\n'
-            '   :recursive:\n\n'
-            '   extra_dummy_module\n'
+            '.. autosummary::\n   :toctree:\n   :recursive:\n\n   extra_dummy_module\n'
         ) in module
     finally:
         sys.modules.pop('autosummary_dummy_package_all', None)

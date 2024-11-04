@@ -267,7 +267,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             finally:
                 # Private attributes for ToC generation. Will be modified or removed
                 # without notice.
-                if self.env.app.config.toc_object_entries:
+                if self.env.config.toc_object_entries:
                     signode['_toc_parts'] = self._object_hierarchy_parts(signode)
                     signode['_toc_name'] = self._toc_entry_name(signode)
                 else:
@@ -288,7 +288,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         content_node = addnodes.desc_content('', *content_children)
         node.append(content_node)
         self.transform_content(content_node)
-        self.env.app.emit(
+        self.env.events.emit(
             'object-description-transform', self.domain, self.objtype, content_node
         )
         DocFieldTransformer(self).transform_all(content_node)

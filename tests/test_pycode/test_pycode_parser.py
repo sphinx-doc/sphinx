@@ -31,10 +31,7 @@ def test_comment_picker_basic():
 def test_comment_picker_location():
     # multiple "before" comments
     source = (
-        '#: comment before assignment1\n'
-        '#:\n'
-        '#: comment before assignment2\n'
-        'a = 1 + 1\n'
+        '#: comment before assignment1\n#:\n#: comment before assignment2\na = 1 + 1\n'
     )
     parser = Parser(source)
     parser.parse()

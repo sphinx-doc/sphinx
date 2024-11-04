@@ -584,9 +584,14 @@ class Documenter:
         for docstringlines in docstrings:
             if self.env.app:
                 # let extensions preprocess docstrings
-                self.env.app.emit('autodoc-process-docstring',
-                                  self.objtype, self.fullname, self.object,
-                                  self.options, docstringlines)
+                self.env.events.emit(
+                    'autodoc-process-docstring',
+                    self.objtype,
+                    self.fullname,
+                    self.object,
+                    self.options,
+                    docstringlines,
+                )
 
                 if docstringlines and docstringlines[-1]:
                     # append a blank line to the end of the docstring
@@ -793,7 +798,7 @@ class Documenter:
                 # should be skipped
                 if self.env.app:
                     # let extensions preprocess docstrings
-                    skip_user = self.env.app.emit_firstresult(
+                    skip_user = self.env.events.emit_firstresult(
                         'autodoc-skip-member', self.objtype, membername, member,
                         not keep, self.options)
                     if skip_user is not None:
@@ -1325,7 +1330,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
-            self.env.app.emit('autodoc-before-process-signature', self.object, False)
+            self.env.events.emit('autodoc-before-process-signature', self.object, False)
             sig = inspect.signature(self.object, type_aliases=self.config.autodoc_type_aliases)
             args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
@@ -1564,7 +1569,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 call = None
 
         if call is not None:
-            self.env.app.emit('autodoc-before-process-signature', call, True)
+            self.env.events.emit('autodoc-before-process-signature', call, True)
             try:
                 sig = inspect.signature(call, bound_method=True,
                                         type_aliases=self.config.autodoc_type_aliases)
@@ -1580,7 +1585,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 new = None
 
         if new is not None:
-            self.env.app.emit('autodoc-before-process-signature', new, True)
+            self.env.events.emit('autodoc-before-process-signature', new, True)
             try:
                 sig = inspect.signature(new, bound_method=True,
                                         type_aliases=self.config.autodoc_type_aliases)
@@ -1591,7 +1596,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # Finally, we should have at least __init__ implemented
         init = get_user_defined_function_or_method(self.object, '__init__')
         if init is not None:
-            self.env.app.emit('autodoc-before-process-signature', init, True)
+            self.env.events.emit('autodoc-before-process-signature', init, True)
             try:
                 sig = inspect.signature(init, bound_method=True,
                                         type_aliases=self.config.autodoc_type_aliases)
@@ -1603,7 +1608,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # handle it.
         # We don't know the exact method that inspect.signature will read
         # the signature from, so just pass the object itself to our hook.
-        self.env.app.emit('autodoc-before-process-signature', self.object, False)
+        self.env.events.emit('autodoc-before-process-signature', self.object, False)
         try:
             sig = inspect.signature(self.object, bound_method=False,
                                     type_aliases=self.config.autodoc_type_aliases)
@@ -2198,11 +2203,13 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 args = '()'
             else:
                 if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
-                    self.env.app.emit('autodoc-before-process-signature', self.object, False)
+                    self.env.events.emit(
+                        'autodoc-before-process-signature', self.object, False
+                    )
                     sig = inspect.signature(self.object, bound_method=False,
                                             type_aliases=self.config.autodoc_type_aliases)
                 else:
-                    self.env.app.emit('autodoc-before-process-signature', self.object, True)
+                    self.env.events.emit('autodoc-before-process-signature', self.object, True)
                     sig = inspect.signature(self.object, bound_method=True,
                                             type_aliases=self.config.autodoc_type_aliases)
                 args = stringify_signature(sig, **kwargs)
@@ -2785,7 +2792,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin,  # type: ignore[misc]
             return ''
 
         # update the annotations of the property getter
-        self.env.app.emit('autodoc-before-process-signature', func, False)
+        self.env.events.emit('autodoc-before-process-signature', func, False)
         # correctly format the arguments for a property
         return super().format_args(**kwargs)
 

@@ -51,8 +51,8 @@ In practice, you have to:
       :caption: src/__init__.py
 
       def setup(app):
-          package_dir = path.abspath(path.dirname(__file__))
-          locale_dir = os.path.join(package_dir, 'locales')
+          package_dir = Path(__file__).resolve().parent
+          locale_dir = package_dir / 'locales'
           app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
 
 #. Generate message catalog template ``*.pot`` file, usually in ``locale/``

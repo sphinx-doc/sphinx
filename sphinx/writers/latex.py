@@ -6,10 +6,10 @@ docutils sandbox.
 
 from __future__ import annotations
 
+import os.path
 import re
 from collections import defaultdict
 from collections.abc import Iterable
-from os import path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
@@ -583,12 +583,12 @@ class LaTeXTranslator(SphinxTranslator):
     def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
-            template = path.join(self.builder.confdir, template_dir, template_name)
-            if path.exists(template):
+            template = os.path.join(self.builder.confdir, template_dir, template_name)
+            if os.path.exists(template):
                 return renderer.render(template, variables)
             elif template.endswith('.jinja'):
                 legacy_template = template.removesuffix('.jinja') + '_t'
-                if path.exists(legacy_template):
+                if os.path.exists(legacy_template):
                     logger.warning(
                         __('template %s not found; loading from legacy %s instead'),
                         template_name,
@@ -1648,7 +1648,7 @@ class LaTeXTranslator(SphinxTranslator):
         options = ''
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
-        base, ext = path.splitext(uri)
+        base, ext = os.path.splitext(uri)
 
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
@@ -2452,7 +2452,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_math_block(self, node: Element) -> None:
         if node.get('label'):
-            label = f"equation:{node['docname']}:{node['label']}"
+            label = f'equation:{node["docname"]}:{node["label"]}'
         else:
             label = None
 
@@ -2469,7 +2469,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
-        label = f"equation:{node['docname']}:{node['target']}"
+        label = f'equation:{node["docname"]}:{node["target"]}'
         eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:

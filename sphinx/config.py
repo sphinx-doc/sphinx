@@ -7,14 +7,14 @@ import traceback
 import types
 import warnings
 from contextlib import chdir
-from os import getenv, path
+from os import getenv
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError, ExtensionError
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.osutil import fs_encoding
 
 if TYPE_CHECKING:
     import os
@@ -304,8 +304,8 @@ class Config:
     def read(cls: type[Config], confdir: str | os.PathLike[str], overrides: dict | None = None,
              tags: Tags | None = None) -> Config:
         """Create a Config object from configuration file."""
-        filename = path.join(confdir, CONFIG_FILENAME)
-        if not path.isfile(filename):
+        filename = Path(confdir, CONFIG_FILENAME)
+        if not filename.is_file():
             raise ConfigError(__("config directory doesn't contain a conf.py file (%s)") %
                               confdir)
         namespace = eval_config_file(filename, tags)
@@ -510,18 +510,19 @@ class Config:
         self.__dict__.update(state)
 
 
-def eval_config_file(filename: str, tags: Tags | None) -> dict[str, Any]:
+def eval_config_file(filename: str | os.PathLike[str], tags: Tags | None) -> dict[str, Any]:
     """Evaluate a config file."""
+    filename = Path(filename)
+
     namespace: dict[str, Any] = {}
-    namespace['__file__'] = filename
+    namespace['__file__'] = str(filename)
     namespace['tags'] = tags
 
-    with chdir(path.dirname(filename)):
+    with chdir(filename.parent):
         # during executing config file, current dir is changed to ``confdir``.
         try:
-            with open(filename, 'rb') as f:
-                code = compile(f.read(), filename.encode(fs_encoding), 'exec')
-                exec(code, namespace)  # NoQA: S102
+            code = compile(filename.read_bytes(), filename, 'exec')
+            exec(code, namespace)  # NoQA: S102
         except SyntaxError as err:
             msg = __("There is a syntax error in your configuration file: %s\n")
             raise ConfigError(msg % err) from err

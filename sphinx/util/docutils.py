@@ -7,7 +7,7 @@ import re
 from collections.abc import Sequence  # NoQA: TCH003
 from contextlib import contextmanager
 from copy import copy
-from os import path
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, cast
 
 import docutils
@@ -171,25 +171,23 @@ def patched_rst_get_language() -> Iterator[None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: str | None) -> Iterator[None]:
+def using_user_docutils_conf(confdir: str | os.PathLike[str] | None) -> Iterator[None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
-        docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
+        docutils_config = os.environ.get('DOCUTILSCONFIG', None)
         if confdir:
-            os.environ['DOCUTILSCONFIG'] = path.join(
-                path.abspath(confdir), 'docutils.conf'
-            )
-
+            docutils_conf_path = Path(confdir, 'docutils.conf').resolve()
+            os.environ['DOCUTILSCONFIG'] = str(docutils_conf_path)
         yield
     finally:
-        if docutilsconfig is None:
+        if docutils_config is None:
             os.environ.pop('DOCUTILSCONFIG', None)
         else:
-            os.environ['DOCUTILSCONFIG'] = docutilsconfig
+            os.environ['DOCUTILSCONFIG'] = docutils_config
 
 
 @contextmanager
-def patch_docutils(confdir: str | None = None) -> Iterator[None]:
+def patch_docutils(confdir: str | os.PathLike[str] | None = None) -> Iterator[None]:
     """Patch to docutils temporarily."""
     with (
         patched_get_language(),
@@ -718,7 +716,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         3. ``self.unknown_visit()``
         """
         for node_class in node.__class__.__mro__:
-            method = getattr(self, 'visit_%s' % (node_class.__name__), None)
+            method = getattr(self, 'visit_%s' % node_class.__name__, None)
             if method:
                 method(node)
                 break
@@ -735,7 +733,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         3. ``self.unknown_departure()``
         """
         for node_class in node.__class__.__mro__:
-            method = getattr(self, 'depart_%s' % (node_class.__name__), None)
+            method = getattr(self, 'depart_%s' % node_class.__name__, None)
             if method:
                 method(node)
                 break

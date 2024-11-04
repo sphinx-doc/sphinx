@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from os import path
+import os.path
 from pprint import pformat
 from typing import TYPE_CHECKING, Any
 
@@ -127,12 +127,12 @@ class SphinxFileSystemLoader(FileSystemLoader):
             legacy_template = None
 
         for searchpath in self.searchpath:
-            filename = path.join(searchpath, template)
+            filename = os.path.join(searchpath, template)
             f = open_if_exists(filename)
             if f is not None:
                 break
             if legacy_template is not None:
-                filename = path.join(searchpath, legacy_template)
+                filename = os.path.join(searchpath, legacy_template)
                 f = open_if_exists(filename)
                 if f is not None:
                     break

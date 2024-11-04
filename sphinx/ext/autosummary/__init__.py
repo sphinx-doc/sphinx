@@ -52,11 +52,11 @@ import functools
 import inspect
 import operator
 import os
+import os.path
 import posixpath
 import re
 import sys
 from inspect import Parameter
-from os import path
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
@@ -814,7 +814,7 @@ def process_generate_options(app: Sphinx) -> None:
                     for genfile in genfiles]
 
         for entry in genfiles[:]:
-            if not path.isfile(path.join(app.srcdir, entry)):
+            if not os.path.isfile(os.path.join(app.srcdir, entry)):
                 logger.warning(__('autosummary_generate: file not found: %s'), entry)
                 genfiles.remove(entry)
 

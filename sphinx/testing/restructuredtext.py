@@ -1,5 +1,3 @@
-from os import path
-
 from docutils import nodes
 from docutils.core import publish_doctree
 
@@ -20,7 +18,7 @@ def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
         with sphinx_domains(app.env):
             return publish_doctree(
                 text,
-                path.join(app.srcdir, docname + '.rst'),
+                str(app.srcdir / f'{docname}.rst'),
                 reader=reader,
                 parser=parser,
                 settings_overrides={

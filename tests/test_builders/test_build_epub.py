@@ -450,8 +450,8 @@ def test_run_epubcheck(app):
     if not runnable(['java', '-version']):
         pytest.skip('Unable to run Java; skipping test')
 
-    epubcheck = os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar')
-    if not os.path.exists(epubcheck):
+    epubcheck = Path(os.environ.get('EPUBCHECK_PATH', '/usr/share/java/epubcheck.jar'))
+    if not epubcheck.exists():
         pytest.skip('Could not find epubcheck; skipping test')
 
     try:

@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import os
+import os.path
 import tokenize
 from importlib import import_module
-from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from sphinx.errors import PycodeError
 from sphinx.pycode.parser import Parser
+from sphinx.util._pathlib import _StrPath
 
 if TYPE_CHECKING:
     from inspect import Signature
@@ -23,7 +25,7 @@ class ModuleAnalyzer:
     tags: dict[str, tuple[str, int, int]]
 
     # cache for analyzer objects -- caches both by module and file name
-    cache: dict[tuple[str, str], Any] = {}
+    cache: dict[tuple[Literal['file', 'module'], str | _StrPath], Any] = {}
 
     @staticmethod
     def get_module_source(modname: str) -> tuple[str | None, str | None]:
@@ -58,15 +60,15 @@ class ModuleAnalyzer:
         if filename is None:
             # all methods for getting filename failed, so raise...
             raise PycodeError('no source found for module %r' % modname)
-        filename = path.normpath(path.abspath(filename))
+        filename = os.path.normpath(os.path.abspath(filename))
         if filename.lower().endswith(('.pyo', '.pyc')):
             filename = filename[:-1]
-            if not path.isfile(filename) and path.isfile(filename + 'w'):
+            if not os.path.isfile(filename) and os.path.isfile(filename + 'w'):
                 filename += 'w'
         elif not filename.lower().endswith(('.py', '.pyw')):
             raise PycodeError('source is not a .py file: %r' % filename)
 
-        if not path.isfile(filename):
+        if not os.path.isfile(filename):
             raise PycodeError('source file is not present: %r' % filename)
         return filename, None
 
@@ -81,8 +83,9 @@ class ModuleAnalyzer:
 
     @classmethod
     def for_file(
-        cls: type[ModuleAnalyzer], filename: str, modname: str
+        cls: type[ModuleAnalyzer], filename: str | os.PathLike[str], modname: str
     ) -> ModuleAnalyzer:
+        filename = _StrPath(filename)
         if ('file', filename) in cls.cache:
             return cls.cache['file', filename]
         try:
@@ -114,9 +117,11 @@ class ModuleAnalyzer:
         cls.cache['module', modname] = obj
         return obj
 
-    def __init__(self, source: str, modname: str, srcname: str) -> None:
+    def __init__(
+        self, source: str, modname: str, srcname: str | os.PathLike[str]
+    ) -> None:
         self.modname = modname  # name of the module
-        self.srcname = srcname  # name of the source file
+        self.srcname = str(srcname)  # name of the source file
 
         # cache the source code as well
         self.code = source

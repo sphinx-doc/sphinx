@@ -403,7 +403,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.app.config
+        config = self.env.config
         objtype = sig_node.parent.get('objtype')
         if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'
@@ -962,9 +962,10 @@ class CPPDomain(Domain):
             logger.debug("\tresult end")
             logger.debug("merge_domaindata end")
 
-    def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                            typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> tuple[Element | None, str | None]:
+    def _resolve_xref_inner(
+        self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+        typ: str, target: str, node: pending_xref, contnode: Element
+    ) -> tuple[nodes.reference, str] | tuple[None, None]:
         # add parens again for those that could be functions
         if typ in {'any', 'func'}:
             target += '()'
@@ -1112,13 +1113,13 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+                         ) -> list[tuple[str, nodes.reference]]:
         with logging.suppress_logging():
             retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
                                                         'any', target, node, contnode)
@@ -1141,7 +1142,7 @@ class CPPDomain(Domain):
             objectType = symbol.declaration.objectType
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
-            yield (name, dispname, objectType, docname, newestId, 1)
+            yield name, dispname, objectType, docname, newestId, 1
 
     def get_full_qualified_name(self, node: Element) -> str | None:
         target = node.get('reftarget', None)
@@ -1162,7 +1163,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env', types={list, tuple})
     app.add_config_value("cpp_paren_attributes", [], 'env', types={list, tuple})
-    app.add_config_value("cpp_maximum_signature_line_length", None, 'env', types={int, None})
+    app.add_config_value(
+        "cpp_maximum_signature_line_length", None, 'env', types={int, type(None)}
+    )
     app.add_post_transform(AliasTransform)
 
     # debug stuff

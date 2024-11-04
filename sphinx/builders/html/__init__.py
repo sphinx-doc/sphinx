@@ -5,12 +5,12 @@ from __future__ import annotations
 import contextlib
 import html
 import os
+import os.path
 import posixpath
 import re
 import shutil
 import sys
 import warnings
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
@@ -496,9 +496,9 @@ class StandaloneHTMLBuilder(Builder):
         favicon = self.config.html_favicon or ''
 
         if not is_url(logo):
-            logo = path.basename(logo)
+            logo = os.path.basename(logo)
         if not is_url(favicon):
-            favicon = path.basename(favicon)
+            favicon = os.path.basename(favicon)
 
         self.relations = self.env.collect_relations()
 

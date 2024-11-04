@@ -6,11 +6,11 @@ The extension automatically execute code snippets and checks their results.
 from __future__ import annotations
 
 import doctest
+import os.path
 import re
 import sys
 import time
 from io import StringIO
-from os import path
 from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
@@ -377,7 +377,7 @@ Doctest summary
         """Get the real line number or admit we don't know."""
         # TODO:  Work out how to store or calculate real (file-relative)
         #       line numbers for doctest blocks in docstrings.
-        if ':docstring of ' in path.basename(node.source or ''):
+        if ':docstring of ' in os.path.basename(node.source or ''):
             # The line number is given relative to the stripped docstring,
             # not the file.  This is correct where it is set, in
             # `docutils.nodes.Node.setup_child`, but Sphinx should report

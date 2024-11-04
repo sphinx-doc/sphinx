@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
+import os.path
 import posixpath
 import re
 import subprocess
 import xml.etree.ElementTree as ET
 from hashlib import sha1
 from itertools import chain
-from os import path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import urlsplit, urlunsplit
@@ -247,7 +247,7 @@ def fix_svg_relative_paths(self: HTML5Translator | LaTeXTranslator | TexinfoTran
 
         old_path = doc_dir / rel_uri
         img_path = doc_dir / self.builder.imgpath
-        new_path = path.relpath(old_path, start=img_path)
+        new_path = os.path.relpath(old_path, start=img_path)
         modified_url = urlunsplit((scheme, hostname, new_path, query, fragment))
 
         element.set(href_name, modified_url)
@@ -272,16 +272,16 @@ def render_dot(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
 
     fname = f'{prefix}-{sha1(hashkey, usedforsecurity=False).hexdigest()}.{format}'
     relfn = posixpath.join(self.builder.imgpath, fname)
-    outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
+    outfn = os.path.join(self.builder.outdir, self.builder.imagedir, fname)
 
-    if path.isfile(outfn):
+    if os.path.isfile(outfn):
         return relfn, outfn
 
     if (hasattr(self.builder, '_graphviz_warned_dot') and
        self.builder._graphviz_warned_dot.get(graphviz_dot)):
         return None, None
 
-    ensuredir(path.dirname(outfn))
+    ensuredir(os.path.dirname(outfn))
 
     dot_args = [graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
@@ -289,9 +289,9 @@ def render_dot(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
 
     docname = options.get('docname', 'index')
     if filename:
-        cwd = path.dirname(path.join(self.builder.srcdir, filename))
+        cwd = os.path.dirname(os.path.join(self.builder.srcdir, filename))
     else:
-        cwd = path.dirname(path.join(self.builder.srcdir, docname))
+        cwd = os.path.dirname(os.path.join(self.builder.srcdir, docname))
 
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
@@ -309,7 +309,7 @@ def render_dot(self: HTML5Translator | LaTeXTranslator | TexinfoTranslator,
     except CalledProcessError as exc:
         raise GraphvizError(__('dot exited with error:\n[stderr]\n%r\n'
                                '[stdout]\n%r') % (exc.stderr, exc.stdout)) from exc
-    if not path.isfile(outfn):
+    if not os.path.isfile(outfn):
         raise GraphvizError(__('dot did not produce an output file:\n[stderr]\n%r\n'
                                '[stdout]\n%r') % (ret.stderr, ret.stdout))
 
@@ -448,7 +448,7 @@ def man_visit_graphviz(self: ManualPageTranslator, node: graphviz) -> None:
 
 
 def on_config_inited(_app: Sphinx, config: Config) -> None:
-    css_path = path.join(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
+    css_path = os.path.join(sphinx.package_dir, 'templates', 'graphviz', 'graphviz.css')
     config.html_static_path.append(css_path)
 
 

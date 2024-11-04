@@ -223,7 +223,7 @@ class Domain:
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -241,7 +241,7 @@ class Domain:
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+                         ) -> list[tuple[str, nodes.reference]]:
         """Resolve the pending_xref *node* with the given *target*.
 
         The reference comes from an "any" or similar role, which means that we

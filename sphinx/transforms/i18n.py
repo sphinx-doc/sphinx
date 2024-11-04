@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from os import path
+import os.path
 from re import DOTALL, match
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -395,7 +395,7 @@ class Locale(SphinxTransform):
 
         # fetch translations
         dirs = [
-            path.join(self.env.srcdir, directory)
+            os.path.join(self.env.srcdir, directory)
             for directory in self.config.locale_dirs
         ]
         catalog, has_catalog = init_locale(dirs, self.config.language, textdomain)

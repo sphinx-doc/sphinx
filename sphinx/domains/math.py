@@ -95,7 +95,7 @@ class MathDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         assert typ in {'eq', 'numref'}
         result = self.equations.get(target)
         if result:
@@ -126,7 +126,7 @@ class MathDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+                         ) -> list[tuple[str, nodes.reference]]:
         refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
         if refnode is None:
             return []

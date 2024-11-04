@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 def _init_console(
-    locale_dir: str | None = sphinx.locale._LOCALE_DIR,
+    locale_dir: str | os.PathLike[str] | None = sphinx.locale._LOCALE_DIR,
     catalog: str = 'sphinx',
 ) -> tuple[gettext.NullTranslations, bool]:
     """Monkeypatch ``init_console`` to skip its action.
@@ -44,7 +44,7 @@ os.environ['SPHINX_AUTODOC_RELOAD_MODULES'] = '1'
 
 @pytest.fixture(scope='session')
 def rootdir() -> Path:
-    return Path(__file__).parent.resolve() / 'roots'
+    return Path(__file__).resolve().parent / 'roots'
 
 
 def pytest_report_header(config: pytest.Config) -> str:
