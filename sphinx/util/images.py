@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import base64
-import os.path
+from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple, overload
 
 import imagesize
@@ -37,7 +37,8 @@ class DataURI(NamedTuple):
     data: bytes
 
 
-def get_image_size(filename: str) -> tuple[int, int] | None:
+def get_image_size(filename: str | PathLike[str]) -> tuple[int, int] | None:
+    filename = Path(filename)
     try:
         size = imagesize.get(filename)
         if size[0] == -1:
@@ -68,10 +69,11 @@ def guess_mimetype(
     filename: PathLike[str] | str = '',
     default: str | None = None,
 ) -> str | None:
-    ext = os.path.splitext(filename)[1].lower()
+    filename = Path(filename)
+    ext = filename.suffix.lower()
     if ext in mime_suffixes:
         return mime_suffixes[ext]
-    if os.path.exists(filename):
+    if filename.exists():
         try:
             imgtype = _image_type_from_file(filename)
         except ValueError:
