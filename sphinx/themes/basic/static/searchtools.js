@@ -220,10 +220,11 @@ const Search = {
 
   setIndex: (index) => {
     const sanitiseRecursive = function(obj) {
-      if (Array.isArray(obj)) return Object.freeze(obj);
       const result = Object.create(null);
       for (const [k, v] of Object.entries(obj)) {
-          result[k] = (v instanceof Object) ? sanitiseRecursive(v) : v;
+          if (!(v instanceof Object)) result[k] = v;
+          else if (Array.isArray(v)) result[k] = Object.freeze(v);
+          else result[k] = sanitiseRecursive(v);
       }
       return Object.freeze(result);
     }
