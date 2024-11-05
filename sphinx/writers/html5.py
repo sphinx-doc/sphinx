@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import posixpath
 import re
 import urllib.parse
@@ -752,8 +751,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
             if not ('width' in node and 'height' in node):
-                path = os.path.join(self.builder.srcdir, olduri)  # type: ignore[has-type]
-                size = get_image_size(path)
+                size = get_image_size(self.builder.srcdir / olduri)
                 if size is None:
                     logger.warning(
                         __('Could not obtain image size. :scale: option is ignored.'),
