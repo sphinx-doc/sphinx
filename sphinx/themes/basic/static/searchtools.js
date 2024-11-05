@@ -221,12 +221,9 @@ const Search = {
   setIndex: (index) => {
     const evaluate = x => (x instanceof Object) ? sanitiseRecursive(x) : x;
     const sanitiseRecursive = function(obj) {
-      if (Array.isArray(obj)) return Object.freeze(obj.map(evaluate));
-      const result = Object.create(null);
-      for (const [k, v] of Object.entries(obj)) {
-          result[k] = evaluate(v);
-      }
-      return Object.freeze(result);
+      Object.values(obj).map(evaluate);
+      if (!Array.isArray(obj)) Object.setPrototypeOf(obj, null);
+      return Object.freeze(obj);
     }
     Search._index = sanitiseRecursive(index);
     if (Search._queued_query !== null) {
