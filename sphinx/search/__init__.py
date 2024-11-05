@@ -451,6 +451,7 @@ class IndexBuilder:
                     entry_id,
                     main_entry == 'main',
                 )
+                index_entry_count[entry] += 1
 
         return {
             'docnames': docnames,
