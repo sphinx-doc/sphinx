@@ -91,7 +91,7 @@ test that non-comments are indexed: fermion
 def test_objects_are_escaped(app):
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
-    for item in index.get('objects').get(''):
+    for _, item in index.get('objects').get('').items():
         if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
             break
     else:
@@ -236,10 +236,10 @@ def test_IndexBuilder():
         'envversion': '1.0',
         'filenames': ['filename1_1', 'filename1_2', 'filename2_1', 'filename2_2'],
         'objects': {
-            '': [
-                (0, 0, 1, '#anchor', 'objdispname1'),
-                (2, 1, 1, '#anchor', 'objdispname1'),
-            ]
+            '': {
+                0: (0, 0, 1, '#anchor', 'objdispname1'),
+                1: (2, 1, 1, '#anchor', 'objdispname1'),
+            }
         },
         'objnames': {
             0: ('dummy1', 'objtype1', 'objtype1'),
@@ -260,13 +260,13 @@ def test_IndexBuilder():
             'section_titl': [0, 1, 2, 3],
         },
         'alltitles': {
-            'another_title': [
-                (0, 'another-title'),
-                (1, 'another-title'),
-                (2, 'another-title'),
-                (3, 'another-title'),
-            ],
-            'section_title': [(0, None), (1, None), (2, None), (3, None)],
+            'another_title': {
+                0: (0, 'another-title'),
+                1: (1, 'another-title'),
+                2: (2, 'another-title'),
+                3: (3, 'another-title'),
+            },
+            'section_title': {0: (0, None), 1: (1, None), 2: (2, None), 3: (3, None)},
         },
         'indexentries': {},
     }
@@ -348,8 +348,8 @@ def test_IndexBuilder():
             'section_titl': [0, 1],
         },
         'alltitles': {
-            'another_title': [(0, 'another-title'), (1, 'another-title')],
-            'section_title': [(0, None), (1, None)],
+            'another_title': {0: (0, 'another-title'), 1: (1, 'another-title')},
+            'section_title': {0: (0, None), 1: (1, None)},
         },
         'indexentries': {},
     }
