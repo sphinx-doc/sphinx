@@ -219,13 +219,15 @@ const Search = {
     (document.body.appendChild(document.createElement("script")).src = url),
 
   setIndex: (index) => {
-    const evaluate = x => (x instanceof Object) ? sanitiseRecursive(x) : x;
-    const sanitiseRecursive = function(obj) {
-      Object.values(obj).map(evaluate);
-      if (!Array.isArray(obj)) Object.setPrototypeOf(obj, null);
-      return Object.freeze(obj);
+    const stack = [index];
+    while (stack.length) {
+      const value = stack.pop();
+      if (!(value instanceof Object)) continue;
+      stack.push(...Object.values(value));
+      if (!Array.isArray(value)) Object.setPrototypeOf(value, null);
+      Object.freeze(value);
     }
-    Search._index = sanitiseRecursive(index);
+    Search._index = index;
     if (Search._queued_query !== null) {
       const query = Search._queued_query;
       Search._queued_query = null;
