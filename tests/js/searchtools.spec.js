@@ -230,6 +230,15 @@ describe('Basic html theme search', function() {
       expect(Search._performSearch(...searchParameters)).toEqual(hits);
     });
 
+    it('does not find the javascript prototype property in unrelated documents', function() {
+      eval(loadFixture("partial/searchindex.js"));
+
+      searchParameters = Search._parseQuery('__proto__');
+
+      hits = [];
+      expect(Search._performSearch(...searchParameters)).toEqual(hits);
+    });
+
   });
 
 });
