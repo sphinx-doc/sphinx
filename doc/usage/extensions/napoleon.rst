@@ -533,8 +533,8 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
       Do preprocess the Google style docstrings also.
 
 .. confval:: napoleon_type_aliases
-   :type: `Optional[dict[str, str]]`
-   :default: `None`
+   :type: ``Optional[dict[str, str]]``
+   :default: ``None``
 
    A mapping to translate type names to other names or references. Works
    only when ``napoleon_use_param = True``.
@@ -565,8 +565,8 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
    .. versionadded:: 3.2
 
 .. confval:: napoleon_attr_annotations
-   :type: `bool`
-   :default: `True`
+   :type: ``bool``
+   :default: ``True``
 
    True to allow using :pep:`526` attributes annotations in classes.
    If an attribute is documented in the docstring without a type and
@@ -575,8 +575,8 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
    .. versionadded:: 3.4
 
 .. confval:: napoleon_custom_sections
-   :type: `Optional[Sequence[str | Sequence[str, str]]]`
-   :default: `None`
+   :type: ``Optional[Sequence[str | Sequence[str, str]]]``
+   :default: ``None``
 
    Add a list of custom sections to include, expanding the list of parsed sections.
 
