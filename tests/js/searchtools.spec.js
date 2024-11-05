@@ -35,8 +35,11 @@ describe('Basic html theme search', function() {
       const initialTitlesProto = Search._index.titles.__proto__;
       const initialTerms = Search._index.terms;
       const initialDocNames = [...Search._index.docnames];
+      const initialObject = [...Search._index.objects[''][0]];
 
       // attempt to mutate the index state
+      try { Search._index.objects[''][0].pop(); } catch {};
+      try { Search._index.objects[''][0].push('extra'); } catch {};
       try { Search._index.docnames.pop(); } catch {};
       try { Search._index.docnames.push('extra'); } catch {};
       Search._index.titles[0] += 'modified';
@@ -50,6 +53,7 @@ describe('Basic html theme search', function() {
       expect(Search._index.titles.__proto__).toEqual(initialTitlesProto);
       expect(Search._index.titles[0]).toEqual(initialTitle);
       expect(Search._index.docnames).toEqual(initialDocNames);
+      expect(Search._index.objects[''][0]).toEqual(initialObject);
     });
 
   });
