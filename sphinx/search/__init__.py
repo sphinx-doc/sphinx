@@ -335,7 +335,7 @@ class IndexBuilder:
         for docname in self._titles:
             self._all_titles[docname] = []
         for title, doc_tuples in frozen['alltitles'].items():
-            for doc, titleid in doc_tuples:
+            for _, (doc, titleid) in doc_tuples.items():
                 self._all_titles[index2fn[doc]].append((title, titleid))
 
         def load_terms(mapping: dict[str, Any]) -> dict[str, set[str]]:
