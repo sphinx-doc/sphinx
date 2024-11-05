@@ -91,7 +91,7 @@ test that non-comments are indexed: fermion
 def test_objects_are_escaped(app):
     app.build(force_all=True)
     index = load_searchindex(app.outdir / 'searchindex.js')
-    for _, item in index.get('objects').get('').items():
+    for item in index.get('objects').get('').values():
         if item[-1] == 'n::Array&lt;T, d&gt;':  # n::Array<T,d> is escaped
             break
     else:
