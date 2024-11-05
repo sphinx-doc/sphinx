@@ -363,7 +363,7 @@ class IndexBuilder:
         rv: dict[str, dict[int, tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
-        prefix_count: Counter[str] = Counter()
+        prefix_count = Counter()
         for domain in self.env.domains.sorted():
             sorted_objects = sorted(domain.get_objects())
             for fullname, dispname, type, docname, anchor, prio in sorted_objects:
@@ -433,7 +433,7 @@ class IndexBuilder:
         objtypes = {v: k[0] + ':' + k[1] for (k, v) in self._objtypes.items()}
         objnames = self._objnames
 
-        alltitles_count: Counter[str] = Counter()
+        alltitles_count = Counter()
         alltitles: dict[str, dict[int, tuple[int, str | None]]] = {}
         for docname, titlelist in sorted(self._all_titles.items()):
             for title, titleid in titlelist:
@@ -441,7 +441,7 @@ class IndexBuilder:
                 alltitles.setdefault(title, {})[count] = (fn2index[docname], titleid)
                 alltitles_count[title] += 1
 
-        index_entry_count: Counter[str] = Counter()
+        index_entry_count = Counter()
         index_entries: dict[str, dict[int, tuple[int, str, bool]]] = {}
         for docname, entries in self._index_entries.items():
             for entry, entry_id, main_entry in entries:
