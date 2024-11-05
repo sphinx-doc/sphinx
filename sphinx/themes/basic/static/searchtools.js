@@ -219,8 +219,8 @@ const Search = {
     (document.body.appendChild(document.createElement("script")).src = url),
 
   setIndex: (index) => {
+    const evaluate = x => (x instanceof Object) ? sanitiseRecursive(x) : x;
     const sanitiseRecursive = function(obj) {
-      const evaluate = x => (x instanceof Object) ? sanitiseRecursive(x) : x;
       if (Array.isArray(obj)) return Object.freeze(obj.map(evaluate));
       const result = Object.create(null);
       for (const [k, v] of Object.entries(obj)) {
