@@ -15,7 +15,9 @@ Deprecated
 Features added
 --------------
 
-* #13076: Add autosectionlabel_full_reference configuration variable.
+* #13076: Add the :confval:`autosectionlabel_full_reference`
+  configuration variable to create more precise labels.
+  Patch by Andrew Maguire
 
 Bugs fixed
 ----------

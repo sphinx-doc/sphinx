@@ -27,7 +27,7 @@ default. The ``autosectionlabel_prefix_document`` configuration variable can be
 used to make headings which appear multiple times but in different documents
 unique.
 
-Use the :conf:`autosectionlabel_full_reference` configuration variable
+Use the :confval:`autosectionlabel_full_reference` configuration variable
 to guarantee that the generated references are unique across a document
 with similar section names at different levels.
 

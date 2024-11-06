@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _get_node_depth(node: Node) -> int:
+def get_node_depth(node: Node) -> int:
     i = 0
     cur_node = node
     while cur_node.parent != node.document:
@@ -29,7 +29,7 @@ def _get_node_depth(node: Node) -> int:
     return i
 
 
-def _find_node_parents(node: Node) -> list[str]:
+def _get_all_node_parent_section_titles(node: Node) -> list[str]:
     parents = []
     for pnode in traverse_parent(node.parent, nodes.section):
         title = cast(nodes.title, pnode[0])
@@ -46,7 +46,7 @@ def register_sections_as_label(app: Sphinx, doctree: nodes.document) -> None:
     settings = doctree.settings
     for node in doctree.findall(nodes.section):
         if (app.config.autosectionlabel_maxdepth and
-                _get_node_depth(node) >= app.config.autosectionlabel_maxdepth):
+                get_node_depth(node) >= app.config.autosectionlabel_maxdepth):
             continue
 
         labelid = node['ids'][0]
@@ -56,7 +56,7 @@ def register_sections_as_label(app: Sphinx, doctree: nodes.document) -> None:
 
         if app.config.autosectionlabel_prefix_document:
             if app.config.autosectionlabel_full_reference:
-                id_array = _find_node_parents(node)
+                id_array = _get_all_node_parent_section_titles(node)
                 id_array.append(docname)
                 id_array.reverse()
                 id_array.append(ref_name)
