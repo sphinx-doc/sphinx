@@ -221,8 +221,8 @@ const Search = {
   setIndex: (index) => {
     const stack = [index];
     const isObject = x => x instanceof Object;
-    while (stack.length) {
-      const obj = stack.pop();
+    let obj;
+    while (obj = stack.pop()) {
       if (Array.isArray(obj)) {
         stack.push(...obj.filter(isObject));
       } else {
