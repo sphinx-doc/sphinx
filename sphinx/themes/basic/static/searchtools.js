@@ -222,14 +222,14 @@ const Search = {
     const stack = [index];
     const isObject = x => x instanceof Object;
     while (stack.length) {
-      const value = stack.pop();
-      if (Array.isArray(value)) {
-        stack.push(...value.filter(isObject));
+      const obj = stack.pop();
+      if (Array.isArray(obj)) {
+        stack.push(...obj.filter(isObject));
       } else {
-        stack.push(...Object.values(value).filter(isObject));
-        Object.setPrototypeOf(value, null);
+        stack.push(...Object.values(obj).filter(isObject));
+        Object.setPrototypeOf(obj, null);
       }
-      Object.freeze(value);
+      Object.freeze(obj);
     }
     Search._index = index;
     if (Search._queued_query !== null) {
