@@ -220,13 +220,13 @@ const Search = {
 
   setIndex: (index) => {
     const stack = [index];
+    const isObject = x => x instanceof Object;
     while (stack.length) {
       const value = stack.pop();
-      if (!(value instanceof Object)) continue;
       if (Array.isArray(value)) {
-        stack.push(...value);
+        stack.push(...value.filter(isObject));
       } else {
-        stack.push(...Object.values(value));
+        stack.push(...Object.values(value).filter(isObject));
         Object.setPrototypeOf(value, null);
       }
       Object.freeze(value);
