@@ -550,7 +550,7 @@ class TexinfoTranslator(SphinxTranslator):
     def add_anchor(self, id: str, node: Node) -> None:
         if id.startswith('index-'):
             return
-        if not self.config.autosectionlabel_full_reference:
+        if not getattr(self.config, 'autosectionlabel_full_reference', False):
             id = self.curfilestack[-1] + ':' + id
         eid = self.escape_id(id)
         sid = self.get_short_id(id)

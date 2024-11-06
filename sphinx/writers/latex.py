@@ -490,7 +490,7 @@ class LaTeXTranslator(SphinxTranslator):
         return self.render('latex.tex.jinja', self.elements)
 
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
-        if self.config.autosectionlabel_full_reference:
+        if getattr(self.config, 'autosectionlabel_full_reference', False):
             pass
         elif withdoc:
             id = self.curfilestack[-1] + ':' + id
