@@ -599,9 +599,17 @@ def make_id(
     while node_id is None or node_id in document.ids:
         node_id = _make_id(idformat % env.new_serialno(prefix))
 
-    logger.debug(__('NODE "%s" gets term "%s" with ID format "%s" and prefix is "%s" and ids is "s"'),
-                 node_id, term, idformat, prefix,# document.ids,
-                 location=document, type='make_id')
+    logger.debug(
+        __(
+            'NODE "%s" gets term "%s" with ID format "%s" and prefix is "%s" and ids is "s"'
+        ),
+        node_id,
+        term,
+        idformat,
+        prefix,  # document.ids,
+        location=document,
+        type='make_id',
+    )
 
     return node_id
 

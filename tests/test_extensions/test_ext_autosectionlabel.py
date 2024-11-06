@@ -1,10 +1,10 @@
 """Test sphinx.ext.autosectionlabel extension."""
 
 import re
+from pathlib import Path
 
 import pytest
 
-from pathlib import Path
 
 @pytest.mark.sphinx('html', testroot='ext-autosectionlabel')
 def test_autosectionlabel_html(app, skipped_labels=False):
@@ -135,7 +135,6 @@ def test_autosectionlabel_full_reference(app):
 
 
 def _autosectionlabel_full_reference_html_index(file: Path) -> None:
-
     content = file.read_text(encoding='utf8')
 
     html = (
@@ -143,7 +142,7 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
         ' href="#index.Introduction-of-Sphinx"'
         ' title="Link to this heading">'
         '.*'
-         '<li><p><a class="reference internal"'
+        '<li><p><a class="reference internal"'
         ' href="#index.Introduction-of-Sphinx">'
         '<span class="std std-ref">Introduction of Sphinx</span></a></p></li>'
     )
@@ -285,7 +284,6 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
 
 
 def _autosectionlabel_full_reference_html_windows(file: Path) -> None:
-
     content = file.read_text(encoding='utf8')
 
     html = (
@@ -349,7 +347,7 @@ def test_autosectionlabel_full_reference_latex(app):
     app.build(force_all=True)
 
     content = (app.outdir / 'test.tex').read_text(encoding='utf8')
-    content = content.replace('\\', '.').replace('[', '.').replace(']','.')
+    content = content.replace('\\', '.').replace('[', '.').replace(']', '.')
 
     latex = (
         'chapter{Installation}'

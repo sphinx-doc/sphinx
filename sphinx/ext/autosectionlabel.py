@@ -78,7 +78,7 @@ def register_sections_as_label(app: Sphinx, doctree: nodes.document) -> None:
 
         sectname = clean_astext(title)
 
-        logger.debug(__('section "%s" gets labeled as "%s" with id as "%s" and prefix is "%s"'),
+        logger.debug(__('section "%s" is: labeled "%s", id "%s", prefix "%s"'),
                      ref_name, name, labelid, id_prefix,
                      location=node, type='autosectionlabel', subtype=docname)
         if name in domain.labels:

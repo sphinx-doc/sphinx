@@ -1974,7 +1974,7 @@ class LaTeXTranslator(SphinxTranslator):
                 # reference to the document
                 id = uri[1:] + '::doc'
             elif self.config.autosectionlabel_full_reference:
-                id = uri[hashindex + 1:]
+                id = uri[hashindex + 1 :]
             else:
                 # reference to a label
                 id = uri[1:].replace('#', ':')
