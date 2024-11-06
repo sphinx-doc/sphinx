@@ -223,8 +223,12 @@ const Search = {
     while (stack.length) {
       const value = stack.pop();
       if (!(value instanceof Object)) continue;
-      stack.push(...Object.values(value));
-      if (!Array.isArray(value)) Object.setPrototypeOf(value, null);
+      if (Array.isArray(value)) {
+        stack.push(...value);
+      } else {
+        stack.push(...Object.values(value));
+        Object.setPrototypeOf(value, null);
+      }
       Object.freeze(value);
     }
     Search._index = index;
