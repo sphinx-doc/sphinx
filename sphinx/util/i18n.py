@@ -59,10 +59,7 @@ if TYPE_CHECKING:
 
     Formatter: TypeAlias = DateFormatter | TimeFormatter | DatetimeFormatter
 
-# from datetime import UTC
-from datetime import timezone
-
-UTC = timezone.utc
+from datetime import UTC
 
 logger = logging.getLogger(__name__)
 

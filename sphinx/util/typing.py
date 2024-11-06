@@ -18,9 +18,8 @@ from typing import (
     TypedDict,
     TypeVar,
     Union,
-    #    Unpack,
+    Unpack,
 )
-from typing_extensions import Unpack
 
 from docutils import nodes
 from docutils.parsers.rst.states import Inliner
