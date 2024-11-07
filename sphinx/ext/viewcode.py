@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
@@ -207,7 +208,7 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
             node.parent.remove(node)
 
 
-def get_module_filename(app: Sphinx, modname: str) -> str | None:
+def get_module_filename(app: Sphinx, modname: str) -> _StrPath | None:
     """Get module filename for *modname*."""
     source_info = app.emit_firstresult('viewcode-find-source', modname)
     if source_info:
