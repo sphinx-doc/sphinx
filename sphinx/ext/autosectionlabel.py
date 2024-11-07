@@ -57,9 +57,7 @@ def register_sections_as_label(app: Sphinx, doctree: nodes.document) -> None:
         if app.config.autosectionlabel_prefix_document:
             if app.config.autosectionlabel_full_reference:
                 id_array = _get_all_node_parent_section_titles(node)
-                id_array.append(docname)
-                id_array.reverse()
-                id_array.append(ref_name)
+                id_array = [docname, *reversed(id_array), refname]
                 # replace id_prefix temporarily
                 id_prefix = settings.id_prefix
                 settings.id_prefix = '.'.join(id_array)
