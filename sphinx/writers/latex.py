@@ -1973,7 +1973,7 @@ class LaTeXTranslator(SphinxTranslator):
             if hashindex == -1:
                 # reference to the document
                 id = uri[1:] + '::doc'
-            elif self.config.autosectionlabel_full_reference:
+            elif getattr(self.config, 'autosectionlabel_full_reference', False):
                 id = uri[hashindex + 1 :]
             else:
                 # reference to a label
