@@ -80,16 +80,18 @@ def relative_uri(base: str, to: str) -> str:
         # code change has to be tested against the SolHub documentation
         # specifically the Next Previous buttons.
 
-        # count = base.count("/")
-        # # If there aren't any "/", it is a top-level doc, so we
-        # # can just go straight there.
-        # if count == 0:
-        #     print(f"Returning {to}")
-        #     return to
-        # # Otherwise we need to step up for each /.
-        # print("Returning:", "../" * count + to)
-        # return "../" * count + to
-        return to
+        # 07/11/24 - reverted change to see if it fixes ONELab links...
+
+        count = base.count("/")
+        # If there aren't any "/", it is a top-level doc, so we
+        # can just go straight there.
+        if count == 0:
+            print(f"Returning {to}")
+            return to
+        # Otherwise we need to step up for each /.
+        print("Returning:", "../" * count + to)
+        return "../" * count + to
+        # return to
     #
     # Calculate the overlap. Strip that overlap from the beginning
     # of to and then prefix it with the last leaf from base.
