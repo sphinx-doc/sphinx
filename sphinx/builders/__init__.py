@@ -148,7 +148,7 @@ class Builder:
         May raise environment.NoUri if there's no way to return a sensible URI.
         """
         return relative_uri(self.get_target_uri(from_),
-                            self.get_target_uri(to, typ))
+                            self.get_target_uri(to, typ), typ)
 
     def get_outdated_docs(self) -> str | Iterable[str]:
         """Return an iterable of output files that are outdated, or a string

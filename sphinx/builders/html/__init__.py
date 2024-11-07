@@ -614,7 +614,7 @@ class StandaloneHTMLBuilder(Builder):
         if related and related[2]:
             try:
                 next = {
-                    'link': self.get_relative_uri(docname, self.replace_index_filename(related[2])),
+                    'link': self.get_relative_uri(docname, self.replace_index_filename(related[2]), "nextprev"),
                     'title': self.render_partial(titles[related[2]])['title'],
                 }
                 rellinks.append((related[2], next['title'], 'N', _('next')))
@@ -623,7 +623,7 @@ class StandaloneHTMLBuilder(Builder):
         if related and related[1]:
             try:
                 prev = {
-                    'link': self.get_relative_uri(docname, self.replace_index_filename(related[1])),
+                    'link': self.get_relative_uri(docname, self.replace_index_filename(related[1]), "nextprev"),
                     'title': self.render_partial(titles[related[1]])['title'],
                 }
                 rellinks.append((related[1], prev['title'], 'P', _('previous')))

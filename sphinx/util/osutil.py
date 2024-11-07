@@ -50,9 +50,19 @@ def common_prefix_length(str1, str2):
             return i
     return min_length
 
-def relative_uri(base: str, to: str) -> str:
+def relative_uri(base: str, to: str, typ: str | None = None) -> str:
     """ Calculate the correct URI to get from base to to"""
-    print(f"relative_uri: from='{base}', to='{to}'")
+    # We've added "typ" to indicate if we're calculating next/prev links.
+    # If we ARE then we can just return "to".
+    # If, however, we are calculating "proper" relative links then
+    # we need to do more work.
+    # Start by removing trailing slashes from both
+    if base.endswith(SEP):
+        base = base[:-1]
+    if to.endswith(SEP):
+        to = to[:-1]
+    if typ == "nextprev":
+        return to
     # React doesn't process the pages as entirely relative
     # to each other. Files are generally treated as relative
     # to the top of the source directory.
@@ -67,16 +77,6 @@ def relative_uri(base: str, to: str) -> str:
     # file as named "foo". But this then causes problems if
     # we have a directory "foo" with other pages in it.
     #
-    # So we have to see if "to" starts with "base" and,
-    # if it does, return from the last common factor (e.g. foo)
-    # onwards.
-    #
-    # Start by removing trailing slashes from both
-    if base.endswith(SEP):
-        base = base[:-1]
-    if to.endswith(SEP):
-        to = to[:-1]
-    #
     # Do the two strings have a matching start string? If not, we need
     # to figure out how many "folders" we need to go up before we can
     # then go to the "to" destination.
@@ -90,21 +90,11 @@ def relative_uri(base: str, to: str) -> str:
             # print(f"Returning {to}")
             return to
         # Otherwise we need to step up for each /.
-        # print("Returning:", "../" * count + to)
         return "../" * count + to
     # We've got commonality, which suggests the two links are
     # "adjacent" or one is the parent of the other, so it should
     # be OK to just return the destination string.
     return to
-    # #
-    # # Calculate the overlap. Strip that overlap from the beginning
-    # # of to and then prefix it with the last leaf from base.
-    # if len(base) != 0:
-    #     to = to[len(base)+1:]
-    # base_parts = base.split(SEP)
-    # to = base_parts[-1] + SEP + to
-    # return to
-
 
 def ensuredir(file: str | os.PathLike[str]) -> None:
     """Ensure that a path exists."""
