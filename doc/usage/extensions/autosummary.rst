@@ -81,15 +81,19 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
       directory. If no argument is given, output is placed in the same directory
       as the file that contains the directive.
 
+      .. versionadded:: 0.6
+
    .. rst:directive:option:: caption: caption of ToC
 
       Add a caption to the toctree.
 
       .. versionadded:: 3.1
 
-   .. rst:directive:option:: no-signatures
+   .. rst:directive:option:: nosignatures
 
       Do not show function signatures in the summary.
+
+      .. versionadded:: 0.6
 
    .. rst:directive:option:: template: filename
 
