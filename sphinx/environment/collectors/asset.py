@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import os
+import os.path
 from glob import glob
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.utils import relative_path
 
 from sphinx import addnodes
 from sphinx.environment.collectors import EnvironmentCollector
@@ -16,6 +16,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.i18n import get_image_filename_for_language, search_image_for_language
 from sphinx.util.images import guess_mimetype
+from sphinx.util.osutil import _relative_path
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
@@ -89,8 +90,8 @@ class ImageCollector(EnvironmentCollector):
             # map image paths to unique image names (so that they can be put
             # into a single directory)
             for imgpath in candidates.values():
-                app.env.dependencies[docname].add(imgpath)
-                if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
+                app.env.note_dependency(imgpath)
+                if not os.access(os.path.join(app.srcdir, imgpath), os.R_OK):
                     logger.warning(
                         __('image file not readable: %s'),
                         imgpath,
@@ -110,14 +111,14 @@ class ImageCollector(EnvironmentCollector):
     ) -> None:
         globbed: dict[str, list[str]] = {}
         for filename in glob(imgpath):
-            new_imgpath = relative_path(path.join(env.srcdir, 'dummy'), filename)
+            new_imgpath = _relative_path(Path(filename), env.srcdir)
             try:
                 mimetype = guess_mimetype(filename)
                 if mimetype is None:
-                    basename, suffix = path.splitext(filename)
+                    basename, suffix = os.path.splitext(filename)
                     mimetype = 'image/x-' + suffix[1:]
                 if mimetype not in candidates:
-                    globbed.setdefault(mimetype, []).append(new_imgpath)
+                    globbed.setdefault(mimetype, []).append(new_imgpath.as_posix())
             except OSError as err:
                 logger.warning(
                     __('image file %s not readable: %s'),
@@ -154,7 +155,7 @@ class DownloadFileCollector(EnvironmentCollector):
                 node['refuri'] = targetname
             else:
                 rel_filename, filename = app.env.relfn2path(targetname, app.env.docname)
-                app.env.dependencies[app.env.docname].add(rel_filename)
+                app.env.note_dependency(rel_filename)
                 if not os.access(filename, os.R_OK):
                     logger.warning(
                         __('download file not readable: %s'),

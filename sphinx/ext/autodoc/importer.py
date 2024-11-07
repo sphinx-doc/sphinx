@@ -67,7 +67,7 @@ def _filter_enum_dict(
     def query(name: str, defining_class: type) -> tuple[str, type, Any] | None:
         value = attrgetter(enum_class, name, sentinel)
         if value is not sentinel:
-            return (name, defining_class, value)
+            return name, defining_class, value
         return None
 
     # attributes defined on a parent type, possibly shadowed later by

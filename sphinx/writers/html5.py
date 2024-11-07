@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import posixpath
 import re
 import urllib.parse
@@ -327,9 +326,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 atts['href'] = self.cloak_mailto(atts['href'])
                 self.in_mailto = True
         else:
-            assert (
-                'refid' in node
-            ), 'References must have "refuri" or "refid" attribute.'
+            assert 'refid' in node, (
+                'References must have "refuri" or "refid" attribute.'
+            )
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
             assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
@@ -379,7 +378,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = f"{docname}/#{node.parent['ids'][0]}"
+                anchorname = f'{docname}/#{node.parent["ids"][0]}'
                 if anchorname not in self.builder.secnumbers:
                     # try first heading which has no anchor
                     anchorname = f'{docname}/'
@@ -752,8 +751,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
             if not ('width' in node and 'height' in node):
-                path = os.path.join(self.builder.srcdir, olduri)  # type: ignore[has-type]
-                size = get_image_size(path)
+                size = get_image_size(self.builder.srcdir / olduri)
                 if size is None:
                     logger.warning(
                         __('Could not obtain image size. :scale: option is ignored.'),

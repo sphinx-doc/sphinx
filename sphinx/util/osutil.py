@@ -5,12 +5,12 @@ from __future__ import annotations
 import contextlib
 import filecmp
 import os
+import os.path
 import re
 import shutil
 import sys
 import unicodedata
 from io import StringIO
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -28,12 +28,12 @@ SEP = '/'
 
 
 def os_path(canonical_path: str, /) -> str:
-    return canonical_path.replace(SEP, path.sep)
+    return canonical_path.replace(SEP, os.path.sep)
 
 
 def canon_path(native_path: str | os.PathLike[str], /) -> str:
     """Return path in OS-independent form"""
-    return os.fspath(native_path).replace(path.sep, SEP)
+    return os.fspath(native_path).replace(os.path.sep, SEP)
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
@@ -169,11 +169,27 @@ def relpath(
         return str(path)
 
 
+def _relative_path(path: Path, root: Path, /) -> Path:
+    """Return a relative filepath to *path* from the given *root* directory.
+
+    This is an alternative of ``Path.relative_to``.
+    It returns the original path if *path* and *root* are on different drives,
+    which may happen on Windows.
+    """
+    if path.anchor != root.anchor or '..' in root.parts:
+        # If the drives are different, no relative path exists.
+        # Path.relative_to() requires fully-resolved paths (no '..').
+        return path
+    if sys.version_info[:2] < (3, 12):
+        return Path(os.path.relpath(path, root))
+    return path.relative_to(root, walk_up=True)
+
+
 safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-abspath = path.abspath
+abspath = os.path.abspath
 
 
 class FileAvoidWrite:
@@ -236,7 +252,7 @@ class FileAvoidWrite:
         return getattr(self._io, name)
 
 
-def rmtree(path: str) -> None:
+def rmtree(path: str | os.PathLike[str], /) -> None:
     if os.path.isdir(path):
         shutil.rmtree(path)
     else:

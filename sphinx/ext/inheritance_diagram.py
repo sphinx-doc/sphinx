@@ -33,10 +33,10 @@ from __future__ import annotations
 import builtins
 import hashlib
 import inspect
+import os.path
 import re
 from collections.abc import Iterable, Sequence
 from importlib import import_module
-from os import path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes
@@ -422,7 +422,7 @@ def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diag
 
     # Create a mapping from fully-qualified class names to URLs.
     graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
-    current_filename = path.basename(self.builder.current_docname + self.builder.out_suffix)
+    current_filename = os.path.basename(self.builder.current_docname + self.builder.out_suffix)
     urls = {}
     pending_xrefs = cast(Iterable[addnodes.pending_xref], node)
     for child in pending_xrefs:

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import contextlib
-from os import path
 from re import DOTALL, match
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -394,10 +393,8 @@ class Locale(SphinxTransform):
         textdomain = docname_to_domain(self.env.docname, self.config.gettext_compact)
 
         # fetch translations
-        dirs = [
-            path.join(self.env.srcdir, directory)
-            for directory in self.config.locale_dirs
-        ]
+        srcdir = self.env.srcdir
+        dirs = [srcdir / directory for directory in self.config.locale_dirs]
         catalog, has_catalog = init_locale(dirs, self.config.language, textdomain)
         if not has_catalog:
             return

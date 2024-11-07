@@ -6,6 +6,7 @@ import logging
 import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager, nullcontext
+from os.path import abspath
 from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
@@ -13,7 +14,6 @@ from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import colorize
-from sphinx.util.osutil import abspath
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence, Set

@@ -465,7 +465,7 @@ class DefinitionParser(BaseParser):
             brackets = {'(': ')', '{': '}', '[': ']'}
             symbols: list[str] = []
             while not self.eof:
-                if (len(symbols) == 0 and self.current_char in end):
+                if len(symbols) == 0 and self.current_char in end:
                     break
                 if self.current_char in brackets:
                     symbols.append(brackets[self.current_char])

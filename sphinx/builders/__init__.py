@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import codecs
+import os.path
 import pickle
 import re
 import time
 from contextlib import nullcontext
-from os import path
 from typing import TYPE_CHECKING, Any, Literal, final
 
 from docutils import nodes
@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.events import EventManager
+    from sphinx.util._pathlib import _StrPath
     from sphinx.util.tags import Tags
 
 
@@ -94,10 +95,10 @@ class Builder:
     supported_data_uri_images: bool = False
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
-        self.srcdir = app.srcdir
-        self.confdir = app.confdir
-        self.outdir = app.outdir
-        self.doctreedir = app.doctreedir
+        self.srcdir: _StrPath = app.srcdir
+        self.confdir: _StrPath = app.confdir
+        self.outdir: _StrPath = app.outdir
+        self.doctreedir: _StrPath = app.doctreedir
         ensuredir(self.doctreedir)
 
         self.app: Sphinx = app
@@ -203,7 +204,7 @@ class Builder:
                     image_uri = images.get_original_image_uri(node['uri'])
                     if mimetypes:
                         logger.warning(
-                            __('a suitable image for %s builder not found: ' '%s (%s)'),
+                            __('a suitable image for %s builder not found: %s (%s)'),
                             self.name,
                             mimetypes,
                             image_uri,
@@ -232,7 +233,7 @@ class Builder:
             return
 
         def cat2relpath(cat: CatalogInfo) -> str:
-            return relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
+            return relpath(cat.mo_path, self.env.srcdir).replace(os.path.sep, SEP)
 
         logger.info(bold(__('building [mo]: ')) + message)
         for catalog in status_iterator(
@@ -259,7 +260,7 @@ class Builder:
 
     def compile_specific_catalogs(self, specified_files: list[str]) -> None:
         def to_domain(fpath: str) -> str | None:
-            docname = self.env.path2doc(path.abspath(fpath))
+            docname = self.env.path2doc(os.path.abspath(fpath))
             if docname:
                 return docname_to_domain(docname, self.config.gettext_compact)
             else:
@@ -306,9 +307,9 @@ class Builder:
         docnames: list[str] = []
 
         for filename in filenames:
-            filename = path.normpath(path.abspath(filename))
+            filename = os.path.normpath(os.path.abspath(filename))
 
-            if not path.isfile(filename):
+            if not os.path.isfile(filename):
                 logger.warning(
                     __('file %r given on command line does not exist, '), filename
                 )
@@ -399,7 +400,7 @@ class Builder:
 
             with (
                 progress_message(__('pickling environment')),
-                open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f,
+                open(os.path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f,
             ):
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
@@ -607,8 +608,8 @@ class Builder:
         self.env.prepare_settings(docname)
 
         # Add confdir/docutils.conf to dependencies list if exists
-        docutilsconf = path.join(self.confdir, 'docutils.conf')
-        if path.isfile(docutilsconf):
+        docutilsconf = os.path.join(self.confdir, 'docutils.conf')
+        if os.path.isfile(docutilsconf):
             self.env.note_dependency(docutilsconf)
 
         filename = str(self.env.doc2path(docname))
@@ -659,8 +660,8 @@ class Builder:
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
 
-        doctree_filename = path.join(self.doctreedir, docname + '.doctree')
-        ensuredir(path.dirname(doctree_filename))
+        doctree_filename = os.path.join(self.doctreedir, docname + '.doctree')
+        ensuredir(os.path.dirname(doctree_filename))
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 

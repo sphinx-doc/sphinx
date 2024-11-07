@@ -11,7 +11,6 @@ import pickle
 import sys
 from collections import deque
 from io import StringIO
-from os import path
 from typing import TYPE_CHECKING, overload
 
 from docutils.parsers.rst import Directive, roles
@@ -182,11 +181,11 @@ class Sphinx:
         self.outdir = _StrPath(outdir).resolve()
         self.doctreedir = _StrPath(doctreedir).resolve()
 
-        if not path.isdir(self.srcdir):
+        if not self.srcdir.is_dir():
             raise ApplicationError(__('Cannot find source directory (%s)') %
                                    self.srcdir)
 
-        if path.exists(self.outdir) and not path.isdir(self.outdir):
+        if self.outdir.exists() and not self.outdir.is_dir():
             raise ApplicationError(__('Output directory (%s) is not a directory') %
                                    self.outdir)
 
@@ -258,9 +257,9 @@ class Sphinx:
         # preload builder module (before init config values)
         self.preload_builder(buildername)
 
-        if not path.isdir(outdir):
+        if not self.outdir.is_dir():
             with progress_message(__('making output directory')):
-                ensuredir(outdir)
+                ensuredir(self.outdir)
 
         # the config file itself can be an extension
         if self.config.setup:
@@ -327,8 +326,8 @@ class Sphinx:
             logger.info(__('not available for built-in messages'))
 
     def _init_env(self, freshenv: bool) -> BuildEnvironment:
-        filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
-        if freshenv or not os.path.exists(filename):
+        filename = self.doctreedir / ENV_PICKLE_FILENAME
+        if freshenv or not filename.exists():
             return self._create_fresh_env()
         else:
             return self._load_existing_env(filename)
@@ -339,12 +338,12 @@ class Sphinx:
         return env
 
     @progress_message(__('loading pickled environment'))
-    def _load_existing_env(self, filename: str) -> BuildEnvironment:
+    def _load_existing_env(self, filename: Path) -> BuildEnvironment:
         try:
             with open(filename, 'rb') as f:
                 env = pickle.load(f)
-                env.setup(self)
-                self._fresh_env_used = False
+            env.setup(self)
+            self._fresh_env_used = False
         except Exception as err:
             logger.info(__('failed: %s'), err)
             env = self._create_fresh_env()
@@ -383,8 +382,8 @@ class Sphinx:
             self.events.emit('build-finished', None)
         except Exception as err:
             # delete the saved env to force a fresh build next time
-            envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
-            if path.isfile(envfile):
+            envfile = self.doctreedir / ENV_PICKLE_FILENAME
+            if envfile.is_file():
                 os.unlink(envfile)
             self.events.emit('build-finished', err)
             raise

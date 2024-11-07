@@ -51,7 +51,7 @@ In practice, you have to:
       :caption: src/__init__.py
 
       def setup(app):
-          package_dir = Path(__file__).parent.resolve()
+          package_dir = Path(__file__).resolve().parent
           locale_dir = package_dir / 'locales'
           app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
 

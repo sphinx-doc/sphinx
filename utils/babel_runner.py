@@ -33,7 +33,7 @@ from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
 IS_CI = 'CI' in environ
-ROOT = Path(__file__).parent.parent.resolve()
+ROOT = Path(__file__).resolve().parent.parent
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
     'variable_end_string': '%>',

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 warnings.warn(
-    "'sphinx.testing.path' is deprecated. " "Use 'os.path' or 'pathlib' instead.",
+    "'sphinx.testing.path' is deprecated. Use 'os.path' or 'pathlib' instead.",
     RemovedInSphinx90Warning,
     stacklevel=2,
 )

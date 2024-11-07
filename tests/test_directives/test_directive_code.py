@@ -536,12 +536,7 @@ def test_literalinclude_pydecorators(app):
     assert actual == expect
 
     actual = literal_include[2].text
-    expect = (
-        '@function_decorator\n'
-        '@other_decorator()\n'
-        'def the_function():\n'
-        '    pass\n'
-    )
+    expect = '@function_decorator\n@other_decorator()\ndef the_function():\n    pass\n'
     assert actual == expect
 
 

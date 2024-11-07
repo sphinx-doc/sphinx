@@ -828,7 +828,7 @@ class PythonDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      type: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         modname = node.get('py:module')
         clsname = node.get('py:class')
         searchmode = 1 if node.hasattr('refspecific') else 0
@@ -875,10 +875,10 @@ class PythonDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+                         ) -> list[tuple[str, nodes.reference]]:
         modname = node.get('py:module')
         clsname = node.get('py:class')
-        results: list[tuple[str, Element]] = []
+        results: list[tuple[str, nodes.reference]] = []
 
         # always search in "refspecific" mode with the :any: role
         matches = self.find_obj(env, modname, clsname, target, None, 1)
@@ -910,7 +910,7 @@ class PythonDomain(Domain):
         return results
 
     def _make_module_refnode(self, builder: Builder, fromdocname: str, name: str,
-                             contnode: Node) -> Element:
+                             contnode: Node) -> nodes.reference:
         # get additional info for modules
         module: ModuleEntry = self.modules[name]
         title_parts = [name]
@@ -927,14 +927,14 @@ class PythonDomain(Domain):
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         for modname, mod in self.modules.items():
-            yield (modname, modname, 'module', mod.docname, mod.node_id, 0)
+            yield modname, modname, 'module', mod.docname, mod.node_id, 0
         for refname, obj in self.objects.items():
             if obj.objtype != 'module':  # modules are already handled
                 if obj.aliased:
                     # aliased names are not full-text searchable.
-                    yield (refname, refname, obj.objtype, obj.docname, obj.node_id, -1)
+                    yield refname, refname, obj.objtype, obj.docname, obj.node_id, -1
                 else:
-                    yield (refname, refname, obj.objtype, obj.docname, obj.node_id, 1)
+                    yield refname, refname, obj.objtype, obj.docname, obj.node_id, 1
 
     def get_full_qualified_name(self, node: Element) -> str | None:
         modname = node.get('py:module')

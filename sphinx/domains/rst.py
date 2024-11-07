@@ -18,6 +18,7 @@ from sphinx.util.nodes import make_id, make_refnode
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
 
+    from docutils import nodes
     from docutils.nodes import Element
 
     from sphinx.addnodes import desc_signature, pending_xref
@@ -75,7 +76,7 @@ class ReSTMarkup(ObjectDescription[str]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.app.config
+        config = self.env.config
         objtype = sig_node.parent.get('objtype')
         *parents, name = sig_node['_toc_parts']
         if objtype == 'directive:option':
@@ -98,15 +99,15 @@ def parse_directive(d: str) -> tuple[str, str]:
     dir = d.strip()
     if not dir.startswith('.'):
         # Assume it is a directive without syntax
-        return (dir, '')
+        return dir, ''
     m = dir_sig_re.match(dir)
     if not m:
-        return (dir, '')
+        return dir, ''
     parsed_dir, parsed_args = m.groups()
     if parsed_args.strip():
-        return (parsed_dir.strip(), ' ' + parsed_args.strip())
+        return parsed_dir.strip(), ' ' + parsed_args.strip()
     else:
-        return (parsed_dir.strip(), '')
+        return parsed_dir.strip(), ''
 
 
 class ReSTDirective(ReSTMarkup):
@@ -262,7 +263,7 @@ class ReSTDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         objtypes = self.objtypes_for_role(typ)
         if not objtypes:
             return None
@@ -276,8 +277,8 @@ class ReSTDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
-        results: list[tuple[str, Element]] = []
+                         ) -> list[tuple[str, nodes.reference]]:
+        results: list[tuple[str, nodes.reference]] = []
         for objtype in self.object_types:
             result = self.objects.get((objtype, target))
             if result:
