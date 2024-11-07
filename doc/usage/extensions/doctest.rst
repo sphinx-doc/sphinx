@@ -135,7 +135,7 @@ a comma-separated list of group names.
          Supported PEP-440 operands and notations
 
    .. rst:directive:option:: trim-doctest-flags
-   .. rst:directive:option:: no-trim-doctest-flags
+                             no-trim-doctest-flags
 
       Whether to trim remove doctest flags (comments looking like
       ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
@@ -163,7 +163,7 @@ a comma-separated list of group names.
       highlighted code block.
 
    .. rst:directive:option:: trim-doctest-flags
-   .. rst:directive:option:: no-trim-doctest-flags
+                             no-trim-doctest-flags
 
       Whether to trim remove doctest flags (comments looking like
       ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
@@ -211,7 +211,7 @@ a comma-separated list of group names.
       A comma-separated list of doctest flags.
 
    .. rst:directive:option:: trim-doctest-flags
-   .. rst:directive:option:: no-trim-doctest-flags
+                             no-trim-doctest-flags
 
       Whether to trim remove doctest flags (comments looking like
       ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
