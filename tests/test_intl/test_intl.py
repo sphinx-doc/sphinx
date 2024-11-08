@@ -1569,7 +1569,7 @@ def test_additional_targets_should_be_translated(app):
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
 
-    # basic literal bloc should be translated
+    # basic literal block should be translated
     expected_expr = (
         '<span class="n">THIS</span> <span class="n">IS</span>\n'
         '<span class="n">LITERAL</span> <span class="n">BLOCK</span>'
