@@ -295,7 +295,7 @@ def test_load_mappings_cache_revert_update(tmp_path):
         app2.build()
         app2.cleanup()
 
-        # switch back to old url (re-use 'old_item')
+        # switch back to old url (reuse 'old_item')
         confoverrides3 = BASE_CONFIG | {'intersphinx_mapping': old_project.record}
         app3 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides3)
         app3.build()
