@@ -8,7 +8,7 @@ Maintainers
 * Chris Sewell <@chrisjsewell>
 * François Freitag <@francoisfreitag>
 * Jakob Lykke Andersen <@jakobandersen>
-* Jean-François Burnol <@jfbu>
+* Jean-François B. <@jfbu>
 * Stephen Finucane <@stephenfin>
 * Takayuki Shimizukawa <@shimizukawa>
 * Takeshi Komiya <@tk0miya>
@@ -35,7 +35,6 @@ Contributors
 * Christopher Perkins -- autosummary integration
 * Dan MacKinlay -- metadata fixes
 * Daniel Bültmann -- todo extension
-* Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
 * Daniel Pizetta -- inheritance diagram improvements
 * Dave Kuhlman -- original LaTeX writer
 * Doug Hellmann -- graphviz improvements
@@ -73,14 +72,12 @@ Contributors
 * Michael Wilson -- Intersphinx HTTP basic auth support
 * Nathan Damon -- bugfix in validation of static paths in html builders
 * Pauli Virtanen -- autodoc improvements, autosummary extension
-* A. Rafey Khan -- improved intersphinx typing
-* Rob Ruana -- napoleon extension
-* Robert Lehmann -- gettext builder (GSOC project)
+* \A. Rafey Khan -- improved intersphinx typing
 * Roland Meister -- epub builder
 * Sebastian Wiesner -- image handling, distutils support
 * Stefan Seefeld -- toctree improvements
 * Stefan van der Walt -- autosummary extension
-* T. Powers -- HTML output improvements
+* \T. Powers -- HTML output improvements
 * Taku Shimizu -- epub3 builder
 * Thomas Lamb -- linkcheck builder
 * Thomas Waldmann -- apidoc module fixes

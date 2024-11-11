@@ -6,10 +6,10 @@ docutils sandbox.
 
 from __future__ import annotations
 
-import os.path
 import re
 from collections import defaultdict
 from collections.abc import Iterable
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
@@ -583,18 +583,19 @@ class LaTeXTranslator(SphinxTranslator):
     def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
-            template = os.path.join(self.builder.confdir, template_dir, template_name)
-            if os.path.exists(template):
-                return renderer.render(template, variables)
-            elif template.endswith('.jinja'):
-                legacy_template = template.removesuffix('.jinja') + '_t'
-                if os.path.exists(legacy_template):
+            template = self.builder.confdir / template_dir / template_name
+            if template.exists():
+                return renderer.render(str(template), variables)
+            elif template.suffix == '.jinja':
+                legacy_template_name = template.name.removesuffix('.jinja') + '_t'
+                legacy_template = template.with_name(legacy_template_name)
+                if legacy_template.exists():
                     logger.warning(
                         __('template %s not found; loading from legacy %s instead'),
                         template_name,
                         legacy_template,
                     )
-                    return renderer.render(legacy_template, variables)
+                    return renderer.render(str(legacy_template), variables)
 
         return renderer.render(template_name, variables)
 
@@ -1648,7 +1649,9 @@ class LaTeXTranslator(SphinxTranslator):
         options = ''
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
-        base, ext = os.path.splitext(uri)
+        img_path = Path(uri)
+        base = img_path.with_suffix('')
+        ext = img_path.suffix
 
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
@@ -1657,8 +1660,8 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             cmd = rf'\sphinxincludegraphics{options}{{{{{base}}}{ext}}}'
         # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
-        if '#' in base:
-            cmd = r'{\catcode`\#=12' + cmd + '}'
+        if '#' in str(base):
+            cmd = rf'{{\catcode`\#=12{cmd}}}'
         self.body.append(cmd)
         self.body.extend(post)
 
