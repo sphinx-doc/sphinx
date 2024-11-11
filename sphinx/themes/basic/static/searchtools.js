@@ -513,6 +513,7 @@ const Search = {
     // perform the search on the required terms
     searchTerms.forEach((word) => {
       const files = [];
+      // find documents, if any, containing the query word in their text/title term indices
       const arr = [
         { files: terms.hasOwnProperty(word) ? terms[word] : [], score: Scorer.term },
         { files: titleTerms.hasOwnProperty(word) ? titleTerms[word] : [], score: Scorer.title },
