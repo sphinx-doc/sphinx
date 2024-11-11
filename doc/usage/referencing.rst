@@ -254,10 +254,8 @@ The following role creates a cross-reference to a term in a
    If you use a term that's not explained in a glossary, you'll get a warning
    during build.
 
-   If you need to link to a glossary term using an alternate form of the word (e.g.
-   the glossary term is "source directory" and you want to link to it in a
-   paragraph using the term "root directory"), you can do so using
-   :ref:`custom link text <xref-modifiers>` inside the back-quotes.
+   This role also supports :ref:`Custom link text <xref-modifiers>` from the general
+   cross-reference syntax.
 
 
 .. _any-role:
