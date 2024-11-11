@@ -514,6 +514,7 @@ const Search = {
     searchTerms.forEach((word) => {
       const files = [];
       // find documents, if any, containing the query word in their text/title term indices
+      // use Object.hasOwnProperty to avoid mismatching against prototype properties
       const arr = [
         { files: terms.hasOwnProperty(word) ? terms[word] : undefined, score: Scorer.term },
         { files: titleTerms.hasOwnProperty(word) ? titleTerms[word] : undefined, score: Scorer.title },
