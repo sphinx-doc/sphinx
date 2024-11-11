@@ -515,8 +515,8 @@ const Search = {
       const files = [];
       // find documents, if any, containing the query word in their text/title term indices
       const arr = [
-        { files: terms.hasOwnProperty(word) ? terms[word] : [], score: Scorer.term },
-        { files: titleTerms.hasOwnProperty(word) ? titleTerms[word] : [], score: Scorer.title },
+        { files: terms.hasOwnProperty(word) ? terms[word] : undefined, score: Scorer.term },
+        { files: titleTerms.hasOwnProperty(word) ? titleTerms[word] : undefined, score: Scorer.title },
       ];
       // add support for partial matches
       if (word.length > 2) {
