@@ -254,6 +254,13 @@ The following role creates a cross-reference to a term in a
    If you use a term that's not explained in a glossary, you'll get a warning
    during build.
 
+   If you need to link to a glossary term using an alternate form of the word (e.g.
+   the glossary term is *"source directory"* and you want to link to it in a
+   paragraph using the word *"root directory"*), you can do so using the same syntax
+   as the `:ref:` role uses::
+
+      :term:`root directory <source directory>`
+
 
 .. _any-role:
 

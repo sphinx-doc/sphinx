@@ -1156,47 +1156,6 @@ Glossary
    text only have "term" part. In this case, translated "localized term" will be
    categorized in "key" group.
 
-   **Referencing Glossary Terms with Other Terms:**
-
-   If you need to link to a glossary term using an alternate form of the word (e.g.
-   the gloosary term is *"source directory"* and you want to link to it in a
-   paragraph using the word *"root directory"*), you can do so by adding an "explicit
-   link target" to the glossary term using the same syntax as is used to add an
-   "explicit link target" to items in a list::
-
-      .. glossary::
-
-         environment
-            A structure where information about all documents under the root is
-            saved, and used for cross-referencing.  The environment is pickled
-            after the parsing stage, so that successive runs only need to read
-            and parse new and changed documents.
-
-            .. _source directory:
-            .. _root directory:
-
-         source directory
-            The directory which, including its subdirectories, contains all
-            source files for one Sphinx project.
-
-   .. note::
-
-      The explicit link target must be indented even with the definition above it.
-
-   That term can now be linked to like this::
-
-      All source files for this project is required to be under the
-      :ref:`root directory <source directory>` of the project.
-
-   or::
-
-      All source files for this project is required to be under the
-      :ref:`root directory` of the project.
-
-   .. note::
-
-      This does not work at this time for the first glossary entry since the glossary
-      parser tries to interpret the "explicit link target" as a glossary entry.
 
    .. versionchanged:: 1.1
       Now supports multiple terms and inline markup in terms.
