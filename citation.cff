@@ -5,8 +5,11 @@ message: >-
   from this file.
 type: dataset
 authors:
-  - given-names: Ayesha
-    family-names: Shahzad
-    email: shahzad@uni-potsdam.de
+- given-names: 'Adam '
+    family-names: Turner
+  - given-names: 'Bénédikt '
+    family-names: Tran
+  - given-names: 'Chris '
+    family-names: Sewell
 repository-code: 'https://github.com/ayeshashahzad1/sphinx'
-license: GPL-2.0
+license: BSD-2-Clause
