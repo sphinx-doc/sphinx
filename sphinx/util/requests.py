@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import re
 import warnings
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 import requests
 from urllib3.exceptions import InsecureRequestWarning
@@ -15,6 +16,15 @@ _USER_AGENT = (
     f'Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0 '
     f'Sphinx/{sphinx.__version__}'
 )
+
+
+class _IgnoredRedirection(Exception):
+    """Sphinx-internal exception to indicate that a redirect was not followed
+    due to an ignore pattern"""
+
+    def __init__(self, location: str, status_code: int) -> None:
+        self.location = location
+        self.status_code = status_code
 
 
 def _get_tls_cacert(url: str, certs: str | dict[str, str] | None) -> str | bool:
@@ -50,6 +60,23 @@ def head(url: str, **kwargs: Any) -> requests.Response:
 
 
 class _Session(requests.Session):
+    def get_redirect_target(self, resp: requests.Response):
+        """Overrides the default requests.Session.get_redirect_target"""
+        # do not follow redirections that match ignored URI patterns
+        if resp.is_redirect:
+            location = resp.headers['location']
+            dest = urljoin(resp.url, location)
+            if any(pat.match(dest) for pat in self.to_ignore):
+                raise _IgnoredRedirection(
+                    location=location,
+                    status_code=resp.status_code,
+                )
+        return super().get_redirect_target(resp)
+
+    def __init__(self, *args, **kwargs):
+        self.to_ignore: list[re.Pattern[str]] = kwargs.pop('_to_ignore', [])
+        super().__init__(*args, **kwargs)
+
     def request(  # type: ignore[override]
         self,
         method: str,
