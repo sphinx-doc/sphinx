@@ -5,7 +5,7 @@ message: >-
   from this file.
 type: dataset
 authors:
-- given-names: 'Adam '
+  - given-names: 'Adam '
     family-names: Turner
   - given-names: 'Bénédikt '
     family-names: Tran
