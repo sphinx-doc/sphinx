@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
+from roman_numerals import RomanNumeral
 
 from sphinx import addnodes, highlighting
 from sphinx.errors import SphinxError
@@ -23,12 +24,6 @@ from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
-
-try:
-    from docutils.utils.roman import toRoman
-except ImportError:
-    # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore[no-redef, import-not-found]
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node, Text
@@ -1421,8 +1416,9 @@ class LaTeXTranslator(SphinxTranslator):
             else:
                 return get_nested_level(node.parent)
 
-        enum = 'enum%s' % toRoman(get_nested_level(node)).lower()
-        enumnext = 'enum%s' % toRoman(get_nested_level(node) + 1).lower()
+        nested_level = get_nested_level(node)
+        enum = f'enum{RomanNumeral(nested_level).to_lowercase()}'
+        enumnext = f'enum{RomanNumeral(nested_level + 1).to_lowercase()}'
         style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
         prefix = node.get('prefix', '')
         suffix = node.get('suffix', '.')
