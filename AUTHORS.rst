@@ -81,7 +81,7 @@ Contributors
 * Marco Buttu -- doctest extension (pyversion option)
 * Martin Hans -- autodoc improvements
 * Martin Larralde -- additional napoleon admonitions
-* Martin Liška -- option directive and role improvem`ents
+* Martin Liška -- option directive and role improvements
 * Martin Mahner -- nature theme
 * Matthew Fernandez -- todo extension fix
 * Matthew Woodcraft -- text output improvements
