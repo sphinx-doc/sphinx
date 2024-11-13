@@ -108,7 +108,7 @@ def test_format_date_timezone():
     assert fd_gmt == '2016-08-07 05:11:17'
     assert fd_gmt == iso_gmt
 
-    iso_local = dt.astimezone().isoformat(' ').split('+')[0]
+    iso_local = dt.astimezone().isoformat(' ')[:19]  # strip the timezone
     fd_local = i18n.format_date(fmt, date=dt, language='en', local_time=True)
     assert fd_local == iso_local
     assert fd_local != fd_gmt
