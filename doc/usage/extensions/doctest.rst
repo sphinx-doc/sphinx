@@ -57,7 +57,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipping tests conditionally <skipif>`.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
 
 .. rst:directive:: .. testcleanup:: [group]
@@ -73,7 +73,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipping tests conditionally <skipif>`.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
 
 .. rst:directive:: .. doctest:: [group]
@@ -151,7 +151,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipping tests conditionally <skipif>`.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
 .. rst:directive:: .. testcode:: [group]
 
@@ -175,7 +175,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipping tests conditionally <skipif>`.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
    .. note::
 
@@ -223,7 +223,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipping tests conditionally <skipif>`.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
    Example::
 
@@ -270,7 +270,7 @@ The following is an example for the usage of the directives.  The test via
       This parrot wouldn't voom if you put 3000 volts through it!
 
 
-.. _skipif:
+.. _doctest-skipif:
 
 Skipping tests conditionally
 ----------------------------
