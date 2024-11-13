@@ -57,7 +57,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipif`.
+      See :ref:`skipping tests conditionally <skipif>`.
 
 
 .. rst:directive:: .. testcleanup:: [group]
@@ -73,7 +73,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipif`.
+      See :ref:`skipping tests conditionally <skipif>`.
 
 
 .. rst:directive:: .. doctest:: [group]
@@ -87,8 +87,8 @@ a comma-separated list of group names.
 
    .. rst:directive:option:: hide
 
-     Hide the doctest block in other builders.  By default it is shown as a
-     highlighted doctest block.
+     Hide the doctest block in other builders.
+     By default it is shown as a highlighted doctest block.
 
    .. rst:directive:option:: options: doctest flags
       :type: comma separated list
@@ -97,7 +97,9 @@ a comma-separated list of group names.
       tests.  (You still can give explicit flags per example, with doctest comments,
       but they will show up in other builders too.)
 
-      Alternatively, you can give inline doctest options, like in doctest::
+      Alternatively, you can give inline doctest options, like in doctest:
+
+      .. code-block:: pycon
 
          >>> datetime.date.now()   # doctest: +SKIP
          datetime.date(2008, 1, 1)
@@ -149,7 +151,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipif`.
+      See :ref:`skipping tests conditionally <skipif>`.
 
 .. rst:directive:: .. testcode:: [group]
 
@@ -159,8 +161,8 @@ a comma-separated list of group names.
 
    .. rst:directive:option:: hide
 
-      Hide the code block in other builders.  By default it is shown as a
-      highlighted code block.
+      Hide the code block in other builders.
+      By default it is shown as a highlighted code block.
 
    .. rst:directive:option:: trim-doctest-flags
                              no-trim-doctest-flags
@@ -173,7 +175,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipif`.
+      See :ref:`skipping tests conditionally <skipif>`.
 
    .. note::
 
@@ -202,8 +204,8 @@ a comma-separated list of group names.
 
    .. rst:directive:option:: hide
 
-     Hide the doctest block in other builders.  By default it is shown as a
-     highlighted doctest block.
+     Hide the doctest block in other builders.
+     By default it is shown as a highlighted doctest block.
 
    .. rst:directive:option:: options: doctest flags
       :type: comma separated list
@@ -221,7 +223,7 @@ a comma-separated list of group names.
       :type: text
 
       Skip the directive if the python expression *condition* is True.
-      See :ref:`skipif`.
+      See :ref:`skipping tests conditionally <skipif>`.
 
    Example::
 
