@@ -95,6 +95,9 @@ Build phases
 One thing that is vital in order to understand extension mechanisms is the way
 in which a Sphinx project is built: this works in several phases.
 
+.. graphviz:: /_static/diagrams/sphinx_build_phases.dot
+   :caption: Build phases
+
 **Phase 0: Initialization**
 
 In this phase, almost nothing of interest to us happens.  The source

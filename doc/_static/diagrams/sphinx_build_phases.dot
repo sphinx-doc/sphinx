@@ -1,0 +1,18 @@
+digraph phases {
+
+    graph [
+        rankdir = LR
+    ]
+
+    node [
+        shape = rect;
+        style = filled;
+        fillcolor ="#f7f7f7";
+        fontcolor = "#0a507a"
+    ]
+
+    Initialization -> Reading;
+    Reading -> "Consistency checks";
+    "Consistency checks" -> Resolving;
+    Resolving -> Writing;
+}
