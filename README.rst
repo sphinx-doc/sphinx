@@ -18,6 +18,9 @@
    :target: https://opensource.org/licenses/BSD-2-Clause
    :alt: BSD 2 Clause
 
+.. image:: .. image:: https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8B-orange
+   :target: https://fair-software.eu
+
 **Sphinx makes it easy to create intelligent and beautiful documentation.**
 
 Sphinx uses reStructuredText as its markup language, and many of its strengths
