@@ -9,10 +9,11 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Iterable
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
+from roman_numerals import RomanNumeral
 
 from sphinx import addnodes, highlighting
 from sphinx.errors import SphinxError
@@ -23,12 +24,6 @@ from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import clean_astext, get_prev_node
 from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
-
-try:
-    from docutils.utils.roman import toRoman
-except ImportError:
-    # In Debian/Ubuntu, roman package is provided as roman, not as docutils.utils.roman
-    from roman import toRoman  # type: ignore[no-redef, import-not-found]
 
 if TYPE_CHECKING:
     from docutils.nodes import Element, Node, Text
@@ -583,18 +578,19 @@ class LaTeXTranslator(SphinxTranslator):
     def render(self, template_name: str, variables: dict[str, Any]) -> str:
         renderer = LaTeXRenderer(latex_engine=self.config.latex_engine)
         for template_dir in self.config.templates_path:
-            template = path.join(self.builder.confdir, template_dir, template_name)
-            if path.exists(template):
-                return renderer.render(template, variables)
-            elif template.endswith('.jinja'):
-                legacy_template = template.removesuffix('.jinja') + '_t'
-                if path.exists(legacy_template):
+            template = self.builder.confdir / template_dir / template_name
+            if template.exists():
+                return renderer.render(str(template), variables)
+            elif template.suffix == '.jinja':
+                legacy_template_name = template.name.removesuffix('.jinja') + '_t'
+                legacy_template = template.with_name(legacy_template_name)
+                if legacy_template.exists():
                     logger.warning(
                         __('template %s not found; loading from legacy %s instead'),
                         template_name,
                         legacy_template,
                     )
-                    return renderer.render(legacy_template, variables)
+                    return renderer.render(str(legacy_template), variables)
 
         return renderer.render(template_name, variables)
 
@@ -1420,8 +1416,9 @@ class LaTeXTranslator(SphinxTranslator):
             else:
                 return get_nested_level(node.parent)
 
-        enum = 'enum%s' % toRoman(get_nested_level(node)).lower()
-        enumnext = 'enum%s' % toRoman(get_nested_level(node) + 1).lower()
+        nested_level = get_nested_level(node)
+        enum = f'enum{RomanNumeral(nested_level).to_lowercase()}'
+        enumnext = f'enum{RomanNumeral(nested_level + 1).to_lowercase()}'
         style = ENUMERATE_LIST_STYLE.get(get_enumtype(node))
         prefix = node.get('prefix', '')
         suffix = node.get('suffix', '.')
@@ -1648,7 +1645,9 @@ class LaTeXTranslator(SphinxTranslator):
         options = ''
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
-        base, ext = path.splitext(uri)
+        img_path = Path(uri)
+        base = img_path.with_suffix('')
+        ext = img_path.suffix
 
         if self.in_title and base:
             # Lowercase tokens forcely because some fncychap themes capitalize
@@ -1657,8 +1656,8 @@ class LaTeXTranslator(SphinxTranslator):
         else:
             cmd = rf'\sphinxincludegraphics{options}{{{{{base}}}{ext}}}'
         # escape filepath for includegraphics, https://tex.stackexchange.com/a/202714/41112
-        if '#' in base:
-            cmd = r'{\catcode`\#=12' + cmd + '}'
+        if '#' in str(base):
+            cmd = rf'{{\catcode`\#=12{cmd}}}'
         self.body.append(cmd)
         self.body.extend(post)
 
@@ -2452,7 +2451,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_math_block(self, node: Element) -> None:
         if node.get('label'):
-            label = f"equation:{node['docname']}:{node['label']}"
+            label = f'equation:{node["docname"]}:{node["label"]}'
         else:
             label = None
 
@@ -2469,7 +2468,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
-        label = f"equation:{node['docname']}:{node['target']}"
+        label = f'equation:{node["docname"]}:{node["target"]}'
         eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:

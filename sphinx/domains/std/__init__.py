@@ -845,10 +845,11 @@ class StandardDomain(Domain):
             self.progoptions[program, name] = (docname, labelid)
 
     def build_reference_node(self, fromdocname: str, builder: Builder, docname: str,
-                             labelid: str, sectname: str, rolename: str, **options: Any,
-                             ) -> Element:
-        nodeclass = options.pop('nodeclass', nodes.reference)
-        newnode = nodeclass('', '', internal=True, **options)
+                             labelid: str, sectname: str, rolename: str, *,
+                             node_class: type[nodes.reference] = nodes.reference,
+                             **options: Any,
+                             ) -> nodes.reference:
+        newnode = node_class('', '', internal=True, **options)
         innernode = nodes.inline(sectname, sectname)
         if innernode.get('classes') is not None:
             innernode['classes'].append('std')
@@ -871,11 +872,11 @@ class StandardDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+                     ) -> nodes.reference | None:
         if typ == 'ref':
             resolver = self._resolve_ref_xref
         elif typ == 'numref':
-            resolver = self._resolve_numref_xref
+            resolver = self._resolve_numref_xref  # type: ignore[assignment]
         elif typ == 'keyword':
             resolver = self._resolve_keyword_xref
         elif typ == 'doc':
@@ -891,7 +892,7 @@ class StandardDomain(Domain):
 
     def _resolve_ref_xref(self, env: BuildEnvironment, fromdocname: str,
                           builder: Builder, typ: str, target: str, node: pending_xref,
-                          contnode: Element) -> Element | None:
+                          contnode: Element) -> nodes.reference | None:
         if node['refexplicit']:
             # reference to anonymous label; the reference uses
             # the supplied link caption
@@ -909,7 +910,8 @@ class StandardDomain(Domain):
 
     def _resolve_numref_xref(self, env: BuildEnvironment, fromdocname: str,
                              builder: Builder, typ: str, target: str,
-                             node: pending_xref, contnode: Element) -> Element | None:
+                             node: pending_xref, contnode: Element
+                             ) -> nodes.reference | Element | None:
         if target in self.labels:
             docname, labelid, figname = self.labels.get(target, ('', '', ''))
         else:
@@ -968,12 +970,12 @@ class StandardDomain(Domain):
 
         return self.build_reference_node(fromdocname, builder,
                                          docname, labelid, newtitle, 'numref',
-                                         nodeclass=addnodes.number_reference,
+                                         node_class=addnodes.number_reference,
                                          title=title)
 
     def _resolve_keyword_xref(self, env: BuildEnvironment, fromdocname: str,
                               builder: Builder, typ: str, target: str,
-                              node: pending_xref, contnode: Element) -> Element | None:
+                              node: pending_xref, contnode: Element) -> nodes.reference | None:
         # keywords are oddballs: they are referenced by named labels
         docname, labelid, _ = self.labels.get(target, ('', '', ''))
         if not docname:
@@ -983,7 +985,7 @@ class StandardDomain(Domain):
 
     def _resolve_doc_xref(self, env: BuildEnvironment, fromdocname: str,
                           builder: Builder, typ: str, target: str,
-                          node: pending_xref, contnode: Element) -> Element | None:
+                          node: pending_xref, contnode: Element) -> nodes.reference | None:
         # directly reference to document by source name; can be absolute or relative
         refdoc = node.get('refdoc', fromdocname)
         docname = docname_join(refdoc, node['reftarget'])
@@ -1000,7 +1002,7 @@ class StandardDomain(Domain):
 
     def _resolve_option_xref(self, env: BuildEnvironment, fromdocname: str,
                              builder: Builder, typ: str, target: str,
-                             node: pending_xref, contnode: Element) -> Element | None:
+                             node: pending_xref, contnode: Element) -> nodes.reference | None:
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
@@ -1033,7 +1035,7 @@ class StandardDomain(Domain):
 
     def _resolve_term_xref(self, env: BuildEnvironment, fromdocname: str,
                            builder: Builder, typ: str, target: str,
-                           node: pending_xref, contnode: Element) -> Element | None:
+                           node: pending_xref, contnode: Element) -> nodes.reference | None:
         result = self._resolve_obj_xref(env, fromdocname, builder, typ,
                                         target, node, contnode)
         if result:
@@ -1048,7 +1050,7 @@ class StandardDomain(Domain):
 
     def _resolve_obj_xref(self, env: BuildEnvironment, fromdocname: str,
                           builder: Builder, typ: str, target: str,
-                          node: pending_xref, contnode: Element) -> Element | None:
+                          node: pending_xref, contnode: Element) -> nodes.reference | None:
         objtypes = self.objtypes_for_role(typ) or []
         for objtype in objtypes:
             if (objtype, target) in self.objects:
@@ -1063,8 +1065,8 @@ class StandardDomain(Domain):
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str,
                          builder: Builder, target: str, node: pending_xref,
-                         contnode: Element) -> list[tuple[str, Element]]:
-        results: list[tuple[str, Element]] = []
+                         contnode: Element) -> list[tuple[str, nodes.reference]]:
+        results: list[tuple[str, nodes.reference]] = []
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
             res = self.resolve_xref(env, fromdocname, builder, role,
@@ -1087,23 +1089,23 @@ class StandardDomain(Domain):
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
         # handle the special 'doc' reference here
         for doc in self.env.all_docs:
-            yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
+            yield doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1
         for (prog, option), info in self.progoptions.items():
             if prog:
                 fullname = f'{prog}.{option}'
-                yield (fullname, fullname, 'cmdoption', info[0], info[1], 1)
+                yield fullname, fullname, 'cmdoption', info[0], info[1], 1
             else:
-                yield (option, option, 'cmdoption', info[0], info[1], 1)
+                yield option, option, 'cmdoption', info[0], info[1], 1
         for (type, name), info in self.objects.items():
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
         for name, (docname, labelid, sectionname) in self.labels.items():
-            yield (name, sectionname, 'label', docname, labelid, -1)
+            yield name, sectionname, 'label', docname, labelid, -1
         # add anonymous-only labels as well
         non_anon_labels = set(self.labels)
         for name, (docname, labelid) in self.anonlabels.items():
             if name not in non_anon_labels:
-                yield (name, name, 'label', docname, labelid, -1)
+                yield name, name, 'label', docname, labelid, -1
 
     def get_type_name(self, type: ObjType, primary: bool = False) -> str:
         # never prepend "Default"

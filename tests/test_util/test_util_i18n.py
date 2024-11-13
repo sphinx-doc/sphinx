@@ -19,16 +19,16 @@ def test_catalog_info_for_file_and_path():
     cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
     assert cat.po_file == 'domain.po'
     assert cat.mo_file == 'domain.mo'
-    assert cat.po_path == str(Path('path', 'domain.po'))
-    assert cat.mo_path == str(Path('path', 'domain.mo'))
+    assert cat.po_path == Path('path', 'domain.po')
+    assert cat.mo_path == Path('path', 'domain.mo')
 
 
 def test_catalog_info_for_sub_domain_file_and_path():
     cat = i18n.CatalogInfo('path', 'sub/domain', 'utf-8')
     assert cat.po_file == 'sub/domain.po'
     assert cat.mo_file == 'sub/domain.mo'
-    assert cat.po_path == str(Path('path', 'sub', 'domain.po'))
-    assert cat.mo_path == str(Path('path', 'sub', 'domain.mo'))
+    assert cat.po_path == Path('path', 'sub', 'domain.po')
+    assert cat.mo_path == Path('path', 'sub', 'domain.mo')
 
 
 def test_catalog_outdated(tmp_path):
@@ -108,7 +108,7 @@ def test_format_date_timezone():
     assert fd_gmt == '2016-08-07 05:11:17'
     assert fd_gmt == iso_gmt
 
-    iso_local = dt.astimezone().isoformat(' ').split('+')[0]
+    iso_local = dt.astimezone().isoformat(' ')[:19]  # strip the timezone
     fd_local = i18n.format_date(fmt, date=dt, language='en', local_time=True)
     assert fd_local == iso_local
     assert fd_local != fd_gmt
@@ -178,8 +178,8 @@ def test_CatalogRepository(tmp_path):
     # for language xx
     repo = i18n.CatalogRepository(tmp_path, ['loc1', 'loc2'], 'xx', 'utf-8')
     assert list(repo.locale_dirs) == [
-        str(tmp_path / 'loc1'),
-        str(tmp_path / 'loc2'),
+        tmp_path / 'loc1',
+        tmp_path / 'loc2',
     ]
     assert all(isinstance(c, i18n.CatalogInfo) for c in repo.catalogs)
     assert sorted(c.domain for c in repo.catalogs) == [

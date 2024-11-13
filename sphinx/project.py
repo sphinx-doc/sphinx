@@ -96,10 +96,10 @@ class Project:
 
         *filename* should be absolute or relative to the source directory.
         """
+        path = Path(filename)
         try:
-            return self._path_to_docname[filename]  # type: ignore[index]
+            return self._path_to_docname[path]
         except KeyError:
-            path = Path(filename)
             if path.is_absolute():
                 with contextlib.suppress(ValueError):
                     path = path.relative_to(self.srcdir)

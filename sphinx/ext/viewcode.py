@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import operator
+import os.path
 import posixpath
 import traceback
 from importlib import import_module
-from os import path
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
+    from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
@@ -207,7 +208,7 @@ class ViewcodeAnchorTransform(SphinxPostTransform):
             node.parent.remove(node)
 
 
-def get_module_filename(app: Sphinx, modname: str) -> str | None:
+def get_module_filename(app: Sphinx, modname: str) -> _StrPath | None:
     """Get module filename for *modname*."""
     source_info = app.emit_firstresult('viewcode-find-source', modname)
     if source_info:
@@ -229,7 +230,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
 
     builder = cast(StandaloneHTMLBuilder, app.builder)
     basename = modname.replace('.', '/') + builder.out_suffix
-    page_filename = path.join(app.outdir, '_modules/', basename)
+    page_filename = os.path.join(app.outdir, '_modules/', basename)
 
     try:
         if _last_modified_time(module_filename) <= _last_modified_time(page_filename):
@@ -311,7 +312,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
             'body': (_('<h1>Source code for %s</h1>') % modname +
                      '\n'.join(lines)),
         }
-        yield (pagename, context, 'page.html')
+        yield pagename, context, 'page.html'
 
     if not modnames:
         return
@@ -339,7 +340,7 @@ def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
                  ''.join(html)),
     }
 
-    yield (posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html')
+    yield posixpath.join(OUTPUT_DIRNAME, 'index'), context, 'page.html'
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

@@ -1558,9 +1558,9 @@ class _EnumFormatter:
     def preamble_lookup(
         self, doc: str, *, indent: int = 0, **options: Any
     ) -> list[str]:
-        assert (
-            doc
-        ), f'enumeration class {self.target!r} should have an explicit docstring'
+        assert doc, (
+            f'enumeration class {self.target!r} should have an explicit docstring'
+        )
 
         args = self._preamble_args(functional_constructor=False)
         return self._preamble(doc=doc, args=args, indent=indent, **options)
@@ -1568,9 +1568,9 @@ class _EnumFormatter:
     def preamble_constructor(
         self, doc: str, *, indent: int = 0, **options: Any
     ) -> list[str]:
-        assert (
-            doc
-        ), f'enumeration class {self.target!r} should have an explicit docstring'
+        assert doc, (
+            f'enumeration class {self.target!r} should have an explicit docstring'
+        )
 
         args = self._preamble_args(functional_constructor=True)
         return self._preamble(doc=doc, args=args, indent=indent, **options)

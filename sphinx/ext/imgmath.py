@@ -6,12 +6,13 @@ __all__ = ()
 
 import base64
 import contextlib
+import os
+import os.path
 import re
 import shutil
 import subprocess
 import tempfile
 from hashlib import sha1
-from os import path
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING
 
@@ -28,7 +29,6 @@ from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.template import LaTeXRenderer
 
 if TYPE_CHECKING:
-    import os
 
     from docutils.nodes import Element
 
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-templates_path = path.join(package_dir, 'templates', 'imgmath')
+templates_path = os.path.join(package_dir, 'templates', 'imgmath')
 
 
 class MathExtError(SphinxError):
@@ -109,8 +109,8 @@ def generate_latex_macro(image_format: str,
 
     for template_dir in config.templates_path:
         for template_suffix in ('.jinja', '_t'):
-            template = path.join(confdir, template_dir, template_name + template_suffix)
-            if path.exists(template):
+            template = os.path.join(confdir, template_dir, template_name + template_suffix)
+            if os.path.exists(template):
                 return LaTeXRenderer().render(template, variables)
 
     return LaTeXRenderer(templates_path).render(template_name + '.jinja', variables)
@@ -132,11 +132,11 @@ def ensure_tempdir(builder: Builder) -> str:
 def compile_math(latex: str, builder: Builder) -> str:
     """Compile LaTeX macros for math to DVI."""
     tempdir = ensure_tempdir(builder)
-    filename = path.join(tempdir, 'math.tex')
+    filename = os.path.join(tempdir, 'math.tex')
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(latex)
 
-    imgmath_latex_name = path.basename(builder.config.imgmath_latex)
+    imgmath_latex_name = os.path.basename(builder.config.imgmath_latex)
 
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
@@ -152,9 +152,9 @@ def compile_math(latex: str, builder: Builder) -> str:
         subprocess.run(command, capture_output=True, cwd=tempdir, check=True,
                        encoding='ascii')
         if imgmath_latex_name in {'xelatex', 'tectonic'}:
-            return path.join(tempdir, 'math.xdv')
+            return os.path.join(tempdir, 'math.xdv')
         else:
-            return path.join(tempdir, 'math.dvi')
+            return os.path.join(tempdir, 'math.dvi')
     except OSError as exc:
         logger.warning(__('LaTeX command %r cannot be run (needed for math '
                           'display), check the imgmath_latex setting'),
@@ -251,9 +251,9 @@ def render_math(
                                  self.builder.confdir)
 
     filename = f"{sha1(latex.encode(), usedforsecurity=False).hexdigest()}.{image_format}"
-    generated_path = path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
-    ensuredir(path.dirname(generated_path))
-    if path.isfile(generated_path):
+    generated_path = os.path.join(self.builder.outdir, self.builder.imagedir, 'math', filename)
+    ensuredir(os.path.dirname(generated_path))
+    if os.path.isfile(generated_path):
         if image_format == 'png':
             depth = read_png_depth(generated_path)
         elif image_format == 'svg':
@@ -308,7 +308,7 @@ def clean_up_files(app: Sphinx, exc: Exception) -> None:
         # in embed mode, the images are still generated in the math output dir
         # to be shared across workers, but are not useful to the final document
         with contextlib.suppress(Exception):
-            shutil.rmtree(path.join(app.builder.outdir, app.builder.imagedir, 'math'))
+            shutil.rmtree(os.path.join(app.builder.outdir, app.builder.imagedir, 'math'))
 
 
 def get_tooltip(self: HTML5Translator, node: Element) -> str:
@@ -337,9 +337,9 @@ def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
             image_format = self.builder.config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
-            bname = path.basename(rendered_path)
-            relative_path = path.join(self.builder.imgpath, 'math', bname)
-            img_src = relative_path.replace(path.sep, '/')
+            bname = os.path.basename(rendered_path)
+            relative_path = os.path.join(self.builder.imgpath, 'math', bname)
+            img_src = relative_path.replace(os.path.sep, '/')
         c = f'<img class="math" src="{img_src}"' + get_tooltip(self, node)
         if depth is not None:
             c += f' style="vertical-align: {-depth:d}px"'
@@ -378,9 +378,9 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
             image_format = self.builder.config.imgmath_image_format.lower()
             img_src = render_maths_to_base64(image_format, rendered_path)
         else:
-            bname = path.basename(rendered_path)
-            relative_path = path.join(self.builder.imgpath, 'math', bname)
-            img_src = relative_path.replace(path.sep, '/')
+            bname = os.path.basename(rendered_path)
+            relative_path = os.path.join(self.builder.imgpath, 'math', bname)
+            img_src = relative_path.replace(os.path.sep, '/')
         self.body.append(f'<img src="{img_src}"' + get_tooltip(self, node) +
                          '/></p>\n</div>')
     raise nodes.SkipNode

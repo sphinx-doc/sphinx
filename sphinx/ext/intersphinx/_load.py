@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import concurrent.futures
+import os.path
 import posixpath
 import time
 from operator import itemgetter
-from os import path
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
 
@@ -272,7 +272,7 @@ def _fetch_inventory_group(
     else:
         issues = '\n'.join(f[0] % f[1:] for f in failures)
         LOGGER.warning(
-            __('failed to reach any of the inventories ' 'with the following issues:')
+            __('failed to reach any of the inventories with the following issues:')
             + '\n'
             + issues
         )
@@ -303,7 +303,7 @@ def _fetch_inventory(
         if '://' in inv_location:
             f: _ReadableStream[bytes] = _read_from_url(inv_location, config=config)
         else:
-            f = open(path.join(srcdir, inv_location), 'rb')  # NoQA: SIM115
+            f = open(os.path.join(srcdir, inv_location), 'rb')  # NoQA: SIM115
     except Exception as err:
         err.args = (
             'intersphinx inventory %r not fetchable due to %s: %s',
@@ -321,10 +321,10 @@ def _fetch_inventory(
 
                 if target_uri in {
                     inv_location,
-                    path.dirname(inv_location),
-                    path.dirname(inv_location) + '/',
+                    os.path.dirname(inv_location),
+                    os.path.dirname(inv_location) + '/',
                 }:
-                    target_uri = path.dirname(new_inv_location)
+                    target_uri = os.path.dirname(new_inv_location)
         with f:
             try:
                 invdata = InventoryFile.load(f, target_uri, posixpath.join)

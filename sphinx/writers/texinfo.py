@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import os.path
 import re
 import textwrap
 from collections.abc import Iterable, Iterator
-from os import path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from docutils import nodes, writers
@@ -250,9 +250,10 @@ class TexinfoTranslator(SphinxTranslator):
                 '(%s)' % elements['filename'],
                 self.escape_arg(self.settings.texinfo_dir_description),
             )
-            elements['direntry'] = (
-                '@dircategory %s\n' '@direntry\n' '%s' '@end direntry\n'
-            ) % (self.escape_id(self.settings.texinfo_dir_category), entry)
+            elements['direntry'] = '@dircategory %s\n@direntry\n%s@end direntry\n' % (
+                self.escape_id(self.settings.texinfo_dir_category),
+                entry,
+            )
         elements['copying'] = COPYING % elements
         # allow the user to override them all
         elements.update(self.settings.texinfo_elements)
@@ -448,10 +449,10 @@ class TexinfoTranslator(SphinxTranslator):
             for subentry in entries:
                 _add_detailed_menu(subentry)
 
-        self.body.append('\n@detailmenu\n' ' --- The Detailed Node Listing ---\n')
+        self.body.append('\n@detailmenu\n --- The Detailed Node Listing ---\n')
         for entry in entries:
             _add_detailed_menu(entry)
-        self.body.append('\n@end detailmenu\n' '@end menu\n')
+        self.body.append('\n@end detailmenu\n@end menu\n')
 
     def tex_image_length(self, width_str: str) -> str:
         match = re.match(r'(\d*\.?\d*)\s*(\S*)', width_str)
@@ -1119,7 +1120,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def depart_admonition(self, node: Element) -> None:
         self.ensure_eol()
-        self.body.append('@end quotation\n' '@end cartouche\n')
+        self.body.append('@end quotation\n@end cartouche\n')
 
     visit_attention = _visit_named_admonition
     depart_attention = depart_admonition
@@ -1231,12 +1232,12 @@ class TexinfoTranslator(SphinxTranslator):
         if uri.find('://') != -1:
             # ignore remote images
             return
-        name, ext = path.splitext(uri)
+        name, ext = os.path.splitext(uri)
         # width and height ignored in non-tex output
         width = self.tex_image_length(node.get('width', ''))
         height = self.tex_image_length(node.get('height', ''))
         alt = self.escape_arg(node.get('alt', ''))
-        filename = f"{self.elements['filename'][:-5]}-figures/{name}"  # type: ignore[index]
+        filename = f'{self.elements["filename"][:-5]}-figures/{name}'  # type: ignore[index]
         self.body.append(f'\n@image{{{filename},{width},{height},{alt},{ext[1:]}}}\n')
 
     def depart_image(self, node: Element) -> None:
@@ -1280,7 +1281,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_system_message(self, node: Element) -> None:
         self.body.append(
-            '\n@verbatim\n' '<SYSTEM MESSAGE: %s>\n' '@end verbatim\n' % node.astext()
+            '\n@verbatim\n<SYSTEM MESSAGE: %s>\n@end verbatim\n' % node.astext()
         )
         raise nodes.SkipNode
 

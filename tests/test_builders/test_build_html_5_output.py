@@ -162,8 +162,7 @@ def tail_check(check: str) -> Callable[[Iterable[Element]], Literal[True]]:
         ),
         (
             'markup.html',
-            ".//a[@href='#with']"
-            "[@class='reference internal']/code/span[@class='pre']",
+            ".//a[@href='#with'][@class='reference internal']/code/span[@class='pre']",
             '^with$',
         ),
         (

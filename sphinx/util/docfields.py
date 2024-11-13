@@ -132,7 +132,7 @@ class Field:
         ]
 
     def make_entry(self, fieldarg: str, content: list[Node]) -> tuple[str, list[Node]]:
-        return (fieldarg, content)
+        return fieldarg, content
 
     def make_field(
         self,

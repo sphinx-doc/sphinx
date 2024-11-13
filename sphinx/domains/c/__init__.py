@@ -771,9 +771,10 @@ class CDomain(Domain):
                     ourObjects[fullname] = (fn, id_, objtype)
                 # no need to warn on duplicates, the symbol merge already does that
 
-    def _resolve_xref_inner(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                            typ: str, target: str, node: pending_xref,
-                            contnode: Element) -> tuple[Element | None, str | None]:
+    def _resolve_xref_inner(
+        self, env: BuildEnvironment, fromdocname: str, builder: Builder,
+        typ: str, target: str, node: pending_xref, contnode: Element
+    ) -> tuple[nodes.reference, str] | tuple[None, None]:
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
@@ -810,13 +811,13 @@ class CDomain(Domain):
 
     def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                      typ: str, target: str, node: pending_xref,
-                     contnode: Element) -> Element | None:
+                     contnode: Element) -> nodes.reference | None:
         return self._resolve_xref_inner(env, fromdocname, builder, typ,
                                         target, node, contnode)[0]
 
     def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
                          target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+                         ) -> list[tuple[str, nodes.reference]]:
         with logging.suppress_logging():
             retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
                                                         'any', target, node, contnode)
@@ -836,7 +837,7 @@ class CDomain(Domain):
             objectType = symbol.declaration.objectType
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
-            yield (name, dispname, objectType, docname, newestId, 1)
+            yield name, dispname, objectType, docname, newestId, 1
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
@@ -844,7 +845,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value("c_id_attributes", [], 'env', types={list, tuple})
     app.add_config_value("c_paren_attributes", [], 'env', types={list, tuple})
     app.add_config_value("c_extra_keywords", _macroKeywords, 'env', types={set, list})
-    app.add_config_value("c_maximum_signature_line_length", None, 'env', types={int, None})
+    app.add_config_value(
+        "c_maximum_signature_line_length", None, 'env', types={int, type(None)}
+    )
     app.add_post_transform(AliasTransform)
 
     return {

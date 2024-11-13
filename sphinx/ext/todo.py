@@ -97,7 +97,7 @@ class TodoDomain(Domain):
                     document: nodes.document) -> None:
         todos = self.todos.setdefault(docname, [])
         for todo in document.findall(todo_node):
-            env.app.emit('todo-defined', todo)
+            env.events.emit('todo-defined', todo)
             todos.append(todo)
 
             if env.config.todo_emit_warnings:

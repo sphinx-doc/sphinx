@@ -61,10 +61,12 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
    :event:`autodoc-process-docstring` and :event:`autodoc-process-signature`
    hooks as :mod:`~sphinx.ext.autodoc`.
 
-   **Options**
+   .. rubric:: Options
 
-   * If you want the :rst:dir:`autosummary` table to also serve as a
-     :rst:dir:`toctree` entry, use the ``toctree`` option, for example::
+   .. rst:directive:option:: toctree: optional directory name
+
+      If you want the :rst:dir:`autosummary` table to also serve as a
+      :rst:dir:`toctree` entry, use the ``toctree`` option, for example::
 
          .. autosummary::
             :toctree: DIRNAME
@@ -72,52 +74,54 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
             sphinx.environment.BuildEnvironment
             sphinx.util.relative_uri
 
-     The ``toctree`` option also signals to the :program:`sphinx-autogen` script
-     that stub pages should be generated for the entries listed in this
-     directive.  The option accepts a directory name as an argument;
-     :program:`sphinx-autogen` will by default place its output in this
-     directory. If no argument is given, output is placed in the same directory
-     as the file that contains the directive.
+      The ``toctree`` option also signals to the :program:`sphinx-autogen` script
+      that stub pages should be generated for the entries listed in this
+      directive.  The option accepts a directory name as an argument;
+      :program:`sphinx-autogen` will by default place its output in this
+      directory. If no argument is given, output is placed in the same directory
+      as the file that contains the directive.
 
-     You can also use ``caption`` option to give a caption to the toctree.
+      .. versionadded:: 0.6
 
-     .. versionadded:: 3.1
+   .. rst:directive:option:: caption: caption of ToC
 
-        caption option added.
+      Add a caption to the toctree.
 
-   * If you don't want the :rst:dir:`autosummary` to show function signatures in
-     the listing, include the ``nosignatures`` option::
+      .. versionadded:: 3.1
 
-         .. autosummary::
-            :nosignatures:
+   .. rst:directive:option:: nosignatures
 
-            sphinx.environment.BuildEnvironment
-            sphinx.util.relative_uri
+      Do not show function signatures in the summary.
 
-   * You can specify a custom template with the ``template`` option.
-     For example, ::
+      .. versionadded:: 0.6
+
+   .. rst:directive:option:: template: filename
+
+      Specify a custom template for rendering the summary.
+      For example, ::
 
          .. autosummary::
             :template: mytemplate.rst
 
             sphinx.environment.BuildEnvironment
 
-     would use the template :file:`mytemplate.rst` in your
-     :confval:`templates_path` to generate the pages for all entries
-     listed. See `Customizing templates`_ below.
+      would use the template :file:`mytemplate.rst` in your
+      :confval:`templates_path` to generate the pages for all entries
+      listed. See `Customizing templates`_ below.
 
-     .. versionadded:: 1.0
+      .. versionadded:: 1.0
 
-   * You can specify the ``recursive`` option to generate documents for
-     modules and sub-packages recursively.  It defaults to disabled.
-     For example, ::
+   .. rst:directive:option:: recursive
+
+      Generate documents for modules and sub-packages recursively.
+      For example, ::
 
          .. autosummary::
             :recursive:
 
             sphinx.environment.BuildEnvironment
 
-     .. versionadded:: 3.1
+      .. versionadded:: 3.1
 
 
 :program:`sphinx-autogen` -- generate autodoc stub pages
