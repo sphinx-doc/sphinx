@@ -95,6 +95,8 @@ package.
 
 .. automethod:: Sphinx.is_parallel_allowed
 
+.. automethod:: Sphinx.set_html_assets_policy
+
 .. exception:: ExtensionError
 
    All these methods raise this exception if something went wrong with the
