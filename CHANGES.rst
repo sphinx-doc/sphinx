@@ -12,6 +12,9 @@ Incompatible changes
 Deprecated
 ----------
 
+* #13037: Deprecate the ``SingleHTMLBuilder.fix_refuris`` method.
+  Patch by James Addison.
+
 Features added
 --------------
 
