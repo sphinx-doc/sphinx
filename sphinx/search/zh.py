@@ -18,19 +18,17 @@ except ImportError:
     JIEBA = False
     JIEBA_DEFAULT_DICT = Path()
 
-english_stopwords = set(
-    """
-a  and  are  as  at
-be  but  by
-for
-if  in  into  is  it
-near  no  not
-of  on  or
-such
-that  the  their  then  there  these  they  this  to
-was  will  with
-""".split()
-)
+english_stopwords = {
+    'a', 'and', 'are', 'as', 'at',
+    'be', 'but', 'by',
+    'for',
+    'if', 'in', 'into', 'is', 'it',
+    'near', 'no', 'not',
+    'of', 'on', 'or',
+    'such',
+    'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to',
+    'was', 'will', 'with',
+}  # fmt: skip
 
 js_porter_stemmer = """
 /**

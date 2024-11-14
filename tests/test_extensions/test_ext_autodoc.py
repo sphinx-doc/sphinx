@@ -216,7 +216,7 @@ def test_format_signature(app):
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
     assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
-    class ListSubclass(list):
+    class ListSubclass(list):  # NoQA: FURB189
         pass
 
     # only supported if the python implementation decides to document it
@@ -1527,7 +1527,7 @@ class _EnumFormatter:
         tab = ' ' * 3
 
         def rst_option(name: str, value: Any) -> str:
-            value = '' if value in {1, True} else value
+            value = '' if value == 1 else value  # note True == 1.
             return f'{prefix}{tab}:{name}: {value!s}'.rstrip()
 
         lines = [
