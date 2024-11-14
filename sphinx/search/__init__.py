@@ -164,12 +164,12 @@ class _JavaScriptIndex:
     on the documentation search object to register the index.
     """
 
-    PREFIX = 'Search.setIndex('
-    SUFFIX = ')'
+    PREFIX = "Search.setIndex('"
+    SUFFIX = "')"
 
     def dumps(self, data: Any) -> str:
         data_json = json.dumps(data, separators=(',', ':'), sort_keys=True)
-        return self.PREFIX + repr(data_json) + self.SUFFIX
+        return self.PREFIX + data_json + self.SUFFIX
 
     def loads(self, s: str) -> Any:
         data = s[len(self.PREFIX) : -len(self.SUFFIX)]
