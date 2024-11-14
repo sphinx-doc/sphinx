@@ -978,8 +978,8 @@ def test_ignore_redirection(app):
         'status': 'ignored',
         'filename': 'index.rst',
         'lineno': 1,
-        'uri': f'http://{address}/redirected',
-        'info': '',
+        'uri': f'http://{address}/',
+        'info': '/redirected',
     }
 
 
