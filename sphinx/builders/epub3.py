@@ -65,7 +65,7 @@ _xml_name_start_char = (
     '|[\ufdf0-\ufffd]|[\U00010000-\U000effff]'
 )
 _xml_name_char = (
-    _xml_name_start_char + r'\-|\.' '|[0-9]|\u00b7|[\u0300-\u036f]|[\u203f-\u2040]'
+    _xml_name_start_char + r'\-|\.|[0-9]|\u00b7|[\u0300-\u036f]|[\u203f-\u2040]'
 )
 _XML_NAME_PATTERN = re.compile(f'({_xml_name_start_char})({_xml_name_char})*')
 
