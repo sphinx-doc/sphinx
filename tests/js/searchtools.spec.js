@@ -219,12 +219,12 @@ describe('Basic html theme search', function() {
       hits = [
         [
           'index',
-          'Object.__proto__',
-          '#Object.__proto__',
-          'JavaScript attribute, in ECMAScript',
-          16,
+          'ECMAScript',
+          '',
+          null,
+          5,
           'index.rst',
-          'object'
+          'text'
         ]
       ];
       expect(Search._performSearch(...searchParameters)).toEqual(hits);
