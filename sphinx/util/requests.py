@@ -76,7 +76,9 @@ class _Session(requests.Session):
         return super().get_redirect_target(resp)
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self._ignored_redirects: list[re.Pattern[str]] = kwargs.pop('_ignored_redirects', [])
+        self._ignored_redirects: list[re.Pattern[str]] = kwargs.pop(
+            '_ignored_redirects', []
+        )
         super().__init__(*args, **kwargs)
 
     def request(  # type: ignore[override]
