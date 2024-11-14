@@ -394,7 +394,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.tls_cacerts = config.tls_cacerts
 
         self._session = requests._Session(
-            _to_ignore=list(map(re.compile, config.linkcheck_ignore))
+            _ignored_redirects=list(map(re.compile, config.linkcheck_ignore))
         )
 
         super().__init__(daemon=True)

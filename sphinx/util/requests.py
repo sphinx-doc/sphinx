@@ -68,7 +68,7 @@ class _Session(requests.Session):
         if resp.is_redirect:
             location = resp.headers['location']
             dest = urljoin(resp.url, location)
-            if any(pat.match(dest) for pat in self.to_ignore):
+            if any(pat.match(dest) for pat in self._ignored_redirects):
                 raise _IgnoredRedirection(
                     location=location,
                     status_code=resp.status_code,
@@ -76,7 +76,7 @@ class _Session(requests.Session):
         return super().get_redirect_target(resp)
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.to_ignore: list[re.Pattern[str]] = kwargs.pop('_to_ignore', [])
+        self._ignored_redirects: list[re.Pattern[str]] = kwargs.pop('_ignored_redirects', [])
         super().__init__(*args, **kwargs)
 
     def request(  # type: ignore[override]
