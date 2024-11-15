@@ -979,7 +979,7 @@ def test_ignore_redirection(app):
         'filename': 'index.rst',
         'lineno': 1,
         'uri': f'http://{address}/',
-        'info': '/redirected',
+        'info': f'http://{address}/redirected',
     }
 
 

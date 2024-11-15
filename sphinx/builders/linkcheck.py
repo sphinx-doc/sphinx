@@ -569,7 +569,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
 
             except requests._IgnoredRedirection as err:
                 # A redirection to an ignored URI was attempted, and has been ignored
-                return _Status.IGNORED, err.location, err.status_code
+                return _Status.IGNORED, err.destination, err.status_code
 
             except HTTPError as err:
                 error_message = str(err)

@@ -24,8 +24,8 @@ _USER_AGENT = (
 class _IgnoredRedirection(Exception):
     """Sphinx-internal exception raised when an HTTP redirect is ignored"""
 
-    def __init__(self, location: str, status_code: int) -> None:
-        self.location = location
+    def __init__(self, destination: str, status_code: int) -> None:
+        self.destination = destination
         self.status_code = status_code
 
 
@@ -67,10 +67,10 @@ class _Session(requests.Session):
         # do not follow redirections that match ignored URI patterns
         if resp.is_redirect:
             location = resp.headers['location']
-            dest = urljoin(resp.url, location)
-            if any(pat.match(dest) for pat in self._ignored_redirects):
+            destination = urljoin(resp.url, location)
+            if any(pat.match(destination) for pat in self._ignored_redirects):
                 raise _IgnoredRedirection(
-                    location=location,
+                    destination=destination,
                     status_code=resp.status_code,
                 )
         return super().get_redirect_target(resp)
