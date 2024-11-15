@@ -685,7 +685,10 @@ class Documenter:
                 for cls in self.object.__mro__:
                     if name in cls.__dict__:
                         seen_in.add(cls)
-                    if cls.__name__ in inherited_members and cls != self.object and any(issubclass(potential_child, cls) for potential_child in seen_in):
+                    if (cls.__name__ in inherited_members and
+                            cls != self.object and
+                            any(issubclass(potential_child, cls) for
+                                potential_child in seen_in)):
                         # given member is a member of specified *super class*
                         return True
                     if name in cls.__dict__:
