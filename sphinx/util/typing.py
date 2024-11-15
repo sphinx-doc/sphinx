@@ -126,7 +126,7 @@ if TYPE_CHECKING:
 
     _T_co = TypeVar('_T_co', str, bytes, covariant=True)
 
-    class _ReadableStream(Protocol[_T_co]):
+    class _ReadableStream(Protocol[_T_co]):  # NoQA: PYI046 (false positive)
         def read(self, size: int = ...) -> _T_co: ...  # NoQA: E704
 
         def __enter__(self) -> Self: ...  # NoQA: E704
@@ -170,7 +170,7 @@ class ExtensionMetadata(TypedDict, total=False):
 
 
 if TYPE_CHECKING:
-    _ExtensionSetupFunc: TypeAlias = Callable[[Sphinx], ExtensionMetadata]
+    _ExtensionSetupFunc: TypeAlias = Callable[[Sphinx], ExtensionMetadata]  # NoQA: PYI047 (false positive)
 
 
 def get_type_hints(

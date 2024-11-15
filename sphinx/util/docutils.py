@@ -30,7 +30,7 @@ report_re = re.compile(
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator  # NoQA: TCH003
-    from types import ModuleType
+    from types import ModuleType, TracebackType
 
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
@@ -212,7 +212,10 @@ class CustomReSTDispatcher:
         self.enable()
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.disable()
 

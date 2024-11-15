@@ -32,15 +32,15 @@ if TYPE_CHECKING:
     from typing_extensions import TypeIs
 
     class _SupportsGet(Protocol):
-        def __get__(self, __instance: Any, __owner: type | None = ...) -> Any: ...  # NoQA: E704
+        def __get__(self, instance: Any, owner: type | None = ..., /) -> Any: ...  # NoQA: E704
 
     class _SupportsSet(Protocol):
         # instance and value are contravariants but we do not need that precision
-        def __set__(self, __instance: Any, __value: Any) -> None: ...  # NoQA: E704
+        def __set__(self, instance: Any, value: Any, /) -> None: ...  # NoQA: E704
 
     class _SupportsDelete(Protocol):
         # instance is contravariant but we do not need that precision
-        def __delete__(self, __instance: Any) -> None: ...  # NoQA: E704
+        def __delete__(self, instance: Any, /) -> None: ...  # NoQA: E704
 
     _RoutineType: TypeAlias = (
         types.FunctionType
@@ -543,7 +543,7 @@ class TypeAliasForwardRef:
         # Dummy method to imitate special typing classes
         pass
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return self.name == other
 
     def __hash__(self) -> int:

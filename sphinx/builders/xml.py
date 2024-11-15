@@ -40,7 +40,7 @@ class XMLBuilder(Builder):
     out_suffix = '.xml'
     allow_parallel = True
 
-    _writer_class: type[XMLWriter] | type[PseudoXMLWriter] = XMLWriter
+    _writer_class: type[XMLWriter | PseudoXMLWriter] = XMLWriter
     writer: XMLWriter | PseudoXMLWriter
     default_translator_class = XMLTranslator
 
