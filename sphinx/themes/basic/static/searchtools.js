@@ -219,8 +219,7 @@ const Search = {
     (document.body.appendChild(document.createElement("script")).src = url),
 
   setIndex: (index) => {
-    const reviver = (k, v) => (typeof v === "object" && v !== null) ? Object.freeze(v) : v;
-    Search._index = JSON.parse(index, reviver);
+    Search._index = JSON.parse(index);
     if (Search._queued_query !== null) {
       const query = Search._queued_query;
       Search._queued_query = null;
