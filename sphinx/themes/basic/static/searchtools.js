@@ -219,7 +219,7 @@ const Search = {
     (document.body.appendChild(document.createElement("script")).src = url),
 
   setIndex: (index) => {
-    Search._index = JSON.parse(index);
+    Search._index = index;
     if (Search._queued_query !== null) {
       const query = Search._queued_query;
       Search._queued_query = null;
@@ -333,7 +333,7 @@ const Search = {
     _removeChildren(document.getElementById("search-progress"));
 
     const queryLower = query.toLowerCase().trim();
-    for (const [title, foundTitles] of Object.entries(allTitles)) {
+    for (const [title, foundTitles] of allTitles) {
       if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
           const score = Math.round(Scorer.title * queryLower.length / title.length);
@@ -352,7 +352,7 @@ const Search = {
     }
 
     // search for explicit entries in index directives
-    for (const [entry, foundEntries] of Object.entries(indexEntries)) {
+    for (const [entry, foundEntries] of indexEntries) {
       if (entry.includes(queryLower) && (queryLower.length >= entry.length/2)) {
         for (const [file, id, isMain] of foundEntries) {
           const score = Math.round(100 * queryLower.length / entry.length);
@@ -452,7 +452,7 @@ const Search = {
       else if (parts.slice(-1)[0].indexOf(object) > -1)
         score += Scorer.objPartialMatch; // matches in last name
 
-      const objName = objNames[match[1]][2];
+      const objName = objNames.get(match[1])[2];
       const title = titles[match[0]];
 
       // If more than one term searched for, we require other words to be
@@ -469,7 +469,7 @@ const Search = {
 
       let anchor = match[3];
       if (anchor === "") anchor = fullname;
-      else if (anchor === "-") anchor = objNames[match[1]][1] + "-" + fullname;
+      else if (anchor === "-") anchor = objNames.get(match[1])[1] + "-" + fullname;
 
       const descr = objName + _(", in ") + title;
 
@@ -488,11 +488,7 @@ const Search = {
         SearchResultKind.object,
       ]);
     };
-    Object.keys(objects).forEach((prefix) =>
-      objects[prefix].forEach((array) =>
-        objectSearchCallback(prefix, array)
-      )
-    );
+    for (const [prefix, [array]] of objects) objectSearchCallback(prefix, array);
     return results;
   },
 
@@ -514,25 +510,24 @@ const Search = {
     searchTerms.forEach((word) => {
       const files = [];
       // find documents, if any, containing the query word in their text/title term indices
-      // use Object.hasOwnProperty to avoid mismatching against prototype properties
       const arr = [
-        { files: terms.hasOwnProperty(word) ? terms[word] : undefined, score: Scorer.term },
-        { files: titleTerms.hasOwnProperty(word) ? titleTerms[word] : undefined, score: Scorer.title },
+        { files: terms.get(word), score: Scorer.term },
+        { files: titleTerms.get(word), score: Scorer.title },
       ];
       // add support for partial matches
       if (word.length > 2) {
         const escapedWord = _escapeRegExp(word);
-        if (!terms.hasOwnProperty(word)) {
-          Object.keys(terms).forEach((term) => {
+        if (!terms.has(word)) {
+          for (const [term, files] of terms) {
             if (term.match(escapedWord))
-              arr.push({ files: terms[term], score: Scorer.partialTerm });
-          });
+              arr.push({ files: files, score: Scorer.partialTerm });
+          }
         }
-        if (!titleTerms.hasOwnProperty(word)) {
-          Object.keys(titleTerms).forEach((term) => {
+        if (!titleTerms.has(word)) {
+          for (const [term, files] of titleTerms) {
             if (term.match(escapedWord))
-              arr.push({ files: titleTerms[term], score: Scorer.partialTitle });
-          });
+              arr.push({ files: files, score: Scorer.partialTitle });
+          }
         }
       }
 
@@ -581,10 +576,10 @@ const Search = {
       if (
         [...excludedTerms].some(
           (term) =>
-            terms[term] === file ||
-            titleTerms[term] === file ||
-            (terms[term] || []).includes(file) ||
-            (titleTerms[term] || []).includes(file)
+            terms.get(term) === file ||
+            titleTerms.get(term) === file ||
+            (terms.get(term) || []).includes(file) ||
+            (titleTerms.get(term) || []).includes(file)
         )
       )
         break;

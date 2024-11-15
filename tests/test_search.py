@@ -67,7 +67,7 @@ def load_searchindex(path: Path) -> Any:
     assert searchindex.startswith('Search.setIndex(')
     assert searchindex.endswith(')')
 
-    return json.loads(searchindex[17:-2])
+    return json.loads(searchindex[16:-1])
 
 
 def is_registered_term(index: Any, keyword: str) -> bool:

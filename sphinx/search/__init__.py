@@ -164,12 +164,19 @@ class _JavaScriptIndex:
     on the documentation search object to register the index.
     """
 
-    PREFIX = "Search.setIndex('"
-    SUFFIX = "')"
+    PREFIX = 'Search.setIndex('
+    SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        data_json = json.dumps(data, separators=(',', ':'), sort_keys=True)
-        return self.PREFIX + data_json + self.SUFFIX
+        assert all(k.isidentifier() for k in data)
+        js_indices = {
+            key: f'new Map({json.dumps([[key, value] for key, value in index.items()])})'
+            if isinstance(index, dict)
+            else json.dumps(index)
+            for key, index in sorted(data.items())
+        }
+        data_js = '{' + ','.join(f'{k}: {v}' for k, v in js_indices.items()) + '}'
+        return self.PREFIX + data_js + self.SUFFIX
 
     def loads(self, s: str) -> Any:
         data = s[len(self.PREFIX) : -len(self.SUFFIX)]
