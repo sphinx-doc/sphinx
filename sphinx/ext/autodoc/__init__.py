@@ -679,10 +679,13 @@ class Documenter:
         """
         def is_filtered_inherited_member(name: str, obj: Any) -> bool:
             inherited_members = self.options.inherited_members or set()
+            seen_in = set()
 
             if inspect.isclass(self.object):
                 for cls in self.object.__mro__:
-                    if cls.__name__ in inherited_members and cls != self.object:
+                    if name in cls.__dict__:
+                        seen_in.add(cls)
+                    if cls.__name__ in inherited_members and cls != self.object and any(issubclass(potential_child, cls) for potential_child in seen_in):
                         # given member is a member of specified *super class*
                         return True
                     if name in cls.__dict__:
