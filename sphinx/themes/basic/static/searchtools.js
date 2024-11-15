@@ -488,7 +488,9 @@ const Search = {
         SearchResultKind.object,
       ]);
     };
-    for (const [prefix, [array]] of objects) objectSearchCallback(prefix, array);
+    for (const [prefix, arrays] of objects) {
+      arrays.forEach((array) => objectSearchCallback(prefix, array));
+    }
     return results;
   },
 
