@@ -169,13 +169,14 @@ class _JavaScriptIndex:
 
     def dumps(self, data: Any) -> str:
         assert all(k.isidentifier() for k in data)
+        json_dump = lambda data: json.dumps(data, separators=(',', ':'))
         js_indices = {
-            name: f'new Map({json.dumps(sorted(entries.items()))})'
+            name: f'new Map({json_dump(sorted(entries.items()))})'
             if isinstance(entries, dict)
-            else json.dumps(entries)
+            else json_dump(entries)
             for name, entries in sorted(data.items())
         }
-        data_js = '{' + ','.join(f'{k}: {v}' for k, v in js_indices.items()) + '}'
+        data_js = '{' + ','.join(f'{k}:{v}' for k, v in js_indices.items()) + '}'
         return self.PREFIX + data_js + self.SUFFIX
 
     def loads(self, s: str) -> Any:
