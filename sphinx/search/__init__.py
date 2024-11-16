@@ -170,10 +170,10 @@ class _JavaScriptIndex:
     def dumps(self, data: Any) -> str:
         assert all(k.isidentifier() for k in data)
         js_indices = {
-            key: f'new Map({json.dumps(sorted(index.items()))})'
-            if isinstance(index, dict)
-            else json.dumps(index)
-            for key, index in sorted(data.items())
+            name: f'new Map({json.dumps(sorted(entries.items()))})'
+            if isinstance(entries, dict)
+            else json.dumps(entries)
+            for name, entries in sorted(data.items())
         }
         data_js = '{' + ','.join(f'{k}: {v}' for k, v in js_indices.items()) + '}'
         return self.PREFIX + data_js + self.SUFFIX
