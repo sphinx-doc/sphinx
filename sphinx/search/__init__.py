@@ -168,7 +168,9 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        json_dump = lambda data: json.dumps(data, separators=(',', ':'))
+        def json_dump(data: str | tuple | list) -> str:
+            return json.dumps(data, separators=(',', ':'))
+
         js_indices = {
             json_dump(name): f'new Map({json_dump(sorted(entries.items()))})'
             if isinstance(entries, dict)
