@@ -162,8 +162,8 @@ def test_term_in_heading_and_section(app):
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert '"textinhead":2' in searchindex
-    assert '"textinhead":0' in searchindex
+    assert '["textinhead",2]' in searchindex
+    assert '["textinhead",0]' in searchindex
 
 
 @pytest.mark.sphinx('html', testroot='search')
