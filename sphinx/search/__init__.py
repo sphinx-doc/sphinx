@@ -168,7 +168,6 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        assert all(k.isidentifier() for k in data)
         json_dump = lambda data: json.dumps(data, separators=(',', ':'))
         js_indices = {
             json_dump(name): f'new Map({json_dump(sorted(entries.items()))})'
