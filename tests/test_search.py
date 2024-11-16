@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import warnings
 from io import BytesIO
@@ -67,7 +68,16 @@ def load_searchindex(path: Path) -> Any:
     assert searchindex.startswith('Search.setIndex(')
     assert searchindex.endswith(')')
 
-    return json.loads(searchindex[16:-1])
+    indices = ast.literal_eval(
+        searchindex[16:-1]
+        .replace('new Map', '')
+        .replace('null', 'None')
+        .replace('false', 'False')
+    )
+    return {
+        name: dict(entries) if entries and isinstance(entries[0], list) else entries
+        for name, entries in indices.items()
+    }
 
 
 def is_registered_term(index: Any, keyword: str) -> bool:
