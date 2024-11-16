@@ -28,6 +28,8 @@ jobs:
       id-token: write  # for PyPI trusted publishing
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -97,7 +99,7 @@ jobs:
               headers: {Authorization: `bearer ${oidc_request_token}`},
             });
             const oidc_token = (await oidc_resp.json()).value;
-  
+
             // exchange the OIDC token for an API token
             const mint_resp = await fetch('https://pypi.org/_/oidc/github/mint-token', {
               method: 'post',
@@ -127,6 +129,8 @@ jobs:
       contents: write  # for softprops/action-gh-release to create GitHub release
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Get release version
         id: get_version
         uses: actions/github-script@v7
