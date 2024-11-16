@@ -171,7 +171,7 @@ class _JavaScriptIndex:
         assert all(k.isidentifier() for k in data)
         json_dump = lambda data: json.dumps(data, separators=(',', ':'))
         js_indices = {
-            name: f'new Map({json_dump(sorted(entries.items()))})'
+            json_dump(name): f'new Map({json_dump(sorted(entries.items()))})'
             if isinstance(entries, dict)
             else json_dump(entries)
             for name, entries in sorted(data.items())
