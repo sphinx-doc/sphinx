@@ -64,11 +64,15 @@ jobs:
           show-summary: "true"
 
       - name: Convert attestations to PEP 740
-        # workflow_ref example: sphinx-doc/sphinx/.github/workflows/create-release.yml@refs/heads/master
         run: >
           python utils/convert_attestations.py
-          "${{ steps.attest.outputs.bundle-path }}"
-          "https://github.com/${{ github.workflow_ref }}"
+          "$BUNDLE_PATH"
+          "$SIGNER_IDENTITY"
+        env:
+          BUNDLE_PATH: "${{ steps.attest.outputs.bundle-path }}"
+          # workflow_ref example: sphinx-doc/sphinx/.github/workflows/create-release.yml@refs/heads/master
+          # this forms the "signer identity" for the attestations
+          SIGNER_IDENTITY: "https://github.com/${{ github.workflow_ref }}"
 
       - name: Inspect PEP 740 attestations
         run: |
@@ -77,8 +81,10 @@ jobs:
       - name: Prepare attestation bundles for uploading
         run: |
           mkdir -p /tmp/attestation-bundles
-          cp "${{ steps.attest.outputs.bundle-path }}" /tmp/attestation-bundles/
+          cp "$BUNDLE_PATH" /tmp/attestation-bundles/
           cp dist/*.publish.attestation /tmp/attestation-bundles/
+        env:
+          BUNDLE_PATH: "${{ steps.attest.outputs.bundle-path }}"
 
       - name: Upload attestation bundles
         uses: actions/upload-artifact@v4
