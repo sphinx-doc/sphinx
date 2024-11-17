@@ -46,8 +46,8 @@ jobs:
                 core.debug(`Locking #${thread_num} (${thread_type})`);
                 // https://octokit.github.io/rest.js/v21/#issues-lock
                 await github.rest.issues.lock({
-                  OWNER,
-                  REPO,
+                  owner: OWNER,
+                  repo: REPO,
                   issue_number: thread_num,
                   lock_reason: "resolved",
                 });
