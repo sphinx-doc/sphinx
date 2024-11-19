@@ -224,6 +224,7 @@ class Autosummary(SphinxDirective):
     has_content = True
     option_spec: ClassVar[OptionSpec] = {
         'caption': directives.unchanged_required,
+        'class': directives.class_option,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
         'recursive': directives.flag,
@@ -397,7 +398,8 @@ class Autosummary(SphinxDirective):
         table_spec['spec'] = r'\X{1}{2}\X{1}{2}'
 
         table = autosummary_table('')
-        real_table = nodes.table('', classes=['autosummary longtable'])
+        real_table = nodes.table(
+            '', classes=['autosummary', 'longtable', *self.options.get('class', ())])
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
