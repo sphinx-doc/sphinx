@@ -568,7 +568,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 continue
 
             except requests._IgnoredRedirection as err:
-                # A redirection to an ignored URI was attempted, and has been ignored
+                # A redirection to an ignored URI was attempted; report it appropriately
                 return _Status.IGNORED, err.destination, err.status_code
 
             except HTTPError as err:
