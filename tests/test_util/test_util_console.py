@@ -10,9 +10,7 @@ from sphinx.util.console import blue, reset, strip_colors, strip_escape_sequence
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Final, TypeVar
-
-    _T = TypeVar('_T')
+    from typing import Final
 
 CURSOR_UP: Final[str] = '\x1b[2A'  # ignored ANSI code
 ERASE_LINE: Final[str] = '\x1b[2K'  # supported ANSI code

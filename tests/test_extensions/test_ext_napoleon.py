@@ -77,7 +77,7 @@ class SampleError(Exception):
         pass
 
 
-SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')
+SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')  # NoQA: PYI024
 
 
 class TestProcessDocstring:
