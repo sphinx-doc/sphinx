@@ -66,8 +66,7 @@ class _Session(requests.Session):
         """Overrides the default requests.Session.get_redirect_target"""
         # do not follow redirections that match ignored URI patterns
         if resp.is_redirect:
-            location = resp.headers['location']
-            destination = urljoin(resp.url, location)
+            destination = urljoin(resp.url, resp.headers['location'])
             if any(pat.match(destination) for pat in self._ignored_redirects):
                 raise _IgnoredRedirection(
                     destination=destination,
