@@ -17,7 +17,7 @@ from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import (
     GoogleDocstring,
     NumpyDocstring,
-    _convert_numpy_type_spec,
+    _convert_type_spec,
     _recombine_set_tokens,
     _token_type,
     _tokenize_type_spec,
@@ -1332,7 +1332,7 @@ Do as you please
         expected = """\
 Do as you please
 
-:Yields: :py:class:`str` -- Extended
+:Yields: :class:`str` -- Extended
 """
         assert str(actual) == expected
 
@@ -2677,7 +2677,7 @@ definition_after_normal_text : int
         )
 
         for spec, expected in zip(specs, converted, strict=True):
-            actual = _convert_numpy_type_spec(spec, translations=translations)
+            actual = _convert_type_spec(spec, translations=translations)
             assert actual == expected
 
     def test_parameter_types(self):

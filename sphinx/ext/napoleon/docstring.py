@@ -154,7 +154,7 @@ def _tokenize_type_spec(spec: str) -> list[str]:
     return tokens
 
 
-def _token_type(token: str, location: str | None = None) -> str:
+def _token_type(token: str, debug_location: str | None = None) -> str:
     def is_numeric(token: str) -> bool:
         try:
             # use complex to make sure every numeric value is detected as literal
@@ -177,28 +177,28 @@ def _token_type(token: str, location: str | None = None) -> str:
         logger.warning(
             __('invalid value set (missing closing brace): %s'),
             token,
-            location=location,
+            location=debug_location,
         )
         type_ = 'literal'
     elif token.endswith('}'):
         logger.warning(
             __('invalid value set (missing opening brace): %s'),
             token,
-            location=location,
+            location=debug_location,
         )
         type_ = 'literal'
     elif token.startswith(("'", '"')):
         logger.warning(
             __('malformed string literal (missing closing quote): %s'),
             token,
-            location=location,
+            location=debug_location,
         )
         type_ = 'literal'
     elif token.endswith(("'", '"')):
         logger.warning(
             __('malformed string literal (missing opening quote): %s'),
             token,
-            location=location,
+            location=debug_location,
         )
         type_ = 'literal'
     elif token in {'optional', 'default'}:
@@ -213,10 +213,10 @@ def _token_type(token: str, location: str | None = None) -> str:
     return type_
 
 
-def _convert_numpy_type_spec(
+def _convert_type_spec(
     _type: str,
-    location: str | None = None,
     translations: dict[str, str] | None = None,
+    debug_location: str | None = None,
 ) -> str:
     if translations is None:
         translations = {}
@@ -240,7 +240,7 @@ def _convert_numpy_type_spec(
 
     tokens = _tokenize_type_spec(_type)
     combined_tokens = _recombine_set_tokens(tokens)
-    types = [(token, _token_type(token, location)) for token in combined_tokens]
+    types = [(token, _token_type(token, debug_location)) for token in combined_tokens]
 
     converters = {
         'literal': lambda x: '``%s``' % x,
@@ -256,15 +256,6 @@ def _convert_numpy_type_spec(
     )
 
     return converted
-
-
-def _convert_type_spec(_type: str, translations: dict[str, str] | None = None) -> str:
-    """Convert type specification to reference in reST."""
-    if translations is not None and _type in translations:
-        return translations[_type]
-    if _type == 'None':
-        return ':py:obj:`None`'
-    return f':py:class:`{_type}`'
 
 
 class GoogleDocstring:
@@ -433,6 +424,20 @@ class GoogleDocstring:
         """
         return '\n'.join(self.lines())
 
+    def _get_location(self) -> str | None:
+        try:
+            filepath = inspect.getfile(self._obj) if self._obj is not None else None
+        except TypeError:
+            filepath = None
+        name = self._name
+
+        if filepath is None and name is None:
+            return None
+        elif filepath is None:
+            filepath = ''
+
+        return f'{filepath}:docstring of {name}'
+
     def lines(self) -> list[str]:
         """Return the parsed lines of the docstring in reStructuredText format.
 
@@ -490,7 +495,11 @@ class GoogleDocstring:
             _type, _name = _name, _type
 
         if _type and self._config.napoleon_preprocess_types:
-            _type = _convert_type_spec(_type, self._config.napoleon_type_aliases or {})
+            _type = _convert_type_spec(
+                _type,
+                translations=self._config.napoleon_type_aliases or {},
+                debug_location=self._get_location(),
+            )
 
         indent = self._get_indent(line) + 1
         _descs = [_desc, *self._dedent(self._consume_indented_block(indent))]
@@ -538,7 +547,9 @@ class GoogleDocstring:
 
             if _type and preprocess_types and self._config.napoleon_preprocess_types:
                 _type = _convert_type_spec(
-                    _type, self._config.napoleon_type_aliases or {}
+                    _type,
+                    translations=self._config.napoleon_type_aliases or {},
+                    debug_location=self._get_location(),
                 )
 
             _desc = self.__class__(_desc, self._config).lines()
@@ -1202,20 +1213,6 @@ class NumpyDocstring(GoogleDocstring):
         self._directive_sections = ['.. index::']
         super().__init__(docstring, config, app, what, name, obj, options)
 
-    def _get_location(self) -> str | None:
-        try:
-            filepath = inspect.getfile(self._obj) if self._obj is not None else None
-        except TypeError:
-            filepath = None
-        name = self._name
-
-        if filepath is None and name is None:
-            return None
-        elif filepath is None:
-            filepath = ''
-
-        return f'{filepath}:docstring of {name}'
-
     def _escape_args_and_kwargs(self, name: str) -> str:
         func = super()._escape_args_and_kwargs
 
@@ -1242,10 +1239,10 @@ class NumpyDocstring(GoogleDocstring):
             _type, _name = _name, _type
 
         if self._config.napoleon_preprocess_types:
-            _type = _convert_numpy_type_spec(
+            _type = _convert_type_spec(
                 _type,
-                location=self._get_location(),
                 translations=self._config.napoleon_type_aliases or {},
+                debug_location=self._get_location(),
             )
 
         indent = self._get_indent(line) + 1
