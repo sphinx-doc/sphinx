@@ -292,7 +292,7 @@ select = [
 [lint.per-file-ignores]
 "doc/*" = [
     "ANN",  # documentation doesn't need annotations
-    "TCH001",  # documentation doesn't need type-checking blocks
+    "TC001",  # documentation doesn't need type-checking blocks
 ]
 "doc/conf.py" = ["INP001", "W605"]
 "doc/development/tutorials/examples/*" = ["INP001"]
