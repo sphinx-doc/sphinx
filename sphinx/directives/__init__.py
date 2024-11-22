@@ -296,7 +296,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             'object-description-transform', self.domain, self.objtype, content_node
         )
         DocFieldTransformer(self).transform_all(content_node)
-        self.env.temp_data['object'] = None
+        self.env.temp_data['object'] = ''
         self.after_content()
 
         if node['no-typesetting']:
