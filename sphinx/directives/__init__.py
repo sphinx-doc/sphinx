@@ -9,11 +9,11 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature  # NoQA: TCH001
+from sphinx.addnodes import desc_signature  # NoQA: TC001
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TCH001
+from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TC001
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
@@ -296,7 +296,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             'object-description-transform', self.domain, self.objtype, content_node
         )
         DocFieldTransformer(self).transform_all(content_node)
-        self.env.current_document.obj_desc_name = ''
+        self.env.temp_data['object'] = None
         self.after_content()
 
         if node['no-typesetting']:

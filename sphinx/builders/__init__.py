@@ -86,7 +86,7 @@ class Builder:
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
-    #: Whether it is safe to make parallel :meth:`~.Builder.write_doc()` calls.
+    #: Whether it is safe to make parallel :meth:`~.Builder.write_doc` calls.
     allow_parallel: bool = False
     # support translation
     use_message_catalog = True
