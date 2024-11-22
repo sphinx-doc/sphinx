@@ -192,7 +192,7 @@ class BuildEnvironment:
         self.original_image_uri: dict[_StrPath, str] = {}
 
         # temporary data storage while reading a document
-        self.current_document: CurrentDocument = CurrentDocument()
+        self.current_document: _CurrentDocument = _CurrentDocument()
         # context for cross-references (e.g. current module or class)
         # this is similar to ``self.current_document``,
         # but will for example be copied to attributes of "any" cross references
@@ -560,7 +560,7 @@ class BuildEnvironment:
 
     def prepare_settings(self, docname: str) -> None:
         """Prepare to set up environment for reading."""
-        self.current_document = CurrentDocument(
+        self.current_document = _CurrentDocument(
             docname=docname,
             # defaults to the global default, but can be re-set in a document
             default_role=self.config.default_role,
@@ -570,7 +570,7 @@ class BuildEnvironment:
     # utilities to use while reading a document
 
     @property
-    def temp_data(self) -> CurrentDocument:
+    def temp_data(self) -> _CurrentDocument:
         """Returns the temporary data storage for the current document.
 
         Kept for backwards compatibility.
@@ -862,7 +862,7 @@ def _check_toc_parents(toctree_includes: dict[str, list[str]]) -> None:
             )
 
 
-class CurrentDocument:
+class _CurrentDocument:
     """Temporary data storage while reading a document."""
 
     __slots__ = (
@@ -1036,4 +1036,4 @@ class CurrentDocument:
         return self._ext_props.setdefault(key, default)
 
     def clear(self) -> None:
-        CurrentDocument.__init__(self)  # NoQA: PLC2801
+        _CurrentDocument.__init__(self)  # NoQA: PLC2801

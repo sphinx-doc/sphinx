@@ -17,7 +17,7 @@ from sphinx.environment import (
     CONFIG_CHANGED_REASON,
     CONFIG_OK,
     BuildEnvironment,
-    CurrentDocument,
+    _CurrentDocument,
 )
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
@@ -640,7 +640,7 @@ class Builder:
         self.env.all_docs[docname] = time.time_ns() // 1_000
 
         # cleanup
-        self.env.current_document = CurrentDocument()
+        self.env.current_document = _CurrentDocument()
         self.env.ref_context.clear()
 
         self.write_doctree(docname, doctree, _cache=_cache)
