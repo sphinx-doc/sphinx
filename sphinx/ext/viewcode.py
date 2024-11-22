@@ -65,8 +65,8 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
         return getattr(value, '__module__', None)
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
-        # then AttributeError logging output only verbose mode.
-        logger.verbose("Didn't find %s in %s", attribute, modname)
+        # then AttributeError logging output only debug mode.
+        logger.debug("Didn't find %s in %s", attribute, modname)
         return None
     except Exception as e:
         # sphinx.ext.viewcode follow python domain directives.
