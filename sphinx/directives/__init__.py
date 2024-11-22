@@ -282,7 +282,11 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
 
         if self.names:
             # needed for association of version{added,changed} directives
-            self.env.temp_data['object'] = self.names[0]
+            object_name: ObjDescT = self.names[0]
+            if isinstance(object_name, tuple):
+                self.env.temp_data['object'] = str(object_name[0])
+            else:
+                self.env.temp_data['object'] = str(object_name)
         self.before_content()
         content_children = self.parse_content_to_nodes(allow_section_headings=True)
         content_node = addnodes.desc_content('', *content_children)
