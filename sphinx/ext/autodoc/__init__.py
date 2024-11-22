@@ -1184,14 +1184,13 @@ class ClassLevelDocumenter(Documenter):
             # if documenting a class-level object without path,
             # there must be a current class, either from a parent
             # auto directive ...
-            mod_cls_ = self.env.current_document.autodoc_class
+            mod_cls = self.env.current_document.autodoc_class
             # ... or from a class directive
-            if not mod_cls_:
-                mod_cls_ = self.env.ref_context.get('py:class')
-                # ... if still None, there's no way to know
-                if mod_cls_ is None:
+            if not mod_cls:
+                mod_cls = self.env.ref_context.get('py:class', '')
+                # ... if still falsy, there's no way to know
+                if not mod_cls:
                     return None, []
-            mod_cls = mod_cls_
         modname, sep, cls = mod_cls.rpartition('.')
         parents = [cls]
         # if the module name is still missing, get it like above
