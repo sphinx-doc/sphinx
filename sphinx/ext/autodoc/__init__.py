@@ -1186,7 +1186,7 @@ class ClassLevelDocumenter(Documenter):
             # auto directive ...
             mod_cls_ = self.env.current_document.autodoc_class
             # ... or from a class directive
-            if mod_cls_ is None:
+            if not mod_cls_:
                 mod_cls_ = self.env.ref_context.get('py:class')
                 # ... if still None, there's no way to know
                 if mod_cls_ is None:
