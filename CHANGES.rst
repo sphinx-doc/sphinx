@@ -23,6 +23,8 @@ Bugs fixed
 
 * #13060: HTML Search: use ``Map`` to store per-file term scores.
   Patch by James Addison
+* Handle multiple inheritance correctly in autodoc
+  Patch by Pavel Holica
 
 Testing
 -------

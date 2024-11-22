@@ -14,7 +14,12 @@ class Base:
         """Inherited static method."""
 
 
-class Derived(Base):
+class AnotherBase:
+    #: docstring
+    def another_inheritedmeth(self):
+        """Another inherited function."""
+
+class Derived(Base, AnotherBase):
     def inheritedmeth(self):
         # no docstring here
         pass
