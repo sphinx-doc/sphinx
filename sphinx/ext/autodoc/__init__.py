@@ -821,7 +821,7 @@ class Documenter:
         *self.options.members*.
         """
         # set current namespace for finding members
-        self.env.current_document.autodoc_class = self.modname
+        self.env.current_document.autodoc_module = self.modname
         if self.objpath:
             self.env.current_document.autodoc_class = self.objpath[0]
 

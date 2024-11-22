@@ -915,7 +915,12 @@ class _CurrentDocument:
         #: Maps object names to maps of attribute names -> type hints.
         self.autodoc_annotations: dict[str, dict[str, str]] = {}
 
+        #: The current Python class name.
+        #: Used in ``sphinx.ext.autodoc``.
         self.autodoc_class: str = ''
+
+        #: The current Python module name.
+        #: Used in ``sphinx.ext.autodoc``.
         self.autodoc_module: str = ''
 
         #: Records the time when reading begain for the current document.
