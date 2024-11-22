@@ -17,6 +17,7 @@ Deprecated
 
 Features added
 --------------
+
 * #13144: Add a ``class`` option to the :rst:dir:`autosummary` directive.
   Patch by Tim Hoffmann.
 
