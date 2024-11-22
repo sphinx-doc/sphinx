@@ -68,6 +68,9 @@ class ASTIdentifier(ASTBaseBase):
     def get_display_string(self) -> str:
         return "[anonymous]" if self.is_anonymous else self.name
 
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return transform(self.get_display_string())
+
     def describe_signature(self, signode: TextElement, mode: str, env: BuildEnvironment,
                            prefix: str, symbol: Symbol) -> None:
         # note: slightly different signature of describe_signature due to the prefix
