@@ -190,7 +190,7 @@ def test_env_relfn2path(app):
 
     # omit docname (w/o current docname)
     app.env.temp_data.clear()
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError, match=r"^'docname'$"):
         app.env.relfn2path('images/logo.jpg')
 
 
