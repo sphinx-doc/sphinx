@@ -1,5 +1,7 @@
 """Test sphinx.ext.inheritance_diagram extension."""
 
+from __future__ import annotations
+
 import re
 import sys
 import zlib

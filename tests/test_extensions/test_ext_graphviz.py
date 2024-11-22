@@ -1,5 +1,7 @@
 """Test sphinx.ext.graphviz extension."""
 
+from __future__ import annotations
+
 import re
 import sys
 

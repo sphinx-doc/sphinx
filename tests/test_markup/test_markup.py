@@ -1,5 +1,7 @@
 """Test various Sphinx-specific markup extensions."""
 
+from __future__ import annotations
+
 import re
 import warnings
 from types import SimpleNamespace

@@ -295,7 +295,7 @@ select = [
     "TC001",  # documentation doesn't need type-checking blocks
 ]
 "doc/conf.py" = ["INP001", "W605"]
-"doc/development/tutorials/examples/*" = ["INP001"]
+"doc/development/tutorials/examples/*" = ["I002", "INP001"]
 # allow print() in the tutorial
 "doc/development/tutorials/examples/recipe.py" = [
     "FURB118",
@@ -360,7 +360,7 @@ select = [
 
 # these tests need old ``typing`` generic aliases
 "tests/test_util/test_util_typing.py" = ["UP006", "UP007", "UP035"]
-"tests/test_util/typing_test_data.py" = ["FA100", "PYI030", "UP006", "UP007", "UP035"]
+"tests/test_util/typing_test_data.py" = ["FA100", "I002", "PYI030", "UP006", "UP007", "UP035"]
 
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages
@@ -376,6 +376,9 @@ inline-quotes = "single"
 [lint.isort]
 forced-separate = [
     "tests",
+]
+required-imports = [
+    "from __future__ import annotations",
 ]
 
 [format]

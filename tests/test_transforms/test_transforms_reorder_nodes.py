@@ -1,5 +1,7 @@
 """Tests the transformations"""
 
+from __future__ import annotations
+
 import pytest
 from docutils import nodes
 

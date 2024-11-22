@@ -1,5 +1,7 @@
 """Test the build process with LaTeX builder with the test root."""
 
+from __future__ import annotations
+
 import http.server
 import os
 import re

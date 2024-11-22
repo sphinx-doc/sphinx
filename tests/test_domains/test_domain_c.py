@@ -1,9 +1,11 @@
 """Tests the C Domain"""
 
+from __future__ import annotations
+
 import itertools
 import xml.etree.ElementTree as ET
 import zlib
-from io import StringIO
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -28,6 +30,9 @@ from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError
 from sphinx.writers.text import STDINDENT
+
+if TYPE_CHECKING:
+    from io import StringIO
 
 
 class Config:

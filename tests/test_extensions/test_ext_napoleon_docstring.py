@@ -1,5 +1,7 @@
 """Tests for :mod:`sphinx.ext.napoleon.docstring` module."""
 
+from __future__ import annotations
+
 import re
 import zlib
 from collections import namedtuple
