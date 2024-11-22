@@ -284,9 +284,9 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             # needed for association of version{added,changed} directives
             object_name: ObjDescT = self.names[0]
             if isinstance(object_name, tuple):
-                self.env.temp_data['object'] = str(object_name[0])
+                self.env.current_document.obj_desc_name = str(object_name[0])
             else:
-                self.env.temp_data['object'] = str(object_name)
+                self.env.current_document.obj_desc_name = str(object_name)
         self.before_content()
         content_children = self.parse_content_to_nodes(allow_section_headings=True)
         content_node = addnodes.desc_content('', *content_children)
@@ -296,7 +296,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             'object-description-transform', self.domain, self.objtype, content_node
         )
         DocFieldTransformer(self).transform_all(content_node)
-        self.env.temp_data['object'] = None
+        self.env.current_document.obj_desc_name = ''
         self.after_content()
 
         if node['no-typesetting']:
@@ -335,7 +335,7 @@ class DefaultRole(SphinxDirective):
         )
         if role:
             docutils.register_role('', role)  # type: ignore[arg-type]
-            self.env.temp_data['default_role'] = role_name
+            self.env.current_document.default_role = role_name
         else:
             literal_block = nodes.literal_block(self.block_text, self.block_text)
             reporter = self.state.reporter
@@ -362,13 +362,8 @@ class DefaultDomain(SphinxDirective):
 
     def run(self) -> list[Node]:
         domain_name = self.arguments[0].lower()
-        # if domain_name not in env.domains:
-        #     # try searching by label
-        #     for domain in env.domains.sorted():
-        #         if domain.label.lower() == domain_name:
-        #             domain_name = domain.name
-        #             break
-        self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
+        default_domain = self.env.domains.get(domain_name)
+        self.env.current_document.default_domain = default_domain
         return []
 
 

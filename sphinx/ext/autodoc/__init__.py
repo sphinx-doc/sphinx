@@ -821,9 +821,9 @@ class Documenter:
         *self.options.members*.
         """
         # set current namespace for finding members
-        self.env.temp_data['autodoc:module'] = self.modname
+        self.env.current_document['autodoc:module'] = self.modname
         if self.objpath:
-            self.env.temp_data['autodoc:class'] = self.objpath[0]
+            self.env.current_document['autodoc:class'] = self.objpath[0]
 
         want_all = (all_members or
                     self.options.inherited_members or
@@ -856,8 +856,8 @@ class Documenter:
                 check_module=members_check_module and not isattr)
 
         # reset current objects
-        self.env.temp_data['autodoc:module'] = None
-        self.env.temp_data['autodoc:class'] = None
+        self.env.current_document['autodoc:module'] = None
+        self.env.current_document['autodoc:class'] = None
 
     def sort_members(self, documenters: list[tuple[Documenter, bool]],
                      order: str) -> list[tuple[Documenter, bool]]:
@@ -1159,7 +1159,7 @@ class ModuleLevelDocumenter(Documenter):
 
         # if documenting a toplevel object without explicit module,
         # it can be contained in another auto directive ...
-        modname = self.env.temp_data.get('autodoc:module')
+        modname = self.env.current_document.get('autodoc:module')
         # ... or in the scope of a module directive
         if not modname:
             modname = self.env.ref_context.get('py:module')
@@ -1184,7 +1184,7 @@ class ClassLevelDocumenter(Documenter):
             # if documenting a class-level object without path,
             # there must be a current class, either from a parent
             # auto directive ...
-            mod_cls_ = self.env.temp_data.get('autodoc:class')
+            mod_cls_ = self.env.current_document.get('autodoc:class')
             # ... or from a class directive
             if mod_cls_ is None:
                 mod_cls_ = self.env.ref_context.get('py:class')
@@ -1196,7 +1196,7 @@ class ClassLevelDocumenter(Documenter):
         parents = [cls]
         # if the module name is still missing, get it like above
         if not modname:
-            modname = self.env.temp_data.get('autodoc:module')
+            modname = self.env.current_document.get('autodoc:module')
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid

@@ -183,14 +183,14 @@ def test_env_relfn2path(app):
     assert absfn == str(app.srcdir / 'logo.jpg')
 
     # omit docname (w/ current docname)
-    app.env.temp_data['docname'] = 'subdir/document'
+    app.env.current_document.docname = 'subdir/document'
     relfn, absfn = app.env.relfn2path('images/logo.jpg')
     assert Path(relfn) == Path('subdir/images/logo.jpg')
     assert absfn == str(app.srcdir / 'subdir' / 'images' / 'logo.jpg')
 
     # omit docname (w/o current docname)
-    app.env.temp_data.clear()
-    with pytest.raises(KeyError):
+    app.env.current_document.clear()
+    with pytest.raises(KeyError, match=r"^'docname'$"):
         app.env.relfn2path('images/logo.jpg')
 
 

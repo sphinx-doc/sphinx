@@ -6,7 +6,7 @@ import functools
 import os
 import pickle
 from collections import defaultdict
-from copy import copy
+from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
@@ -192,10 +192,10 @@ class BuildEnvironment:
         self.original_image_uri: dict[_StrPath, str] = {}
 
         # temporary data storage while reading a document
-        self.temp_data: dict[str, Any] = {}
+        self.current_document: CurrentDocument = CurrentDocument()
         # context for cross-references (e.g. current module or class)
-        # this is similar to temp_data, but will for example be copied to
-        # attributes of "any" cross references
+        # this is similar to ``self.current_document``,
+        # but will for example be copied to attributes of "any" cross references
         self.ref_context: dict[str, Any] = {}
 
         # search index data
@@ -422,7 +422,13 @@ class BuildEnvironment:
         if filename.startswith('/'):
             abs_fn = (self.srcdir / filename[1:]).resolve()
         else:
-            doc_dir = self.doc2path(docname or self.docname, base=False).parent
+            if not docname:
+                if self.docname:
+                    docname = self.docname
+                else:
+                    msg = 'docname'
+                    raise KeyError(msg)
+            doc_dir = self.doc2path(docname, base=False).parent
             abs_fn = (self.srcdir / doc_dir / filename).resolve()
 
         rel_fn = _relative_path(abs_fn, self.srcdir)
@@ -554,32 +560,42 @@ class BuildEnvironment:
 
     def prepare_settings(self, docname: str) -> None:
         """Prepare to set up environment for reading."""
-        self.temp_data['docname'] = docname
-        # defaults to the global default, but can be re-set in a document
-        self.temp_data['default_role'] = self.config.default_role
-        self.temp_data['default_domain'] = self.domains.get(self.config.primary_domain)
+        self.current_document = CurrentDocument(
+            docname=docname,
+            # defaults to the global default, but can be re-set in a document
+            default_role=self.config.default_role,
+            default_domain=self.domains.get(self.config.primary_domain),
+        )
 
     # utilities to use while reading a document
 
     @property
+    def temp_data(self) -> CurrentDocument:
+        """Returns the temporary data storage for the current document.
+
+        Kept for backwards compatibility.
+        """
+        return self.current_document
+
+    @property
     def docname(self) -> str:
         """Returns the docname of the document currently being parsed."""
-        return self.temp_data['docname']
+        return self.current_document.docname
 
     @property
     def parser(self) -> Parser:
         """Returns the parser being used for to parse the current document."""
-        return self.temp_data['_parser']
+        if (parser := self.current_document._parser) is not None:
+            return parser
+        msg = 'parser'
+        raise KeyError(msg)
 
     def new_serialno(self, category: str = '') -> int:
         """Return a serial number, e.g. for index entry targets.
 
         The number is guaranteed to be unique in the current document.
         """
-        key = category + 'serialno'
-        cur = self.temp_data.get(key, 0)
-        self.temp_data[key] = cur + 1
-        return cur
+        return self.current_document.new_serial_number(category)
 
     def note_dependency(
         self, filename: str | os.PathLike[str], *, docname: str | None = None
@@ -722,17 +738,19 @@ class BuildEnvironment:
 
     def apply_post_transforms(self, doctree: nodes.document, docname: str) -> None:
         """Apply all post-transforms."""
+        backup = self.current_document
+        new = deepcopy(backup)
+        new.docname = docname
         try:
             # set env.docname during applying post-transforms
-            backup = copy(self.temp_data)
-            self.temp_data['docname'] = docname
+            self.current_document = new
 
             transformer = SphinxTransformer(doctree)
             transformer.set_environment(self)
             transformer.add_transforms(self.app.registry.get_post_transforms())
             transformer.apply_transforms()
         finally:
-            self.temp_data = backup
+            self.current_document = backup
 
         # allow custom references to be resolved
         self.events.emit('doctree-resolved', doctree, docname)
@@ -842,3 +860,180 @@ def _check_toc_parents(toctree_includes: dict[str, list[str]]) -> None:
                 type='toc',
                 subtype='multiple_toc_parents',
             )
+
+
+class CurrentDocument:
+    """Temporary data storage while reading a document."""
+
+    __slots__ = (
+        '_parser',
+        '_serial_numbers',
+        '_ext_props',
+        'autodoc_annotations',
+        'default_domain',
+        'default_role',
+        'docname',
+        'highlight_language',
+        'obj_desc_name',
+        'reading_started_at',
+    )
+
+    def __init__(
+        self,
+        *,
+        docname: str = '',
+        default_role: str = '',
+        default_domain: Domain | None = None,
+    ) -> None:
+        #: The docname of the document currently being parsed.
+        self.docname = docname
+
+        #: The default role for the current document.
+        #: Set by the ``.. default-role::`` directive.
+        self.default_role: str = default_role
+
+        #: The default domain for the current document.
+        #: Set by the ``.. default-domain::`` directive.
+        self.default_domain: Domain | None = default_domain
+
+        #: The parser being used to parse the current document.
+        self._parser: Parser | None = None
+
+        #: The default language for syntax highlighting.
+        #: Set by the ``.. highlight::`` directive to override
+        #: the ``highlight_language`` config value.
+        self.highlight_language: str = ''
+
+        #: The current object's name.
+        #: Used in the Changes builder.
+        self.obj_desc_name: str = ''
+
+        #: Records type hints of Python objects in the current document.
+        #: Used in ``sphinx.ext.autodoc.typehints``.
+        #: Maps object names to maps of attribute names -> type hints.
+        self.autodoc_annotations: dict[str, dict[str, str]] = {}
+
+        #: Records the time when reading begain for the current document.
+        #: Used in ``sphinx.ext.duration``.
+        self.reading_started_at: float = 0.0
+
+        # Used for generating unique serial numbers.
+        self._serial_numbers: dict[str, int] = {}
+
+        # Stores properties relating to the current document set by extensions.
+        self._ext_props: dict[str, Any] = {}
+
+    def new_serial_number(self, category: str = '', /) -> int:
+        """Return a serial number, e.g. for index entry targets.
+
+        The number is guaranteed to be unique in the current document.
+        """
+        current = self._serial_numbers.get(category, 0)
+        self._serial_numbers[category] = current + 1
+        return current
+
+    # Mapping interface:
+
+    def __getitem__(self, item: str) -> Any:
+        if item == 'annotations':
+            return self.autodoc_annotations
+        if item == 'object':
+            return self.obj_desc_name
+        if item == 'started_at':
+            return self.reading_started_at
+        if item in {
+            '_parser',
+            'autodoc_annotations',
+            'default_domain',
+            'default_role',
+            'docname',
+            'highlight_language',
+            'obj_desc_name',
+            'reading_started_at',
+        }:
+            return getattr(self, item)
+        return self._ext_props[item]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        if key == 'annotations':
+            self.autodoc_annotations = value
+        elif key == 'object':
+            self.obj_desc_name = value
+        elif key == 'started_at':
+            self.reading_started_at = value
+        elif key in {
+            '_parser',
+            'autodoc_annotations',
+            'default_domain',
+            'default_role',
+            'docname',
+            'highlight_language',
+            'obj_desc_name',
+            'reading_started_at',
+        }:
+            setattr(self, key, value)
+        else:
+            self._ext_props[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self._ext_props[key]
+
+    def __contains__(self, item: str) -> bool:
+        if item in {
+            'annotations',
+            'object',
+            'started_at',
+        }:
+            return True
+        if item in {
+            '_parser',
+            '_serial_numbers',
+            '_ext_props',
+            'autodoc_annotations',
+            'default_domain',
+            'default_role',
+            'docname',
+            'highlight_language',
+            'obj_desc_name',
+            'reading_started_at',
+        }:
+            return True
+        return item in self._ext_props
+
+    def get(self, key: str, default: Any | None = None) -> Any | None:
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def pop(self, key: str, default: Any | None = None) -> Any | None:
+        if key == 'annotations':
+            key = 'autodoc_annotations'
+        elif key == 'object':
+            key = 'obj_desc_name'
+        elif key == 'started_at':
+            key = 'reading_started_at'
+        try:
+            blank: str | float | dict[str, dict[str, str]] | None = {
+                '_parser': None,
+                'autodoc_annotations': {},
+                'default_domain': None,
+                'default_role': '',
+                'docname': '',
+                'highlight_language': '',
+                'obj_desc_name': '',
+                'reading_started_at': 0.0,
+            }[key]
+        except KeyError:
+            pass
+        else:
+            value = getattr(self, key)
+            setattr(self, key, blank)
+            return value
+        return self._ext_props.pop(key, default)
+
+    def setdefault(self, key: str, default: Any | None = None) -> Any | None:
+        return self._ext_props.setdefault(key, default)
+
+    def clear(self) -> None:
+        CurrentDocument.__init__(self)  # NoQA: PLC2801

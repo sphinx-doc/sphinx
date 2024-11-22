@@ -115,8 +115,9 @@ class Code(SphinxDirective):
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
-            node['language'] = self.env.temp_data.get(
-                'highlight_language', self.config.highlight_language
+            node['language'] = (
+                self.env.current_document.highlight_language
+                or self.config.highlight_language
             )
 
         if 'number-lines' in self.options:
