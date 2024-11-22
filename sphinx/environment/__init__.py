@@ -870,6 +870,8 @@ class _CurrentDocument:
         '_serial_numbers',
         '_ext_props',
         'autodoc_annotations',
+        'autodoc_class',
+        'autodoc_module',
         'default_domain',
         'default_role',
         'docname',
@@ -913,6 +915,9 @@ class _CurrentDocument:
         #: Maps object names to maps of attribute names -> type hints.
         self.autodoc_annotations: dict[str, dict[str, str]] = {}
 
+        self.autodoc_class: str = ''
+        self.autodoc_module: str = ''
+
         #: Records the time when reading begain for the current document.
         #: Used in ``sphinx.ext.duration``.
         self.reading_started_at: float = 0.0
@@ -937,6 +942,10 @@ class _CurrentDocument:
     def __getitem__(self, item: str) -> Any:
         if item == 'annotations':
             return self.autodoc_annotations
+        if item == 'autodoc:class':
+            return self.autodoc_class
+        if item == 'autodoc:module':
+            return self.autodoc_module
         if item == 'object':
             return self.obj_desc_name
         if item == 'started_at':
@@ -957,6 +966,10 @@ class _CurrentDocument:
     def __setitem__(self, key: str, value: Any) -> None:
         if key == 'annotations':
             self.autodoc_annotations = value
+        elif key == 'autodoc:class':
+            self.autodoc_class = value
+        elif key == 'autodoc:module':
+            self.autodoc_module = value
         elif key == 'object':
             self.obj_desc_name = value
         elif key == 'started_at':
@@ -981,6 +994,8 @@ class _CurrentDocument:
     def __contains__(self, item: str) -> bool:
         if item in {
             'annotations',
+            'autodoc:class',
+            'autodoc:module',
             'object',
             'started_at',
         }:
@@ -990,6 +1005,8 @@ class _CurrentDocument:
             '_serial_numbers',
             '_ext_props',
             'autodoc_annotations',
+            'autodoc_class',
+            'autodoc_module',
             'default_domain',
             'default_role',
             'docname',
@@ -1009,6 +1026,10 @@ class _CurrentDocument:
     def pop(self, key: str, default: Any | None = None) -> Any | None:
         if key == 'annotations':
             key = 'autodoc_annotations'
+        if key == 'autodoc:class':
+            key = 'autodoc_class'
+        if key == 'autodoc:module':
+            key = 'autodoc_module'
         elif key == 'object':
             key = 'obj_desc_name'
         elif key == 'started_at':
@@ -1017,6 +1038,8 @@ class _CurrentDocument:
             blank: str | float | dict[str, dict[str, str]] | None = {
                 '_parser': None,
                 'autodoc_annotations': {},
+                'autodoc_class': '',
+                'autodoc_module': '',
                 'default_domain': None,
                 'default_role': '',
                 'docname': '',
