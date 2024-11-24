@@ -115,7 +115,7 @@ class ASTBaseBase:
         return deepcopy(self)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        raise NotImplementedError(repr(self))
+        raise NotImplementedError
 
     def __str__(self) -> str:
         return self._stringify(str)
@@ -124,7 +124,9 @@ class ASTBaseBase:
         return self._stringify(lambda ast: ast.get_display_string())
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__}: {self._stringify(repr)}>'
+        if repr_string := self._stringify(repr):
+            return f'<{self.__class__.__name__}: {repr_string}>'
+        return f'<{self.__class__.__name__}>'
 
 
 ################################################################################

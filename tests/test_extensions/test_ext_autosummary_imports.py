@@ -1,5 +1,7 @@
 """Test autosummary for import cycles."""
 
+from __future__ import annotations
+
 import pytest
 from docutils import nodes
 

@@ -1,5 +1,7 @@
 """Test the autodoc extension.  This tests mainly for autodoc events"""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.ext.autodoc import between, cut_lines

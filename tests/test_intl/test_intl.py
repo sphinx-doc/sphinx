@@ -3,11 +3,13 @@
 Runs the text builder in the test root.
 """
 
+from __future__ import annotations
+
 import os
 import re
 import shutil
 import time
-from io import StringIO
+from typing import TYPE_CHECKING
 
 import pytest
 from babel.messages import mofile, pofile
@@ -18,6 +20,9 @@ from sphinx import locale
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.console import strip_colors
 from sphinx.util.nodes import NodeMatcher
+
+if TYPE_CHECKING:
+    from io import StringIO
 
 _CATALOG_LOCALE = 'xx'
 

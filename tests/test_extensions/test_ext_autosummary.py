@@ -1,10 +1,12 @@
 """Test the autosummary extension."""
 
+from __future__ import annotations
+
 import sys
 from contextlib import chdir
 from io import StringIO
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
-from xml.etree.ElementTree import Element
 
 import pytest
 from docutils import nodes
@@ -25,6 +27,9 @@ from sphinx.ext.autosummary.generate import (
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
 
 html_warnfile = StringIO()
 

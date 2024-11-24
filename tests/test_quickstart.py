@@ -1,16 +1,20 @@
 """Test the sphinx.quickstart module."""
 
+from __future__ import annotations
+
 import time
-from collections.abc import Callable
 from io import StringIO
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from sphinx.cmd import quickstart as qs
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util.console import coloron, nocolor
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
 
 warnfile = StringIO()
 

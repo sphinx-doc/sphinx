@@ -9,7 +9,7 @@
 % by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2024/10/11 v8.1.1 Sphinx LaTeX package (sphinx-doc)]
+\ProvidesPackage{sphinx}[2024/11/23 v8.2.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -1098,12 +1098,13 @@
 % Some of these defaults got already set.  But we now list them all explicitly
 % for a complete initial configuration of reset storage.
 % At 7.4.0, \fboxrule and \fboxsep replaced by 0.4pt and 3pt which are anyhow
-% the defaults for these LaTeX dimensions.
+% the defaults for these LaTeX dimensions. 8.2.0 corrected border-radius
+% default back to 3pt (\fboxsep) not 0.4pt (\fboxrule).
 \let\spx@boxes@sphinxbox@defaults\@gobble
 \sphinxboxsetup{%
                 border-width=0.4pt,
                 padding=3pt,
-                border-radius=0.4pt,
+                border-radius=3pt,
                 box-shadow=none,
 % MEMO: as xcolor is loaded, \spx@defineorletcolor has a "\colorlet" branch
 % which makes this syntax acceptable and avoids duplicating here the values.

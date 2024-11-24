@@ -1,5 +1,7 @@
 """Test i18n util."""
 
+from __future__ import annotations
+
 import datetime
 import os
 import time

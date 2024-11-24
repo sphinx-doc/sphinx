@@ -23,6 +23,9 @@ Bugs fixed
 
 * #13060: HTML Search: use ``Map`` to store per-file term scores.
   Patch by James Addison
+* LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
+  (refs: PR #13152).
+  Patch by Jean-François B.
 * #11233: linkcheck: match redirect URIs against :confval:`linkcheck_ignore` by
   overriding session-level ``requests.get_redirect_target``.
 

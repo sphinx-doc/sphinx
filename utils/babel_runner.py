@@ -13,6 +13,8 @@ babel_runner.py compile
     Compile the ".po" catalogue files to ".mo" and ".js" files.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import sys
