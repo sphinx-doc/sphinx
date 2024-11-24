@@ -32,7 +32,7 @@ def getumask() -> int:
 UMASK = getumask()
 
 
-class path(str):
+class path(str):  # NoQA: FURB189
     """
     Represents a path which behaves like a string.
     """

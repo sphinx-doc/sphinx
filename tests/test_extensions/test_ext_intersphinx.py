@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from typing import NoReturn
 
 
-class FakeList(list):
+class FakeList(list):  # NoQA: FURB189
     def __iter__(self) -> NoReturn:
         raise NotImplementedError
 

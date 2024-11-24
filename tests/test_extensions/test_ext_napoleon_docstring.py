@@ -1,5 +1,7 @@
 """Tests for :mod:`sphinx.ext.napoleon.docstring` module."""
 
+from __future__ import annotations
+
 import re
 import zlib
 from collections import namedtuple
@@ -26,7 +28,7 @@ from tests.test_extensions.ext_napoleon_pep526_data_google import PEP526GoogleCl
 from tests.test_extensions.ext_napoleon_pep526_data_numpy import PEP526NumpyClass
 
 
-class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
+class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):  # NoQA: PYI024
     """Sample namedtuple subclass
 
     Attributes

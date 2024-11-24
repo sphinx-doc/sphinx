@@ -1,5 +1,7 @@
 """Test the LaTeX writer"""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.writers.latex import rstdim_to_latexdim

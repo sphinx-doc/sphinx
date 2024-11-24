@@ -1,5 +1,7 @@
 """Test dirhtml builder."""
 
+from __future__ import annotations
+
 import posixpath
 
 import pytest

@@ -17,7 +17,8 @@ from typing import TYPE_CHECKING
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from typing import Any
+    from types import TracebackType
+    from typing import Any, Self
 
 # SEP separates path elements in the canonical file names
 #
@@ -234,11 +235,14 @@ class FileAvoidWrite:
         with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
-    def __enter__(self) -> FileAvoidWrite:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> bool:
         self.close()
         return True

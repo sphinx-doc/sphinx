@@ -82,7 +82,7 @@ docs = [
 ]
 lint = [
     "flake8>=6.0",
-    "ruff==0.7.2",
+    "ruff==0.8.0",
     "mypy==1.13.0",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
@@ -92,7 +92,7 @@ lint = [
     "types-Pygments==2.18.0.20240506",
     "types-requests==2.32.0.20241016",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.388",
+    "pyright==1.1.389",
     "pytest>=6.0",
 ]
 test = [

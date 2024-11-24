@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import Sequence  # NoQA: TCH003
+from collections.abc import Sequence  # NoQA: TC003
 from contextlib import contextmanager
 from copy import copy
 from pathlib import Path
@@ -14,7 +14,7 @@ import docutils
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner  # NoQA: TCH002
+from docutils.parsers.rst.states import Inliner  # NoQA: TC002
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 
@@ -29,8 +29,8 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator  # NoQA: TCH003
-    from types import ModuleType
+    from collections.abc import Callable, Iterator  # NoQA: TC003
+    from types import ModuleType, TracebackType
 
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
@@ -212,7 +212,10 @@ class CustomReSTDispatcher:
         self.enable()
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.disable()
 

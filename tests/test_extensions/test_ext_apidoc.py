@@ -1,12 +1,19 @@
 """Test the sphinx.apidoc module."""
 
+from __future__ import annotations
+
 from collections import namedtuple
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 import sphinx.ext.apidoc
 from sphinx.ext.apidoc import main as apidoc_main
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+_apidoc = namedtuple('_apidoc', 'coderoot,outdir')  # NoQA: PYI024
 
 
 @pytest.fixture
@@ -24,7 +31,7 @@ def apidoc(rootdir, tmp_path, apidoc_params):
         *kwargs.get('options', []),
     ]
     apidoc_main(args)
-    return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
+    return _apidoc(coderoot, outdir)
 
 
 @pytest.fixture

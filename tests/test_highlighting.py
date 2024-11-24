@@ -1,5 +1,7 @@
 """Test the Pygments highlighting bridge."""
 
+from __future__ import annotations
+
 from unittest import mock
 
 import pygments

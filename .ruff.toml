@@ -54,6 +54,8 @@ ignore = [
     "PLR6301",  # Method `{method_name}` could be a function, class method, or static method
     # pylint ('PLW')
     "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
+    # flake8-pyi ('PYI')
+    "PYI025",  # Use `from collections.abc import Set as AbstractSet` to avoid confusion with the `set` builtin
     # flake8-bandit ('S')
     "S101",  # Use of `assert` detected
     "S110",  # `try`-`except`-`pass` detected, consider logging the exception
@@ -198,7 +200,7 @@ select = [
     "PT",
     # flake8-use-pathlib ('PTH')
       # NOT YET USED
-    # flake8-pyi ('PYI')
+    "PYI",
       # Stub files are not used in Sphinx
     # flake8-quotes ('Q')
 #    "Q000",  # Double quotes found but single quotes preferred
@@ -290,10 +292,10 @@ select = [
 [lint.per-file-ignores]
 "doc/*" = [
     "ANN",  # documentation doesn't need annotations
-    "TCH001",  # documentation doesn't need type-checking blocks
+    "TC001",  # documentation doesn't need type-checking blocks
 ]
 "doc/conf.py" = ["INP001", "W605"]
-"doc/development/tutorials/examples/*" = ["INP001"]
+"doc/development/tutorials/examples/*" = ["I002", "INP001"]
 # allow print() in the tutorial
 "doc/development/tutorials/examples/recipe.py" = [
     "FURB118",
@@ -358,7 +360,7 @@ select = [
 
 # these tests need old ``typing`` generic aliases
 "tests/test_util/test_util_typing.py" = ["UP006", "UP007", "UP035"]
-"tests/test_util/typing_test_data.py" = ["FA100", "UP006", "UP007", "UP035"]
+"tests/test_util/typing_test_data.py" = ["FA100", "I002", "PYI030", "UP006", "UP007", "UP035"]
 
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages
@@ -374,6 +376,9 @@ inline-quotes = "single"
 [lint.isort]
 forced-separate = [
     "tests",
+]
+required-imports = [
+    "from __future__ import annotations",
 ]
 
 [format]

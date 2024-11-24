@@ -1,16 +1,21 @@
 """Test the autodoc extension.  This tests mainly for config variables"""
 
+from __future__ import annotations
+
 import platform
 import sys
-from collections.abc import Iterator
 from contextlib import contextmanager
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from sphinx.testing import restructuredtext
 
 from tests.test_extensions.autodoc_util import do_autodoc
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from pathlib import Path
 
 skip_py314_segfault = pytest.mark.skipif(
     sys.version_info[:2] >= (3, 14),

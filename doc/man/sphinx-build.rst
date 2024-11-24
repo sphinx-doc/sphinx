@@ -141,7 +141,7 @@ Options
    .. versionchanged:: 6.2
       Add ``--jobs`` long option.
 
-.. option:: -c path, --config-dir path
+.. option:: -c path, --conf-dir path
 
    Don't look for the :file:`conf.py` in the source directory, but use the given
    configuration directory instead.  Note that various other files and paths
@@ -152,7 +152,7 @@ Options
    .. versionadded:: 0.3
 
    .. versionchanged:: 7.3
-      Add ``--config-dir`` long option.
+      Add ``--conf-dir`` long option.
 
 .. option:: -C, --isolated
 

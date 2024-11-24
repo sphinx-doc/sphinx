@@ -47,6 +47,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v5
       with:
@@ -85,6 +87,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
@@ -117,6 +121,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
@@ -150,6 +156,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
@@ -179,6 +187,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -211,6 +221,8 @@ jobs:
         wget --no-verbose https://github.com/w3c/epubcheck/releases/download/v${EPUBCHECK_VERSION}/epubcheck-${EPUBCHECK_VERSION}.zip
         unzip epubcheck-${EPUBCHECK_VERSION}.zip
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -243,6 +255,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -275,6 +289,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -303,6 +319,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -324,4 +342,4 @@ jobs:
       env:
         VIRTUALENV_SYSTEM_SITE_PACKAGES: "1"
     - name: codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5

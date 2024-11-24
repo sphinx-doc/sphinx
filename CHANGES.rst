@@ -23,6 +23,9 @@ Bugs fixed
 
 * #13060: HTML Search: use ``Map`` to store per-file term scores.
   Patch by James Addison
+* LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
+  (refs: PR #13152).
+  Patch by Jean-François B.
 * #13097: HTML Search: serialize search index in JSON format, to
   handle a query edge-case.
   Patch by James Addison
