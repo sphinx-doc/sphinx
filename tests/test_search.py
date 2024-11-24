@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import ast
 import json
 import warnings
 from io import BytesIO
