@@ -4,7 +4,7 @@ describe('Basic html theme search', function() {
       req = new XMLHttpRequest();
       req.open("GET", `__src__/tests/js/fixtures/${name}`, false);
       req.send(null);
-      Search.setIndex(req.responseText);
+      Search.setIndex(JSON.parse(req.responseText));
   }
 
   function checkRanking(expectedRanking, results) {

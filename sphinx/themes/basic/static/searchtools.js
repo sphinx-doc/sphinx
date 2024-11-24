@@ -219,7 +219,7 @@ const Search = {
     (document.body.appendChild(document.createElement("script")).src = url),
 
   setIndex: (index) => {
-    Search._index = JSON.parse(index);
+    Search._index = index;
     if (Search._queued_query !== null) {
       const query = Search._queued_query;
       Search._queued_query = null;

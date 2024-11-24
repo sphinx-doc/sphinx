@@ -1,4 +1,1 @@
-req = new XMLHttpRequest();
-req.open("GET", "searchindex.json", false);
-req.send(null);
-Search.setIndex(req.responseText);
+window.fetch("searchindex.json").then(response => response.json()).then(Search.setIndex);
