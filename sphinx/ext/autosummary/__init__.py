@@ -57,6 +57,7 @@ import posixpath
 import re
 import sys
 from inspect import Parameter
+from pathlib import Path
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
@@ -154,10 +155,10 @@ class FakeApplication:
     verbosity = 0
 
     def __init__(self) -> None:
-        self.doctreedir = None
+        self.doctreedir = Path()
         self.events = None
         self.extensions: dict[str, Extension] = {}
-        self.srcdir = None
+        self.srcdir = Path()
         self.config = Config()
         self.project = Project('', {})
         self.registry = SphinxComponentRegistry()
