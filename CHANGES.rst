@@ -23,8 +23,8 @@ Bugs fixed
 
 * #13060: HTML Search: use ``Map`` to store per-file term scores.
   Patch by James Addison
-* #13097: HTML Search: represent index entries in ``searchindex.js``
-  using JavaScript ``Map`` instances, to handle a query edge-case.
+* #13097: HTML Search: serialize search index in JSON format, to
+  handle a query edge-case.
   Patch by James Addison
 
 Testing

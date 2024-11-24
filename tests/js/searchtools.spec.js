@@ -1,10 +1,10 @@
 describe('Basic html theme search', function() {
 
-  function loadFixture(name) {
+  function loadIndex(name) {
       req = new XMLHttpRequest();
       req.open("GET", `__src__/tests/js/fixtures/${name}`, false);
       req.send(null);
-      return req.responseText;
+      Search.setIndex(req.responseText);
   }
 
   function checkRanking(expectedRanking, results) {
@@ -28,7 +28,7 @@ describe('Basic html theme search', function() {
   describe('terms search', function() {
 
     it('should find "C++" when in index', function() {
-      eval(loadFixture("cpp/searchindex.js"));
+      loadIndex("cpp/searchindex.json");
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('C++');
 
@@ -45,7 +45,7 @@ describe('Basic html theme search', function() {
     });
 
     it('should be able to search for multiple terms', function() {
-      eval(loadFixture("multiterm/searchindex.js"));
+      loadIndex("multiterm/searchindex.json");
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('main page');
       hits = [[
@@ -61,7 +61,7 @@ describe('Basic html theme search', function() {
     });
 
     it('should partially-match "sphinx" when in title index', function() {
-      eval(loadFixture("partial/searchindex.js"));
+      loadIndex("partial/searchindex.json");
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('sphinx');
 
@@ -78,7 +78,7 @@ describe('Basic html theme search', function() {
     });
 
     it('should partially-match within "possible" when in term index', function() {
-      eval(loadFixture("partial/searchindex.js"));
+      loadIndex("partial/searchindex.json");
 
       [_searchQuery, searchterms, excluded, ..._remainingItems] = Search._parseQuery('ossibl');
       terms = Search._index.terms;
@@ -101,7 +101,7 @@ describe('Basic html theme search', function() {
   describe('aggregation of search results', function() {
 
     it('should combine document title and document term matches', function() {
-      eval(loadFixture("multiterm/searchindex.js"));
+      loadIndex("multiterm/searchindex.json");
 
       searchParameters = Search._parseQuery('main page');
 
@@ -138,7 +138,7 @@ describe('Basic html theme search', function() {
      */
 
     it('should score a code module match above a page-title match', function() {
-      eval(loadFixture("titles/searchindex.js"));
+      loadIndex("titles/searchindex.json");
 
       expectedRanking = [
         ['index', 'relevance', '#module-relevance'],  /* py:module documentation */
@@ -152,7 +152,7 @@ describe('Basic html theme search', function() {
     });
 
     it('should score a main-title match above an object member match', function() {
-      eval(loadFixture("titles/searchindex.js"));
+      loadIndex("titles/searchindex.json");
 
       expectedRanking = [
         ['relevance', 'Relevance', ''],  /* main title */
@@ -166,7 +166,7 @@ describe('Basic html theme search', function() {
     });
 
     it('should score a title match above a standard index entry match', function() {
-      eval(loadFixture("titles/searchindex.js"));
+      loadIndex("titles/searchindex.json");
 
       expectedRanking = [
         ['relevance', 'Relevance', ''],  /* title */
@@ -180,7 +180,7 @@ describe('Basic html theme search', function() {
     });
 
     it('should score a priority index entry match above a title match', function() {
-      eval(loadFixture("titles/searchindex.js"));
+      loadIndex("titles/searchindex.json");
 
       expectedRanking = [
         ['index', 'Main Page', '#index-0'],  /* index entry */
@@ -194,7 +194,7 @@ describe('Basic html theme search', function() {
     });
 
     it('should score a main-title match above a subheading-title match', function() {
-      eval(loadFixture("titles/searchindex.js"));
+      loadIndex("titles/searchindex.json");
 
       expectedRanking = [
         ['relevance', 'Relevance', ''],  /* main title */
@@ -212,7 +212,7 @@ describe('Basic html theme search', function() {
   describe('can handle edge-case search queries', function() {
 
     it('can search for the javascript prototype property', function() {
-      eval(loadFixture("ecmascript/searchindex.js"));
+      loadIndex("ecmascript/searchindex.json");
 
       searchParameters = Search._parseQuery('__proto__');
 
@@ -231,7 +231,7 @@ describe('Basic html theme search', function() {
     });
 
     it('does not find the javascript prototype property in unrelated documents', function() {
-      eval(loadFixture("partial/searchindex.js"));
+      loadIndex("partial/searchindex.json");
 
       searchParameters = Search._parseQuery('__proto__');
 

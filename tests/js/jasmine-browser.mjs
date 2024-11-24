@@ -4,7 +4,6 @@ export default {
     'sphinx/themes/basic/static/doctools.js',
     'sphinx/themes/basic/static/searchtools.js',
     'sphinx/themes/basic/static/sphinx_highlight.js',
-    'tests/js/fixtures/**/*.js',
     'tests/js/documentation_options.js',
     'tests/js/language_data.js',
   ],

@@ -124,7 +124,7 @@ class StandaloneHTMLBuilder(Builder):
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif', 'image/jpeg']
     supported_remote_images = True
     supported_data_uri_images = True
-    searchindex_filename = 'searchindex.js'
+    searchindex_filename = 'searchindex.json'
     add_permalinks = True
     allow_sharp_as_current_path = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar

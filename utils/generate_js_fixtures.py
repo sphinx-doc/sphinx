@@ -26,8 +26,8 @@ def build(srcdir: Path) -> None:
 
 
 for directory in TEST_JS_ROOTS:
-    searchindex = directory / '_build' / 'searchindex.js'
-    destination = TEST_JS_FIXTURES / directory.name / 'searchindex.js'
+    searchindex = directory / '_build' / 'searchindex.json'
+    destination = TEST_JS_FIXTURES / directory.name / 'searchindex.json'
 
     print(f'Building {directory} ... ', end='')
     build(directory)
