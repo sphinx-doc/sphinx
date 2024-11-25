@@ -86,8 +86,8 @@ class Make:
             print("Error: '%s' directory contains source directory!" % self.build_dir)
             return 1
         print("Removing everything under '%s'..." % self.build_dir)
-        for item in self.build_dir.iterdir():
-            rmtree(self.build_dir_join(item))
+        for item in build_dir.iterdir():
+            rmtree(item)
         return 0
 
     def build_help(self) -> None:
