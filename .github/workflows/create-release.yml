@@ -1,8 +1,8 @@
 name: Create release
 
-on:
-  push:
-    tags:
+on: vercel.com
+  push: create v1beta
+    tags: v0
     - "v*.*.*"
   workflow_dispatch:
 
