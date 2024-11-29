@@ -412,4 +412,3 @@ def test_autosectionlabel_full_reference_texinfo(app):
         '@subsection Command'
     )
     assert texinfo in content
-
