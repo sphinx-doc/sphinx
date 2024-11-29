@@ -63,12 +63,15 @@ def register_sections_as_label(app: Sphinx, doctree: nodes.document) -> None:
                 settings.id_prefix = '.'.join(id_array)
 
                 labelid = make_id(app.env, doctree, '', '.'.join(id_array))
-                node['ids'][0] = labelid
                 doctree.ids[labelid] = labelid
                 name = nodes.fully_normalize_name(labelid.replace('.', ':'))
 
                 # restore id_prefix
                 settings.id_prefix = id_prefix
+
+                # Add labelid as another reference id
+                # Note, cannot replace as this breaks TOC and sectnum functionality.
+                node['ids'].append(labelid)
             else:
                 name = nodes.fully_normalize_name(f'{docname}:{ref_name}')
         else:

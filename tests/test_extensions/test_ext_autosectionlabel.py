@@ -138,9 +138,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     content = file.read_text(encoding='utf8')
 
     html = (
+        '<span id="index.Introduction-of-Sphinx"></span><h1>'
         'Introduction of Sphinx<a class="headerlink"'
-        ' href="#index.Introduction-of-Sphinx"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Introduction-of-Sphinx">'
@@ -149,9 +148,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation"></span><h1>'
         'Installation<a class="headerlink"'
-        ' href="#index.Installation"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation">'
@@ -160,9 +158,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-Windows-users"></span><h2>'
         'For Windows users<a class="headerlink"'
-        ' href="#index.Installation.For-Windows-users"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-Windows-users">'
@@ -171,9 +168,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-Windows-users.Windows"></span><h3>'
         'Windows<a class="headerlink"'
-        ' href="#index.Installation.For-Windows-users.Windows"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-Windows-users.Windows">'
@@ -182,9 +178,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-Windows-users.Windows.Command"></span><h4>'
         'Command<a class="headerlink"'
-        ' href="#index.Installation.For-Windows-users.Windows.Command"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-Windows-users.Windows.Command">'
@@ -193,9 +188,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-Windows-users.Windows.Command0"></span><h4>'
         'Command<a class="headerlink"'
-        ' href="#index.Installation.For-Windows-users.Windows.Command0"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-Windows-users.Windows.Command0">'
@@ -204,9 +198,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-Windows-users.Windows.Command1"></span><h4>'
         'Command<a class="headerlink"'
-        ' href="#index.Installation.For-Windows-users.Windows.Command1"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-Windows-users.Windows.Command1">'
@@ -215,9 +208,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-UNIX-users"></span><h2>'
         'For UNIX users<a class="headerlink"'
-        ' href="#index.Installation.For-UNIX-users"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-UNIX-users">'
@@ -226,9 +218,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-UNIX-users.Linux"></span><h3>'
         'Linux<a class="headerlink"'
-        ' href="#index.Installation.For-UNIX-users.Linux"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-UNIX-users.Linux">'
@@ -237,9 +228,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-UNIX-users.Linux.Command1"></span><h4>'
         'Command1<a class="headerlink"'
-        ' href="#index.Installation.For-UNIX-users.Linux.Command1"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-UNIX-users.Linux.Command1">'
@@ -248,9 +238,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-UNIX-users.FreeBSD"></span><h3>'
         'FreeBSD<a class="headerlink"'
-        ' href="#index.Installation.For-UNIX-users.FreeBSD"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-UNIX-users.FreeBSD">'
@@ -259,9 +248,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="index.Installation.For-UNIX-users.FreeBSD.2nd-Command"></span><h4>'
         '2nd Command<a class="headerlink"'
-        ' href="#index.Installation.For-UNIX-users.FreeBSD.2nd-Command"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#index.Installation.For-UNIX-users.FreeBSD.2nd-Command">'
@@ -271,9 +259,8 @@ def _autosectionlabel_full_reference_html_index(file: Path) -> None:
 
     # for smart_quotes (refs: #4027)
     html = (
+        '<span id="index.Installation.This-one-s-got-an-apostrophe"></span><h2>'
         'This one’s got an apostrophe<a class="headerlink"'
-        ' href="#index.Installation.This-one-s-got-an-apostrophe"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal" '
         'href="#index.Installation.This-one-s-got-an-apostrophe">'
@@ -287,9 +274,8 @@ def _autosectionlabel_full_reference_html_windows(file: Path) -> None:
     content = file.read_text(encoding='utf8')
 
     html = (
+        '<span id="windows.For-Windows-users"></span><h1>'
         'For Windows users<a class="headerlink"'
-        ' href="#windows.For-Windows-users"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#windows.For-Windows-users">'
@@ -298,9 +284,8 @@ def _autosectionlabel_full_reference_html_windows(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="windows.For-Windows-users.Windows"></span><h2>'
         'Windows<a class="headerlink"'
-        ' href="#windows.For-Windows-users.Windows"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#windows.For-Windows-users.Windows">'
@@ -309,9 +294,8 @@ def _autosectionlabel_full_reference_html_windows(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="windows.For-Windows-users.Windows.Command"></span><h3>'
         'Command<a class="headerlink"'
-        ' href="#windows.For-Windows-users.Windows.Command"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#windows.For-Windows-users.Windows.Command">'
@@ -320,9 +304,8 @@ def _autosectionlabel_full_reference_html_windows(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="windows.For-Windows-users.Windows.Command0"></span><h3>'
         'Command<a class="headerlink"'
-        ' href="#windows.For-Windows-users.Windows.Command0"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#windows.For-Windows-users.Windows.Command0">'
@@ -331,9 +314,8 @@ def _autosectionlabel_full_reference_html_windows(file: Path) -> None:
     assert re.search(html, content, re.DOTALL)
 
     html = (
+        '<span id="windows.For-Windows-users.Windows.Command1"></span><h3>'
         'Command<a class="headerlink"'
-        ' href="#windows.For-Windows-users.Windows.Command1"'
-        ' title="Link to this heading">'
         '.*'
         '<li><p><a class="reference internal"'
         ' href="#windows.For-Windows-users.Windows.Command1">'
@@ -351,7 +333,7 @@ def test_autosectionlabel_full_reference_latex(app):
 
     latex = (
         'chapter{Installation}'
-        '.'
+        '.*'
         '.label{.detokenize{index.Installation}}'
         '.*'
         '{.hyperref..detokenize{index.Installation}.{.sphinxcrossref{.DUrole{std}{.DUrole{std-ref}{Installation}}}}}'
@@ -360,7 +342,7 @@ def test_autosectionlabel_full_reference_latex(app):
 
     latex = (
         'subsubsection{Command}'
-        '.'
+        '.*'
         '.label{.detokenize{index.Installation.For-Windows-users.Windows.Command}}'
         '.*'
         '{.hyperref..detokenize{index.Installation.For-Windows-users.Windows.Command}.'
@@ -370,7 +352,7 @@ def test_autosectionlabel_full_reference_latex(app):
 
     latex = (
         'subsubsection{Command}'
-        '.'
+        '.*'
         '.label{.detokenize{index.Installation.For-Windows-users.Windows.Command0}}'
         '.*'
         '{.hyperref..detokenize{index.Installation.For-Windows-users.Windows.Command0}.'
@@ -380,7 +362,7 @@ def test_autosectionlabel_full_reference_latex(app):
 
     latex = (
         'subsubsection{Command}'
-        '.'
+        '.*'
         '.label{.detokenize{index.Installation.For-Windows-users.Windows.Command1}}'
         '.*'
         '{.hyperref..detokenize{index.Installation.For-Windows-users.Windows.Command1}.'
@@ -398,7 +380,7 @@ def test_autosectionlabel_full_reference_texinfo(app):
     texinfo = (
         '@node Installation,References,Directives,Top'
         '\n'
-        '@anchor{index Installation}@anchor{3}'
+        '@anchor{index Installation}@anchor{5}@anchor{installation}@anchor{6}'
         '\n'
         '@unnumbered Installation'
     )
@@ -407,7 +389,7 @@ def test_autosectionlabel_full_reference_texinfo(app):
     texinfo = (
         '@node Command,Command<2>,,Windows'
         '\n'
-        '@anchor{index Installation For-Windows-users Windows Command}@anchor{6}'
+        '@anchor{command}@anchor{b}@anchor{index Installation For-Windows-users Windows Command}@anchor{c}'
         '\n'
         '@subsection Command'
     )
@@ -416,7 +398,7 @@ def test_autosectionlabel_full_reference_texinfo(app):
     texinfo = (
         '@node Command<2>,Command<3>,Command,Windows'
         '\n'
-        '@anchor{index Installation For-Windows-users Windows Command0}@anchor{7}'
+        '@anchor{id1}@anchor{d}@anchor{index Installation For-Windows-users Windows Command0}@anchor{e}'
         '\n'
         '@subsection Command'
     )
@@ -425,8 +407,9 @@ def test_autosectionlabel_full_reference_texinfo(app):
     texinfo = (
         '@node Command<3>,,Command<2>,Windows'
         '\n'
-        '@anchor{index Installation For-Windows-users Windows Command1}@anchor{8}'
+        '@anchor{id2}@anchor{f}@anchor{index Installation For-Windows-users Windows Command1}@anchor{10}'
         '\n'
         '@subsection Command'
     )
     assert texinfo in content
+
