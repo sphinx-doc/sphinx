@@ -38,7 +38,7 @@ class Figure(images.Figure):  # type: ignore[misc]
             return result
 
         assert len(result) == 1
-        figure_node = cast(nodes.figure, result[0])
+        figure_node = cast('nodes.figure', result[0])
         if name:
             # set ``name`` to figure_node if given
             self.options['name'] = name
@@ -46,7 +46,7 @@ class Figure(images.Figure):  # type: ignore[misc]
 
         # copy lineno from image node
         if figure_node.line is None and len(figure_node) == 2:
-            caption = cast(nodes.caption, figure_node[1])
+            caption = cast('nodes.caption', figure_node[1])
             figure_node.line = caption.line
 
         return [figure_node]
@@ -163,7 +163,7 @@ class MathDirective(SphinxDirective):
         return ret
 
     def add_target(self, ret: list[Node]) -> None:
-        node = cast(nodes.math_block, ret[0])
+        node = cast('nodes.math_block', ret[0])
 
         # assign label automatically if math_number_all enabled
         if node['label'] == '' or (self.config.math_number_all and not node['label']):  # NoQA: PLC1901

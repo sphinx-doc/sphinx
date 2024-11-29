@@ -31,7 +31,7 @@ class HTMLWriter(Writer):  # type: ignore[misc]
     def translate(self) -> None:
         # sadly, this is mostly copied from parent class
         visitor = self.builder.create_translator(self.document, self.builder)
-        self.visitor = cast(HTML5Translator, visitor)
+        self.visitor = cast('HTML5Translator', visitor)
         self.document.walkabout(visitor)
         self.output = self.visitor.astext()
         for attr in (

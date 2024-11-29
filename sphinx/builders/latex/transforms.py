@@ -151,7 +151,7 @@ class ShowUrlsTransform(SphinxPostTransform):
                     break
 
             # assign new footnote number
-            old_label = cast(nodes.label, footnote[0])
+            old_label = cast('nodes.label', footnote[0])
             old_label.replace_self(nodes.label('', str(num)))
             if old_label in footnote['names']:
                 footnote['names'].remove(old_label.astext())

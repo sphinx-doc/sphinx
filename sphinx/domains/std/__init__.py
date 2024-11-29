@@ -7,7 +7,6 @@ from copy import copy
 from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, system_message
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import StringList
 
@@ -24,6 +23,8 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Set
+
+    from docutils.nodes import Element, Node, system_message
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
@@ -813,7 +814,7 @@ class StandardDomain(Domain):
                                location=node)
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
-                title = cast(nodes.title, node[0])
+                title = cast('nodes.title', node[0])
                 sectname = clean_astext(title)
             elif node.tagname == 'rubric':
                 sectname = clean_astext(node)
@@ -824,9 +825,9 @@ class StandardDomain(Domain):
             else:
                 if (isinstance(node, nodes.definition_list | nodes.field_list) and
                         node.children):
-                    node = cast(nodes.Element, node.children[0])
+                    node = cast('nodes.Element', node.children[0])
                 if isinstance(node, nodes.field | nodes.definition_list_item):
-                    node = cast(nodes.Element, node.children[0])
+                    node = cast('nodes.Element', node.children[0])
                 if isinstance(node, nodes.term | nodes.field_name):
                     sectname = clean_astext(node)
                 else:
@@ -1117,7 +1118,7 @@ class StandardDomain(Domain):
     def get_numfig_title(self, node: Node) -> str | None:
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
-            elem = cast(Element, node)
+            elem = cast('Element', node)
             _, title_getter = self.enumerable_nodes.get(elem.__class__, (None, None))
             if title_getter:
                 return title_getter(elem)

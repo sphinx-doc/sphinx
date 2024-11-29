@@ -95,7 +95,7 @@ class NodeMatcher(Generic[N]):
         confounds type checkers' ability to determine the return type of the iterator.
         """
         for found in node.findall(self):
-            yield cast(N, found)
+            yield cast('N', found)
 
 
 def get_full_module_name(node: Node) -> str:

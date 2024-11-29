@@ -134,13 +134,13 @@ class autosummary_table(nodes.comment):
 def autosummary_table_visit_html(self: HTML5Translator, node: autosummary_table) -> None:
     """Make the first column of the table non-breaking."""
     try:
-        table = cast(nodes.table, node[0])
-        tgroup = cast(nodes.tgroup, table[0])
-        tbody = cast(nodes.tbody, tgroup[-1])
-        rows = cast(list[nodes.row], tbody)
+        table = cast('nodes.table', node[0])
+        tgroup = cast('nodes.tgroup', table[0])
+        tbody = cast('nodes.tbody', tgroup[-1])
+        rows = cast('list[nodes.row]', tbody)
         for row in rows:
-            col1_entry = cast(nodes.entry, row[0])
-            par = cast(nodes.paragraph, col1_entry[0])
+            col1_entry = cast('nodes.entry', row[0])
+            par = cast('nodes.paragraph', col1_entry[0])
             for j, subnode in enumerate(list(par)):
                 if isinstance(subnode, nodes.Text):
                     new_text = subnode.astext().replace(" ", "\u00a0")
@@ -765,7 +765,7 @@ class AutoLink(SphinxRole):
             return objects, errors
 
         assert len(objects) == 1
-        pending_xref = cast(addnodes.pending_xref, objects[0])
+        pending_xref = cast('addnodes.pending_xref', objects[0])
         try:
             # try to import object by name
             prefixes = get_import_prefixes_from_env(self.env)
@@ -778,7 +778,7 @@ class AutoLink(SphinxRole):
             ]
             import_by_name(name, prefixes)
         except ImportExceptionGroup:
-            literal = cast(nodes.literal, pending_xref[0])
+            literal = cast('nodes.literal', pending_xref[0])
             objects[0] = nodes.emphasis(self.rawtext, literal.astext(),
                                         classes=literal['classes'])
 

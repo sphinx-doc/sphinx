@@ -443,11 +443,11 @@ class GlossarySorter(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         for glossary in self.document.findall(addnodes.glossary):
             if glossary['sorted']:
-                definition_list = cast(nodes.definition_list, glossary[0])
+                definition_list = cast('nodes.definition_list', glossary[0])
                 definition_list[:] = sorted(
                     definition_list,
                     key=lambda item: unicodedata.normalize(
-                        'NFD', cast(nodes.term, item)[0].astext().lower()
+                        'NFD', cast('nodes.term', item)[0].astext().lower()
                     ),
                 )
 

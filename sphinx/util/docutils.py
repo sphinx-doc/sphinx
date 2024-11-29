@@ -355,7 +355,7 @@ class LoggingReporter(Reporter):
         debug: bool = False,
         error_handler: str = 'backslashreplace',
     ) -> None:
-        stream = cast(IO, WarningStream())
+        stream = cast('IO', WarningStream())
         super().__init__(
             source, report_level, halt_level, stream, debug, error_handler=error_handler
         )
