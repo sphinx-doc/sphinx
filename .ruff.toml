@@ -246,7 +246,7 @@ select = [
     "RUF028",  # This suppression comment is invalid because {}
     "RUF029",  # Function `{name}` is declared `async`, but doesn't `await` or use `async` features.
     "RUF030",  # `print()` expression in `assert` statement is likely unintentional
-#    "RUF031",  # Use parentheses for tuples in subscripts.
+    "RUF031",  # Use parentheses for tuples in subscripts.
     "RUF032",  # `Decimal()` called with float literal argument
     "RUF033",  # `__post_init__` method with argument defaults
     "RUF034",  # Useless if-else condition

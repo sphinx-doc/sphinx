@@ -414,7 +414,7 @@ def test_cmdoption(app):
         entries=[('pair', 'ls command line option; -l', 'cmdoption-ls-l', '', None)],
     )
     assert ('ls', '-l') in domain.progoptions
-    assert domain.progoptions[('ls', '-l')] == ('index', 'cmdoption-ls-l')
+    assert domain.progoptions['ls', '-l'] == ('index', 'cmdoption-ls-l')
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -441,7 +441,7 @@ def test_cmdoption_for_None(app):
         entries=[('pair', 'command line option; -l', 'cmdoption-l', '', None)],
     )
     assert (None, '-l') in domain.progoptions
-    assert domain.progoptions[(None, '-l')] == ('index', 'cmdoption-l')
+    assert domain.progoptions[None, '-l'] == ('index', 'cmdoption-l')
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -481,8 +481,8 @@ def test_multiple_cmdoptions(app):
     )
     assert ('cmd', '-o') in domain.progoptions
     assert ('cmd', '--output') in domain.progoptions
-    assert domain.progoptions[('cmd', '-o')] == ('index', 'cmdoption-cmd-o')
-    assert domain.progoptions[('cmd', '--output')] == ('index', 'cmdoption-cmd-o')
+    assert domain.progoptions['cmd', '-o'] == ('index', 'cmdoption-cmd-o')
+    assert domain.progoptions['cmd', '--output'] == ('index', 'cmdoption-cmd-o')
 
 
 @pytest.mark.sphinx('html', testroot='productionlist')

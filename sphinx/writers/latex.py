@@ -215,8 +215,8 @@ class Table:
         self.cell_id += 1
         for col in range(width):
             for row in range(height):
-                assert self.cells[(self.row + row, self.col + col)] == 0
-                self.cells[(self.row + row, self.col + col)] = self.cell_id
+                assert self.cells[self.row + row, self.col + col] == 0
+                self.cells[self.row + row, self.col + col] = self.cell_id
 
     def cell(
         self,
@@ -242,25 +242,25 @@ class TableCell:
     """Data of a cell in a table."""
 
     def __init__(self, table: Table, row: int, col: int) -> None:
-        if table.cells[(row, col)] == 0:
+        if table.cells[row, col] == 0:
             raise IndexError
 
         self.table = table
-        self.cell_id = table.cells[(row, col)]
+        self.cell_id = table.cells[row, col]
         self.row = row
         self.col = col
 
         # adjust position for multirow/multicol cell
-        while table.cells[(self.row - 1, self.col)] == self.cell_id:
+        while table.cells[self.row - 1, self.col] == self.cell_id:
             self.row -= 1
-        while table.cells[(self.row, self.col - 1)] == self.cell_id:
+        while table.cells[self.row, self.col - 1] == self.cell_id:
             self.col -= 1
 
     @property
     def width(self) -> int:
         """Returns the cell width."""
         width = 0
-        while self.table.cells[(self.row, self.col + width)] == self.cell_id:
+        while self.table.cells[self.row, self.col + width] == self.cell_id:
             width += 1
         return width
 
@@ -268,7 +268,7 @@ class TableCell:
     def height(self) -> int:
         """Returns the cell height."""
         height = 0
-        while self.table.cells[(self.row + height, self.col)] == self.cell_id:
+        while self.table.cells[self.row + height, self.col] == self.cell_id:
             height += 1
         return height
 

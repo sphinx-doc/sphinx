@@ -455,7 +455,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
         number = node.astext().strip()
         docname = node['docname']
         if (docname, number) in self.appeared:
-            footnote = self.appeared[(docname, number)]
+            footnote = self.appeared[docname, number]
             footnote['referred'] = True
 
             mark = footnotemark('', number, refid=node['refid'])
@@ -471,7 +471,7 @@ class LaTeXFootnoteVisitor(nodes.NodeVisitor):
                 node.replace_self(footnote)
                 footnote.walkabout(self)
 
-            self.appeared[(docname, number)] = footnote
+            self.appeared[docname, number] = footnote
         raise nodes.SkipNode
 
     def get_footnote_by_reference(
