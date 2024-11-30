@@ -62,7 +62,7 @@ async def coroutinefunc():
     pass
 
 
-async def asyncgenerator():
+async def asyncgenerator():  # NoQA: RUF029
     yield
 
 
