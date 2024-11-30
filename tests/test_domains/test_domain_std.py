@@ -504,19 +504,23 @@ def test_productionlist(app):
     ul = nodes[2]
     cases = []
     for li in list(ul):
-        assert len(list(li)) == 1
-        p = list(li)[0]
+        li_list = list(li)
+        assert len(li_list) == 1
+        p = li_list[0]
         assert p.tag == 'p'
         text = str(p.text).strip(' :')
-        assert len(list(p)) == 1
-        a = list(p)[0]
+        p_list = list(p)
+        assert len(p_list) == 1
+        a = p_list[0]
         assert a.tag == 'a'
         link = a.get('href')
-        assert len(list(a)) == 1
-        code = list(a)[0]
+        a_list = list(a)
+        assert len(a_list) == 1
+        code = a_list[0]
         assert code.tag == 'code'
-        assert len(list(code)) == 1
-        span = list(code)[0]
+        code_list = list(code)
+        assert len(code_list) == 1
+        span = code_list[0]
         assert span.tag == 'span'
         linkText = span.text.strip()
         cases.append((text, link, linkText))
