@@ -222,7 +222,7 @@ select = [
     # ruff-specific rules ('RUF')
 #    "RUF001",  # String contains ambiguous {}. Did you mean {}?
     "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
-#    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
+    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
     "RUF005",  # Consider `{expression}` instead of concatenation
     "RUF006",  # Store a reference to the return value of `{expr}.{method}`
     "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
