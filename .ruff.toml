@@ -245,11 +245,11 @@ select = [
 #    "RUF027",  # Possible f-string without an `f` prefix
     "RUF028",  # This suppression comment is invalid because {}
     "RUF029",  # Function `{name}` is declared `async`, but doesn't `await` or use `async` features.
-    "RUF030",  # `print()` expression in `assert` statement is likely unintentional
-    "RUF031",  # Use parentheses for tuples in subscripts.
+    "RUF030",  # `print()` call in `assert` statement is likely unintentional
+    "RUF031",  # Use parentheses for tuples in subscripts
     "RUF032",  # `Decimal()` called with float literal argument
     "RUF033",  # `__post_init__` method with argument defaults
-    "RUF034",  # Useless if-else condition
+    "RUF034",  # Useless `if`-`else` condition
 #    "RUF100",  # Unused `noqa` directive
     "RUF101",  # `{original}` is a redirect to `{target}`
     "RUF200",  # Failed to parse pyproject.toml: {message}
