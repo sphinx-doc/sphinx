@@ -250,6 +250,14 @@ select = [
     "RUF032",  # `Decimal()` called with float literal argument
     "RUF033",  # `__post_init__` method with argument defaults
     "RUF034",  # Useless `if`-`else` condition
+    "RUF035",  # Unsafe use of `{name}` detected
+#    "RUF036",  # `None` not at the end of the type annotation.
+    "RUF038",  # `Literal[True, False, ...]` can be replaced with `Literal[...] | bool`
+#    "RUF039",  # First argument to {call} is not raw string
+    "RUF040",  # Non-string literal used as assert message
+    "RUF041",  # Unnecessary nested `Literal`
+#    "RUF048",  # `__version__` may contain non-integral-like elements
+    "RUF055",  # Plain string pattern passed to `re` function
 #    "RUF100",  # Unused `noqa` directive
     "RUF101",  # `{original}` is a redirect to `{target}`
     "RUF200",  # Failed to parse pyproject.toml: {message}
