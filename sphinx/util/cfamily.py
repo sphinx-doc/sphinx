@@ -33,7 +33,7 @@ identifier_re = re.compile(
     |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
     [a-zA-Z0-9_]*\b
-""",
+    """,
     flags=re.VERBOSE,
 )
 integer_literal_re = re.compile(r'[1-9][0-9]*(\'[0-9]+)*')
@@ -50,7 +50,7 @@ integers_literal_suffix_re = re.compile(
     )\b
     # the ending word boundary is important for distinguishing
     # between suffixes and UDLs in C++
-""",
+    """,
     flags=re.VERBOSE,
 )
 float_literal_re = re.compile(
@@ -66,7 +66,7 @@ float_literal_re = re.compile(
         [0-9a-fA-F]+(\'[0-9a-fA-F]+)*([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*\.([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     )
-""",
+    """,
     flags=re.VERBOSE,
 )
 float_literal_suffix_re = re.compile(r'[fFlL]\b')
@@ -84,7 +84,7 @@ char_literal_re = re.compile(
       | (?:U[0-9a-fA-F]{8})
       ))
     )'
-""",
+    """,
     flags=re.VERBOSE,
 )
 
