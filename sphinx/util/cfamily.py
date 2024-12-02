@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 
 from docutils import nodes
 
@@ -341,7 +341,7 @@ class BaseParser:
         indicator = '-' * self.pos + '^'
         logger.debug(f'{msg}\n{self.definition}\n{indicator}')  # NoQA: G004
 
-    def fail(self, msg: str) -> None:
+    def fail(self, msg: str) -> NoReturn:
         errors = []
         indicator = '-' * self.pos + '^'
         msg = (
