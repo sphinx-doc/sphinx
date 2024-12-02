@@ -23,6 +23,7 @@ from sphinx.util import (
     rst,
 )
 from sphinx.util._importer import import_object
+from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
@@ -48,7 +49,6 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.events import EventManager
-    from sphinx.util._pathlib import _StrPath
     from sphinx.util.tags import Tags
 
 
@@ -81,7 +81,7 @@ class Builder:
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
-    #: Whether it is safe to make parallel :meth:`~.Builder.write_doc()` calls.
+    #: Whether it is safe to make parallel :meth:`~.Builder.write_doc` calls.
     allow_parallel: bool = False
     # support translation
     use_message_catalog = True
@@ -94,11 +94,16 @@ class Builder:
     #: The file format produced by the builder allows images to be embedded using data-URIs.
     supported_data_uri_images: bool = False
 
+    srcdir = _StrPathProperty()
+    confdir = _StrPathProperty()
+    outdir = _StrPathProperty()
+    doctreedir = _StrPathProperty()
+
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
-        self.srcdir: _StrPath = app.srcdir
-        self.confdir: _StrPath = app.confdir
-        self.outdir: _StrPath = app.outdir
-        self.doctreedir: _StrPath = app.doctreedir
+        self.srcdir = app.srcdir
+        self.confdir = app.confdir
+        self.outdir = app.outdir
+        self.doctreedir = app.doctreedir
         ensuredir(self.doctreedir)
 
         self.app: Sphinx = app

@@ -1,5 +1,7 @@
 """Test the autodoc extension.  This tests mainly for private-members option."""
 
+from __future__ import annotations
+
 import pytest
 
 from tests.test_extensions.autodoc_util import do_autodoc

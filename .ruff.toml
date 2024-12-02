@@ -222,7 +222,7 @@ select = [
     # ruff-specific rules ('RUF')
 #    "RUF001",  # String contains ambiguous {}. Did you mean {}?
     "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
-#    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
+    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
     "RUF005",  # Consider `{expression}` instead of concatenation
     "RUF006",  # Store a reference to the return value of `{expr}.{method}`
     "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
@@ -231,7 +231,7 @@ select = [
     "RUF010",  # Use explicit conversion flag
 #    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
     "RUF013",  # PEP 484 prohibits implicit `Optional`
-#    "RUF015",  # Prefer `next({iterable})` over single element slice
+    "RUF015",  # Prefer `next({iterable})` over single element slice
     "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer
     "RUF017",  # Avoid quadratic list summation
     "RUF018",  # Avoid assignment expressions in `assert` statements
@@ -243,13 +243,21 @@ select = [
     "RUF024",  # Do not pass mutable objects as values to `dict.fromkeys`
     "RUF026",  # `default_factory` is a positional-only argument to `defaultdict`
 #    "RUF027",  # Possible f-string without an `f` prefix
-#    "RUF028",  # This suppression comment is invalid because {}
-#    "RUF029",  # Function `{name}` is declared `async`, but doesn't `await` or use `async` features.
-    "RUF030",  # `print()` expression in `assert` statement is likely unintentional
-#    "RUF031",  # Use parentheses for tuples in subscripts.
+    "RUF028",  # This suppression comment is invalid because {}
+    "RUF029",  # Function `{name}` is declared `async`, but doesn't `await` or use `async` features.
+    "RUF030",  # `print()` call in `assert` statement is likely unintentional
+    "RUF031",  # Use parentheses for tuples in subscripts
     "RUF032",  # `Decimal()` called with float literal argument
     "RUF033",  # `__post_init__` method with argument defaults
-    "RUF034",  # Useless if-else condition
+    "RUF034",  # Useless `if`-`else` condition
+    "RUF035",  # Unsafe use of `{name}` detected
+    "RUF036",  # `None` not at the end of the type annotation.
+    "RUF038",  # `Literal[True, False, ...]` can be replaced with `Literal[...] | bool`
+#    "RUF039",  # First argument to {call} is not raw string
+    "RUF040",  # Non-string literal used as assert message
+    "RUF041",  # Unnecessary nested `Literal`
+#    "RUF048",  # `__version__` may contain non-integral-like elements
+    "RUF055",  # Plain string pattern passed to `re` function
 #    "RUF100",  # Unused `noqa` directive
     "RUF101",  # `{original}` is a redirect to `{target}`
     "RUF200",  # Failed to parse pyproject.toml: {message}
@@ -292,10 +300,10 @@ select = [
 [lint.per-file-ignores]
 "doc/*" = [
     "ANN",  # documentation doesn't need annotations
-    "TCH001",  # documentation doesn't need type-checking blocks
+    "TC001",  # documentation doesn't need type-checking blocks
 ]
 "doc/conf.py" = ["INP001", "W605"]
-"doc/development/tutorials/examples/*" = ["INP001"]
+"doc/development/tutorials/examples/*" = ["I002", "INP001"]
 # allow print() in the tutorial
 "doc/development/tutorials/examples/recipe.py" = [
     "FURB118",
@@ -359,8 +367,8 @@ select = [
 ]
 
 # these tests need old ``typing`` generic aliases
-"tests/test_util/test_util_typing.py" = ["UP006", "UP007", "UP035"]
-"tests/test_util/typing_test_data.py" = ["FA100", "PYI030", "UP006", "UP007", "UP035"]
+"tests/test_util/test_util_typing.py" = ["RUF036", "UP006", "UP007", "UP035"]
+"tests/test_util/typing_test_data.py" = ["FA100", "I002", "PYI030", "UP006", "UP007", "UP035"]
 
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages
@@ -376,6 +384,9 @@ inline-quotes = "single"
 [lint.isort]
 forced-separate = [
     "tests",
+]
+required-imports = [
+    "from __future__ import annotations",
 ]
 
 [format]

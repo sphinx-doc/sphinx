@@ -1,5 +1,7 @@
 """Test sphinx.util.docstrings."""
 
+from __future__ import annotations
+
 from sphinx.util.docstrings import (
     prepare_commentdoc,
     prepare_docstring,

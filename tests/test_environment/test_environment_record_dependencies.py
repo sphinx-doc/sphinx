@@ -1,5 +1,7 @@
 """Tests for ``record_dependencies``."""
 
+from __future__ import annotations
+
 import pytest
 
 

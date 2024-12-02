@@ -1,5 +1,7 @@
 """Tests util.typing functions."""
 
+from __future__ import annotations
+
 import dataclasses
 import sys
 import typing as t

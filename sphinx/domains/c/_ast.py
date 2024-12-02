@@ -68,6 +68,9 @@ class ASTIdentifier(ASTBaseBase):
     def get_display_string(self) -> str:
         return "[anonymous]" if self.is_anonymous else self.name
 
+    def _stringify(self, transform: StringifyTransform) -> str:
+        return transform(self.get_display_string())
+
     def describe_signature(self, signode: TextElement, mode: str, env: BuildEnvironment,
                            prefix: str, symbol: Symbol) -> None:
         # note: slightly different signature of describe_signature due to the prefix
@@ -1790,14 +1793,14 @@ class ASTDeclaration(ASTBaseBase):
 
     @property
     def name(self) -> ASTNestedName:
-        decl = cast(DeclarationType, self.declaration)
+        decl = cast('DeclarationType', self.declaration)
         return decl.name
 
     @property
     def function_params(self) -> list[ASTFunctionParameter] | None:
         if self.objectType != 'function':
             return None
-        decl = cast(ASTType, self.declaration)
+        decl = cast('ASTType', self.declaration)
         return decl.function_params
 
     def get_id(self, version: int, prefixed: bool = True) -> str:
@@ -1848,7 +1851,7 @@ class ASTDeclaration(ASTBaseBase):
             mainDeclNode += addnodes.desc_sig_keyword('enumerator', 'enumerator')
             mainDeclNode += addnodes.desc_sig_space()
         elif self.objectType == 'type':
-            decl = cast(ASTType, self.declaration)
+            decl = cast('ASTType', self.declaration)
             prefix = decl.get_type_declaration_prefix()
             mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
             mainDeclNode += addnodes.desc_sig_space()

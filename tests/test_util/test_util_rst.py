@@ -1,5 +1,7 @@
 """Tests sphinx.util.rst functions."""
 
+from __future__ import annotations
+
 from docutils.statemachine import StringList
 from jinja2 import Environment
 

@@ -1,5 +1,7 @@
 """Tests sphinx.util.template functions."""
 
+from __future__ import annotations
+
 from sphinx.util.template import ReSTRenderer
 
 

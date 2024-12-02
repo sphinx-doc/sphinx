@@ -1,5 +1,7 @@
 """Tests sphinx.util.matching functions."""
 
+from __future__ import annotations
+
 from sphinx.util.matching import Matcher, compile_matchers, get_matching_files
 
 

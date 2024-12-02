@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -17,6 +16,8 @@ from sphinx.util.i18n import format_date
 from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.nodes import Element
 
     from sphinx.builders import Builder
@@ -33,7 +34,7 @@ class ManualPageWriter(Writer):  # type: ignore[misc]
         transform = NestedInlineTransform(self.document)
         transform.apply()
         visitor = self.builder.create_translator(self.document, self.builder)
-        self.visitor = cast(ManualPageTranslator, visitor)
+        self.visitor = cast('ManualPageTranslator', visitor)
         self.document.walkabout(visitor)
         self.output = self.visitor.astext()
 
@@ -277,7 +278,7 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         self.ensure_eol()
         self.in_productionlist += 1
         self.body.append('.sp\n.nf\n')
-        productionlist = cast(Iterable[addnodes.production], node)
+        productionlist = cast('Iterable[addnodes.production]', node)
         names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
@@ -379,11 +380,11 @@ class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[mi
         pass
 
     def visit_acks(self, node: Element) -> None:
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.ensure_eol()
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append('\n')
         raise nodes.SkipNode

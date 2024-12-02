@@ -61,10 +61,7 @@ class ChangesBuilder(Builder):
             return
         logger.info(bold(__('writing summary file...')))
         for changeset in changesets:
-            if isinstance(changeset.descname, tuple):
-                descname = changeset.descname[0]
-            else:
-                descname = changeset.descname
+            descname = changeset.descname
             ttext = self.typemap[changeset.type]
             context = changeset.content.replace('\n', ' ')
             if descname and changeset.docname.startswith('c-api'):
