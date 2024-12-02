@@ -436,7 +436,7 @@ class BaseParser:
     def _parse_balanced_token_seq(self, end: list[str]) -> str:
         # TODO: add handling of string literals and similar
         brackets = {'(': ')', '[': ']', '{': '}'}
-        startPos = self.pos
+        start_pos = self.pos
         symbols: list[str] = []
         while not self.eof:
             if len(symbols) == 0 and self.current_char in end:
@@ -450,17 +450,17 @@ class BaseParser:
             self.pos += 1
         if self.eof:
             self.fail(
-                f'Could not find end of balanced-token-seq starting at {startPos}.'
+                f'Could not find end of balanced-token-seq starting at {start_pos}.'
             )
-        return self.definition[startPos : self.pos]
+        return self.definition[start_pos : self.pos]
 
     def _parse_attribute(self) -> ASTAttribute | None:
         self.skip_ws()
         # try C++11 style
-        startPos = self.pos
+        start_pos = self.pos
         if self.skip_string_and_ws('['):
             if not self.skip_string('['):
-                self.pos = startPos
+                self.pos = start_pos
             else:
                 # TODO: actually implement the correct grammar
                 arg = self._parse_balanced_token_seq(end=[']'])
