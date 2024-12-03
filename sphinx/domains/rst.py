@@ -231,8 +231,8 @@ class ReSTDomain(Domain):
         'role':      ReSTRole,
     }
     roles = {
-        'dir':  XRefRole(),
-        'role': XRefRole(),
+        'dir':  XRefRole(title_fmt=".. {title}::"),
+        'role': XRefRole(title_fmt=":{title}:"),
     }
     initial_data: dict[str, dict[tuple[str, str], str]] = {
         'objects': {},  # fullname -> docname, objtype
