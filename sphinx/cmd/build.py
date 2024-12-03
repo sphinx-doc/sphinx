@@ -72,7 +72,9 @@ def handle_exception(
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
             print(terminal_safe(str(exception)), file=stderr)
-            tbpath = save_traceback(app, exception)
+            tbpath, tboutput = save_traceback(app, exception)
+            if not app or app.config.print_traceback:
+                print(tboutput)
             print(
                 red(
                     __(
@@ -102,7 +104,9 @@ def handle_exception(
         else:
             print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
-            tbpath = save_traceback(app, exception)
+            tbpath, tboutput = save_traceback(app, exception)
+            if not app or app.config.print_traceback:
+                print(tboutput)
             print(
                 red(
                     __(

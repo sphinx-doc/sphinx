@@ -59,7 +59,7 @@ Traceback
 """
 
 
-def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
+def save_traceback(app: Sphinx | None, exc: BaseException) -> tuple[str, str]:
     """Save the given exception's traceback in a temporary file."""
     if isinstance(exc, SphinxParallelError):
         exc_format = '(Error in parallel process)\n' + exc.traceback
@@ -78,12 +78,14 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
             if ext.version != 'builtin'
         )
 
+    output = error_info(last_msgs, exts_list, exc_format)
+
     with tempfile.NamedTemporaryFile(
         suffix='.log', prefix='sphinx-err-', delete=False
     ) as f:
-        f.write(error_info(last_msgs, exts_list, exc_format).encode('utf-8'))
+        f.write(output.encode('utf-8'))
 
-    return f.name
+    return f.name, output
 
 
 def handle_exception(
@@ -164,7 +166,9 @@ def handle_exception(
 
     print_red(__('Exception occurred:'))
     print_err(formatted_tb)
-    traceback_info_path = save_traceback(app, exception)
+    traceback_info_path, traceback_output = save_traceback(app, exception)
+    if not app or app.config.print_traceback:
+        print_err(traceback_output)
     print_err(__('The full traceback has been saved in:'))
     print_err(traceback_info_path)
     print_err()

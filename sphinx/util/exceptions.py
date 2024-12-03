@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
-def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
+def save_traceback(app: Sphinx | None, exc: BaseException) -> tuple[str, str]:
     """Save the given exception's traceback in a temporary file."""
     import platform
 
@@ -40,10 +40,7 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
             if ext.version != 'builtin'
         )
 
-    with NamedTemporaryFile(
-        'w', encoding='utf-8', suffix='.log', prefix='sphinx-err-', delete=False
-    ) as f:
-        f.write(f"""\
+    output = f"""\
 # Platform:         {sys.platform}; ({platform.platform()})
 # Sphinx version:   {sphinx.__display_version__}
 # Python version:   {platform.python_version()} ({platform.python_implementation()})
@@ -59,8 +56,13 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
 
 # Traceback:
 {exc_format}
-""")
-    return f.name
+"""
+
+    with NamedTemporaryFile(
+        'w', encoding='utf-8', suffix='.log', prefix='sphinx-err-', delete=False
+    ) as f:
+        f.write(output)
+    return f.name, output
 
 
 def format_exception_cut_frames(x: int = 1) -> str:

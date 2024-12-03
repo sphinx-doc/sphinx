@@ -18,6 +18,11 @@ Deprecated
 Features added
 --------------
 
+* #13163: Add the :confval:`print_traceback` configuration option
+  to control whether tracebacks are printed in full when Sphinx
+  encounters an internal error.
+  Patch by Kevin Deldycke.
+
 Bugs fixed
 ----------
 

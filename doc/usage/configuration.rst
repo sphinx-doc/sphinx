@@ -317,6 +317,21 @@ General configuration
    (or, if translation is enabled with :confval:`language`,
    an equivalent format for the selected locale).
 
+.. confval:: print_traceback
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   If :code-py:`False`, the full traceback will not be printed when Sphinx
+   encounters an internal fatal error. It will instead print a short message
+   and exit.
+
+   .. note::
+
+      Whatever the setting is set to, the traceback is always saved in a
+      temporary file named ``sphinx-err-xxxxxxxx.log``.
+
+   .. versionadded:: 8.2.0
+
 
 Options for figure numbering
 ----------------------------
