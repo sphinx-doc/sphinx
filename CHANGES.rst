@@ -44,6 +44,9 @@ Features added
   Patch by Chris Barrick.
 * #13227: Implement the :rst:role:`kbd` role as a ``SphinxRole``.
   Patch by Adam Turner.
+* #13163: Always print tracebacks in full when Sphinx encounters an internal
+  error.
+  Patch by Kevin Deldycke.
 
 Bugs fixed
 ----------
