@@ -207,6 +207,7 @@ class Config:
         'today': _Opt('', 'env', ()),
         # the real default is locale-dependent
         'today_fmt': _Opt(None, 'env', frozenset((str,))),
+        'print_traceback': _Opt(True, 'env', ()),
 
         'language': _Opt('en', 'env', frozenset((str,))),
         'locale_dirs': _Opt(['locales'], 'env', ()),
