@@ -207,19 +207,19 @@ class CObject(ObjectDescription[ASTDeclaration]):
 
     def run(self) -> list[Node]:
         env = self.state.document.settings.env  # from ObjectDescription.run
-        if 'c:parent_symbol' not in env.temp_data:
+        if 'c:parent_symbol' not in env.current_document:
             root = env.domaindata['c']['root_symbol']
-            env.temp_data['c:parent_symbol'] = root
+            env.current_document['c:parent_symbol'] = root
             env.ref_context['c:parent_key'] = root.get_lookup_key()
 
         # When multiple declarations are made in the same directive
         # they need to know about each other to provide symbol lookup for function parameters.
         # We use last_symbol to store the latest added declaration in a directive.
-        env.temp_data['c:last_symbol'] = None
+        env.current_document['c:last_symbol'] = None
         return super().run()
 
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
-        parentSymbol: Symbol = self.env.temp_data['c:parent_symbol']
+        parentSymbol: Symbol = self.env.current_document['c:parent_symbol']
 
         max_len = (self.env.config.c_maximum_signature_line_length
                    or self.env.config.maximum_signature_line_length
@@ -239,7 +239,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             # the possibly inner declarations.
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
-            self.env.temp_data['c:last_symbol'] = symbol
+            self.env.current_document['c:last_symbol'] = symbol
             raise ValueError from e
 
         try:
@@ -248,15 +248,15 @@ class CObject(ObjectDescription[ASTDeclaration]):
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
             assert symbol.siblingBelow is None
-            symbol.siblingAbove = self.env.temp_data['c:last_symbol']
+            symbol.siblingAbove = self.env.current_document['c:last_symbol']
             if symbol.siblingAbove is not None:
                 assert symbol.siblingAbove.siblingBelow is None
                 symbol.siblingAbove.siblingBelow = symbol
-            self.env.temp_data['c:last_symbol'] = symbol
+            self.env.current_document['c:last_symbol'] = symbol
         except _DuplicateSymbolError as e:
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
-            self.env.temp_data['c:last_symbol'] = e.symbol
+            self.env.current_document['c:last_symbol'] = e.symbol
             msg = __("Duplicate C declaration, also defined at %s:%s.\n"
                      "Declaration is '.. c:%s:: %s'.")
             logger.warning(
@@ -278,15 +278,15 @@ class CObject(ObjectDescription[ASTDeclaration]):
         return ast
 
     def before_content(self) -> None:
-        lastSymbol: Symbol = self.env.temp_data['c:last_symbol']
+        lastSymbol: Symbol = self.env.current_document['c:last_symbol']
         assert lastSymbol
-        self.oldParentSymbol = self.env.temp_data['c:parent_symbol']
+        self.oldParentSymbol = self.env.current_document['c:parent_symbol']
         self.oldParentKey: LookupKey = self.env.ref_context['c:parent_key']
-        self.env.temp_data['c:parent_symbol'] = lastSymbol
+        self.env.current_document['c:parent_symbol'] = lastSymbol
         self.env.ref_context['c:parent_key'] = lastSymbol.get_lookup_key()
 
     def after_content(self) -> None:
-        self.env.temp_data['c:parent_symbol'] = self.oldParentSymbol
+        self.env.current_document['c:parent_symbol'] = self.oldParentSymbol
         self.env.ref_context['c:parent_key'] = self.oldParentKey
 
 
@@ -375,8 +375,8 @@ class CNamespaceObject(SphinxDirective):
                 name = _make_phony_error_name()
             symbol = rootSymbol.add_name(name)
             stack = [symbol]
-        self.env.temp_data['c:parent_symbol'] = symbol
-        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.current_document['c:parent_symbol'] = symbol
+        self.env.current_document['c:namespace_stack'] = stack
         self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -400,14 +400,14 @@ class CNamespacePushObject(SphinxDirective):
         except DefinitionError as e:
             logger.warning(e, location=self.get_location())
             name = _make_phony_error_name()
-        oldParent = self.env.temp_data.get('c:parent_symbol', None)
+        oldParent = self.env.current_document.get('c:parent_symbol', None)
         if not oldParent:
             oldParent = self.env.domaindata['c']['root_symbol']
         symbol = oldParent.add_name(name)
-        stack = self.env.temp_data.get('c:namespace_stack', [])
+        stack = self.env.current_document.get('c:namespace_stack', [])
         stack.append(symbol)
-        self.env.temp_data['c:parent_symbol'] = symbol
-        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.current_document['c:parent_symbol'] = symbol
+        self.env.current_document['c:namespace_stack'] = stack
         self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -420,7 +420,7 @@ class CNamespacePopObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        stack = self.env.temp_data.get('c:namespace_stack', None)
+        stack = self.env.current_document.get('c:namespace_stack', None)
         if not stack or len(stack) == 0:
             logger.warning("C namespace pop on empty stack. Defaulting to global scope.",
                            location=self.get_location())
@@ -431,8 +431,8 @@ class CNamespacePopObject(SphinxDirective):
             symbol = stack[-1]
         else:
             symbol = self.env.domaindata['c']['root_symbol']
-        self.env.temp_data['c:parent_symbol'] = symbol
-        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.current_document['c:parent_symbol'] = symbol
+        self.env.current_document['c:namespace_stack'] = stack
         self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -451,9 +451,9 @@ class AliasNode(nodes.Element):
         self.aliasOptions = aliasOptions
         self.document = document
         if env is not None:
-            if 'c:parent_symbol' not in env.temp_data:
+            if 'c:parent_symbol' not in env.current_document:
                 root = env.domaindata['c']['root_symbol']
-                env.temp_data['c:parent_symbol'] = root
+                env.current_document['c:parent_symbol'] = root
                 env.ref_context['c:parent_key'] = root.get_lookup_key()
             self.parentKey = env.ref_context['c:parent_key']
         else:
@@ -659,7 +659,7 @@ class CExprRole(SphinxRole):
                            location=self.get_location())
             # see below
             return [addnodes.desc_inline('c', text, text, classes=[self.class_type])], []
-        parentSymbol = self.env.temp_data.get('c:parent_symbol', None)
+        parentSymbol = self.env.current_document.get('c:parent_symbol', None)
         if parentSymbol is None:
             parentSymbol = self.env.domaindata['c']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,

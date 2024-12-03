@@ -63,13 +63,12 @@ def on_builder_inited(app: Sphinx) -> None:
 
 def on_source_read(app: Sphinx, docname: str, content: list[str]) -> None:
     """Start to measure reading duration."""
-    app.env.temp_data['started_at'] = time.monotonic()
+    app.env.current_document.reading_started_at = time.monotonic()
 
 
 def on_doctree_read(app: Sphinx, doctree: nodes.document) -> None:
     """Record a reading duration."""
-    started_at = app.env.temp_data['started_at']
-    duration = time.monotonic() - started_at
+    duration = time.monotonic() - app.env.current_document.reading_started_at
     domain = app.env.domains['duration']
     domain.note_reading_duration(duration)
 

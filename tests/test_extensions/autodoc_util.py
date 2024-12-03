@@ -22,7 +22,8 @@ def do_autodoc(
     options: dict[str, Any] | None = None,
 ) -> StringList:
     options = {} if options is None else options.copy()
-    app.env.temp_data.setdefault('docname', 'index')  # set dummy docname
+    if not app.env.current_document.docname:
+        app.env.current_document.docname = 'index'  # set dummy docname
     doccls = app.registry.documenters[objtype]
     docoptions = process_documenter_options(doccls, app.config, options)
     state = Mock()

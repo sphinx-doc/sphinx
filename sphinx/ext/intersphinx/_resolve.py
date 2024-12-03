@@ -398,7 +398,7 @@ class IntersphinxRole(SphinxRole):
             # the user did not specify a domain,
             # so we check first the default (if available) then standard domains
             domains: list[Domain] = []
-            if default_domain := self.env.temp_data.get('default_domain'):
+            if default_domain := self.env.current_document.default_domain:
                 domains.append(default_domain)
             if (
                 std_domain := self.env.domains.standard_domain
@@ -505,7 +505,7 @@ class IntersphinxRole(SphinxRole):
         names = name.split(':')
         if len(names) == 1:
             # role
-            default_domain = self.env.temp_data.get('default_domain')
+            default_domain = self.env.current_document.default_domain
             domain = default_domain.name if default_domain else None
             role = names[0]
         elif len(names) == 2:
