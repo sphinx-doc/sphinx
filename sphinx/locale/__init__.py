@@ -20,7 +20,7 @@ class _TranslationProxy:
     the lazy objects should mostly work as expected, for example for sorting.
     """
 
-    __slots__ = '_catalogue', '_namespace', '_message'
+    __slots__ = '_catalogue', '_message', '_namespace'
 
     def __init__(self, catalogue: str, namespace: str, message: str) -> None:
         self._catalogue = catalogue
