@@ -68,6 +68,7 @@ def test_method(app):
         '',
         '.. py:function:: method(arg1, arg2)',
         '   :module: target.callable',
+        '   :canonical: target.callable.Callable.method',
         '',
         '   docstring of Callable.method().',
         '',
@@ -76,11 +77,14 @@ def test_method(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_builtin_function(app):
+    import os
+
     actual = do_autodoc(app, 'function', 'os.umask')
     assert list(actual) == [
         '',
         '.. py:function:: umask(mask, /)',
         '   :module: os',
+        f'   :canonical: {os.name}.umask',
         '',
         '   Set the current numeric umask and return the previous umask.',
         '',
@@ -94,6 +98,7 @@ def test_methoddescriptor(app):
         '',
         '.. py:function:: __add__(self, value, /)',
         '   :module: builtins.int',
+        '   :canonical: builtins.int.int.__add__',
         '',
         '   Return self+value.',
         '',
