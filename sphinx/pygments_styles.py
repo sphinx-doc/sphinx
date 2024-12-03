@@ -1,5 +1,7 @@
 """Sphinx theme specific highlighting styles."""
 
+from __future__ import annotations
+
 from pygments.style import Style
 from pygments.styles.friendly import FriendlyStyle
 from pygments.token import (

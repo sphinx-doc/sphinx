@@ -17,7 +17,7 @@ from __future__ import annotations
 import sys
 import warnings
 from pathlib import Path, PosixPath, PurePath, WindowsPath
-from typing import Any
+from typing import Any, overload
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 
@@ -133,3 +133,38 @@ else:
         def __len__(self) -> int:
             warnings.warn(_MSG, RemovedInSphinx90Warning, stacklevel=2)
             return len(self.__str__())
+
+
+class _StrPathProperty:
+    def __init__(self) -> None:
+        self.instance_attr: str = ''
+
+    def __set_name__(self, owner: object, name: str) -> None:
+        self.instance_attr = f'_{name}'  # i.e. '_srcdir'
+
+    @overload
+    def __get__(self, obj: None, objtype: None) -> _StrPathProperty: ...  # NoQA: E704
+
+    @overload
+    def __get__(self, obj: object, objtype: type[object]) -> _StrPath: ...  # NoQA: E704
+
+    def __get__(
+        self, obj: object | None, objtype: type[object] | None = None
+    ) -> _StrPathProperty | _StrPath:
+        if obj is None:
+            return self
+        if not self.instance_attr:
+            raise AttributeError
+        return getattr(obj, self.instance_attr)
+
+    def __set__(self, obj: Any, value: _StrPath | Path) -> None:
+        try:
+            setattr(obj, self.instance_attr, _StrPath(value))
+        except TypeError as err:
+            cls_name = type(obj).__qualname__
+            name = self.instance_attr.removeprefix('_')
+            msg = f'{cls_name}.{name} may only be set to path-like objects'
+            raise TypeError(msg) from err
+
+    def __delete__(self, obj: Any) -> None:
+        delattr(obj, self.instance_attr)

@@ -13,13 +13,13 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes
 
 import sphinx
-from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.builders.html import StandaloneHTMLBuilder
     from sphinx.util.typing import ExtensionMetadata
     from sphinx.writers.html5 import HTML5Translator
 
@@ -82,7 +82,7 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict
         raise ExtensionError(msg)
 
     domain = app.env.domains.math_domain
-    builder = cast(StandaloneHTMLBuilder, app.builder)
+    builder = cast('StandaloneHTMLBuilder', app.builder)
     if app.registry.html_assets_policy == 'always' or domain.has_equations(pagename):
         # Enable mathjax only if equations exists
         if app.config.mathjax2_config:

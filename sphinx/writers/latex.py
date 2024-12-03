@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Iterable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
@@ -26,6 +25,8 @@ from sphinx.util.template import LaTeXRenderer
 from sphinx.util.texescape import tex_replace_map
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders.latex import LaTeXBuilder
@@ -95,7 +96,7 @@ class LaTeXWriter(writers.Writer):  # type: ignore[type-arg]
             self.document, self.builder, self.theme
         )
         self.document.walkabout(visitor)
-        self.output = cast(LaTeXTranslator, visitor).astext()
+        self.output = cast('LaTeXTranslator', visitor).astext()
 
 
 # Helper classes
@@ -214,8 +215,8 @@ class Table:
         self.cell_id += 1
         for col in range(width):
             for row in range(height):
-                assert self.cells[(self.row + row, self.col + col)] == 0
-                self.cells[(self.row + row, self.col + col)] = self.cell_id
+                assert self.cells[self.row + row, self.col + col] == 0
+                self.cells[self.row + row, self.col + col] = self.cell_id
 
     def cell(
         self,
@@ -241,25 +242,25 @@ class TableCell:
     """Data of a cell in a table."""
 
     def __init__(self, table: Table, row: int, col: int) -> None:
-        if table.cells[(row, col)] == 0:
+        if table.cells[row, col] == 0:
             raise IndexError
 
         self.table = table
-        self.cell_id = table.cells[(row, col)]
+        self.cell_id = table.cells[row, col]
         self.row = row
         self.col = col
 
         # adjust position for multirow/multicol cell
-        while table.cells[(self.row - 1, self.col)] == self.cell_id:
+        while table.cells[self.row - 1, self.col] == self.cell_id:
             self.row -= 1
-        while table.cells[(self.row, self.col - 1)] == self.cell_id:
+        while table.cells[self.row, self.col - 1] == self.cell_id:
             self.col -= 1
 
     @property
     def width(self) -> int:
         """Returns the cell width."""
         width = 0
-        while self.table.cells[(self.row, self.col + width)] == self.cell_id:
+        while self.table.cells[self.row, self.col + width] == self.cell_id:
             width += 1
         return width
 
@@ -267,7 +268,7 @@ class TableCell:
     def height(self) -> int:
         """Returns the cell height."""
         height = 0
-        while self.table.cells[(self.row + height, self.col)] == self.cell_id:
+        while self.table.cells[self.row + height, self.col] == self.cell_id:
             height += 1
         return height
 
@@ -1111,7 +1112,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_footnote(self, node: Element) -> None:
         self.in_footnote += 1
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         if self.in_parsed_literal:
             self.body.append(r'\begin{footnote}[%s]' % label.astext())
         else:
@@ -1382,8 +1383,8 @@ class LaTeXTranslator(SphinxTranslator):
     def visit_acks(self, node: Element) -> None:
         # this is a list in the source, but should be rendered as a
         # comma-separated list here
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.body.append(BLANKLINE)
         self.body.append(', '.join(n.astext() for n in list_items) + '.')
         self.body.append(BLANKLINE)
@@ -2091,8 +2092,8 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append('}')
 
     def visit_thebibliography(self, node: Element) -> None:
-        citations = cast(Iterable[nodes.citation], node)
-        labels = (cast(nodes.label, citation[0]) for citation in citations)
+        citations = cast('Iterable[nodes.citation]', node)
+        labels = (cast('nodes.label', citation[0]) for citation in citations)
         longest_label = max((label.astext() for label in labels), key=len)
         if len(longest_label) > MAX_CITATION_LABEL_LENGTH:
             # adjust max width of citation labels not to break the layout
@@ -2106,7 +2107,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(r'\end{sphinxthebibliography}' + CR)
 
     def visit_citation(self, node: Element) -> None:
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         self.body.append(
             rf'\bibitem[{self.encode(label.astext())}]'
             rf'{{{node["docname"]}:{node["ids"][0]}}}'
@@ -2159,7 +2160,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.body.append(']')
 
     def visit_footnotetext(self, node: Element) -> None:
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         self.body.append('%' + CR)
         self.body.append(r'\begin{footnotetext}[%s]' % label.astext())
         self.body.append(r'\sphinxAtStartFootnote' + CR)

@@ -1,5 +1,7 @@
 """The Sphinx documentation toolchain."""
 
+from __future__ import annotations
+
 __version__ = '8.2.0'
 __display_version__ = __version__  # used for command line version
 

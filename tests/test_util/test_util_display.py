@@ -1,5 +1,7 @@
 """Tests util functions."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.util import logging
