@@ -27,6 +27,10 @@ default. The ``autosectionlabel_prefix_document`` configuration variable can be
 used to make headings which appear multiple times but in different documents
 unique.
 
+Use the :confval:`autosectionlabel_full_reference` configuration variable
+to guarantee that the generated references are unique across a document
+with similar section names at different levels.
+
 
 Configuration
 -------------
@@ -50,6 +54,28 @@ Configuration
    only for top level sections, and deeper sections are not labeled.  It
    defaults to ``None`` (i.e. all sections are labeled).
 
+.. confval:: autosectionlabel_full_reference
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
+
+.. versionadded:: 8.2
+
+   True to make each section label include all the parent sections separated by
+   a colon. For instance, if the following appears in document ``index.rst``:
+
+   .. code-block:: rst
+
+      Title
+      =====
+
+      Section
+      -------
+
+      Sub Section
+      ~~~~~~~~~~~
+
+   The reference of the third level section ("Sub Section") will be
+   ``index:Title:Section:Sub Section``.
 
 Debugging
 ---------

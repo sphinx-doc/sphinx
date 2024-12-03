@@ -597,7 +597,19 @@ def make_id(
             node_id = None  # fallback to None
 
     while node_id is None or node_id in document.ids:
-        node_id = idformat % env.new_serialno(prefix)
+        node_id = _make_id(idformat % env.new_serialno(prefix))
+
+    logger.debug(
+        __(
+            'NODE "%s" gets term "%s" with ID format "%s" and prefix is "%s" and ids is "s"'
+        ),
+        node_id,
+        term,
+        idformat,
+        prefix,  # document.ids,
+        location=document,
+        type='make_id',
+    )
 
     return node_id
 

@@ -486,7 +486,9 @@ class LaTeXTranslator(SphinxTranslator):
         return self.render('latex.tex.jinja', self.elements)
 
     def hypertarget(self, id: str, withdoc: bool = True, anchor: bool = True) -> str:
-        if withdoc:
+        if getattr(self.config, 'autosectionlabel_full_reference', False):
+            pass
+        elif withdoc:
             id = self.curfilestack[-1] + ':' + id
         escaped_id = self.idescape(id)
         return (r'\phantomsection' if anchor else '') + r'\label{%s}' % escaped_id
@@ -1971,9 +1973,12 @@ class LaTeXTranslator(SphinxTranslator):
             if hashindex == -1:
                 # reference to the document
                 id = uri[1:] + '::doc'
+            elif getattr(self.config, 'autosectionlabel_full_reference', False):
+                id = uri[hashindex + 1 :]
             else:
                 # reference to a label
                 id = uri[1:].replace('#', ':')
+
             self.body.append(self.hyperlink(id))
             if (
                 len(node)
