@@ -63,6 +63,16 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
    .. rubric:: Options
 
+   .. rst:directive:option:: class: class names
+      :type: a list of class names, separated by spaces
+
+      Assign `class attributes`_ to the table.
+      This is a :dudir:`common option <common-options>`.
+
+      .. _class attributes: https://docutils.sourceforge.io/docs/ref/doctree.html#classes
+
+      .. versionadded:: 8.2
+
    .. rst:directive:option:: toctree: optional directory name
 
       If you want the :rst:dir:`autosummary` table to also serve as a
