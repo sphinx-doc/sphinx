@@ -543,7 +543,7 @@ class Sphinx:
         self,
         event: Literal['env-merge-info'],
         callback: Callable[
-            [Sphinx, BuildEnvironment, list[str], BuildEnvironment], None
+            [Sphinx, BuildEnvironment, Set[str], BuildEnvironment], None
         ],
         priority: int = 500
     ) -> int:

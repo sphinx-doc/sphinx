@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils import nodes
 
     from sphinx.application import Sphinx
@@ -55,7 +57,7 @@ class EnvironmentCollector:
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         """Merge in specified data regarding docnames from a different `BuildEnvironment`
