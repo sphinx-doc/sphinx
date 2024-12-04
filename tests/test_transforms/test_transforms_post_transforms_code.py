@@ -15,6 +15,7 @@ def test_trim_doctest_flags_html(app):
     assert 'QUUX' not in result
     assert 'CORGE' not in result
     assert 'GRAULT' in result
+    assert '<span class="n">now</span><span class="p">()</span>   \n' not in result
 
 
 @pytest.mark.sphinx(
