@@ -36,7 +36,7 @@ import inspect
 import os.path
 import re
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -69,8 +69,7 @@ module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
                            ''', re.VERBOSE)
 
 
-py_builtins = [obj for obj in vars(builtins).values()
-               if inspect.isclass(obj)]
+PY_BUILTINS: Final = frozenset(filter(inspect.isclass, vars(builtins).values()))
 
 
 def try_import(objname: str) -> Any:
@@ -186,7 +185,7 @@ class InheritanceGraph:
         all_classes = {}
 
         def recurse(cls: Any) -> None:
-            if not show_builtins and cls in py_builtins:
+            if not show_builtins and cls in PY_BUILTINS:
                 return
             if not private_bases and cls.__name__.startswith('_'):
                 return
@@ -211,7 +210,7 @@ class InheritanceGraph:
                 return
 
             for base in cls.__bases__:
-                if not show_builtins and base in py_builtins:
+                if not show_builtins and base in PY_BUILTINS:
                     continue
                 if not private_bases and base.__name__.startswith('_'):
                     continue
