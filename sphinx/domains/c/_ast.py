@@ -80,18 +80,18 @@ class ASTIdentifier(ASTBaseBase):
         else:
             node = addnodes.desc_sig_name(self.name, self.name)
         if mode == 'markType':
-            targetText = prefix + self.name
+            target_text = prefix + self.name
             pnode = addnodes.pending_xref('', refdomain='c',
                                           reftype='identifier',
-                                          reftarget=targetText, modname=None,
+                                          reftarget=target_text, modname=None,
                                           classname=None)
             pnode['c:parent_key'] = symbol.get_lookup_key()
             pnode += node
             signode += pnode
         elif mode == 'lastIsName':
-            nameNode = addnodes.desc_name()
-            nameNode += node
-            signode += nameNode
+            name_node = addnodes.desc_name()
+            name_node += node
+            signode += name_node
         elif mode == 'noneIsName':
             signode += node
         else:
@@ -952,9 +952,9 @@ class ASTDeclSpecsSimple(ASTBaseBase):
 
         if len(modifiers) != 0 and len(self.attrs) != 0:
             modifiers.append(addnodes.desc_sig_space())
-        tempNode = nodes.TextElement()
-        self.attrs.describe_signature(tempNode)
-        modifiers.extend(tempNode.children)
+        temp_node = nodes.TextElement()
+        self.attrs.describe_signature(temp_node)
+        modifiers.extend(temp_node.children)
         if self.storage:
             _add(modifiers, self.storage)
         if self.threadLocal:
@@ -1097,26 +1097,26 @@ class ASTArray(ASTBase):
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
         signode += addnodes.desc_sig_punctuation('[', '[')
-        addSpace = False
+        add_space = False
 
         def _add(signode: TextElement, text: str) -> bool:
-            if addSpace:
+            if add_space:
                 signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_keyword(text, text)
             return True
 
         if self.static:
-            addSpace = _add(signode, 'static')
+            add_space = _add(signode, 'static')
         if self.restrict:
-            addSpace = _add(signode, 'restrict')
+            add_space = _add(signode, 'restrict')
         if self.volatile:
-            addSpace = _add(signode, 'volatile')
+            add_space = _add(signode, 'volatile')
         if self.const:
-            addSpace = _add(signode, 'const')
+            add_space = _add(signode, 'const')
         if self.vla:
             signode += addnodes.desc_sig_punctuation('*', '*')
         elif self.size:
-            if addSpace:
+            if add_space:
                 signode += addnodes.desc_sig_space()
             self.size.describe_signature(signode, 'markType', env, symbol)
         signode += addnodes.desc_sig_punctuation(']', ']')
@@ -1405,8 +1405,8 @@ class ASTBracedInitList(ASTBase):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = ', '.join(transform(e) for e in self.exprs)
-        trailingComma = ',' if self.trailingComma else ''
-        return f'{{{exprs}{trailingComma}}}'
+        trailing_comma = ',' if self.trailingComma else ''
+        return f'{{{exprs}{trailing_comma}}}'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -1484,9 +1484,9 @@ class ASTType(ASTBase):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
-        declSpecs = transform(self.declSpecs)
-        res.append(declSpecs)
-        if self.decl.require_space_after_declSpecs() and len(declSpecs) > 0:
+        decl_specs = transform(self.declSpecs)
+        res.append(decl_specs)
+        if self.decl.require_space_after_declSpecs() and len(decl_specs) > 0:
             res.append(' ')
         res.append(transform(self.decl))
         return ''.join(res)
@@ -1831,32 +1831,32 @@ class ASTDeclaration(ASTBaseBase):
         # Always enable multiline:
         signode['is_multiline'] = True
         # Put each line in a desc_signature_line node.
-        mainDeclNode = addnodes.desc_signature_line()
-        mainDeclNode.sphinx_line_type = 'declarator'
-        mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
-        signode += mainDeclNode
+        main_decl_node = addnodes.desc_signature_line()
+        main_decl_node.sphinx_line_type = 'declarator'
+        main_decl_node['add_permalink'] = not self.symbol.isRedeclaration
+        signode += main_decl_node
 
         if self.objectType in {'member', 'function', 'macro'}:
             pass
         elif self.objectType == 'struct':
-            mainDeclNode += addnodes.desc_sig_keyword('struct', 'struct')
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword('struct', 'struct')
+            main_decl_node += addnodes.desc_sig_space()
         elif self.objectType == 'union':
-            mainDeclNode += addnodes.desc_sig_keyword('union', 'union')
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword('union', 'union')
+            main_decl_node += addnodes.desc_sig_space()
         elif self.objectType == 'enum':
-            mainDeclNode += addnodes.desc_sig_keyword('enum', 'enum')
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword('enum', 'enum')
+            main_decl_node += addnodes.desc_sig_space()
         elif self.objectType == 'enumerator':
-            mainDeclNode += addnodes.desc_sig_keyword('enumerator', 'enumerator')
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword('enumerator', 'enumerator')
+            main_decl_node += addnodes.desc_sig_space()
         elif self.objectType == 'type':
             decl = cast('ASTType', self.declaration)
             prefix = decl.get_type_declaration_prefix()
-            mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword(prefix, prefix)
+            main_decl_node += addnodes.desc_sig_space()
         else:
             raise AssertionError
-        self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
+        self.declaration.describe_signature(main_decl_node, mode, env, self.symbol)
         if self.semicolon:
-            mainDeclNode += addnodes.desc_sig_punctuation(';', ';')
+            main_decl_node += addnodes.desc_sig_punctuation(';', ';')
