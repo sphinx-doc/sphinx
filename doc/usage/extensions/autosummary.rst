@@ -95,9 +95,11 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
       - ``long`` (*default*): use a long signature. This is still cut off so that name
         plus signature do not exceeed a certain length.
+      - ``short``: Function and class signatures are displayed as ``(…)`` if they have
+        arguments and as ``()`` if they don't have arguments.
       - ``none``: do not show signatures.
 
-      .. versionadded:: 9.0
+      .. versionadded:: 8.2
 
    .. rst:directive:option:: nosignatures
 

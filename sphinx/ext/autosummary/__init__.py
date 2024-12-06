@@ -320,11 +320,11 @@ class Autosummary(SphinxDirective):
 
         signatures_option = self.options.get('signatures')
         if signatures_option is None:
-            signatures_option = 'none' if self.options.get('nosignatures') else 'long'
-        if signatures_option not in ['none', 'long']:
-            raise ValueError(f"Invalid value for autosummary :signatures: option: "
-                             f"{signatures_option!r}. "
-                             f"Valid values are 'none', 'long'")
+            signatures_option = 'none' if 'nosignatures' in self.options else 'long'
+        if signatures_option not in {'none', 'short', 'long'}:
+            msg = ("Invalid value for autosummary :signatures: option: "
+                   f"{signatures_option!r}. Valid values are 'none', 'short', 'long'")
+            raise ValueError(msg)
 
         max_item_chars = 50
 
@@ -384,10 +384,12 @@ class Autosummary(SphinxDirective):
                 except TypeError:
                     # the documenter does not support ``show_annotation`` option
                     sig = documenter.format_signature()
-
                 if not sig:
                     sig = ''
-                else:
+                elif signatures_option == 'short':
+                    if sig != '()':
+                        sig = '(…)'
+                else:  # signatures_option == 'long'
                     max_chars = max(10, max_item_chars - len(display_name))
                     sig = mangle_signature(sig, max_chars=max_chars)
 
