@@ -307,13 +307,15 @@ class Autosummary(SphinxDirective):
         doccls = get_documenter(app, obj, parent)
         return doccls(self.bridge, full_name)
 
-    def get_items(self, names: list[str]) -> list[tuple[str, str, str, str]]:
+    def get_items(self, names: list[str]) -> list[tuple[str, str | None, str, str]]:
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
+
+        signature is already formatted and is None if :nosignatures: option was given.
         """
         prefixes = get_import_prefixes_from_env(self.env)
 
-        items: list[tuple[str, str, str, str]] = []
+        items: list[tuple[str, str | None, str, str]] = []
 
         max_item_chars = 50
 
@@ -365,17 +367,20 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the signature
 
-            try:
-                sig = documenter.format_signature(show_annotation=False)
-            except TypeError:
-                # the documenter does not support ``show_annotation`` option
-                sig = documenter.format_signature()
-
-            if not sig:
-                sig = ''
+            if 'nosignatures' in self.options:
+                sig = None
             else:
-                max_chars = max(10, max_item_chars - len(display_name))
-                sig = mangle_signature(sig, max_chars=max_chars)
+                try:
+                    sig = documenter.format_signature(show_annotation=False)
+                except TypeError:
+                    # the documenter does not support ``show_annotation`` option
+                    sig = documenter.format_signature()
+
+                if not sig:
+                    sig = ''
+                else:
+                    max_chars = max(10, max_item_chars - len(display_name))
+                    sig = mangle_signature(sig, max_chars=max_chars)
 
             # -- Grab the summary
 
@@ -389,7 +394,7 @@ class Autosummary(SphinxDirective):
 
         return items
 
-    def get_table(self, items: list[tuple[str, str, str, str]]) -> list[Node]:
+    def get_table(self, items: list[tuple[str, str | None, str, str]]) -> list[Node]:
         """Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
@@ -424,10 +429,11 @@ class Autosummary(SphinxDirective):
 
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
-            if 'nosignatures' not in self.options:
-                col1 = f':py:{qualifier}:`{name} <{real_name}>`\\ {rst.escape(sig)}'
-            else:
+            if sig is None:
                 col1 = f':py:{qualifier}:`{name} <{real_name}>`'
+            else:
+                col1 = f':py:{qualifier}:`{name} <{real_name}>`\\ {rst.escape(sig)}'
+
             col2 = summary
             append_row(col1, col2)
 
