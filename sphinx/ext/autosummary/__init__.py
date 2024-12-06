@@ -228,6 +228,7 @@ class Autosummary(SphinxDirective):
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
         'recursive': directives.flag,
+        'signatures': directives.unchanged,
         'template': directives.unchanged,
     }
 
@@ -317,6 +318,14 @@ class Autosummary(SphinxDirective):
 
         items: list[tuple[str, str | None, str, str]] = []
 
+        signatures_option = self.options.get('signatures')
+        if signatures_option is None:
+            signatures_option = 'none' if self.options.get('nosignatures') else 'long'
+        if signatures_option not in ['none', 'long']:
+            raise ValueError(f"Invalid value for autosummary :signatures: option: "
+                             f"{signatures_option!r}. "
+                             f"Valid values are 'none', 'long'")
+
         max_item_chars = 50
 
         for name in names:
@@ -367,7 +376,7 @@ class Autosummary(SphinxDirective):
 
             # -- Grab the signature
 
-            if 'nosignatures' in self.options:
+            if signatures_option == 'none':
                 sig = None
             else:
                 try:
