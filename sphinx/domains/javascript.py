@@ -118,11 +118,11 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         elif mod_name:
             actual_prefix = mod_name
         if actual_prefix:
-            addName = addnodes.desc_addname('', '')
+            add_name = addnodes.desc_addname('', '')
             for p in actual_prefix.split('.'):
-                addName += addnodes.desc_sig_name(p, p)
-                addName += addnodes.desc_sig_punctuation('.', '.')
-            signode += addName
+                add_name += addnodes.desc_sig_name(p, p)
+                add_name += addnodes.desc_sig_punctuation('.', '.')
+            signode += add_name
         signode += addnodes.desc_name('', '', addnodes.desc_sig_name(name, name))
         if self.has_arguments:
             if not arglist:
