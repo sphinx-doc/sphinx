@@ -102,18 +102,18 @@ class ASTIdentifier(ASTBase):
         else:
             node = addnodes.desc_sig_name(self.name, self.name)
         if mode == 'markType':
-            targetText = prefix + self.name + templateArgs
+            target_text = prefix + self.name + templateArgs
             pnode = addnodes.pending_xref('', refdomain='cpp',
                                           reftype='identifier',
-                                          reftarget=targetText, modname=None,
+                                          reftarget=target_text, modname=None,
                                           classname=None)
             pnode['cpp:parent_key'] = symbol.get_lookup_key()
             pnode += node
             signode += pnode
         elif mode == 'lastIsName':
-            nameNode = addnodes.desc_name()
-            nameNode += node
-            signode += nameNode
+            name_node = addnodes.desc_name()
+            name_node += node
+            signode += name_node
         elif mode == 'noneIsName':
             signode += node
         elif mode == 'param':
@@ -124,10 +124,10 @@ class ASTIdentifier(ASTBase):
             assert len(prefix) == 0
             assert len(templateArgs) == 0
             assert not self.is_anonymous
-            targetText = 'operator""' + self.name
+            target_text = 'operator""' + self.name
             pnode = addnodes.pending_xref('', refdomain='cpp',
                                           reftype='identifier',
-                                          reftarget=targetText, modname=None,
+                                          reftarget=target_text, modname=None,
                                           classname=None)
             pnode['cpp:parent_key'] = symbol.get_lookup_key()
             pnode += node
@@ -175,8 +175,8 @@ class ASTNestedNameElement(ASTBase):
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, prefix: str, symbol: Symbol) -> None:
-        tArgs = str(self.templateArgs) if self.templateArgs is not None else ''
-        self.identOrOp.describe_signature(signode, mode, env, prefix, tArgs, symbol)
+        t_args = str(self.templateArgs) if self.templateArgs is not None else ''
+        self.identOrOp.describe_signature(signode, mode, env, prefix, t_args, symbol)
         if self.templateArgs is not None:
             self.templateArgs.describe_signature(signode, 'markType', env, symbol)
 
@@ -275,13 +275,13 @@ class ASTNestedName(ASTBase):
             # prefix. however, only the identifier part should be a link, such
             # that template args can be a link as well.
             # For 'lastIsName' we should also prepend template parameter lists.
-            templateParams: list[Any] = []
+            template_params: list[Any] = []
             if mode == 'lastIsName':
                 assert symbol is not None
                 if symbol.declaration.templatePrefix is not None:
-                    templateParams = symbol.declaration.templatePrefix.templates
-            iTemplateParams = 0
-            templateParamsPrefix = ''
+                    template_params = symbol.declaration.templatePrefix.templates
+            i_template_params = 0
+            template_params_prefix = ''
             prefix = ''
             first = True
             names = self.names[:-1] if mode == 'lastIsName' else self.names
@@ -310,11 +310,11 @@ class ASTNestedName(ASTBase):
                 first = False
                 txt_nne = str(nne)
                 if txt_nne:
-                    if nne.templateArgs and iTemplateParams < len(templateParams):
-                        templateParamsPrefix += str(templateParams[iTemplateParams])
-                        iTemplateParams += 1
+                    if nne.templateArgs and i_template_params < len(template_params):
+                        template_params_prefix += str(template_params[i_template_params])
+                        i_template_params += 1
                     nne.describe_signature(dest, 'markType',
-                                           env, templateParamsPrefix + prefix, symbol)
+                                           env, template_params_prefix + prefix, symbol)
                 prefix += txt_nne
             if mode == 'lastIsName':
                 if len(self.names) > 1:
@@ -1331,8 +1331,8 @@ class ASTBracedInitList(ASTBase):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         exprs = ', '.join(transform(e) for e in self.exprs)
-        trailingComma = ',' if self.trailingComma else ''
-        return f'{{{exprs}{trailingComma}}}'
+        trailing_comma = ',' if self.trailingComma else ''
+        return f'{{{exprs}{trailing_comma}}}'
 
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
@@ -1491,14 +1491,14 @@ class ASTOperator(ASTBase):
                            symbol: Symbol) -> None:
         verify_description_mode(mode)
         if mode == 'lastIsName':
-            mainName = addnodes.desc_name()
-            self._describe_identifier(mainName, mainName, env, symbol)
-            signode += mainName
+            main_name = addnodes.desc_name()
+            self._describe_identifier(main_name, main_name, env, symbol)
+            signode += main_name
         elif mode == 'markType':
-            targetText = prefix + str(self) + templateArgs
+            target_text = prefix + str(self) + templateArgs
             pnode = addnodes.pending_xref('', refdomain='cpp',
                                           reftype='identifier',
-                                          reftarget=targetText, modname=None,
+                                          reftarget=target_text, modname=None,
                                           classname=None)
             pnode['cpp:parent_key'] = symbol.get_lookup_key()
             # Render the identifier part, but collapse it into a string
@@ -1511,9 +1511,9 @@ class ASTOperator(ASTBase):
             pnode += addnodes.desc_name(txt, txt)
             signode += pnode
         else:
-            addName = addnodes.desc_addname()
-            self._describe_identifier(addName, addName, env, symbol)
-            signode += addName
+            add_name = addnodes.desc_addname()
+            self._describe_identifier(add_name, add_name, env, symbol)
+            signode += add_name
 
 
 class ASTOperatorBuildIn(ASTOperator):
@@ -2235,39 +2235,39 @@ class ASTDeclSpecsSimple(ASTBase):
     def describe_signature(self, signode: TextElement,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         self.attrs.describe_signature(signode)
-        addSpace = len(self.attrs) != 0
+        add_space = len(self.attrs) != 0
 
         def _add(signode: TextElement, text: str) -> bool:
-            if addSpace:
+            if add_space:
                 signode += addnodes.desc_sig_space()
             signode += addnodes.desc_sig_keyword(text, text)
             return True
 
         if self.storage:
-            addSpace = _add(signode, self.storage)
+            add_space = _add(signode, self.storage)
         if self.threadLocal:
-            addSpace = _add(signode, 'thread_local')
+            add_space = _add(signode, 'thread_local')
         if self.inline:
-            addSpace = _add(signode, 'inline')
+            add_space = _add(signode, 'inline')
         if self.friend:
-            addSpace = _add(signode, 'friend')
+            add_space = _add(signode, 'friend')
         if self.virtual:
-            addSpace = _add(signode, 'virtual')
+            add_space = _add(signode, 'virtual')
         if self.explicitSpec:
-            if addSpace:
+            if add_space:
                 signode += addnodes.desc_sig_space()
             self.explicitSpec.describe_signature(signode, env, symbol)
-            addSpace = True
+            add_space = True
         if self.consteval:
-            addSpace = _add(signode, 'consteval')
+            add_space = _add(signode, 'consteval')
         if self.constexpr:
-            addSpace = _add(signode, 'constexpr')
+            add_space = _add(signode, 'constexpr')
         if self.constinit:
-            addSpace = _add(signode, 'constinit')
+            add_space = _add(signode, 'constinit')
         if self.volatile:
-            addSpace = _add(signode, 'volatile')
+            add_space = _add(signode, 'volatile')
         if self.const:
-            addSpace = _add(signode, 'const')
+            add_space = _add(signode, 'const')
 
 
 class ASTDeclSpecs(ASTBase):
@@ -2337,20 +2337,20 @@ class ASTDeclSpecs(ASTBase):
     def describe_signature(self, signode: TextElement, mode: str,
                            env: BuildEnvironment, symbol: Symbol) -> None:
         verify_description_mode(mode)
-        numChildren = len(signode)
+        num_children = len(signode)
         self.leftSpecs.describe_signature(signode, env, symbol)
-        addSpace = len(signode) != numChildren
+        add_space = len(signode) != num_children
 
         if self.trailingTypeSpec:
-            if addSpace:
+            if add_space:
                 signode += addnodes.desc_sig_space()
-            numChildren = len(signode)
+            num_children = len(signode)
             self.trailingTypeSpec.describe_signature(signode, mode, env,
                                                      symbol=symbol)
-            addSpace = len(signode) != numChildren
+            add_space = len(signode) != num_children
 
             if len(str(self.rightSpecs)) > 0:
-                if addSpace:
+                if add_space:
                     signode += addnodes.desc_sig_space()
                 self.rightSpecs.describe_signature(signode, env, symbol)
 
@@ -2942,15 +2942,15 @@ class ASTDeclaratorMemPtr(ASTDeclarator):
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
         # ReturnType name::* next, so we are part of the return type of next
-        nextReturnTypeId = ''
+        next_return_type_id = ''
         if self.volatile:
-            nextReturnTypeId += 'V'
+            next_return_type_id += 'V'
         if self.const:
-            nextReturnTypeId += 'K'
-        nextReturnTypeId += 'M'
-        nextReturnTypeId += self.className.get_id(version)
-        nextReturnTypeId += returnTypeId
-        return self.next.get_type_id(version, nextReturnTypeId)
+            next_return_type_id += 'K'
+        next_return_type_id += 'M'
+        next_return_type_id += self.className.get_id(version)
+        next_return_type_id += returnTypeId
+        return self.next.get_type_id(version, next_return_type_id)
 
     def is_function_type(self) -> bool:
         return self.next.is_function_type()
@@ -3038,8 +3038,8 @@ class ASTDeclaratorParen(ASTDeclarator):
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
         # ReturnType (inner)next, so 'inner' returns everything outside
-        nextId = self.next.get_type_id(version, returnTypeId)
-        return self.inner.get_type_id(version, returnTypeId=nextId)
+        next_id = self.next.get_type_id(version, returnTypeId)
+        return self.inner.get_type_id(version, returnTypeId=next_id)
 
     def is_function_type(self) -> bool:
         return self.inner.is_function_type()
@@ -3215,13 +3215,13 @@ class ASTType(ASTBase):
                     # with templates we need to mangle the return type in as well
                     templ = symbol.declaration.templatePrefix
                     if templ is not None:
-                        typeId = self.decl.get_ptr_suffix_id(version)
+                        type_id = self.decl.get_ptr_suffix_id(version)
                         if self.trailingReturn:
-                            returnTypeId = self.trailingReturn.get_id(version)
+                            return_type_id = self.trailingReturn.get_id(version)
                         else:
-                            returnTypeId = self.declSpecs.get_id(version)
-                        res.append(typeId)
-                        res.append(returnTypeId)
+                            return_type_id = self.declSpecs.get_id(version)
+                        res.append(type_id)
+                        res.append(return_type_id)
                 res.append(self.decl.get_param_id(version))
             elif objectType == 'type':  # just the name
                 res.append(symbol.get_full_nested_name().get_id(version))
@@ -3230,16 +3230,16 @@ class ASTType(ASTBase):
         else:  # only type encoding
             # the 'returnType' of a non-function type is simply just the last
             # type, i.e., for 'int*' it is 'int'
-            returnTypeId = self.declSpecs.get_id(version)
-            typeId = self.decl.get_type_id(version, returnTypeId)
-            res.append(typeId)
+            return_type_id = self.declSpecs.get_id(version)
+            type_id = self.decl.get_type_id(version, return_type_id)
+            res.append(type_id)
         return ''.join(res)
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = []
-        declSpecs = transform(self.declSpecs)
-        res.append(declSpecs)
-        if self.decl.require_space_after_declSpecs() and len(declSpecs) > 0:
+        decl_specs = transform(self.declSpecs)
+        res.append(decl_specs)
+        if self.decl.require_space_after_declSpecs() and len(decl_specs) > 0:
             res.append(' ')
         res.append(transform(self.decl))
         return ''.join(res)
@@ -4001,31 +4001,31 @@ class ASTTemplateParams(ASTBase):
     def describe_signature_as_introducer(
             self, parentNode: desc_signature, mode: str, env: BuildEnvironment,
             symbol: Symbol, lineSpec: bool) -> None:
-        def makeLine(parentNode: desc_signature) -> addnodes.desc_signature_line:
+        def make_line(parent_node: desc_signature) -> addnodes.desc_signature_line:
             signode = addnodes.desc_signature_line()
-            parentNode += signode
+            parent_node += signode
             signode.sphinx_line_type = 'templateParams'
             return signode
-        lineNode = makeLine(parentNode)
-        lineNode += addnodes.desc_sig_keyword('template', 'template')
-        lineNode += addnodes.desc_sig_punctuation('<', '<')
+        line_node = make_line(parentNode)
+        line_node += addnodes.desc_sig_keyword('template', 'template')
+        line_node += addnodes.desc_sig_punctuation('<', '<')
         first = True
         for param in self.params:
             if not first:
-                lineNode += addnodes.desc_sig_punctuation(',', ',')
-                lineNode += addnodes.desc_sig_space()
+                line_node += addnodes.desc_sig_punctuation(',', ',')
+                line_node += addnodes.desc_sig_space()
             first = False
             if lineSpec:
-                lineNode = makeLine(parentNode)
-            param.describe_signature(lineNode, mode, env, symbol)
+                line_node = make_line(parentNode)
+            param.describe_signature(line_node, mode, env, symbol)
         if lineSpec and not first:
-            lineNode = makeLine(parentNode)
-        lineNode += addnodes.desc_sig_punctuation('>', '>')
+            line_node = make_line(parentNode)
+        line_node += addnodes.desc_sig_punctuation('>', '>')
         if self.requiresClause:
-            reqNode = addnodes.desc_signature_line()
-            reqNode.sphinx_line_type = 'requiresClause'
-            parentNode += reqNode
-            self.requiresClause.describe_signature(reqNode, 'markType', env, symbol)
+            req_node = addnodes.desc_signature_line()
+            req_node.sphinx_line_type = 'requiresClause'
+            parentNode += req_node
+            self.requiresClause.describe_signature(req_node, 'markType', env, symbol)
 
 
 # Template introducers
@@ -4173,19 +4173,19 @@ class ASTTemplateDeclarationPrefix(ASTBase):
     def get_requires_clause_in_last(self) -> ASTRequiresClause | None:
         if self.templates is None:
             return None
-        lastList = self.templates[-1]
-        if not isinstance(lastList, ASTTemplateParams):
+        last_list = self.templates[-1]
+        if not isinstance(last_list, ASTTemplateParams):
             return None
-        return lastList.requiresClause  # which may be None
+        return last_list.requiresClause  # which may be None
 
     def get_id_except_requires_clause_in_last(self, version: int) -> str:
         assert version >= 2
         # This is not part of the Itanium ABI mangling system.
         res = []
-        lastIndex = len(self.templates) - 1
+        last_index = len(self.templates) - 1
         for i, t in enumerate(self.templates):
             if isinstance(t, ASTTemplateParams):
-                res.append(t.get_id(version, excludeRequires=(i == lastIndex)))
+                res.append(t.get_id(version, excludeRequires=(i == last_index)))
             else:
                 res.append(t.get_id(version))
         return ''.join(res)
@@ -4277,12 +4277,12 @@ class ASTDeclaration(ASTBase):
         ))
 
     def clone(self) -> ASTDeclaration:
-        templatePrefixClone = self.templatePrefix.clone() if self.templatePrefix else None
-        trailingRequiresClasueClone = self.trailingRequiresClause.clone() \
+        template_prefix_clone = self.templatePrefix.clone() if self.templatePrefix else None
+        trailing_requires_clasue_clone = self.trailingRequiresClause.clone() \
             if self.trailingRequiresClause else None
         return ASTDeclaration(self.objectType, self.directiveType, self.visibility,
-                              templatePrefixClone,
-                              self.declaration.clone(), trailingRequiresClasueClone,
+                              template_prefix_clone,
+                              self.declaration.clone(), trailing_requires_clasue_clone,
                               self.semicolon)
 
     @property
@@ -4321,19 +4321,19 @@ class ASTDeclaration(ASTBase):
         # As we now support trailing requires clauses we add that as if it was a conjunction.
         if self.templatePrefix is not None:
             res.append(self.templatePrefix.get_id_except_requires_clause_in_last(version))
-            requiresClauseInLast = self.templatePrefix.get_requires_clause_in_last()
+            requires_clause_in_last = self.templatePrefix.get_requires_clause_in_last()
         else:
-            requiresClauseInLast = None
+            requires_clause_in_last = None
 
-        if requiresClauseInLast or self.trailingRequiresClause:
+        if requires_clause_in_last or self.trailingRequiresClause:
             if version < 4:
                 raise NoOldIdError
             res.append('IQ')
-            if requiresClauseInLast and self.trailingRequiresClause:
+            if requires_clause_in_last and self.trailingRequiresClause:
                 # make a conjunction of them
                 res.append('aa')
-            if requiresClauseInLast:
-                res.append(requiresClauseInLast.expr.get_id(version))
+            if requires_clause_in_last:
+                res.append(requires_clause_in_last.expr.get_id(version))
             if self.trailingRequiresClause:
                 res.append(self.trailingRequiresClause.expr.get_id(version))
             res.append('E')
@@ -4368,61 +4368,61 @@ class ASTDeclaration(ASTBase):
         # Always enable multiline:
         signode['is_multiline'] = True
         # Put each line in a desc_signature_line node.
-        mainDeclNode = addnodes.desc_signature_line()
-        mainDeclNode.sphinx_line_type = 'declarator'
-        mainDeclNode['add_permalink'] = not self.symbol.isRedeclaration
+        main_decl_node = addnodes.desc_signature_line()
+        main_decl_node.sphinx_line_type = 'declarator'
+        main_decl_node['add_permalink'] = not self.symbol.isRedeclaration
 
         if self.templatePrefix:
             self.templatePrefix.describe_signature(signode, mode, env,
                                                    symbol=self.symbol,
                                                    lineSpec=options.get('tparam-line-spec'))
-        signode += mainDeclNode
+        signode += main_decl_node
         if self.visibility and self.visibility != "public":
-            mainDeclNode += addnodes.desc_sig_keyword(self.visibility, self.visibility)
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword(self.visibility, self.visibility)
+            main_decl_node += addnodes.desc_sig_space()
         if self.objectType == 'type':
             prefix = self.declaration.get_type_declaration_prefix()
-            mainDeclNode += addnodes.desc_sig_keyword(prefix, prefix)
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword(prefix, prefix)
+            main_decl_node += addnodes.desc_sig_space()
         elif self.objectType == 'concept':
-            mainDeclNode += addnodes.desc_sig_keyword('concept', 'concept')
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword('concept', 'concept')
+            main_decl_node += addnodes.desc_sig_space()
         elif self.objectType in {'member', 'function'}:
             pass
         elif self.objectType == 'class':
             assert self.directiveType in {'class', 'struct'}
-            mainDeclNode += addnodes.desc_sig_keyword(self.directiveType, self.directiveType)
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword(self.directiveType, self.directiveType)
+            main_decl_node += addnodes.desc_sig_space()
         elif self.objectType == 'union':
-            mainDeclNode += addnodes.desc_sig_keyword('union', 'union')
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword('union', 'union')
+            main_decl_node += addnodes.desc_sig_space()
         elif self.objectType == 'enum':
-            mainDeclNode += addnodes.desc_sig_keyword('enum', 'enum')
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword('enum', 'enum')
+            main_decl_node += addnodes.desc_sig_space()
             if self.directiveType == 'enum-class':
-                mainDeclNode += addnodes.desc_sig_keyword('class', 'class')
-                mainDeclNode += addnodes.desc_sig_space()
+                main_decl_node += addnodes.desc_sig_keyword('class', 'class')
+                main_decl_node += addnodes.desc_sig_space()
             elif self.directiveType == 'enum-struct':
-                mainDeclNode += addnodes.desc_sig_keyword('struct', 'struct')
-                mainDeclNode += addnodes.desc_sig_space()
+                main_decl_node += addnodes.desc_sig_keyword('struct', 'struct')
+                main_decl_node += addnodes.desc_sig_space()
             else:
                 assert self.directiveType == 'enum', self.directiveType
         elif self.objectType == 'enumerator':
-            mainDeclNode += addnodes.desc_sig_keyword('enumerator', 'enumerator')
-            mainDeclNode += addnodes.desc_sig_space()
+            main_decl_node += addnodes.desc_sig_keyword('enumerator', 'enumerator')
+            main_decl_node += addnodes.desc_sig_space()
         else:
             raise AssertionError(self.objectType)
-        self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
-        lastDeclNode = mainDeclNode
+        self.declaration.describe_signature(main_decl_node, mode, env, self.symbol)
+        last_decl_node = main_decl_node
         if self.trailingRequiresClause:
-            trailingReqNode = addnodes.desc_signature_line()
-            trailingReqNode.sphinx_line_type = 'trailingRequiresClause'
-            signode.append(trailingReqNode)
-            lastDeclNode = trailingReqNode
+            trailing_req_node = addnodes.desc_signature_line()
+            trailing_req_node.sphinx_line_type = 'trailingRequiresClause'
+            signode.append(trailing_req_node)
+            last_decl_node = trailing_req_node
             self.trailingRequiresClause.describe_signature(
-                trailingReqNode, 'markType', env, self.symbol)
+                trailing_req_node, 'markType', env, self.symbol)
         if self.semicolon:
-            lastDeclNode += addnodes.desc_sig_punctuation(';', ';')
+            last_decl_node += addnodes.desc_sig_punctuation(';', ';')
 
 
 class ASTNamespace(ASTBase):
