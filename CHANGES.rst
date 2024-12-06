@@ -18,6 +18,10 @@ Deprecated
 Features added
 --------------
 
+* #11824: linkcode: Allow extensions to add support for a domain by defining
+  the keys that should be present.
+  Patch by Nicolas Peugnet.
+
 Bugs fixed
 ----------
 
