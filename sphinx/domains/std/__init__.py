@@ -495,9 +495,9 @@ class Glossary(SphinxDirective):
         return [*messages, node]
 
 
-def token_xrefs(text: str, productionGroup: str = '') -> list[Node]:
-    if len(productionGroup) != 0:
-        productionGroup += ':'
+def token_xrefs(text: str, *, production_group: str = '') -> list[Node]:
+    if len(production_group) != 0:
+        production_group += ':'
     retnodes: list[Node] = []
     pos = 0
     for m in token_re.finditer(text):
@@ -517,7 +517,7 @@ def token_xrefs(text: str, productionGroup: str = '') -> list[Node]:
                 target = token
         else:
             title = token
-            target = productionGroup + token
+            target = production_group + token
         refnode = pending_xref(title, reftype='token', refdomain='std',
                                reftarget=target)
         refnode += nodes.literal(token, title, classes=['xref'])
@@ -547,11 +547,11 @@ class ProductionList(SphinxDirective):
         nl_escape_re = re.compile(r'\\\n')
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
 
-        productionGroup = ""
+        production_group = ""
         first_rule_seen = False
         for rule in lines:
             if not first_rule_seen and ':' not in rule:
-                productionGroup = rule.strip()
+                production_group = rule.strip()
                 continue
             first_rule_seen = True
             try:
@@ -562,17 +562,17 @@ class ProductionList(SphinxDirective):
             name = name.strip()
             subnode['tokenname'] = name
             if subnode['tokenname']:
-                prefix = 'grammar-token-%s' % productionGroup
+                prefix = 'grammar-token-%s' % production_group
                 node_id = make_id(self.env, self.state.document, prefix, name)
                 subnode['ids'].append(node_id)
                 self.state.document.note_implicit_target(subnode, subnode)
 
-                if len(productionGroup) != 0:
-                    objName = f"{productionGroup}:{name}"
+                if len(production_group) != 0:
+                    obj_name = f"{production_group}:{name}"
                 else:
-                    objName = name
-                domain.note_object('token', objName, node_id, location=node)
-            subnode.extend(token_xrefs(tokens, productionGroup))
+                    obj_name = name
+                domain.note_object('token', obj_name, node_id, location=node)
+            subnode.extend(token_xrefs(tokens, production_group=production_group))
             node.append(subnode)
         return [node]
 
