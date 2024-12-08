@@ -1404,6 +1404,7 @@ Options for warning control
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
+   * ``c.duplicate_declaration``
    * ``intersphinx.external``
 
    You can choose from these types.  You can also give only the first

@@ -18,6 +18,9 @@ Deprecated
 Features added
 --------------
 
+* C: Added ``c.duplicate_declaration`` to the warning control options.
+  Patch by Julien Lecomte.
+
 Bugs fixed
 ----------
 

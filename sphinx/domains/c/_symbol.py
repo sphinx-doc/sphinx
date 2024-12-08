@@ -516,6 +516,8 @@ class Symbol:
                         ourChild.declaration.directiveType,
                         name,
                         location=(otherChild.docname, otherChild.line),
+                        type="c",
+                        subtype="duplicate_declaration",
                     )
                 else:
                     # Both have declarations, and in the same docname.
