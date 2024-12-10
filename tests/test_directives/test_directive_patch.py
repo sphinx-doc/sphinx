@@ -1,5 +1,7 @@
 """Test the patched directives."""
 
+from __future__ import annotations
+
 import pytest
 from docutils import nodes
 

@@ -43,12 +43,12 @@ class MetadataCollector(EnvironmentCollector):
             for node in doctree[index]:  # type: ignore[attr-defined]
                 # nodes are multiply inherited...
                 if isinstance(node, nodes.authors):
-                    authors = cast(list[nodes.author], node)
+                    authors = cast('list[nodes.author]', node)
                     md['authors'] = [author.astext() for author in authors]
                 elif isinstance(node, nodes.field):
                     assert len(node) == 2
-                    field_name = cast(nodes.field_name, node[0])
-                    field_body = cast(nodes.field_body, node[1])
+                    field_name = cast('nodes.field_name', node[0])
+                    field_body = cast('nodes.field_body', node[1])
                     md[field_name.astext()] = field_body.astext()
                 elif isinstance(node, nodes.TextElement):
                     # other children must be TextElement

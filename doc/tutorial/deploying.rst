@@ -188,6 +188,8 @@ contents:
          contents: write
        steps:
        - uses: actions/checkout@v4
+         with:
+           persist-credentials: false
        - name: Build HTML
          uses: ammaraskar/sphinx-action@master
        - name: Upload artifacts

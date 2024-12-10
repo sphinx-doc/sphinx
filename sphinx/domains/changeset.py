@@ -41,7 +41,7 @@ class ChangeSet(NamedTuple):
     docname: str
     lineno: int
     module: str | None
-    descname: str | None
+    descname: str
     content: str
 
 
@@ -123,7 +123,7 @@ class ChangeSetDomain(Domain):
     def note_changeset(self, node: addnodes.versionmodified) -> None:
         version = node['version']
         module = self.env.ref_context.get('py:module')
-        objname = self.env.temp_data.get('object')
+        objname = self.env.temp_data.get('object', '')
         changeset = ChangeSet(node['type'], self.env.docname, node.line,  # type: ignore[arg-type]
                               module, objname, node.astext())
         self.changesets.setdefault(version, []).append(changeset)

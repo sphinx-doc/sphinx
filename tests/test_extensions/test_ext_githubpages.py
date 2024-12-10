@@ -1,5 +1,7 @@
 """Test sphinx.ext.githubpages extension."""
 
+from __future__ import annotations
+
 import pytest
 
 

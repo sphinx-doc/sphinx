@@ -5,7 +5,6 @@ from __future__ import annotations
 import posixpath
 import re
 import urllib.parse
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -18,6 +17,8 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -670,7 +671,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
-        productionlist = cast(Iterable[addnodes.production], node)
+        productionlist = cast('Iterable[addnodes.production]', node)
         names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None

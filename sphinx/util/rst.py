@@ -105,7 +105,7 @@ def append_epilog(content: StringList, epilog: str) -> None:
         if len(content) > 0:
             source, lineno = content.info(-1)
             # lineno will never be None, since len(content) > 0
-            lineno = cast(int, lineno)
+            lineno = cast('int', lineno)
         else:
             source = '<generated>'
             lineno = 0

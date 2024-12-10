@@ -35,7 +35,6 @@ import hashlib
 import inspect
 import os.path
 import re
-from collections.abc import Iterable, Sequence
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
@@ -54,6 +53,8 @@ from sphinx.ext.graphviz import (
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -424,7 +425,7 @@ def html_visit_inheritance_diagram(self: HTML5Translator, node: inheritance_diag
     graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
     current_filename = os.path.basename(self.builder.current_docname + self.builder.out_suffix)
     urls = {}
-    pending_xrefs = cast(Iterable[addnodes.pending_xref], node)
+    pending_xrefs = cast('Iterable[addnodes.pending_xref]', node)
     for child in pending_xrefs:
         if child.get('refuri') is not None:
             # Construct the name from the URI if the reference is external via intersphinx

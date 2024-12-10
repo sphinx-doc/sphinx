@@ -1,5 +1,7 @@
 """Test sphinx.ext.duration extension."""
 
+from __future__ import annotations
+
 import re
 
 import pytest

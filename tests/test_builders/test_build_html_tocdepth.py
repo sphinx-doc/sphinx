@@ -1,5 +1,7 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import pytest
 
 from tests.test_builders.xpath_html_util import _intradocument_hyperlink_check

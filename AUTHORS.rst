@@ -18,8 +18,11 @@ Contributors
 
 *Listed alphabetically in forename, surname order*
 
+* Aaron Carlisle -- basic theme and templating improvements
+* Adam Dangoor -- improved static typing
 * Adrián Chaves (Gallaecio) -- coverage builder improvements
 * Alastair Houghton -- Apple Help builder
+* Alex Gaynor -- linkcheck retry on errors
 * Alexander Todorov -- inheritance_diagram tests and improvements
 * Andi Albrecht -- agogo theme
 * Antonio Valentino -- qthelp builder, docstring inheritance
@@ -28,17 +31,25 @@ Contributors
 * Ben Egan -- Napoleon improvements
 * Benjamin Peterson -- unittests
 * Blaise Laflamme -- pyramid theme
+* Brecht Machiels -- builder entry-points
 * Bruce Mitchener -- Minor epub improvement
 * Buck Evan -- dummy builder
 * Charles Duffy -- original graphviz extension
+* Chris Holdgraf -- improved documentation structure
 * Chris Lamb -- reproducibility fixes
 * Christopher Perkins -- autosummary integration
 * Dan MacKinlay -- metadata fixes
 * Daniel Bültmann -- todo extension
+* Daniel Eades -- improved static typing
+* Daniel Hahler -- testing and CI improvements
 * Daniel Pizetta -- inheritance diagram improvements
 * Dave Kuhlman -- original LaTeX writer
+* Dimitri Papadopoulos Orfanos -- linting and spelling
+* Dmitry Shachnev -- modernisation and reproducibility
 * Doug Hellmann -- graphviz improvements
+* Eric Larson -- better error messages
 * Eric N. Vander Weele -- autodoc improvements
+* Eric Wieser -- autodoc improvements
 * Etienne Desautels -- apidoc module
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Filip Vavera -- napoleon todo directive
@@ -53,25 +64,34 @@ Contributors
 * Jacob Mason -- websupport library (GSOC project)
 * James Addison -- linkcheck and HTML search improvements
 * Jeppe Pihl -- literalinclude improvements
+* Jeremy Maitin-Shepard -- C++ domain improvements
 * Joel Wurtz -- cellspanning support in LaTeX
 * John Waltman -- Texinfo builder
+* Jon Dufresne -- modernisation
 * Josip Dzolonga -- coverage builder
+* Juan Luis Cano Rodríguez -- new tutorial (2021)
 * Julien Palard -- Colspan and rowspan in text builder
+* Justus Magin -- napoleon improvements
 * Kevin Dunn -- MathJax extension
 * KINEBUCHI Tomohiko -- typing Sphinx as well as docutils
 * Kurt McKee -- documentation updates
 * Lars Hupfeldt Nielsen - OpenSSL FIPS mode md5 bug fix
+* Louis Maddox -- better docstrings
 * Łukasz Langa -- partial support for autodoc
 * Marco Buttu -- doctest extension (pyversion option)
 * Martin Hans -- autodoc improvements
 * Martin Larralde -- additional napoleon admonitions
+* Martin Liška -- option directive and role improvements
 * Martin Mahner -- nature theme
 * Matthew Fernandez -- todo extension fix
 * Matthew Woodcraft -- text output improvements
+* Matthias Geier -- style improvements
 * Michael Droettboom -- inheritance_diagram extension
 * Michael Wilson -- Intersphinx HTTP basic auth support
 * Nathan Damon -- bugfix in validation of static paths in html builders
+* Nils Kattenbeck -- pygments dark style
 * Pauli Virtanen -- autodoc improvements, autosummary extension
+* Rafael Fontenelle -- internationalisation
 * \A. Rafey Khan -- improved intersphinx typing
 * Roland Meister -- epub builder
 * Sebastian Wiesner -- image handling, distutils support

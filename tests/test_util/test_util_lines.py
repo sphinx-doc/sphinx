@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from sphinx.util._lines import parse_line_num_spec

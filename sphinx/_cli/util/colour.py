@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Callable  # NoQA: TCH003
+from collections.abc import Callable  # NoQA: TC003
 
 if sys.platform == 'win32':
     import colorama
