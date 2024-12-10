@@ -251,7 +251,7 @@ class HyperlinkCollector(SphinxPostTransform):
         :param uri: URI to add
         :param node: A node class where the URI was found
         """
-        builder = cast(CheckExternalLinksBuilder, self.app.builder)
+        builder = cast('CheckExternalLinksBuilder', self.app.builder)
         hyperlinks = builder.hyperlinks
         docname = self.env.docname
 

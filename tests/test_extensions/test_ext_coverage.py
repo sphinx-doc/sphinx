@@ -39,7 +39,7 @@ def test_build(app):
     )
     assert len(undoc_c) == 1
     # the key is the full path to the header file, which isn't testable
-    assert list(undoc_c.values())[0] == {('function', 'Py_SphinxTest')}
+    assert next(iter(undoc_c.values())) == {('function', 'Py_SphinxTest')}
 
     assert 'autodoc_target' in undoc_py
     assert 'funcs' in undoc_py['autodoc_target']

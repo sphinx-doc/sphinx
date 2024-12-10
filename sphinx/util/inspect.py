@@ -848,7 +848,7 @@ def signature_from_str(signature: str) -> Signature:
     """Create a :class:`~inspect.Signature` object from a string."""
     code = 'def func' + signature + ': pass'
     module = ast.parse(code)
-    function = typing.cast(ast.FunctionDef, module.body[0])
+    function = typing.cast('ast.FunctionDef', module.body[0])
 
     return signature_from_ast(function, code)
 

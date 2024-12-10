@@ -26,7 +26,7 @@ from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils, logging
-from sphinx.util._pathlib import _StrPath
+from sphinx.util._pathlib import _StrPath, _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message
@@ -139,6 +139,11 @@ class Sphinx:
 
     warningiserror: Final = False
     _warncount: int
+
+    srcdir = _StrPathProperty()
+    confdir = _StrPathProperty()
+    outdir = _StrPathProperty()
+    doctreedir = _StrPathProperty()
 
     def __init__(self, srcdir: str | os.PathLike[str], confdir: str | os.PathLike[str] | None,
                  outdir: str | os.PathLike[str], doctreedir: str | os.PathLike[str],

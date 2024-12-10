@@ -46,6 +46,7 @@ from sphinx.locale import __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging, rst
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.inspect import getall, safe_getattr
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxTemplateLoader
@@ -67,7 +68,7 @@ class DummyApplication:
         self.config = Config()
         self.registry = SphinxComponentRegistry()
         self.messagelog: list[str] = []
-        self.srcdir = '/'
+        self.srcdir = _StrPath('/')
         self.translator = translator
         self.verbosity = 0
         self._warncount = 0

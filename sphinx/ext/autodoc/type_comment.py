@@ -94,11 +94,11 @@ def get_type_comment(obj: Any, bound_method: bool = False) -> Signature | None:
             # this adds if-block before the declaration.
             module = ast.parse('if True:\n' + source, type_comments=True)
             subject = cast(
-                ast.FunctionDef, module.body[0].body[0],  # type: ignore[attr-defined]
+                'ast.FunctionDef', module.body[0].body[0],  # type: ignore[attr-defined]
             )
         else:
             module = ast.parse(source, type_comments=True)
-            subject = cast(ast.FunctionDef, module.body[0])
+            subject = cast('ast.FunctionDef', module.body[0])
 
         type_comment = getattr(subject, "type_comment", None)
         if type_comment:
