@@ -214,7 +214,7 @@ def latex_visit_todo_node(self: LaTeXTranslator, node: todo_node) -> None:
         self.body.append('\n\\begin{sphinxtodo}{')
         self.body.append(self.hypertarget_to(node))
 
-        title_node = cast(nodes.title, node[0])
+        title_node = cast('nodes.title', node[0])
         title = texescape.escape(title_node.astext(), self.config.latex_engine)
         self.body.append('%s:}' % title)
         self.no_latex_floats += 1

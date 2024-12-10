@@ -14,7 +14,6 @@ from docutils.nodes import Element, Node
 
 import sphinx
 from sphinx import addnodes
-from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.locale import _, __
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.transforms.post_transforms import SphinxPostTransform
@@ -28,6 +27,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
+    from sphinx.builders.html import StandaloneHTMLBuilder
     from sphinx.environment import BuildEnvironment
     from sphinx.util._pathlib import _StrPath
     from sphinx.util.typing import ExtensionMetadata
@@ -228,7 +228,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
         # Always (re-)generate module page when module filename is not found.
         return True
 
-    builder = cast(StandaloneHTMLBuilder, app.builder)
+    builder = cast('StandaloneHTMLBuilder', app.builder)
     basename = modname.replace('.', '/') + builder.out_suffix
     page_filename = os.path.join(app.outdir, '_modules/', basename)
 

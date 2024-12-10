@@ -117,7 +117,7 @@ class CitationDefinitionTransform(SphinxTransform):
             domain.note_citation(node)
 
             # mark citation labels as not smartquoted
-            label = cast(nodes.label, node[0])
+            label = cast('nodes.label', node[0])
             label['support_smartquotes'] = False
 
 

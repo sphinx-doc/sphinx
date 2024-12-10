@@ -151,15 +151,15 @@ def test_ModuleAnalyzer_find_attr_docs():
         ('Foo', 'attr8'),
         ('Foo', 'attr9'),
     }
-    assert docs[('Foo', 'attr1')] == ['comment before attr1', '']
-    assert docs[('Foo', 'attr3')] == ['attribute comment for attr3', '']
-    assert docs[('Foo', 'attr4')] == ['long attribute comment', '']
-    assert docs[('Foo', 'attr4')] == ['long attribute comment', '']
-    assert docs[('Foo', 'attr5')] == ['attribute comment for attr5', '']
-    assert docs[('Foo', 'attr6')] == ['this comment is ignored', '']
-    assert docs[('Foo', 'attr7')] == ['this comment is ignored', '']
-    assert docs[('Foo', 'attr8')] == ['attribute comment for attr8', '']
-    assert docs[('Foo', 'attr9')] == ['string after attr9', '']
+    assert docs['Foo', 'attr1'] == ['comment before attr1', '']
+    assert docs['Foo', 'attr3'] == ['attribute comment for attr3', '']
+    assert docs['Foo', 'attr4'] == ['long attribute comment', '']
+    assert docs['Foo', 'attr4'] == ['long attribute comment', '']
+    assert docs['Foo', 'attr5'] == ['attribute comment for attr5', '']
+    assert docs['Foo', 'attr6'] == ['this comment is ignored', '']
+    assert docs['Foo', 'attr7'] == ['this comment is ignored', '']
+    assert docs['Foo', 'attr8'] == ['attribute comment for attr8', '']
+    assert docs['Foo', 'attr9'] == ['string after attr9', '']
     assert analyzer.tagorder == {
         'Foo': 0,
         'Foo.__init__': 8,
@@ -189,5 +189,5 @@ def test_ModuleAnalyzer_find_attr_docs_for_posonlyargs_method():
     analyzer = ModuleAnalyzer.for_string(code, 'module')
     docs = analyzer.find_attr_docs()
     assert set(docs) == {('Foo', 'attr')}
-    assert docs[('Foo', 'attr')] == ['attribute comment', '']
+    assert docs['Foo', 'attr'] == ['attribute comment', '']
     assert analyzer.tagorder == {'Foo': 0, 'Foo.__init__': 1, 'Foo.attr': 2}

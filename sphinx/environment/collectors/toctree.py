@@ -232,7 +232,7 @@ class TocTreeCollector(EnvironmentCollector):
                     if 'skip_section_number' in subnode:
                         continue
                     numstack[-1] += 1
-                    reference = cast(nodes.reference, subnode[0])
+                    reference = cast('nodes.reference', subnode[0])
                     if depth > 0:
                         number = numstack.copy()
                         secnums[reference['anchorname']] = tuple(numstack)
