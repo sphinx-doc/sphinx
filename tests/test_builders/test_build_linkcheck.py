@@ -999,7 +999,7 @@ class RemoteDomainRedirectHandler(InfiniteRedirectOnHeadHandler):
 @pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
 def test_ignore_remote_redirection(app):
     with serve_application(app, RemoteDomainRedirectHandler) as address:
-        app.config.linkcheck_ignore = [f'http://example.test']
+        app.config.linkcheck_ignore = ['http://example.test']
         app.build()
 
     with open(app.outdir / 'output.json', encoding='utf-8') as fp:
@@ -1010,7 +1010,7 @@ def test_ignore_remote_redirection(app):
         'filename': 'index.rst',
         'lineno': 1,
         'uri': f'http://{address}/',
-        'info': f'ignored redirect: http://example.test/migrated',
+        'info': 'ignored redirect: http://example.test/migrated',
     }
 
 
