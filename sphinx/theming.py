@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__all__ = ('Theme', 'HTMLThemeFactory')
+__all__ = ('HTMLThemeFactory', 'Theme')
 
 import configparser
 import contextlib
