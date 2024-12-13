@@ -438,5 +438,4 @@ exclude = [
     "sphinx/ext/mathjax.py",
     "sphinx/ext/todo.py",
     "sphinx/ext/viewcode.py",
-    "sphinx/registry.py",
 ]
