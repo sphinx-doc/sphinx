@@ -828,6 +828,24 @@ def test_autosummary_module_all(app):
         sys.modules.pop('autosummary_dummy_package_all', None)
 
 
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_empty_all')
+def test_autosummary_module_empty_all(app):
+    try:
+        app.build()
+        # generated/foo is generated successfully
+        assert app.env.get_doctree('generated/autosummary_dummy_package_empty_all')
+        module = (
+            app.srcdir / 'generated' / 'autosummary_dummy_package_empty_all.rst'
+        ).read_text(encoding='utf8')
+        assert '.. automodule:: autosummary_dummy_package_empty_all' in module
+        # for __all__ = [], the output should not contain any variables
+        for name in ['__all__', '__builtins__', '__cached__', '__doc__', '__file__',
+                     '__loader__', '__name__', '__package__', '__path__', '__spec__']:
+            assert name not in module
+    finally:
+        sys.modules.pop('autosummary_dummy_package_all', None)
+
+
 @pytest.mark.sphinx(
     'html',
     testroot='ext-autodoc',

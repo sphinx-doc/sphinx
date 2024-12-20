@@ -21,6 +21,8 @@ Features added
 Bugs fixed
 ----------
 
+* #12463: `autosummary` ignores `__all__` when it is empty.
+  Patch by Valentin Pratz
 * #13060: HTML Search: use ``Map`` to store per-file term scores.
   Patch by James Addison
 * #13130: LaTeX docs: ``pdflatex`` index creation may fail for index entries
