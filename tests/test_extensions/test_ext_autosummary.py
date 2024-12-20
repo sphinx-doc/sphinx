@@ -839,8 +839,18 @@ def test_autosummary_module_empty_all(app):
         ).read_text(encoding='utf8')
         assert '.. automodule:: autosummary_dummy_package_empty_all' in module
         # for __all__ = [], the output should not contain any variables
-        for name in ['__all__', '__builtins__', '__cached__', '__doc__', '__file__',
-                     '__loader__', '__name__', '__package__', '__path__', '__spec__']:
+        for name in [
+            '__all__',
+            '__builtins__',
+            '__cached__',
+            '__doc__',
+            '__file__',
+            '__loader__',
+            '__name__',
+            '__package__',
+            '__path__',
+            '__spec__',
+        ]:
             assert name not in module
     finally:
         sys.modules.pop('autosummary_dummy_package_all', None)
