@@ -415,7 +415,6 @@ exclude = [
     "sphinx/domains/python/_object.py",
     "sphinx/domains/rst.py",
     "sphinx/domains/std/__init__.py",
-    "sphinx/ext/inheritance_diagram.py",
     "sphinx/ext/linkcode.py",
     "sphinx/ext/todo.py",
     "sphinx/ext/viewcode.py",
