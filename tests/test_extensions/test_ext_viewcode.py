@@ -163,8 +163,8 @@ def test_local_source_files(app):
         assert result.count(needle) == 1
 
 
-@pytest.mark.sphinx(testroot='ext-viewcode-find-package')
-def test_local_source_files(app, status, warning):
+@pytest.mark.sphinx('html', testroot='ext-viewcode-find-package', freshenv=True)
+def test_find_local_package_import_path(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
     assert result.count('href="_modules/main_package/subpackage/_subpackage2/submodule.html#func1"') == 1
