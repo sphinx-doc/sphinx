@@ -49,52 +49,55 @@ class viewcode_anchor(Element):
 
 def _get_full_modname(modname: str, attribute: str) -> str | None:
     try:
-        if modname is None:
-            # Prevents a TypeError: if the last getattr() call will return None
-            # then it's better to return it directly
-            return None
-        module = import_module(modname)
-
-        # Allow an attribute to have multiple parts and incidentally allow
-        # repeated .s in the attribute.
-        value = module
-        for attr in attribute.split('.'):
-            if attr:
-                value = getattr(value, attr)
-
-        return getattr(value, '__module__', None)
-    except ModuleNotFoundError:
-        # Attempt to find full path of module
-        module_path = modname.split('.')
-        actual_path = __import__(module_path[0], globals(), locals(), [], 0)
-        if len(module_path) > 1:
-            for mod in module_path[1:]:
-                actual_path = getattr(actual_path, mod)
-
-        # Extract path from module name
-        actual_path_str = str(actual_path).split("'")[1]
-
-        # Load module with exact path
-        module = import_module(actual_path_str)
-        value = module
-        for attr in attribute.split('.'):
-            if attr:
-                value = getattr(value, attr)
-
+        try:
+            if modname is None:
+                # Prevents a TypeError: if the last getattr() call will return None
+                # then it's better to return it directly
+                return None
+            module = import_module(modname)
+    
+            # Allow an attribute to have multiple parts and incidentally allow
+            # repeated .s in the attribute.
+            value = module
+            for attr in attribute.split('.'):
+                if attr:
+                    value = getattr(value, attr)
+    
             return getattr(value, '__module__', None)
+        except ModuleNotFoundError:
+            # Attempt to find full path of module
+            module_path = modname.split('.')
+            actual_path = __import__(module_path[0], globals(), locals(), [], 0)
+            if len(module_path) > 1:
+                for mod in module_path[1:]:
+                    actual_path = getattr(actual_path, mod)
+    
+            # Extract path from module name
+            actual_path_str = str(actual_path).split("'")[1]
+    
+            # Load module with exact path
+            module = import_module(actual_path_str)
+            value = module
+            for attr in attribute.split('.'):
+                if attr:
+                    value = getattr(value, attr)
+    
+            return getattr(value, '__module__', None)
+            raise 
+    
     except AttributeError:
-        # sphinx.ext.viewcode can't follow class instance attribute
-        # then AttributeError logging output only debug mode.
-        logger.debug("Didn't find %s in %s", attribute, modname)
-        return None
+            # sphinx.ext.viewcode can't follow class instance attribute
+            # then AttributeError logging output only debug mode.
+            logger.debug("Didn't find %s in %s", attribute, modname)
+            return None
     except Exception as e:
-        # sphinx.ext.viewcode follow python domain directives.
-        # because of that, if there are no real modules exists that specified
-        # by py:function or other directives, viewcode emits a lot of warnings.
-        # It should be displayed only verbose mode.
-        logger.verbose(traceback.format_exc().rstrip())
-        logger.verbose('viewcode can\'t import %s, failed with error "%s"', modname, e)
-        return None
+            # sphinx.ext.viewcode follow python domain directives.
+            # because of that, if there are no real modules exists that specified
+            # by py:function or other directives, viewcode emits a lot of warnings.
+            # It should be displayed only verbose mode.
+            logger.verbose(traceback.format_exc().rstrip())
+            logger.verbose('viewcode can\'t import %s, failed with error "%s"', modname, e)
+            return None
 
 
 def is_supported_builder(builder: Builder) -> bool:
