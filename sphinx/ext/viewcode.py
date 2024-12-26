@@ -46,6 +46,7 @@ class viewcode_anchor(Element):
     For not supported builders, they will be removed.
     """
 
+
 def _get_full_modname(modname: str, attribute: str) -> str | None:
     try:
         try:
