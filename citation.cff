@@ -11,7 +11,7 @@ authors:
     family-names: Tran
   - given-names: 'Chris '
     family-names: Sewell
-repository-code: 'https://github.com/ayeshashahzad1/sphinx'
+repository-code: 'https://github.com/sphinx-doc/sphinx'
 license: BSD-2-Clause
 version: Sphinx 8.1.3
 date-released: '2024-10-13'
