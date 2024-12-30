@@ -679,7 +679,9 @@ def signature(
 ) -> Signature:
     """Return a Signature object for the given *subject*.
 
-    :param bound_method: Specify *subject* is a bound method or not
+    :param bound_method: Specify *subject* is a bound method or not.
+
+    When *subject* is a built-in callable, *bound_method* is ignored.
     """
     if type_aliases is None:
         type_aliases = {}
@@ -715,7 +717,10 @@ def signature(
         # ForwardRef and so on.
         pass
 
-    if bound_method:
+    # For built-in objects, we use the signature that was specified
+    # by the extension module even if we detected the subject to be
+    # a possible bound method.
+    if bound_method and not inspect.isbuiltin(subject):
         if inspect.ismethod(subject):
             # ``inspect.signature()`` considers the subject is a bound method and removes
             # first argument from signature.  Therefore no skips are needed here.
