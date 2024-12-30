@@ -2202,16 +2202,17 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 #       But it makes users confused.
                 args = '()'
             else:
-                if inspect.isstaticmethod(self.object, cls=self.parent, name=self.object_name):
-                    self.env.events.emit(
-                        'autodoc-before-process-signature', self.object, False
-                    )
-                    sig = inspect.signature(self.object, bound_method=False,
-                                            type_aliases=self.config.autodoc_type_aliases)
-                else:
-                    self.env.events.emit('autodoc-before-process-signature', self.object, True)
-                    sig = inspect.signature(self.object, bound_method=True,
-                                            type_aliases=self.config.autodoc_type_aliases)
+                bound_method = not inspect.isstaticmethod(
+                    self.object, cls=self.parent, name=self.object_name,
+                )
+                self.env.events.emit(
+                    'autodoc-before-process-signature', self.object, bound_method,
+                )
+                sig = inspect.signature(
+                    self.object,
+                    bound_method=bound_method,
+                    type_aliases=self.config.autodoc_type_aliases,
+                )
                 args = stringify_signature(sig, **kwargs)
         except TypeError as exc:
             logger.warning(__("Failed to get a method signature for %s: %s"),
@@ -2234,8 +2235,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             self.add_line('   :abstractmethod:', sourcename)
         if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
             self.add_line('   :async:', sourcename)
-        if (inspect.isclassmethod(obj) or
-                inspect.is_singledispatch_method(obj) and inspect.isclassmethod(obj.func)):
+        if (
+            inspect.is_classmethod_like(obj)
+            or inspect.is_singledispatch_method(obj) and inspect.is_classmethod_like(obj.func)
+        ):
             self.add_line('   :classmethod:', sourcename)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
             self.add_line('   :staticmethod:', sourcename)

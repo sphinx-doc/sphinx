@@ -241,6 +241,38 @@ def isclassmethod(
     return False
 
 
+def isclassmethoddescriptor(
+    obj: Any,
+    cls: Any = None,
+    name: str | None = None,
+) -> TypeIs[types.ClassMethodDescriptorType]:
+    """Check if the object is a class method descriptor type.
+
+    This is typically useful to check if a built-in method is a class method.
+    """
+    if isinstance(obj, types.ClassMethodDescriptorType):
+        return True
+    if cls and name:
+        # trace __mro__ if the method is defined in parent class
+        sentinel = object()
+        for basecls in getmro(cls):
+            meth = basecls.__dict__.get(name, sentinel)
+            if meth is not sentinel:
+                return isinstance(obj, types.ClassMethodDescriptorType)
+    return False
+
+
+def is_classmethod_like(
+    obj: Any,
+    cls: Any = None,
+    name: str | None = None,
+) -> TypeIs[classmethod | types.ClassMethodDescriptorType]:
+    """Check if the object behaves like a class method."""
+    # Built-in methods are instances of ClassMethodDescriptorType
+    # while pure Python class methods are instances of classmethod().
+    return isclassmethod(obj, cls, name) or isclassmethoddescriptor(obj, cls, name)
+
+
 def isstaticmethod(
     obj: Any,
     cls: Any = None,
@@ -249,6 +281,8 @@ def isstaticmethod(
     """Check if the object is a :class:`staticmethod`."""
     if isinstance(obj, staticmethod):
         return True
+    # Unlike built-in class methods, built-in static methods
+    # satisfy "isinstance(cls.__dict__[name], staticmethod)".
     if cls and name:
         # trace __mro__ if the method is defined in parent class
         sentinel = object()
