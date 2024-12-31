@@ -19,23 +19,27 @@ env:
 jobs:
   # If you update any of these commands, don't forget to update the equivalent
   # tox environment
-  ruff:
+  uv:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
       with:
         persist-credentials: false
-    - name: Get Ruff version from pyproject.toml
-      run: |
-        RUFF_VERSION=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
-        echo "RUFF_VERSION=$RUFF_VERSION" >> $GITHUB_ENV
-
-    - name: "Install Ruff ${{ env.RUFF_VERSION }}"
-      uses: astral-sh/ruff-action@v3
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        version: ${{ env.RUFF_VERSION }}
+        python-version: "3.x"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+    - name: Install dependencies
+      run: uv pip install ".[lint,test]"
 
+  ruff:
+    needs: uv
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Lint with Ruff
       run: ruff check --output-format=github
 
@@ -43,91 +47,45 @@ jobs:
       run: ruff format --diff
 
   flake8:
+    needs: uv
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
     - name: Lint with flake8
       run: uvx --from 'flake8>=6.0' flake8 .
 
   mypy:
+    needs: uv
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-    - name: Install dependencies
-      run: uv pip install ".[lint,test]"
     - name: Type check with mypy
       run: mypy
 
   pyright:
+    needs: uv
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-    - name: Install dependencies
-      run: uv pip install ".[lint,test]"
     - name: Type check with pyright
       run: pyright
 
   docs-lint:
+    needs: uv
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
-      run: uv pip install --upgrade sphinx-lint
+      run: uv tool install sphinx-lint
     - name: Lint documentation with sphinx-lint
       run: make doclinter
 
   twine:
+    needs: uv
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-    - name: Install dependencies
-      run: uv pip install --upgrade twine build
     - name: Lint with twine
       run: |
-        python -m build .
-        twine check dist/*
+        uvx build .
+        uvx twine check dist/*
