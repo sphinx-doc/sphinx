@@ -394,7 +394,6 @@ preview = true
 quote-style = "single"
 exclude = [
     "sphinx/builders/latex/constants.py",
-    "sphinx/domains/changeset.py",
     "sphinx/domains/index.py",
     "sphinx/domains/javascript.py",
     "sphinx/domains/math.py",
