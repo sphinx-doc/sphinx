@@ -31,11 +31,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
       run: uv pip install .[docs]
     - name: Render the documentation

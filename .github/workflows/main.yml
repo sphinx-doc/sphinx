@@ -58,11 +58,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
@@ -198,9 +194,7 @@ jobs:
     - name: Install graphviz
       run: choco install --no-progress graphviz
     - name: Install uv
-      run: >
-        Invoke-WebRequest -Uri "https://astral.sh/uv/install.ps1"
-        | Invoke-Expression
+      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Test with pytest
@@ -232,11 +226,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Install Docutils' HEAD
@@ -266,11 +256,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
       run: |
         uv pip install .[test] --resolution lowest-direct
@@ -298,11 +284,7 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Test with pytest
@@ -330,11 +312,7 @@ jobs:
     - name: Install graphviz
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
     - name: Install dependencies
       run: uv pip install .[test] pytest-cov
     - name: Test with pytest

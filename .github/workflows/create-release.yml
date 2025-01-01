@@ -35,11 +35,7 @@ jobs:
         with:
           python-version: "3"
       - name: Install uv
-        run: >
-          curl --no-progress-meter --location --fail
-          --proto '=https' --tlsv1.2
-          "https://astral.sh/uv/install.sh"
-          | sh
+        uses: astral-sh/setup-uv@v5
 
       - name: Install build dependencies (pypa/build, twine)
         run: |

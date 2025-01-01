@@ -55,8 +55,10 @@ jobs:
         python-version: "3"
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+    - name: Install flake8
+      run: uv tool install "flake8>=6.0"
     - name: Lint with flake8
-      run: uvx --from 'flake8>=6.0' flake8 .
+      run: flake8 .
 
   mypy:
     runs-on: ubuntu-latest
