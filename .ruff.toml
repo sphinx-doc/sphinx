@@ -397,6 +397,5 @@ exclude = [
     "sphinx/domains/python/_annotations.py",
     "sphinx/domains/python/__init__.py",
     "sphinx/domains/python/_object.py",
-    "sphinx/domains/rst.py",
     "sphinx/domains/std/__init__.py",
 ]
