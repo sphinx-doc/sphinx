@@ -394,7 +394,6 @@ preview = true
 quote-style = "single"
 exclude = [
     "sphinx/builders/latex/constants.py",
-    "sphinx/domains/math.py",
     "sphinx/domains/python/_annotations.py",
     "sphinx/domains/python/__init__.py",
     "sphinx/domains/python/_object.py",
