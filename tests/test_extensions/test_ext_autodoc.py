@@ -1215,10 +1215,12 @@ def test_autodoc_member_order(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:method:: Class.excludemeth()',
-        '   .. py:method:: Class.meth()',
+        # class methods
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        # regular methods
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
