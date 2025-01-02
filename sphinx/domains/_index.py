@@ -87,8 +87,7 @@ class Index(ABC):
 
     @abstractmethod
     def generate(
-        self,
-        docnames: Iterable[str] | None = None,
+        self, docnames: Iterable[str] | None = None
     ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
         """Get entries for the index.
 

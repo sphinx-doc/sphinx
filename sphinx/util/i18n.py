@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
     class DateFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             date: dt.date | None = ...,
             format: str = ...,
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
         ) -> str: ...
 
     class TimeFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             time: dt.time | dt.datetime | float | None = ...,
             format: str = ...,
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
         ) -> str: ...
 
     class DatetimeFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             datetime: dt.date | dt.time | float | None = ...,
             format: str = ...,

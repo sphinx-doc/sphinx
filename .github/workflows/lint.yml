@@ -42,24 +42,6 @@ jobs:
     - name: Format with Ruff
       run: ruff format --diff
 
-  flake8:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-    - name: Install flake8
-      run: uv tool install "flake8>=6.0"
-    - name: Lint with flake8
-      run: flake8 .
-
   mypy:
     runs-on: ubuntu-latest
 

@@ -10,6 +10,13 @@ extend-exclude = [
     "doc/usage/extensions/example*.py",
 ]
 
+[format]
+preview = true
+quote-style = "single"
+exclude = [
+    "sphinx/builders/latex/constants.py"
+]
+
 [lint]
 preview = true
 ignore = [
@@ -70,7 +77,6 @@ ignore = [
     "UP032",   # Use f-string instead of `format` call
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
-    "E704",
     "SIM113",
 ]
 select = [
@@ -387,59 +393,4 @@ forced-separate = [
 ]
 required-imports = [
     "from __future__ import annotations",
-]
-
-[format]
-preview = true
-quote-style = "single"
-exclude = [
-    "sphinx/addnodes.py",
-    "sphinx/application.py",
-    "sphinx/builders/latex/constants.py",
-    "sphinx/config.py",
-    "sphinx/domains/__init__.py",
-    "sphinx/domains/c/_parser.py",
-    "sphinx/domains/c/_ids.py",
-    "sphinx/domains/c/__init__.py",
-    "sphinx/domains/c/_symbol.py",
-    "sphinx/domains/c/_ast.py",
-    "sphinx/domains/changeset.py",
-    "sphinx/domains/citation.py",
-    "sphinx/domains/cpp/_parser.py",
-    "sphinx/domains/cpp/_ids.py",
-    "sphinx/domains/cpp/__init__.py",
-    "sphinx/domains/cpp/_symbol.py",
-    "sphinx/domains/cpp/_ast.py",
-    "sphinx/domains/index.py",
-    "sphinx/domains/javascript.py",
-    "sphinx/domains/math.py",
-    "sphinx/domains/python/_annotations.py",
-    "sphinx/domains/python/__init__.py",
-    "sphinx/domains/python/_object.py",
-    "sphinx/domains/rst.py",
-    "sphinx/domains/std/__init__.py",
-    "sphinx/ext/autodoc/__init__.py",
-    "sphinx/ext/autodoc/directive.py",
-    "sphinx/ext/autodoc/importer.py",
-    "sphinx/ext/autodoc/mock.py",
-    "sphinx/ext/autodoc/preserve_defaults.py",
-    "sphinx/ext/autodoc/type_comment.py",
-    "sphinx/ext/autodoc/typehints.py",
-    "sphinx/ext/autosectionlabel.py",
-    "sphinx/ext/autosummary/__init__.py",
-    "sphinx/ext/coverage.py",
-    "sphinx/ext/doctest.py",
-    "sphinx/ext/duration.py",
-    "sphinx/ext/extlinks.py",
-    "sphinx/ext/githubpages.py",
-    "sphinx/ext/graphviz.py",
-    "sphinx/ext/ifconfig.py",
-    "sphinx/ext/imgconverter.py",
-    "sphinx/ext/imgmath.py",
-    "sphinx/ext/inheritance_diagram.py",
-    "sphinx/ext/linkcode.py",
-    "sphinx/ext/mathjax.py",
-    "sphinx/ext/todo.py",
-    "sphinx/ext/viewcode.py",
-    "sphinx/registry.py",
 ]

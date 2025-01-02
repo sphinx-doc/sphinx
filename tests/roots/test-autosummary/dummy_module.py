@@ -10,7 +10,7 @@
 """
 
 
-def withSentence():
+def with_sentence():
     '''I have a sentence which
     spans multiple lines. Then I have
     more stuff
@@ -18,7 +18,7 @@ def withSentence():
     pass
 
 
-def noSentence():
+def no_sentence():
     '''this doesn't start with a
     capital. so it's not considered
     a sentence
@@ -26,7 +26,7 @@ def noSentence():
     pass
 
 
-def emptyLine():
+def empty_line():
     '''This is the real summary
 
     However, it did't end with a period.

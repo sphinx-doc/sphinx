@@ -1221,7 +1221,7 @@ Returns Style:
             ),
         )
 
-        testConfig = Config(
+        test_config = Config(
             napoleon_custom_sections=[
                 'Really Important Details',
                 ('Sooper Warning', 'warns'),
@@ -1231,7 +1231,7 @@ Returns Style:
         )
 
         for docstring, expected in docstrings:
-            actual = GoogleDocstring(docstring, testConfig)
+            actual = GoogleDocstring(docstring, test_config)
             assert str(actual) == expected
 
     def test_noindex(self):
