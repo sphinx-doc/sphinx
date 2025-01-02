@@ -4,7 +4,6 @@ output-format = "full"
 
 extend-exclude = [
     "tests/roots/*",
-    "tests/js/roots/*",
     "build/*",
     "doc/_build/*",
     "doc/usage/extensions/example*.py",
@@ -333,6 +332,9 @@ select = [
     "S403",  # allow use of ``pickle``
     "T201",  # whitelist ``print`` for tests
 ]
+
+# test roots are not packages
+"tests/js/roots/*" = ["I002", "INP001"]
 
 # these tests need old ``typing`` generic aliases
 "tests/test_util/test_util_typing.py" = ["RUF036", "UP006", "UP007", "UP035"]
