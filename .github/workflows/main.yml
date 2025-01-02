@@ -59,6 +59,9 @@ jobs:
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
@@ -195,6 +198,9 @@ jobs:
       run: choco install --no-progress graphviz
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Test with pytest
@@ -227,6 +233,9 @@ jobs:
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Install Docutils' HEAD
@@ -257,6 +266,9 @@ jobs:
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: |
         uv pip install .[test] --resolution lowest-direct
@@ -285,6 +297,9 @@ jobs:
       run: python --version --version
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install .[test]
     - name: Test with pytest
@@ -313,6 +328,9 @@ jobs:
       run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install .[test] pytest-cov
     - name: Test with pytest

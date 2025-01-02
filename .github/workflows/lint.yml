@@ -56,6 +56,9 @@ jobs:
         python-version: "3"
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install ".[lint,test]"
     - name: Type check with mypy
@@ -74,6 +77,9 @@ jobs:
         python-version: "3"
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install ".[lint,test]"
     - name: Type check with pyright
@@ -92,6 +98,9 @@ jobs:
         python-version: "3"
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install --upgrade sphinx-lint
     - name: Lint documentation with sphinx-lint
@@ -110,6 +119,9 @@ jobs:
         python-version: "3"
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install --upgrade twine build
     - name: Lint with twine
