@@ -34,6 +34,7 @@ jobs:
     - name: Install Ruff ${{ env.RUFF_VERSION }}
       uses: astral-sh/ruff-action@v3
       with:
+        args: --version
         version: ${{ env.RUFF_VERSION }}
 
     - name: Lint with Ruff
