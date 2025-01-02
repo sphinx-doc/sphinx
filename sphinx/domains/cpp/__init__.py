@@ -1073,10 +1073,7 @@ class CPPDomain(Domain):
         try:
             ast, is_shorthand = parser.parse_xref_object()
         except DefinitionError as e:
-            # as arg to stop flake8 from complaining
-            def find_warning(e: Exception) -> tuple[str, Exception]:
-                if typ not in {'any', 'func'}:
-                    return target, e
+            if typ in {'any', 'func'}:
                 # hax on top of the paren hax to try to get correct errors
                 parser2 = DefinitionParser(
                     target[:-2], location=node, config=env.config
@@ -1084,13 +1081,16 @@ class CPPDomain(Domain):
                 try:
                     parser2.parse_xref_object()
                 except DefinitionError as e2:
-                    return target[:-2], e2
-                # strange, that we don't get the error now, use the original
-                return target, e
+                    target = target[:-2]
+                    ex = e2
+                else:
+                    # strange, that we don't get the error now, use the original
+                    ex = e
+            else:
+                ex = e
 
-            t, ex = find_warning(e)
             logger.warning(
-                'Unparseable C++ cross-reference: %r\n%s', t, ex, location=node
+                'Unparseable C++ cross-reference: %r\n%s', target, ex, location=node
             )
             return None, None
         parent_key: LookupKey = node.get('cpp:parent_key', None)
