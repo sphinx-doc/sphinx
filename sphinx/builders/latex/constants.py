@@ -117,7 +117,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
-}
+}  # fmt: skip
 
 ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
     'pdflatex': {
@@ -204,7 +204,7 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
     ('xelatex', 'el'): {
         'fontpkg':      XELATEX_GREEK_DEFAULT_FONTPKG,
     },
-}
+}  # fmt: skip
 
 
 SHORTHANDOFF = r"""
