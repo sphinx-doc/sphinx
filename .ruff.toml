@@ -6,7 +6,6 @@ extend-exclude = [
     "tests/roots/*",
     "build/*",
     "doc/_build/*",
-    "doc/usage/extensions/example*.py",
 ]
 
 [format]
@@ -276,6 +275,13 @@ select = [
     "FURB118",
     "T201"
 ]
+"doc/usage/extensions/example_{google,numpy}.py" = [
+    "D416",  # Section name should end with a colon ("{name}")
+    "I002",  # Missing required import: {name}
+    "INP001",  # File {filename} is part of an implicit namespace package. Add an __init__.py.
+    "PLW3201",  # Dunder method {name} has no special meaning in Python 3
+]
+
 "sphinx/domains/**" = ["FURB113"]
 "tests/test_domains/test_domain_cpp.py" = ["FURB113"]
 
