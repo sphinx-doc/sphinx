@@ -249,6 +249,8 @@ def format_date(
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
             date = datetime.fromtimestamp(float(source_date_epoch), tz=UTC)
+            # If SOURCE_DATE_EPOCH is set, users likely want a reproducible result,
+            # so enforce GMT/UTC for consistency.
             local_time = False
         else:
             date = datetime.now(tz=UTC)
