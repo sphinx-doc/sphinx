@@ -589,7 +589,7 @@ class SphinxComponentRegistry:
 def merge_source_suffix(app: Sphinx, config: Config) -> None:
     """Merge any user-specified source_suffix with any added by extensions."""
     for suffix, filetype in app.registry.source_suffix.items():
-        if suffix not in app.config.source_suffix:  # NoQA: SIM114
+        if suffix not in app.config.source_suffix:
             app.config.source_suffix[suffix] = filetype
         elif app.config.source_suffix[suffix] == 'restructuredtext':
             # The filetype is not specified (default filetype).

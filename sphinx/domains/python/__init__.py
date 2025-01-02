@@ -80,7 +80,7 @@ class ModuleEntry(NamedTuple):
 class PyFunction(PyObject):
     """Description of a function."""
 
-    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()  # noqa: F821
+    option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
         'async': directives.flag,
     })

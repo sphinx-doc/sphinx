@@ -2136,7 +2136,7 @@ def test_latex_code_role(app):
         r'\PYG{k}{pass}'
     )
     assert (
-        r'Inline \sphinxcode{\sphinxupquote{%'  # NoQA: ISC003
+        r'Inline \sphinxcode{\sphinxupquote{%'
         + '\n'
         + common_content
         + '%\n}} code block'

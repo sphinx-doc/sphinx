@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.util.cfamily import StringifyTransform
 
-DeclarationType: TypeAlias = Union[  # NoQA: UP007
+DeclarationType: TypeAlias = Union[
     'ASTStruct',
     'ASTUnion',
     'ASTEnum',

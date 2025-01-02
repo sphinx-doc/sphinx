@@ -762,7 +762,7 @@ class CDomain(Domain):
         # generated object types
         'functionParam': ObjType(
             _('function parameter'), 'identifier', 'var', 'member', 'data'
-        ),  # NoQA: E501
+        ),
     }
 
     directives = {

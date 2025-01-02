@@ -1685,7 +1685,7 @@ class DefinitionParser(BaseParser):
                         else:
                             raise AssertionError from ex_untyped
                         raise self._make_multi_error(prev_errors, header) from ex_typed
-                    else:  # NoQA: RET506
+                    else:
                         # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # reliably save a traceback when an exception is

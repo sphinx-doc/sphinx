@@ -811,7 +811,7 @@ def test_isproperty():
 def test_isgenericalias():
     #: A list of int
     T = List[int]  # NoQA: UP006
-    S = list[Union[str, None]]  # NoQA: UP006, UP007
+    S = list[Union[str, None]]  # NoQA: UP007
 
     C = Callable[[int], None]  # NoQA: UP006  # a generic alias not having a doccomment
 

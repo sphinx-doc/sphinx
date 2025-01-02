@@ -947,7 +947,7 @@ class CPPDomain(Domain):
         # generated object types
         'functionParam': ObjType(
             _('function parameter'), 'identifier', 'member', 'var'
-        ),  # NoQA: E501
+        ),
         'templateParam': ObjType(
             _('template parameter'),
             'identifier',
@@ -957,7 +957,7 @@ class CPPDomain(Domain):
             'member',
             'var',
             'type',
-        ),  # NoQA: E501
+        ),
     }
 
     directives = {
