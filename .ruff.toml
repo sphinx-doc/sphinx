@@ -265,7 +265,11 @@ select = [
     "RUF043",  # Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
     "RUF046",  # Value being casted is already an integer
     "RUF048",  # `__version__` may contain non-integral-like elements
+    "RUF051",  # Use `pop` instead of `key in dict` followed by `del dict[key]`
+#    "RUF052",  # Local dummy variable `{}` is accessed
     "RUF055",  # Plain string pattern passed to `re` function
+    "RUF056",  # Avoid providing a falsy fallback to `dict.get()` in boolean test positions. The default fallback `None` is already falsy.
+    "RUF057",  # Value being rounded is already an integer
     "RUF100",  # Unused `noqa` directive
     "RUF101",  # `{original}` is a redirect to `{target}`
     "RUF200",  # Failed to parse pyproject.toml: {message}
