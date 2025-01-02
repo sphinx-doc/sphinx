@@ -75,6 +75,15 @@ ignore = [
     # pyupgrade
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
+    # Ruff-specific rules ('RUF')
+    "RUF001",  # String contains ambiguous {}. Did you mean {}?
+    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF021",  # Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
+    "RUF022",  # `__all__` is not sorted
+    "RUF023",  # `{}.__slots__` is not sorted
+    "RUF027",  # Possible f-string without an `f` prefix
+    "RUF039",  # First argument to {call} is not raw string
+    "RUF052",  # Local dummy variable `{}` is accessed
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
     "SIM113",
@@ -225,54 +234,8 @@ select = [
     "RET508",  # Unnecessary `{branch}` after `break` statement
     # flake8-raise ('RSE')
     "RSE",
-    # ruff-specific rules ('RUF')
-#    "RUF001",  # String contains ambiguous {}. Did you mean {}?
-    "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
-    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
-    "RUF005",  # Consider `{expression}` instead of concatenation
-    "RUF006",  # Store a reference to the return value of `{expr}.{method}`
-    "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
-    "RUF008",  # Do not use mutable default values for dataclass attributes
-    "RUF009",  # Do not perform function call `{name}` in dataclass defaults
-    "RUF010",  # Use explicit conversion flag
-#    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
-    "RUF013",  # PEP 484 prohibits implicit `Optional`
-    "RUF015",  # Prefer `next({iterable})` over single element slice
-    "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer
-    "RUF017",  # Avoid quadratic list summation
-    "RUF018",  # Avoid assignment expressions in `assert` statements
-    "RUF019",  # Unnecessary key check before dictionary access
-    "RUF020",  # `{never_like} | T` is equivalent to `T`
-#    "RUF021",  # Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
-#    "RUF022",  # `__all__` is not sorted
-#    "RUF023",  # `{}.__slots__` is not sorted
-    "RUF024",  # Do not pass mutable objects as values to `dict.fromkeys`
-    "RUF026",  # `default_factory` is a positional-only argument to `defaultdict`
-#    "RUF027",  # Possible f-string without an `f` prefix
-    "RUF028",  # This suppression comment is invalid because {}
-    "RUF029",  # Function `{name}` is declared `async`, but doesn't `await` or use `async` features.
-    "RUF030",  # `print()` call in `assert` statement is likely unintentional
-    "RUF031",  # Use parentheses for tuples in subscripts
-    "RUF032",  # `Decimal()` called with float literal argument
-    "RUF033",  # `__post_init__` method with argument defaults
-    "RUF034",  # Useless `if`-`else` condition
-    "RUF035",  # Unsafe use of `{name}` detected
-    "RUF036",  # `None` not at the end of the type annotation.
-    "RUF038",  # `Literal[True, False, ...]` can be replaced with `Literal[...] | bool`
-#    "RUF039",  # First argument to {call} is not raw string
-    "RUF040",  # Non-string literal used as assert message
-    "RUF041",  # Unnecessary nested `Literal`
-    "RUF043",  # Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
-    "RUF046",  # Value being casted is already an integer
-    "RUF048",  # `__version__` may contain non-integral-like elements
-    "RUF051",  # Use `pop` instead of `key in dict` followed by `del dict[key]`
-#    "RUF052",  # Local dummy variable `{}` is accessed
-    "RUF055",  # Plain string pattern passed to `re` function
-    "RUF056",  # Avoid providing a falsy fallback to `dict.get()` in boolean test positions. The default fallback `None` is already falsy.
-    "RUF057",  # Value being rounded is already an integer
-    "RUF100",  # Unused `noqa` directive
-    "RUF101",  # `{original}` is a redirect to `{target}`
-    "RUF200",  # Failed to parse pyproject.toml: {message}
+    # Ruff-specific rules ('RUF')
+    "RUF",
     # flake8-bandit ('S')
     "S",
     # flake8-simplify ('SIM')
