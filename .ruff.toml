@@ -264,7 +264,7 @@ select = [
     "RUF041",  # Unnecessary nested `Literal`
     "RUF043",  # Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
     "RUF046",  # Value being casted is already an integer
-#    "RUF048",  # `__version__` may contain non-integral-like elements
+    "RUF048",  # `__version__` may contain non-integral-like elements
     "RUF055",  # Plain string pattern passed to `re` function
 #    "RUF100",  # Unused `noqa` directive
     "RUF101",  # `{original}` is a redirect to `{target}`
