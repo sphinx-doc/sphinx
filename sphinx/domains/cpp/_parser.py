@@ -1909,7 +1909,7 @@ class DefinitionParser(BaseParser):
         self.skip_ws()
         if not self.skip_string('<'):
             self.fail("Expected '<' after 'template'")
-        while 1:
+        while True:
             pos = self.pos
             err = None
             try:
