@@ -37,18 +37,24 @@ class ImagemagickConverter(ImageConverter):
             subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError as exc:
-            logger.warning(__(
-                "Unable to run the image conversion command %r. "
-                "'sphinx.ext.imgconverter' requires ImageMagick by default. "
-                "Ensure it is installed, or set the 'image_converter' option "
-                "to a custom conversion command.\n\n"
-                "Traceback: %s",
-            ), self.config.image_converter, exc)
+            logger.warning(
+                __(
+                    'Unable to run the image conversion command %r. '
+                    "'sphinx.ext.imgconverter' requires ImageMagick by default. "
+                    "Ensure it is installed, or set the 'image_converter' option "
+                    'to a custom conversion command.\n\n'
+                    'Traceback: %s',
+                ),
+                self.config.image_converter,
+                exc,
+            )
             return False
         except CalledProcessError as exc:
-            logger.warning(__('convert exited with error:\n'
-                              '[stderr]\n%r\n[stdout]\n%r'),
-                           exc.stderr, exc.stdout)
+            logger.warning(
+                __('convert exited with error:\n[stderr]\n%r\n[stdout]\n%r'),
+                exc.stderr,
+                exc.stdout,
+            )
             return False
 
     def convert(self, _from: str, _to: str) -> bool:
@@ -58,21 +64,28 @@ class ImagemagickConverter(ImageConverter):
             # (or first page) of image (ex. Animation GIF, PDF)
             _from += '[0]'
 
-            args = ([
-                self.config.image_converter, *self.config.image_converter_args, _from, _to,
-            ])
+            args = [
+                self.config.image_converter,
+                *self.config.image_converter_args,
+                _from,
+                _to,
+            ]
             logger.debug('Invoking %r ...', args)
             subprocess.run(args, capture_output=True, check=True)
             return True
         except OSError:
-            logger.warning(__('convert command %r cannot be run, '
-                              'check the image_converter setting'),
-                           self.config.image_converter)
+            logger.warning(
+                __(
+                    'convert command %r cannot be run, check the image_converter setting'
+                ),
+                self.config.image_converter,
+            )
             return False
         except CalledProcessError as exc:
-            raise ExtensionError(__('convert exited with error:\n'
-                                    '[stderr]\n%r\n[stdout]\n%r') %
-                                 (exc.stderr, exc.stdout)) from exc
+            raise ExtensionError(
+                __('convert exited with error:\n[stderr]\n%r\n[stdout]\n%r')
+                % (exc.stderr, exc.stdout)
+            ) from exc
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

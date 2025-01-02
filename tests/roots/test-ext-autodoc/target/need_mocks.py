@@ -9,8 +9,8 @@ from sphinx.missing_module4 import missing_name2
 
 
 @missing_name(int)
-def decoratedFunction():
-    """decoratedFunction docstring"""
+def decorated_function():
+    """decorated_function docstring"""
     return None
 
 
@@ -26,8 +26,8 @@ class TestAutodoc:
     Alias = missing_module2.Class
 
     @missing_name
-    def decoratedMethod(self):
-        """TestAutodoc::decoratedMethod docstring"""
+    def decorated_method(self):
+        """TestAutodoc::decorated_method docstring"""
         return None
 
 

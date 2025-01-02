@@ -9,6 +9,8 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.util.osutil import _relative_path, fs_encoding
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils import nodes
 
     from sphinx.application import Sphinx
@@ -26,7 +28,7 @@ class DependenciesCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         for docname in docnames:

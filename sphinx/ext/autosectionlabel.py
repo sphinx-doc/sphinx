@@ -32,8 +32,10 @@ def get_node_depth(node: Node) -> int:
 def register_sections_as_label(app: Sphinx, document: Node) -> None:
     domain = app.env.domains.standard_domain
     for node in document.findall(nodes.section):
-        if (app.config.autosectionlabel_maxdepth and
-                get_node_depth(node) >= app.config.autosectionlabel_maxdepth):
+        if (
+            app.config.autosectionlabel_maxdepth
+            and get_node_depth(node) >= app.config.autosectionlabel_maxdepth
+        ):
             continue
         labelid = node['ids'][0]
         docname = app.env.docname
@@ -45,13 +47,23 @@ def register_sections_as_label(app: Sphinx, document: Node) -> None:
             name = nodes.fully_normalize_name(ref_name)
         sectname = clean_astext(title)
 
-        logger.debug(__('section "%s" gets labeled as "%s"'),
-                     ref_name, name,
-                     location=node, type='autosectionlabel', subtype=docname)
+        logger.debug(
+            __('section "%s" gets labeled as "%s"'),
+            ref_name,
+            name,
+            location=node,
+            type='autosectionlabel',
+            subtype=docname,
+        )
         if name in domain.labels:
-            logger.warning(__('duplicate label %s, other instance in %s'),
-                           name, app.env.doc2path(domain.labels[name][0]),
-                           location=node, type='autosectionlabel', subtype=docname)
+            logger.warning(
+                __('duplicate label %s, other instance in %s'),
+                name,
+                app.env.doc2path(domain.labels[name][0]),
+                location=node,
+                type='autosectionlabel',
+                subtype=docname,
+            )
 
         domain.anonlabels[name] = docname, labelid
         domain.labels[name] = docname, labelid, sectname

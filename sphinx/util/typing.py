@@ -95,7 +95,7 @@ PathMatcher: TypeAlias = Callable[[str], bool]
 if TYPE_CHECKING:
 
     class RoleFunction(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             name: str,
             rawtext: str,
@@ -127,11 +127,11 @@ if TYPE_CHECKING:
     _T_co = TypeVar('_T_co', str, bytes, covariant=True)
 
     class _ReadableStream(Protocol[_T_co]):  # NoQA: PYI046 (false positive)
-        def read(self, size: int = ...) -> _T_co: ...  # NoQA: E704
+        def read(self, size: int = ...) -> _T_co: ...
 
-        def __enter__(self) -> Self: ...  # NoQA: E704
+        def __enter__(self) -> Self: ...
 
-        def __exit__(  # NoQA: E704
+        def __exit__(
             self,
             exc_type: type[BaseException] | None,
             exc_val: BaseException | None,
