@@ -1705,7 +1705,7 @@ def test_autodoc_default_options(app):
     if (3, 11, 7) <= sys.version_info < (3, 12) or sys.version_info >= (3, 12, 1):
         list_of_weak_references = '      list of weak references to the object'
     else:
-        list_of_weak_references = "      list of weak references to the object (if defined)"  # fmt: skip
+        list_of_weak_references = '      list of weak references to the object (if defined)'  # fmt: skip
 
     # no settings
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
@@ -1784,7 +1784,7 @@ def test_autodoc_default_options_with_values(app):
     if (3, 11, 7) <= sys.version_info < (3, 12) or sys.version_info >= (3, 12, 1):
         list_of_weak_references = '      list of weak references to the object'
     else:
-        list_of_weak_references = "      list of weak references to the object (if defined)"  # fmt: skip
+        list_of_weak_references = '      list of weak references to the object (if defined)'  # fmt: skip
 
     # with :members:
     app.config.autodoc_default_options = {'members': 'val1,val2'}

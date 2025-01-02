@@ -218,11 +218,7 @@ select = [
     "PYI",
       # Stub files are not used in Sphinx
     # flake8-quotes ('Q')
-#    "Q000",  # Double quotes found but single quotes preferred
-#    "Q001",  # Single quote multiline found but double quotes preferred
-    "Q002",  # Single quote docstring found but double quotes preferred
-    "Q003",  # Change outer quotes to avoid escaping inner quotes
-    "Q004",  # Unnecessary escape on inner quote character
+    "Q",
     # flake8-return ('RET')
     "RET501",  # Do not explicitly `return None` in function if it is the only possible return value
     "RET502",  # Do not implicitly `return None` in function able to return non-`None` value

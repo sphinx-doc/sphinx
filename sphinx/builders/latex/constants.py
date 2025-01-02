@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
-PDFLATEX_DEFAULT_FONTPKG = r'''
+PDFLATEX_DEFAULT_FONTPKG = r"""
 \usepackage{tgtermes}
 \usepackage{tgheros}
 \renewcommand{\ttdefault}{txtt}
-'''
+"""
 
-PDFLATEX_DEFAULT_FONTSUBSTITUTION = r'''
+PDFLATEX_DEFAULT_FONTSUBSTITUTION = r"""
 \expandafter\ifx\csname T@LGR\endcsname\relax
 \else
 % LGR was declared as font encoding
@@ -32,9 +32,9 @@ PDFLATEX_DEFAULT_FONTSUBSTITUTION = r'''
   \substitutefont{X2}{\sfdefault}{cmss}
   \substitutefont{X2}{\ttdefault}{cmtt}
 \fi
-'''
+"""
 
-XELATEX_DEFAULT_FONTPKG = r'''
+XELATEX_DEFAULT_FONTPKG = r"""
 \setmainfont{FreeSerif}[
   Extension      = .otf,
   UprightFont    = *,
@@ -56,7 +56,7 @@ XELATEX_DEFAULT_FONTPKG = r'''
   BoldFont       = *Bold,
   BoldItalicFont = *BoldOblique,
 ]
-'''
+"""
 
 XELATEX_GREEK_DEFAULT_FONTPKG = (
     XELATEX_DEFAULT_FONTPKG
@@ -207,9 +207,9 @@ ADDITIONAL_SETTINGS: dict[Any, dict[str, Any]] = {
 }
 
 
-SHORTHANDOFF = r'''
+SHORTHANDOFF = r"""
 \ifdefined\shorthandoff
   \ifnum\catcode`\=\string=\active\shorthandoff{=}\fi
   \ifnum\catcode`\"=\active\shorthandoff{"}\fi
 \fi
-'''
+"""
