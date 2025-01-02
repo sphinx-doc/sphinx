@@ -9,6 +9,13 @@ LT_NEW = (2009, *LT[1:], LT.tm_zone, LT.tm_gmtoff)
 LOCALTIME_2009 = type(LT)(LT_NEW)
 
 
+@pytest.fixture
+def no_source_date_year(monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv('SOURCE_DATE_EPOCH', raising=False)
+        yield
+
+
 @pytest.fixture(
     params=[
         1199145600,  # 2008-01-01 00:00:00
@@ -24,7 +31,7 @@ def source_date_year(request, monkeypatch):
 
 
 @pytest.mark.sphinx('html', testroot='copyright-multiline')
-def test_html_multi_line_copyright(app):
+def test_html_multi_line_copyright(no_source_date_year, app):
     app.build(force_all=True)
 
     content = (app.outdir / 'index.html').read_text(encoding='utf-8')
