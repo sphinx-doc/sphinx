@@ -93,7 +93,7 @@ def generate_latex_macro(
     """Generate LaTeX macro."""
     variables = {
         'fontsize': config.imgmath_font_size,
-        'baselineskip': int(round(config.imgmath_font_size * 1.2)),
+        'baselineskip': round(config.imgmath_font_size * 1.2),
         'preamble': config.imgmath_latex_preamble,
         # the dvips option is important when imgmath_latex in {"xelatex", "tectonic"},
         # it has no impact when imgmath_latex="latex"
