@@ -333,7 +333,7 @@ def render_dot(
         )
         if not hasattr(self.builder, '_graphviz_warned_dot'):
             self.builder._graphviz_warned_dot = {}  # type: ignore[union-attr]
-        self.builder._graphviz_warned_dot[graphviz_dot] = True
+        self.builder._graphviz_warned_dot[graphviz_dot] = True  # type: ignore[union-attr]
         return None, None
     except CalledProcessError as exc:
         raise GraphvizError(
