@@ -29,6 +29,8 @@ Bugs fixed
 * LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
   (refs: PR #13152).
   Patch by Jean-François B.
+* #13195: viewcode: Fix issue where import paths differ from the directory
+  structure.
 
 Testing
 -------
