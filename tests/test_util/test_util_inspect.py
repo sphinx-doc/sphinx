@@ -843,7 +843,7 @@ def test_getdoc_inherited_classmethod():
         @classmethod
         def meth(self):
             """
-            docstring
+            Docstring
                 indented text
             """
 
@@ -861,7 +861,7 @@ def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
             """
-            docstring
+            Docstring
                 indented text
             """
 
