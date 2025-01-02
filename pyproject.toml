@@ -91,7 +91,7 @@ lint = [
     "types-Pygments==2.18.0.20240506",
     "types-requests==2.32.0.20241016",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.389",
+    "pyright==1.1.391",
     "pytest>=6.0",
 ]
 test = [
