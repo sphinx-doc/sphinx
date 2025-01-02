@@ -10,6 +10,13 @@ extend-exclude = [
     "doc/usage/extensions/example*.py",
 ]
 
+[format]
+preview = true
+quote-style = "single"
+exclude = [
+    "sphinx/builders/latex/constants.py"
+]
+
 [lint]
 preview = true
 ignore = [
@@ -387,11 +394,4 @@ forced-separate = [
 ]
 required-imports = [
     "from __future__ import annotations",
-]
-
-[format]
-preview = true
-quote-style = "single"
-exclude = [
-    "sphinx/builders/latex/constants.py",
 ]
