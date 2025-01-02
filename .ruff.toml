@@ -77,7 +77,6 @@ ignore = [
     "UP032",   # Use f-string instead of `format` call
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
-    "E704",
     "SIM113",
 ]
 select = [
