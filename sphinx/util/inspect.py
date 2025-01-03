@@ -222,9 +222,7 @@ def ispartial(obj: Any) -> TypeIs[partial | partialmethod]:
 
 
 def isclassmethod(
-    obj: Any,
-    cls: Any = None,
-    name: str | None = None,
+    obj: Any, cls: Any = None, name: str | None = None
 ) -> TypeIs[classmethod]:
     """Check if the object is a :class:`classmethod`."""
     if isinstance(obj, classmethod):
@@ -241,10 +239,8 @@ def isclassmethod(
     return False
 
 
-def isclassmethoddescriptor(
-    obj: Any,
-    cls: Any = None,
-    name: str | None = None,
+def is_class_method_descriptor(
+    obj: Any, cls: Any = None, name: str | None = None
 ) -> TypeIs[types.ClassMethodDescriptorType]:
     """Check if the object is a class method descriptor type.
 
@@ -262,21 +258,17 @@ def isclassmethoddescriptor(
     return False
 
 
-def is_classmethod_like(
-    obj: Any,
-    cls: Any = None,
-    name: str | None = None,
+def is_class_method_like(
+    obj: Any, cls: Any = None, name: str | None = None
 ) -> TypeIs[classmethod | types.ClassMethodDescriptorType]:
     """Check if the object behaves like a class method."""
     # Built-in methods are instances of ClassMethodDescriptorType
     # while pure Python class methods are instances of classmethod().
-    return isclassmethod(obj, cls, name) or isclassmethoddescriptor(obj, cls, name)
+    return isclassmethod(obj, cls, name) or is_class_method_descriptor(obj, cls, name)
 
 
 def isstaticmethod(
-    obj: Any,
-    cls: Any = None,
-    name: str | None = None,
+    obj: Any, cls: Any = None, name: str | None = None
 ) -> TypeIs[staticmethod]:
     """Check if the object is a :class:`staticmethod`."""
     if isinstance(obj, staticmethod):
