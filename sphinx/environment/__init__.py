@@ -1026,7 +1026,7 @@ class _CurrentDocument:
 
     def __getitem__(self, item: str) -> Any:
         if item in self.__attr_map:
-            getattr(self, self.__attr_map[item])
+            return getattr(self, self.__attr_map[item])
         return self._extension_data[item]
 
     def __setitem__(self, key: str, value: Any) -> None:
@@ -1036,7 +1036,7 @@ class _CurrentDocument:
             self._extension_data[key] = value
 
     def __delitem__(self, key: str) -> None:
-        del self._extension_data[key]
+        self.pop(key, default=None)
 
     def __contains__(self, item: str) -> bool:
         if item in {'c:parent_symbol', 'cpp:parent_symbol'}:
