@@ -3,9 +3,10 @@ line-length = 88
 output-format = "full"
 
 extend-exclude = [
-    "tests/roots/*",
     "build/*",
     "doc/_build/*",
+    "tests/roots/test-directive-code/target.py",  # Tests break if formatted
+    "tests/roots/test-pycode/cp_1251_coded.py",  # Not UTF-8
 ]
 
 [format]
@@ -338,8 +339,15 @@ select = [
 
 # test roots are not packages
 "tests/js/roots/*" = ["I002", "INP001"]
+"tests/roots/*" = [
+    "D403",  # permit uncapitalised docstrings
+    "F401",  # names may be unused in test roots
+    "I002",  # we don't need the annotations future
+    "INP001",  # test roots are not packages
+]
 
 # these tests need old ``typing`` generic aliases
+"tests/roots/test-ext-autodoc/target/genericalias.py" = ["UP006", "UP007", "UP035"]
 "tests/test_util/test_util_typing.py" = ["RUF036", "UP006", "UP007", "UP035"]
 "tests/test_util/typing_test_data.py" = ["FA100", "I002", "PYI030", "UP006", "UP007", "UP035"]
 
