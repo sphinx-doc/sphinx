@@ -258,9 +258,7 @@ def is_classmethod_descriptor(
     return False
 
 
-def is_builtin_classmethod(
-    obj: Any, cls: Any = None, name: str | None = None
-) -> bool:
+def is_builtin_classmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     """Check if the object is a class method implemented in C."""
     if is_classmethod_descriptor(obj, cls, name):
         return True
@@ -279,9 +277,8 @@ def is_builtin_classmethod(
                 return is_builtin_classmethod(obj)
     return False
 
-def is_classmethod_like(
-    obj: Any, cls: Any = None, name: str | None = None
-) -> bool:
+
+def is_classmethod_like(obj: Any, cls: Any = None, name: str | None = None) -> bool:
     """Check if the object behaves like a class method."""
     return isclassmethod(obj, cls, name) or is_builtin_classmethod(obj, cls, name)
 
