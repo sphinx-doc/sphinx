@@ -242,7 +242,7 @@ def isclassmethod(
 def is_classmethod_descriptor(
     obj: Any, cls: Any = None, name: str | None = None
 ) -> TypeIs[types.ClassMethodDescriptorType]:
-    """Check if the object is a class method descriptor type.
+    """Check if the object is a :class:`~types.ClassMethodDescriptorType`.
 
     This is typically useful to check if a built-in method is a class method.
     """
