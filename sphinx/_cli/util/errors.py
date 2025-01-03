@@ -8,9 +8,26 @@ from typing import TYPE_CHECKING, TextIO
 from sphinx.errors import SphinxParallelError
 
 if TYPE_CHECKING:
+    from typing import Final
+
     from sphinx.application import Sphinx
 
-_ANSI_COLOUR_CODES: re.Pattern[str] = re.compile('\x1b.*?m')
+
+_CSI: Final[str] = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
+
+# Pattern matching ANSI CSI colors (SGR) and erase line (EL) sequences.
+#
+# See ``_strip_escape_sequences()`` for details.
+_ANSI_CODES: Final[re.Pattern[str]] = re.compile(
+    '\x1b'
+    r"""\[
+    (?:
+      (?:\d+;){0,2}\d*m  # ANSI color code    ('m' is equivalent to '0m')
+    |
+      [012]?K            # ANSI Erase in Line ('K' is equivalent to '0K')
+    )""",
+    re.VERBOSE | re.ASCII,
+)
 
 
 def terminal_safe(s: str, /) -> str:
@@ -18,8 +35,19 @@ def terminal_safe(s: str, /) -> str:
     return s.encode('ascii', 'backslashreplace').decode('ascii')
 
 
-def strip_colors(s: str, /) -> str:
-    return _ANSI_COLOUR_CODES.sub('', s).strip()
+def strip_escape_sequences(text: str, /) -> str:
+    r"""Remove the ANSI CSI colors and "erase in line" sequences.
+
+    Other `escape sequences <https://en.wikipedia.org/wiki/ANSI_escape_code>`_
+    (e.g., VT100-specific functions) are not supported. Only control sequences
+    *natively* known to Sphinx (i.e., colour sequences used in Sphinx
+    and "erase entire line" (``'\x1b[2K'``)) are stripped by this function.
+
+    .. warning:: This function only for use within Sphinx..
+
+    __ https://en.wikipedia.org/wiki/ANSI_escape_code
+    """
+    return _ANSI_CODES.sub('', text)
 
 
 def error_info(messages: str, extensions: str, traceback: str) -> str:
@@ -71,7 +99,7 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
     last_msgs = exts_list = ''
     if app is not None:
         extensions = app.extensions.values()
-        last_msgs = '\n'.join(f'* {strip_colors(s)}' for s in app.messagelog)
+        last_msgs = '\n'.join(f'* {strip_escape_sequences(s)}' for s in app.messagelog)
         exts_list = '\n'.join(
             f'* {ext.name} ({ext.version})'
             for ext in extensions
