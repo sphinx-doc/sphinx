@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from docutils import nodes
@@ -16,7 +16,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import SEP, os_path, relpath
+from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -38,7 +38,7 @@ class Figure(images.Figure):  # type: ignore[misc]
             return result
 
         assert len(result) == 1
-        figure_node = cast(nodes.figure, result[0])
+        figure_node = cast('nodes.figure', result[0])
         if name:
             # set ``name`` to figure_node if given
             self.options['name'] = name
@@ -46,7 +46,7 @@ class Figure(images.Figure):  # type: ignore[misc]
 
         # copy lineno from image node
         if figure_node.line is None and len(figure_node) == 2:
-            caption = cast(nodes.caption, figure_node[1])
+            caption = cast('nodes.caption', figure_node[1])
             figure_node.line = caption.line
 
         return [figure_node]
@@ -60,8 +60,8 @@ class CSVTable(tables.CSVTable):  # type: ignore[misc]
     def run(self) -> list[Node]:
         if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
             env = self.state.document.settings.env
-            filename = self.options['file']
-            if path.exists(filename):
+            filename = Path(self.options['file'])
+            if filename.exists():
                 logger.warning(
                     __(
                         '":file:" option for csv-table directive now recognizes '
@@ -71,9 +71,9 @@ class CSVTable(tables.CSVTable):  # type: ignore[misc]
                     location=(env.docname, self.lineno),
                 )
             else:
-                abspath = path.join(env.srcdir, os_path(self.options['file'][1:]))
-                docdir = path.dirname(env.doc2path(env.docname))
-                self.options['file'] = relpath(abspath, docdir)
+                abspath = env.srcdir / self.options['file'][1:]
+                doc_dir = env.doc2path(env.docname).parent
+                self.options['file'] = relpath(abspath, doc_dir)
 
         return super().run()
 
@@ -163,7 +163,7 @@ class MathDirective(SphinxDirective):
         return ret
 
     def add_target(self, ret: list[Node]) -> None:
-        node = cast(nodes.math_block, ret[0])
+        node = cast('nodes.math_block', ret[0])
 
         # assign label automatically if math_number_all enabled
         if node['label'] == '' or (self.config.math_number_all and not node['label']):  # NoQA: PLC1901

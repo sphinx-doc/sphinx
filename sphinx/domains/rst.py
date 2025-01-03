@@ -18,6 +18,7 @@ from sphinx.util.nodes import make_id, make_refnode
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
 
+    from docutils import nodes
     from docutils.nodes import Element
 
     from sphinx.addnodes import desc_signature, pending_xref
@@ -46,7 +47,9 @@ class ReSTMarkup(ObjectDescription[str]):
         'nocontentsentry': directives.flag,
     }
 
-    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(
+        self, name: str, sig: str, signode: desc_signature
+    ) -> None:
         node_id = make_id(self.env, self.state.document, self.objtype, name)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
@@ -57,7 +60,13 @@ class ReSTMarkup(ObjectDescription[str]):
         if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(self.objtype, name)
             if indextext:
-                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+                self.indexnode['entries'].append((
+                    'single',
+                    indextext,
+                    node_id,
+                    '',
+                    None,
+                ))
 
     def get_index_text(self, objectname: str, name: str) -> str:
         return ''
@@ -75,7 +84,7 @@ class ReSTMarkup(ObjectDescription[str]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.app.config
+        config = self.env.config
         objtype = sig_node.parent.get('objtype')
         *parents, name = sig_node['_toc_parts']
         if objtype == 'directive:option':
@@ -98,15 +107,15 @@ def parse_directive(d: str) -> tuple[str, str]:
     dir = d.strip()
     if not dir.startswith('.'):
         # Assume it is a directive without syntax
-        return (dir, '')
+        return dir, ''
     m = dir_sig_re.match(dir)
     if not m:
-        return (dir, '')
+        return dir, ''
     parsed_dir, parsed_args = m.groups()
     if parsed_args.strip():
-        return (parsed_dir.strip(), ' ' + parsed_args.strip())
+        return parsed_dir.strip(), ' ' + parsed_args.strip()
     else:
-        return (parsed_dir.strip(), '')
+        return parsed_dir.strip(), ''
 
 
 class ReSTDirective(ReSTMarkup):
@@ -157,13 +166,16 @@ class ReSTDirectiveOption(ReSTMarkup):
         signode['fullname'] = name.strip()
         signode += addnodes.desc_name(desc_name, desc_name)
         if argument:
-            signode += addnodes.desc_annotation(' ' + argument, ' ' + argument)
+            text = f' {argument}'
+            signode += addnodes.desc_annotation(text, text)
         if self.options.get('type'):
             text = ' (%s)' % self.options['type']
             signode += addnodes.desc_annotation(text, text)
         return name
 
-    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(
+        self, name: str, sig: str, signode: desc_signature
+    ) -> None:
         domain = self.env.domains.restructuredtext_domain
 
         directive_name = self.current_directive
@@ -181,9 +193,17 @@ class ReSTDirectiveOption(ReSTMarkup):
 
         if directive_name:
             key = name[0].upper()
-            pair = [_('%s (directive)') % directive_name,
-                    _(':%s: (directive option)') % name]
-            self.indexnode['entries'].append(('pair', '; '.join(pair), node_id, '', key))
+            pair = [
+                _('%s (directive)') % directive_name,
+                _(':%s: (directive option)') % name,
+            ]
+            self.indexnode['entries'].append((
+                'pair',
+                '; '.join(pair),
+                node_id,
+                '',
+                key,
+            ))
         else:
             key = name[0].upper()
             text = _(':%s: (directive option)') % name
@@ -220,17 +240,17 @@ class ReSTDomain(Domain):
     label = 'reStructuredText'
 
     object_types = {
-        'directive':        ObjType(_('directive'),        'dir'),
+        'directive': ObjType(_('directive'), 'dir'),
         'directive:option': ObjType(_('directive-option'), 'dir'),
-        'role':             ObjType(_('role'),             'role'),
+        'role': ObjType(_('role'), 'role'),
     }
     directives = {
         'directive': ReSTDirective,
         'directive:option': ReSTDirectiveOption,
-        'role':      ReSTRole,
+        'role': ReSTRole,
     }
     roles = {
-        'dir':  XRefRole(),
+        'dir': XRefRole(),
         'role': XRefRole(),
     }
     initial_data: dict[str, dict[tuple[str, str], str]] = {
@@ -239,13 +259,21 @@ class ReSTDomain(Domain):
 
     @property
     def objects(self) -> dict[tuple[str, str], tuple[str, str]]:
-        return self.data.setdefault('objects', {})  # (objtype, fullname) -> (docname, node_id)
+        # (objtype, fullname) -> (docname, node_id)
+        return self.data.setdefault('objects', {})
 
-    def note_object(self, objtype: str, name: str, node_id: str, location: Any = None) -> None:
+    def note_object(
+        self, objtype: str, name: str, node_id: str, location: Any = None
+    ) -> None:
         if (objtype, name) in self.objects:
             docname, node_id = self.objects[objtype, name]
-            logger.warning(__('duplicate description of %s %s, other instance in %s'),
-                           objtype, name, docname, location=location)
+            logger.warning(
+                __('duplicate description of %s %s, other instance in %s'),
+                objtype,
+                name,
+                docname,
+                location=location,
+            )
 
         self.objects[objtype, name] = (self.env.docname, node_id)
 
@@ -260,9 +288,16 @@ class ReSTDomain(Domain):
             if doc in docnames:
                 self.objects[typ, name] = (doc, node_id)
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         objtypes = self.objtypes_for_role(typ)
         if not objtypes:
             return None
@@ -270,22 +305,41 @@ class ReSTDomain(Domain):
             result = self.objects.get((objtype, target))
             if result:
                 todocname, node_id = result
-                return make_refnode(builder, fromdocname, todocname, node_id,
-                                    contnode, target + ' ' + objtype)
+                return make_refnode(
+                    builder,
+                    fromdocname,
+                    todocname,
+                    node_id,
+                    contnode,
+                    f'{target} {objtype}',
+                )
         return None
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
-        results: list[tuple[str, Element]] = []
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, nodes.reference]]:
+        results: list[tuple[str, nodes.reference]] = []
         for objtype in self.object_types:
             result = self.objects.get((objtype, target))
             if result:
                 todocname, node_id = result
-                results.append(
-                    ('rst:' + self.role_for_objtype(objtype),  # type: ignore[operator]
-                     make_refnode(builder, fromdocname, todocname, node_id,
-                                  contnode, target + ' ' + objtype)))
+                results.append((
+                    f'rst:{self.role_for_objtype(objtype)}',
+                    make_refnode(
+                        builder,
+                        fromdocname,
+                        todocname,
+                        node_id,
+                        contnode,
+                        f'{target} {objtype}',
+                    ),
+                ))
         return results
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:

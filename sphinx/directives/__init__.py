@@ -9,11 +9,11 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature  # NoQA: TCH001
+from sphinx.addnodes import desc_signature  # NoQA: TC001
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TCH001
+from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TC001
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
@@ -81,7 +81,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
                     self._doc_field_type_map[name] = (field, False)
 
                 if field.is_typed:
-                    typed_field = cast(TypedField, field)
+                    typed_field = cast('TypedField', field)
                     for name in typed_field.typenames:
                         self._doc_field_type_map[name] = (field, True)
 
@@ -267,7 +267,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             finally:
                 # Private attributes for ToC generation. Will be modified or removed
                 # without notice.
-                if self.env.app.config.toc_object_entries:
+                if self.env.config.toc_object_entries:
                     signode['_toc_parts'] = self._object_hierarchy_parts(signode)
                     signode['_toc_name'] = self._toc_entry_name(signode)
                 else:
@@ -282,17 +282,21 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
 
         if self.names:
             # needed for association of version{added,changed} directives
-            self.env.temp_data['object'] = self.names[0]
+            object_name: ObjDescT = self.names[0]
+            if isinstance(object_name, tuple):
+                self.env.temp_data['object'] = str(object_name[0])
+            else:
+                self.env.temp_data['object'] = str(object_name)
         self.before_content()
         content_children = self.parse_content_to_nodes(allow_section_headings=True)
         content_node = addnodes.desc_content('', *content_children)
         node.append(content_node)
         self.transform_content(content_node)
-        self.env.app.emit(
+        self.env.events.emit(
             'object-description-transform', self.domain, self.objtype, content_node
         )
         DocFieldTransformer(self).transform_all(content_node)
-        self.env.temp_data['object'] = None
+        self.env.temp_data['object'] = ''
         self.after_content()
 
         if node['no-typesetting']:
@@ -342,7 +346,7 @@ class DefaultRole(SphinxDirective):
             )
             messages += [error]
 
-        return cast(list[nodes.Node], messages)
+        return cast('list[nodes.Node]', messages)
 
 
 class DefaultDomain(SphinxDirective):

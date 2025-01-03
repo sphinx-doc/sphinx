@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import warnings
 import zlib
+from functools import cache
 from typing import TYPE_CHECKING, Any, NoReturn
 
 from sphinx.deprecation import RemovedInSphinx90Warning
@@ -172,9 +173,14 @@ def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
     if '?' in filename:
         msg = f'Local asset file paths must not contain query strings: {filename!r}'
         raise ThemeError(msg)
+    return _file_checksum_inner(outdir.joinpath(filename).resolve())
+
+
+@cache
+def _file_checksum_inner(file: Path) -> str:
     try:
         # Remove all carriage returns to avoid checksum differences
-        content = outdir.joinpath(filename).read_bytes().translate(None, b'\r')
+        content = file.read_bytes().translate(None, b'\r')
     except FileNotFoundError:
         return ''
     if not content:

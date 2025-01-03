@@ -11,7 +11,7 @@ class CustomDataDescriptor:
 
     def meth(self):
         """Function."""
-        return "The Answer"
+        return 'The Answer'
 
 
 class CustomDataDescriptorMeta(type):
@@ -20,11 +20,12 @@ class CustomDataDescriptorMeta(type):
 
 class CustomDataDescriptor2(CustomDataDescriptor):
     """Descriptor class with custom metaclass docstring."""
+
     __metaclass__ = CustomDataDescriptorMeta
 
 
 class Class:
-    descr = CustomDataDescriptor("Descriptor instance docstring.")
+    descr = CustomDataDescriptor('Descriptor instance docstring.')
 
     @property
     def prop(self):

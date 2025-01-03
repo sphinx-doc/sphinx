@@ -3,12 +3,15 @@ line-length = 88
 output-format = "full"
 
 extend-exclude = [
-    "tests/roots/*",
-    "tests/js/roots/*",
     "build/*",
     "doc/_build/*",
-    "doc/usage/extensions/example*.py",
+    "tests/roots/test-directive-code/target.py",  # Tests break if formatted
+    "tests/roots/test-pycode/cp_1251_coded.py",  # Not UTF-8
 ]
+
+[format]
+preview = true
+quote-style = "single"
 
 [lint]
 preview = true
@@ -54,6 +57,8 @@ ignore = [
     "PLR6301",  # Method `{method_name}` could be a function, class method, or static method
     # pylint ('PLW')
     "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
+    # flake8-pyi ('PYI')
+    "PYI025",  # Use `from collections.abc import Set as AbstractSet` to avoid confusion with the `set` builtin
     # flake8-bandit ('S')
     "S101",  # Use of `assert` detected
     "S110",  # `try`-`except`-`pass` detected, consider logging the exception
@@ -66,9 +71,17 @@ ignore = [
     # pyupgrade
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
+    # Ruff-specific rules ('RUF')
+    "RUF001",  # String contains ambiguous {}. Did you mean {}?
+    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF021",  # Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
+    "RUF022",  # `__all__` is not sorted
+    "RUF023",  # `{}.__slots__` is not sorted
+    "RUF027",  # Possible f-string without an `f` prefix
+    "RUF039",  # First argument to {call} is not raw string
+    "RUF052",  # Local dummy variable `{}` is accessed
 ]
 external = [  # Whitelist for RUF100 unknown code warnings
-    "E704",
     "SIM113",
 ]
 select = [
@@ -198,18 +211,14 @@ select = [
     "PT",
     # flake8-use-pathlib ('PTH')
       # NOT YET USED
-    # flake8-pyi ('PYI')
+    "PYI",
       # Stub files are not used in Sphinx
     # flake8-quotes ('Q')
-#    "Q000",  # Double quotes found but single quotes preferred
-#    "Q001",  # Single quote multiline found but double quotes preferred
-    "Q002",  # Single quote docstring found but double quotes preferred
-    "Q003",  # Change outer quotes to avoid escaping inner quotes
-    "Q004",  # Unnecessary escape on inner quote character
+    "Q",
     # flake8-return ('RET')
     "RET501",  # Do not explicitly `return None` in function if it is the only possible return value
     "RET502",  # Do not implicitly `return None` in function able to return non-`None` value
-#    "RET503",  # Missing explicit `return` at the end of function able to return non-`None` value
+    "RET503",  # Missing explicit `return` at the end of function able to return non-`None` value
 #    "RET504",  # Unnecessary assignment to `{name}` before `return` statement
 #    "RET505",  # Unnecessary `{branch}` after `return` statement
 #    "RET506",  # Unnecessary `{branch}` after `raise` statement
@@ -217,40 +226,8 @@ select = [
     "RET508",  # Unnecessary `{branch}` after `break` statement
     # flake8-raise ('RSE')
     "RSE",
-    # ruff-specific rules ('RUF')
-#    "RUF001",  # String contains ambiguous {}. Did you mean {}?
-    "RUF002",  # Docstring contains ambiguous {}. Did you mean {}?
-#    "RUF003",  # Comment contains ambiguous {}. Did you mean {}?
-    "RUF005",  # Consider `{expression}` instead of concatenation
-    "RUF006",  # Store a reference to the return value of `{expr}.{method}`
-    "RUF007",  # Prefer `itertools.pairwise()` over `zip()` when iterating over successive pairs
-    "RUF008",  # Do not use mutable default values for dataclass attributes
-    "RUF009",  # Do not perform function call `{name}` in dataclass defaults
-    "RUF010",  # Use explicit conversion flag
-#    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
-    "RUF013",  # PEP 484 prohibits implicit `Optional`
-#    "RUF015",  # Prefer `next({iterable})` over single element slice
-    "RUF016",  # Slice in indexed access to type `{value_type}` uses type `{index_type}` instead of an integer
-    "RUF017",  # Avoid quadratic list summation
-    "RUF018",  # Avoid assignment expressions in `assert` statements
-    "RUF019",  # Unnecessary key check before dictionary access
-    "RUF020",  # `{never_like} | T` is equivalent to `T`
-#    "RUF021",  # Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
-#    "RUF022",  # `__all__` is not sorted
-#    "RUF023",  # `{}.__slots__` is not sorted
-    "RUF024",  # Do not pass mutable objects as values to `dict.fromkeys`
-    "RUF026",  # `default_factory` is a positional-only argument to `defaultdict`
-#    "RUF027",  # Possible f-string without an `f` prefix
-#    "RUF028",  # This suppression comment is invalid because {}
-#    "RUF029",  # Function `{name}` is declared `async`, but doesn't `await` or use `async` features.
-    "RUF030",  # `print()` expression in `assert` statement is likely unintentional
-#    "RUF031",  # Use parentheses for tuples in subscripts.
-    "RUF032",  # `Decimal()` called with float literal argument
-    "RUF033",  # `__post_init__` method with argument defaults
-    "RUF034",  # Useless if-else condition
-#    "RUF100",  # Unused `noqa` directive
-    "RUF101",  # `{original}` is a redirect to `{target}`
-    "RUF200",  # Failed to parse pyproject.toml: {message}
+    # Ruff-specific rules ('RUF')
+    "RUF",
     # flake8-bandit ('S')
     "S",
     # flake8-simplify ('SIM')
@@ -290,17 +267,21 @@ select = [
 [lint.per-file-ignores]
 "doc/*" = [
     "ANN",  # documentation doesn't need annotations
-    "TCH001",  # documentation doesn't need type-checking blocks
+    "TC001",  # documentation doesn't need type-checking blocks
 ]
 "doc/conf.py" = ["INP001", "W605"]
-"doc/development/tutorials/examples/*" = ["INP001"]
+"doc/development/tutorials/examples/*" = ["I002", "INP001"]
 # allow print() in the tutorial
 "doc/development/tutorials/examples/recipe.py" = [
     "FURB118",
     "T201"
 ]
-"sphinx/domains/**" = ["FURB113"]
-"tests/test_domains/test_domain_cpp.py" = ["FURB113"]
+"doc/usage/extensions/example_{google,numpy}.py" = [
+    "D416",  # Section name should end with a colon ("{name}")
+    "I002",  # Missing required import: {name}
+    "INP001",  # File {filename} is part of an implicit namespace package. Add an __init__.py.
+    "PLW3201",  # Dunder method {name} has no special meaning in Python 3
+]
 
 # from .flake8
 "sphinx/*" = ["E241"]
@@ -356,9 +337,19 @@ select = [
     "T201",  # whitelist ``print`` for tests
 ]
 
+# test roots are not packages
+"tests/js/roots/*" = ["I002", "INP001"]
+"tests/roots/*" = [
+    "D403",  # permit uncapitalised docstrings
+    "F401",  # names may be unused in test roots
+    "I002",  # we don't need the annotations future
+    "INP001",  # test roots are not packages
+]
+
 # these tests need old ``typing`` generic aliases
-"tests/test_util/test_util_typing.py" = ["UP006", "UP007", "UP035"]
-"tests/test_util/typing_test_data.py" = ["FA100", "UP006", "UP007", "UP035"]
+"tests/roots/test-ext-autodoc/target/genericalias.py" = ["UP006", "UP007", "UP035"]
+"tests/test_util/test_util_typing.py" = ["RUF036", "UP006", "UP007", "UP035"]
+"tests/test_util/typing_test_data.py" = ["FA100", "I002", "PYI030", "UP006", "UP007", "UP035"]
 
 "utils/*" = [
     "T201",  # whitelist ``print`` for stdout messages
@@ -375,58 +366,6 @@ inline-quotes = "single"
 forced-separate = [
     "tests",
 ]
-
-[format]
-preview = true
-quote-style = "single"
-exclude = [
-    "sphinx/addnodes.py",
-    "sphinx/application.py",
-    "sphinx/builders/latex/constants.py",
-    "sphinx/config.py",
-    "sphinx/domains/__init__.py",
-    "sphinx/domains/c/_parser.py",
-    "sphinx/domains/c/_ids.py",
-    "sphinx/domains/c/__init__.py",
-    "sphinx/domains/c/_symbol.py",
-    "sphinx/domains/c/_ast.py",
-    "sphinx/domains/changeset.py",
-    "sphinx/domains/citation.py",
-    "sphinx/domains/cpp/_parser.py",
-    "sphinx/domains/cpp/_ids.py",
-    "sphinx/domains/cpp/__init__.py",
-    "sphinx/domains/cpp/_symbol.py",
-    "sphinx/domains/cpp/_ast.py",
-    "sphinx/domains/index.py",
-    "sphinx/domains/javascript.py",
-    "sphinx/domains/math.py",
-    "sphinx/domains/python/_annotations.py",
-    "sphinx/domains/python/__init__.py",
-    "sphinx/domains/python/_object.py",
-    "sphinx/domains/rst.py",
-    "sphinx/domains/std/__init__.py",
-    "sphinx/ext/autodoc/__init__.py",
-    "sphinx/ext/autodoc/directive.py",
-    "sphinx/ext/autodoc/importer.py",
-    "sphinx/ext/autodoc/mock.py",
-    "sphinx/ext/autodoc/preserve_defaults.py",
-    "sphinx/ext/autodoc/type_comment.py",
-    "sphinx/ext/autodoc/typehints.py",
-    "sphinx/ext/autosectionlabel.py",
-    "sphinx/ext/autosummary/__init__.py",
-    "sphinx/ext/coverage.py",
-    "sphinx/ext/doctest.py",
-    "sphinx/ext/duration.py",
-    "sphinx/ext/extlinks.py",
-    "sphinx/ext/githubpages.py",
-    "sphinx/ext/graphviz.py",
-    "sphinx/ext/ifconfig.py",
-    "sphinx/ext/imgconverter.py",
-    "sphinx/ext/imgmath.py",
-    "sphinx/ext/inheritance_diagram.py",
-    "sphinx/ext/linkcode.py",
-    "sphinx/ext/mathjax.py",
-    "sphinx/ext/todo.py",
-    "sphinx/ext/viewcode.py",
-    "sphinx/registry.py",
+required-imports = [
+    "from __future__ import annotations",
 ]

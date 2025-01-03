@@ -111,7 +111,7 @@ class Token:
         self.end = end
         self.source = source
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, int):
             return self.kind == other
         elif isinstance(other, str):
@@ -283,13 +283,13 @@ class VariableCommentPicker(ast.NodeVisitor):
         qualname = self.get_qualname_for(name)
         if qualname:
             basename = '.'.join(qualname[:-1])
-            self.comments[(basename, name)] = comment
+            self.comments[basename, name] = comment
 
     def add_variable_annotation(self, name: str, annotation: ast.AST) -> None:
         qualname = self.get_qualname_for(name)
         if qualname:
             basename = '.'.join(qualname[:-1])
-            self.annotations[(basename, name)] = ast_unparse(annotation)
+            self.annotations[basename, name] = ast_unparse(annotation)
 
     def is_final(self, decorators: list[ast.expr]) -> bool:
         final = []

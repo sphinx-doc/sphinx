@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import logging
-from sphinx.util.osutil import SEP, os_path
+from sphinx.util.osutil import SEP
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -32,15 +32,11 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
             return docname[:-5]  # up to sep
         return docname + SEP
 
-    def get_outfilename(self, pagename: str) -> str:
-        if pagename == 'index' or pagename.endswith(SEP + 'index'):
-            outfilename = path.join(self.outdir, os_path(pagename) + self.out_suffix)
-        else:
-            outfilename = path.join(
-                self.outdir, os_path(pagename), 'index' + self.out_suffix
-            )
-
-        return outfilename
+    def get_output_path(self, page_name: str, /) -> Path:
+        page_parts = page_name.split(SEP)
+        if page_parts[-1] == 'index':
+            page_parts.pop()
+        return Path(self.outdir, *page_parts, f'index{self.out_suffix}')
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

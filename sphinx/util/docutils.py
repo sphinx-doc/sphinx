@@ -4,17 +4,17 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import Sequence  # NoQA: TCH003
+from collections.abc import Sequence  # NoQA: TC003
 from contextlib import contextmanager
 from copy import copy
-from os import path
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any, cast
 
 import docutils
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner  # NoQA: TCH002
+from docutils.parsers.rst.states import Inliner  # NoQA: TC002
 from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 
@@ -29,8 +29,8 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator  # NoQA: TCH003
-    from types import ModuleType
+    from collections.abc import Callable, Iterator
+    from types import ModuleType, TracebackType
 
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
@@ -171,25 +171,23 @@ def patched_rst_get_language() -> Iterator[None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: str | None) -> Iterator[None]:
+def using_user_docutils_conf(confdir: str | os.PathLike[str] | None) -> Iterator[None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
-        docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
+        docutils_config = os.environ.get('DOCUTILSCONFIG', None)
         if confdir:
-            os.environ['DOCUTILSCONFIG'] = path.join(
-                path.abspath(confdir), 'docutils.conf'
-            )
-
+            docutils_conf_path = Path(confdir, 'docutils.conf').resolve()
+            os.environ['DOCUTILSCONFIG'] = str(docutils_conf_path)
         yield
     finally:
-        if docutilsconfig is None:
+        if docutils_config is None:
             os.environ.pop('DOCUTILSCONFIG', None)
         else:
-            os.environ['DOCUTILSCONFIG'] = docutilsconfig
+            os.environ['DOCUTILSCONFIG'] = docutils_config
 
 
 @contextmanager
-def patch_docutils(confdir: str | None = None) -> Iterator[None]:
+def patch_docutils(confdir: str | os.PathLike[str] | None = None) -> Iterator[None]:
     """Patch to docutils temporarily."""
     with (
         patched_get_language(),
@@ -214,7 +212,10 @@ class CustomReSTDispatcher:
         self.enable()
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.disable()
 
@@ -354,7 +355,7 @@ class LoggingReporter(Reporter):
         debug: bool = False,
         error_handler: str = 'backslashreplace',
     ) -> None:
-        stream = cast(IO, WarningStream())
+        stream = cast('IO', WarningStream())
         super().__init__(
             source, report_level, halt_level, stream, debug, error_handler=error_handler
         )
@@ -377,7 +378,7 @@ def switch_source_input(state: State, content: StringList) -> Iterator[None]:
         # replace it by new one
         state_machine: StateMachine[None] = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # NoQA: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]
 
         yield
     finally:
@@ -718,7 +719,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         3. ``self.unknown_visit()``
         """
         for node_class in node.__class__.__mro__:
-            method = getattr(self, 'visit_%s' % (node_class.__name__), None)
+            method = getattr(self, 'visit_%s' % node_class.__name__, None)
             if method:
                 method(node)
                 break
@@ -735,7 +736,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         3. ``self.unknown_departure()``
         """
         for node_class in node.__class__.__mro__:
-            method = getattr(self, 'depart_%s' % (node_class.__name__), None)
+            method = getattr(self, 'depart_%s' % node_class.__name__, None)
             if method:
                 method(node)
                 break

@@ -24,60 +24,41 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Get Ruff version from pyproject.toml
       run: |
         RUFF_VERSION=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
         echo "RUFF_VERSION=$RUFF_VERSION" >> $GITHUB_ENV
 
-    - name: Install Ruff
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        --write-out "%{stderr}Downloaded: %{url}\n"
-        "https://astral.sh/ruff/$RUFF_VERSION/install.sh"
-        | sh
+    - name: Install Ruff ${{ env.RUFF_VERSION }}
+      uses: astral-sh/ruff-action@v3
+      with:
+        args: --version
+        version: ${{ env.RUFF_VERSION }}
 
     - name: Lint with Ruff
-      run: ruff check . --output-format github
+      run: ruff check --output-format=github
 
     - name: Format with Ruff
-      run: ruff format . --diff
-
-  flake8:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
-    - name: Install dependencies
-      run: uv pip install --upgrade "flake8>=6.0"
-    - name: Lint with flake8
-      run: flake8 .
+      run: ruff format --diff
 
   mypy:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3"
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install ".[lint,test]"
     - name: Type check with mypy
@@ -88,16 +69,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3"
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install ".[lint,test]"
     - name: Type check with pyright
@@ -108,16 +90,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3"
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install --upgrade sphinx-lint
     - name: Lint documentation with sphinx-lint
@@ -128,16 +111,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3"
     - name: Install uv
-      run: >
-        curl --no-progress-meter --location --fail
-        --proto '=https' --tlsv1.2
-        "https://astral.sh/uv/install.sh"
-        | sh
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
       run: uv pip install --upgrade twine build
     - name: Lint with twine

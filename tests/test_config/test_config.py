@@ -463,16 +463,15 @@ def test_config_eol(logger, tmp_path):
 )
 def test_builtin_conf(app):
     warnings = app.warning.getvalue()
-    assert (
-        'root_doc'
-    ) in warnings, 'override on builtin "root_doc" should raise a type warning'
+    assert 'root_doc' in warnings, (
+        'override on builtin "root_doc" should raise a type warning'
+    )
     assert 'language' not in warnings, (
         'explicitly permitted override on builtin "language" should NOT raise '
         'a type warning'
     )
     assert 'primary_domain' not in warnings, (
-        'override to None on builtin "primary_domain" should NOT raise a type '
-        'warning'
+        'override to None on builtin "primary_domain" should NOT raise a type warning'
     )
 
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from os import path
+import os.path
 from pprint import pformat
 from typing import TYPE_CHECKING, Any
 
@@ -13,6 +13,7 @@ from jinja2.utils import open_if_exists, pass_context
 
 from sphinx.application import TemplateBridge
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
@@ -126,12 +127,12 @@ class SphinxFileSystemLoader(FileSystemLoader):
             legacy_template = None
 
         for searchpath in self.searchpath:
-            filename = path.join(searchpath, template)
+            filename = os.path.join(searchpath, template)
             f = open_if_exists(filename)
             if f is not None:
                 break
             if legacy_template is not None:
-                filename = path.join(searchpath, legacy_template)
+                filename = os.path.join(searchpath, legacy_template)
                 f = open_if_exists(filename)
                 if f is not None:
                     break
@@ -170,10 +171,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
             # the theme's own dir and its bases' dirs
             pathchain = theme.get_theme_dirs()
             # the loader dirs: pathchain + the parent directories for all themes
-            loaderchain = pathchain + [path.join(p, '..') for p in pathchain]
+            loaderchain = pathchain + [p.parent for p in pathchain]
         elif dirs:
-            pathchain = list(dirs)
-            loaderchain = list(dirs)
+            pathchain = list(map(_StrPath, dirs))
+            loaderchain = list(map(_StrPath, dirs))
         else:
             pathchain = []
             loaderchain = []
@@ -182,7 +183,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
             cfg_templates_path = [
-                path.join(builder.confdir, tp) for tp in builder.config.templates_path
+                builder.confdir / tp for tp in builder.config.templates_path
             ]
             pathchain[0:0] = cfg_templates_path
             loaderchain[0:0] = cfg_templates_path

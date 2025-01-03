@@ -141,7 +141,7 @@ class Domain:
         std = self.env.domains.standard_domain
         for index in self.indices:
             if index.name and index.localname:
-                docname = f"{self.name}-{index.name}"
+                docname = f'{self.name}-{index.name}'
                 std.note_hyperlink_target(docname, docname, '', index.localname)
 
     def add_object_type(self, name: str, objtype: ObjType) -> None:
@@ -165,12 +165,19 @@ class Domain:
             return None
         fullname = f'{self.name}:{name}'
 
-        def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
-                         inliner: Inliner, options: dict | None = None,
-                         content: Sequence[str] = (),
-                         ) -> tuple[list[Node], list[nodes.system_message]]:
-            return self.roles[name](fullname, rawtext, text, lineno,
-                                    inliner, options or {}, content)
+        def role_adapter(
+            typ: str,
+            rawtext: str,
+            text: str,
+            lineno: int,
+            inliner: Inliner,
+            options: dict | None = None,
+            content: Sequence[str] = (),
+        ) -> tuple[list[Node], list[nodes.system_message]]:
+            return self.roles[name](
+                fullname, rawtext, text, lineno, inliner, options or {}, content
+            )
+
         self._role_cache[name] = role_adapter
         return role_adapter
 
@@ -189,6 +196,7 @@ class Domain:
             def run(self) -> list[Node]:
                 self.name = fullname
                 return super().run()
+
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter
 
@@ -202,12 +210,15 @@ class Domain:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """
-        raise NotImplementedError('merge_domaindata must be implemented in %s '
-                                  'to be able to do parallel builds!' %
-                                  self.__class__)
+        msg = (
+            f'merge_domaindata must be implemented in {self.__class__} '
+            'to be able to do parallel builds!'
+        )
+        raise NotImplementedError(msg)
 
-    def process_doc(self, env: BuildEnvironment, docname: str,
-                    document: nodes.document) -> None:
+    def process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document
+    ) -> None:
         """Process a document after it is read by the environment."""
         pass
 
@@ -221,9 +232,16 @@ class Domain:
         """
         pass
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -239,9 +257,15 @@ class Domain:
         """
         pass
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, nodes.reference]]:
         """Resolve the pending_xref *node* with the given *target*.
 
         The reference comes from an "any" or similar role, which means that we

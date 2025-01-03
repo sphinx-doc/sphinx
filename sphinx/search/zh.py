@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import os
 import re
+from pathlib import Path
 
 import snowballstemmer
 
@@ -13,22 +13,22 @@ try:
     import jieba  # type: ignore[import-not-found]
 
     JIEBA = True
+    JIEBA_DEFAULT_DICT = Path(jieba.__file__).parent / jieba.DEFAULT_DICT_NAME
 except ImportError:
     JIEBA = False
+    JIEBA_DEFAULT_DICT = Path()
 
-english_stopwords = set(
-    """
-a  and  are  as  at
-be  but  by
-for
-if  in  into  is  it
-near  no  not
-of  on  or
-such
-that  the  their  then  there  these  they  this  to
-was  will  with
-""".split()
-)
+english_stopwords = {
+    'a', 'and', 'are', 'as', 'at',
+    'be', 'but', 'by',
+    'for',
+    'if', 'in', 'into', 'is', 'it',
+    'near', 'no', 'not',
+    'of', 'on', 'or',
+    'such',
+    'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to',
+    'was', 'will', 'with',
+}  # fmt: skip
 
 js_porter_stemmer = """
 /**
@@ -234,8 +234,8 @@ class SearchChinese(SearchLanguage):
 
     def init(self, options: dict[str, str]) -> None:
         if JIEBA:
-            dict_path = options.get('dict')
-            if dict_path and os.path.isfile(dict_path):
+            dict_path = options.get('dict', JIEBA_DEFAULT_DICT)
+            if dict_path and Path(dict_path).is_file():
                 jieba.load_userdict(dict_path)
 
         self.stemmer = snowballstemmer.stemmer('english')

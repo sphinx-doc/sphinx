@@ -1,12 +1,17 @@
-from os import path
+from __future__ import annotations
 
-from docutils import nodes
+from typing import TYPE_CHECKING
+
 from docutils.core import publish_doctree
 
-from sphinx.application import Sphinx
 from sphinx.io import SphinxStandaloneReader
 from sphinx.parsers import RSTParser
 from sphinx.util.docutils import sphinx_domains
+
+if TYPE_CHECKING:
+    from docutils import nodes
+
+    from sphinx.application import Sphinx
 
 
 def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
@@ -20,7 +25,7 @@ def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
         with sphinx_domains(app.env):
             return publish_doctree(
                 text,
-                path.join(app.srcdir, docname + '.rst'),
+                str(app.srcdir / f'{docname}.rst'),
                 reader=reader,
                 parser=parser,
                 settings_overrides={

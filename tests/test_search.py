@@ -152,8 +152,8 @@ def test_term_in_heading_and_section(app):
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert '"textinhead": 2' in searchindex
-    assert '"textinhead": 0' in searchindex
+    assert '"textinhead":2' in searchindex
+    assert '"textinhead":0' in searchindex
 
 
 @pytest.mark.sphinx('html', testroot='search')
@@ -454,9 +454,9 @@ def assert_is_sorted(
     elif isinstance(item, list):
         if not is_title_tuple_type(item) and path not in lists_not_to_sort:
             # sort nulls last; http://stackoverflow.com/questions/19868767/
-            assert item == sorted(
-                item, key=lambda x: (x is None, x)
-            ), f'{err_path} is not sorted'
+            assert item == sorted(item, key=lambda x: (x is None, x)), (
+                f'{err_path} is not sorted'
+            )
         for i, child in enumerate(item):
             assert_is_sorted(child, f'{path}[{i}]')
 

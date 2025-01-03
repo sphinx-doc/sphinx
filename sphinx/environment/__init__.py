@@ -7,7 +7,6 @@ import os
 import pickle
 from collections import defaultdict
 from copy import copy
-from os import path
 from typing import TYPE_CHECKING
 
 from sphinx import addnodes
@@ -23,16 +22,16 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
+from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import _last_modified_time, canon_path, os_path
+from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
-    from pathlib import Path
     from typing import Any, Literal
 
     from docutils import nodes
@@ -100,10 +99,13 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
+    srcdir = _StrPathProperty()
+    doctreedir = _StrPathProperty()
+
     def __init__(self, app: Sphinx) -> None:
         self.app: Sphinx = app
-        self.doctreedir: Path = app.doctreedir
-        self.srcdir: Path = app.srcdir
+        self.doctreedir = app.doctreedir
+        self.srcdir = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
@@ -220,7 +222,9 @@ class BuildEnvironment:
         self._search_index_objnames: dict[int, tuple[str, str, str]] = {}
 
         # all the registered domains, set by the application
-        self.domains: _DomainsContainer = _DomainsContainer._from_environment(self)
+        self.domains: _DomainsContainer = _DomainsContainer._from_environment(
+            self, registry=app.registry
+        )
 
         # set up environment
         self.setup(app)
@@ -259,7 +263,9 @@ class BuildEnvironment:
         # initialise domains
         if self.domains is None:
             # if we are unpickling an environment, we need to recreate the domains
-            self.domains = _DomainsContainer._from_environment(self)
+            self.domains = _DomainsContainer._from_environment(
+                self, registry=app.registry
+            )
         # setup domains (must do after all initialization)
         self.domains._setup()
 
@@ -416,17 +422,15 @@ class BuildEnvironment:
         source dir, while relative filenames are relative to the dir of the
         containing document.
         """
-        filename = os_path(filename)
-        if filename.startswith(('/', os.sep)):
-            rel_fn = filename[1:]
+        filename = canon_path(filename)
+        if filename.startswith('/'):
+            abs_fn = (self.srcdir / filename[1:]).resolve()
         else:
-            docdir = path.dirname(self.doc2path(docname or self.docname, base=False))
-            rel_fn = path.join(docdir, filename)
+            doc_dir = self.doc2path(docname or self.docname, base=False).parent
+            abs_fn = (self.srcdir / doc_dir / filename).resolve()
 
-        return (
-            canon_path(path.normpath(rel_fn)),
-            path.normpath(path.join(self.srcdir, rel_fn)),
-        )
+        rel_fn = _relative_path(abs_fn, self.srcdir)
+        return canon_path(rel_fn), os.fspath(abs_fn)
 
     @property
     def found_docs(self) -> set[str]:
@@ -463,7 +467,7 @@ class BuildEnvironment:
                 for docname in self.found_docs:
                     domain = docname_to_domain(docname, self.config.gettext_compact)
                     if domain in mo_paths:
-                        self.dependencies[docname].add(mo_paths[domain])
+                        self.note_dependency(mo_paths[domain], docname=docname)
         except OSError as exc:
             raise DocumentError(
                 __('Failed to scan documents in %s: %r') % (self.srcdir, exc)
@@ -489,8 +493,8 @@ class BuildEnvironment:
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
-                filename = path.join(self.doctreedir, docname + '.doctree')
-                if not path.isfile(filename):
+                filename = self.doctreedir / f'{docname}.doctree'
+                if not filename.is_file():
                     logger.debug('[build target] changed %r', docname)
                     changed.add(docname)
                     continue
@@ -515,21 +519,21 @@ class BuildEnvironment:
                 for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
-                        deppath = path.join(self.srcdir, dep)
-                        if not path.isfile(deppath):
+                        dep_path = self.srcdir / dep
+                        if not dep_path.is_file():
                             logger.debug(
                                 '[build target] changed %r missing dependency %r',
                                 docname,
-                                deppath,
+                                dep_path,
                             )
                             changed.add(docname)
                             break
-                        depmtime = _last_modified_time(deppath)
+                        depmtime = _last_modified_time(dep_path)
                         if depmtime > mtime:
                             logger.debug(
                                 '[build target] outdated %r from dependency %r: %s -> %s',
                                 docname,
-                                deppath,
+                                dep_path,
                                 _format_rfc3339_microseconds(mtime),
                                 _format_rfc3339_microseconds(depmtime),
                             )
@@ -581,16 +585,20 @@ class BuildEnvironment:
         self.temp_data[key] = cur + 1
         return cur
 
-    def note_dependency(self, filename: str) -> None:
+    def note_dependency(
+        self, filename: str | os.PathLike[str], *, docname: str | None = None
+    ) -> None:
         """Add *filename* as a dependency of the current document.
 
         This means that the document will be rebuilt if this file changes.
 
         *filename* should be absolute or relative to the source directory.
         """
-        self.dependencies[self.docname].add(filename)
+        if docname is None:
+            docname = self.docname
+        self.dependencies[docname].add(os.fspath(filename))
 
-    def note_included(self, filename: str) -> None:
+    def note_included(self, filename: str | os.PathLike[str]) -> None:
         """Add *filename* as a included from other document.
 
         This means the document is not orphaned.
@@ -625,7 +633,7 @@ class BuildEnvironment:
         try:
             serialised = self._pickled_doctree_cache[docname]
         except KeyError:
-            filename = path.join(self.doctreedir, docname + '.doctree')
+            filename = self.doctreedir / f'{docname}.doctree'
             with open(filename, 'rb') as f:
                 serialised = self._pickled_doctree_cache[docname] = f.read()
 

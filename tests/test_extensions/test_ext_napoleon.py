@@ -1,5 +1,7 @@
 """Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
+from __future__ import annotations
+
 import functools
 from collections import namedtuple
 from unittest import mock
@@ -77,7 +79,7 @@ class SampleError(Exception):
         pass
 
 
-SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')
+SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')  # NoQA: PYI024
 
 
 class TestProcessDocstring:

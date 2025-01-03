@@ -5,12 +5,12 @@ from __future__ import annotations
 import contextlib
 import html
 import os
+import os.path
 import posixpath
 import re
 import shutil
 import sys
 import warnings
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
@@ -20,7 +20,6 @@ from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
-from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
@@ -43,6 +42,7 @@ from sphinx.locale import _, __
 from sphinx.search import js_index
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util._uri import is_url
 from sphinx.util.console import bold
@@ -55,9 +55,9 @@ from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import (
     SEP,
     _last_modified_time,
+    _relative_path,
     copyfile,
     ensuredir,
-    os_path,
     relative_uri,
 )
 from sphinx.writers.html import HTMLWriter
@@ -138,6 +138,12 @@ class StandaloneHTMLBuilder(Builder):
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         super().__init__(app, env)
 
+        # Static and asset directories
+        self._static_dir = Path(self.outdir / '_static')
+        self._sources_dir = Path(self.outdir / '_sources')
+        self._downloads_dir = Path(self.outdir / '_downloads')
+        self._images_dir = Path(self.outdir / '_images')
+
         # CSS files
         self._css_files: list[_CascadingStyleSheet] = []
 
@@ -187,23 +193,25 @@ class StandaloneHTMLBuilder(Builder):
     def create_build_info(self) -> BuildInfo:
         return BuildInfo(self.config, self.tags, frozenset({'html'}))
 
-    def _get_translations_js(self) -> str:
-        candidates = [
-            path.join(dir, self.config.language, 'LC_MESSAGES', 'sphinx.js')
-            for dir in self.config.locale_dirs
-        ] + [
-            path.join(
-                package_dir, 'locale', self.config.language, 'LC_MESSAGES', 'sphinx.js'
-            ),
-            path.join(
-                sys.prefix, 'share/sphinx/locale', self.config.language, 'sphinx.js'
-            ),
-        ]
+    def _get_translations_js(self) -> Path | None:
+        for dir_ in self.config.locale_dirs:
+            js_file = Path(dir_, self.config.language, 'LC_MESSAGES', 'sphinx.js')
+            if js_file.is_file():
+                return js_file
 
-        for jsfile in candidates:
-            if path.isfile(jsfile):
-                return jsfile
-        return ''
+        js_file = Path(
+            package_dir, 'locale', self.config.language, 'LC_MESSAGES', 'sphinx.js'
+        )
+        if js_file.is_file():
+            return js_file
+
+        js_file = Path(
+            sys.prefix, 'share', 'sphinx', 'locale', self.config.language, 'sphinx.js'
+        )
+        if js_file.is_file():
+            return js_file
+
+        return None
 
     def _get_style_filenames(self) -> Iterator[str]:
         if isinstance(self.config.html_style, str):
@@ -333,9 +341,9 @@ class StandaloneHTMLBuilder(Builder):
                 return None
 
     def get_outdated_docs(self) -> Iterator[str]:
-        build_info_fname = self.outdir / '.buildinfo'
+        build_info_path = self.outdir / '.buildinfo'
         try:
-            build_info = BuildInfo.load(build_info_fname)
+            build_info = BuildInfo.load(build_info_path)
         except ValueError as exc:
             logger.warning(__('Failed to read build info file: %r'), exc)
         except OSError:
@@ -344,10 +352,10 @@ class StandaloneHTMLBuilder(Builder):
         else:
             if self.build_info != build_info:
                 # log the mismatch and backup the old build info
-                build_info_backup = build_info_fname.with_name('.buildinfo.bak')
+                build_info_backup = build_info_path.with_name('.buildinfo.bak')
                 try:
-                    shutil.move(build_info_fname, build_info_backup)
-                    self.build_info.dump(build_info_fname)
+                    shutil.move(build_info_path, build_info_backup)
+                    self.build_info.dump(build_info_path)
                 except OSError:
                     pass  # ignore errors
                 else:
@@ -363,7 +371,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.templates:
             template_mtime = int(self.templates.newest_template_mtime() * 10**6)
             try:
-                old_mtime = _last_modified_time(build_info_fname)
+                old_mtime = _last_modified_time(build_info_path)
             except Exception:
                 pass
             else:
@@ -384,19 +392,19 @@ class StandaloneHTMLBuilder(Builder):
                 logger.debug('[build target] did not in env: %r', docname)
                 yield docname
                 continue
-            targetname = self.get_outfilename(docname)
+            target_name = self.get_output_path(docname)
             try:
-                targetmtime = _last_modified_time(targetname)
-            except Exception:
-                targetmtime = 0
+                target_mtime = _last_modified_time(target_name)
+            except OSError:
+                target_mtime = 0
             try:
                 doc_mtime = _last_modified_time(self.env.doc2path(docname))
                 srcmtime = max(doc_mtime, template_mtime)
-                if srcmtime > targetmtime:
+                if srcmtime > target_mtime:
                     logger.debug(
-                        '[build target] targetname %r(%s), template(%s), docname %r(%s)',
-                        targetname,
-                        _format_rfc3339_microseconds(targetmtime),
+                        '[build target] target_name %r(%s), template(%s), docname %r(%s)',
+                        target_name,
+                        _format_rfc3339_microseconds(target_mtime),
                         _format_rfc3339_microseconds(template_mtime),
                         docname,
                         _format_rfc3339_microseconds(doc_mtime),
@@ -488,19 +496,24 @@ class StandaloneHTMLBuilder(Builder):
         favicon = self.config.html_favicon or ''
 
         if not is_url(logo):
-            logo = path.basename(logo)
+            logo = os.path.basename(logo)
         if not is_url(favicon):
-            favicon = path.basename(favicon)
+            favicon = os.path.basename(favicon)
 
         self.relations = self.env.collect_relations()
 
         rellinks: list[tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for indexname, indexcls, _content, _collapse in self.domain_indices:
+        for index_name, index_cls, _content, _collapse in self.domain_indices:
             # if it has a short name
-            if indexcls.shortname:
-                rellinks.append((indexname, indexcls.localname, '', indexcls.shortname))
+            if index_cls.shortname:
+                rellinks.append((
+                    index_name,
+                    index_cls.localname,
+                    '',
+                    index_cls.shortname,
+                ))
 
         # add assets registered after ``Builder.init()``.
         for css_filename, attrs in self.app.registry.css_files:
@@ -554,6 +567,10 @@ class StandaloneHTMLBuilder(Builder):
                 for key, val in self.theme.get_options(self.theme_options).items()
             }
         self.globalcontext |= self.config.html_context
+
+        if self.copysource:
+            # Create _sources
+            ensuredir(self._sources_dir)
 
     def get_doc_context(self, docname: str, body: str, metatags: str) -> dict[str, Any]:
         """Collect items for the template context of a page."""
@@ -705,8 +722,12 @@ class StandaloneHTMLBuilder(Builder):
         # the opensearch xml file
         if self.config.html_use_opensearch and self.search:
             logger.info('opensearch ', nonl=True)
-            fn = path.join(self.outdir, '_static', 'opensearch.xml')
-            self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
+            self.handle_page(
+                'opensearch',
+                {},
+                'opensearch.xml',
+                outfilename=self._static_dir / 'opensearch.xml',
+            )
 
     def write_genindex(self) -> None:
         # the total count of lines for each index letter, used to distribute
@@ -739,19 +760,19 @@ class StandaloneHTMLBuilder(Builder):
             self.handle_page('genindex', genindexcontext, 'genindex.html')
 
     def write_domain_indices(self) -> None:
-        for indexname, indexcls, content, collapse in self.domain_indices:
-            indexcontext = {
-                'indextitle': indexcls.localname,
+        for index_name, index_cls, content, collapse in self.domain_indices:
+            index_context = {
+                'indextitle': index_cls.localname,
                 'content': content,
                 'collapse_index': collapse,
             }
-            logger.info(indexname + ' ', nonl=True)
-            self.handle_page(indexname, indexcontext, 'domainindex.html')
+            logger.info('%s ', index_name, nonl=True)
+            self.handle_page(index_name, index_context, 'domainindex.html')
 
     def copy_image_files(self) -> None:
         if self.images:
             stringify_func = ImageAdapter(self.app.env).get_original_image_uri
-            ensuredir(self.outdir / self.imagedir)
+            ensuredir(self._images_dir)
             for src in status_iterator(
                 self.images,
                 __('copying images... '),
@@ -764,7 +785,7 @@ class StandaloneHTMLBuilder(Builder):
                 try:
                     copyfile(
                         self.srcdir / src,
-                        self.outdir / self.imagedir / dest,
+                        self._images_dir / dest,
                         force=True,
                     )
                 except Exception as err:
@@ -774,11 +795,11 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)
+            return _relative_path(Path(f), self.srcdir).as_posix()
 
         # copy downloadable files
         if self.env.dlfiles:
-            ensuredir(self.outdir / '_downloads')
+            ensuredir(self._downloads_dir)
             for src in status_iterator(
                 self.env.dlfiles,
                 __('copying downloadable files... '),
@@ -788,7 +809,7 @@ class StandaloneHTMLBuilder(Builder):
                 stringify_func=to_relpath,
             ):
                 try:
-                    dest = self.outdir / '_downloads' / self.env.dlfiles[src][1]
+                    dest = self._downloads_dir / self.env.dlfiles[src][1]
                     ensuredir(dest.parent)
                     copyfile(self.srcdir / src, dest, force=True)
                 except OSError as err:
@@ -800,22 +821,21 @@ class StandaloneHTMLBuilder(Builder):
 
     def create_pygments_style_file(self) -> None:
         """Create a style file for pygments."""
-        pyg_path = path.join(self.outdir, '_static', 'pygments.css')
+        pyg_path = self._static_dir / 'pygments.css'
         with open(pyg_path, 'w', encoding='utf-8') as f:
             f.write(self.highlighter.get_stylesheet())
 
         if self.dark_highlighter:
-            dark_path = path.join(self.outdir, '_static', 'pygments_dark.css')
+            dark_path = self._static_dir / 'pygments_dark.css'
             with open(dark_path, 'w', encoding='utf-8') as f:
                 f.write(self.dark_highlighter.get_stylesheet())
 
     def copy_translation_js(self) -> None:
         """Copy a JavaScript file for translations."""
-        jsfile = self._get_translations_js()
-        if jsfile:
+        if js_file := self._get_translations_js():
             copyfile(
-                jsfile,
-                self.outdir / '_static' / 'translations.js',
+                js_file,
+                self._static_dir / 'translations.js',
                 force=True,
             )
 
@@ -827,14 +847,14 @@ class StandaloneHTMLBuilder(Builder):
                     js_path = Path(jsfile)
                     copyfile(
                         js_path,
-                        self.outdir / '_static' / js_path.name,
+                        self._static_dir / js_path.name,
                         force=True,
                     )
             else:
                 if js_stemmer_rawcode := self.indexer.get_js_stemmer_rawcode():
                     copyfile(
                         js_stemmer_rawcode,
-                        self.outdir / '_static' / '_stemmer.js',
+                        self._static_dir / '_stemmer.js',
                         force=True,
                     )
 
@@ -846,8 +866,8 @@ class StandaloneHTMLBuilder(Builder):
         if self.theme:
             for entry in reversed(self.theme.get_theme_dirs()):
                 copy_asset(
-                    Path(entry) / 'static',
-                    self.outdir / '_static',
+                    Path(entry, 'static'),
+                    self._static_dir,
                     excluded=DOTFILES,
                     context=context,
                     renderer=self.templates,
@@ -865,7 +885,7 @@ class StandaloneHTMLBuilder(Builder):
         for entry in self.config.html_static_path:
             copy_asset(
                 self.confdir / entry,
-                self.outdir / '_static',
+                self._static_dir,
                 excluded=excluded,
                 context=context,
                 renderer=self.templates,
@@ -878,7 +898,7 @@ class StandaloneHTMLBuilder(Builder):
             source_path = self.confdir / self.config.html_logo
             copyfile(
                 source_path,
-                self.outdir / '_static' / source_path.name,
+                self._static_dir / source_path.name,
                 force=True,
             )
 
@@ -887,14 +907,15 @@ class StandaloneHTMLBuilder(Builder):
             source_path = self.confdir / self.config.html_favicon
             copyfile(
                 source_path,
-                self.outdir / '_static' / source_path.name,
+                self._static_dir / source_path.name,
                 force=True,
             )
 
     def copy_static_files(self) -> None:
         try:
             with progress_message(__('copying static files'), nonl=False):
-                ensuredir(self.outdir / '_static')
+                # Ensure that the static directory exists
+                self._static_dir.mkdir(parents=True, exist_ok=True)
 
                 # prepare context for templates
                 context = self.globalcontext.copy()
@@ -969,12 +990,12 @@ class StandaloneHTMLBuilder(Builder):
         assert self.indexer is not None
         keep = set(self.env.all_docs).difference(docnames)
         try:
-            searchindexfn = path.join(self.outdir, self.searchindex_filename)
+            search_index_path = self.outdir / self.searchindex_filename
             if self.indexer_dumps_unicode:
-                with open(searchindexfn, encoding='utf-8') as ft:
+                with open(search_index_path, encoding='utf-8') as ft:
                     self.indexer.load(ft, self.indexer_format)
             else:
-                with open(searchindexfn, 'rb') as fb:
+                with open(search_index_path, 'rb') as fb:
                     self.indexer.load(fb, self.indexer_format)
         except (OSError, ValueError):
             if keep:
@@ -991,7 +1012,7 @@ class StandaloneHTMLBuilder(Builder):
     def index_page(self, pagename: str, doctree: nodes.document, title: str) -> None:
         # only index pages with title
         if self.indexer is not None and title:
-            filename = str(self.env.doc2path(pagename, base=False))
+            filename = self.env.doc2path(pagename, base=False)
             metadata = self.env.metadata.get(pagename, {})
             if 'no-search' in metadata or 'nosearch' in metadata:
                 self.indexer.feed(pagename, filename, '', new_document(''))
@@ -1010,8 +1031,11 @@ class StandaloneHTMLBuilder(Builder):
         )
         return self.render_partial(toctree)['fragment']
 
-    def get_outfilename(self, pagename: str) -> str:
-        return path.join(self.outdir, os_path(pagename) + self.out_suffix)
+    def get_output_path(self, page_name: str, /) -> Path:
+        return Path(self.outdir, page_name + self.out_suffix)
+
+    def get_outfilename(self, pagename: str) -> _StrPath:
+        return _StrPath(self.get_output_path(pagename))
 
     def add_sidebars(self, pagename: str, ctx: dict[str, Any]) -> None:
         def has_wildcard(pattern: str) -> bool:
@@ -1049,7 +1073,8 @@ class StandaloneHTMLBuilder(Builder):
         pagename: str,
         addctx: dict[str, Any],
         templatename: str = 'page.html',
-        outfilename: str | None = None,
+        *,
+        outfilename: Path | None = None,
         event_arg: Any = None,
     ) -> None:
         ctx = self.globalcontext.copy()
@@ -1137,8 +1162,9 @@ class StandaloneHTMLBuilder(Builder):
                     return f'<script {" ".join(sorted(attrs))}>{body}</script>'
                 return f'<script>{body}</script>'
 
-            uri = pathto(os.fspath(js.filename), resource=True)
-            if 'MathJax.js?' in os.fspath(js.filename):
+            js_filename_str = os.fspath(js.filename)
+            uri = pathto(js_filename_str, resource=True)
+            if 'MathJax.js?' in js_filename_str:
                 # MathJax v2 reads a ``?config=...`` query parameter,
                 # special case this and just skip adding the checksum.
                 # https://docs.mathjax.org/en/v2.7-latest/configuration.html#considerations-for-using-combined-configuration-files
@@ -1159,11 +1185,10 @@ class StandaloneHTMLBuilder(Builder):
         self._js_files[:] = self._orig_js_files
 
         self.update_page_context(pagename, templatename, ctx, event_arg)
-        newtmpl = self.app.emit_firstresult(
+        if new_template := self.app.emit_firstresult(
             'html-page-context', pagename, templatename, ctx, event_arg
-        )
-        if newtmpl:
-            templatename = newtmpl
+        ):
+            templatename = new_template
 
         # sort JS/CSS before rendering HTML
         try:  # NoQA: SIM105
@@ -1200,22 +1225,23 @@ class StandaloneHTMLBuilder(Builder):
             )
             raise ThemeError(msg) from exc
 
-        if not outfilename:
-            outfilename = self.get_outfilename(pagename)
-        # outfilename's path is in general different from self.outdir
-        ensuredir(path.dirname(outfilename))
+        if outfilename:
+            output_path = Path(outfilename)
+        else:
+            output_path = self.get_output_path(pagename)
+        # The output path is in general different from self.outdir
+        ensuredir(output_path.parent)
         try:
-            with open(
-                outfilename, 'w', encoding=ctx['encoding'], errors='xmlcharrefreplace'
-            ) as f:
-                f.write(output)
+            output_path.write_text(
+                output, encoding=ctx['encoding'], errors='xmlcharrefreplace'
+            )
         except OSError as err:
-            logger.warning(__('error writing file %s: %s'), outfilename, err)
+            logger.warning(__('error writing file %s: %s'), output_path, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
-            source_name = path.join(self.outdir, '_sources', os_path(ctx['sourcename']))
-            ensuredir(path.dirname(source_name))
-            copyfile(self.env.doc2path(pagename), source_name, force=True)
+            source_file_path = self._sources_dir / ctx['sourcename']
+            source_file_path.parent.mkdir(parents=True, exist_ok=True)
+            copyfile(self.env.doc2path(pagename), source_file_path, force=True)
 
     def update_page_context(
         self, pagename: str, templatename: str, ctx: dict[str, Any], event_arg: Any
@@ -1228,7 +1254,7 @@ class StandaloneHTMLBuilder(Builder):
 
     @progress_message(__('dumping object inventory'))
     def dump_inventory(self) -> None:
-        InventoryFile.dump(path.join(self.outdir, INVENTORY_FILENAME), self.env, self)
+        InventoryFile.dump(self.outdir / INVENTORY_FILENAME, self.env, self)
 
     def dump_search_index(self) -> None:
         if self.indexer is None:
@@ -1236,16 +1262,17 @@ class StandaloneHTMLBuilder(Builder):
 
         with progress_message(__('dumping search index in %s') % self.indexer.label()):
             self.indexer.prune(self.env.all_docs)
-            searchindexfn = path.join(self.outdir, self.searchindex_filename)
+            search_index_path = self.outdir / self.searchindex_filename
+            search_index_tmp = self.outdir / f'{self.searchindex_filename}.tmp'
             # first write to a temporary file, so that if dumping fails,
             # the existing index won't be overwritten
             if self.indexer_dumps_unicode:
-                with open(searchindexfn + '.tmp', 'w', encoding='utf-8') as ft:
+                with open(search_index_tmp, 'w', encoding='utf-8') as ft:
                     self.indexer.dump(ft, self.indexer_format)
             else:
-                with open(searchindexfn + '.tmp', 'wb') as fb:
+                with open(search_index_tmp, 'wb') as fb:
                     self.indexer.dump(fb, self.indexer_format)
-            os.replace(searchindexfn + '.tmp', searchindexfn)
+            os.replace(search_index_tmp, search_index_path)
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
@@ -1319,43 +1346,49 @@ def validate_math_renderer(app: Sphinx) -> None:
 
 def validate_html_extra_path(app: Sphinx, config: Config) -> None:
     """Check html_extra_paths setting."""
-    for entry in config.html_extra_path[:]:
-        extra_path = path.normpath(path.join(app.confdir, entry))
-        if not path.exists(extra_path):
+    html_extra_path = []
+    for entry in config.html_extra_path:
+        extra_path = (app.confdir / entry).resolve()
+        if extra_path.exists():
+            if (
+                app.outdir.drive == extra_path.drive
+                and extra_path.is_relative_to(app.outdir)
+            ):  # fmt: skip
+                logger.warning(
+                    __('html_extra_path entry %r is placed inside outdir'), entry
+                )
+            else:
+                html_extra_path.append(entry)
+        else:
             logger.warning(__('html_extra_path entry %r does not exist'), entry)
-            config.html_extra_path.remove(entry)
-        elif (
-            path.splitdrive(app.outdir)[0] == path.splitdrive(extra_path)[0]
-            and path.commonpath((app.outdir, extra_path)) == path.normpath(app.outdir)
-        ):  # fmt: skip
-            logger.warning(
-                __('html_extra_path entry %r is placed inside outdir'), entry
-            )
-            config.html_extra_path.remove(entry)
+    config.html_extra_path = html_extra_path
 
 
 def validate_html_static_path(app: Sphinx, config: Config) -> None:
     """Check html_static_paths setting."""
-    for entry in config.html_static_path[:]:
-        static_path = path.normpath(path.join(app.confdir, entry))
-        if not path.exists(static_path):
+    html_static_path = []
+    for entry in config.html_static_path:
+        static_path = (app.confdir / entry).resolve()
+        if static_path.exists():
+            if (
+                app.outdir.drive == static_path.drive
+                and static_path.is_relative_to(app.outdir)
+            ):  # fmt: skip
+                logger.warning(
+                    __('html_static_path entry %r is placed inside outdir'), entry
+                )
+            else:
+                html_static_path.append(entry)
+        else:
             logger.warning(__('html_static_path entry %r does not exist'), entry)
-            config.html_static_path.remove(entry)
-        elif (
-            path.splitdrive(app.outdir)[0] == path.splitdrive(static_path)[0]
-            and path.commonpath((app.outdir, static_path)) == path.normpath(app.outdir)
-        ):  # fmt: skip
-            logger.warning(
-                __('html_static_path entry %r is placed inside outdir'), entry
-            )
-            config.html_static_path.remove(entry)
+    config.html_static_path = html_static_path
 
 
 def validate_html_logo(app: Sphinx, config: Config) -> None:
     """Check html_logo setting."""
     if (
         config.html_logo
-        and not path.isfile(path.join(app.confdir, config.html_logo))
+        and not (app.confdir / config.html_logo).is_file()
         and not is_url(config.html_logo)
     ):
         logger.warning(__('logo file %r does not exist'), config.html_logo)
@@ -1366,7 +1399,7 @@ def validate_html_favicon(app: Sphinx, config: Config) -> None:
     """Check html_favicon setting."""
     if (
         config.html_favicon
-        and not path.isfile(path.join(app.confdir, config.html_favicon))
+        and not (app.confdir / config.html_favicon).is_file()
         and not is_url(config.html_favicon)
     ):
         logger.warning(__('favicon file %r does not exist'), config.html_favicon)

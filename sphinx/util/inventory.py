@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 import zlib
 from typing import TYPE_CHECKING
@@ -14,6 +13,7 @@ BUFSIZE = 16 * 1024
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Callable, Iterator
 
     from sphinx.builders import Builder
@@ -193,14 +193,14 @@ class InventoryFile:
     @classmethod
     def dump(
         cls: type[InventoryFile],
-        filename: str,
+        filename: str | os.PathLike[str],
         env: BuildEnvironment,
         builder: Builder,
     ) -> None:
         def escape(string: str) -> str:
             return re.sub('\\s+', ' ', string)
 
-        with open(os.path.join(filename), 'wb') as f:
+        with open(filename, 'wb') as f:
             # header
             f.write(
                 (

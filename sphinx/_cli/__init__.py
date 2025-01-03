@@ -168,11 +168,8 @@ class _RootArgumentParser(argparse.ArgumentParser):
         raise ValueError(msg)
 
     def error(self, message: str) -> NoReturn:
-        sys.stderr.write(
-            __(
-                '{0}: error: {1}\n' "Run '{0} --help' for information"  # NoQA: COM812
-            ).format(self.prog, message)
-        )
+        msg = __("{0}: error: {1}\nRun '{0} --help' for information")
+        sys.stderr.write(msg.format(self.prog, message))
         raise SystemExit(2)
 
 

@@ -1,10 +1,12 @@
 """Test the build process with gettext builder with the test root."""
 
+from __future__ import annotations
+
 import gettext
-import os
 import re
 import subprocess
 from contextlib import chdir
+from pathlib import Path
 from subprocess import CalledProcessError
 
 import pytest
@@ -94,7 +96,7 @@ def test_msgfmt(app):
                 'msgfmt',
                 'en_US.po',
                 '-o',
-                os.path.join('en', 'LC_MESSAGES', 'test_root.mo'),
+                Path('en', 'LC_MESSAGES', 'test_root.mo'),
             ]
             subprocess.run(args, capture_output=True, check=True)
         except OSError:

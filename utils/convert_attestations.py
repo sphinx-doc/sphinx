@@ -3,6 +3,8 @@
 See https://github.com/trailofbits/pypi-attestations.
 """
 
+from __future__ import annotations
+
 import json
 import sys
 from base64 import b64decode
