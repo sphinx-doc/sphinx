@@ -31,8 +31,8 @@ if TYPE_CHECKING:
     from pygments.lexer import Lexer
     from pygments.style import Style
 
-if tuple(map(int, pygments.__version__.split('.')))[:2] < (2, 18):
-    from pygments.formatter import Formatter  # NoQA: F811
+if tuple(map(int, pygments.__version__.split('.')[:2])) < (2, 18):
+    from pygments.formatter import Formatter
 
     Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]
 

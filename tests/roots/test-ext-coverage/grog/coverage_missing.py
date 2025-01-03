@@ -1,5 +1,6 @@
 """This module is intentionally not documented."""
 
+
 class Missing:
     """An undocumented class."""
 

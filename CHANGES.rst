@@ -18,6 +18,12 @@ Deprecated
 Features added
 --------------
 
+* Add a new ``duplicate_declaration`` warning type,
+  with ``duplicate_declaration.c`` and ``duplicate_declaration.cpp`` subtypes.
+  Patch by Julien Lecomte and Adam Turner.
+* #11824: linkcode: Allow extensions to add support for a domain by defining
+  the keys that should be present.
+  Patch by Nicolas Peugnet.
 * #13144: Add a ``class`` option to the :rst:dir:`autosummary` directive.
   Patch by Tim Hoffmann.
 
@@ -32,6 +38,8 @@ Bugs fixed
 * LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
   (refs: PR #13152).
   Patch by Jean-François B.
+* #13096: HTML Search: check that query terms exist as properties in
+  term indices before accessing them.
 
 Testing
 -------

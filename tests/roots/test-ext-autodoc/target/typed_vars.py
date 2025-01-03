@@ -8,8 +8,9 @@ attr3 = ''  # type: str
 
 class _Descriptor:
     def __init__(self, name):
-        self.__doc__ = f"This is {name}"
-    def __get__(self):
+        self.__doc__ = f'This is {name}'
+
+    def __get__(self):  # NoQA: PLE0302
         pass
 
 
@@ -18,12 +19,14 @@ class Class:
     attr2: int
     attr3 = 0  # type: int
 
-    descr4: int = _Descriptor("descr4")
+    descr4: int = _Descriptor('descr4')
 
     def __init__(self):
+        # fmt: off
         self.attr4: int = 0     #: attr4
         self.attr5: int         #: attr5
         self.attr6 = 0          # type: int
+        # fmt: on
         """attr6"""
 
 
