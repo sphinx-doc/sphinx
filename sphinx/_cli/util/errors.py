@@ -113,10 +113,16 @@ def format_traceback(app: Sphinx | None, exc: BaseException) -> str:
 def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
     """Save the given exception's traceback in a temporary file."""
     output = format_traceback(app=app, exc=exc)
+    filename = write_temporary_file(output)
+    return filename
+
+
+def write_temporary_file(content: str) -> str:
+    """Write content to a temporary file and return the filename."""
     with tempfile.NamedTemporaryFile(
-        suffix='.log', prefix='sphinx-err-', delete=False
+        'w', encoding='utf-8', suffix='.log', prefix='sphinx-err-', delete=False
     ) as f:
-        f.write(error_info(last_msgs, exts_list, exc_format).encode('utf-8'))
+        f.write(content)
 
     return f.name
 
