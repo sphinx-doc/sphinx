@@ -38,7 +38,8 @@ def record_typehints(
 
     try:
         if callable(obj):
-            annotation = app.env.current_document.autodoc_annotations.setdefault(name, {})
+            current_document = app.env.current_document
+            annotation = current_document.autodoc_annotations.setdefault(name, {})
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:

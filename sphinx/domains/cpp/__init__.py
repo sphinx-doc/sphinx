@@ -430,9 +430,10 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         current_document['cpp:domain_name'] = current_document['cpp:domain_name'][:-1]
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
+        last_symbol: Symbol = self.env.current_document['cpp:last_symbol']
         return tuple(
             s.identOrOp._stringify(str)
-            for s in self.env.current_document['cpp:last_symbol'].get_full_nested_name().names
+            for s in last_symbol.get_full_nested_name().names
         )
 
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
@@ -447,12 +448,10 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             parens = ''
         *parents, name = sig_node['_toc_parts']
         if config.toc_object_entries_show_parents == 'domain':
-            return '::'.join(
-                (
+            return '::'.join((
                 *self.env.current_document.get('cpp:domain_name', ()),
                 name + parens,
-            )
-            )
+            ))
         if config.toc_object_entries_show_parents == 'hide':
             return name + parens
         if config.toc_object_entries_show_parents == 'all':
