@@ -467,9 +467,10 @@ class DefinitionParser(BaseParser):
                     self.pos = pos
                     header = "Error in 'typeid(...)'."
                     header += ' Expected type or expression.'
-                    errors = []
-                    errors.append((e_type, 'If type'))
-                    errors.append((e_expr, 'If expression'))
+                    errors = [
+                        (e_type, 'If type'),
+                        (e_expr, 'If expression'),
+                    ]
                     raise self._make_multi_error(errors, header) from e_expr
         else:  # a primary expression or a type
             pos = self.pos
@@ -658,9 +659,10 @@ class DefinitionParser(BaseParser):
                 try:
                     return self._parse_unary_expression()
                 except DefinitionError as ex_unary:
-                    errs = []
-                    errs.append((ex_cast, 'If type cast expression'))
-                    errs.append((ex_unary, 'If unary expression'))
+                    errs = [
+                        (ex_cast, 'If type cast expression'),
+                        (ex_unary, 'If unary expression'),
+                    ]
                     raise self._make_multi_error(
                         errs, 'Error in cast expression.'
                     ) from ex_unary
@@ -1747,9 +1749,10 @@ class DefinitionParser(BaseParser):
         except DefinitionError as e_type:
             if e_expr is None:
                 raise
-            errs = []
-            errs.append((e_expr, 'If default template argument is an expression'))
-            errs.append((e_type, 'If default template argument is a type'))
+            errs = [
+                (e_expr, 'If default template argument is an expression'),
+                (e_type, 'If default template argument is a type'),
+            ]
             msg = 'Error in non-type template parameter'
             msg += ' or constrained template parameter.'
             raise self._make_multi_error(errs, msg) from e_type
@@ -1891,15 +1894,16 @@ class DefinitionParser(BaseParser):
             except DefinitionError as e_non_type:
                 self.pos = pos
                 header = 'Error when parsing template parameter.'
-                errs = []
-                errs.append((
-                    e_type,
-                    'If unconstrained type parameter or template type parameter',
-                ))
-                errs.append((
-                    e_non_type,
-                    'If constrained type parameter or non-type parameter',
-                ))
+                errs = [
+                    (
+                        e_type,
+                        'If unconstrained type parameter or template type parameter',
+                    ),
+                    (
+                        e_non_type,
+                        'If constrained type parameter or non-type parameter',
+                    ),
+                ]
                 raise self._make_multi_error(errs, header) from None
 
     def _parse_template_parameter_list(self) -> ASTTemplateParams:
@@ -2241,9 +2245,10 @@ class DefinitionParser(BaseParser):
                 self.assert_end()
                 return res2, False
             except DefinitionError as e2:
-                errs = []
-                errs.append((e1, 'If shorthand ref'))
-                errs.append((e2, 'If full function ref'))
+                errs = [
+                    (e1, 'If shorthand ref'),
+                    (e2, 'If full function ref'),
+                ]
                 msg = 'Error in cross-reference.'
                 raise self._make_multi_error(errs, msg) from e2
 
@@ -2263,7 +2268,5 @@ class DefinitionParser(BaseParser):
                 return typ
             except DefinitionError as ex_type:
                 header = 'Error when parsing (type) expression.'
-                errs = []
-                errs.append((ex_expr, 'If expression'))
-                errs.append((ex_type, 'If type'))
+                errs = [(ex_expr, 'If expression'), (ex_type, 'If type')]
                 raise self._make_multi_error(errs, header) from ex_type

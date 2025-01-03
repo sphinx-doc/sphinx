@@ -692,9 +692,11 @@ class Symbol:
                     res.append('!!duplicate!! ')
                 res.append(str(self.declaration))
         if self.docname:
-            res.append('\t(')
-            res.append(self.docname)
-            res.append(')')
+            res.extend((
+                '\t(',
+                self.docname,
+                ')',
+            ))
         if addEndNewline:
             res.append('\n')
         return ''.join(res)

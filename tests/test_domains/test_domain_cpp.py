@@ -1637,8 +1637,10 @@ def test_domain_cpp_build_misuse_of_roles(app):
             if r not in roles:
                 warn.append(f'WARNING: cpp:{r} targets a {txt_target_type} (')
                 if target_type == 'templateParam':
-                    warn.append(f'WARNING: cpp:{r} targets a {txt_target_type} (')
-                    warn.append(f'WARNING: cpp:{r} targets a {txt_target_type} (')
+                    warn.extend((
+                        f'WARNING: cpp:{r} targets a {txt_target_type} (',
+                        f'WARNING: cpp:{r} targets a {txt_target_type} (',
+                    ))
     warn = sorted(warn)
     for w in ws:
         assert 'targets a' in w

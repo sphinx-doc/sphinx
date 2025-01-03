@@ -625,9 +625,11 @@ class ASTCastExpr(ASTExpression):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['(']
-        res.append(transform(self.typ))
-        res.append(')')
-        res.append(transform(self.expr))
+        res.extend((
+            transform(self.typ),
+            ')',
+            transform(self.expr),
+        ))
         return ''.join(res)
 
     def describe_signature(
@@ -658,10 +660,12 @@ class ASTBinOpExpr(ASTBase):
         res = []
         res.append(transform(self.exprs[0]))
         for i in range(1, len(self.exprs)):
-            res.append(' ')
-            res.append(self.ops[i - 1])
-            res.append(' ')
-            res.append(transform(self.exprs[i]))
+            res.extend((
+                ' ',
+                self.ops[i - 1],
+                ' ',
+                transform(self.exprs[i]),
+            ))
         return ''.join(res)
 
     def describe_signature(
@@ -698,10 +702,12 @@ class ASTAssignmentExpr(ASTExpression):
         res = []
         res.append(transform(self.exprs[0]))
         for i in range(1, len(self.exprs)):
-            res.append(' ')
-            res.append(self.ops[i - 1])
-            res.append(' ')
-            res.append(transform(self.exprs[i]))
+            res.extend((
+                ' ',
+                self.ops[i - 1],
+                ' ',
+                transform(self.exprs[i]),
+            ))
         return ''.join(res)
 
     def describe_signature(
@@ -798,10 +804,9 @@ class ASTTrailingTypeSpecName(ASTTrailingTypeSpec):
         return self.nestedName
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
+        res: list[str] = []
         if self.prefix:
-            res.append(self.prefix)
-            res.append(' ')
+            res.extend((self.prefix, ' '))
         res.append(transform(self.nestedName))
         return ''.join(res)
 
@@ -877,8 +882,7 @@ class ASTParameters(ASTBase):
             res.append(str(a))
         res.append(')')
         if len(self.attrs) != 0:
-            res.append(' ')
-            res.append(transform(self.attrs))
+            res.extend((' ', transform(self.attrs)))
         return ''.join(res)
 
     def describe_signature(
@@ -1278,8 +1282,7 @@ class ASTDeclaratorNameBitField(ASTDeclarator):
         res = []
         if self.declId:
             res.append(transform(self.declId))
-        res.append(' : ')
-        res.append(transform(self.size))
+        res.extend((' : ', transform(self.size)))
         return ''.join(res)
 
     def describe_signature(
@@ -1419,9 +1422,11 @@ class ASTDeclaratorParen(ASTDeclarator):
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = ['(']
-        res.append(transform(self.inner))
-        res.append(')')
-        res.append(transform(self.next))
+        res.extend((
+            transform(self.inner),
+            ')',
+            transform(self.next),
+        ))
         return ''.join(res)
 
     def describe_signature(
@@ -1824,8 +1829,7 @@ class ASTEnumerator(ASTBase):
         res = []
         res.append(transform(self.name))
         if len(self.attrs) != 0:
-            res.append(' ')
-            res.append(transform(self.attrs))
+            res.extend((' ', transform(self.attrs)))
         if self.init:
             res.append(transform(self.init))
         return ''.join(res)

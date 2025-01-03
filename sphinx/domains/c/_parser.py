@@ -342,9 +342,10 @@ class DefinitionParser(BaseParser):
                 try:
                     return self._parse_unary_expression()
                 except DefinitionError as ex_unary:
-                    errs = []
-                    errs.append((ex_cast, 'If type cast expression'))
-                    errs.append((ex_unary, 'If unary expression'))
+                    errs = [
+                        (ex_cast, 'If type cast expression'),
+                        (ex_unary, 'If unary expression'),
+                    ]
                     raise self._make_multi_error(
                         errs, 'Error in cast expression.'
                     ) from ex_unary
@@ -1111,8 +1112,9 @@ class DefinitionParser(BaseParser):
                 self.assert_end()
             except DefinitionError as ex_type:
                 header = 'Error when parsing (type) expression.'
-                errs = []
-                errs.append((ex_expr, 'If expression'))
-                errs.append((ex_type, 'If type'))
+                errs = [
+                    (ex_expr, 'If expression'),
+                    (ex_type, 'If type'),
+                ]
                 raise self._make_multi_error(errs, header) from ex_type
         return res

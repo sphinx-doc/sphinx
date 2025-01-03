@@ -282,9 +282,6 @@ select = [
     "PLW3201",  # Dunder method {name} has no special meaning in Python 3
 ]
 
-"sphinx/domains/**" = ["FURB113"]
-"tests/test_domains/test_domain_cpp.py" = ["FURB113"]
-
 # from .flake8
 "sphinx/*" = ["E241"]
 

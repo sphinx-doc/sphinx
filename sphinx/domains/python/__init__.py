@@ -231,20 +231,30 @@ class PyMethod(PyObject):
     def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
         prefix: list[nodes.Node] = []
         if 'final' in self.options:
-            prefix.append(nodes.Text('final'))
-            prefix.append(addnodes.desc_sig_space())
+            prefix.extend((
+                nodes.Text('final'),
+                addnodes.desc_sig_space(),
+            ))
         if 'abstractmethod' in self.options:
-            prefix.append(nodes.Text('abstract'))
-            prefix.append(addnodes.desc_sig_space())
+            prefix.extend((
+                nodes.Text('abstract'),
+                addnodes.desc_sig_space(),
+            ))
         if 'async' in self.options:
-            prefix.append(nodes.Text('async'))
-            prefix.append(addnodes.desc_sig_space())
+            prefix.extend((
+                nodes.Text('async'),
+                addnodes.desc_sig_space(),
+            ))
         if 'classmethod' in self.options:
-            prefix.append(nodes.Text('classmethod'))
-            prefix.append(addnodes.desc_sig_space())
+            prefix.extend((
+                nodes.Text('classmethod'),
+                addnodes.desc_sig_space(),
+            ))
         if 'staticmethod' in self.options:
-            prefix.append(nodes.Text('static'))
-            prefix.append(addnodes.desc_sig_space())
+            prefix.extend((
+                nodes.Text('static'),
+                addnodes.desc_sig_space(),
+            ))
         return prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
@@ -387,14 +397,20 @@ class PyProperty(PyObject):
     def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
         prefix: list[nodes.Node] = []
         if 'abstractmethod' in self.options:
-            prefix.append(nodes.Text('abstract'))
-            prefix.append(addnodes.desc_sig_space())
+            prefix.extend((
+                nodes.Text('abstract'),
+                addnodes.desc_sig_space(),
+            ))
         if 'classmethod' in self.options:
-            prefix.append(nodes.Text('class'))
-            prefix.append(addnodes.desc_sig_space())
+            prefix.extend((
+                nodes.Text('class'),
+                addnodes.desc_sig_space(),
+            ))
 
-        prefix.append(nodes.Text('property'))
-        prefix.append(addnodes.desc_sig_space())
+        prefix.extend((
+            nodes.Text('property'),
+            addnodes.desc_sig_space(),
+        ))
         return prefix
 
     def get_index_text(self, modname: str, name_cls: tuple[str, str]) -> str:
@@ -509,8 +525,7 @@ class PyModule(SphinxDirective):
             indextext = f'module; {modname}'
             inode = addnodes.index(entries=[('pair', indextext, node_id, '', None)])
             # The node order is: index node first, then target node.
-            ret.append(inode)
-            ret.append(target)
+            ret.extend((inode, target))
         ret.extend(content_nodes)
         return ret
 

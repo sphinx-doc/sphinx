@@ -1209,9 +1209,11 @@ class Symbol:
             res.append('::')
         else:
             if self.templateParams:
-                res.append(str(self.templateParams))
-                res.append('\n')
-                res.append(Symbol.debug_indent_string * indent)
+                res.extend((
+                    str(self.templateParams),
+                    '\n',
+                    Symbol.debug_indent_string * indent,
+                ))
             if self.identOrOp:
                 res.append(str(self.identOrOp))
             else:
@@ -1222,12 +1224,14 @@ class Symbol:
                 res.append(': ')
                 if self.isRedeclaration:
                     res.append('!!duplicate!! ')
-                res.append('{' + self.declaration.objectType + '} ')
-                res.append(str(self.declaration))
+                res.extend((
+                    '{',
+                    self.declaration.objectType,
+                    '} ',
+                    str(self.declaration),
+                ))
         if self.docname:
-            res.append('\t(')
-            res.append(self.docname)
-            res.append(')')
+            res.extend(('\t(', self.docname, ')'))
         res.append('\n')
         return ''.join(res)
 
