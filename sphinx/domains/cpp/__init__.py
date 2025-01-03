@@ -309,9 +309,9 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
 
     def run(self) -> list[Node]:
         env = self.state.document.settings.env  # from ObjectDescription.run
-        if 'cpp:parent_symbol' not in env.current_document:
+        if env.current_document.cpp_parent_symbol is None:
             root = env.domaindata['cpp']['root_symbol']
-            env.current_document['cpp:parent_symbol'] = root
+            env.current_document.cpp_parent_symbol = root
             env.ref_context['cpp:parent_key'] = root.get_lookup_key()
 
         # The lookup keys assume that no nested scopes exists inside overloaded functions.
@@ -325,7 +325,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         #       :cpp:any:`boom`
         #
         # So we disallow any signatures inside functions.
-        parent_symbol = env.current_document['cpp:parent_symbol']
+        parent_symbol = env.current_document.cpp_parent_symbol
         parent_decl = parent_symbol.declaration
         if parent_decl is not None and parent_decl.objectType == 'function':
             msg = (
@@ -336,16 +336,16 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             logger.warning(msg, location=self.get_location())
             name = _make_phony_error_name()
             symbol = parent_symbol.add_name(name)
-            env.current_document['cpp:last_symbol'] = symbol
+            env.current_document.cpp_last_symbol = symbol
             return []
         # When multiple declarations are made in the same directive
         # they need to know about each other to provide symbol lookup for function parameters.
         # We use last_symbol to store the latest added declaration in a directive.
-        env.current_document['cpp:last_symbol'] = None
+        env.current_document.cpp_last_symbol = None
         return super().run()
 
     def handle_signature(self, sig: str, signode: desc_signature) -> ASTDeclaration:
-        parent_symbol: Symbol = self.env.current_document['cpp:parent_symbol']
+        parent_symbol: Symbol = self.env.current_document.cpp_parent_symbol
 
         max_len = (
             self.env.config.cpp_maximum_signature_line_length
@@ -367,7 +367,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             # the possibly inner declarations.
             name = _make_phony_error_name()
             symbol = parent_symbol.add_name(name)
-            self.env.current_document['cpp:last_symbol'] = symbol
+            self.env.current_document.cpp_last_symbol = symbol
             raise ValueError from e
 
         try:
@@ -377,15 +377,15 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
             assert symbol.siblingBelow is None
-            symbol.siblingAbove = self.env.current_document['cpp:last_symbol']
+            symbol.siblingAbove = self.env.current_document.cpp_last_symbol
             if symbol.siblingAbove is not None:
                 assert symbol.siblingAbove.siblingBelow is None
                 symbol.siblingAbove.siblingBelow = symbol
-            self.env.current_document['cpp:last_symbol'] = symbol
+            self.env.current_document.cpp_last_symbol = symbol
         except _DuplicateSymbolError as e:
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
-            self.env.current_document['cpp:last_symbol'] = e.symbol
+            self.env.current_document.cpp_last_symbol = e.symbol
             msg = __(
                 'Duplicate C++ declaration, also defined at %s:%s.\n'
                 "Declaration is '.. cpp:%s:: %s'."
@@ -412,25 +412,25 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return ast
 
     def before_content(self) -> None:
-        last_symbol: Symbol = self.env.current_document['cpp:last_symbol']
+        last_symbol: Symbol = self.env.current_document.cpp_last_symbol
         assert last_symbol
-        self.oldParentSymbol = self.env.current_document['cpp:parent_symbol']
+        self.oldParentSymbol = self.env.current_document.cpp_parent_symbol
         self.oldParentKey: LookupKey = self.env.ref_context['cpp:parent_key']
-        self.env.current_document['cpp:parent_symbol'] = last_symbol
+        self.env.current_document.cpp_parent_symbol = last_symbol
         self.env.ref_context['cpp:parent_key'] = last_symbol.get_lookup_key()
-        self.env.current_document['cpp:domain_name'] = (
-            *self.env.current_document.get('cpp:domain_name', ()),
+        self.env.current_document.cpp_domain_name = (
+            *self.env.current_document.cpp_domain_name,
             last_symbol.identOrOp._stringify(str),
         )
 
     def after_content(self) -> None:
-        current_document = self.env.current_document
-        current_document['cpp:parent_symbol'] = self.oldParentSymbol
+        self.env.current_document.cpp_parent_symbol = self.oldParentSymbol
         self.env.ref_context['cpp:parent_key'] = self.oldParentKey
-        current_document['cpp:domain_name'] = current_document['cpp:domain_name'][:-1]
+        cpp_domain_name = self.env.current_document.cpp_domain_name
+        self.env.current_document.cpp_domain_name = cpp_domain_name[:-1]
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
-        last_symbol: Symbol = self.env.current_document['cpp:last_symbol']
+        last_symbol: Symbol = self.env.current_document.cpp_last_symbol
         return tuple(
             s.identOrOp._stringify(str)
             for s in last_symbol.get_full_nested_name().names
@@ -449,7 +449,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         *parents, name = sig_node['_toc_parts']
         if config.toc_object_entries_show_parents == 'domain':
             return '::'.join((
-                *self.env.current_document.get('cpp:domain_name', ()),
+                *self.env.current_document.cpp_domain_name,
                 name + parens,
             ))
         if config.toc_object_entries_show_parents == 'hide':
@@ -556,8 +556,8 @@ class CPPNamespaceObject(SphinxDirective):
                 ast = ASTNamespace(name, None)
             symbol = root_symbol.add_name(ast.nestedName, ast.templatePrefix)
             stack = [symbol]
-        self.env.current_document['cpp:parent_symbol'] = symbol
-        self.env.current_document['cpp:namespace_stack'] = stack
+        self.env.current_document.cpp_parent_symbol = symbol
+        self.env.current_document.cpp_namespace_stack = stack
         self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -582,14 +582,12 @@ class CPPNamespacePushObject(SphinxDirective):
             logger.warning(e, location=self.get_location())
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
-        old_parent = self.env.current_document.get('cpp:parent_symbol', None)
+        old_parent = self.env.current_document.cpp_parent_symbol
         if not old_parent:
             old_parent = self.env.domaindata['cpp']['root_symbol']
         symbol = old_parent.add_name(ast.nestedName, ast.templatePrefix)
-        stack = self.env.current_document.get('cpp:namespace_stack', [])
-        stack.append(symbol)
-        self.env.current_document['cpp:parent_symbol'] = symbol
-        self.env.current_document['cpp:namespace_stack'] = stack
+        self.env.current_document.cpp_namespace_stack.append(symbol)
+        self.env.current_document.cpp_parent_symbol = symbol
         self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -602,21 +600,19 @@ class CPPNamespacePopObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        stack = self.env.current_document.get('cpp:namespace_stack', None)
-        if not stack or len(stack) == 0:
+        stack = self.env.current_document.cpp_namespace_stack
+        if len(stack) == 0:
             logger.warning(
                 'C++ namespace pop on empty stack. Defaulting to global scope.',
                 location=self.get_location(),
             )
-            stack = []
         else:
             stack.pop()
         if len(stack) > 0:
             symbol = stack[-1]
         else:
             symbol = self.env.domaindata['cpp']['root_symbol']
-        self.env.current_document['cpp:parent_symbol'] = symbol
-        self.env.current_document['cpp:namespace_stack'] = stack
+        self.env.current_document.cpp_parent_symbol = symbol
         self.env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -633,9 +629,9 @@ class AliasNode(nodes.Element):
         self.sig = sig
         self.aliasOptions = aliasOptions
         if env is not None:
-            if 'cpp:parent_symbol' not in env.current_document:
+            if env.current_document.cpp_parent_symbol is None:
                 root = env.domaindata['cpp']['root_symbol']
-                env.current_document['cpp:parent_symbol'] = root
+                env.current_document.cpp_parent_symbol = root
                 env.ref_context['cpp:parent_key'] = root.get_lookup_key()
             self.parentKey = env.ref_context['cpp:parent_key']
         else:
@@ -913,7 +909,7 @@ class CPPExprRole(SphinxRole):
             # see below
             node = addnodes.desc_inline('cpp', text, text, classes=[self.class_type])
             return [node], []
-        parent_symbol = self.env.current_document.get('cpp:parent_symbol', None)
+        parent_symbol = self.env.current_document.cpp_parent_symbol
         if parent_symbol is None:
             parent_symbol = self.env.domaindata['cpp']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,

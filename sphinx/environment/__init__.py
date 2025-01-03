@@ -7,7 +7,7 @@ import os
 import pickle
 from collections import defaultdict
 from copy import deepcopy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 
 from sphinx import addnodes
 from sphinx.domains._domains_container import _DomainsContainer
@@ -32,7 +32,7 @@ from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
-    from typing import Any, Final, Literal
+    from typing import Any, Literal
 
     from docutils import nodes
     from docutils.nodes import Node
@@ -42,6 +42,8 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.domains import Domain
+    from sphinx.domains.c._symbol import Symbol as CSymbol
+    from sphinx.domains.cpp._symbol import Symbol as CPPSymbol
     from sphinx.events import EventManager
     from sphinx.project import Project
     from sphinx.util._pathlib import _StrPath
@@ -876,6 +878,13 @@ class _CurrentDocument:
         'autodoc_annotations',
         'autodoc_class',
         'autodoc_module',
+        'c_last_symbol',
+        'c_namespace_stack',
+        'c_parent_symbol',
+        'cpp_domain_name',
+        'cpp_last_symbol',
+        'cpp_namespace_stack',
+        'cpp_parent_symbol',
         'default_domain',
         'default_role',
         'docname',
@@ -890,6 +899,13 @@ class _CurrentDocument:
         'annotations': 'autodoc_annotations',
         'autodoc:class': 'autodoc_class',
         'autodoc:module': 'autodoc_module',
+        'c:last_symbol': 'c_last_symbol',
+        'c:namespace_stack': 'c_namespace_stack',
+        'c:parent_symbol': 'c_parent_symbol',
+        'cpp:domain_name': 'cpp_domain_name',
+        'cpp:last_symbol': 'cpp_last_symbol',
+        'cpp:namespace_stack': 'cpp_namespace_stack',
+        'cpp:parent_symbol': 'cpp_parent_symbol',
         'default_domain': 'default_domain',
         'default_role': 'default_role',
         'docname': 'docname',
@@ -901,6 +917,10 @@ class _CurrentDocument:
     # Attributes that should reset to None if popped.
     __attr_default_none: Final = frozenset({
         '_parser',
+        'c:last_symbol',
+        'c:parent_symbol',
+        'cpp:last_symbol',
+        'cpp:parent_symbol',
         'default_domain',
     })
 
@@ -947,6 +967,37 @@ class _CurrentDocument:
         #: Used in ``sphinx.ext.autodoc``.
         self.autodoc_module: str = ''
 
+        #: The most-recently added declaration in a directive.
+        #: Used in the C Domain.
+        self.c_last_symbol: CSymbol | None = None
+
+        #: The stack of namespace scopes, altered by the ``.. c:namespace::``
+        #: and ``.. c:namespace-(push|pop)::``directives.
+        #: Used in the C Domain.
+        self.c_namespace_stack: list[CSymbol] = []
+
+        #: The parent declaration.
+        #: Used in the C Domain.
+        self.c_parent_symbol: CSymbol | None = None
+
+        #: A stack of the string representation of declarations,
+        #: used to format the table of contents entry.
+        #: Used in the C++ Domain.
+        self.cpp_domain_name: tuple[str, ...] = ()
+
+        #: The most-recently added declaration in a directive.
+        #: Used in the C++ Domain.
+        self.cpp_last_symbol: CPPSymbol | None = None
+
+        #: The stack of namespace scopes, altered by the ``.. cpp:namespace::``
+        #: and ``.. cpp:namespace-(push|pop)::``directives.
+        #: Used in the C++ Domain.
+        self.cpp_namespace_stack: list[CPPSymbol] = []
+
+        #: The parent declaration.
+        #: Used in the C++ Domain.
+        self.cpp_parent_symbol: CPPSymbol | None = None
+
         #: Records the time when reading begain for the current document.
         #: Used in ``sphinx.ext.duration``.
         self.reading_started_at: float = 0.0
@@ -983,6 +1034,8 @@ class _CurrentDocument:
         del self._ext_props[key]
 
     def __contains__(self, item: str) -> bool:
+        if item in {'c:parent_symbol', 'cpp:parent_symbol'}:
+            return getattr(self, item) is not None
         return item in self.__attr_map or item in self._ext_props
 
     def get(self, key: str, default: Any | None = None) -> Any | None:
