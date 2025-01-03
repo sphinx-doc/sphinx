@@ -1,5 +1,7 @@
 """Test pycode.parser."""
 
+from __future__ import annotations
+
 from sphinx.pycode.parser import Parser
 from sphinx.util.inspect import signature_from_str
 

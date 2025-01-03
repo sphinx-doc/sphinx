@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class LinkcodeError(SphinxError):
-    category = "linkcode error"
+    category = 'linkcode error'
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:

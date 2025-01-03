@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import io
+import io  # NoQA: TC003
 from typing import Optional, overload
 
 myint = int
@@ -12,7 +12,7 @@ variable: myint
 variable2 = None  # type: myint
 
 #: docstring
-variable3: Optional[myint]
+variable3: Optional[myint]  # NoQA: UP007
 
 
 def read(r: io.BytesIO) -> io.StringIO:
@@ -25,13 +25,11 @@ def sum(x: myint, y: myint) -> myint:
 
 
 @overload
-def mult(x: myint, y: myint) -> myint:
-    ...
+def mult(x: myint, y: myint) -> myint: ...
 
 
 @overload
-def mult(x: float, y: float) -> float:
-    ...
+def mult(x: float, y: float) -> float: ...
 
 
 def mult(x, y):

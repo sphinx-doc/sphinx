@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
     class DateFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             date: dt.date | None = ...,
             format: str = ...,
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
         ) -> str: ...
 
     class TimeFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             time: dt.time | dt.datetime | float | None = ...,
             format: str = ...,
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
         ) -> str: ...
 
     class DatetimeFormatter(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             datetime: dt.date | dt.time | float | None = ...,
             format: str = ...,
@@ -167,11 +167,11 @@ def docname_to_domain(docname: str, compaction: bool | str) -> str:
 
 # date_format mappings: ustrftime() to babel.dates.format_datetime()
 date_format_mappings = {
-    '%a':  'EEE',     # Weekday as locale’s abbreviated name.
-    '%A':  'EEEE',    # Weekday as locale’s full name.
-    '%b':  'MMM',     # Month as locale’s abbreviated name.
-    '%B':  'MMMM',    # Month as locale’s full name.
-    '%c':  'medium',  # Locale’s appropriate date and time representation.
+    '%a':  'EEE',     # Weekday as locale's abbreviated name.
+    '%A':  'EEEE',    # Weekday as locale's full name.
+    '%b':  'MMM',     # Month as locale's abbreviated name.
+    '%B':  'MMMM',    # Month as locale's full name.
+    '%c':  'medium',  # Locale's appropriate date and time representation.
     '%-d': 'd',       # Day of the month as a decimal number.
     '%d':  'dd',      # Day of the month as a zero-padded decimal number.
     '%-H': 'H',       # Hour (24-hour clock) as a decimal number [0,23].
@@ -184,7 +184,7 @@ date_format_mappings = {
     '%m':  'MM',      # Month as a zero-padded decimal number.
     '%-M': 'm',       # Minute as a decimal number [0,59].
     '%M':  'mm',      # Minute as a zero-padded decimal number [00,59].
-    '%p':  'a',       # Locale’s equivalent of either AM or PM.
+    '%p':  'a',       # Locale's equivalent of either AM or PM.
     '%-S': 's',       # Second as a decimal number.
     '%S':  'ss',      # Second as a zero-padded decimal number.
     '%U':  'WW',      # Week number of the year (Sunday as the first day of the week)
@@ -196,8 +196,8 @@ date_format_mappings = {
                       # Monday are considered to be in week 0.
     '%W':  'WW',      # Week number of the year (Monday as the first day of the week)
                       # as a zero-padded decimal number.
-    '%x':  'medium',  # Locale’s appropriate date representation.
-    '%X':  'medium',  # Locale’s appropriate time representation.
+    '%x':  'medium',  # Locale's appropriate date representation.
+    '%X':  'medium',  # Locale's appropriate time representation.
     '%y':  'YY',      # Year without century as a zero-padded decimal number.
     '%Y':  'yyyy',    # Year with century as a decimal number.
     '%Z':  'zzz',     # Time zone name (no characters if no time zone exists).
@@ -249,6 +249,9 @@ def format_date(
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
             date = datetime.fromtimestamp(float(source_date_epoch), tz=UTC)
+            # If SOURCE_DATE_EPOCH is set, users likely want a reproducible result,
+            # so enforce GMT/UTC for consistency.
+            local_time = False
         else:
             date = datetime.now(tz=UTC)
 

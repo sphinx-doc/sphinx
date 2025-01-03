@@ -81,7 +81,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
                     self._doc_field_type_map[name] = (field, False)
 
                 if field.is_typed:
-                    typed_field = cast(TypedField, field)
+                    typed_field = cast('TypedField', field)
                     for name in typed_field.typenames:
                         self._doc_field_type_map[name] = (field, True)
 
@@ -346,7 +346,7 @@ class DefaultRole(SphinxDirective):
             )
             messages += [error]
 
-        return cast(list[nodes.Node], messages)
+        return cast('list[nodes.Node]', messages)
 
 
 class DefaultDomain(SphinxDirective):

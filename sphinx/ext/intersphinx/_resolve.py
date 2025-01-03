@@ -569,7 +569,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
         for node in self.document.findall(pending_xref):
             if 'intersphinx' not in node:
                 continue
-            contnode = cast(nodes.TextElement, node[0].deepcopy())
+            contnode = cast('nodes.TextElement', node[0].deepcopy())
             inv_name = node['inventory']
             if inv_name is not None:
                 assert inventory_exists(self.env, inv_name)

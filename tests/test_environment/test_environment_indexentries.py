@@ -1,5 +1,7 @@
 """Test the sphinx.environment.adapters.indexentries."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.environment.adapters.indexentries import IndexEntries

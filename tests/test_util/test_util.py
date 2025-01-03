@@ -1,5 +1,7 @@
 """Tests util functions."""
 
+from __future__ import annotations
+
 from sphinx.util.osutil import ensuredir
 
 

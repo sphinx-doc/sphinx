@@ -22,6 +22,7 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
+from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
@@ -98,10 +99,13 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
+    srcdir = _StrPathProperty()
+    doctreedir = _StrPathProperty()
+
     def __init__(self, app: Sphinx) -> None:
         self.app: Sphinx = app
-        self.doctreedir: _StrPath = app.doctreedir
-        self.srcdir: _StrPath = app.srcdir
+        self.doctreedir = app.doctreedir
+        self.srcdir = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''

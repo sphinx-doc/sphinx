@@ -1,5 +1,7 @@
 """Test the Sphinx API for translator."""
 
+from __future__ import annotations
+
 import sys
 
 import pytest

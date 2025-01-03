@@ -32,15 +32,15 @@ if TYPE_CHECKING:
     from typing_extensions import TypeIs
 
     class _SupportsGet(Protocol):
-        def __get__(self, instance: Any, owner: type | None = ..., /) -> Any: ...  # NoQA: E704
+        def __get__(self, instance: Any, owner: type | None = ..., /) -> Any: ...
 
     class _SupportsSet(Protocol):
         # instance and value are contravariants but we do not need that precision
-        def __set__(self, instance: Any, value: Any, /) -> None: ...  # NoQA: E704
+        def __set__(self, instance: Any, value: Any, /) -> None: ...
 
     class _SupportsDelete(Protocol):
         # instance is contravariant but we do not need that precision
-        def __delete__(self, instance: Any, /) -> None: ...  # NoQA: E704
+        def __delete__(self, instance: Any, /) -> None: ...
 
     _RoutineType: TypeAlias = (
         types.FunctionType
@@ -848,7 +848,7 @@ def signature_from_str(signature: str) -> Signature:
     """Create a :class:`~inspect.Signature` object from a string."""
     code = 'def func' + signature + ': pass'
     module = ast.parse(code)
-    function = typing.cast(ast.FunctionDef, module.body[0])
+    function = typing.cast('ast.FunctionDef', module.body[0])
 
     return signature_from_ast(function, code)
 

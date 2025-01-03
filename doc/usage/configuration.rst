@@ -1374,6 +1374,8 @@ Options for warning control
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
+   * ``duplicate_declaration.c``
+   * ``duplicate_declaration.cpp``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
@@ -1443,6 +1445,9 @@ Options for warning control
 
    .. versionadded:: 8.0
       Added ``misc.copy_overwrite``.
+
+   .. versionadded:: 8.2
+      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
 
 
 Builder options
@@ -3157,6 +3162,9 @@ These options influence LaTeX output.
    * The default is :code-py:`False` for :code-py:`'pdflatex'`,
      but :code-py:`True` is recommended for non-English documents as soon
      as some indexed terms use non-ASCII characters from the language script.
+     Attempting to index a term whose first character is non-ASCII
+     will break the build, if :confval:`latex_use_xindy` is left to its
+     default :code-py:`False`.
 
    Sphinx adds some dedicated support to the :program:`xindy` base distribution
    for using :code-py:`'pdflatex'` engine with Cyrillic scripts.

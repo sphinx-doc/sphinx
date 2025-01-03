@@ -75,8 +75,8 @@ class RefOnlyBulletListTransform(SphinxTransform):
         for node in self.document.findall(nodes.bullet_list):
             if check_refonly_list(node):
                 for item in node.findall(nodes.list_item):
-                    para = cast(nodes.paragraph, item[0])
-                    ref = cast(nodes.reference, para[0])
+                    para = cast('nodes.paragraph', item[0])
+                    ref = cast('nodes.reference', para[0])
                     compact_para = addnodes.compact_paragraph()
                     compact_para += ref
                     item.replace(para, compact_para)

@@ -81,18 +81,17 @@ docs = [
     "sphinxcontrib-websupport",
 ]
 lint = [
-    "flake8>=6.0",
-    "ruff==0.8.0",
-    "mypy==1.13.0",
+    "ruff==0.8.5",
+    "mypy==1.14.1",
     "sphinx-lint>=0.9",
     "types-colorama==0.4.15.20240311",
     "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20241005",
+    "types-docutils==0.21.0.20241128",
     "types-Pillow==10.2.0.20240822",
     "types-Pygments==2.18.0.20240506",
     "types-requests==2.32.0.20241016",  # align with requests
     "types-urllib3==1.26.25.14",
-    "pyright==1.1.389",
+    "pyright==1.1.391",
     "pytest>=6.0",
 ]
 test = [

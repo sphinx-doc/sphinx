@@ -2,6 +2,7 @@
 
 # adapted from an example of bibliographic metadata at
 # https://docutils.sourceforge.io/docs/user/rst/demo.txt
+from __future__ import annotations
 
 import pytest
 

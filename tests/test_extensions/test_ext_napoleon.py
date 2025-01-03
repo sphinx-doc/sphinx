@@ -1,5 +1,7 @@
 """Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
+from __future__ import annotations
+
 import functools
 from collections import namedtuple
 from unittest import mock
