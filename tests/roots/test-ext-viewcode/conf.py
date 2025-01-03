@@ -27,4 +27,4 @@ if 'test_linkcode' in tags:  # NoQA: F821 (tags is injected into conf.py)
             raise AssertionError
 
     def setup(app):
-        add_linkcode_domain("rst", ["fullname"])
+        add_linkcode_domain('rst', ['fullname'])
