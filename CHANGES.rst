@@ -18,6 +18,10 @@ Deprecated
 Features added
 --------------
 
+* Add a new ``duplicate_declaration`` warning type,
+  with ``duplicate_declaration.c`` and ``duplicate_declaration.cpp`` subtypes.
+  Patch by Julien Lecomte and Adam Turner.
+
 Bugs fixed
 ----------
 
@@ -29,6 +33,8 @@ Bugs fixed
 * LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
   (refs: PR #13152).
   Patch by Jean-François B.
+* #13096: HTML Search: check that query terms exist as properties in
+  term indices before accessing them.
 * #13188: autodoc: fix detection of class methods implemented in C.
   Patch by Bénédikt Tran.
 

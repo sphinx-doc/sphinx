@@ -455,8 +455,7 @@ def test_autodoc_docstring_signature(app):
         '      __init__(self, a, b=1) -> None',
         '      First line of docstring',
         '',
-        '              rest of docstring',
-        '',
+        '      rest of docstring',
         '',
         '',
         '   .. py:method:: DocstringSig.__new__(cls, *new_args, **new_kwargs)',
@@ -466,8 +465,7 @@ def test_autodoc_docstring_signature(app):
         '      __new__(cls, d, e=1) -> DocstringSig',
         '      First line of docstring',
         '',
-        '              rest of docstring',
-        '',
+        '      rest of docstring',
         '',
         '',
         '   .. py:method:: DocstringSig.meth()',
@@ -476,8 +474,7 @@ def test_autodoc_docstring_signature(app):
         '      meth(FOO, BAR=1) -> BAZ',
         '      First line of docstring',
         '',
-        '              rest of docstring',
-        '',
+        '      rest of docstring',
         '',
         '',
         '   .. py:method:: DocstringSig.meth2()',
@@ -640,7 +637,7 @@ def test_mocked_module_imports(app):
     sys.modules.pop('target', None)  # unload target module to clear the module cache
 
     # no autodoc_mock_imports
-    options = {'members': 'TestAutodoc,decoratedFunction,func,Alias'}
+    options = {'members': 'TestAutodoc,decorated_function,func,Alias'}
     actual = do_autodoc(app, 'module', 'target.need_mocks', options)
     assert list(actual) == []
     assert "autodoc: failed to import module 'need_mocks'" in app.warning.getvalue()
@@ -679,16 +676,16 @@ def test_mocked_module_imports(app):
         '      docstring',
         '',
         '',
-        '   .. py:method:: TestAutodoc.decoratedMethod()',
+        '   .. py:method:: TestAutodoc.decorated_method()',
         '      :module: target.need_mocks',
         '',
-        '      TestAutodoc::decoratedMethod docstring',
+        '      TestAutodoc::decorated_method docstring',
         '',
         '',
-        '.. py:function:: decoratedFunction()',
+        '.. py:function:: decorated_function()',
         '   :module: target.need_mocks',
         '',
-        '   decoratedFunction docstring',
+        '   decorated_function docstring',
         '',
         '',
         '.. py:function:: func(arg: missing_module.Class)',
@@ -1705,7 +1702,7 @@ def test_autodoc_default_options(app):
     if (3, 11, 7) <= sys.version_info < (3, 12) or sys.version_info >= (3, 12, 1):
         list_of_weak_references = '      list of weak references to the object'
     else:
-        list_of_weak_references = "      list of weak references to the object (if defined)"  # fmt: skip
+        list_of_weak_references = '      list of weak references to the object (if defined)'  # fmt: skip
 
     # no settings
     actual = do_autodoc(app, 'class', 'target.enums.EnumCls')
@@ -1784,7 +1781,7 @@ def test_autodoc_default_options_with_values(app):
     if (3, 11, 7) <= sys.version_info < (3, 12) or sys.version_info >= (3, 12, 1):
         list_of_weak_references = '      list of weak references to the object'
     else:
-        list_of_weak_references = "      list of weak references to the object (if defined)"  # fmt: skip
+        list_of_weak_references = '      list of weak references to the object (if defined)'  # fmt: skip
 
     # with :members:
     app.config.autodoc_default_options = {'members': 'val1,val2'}

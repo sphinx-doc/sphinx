@@ -29,11 +29,11 @@ OPERATORS: dict[type[ast.AST], str] = {
 
 
 @overload
-def unparse(node: None, code: str = '') -> None: ...  # NoQA: E704
+def unparse(node: None, code: str = '') -> None: ...
 
 
 @overload
-def unparse(node: ast.AST, code: str = '') -> str: ...  # NoQA: E704
+def unparse(node: ast.AST, code: str = '') -> str: ...
 
 
 def unparse(node: ast.AST | None, code: str = '') -> str | None:
