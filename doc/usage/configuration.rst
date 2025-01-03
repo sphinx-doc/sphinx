@@ -1374,6 +1374,8 @@ Options for warning control
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
+   * ``duplicate_declaration.c``
+   * ``duplicate_declaration.cpp``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
@@ -1443,6 +1445,9 @@ Options for warning control
 
    .. versionadded:: 8.0
       Added ``misc.copy_overwrite``.
+
+   .. versionadded:: 8.2
+      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
 
 
 Builder options
