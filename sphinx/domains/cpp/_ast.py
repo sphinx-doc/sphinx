@@ -1314,8 +1314,7 @@ class ASTBinOpExpr(ASTExpression):
         return hash((self.exprs, self.ops))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.exprs[0]))
+        res = [transform(self.exprs[0])]
         for i in range(1, len(self.exprs)):
             res.extend((
                 ' ',
@@ -1804,8 +1803,7 @@ class ASTTemplateArgs(ASTBase):
             ))
             return ''.join(res)
 
-        res = []
-        res.append('I')
+        res = ['I']
         if len(self.args) > 0:
             for a in self.args[:-1]:
                 res.append(a.get_id(version))
@@ -2172,8 +2170,7 @@ class ASTParametersQualifiers(ASTBase):
             return ''.join(a.get_id(version) for a in self.args)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append('(')
+        res = ['(']
         first = True
         for a in self.args:
             if not first:
@@ -2485,8 +2482,7 @@ class ASTDeclSpecs(ASTBase):
 
     def get_id(self, version: int) -> str:
         if version == 1:
-            res = []
-            res.append(self.trailingTypeSpec.get_id(version))
+            res = [self.trailingTypeSpec.get_id(version)]
             if self.allSpecs.volatile:
                 res.append('V')
             if self.allSpecs.const:
@@ -2689,9 +2685,8 @@ class ASTDeclaratorNameParamQual(ASTDeclarator):
 
     def get_type_id(self, version: int, returnTypeId: str) -> str:
         assert version >= 2
-        res = []
+        res = [self.get_ptr_suffix_id(version)]
         # TODO: can we actually have both array ops and paramQual?
-        res.append(self.get_ptr_suffix_id(version))
         if self.paramQual:
             res.extend((
                 self.get_modifiers_id(version),
@@ -2834,8 +2829,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
         return self.next.require_space_after_declSpecs()
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['*']
-        res.append(transform(self.attrs))
+        res = ['*', transform(self.attrs)]
         if len(self.attrs) != 0 and (self.volatile or self.const):
             res.append(' ')
         if self.volatile:
@@ -2866,8 +2860,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
             res.append(self.next.get_ptr_suffix_id(version))
             return ''.join(res)
 
-        res = [self.next.get_ptr_suffix_id(version)]
-        res.append('P')
+        res = [self.next.get_ptr_suffix_id(version), 'P']
         if self.volatile:
             res.append('V')
         if self.const:
@@ -2949,8 +2942,7 @@ class ASTDeclaratorRef(ASTDeclarator):
         return self.next.require_space_after_declSpecs()
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['&']
-        res.append(transform(self.attrs))
+        res = ['&', transform(self.attrs)]
         if len(self.attrs) != 0 and self.next.require_space_after_declSpecs():
             res.append(' ')
         res.append(transform(self.next))
@@ -3565,8 +3557,7 @@ class ASTTypeWithInit(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.type))
+        res = [transform(self.type)]
         if self.init:
             res.append(transform(self.init))
         return ''.join(res)
@@ -3601,8 +3592,7 @@ class ASTTypeUsing(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.name))
+        res = [transform(self.name)]
         if self.type:
             res.extend((' = ', transform(self.type)))
         return ''.join(res)
@@ -3745,8 +3735,7 @@ class ASTClass(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.attrs))
+        res = [transform(self.attrs)]
         if len(self.attrs) != 0:
             res.append(' ')
         res.append(transform(self.name))
@@ -3804,8 +3793,7 @@ class ASTUnion(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.attrs))
+        res = [transform(self.attrs)]
         if len(self.attrs) != 0:
             res.append(' ')
         res.append(transform(self.name))
@@ -3908,8 +3896,7 @@ class ASTEnumerator(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.name))
+        res = [transform(self.name)]
         if len(self.attrs) != 0:
             res.extend((' ', transform(self.attrs)))
         if self.init:
@@ -4211,8 +4198,7 @@ class ASTTemplateParams(ASTBase):
 
     def get_id(self, version: int, excludeRequires: bool = False) -> str:
         assert version >= 2
-        res = []
-        res.append('I')
+        res = ['I']
         res.extend(param.get_id(version) for param in self.params)
         res.append('E')
         if not excludeRequires and self.requiresClause:
