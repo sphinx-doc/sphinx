@@ -239,7 +239,7 @@ def isclassmethod(
     return False
 
 
-def is_class_method_descriptor(
+def is_classmethod_descriptor(
     obj: Any, cls: Any = None, name: str | None = None
 ) -> TypeIs[types.ClassMethodDescriptorType]:
     """Check if the object is a class method descriptor type.
@@ -258,13 +258,13 @@ def is_class_method_descriptor(
     return False
 
 
-def is_class_method_like(
+def is_classmethod_like(
     obj: Any, cls: Any = None, name: str | None = None
 ) -> TypeIs[classmethod | types.ClassMethodDescriptorType]:
     """Check if the object behaves like a class method."""
     # Built-in methods are instances of ClassMethodDescriptorType
     # while pure Python class methods are instances of classmethod().
-    return isclassmethod(obj, cls, name) or is_class_method_descriptor(obj, cls, name)
+    return isclassmethod(obj, cls, name) or is_classmethod_descriptor(obj, cls, name)
 
 
 def isstaticmethod(
@@ -964,11 +964,15 @@ def getdoc(
     * inherited docstring
     * inherited decorated methods
     """
-    if cls and name and isclassmethod(obj, cls, name):
+    if cls and name and is_classmethod_like(obj, cls, name):
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name)
-            if meth and hasattr(meth, '__func__'):
-                doc: str | None = getdoc(meth.__func__)
+            if not meth:
+                continue
+            # Built-in class methods do not have '__func__'
+            # but they may have a docstring.
+            if hasattr(meth, '__func__') or is_classmethod_descriptor(meth):
+                doc: str | None = getdoc(getattr(meth, '__func__', meth))
                 if doc is not None or not allow_inherited:
                     return doc
 
