@@ -32,7 +32,7 @@ from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
-    from typing import Any, Literal
+    from typing import Any, Final, Literal
 
     from docutils import nodes
     from docutils.nodes import Node
@@ -884,6 +884,26 @@ class _CurrentDocument:
         'reading_started_at',
     )
 
+    # Map of old-style temp_data keys to _CurrentDocument attributes
+    __attr_map: Final = {
+        '_parser': '_parser',
+        'annotations': 'autodoc_annotations',
+        'autodoc:class': 'autodoc_class',
+        'autodoc:module': 'autodoc_module',
+        'default_domain': 'default_domain',
+        'default_role': 'default_role',
+        'docname': 'docname',
+        'highlight_language': 'highlight_language',
+        'object': 'obj_desc_name',
+        'started_at': 'reading_started_at',
+    }
+
+    # Attributes that should reset to None if popped.
+    __attr_default_none: Final = frozenset({
+        '_parser',
+        'default_domain',
+    })
+
     def __init__(
         self,
         *,
@@ -949,51 +969,13 @@ class _CurrentDocument:
     # Mapping interface:
 
     def __getitem__(self, item: str) -> Any:
-        if item == 'annotations':
-            return self.autodoc_annotations
-        if item == 'autodoc:class':
-            return self.autodoc_class
-        if item == 'autodoc:module':
-            return self.autodoc_module
-        if item == 'object':
-            return self.obj_desc_name
-        if item == 'started_at':
-            return self.reading_started_at
-        if item in {
-            '_parser',
-            'autodoc_annotations',
-            'default_domain',
-            'default_role',
-            'docname',
-            'highlight_language',
-            'obj_desc_name',
-            'reading_started_at',
-        }:
-            return getattr(self, item)
+        if item in self.__attr_map:
+            getattr(self, self.__attr_map[item])
         return self._ext_props[item]
 
     def __setitem__(self, key: str, value: Any) -> None:
-        if key == 'annotations':
-            self.autodoc_annotations = value
-        elif key == 'autodoc:class':
-            self.autodoc_class = value
-        elif key == 'autodoc:module':
-            self.autodoc_module = value
-        elif key == 'object':
-            self.obj_desc_name = value
-        elif key == 'started_at':
-            self.reading_started_at = value
-        elif key in {
-            '_parser',
-            'autodoc_annotations',
-            'default_domain',
-            'default_role',
-            'docname',
-            'highlight_language',
-            'obj_desc_name',
-            'reading_started_at',
-        }:
-            setattr(self, key, value)
+        if key in self.__attr_map:
+            setattr(self, self.__attr_map[key], value)
         else:
             self._ext_props[key] = value
 
@@ -1001,30 +983,7 @@ class _CurrentDocument:
         del self._ext_props[key]
 
     def __contains__(self, item: str) -> bool:
-        if item in {
-            'annotations',
-            'autodoc:class',
-            'autodoc:module',
-            'object',
-            'started_at',
-        }:
-            return True
-        if item in {
-            '_parser',
-            '_serial_numbers',
-            '_ext_props',
-            'autodoc_annotations',
-            'autodoc_class',
-            'autodoc_module',
-            'default_domain',
-            'default_role',
-            'docname',
-            'highlight_language',
-            'obj_desc_name',
-            'reading_started_at',
-        }:
-            return True
-        return item in self._ext_props
+        return item in self.__attr_map or item in self._ext_props
 
     def get(self, key: str, default: Any | None = None) -> Any | None:
         try:
@@ -1033,34 +992,13 @@ class _CurrentDocument:
             return default
 
     def pop(self, key: str, default: Any | None = None) -> Any | None:
-        if key == 'annotations':
-            key = 'autodoc_annotations'
-        if key == 'autodoc:class':
-            key = 'autodoc_class'
-        if key == 'autodoc:module':
-            key = 'autodoc_module'
-        elif key == 'object':
-            key = 'obj_desc_name'
-        elif key == 'started_at':
-            key = 'reading_started_at'
-        try:
-            blank: str | float | dict[str, dict[str, str]] | None = {
-                '_parser': None,
-                'autodoc_annotations': {},
-                'autodoc_class': '',
-                'autodoc_module': '',
-                'default_domain': None,
-                'default_role': '',
-                'docname': '',
-                'highlight_language': '',
-                'obj_desc_name': '',
-                'reading_started_at': 0.0,
-            }[key]
-        except KeyError:
-            pass
-        else:
-            value = getattr(self, key)
-            setattr(self, key, blank)
+        if key in self.__attr_map:
+            value = getattr(self, self.__attr_map[key])
+            if key in self.__attr_default_none:
+                default = None
+            else:
+                default = type(value)()  # set key to type's default
+            setattr(self, self.__attr_map[key], default)
             return value
         return self._ext_props.pop(key, default)
 
