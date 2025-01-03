@@ -53,6 +53,10 @@ Build environment API
 
       Temporary data storage while reading a document.
 
+      Extensions may use the mapping interface provided by
+      ``env.current_document`` to store data relating to the current document,
+      but should use a unique prefix to avoid name clashes.
+
       .. important::
          Only the following attributes constitute the public API.
          The type itself and any methods or other attributes remain private,
