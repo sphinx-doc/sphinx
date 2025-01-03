@@ -874,7 +874,7 @@ class _CurrentDocument:
     __slots__ = (
         '_parser',
         '_serial_numbers',
-        '_ext_props',
+        '_extension_data',
         'autodoc_annotations',
         'autodoc_class',
         'autodoc_module',
@@ -1006,12 +1006,12 @@ class _CurrentDocument:
         self._serial_numbers: dict[str, int] = {}
 
         # Stores properties relating to the current document set by extensions.
-        self._ext_props: dict[str, Any] = {}
+        self._extension_data: dict[str, Any] = {}
 
     def new_serial_number(self, category: str = '', /) -> int:
         """Return a serial number, e.g. for index entry targets.
 
-        The number is guaranteed to be unique in the current document.
+        The number is guaranteed to be unique in the current document & category.
         """
         current = self._serial_numbers.get(category, 0)
         self._serial_numbers[category] = current + 1
@@ -1022,21 +1022,21 @@ class _CurrentDocument:
     def __getitem__(self, item: str) -> Any:
         if item in self.__attr_map:
             getattr(self, self.__attr_map[item])
-        return self._ext_props[item]
+        return self._extension_data[item]
 
     def __setitem__(self, key: str, value: Any) -> None:
         if key in self.__attr_map:
             setattr(self, self.__attr_map[key], value)
         else:
-            self._ext_props[key] = value
+            self._extension_data[key] = value
 
     def __delitem__(self, key: str) -> None:
-        del self._ext_props[key]
+        del self._extension_data[key]
 
     def __contains__(self, item: str) -> bool:
         if item in {'c:parent_symbol', 'cpp:parent_symbol'}:
             return getattr(self, item) is not None
-        return item in self.__attr_map or item in self._ext_props
+        return item in self.__attr_map or item in self._extension_data
 
     def get(self, key: str, default: Any | None = None) -> Any | None:
         try:
@@ -1053,10 +1053,10 @@ class _CurrentDocument:
                 default = type(value)()  # set key to type's default
             setattr(self, self.__attr_map[key], default)
             return value
-        return self._ext_props.pop(key, default)
+        return self._extension_data.pop(key, default)
 
     def setdefault(self, key: str, default: Any | None = None) -> Any | None:
-        return self._ext_props.setdefault(key, default)
+        return self._extension_data.setdefault(key, default)
 
     def clear(self) -> None:
         _CurrentDocument.__init__(self)  # NoQA: PLC2801
