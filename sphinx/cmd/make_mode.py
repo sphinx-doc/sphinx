@@ -87,7 +87,7 @@ class Make:
             return 1
         print("Removing everything under '%s'..." % self.build_dir)
         for item in self.build_dir.iterdir():
-            rmtree(self.build_dir_join(item))
+            rmtree(item)
         return 0
 
     def build_help(self) -> None:

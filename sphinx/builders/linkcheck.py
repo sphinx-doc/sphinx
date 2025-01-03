@@ -545,7 +545,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 status_code = response.status_code
                 redirect_status_code = (
                     response.history[-1].status_code if response.history else None
-                )  # NoQA: E501
+                )
                 retry_after = response.headers.get('Retry-After', '')
                 response_url = f'{response.url}'
                 response.raise_for_status()

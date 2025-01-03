@@ -19,6 +19,8 @@ from sphinx.util.images import guess_mimetype
 from sphinx.util.osutil import _relative_path
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -38,7 +40,7 @@ class ImageCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         env.images.merge_other(docnames, other.images)
@@ -142,7 +144,7 @@ class DownloadFileCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         env.dlfiles.merge_other(docnames, other.dlfiles)
