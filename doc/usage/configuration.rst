@@ -1374,6 +1374,8 @@ Options for warning control
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
+   * ``duplicate_declaration.c``
+   * ``duplicate_declaration.cpp``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
@@ -1404,7 +1406,6 @@ Options for warning control
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
-   * ``c.duplicate_declaration``
    * ``intersphinx.external``
 
    You can choose from these types.  You can also give only the first

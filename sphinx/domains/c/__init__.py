@@ -284,8 +284,8 @@ class CObject(ObjectDescription[ASTDeclaration]):
                 self.display_object_type,
                 sig,
                 location=signode,
-                type='c',
-                subtype='duplicate_declaration',
+                type='duplicate_declaration',
+                subtype='c',
             )
 
         if ast.objectType == 'enumerator':
