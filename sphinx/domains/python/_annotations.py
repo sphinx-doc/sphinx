@@ -23,8 +23,9 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
 
-def parse_reftarget(reftarget: str, suppress_prefix: bool = False,
-                    ) -> tuple[str, str, str, bool]:
+def parse_reftarget(
+    reftarget: str, suppress_prefix: bool = False
+) -> tuple[str, str, str, bool]:
     """Parse a type string and return (reftype, reftarget, title, refspecific flag)"""
     refspecific = False
     if reftarget.startswith('.'):
@@ -50,12 +51,15 @@ def parse_reftarget(reftarget: str, suppress_prefix: bool = False,
     return reftype, reftarget, title, refspecific
 
 
-def type_to_xref(target: str, env: BuildEnvironment, *,
-                 suppress_prefix: bool = False) -> addnodes.pending_xref:
+def type_to_xref(
+    target: str, env: BuildEnvironment, *, suppress_prefix: bool = False
+) -> addnodes.pending_xref:
     """Convert a type string to a cross reference node."""
     if env:
-        kwargs = {'py:module': env.ref_context.get('py:module'),
-                  'py:class': env.ref_context.get('py:class')}
+        kwargs = {
+            'py:module': env.ref_context.get('py:module'),
+            'py:class': env.ref_context.get('py:class'),
+        }
     else:
         kwargs = {}
 
@@ -66,14 +70,22 @@ def type_to_xref(target: str, env: BuildEnvironment, *,
         # nested classes.  But python domain can't access the real python object because this
         # module should work not-dynamically.
         shortname = title.split('.')[-1]
-        contnodes: list[Node] = [pending_xref_condition('', shortname, condition='resolved'),
-                                 pending_xref_condition('', title, condition='*')]
+        contnodes: list[Node] = [
+            pending_xref_condition('', shortname, condition='resolved'),
+            pending_xref_condition('', title, condition='*'),
+        ]
     else:
         contnodes = [nodes.Text(title)]
 
-    return pending_xref('', *contnodes,
-                        refdomain='py', reftype=reftype, reftarget=target,
-                        refspecific=refspecific, **kwargs)
+    return pending_xref(
+        '',
+        *contnodes,
+        refdomain='py',
+        reftype=reftype,
+        reftarget=target,
+        refspecific=refspecific,
+        **kwargs,
+    )
 
 
 def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
@@ -82,19 +94,21 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
 
     def unparse(node: ast.AST) -> list[Node]:
         if isinstance(node, ast.Attribute):
-            return [nodes.Text(f"{unparse(node.value)[0]}.{node.attr}")]
+            return [nodes.Text(f'{unparse(node.value)[0]}.{node.attr}')]
         if isinstance(node, ast.BinOp):
             result: list[Node] = unparse(node.left)
             result.extend(unparse(node.op))
             result.extend(unparse(node.right))
             return result
         if isinstance(node, ast.BitOr):
-            return [addnodes.desc_sig_space(),
-                    addnodes.desc_sig_punctuation('', '|'),
-                    addnodes.desc_sig_space()]
+            return [
+                addnodes.desc_sig_space(),
+                addnodes.desc_sig_punctuation('', '|'),
+                addnodes.desc_sig_space(),
+            ]
         if isinstance(node, ast.Constant):
             if node.value is Ellipsis:
-                return [addnodes.desc_sig_punctuation('', "...")]
+                return [addnodes.desc_sig_punctuation('', '...')]
             if isinstance(node.value, bool):
                 return [addnodes.desc_sig_keyword('', repr(node.value))]
             if isinstance(node.value, int):
@@ -157,8 +171,10 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
                 result.pop()
                 result.pop()
             else:
-                result = [addnodes.desc_sig_punctuation('', '('),
-                          addnodes.desc_sig_punctuation('', ')')]
+                result = [
+                    addnodes.desc_sig_punctuation('', '('),
+                    addnodes.desc_sig_punctuation('', ')'),
+                ]
 
             return result
         if isinstance(node, ast.Call):
@@ -211,8 +227,11 @@ def _parse_annotation(annotation: str, env: BuildEnvironment) -> list[Node]:
             if isinstance(node, nodes.literal):
                 result.append(node[0])
             elif isinstance(node, nodes.Text) and node.strip():
-                if (result and isinstance(result[-1], addnodes.desc_sig_punctuation) and
-                        result[-1].astext() == '~'):
+                if (
+                    result
+                    and isinstance(result[-1], addnodes.desc_sig_punctuation)
+                    and result[-1].astext() == '~'
+                ):
                     result.pop()
                     result.append(type_to_xref(str(node), env, suppress_prefix=True))
                 else:
@@ -244,8 +263,7 @@ class _TypeParameterListParser(TokenProcessor):
             else:
                 if current == token.INDENT:
                     tokens += self.fetch_until(token.DEDENT)
-                elif current.match(
-                        [token.OP, ':'], [token.OP, '='], [token.OP, ',']):
+                elif current.match([token.OP, ':'], [token.OP, '='], [token.OP, ',']):
                     tokens.pop()
                     break
         return tokens
@@ -254,7 +272,9 @@ class _TypeParameterListParser(TokenProcessor):
         while current := self.fetch_token():
             if current == token.NAME:
                 tp_name = current.value.strip()
-                if self.previous and self.previous.match([token.OP, '*'], [token.OP, '**']):
+                if self.previous and self.previous.match(
+                    [token.OP, '*'], [token.OP, '**']
+                ):
                     if self.previous == [token.OP, '*']:
                         tp_kind = Parameter.VAR_POSITIONAL
                     else:
@@ -275,9 +295,14 @@ class _TypeParameterListParser(TokenProcessor):
                         tokens = self.fetch_type_param_spec()
                         tp_default = self._build_identifier(tokens)
 
-                if tp_kind != Parameter.POSITIONAL_OR_KEYWORD and tp_ann != Parameter.empty:
-                    msg = ('type parameter bound or constraint is not allowed '
-                           f'for {tp_kind.description} parameters')
+                if (
+                    tp_kind != Parameter.POSITIONAL_OR_KEYWORD
+                    and tp_ann != Parameter.empty
+                ):
+                    msg = (
+                        'type parameter bound or constraint is not allowed '
+                        f'for {tp_kind.description} parameters'
+                    )
                     raise SyntaxError(msg)
 
                 type_param = (tp_name, tp_kind, tp_default, tp_ann)
@@ -315,12 +340,22 @@ class _TypeParameterListParser(TokenProcessor):
             idents.append(ident)
             # determine if the next token is an unpack operator depending
             # on the left and right hand side of the operator symbol
-            is_unpack_operator = (
-                op.match([token.OP, '*'], [token.OP, '**']) and not (
-                    tok.match(token.NAME, token.NUMBER, token.STRING,
-                              [token.OP, ')'], [token.OP, ']'], [token.OP, '}'])
-                    and after.match(token.NAME, token.NUMBER, token.STRING,
-                                    [token.OP, '('], [token.OP, '['], [token.OP, '{'])
+            is_unpack_operator = op.match([token.OP, '*'], [token.OP, '**']) and not (
+                tok.match(
+                    token.NAME,
+                    token.NUMBER,
+                    token.STRING,
+                    [token.OP, ')'],
+                    [token.OP, ']'],
+                    [token.OP, '}'],
+                )
+                and after.match(
+                    token.NAME,
+                    token.NUMBER,
+                    token.STRING,
+                    [token.OP, '('],
+                    [token.OP, '['],
+                    [token.OP, '{'],
                 )
             )
 
@@ -356,15 +391,14 @@ class _TypeParameterListParser(TokenProcessor):
             [token.OP, '@'], [token.OP, '/'], [token.OP, '//'], [token.OP, '%'],
             [token.OP, '<<'], [token.OP, '>>'], [token.OP, '>>>'],
             [token.OP, '<='], [token.OP, '>='], [token.OP, '=='], [token.OP, '!='],
-        ):
+        ):  # fmt: skip
             return f' {tok.value} '
 
         return tok.value
 
 
 def _parse_type_list(
-    tp_list: str, env: BuildEnvironment,
-    multi_line_parameter_list: bool = False,
+    tp_list: str, env: BuildEnvironment, multi_line_parameter_list: bool = False
 ) -> addnodes.desc_type_parameter_list:
     """Parse a list of type parameters according to PEP 695."""
     type_params = addnodes.desc_type_parameter_list(tp_list)
@@ -373,11 +407,13 @@ def _parse_type_list(
     # type annotations are interpreted as type parameter bound or constraints
     parser = _TypeParameterListParser(tp_list)
     parser.parse()
-    for (tp_name, tp_kind, tp_default, tp_ann) in parser.type_params:
+    for tp_name, tp_kind, tp_default, tp_ann in parser.type_params:
         # no positional-only or keyword-only allowed in a type parameters list
         if tp_kind in {Parameter.POSITIONAL_ONLY, Parameter.KEYWORD_ONLY}:
-            msg = ('positional-only or keyword-only parameters '
-                   'are prohibited in type parameter lists')
+            msg = (
+                'positional-only or keyword-only parameters '
+                'are prohibited in type parameter lists'
+            )
             raise SyntaxError(msg)
 
         node = addnodes.desc_type_parameter()
@@ -395,8 +431,7 @@ def _parse_type_list(
             node += addnodes.desc_sig_punctuation('', ':')
             node += addnodes.desc_sig_space()
 
-            type_ann_expr = addnodes.desc_sig_name('', '',
-                                                   *annotation)  # type: ignore[arg-type]
+            type_ann_expr = addnodes.desc_sig_name('', '', *annotation)  # type: ignore[arg-type]
             # a type bound is ``T: U`` whereas type constraints
             # must be enclosed with parentheses. ``T: (U, V)``
             if tp_ann.startswith('(') and tp_ann.endswith(')'):
@@ -416,16 +451,16 @@ def _parse_type_list(
             node += addnodes.desc_sig_space()
             node += addnodes.desc_sig_operator('', '=')
             node += addnodes.desc_sig_space()
-            node += nodes.inline('', tp_default,
-                                 classes=['default_value'],
-                                 support_smartquotes=False)
+            node += nodes.inline(
+                '', tp_default, classes=['default_value'], support_smartquotes=False
+            )
 
         type_params += node
     return type_params
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False,
+    arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
@@ -435,12 +470,18 @@ def _parse_arglist(
     for param in sig.parameters.values():
         if param.kind != param.POSITIONAL_ONLY and last_kind == param.POSITIONAL_ONLY:
             # PEP-570: Separator for Positional Only Parameter: /
-            params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '/'))
-        if param.kind == param.KEYWORD_ONLY and last_kind in {param.POSITIONAL_OR_KEYWORD,
-                                                              param.POSITIONAL_ONLY,
-                                                              None}:
+            params += addnodes.desc_parameter(
+                '', '', addnodes.desc_sig_operator('', '/')
+            )
+        if param.kind == param.KEYWORD_ONLY and last_kind in {
+            param.POSITIONAL_OR_KEYWORD,
+            param.POSITIONAL_ONLY,
+            None,
+        }:
             # PEP-3102: Separator for Keyword Only Parameter: *
-            params += addnodes.desc_parameter('', '', addnodes.desc_sig_operator('', '*'))
+            params += addnodes.desc_parameter(
+                '', '', addnodes.desc_sig_operator('', '*')
+            )
 
         node = addnodes.desc_parameter()
         if param.kind == param.VAR_POSITIONAL:
@@ -464,8 +505,9 @@ def _parse_arglist(
                 node += addnodes.desc_sig_space()
             else:
                 node += addnodes.desc_sig_operator('', '=')
-            node += nodes.inline('', param.default, classes=['default_value'],
-                                 support_smartquotes=False)
+            node += nodes.inline(
+                '', param.default, classes=['default_value'], support_smartquotes=False
+            )
 
         params += node
         last_kind = param.kind
@@ -478,9 +520,9 @@ def _parse_arglist(
 
 
 def _pseudo_parse_arglist(
-    signode: desc_signature, arglist: str, multi_line_parameter_list: bool = False,
+    signode: desc_signature, arglist: str, multi_line_parameter_list: bool = False
 ) -> None:
-    """"Parse" a list of arguments separated by commas.
+    """'Parse' a list of arguments separated by commas.
 
     Arguments can have "optional" annotations given by enclosing them in
     brackets.  Currently, this will split at any comma, even if it's inside a
@@ -508,7 +550,8 @@ def _pseudo_parse_arglist(
                 argument = argument[:-1].strip()
             if argument:
                 stack[-1] += addnodes.desc_parameter(
-                    '', '', addnodes.desc_sig_name(argument, argument))
+                    '', '', addnodes.desc_sig_name(argument, argument)
+                )
             while ends_open:
                 stack.append(addnodes.desc_optional())
                 stack[-2] += stack[-1]

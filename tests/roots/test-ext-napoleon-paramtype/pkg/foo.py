@@ -1,5 +1,6 @@
 class Foo:
     """The foo."""
+
     def do(
         self,
         *,

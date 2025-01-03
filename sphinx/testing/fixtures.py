@@ -222,7 +222,7 @@ def _shared_result_cache() -> None:
 
 
 @pytest.fixture
-def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
+def if_graphviz_found(app: SphinxTestApp) -> None:
     """
     The test will be skipped when using 'if_graphviz_found' fixture and graphviz
     dot command is not found.
@@ -246,7 +246,7 @@ def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 @pytest.fixture
-def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
+def rollback_sysmodules() -> Iterator[None]:
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.

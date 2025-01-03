@@ -1,5 +1,6 @@
 class Bar:
     """The bar."""
+
     def list(self) -> None:
         """A list method."""
 
@@ -7,4 +8,3 @@ class Bar:
     def int() -> float:
         """An int method."""
         return 1.0
-

@@ -13,6 +13,7 @@ def skip_member(app, what, name, obj, skip, options):
         return True
     elif name == '_privatemeth':
         return False
+    return None
 
 
 def setup(app):

@@ -7,14 +7,11 @@ import os
 import time
 from pathlib import Path
 
-import babel
 import pytest
 from babel.messages.mofile import read_mo
 
 from sphinx.errors import SphinxError
 from sphinx.util import i18n
-
-BABEL_VERSION = tuple(map(int, babel.__version__.split('.')))
 
 
 def test_catalog_info_for_file_and_path():

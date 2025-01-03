@@ -1221,7 +1221,7 @@ Returns Style:
             ),
         )
 
-        testConfig = Config(
+        test_config = Config(
             napoleon_custom_sections=[
                 'Really Important Details',
                 ('Sooper Warning', 'warns'),
@@ -1231,7 +1231,7 @@ Returns Style:
         )
 
         for docstring, expected in docstrings:
-            actual = GoogleDocstring(docstring, testConfig)
+            actual = GoogleDocstring(docstring, test_config)
             assert str(actual) == expected
 
     def test_noindex(self):
@@ -2881,7 +2881,7 @@ None py:data 1 none.html -
 list py:class 1 list.html -
 int py:class 1 int.html -
 """)
-    )  # NoQA: W291
+    )
     app.config.intersphinx_mapping = {'python': ('127.0.0.1:5555', str(inv_file))}
     validate_intersphinx_mapping(app, app.config)
     load_mappings(app)

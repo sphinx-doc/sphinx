@@ -18,6 +18,9 @@ Deprecated
 Features added
 --------------
 
+* Add a new ``duplicate_declaration`` warning type,
+  with ``duplicate_declaration.c`` and ``duplicate_declaration.cpp`` subtypes.
+  Patch by Julien Lecomte and Adam Turner.
 * #13163: Add the :confval:`print_traceback` configuration option
   to control whether tracebacks are printed in full when Sphinx
   encounters an internal error.
@@ -34,6 +37,8 @@ Bugs fixed
 * LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
   (refs: PR #13152).
   Patch by Jean-François B.
+* #13096: HTML Search: check that query terms exist as properties in
+  term indices before accessing them.
 
 Testing
 -------

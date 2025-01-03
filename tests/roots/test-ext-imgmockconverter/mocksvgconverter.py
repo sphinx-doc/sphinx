@@ -1,6 +1,4 @@
-"""
-    Does foo.svg --> foo.pdf with no change to the file.
-"""
+"""Does foo.svg --> foo.pdf with no change to the file."""
 
 from __future__ import annotations
 

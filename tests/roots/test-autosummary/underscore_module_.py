@@ -4,12 +4,13 @@ module with trailing underscores everywhere
 
 
 class class_:
-    """ Class """
+    """Class"""
+
     def method_(_arg):
-        """ Method """
+        """Method"""
         pass
 
 
 def function_(_arg):
-    """ Function """
+    """Function"""
     pass

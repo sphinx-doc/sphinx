@@ -16,5 +16,5 @@ source_suffix = {
     '.test': 'restructuredtext',
 }
 source_parsers = {
-    '.test': DummyTestParser
+    '.test': DummyTestParser,
 }

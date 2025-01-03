@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path.cwd().resolve()))
 extensions = ['sphinx.ext.autodoc']
 
 autodoc_mock_imports = [
-    'dummy'
+    'dummy',
 ]
 
 nitpicky = True

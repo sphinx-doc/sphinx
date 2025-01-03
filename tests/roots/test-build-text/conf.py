@@ -1,4 +1,4 @@
 source_suffix = {
-    '.txt': 'restructuredtext'
+    '.txt': 'restructuredtext',
 }
 exclude_patterns = ['_build']

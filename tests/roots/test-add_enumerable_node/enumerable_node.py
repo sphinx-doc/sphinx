@@ -37,7 +37,7 @@ def visit_numbered_text(self, node):
     raise nodes.SkipNode
 
 
-def get_title(node):
+def get_title(node):  # NoQA: FURB118
     return node['title']
 
 
@@ -51,12 +51,14 @@ class NumberedText(Directive):
 
 def setup(app):
     # my-figure
-    app.add_enumerable_node(my_figure, 'figure',
-                            html=(visit_my_figure, depart_my_figure))
+    app.add_enumerable_node(
+        my_figure, 'figure', html=(visit_my_figure, depart_my_figure)
+    )
     app.add_directive('my-figure', MyFigure)
 
     # numbered_label
-    app.add_enumerable_node(numbered_text, 'original', get_title,
-                            html=(visit_numbered_text, None))
+    app.add_enumerable_node(
+        numbered_text, 'original', get_title, html=(visit_numbered_text, None)
+    )
     app.add_directive('numbered-text', NumberedText)
     app.config.numfig_format.setdefault('original', 'No.%s')

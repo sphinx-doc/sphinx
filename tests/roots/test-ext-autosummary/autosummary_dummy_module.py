@@ -4,13 +4,13 @@ from typing import Union
 from autosummary_class_module import Class
 
 __all__ = [
-    "CONSTANT1",
-    "Exc",
-    "Foo",
-    "_Baz",
-    "bar",
-    "qux",
-    "path",
+    'CONSTANT1',
+    'Exc',
+    'Foo',
+    '_Baz',
+    'bar',
+    'qux',
+    'path',
 ]
 
 #: module variable
@@ -23,7 +23,7 @@ class Foo:
     CONSTANT3 = None
     CONSTANT4 = None
 
-    class Bar:
+    class Bar:  # NoQA: D106
         pass
 
     def __init__(self):
@@ -42,7 +42,7 @@ class _Baz:
     pass
 
 
-def bar(x: Union[int, str], y: int = 1) -> None:
+def bar(x: Union[int, str], y: int = 1) -> None:  # NoQA: UP007
     pass
 
 

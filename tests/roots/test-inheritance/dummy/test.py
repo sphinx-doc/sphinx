@@ -8,7 +8,7 @@ r"""
         / \ / \
        E   D   F
 
-"""
+"""  # NoQA: D208
 
 
 class A:

@@ -35,13 +35,15 @@ logger = logging.getLogger(__name__)
 
 # REs for Python signatures
 py_sig_re = re.compile(
-    r'''^ ([\w.]*\.)?            # class name(s)
+    r"""^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
           (?: \[\s*(.*)\s*])?    # optional: type parameters list
           (?: \(\s*(.*)\s*\)     # optional: arguments
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
-          ''', re.VERBOSE)
+      """,
+    re.VERBOSE,
+)
 
 
 # This override allows our inline type specifiers to behave like :class: link
@@ -60,9 +62,16 @@ class PyXrefMixin:
     ) -> Node:
         # we use inliner=None to make sure we get the old behaviour with a single
         # pending_xref node
-        result = super().make_xref(rolename, domain, target,  # type: ignore[misc]
-                                   innernode, contnode,
-                                   env, inliner=None, location=None)
+        result = super().make_xref(  # type: ignore[misc]
+            rolename,
+            domain,
+            target,
+            innernode,
+            contnode,
+            env,
+            inliner=None,
+            location=None,
+        )
         if isinstance(result, pending_xref):
             assert env is not None
             result['refspecific'] = True
@@ -82,8 +91,10 @@ class PyXrefMixin:
 
                 shortname = target.split('.')[-1]
                 textnode = innernode('', shortname)  # type: ignore[call-arg]
-                contnodes = [pending_xref_condition('', '', textnode, condition='resolved'),
-                             pending_xref_condition('', '', *children, condition='*')]
+                contnodes = [
+                    pending_xref_condition('', '', textnode, condition='resolved'),
+                    pending_xref_condition('', '', *children, condition='*'),
+                ]
                 result.extend(contnodes)
 
         return result
@@ -116,8 +127,18 @@ class PyXrefMixin:
             if in_literal or self._delimiters_re.match(sub_target):
                 results.append(contnode or innernode(sub_target, sub_target))  # type: ignore[call-arg]
             else:
-                results.append(self.make_xref(rolename, domain, sub_target,
-                                              innernode, contnode, env, inliner, location))
+                results.append(
+                    self.make_xref(
+                        rolename,
+                        domain,
+                        sub_target,
+                        innernode,
+                        contnode,
+                        env,
+                        inliner,
+                        location,
+                    )
+                )
 
             if sub_target in {'Literal', 'typing.Literal', '~typing.Literal'}:
                 in_literal = True
@@ -161,22 +182,50 @@ class PyObject(ObjectDescription[tuple[str, str]]):
     }
 
     doc_field_types = [
-        PyTypedField('parameter', label=_('Parameters'),
-                     names=('param', 'parameter', 'arg', 'argument',
-                            'keyword', 'kwarg', 'kwparam'),
-                     typerolename='class', typenames=('paramtype', 'type'),
-                     can_collapse=True),
-        PyTypedField('variable', label=_('Variables'),
-                     names=('var', 'ivar', 'cvar'),
-                     typerolename='class', typenames=('vartype',),
-                     can_collapse=True),
-        PyGroupedField('exceptions', label=_('Raises'), rolename='exc',
-                       names=('raises', 'raise', 'exception', 'except'),
-                       can_collapse=True),
-        Field('returnvalue', label=_('Returns'), has_arg=False,
-              names=('returns', 'return')),
-        PyField('returntype', label=_('Return type'), has_arg=False,
-                names=('rtype',), bodyrolename='class'),
+        PyTypedField(
+            'parameter',
+            label=_('Parameters'),
+            names=(
+                'param',
+                'parameter',
+                'arg',
+                'argument',
+                'keyword',
+                'kwarg',
+                'kwparam',
+            ),
+            typerolename='class',
+            typenames=('paramtype', 'type'),
+            can_collapse=True,
+        ),
+        PyTypedField(
+            'variable',
+            label=_('Variables'),
+            names=('var', 'ivar', 'cvar'),
+            typerolename='class',
+            typenames=('vartype',),
+            can_collapse=True,
+        ),
+        PyGroupedField(
+            'exceptions',
+            label=_('Raises'),
+            rolename='exc',
+            names=('raises', 'raise', 'exception', 'except'),
+            can_collapse=True,
+        ),
+        Field(
+            'returnvalue',
+            label=_('Returns'),
+            has_arg=False,
+            names=('returns', 'return'),
+        ),
+        PyField(
+            'returntype',
+            label=_('Return type'),
+            has_arg=False,
+            names=('rtype',),
+            bodyrolename='class',
+        ),
     ]
 
     allow_nesting = False
@@ -212,18 +261,17 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         classname = self.env.ref_context.get('py:class')
         if classname:
             add_module = False
-            if prefix and (prefix == classname or
-                           prefix.startswith(classname + ".")):
+            if prefix and (prefix == classname or prefix.startswith(f'{classname}.')):
                 fullname = prefix + name
                 # class name is given again in the signature
-                prefix = prefix[len(classname):].lstrip('.')
+                prefix = prefix[len(classname) :].lstrip('.')
             elif prefix:
                 # class name is given in the signature, but different
                 # (shouldn't happen)
-                fullname = classname + '.' + prefix + name
+                fullname = f'{classname}.{prefix}{name}'
             else:
                 # class name is not given in the signature
-                fullname = classname + '.' + name
+                fullname = f'{classname}.{name}'
         else:
             add_module = True
             if prefix:
@@ -237,9 +285,11 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         signode['class'] = classname
         signode['fullname'] = fullname
 
-        max_len = (self.env.config.python_maximum_signature_line_length
-                   or self.env.config.maximum_signature_line_length
-                   or 0)
+        max_len = (
+            self.env.config.python_maximum_signature_line_length
+            or self.env.config.maximum_signature_line_length
+            or 0
+        )
 
         # determine if the function arguments (without its type parameters)
         # should be formatted on a multiline or not by removing the width of
@@ -261,26 +311,31 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
-                msg = ("Python directive method get_signature_prefix()"
-                       " must return a list of nodes."
-                       f" Return value was '{sig_prefix}'.")
+                msg = (
+                    'Python directive method get_signature_prefix()'
+                    ' must return a list of nodes.'
+                    f" Return value was '{sig_prefix}'."
+                )
                 raise TypeError(msg)
             signode += addnodes.desc_annotation(str(sig_prefix), '', *sig_prefix)
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)
         elif modname and add_module and self.env.config.add_module_names:
-            nodetext = modname + '.'
+            nodetext = f'{modname}.'
             signode += addnodes.desc_addname(nodetext, nodetext)
 
         signode += addnodes.desc_name(name, name)
 
         if tp_list:
             try:
-                signode += _parse_type_list(tp_list, self.env, multi_line_type_parameter_list)
+                signode += _parse_type_list(
+                    tp_list, self.env, multi_line_type_parameter_list
+                )
             except Exception as exc:
-                logger.warning("could not parse tp_list (%r): %s", tp_list, exc,
-                               location=signode)
+                logger.warning(
+                    'could not parse tp_list (%r): %s', tp_list, exc, location=signode
+                )
 
         if arglist:
             try:
@@ -293,8 +348,9 @@ class PyObject(ObjectDescription[tuple[str, str]]):
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
             except (NotImplementedError, ValueError) as exc:
                 # duplicated parameter names raise ValueError and not a SyntaxError
-                logger.warning("could not parse arglist (%r): %s", arglist, exc,
-                               location=signode)
+                logger.warning(
+                    'could not parse arglist (%r): %s', arglist, exc, location=signode
+                )
                 _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
         else:
             if self.needs_arglist():
@@ -307,9 +363,9 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
         anno = self.options.get('annotation')
         if anno:
-            signode += addnodes.desc_annotation(' ' + anno, '',
-                                                addnodes.desc_sig_space(),
-                                                nodes.Text(anno))
+            signode += addnodes.desc_annotation(
+                f' {anno}', '', addnodes.desc_sig_space(), nodes.Text(anno)
+            )
 
         return fullname, prefix
 
@@ -329,10 +385,11 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         msg = 'must be implemented in subclasses'
         raise NotImplementedError(msg)
 
-    def add_target_and_index(self, name_cls: tuple[str, str], sig: str,
-                             signode: desc_signature) -> None:
+    def add_target_and_index(
+        self, name_cls: tuple[str, str], sig: str, signode: desc_signature
+    ) -> None:
         modname = self.options.get('module', self.env.ref_context.get('py:module'))
-        fullname = (modname + '.' if modname else '') + name_cls[0]
+        fullname = (f'{modname}.' if modname else '') + name_cls[0]
         node_id = make_id(self.env, self.state.document, '', fullname)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
@@ -342,13 +399,20 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
         canonical_name = self.options.get('canonical')
         if canonical_name:
-            domain.note_object(canonical_name, self.objtype, node_id, aliased=True,
-                               location=signode)
+            domain.note_object(
+                canonical_name, self.objtype, node_id, aliased=True, location=signode
+            )
 
         if 'no-index-entry' not in self.options:
             indextext = self.get_index_text(modname, name_cls)
             if indextext:
-                self.indexnode['entries'].append(('single', indextext, node_id, '', None))
+                self.indexnode['entries'].append((
+                    'single',
+                    indextext,
+                    node_id,
+                    '',
+                    None,
+                ))
 
     def before_content(self) -> None:
         """Handle object nesting before content
@@ -398,8 +462,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             with contextlib.suppress(IndexError):
                 classes.pop()
 
-        self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
-                                            else None)
+        self.env.ref_context['py:class'] = classes[-1] if len(classes) > 0 else None
         if 'module' in self.options:
             modules = self.env.ref_context.setdefault('py:modules', [])
             if modules:

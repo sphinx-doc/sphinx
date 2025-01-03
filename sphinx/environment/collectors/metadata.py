@@ -9,6 +9,8 @@ from docutils import nodes
 from sphinx.environment.collectors import EnvironmentCollector
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
@@ -24,7 +26,7 @@ class MetadataCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         for docname in docnames:

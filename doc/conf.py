@@ -179,7 +179,7 @@ nitpick_ignore = {
     (
         'cpp:class',
         'template<typename TOuter> template<typename TInner> Wrapper::Outer<TOuter>::Inner',
-    ),  # NoQA: E501
+    ),
     ('cpp:identifier', 'MyContainer'),
     ('js:func', 'SomeError'),
     ('js:func', 'number'),
@@ -312,7 +312,7 @@ REDIRECT_TEMPLATE = """
         <a href="{{rel_url}}">If not, click here to continue.</a>
     </body>
 </html>
-"""  # noqa: E501
+"""  # NoQA: E501
 
 
 def build_redirects(app: Sphinx, exception: Exception | None) -> None:

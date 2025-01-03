@@ -500,7 +500,7 @@ def custom_handler(
     def authenticated(
         method: Callable[[CustomHandler], None],
     ) -> Callable[[CustomHandler], None]:
-        def method_if_authenticated(self):
+        def method_if_authenticated(self: CustomHandler) -> None:
             if expected_token is None:
                 return method(self)
             elif not self.headers['Authorization']:
@@ -512,6 +512,7 @@ def custom_handler(
                 self.send_response(403, 'Forbidden')
                 self.send_header('Content-Length', '0')
                 self.end_headers()
+            return None
 
         return method_if_authenticated
 

@@ -1,1 +1,1 @@
-""" A package with trailing underscores """
+"""A package with trailing underscores"""

@@ -558,7 +558,7 @@ class GoogleDocstring:
         return [(' ' * n) + line for line in lines]
 
     def _is_indented(self, line: str, indent: int = 1) -> bool:
-        for i, s in enumerate(line):  # NoQA: SIM110
+        for i, s in enumerate(line):
             if i >= indent:
                 return True
             elif not s.isspace():

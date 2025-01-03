@@ -10,7 +10,7 @@ class Base:
         """Inherited class method."""
 
     @staticmethod
-    def inheritedstaticmeth(cls):
+    def inheritedstaticmeth(cls):  # NoQA: PLW0211
         """Inherited static method."""
 
 
@@ -20,6 +20,6 @@ class Derived(Base):
         pass
 
 
-class MyList(list):
+class MyList(list):  # NoQA: FURB189
     def meth(self):
         """docstring"""

@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from typing import Protocol
 
     class SupportsWrite(Protocol):
-        def write(self, text: str, /) -> int | None: ...  # NoQA: E704
+        def write(self, text: str, /) -> int | None: ...
 
 
 class TeeStripANSI:

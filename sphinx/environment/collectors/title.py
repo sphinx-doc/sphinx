@@ -10,6 +10,8 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.transforms import SphinxContentsFilter
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
@@ -26,7 +28,7 @@ class TitleCollector(EnvironmentCollector):
         self,
         app: Sphinx,
         env: BuildEnvironment,
-        docnames: set[str],
+        docnames: Set[str],
         other: BuildEnvironment,
     ) -> None:
         for docname in docnames:

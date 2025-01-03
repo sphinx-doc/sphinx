@@ -1,7 +1,8 @@
 """
 submodule
 """
-raise RuntimeError('This module should not get imported')
+
+raise RuntimeError('This module should not get imported')  # NoQA: EM101
 
 
 def decorator(f):
@@ -27,5 +28,6 @@ class Class3:
     """
     this is Class3
     """
+
     class_attr = 42
     """this is the class attribute class_attr"""

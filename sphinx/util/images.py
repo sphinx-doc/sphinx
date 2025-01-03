@@ -56,11 +56,11 @@ def get_image_size(filename: str | PathLike[str]) -> tuple[int, int] | None:
 
 
 @overload
-def guess_mimetype(filename: PathLike[str] | str, default: str) -> str: ...  # NoQA: E704
+def guess_mimetype(filename: PathLike[str] | str, default: str) -> str: ...
 
 
 @overload
-def guess_mimetype(  # NoQA: E704
+def guess_mimetype(
     filename: PathLike[str] | str, default: None = None
 ) -> str | None: ...
 

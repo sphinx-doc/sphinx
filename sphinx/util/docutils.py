@@ -29,7 +29,7 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator  # NoQA: TC003
+    from collections.abc import Callable, Iterator
     from types import ModuleType, TracebackType
 
     from docutils.frontend import Values
@@ -378,7 +378,7 @@ def switch_source_input(state: State, content: StringList) -> Iterator[None]:
         # replace it by new one
         state_machine: StateMachine[None] = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # NoQA: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]
 
         yield
     finally:

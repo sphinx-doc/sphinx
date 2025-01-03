@@ -110,7 +110,7 @@ def get_full_module_name(node: Node) -> str:
 
 def repr_domxml(node: Node, length: int = 80) -> str:
     """
-    return DOM XML representation of the specified node like:
+    Return DOM XML representation of the specified node like:
     '<paragraph translatable="False"><inline classes="versionadded">Added in version...'
 
     :param nodes.Node node: target node

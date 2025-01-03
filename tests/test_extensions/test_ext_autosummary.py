@@ -186,9 +186,9 @@ def test_get_items_summary(make_app, app_params):
     assert html_warnings == ''
 
     expected_values = {
-        'withSentence': 'I have a sentence which spans multiple lines.',
-        'noSentence': "this doesn't start with a capital.",
-        'emptyLine': 'This is the real summary',
+        'with_sentence': 'I have a sentence which spans multiple lines.',
+        'no_sentence': "this doesn't start with a capital.",
+        'empty_line': 'This is the real summary',
         'module_attr': 'This is a module attribute',
         'C.class_attr': 'This is a class attribute',
         'C.instance_attr': 'This is an instance attribute',
