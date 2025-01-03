@@ -18,6 +18,10 @@ Deprecated
 Features added
 --------------
 
+* Add a new ``duplicate_declaration`` warning type,
+  with ``duplicate_declaration.c`` and ``duplicate_declaration.cpp`` subtypes.
+  Patch by Julien Lecomte and Adam Turner.
+
 Bugs fixed
 ----------
 

@@ -895,6 +895,8 @@ class Symbol:
                         our_child.declaration.directiveType,
                         name,
                         location=(other_child.docname, other_child.line),
+                        type='duplicate_declaration',
+                        subtype='cpp',
                     )
                 else:
                     our_object_type = our_child.declaration.objectType
