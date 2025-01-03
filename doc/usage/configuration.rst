@@ -321,16 +321,15 @@ General configuration
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   If :code-py:`False`, the full traceback will not be printed when Sphinx
-   encounters an internal fatal error. It will instead print a short message
-   and exit.
+   If :code-py:`False`, the full traceback will not be printed when
+   Sphinx encounters an internal fatal error.
+   It will instead print a short message and exit.
 
    .. note::
+      Rergardless of the value of this option, the traceback is always saved
+      to a temporary file named :file:`sphinx-err-<...>.log`.
 
-      Whatever the setting is set to, the traceback is always saved in a
-      temporary file named ``sphinx-err-xxxxxxxx.log``.
-
-   .. versionadded:: 8.2.0
+   .. versionadded:: 8.2
 
 
 Options for figure numbering

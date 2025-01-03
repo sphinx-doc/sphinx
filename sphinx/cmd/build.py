@@ -17,6 +17,7 @@ from docutils.utils import SystemMessage
 
 import sphinx.locale
 from sphinx import __display_version__
+from sphinx._cli.util.errors import format_traceback, write_temporary_file
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError, SphinxParallelError
 from sphinx.locale import __
@@ -24,7 +25,7 @@ from sphinx.util._io import TeeStripANSI
 from sphinx.util._pathlib import _StrPath
 from sphinx.util.console import color_terminal, nocolor, red, terminal_safe
 from sphinx.util.docutils import docutils_namespace, patch_docutils
-from sphinx.util.exceptions import format_exception_cut_frames, save_traceback
+from sphinx.util.exceptions import format_exception_cut_frames
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
@@ -72,9 +73,10 @@ def handle_exception(
         elif isinstance(exception, UnicodeError):
             print(red(__('Encoding error:')), file=stderr)
             print(terminal_safe(str(exception)), file=stderr)
-            tbpath, tboutput = save_traceback(app, exception)
+            traceback_output = format_traceback(app, exception)
+            tbpath = write_temporary_file(traceback_output)
             if not app or app.config.print_traceback:
-                print(tboutput)
+                print(traceback_output)
             print(
                 red(
                     __(
@@ -104,9 +106,10 @@ def handle_exception(
         else:
             print(red(__('Exception occurred:')), file=stderr)
             print(format_exception_cut_frames().rstrip(), file=stderr)
-            tbpath, tboutput = save_traceback(app, exception)
+            traceback_output = format_traceback(app, exception)
+            tbpath = write_temporary_file(traceback_output)
             if not app or app.config.print_traceback:
-                print(tboutput)
+                print(traceback_output)
             print(
                 red(
                     __(
