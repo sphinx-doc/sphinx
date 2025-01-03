@@ -32,6 +32,8 @@ Bugs fixed
 * LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
   (refs: PR #13152).
   Patch by Jean-François B.
+* #13096: HTML Search: check that query terms exist as properties in
+  term indices before accessing them.
 
 Testing
 -------
