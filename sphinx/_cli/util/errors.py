@@ -205,7 +205,10 @@ def handle_exception(
 
     print_red(__('Exception occurred:'))
     print_err(formatted_tb)
-    traceback_info_path = save_traceback(app, exception)
+    traceback_output = format_traceback(app, exception)
+    traceback_info_path = write_temporary_file(traceback_output)
+    if not app or app.config.print_traceback:
+        print_err(traceback_output)
     print_err(__('The full traceback has been saved in:'))
     print_err(traceback_info_path)
     print_err()
