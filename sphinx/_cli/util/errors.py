@@ -51,6 +51,7 @@ def strip_escape_sequences(text: str, /) -> str:
 
 
 def error_info(messages: str, extensions: str, traceback: str) -> str:
+    """Format the traceback and extensions list with environment information."""
     import platform
 
     import docutils
@@ -87,8 +88,8 @@ Traceback
 """
 
 
-def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
-    """Save the given exception's traceback in a temporary file."""
+def format_traceback(app: Sphinx | None, exc: BaseException) -> str:
+    """Format the given exception's traceback with environment information."""
     if isinstance(exc, SphinxParallelError):
         exc_format = '(Error in parallel process)\n' + exc.traceback
     else:
@@ -106,6 +107,12 @@ def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
             if ext.version != 'builtin'
         )
 
+    return error_info(last_msgs, exts_list, exc_format)
+
+
+def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
+    """Save the given exception's traceback in a temporary file."""
+    output = format_traceback(app=app, exc=exc)
     with tempfile.NamedTemporaryFile(
         suffix='.log', prefix='sphinx-err-', delete=False
     ) as f:
