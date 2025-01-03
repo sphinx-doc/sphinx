@@ -18,6 +18,23 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
 
+_DOMAIN_KEYS = {
+    'py': ['module', 'fullname'],
+    'c': ['names'],
+    'cpp': ['names'],
+    'js': ['object', 'fullname'],
+}
+
+
+def add_linkcode_domain(domain: str, keys: list[str], override: bool = False) -> None:
+    """Register a new list of keys to use for a domain.
+
+    .. versionadded:: 8.2
+    """
+    if override or domain not in _DOMAIN_KEYS:
+        _DOMAIN_KEYS[domain] = list(keys)
+
+
 class LinkcodeError(SphinxError):
     category = 'linkcode error'
 
@@ -37,13 +54,6 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
     # ``supported_linkcode`` attribute.
     node_only_expr = getattr(app.builder, 'supported_linkcode', 'html')
 
-    domain_keys = {
-        'py': ['module', 'fullname'],
-        'c': ['names'],
-        'cpp': ['names'],
-        'js': ['object', 'fullname'],
-    }
-
     for objnode in list(doctree.findall(addnodes.desc)):
         domain = objnode.get('domain')
         uris: set[str] = set()
@@ -53,7 +63,7 @@ def doctree_read(app: Sphinx, doctree: Node) -> None:
 
             # Convert signode to a specified format
             info = {}
-            for key in domain_keys.get(domain, []):
+            for key in _DOMAIN_KEYS.get(domain, []):
                 value = signode.get(key)
                 if not value:
                     value = ''

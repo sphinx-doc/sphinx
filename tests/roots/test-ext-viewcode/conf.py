@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from sphinx.ext.linkcode import add_linkcode_domain
+
 sys.path.insert(0, str(Path.cwd().resolve()))
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
@@ -19,5 +21,10 @@ if 'test_linkcode' in tags:  # NoQA: F821 (tags is injected into conf.py)
             return 'https://foobar/js/' + info['fullname']
         elif domain in {'c', 'cpp'}:
             return f'https://foobar/{domain}/{"".join(info["names"])}'
+        elif domain == 'rst':
+            return 'http://foobar/rst/{fullname}'.format(**info)
         else:
             raise AssertionError
+
+    def setup(app):
+        add_linkcode_domain('rst', ['fullname'])

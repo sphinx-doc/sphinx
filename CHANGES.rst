@@ -21,6 +21,9 @@ Features added
 * Add a new ``duplicate_declaration`` warning type,
   with ``duplicate_declaration.c`` and ``duplicate_declaration.cpp`` subtypes.
   Patch by Julien Lecomte and Adam Turner.
+* #11824: linkcode: Allow extensions to add support for a domain by defining
+  the keys that should be present.
+  Patch by Nicolas Peugnet.
 
 Bugs fixed
 ----------
