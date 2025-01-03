@@ -254,9 +254,28 @@ def is_classmethod_descriptor(
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name, sentinel)
             if meth is not sentinel:
-                return isinstance(obj, types.ClassMethodDescriptorType)
+                return is_classmethod_descriptor(obj)
     return False
 
+
+def is_native_classmethod(obj: Any, cls: Any = None, name: str | None = None):
+    """Check if the object is a class method implemented in C."""
+    if is_classmethod_descriptor(obj, cls, name):
+        return True
+    if (
+        isbuiltin(obj)
+        and getattr(obj, '__self__', None) is not None
+        and isclass(obj.__self__)
+    ):
+        return True
+    if cls and name:
+        # trace __mro__ if the method is defined in parent class
+        sentinel = object()
+        for basecls in getmro(cls):
+            meth = basecls.__dict__.get(name, sentinel)
+            if meth is not sentinel:
+                return is_native_classmethod(obj)
+    return False
 
 def is_classmethod_like(
     obj: Any, cls: Any = None, name: str | None = None
@@ -264,7 +283,7 @@ def is_classmethod_like(
     """Check if the object behaves like a class method."""
     # Built-in methods are instances of ClassMethodDescriptorType
     # while pure Python class methods are instances of classmethod().
-    return isclassmethod(obj, cls, name) or is_classmethod_descriptor(obj, cls, name)
+    return isclassmethod(obj, cls, name) or is_native_classmethod(obj, cls, name)
 
 
 def isstaticmethod(

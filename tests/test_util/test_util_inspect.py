@@ -703,6 +703,32 @@ def test_isclassmethod():
     assert not inspect.isclassmethod(Inherited.meth)
 
 
+def test_is_classmethod_descriptor():
+    assert inspect.is_classmethod_descriptor(int.__dict__['from_bytes'])
+    assert inspect.is_classmethod_descriptor(bytes.__dict__['fromhex'])
+
+    assert not inspect.is_classmethod_descriptor(int.from_bytes)
+    assert not inspect.is_classmethod_descriptor(bytes.fromhex)
+
+    assert not inspect.is_classmethod_descriptor(int.__init__)
+    assert not inspect.is_classmethod_descriptor(int.bit_count)
+
+    assert not inspect.is_classmethod_descriptor(Base.classmeth)
+    assert not inspect.is_classmethod_descriptor(Inherited.classmeth)
+
+
+def test_is_classmethod_like():
+    assert inspect.is_classmethod_like(Base.classmeth)
+    assert not inspect.is_classmethod_like(Base.meth)
+    assert inspect.is_classmethod_like(Inherited.classmeth)
+    assert not inspect.is_classmethod_like(Inherited.meth)
+
+    assert inspect.is_classmethod_like(int.from_bytes)
+    assert inspect.is_classmethod_like(bytes.fromhex)
+    assert not inspect.is_classmethod_like(int.__init__)
+    assert not inspect.is_classmethod_like(int.bit_count)
+
+
 def test_isstaticmethod():
     assert inspect.isstaticmethod(Base.staticmeth, Base, 'staticmeth')
     assert not inspect.isstaticmethod(Base.meth, Base, 'meth')
