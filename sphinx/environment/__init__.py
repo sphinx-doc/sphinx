@@ -869,7 +869,12 @@ def _check_toc_parents(toctree_includes: dict[str, list[str]]) -> None:
 
 
 class _CurrentDocument:
-    """Temporary data storage while reading a document."""
+    """Temporary data storage while reading a document.
+
+    This class is only for internal use. Please don't use this in your extensions.
+    It will be removed or changed without notice.
+    The only stable API is via ``env.current_document``.
+    """
 
     __slots__ = (
         '_parser',
@@ -932,7 +937,7 @@ class _CurrentDocument:
         default_domain: Domain | None = None,
     ) -> None:
         #: The docname of the document currently being parsed.
-        self.docname = docname
+        self.docname: str = docname
 
         #: The default role for the current document.
         #: Set by the ``.. default-role::`` directive.
