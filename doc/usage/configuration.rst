@@ -1446,6 +1446,9 @@ Options for warning control
    .. versionadded:: 8.0
       Added ``misc.copy_overwrite``.
 
+   .. versionadded:: 8.2
+      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
+
 
 Builder options
 ===============
