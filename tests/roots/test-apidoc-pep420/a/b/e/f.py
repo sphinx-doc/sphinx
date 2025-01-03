@@ -1,1 +1,1 @@
-"Module f"
+"""Module f"""

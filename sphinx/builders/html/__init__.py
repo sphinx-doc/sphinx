@@ -5,12 +5,12 @@ from __future__ import annotations
 import contextlib
 import html
 import os
+import os.path
 import posixpath
 import re
 import shutil
 import sys
 import warnings
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
@@ -20,7 +20,6 @@ from docutils import nodes
 from docutils.core import Publisher
 from docutils.frontend import OptionParser
 from docutils.io import DocTreeInput, StringOutput
-from docutils.utils import relative_path
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
@@ -56,6 +55,7 @@ from sphinx.util.matching import DOTFILES, Matcher, patmatch
 from sphinx.util.osutil import (
     SEP,
     _last_modified_time,
+    _relative_path,
     copyfile,
     ensuredir,
     relative_uri,
@@ -496,19 +496,24 @@ class StandaloneHTMLBuilder(Builder):
         favicon = self.config.html_favicon or ''
 
         if not is_url(logo):
-            logo = path.basename(logo)
+            logo = os.path.basename(logo)
         if not is_url(favicon):
-            favicon = path.basename(favicon)
+            favicon = os.path.basename(favicon)
 
         self.relations = self.env.collect_relations()
 
         rellinks: list[tuple[str, str, str, str]] = []
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for indexname, indexcls, _content, _collapse in self.domain_indices:
+        for index_name, index_cls, _content, _collapse in self.domain_indices:
             # if it has a short name
-            if indexcls.shortname:
-                rellinks.append((indexname, indexcls.localname, '', indexcls.shortname))
+            if index_cls.shortname:
+                rellinks.append((
+                    index_name,
+                    index_cls.localname,
+                    '',
+                    index_cls.shortname,
+                ))
 
         # add assets registered after ``Builder.init()``.
         for css_filename, attrs in self.app.registry.css_files:
@@ -755,14 +760,14 @@ class StandaloneHTMLBuilder(Builder):
             self.handle_page('genindex', genindexcontext, 'genindex.html')
 
     def write_domain_indices(self) -> None:
-        for indexname, indexcls, content, collapse in self.domain_indices:
-            indexcontext = {
-                'indextitle': indexcls.localname,
+        for index_name, index_cls, content, collapse in self.domain_indices:
+            index_context = {
+                'indextitle': index_cls.localname,
                 'content': content,
                 'collapse_index': collapse,
             }
-            logger.info(indexname + ' ', nonl=True)
-            self.handle_page(indexname, indexcontext, 'domainindex.html')
+            logger.info('%s ', index_name, nonl=True)
+            self.handle_page(index_name, index_context, 'domainindex.html')
 
     def copy_image_files(self) -> None:
         if self.images:
@@ -790,7 +795,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_download_files(self) -> None:
         def to_relpath(f: str) -> str:
-            return relative_path(self.srcdir, f)
+            return _relative_path(Path(f), self.srcdir).as_posix()
 
         # copy downloadable files
         if self.env.dlfiles:

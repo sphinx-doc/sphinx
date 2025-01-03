@@ -62,7 +62,7 @@ async def coroutinefunc():
     pass
 
 
-async def asyncgenerator():
+async def asyncgenerator():  # NoQA: RUF029
     yield
 
 
@@ -811,12 +811,12 @@ def test_isproperty():
 def test_isgenericalias():
     #: A list of int
     T = List[int]  # NoQA: UP006
-    S = list[Union[str, None]]  # NoQA: UP006, UP007
+    S = list[Union[str, None]]  # NoQA: UP007
 
-    C = Callable[[int], None]  # a generic alias not having a doccomment
+    C = Callable[[int], None]  # NoQA: UP006  # a generic alias not having a doccomment
 
     assert inspect.isgenericalias(C)
-    assert inspect.isgenericalias(Callable)
+    assert inspect.isgenericalias(Callable)  # NoQA: UP006
     assert inspect.isgenericalias(T)
     assert inspect.isgenericalias(List)  # NoQA: UP006
     assert inspect.isgenericalias(S)
@@ -843,7 +843,7 @@ def test_getdoc_inherited_classmethod():
         @classmethod
         def meth(self):
             """
-            docstring
+            Docstring
                 indented text
             """
 
@@ -861,7 +861,7 @@ def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
             """
-            docstring
+            Docstring
                 indented text
             """
 

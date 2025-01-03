@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from os import path
+import os.path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -40,7 +40,7 @@ class XMLBuilder(Builder):
     out_suffix = '.xml'
     allow_parallel = True
 
-    _writer_class: type[XMLWriter] | type[PseudoXMLWriter] = XMLWriter
+    _writer_class: type[XMLWriter | PseudoXMLWriter] = XMLWriter
     writer: XMLWriter | PseudoXMLWriter
     default_translator_class = XMLTranslator
 
@@ -52,7 +52,7 @@ class XMLBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = path.join(self.outdir, docname + self.out_suffix)
+            targetname = os.path.join(self.outdir, docname + self.out_suffix)
             try:
                 targetmtime = _last_modified_time(targetname)
             except Exception:
@@ -88,8 +88,8 @@ class XMLBuilder(Builder):
                             value[i] = list(val)
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
-        outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
-        ensuredir(path.dirname(outfilename))
+        outfilename = os.path.join(self.outdir, os_path(docname) + self.out_suffix)
+        ensuredir(os.path.dirname(outfilename))
         try:
             with open(outfilename, 'w', encoding='utf-8') as f:
                 f.write(self.writer.output)

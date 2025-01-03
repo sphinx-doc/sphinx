@@ -1,5 +1,7 @@
 """Test various Sphinx-specific markup extensions."""
 
+from __future__ import annotations
+
 import re
 import warnings
 from types import SimpleNamespace
@@ -403,10 +405,7 @@ def get_verifier(verify, verify_re):
             'verify',
             ':kbd:`-`',
             '<p><kbd class="kbd docutils literal notranslate">-</kbd></p>',
-            (
-                '\\sphinxAtStartPar\n'
-                '\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}'
-            ),
+            '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}',
         ),
         (
             # kbd role

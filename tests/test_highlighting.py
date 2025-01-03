@@ -1,5 +1,7 @@
 """Test the Pygments highlighting bridge."""
 
+from __future__ import annotations
+
 from unittest import mock
 
 import pygments
@@ -10,7 +12,7 @@ from pygments.token import Name, Text
 
 from sphinx.highlighting import PygmentsBridge
 
-if tuple(map(int, pygments.__version__.split('.')))[:2] < (2, 18):
+if tuple(map(int, pygments.__version__.split('.')[:2]))[:2] < (2, 18):
     from pygments.formatter import Formatter
 
     Formatter.__class_getitem__ = classmethod(lambda cls, name: cls)  # type: ignore[attr-defined]

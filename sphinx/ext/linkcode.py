@@ -36,7 +36,7 @@ def add_linkcode_domain(domain: str, keys: list[str], override: bool = False) ->
 
 
 class LinkcodeError(SphinxError):
-    category = "linkcode error"
+    category = 'linkcode error'
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:

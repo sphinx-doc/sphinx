@@ -223,11 +223,14 @@ General configuration
 
    Ensure that absolute paths are used when modifying :data:`sys.path`.
    If your custom extensions live in a directory that is relative to the
-   :term:`configuration directory`, use :func:`os.path.abspath` like so:
+   :term:`configuration directory`, use :meth:`pathlib.Path.resolve` like so:
 
    .. code-block:: python
 
-      import os, sys; sys.path.append(os.path.abspath('sphinxext'))
+      import sys
+      from pathlib import Path
+
+      sys.path.append(str(Path('sphinxext').resolve()))
 
       extensions = [
          ...
@@ -1371,6 +1374,8 @@ Options for warning control
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
+   * ``duplicate_declaration.c``
+   * ``duplicate_declaration.cpp``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
@@ -1440,6 +1445,9 @@ Options for warning control
 
    .. versionadded:: 8.0
       Added ``misc.copy_overwrite``.
+
+   .. versionadded:: 8.2
+      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
 
 
 Builder options
@@ -3154,6 +3162,9 @@ These options influence LaTeX output.
    * The default is :code-py:`False` for :code-py:`'pdflatex'`,
      but :code-py:`True` is recommended for non-English documents as soon
      as some indexed terms use non-ASCII characters from the language script.
+     Attempting to index a term whose first character is non-ASCII
+     will break the build, if :confval:`latex_use_xindy` is left to its
+     default :code-py:`False`.
 
    Sphinx adds some dedicated support to the :program:`xindy` base distribution
    for using :code-py:`'pdflatex'` engine with Cyrillic scripts.

@@ -1,5 +1,7 @@
 """Test all builders."""
 
+from __future__ import annotations
+
 import os
 import shutil
 from contextlib import contextmanager

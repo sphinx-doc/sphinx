@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import html
-from os import path
+import os.path
 from typing import TYPE_CHECKING
 
 from sphinx import package_dir
@@ -61,10 +61,7 @@ class ChangesBuilder(Builder):
             return
         logger.info(bold(__('writing summary file...')))
         for changeset in changesets:
-            if isinstance(changeset.descname, tuple):
-                descname = changeset.descname[0]
-            else:
-                descname = changeset.descname
+            descname = changeset.descname
             ttext = self.typemap[changeset.type]
             context = changeset.content.replace('\n', ' ')
             if descname and changeset.docname.startswith('c-api'):
@@ -108,9 +105,9 @@ class ChangesBuilder(Builder):
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
-        with open(path.join(self.outdir, 'index.html'), 'w', encoding='utf8') as f:
+        with open(os.path.join(self.outdir, 'index.html'), 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/frameset.html', ctx))
-        with open(path.join(self.outdir, 'changes.html'), 'w', encoding='utf8') as f:
+        with open(os.path.join(self.outdir, 'changes.html'), 'w', encoding='utf8') as f:
             f.write(self.templates.render('changes/versionchanges.html', ctx))
 
         hltext = [
@@ -140,8 +137,8 @@ class ChangesBuilder(Builder):
                         __('could not read %r for changelog creation'), docname
                     )
                     continue
-            targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
-            ensuredir(path.dirname(targetfn))
+            targetfn = os.path.join(self.outdir, 'rst', os_path(docname)) + '.html'
+            ensuredir(os.path.dirname(targetfn))
             with open(targetfn, 'w', encoding='utf-8') as f:
                 text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
@@ -153,14 +150,16 @@ class ChangesBuilder(Builder):
             'theme_' + key: val for (key, val) in self.theme.get_options({}).items()
         }
         copy_asset_file(
-            path.join(package_dir, 'themes', 'default', 'static', 'default.css.jinja'),
+            os.path.join(
+                package_dir, 'themes', 'default', 'static', 'default.css.jinja'
+            ),
             self.outdir,
             context=themectx,
             renderer=self.templates,
             force=True,
         )
         copy_asset_file(
-            path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+            os.path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
             self.outdir / 'basic.css',
             force=True,
         )

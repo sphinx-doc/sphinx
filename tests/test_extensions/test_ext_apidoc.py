@@ -1,13 +1,19 @@
 """Test the sphinx.apidoc module."""
 
-import os.path
+from __future__ import annotations
+
 from collections import namedtuple
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 import sphinx.ext.apidoc
 from sphinx.ext.apidoc import main as apidoc_main
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+_apidoc = namedtuple('_apidoc', 'coderoot,outdir')  # NoQA: PYI024
 
 
 @pytest.fixture
@@ -25,7 +31,7 @@ def apidoc(rootdir, tmp_path, apidoc_params):
         *kwargs.get('options', []),
     ]
     apidoc_main(args)
-    return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)
+    return _apidoc(coderoot, outdir)
 
 
 @pytest.fixture
@@ -373,9 +379,9 @@ def test_toc_all_references_should_exist_pep420_enabled(apidoc):
             missing_files.append(filename)
 
     all_missing = ', '.join(missing_files)
-    assert (
-        len(missing_files) == 0
-    ), f'File(s) referenced in TOC not found: {all_missing}\nTOC:\n{toc}'
+    assert len(missing_files) == 0, (
+        f'File(s) referenced in TOC not found: {all_missing}\nTOC:\n{toc}'
+    )
 
 
 @pytest.mark.apidoc(
@@ -404,9 +410,9 @@ def test_toc_all_references_should_exist_pep420_disabled(apidoc):
             missing_files.append(filename)
 
     all_missing = ', '.join(missing_files)
-    assert (
-        len(missing_files) == 0
-    ), f'File(s) referenced in TOC not found: {all_missing}\nTOC:\n{toc}'
+    assert len(missing_files) == 0, (
+        f'File(s) referenced in TOC not found: {all_missing}\nTOC:\n{toc}'
+    )
 
 
 def extract_toc(path):
@@ -732,7 +738,7 @@ def test_no_duplicates(rootdir, tmp_path):
         apidoc_main(['-o', str(outdir), '-T', str(package), '--implicit-namespaces'])
 
         # Ensure the module has been documented
-        assert os.path.isfile(outdir / 'fish_licence.rst')
+        assert (outdir / 'fish_licence.rst').is_file()
 
         # Ensure the submodule only appears once
         text = (outdir / 'fish_licence.rst').read_text(encoding='utf-8')

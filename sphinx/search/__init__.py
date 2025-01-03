@@ -10,19 +10,23 @@ import os
 import pickle
 import re
 from importlib import import_module
-from os import path
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any
 
 from docutils import nodes
 from docutils.nodes import Element, Node
 
 from sphinx import addnodes, package_dir
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
     from sphinx.environment import BuildEnvironment
+
+_NON_MINIFIED_JS_PATH = Path(package_dir, 'search', 'non-minified-js')
+_MINIFIED_JS_PATH = Path(package_dir, 'search', 'minified-js')
 
 
 class SearchLanguage:
@@ -164,7 +168,8 @@ class _JavaScriptIndex:
     SUFFIX = ')'
 
     def dumps(self, data: Any) -> str:
-        return self.PREFIX + json.dumps(data, sort_keys=True) + self.SUFFIX
+        data_json = json.dumps(data, separators=(',', ':'), sort_keys=True)
+        return self.PREFIX + data_json + self.SUFFIX
 
     def loads(self, s: str) -> Any:
         data = s[len(self.PREFIX) : -len(self.SUFFIX)]
@@ -553,12 +558,12 @@ class IndexBuilder:
             'search_word_splitter_code': js_splitter_code,
         }
 
-    def get_js_stemmer_rawcodes(self) -> list[str]:
+    def get_js_stemmer_rawcodes(self) -> list[_StrPath]:
         """Returns a list of non-minified stemmer JS files to copy."""
         if self.lang.js_stemmer_rawcode:
             return [
-                path.join(package_dir, 'search', 'non-minified-js', fname)
-                for fname in ('base-stemmer.js', self.lang.js_stemmer_rawcode)
+                _StrPath(_NON_MINIFIED_JS_PATH / 'base-stemmer.js'),
+                _StrPath(_NON_MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode),
             ]
         else:
             return []
@@ -569,15 +574,10 @@ class IndexBuilder:
     def get_js_stemmer_code(self) -> str:
         """Returns JS code that will be inserted into language_data.js."""
         if self.lang.js_stemmer_rawcode:
-            js_dir = path.join(package_dir, 'search', 'minified-js')
-            with open(
-                path.join(js_dir, 'base-stemmer.js'), encoding='utf-8'
-            ) as js_file:
-                base_js = js_file.read()
-            with open(
-                path.join(js_dir, self.lang.js_stemmer_rawcode), encoding='utf-8'
-            ) as js_file:
-                language_js = js_file.read()
+            base_js_path = _NON_MINIFIED_JS_PATH / 'base-stemmer.js'
+            language_js_path = _NON_MINIFIED_JS_PATH / self.lang.js_stemmer_rawcode
+            base_js = base_js_path.read_text(encoding='utf-8')
+            language_js = language_js_path.read_text(encoding='utf-8')
             return (
                 f'{base_js}\n{language_js}\nStemmer = {self.lang.language_name}Stemmer;'
             )

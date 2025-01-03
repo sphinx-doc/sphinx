@@ -315,7 +315,7 @@ def _toctree_entry(
         else:
             if ref in parents:
                 logger.warning(
-                    __('circular toctree references ' 'detected, ignoring: %s <- %s'),
+                    __('circular toctree references detected, ignoring: %s <- %s'),
                     ref,
                     ' <- '.join(parents),
                     location=ref,

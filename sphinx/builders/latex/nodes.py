@@ -1,5 +1,7 @@
 """Additional nodes for LaTeX writer."""
 
+from __future__ import annotations
+
 from docutils import nodes
 
 

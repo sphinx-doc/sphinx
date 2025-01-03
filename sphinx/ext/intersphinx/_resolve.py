@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import posixpath
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.utils import relative_path
 
 from sphinx.addnodes import pending_xref
 from sphinx.deprecation import _deprecation_warning
@@ -16,6 +15,7 @@ from sphinx.ext.intersphinx._shared import LOGGER, InventoryAdapter
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
+from sphinx.util.osutil import _relative_path
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -42,7 +42,7 @@ def _create_element_from_result(
     proj, version, uri, dispname = data
     if '://' not in uri and node.get('refdoc'):
         # get correct path in case of subdirectories
-        uri = posixpath.join(relative_path(node['refdoc'], '.'), uri)
+        uri = (_relative_path(Path(), Path(node['refdoc']).parent) / uri).as_posix()
     if version:
         reftitle = _('(in %s v%s)') % (proj, version)
     else:
@@ -516,9 +516,9 @@ class IntersphinxRole(SphinxRole):
             return None
 
         if domain and self.is_existent_role(domain, role):
-            return (domain, role)
+            return domain, role
         elif self.is_existent_role('std', role):
-            return ('std', role)
+            return 'std', role
         else:
             return None
 
@@ -569,7 +569,7 @@ class IntersphinxRoleResolver(ReferencesResolver):
         for node in self.document.findall(pending_xref):
             if 'intersphinx' not in node:
                 continue
-            contnode = cast(nodes.TextElement, node[0].deepcopy())
+            contnode = cast('nodes.TextElement', node[0].deepcopy())
             inv_name = node['inventory']
             if inv_name is not None:
                 assert inventory_exists(self.env, inv_name)

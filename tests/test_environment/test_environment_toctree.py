@@ -1,5 +1,7 @@
 """Test the sphinx.environment.adapters.toctree."""
 
+from __future__ import annotations
+
 import pytest
 from docutils import nodes
 from docutils.nodes import bullet_list, list_item, literal, reference, title

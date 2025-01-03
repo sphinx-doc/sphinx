@@ -3,12 +3,13 @@
 Runs the text builder in the test root.
 """
 
+from __future__ import annotations
+
 import os
-import os.path
 import re
 import shutil
 import time
-from io import StringIO
+from typing import TYPE_CHECKING
 
 import pytest
 from babel.messages import mofile, pofile
@@ -19,6 +20,9 @@ from sphinx import locale
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.console import strip_colors
 from sphinx.util.nodes import NodeMatcher
+
+if TYPE_CHECKING:
+    from io import StringIO
 
 _CATALOG_LOCALE = 'xx'
 
@@ -101,9 +105,9 @@ def test_text_emit_warnings(app):
         '.*/warnings.txt:4:<translated>:1: '
         'WARNING: Inline literal start-string without end-string. \\[docutils\\]\n'
     )
-    assert re.search(
-        warning_expr, warnings
-    ), f'{warning_expr!r} did not match {warnings!r}'
+    assert re.search(warning_expr, warnings), (
+        f'{warning_expr!r} did not match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -197,21 +201,21 @@ def test_text_inconsistency_warnings(app):
             'translated': "\\['`I18N WITH REFS INCONSISTENCY`_'\\]",
         }
     )
-    assert re.search(
-        expected_warning_expr, warnings
-    ), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), (
+        f'{expected_warning_expr!r} did not match {warnings!r}'
+    )
 
     expected_citation_ref_warning_expr = '.*/refs_inconsistency.txt:\\d+: WARNING: Citation \\[ref2\\] is not referenced.'
-    assert re.search(
-        expected_citation_ref_warning_expr, warnings
-    ), f'{expected_citation_ref_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_citation_ref_warning_expr, warnings), (
+        f'{expected_citation_ref_warning_expr!r} did not match {warnings!r}'
+    )
 
     expected_citation_warning_expr = (
         '.*/refs_inconsistency.txt:\\d+: WARNING: citation not found: ref3'
     )
-    assert re.search(
-        expected_citation_warning_expr, warnings
-    ), f'{expected_citation_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_citation_warning_expr, warnings), (
+        f'{expected_citation_warning_expr!r} did not match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -262,9 +266,9 @@ def test_text_literalblock_warnings(app):
     expected_warning_expr = (
         '.*/literalblock.txt:\\d+: WARNING: Literal block expected; none found.'
     )
-    assert re.search(
-        expected_warning_expr, warnings
-    ), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), (
+        f'{expected_warning_expr!r} did not match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -348,16 +352,16 @@ def test_text_glossary_term_inconsistencies(app):
         " original: \\[':term:`Some term`', ':term:`Some other term`'\\],"
         " translated: \\[':term:`SOME NEW TERM`'\\] \\[i18n.inconsistent_references\\]\n"
     )
-    assert re.search(
-        expected_warning_expr, warnings
-    ), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), (
+        f'{expected_warning_expr!r} did not match {warnings!r}'
+    )
     expected_warning_expr = (
         '.*/glossary_terms_inconsistency.txt:\\d+:<translated>:1: '
         "WARNING: term not in glossary: 'TERM NOT IN GLOSSARY'"
     )
-    assert re.search(
-        expected_warning_expr, warnings
-    ), f'{expected_warning_expr!r} did not match {warnings!r}'
+    assert re.search(expected_warning_expr, warnings), (
+        f'{expected_warning_expr!r} did not match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -1052,9 +1056,9 @@ def test_html_index_entries(app):
         wrap_nest('li', 'ul', 'SEE'),
     ]
     for expr in expected_exprs:
-        assert re.search(
-            expr, result, re.MULTILINE
-        ), f'{expr!r} did not match {result!r}'
+        assert re.search(expr, result, re.MULTILINE), (
+            f'{expr!r} did not match {result!r}'
+        )
 
 
 @sphinx_intl
@@ -1186,9 +1190,9 @@ def test_xml_footnotes(app):
 
     warnings = getwarning(app.warning)
     warning_expr = '.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
-    assert not re.search(
-        warning_expr, warnings
-    ), f'{warning_expr!r} did match {warnings!r}'
+    assert not re.search(warning_expr, warnings), (
+        f'{warning_expr!r} did match {warnings!r}'
+    )
 
 
 @sphinx_intl
@@ -1570,7 +1574,7 @@ def test_additional_targets_should_be_translated(app):
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
 
-    # basic literal bloc should be translated
+    # basic literal block should be translated
     expected_expr = (
         '<span class="n">THIS</span> <span class="n">IS</span>\n'
         '<span class="n">LITERAL</span> <span class="n">BLOCK</span>'

@@ -1,9 +1,15 @@
 """Test the ``UnreferencedFootnotesDetector`` transform."""
 
-from pathlib import Path
+from __future__ import annotations
 
-from sphinx.testing.util import SphinxTestApp
+from typing import TYPE_CHECKING
+
 from sphinx.util.console import strip_colors
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from sphinx.testing.util import SphinxTestApp
 
 
 def test_warnings(make_app: type[SphinxTestApp], tmp_path: Path) -> None:

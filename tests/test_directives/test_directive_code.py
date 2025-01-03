@@ -1,6 +1,6 @@
 """Test the code-block directive."""
 
-import os.path
+from __future__ import annotations
 
 import pytest
 from docutils import nodes
@@ -257,12 +257,13 @@ def test_LiteralIncludeReader_tabwidth_dedent(testroot):
 
 
 def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
-    options = {'diff': testroot / 'literal-diff.inc'}
+    literal_diff_path = testroot / 'literal-diff.inc'
+    options = {'diff': literal_diff_path}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == (
-        '--- ' + os.path.join(testroot, 'literal-diff.inc') + '\n'
-        '+++ ' + os.path.join(testroot, 'literal.inc') + '\n'
+        f'--- {literal_diff_path}\n'
+        f'+++ {literal_inc_path}\n'
         '@@ -6,8 +6,8 @@\n'
         '     pass\n'
         ' \n'
@@ -357,7 +358,7 @@ def test_code_block_emphasize_latex(app):
         .read_text(encoding='utf8')
         .replace('\r\n', '\n')
     )
-    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
+    includes = '\\fvset{hllines={, 6, 7, 16, 17, 18, 19, 29, 30, 31,}}%\n'
     assert includes in latex
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
@@ -537,12 +538,7 @@ def test_literalinclude_pydecorators(app):
     assert actual == expect
 
     actual = literal_include[2].text
-    expect = (
-        '@function_decorator\n'
-        '@other_decorator()\n'
-        'def the_function():\n'
-        '    pass\n'
-    )
+    expect = '@function_decorator\n@other_decorator()\ndef the_function():\n    pass\n'
     assert actual == expect
 
 

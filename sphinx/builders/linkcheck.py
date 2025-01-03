@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os.path
 import re
 import socket
 import time
 from enum import StrEnum
 from html.parser import HTMLParser
-from os import path
 from queue import PriorityQueue, Queue
 from threading import Thread
 from typing import TYPE_CHECKING, NamedTuple, cast
@@ -45,7 +45,6 @@ if TYPE_CHECKING:
 class _Status(StrEnum):
     BROKEN = 'broken'
     IGNORED = 'ignored'
-    LOCAL = 'local'
     RATE_LIMITED = 'rate-limited'
     REDIRECTED = 'redirected'
     TIMEOUT = 'timeout'
@@ -86,8 +85,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
         checker = HyperlinkAvailabilityChecker(self.config)
         logger.info('')
 
-        output_text = path.join(self.outdir, 'output.txt')
-        output_json = path.join(self.outdir, 'output.json')
+        output_text = os.path.join(self.outdir, 'output.txt')
+        output_json = os.path.join(self.outdir, 'output.json')
         with (
             open(output_text, 'w', encoding='utf-8') as self.txt_outfile,
             open(output_json, 'w', encoding='utf-8') as self.json_outfile,
@@ -124,15 +123,6 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 else:
                     msg = result.uri
                 logger.info(darkgray('-ignored- ') + msg)
-            case _Status.LOCAL:
-                logger.info(darkgray('-local-   ') + result.uri)
-                self.write_entry(
-                    _Status.LOCAL,
-                    result.docname,
-                    filename,
-                    result.lineno,
-                    result.uri,
-                )
             case _Status.WORKING:
                 logger.info(darkgreen('ok        ') + f'{result.uri}{result.message}')
             case _Status.TIMEOUT:
@@ -261,7 +251,7 @@ class HyperlinkCollector(SphinxPostTransform):
         :param uri: URI to add
         :param node: A node class where the URI was found
         """
-        builder = cast(CheckExternalLinksBuilder, self.app.builder)
+        builder = cast('CheckExternalLinksBuilder', self.app.builder)
         hyperlinks = builder.hyperlinks
         docname = self.env.docname
 
@@ -460,8 +450,8 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Non-supported URI schemes (ex. ftp)
                 return _Status.UNCHECKED, '', 0
 
-            src_dir = path.dirname(hyperlink.docpath)
-            if path.exists(path.join(src_dir, uri)):
+            src_dir = os.path.dirname(hyperlink.docpath)
+            if os.path.exists(os.path.join(src_dir, uri)):
                 return _Status.WORKING, '', 0
             return _Status.BROKEN, '', 0
 
@@ -555,7 +545,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 status_code = response.status_code
                 redirect_status_code = (
                     response.history[-1].status_code if response.history else None
-                )  # NoQA: E501
+                )
                 retry_after = response.headers.get('Retry-After', '')
                 response_url = f'{response.url}'
                 response.raise_for_status()
