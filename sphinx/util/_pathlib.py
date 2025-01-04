@@ -143,10 +143,10 @@ class _StrPathProperty:
         self.instance_attr = f'_{name}'  # i.e. '_srcdir'
 
     @overload
-    def __get__(self, obj: None, objtype: None) -> _StrPathProperty: ...  # NoQA: E704
+    def __get__(self, obj: None, objtype: None) -> _StrPathProperty: ...
 
     @overload
-    def __get__(self, obj: object, objtype: type[object]) -> _StrPath: ...  # NoQA: E704
+    def __get__(self, obj: object, objtype: type[object]) -> _StrPath: ...
 
     def __get__(
         self, obj: object | None, objtype: type[object] | None = None

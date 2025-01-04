@@ -7,14 +7,11 @@ import os
 import time
 from pathlib import Path
 
-import babel
 import pytest
 from babel.messages.mofile import read_mo
 
 from sphinx.errors import SphinxError
 from sphinx.util import i18n
-
-BABEL_VERSION = tuple(map(int, babel.__version__.split('.')))
 
 
 def test_catalog_info_for_file_and_path():
@@ -119,7 +116,7 @@ def test_format_date_timezone():
 @pytest.mark.sphinx('html', testroot='root')
 def test_get_filename_for_language(app):
     get_filename = i18n.get_image_filename_for_language
-    app.env.temp_data['docname'] = 'index'
+    app.env.current_document.docname = 'index'
 
     # language is en
     app.env.config.language = 'en'
@@ -158,7 +155,7 @@ def test_get_filename_for_language(app):
     assert get_filename('foo.png', app.env) == '/en/foo.png'
 
     # docpath (for a document in the sub directory)
-    app.env.temp_data['docname'] = 'subdir/index'
+    app.env.current_document.docname = 'subdir/index'
     assert get_filename('foo.png', app.env) == '/subdir/en/foo.png'
 
 

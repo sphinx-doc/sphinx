@@ -99,13 +99,14 @@ class CheckExternalLinksBuilder(DummyBuilder):
 
     def process_result(self, result: CheckResult) -> None:
         filename = self.env.doc2path(result.docname, False)
+        res_uri = result.uri
 
         linkstat: dict[str, str | int | _Status] = {
             'filename': str(filename),
             'lineno': result.lineno,
             'status': result.status,
             'code': result.code,
-            'uri': result.uri,
+            'uri': res_uri,
             'info': result.message,
         }
         self.write_linkstat(linkstat)
@@ -119,71 +120,75 @@ class CheckExternalLinksBuilder(DummyBuilder):
                 pass
             case _Status.IGNORED:
                 if result.message:
-                    msg = f'{result.uri}: {result.message}'
+                    msg = f'{res_uri}: {result.message}'
                 else:
-                    msg = result.uri
+                    msg = res_uri
                 logger.info(darkgray('-ignored- ') + msg)
             case _Status.WORKING:
-                logger.info(darkgreen('ok        ') + f'{result.uri}{result.message}')
+                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')
             case _Status.TIMEOUT:
                 if self.app.quiet:
-                    msg = 'timeout   ' + f'{result.uri}{result.message}'
+                    msg = 'timeout   ' + f'{res_uri}{result.message}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
-                    msg = red('timeout   ') + result.uri + red(f' - {result.message}')
+                    msg = red('timeout   ') + res_uri + red(f' - {result.message}')
                     logger.info(msg)
                 self.write_entry(
                     _Status.TIMEOUT,
                     result.docname,
                     filename,
                     result.lineno,
-                    f'{result.uri}: {result.message}',
+                    f'{res_uri}: {result.message}',
                 )
                 self.timed_out_hyperlinks += 1
             case _Status.BROKEN:
                 if self.app.quiet:
                     logger.warning(
                         __('broken link: %s (%s)'),
-                        result.uri,
+                        res_uri,
                         result.message,
                         location=(result.docname, result.lineno),
                     )
                 else:
-                    msg = red('broken    ') + result.uri + red(f' - {result.message}')
+                    msg = red('broken    ') + res_uri + red(f' - {result.message}')
                     logger.info(msg)
                 self.write_entry(
                     _Status.BROKEN,
                     result.docname,
                     filename,
                     result.lineno,
-                    f'{result.uri}: {result.message}',
+                    f'{res_uri}: {result.message}',
                 )
                 self.broken_hyperlinks += 1
             case _Status.REDIRECTED:
-                try:
-                    text, color = {
-                        301: ('permanently', purple),
-                        302: ('with Found', purple),
-                        303: ('with See Other', purple),
-                        307: ('temporarily', turquoise),
-                        308: ('permanently', purple),
-                    }[result.code]
-                except KeyError:
-                    text, color = ('with unknown code', purple)
+                match result.code:
+                    case 301:
+                        text = 'permanently'
+                    case 302:
+                        text = 'with Found'
+                    case 303:
+                        text = 'with See Other'
+                    case 307:
+                        text = 'temporarily'
+                    case 308:
+                        text = 'permanently'
+                    case _:
+                        text = 'with unknown code'
                 linkstat['text'] = text
                 redirection = f'{text} to {result.message}'
                 if self.config.linkcheck_allowed_redirects:
-                    msg = f'redirect  {result.uri} - {redirection}'
+                    msg = f'redirect  {res_uri} - {redirection}'
                     logger.warning(msg, location=(result.docname, result.lineno))
                 else:
-                    msg = color('redirect  ') + result.uri + color(' - ' + redirection)
+                    colour = turquoise if result.code == 307 else purple
+                    msg = colour('redirect  ') + res_uri + colour(f' - {redirection}')
                     logger.info(msg)
                 self.write_entry(
                     f'redirected {text}',
                     result.docname,
                     filename,
                     result.lineno,
-                    f'{result.uri} to {result.message}',
+                    f'{res_uri} to {result.message}',
                 )
             case _Status.UNKNOWN:
                 msg = 'Unknown status.'
@@ -545,7 +550,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 status_code = response.status_code
                 redirect_status_code = (
                     response.history[-1].status_code if response.history else None
-                )  # NoQA: E501
+                )
                 retry_after = response.headers.get('Retry-After', '')
                 response_url = f'{response.url}'
                 response.raise_for_status()

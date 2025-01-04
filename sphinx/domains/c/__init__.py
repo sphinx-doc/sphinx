@@ -101,7 +101,7 @@ logger = logging.getLogger(__name__)
 
 
 def _make_phony_error_name() -> ASTNestedName:
-    return ASTNestedName([ASTIdentifier("PhonyNameDueToError")], rooted=False)
+    return ASTNestedName([ASTIdentifier('PhonyNameDueToError')], rooted=False)
 
 
 class CObject(ObjectDescription[ASTDeclaration]):
@@ -125,38 +125,44 @@ class CObject(ObjectDescription[ASTDeclaration]):
         symbol = ast.symbol
         assert symbol
         assert symbol.ident is not None
-        parentSymbol = symbol.parent
-        assert parentSymbol
-        if parentSymbol.parent is None:
+        parent_symbol = symbol.parent
+        assert parent_symbol
+        if parent_symbol.parent is None:
             # TODO: we could warn, but it is somewhat equivalent to
             # enumeratorss, without the enum
             return  # no parent
-        parentDecl = parentSymbol.declaration
-        if parentDecl is None:
+        parent_decl = parent_symbol.declaration
+        if parent_decl is None:
             # the parent is not explicitly declared
             # TODO: we could warn, but?
             return
-        if parentDecl.objectType != 'enum':
+        if parent_decl.objectType != 'enum':
             # TODO: maybe issue a warning, enumerators in non-enums is weird,
             # but it is somewhat equivalent to enumeratorss, without the enum
             return
-        if parentDecl.directiveType != 'enum':
+        if parent_decl.directiveType != 'enum':
             return
 
-        targetSymbol = parentSymbol.parent
-        s = targetSymbol.find_identifier(symbol.ident, matchSelf=False, recurseInAnon=True,
-                                         searchInSiblings=False)
+        target_symbol = parent_symbol.parent
+        s = target_symbol.find_identifier(
+            symbol.ident, matchSelf=False, recurseInAnon=True, searchInSiblings=False
+        )
         if s is not None:
             # something is already declared with that name
             return
-        declClone = symbol.declaration.clone()
-        declClone.enumeratorScopedSymbol = symbol
-        Symbol(parent=targetSymbol, ident=symbol.ident,
-               declaration=declClone,
-               docname=self.env.docname, line=self.get_source_info()[1])
+        decl_clone = symbol.declaration.clone()
+        decl_clone.enumeratorScopedSymbol = symbol
+        Symbol(
+            parent=target_symbol,
+            ident=symbol.ident,
+            declaration=decl_clone,
+            docname=self.env.docname,
+            line=self.get_source_info()[1],
+        )
 
-    def add_target_and_index(self, ast: ASTDeclaration, sig: str,
-                             signode: TextElement) -> None:
+    def add_target_and_index(
+        self, ast: ASTDeclaration, sig: str, signode: TextElement
+    ) -> None:
         ids = []
         for i in range(1, _max_id + 1):
             try:
@@ -166,14 +172,14 @@ class CObject(ObjectDescription[ASTDeclaration]):
                 assert i < _max_id
         # let's keep the newest first
         ids.reverse()
-        newestId = ids[0]
-        assert newestId  # shouldn't be None
+        newest_id = ids[0]
+        assert newest_id  # shouldn't be None
 
         name = ast.symbol.get_full_nested_name().get_display_string().lstrip('.')
-        if newestId not in self.state.document.ids:
+        if newest_id not in self.state.document.ids:
             # always add the newest id
-            assert newestId
-            signode['ids'].append(newestId)
+            assert newest_id
+            signode['ids'].append(newest_id)
             # only add compatibility ids when there are no conflicts
             for id in ids[1:]:
                 if not id:  # is None when the element didn't exist in that version
@@ -184,8 +190,14 @@ class CObject(ObjectDescription[ASTDeclaration]):
             self.state.document.note_explicit_target(signode)
 
         if 'no-index-entry' not in self.options:
-            indexText = self.get_index_text(name)
-            self.indexnode['entries'].append(('single', indexText, newestId, '', None))
+            index_text = self.get_index_text(name)
+            self.indexnode['entries'].append((
+                'single',
+                index_text,
+                newest_id,
+                '',
+                None,
+            ))
 
     @property
     def object_type(self) -> str:
@@ -201,29 +213,32 @@ class CObject(ObjectDescription[ASTDeclaration]):
     def parse_definition(self, parser: DefinitionParser) -> ASTDeclaration:
         return parser.parse_declaration(self.object_type, self.objtype)
 
-    def describe_signature(self, signode: TextElement, ast: ASTDeclaration,
-                           options: dict) -> None:
+    def describe_signature(
+        self, signode: TextElement, ast: ASTDeclaration, options: dict
+    ) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def run(self) -> list[Node]:
         env = self.state.document.settings.env  # from ObjectDescription.run
-        if 'c:parent_symbol' not in env.temp_data:
+        if env.current_document.c_parent_symbol is None:
             root = env.domaindata['c']['root_symbol']
-            env.temp_data['c:parent_symbol'] = root
+            env.current_document.c_parent_symbol = root
             env.ref_context['c:parent_key'] = root.get_lookup_key()
 
         # When multiple declarations are made in the same directive
         # they need to know about each other to provide symbol lookup for function parameters.
         # We use last_symbol to store the latest added declaration in a directive.
-        env.temp_data['c:last_symbol'] = None
+        env.current_document.c_last_symbol = None
         return super().run()
 
     def handle_signature(self, sig: str, signode: TextElement) -> ASTDeclaration:
-        parentSymbol: Symbol = self.env.temp_data['c:parent_symbol']
+        parent_symbol: Symbol = self.env.current_document.c_parent_symbol
 
-        max_len = (self.env.config.c_maximum_signature_line_length
-                   or self.env.config.maximum_signature_line_length
-                   or 0)
+        max_len = (
+            self.env.config.c_maximum_signature_line_length
+            or self.env.config.maximum_signature_line_length
+            or 0
+        )
         signode['multi_line_parameter_list'] = (
             'single-line-parameter-list' not in self.options
             and (len(sig) > max_len > 0)
@@ -238,27 +253,30 @@ class CObject(ObjectDescription[ASTDeclaration]):
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()
-            symbol = parentSymbol.add_name(name)
-            self.env.temp_data['c:last_symbol'] = symbol
+            symbol = parent_symbol.add_name(name)
+            self.env.current_document.c_last_symbol = symbol
             raise ValueError from e
 
         try:
-            symbol = parentSymbol.add_declaration(
-                ast, docname=self.env.docname, line=self.get_source_info()[1])
+            symbol = parent_symbol.add_declaration(
+                ast, docname=self.env.docname, line=self.get_source_info()[1]
+            )
             # append the new declaration to the sibling list
             assert symbol.siblingAbove is None
             assert symbol.siblingBelow is None
-            symbol.siblingAbove = self.env.temp_data['c:last_symbol']
+            symbol.siblingAbove = self.env.current_document.c_last_symbol
             if symbol.siblingAbove is not None:
                 assert symbol.siblingAbove.siblingBelow is None
                 symbol.siblingAbove.siblingBelow = symbol
-            self.env.temp_data['c:last_symbol'] = symbol
+            self.env.current_document.c_last_symbol = symbol
         except _DuplicateSymbolError as e:
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
-            self.env.temp_data['c:last_symbol'] = e.symbol
-            msg = __("Duplicate C declaration, also defined at %s:%s.\n"
-                     "Declaration is '.. c:%s:: %s'.")
+            self.env.current_document.c_last_symbol = e.symbol
+            msg = __(
+                'Duplicate C declaration, also defined at %s:%s.\n'
+                "Declaration is '.. c:%s:: %s'."
+            )
             logger.warning(
                 msg,
                 e.symbol.docname,
@@ -266,6 +284,8 @@ class CObject(ObjectDescription[ASTDeclaration]):
                 self.display_object_type,
                 sig,
                 location=signode,
+                type='duplicate_declaration',
+                subtype='c',
             )
 
         if ast.objectType == 'enumerator':
@@ -278,15 +298,15 @@ class CObject(ObjectDescription[ASTDeclaration]):
         return ast
 
     def before_content(self) -> None:
-        lastSymbol: Symbol = self.env.temp_data['c:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.temp_data['c:parent_symbol']
+        last_symbol: Symbol = self.env.current_document.c_last_symbol
+        assert last_symbol
+        self.oldParentSymbol = self.env.current_document.c_parent_symbol
         self.oldParentKey: LookupKey = self.env.ref_context['c:parent_key']
-        self.env.temp_data['c:parent_symbol'] = lastSymbol
-        self.env.ref_context['c:parent_key'] = lastSymbol.get_lookup_key()
+        self.env.current_document.c_parent_symbol = last_symbol
+        self.env.ref_context['c:parent_key'] = last_symbol.get_lookup_key()
 
     def after_content(self) -> None:
-        self.env.temp_data['c:parent_symbol'] = self.oldParentSymbol
+        self.env.current_document.c_parent_symbol = self.oldParentSymbol
         self.env.ref_context['c:parent_key'] = self.oldParentKey
 
 
@@ -301,16 +321,31 @@ class CMemberObject(CObject):
 
 
 _function_doc_field_types = [
-    TypedField('parameter', label=_('Parameters'),
-               names=('param', 'parameter', 'arg', 'argument'),
-               typerolename='expr', typenames=('type',)),
-    GroupedField('retval', label=_('Return values'),
-                 names=('retvals', 'retval'),
-                 can_collapse=True),
-    Field('returnvalue', label=_('Returns'), has_arg=False,
-          names=('returns', 'return')),
-    Field('returntype', label=_('Return type'), has_arg=False,
-          names=('rtype',)),
+    TypedField(
+        'parameter',
+        label=_('Parameters'),
+        names=('param', 'parameter', 'arg', 'argument'),
+        typerolename='expr',
+        typenames=('type',),
+    ),
+    GroupedField(
+        'retval',
+        label=_('Return values'),
+        names=('retvals', 'retval'),
+        can_collapse=True,
+    ),
+    Field(
+        'returnvalue',
+        label=_('Returns'),
+        has_arg=False,
+        names=('returns', 'return'),
+    ),
+    Field(
+        'returntype',
+        label=_('Return type'),
+        has_arg=False,
+        names=('rtype',),
+    ),
 ]
 
 
@@ -359,24 +394,24 @@ class CNamespaceObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        rootSymbol = self.env.domaindata['c']['root_symbol']
+        root_symbol = self.env.domaindata['c']['root_symbol']
         if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
-            symbol = rootSymbol
+            symbol = root_symbol
             stack: list[Symbol] = []
         else:
-            parser = DefinitionParser(self.arguments[0],
-                                      location=self.get_location(),
-                                      config=self.env.config)
+            parser = DefinitionParser(
+                self.arguments[0], location=self.get_location(), config=self.env.config
+            )
             try:
                 name = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
                 logger.warning(e, location=self.get_location())
                 name = _make_phony_error_name()
-            symbol = rootSymbol.add_name(name)
+            symbol = root_symbol.add_name(name)
             stack = [symbol]
-        self.env.temp_data['c:parent_symbol'] = symbol
-        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.current_document.c_parent_symbol = symbol
+        self.env.current_document.c_namespace_stack = stack
         self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -391,23 +426,21 @@ class CNamespacePushObject(SphinxDirective):
     def run(self) -> list[Node]:
         if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             return []
-        parser = DefinitionParser(self.arguments[0],
-                                  location=self.get_location(),
-                                  config=self.env.config)
+        parser = DefinitionParser(
+            self.arguments[0], location=self.get_location(), config=self.env.config
+        )
         try:
             name = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
             logger.warning(e, location=self.get_location())
             name = _make_phony_error_name()
-        oldParent = self.env.temp_data.get('c:parent_symbol', None)
-        if not oldParent:
-            oldParent = self.env.domaindata['c']['root_symbol']
-        symbol = oldParent.add_name(name)
-        stack = self.env.temp_data.get('c:namespace_stack', [])
-        stack.append(symbol)
-        self.env.temp_data['c:parent_symbol'] = symbol
-        self.env.temp_data['c:namespace_stack'] = stack
+        old_parent = self.env.current_document.c_parent_symbol
+        if not old_parent:
+            old_parent = self.env.domaindata['c']['root_symbol']
+        symbol = old_parent.add_name(name)
+        self.env.current_document.c_namespace_stack.append(symbol)
+        self.env.current_document.c_parent_symbol = symbol
         self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -420,19 +453,19 @@ class CNamespacePopObject(SphinxDirective):
     option_spec: ClassVar[OptionSpec] = {}
 
     def run(self) -> list[Node]:
-        stack = self.env.temp_data.get('c:namespace_stack', None)
-        if not stack or len(stack) == 0:
-            logger.warning("C namespace pop on empty stack. Defaulting to global scope.",
-                           location=self.get_location())
-            stack = []
+        stack = self.env.current_document.c_namespace_stack
+        if len(stack) == 0:
+            logger.warning(
+                'C namespace pop on empty stack. Defaulting to global scope.',
+                location=self.get_location(),
+            )
         else:
             stack.pop()
         if len(stack) > 0:
             symbol = stack[-1]
         else:
             symbol = self.env.domaindata['c']['root_symbol']
-        self.env.temp_data['c:parent_symbol'] = symbol
-        self.env.temp_data['c:namespace_stack'] = stack
+        self.env.current_document.c_parent_symbol = symbol
         self.env.ref_context['c:parent_key'] = symbol.get_lookup_key()
         return []
 
@@ -451,9 +484,9 @@ class AliasNode(nodes.Element):
         self.aliasOptions = aliasOptions
         self.document = document
         if env is not None:
-            if 'c:parent_symbol' not in env.temp_data:
+            if env.current_document.c_parent_symbol is None:
                 root = env.domaindata['c']['root_symbol']
-                env.temp_data['c:parent_symbol'] = root
+                env.current_document.c_parent_symbol = root
                 env.ref_context['c:parent_key'] = root.get_lookup_key()
             self.parentKey = env.ref_context['c:parent_key']
         else:
@@ -461,16 +494,27 @@ class AliasNode(nodes.Element):
             self.parentKey = parentKey
 
     def copy(self) -> AliasNode:
-        return self.__class__(self.sig, self.aliasOptions, self.document,
-                              env=None, parentKey=self.parentKey)
+        return self.__class__(
+            self.sig,
+            self.aliasOptions,
+            self.document,
+            env=None,
+            parentKey=self.parentKey,
+        )
 
 
 class AliasTransform(SphinxTransform):
     default_priority = ReferencesResolver.default_priority - 1
 
-    def _render_symbol(self, s: Symbol, maxdepth: int, skipThis: bool,
-                       aliasOptions: dict, renderOptions: dict,
-                       document: Any) -> list[Node]:
+    def _render_symbol(
+        self,
+        s: Symbol,
+        maxdepth: int,
+        skip_this: bool,
+        alias_options: dict,
+        render_options: dict,
+        document: Any,
+    ) -> list[Node]:
         if maxdepth == 0:
             recurse = True
         elif maxdepth == 1:
@@ -480,14 +524,16 @@ class AliasTransform(SphinxTransform):
             recurse = True
 
         nodes: list[Node] = []
-        if not skipThis:
+        if not skip_this:
             signode = addnodes.desc_signature('', '')
             nodes.append(signode)
-            s.declaration.describe_signature(signode, 'markName', self.env, renderOptions)
+            s.declaration.describe_signature(
+                signode, 'markName', self.env, render_options
+            )
 
         if recurse:
-            if skipThis:
-                childContainer: list[Node] | addnodes.desc = nodes
+            if skip_this:
+                child_container: list[Node] | addnodes.desc = nodes
             else:
                 content = addnodes.desc_content()
                 desc = addnodes.desc()
@@ -497,28 +543,31 @@ class AliasTransform(SphinxTransform):
                 # 'desctype' is a backwards compatible attribute
                 desc['objtype'] = desc['desctype'] = 'alias'
                 desc['no-index'] = True
-                childContainer = desc
+                child_container = desc
 
-            for sChild in s.children:
-                if sChild.declaration is None:
+            for s_child in s.children:
+                if s_child.declaration is None:
                     continue
-                childNodes = self._render_symbol(
-                    sChild, maxdepth=maxdepth, skipThis=False,
-                    aliasOptions=aliasOptions, renderOptions=renderOptions,
-                    document=document)
-                childContainer.extend(childNodes)
+                child_nodes = self._render_symbol(
+                    s_child,
+                    maxdepth=maxdepth,
+                    skip_this=False,
+                    alias_options=alias_options,
+                    render_options=render_options,
+                    document=document,
+                )
+                child_container.extend(child_nodes)
 
-            if not skipThis and len(desc.children) != 0:
+            if not skip_this and len(desc.children) != 0:
                 nodes.append(content)
         return nodes
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(AliasNode):
             sig = node.sig
-            parentKey = node.parentKey
+            parent_key = node.parentKey
             try:
-                parser = DefinitionParser(sig, location=node,
-                                          config=self.env.config)
+                parser = DefinitionParser(sig, location=node, config=self.env.config)
                 name = parser.parse_xref_object()
             except DefinitionError as e:
                 logger.warning(e, location=node)
@@ -532,25 +581,26 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(signode)
                 continue
 
-            rootSymbol: Symbol = self.env.domains.c_domain.data['root_symbol']
-            parentSymbol: Symbol | None = rootSymbol.direct_lookup(parentKey)
-            if not parentSymbol:
-                logger.debug("Target: %s", sig)
-                logger.debug("ParentKey: %s", parentKey)
-                logger.debug(rootSymbol.dump(1))
-            assert parentSymbol  # should be there
+            root_symbol: Symbol = self.env.domains.c_domain.data['root_symbol']
+            parent_symbol: Symbol | None = root_symbol.direct_lookup(parent_key)
+            if not parent_symbol:
+                logger.debug('Target: %s', sig)
+                logger.debug('ParentKey: %s', parent_key)
+                logger.debug(root_symbol.dump(1))
+            assert parent_symbol  # should be there
 
-            s = parentSymbol.find_declaration(
-                name, 'any',
-                matchSelf=True, recurseInAnon=True)
+            s = parent_symbol.find_declaration(
+                name, 'any', matchSelf=True, recurseInAnon=True
+            )
             if s is None:
                 signode = addnodes.desc_signature(sig, '')
                 node.append(signode)
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
 
-                logger.warning("Could not find C declaration for alias '%s'.", name,
-                               location=node)
+                logger.warning(
+                    "Could not find C declaration for alias '%s'.", name, location=node
+                )
                 node.replace_self(signode)
                 continue
             # Declarations like .. var:: int Missing::var
@@ -563,15 +613,21 @@ class AliasTransform(SphinxTransform):
                 signode += addnodes.desc_name(sig, sig)
 
                 logger.warning(
-                    "Can not render C declaration for alias '%s'. No such declaration.", name,
-                    location=node)
+                    "Can not render C declaration for alias '%s'. No such declaration.",
+                    name,
+                    location=node,
+                )
                 node.replace_self(signode)
                 continue
 
-            nodes = self._render_symbol(s, maxdepth=node.aliasOptions['maxdepth'],
-                                        skipThis=node.aliasOptions['noroot'],
-                                        aliasOptions=node.aliasOptions,
-                                        renderOptions={}, document=node.document)
+            nodes = self._render_symbol(
+                s,
+                maxdepth=node.aliasOptions['maxdepth'],
+                skip_this=node.aliasOptions['noroot'],
+                alias_options=node.aliasOptions,
+                render_options={},
+                document=node.document,
+            )
             node.replace_self(nodes)
 
 
@@ -600,30 +656,40 @@ class CAliasObject(ObjectDescription):
         node['no-index'] = True
 
         self.names: list[str] = []
-        aliasOptions = {
+        alias_options = {
             'maxdepth': self.options.get('maxdepth', 1),
             'noroot': 'noroot' in self.options,
         }
-        if aliasOptions['noroot'] and aliasOptions['maxdepth'] == 1:
-            logger.warning("Error in C alias declaration."
-                           " Requested 'noroot' but 'maxdepth' 1."
-                           " When skipping the root declaration,"
-                           " need 'maxdepth' 0 for infinite or at least 2.",
-                           location=self.get_location())
+        if alias_options['noroot'] and alias_options['maxdepth'] == 1:
+            logger.warning(
+                'Error in C alias declaration.'
+                " Requested 'noroot' but 'maxdepth' 1."
+                ' When skipping the root declaration,'
+                " need 'maxdepth' 0 for infinite or at least 2.",
+                location=self.get_location(),
+            )
         for sig in self.get_signatures():
-            node.append(AliasNode(sig, aliasOptions, self.state.document, env=self.env))
+            node.append(
+                AliasNode(sig, alias_options, self.state.document, env=self.env)
+            )
         return [node]
 
 
 class CXRefRole(XRefRole):
-    def process_link(self, env: BuildEnvironment, refnode: Element,
-                     has_explicit_title: bool, title: str, target: str) -> tuple[str, str]:
+    def process_link(
+        self,
+        env: BuildEnvironment,
+        refnode: Element,
+        has_explicit_title: bool,
+        title: str,
+        target: str,
+    ) -> tuple[str, str]:
         refnode.attributes.update(env.ref_context)
 
         if not has_explicit_title:
             # major hax: replace anon names via simple string manipulation.
             # Can this actually fail?
-            title = anon_identifier_re.sub("[anonymous]", str(title))
+            title = anon_identifier_re.sub('[anonymous]', str(title))
 
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
@@ -633,7 +699,7 @@ class CXRefRole(XRefRole):
                 title = title[1:]
                 dot = title.rfind('.')
                 if dot != -1:
-                    title = title[dot + 1:]
+                    title = title[dot + 1 :]
         return title, target
 
 
@@ -649,23 +715,29 @@ class CExprRole(SphinxRole):
 
     def run(self) -> tuple[list[Node], list[system_message]]:
         text = self.text.replace('\n', ' ')
-        parser = DefinitionParser(text, location=self.get_location(),
-                                  config=self.env.config)
+        parser = DefinitionParser(
+            text, location=self.get_location(), config=self.env.config
+        )
         # attempt to mimic XRefRole classes, except that...
         try:
             ast = parser.parse_expression()
         except DefinitionError as ex:
-            logger.warning('Unparseable C expression: %r\n%s', text, ex,
-                           location=self.get_location())
+            logger.warning(
+                'Unparseable C expression: %r\n%s',
+                text,
+                ex,
+                location=self.get_location(),
+            )
             # see below
-            return [addnodes.desc_inline('c', text, text, classes=[self.class_type])], []
-        parentSymbol = self.env.temp_data.get('c:parent_symbol', None)
-        if parentSymbol is None:
-            parentSymbol = self.env.domaindata['c']['root_symbol']
+            node = addnodes.desc_inline('c', text, text, classes=[self.class_type])
+            return [node], []
+        parent_symbol = self.env.current_document.c_parent_symbol
+        if parent_symbol is None:
+            parent_symbol = self.env.domaindata['c']['root_symbol']
         # ...most if not all of these classes should really apply to the individual references,
         # not the container node
         signode = addnodes.desc_inline('c', classes=[self.class_type])
-        ast.describe_signature(signode, 'markType', self.env, parentSymbol)
+        ast.describe_signature(signode, 'markType', self.env, parent_symbol)
         return [signode], []
 
 
@@ -677,16 +749,18 @@ class CDomain(Domain):
     object_types = {
         # 'identifier' is the one used for xrefs generated in signatures, not in roles
         'member': ObjType(_('member'), 'var', 'member', 'data', 'identifier'),
-        'var': ObjType(_('variable'),  'var', 'member', 'data', 'identifier'),
-        'function': ObjType(_('function'),     'func',          'identifier', 'type'),
-        'macro': ObjType(_('macro'),           'macro',         'identifier'),
-        'struct': ObjType(_('struct'),         'struct',        'identifier', 'type'),
-        'union': ObjType(_('union'),           'union',         'identifier', 'type'),
-        'enum': ObjType(_('enum'),             'enum',          'identifier', 'type'),
-        'enumerator': ObjType(_('enumerator'), 'enumerator',    'identifier'),
-        'type': ObjType(_('type'),                              'identifier', 'type'),
+        'var': ObjType(_('variable'), 'var', 'member', 'data', 'identifier'),
+        'function': ObjType(_('function'), 'func', 'identifier', 'type'),
+        'macro': ObjType(_('macro'), 'macro', 'identifier'),
+        'struct': ObjType(_('struct'), 'struct', 'identifier', 'type'),
+        'union': ObjType(_('union'), 'union', 'identifier', 'type'),
+        'enum': ObjType(_('enum'), 'enum', 'identifier', 'type'),
+        'enumerator': ObjType(_('enumerator'), 'enumerator', 'identifier'),
+        'type': ObjType(_('type'), 'identifier', 'type'),
         # generated object types
-        'functionParam': ObjType(_('function parameter'),       'identifier', 'var', 'member', 'data'),  # NoQA: E501
+        'functionParam': ObjType(
+            _('function parameter'), 'identifier', 'var', 'member', 'data'
+        ),
     }
 
     directives = {
@@ -727,126 +801,156 @@ class CDomain(Domain):
 
     def clear_doc(self, docname: str) -> None:
         if Symbol.debug_show_tree:
-            logger.debug("clear_doc: %s", docname)
-            logger.debug("\tbefore:")
+            logger.debug('clear_doc: %s', docname)
+            logger.debug('\tbefore:')
             logger.debug(self.data['root_symbol'].dump(1))
-            logger.debug("\tbefore end")
+            logger.debug('\tbefore end')
 
-        rootSymbol = self.data['root_symbol']
-        rootSymbol.clear_doc(docname)
+        root_symbol = self.data['root_symbol']
+        root_symbol.clear_doc(docname)
 
         if Symbol.debug_show_tree:
-            logger.debug("\tafter:")
+            logger.debug('\tafter:')
             logger.debug(self.data['root_symbol'].dump(1))
-            logger.debug("\tafter end")
-            logger.debug("clear_doc end: %s", docname)
+            logger.debug('\tafter end')
+            logger.debug('clear_doc end: %s', docname)
 
-    def process_doc(self, env: BuildEnvironment, docname: str,
-                    document: nodes.document) -> None:
+    def process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document
+    ) -> None:
         if Symbol.debug_show_tree:
-            logger.debug("process_doc: %s", docname)
+            logger.debug('process_doc: %s', docname)
             logger.debug(self.data['root_symbol'].dump(0))
-            logger.debug("process_doc end: %s", docname)
+            logger.debug('process_doc end: %s', docname)
 
     def process_field_xref(self, pnode: pending_xref) -> None:
         pnode.attributes.update(self.env.ref_context)
 
     def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         if Symbol.debug_show_tree:
-            logger.debug("merge_domaindata:")
-            logger.debug("\tself:")
+            logger.debug('merge_domaindata:')
+            logger.debug('\tself:')
             logger.debug(self.data['root_symbol'].dump(1))
-            logger.debug("\tself end")
-            logger.debug("\tother:")
+            logger.debug('\tself end')
+            logger.debug('\tother:')
             logger.debug(otherdata['root_symbol'].dump(1))
-            logger.debug("\tother end")
-            logger.debug("merge_domaindata end")
+            logger.debug('\tother end')
+            logger.debug('merge_domaindata end')
 
-        self.data['root_symbol'].merge_with(otherdata['root_symbol'],
-                                            docnames, self.env)
-        ourObjects = self.data['objects']
+        self.data['root_symbol'].merge_with(
+            otherdata['root_symbol'], docnames, self.env
+        )
+        our_objects = self.data['objects']
         for fullname, (fn, id_, objtype) in otherdata['objects'].items():
             if fn in docnames:
-                if fullname not in ourObjects:
-                    ourObjects[fullname] = (fn, id_, objtype)
+                if fullname not in our_objects:
+                    our_objects[fullname] = (fn, id_, objtype)
                 # no need to warn on duplicates, the symbol merge already does that
 
     def _resolve_xref_inner(
-        self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-        typ: str, target: str, node: pending_xref, contnode: Element
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
     ) -> tuple[nodes.reference, str] | tuple[None, None]:
         parser = DefinitionParser(target, location=node, config=env.config)
         try:
             name = parser.parse_xref_object()
         except DefinitionError as e:
-            logger.warning('Unparseable C cross-reference: %r\n%s', target, e,
-                           location=node)
+            logger.warning(
+                'Unparseable C cross-reference: %r\n%s', target, e, location=node
+            )
             return None, None
-        parentKey: LookupKey = node.get("c:parent_key", None)
-        rootSymbol = self.data['root_symbol']
-        if parentKey:
-            parentSymbol: Symbol = rootSymbol.direct_lookup(parentKey)
-            if not parentSymbol:
-                logger.debug("Target: %s", target)
-                logger.debug("ParentKey: %s", parentKey)
-                logger.debug(rootSymbol.dump(1))
-            assert parentSymbol  # should be there
+        parent_key: LookupKey = node.get('c:parent_key', None)
+        root_symbol = self.data['root_symbol']
+        if parent_key:
+            parent_symbol: Symbol = root_symbol.direct_lookup(parent_key)
+            if not parent_symbol:
+                logger.debug('Target: %s', target)
+                logger.debug('ParentKey: %s', parent_key)
+                logger.debug(root_symbol.dump(1))
+            assert parent_symbol  # should be there
         else:
-            parentSymbol = rootSymbol
-        s = parentSymbol.find_declaration(name, typ,
-                                          matchSelf=True, recurseInAnon=True)
+            parent_symbol = root_symbol
+        s = parent_symbol.find_declaration(
+            name, typ, matchSelf=True, recurseInAnon=True
+        )
         if s is None or s.declaration is None:
             return None, None
 
         # TODO: check role type vs. object type
 
         declaration = s.declaration
-        displayName = name.get_display_string()
+        display_name = name.get_display_string()
         docname = s.docname
         assert docname
 
-        return make_refnode(builder, fromdocname, docname,
-                            declaration.get_newest_id(), contnode, displayName,
-                            ), declaration.objectType
+        return make_refnode(
+            builder,
+            fromdocname,
+            docname,
+            declaration.get_newest_id(),
+            contnode,
+            display_name,
+        ), declaration.objectType
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref,
-                     contnode: Element) -> nodes.reference | None:
-        return self._resolve_xref_inner(env, fromdocname, builder, typ,
-                                        target, node, contnode)[0]
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
+        return self._resolve_xref_inner(
+            env, fromdocname, builder, typ, target, node, contnode
+        )[0]
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, nodes.reference]]:
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, nodes.reference]]:
         with logging.suppress_logging():
-            retnode, objtype = self._resolve_xref_inner(env, fromdocname, builder,
-                                                        'any', target, node, contnode)
+            retnode, objtype = self._resolve_xref_inner(
+                env, fromdocname, builder, 'any', target, node, contnode
+            )
         if retnode:
             return [('c:' + self.role_for_objtype(objtype), retnode)]
         return []
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
-        rootSymbol = self.data['root_symbol']
-        for symbol in rootSymbol.get_all_symbols():
+        root_symbol = self.data['root_symbol']
+        for symbol in root_symbol.get_all_symbols():
             if symbol.declaration is None:
                 continue
             assert symbol.docname
-            fullNestedName = symbol.get_full_nested_name()
-            name = str(fullNestedName).lstrip('.')
-            dispname = fullNestedName.get_display_string().lstrip('.')
-            objectType = symbol.declaration.objectType
+            full_nested_name = symbol.get_full_nested_name()
+            name = str(full_nested_name).lstrip('.')
+            dispname = full_nested_name.get_display_string().lstrip('.')
+            object_type = symbol.declaration.objectType
             docname = symbol.docname
-            newestId = symbol.declaration.get_newest_id()
-            yield name, dispname, objectType, docname, newestId, 1
+            newest_id = symbol.declaration.get_newest_id()
+            yield name, dispname, object_type, docname, newest_id, 1
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CDomain)
-    app.add_config_value("c_id_attributes", [], 'env', types={list, tuple})
-    app.add_config_value("c_paren_attributes", [], 'env', types={list, tuple})
-    app.add_config_value("c_extra_keywords", _macroKeywords, 'env', types={set, list})
+    app.add_config_value('c_id_attributes', [], 'env', types={list, tuple})
+    app.add_config_value('c_paren_attributes', [], 'env', types={list, tuple})
+    app.add_config_value('c_extra_keywords', _macroKeywords, 'env', types={set, list})
     app.add_config_value(
-        "c_maximum_signature_line_length", None, 'env', types={int, type(None)}
+        'c_maximum_signature_line_length', None, 'env', types={int, type(None)}
     )
     app.add_post_transform(AliasTransform)
 

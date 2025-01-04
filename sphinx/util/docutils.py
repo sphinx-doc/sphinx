@@ -29,7 +29,7 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator  # NoQA: TC003
+    from collections.abc import Callable, Iterator
     from types import ModuleType, TracebackType
 
     from docutils.frontend import Values
@@ -285,7 +285,7 @@ class sphinx_domains(CustomReSTDispatcher):
                 )
         # else look in the default domain
         else:
-            def_domain = self.env.temp_data.get('default_domain')
+            def_domain = self.env.current_document.default_domain
             if def_domain is not None:
                 element = getattr(def_domain, type)(name)
                 if element is not None:
@@ -378,7 +378,7 @@ def switch_source_input(state: State, content: StringList) -> Iterator[None]:
         # replace it by new one
         state_machine: StateMachine[None] = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # NoQA: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]
 
         yield
     finally:
@@ -587,7 +587,7 @@ class SphinxRole:
         if name:
             self.name = name.lower()
         else:
-            self.name = self.env.temp_data.get('default_role', '')
+            self.name = self.env.current_document.default_role
             if not self.name:
                 self.name = self.env.config.default_role
             if not self.name:

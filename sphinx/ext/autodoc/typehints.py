@@ -21,8 +21,15 @@ if TYPE_CHECKING:
     from sphinx.ext.autodoc import Options
 
 
-def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
-                     options: Options, args: str, retann: str) -> None:
+def record_typehints(
+    app: Sphinx,
+    objtype: str,
+    name: str,
+    obj: Any,
+    options: Options,
+    args: str,
+    retann: str,
+) -> None:
     """Record type hints to env object."""
     if app.config.autodoc_typehints_format == 'short':
         mode = 'smart'
@@ -31,19 +38,24 @@ def record_typehints(app: Sphinx, objtype: str, name: str, obj: Any,
 
     try:
         if callable(obj):
-            annotations = app.env.temp_data.setdefault('annotations', {})
-            annotation = annotations.setdefault(name, {})
+            current_document = app.env.current_document
+            annotation = current_document.autodoc_annotations.setdefault(name, {})
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
-                    annotation[param.name] = stringify_annotation(param.annotation, mode)  # type: ignore[arg-type]
+                    annotation[param.name] = stringify_annotation(
+                        param.annotation,
+                        mode,  # type: ignore[arg-type]
+                    )
             if sig.return_annotation is not sig.empty:
                 annotation['return'] = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
     except (TypeError, ValueError):
         pass
 
 
-def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element) -> None:
+def merge_typehints(
+    app: Sphinx, domain: str, objtype: str, contentnode: Element
+) -> None:
     if domain != 'py':
         return
     if app.config.autodoc_typehints not in {'both', 'description'}:
@@ -59,7 +71,7 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
         # signature node does not have valid context info for the target object
         return
 
-    annotations = app.env.temp_data.get('annotations', {})
+    annotations = app.env.current_document.autodoc_annotations
     if annotations.get(fullname, {}):
         field_lists = [n for n in contentnode if isinstance(n, nodes.field_list)]
         if field_lists == []:
@@ -67,18 +79,20 @@ def merge_typehints(app: Sphinx, domain: str, objtype: str, contentnode: Element
             field_lists.append(field_list)
 
         for field_list in field_lists:
-            if app.config.autodoc_typehints_description_target == "all":
+            if app.config.autodoc_typehints_description_target == 'all':
                 if objtype == 'class':
-                    modify_field_list(field_list, annotations[fullname], suppress_rtype=True)
+                    modify_field_list(
+                        field_list, annotations[fullname], suppress_rtype=True
+                    )
                 else:
                     modify_field_list(field_list, annotations[fullname])
-            elif app.config.autodoc_typehints_description_target == "documented_params":
+            elif app.config.autodoc_typehints_description_target == 'documented_params':
                 augment_descriptions_with_types(
-                    field_list, annotations[fullname], force_rtype=True,
+                    field_list, annotations[fullname], force_rtype=True
                 )
             else:
                 augment_descriptions_with_types(
-                    field_list, annotations[fullname], force_rtype=False,
+                    field_list, annotations[fullname], force_rtype=False
                 )
 
 
@@ -95,8 +109,9 @@ def insert_field_list(node: Element) -> nodes.field_list:
     return field_list
 
 
-def modify_field_list(node: nodes.field_list, annotations: dict[str, str],
-                      suppress_rtype: bool = False) -> None:
+def modify_field_list(
+    node: nodes.field_list, annotations: dict[str, str], suppress_rtype: bool = False
+) -> None:
     arguments: dict[str, dict[str, bool]] = {}
     fields = cast('Iterable[nodes.field]', node)
     for field in fields:
@@ -202,8 +217,9 @@ def augment_descriptions_with_types(
     # Add 'rtype' if 'return' is present and 'rtype' isn't.
     if 'return' in annotations:
         rtype = annotations['return']
-        if 'return' not in has_type and ('return' in has_description or
-                                         (force_rtype and rtype != "None")):
+        if 'return' not in has_type and (
+            'return' in has_description or (force_rtype and rtype != 'None')
+        ):
             field = nodes.field()
             field += nodes.field_name('', 'rtype')
             field += nodes.field_body('', nodes.paragraph('', rtype))

@@ -4,5 +4,5 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
 
 
-def function_to_be_imported(app: Optional["Sphinx"]) -> str:
+def function_to_be_imported(app: Optional['Sphinx']) -> str:
     """docstring"""
