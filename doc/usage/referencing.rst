@@ -254,6 +254,9 @@ The following role creates a cross-reference to a term in a
    If you use a term that's not explained in a glossary, you'll get a warning
    during build.
 
+   This role also supports :ref:`custom link text <xref-modifiers>` from the general
+   cross-reference syntax.
+
 
 .. _any-role:
 
