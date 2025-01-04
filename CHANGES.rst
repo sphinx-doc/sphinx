@@ -40,6 +40,8 @@ Bugs fixed
   Patch by Jean-François B.
 * #13096: HTML Search: check that query terms exist as properties in
   term indices before accessing them.
+* #13188: autodoc: fix detection of class methods implemented in C.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
