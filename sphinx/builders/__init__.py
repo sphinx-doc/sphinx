@@ -13,7 +13,12 @@ from typing import TYPE_CHECKING, Any, Literal, final
 from docutils import nodes
 from docutils.utils import DependencyList
 
-from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
+from sphinx.environment import (
+    CONFIG_CHANGED_REASON,
+    CONFIG_OK,
+    BuildEnvironment,
+    _CurrentDocument,
+)
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
@@ -620,7 +625,7 @@ class Builder:
         filename = str(self.env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
-        self.env.temp_data['_parser'] = publisher.parser
+        self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
         publisher.settings.record_dependencies = DependencyList()
@@ -640,7 +645,7 @@ class Builder:
         self.env.all_docs[docname] = time.time_ns() // 1_000
 
         # cleanup
-        self.env.temp_data.clear()
+        self.env.current_document = _CurrentDocument()
         self.env.ref_context.clear()
 
         self.write_doctree(docname, doctree, _cache=_cache)
