@@ -318,7 +318,16 @@ def _fetch_inventory_url(
     *, target_uri: InventoryURI, inv_location: str, config: Config
 ) -> tuple[bytes, str]:
     try:
-        raw_data, new_inv_location = _read_from_url(inv_location, config=config)
+        with requests.get(
+            inv_location,
+            stream=True,
+            timeout=config.intersphinx_timeout,
+            _user_agent=config.user_agent,
+            _tls_info=(config.tls_verify, config.tls_cacerts),
+        ) as r:
+            r.raise_for_status()
+            raw_data = r.content
+            new_inv_location = r.url
     except Exception as err:
         err.args = (
             'intersphinx inventory %r not fetchable due to %s: %s',
@@ -401,30 +410,3 @@ def _strip_basic_auth(url: str) -> str:
     if '@' in frags[1]:
         frags[1] = frags[1].split('@')[1]
     return urlunsplit(frags)
-
-
-def _read_from_url(url: str, *, config: Config) -> tuple[bytes, str]:
-    """Reads data from *url* with an HTTP *GET*.
-
-    This function supports fetching from resources which use basic HTTP auth as
-    laid out by RFC1738 § 3.1. See § 5 for grammar definitions for URLs.
-
-    .. seealso:: https://www.ietf.org/rfc/rfc1738.txt
-
-    :param url: URL of an HTTP resource
-    :returns: A pair of data read from the resource described by *url*
-              and the final URL after any redirects.
-    """
-    with requests.get(
-        url,
-        stream=True,
-        timeout=config.intersphinx_timeout,
-        _user_agent=config.user_agent,
-        _tls_info=(config.tls_verify, config.tls_cacerts),
-    ) as r:
-        r.raise_for_status()
-        # Decode content-body based on the header.
-        # xref: https://github.com/psf/requests/issues/2155
-        response_content = r.content
-        new_inv_location = r.url
-    return response_content, new_inv_location
