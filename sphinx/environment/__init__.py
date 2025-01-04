@@ -1043,14 +1043,34 @@ class _CurrentDocument:
             return getattr(self, item) is not None
         return item in self.__attr_map or item in self._extension_data
 
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.keys())
+
+    def __len__(self) -> int:
+        return len(self.__attr_map) + len(self._extension_data)
+
+    def keys(self) -> Iterable[str]:
+        return frozenset(self.__attr_map.keys() | self._extension_data.keys())
+
+    def items(self) -> Iterable[tuple[str, Any]]:
+        for key in self.keys():
+            yield key, self[key]
+
+    def values(self) -> Iterable[Any]:
+        for key in self.keys():
+            yield self[key]
+
     def get(self, key: str, default: Any | None = None) -> Any | None:
         try:
             return self[key]
         except KeyError:
             return default
 
-    def pop(self, key: str, default: Any | None = None) -> Any | None:
+    __sentinel = object()
+
+    def pop(self, key: str, default: Any | None = __sentinel) -> Any | None:
         if key in self.__attr_map:
+            # the keys in  __attr_map always exist, so ``default`` is ignored
             value = getattr(self, self.__attr_map[key])
             if key in self.__attr_default_none:
                 default = None
@@ -1058,6 +1078,8 @@ class _CurrentDocument:
                 default = type(value)()  # set key to type's default
             setattr(self, self.__attr_map[key], default)
             return value
+        if default is self.__sentinel:
+            return self._extension_data.pop(key)
         return self._extension_data.pop(key, default)
 
     def setdefault(self, key: str, default: Any | None = None) -> Any | None:
@@ -1065,3 +1087,9 @@ class _CurrentDocument:
 
     def clear(self) -> None:
         _CurrentDocument.__init__(self)  # NoQA: PLC2801
+
+    def update(self, other: Iterable[tuple[str, Any]] = (), /, **kwargs: Any) -> None:
+        other_dict = dict(other) if not isinstance(other, dict) else other
+        for dct in other_dict, kwargs:
+            for key, value in dct.items():
+                self[key] = value
