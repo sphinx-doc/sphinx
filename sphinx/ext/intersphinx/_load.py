@@ -21,8 +21,6 @@ from sphinx.util.inventory import InventoryFile
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from urllib3.response import HTTPResponse
-
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.ext.intersphinx._shared import (
@@ -32,7 +30,7 @@ if TYPE_CHECKING:
         InventoryName,
         InventoryURI,
     )
-    from sphinx.util.typing import Inventory, _ReadableStream
+    from sphinx.util.typing import Inventory
 
 
 def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
@@ -301,39 +299,11 @@ def _fetch_inventory(
         # inv URI points to remote resource; strip any existing auth
         target_uri = _strip_basic_auth(target_uri)
     if '://' in inv_location:
-        try:
-            raw_data, new_inv_location = _read_from_url(inv_location, config=config)
-        except Exception as err:
-            err.args = (
-                'intersphinx inventory %r not fetchable due to %s: %s',
-                inv_location,
-                err.__class__,
-                str(err),
-            )
-            raise
-
-        if inv_location != new_inv_location:
-            msg = __('intersphinx inventory has moved: %s -> %s')
-            LOGGER.info(msg, inv_location, new_inv_location)
-
-            if target_uri in {
-                inv_location,
-                os.path.dirname(inv_location),
-                os.path.dirname(inv_location) + '/',
-            }:
-                target_uri = os.path.dirname(new_inv_location)
+        raw_data, target_uri = _fetch_inventory_url(
+            target_uri=target_uri, inv_location=inv_location, config=config
+        )
     else:
-        try:
-            with open(srcdir / inv_location, 'rb') as f:
-                raw_data = f.read()
-        except Exception as err:
-            err.args = (
-                'intersphinx inventory %r not readable due to %s: %s',
-                inv_location,
-                err.__class__.__name__,
-                str(err),
-            )
-            raise
+        raw_data = _fetch_inventory_file(inv_location=inv_location, srcdir=srcdir)
 
     stream = io.BytesIO(raw_data)
     try:
@@ -342,6 +312,49 @@ def _fetch_inventory(
         msg = f'unknown or unsupported inventory version: {exc!r}'
         raise ValueError(msg) from exc
     return invdata
+
+
+def _fetch_inventory_url(
+    *, target_uri: InventoryURI, inv_location: str, config: Config
+) -> tuple[bytes, str]:
+    try:
+        raw_data, new_inv_location = _read_from_url(inv_location, config=config)
+    except Exception as err:
+        err.args = (
+            'intersphinx inventory %r not fetchable due to %s: %s',
+            inv_location,
+            err.__class__,
+            str(err),
+        )
+        raise
+
+    if inv_location != new_inv_location:
+        msg = __('intersphinx inventory has moved: %s -> %s')
+        LOGGER.info(msg, inv_location, new_inv_location)
+
+        if target_uri in {
+            inv_location,
+            os.path.dirname(inv_location),
+            os.path.dirname(inv_location) + '/',
+        }:
+            target_uri = os.path.dirname(new_inv_location)
+
+    return raw_data, target_uri
+
+
+def _fetch_inventory_file(*, inv_location: str, srcdir: Path) -> bytes:
+    try:
+        with open(srcdir / inv_location, 'rb') as f:
+            raw_data = f.read()
+    except Exception as err:
+        err.args = (
+            'intersphinx inventory %r not readable due to %s: %s',
+            inv_location,
+            err.__class__.__name__,
+            str(err),
+        )
+        raise
+    return raw_data
 
 
 def _get_safe_url(url: str) -> str:
