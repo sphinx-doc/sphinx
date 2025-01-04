@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import concurrent.futures
+import io
 import os.path
 import posixpath
 import time
@@ -297,50 +298,50 @@ def _fetch_inventory(
     # and *inv_location* (actual location of the inventory file)
     # can be local or remote URIs
     if '://' in target_uri:
-        # case: inv URI points to remote resource; strip any existing auth
+        # inv URI points to remote resource; strip any existing auth
         target_uri = _strip_basic_auth(target_uri)
-    try:
-        if '://' in inv_location:
-            f: _ReadableStream[bytes] = _read_from_url(inv_location, config=config)
-        else:
-            f = open(os.path.join(srcdir, inv_location), 'rb')  # NoQA: SIM115
-    except Exception as err:
-        err.args = (
-            'intersphinx inventory %r not fetchable due to %s: %s',
-            inv_location,
-            err.__class__,
-            str(err),
-        )
-        raise
-    try:
-        if hasattr(f, 'url'):
-            new_inv_location = f.url
-            if inv_location != new_inv_location:
-                msg = __('intersphinx inventory has moved: %s -> %s')
-                LOGGER.info(msg, inv_location, new_inv_location)
+    if '://' in inv_location:
+        try:
+            raw_data, new_inv_location = _read_from_url(inv_location, config=config)
+        except Exception as err:
+            err.args = (
+                'intersphinx inventory %r not fetchable due to %s: %s',
+                inv_location,
+                err.__class__,
+                str(err),
+            )
+            raise
 
-                if target_uri in {
-                    inv_location,
-                    os.path.dirname(inv_location),
-                    os.path.dirname(inv_location) + '/',
-                }:
-                    target_uri = os.path.dirname(new_inv_location)
-        with f:
-            try:
-                invdata = InventoryFile.load(f, target_uri, posixpath.join)
-            except ValueError as exc:
-                msg = f'unknown or unsupported inventory version: {exc!r}'
-                raise ValueError(msg) from exc
-    except Exception as err:
-        err.args = (
-            'intersphinx inventory %r not readable due to %s: %s',
-            inv_location,
-            err.__class__.__name__,
-            str(err),
-        )
-        raise
+        if inv_location != new_inv_location:
+            msg = __('intersphinx inventory has moved: %s -> %s')
+            LOGGER.info(msg, inv_location, new_inv_location)
+
+            if target_uri in {
+                inv_location,
+                os.path.dirname(inv_location),
+                os.path.dirname(inv_location) + '/',
+            }:
+                target_uri = os.path.dirname(new_inv_location)
     else:
-        return invdata
+        try:
+            with open(srcdir / inv_location, 'rb') as f:
+                raw_data = f.read()
+        except Exception as err:
+            err.args = (
+                'intersphinx inventory %r not readable due to %s: %s',
+                inv_location,
+                err.__class__.__name__,
+                str(err),
+            )
+            raise
+
+    stream = io.BytesIO(raw_data)
+    try:
+        invdata = InventoryFile.load(stream, target_uri, posixpath.join)
+    except ValueError as exc:
+        msg = f'unknown or unsupported inventory version: {exc!r}'
+        raise ValueError(msg) from exc
+    return invdata
 
 
 def _get_safe_url(url: str) -> str:
@@ -389,35 +390,28 @@ def _strip_basic_auth(url: str) -> str:
     return urlunsplit(frags)
 
 
-def _read_from_url(url: str, *, config: Config) -> HTTPResponse:
+def _read_from_url(url: str, *, config: Config) -> tuple[bytes, str]:
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
     laid out by RFC1738 § 3.1. See § 5 for grammar definitions for URLs.
 
-    .. seealso:
-
-       https://www.ietf.org/rfc/rfc1738.txt
+    .. seealso:: https://www.ietf.org/rfc/rfc1738.txt
 
     :param url: URL of an HTTP resource
-    :type url: ``str``
-
-    :return: data read from resource described by *url*
-    :rtype: ``file``-like object
+    :returns: A pair of data read from the resource described by *url*
+              and the final URL after any redirects.
     """
-    r = requests.get(
+    with requests.get(
         url,
         stream=True,
         timeout=config.intersphinx_timeout,
         _user_agent=config.user_agent,
         _tls_info=(config.tls_verify, config.tls_cacerts),
-    )
-    r.raise_for_status()
-
-    # For inv_location / new_inv_location
-    r.raw.url = r.url  # type: ignore[union-attr]
-
-    # Decode content-body based on the header.
-    # xref: https://github.com/psf/requests/issues/2155
-    r.raw.decode_content = True
-    return r.raw
+    ) as r:
+        r.raise_for_status()
+        # Decode content-body based on the header.
+        # xref: https://github.com/psf/requests/issues/2155
+        response_content = r.content
+        new_inv_location = r.url
+    return response_content, new_inv_location
