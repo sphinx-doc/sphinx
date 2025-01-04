@@ -25,6 +25,7 @@ from sphinx.ext.intersphinx._load import (
     _fetch_inventory,
     _fetch_inventory_group,
     _get_safe_url,
+    _InvConfig,
     _strip_basic_auth,
 )
 from sphinx.ext.intersphinx._shared import _IntersphinxProject
@@ -67,6 +68,7 @@ def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
+    app.config.intersphinx_timeout = None
 
 
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
@@ -82,7 +84,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/' + INVENTORY_FILENAME,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
     assert 'intersphinx inventory has moved' not in app.status.getvalue()
@@ -96,7 +98,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/' + INVENTORY_FILENAME,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
     assert app.status.getvalue() == (
@@ -114,7 +116,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/new/' + INVENTORY_FILENAME,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
     assert 'intersphinx inventory has moved' not in app.status.getvalue()
@@ -128,7 +130,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/new/' + INVENTORY_FILENAME,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
     assert app.status.getvalue() == (
@@ -761,6 +763,7 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
     app.config.intersphinx_mapping = {
         'inv': (url, None),
     }
+    app.config.intersphinx_timeout = None
     # load the inventory and check if it's done correctly
     intersphinx_cache: dict[str, InventoryCacheEntry] = {
         url: ('inv', 0, {}),  # Timestamp of last cache write is zero.
@@ -785,7 +788,7 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
             project=project,
             cache=intersphinx_cache,
             now=now,
-            config=app.config,
+            config=_InvConfig.from_config(app.config),
             srcdir=app.srcdir,
         )
         # If we hadn't mocked `_fetch_inventory`, it would've made
