@@ -642,7 +642,7 @@ def find_autosummary_in_files(
     for filename in filenames:
         with open(filename, encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines()
-            documented.extend(find_autosummary_in_lines(lines, filename=filename))
+        documented.extend(find_autosummary_in_lines(lines, filename=filename))
     return documented
 
 

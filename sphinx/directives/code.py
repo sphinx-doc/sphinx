@@ -224,10 +224,10 @@ class LiteralIncludeReader:
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:
                 text = f.read()
-                if 'tab-width' in self.options:
-                    text = text.expandtabs(self.options['tab-width'])
+            if 'tab-width' in self.options:
+                text = text.expandtabs(self.options['tab-width'])
 
-                return text.splitlines(True)
+            return text.splitlines(True)
         except OSError as exc:
             msg = __("Include file '%s' not found or reading it failed") % filename
             raise OSError(msg) from exc
