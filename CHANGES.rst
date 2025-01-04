@@ -24,6 +24,8 @@ Features added
 * #11824: linkcode: Allow extensions to add support for a domain by defining
   the keys that should be present.
   Patch by Nicolas Peugnet.
+* #13144: Add a ``class`` option to the :rst:dir:`autosummary` directive.
+  Patch by Tim Hoffmann.
 
 Bugs fixed
 ----------
