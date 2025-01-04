@@ -254,7 +254,7 @@ def is_classmethod_descriptor(
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name, sentinel)
             if meth is not sentinel:
-                return is_classmethod_descriptor(obj)
+                return isinstance(meth, types.ClassMethodDescriptorType)
     return False
 
 
@@ -274,7 +274,7 @@ def is_builtin_classmethod(obj: Any, cls: Any = None, name: str | None = None) -
         for basecls in getmro(cls):
             meth = basecls.__dict__.get(name, sentinel)
             if meth is not sentinel:
-                return is_builtin_classmethod(obj)
+                return is_builtin_classmethod(meth)
     return False
 
 
