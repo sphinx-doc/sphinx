@@ -16,11 +16,13 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import Inventory, InventoryItem, _ReadableStream
+
+    _JoinFunc = Callable[[str, str], str]
 
 
 class InventoryFileReader:
@@ -81,66 +83,73 @@ class InventoryFileReader:
 
 class InventoryFile:
     @classmethod
-    def loads(cls, content: bytes, *, uri: str) -> Inventory:
-        return cls.load(io.BytesIO(content), uri, posixpath.join)
+    def loads(
+        cls,
+        content: bytes,
+        *,
+        uri: str,
+    ) -> Inventory:
+        format_line, _, content = content.partition(b'\n')
+        format_line = format_line.rstrip()  # remove trailing \r or spaces
+        if format_line == b'# Sphinx inventory version 2':
+            return cls._loads_v2(content, uri=uri)
+        if format_line == b'# Sphinx inventory version 1':
+            lines = content.decode().splitlines()
+            return cls._loads_v1(lines, uri=uri)
+        if format_line.startswith(b'# Sphinx inventory version '):
+            unknown_version = format_line[27:].decode()
+            msg = f'unknown or unsupported inventory version: {unknown_version!r}'
+            raise ValueError(msg)
+        msg = f'invalid inventory header: {format_line.decode()}'
+        raise ValueError(msg)
 
     @classmethod
     def load(
-        cls: type[InventoryFile],
-        stream: _ReadableStream[bytes],
-        uri: str,
-        joinfunc: Callable[[str, str], str],
+        cls, stream: _ReadableStream[bytes], uri: str, joinfunc: _JoinFunc
     ) -> Inventory:
-        reader = InventoryFileReader(stream)
-        line = reader.readline().rstrip()
-        if line == '# Sphinx inventory version 1':
-            return cls.load_v1(reader, uri, joinfunc)
-        elif line == '# Sphinx inventory version 2':
-            return cls.load_v2(reader, uri, joinfunc)
-        else:
-            raise ValueError('invalid inventory header: %s' % line)
+        return cls.loads(stream.read(), uri=uri)
 
     @classmethod
-    def load_v1(
-        cls: type[InventoryFile],
-        stream: InventoryFileReader,
-        uri: str,
-        join: Callable[[str, str], str],
-    ) -> Inventory:
+    def _loads_v1(cls, lines: Sequence[str], *, uri: str) -> Inventory:
+        if len(lines) < 2:
+            msg = 'invalid inventory header: missing project name or version'
+            raise ValueError(msg)
         invdata: Inventory = {}
-        projname = stream.readline().rstrip()[11:]
-        version = stream.readline().rstrip()[11:]
-        for line in stream.readlines():
-            name, type, location = line.rstrip().split(None, 2)
-            location = join(uri, location)
+        projname = lines[0].rstrip()[11:]  # Project name
+        version = lines[1].rstrip()[11:]  # Project version
+        for line in lines[2:]:
+            name, item_type, location = line.rstrip().split(None, 2)
+            location = posixpath.join(uri, location)
             # version 1 did not add anchors to the location
-            if type == 'mod':
-                type = 'py:module'
-                location += '#module-' + name
+            if item_type == 'mod':
+                item_type = 'py:module'
+                location += f'#module-{name}'
             else:
-                type = 'py:' + type
-                location += '#' + name
-            invdata.setdefault(type, {})[name] = (projname, version, location, '-')
+                item_type = f'py:{item_type}'
+                location += f'#{name}'
+            inv_item: InventoryItem = projname, version, location, '-'
+            invdata.setdefault(item_type, {})[name] = inv_item
         return invdata
 
     @classmethod
-    def load_v2(
-        cls: type[InventoryFile],
-        stream: InventoryFileReader,
-        uri: str,
-        join: Callable[[str, str], str],
-    ) -> Inventory:
+    def _loads_v2(cls, inv_data: bytes, *, uri: str) -> Inventory:
+        lines = inv_data.split(b'\n', maxsplit=3)
+        if len(lines) < 3:
+            msg = 'invalid inventory header: missing project name or version'
+            raise ValueError(msg)
         invdata: Inventory = {}
-        projname = stream.readline().rstrip()[11:]
-        version = stream.readline().rstrip()[11:]
+        projname = lines[0].decode().rstrip()[11:]  # Project name
+        version = lines[1].decode().rstrip()[11:]  # Project version
         # definition -> priority, location, display name
         potential_ambiguities: dict[str, tuple[str, str, str]] = {}
         actual_ambiguities = set()
-        line = stream.readline()
-        if 'zlib' not in line:
-            raise ValueError('invalid inventory header (not compressed): %s' % line)
+        check_line = lines[2]  # '... compressed using zlib'
+        if b'zlib' not in check_line:
+            msg = f'invalid inventory header (not compressed): {check_line.decode()}'
+            raise ValueError(msg)
 
-        for line in stream.read_compressed_lines():
+        compressed = lines[3]  # the remaining content (per maxsplit above)
+        for line in zlib.decompress(compressed).decode().splitlines():
             # be careful to handle names with embedded spaces correctly
             m = re.match(
                 r'(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
@@ -183,7 +192,7 @@ class InventoryFile:
                     potential_ambiguities[lowercase_definition] = content
             if location.endswith('$'):
                 location = location[:-1] + name
-            location = join(uri, location)
+            location = posixpath.join(uri, location)
             inv_item: InventoryItem = projname, version, location, dispname
             invdata.setdefault(type, {})[name] = inv_item
         for ambiguity in actual_ambiguities:
@@ -198,10 +207,7 @@ class InventoryFile:
 
     @classmethod
     def dump(
-        cls: type[InventoryFile],
-        filename: str | os.PathLike[str],
-        env: BuildEnvironment,
-        builder: Builder,
+        cls, filename: str | os.PathLike[str], env: BuildEnvironment, builder: Builder
     ) -> None:
         def escape(string: str) -> str:
             return re.sub('\\s+', ' ', string)
