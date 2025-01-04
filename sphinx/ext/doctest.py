@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
-doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
+doctestopt_re = re.compile(r'[ \t]*#\s*doctest:.+$', re.MULTILINE)
 
 
 def is_allowed_version(spec: str, version: str) -> bool:
