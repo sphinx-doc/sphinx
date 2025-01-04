@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Callable, Sequence
     from typing import Protocol
 
     from sphinx.builders import Builder
@@ -29,60 +29,13 @@ if TYPE_CHECKING:
     _JoinFunc = Callable[[str, str], str]
 
 
-class InventoryFileReader:
-    """A file reader for an inventory file.
+def __getattr__(name: str) -> object:
+    if name == 'InventoryFileReader':
+        from sphinx.util._inventory_file_reader import InventoryFileReader
 
-    This reader supports mixture of texts and compressed texts.
-    """
-
-    def __init__(self, stream: _SupportsRead) -> None:
-        self.stream = stream
-        self.buffer = b''
-        self.eof = False
-
-    def read_buffer(self) -> None:
-        chunk = self.stream.read(BUFSIZE)
-        if chunk == b'':
-            self.eof = True
-        self.buffer += chunk
-
-    def readline(self) -> str:
-        pos = self.buffer.find(b'\n')
-        if pos != -1:
-            line = self.buffer[:pos].decode()
-            self.buffer = self.buffer[pos + 1 :]
-        elif self.eof:
-            line = self.buffer.decode()
-            self.buffer = b''
-        else:
-            self.read_buffer()
-            line = self.readline()
-
-        return line
-
-    def readlines(self) -> Iterator[str]:
-        while not self.eof:
-            line = self.readline()
-            if line:
-                yield line
-
-    def read_compressed_chunks(self) -> Iterator[bytes]:
-        decompressor = zlib.decompressobj()
-        while not self.eof:
-            self.read_buffer()
-            yield decompressor.decompress(self.buffer)
-            self.buffer = b''
-        yield decompressor.flush()
-
-    def read_compressed_lines(self) -> Iterator[str]:
-        buf = b''
-        for chunk in self.read_compressed_chunks():
-            buf += chunk
-            pos = buf.find(b'\n')
-            while pos != -1:
-                yield buf[:pos].decode()
-                buf = buf[pos + 1 :]
-                pos = buf.find(b'\n')
+        return InventoryFileReader
+    msg = f'module {__name__!r} has no attribute {name!r}'
+    raise AttributeError(msg)
 
 
 class InventoryFile:
