@@ -93,7 +93,7 @@ class ImageCollector(EnvironmentCollector):
             # into a single directory)
             for imgpath in candidates.values():
                 app.env.note_dependency(imgpath)
-                if not os.access(os.path.join(app.srcdir, imgpath), os.R_OK):
+                if not os.access(app.srcdir / imgpath, os.R_OK):
                     logger.warning(
                         __('image file not readable: %s'),
                         imgpath,

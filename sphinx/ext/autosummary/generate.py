@@ -530,12 +530,15 @@ def generate_autosummary_docs(
         logger.info(__('[autosummary] writing to %s'), output_dir)
 
     if base_path is not None:
-        sources = [os.path.join(base_path, filename) for filename in sources]
+        base_path = Path(base_path)
+        source_paths = [base_path / filename for filename in sources]
+    else:
+        source_paths = list(map(Path, sources))
 
     template = AutosummaryRenderer(app)
 
     # read
-    items = find_autosummary_in_files(sources)
+    items = find_autosummary_in_files(source_paths)
 
     # keep track of new files
     new_files: list[Path] = []
@@ -628,7 +631,9 @@ def generate_autosummary_docs(
 # -- Finding documented entries in files ---------------------------------------
 
 
-def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
+def find_autosummary_in_files(
+    filenames: Sequence[str | os.PathLike[str]],
+) -> list[AutosummaryEntry]:
     """Find out what items are documented in source/*.rst.
 
     See `find_autosummary_in_lines`.
@@ -643,7 +648,7 @@ def find_autosummary_in_files(filenames: list[str]) -> list[AutosummaryEntry]:
 
 def find_autosummary_in_docstring(
     name: str,
-    filename: str | None = None,
+    filename: str | os.PathLike[str] | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items are documented in the given object's docstring.
 
@@ -670,7 +675,7 @@ def find_autosummary_in_docstring(
 def find_autosummary_in_lines(
     lines: list[str],
     module: str | None = None,
-    filename: str | None = None,
+    filename: str | os.PathLike[str] | None = None,
 ) -> list[AutosummaryEntry]:
     """Find out what items appear in autosummary:: directives in the
     given lines.
@@ -710,7 +715,7 @@ def find_autosummary_in_lines(
             if m:
                 toctree = m.group(1)
                 if filename:
-                    toctree = os.path.join(os.path.dirname(filename), toctree)
+                    toctree = str(Path(filename).parent / toctree)
                 continue
 
             m = template_arg_re.match(line)
