@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import io
 import posixpath
 import re
 import zlib
@@ -16,11 +15,16 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Callable, Iterable, Iterator, Sequence
+    from collections.abc import Callable, Iterator, Sequence
+    from typing import Protocol
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import Inventory, InventoryItem, _ReadableStream
+    from sphinx.util.typing import Inventory, InventoryItem
+
+    # Readable file stream for inventory loading
+    class _SupportsRead(Protocol):
+        def read(self, size: int = ...) -> bytes: ...
 
     _JoinFunc = Callable[[str, str], str]
 
@@ -31,7 +35,7 @@ class InventoryFileReader:
     This reader supports mixture of texts and compressed texts.
     """
 
-    def __init__(self, stream: _ReadableStream[bytes]) -> None:
+    def __init__(self, stream: _SupportsRead) -> None:
         self.stream = stream
         self.buffer = b''
         self.eof = False
@@ -104,9 +108,7 @@ class InventoryFile:
         raise ValueError(msg)
 
     @classmethod
-    def load(
-        cls, stream: _ReadableStream[bytes], uri: str, joinfunc: _JoinFunc
-    ) -> Inventory:
+    def load(cls, stream: _SupportsRead, uri: str, joinfunc: _JoinFunc) -> Inventory:
         return cls.loads(stream.read(), uri=uri)
 
     @classmethod
