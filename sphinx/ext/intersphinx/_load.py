@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import concurrent.futures
-import io
 import os.path
 import posixpath
 import time
@@ -305,9 +304,8 @@ def _fetch_inventory(
     else:
         raw_data = _fetch_inventory_file(inv_location=inv_location, srcdir=srcdir)
 
-    stream = io.BytesIO(raw_data)
     try:
-        invdata = InventoryFile.load(stream, target_uri, posixpath.join)
+        invdata = InventoryFile.loads(raw_data, uri=target_uri)
     except ValueError as exc:
         msg = f'unknown or unsupported inventory version: {exc!r}'
         raise ValueError(msg) from exc

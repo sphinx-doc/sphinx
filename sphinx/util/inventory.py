@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import io
+import posixpath
 import re
 import zlib
 from typing import TYPE_CHECKING
@@ -78,6 +80,10 @@ class InventoryFileReader:
 
 
 class InventoryFile:
+    @classmethod
+    def loads(cls, content: bytes, *, uri: str) -> Inventory:
+        return cls.load(io.BytesIO(content), uri, posixpath.join)
+
     @classmethod
     def load(
         cls: type[InventoryFile],
