@@ -59,14 +59,14 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
             # Allow an attribute to have multiple parts and incidentally allow
             # repeated .s in the attribute.
             value = module
-            for attr in attribute.split("."):
+            for attr in attribute.split('.'):
                 if attr:
                     value = getattr(value, attr)
 
             return getattr(value, "__module__", None)
         except ModuleNotFoundError:
             # Attempt to find full path of module
-            module_path = modname.split(".")
+            module_path = modname.split('.')
             actual_path = __import__(module_path[0], globals(), locals(), [], 0)
             if len(module_path) > 1:
                 for mod in module_path[1:]:
@@ -78,11 +78,11 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
             # Load module with exact path
             module = import_module(actual_path_str)
             value = module
-            for attr in attribute.split("."):
+            for attr in attribute.split('.'):
                 if attr:
                     value = getattr(value, attr)
 
-            return getattr(value, "__module__", None)
+            return getattr(value, '_module__' None)
 
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
