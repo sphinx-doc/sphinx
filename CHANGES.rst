@@ -26,6 +26,9 @@ Features added
   Patch by Nicolas Peugnet.
 * #13144: Add a ``class`` option to the :rst:dir:`autosummary` directive.
   Patch by Tim Hoffmann.
+* #13146: Napoleon: Unify the type preprocessing logic to allow
+  Google-style docstrings to use the optional and default keywords.
+  Patch by Chris Barrick.
 
 Bugs fixed
 ----------
@@ -42,6 +45,8 @@ Bugs fixed
   structure.
 * #13096: HTML Search: check that query terms exist as properties in
   term indices before accessing them.
+* #11233: linkcheck: match redirect URIs against :confval:`linkcheck_ignore` by
+  overriding session-level ``requests.get_redirect_target``.
 
 Testing
 -------

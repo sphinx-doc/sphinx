@@ -227,8 +227,8 @@ class FileAvoidWrite:
         try:
             with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
-                if old_content == buf:
-                    return
+            if old_content == buf:
+                return
         except OSError:
             pass
 

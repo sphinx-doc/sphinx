@@ -304,7 +304,8 @@ def render_math(
 
 def render_maths_to_base64(image_format: str, generated_path: str) -> str:
     with open(generated_path, 'rb') as f:
-        encoded = base64.b64encode(f.read()).decode(encoding='utf-8')
+        content = f.read()
+    encoded = base64.b64encode(content).decode(encoding='utf-8')
     if image_format == 'png':
         return f'data:image/png;base64,{encoded}'
     if image_format == 'svg':

@@ -886,7 +886,7 @@ def process_generate_options(app: Sphinx) -> None:
         ]
 
         for entry in genfiles[:]:
-            if not os.path.isfile(os.path.join(app.srcdir, entry)):
+            if not (app.srcdir / entry).is_file():
                 logger.warning(__('autosummary_generate: file not found: %s'), entry)
                 genfiles.remove(entry)
 

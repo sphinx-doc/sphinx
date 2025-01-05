@@ -398,7 +398,9 @@ class HyperlinkAvailabilityCheckWorker(Thread):
         self.tls_verify = config.tls_verify
         self.tls_cacerts = config.tls_cacerts
 
-        self._session = requests._Session()
+        self._session = requests._Session(
+            _ignored_redirects=tuple(map(re.compile, config.linkcheck_ignore))
+        )
 
         super().__init__(daemon=True)
 
@@ -569,6 +571,14 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # ConnectionError.
                 error_message = str(err)
                 continue
+
+            except requests._IgnoredRedirection as err:
+                # A redirection to an ignored URI was attempted; report it appropriately
+                return (
+                    _Status.IGNORED,
+                    f'ignored redirect: {err.destination}',
+                    err.status_code,
+                )
 
             except HTTPError as err:
                 error_message = str(err)

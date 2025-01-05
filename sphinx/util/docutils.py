@@ -403,9 +403,10 @@ class SphinxFileOutput(FileOutput):
             and os.path.exists(self.destination_path)
         ):
             with open(self.destination_path, encoding=self.encoding) as f:
-                # skip writing: content not changed
-                if f.read() == data:
-                    return data
+                on_disk = f.read()
+            # skip writing: content not changed
+            if on_disk == data:
+                return data
 
         return super().write(data)
 
