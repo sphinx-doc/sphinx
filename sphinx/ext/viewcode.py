@@ -82,7 +82,7 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
                 if attr:
                     value = getattr(value, attr)
 
-            return getattr(value, '_module__' None)
+            return getattr(value, '_module__', None)
 
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
