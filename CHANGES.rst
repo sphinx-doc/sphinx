@@ -47,6 +47,7 @@ Bugs fixed
   overriding session-level ``requests.get_redirect_target``.
 * #13195: viewcode: Fix issue where import paths differ from the directory
   structure.
+  Patch by Ben Egan and Adam Turner.
 
 Testing
 -------
