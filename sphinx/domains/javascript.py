@@ -101,8 +101,8 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         signode['fullname'] = fullname
 
         max_len = (
-            self.env.config.javascript_maximum_signature_line_length
-            or self.env.config.maximum_signature_line_length
+            self.config.javascript_maximum_signature_line_length
+            or self.config.maximum_signature_line_length
             or 0
         )
         multi_line_parameter_list = (
@@ -238,7 +238,7 @@ class JSObject(ObjectDescription[tuple[str, str]]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.config
+        config = self.config
         objtype = sig_node.parent.get('objtype')
         if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'

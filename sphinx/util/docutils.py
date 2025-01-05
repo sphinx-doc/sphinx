@@ -726,6 +726,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+        self._domains = builder.env.domains
 
     def dispatch_visit(self, node: Node) -> None:
         """

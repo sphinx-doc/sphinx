@@ -497,7 +497,13 @@ class SphinxLogRecordTranslator(logging.Filter):
     LogRecordClass: type[logging.LogRecord]
 
     def __init__(self, app: Sphinx) -> None:
-        self.app = app
+        self._env = app.env
+        try:
+            self._show_warning_types = app.config.show_warning_types
+        except AttributeError:
+            # config is not initialized yet (ex. in conf.py)
+            self._show_warning_types = False
+
         super().__init__()
 
     def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
@@ -510,15 +516,15 @@ class SphinxLogRecordTranslator(logging.Filter):
             docname, lineno = location
             if docname:
                 if lineno:
-                    record.location = f'{self.app.env.doc2path(docname)}:{lineno}'
+                    record.location = f'{self._env.doc2path(docname)}:{lineno}'
                 else:
-                    record.location = f'{self.app.env.doc2path(docname)}'
+                    record.location = f'{self._env.doc2path(docname)}'
             else:
                 record.location = None
         elif isinstance(location, nodes.Node):
             record.location = get_node_location(location)
         elif location and ':' not in location:
-            record.location = f'{self.app.env.doc2path(location)}'
+            record.location = f'{self._env.doc2path(location)}'
 
         return True
 
@@ -537,12 +543,7 @@ class WarningLogRecordTranslator(SphinxLogRecordTranslator):
     def filter(self, record: SphinxWarningLogRecord) -> bool:  # type: ignore[override]
         ret = super().filter(record)
 
-        try:
-            show_warning_types = self.app.config.show_warning_types
-        except AttributeError:
-            # config is not initialized yet (ex. in conf.py)
-            show_warning_types = False
-        if show_warning_types:
+        if self._show_warning_types:
             if log_type := getattr(record, 'type', ''):
                 if log_subtype := getattr(record, 'subtype', ''):
                     record.msg += f' [{log_type}.{log_subtype}]'

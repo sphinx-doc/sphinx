@@ -419,9 +419,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains.standard_domain.get_enumerable_node_type(
-            node
-        )
+        figtype = self._domains.standard_domain.get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
                 msg = __('Any IDs not assigned for %s node') % node.tagname

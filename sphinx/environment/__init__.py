@@ -695,6 +695,7 @@ class BuildEnvironment:
                 toctreenode,
                 prune=prune_toctrees,
                 includehidden=includehidden,
+                tags=builder.tags,
             )
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
@@ -735,6 +736,7 @@ class BuildEnvironment:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=builder.tags,
         )
 
     def resolve_references(

@@ -870,7 +870,7 @@ def process_generate_options(app: Sphinx) -> None:
     genfiles = app.config.autosummary_generate
 
     if genfiles is True:
-        env = app.builder.env
+        env = app.env
         genfiles = [
             str(env.doc2path(x, base=False))
             for x in env.found_docs

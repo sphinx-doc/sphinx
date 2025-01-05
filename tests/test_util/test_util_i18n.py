@@ -119,7 +119,7 @@ def test_get_filename_for_language(app):
     app.env.current_document.docname = 'index'
 
     # language is en
-    app.env.config.language = 'en'
+    app.config.language = 'en'
     assert get_filename('foo.png', app.env) == 'foo.en.png'
     assert get_filename('foo.bar.png', app.env) == 'foo.bar.en.png'
     assert get_filename('dir/foo.png', app.env) == 'dir/foo.en.png'
@@ -127,8 +127,8 @@ def test_get_filename_for_language(app):
     assert get_filename('foo', app.env) == 'foo.en'
 
     # modify figure_language_filename and language is 'en'
-    app.env.config.language = 'en'
-    app.env.config.figure_language_filename = 'images/{language}/{root}{ext}'
+    app.config.language = 'en'
+    app.config.figure_language_filename = 'images/{language}/{root}{ext}'
     assert get_filename('foo.png', app.env) == 'images/en/foo.png'
     assert get_filename('foo.bar.png', app.env) == 'images/en/foo.bar.png'
     assert get_filename('subdir/foo.png', app.env) == 'images/en/subdir/foo.png'
@@ -136,8 +136,8 @@ def test_get_filename_for_language(app):
     assert get_filename('foo', app.env) == 'images/en/foo'
 
     # new path and basename tokens
-    app.env.config.language = 'en'
-    app.env.config.figure_language_filename = '{path}{language}/{basename}{ext}'
+    app.config.language = 'en'
+    app.config.figure_language_filename = '{path}{language}/{basename}{ext}'
     assert get_filename('foo.png', app.env) == 'en/foo.png'
     assert get_filename('foo.bar.png', app.env) == 'en/foo.bar.png'
     assert get_filename('subdir/foo.png', app.env) == 'subdir/en/foo.png'
@@ -145,13 +145,13 @@ def test_get_filename_for_language(app):
     assert get_filename('foo', app.env) == 'en/foo'
 
     # invalid figure_language_filename
-    app.env.config.figure_language_filename = '{root}.{invalid}{ext}'
+    app.config.figure_language_filename = '{root}.{invalid}{ext}'
     with pytest.raises(SphinxError):
         get_filename('foo.png', app.env)
 
     # docpath (for a document in the top of source directory)
-    app.env.config.language = 'en'
-    app.env.config.figure_language_filename = '/{docpath}{language}/{basename}{ext}'
+    app.config.language = 'en'
+    app.config.figure_language_filename = '/{docpath}{language}/{basename}{ext}'
     assert get_filename('foo.png', app.env) == '/en/foo.png'
 
     # docpath (for a document in the sub directory)

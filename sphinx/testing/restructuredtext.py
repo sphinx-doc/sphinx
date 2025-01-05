@@ -16,20 +16,21 @@ if TYPE_CHECKING:
 
 def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
     """Parse a string as reStructuredText with Sphinx application."""
+    env = app.env
     try:
         app.env.current_document.docname = docname
         reader = SphinxStandaloneReader()
         reader.setup(app)
         parser = RSTParser()
         parser.set_application(app)
-        with sphinx_domains(app.env):
+        with sphinx_domains(env):
             return publish_doctree(
                 text,
                 str(app.srcdir / f'{docname}.rst'),
                 reader=reader,
                 parser=parser,
                 settings_overrides={
-                    'env': app.env,
+                    'env': env,
                     'gettext_compact': True,
                     'input_encoding': 'utf-8',
                     'output_encoding': 'unicode',
@@ -37,4 +38,4 @@ def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
                 },
             )
     finally:
-        app.env.current_document.docname = ''
+        env.current_document.docname = ''

@@ -146,9 +146,7 @@ class I18nBuilder(Builder):
 
     def init(self) -> None:
         super().init()
-        self.env.set_versioning_method(
-            self.versioning_method, self.env.config.gettext_uuid
-        )
+        self.env.set_versioning_method(self.versioning_method, self.config.gettext_uuid)
         self.tags = I18nTags()
         self.catalogs: defaultdict[str, Catalog] = defaultdict(Catalog)
 
@@ -174,7 +172,7 @@ class I18nBuilder(Builder):
             if not _is_node_in_substitution_definition(node):
                 catalog.add(msg, node)
 
-        if 'index' in self.env.config.gettext_additional_targets:
+        if 'index' in self.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
                 for entry_type, value, _target_id, _main, _category_key in entries:
