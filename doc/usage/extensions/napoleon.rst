@@ -533,7 +533,7 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
       Do preprocess the Google style docstrings also.
 
 .. confval:: napoleon_type_aliases
-   :type: :code-py:`Optional[dict[str, str]]`
+   :type: :code-py:`dict[str, str] | None`
    :default: :code-py:`None`
 
    A mapping to translate type names to other names or references. Works
@@ -575,7 +575,7 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
    .. versionadded:: 3.4
 
 .. confval:: napoleon_custom_sections
-   :type: :code-py:`Optional[Sequence[str | Sequence[str, str]]]`
+   :type: :code-py:`Sequence[str | Sequence[str, str]] | None`
    :default: :code-py:`None`
 
    Add a list of custom sections to include, expanding the list of parsed sections.
