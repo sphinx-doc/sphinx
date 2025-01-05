@@ -7,6 +7,7 @@ import os.path
 import posixpath
 import traceback
 from importlib import import_module
+from importlib.util import find_spec
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -67,7 +68,10 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
         except ModuleNotFoundError:
             # Attempt to find full path of module
             module_path = modname.split('.')
-            actual_path = __import__(module_path[0], globals(), locals(), [], 0)
+            module_spec = find_spec(module_path[0])
+            if module_spec is None:
+                return None
+            actual_path = module_spec.loader.load_module(module_path[0])
             if len(module_path) > 1:
                 for mod in module_path[1:]:
                     actual_path = getattr(actual_path, mod)
