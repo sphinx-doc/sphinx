@@ -17,13 +17,13 @@ def func1(a, b):
 
 
 @decorator
-class Class1():
+class Class1:
     """
     this is Class1
     """
 
 
-class Class3():
+class Class3:
     """
     this is Class3
     """
