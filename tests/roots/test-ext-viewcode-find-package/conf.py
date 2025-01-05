@@ -8,7 +8,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 exclude_patterns = ['_build']
 
 
-if 'test_linkcode' in tags:
+if 'test_linkcode' in tags:  # NoQA: F821 (tags is injected into conf.py)
     extensions.remove('sphinx.ext.viewcode')
     extensions.append('sphinx.ext.linkcode')
 

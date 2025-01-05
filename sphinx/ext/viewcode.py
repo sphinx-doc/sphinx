@@ -71,7 +71,7 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
             module_spec = find_spec(module_path[0])
             if module_spec is None:
                 return None
-            actual_path = module_spec.loader.load_module(module_path[0])
+            actual_path = module_spec.loader.load_module(module_path[0])  # type: ignore[union-attr]
             if len(module_path) > 1:
                 for mod in module_path[1:]:
                     actual_path = getattr(actual_path, mod)
