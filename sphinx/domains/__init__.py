@@ -13,7 +13,7 @@ from sphinx.domains._index import Index, IndexEntry
 from sphinx.locale import _
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence, Set
+    from collections.abc import Iterable, Sequence, Set
     from typing import Any
 
     from docutils import nodes
@@ -108,7 +108,7 @@ class Domain:
 
     def __init__(self, env: BuildEnvironment) -> None:
         self.env: BuildEnvironment = env
-        self._role_cache: dict[str, Callable] = {}
+        self._role_cache: dict[str, RoleFunction] = {}
         self._directive_cache: dict[str, type[Directive]] = {}
         self._role2type: dict[str, list[str]] = {}
         self._type2role: dict[str, str] = {}
