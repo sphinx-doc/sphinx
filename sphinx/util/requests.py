@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from urllib.parse import urljoin, urlsplit
 
 import requests
@@ -13,6 +13,8 @@ import sphinx
 
 if TYPE_CHECKING:
     import re
+    from collections.abc import Sequence
+    from typing import Any
 
 
 _USER_AGENT = (
@@ -62,6 +64,12 @@ def head(url: str, **kwargs: Any) -> requests.Response:
 
 
 class _Session(requests.Session):
+    _ignored_redirects: Sequence[re.Pattern[str]]
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self._ignored_redirects = kwargs.pop('_ignored_redirects', ())
+        super().__init__(*args, **kwargs)
+
     def get_redirect_target(self, resp: requests.Response) -> str | None:
         """Overrides the default requests.Session.get_redirect_target"""
         # do not follow redirections that match ignored URI patterns
@@ -69,16 +77,9 @@ class _Session(requests.Session):
             destination = urljoin(resp.url, resp.headers['location'])
             if any(pat.match(destination) for pat in self._ignored_redirects):
                 raise _IgnoredRedirection(
-                    destination=destination,
-                    status_code=resp.status_code,
+                    destination=destination, status_code=resp.status_code
                 )
         return super().get_redirect_target(resp)
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self._ignored_redirects: list[re.Pattern[str]] = kwargs.pop(
-            '_ignored_redirects', []
-        )
-        super().__init__(*args, **kwargs)
 
     def request(  # type: ignore[override]
         self,
