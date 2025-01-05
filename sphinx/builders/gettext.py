@@ -147,7 +147,7 @@ class I18nBuilder(Builder):
     def init(self) -> None:
         super().init()
         self.env.set_versioning_method(self.versioning_method, self.config.gettext_uuid)
-        self.tags = I18nTags()
+        self.tags = self.app.tags = I18nTags()
         self.catalogs: defaultdict[str, Catalog] = defaultdict(Catalog)
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
