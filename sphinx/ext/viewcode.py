@@ -7,7 +7,6 @@ import operator
 import os.path
 import posixpath
 import traceback
-from importlib import import_module
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
