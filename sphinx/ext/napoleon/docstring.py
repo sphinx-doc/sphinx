@@ -221,31 +221,14 @@ def _convert_type_spec(
     if translations is None:
         translations = {}
 
-    def convert_obj(
-        obj: str, translations: dict[str, str], default_translation: str
-    ) -> str:
-        translation = translations.get(obj, obj)
-
-        # use :class: (the default) only if obj is not a standard singleton
-        if translation in _SINGLETONS and default_translation == ':class:`%s`':
-            default_translation = ':obj:`%s`'
-        elif translation == '...' and default_translation == ':class:`%s`':
-            # allow referencing the builtin ...
-            default_translation = ':obj:`%s <Ellipsis>`'
-
-        if _xref_regex.match(translation) is None:
-            translation = default_translation % translation
-
-        return translation
-
     tokens = _tokenize_type_spec(_type)
     combined_tokens = _recombine_set_tokens(tokens)
     types = [(token, _token_type(token, debug_location)) for token in combined_tokens]
 
     converters = {
-        'literal': lambda x: '``%s``' % x,
-        'obj': lambda x: convert_obj(x, translations, ':class:`%s`'),
-        'control': lambda x: '*%s*' % x,
+        'literal': lambda x: f'``{x}``',
+        'obj': lambda x: _convert_type_spec_obj(x, translations),
+        'control': lambda x: f'*{x}*',
         'delimiter': lambda x: x,
         'reference': lambda x: x,
     }
@@ -256,6 +239,24 @@ def _convert_type_spec(
     )
 
     return converted
+
+
+def _convert_type_spec_obj(
+    obj: str, translations: dict[str, str], default_translation: str = ':py:class:`%s`'
+) -> str:
+    translation = translations.get(obj, obj)
+
+    # use :py:class: (the default) only if obj is not a standard singleton
+    if translation in _SINGLETONS and default_translation == ':py:class:`%s`':
+        default_translation = ':py:obj:`%s`'
+    elif translation == '...' and default_translation == ':py:class:`%s`':
+        # allow referencing the builtin ...
+        default_translation = ':py:obj:`%s <Ellipsis>`'
+
+    if _xref_regex.match(translation) is None:
+        translation = default_translation % translation
+
+    return translation
 
 
 class GoogleDocstring:
@@ -1414,7 +1415,7 @@ class NumpyDocstring(GoogleDocstring):
             if role:
                 link = f':{role}:`{name}`'
             else:
-                link = ':obj:`%s`' % name
+                link = ':py:obj:`%s`' % name
             if desc or last_had_desc:
                 lines += ['']
                 lines += [link]
