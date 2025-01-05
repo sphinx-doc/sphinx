@@ -162,3 +162,24 @@ def test_local_source_files(app):
         'This is the class attribute class_attr',
     ):
         assert result.count(needle) == 1
+
+
+@pytest.mark.sphinx('html', testroot='ext-viewcode-find-package', freshenv=True)
+def test_find_local_package_import_path(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').read_text(encoding='utf8')
+
+    count_func1 = result.count(
+        'href="_modules/main_package/subpackage/_subpackage2/submodule.html#func1"'
+    )
+    assert count_func1 == 1
+
+    count_class1 = result.count(
+        'href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class1"'
+    )
+    assert count_class1 == 1
+
+    count_class3 = result.count(
+        'href="_modules/main_package/subpackage/_subpackage2/submodule.html#Class3"'
+    )
+    assert count_class3 == 1

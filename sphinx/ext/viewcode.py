@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import importlib.util
 import operator
 import os.path
 import posixpath
 import traceback
-from importlib import import_module
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -48,12 +48,30 @@ class viewcode_anchor(Element):
 
 
 def _get_full_modname(modname: str, attribute: str) -> str | None:
+    if modname is None:
+        # Prevents a TypeError: if the last getattr() call will return None
+        # then it's better to return it directly
+        return None
+
     try:
-        if modname is None:
-            # Prevents a TypeError: if the last getattr() call will return None
-            # then it's better to return it directly
+        # Attempt to find full path of module
+        module_path = modname.split('.')
+        num_parts = len(module_path)
+        for i in range(num_parts, 0, -1):
+            mod_root = '.'.join(module_path[:i])
+            module_spec = importlib.util.find_spec(mod_root)
+            if module_spec is not None:
+                break
+        else:
             return None
-        module = import_module(modname)
+        # Load and execute the module
+        module = importlib.util.module_from_spec(module_spec)
+        if module_spec.loader is None:
+            return None
+        module_spec.loader.exec_module(module)
+        if i != num_parts:
+            for mod in module_path[i:]:
+                module = getattr(module, mod)
 
         # Allow an attribute to have multiple parts and incidentally allow
         # repeated .s in the attribute.
