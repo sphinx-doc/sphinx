@@ -51,7 +51,7 @@ _token_regex = re.compile(
 _default_regex = re.compile(
     r'^default[^_0-9A-Za-z].*$',
 )
-_SINGLETONS = ('None', 'True', 'False', 'Ellipsis')
+_SINGLETONS = frozenset({'None', 'True', 'False', 'Ellipsis', '...'})
 
 
 class Deque(collections.deque[Any]):
@@ -241,22 +241,19 @@ def _convert_type_spec(
     return converted
 
 
-def _convert_type_spec_obj(
-    obj: str, translations: dict[str, str], default_translation: str = ':py:class:`%s`'
-) -> str:
+def _convert_type_spec_obj(obj: str, translations: dict[str, str]) -> str:
     translation = translations.get(obj, obj)
 
-    # use :py:class: (the default) only if obj is not a standard singleton
-    if translation in _SINGLETONS and default_translation == ':py:class:`%s`':
-        default_translation = ':py:obj:`%s`'
-    elif translation == '...' and default_translation == ':py:class:`%s`':
-        # allow referencing the builtin ...
-        default_translation = ':py:obj:`%s <Ellipsis>`'
+    if _xref_regex.match(translation) is not None:
+        return translation
 
-    if _xref_regex.match(translation) is None:
-        translation = default_translation % translation
+    # use :py:obj: if obj is a standard singleton
+    if translation in _SINGLETONS:
+        if translation == '...':  # allow referencing the builtin ...
+            return ':py:obj:`... <Ellipsis>`'
+        return f':py:obj:`{translation}`'
 
-    return translation
+    return f':py:class:`{translation}`'
 
 
 class GoogleDocstring:
@@ -621,9 +618,9 @@ class GoogleDocstring:
             return [f'.. {admonition}:: {lines[0].strip()}', '']
         elif lines:
             lines = self._indent(self._dedent(lines), 3)
-            return ['.. %s::' % admonition, '', *lines, '']
+            return [f'.. {admonition}::', '', *lines, '']
         else:
-            return ['.. %s::' % admonition, '']
+            return [f'.. {admonition}::', '']
 
     def _format_block(
         self,
@@ -700,7 +697,7 @@ class GoogleDocstring:
         field_type: str,
         fields: list[tuple[str, str, list[str]]],
     ) -> list[str]:
-        field_type = ':%s:' % field_type.strip()
+        field_type = f':{field_type.strip()}:'
         padding = ' ' * len(field_type)
         multi = len(fields) > 1
         lines: list[str] = []
@@ -865,7 +862,7 @@ class GoogleDocstring:
         _type, _desc = self._consume_inline_attribute()
         lines = self._format_field('', '', _desc)
         if _type:
-            lines.extend(['', ':type: %s' % _type])
+            lines.extend(['', f':type: {_type}'])
         return lines
 
     def _parse_attributes_section(self, section: str) -> list[str]:
@@ -874,7 +871,7 @@ class GoogleDocstring:
             if not _type:
                 _type = self._lookup_annotation(_name)
             if self._config.napoleon_use_ivar:
-                field = ':ivar %s: ' % _name
+                field = f':ivar {_name}: '
                 lines.extend(self._format_block(field, _desc))
                 if _type:
                     lines.append(f':vartype {_name}: {_type}')
@@ -889,7 +886,7 @@ class GoogleDocstring:
                 lines.extend(self._indent(fields, 3))
                 if _type:
                     lines.append('')
-                    lines.extend(self._indent([':type: %s' % _type], 3))
+                    lines.extend(self._indent([f':type: {_type}'], 3))
                 lines.append('')
         if self._config.napoleon_use_ivar:
             lines.append('')
@@ -926,10 +923,10 @@ class GoogleDocstring:
         lines = self._strip_empty(self._consume_to_next_section())
         lines = self._dedent(lines)
         if use_admonition:
-            header = '.. admonition:: %s' % section
+            header = f'.. admonition:: {section}'
             lines = self._indent(lines, 3)
         else:
-            header = '.. rubric:: %s' % section
+            header = f'.. rubric:: {section}'
         if lines:
             return [header, '', *lines, '']
         else:
@@ -947,7 +944,7 @@ class GoogleDocstring:
     def _parse_methods_section(self, section: str) -> list[str]:
         lines: list[str] = []
         for _name, _type, _desc in self._consume_fields(parse_type=False):
-            lines.append('.. method:: %s' % _name)
+            lines.append(f'.. method:: {_name}')
             if self._opt:
                 if 'no-index' in self._opt or 'noindex' in self._opt:
                     lines.append('   :no-index:')
@@ -1030,7 +1027,7 @@ class GoogleDocstring:
                 if any(field):  # only add :returns: if there's something to say
                     lines.extend(self._format_block(':returns: ', field))
                 if _type and use_rtype:
-                    lines.extend([':rtype: %s' % _type, ''])
+                    lines.extend([f':rtype: {_type}', ''])
         if lines and lines[-1]:
             lines.append('')
         return lines
@@ -1347,7 +1344,8 @@ class NumpyDocstring(GoogleDocstring):
                     return g[3], None
                 else:
                     return g[2], g[1]
-            raise ValueError('%s is not a item name' % text)
+            msg = f'{text} is not a item name'
+            raise ValueError(msg)
 
         def push_item(name: str | None, rest: list[str]) -> None:
             if not name:
@@ -1415,12 +1413,12 @@ class NumpyDocstring(GoogleDocstring):
             if role:
                 link = f':{role}:`{name}`'
             else:
-                link = ':py:obj:`%s`' % name
+                link = f':py:obj:`{name}`'
             if desc or last_had_desc:
                 lines += ['']
                 lines += [link]
             else:
-                lines[-1] += ', %s' % link
+                lines[-1] += f', {link}'
             if desc:
                 lines += self._indent([' '.join(desc)])
                 last_had_desc = True
