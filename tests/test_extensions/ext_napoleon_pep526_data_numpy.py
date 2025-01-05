@@ -32,6 +32,7 @@ class PEP526NumpyDontUseAttrTypeForParam:
     blah:
         Description of parameter blah
     """
+
     def __init__(self, blah: int):
         pass
 

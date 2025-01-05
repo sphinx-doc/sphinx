@@ -2815,17 +2815,25 @@ Sample class with PEP 526 annotations and numpy docstring
 
     def test_pep526_annotations_dont_use_attr_type_for_param(self):
         # test class attributes annotations
-        config = Config(
-            napoleon_attr_annotations=True
+        config = Config(napoleon_attr_annotations=True)
+        actual = str(
+            NumpyDocstring(
+                cleandoc(PEP526NumpyDontUseAttrTypeForParam.__doc__),
+                config,
+                app=None,
+                what='class',
+                obj=PEP526NumpyDontUseAttrTypeForParam,
+            )
         )
-        actual = str(NumpyDocstring(cleandoc(PEP526NumpyDontUseAttrTypeForParam.__doc__), config, app=None, what="class",
-                                    obj=PEP526NumpyDontUseAttrTypeForParam))
-        assert actual == """\
+        assert (
+            actual
+            == """\
 A Class
 
 :param blah: Description of parameter blah
 :type blah: int
 """
+        )
 
 
 @pytest.mark.sphinx(

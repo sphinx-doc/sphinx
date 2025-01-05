@@ -475,7 +475,8 @@ class GoogleDocstring:
         self,
         parse_type: bool = True,
         prefer_type: bool = False,
-    is_attribute: bool = False, ) -> tuple[str, str, list[str]]:
+        is_attribute: bool = False,
+    ) -> tuple[str, str, list[str]]:
         line = self._lines.next()
 
         before, colon, after = self._partition_field_on_colon(line)
@@ -504,13 +505,19 @@ class GoogleDocstring:
         _descs = self.__class__(_descs, self._config).lines()
         return _name, _type, _descs
 
-    def _consume_fields(self, parse_type: bool = True, prefer_type: bool = False,
-                        is_attribute: bool = False, multiple: bool = False
-                        ) -> list[tuple[str, str, list[str]]]:
+    def _consume_fields(
+        self,
+        parse_type: bool = True,
+        prefer_type: bool = False,
+        is_attribute: bool = False,
+        multiple: bool = False,
+    ) -> list[tuple[str, str, list[str]]]:
         self._consume_empty()
         fields: list[tuple[str, str, list[str]]] = []
         while not self._is_section_break():
-            _name, _type, _desc = self._consume_field(parse_type, prefer_type, is_attribute)
+            _name, _type, _desc = self._consume_field(
+                parse_type, prefer_type, is_attribute
+            )
             if multiple and _name:
                 fields.extend((name.strip(), _type, _desc) for name in _name.split(','))
             elif _name or _type or _desc:
@@ -1091,14 +1098,7 @@ class GoogleDocstring:
         # cache the annotations
         if not hasattr(self, '_annotations'):
             localns = getattr(self._config, 'autodoc_type_aliases', {})
-            localns.update(
-                getattr(
-                    self._config,
-                    'napoleon_type_aliases',
-                    {},
-               )
-                or {}
-            )
+            localns.update(getattr(self._config, 'napoleon_type_aliases', {}) or {})
             self._annotations = get_type_hints(self._obj, None, localns)
             if self._what == 'class':
                 self._constructor_annotations = get_type_hints(
@@ -1233,8 +1233,11 @@ class NumpyDocstring(GoogleDocstring):
             return func(name)
 
     def _consume_field(
-        self, parse_type: bool = True, prefer_type: bool = False,
-    is_attribute: bool = False) -> tuple[str, str, list[str]]:
+        self,
+        parse_type: bool = True,
+        prefer_type: bool = False,
+        is_attribute: bool = False,
+    ) -> tuple[str, str, list[str]]:
         line = self._lines.next()
         if parse_type:
             _name, _, _type = self._partition_field_on_colon(line)
