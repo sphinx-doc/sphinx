@@ -286,8 +286,8 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         signode['fullname'] = fullname
 
         max_len = (
-            self.env.config.python_maximum_signature_line_length
-            or self.env.config.maximum_signature_line_length
+            self.config.python_maximum_signature_line_length
+            or self.config.maximum_signature_line_length
             or 0
         )
 
@@ -321,7 +321,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
         if prefix:
             signode += addnodes.desc_addname(prefix, prefix)
-        elif modname and add_module and self.env.config.add_module_names:
+        elif modname and add_module and self.config.add_module_names:
             nodetext = f'{modname}.'
             signode += addnodes.desc_addname(nodetext, nodetext)
 
@@ -474,7 +474,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.config
+        config = self.config
         objtype = sig_node.parent.get('objtype')
         if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'

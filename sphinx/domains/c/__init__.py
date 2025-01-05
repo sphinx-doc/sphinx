@@ -219,7 +219,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def run(self) -> list[Node]:
-        env = self.state.document.settings.env  # from ObjectDescription.run
+        env = self.env
         if env.current_document.c_parent_symbol is None:
             root = env.domaindata['c']['root_symbol']
             env.current_document.c_parent_symbol = root
@@ -235,8 +235,8 @@ class CObject(ObjectDescription[ASTDeclaration]):
         parent_symbol: Symbol = self.env.current_document.c_parent_symbol
 
         max_len = (
-            self.env.config.c_maximum_signature_line_length
-            or self.env.config.maximum_signature_line_length
+            self.config.c_maximum_signature_line_length
+            or self.config.maximum_signature_line_length
             or 0
         )
         signode['multi_line_parameter_list'] = (
@@ -244,7 +244,7 @@ class CObject(ObjectDescription[ASTDeclaration]):
             and (len(sig) > max_len > 0)
         )
 
-        parser = DefinitionParser(sig, location=signode, config=self.env.config)
+        parser = DefinitionParser(sig, location=signode, config=self.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -400,7 +400,7 @@ class CNamespaceObject(SphinxDirective):
             stack: list[Symbol] = []
         else:
             parser = DefinitionParser(
-                self.arguments[0], location=self.get_location(), config=self.env.config
+                self.arguments[0], location=self.get_location(), config=self.config
             )
             try:
                 name = parser.parse_namespace_object()
@@ -427,7 +427,7 @@ class CNamespacePushObject(SphinxDirective):
         if self.arguments[0].strip() in {'NULL', '0', 'nullptr'}:
             return []
         parser = DefinitionParser(
-            self.arguments[0], location=self.get_location(), config=self.env.config
+            self.arguments[0], location=self.get_location(), config=self.config
         )
         try:
             name = parser.parse_namespace_object()
@@ -567,7 +567,7 @@ class AliasTransform(SphinxTransform):
             sig = node.sig
             parent_key = node.parentKey
             try:
-                parser = DefinitionParser(sig, location=node, config=self.env.config)
+                parser = DefinitionParser(sig, location=node, config=self.config)
                 name = parser.parse_xref_object()
             except DefinitionError as e:
                 logger.warning(e, location=node)
@@ -716,7 +716,7 @@ class CExprRole(SphinxRole):
     def run(self) -> tuple[list[Node], list[system_message]]:
         text = self.text.replace('\n', ' ')
         parser = DefinitionParser(
-            text, location=self.get_location(), config=self.env.config
+            text, location=self.get_location(), config=self.config
         )
         # attempt to mimic XRefRole classes, except that...
         try:

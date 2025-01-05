@@ -40,7 +40,7 @@ class LinkcodeError(SphinxError):
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
-    env = app.builder.env
+    env = app.env
 
     resolve_target = getattr(env.config, 'linkcode_resolve', None)
     if not callable(env.config.linkcode_resolve):

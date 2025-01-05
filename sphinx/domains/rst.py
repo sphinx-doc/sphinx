@@ -84,12 +84,11 @@ class ReSTMarkup(ObjectDescription[str]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.config
         objtype = sig_node.parent.get('objtype')
         *parents, name = sig_node['_toc_parts']
         if objtype == 'directive:option':
             return f':{name}:'
-        if config.toc_object_entries_show_parents in {'domain', 'all'}:
+        if self.config.toc_object_entries_show_parents in {'domain', 'all'}:
             name = ':'.join(sig_node['_toc_parts'])
         if objtype == 'role':
             return f':{name}:'

@@ -259,7 +259,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
                 break
         if not is_in_concept and 'no-index-entry' not in self.options:
             stripped_name = name
-            for prefix in self.env.config.cpp_index_common_prefix:
+            for prefix in self.config.cpp_index_common_prefix:
                 if name.startswith(prefix):
                     stripped_name = stripped_name[len(prefix) :]
                     break
@@ -308,7 +308,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def run(self) -> list[Node]:
-        env = self.state.document.settings.env  # from ObjectDescription.run
+        env = self.env
         if env.current_document.cpp_parent_symbol is None:
             root = env.domaindata['cpp']['root_symbol']
             env.current_document.cpp_parent_symbol = root
@@ -348,8 +348,8 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         parent_symbol: Symbol = self.env.current_document.cpp_parent_symbol
 
         max_len = (
-            self.env.config.cpp_maximum_signature_line_length
-            or self.env.config.maximum_signature_line_length
+            self.config.cpp_maximum_signature_line_length
+            or self.config.maximum_signature_line_length
             or 0
         )
         signode['multi_line_parameter_list'] = (
@@ -357,7 +357,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
             and (len(sig) > max_len > 0)
         )
 
-        parser = DefinitionParser(sig, location=signode, config=self.env.config)
+        parser = DefinitionParser(sig, location=signode, config=self.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -440,7 +440,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         if not sig_node.get('_toc_parts'):
             return ''
 
-        config = self.env.config
+        config = self.config
         objtype = sig_node.parent.get('objtype')
         if config.add_function_parentheses and objtype in {'function', 'method'}:
             parens = '()'
@@ -710,7 +710,7 @@ class AliasTransform(SphinxTransform):
             sig = node.sig
             parent_key = node.parentKey
             try:
-                parser = DefinitionParser(sig, location=node, config=self.env.config)
+                parser = DefinitionParser(sig, location=node, config=self.config)
                 ast, is_shorthand = parser.parse_xref_object()
                 parser.assert_end()
             except DefinitionError as e:

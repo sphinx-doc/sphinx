@@ -272,7 +272,8 @@ class IndexBuilder:
     def __init__(
         self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str
     ) -> None:
-        self.env = env
+        self._domains = env.domains
+        self._env_version = env.version
         # docname -> title
         self._titles: dict[str, str | None] = env._search_index_titles
         # docname -> filename
@@ -323,7 +324,10 @@ class IndexBuilder:
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
-        if not isinstance(frozen, dict) or frozen.get('envversion') != self.env.version:
+        if (
+            not isinstance(frozen, dict)
+            or frozen.get('envversion') != self._env_version
+        ):
             msg = 'old format'
             raise ValueError(msg)
         index2fn = frozen['docnames']
@@ -362,7 +366,7 @@ class IndexBuilder:
         rv: dict[str, list[tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
-        for domain in self.env.domains.sorted():
+        for domain in self._domains.sorted():
             sorted_objects = sorted(domain.get_objects())
             for fullname, dispname, type, docname, anchor, prio in sorted_objects:
                 if docname not in fn2index:
@@ -452,7 +456,7 @@ class IndexBuilder:
             'objtypes': objtypes,
             'objnames': objnames,
             'titleterms': title_terms,
-            'envversion': self.env.version,
+            'envversion': self._env_version,
             'alltitles': alltitles,
             'indexentries': index_entries,
         }

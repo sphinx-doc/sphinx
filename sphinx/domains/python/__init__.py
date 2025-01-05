@@ -261,7 +261,7 @@ class PyMethod(PyObject):
         name, cls = name_cls
         try:
             clsname, methname = name.rsplit('.', 1)
-            if modname and self.env.config.add_module_names:
+            if modname and self.config.add_module_names:
                 clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
@@ -357,7 +357,7 @@ class PyAttribute(PyObject):
         name, cls = name_cls
         try:
             clsname, attrname = name.rsplit('.', 1)
-            if modname and self.env.config.add_module_names:
+            if modname and self.config.add_module_names:
                 clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
@@ -417,7 +417,7 @@ class PyProperty(PyObject):
         name, cls = name_cls
         try:
             clsname, attrname = name.rsplit('.', 1)
-            if modname and self.env.config.add_module_names:
+            if modname and self.config.add_module_names:
                 clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
@@ -457,7 +457,7 @@ class PyTypeAlias(PyObject):
         name, cls = name_cls
         try:
             clsname, attrname = name.rsplit('.', 1)
-            if modname and self.env.config.add_module_names:
+            if modname and self.config.add_module_names:
                 clsname = f'{modname}.{clsname}'
         except ValueError:
             if modname:
