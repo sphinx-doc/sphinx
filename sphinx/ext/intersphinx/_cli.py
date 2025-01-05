@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 from sphinx.ext.intersphinx._load import _fetch_inventory
 
@@ -29,7 +30,7 @@ def inspect_main(argv: list[str], /) -> int:
             target_uri='',
             inv_location=filename,
             config=MockConfig(),  # type: ignore[arg-type]
-            srcdir='',  # type: ignore[arg-type]
+            srcdir=Path(''),
         )
         for key in sorted(inv_data or {}):
             print(key)

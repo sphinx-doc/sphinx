@@ -70,14 +70,15 @@ def set_config(app, mapping):
 
 
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
-@mock.patch('sphinx.ext.intersphinx._load._read_from_url')
+@mock.patch('sphinx.ext.intersphinx._load.requests.get')
 @pytest.mark.sphinx('html', testroot='root')
-def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQA: PT019
+def test_fetch_inventory_redirection(get_request, InventoryFile, app):
+    mocked_get = get_request.return_value.__enter__.return_value
     intersphinx_setup(app)
-    _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
+    mocked_get.content = b'# Sphinx inventory version 2'
 
     # same uri and inv, not redirected
-    _read_from_url().url = 'https://hostname/' + INVENTORY_FILENAME
+    mocked_get.url = 'https://hostname/' + INVENTORY_FILENAME
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/' + INVENTORY_FILENAME,
@@ -90,7 +91,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
     # same uri and inv, redirected
     app.status.seek(0)
     app.status.truncate(0)
-    _read_from_url().url = 'https://hostname/new/' + INVENTORY_FILENAME
+    mocked_get.url = 'https://hostname/new/' + INVENTORY_FILENAME
 
     _fetch_inventory(
         target_uri='https://hostname/',
@@ -108,7 +109,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
     # different uri and inv, not redirected
     app.status.seek(0)
     app.status.truncate(0)
-    _read_from_url().url = 'https://hostname/new/' + INVENTORY_FILENAME
+    mocked_get.url = 'https://hostname/new/' + INVENTORY_FILENAME
 
     _fetch_inventory(
         target_uri='https://hostname/',
@@ -122,7 +123,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
     # different uri and inv, redirected
     app.status.seek(0)
     app.status.truncate(0)
-    _read_from_url().url = 'https://hostname/other/' + INVENTORY_FILENAME
+    mocked_get.url = 'https://hostname/other/' + INVENTORY_FILENAME
 
     _fetch_inventory(
         target_uri='https://hostname/',

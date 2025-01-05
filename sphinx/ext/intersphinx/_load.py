@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import concurrent.futures
+import io
 import os.path
 import posixpath
 import time
@@ -20,8 +21,6 @@ from sphinx.util.inventory import InventoryFile
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from urllib3.response import HTTPResponse
-
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.ext.intersphinx._shared import (
@@ -31,7 +30,7 @@ if TYPE_CHECKING:
         InventoryName,
         InventoryURI,
     )
-    from sphinx.util.typing import Inventory, _ReadableStream
+    from sphinx.util.typing import Inventory
 
 
 def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
@@ -297,13 +296,38 @@ def _fetch_inventory(
     # and *inv_location* (actual location of the inventory file)
     # can be local or remote URIs
     if '://' in target_uri:
-        # case: inv URI points to remote resource; strip any existing auth
+        # inv URI points to remote resource; strip any existing auth
         target_uri = _strip_basic_auth(target_uri)
+    if '://' in inv_location:
+        raw_data, target_uri = _fetch_inventory_url(
+            target_uri=target_uri, inv_location=inv_location, config=config
+        )
+    else:
+        raw_data = _fetch_inventory_file(inv_location=inv_location, srcdir=srcdir)
+
+    stream = io.BytesIO(raw_data)
     try:
-        if '://' in inv_location:
-            f: _ReadableStream[bytes] = _read_from_url(inv_location, config=config)
-        else:
-            f = open(os.path.join(srcdir, inv_location), 'rb')  # NoQA: SIM115
+        invdata = InventoryFile.load(stream, target_uri, posixpath.join)
+    except ValueError as exc:
+        msg = f'unknown or unsupported inventory version: {exc!r}'
+        raise ValueError(msg) from exc
+    return invdata
+
+
+def _fetch_inventory_url(
+    *, target_uri: InventoryURI, inv_location: str, config: Config
+) -> tuple[bytes, str]:
+    try:
+        with requests.get(
+            inv_location,
+            stream=True,
+            timeout=config.intersphinx_timeout,
+            _user_agent=config.user_agent,
+            _tls_info=(config.tls_verify, config.tls_cacerts),
+        ) as r:
+            r.raise_for_status()
+            raw_data = r.content
+            new_inv_location = r.url
     except Exception as err:
         err.args = (
             'intersphinx inventory %r not fetchable due to %s: %s',
@@ -312,25 +336,25 @@ def _fetch_inventory(
             str(err),
         )
         raise
-    try:
-        if hasattr(f, 'url'):
-            new_inv_location = f.url
-            if inv_location != new_inv_location:
-                msg = __('intersphinx inventory has moved: %s -> %s')
-                LOGGER.info(msg, inv_location, new_inv_location)
 
-                if target_uri in {
-                    inv_location,
-                    os.path.dirname(inv_location),
-                    os.path.dirname(inv_location) + '/',
-                }:
-                    target_uri = os.path.dirname(new_inv_location)
-        with f:
-            try:
-                invdata = InventoryFile.load(f, target_uri, posixpath.join)
-            except ValueError as exc:
-                msg = f'unknown or unsupported inventory version: {exc!r}'
-                raise ValueError(msg) from exc
+    if inv_location != new_inv_location:
+        msg = __('intersphinx inventory has moved: %s -> %s')
+        LOGGER.info(msg, inv_location, new_inv_location)
+
+        if target_uri in {
+            inv_location,
+            os.path.dirname(inv_location),
+            os.path.dirname(inv_location) + '/',
+        }:
+            target_uri = os.path.dirname(new_inv_location)
+
+    return raw_data, target_uri
+
+
+def _fetch_inventory_file(*, inv_location: str, srcdir: Path) -> bytes:
+    try:
+        with open(srcdir / inv_location, 'rb') as f:
+            raw_data = f.read()
     except Exception as err:
         err.args = (
             'intersphinx inventory %r not readable due to %s: %s',
@@ -339,8 +363,7 @@ def _fetch_inventory(
             str(err),
         )
         raise
-    else:
-        return invdata
+    return raw_data
 
 
 def _get_safe_url(url: str) -> str:
@@ -387,37 +410,3 @@ def _strip_basic_auth(url: str) -> str:
     if '@' in frags[1]:
         frags[1] = frags[1].split('@')[1]
     return urlunsplit(frags)
-
-
-def _read_from_url(url: str, *, config: Config) -> HTTPResponse:
-    """Reads data from *url* with an HTTP *GET*.
-
-    This function supports fetching from resources which use basic HTTP auth as
-    laid out by RFC1738 § 3.1. See § 5 for grammar definitions for URLs.
-
-    .. seealso:
-
-       https://www.ietf.org/rfc/rfc1738.txt
-
-    :param url: URL of an HTTP resource
-    :type url: ``str``
-
-    :return: data read from resource described by *url*
-    :rtype: ``file``-like object
-    """
-    r = requests.get(
-        url,
-        stream=True,
-        timeout=config.intersphinx_timeout,
-        _user_agent=config.user_agent,
-        _tls_info=(config.tls_verify, config.tls_cacerts),
-    )
-    r.raise_for_status()
-
-    # For inv_location / new_inv_location
-    r.raw.url = r.url  # type: ignore[union-attr]
-
-    # Decode content-body based on the header.
-    # xref: https://github.com/psf/requests/issues/2155
-    r.raw.decode_content = True
-    return r.raw
