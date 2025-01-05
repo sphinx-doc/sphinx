@@ -43,6 +43,8 @@ Bugs fixed
   Patch by Jean-François B.
 * #13096: HTML Search: check that query terms exist as properties in
   term indices before accessing them.
+* #11233: linkcheck: match redirect URIs against :confval:`linkcheck_ignore` by
+  overriding session-level ``requests.get_redirect_target``.
 
 Testing
 -------
