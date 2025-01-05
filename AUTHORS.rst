@@ -35,6 +35,7 @@ Contributors
 * Bruce Mitchener -- Minor epub improvement
 * Buck Evan -- dummy builder
 * Charles Duffy -- original graphviz extension
+* Chris Barrick -- Napoleon type preprocessing logic
 * Chris Holdgraf -- improved documentation structure
 * Chris Lamb -- reproducibility fixes
 * Christopher Perkins -- autosummary integration
