@@ -232,7 +232,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             next_is_required = (
                 not is_last_group
                 and self.list_is_required_param[self.param_group_index + 1]
-            )  # fmt: skip
+            )
             opt_param_left_at_level = self.params_left_at_level > 0
             if (
                 opt_param_left_at_level
