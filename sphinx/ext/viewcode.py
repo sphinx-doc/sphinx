@@ -59,14 +59,14 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
             module = import_module(modname)
         except ModuleNotFoundError:
             # Attempt to find full path of module
-            module_path = modname.split('.')
-            module_spec = find_spec(module_path[0])
+            mod_root, *remaining_mod_path = modname.split('.')
+            module_spec = find_spec(mod_root)
             if module_spec is None:
                 return None
             module = module_from_spec(module_spec)
             module_spec.loader.exec_module(module)
-            if len(module_path) > 1:
-                for mod in module_path[1:]:
+            if remaining_mod_path:
+                for mod in remaining_mod_path:
                     module = getattr(module, mod)
 
         # Allow an attribute to have multiple parts and incidentally allow
