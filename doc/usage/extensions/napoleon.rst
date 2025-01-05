@@ -8,6 +8,9 @@
 
 .. versionadded:: 1.3
 
+.. role:: code-py(code)
+   :language: Python
+
 Overview
 --------
 
