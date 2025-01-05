@@ -140,8 +140,9 @@ def load_mappings(app: Sphinx) -> None:
 
     The intersphinx mappings are expected to be normalized.
     """
+    env = app.env
     now = int(time.time())
-    inventories = InventoryAdapter(app.builder.env)
+    inventories = InventoryAdapter(env)
     intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
     intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
 

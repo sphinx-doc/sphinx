@@ -46,7 +46,8 @@ if TYPE_CHECKING:
     from typing import ClassVar, Literal, TypeAlias
 
     from sphinx.application import Sphinx
-    from sphinx.environment import BuildEnvironment
+    from sphinx.environment import BuildEnvironment, _CurrentDocument
+    from sphinx.events import EventManager
     from sphinx.ext.autodoc.directive import DocumenterBridge
 
     _AutodocObjType = Literal[
@@ -370,6 +371,8 @@ class Documenter:
         self.directive = directive
         self.config: Config = directive.env.config
         self.env: BuildEnvironment = directive.env
+        self._current_document: _CurrentDocument = directive.env.current_document
+        self._events: EventManager = directive.env.events
         self.options = directive.genopt
         self.name = name
         self.indent = indent
@@ -554,7 +557,7 @@ class Documenter:
                 )
                 args = None
 
-        result = self.env.events.emit_firstresult(
+        result = self._events.emit_firstresult(
             'autodoc-process-signature',
             self.objtype,
             self.fullname,
@@ -613,9 +616,9 @@ class Documenter:
     def process_doc(self, docstrings: list[list[str]]) -> Iterator[str]:
         """Let the user process the docstrings before adding them."""
         for docstringlines in docstrings:
-            if self.env.app:
+            if self._events is not None:
                 # let extensions preprocess docstrings
-                self.env.events.emit(
+                self._events.emit(
                     'autodoc-process-docstring',
                     self.objtype,
                     self.fullname,
@@ -840,9 +843,9 @@ class Documenter:
 
                 # give the user a chance to decide whether this member
                 # should be skipped
-                if self.env.app:
+                if self._events is not None:
                     # let extensions preprocess docstrings
-                    skip_user = self.env.events.emit_firstresult(
+                    skip_user = self._events.emit_firstresult(
                         'autodoc-skip-member',
                         self.objtype,
                         membername,
@@ -878,9 +881,9 @@ class Documenter:
         *self.options.members*.
         """
         # set current namespace for finding members
-        self.env.current_document.autodoc_module = self.modname
+        self._current_document.autodoc_module = self.modname
         if self.objpath:
-            self.env.current_document.autodoc_class = self.objpath[0]
+            self._current_document.autodoc_class = self.objpath[0]
 
         want_all = (
             all_members or self.options.inherited_members or self.options.members is ALL
@@ -918,8 +921,8 @@ class Documenter:
             )
 
         # reset current objects
-        self.env.current_document.autodoc_module = ''
-        self.env.current_document.autodoc_class = ''
+        self._current_document.autodoc_module = ''
+        self._current_document.autodoc_class = ''
 
     def sort_members(
         self, documenters: list[tuple[Documenter, bool]], order: str
@@ -1261,7 +1264,7 @@ class ModuleLevelDocumenter(Documenter):
 
         # if documenting a toplevel object without explicit module,
         # it can be contained in another auto directive ...
-        modname = self.env.current_document.autodoc_module
+        modname = self._current_document.autodoc_module
         # ... or in the scope of a module directive
         if not modname:
             modname = self.env.ref_context.get('py:module')
@@ -1287,7 +1290,7 @@ class ClassLevelDocumenter(Documenter):
             # if documenting a class-level object without path,
             # there must be a current class, either from a parent
             # auto directive ...
-            mod_cls = self.env.current_document.autodoc_class
+            mod_cls = self._current_document.autodoc_class
             # ... or from a class directive
             if not mod_cls:
                 mod_cls = self.env.ref_context.get('py:class', '')
@@ -1298,7 +1301,7 @@ class ClassLevelDocumenter(Documenter):
         parents = [cls]
         # if the module name is still missing, get it like above
         if not modname:
-            modname = self.env.current_document.autodoc_module
+            modname = self._current_document.autodoc_module
         if not modname:
             modname = self.env.ref_context.get('py:module')
         # ... else, it stays None, which means invalid
@@ -1432,7 +1435,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
             kwargs.setdefault('unqualified_typehints', True)
 
         try:
-            self.env.events.emit('autodoc-before-process-signature', self.object, False)
+            self._events.emit('autodoc-before-process-signature', self.object, False)
             sig = inspect.signature(
                 self.object, type_aliases=self.config.autodoc_type_aliases
             )
@@ -1685,7 +1688,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 call = None
 
         if call is not None:
-            self.env.events.emit('autodoc-before-process-signature', call, True)
+            self._events.emit('autodoc-before-process-signature', call, True)
             try:
                 sig = inspect.signature(
                     call,
@@ -1704,7 +1707,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
                 new = None
 
         if new is not None:
-            self.env.events.emit('autodoc-before-process-signature', new, True)
+            self._events.emit('autodoc-before-process-signature', new, True)
             try:
                 sig = inspect.signature(
                     new,
@@ -1718,7 +1721,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # Finally, we should have at least __init__ implemented
         init = get_user_defined_function_or_method(self.object, '__init__')
         if init is not None:
-            self.env.events.emit('autodoc-before-process-signature', init, True)
+            self._events.emit('autodoc-before-process-signature', init, True)
             try:
                 sig = inspect.signature(
                     init,
@@ -1733,7 +1736,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         # handle it.
         # We don't know the exact method that inspect.signature will read
         # the signature from, so just pass the object itself to our hook.
-        self.env.events.emit('autodoc-before-process-signature', self.object, False)
+        self._events.emit('autodoc-before-process-signature', self.object, False)
         try:
             sig = inspect.signature(
                 self.object,
@@ -1886,7 +1889,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             else:
                 bases = []
 
-            self.env.events.emit(
+            self._events.emit(
                 'autodoc-process-bases', self.fullname, self.object, self.options, bases
             )
 
@@ -2387,7 +2390,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                 if inspect.isstaticmethod(
                     self.object, cls=self.parent, name=self.object_name
                 ):
-                    self.env.events.emit(
+                    self._events.emit(
                         'autodoc-before-process-signature', self.object, False
                     )
                     sig = inspect.signature(
@@ -2396,7 +2399,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
                         type_aliases=self.config.autodoc_type_aliases,
                     )
                 else:
-                    self.env.events.emit(
+                    self._events.emit(
                         'autodoc-before-process-signature', self.object, True
                     )
                     sig = inspect.signature(
@@ -3049,7 +3052,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
             return ''
 
         # update the annotations of the property getter
-        self.env.events.emit('autodoc-before-process-signature', func, False)
+        self._events.emit('autodoc-before-process-signature', func, False)
         # correctly format the arguments for a property
         return super().format_args(**kwargs)
 

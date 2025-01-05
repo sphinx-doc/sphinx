@@ -232,7 +232,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             next_is_required = (
                 not is_last_group
                 and self.list_is_required_param[self.param_group_index + 1]
-            )  # fmt: skip
+            )
             opt_param_left_at_level = self.params_left_at_level > 0
             if (
                 opt_param_left_at_level
@@ -419,9 +419,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains.standard_domain.get_enumerable_node_type(
-            node
-        )
+        figtype = self._domains.standard_domain.get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
                 msg = __('Any IDs not assigned for %s node') % node.tagname

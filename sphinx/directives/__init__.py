@@ -267,7 +267,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             finally:
                 # Private attributes for ToC generation. Will be modified or removed
                 # without notice.
-                if self.env.config.toc_object_entries:
+                if self.config.toc_object_entries:
                     signode['_toc_parts'] = self._object_hierarchy_parts(signode)
                     signode['_toc_name'] = self._toc_entry_name(signode)
                 else:

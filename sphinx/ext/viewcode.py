@@ -112,7 +112,7 @@ def is_supported_builder(builder: Builder) -> bool:
 
 
 def doctree_read(app: Sphinx, doctree: Node) -> None:
-    env = app.builder.env
+    env = app.env
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}  # type: ignore[attr-defined]
 
@@ -276,7 +276,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
 
 
 def collect_pages(app: Sphinx) -> Iterator[tuple[str, dict[str, Any], str]]:
-    env = app.builder.env
+    env = app.env
     if not hasattr(env, '_viewcode_modules'):
         return
     if not is_supported_builder(app.builder):
