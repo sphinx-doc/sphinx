@@ -876,7 +876,7 @@ class GoogleDocstring:
         lines = []
         for _name, _type, _desc in self._consume_fields(is_attribute=True):
             if not _type:
-                _type = self._lookup_annotation(_name, True)
+                _type = self._lookup_annotation(_name, is_attribute=True)
             if self._config.napoleon_use_ivar:
                 field = f':ivar {_name}: '
                 lines.extend(self._format_block(field, _desc))
@@ -1088,7 +1088,7 @@ class GoogleDocstring:
                 lines = lines[start : end + 1]
         return lines
 
-    def _lookup_annotation(self, _name: str, is_attribute: bool) -> str:
+    def _lookup_annotation(self, _name: str, *, is_attribute: bool) -> str:
         if not self._config.napoleon_attr_annotations:
             return ''
         if self._what not in {'module', 'class', 'exception'}:
@@ -1247,7 +1247,7 @@ class NumpyDocstring(GoogleDocstring):
         _name = self._escape_args_and_kwargs(_name)
 
         if parse_type and not _type:
-            _type = self._lookup_annotation(_name, is_attribute)
+            _type = self._lookup_annotation(_name, is_attribute=is_attribute)
 
         if prefer_type and not _type:
             _type, _name = _name, _type
