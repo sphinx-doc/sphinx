@@ -1,1 +1,1 @@
-import main_package.subpackage as subpackage
+from main_package import subpackage
