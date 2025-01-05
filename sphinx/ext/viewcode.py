@@ -63,7 +63,7 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
                 if attr:
                     value = getattr(value, attr)
 
-            return getattr(value, "__module__", None)
+            return getattr(value, '__module__', None)
         except ModuleNotFoundError:
             # Attempt to find full path of module
             module_path = modname.split('.')
