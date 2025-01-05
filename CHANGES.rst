@@ -26,6 +26,9 @@ Features added
   Patch by Nicolas Peugnet.
 * #13144: Add a ``class`` option to the :rst:dir:`autosummary` directive.
   Patch by Tim Hoffmann.
+* #13146: Napoleon: Unify the type preprocessing logic to allow
+  Google-style docstrings to use the optional and default keywords.
+  Patch by Chris Barrick.
 
 Bugs fixed
 ----------
