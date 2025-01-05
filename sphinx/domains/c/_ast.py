@@ -657,8 +657,7 @@ class ASTBinOpExpr(ASTBase):
         return hash((self.exprs, self.ops))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.exprs[0]))
+        res = [transform(self.exprs[0])]
         for i in range(1, len(self.exprs)):
             res.extend((
                 ' ',
@@ -699,8 +698,7 @@ class ASTAssignmentExpr(ASTExpression):
         return hash((self.exprs, self.ops))
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.exprs[0]))
+        res = [transform(self.exprs[0])]
         for i in range(1, len(self.exprs)):
             res.extend((
                 ' ',
@@ -872,8 +870,7 @@ class ASTParameters(ASTBase):
         return self.args
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append('(')
+        res = ['(']
         first = True
         for a in self.args:
             if not first:
@@ -1345,8 +1342,7 @@ class ASTDeclaratorPtr(ASTDeclarator):
         )
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = ['*']
-        res.append(transform(self.attrs))
+        res = ['*', transform(self.attrs)]
         if len(self.attrs) != 0 and (self.restrict or self.volatile or self.const):
             res.append(' ')
         if self.restrict:
@@ -1620,8 +1616,7 @@ class ASTTypeWithInit(ASTBase):
         return self.type.get_id(version, objectType, symbol)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.type))
+        res = [transform(self.type)]
         if self.init:
             res.append(transform(self.init))
         return ''.join(res)
@@ -1699,8 +1694,7 @@ class ASTMacro(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.ident))
+        res = [transform(self.ident)]
         if self.args is not None:
             res.append('(')
             first = True
@@ -1826,8 +1820,7 @@ class ASTEnumerator(ASTBase):
         return symbol.get_full_nested_name().get_id(version)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        res = []
-        res.append(transform(self.name))
+        res = [transform(self.name)]
         if len(self.attrs) != 0:
             res.extend((' ', transform(self.attrs)))
         if self.init:

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
     """Parse a string as reStructuredText with Sphinx application."""
     try:
-        app.env.temp_data['docname'] = docname
+        app.env.current_document.docname = docname
         reader = SphinxStandaloneReader()
         reader.setup(app)
         parser = RSTParser()
@@ -37,4 +37,4 @@ def parse(app: Sphinx, text: str, docname: str = 'index') -> nodes.document:
                 },
             )
     finally:
-        app.env.temp_data.pop('docname', None)
+        app.env.current_document.docname = ''

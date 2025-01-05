@@ -285,7 +285,7 @@ class sphinx_domains(CustomReSTDispatcher):
                 )
         # else look in the default domain
         else:
-            def_domain = self.env.temp_data.get('default_domain')
+            def_domain = self.env.current_document.default_domain
             if def_domain is not None:
                 element = getattr(def_domain, type)(name)
                 if element is not None:
@@ -403,9 +403,10 @@ class SphinxFileOutput(FileOutput):
             and os.path.exists(self.destination_path)
         ):
             with open(self.destination_path, encoding=self.encoding) as f:
-                # skip writing: content not changed
-                if f.read() == data:
-                    return data
+                on_disk = f.read()
+            # skip writing: content not changed
+            if on_disk == data:
+                return data
 
         return super().write(data)
 
@@ -587,7 +588,7 @@ class SphinxRole:
         if name:
             self.name = name.lower()
         else:
-            self.name = self.env.temp_data.get('default_role', '')
+            self.name = self.env.current_document.default_role
             if not self.name:
                 self.name = self.env.config.default_role
             if not self.name:

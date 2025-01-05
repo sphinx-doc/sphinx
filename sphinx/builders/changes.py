@@ -137,15 +137,16 @@ class ChangesBuilder(Builder):
                         __('could not read %r for changelog creation'), docname
                     )
                     continue
+            text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
+            ctx = {
+                'filename': str(self.env.doc2path(docname, False)),
+                'text': text,
+            }
+            rendered = self.templates.render('changes/rstsource.html', ctx)
             targetfn = os.path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(os.path.dirname(targetfn))
             with open(targetfn, 'w', encoding='utf-8') as f:
-                text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
-                ctx = {
-                    'filename': str(self.env.doc2path(docname, False)),
-                    'text': text,
-                }
-                f.write(self.templates.render('changes/rstsource.html', ctx))
+                f.write(rendered)
         themectx = {
             'theme_' + key: val for (key, val) in self.theme.get_options({}).items()
         }
