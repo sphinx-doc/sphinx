@@ -38,8 +38,8 @@ def record_typehints(
 
     try:
         if callable(obj):
-            annotations = app.env.temp_data.setdefault('annotations', {})
-            annotation = annotations.setdefault(name, {})
+            current_document = app.env.current_document
+            annotation = current_document.autodoc_annotations.setdefault(name, {})
             sig = inspect.signature(obj, type_aliases=app.config.autodoc_type_aliases)
             for param in sig.parameters.values():
                 if param.annotation is not param.empty:
@@ -71,7 +71,7 @@ def merge_typehints(
         # signature node does not have valid context info for the target object
         return
 
-    annotations = app.env.temp_data.get('annotations', {})
+    annotations = app.env.current_document.autodoc_annotations
     if annotations.get(fullname, {}):
         field_lists = [n for n in contentnode if isinstance(n, nodes.field_list)]
         if field_lists == []:

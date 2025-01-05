@@ -583,9 +583,10 @@ def eval_config_file(
     """Evaluate a config file."""
     filename = Path(filename)
 
-    namespace: dict[str, Any] = {}
-    namespace['__file__'] = str(filename)
-    namespace['tags'] = tags
+    namespace: dict[str, Any] = {
+        '__file__': str(filename),
+        'tags': tags,
+    }
 
     with chdir(filename.parent):
         # during executing config file, current dir is changed to ``confdir``.

@@ -3,6 +3,16 @@
 See https://github.com/trailofbits/pypi-attestations.
 """
 
+# resolution fails without betterproto and protobuf-specs
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "pypi-attestations~=0.0.12",
+#     "sigstore-protobuf-specs==0.3.2",
+#     "betterproto==2.0.0b6",
+# ]
+# ///
+
 from __future__ import annotations
 
 import json

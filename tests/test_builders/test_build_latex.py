@@ -100,7 +100,7 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
         if self.path == '/sphinx.png':
             with open('tests/roots/test-local-logo/images/img.png', 'rb') as f:
                 content = f.read()
-                content_type = 'image/png'
+            content_type = 'image/png'
 
         if content:
             self.send_response(200, 'OK')

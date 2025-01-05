@@ -258,13 +258,13 @@ class Cmdoption(ObjectDescription[str]):
                 args = '[' + args
 
             if count:
-                if self.env.config.option_emphasise_placeholders:
+                if self.config.option_emphasise_placeholders:
                     signode += addnodes.desc_sig_punctuation(',', ',')
                     signode += addnodes.desc_sig_space()
                 else:
                     signode += addnodes.desc_addname(', ', ', ')
             signode += addnodes.desc_name(optname, optname)
-            if self.env.config.option_emphasise_placeholders:
+            if self.config.option_emphasise_placeholders:
                 add_end_bracket = False
                 if args:
                     if args[0] == '[' and args[-1] == ']':

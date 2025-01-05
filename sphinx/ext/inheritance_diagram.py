@@ -58,7 +58,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
-    from sphinx.environment import BuildEnvironment
+    from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
     from sphinx.writers.latex import LaTeXTranslator
@@ -302,7 +302,7 @@ class InheritanceGraph:
         self,
         name: str,
         urls: dict[str, str] | None = None,
-        env: BuildEnvironment | None = None,
+        config: Config | None = None,
         graph_attrs: dict | None = None,
         node_attrs: dict | None = None,
         edge_attrs: dict | None = None,
@@ -328,10 +328,10 @@ class InheritanceGraph:
             n_attrs.update(node_attrs)
         if edge_attrs is not None:
             e_attrs.update(edge_attrs)
-        if env:
-            g_attrs.update(env.config.inheritance_graph_attrs)
-            n_attrs.update(env.config.inheritance_node_attrs)
-            e_attrs.update(env.config.inheritance_edge_attrs)
+        if config:
+            g_attrs.update(config.inheritance_graph_attrs)
+            n_attrs.update(config.inheritance_node_attrs)
+            e_attrs.update(config.inheritance_edge_attrs)
 
         res: list[str] = [
             f'digraph {name} {{\n',
@@ -450,7 +450,7 @@ def html_visit_inheritance_diagram(
     name = 'inheritance%s' % graph_hash
 
     # Create a mapping from fully-qualified class names to URLs.
-    graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
+    graphviz_output_format = self.config.graphviz_output_format.upper()
     current_filename = os.path.basename(
         self.builder.current_docname + self.builder.out_suffix
     )
@@ -471,7 +471,7 @@ def html_visit_inheritance_diagram(
             else:
                 urls[child['reftitle']] = '#' + child.get('refid')
 
-    dotcode = graph.generate_dot(name, urls, env=self.builder.env)
+    dotcode = graph.generate_dot(name, urls, config=self.config)
     render_dot_html(
         self,
         node,
@@ -496,7 +496,7 @@ def latex_visit_inheritance_diagram(
     name = 'inheritance%s' % graph_hash
 
     dotcode = graph.generate_dot(
-        name, env=self.builder.env, graph_attrs={'size': '"6.0,6.0"'}
+        name, config=self.config, graph_attrs={'size': '"6.0,6.0"'}
     )
     render_dot_latex(self, node, dotcode, {}, 'inheritance')
     raise nodes.SkipNode
@@ -515,7 +515,7 @@ def texinfo_visit_inheritance_diagram(
     name = 'inheritance%s' % graph_hash
 
     dotcode = graph.generate_dot(
-        name, env=self.builder.env, graph_attrs={'size': '"6.0,6.0"'}
+        name, config=self.config, graph_attrs={'size': '"6.0,6.0"'}
     )
     render_dot_texinfo(self, node, dotcode, {}, 'inheritance')
     raise nodes.SkipNode

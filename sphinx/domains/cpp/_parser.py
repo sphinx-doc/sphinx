@@ -495,9 +495,10 @@ class DefinitionParser(BaseParser):
                     self.pos = pos
                     header = 'Error in postfix expression,'
                     header += ' expected primary expression or type.'
-                    errors = []
-                    errors.append((e_outer, 'If primary expression'))
-                    errors.append((e_inner, 'If type'))
+                    errors = [
+                        (e_outer, 'If primary expression'),
+                        (e_inner, 'If type'),
+                    ]
                     raise self._make_multi_error(errors, header) from e_inner
 
         # and now parse postfixes
