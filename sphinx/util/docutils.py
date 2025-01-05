@@ -278,12 +278,14 @@ class sphinx_domains(CustomReSTDispatcher):
         # explicit domain given?
         if ':' in directive_name:
             domain_name, _, name = directive_name.partition(':')
-            if domain_name in self.domains:
-                element = self.domains[domain_name].directive(name)
+            try:
+                domain = self.domains[domain_name]
+            except KeyError:
+                logger.warning(__('unknown directive name: %s'), directive_name)
+            else:
+                element = domain.directive(name)
                 if element is not None:
                     return element, []
-            else:
-                logger.warning(__('unknown directive name: %s'), directive_name)
         # else look in the default domain
         else:
             name = directive_name
@@ -312,12 +314,14 @@ class sphinx_domains(CustomReSTDispatcher):
         # explicit domain given?
         if ':' in role_name:
             domain_name, _, name = role_name.partition(':')
-            if domain_name in self.domains:
-                element = self.domains[domain_name].role(name)
+            try:
+                domain = self.domains[domain_name]
+            except KeyError:
+                logger.warning(__('unknown role name: %s'), role_name)
+            else:
+                element = domain.role(name)
                 if element is not None:
                     return element, []
-            else:
-                logger.warning(__('unknown role name: %s'), role_name)
         # else look in the default domain
         else:
             name = role_name
