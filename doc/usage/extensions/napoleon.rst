@@ -578,7 +578,7 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
    .. versionadded:: 3.4
 
 .. confval:: napoleon_custom_sections
-   :type: :code-py:`Sequence[str | Sequence[str, str]] | None`
+   :type: :code-py:`Sequence[str | tuple[str, str]] | None`
    :default: :code-py:`None`
 
    Add a list of custom sections to include, expanding the list of parsed sections.
