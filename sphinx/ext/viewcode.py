@@ -49,12 +49,13 @@ class viewcode_anchor(Element):
 
 
 def _get_full_modname(modname: str, attribute: str) -> str | None:
+    if modname is None:
+        # Prevents a TypeError: if the last getattr() call will return None
+        # then it's better to return it directly
+        return None
+
     try:
         try:
-            if modname is None:
-                # Prevents a TypeError: if the last getattr() call will return None
-                # then it's better to return it directly
-                return None
             module = import_module(modname)
 
             # Allow an attribute to have multiple parts and incidentally allow
