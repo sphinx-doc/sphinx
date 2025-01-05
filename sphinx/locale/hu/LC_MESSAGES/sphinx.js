@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "hu",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", ",
         "About these documents": "N\u00e9vjegy ezekr\u0151l a dokumentumokr\u00f3l",
         "Automatically generated list of changes in version %(version)s": "Automatikusan gener\u00e1lt v\u00e1ltoz\u00e1slista a(z) %(version)s v\u00e1ltozathoz",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Ok",
         "Hide Search Matches": "Keres\u00e9si Tal\u00e1latok Elrejt\u00e9se",
         "Index": "T\u00e1rgymutat\u00f3",
-        "Index &ndash; %(key)s": "T\u00e1rgymutat\u00f3 &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Oldalak ABC sorrendben",
         "Indices and tables:": "T\u00e1rgymutat\u00f3 \u00e9s t\u00e1bl\u00e1zatok",
         "Last updated on %(last_updated)s.": "Utols\u00f3 friss\u00edt\u00e9s %(last_updated)s.",
@@ -37,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Keres\u00e9s",
         "Search Page": "Keres\u00e9s",
         "Search Results": "Keres\u00e9si Eredm\u00e9nyek",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Keres\u00e9s k\u00f6zt\u00fck: %(docstitle)s",
         "Searching": "Keres\u00e9s folyamatban",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

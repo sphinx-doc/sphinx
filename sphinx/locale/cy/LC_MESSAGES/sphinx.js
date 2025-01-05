@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "cy",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", yn ",
         "About these documents": "Yngl\u0177n \u00e2'r dogfennau hyn",
         "Automatically generated list of changes in version %(version)s": "Rhestr o newidiadau yn fersiwn %(version)s wedi'i cynhyrchu'n awtomatig",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Ewch",
         "Hide Search Matches": "Cuddio Canlyniadau Chwilio",
         "Index": "Indecs",
-        "Index &ndash; %(key)s": "Indecs &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indecs tudalennau gan lythyren",
         "Indices and tables:": "Indecsau a tablau:",
         "Last updated on %(last_updated)s.": "Diweddarwyd yn ddiwethaf ar %(last_updated)s.",
@@ -37,7 +36,12 @@ Documentation.addTranslations({
         "Search": "Chwilio",
         "Search Page": "Tudalen Chwilio",
         "Search Results": "Canlyniadau chwilio",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Chwilio o fewn %(docstitle)s",
         "Searching": "Yn chwilio",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

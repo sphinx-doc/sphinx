@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "yue",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "",
         "Automatically generated list of changes in version %(version)s": "",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "",
         "Hide Search Matches": "",
         "Index": "",
-        "Index &ndash; %(key)s": "",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "",
         "Indices and tables:": "",
         "Last updated on %(last_updated)s.": "",
@@ -37,7 +36,9 @@ Documentation.addTranslations({
         "Search": "",
         "Search Page": "",
         "Search Results": "",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

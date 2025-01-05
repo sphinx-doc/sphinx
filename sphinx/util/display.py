@@ -1,27 +1,29 @@
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, Iterable, Iterator, TypeVar
 
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold, colorize, term_width_line  # type: ignore
+from sphinx.util.console import bold, color_terminal
 
 if False:
+    from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
+    from typing import Any, ParamSpec, TypeVar
+
+    T = TypeVar('T')
+    P = ParamSpec('P')
+    R = TypeVar('R')
 
 logger = logging.getLogger(__name__)
 
 
 def display_chunk(chunk: Any) -> str:
-    if isinstance(chunk, (list, tuple)):
+    if isinstance(chunk, list | tuple):
         if len(chunk) == 1:
             return str(chunk[0])
         return f'{chunk[0]} .. {chunk[-1]}'
     return str(chunk)
-
-
-T = TypeVar('T')
 
 
 def status_iterator(
@@ -32,20 +34,27 @@ def status_iterator(
     verbosity: int = 0,
     stringify_func: Callable[[Any], str] = display_chunk,
 ) -> Iterator[T]:
+    # printing on a single line requires ANSI control sequences
+    single_line = verbosity < 1 and color_terminal()
+    bold_summary = bold(summary)
     if length == 0:
-        logger.info(bold(summary), nonl=True)
-    for i, item in enumerate(iterable, start=1):
-        item_str = colorize(color, stringify_func(item))
-        if length == 0:
-            logger.info(item_str, nonl=True)
-            logger.info(' ', nonl=True)
-        else:
-            s = f'{bold(summary)}[{int(100 * i / length): >3d}%] {item_str}'
-            if verbosity:
-                logger.info(s + '\n', nonl=True)
-            else:
-                logger.info(term_width_line(s), nonl=True)
-        yield item
+        logger.info(bold_summary, nonl=True)
+        for item in iterable:
+            logger.info(stringify_func(item) + ' ', nonl=True, color=color)
+            yield item
+    else:
+        for i, item in enumerate(iterable, start=1):
+            if single_line:
+                # clear the entire line ('Erase in Line')
+                logger.info('\x1b[2K', nonl=True)
+            logger.info(f'{bold_summary}[{i / length: >4.0%}] ', nonl=True)  # NoQA: G004
+            # Emit the string representation of ``item``
+            logger.info(stringify_func(item), nonl=True, color=color)
+            # If in single-line mode, emit a carriage return to move the cursor
+            # to the start of the line.
+            # If not, emit a newline to move the cursor to the next line.
+            logger.info('\r' * single_line, nonl=single_line)
+            yield item
     logger.info('')
 
 
@@ -54,11 +63,12 @@ class SkipProgressMessage(Exception):
 
 
 class progress_message:
-    def __init__(self, message: str) -> None:
+    def __init__(self, message: str, *, nonl: bool = True) -> None:
         self.message = message
+        self.nonl = nonl
 
     def __enter__(self) -> None:
-        logger.info(bold(self.message + '... '), nonl=True)
+        logger.info(bold(self.message + '... '), nonl=self.nonl)
 
     def __exit__(
         self,
@@ -66,21 +76,22 @@ class progress_message:
         val: BaseException | None,
         tb: TracebackType | None,
     ) -> bool:
+        prefix = '' if self.nonl else bold(self.message + ': ')
         if isinstance(val, SkipProgressMessage):
-            logger.info(__('skipped'))
+            logger.info(prefix + __('skipped'))
             if val.args:
                 logger.info(*val.args)
             return True
         elif val:
-            logger.info(__('failed'))
+            logger.info(prefix + __('failed'))
         else:
-            logger.info(__('done'))
+            logger.info(prefix + __('done'))
 
         return False
 
-    def __call__(self, f: Callable) -> Callable:
+    def __call__(self, f: Callable[P, R]) -> Callable[P, R]:
         @functools.wraps(f)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore[return]
             with self:
                 return f(*args, **kwargs)
 

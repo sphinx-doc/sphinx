@@ -4,7 +4,11 @@
 \sphinxatlongtablestart
 \sphinxthistablewithglobalstyle
 \sphinxthistablewithvlinesstyle
-\begin{longtable}[c]{|c|c|}
+\makeatletter
+  \LTleft \@totalleftmargin plus1fill
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax plus1fill
+\makeatother
+\begin{longtable}{|c|c|}
 \sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar

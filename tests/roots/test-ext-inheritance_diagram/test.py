@@ -2,13 +2,21 @@ class Foo:
     pass
 
 
-class Bar(Foo):
+class DocHere(Foo):
     pass
 
 
-class Baz(Bar):
+class DocSubDir1(DocHere):
     pass
 
 
-class Qux(Foo):
+class DocSubDir2(DocSubDir1):
+    pass
+
+
+class DocMainLevel(Foo):
+    pass
+
+
+class Alice(object):  # NoQA: UP004
     pass

@@ -2,17 +2,20 @@
 
 from __future__ import annotations
 
-import os
-from os import path
-from typing import Any
+from pathlib import Path
+from typing import TYPE_CHECKING
 
-from docutils import nodes
-from docutils.utils import relative_path
-
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 from sphinx.environment.collectors import EnvironmentCollector
-from sphinx.util.osutil import fs_encoding
+from sphinx.util.osutil import _relative_path, fs_encoding
+
+if TYPE_CHECKING:
+    from collections.abc import Set
+
+    from docutils import nodes
+
+    from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class DependenciesCollector(EnvironmentCollector):
@@ -21,16 +24,20 @@ class DependenciesCollector(EnvironmentCollector):
     def clear_doc(self, app: Sphinx, env: BuildEnvironment, docname: str) -> None:
         env.dependencies.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: Set[str],
+        other: BuildEnvironment,
+    ) -> None:
         for docname in docnames:
             if docname in other.dependencies:
                 env.dependencies[docname] = other.dependencies[docname]
 
     def process_doc(self, app: Sphinx, doctree: nodes.document) -> None:
         """Process docutils-generated dependency info."""
-        cwd = os.getcwd()
-        frompath = path.join(path.normpath(app.srcdir), 'dummy')
+        cwd = Path.cwd()
         deps = doctree.settings.record_dependencies
         if not deps:
             return
@@ -39,12 +46,11 @@ class DependenciesCollector(EnvironmentCollector):
             # one relative to the srcdir
             if isinstance(dep, bytes):
                 dep = dep.decode(fs_encoding)
-            relpath = relative_path(frompath,
-                                    path.normpath(path.join(cwd, dep)))
-            app.env.dependencies[app.env.docname].add(relpath)
+            relpath = _relative_path(cwd / dep, app.srcdir)
+            app.env.note_dependency(relpath)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_env_collector(DependenciesCollector)
 
     return {

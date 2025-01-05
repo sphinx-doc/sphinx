@@ -1,7 +1,7 @@
 .. _dev-extensions:
 
-Sphinx Extensions API
-=====================
+Sphinx API
+==========
 
 Since many projects will need special features in their documentation, Sphinx
 is designed to be extensible on several levels.
@@ -85,15 +85,18 @@ extension. These are:
    The config is available as ``app.config`` or ``env.config``.
 
 To see an example of use of these objects, refer to
-:doc:`../development/tutorials/index`.
+:ref:`the tutorials <extension-tutorials-index>`.
 
 .. _build-phases:
 
-Build Phases
+Build phases
 ------------
 
 One thing that is vital in order to understand extension mechanisms is the way
 in which a Sphinx project is built: this works in several phases.
+
+.. graphviz:: /_static/diagrams/sphinx_build_phases.dot
+   :caption: Build phases
 
 **Phase 0: Initialization**
 
@@ -147,7 +150,7 @@ the individual nodes of each doctree and produces some output in the process.
    that checks external links does not need anything more than the parsed
    doctrees and therefore does not have phases 2--4.
 
-To see an example of application, refer to :doc:`../development/tutorials/todo`.
+To see an example of application, refer to :ref:`tutorial-extend-build`.
 
 .. _ext-metadata:
 
@@ -204,6 +207,7 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    :maxdepth: 2
 
    appapi
+   event_callbacks
    projectapi
    envapi
    builderapi
@@ -215,4 +219,5 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    logging
    i18n
    utils
+   testing
    deprecated

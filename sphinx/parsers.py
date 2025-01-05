@@ -2,22 +2,24 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import docutils.parsers
 import docutils.parsers.rst
 from docutils import nodes
 from docutils.parsers.rst import states
 from docutils.statemachine import StringList
-from docutils.transforms import Transform
 from docutils.transforms.universal import SmartQuotes
 
-from sphinx.config import Config
-from sphinx.environment import BuildEnvironment
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
+    from docutils.transforms import Transform
+
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class Parser(docutils.parsers.Parser):
@@ -60,17 +62,20 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
 
     def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
-        self.setup_parse(inputstring, document)  # type: ignore
+        self.setup_parse(inputstring, document)  # type: ignore[arg-type]
         self.statemachine = states.RSTStateMachine(
             state_classes=self.state_classes,
             initial_state=self.initial_state,
-            debug=document.reporter.debug_flag)
+            debug=document.reporter.debug_flag,
+        )
 
         # preprocess inputstring
         if isinstance(inputstring, str):
             lines = docutils.statemachine.string2lines(
-                inputstring, tab_width=document.settings.tab_width,
-                convert_whitespace=True)
+                inputstring,
+                tab_width=document.settings.tab_width,
+                convert_whitespace=True,
+            )
 
             inputlines = StringList(lines, document.current_source)
         else:
@@ -86,7 +91,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         append_epilog(content, self.config.rst_epilog)
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_source_parser(RSTParser)
 
     return {

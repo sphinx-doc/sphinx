@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "lv",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "Par \u0161iem dokumentiem",
         "Automatically generated list of changes in version %(version)s": "Autom\u0101tiski sagatavots izmai\u0146u saraksts versijai %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Izpild\u012bt",
         "Hide Search Matches": "Pasl\u0113pt atlases v\u0101rdus",
         "Index": "Indekss",
-        "Index &ndash; %(key)s": "Indekss &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Lappu\u0161u indekss p\u0113c burtiem",
         "Indices and tables:": "Indeksi un tabulas:",
         "Last updated on %(last_updated)s.": "P\u0113d\u0113jas izmai\u0146as %(last_updated)s.",
@@ -37,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Mekl\u0113t",
         "Search Page": "Atlases lapa",
         "Search Results": "Atlases rezult\u0101ti",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Mekl\u0113t iek\u0161 %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

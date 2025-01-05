@@ -73,6 +73,14 @@ Configuration
       `epubcheck <https://github.com/IDPF/epubcheck>`_'s score
       becomes worse even if the reader supports.
 
+.. confval:: viewcode_line_numbers
+
+   Default: ``False``.
+
+   If set to ``True``, inline line numbers will be added to the highlighted code.
+
+   .. versionadded:: 7.2
+
 .. event:: viewcode-find-source (app, modname)
 
    .. versionadded:: 1.8

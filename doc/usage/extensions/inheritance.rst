@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.inheritance_diagram` -- Include inheritance diagrams
 =====================================================================
@@ -131,6 +131,11 @@ part (``sphinx``) from all names::
    :top-classes: sphinx.util.docutils.SphinxDirective
    :parts: -1
 
+.. py:class:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+   :no-contents-entry:
+   :no-index-entry:
+
+   The internal class that implements the ``inheritance-diagram`` directive.
 
 
 Configuration

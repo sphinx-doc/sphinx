@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "de",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", in ",
         "About these documents": "\u00dcber dieses Dokument",
         "Automatically generated list of changes in version %(version)s": "Automatisch generierte Liste der \u00c4nderungen in Version %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Los",
         "Hide Search Matches": "Suchergebnisse ausblenden",
         "Index": "Stichwortverzeichnis",
-        "Index &ndash; %(key)s": "Stichwortverzeichnis &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Stichwortverzeichnis nach Anfangsbuchstabe",
         "Indices and tables:": "Verzeichnisse und Tabellen:",
         "Last updated on %(last_updated)s.": "Zuletzt aktualisiert am %(last_updated)s.",
@@ -37,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Suche",
         "Search Page": "Suche",
         "Search Results": "Suchergebnisse",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Suche in %(docstitle)s",
         "Searching": "Suchen",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

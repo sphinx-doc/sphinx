@@ -1,6 +1,9 @@
-name: Build document
+name: Render documentation
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -9,20 +12,36 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: "1"
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
+
 jobs:
-  build:
+  verbose:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
       with:
-        python-version: 3
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run:  |
-        sudo apt update
-        sudo apt install -y graphviz
-        pip install -U tox
-    - name: Run Tox
-      run:  tox -e docs
+      run: uv pip install .[docs]
+    - name: Render the documentation
+      run: >
+        sphinx-build
+        -M html ./doc ./build/sphinx
+        --verbose
+        --jobs=auto
+        --show-traceback
+        --fail-on-warning

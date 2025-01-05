@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-[sphinx-1.sphinx-pot]
+[o:sphinx-doc:p:sphinx-1:r:sphinx-pot]
 file_filter = <lang>/LC_MESSAGES/sphinx.po
 source_file = sphinx.pot
 source_lang = en

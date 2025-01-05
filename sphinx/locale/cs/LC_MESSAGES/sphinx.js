@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "cs",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", v ",
         "About these documents": "O t\u011bchto dokumentech",
         "Automatically generated list of changes in version %(version)s": "Automaticky generovan\u00fd seznam zm\u011bn ve verzi %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "OK",
         "Hide Search Matches": "Skr\u00fdt v\u00fdsledky vyhled\u00e1v\u00e1n\u00ed",
         "Index": "Rejst\u0159\u00edk",
-        "Index &ndash; %(key)s": "Rejst\u0159\u00edk &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Rejst\u0159\u00edk podle p\u00edsmene",
         "Indices and tables:": "Rejst\u0159\u00edky a tabulky:",
         "Last updated on %(last_updated)s.": "Aktualizov\u00e1no dne %(last_updated)s.",
@@ -37,7 +36,12 @@ Documentation.addTranslations({
         "Search": "Vyhled\u00e1v\u00e1n\u00ed",
         "Search Page": "Vyhled\u00e1vac\u00ed str\u00e1nka",
         "Search Results": "V\u00fdsledky vyhled\u00e1v\u00e1n\u00ed",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Prohledat %(docstitle)s",
         "Searching": "Prob\u00edh\u00e1 vyhled\u00e1n\u00ed",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

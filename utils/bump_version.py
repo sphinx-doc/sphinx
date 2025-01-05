@@ -1,114 +1,129 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 import argparse
-import os
+import dataclasses
 import re
 import sys
+import time
 from contextlib import contextmanager
-from datetime import datetime
+from pathlib import Path
+from typing import TYPE_CHECKING, Literal
 
-script_dir = os.path.dirname(__file__)
-package_dir = os.path.abspath(os.path.join(script_dir, '..'))
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
 
-RELEASE_TYPE = {'a': 'alpha', 'b': 'beta'}
-
-
-def stringify_version(version_info, in_develop=True):
-    version = '.'.join(str(v) for v in version_info[:3])
-    if not in_develop and version_info[3] != 'final':
-        version += version_info[3][0] + str(version_info[4])
-
-    return version
+script_dir = Path(__file__).resolve().parent
+package_dir = script_dir.parent
 
 
-def bump_version(path, version_info, in_develop=True):
-    version = stringify_version(version_info, in_develop)
+@dataclasses.dataclass(frozen=True, slots=True)
+class VersionInfo:
+    major: int
+    minor: int
+    micro: int
+    level: Literal['a', 'b', 'rc', 'final']
+    serial: int
+
+    @property
+    def releaselevel(self) -> Literal['alpha', 'beta', 'candidate', 'final']:
+        if self.level == 'final':
+            return 'final'
+        if self.level == 'a':
+            return 'alpha'
+        if self.level == 'b':
+            return 'beta'
+        if self.level == 'rc':
+            return 'candidate'
+        msg = f'Unknown release level: {self.level}'
+        raise RuntimeError(msg)
+
+    @property
+    def is_final(self) -> bool:
+        return self.level == 'final'
+
+    @property
+    def version(self) -> str:
+        return f'{self.major}.{self.minor}.{self.micro}'
+
+    @property
+    def release(self) -> str:
+        return f'{self.major}.{self.minor}.{self.micro}{self.level}{self.serial}'
+
+    @property
+    def version_tuple(self) -> tuple[int, int, int]:
+        return self.major, self.minor, self.micro
+
+    @property
+    def release_tuple(self) -> tuple[int, int, int, str, int]:
+        return self.major, self.minor, self.micro, self.releaselevel, self.serial
+
+
+def parse_version(version: str) -> VersionInfo:
+    # Final version:
+    # - "X.Y.Z" -> (X, Y, Z, 'final', 0)
+    # - "X.Y" -> (X, Y, 0, 'final', 0) [shortcut]
+    if matched := re.fullmatch(r'(\d+)\.(\d+)(?:\.(\d+))?', version):
+        major, minor, micro = matched.groups(default='0')
+        return VersionInfo(int(major), int(minor), int(micro), 'final', 0)
+
+    # Pre-release versions:
+    # - "X.Y.ZaN" -> (X, Y, Z, 'alpha', N)
+    # - "X.Y.ZbN" -> (X, Y, Z, 'beta', N)
+    # - "X.Y.ZrcN" -> (X, Y, Z, 'candidate', N)
+    if matched := re.fullmatch(r'(\d+)\.(\d+)\.(\d+)(a|b|rc)(\d+)', version):
+        major, minor, micro, level, serial = matched.groups()
+        return VersionInfo(int(major), int(minor), int(micro), level, int(serial))  # type: ignore[arg-type]
+
+    msg = f'Unknown version: {version}'
+    raise RuntimeError(msg)
+
+
+def bump_version(
+    path: Path, version_info: VersionInfo, in_develop: bool = True
+) -> None:
+    if in_develop or version_info.is_final:
+        version = version_info.version
+    else:
+        version = version_info.release
 
     with open(path, encoding='utf-8') as f:
-        lines = f.read().splitlines()
+        lines = f.read().splitlines(keepends=True)
 
     for i, line in enumerate(lines):
         if line.startswith('__version__ = '):
-            lines[i] = f"__version__ = '{version}'"
+            lines[i] = f"__version__ = '{version}'\n"
             continue
         if line.startswith('version_info = '):
-            lines[i] = f'version_info = {version_info}'
+            lines[i] = f'version_info = {version_info.release_tuple}\n'
             continue
         if line.startswith('_in_development = '):
-            lines[i] = f'_in_development = {in_develop}'
+            lines[i] = f'_in_development = {in_develop}\n'
             continue
 
     with open(path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(lines) + '\n')
-
-
-def parse_version(version):
-    matched = re.search(r'^(\d+)\.(\d+)$', version)
-    if matched:
-        major, minor = matched.groups()
-        return (int(major), int(minor), 0, 'final', 0)
-
-    matched = re.search(r'^(\d+)\.(\d+)\.(\d+)$', version)
-    if matched:
-        major, minor, rev = matched.groups()
-        return (int(major), int(minor), int(rev), 'final', 0)
-
-    matched = re.search(r'^(\d+)\.(\d+)\s*(a|b|alpha|beta)(\d+)$', version)
-    if matched:
-        major, minor, typ, relver = matched.groups()
-        release = RELEASE_TYPE.get(typ, typ)
-        return (int(major), int(minor), 0, release, int(relver))
-
-    matched = re.search(r'^(\d+)\.(\d+)\.(\d+)\s*(a|b|alpha|beta)(\d+)$', version)
-    if matched:
-        major, minor, rev, typ, relver = matched.groups()
-        release = RELEASE_TYPE.get(typ, typ)
-        return (int(major), int(minor), int(rev), release, int(relver))
-
-    raise RuntimeError('Unknown version: %s' % version)
-
-
-class Skip(Exception):
-    pass
-
-
-@contextmanager
-def processing(message):
-    try:
-        print(message + ' ... ', end='')
-        yield
-    except Skip as exc:
-        print('skip: %s' % exc)
-    except Exception:
-        print('error')
-        raise
-    else:
-        print('done')
+        f.writelines(lines)
 
 
 class Changes:
-    def __init__(self, path):
+    def __init__(self, path: Path) -> None:
         self.path = path
-        self.fetch_version()
 
-    def fetch_version(self):
         with open(self.path, encoding='utf-8') as f:
             version = f.readline().strip()
-            matched = re.search(r'^Release (.*) \((.*)\)$', version)
+            matched = re.fullmatch(r'Release (.*) \((.*)\)', version)
             if matched is None:
-                raise RuntimeError('Unknown CHANGES format: %s' % version)
+                msg = f'Unknown CHANGES format: {version}'
+                raise RuntimeError(msg)
 
-            self.version, self.release_date = matched.groups()
-            self.version_info = parse_version(self.version)
-            if self.release_date == 'in development':
-                self.in_development = True
-            else:
-                self.in_development = False
+            self.version, release_date = matched.groups()
+            self.in_development = release_date == 'in development'
+            self.version_tuple = parse_version(self.version).version_tuple
 
-    def finalize_release_date(self):
-        release_date = datetime.now().strftime('%b %d, %Y')
+    def finalise_release_date(self) -> None:
+        release_date = time.strftime('%b %d, %Y')
         heading = f'Release {self.version} (released {release_date})'
-
         with open(self.path, 'r+', encoding='utf-8') as f:
             f.readline()  # skip first two lines
             f.readline()
@@ -120,20 +135,9 @@ class Changes:
             f.write('=' * len(heading) + '\n')
             f.write(self.filter_empty_sections(body))
 
-    def add_release(self, version_info):
-        if version_info[-2:] in (('beta', 0), ('final', 0)):
-            version = stringify_version(version_info)
-        else:
-            reltype = version_info[3]
-            version = (f'{stringify_version(version_info)} '
-                       f'{RELEASE_TYPE.get(reltype, reltype)}{version_info[4] or ""}')
-        heading = 'Release %s (in development)' % version
-
-        with open(os.path.join(script_dir, 'CHANGES_template'), encoding='utf-8') as f:
-            f.readline()  # skip first two lines
-            f.readline()
-            tmpl = f.read()
-
+    def add_release(self, version_info: VersionInfo) -> None:
+        heading = f'Release {version_info.version} (in development)'
+        tmpl = (script_dir / 'CHANGES_template.rst').read_text(encoding='utf-8')
         with open(self.path, 'r+', encoding='utf-8') as f:
             body = f.read()
 
@@ -141,41 +145,62 @@ class Changes:
             f.truncate(0)
             f.write(heading + '\n')
             f.write('=' * len(heading) + '\n')
+            f.write('\n')
             f.write(tmpl)
             f.write('\n')
             f.write(body)
 
-    def filter_empty_sections(self, body):
-        return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.M)
+    @staticmethod
+    def filter_empty_sections(body: str) -> str:
+        return re.sub(
+            '^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.MULTILINE
+        )
 
 
-def parse_options(argv):
+class Skip(Exception):
+    pass
+
+
+@contextmanager
+def processing(message: str) -> Iterator[None]:
+    try:
+        print(message + ' ... ', end='')
+        yield
+    except Skip as exc:
+        print(f'skip: {exc}')
+    except Exception:
+        print('error')
+        raise
+    else:
+        print('done')
+
+
+def parse_options(argv: Sequence[str]) -> tuple[VersionInfo, bool]:
     parser = argparse.ArgumentParser()
-    parser.add_argument('version', help='A version number (cf. 1.6b0)')
+    parser.add_argument('version', help='A version number (cf. 1.6.0b0)')
     parser.add_argument('--in-develop', action='store_true')
     options = parser.parse_args(argv)
-    options.version = parse_version(options.version)
-    return options
+    return parse_version(options.version), options.in_develop
 
 
-def main():
-    options = parse_options(sys.argv[1:])
+def main() -> None:
+    version, in_develop = parse_options(sys.argv[1:])
 
-    with processing("Rewriting sphinx/__init__.py"):
-        bump_version(os.path.join(package_dir, 'sphinx/__init__.py'),
-                     options.version, options.in_develop)
+    with processing('Rewriting sphinx/__init__.py'):
+        bump_version(package_dir / 'sphinx' / '__init__.py', version, in_develop)
 
     with processing('Rewriting CHANGES'):
-        changes = Changes(os.path.join(package_dir, 'CHANGES'))
-        if changes.version_info == options.version:
-            if changes.in_development:
-                changes.finalize_release_date()
+        changes = Changes(package_dir / 'CHANGES.rst')
+        if changes.version_tuple == version.version_tuple:
+            if changes.in_development and version.is_final and not in_develop:
+                changes.finalise_release_date()
             else:
-                raise Skip('version not changed')
+                reason = 'version not changed'
+                raise Skip(reason)
         else:
             if changes.in_development:
-                print('WARNING: last version is not released yet: %s' % changes.version)
-            changes.add_release(options.version)
+                print(f'WARNING: last version is not released yet: {changes.version}')
+            changes.add_release(version)
 
 
 if __name__ == '__main__':

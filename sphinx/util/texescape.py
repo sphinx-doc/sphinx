@@ -47,8 +47,8 @@ ascii_tex_replacements = [
     # complications (whether by {}, or a macro) and is not done
     # the next two require textcomp package
     ("'", r'\textquotesingle{}'),  # else ' renders curly, and '' is a ligature
-    ('`', r'\textasciigrave{}'),   # else \` and \`\` render curly
-    ('<', r'\textless{}'),     # < is inv. exclam in OT1, << is a T1-ligature
+    ('`', r'\textasciigrave{}'),  # else \` and \`\` render curly
+    ('<', r'\textless{}'),  # < is inv. exclam in OT1, << is a T1-ligature
     ('>', r'\textgreater{}'),  # > is inv. quest. mark in 0T1, >> a T1-ligature
 ]
 
@@ -103,7 +103,7 @@ _tex_hlescape_map_without_unicode: dict[int, str] = {}
 
 def escape(s: str, latex_engine: str | None = None) -> str:
     """Escape text for LaTeX output."""
-    if latex_engine in ('lualatex', 'xelatex'):
+    if latex_engine in {'lualatex', 'xelatex'}:
         # unicode based LaTeX engine
         return s.translate(_tex_escape_map_without_unicode)
     else:
@@ -112,7 +112,7 @@ def escape(s: str, latex_engine: str | None = None) -> str:
 
 def hlescape(s: str, latex_engine: str | None = None) -> str:
     """Escape text for LaTeX highlighter."""
-    if latex_engine in ('lualatex', 'xelatex'):
+    if latex_engine in {'lualatex', 'xelatex'}:
         # unicode based LaTeX engine
         return s.translate(_tex_hlescape_map_without_unicode)
     else:

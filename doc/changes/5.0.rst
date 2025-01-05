@@ -1,0 +1,191 @@
+==========
+Sphinx 5.0
+==========
+
+
+Release 5.0.2 (released Jun 17, 2022)
+=====================================
+
+Features added
+--------------
+
+* #10523: HTML Theme: Expose the Docutils's version info tuple as a template
+  variable, ``docutils_version_info``. Patch by Adam Turner.
+
+Bugs fixed
+----------
+
+* #10538: autodoc: Inherited class attribute having docstring is documented even
+  if :confval:`autodoc_inherit_docstring` is disabled
+* #10509: autosummary: autosummary fails with a shared library
+* #10497: py domain: Failed to resolve strings in Literal. Patch by Adam Turner.
+* #10523: HTML Theme: Fix double brackets on citation references in Docutils 0.18+.
+  Patch by Adam Turner.
+* #10534: Missing CSS for nav.contents in Docutils 0.18+. Patch by Adam Turner.
+
+Release 5.0.1 (released Jun 03, 2022)
+=====================================
+
+Bugs fixed
+----------
+
+* #10498: gettext: TypeError is raised when sorting warning messages if a node
+  has no line number. Patch by Adam Turner.
+* #10493: HTML Theme: :dudir:`topic` directive is rendered incorrectly with
+  Docutils 0.18. Patch by Adam Turner.
+* #10495: IndexError is raised for a :rst:role:`kbd` role having a separator.
+  Patch by Adam Turner.
+
+Release 5.0.0 (released May 30, 2022)
+=====================================
+
+Dependencies
+------------
+
+5.0.0 b1
+
+* #10164: Support `Docutils 0.18`_. Patch by Adam Turner.
+
+.. _Docutils 0.18: https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-18-2021-10-26
+
+Incompatible changes
+--------------------
+
+5.0.0 b1
+
+* #10031: autosummary: ``sphinx.ext.autosummary.import_by_name()`` now raises
+  ``ImportExceptionGroup`` instead of ``ImportError`` when it failed to import
+  target object.  Please handle the exception if your extension uses the
+  function to import Python object.  As a workaround, you can disable the
+  behavior via ``grouped_exception=False`` keyword argument until v7.0.
+* #9962: texinfo: Customizing styles of emphasized text via ``@definfoenclose``
+  command was not supported because the command was deprecated since texinfo 6.8
+* #2068: :confval:`intersphinx_disabled_reftypes` has changed default value
+  from an empty list to ``['std:doc']`` as avoid too surprising silent
+  intersphinx resolutions.
+  To migrate: either add an explicit inventory name to the references
+  intersphinx should resolve, or explicitly set the value of this configuration
+  variable to an empty list.
+* #10197: html theme: Reduce ``body_min_width`` setting in basic theme to 360px
+* #9999: LaTeX: separate terms from their definitions by a CR (refs: #9985)
+* #10062: Change the default language to ``'en'`` if any language is not set in
+  ``conf.py``
+
+5.0.0 final
+
+* #10474: :confval:`language` does not accept ``None`` as it value.  The default
+  value of ``language`` becomes to ``'en'`` now.
+  Patch by Adam Turner and Takeshi KOMIYA.
+
+Deprecated
+----------
+
+5.0.0 b1
+
+* #10028: jQuery and underscore.js will no longer be automatically injected into
+  themes from Sphinx 6.0. If you develop a theme or extension that uses the
+  ``jQuery``, ``$``, or ``$u`` global objects, you need to update your
+  JavaScript or use the mitigation below.
+
+  To re-add jQuery and underscore.js, you will need to copy ``jquery.js`` and
+  ``underscore.js`` from `the Sphinx repository`_ to your ``static`` directory,
+  and add the following to your ``layout.html``:
+
+  .. _the Sphinx repository: https://github.com/sphinx-doc/sphinx/tree/v5.3.0/sphinx/themes/basic/static
+  .. code-block:: html+jinja
+
+     {%- block scripts %}
+         <script src="{{ pathto('_static/jquery.js', resource=True) }}"></script>
+         <script src="{{ pathto('_static/underscore.js', resource=True) }}"></script>
+         {{ super() }}
+     {%- endblock %}
+
+  Patch by Adam Turner.
+* setuptools integration.  The ``build_sphinx`` sub-command for setup.py is
+  marked as deprecated to follow the policy of setuptools team.
+* The ``locale`` argument of ``sphinx.util.i18n:babel_format_date()`` becomes
+  required
+* The ``language`` argument of ``sphinx.util.i18n:format_date()`` becomes
+  required
+* ``sphinx.builders.html.html5_ready``
+* ``sphinx.io.read_doc()``
+* ``sphinx.util.docutils.__version_info__``
+* ``sphinx.util.docutils.is_html5_writer_available()``
+* ``sphinx.writers.latex.LaTeXWriter.docclasses``
+
+Features added
+--------------
+
+5.0.0 b1
+
+* #9075: autodoc: The default value of :confval:`autodoc_typehints_format` is
+  changed to ``'smart'``.  It will suppress the leading module names of
+  typehints (ex. ``io.StringIO`` -> ``StringIO``).
+* #8417: autodoc: ``:inherited-members:`` option now takes multiple classes.  It
+  allows to suppress inherited members of several classes on the module at once
+  by specifying the option to :rst:dir:`automodule` directive
+* #9792: autodoc: Add new option for ``autodoc_typehints_description_target`` to
+  include undocumented return values but not undocumented parameters.
+* #10285: autodoc: singledispatch functions having typehints are not documented
+* autodoc: :confval:`autodoc_typehints_format` now also applies to attributes,
+  data, properties, and type variable bounds.
+* #10258: autosummary: Recognize a documented attribute of a module as
+  non-imported
+* #10028: Removed internal usages of JavaScript frameworks (jQuery and
+  underscore.js) and modernised ``doctools.js`` and ``searchtools.js`` to
+  EMCAScript 2018. Patch by Adam Turner.
+* #10302: C++, add support for conditional expressions (``?:``).
+* #5157, #10251: Inline code is able to be highlighted via :dudir:`role`
+  directive
+* #10337: Make sphinx-build faster by caching Publisher object during build.
+  Patch by Adam Turner.
+
+Bugs fixed
+----------
+
+5.0.0 b1
+
+* #10200: apidoc: Duplicated submodules are shown for modules having both .pyx
+  and .so files. Patch by Adam Turner and Takeshi KOMIYA.
+* #10279: autodoc: Default values for keyword only arguments in overloaded
+  functions are rendered as a string literal
+* #10280: autodoc: :confval:`autodoc_docstring_signature` unexpectedly generates
+  return value typehint for constructors if docstring has multiple signatures
+* #10266: autodoc: :confval:`autodoc_preserve_defaults` does not work for
+  mixture of keyword only arguments with/without defaults
+* #10310: autodoc: class methods are not documented when decorated with mocked
+  function
+* #10305: autodoc: Failed to extract optional forward-ref'ed typehints correctly
+  via :confval:`autodoc_type_aliases`
+* #10421: autodoc: :confval:`autodoc_preserve_defaults` doesn't work on class
+  methods
+* #10214: html: invalid language tag was generated if :confval:`language`
+  contains a country code (ex. zh_CN)
+* #9974: html: Updated jQuery version from 3.5.1 to 3.6.0
+* #10236: html search: objects are duplicated in search result
+* #9962: texinfo: Deprecation message for ``@definfoenclose`` command on
+  building texinfo document
+* #10000: LaTeX: glossary terms with common definition are rendered with
+  too much vertical whitespace
+* #10188: LaTeX: alternating multiply referred footnotes produce a ``?`` in
+  pdf output
+* #10363: LaTeX: make ``'howto'`` title page rule use ``\linewidth`` for
+  compatibility with usage of a ``twocolumn`` class option
+* #10318: ``:prepend:`` option of :rst:dir:`literalinclude` directive does not
+  work with ``:dedent:`` option
+
+5.0.0 final
+
+* #9575: autodoc: The annotation of return value should not be shown when
+  ``autodoc_typehints="description"``
+* #9648: autodoc: ``*args`` and ``**kwargs`` entries are duplicated when
+  ``autodoc_typehints="description"``
+* #8180: autodoc: Docstring metadata ignored for attributes
+* #10443: epub: EPUB builder can't detect the mimetype of .webp file
+* #10104: gettext: Duplicated locations are shown if 3rd party extension does
+  not provide correct information
+* #10456: py domain: ``:meta:`` fields are displayed if docstring contains two
+  or more meta-field
+* #9096: sphinx-build: the value of progress bar for parallel build is wrong
+* #10110: sphinx-build: exit code is not changed when error is raised on
+  builder-finished event

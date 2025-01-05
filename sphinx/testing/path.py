@@ -1,10 +1,22 @@
 from __future__ import annotations
 
-import builtins
 import os
 import shutil
 import sys
-from typing import IO, Any, Callable
+import warnings
+from typing import IO, TYPE_CHECKING, Any
+
+from sphinx.deprecation import RemovedInSphinx90Warning
+
+if TYPE_CHECKING:
+    import builtins
+    from collections.abc import Callable
+
+warnings.warn(
+    "'sphinx.testing.path' is deprecated. Use 'os.path' or 'pathlib' instead.",
+    RemovedInSphinx90Warning,
+    stacklevel=2,
+)
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -20,10 +32,12 @@ def getumask() -> int:
 UMASK = getumask()
 
 
-class path(str):
+class path(str):  # NoQA: FURB189
     """
     Represents a path which behaves like a string.
     """
+
+    __slots__ = ()
 
     @property
     def parent(self) -> path:
@@ -71,7 +85,11 @@ class path(str):
         """
         return os.path.ismount(self)
 
-    def rmtree(self, ignore_errors: bool = False, onerror: Callable | None = None) -> None:
+    def rmtree(
+        self,
+        ignore_errors: bool = False,
+        onerror: Callable[[Callable[..., Any], str, Any], object] | None = None,
+    ) -> None:
         """
         Removes the file or directory and any files or directories it may
         contain.
@@ -138,7 +156,7 @@ class path(str):
     def utime(self, arg: Any) -> None:
         os.utime(self, arg)
 
-    def open(self, mode: str = 'r', **kwargs: Any) -> IO:
+    def open(self, mode: str = 'r', **kwargs: Any) -> IO[str]:
         return open(self, mode, **kwargs)
 
     def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
@@ -162,7 +180,7 @@ class path(str):
         with open(self, mode='rb') as f:
             return f.read()
 
-    def write_bytes(self, bytes: str, append: bool = False) -> None:
+    def write_bytes(self, bytes: bytes, append: bool = False) -> None:
         """
         Writes the given `bytes` to the file.
 

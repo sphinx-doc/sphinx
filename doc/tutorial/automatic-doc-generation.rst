@@ -142,7 +142,7 @@ contain two new pages:
 - ``api.html``, corresponding to ``docs/source/api.rst`` and containing a table
   with the objects you included in the ``autosummary`` directive (in this case,
   only one).
-- ``generated/lumache.html``, corresponding to a newly created reST file
+- ``generated/lumache.html``, corresponding to a newly created reStructuredText file
   ``generated/lumache.rst`` and containing a summary of members of the module,
   in this case one function and one exception.
 
@@ -160,6 +160,6 @@ originally used the corresponding ``autodoc`` directive, in this case in the
 .. note::
 
    The generated files are based on `Jinja2
-   templates <https://jinja2docs.readthedocs.io/>`_ that
+   templates <https://jinja.palletsprojects.com/>`_ that
    :ref:`can be customized <autosummary-customizing-templates>`,
    but that is out of scope for this tutorial.

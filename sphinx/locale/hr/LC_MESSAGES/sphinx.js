@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "hr",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Sva prava zadr\u017eana</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Sva prava zadr\u017eana %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", u ",
         "About these documents": "O ovim dokumentima",
         "Automatically generated list of changes in version %(version)s": "Automatski generirani popis promjena u verziji %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Tra\u017ei",
         "Hide Search Matches": "Sakrij rezultate pretrage",
         "Index": "Abecedni popis",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indeksiraj stranice po slovu",
         "Indices and tables:": "Kazala i tablice:",
         "Last updated on %(last_updated)s.": "Zadnji put a\u017eurirano %(last_updated)s.",
@@ -37,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Tra\u017ei",
         "Search Page": "Tra\u017eilica",
         "Search Results": "Rezultati pretrage",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Tra\u017ei izme\u0111u %(docstitle)s",
         "Searching": "Pretra\u017eivanje",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

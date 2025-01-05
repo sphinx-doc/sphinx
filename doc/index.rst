@@ -1,40 +1,116 @@
-=======
-Welcome
-=======
+======
+Sphinx
+======
 
-.. epigraph:: Sphinx makes it easy to create intelligent and beautiful documentation.
+.. cssclass:: sphinx-tagline
+.. epigraph:: Create intelligent and beautiful documentation with ease
 
-Here are some of Sphinx's major features:
+.. container:: sphinx-features
 
-* **Output formats:** HTML (including Windows HTML Help), LaTeX (for printable
-  PDF versions), ePub, Texinfo, manual pages, plain text
-* **Extensive cross-references:** semantic markup and automatic links for
-  functions, classes, citations, glossary terms and similar pieces of
-  information
-* **Hierarchical structure:** easy definition of a document tree, with automatic
-  links to siblings, parents and children
-* **Automatic indices:** general index as well as a language-specific module
-  indices
-* **Code handling:** automatic highlighting using the Pygments_ highlighter
-* **Extensions:** automatic testing of code snippets, inclusion of docstrings
-  from Python modules (API docs) via :ref:`built-in extensions
-  <builtin-extensions>`, and much more functionality via :ref:`third-party
-  extensions <third-party-extensions>`.
-* **Themes:** modify the look and feel of outputs via :doc:`creating themes
-  <development/theming>`, and re-use many :ref:`third-party themes
-  <third-party-themes>`.
-* **Contributed extensions:** dozens of extensions :ref:`contributed by users
-  <third-party-extensions>`; most of them installable from PyPI.
+   .. admonition:: 📝 Rich Text Formatting
+      :class: sphinx-feature
 
-.. _reStructuredText: https://docutils.sourceforge.io/rst.html
-.. _Docutils: https://docutils.sourceforge.io/
-.. _Pygments: https://pygments.org/
+      Author in :ref:`reStructuredText <rst-primer>`
+      or :ref:`MyST Markdown <markdown>`
+      to create highly structured technical documents,
+      including tables, highlighted code blocks, mathematical notations, and more.
 
-Sphinx uses the reStructuredText_ markup language by default, and can read
-:ref:`MyST markdown <markdown>` via third-party extensions. Both of these
-are powerful and straightforward to use, and have functionality
-for complex documentation and publishing workflows. They both build upon
-Docutils_ to parse and write documents.
+   .. admonition:: 🔗 Powerful Cross-Referencing
+      :class: sphinx-feature
+
+      Create :ref:`cross-references <xref>`
+      within your project,
+      and even across :ref:`different projects <ext-intersphinx>`.
+      Include references to
+      sections, figures, tables, citations, glossaries, code objects,
+      and more.
+
+   .. admonition:: 📚 Versatile Documentation Formats
+      :class: sphinx-feature
+
+      Generate documentation in the preferred formats of your audience, including
+      HTML, LaTeX (for PDF), ePub, Texinfo, :ref:`and more <builders>`.
+
+   .. admonition:: 🎨 Extensive Theme Support
+      :class: sphinx-feature
+
+      Create visually appealing documentation,
+      with a wide choice of :ref:`built-in <builtin-themes>`
+      and :ref:`third-party <third-party-themes>` HTML themes
+      and the ability to customize
+      or :ref:`create new themes <extension-html-theme>`.
+
+   .. admonition:: 🔌 Fully Extensible
+      :class: sphinx-feature
+
+      Add custom functionality,
+      via robust :ref:`extension mechanisms <extending-sphinx>`
+      with numerous :ref:`built-in <builtin-extensions>`
+      and :ref:`third-party <third-party-extensions>`
+      extensions available for tasks like
+      creating diagrams, testing code, and more.
+
+   .. admonition:: 🛠️ Automatic API Documentation
+      :class: sphinx-feature
+
+      Generate API documentation for
+      Python, C++ and other :ref:`software domains <usage-domains>`,
+      manually or :ref:`automatically from docstrings <ext-autodoc>`,
+      ensuring your code documentation
+      stays up-to-date with minimal effort.
+
+   .. admonition:: 🌍 Internationalization (i18n)
+      :class: sphinx-feature
+
+      Add documentation :ref:`translations <intl>`
+      multiple languages to reach a global audience.
+
+   .. admonition:: 🌟 Active Community and Support
+      :class: sphinx-feature
+
+      Benefit from an :ref:`active community <support-index>`,
+      with numerous resources, tutorials, forums, and examples.
+
+   .. .. admonition:: 🌐 Integration with Version Control
+   ..    :class: sphinx-feature
+
+   ..    Sphinx integrates seamlessly with version control systems like Git.
+   ..    This allows for easy collaboration, version tracking,
+   ..    and deployment of documentation as part of a continuous integration pipeline.
+
+----------------
+
+.. container:: sphinx-users
+
+   As used by:
+
+   .. container:: sphinx-users-logos
+
+      .. figure:: _static/python-logo.png
+         :alt: Python Logo
+         :height: 100px
+         :align: center
+         :target: https://docs.python.org
+
+         Python
+
+      .. figure:: _static/linux-logo.png
+         :alt: Linux Logo
+         :height: 100px
+         :align: center
+         :target: https://docs.kernel.org/
+
+         Linux Kernel
+
+      .. figure:: _static/jupyter-logo.png
+         :alt: Jupyter Logo
+         :height: 100px
+         :align: center
+         :target: https://docs.jupyter.org
+
+         Project Jupyter
+
+----------------
 
 See below for how to navigate Sphinx's documentation.
 
@@ -53,16 +129,16 @@ creating and building your own documentation from scratch.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Get started
+   :caption: The Basics
 
-   usage/quickstart
    usage/installation
+   usage/quickstart
    tutorial/index
 
 .. _user-guides:
 
-User Guides
-===========
+User guide
+==========
 
 These sections cover various topics in using and extending Sphinx for various
 use-cases. They are a comprehensive guide to using Sphinx in many contexts and
@@ -71,12 +147,12 @@ starting with :ref:`get-started`.
 
 .. toctree::
    :maxdepth: 2
-   :caption: User Guides
+   :caption: User guide
 
    usage/index
    development/index
-   latex
    extdev/index
+   latex
 
 Community guide
 ===============
@@ -113,5 +189,5 @@ usecase-driven documentation, see :ref:`get-started` or :ref:`user-guides`.
    usage/extensions/index
    usage/restructuredtext/index
    glossary
-   changes
+   changes/index
    examples

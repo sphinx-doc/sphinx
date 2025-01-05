@@ -1,68 +1,65 @@
 PYTHON ?= python3
 
 .PHONY: all
-all: clean-pyc clean-backupfiles style-check type-check test
+all: format style-check type-check doclinter test
+
+.PHONY: check
+check: style-check type-check doclinter
 
 .PHONY: clean
-clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles clean-mypyfiles
-
-.PHONY: clean-pyc
-clean-pyc:
+clean: clean
+	# clean Python cache files:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
-
-.PHONY: clean-pycache
-clean-pycache:
 	find . -name __pycache__ -exec rm -rf {} +
 
-.PHONY: clean-patchfiles
-clean-patchfiles:
-	find . -name '*.orig' -exec rm -f {} +
-	find . -name '*.rej' -exec rm -f {} +
-
-.PHONY: clean-backupfiles
-clean-backupfiles:
+	# clean backup files:
 	find . -name '*~' -exec rm -f {} +
 	find . -name '*.bak' -exec rm -f {} +
 	find . -name '*.swp' -exec rm -f {} +
 	find . -name '*.swo' -exec rm -f {} +
 
-.PHONY: clean-generated
-clean-generated:
+	# clean generated:
 	find . -name '.DS_Store' -exec rm -f {} +
-	rm -rf Sphinx.egg-info/
-	rm -rf dist/
-	rm -rf doc/_build/
-	rm -f sphinx/pycode/*.pickle
-	rm -f utils/*3.py*
-	rm -f utils/regression_test.js
 
-.PHONY: clean-testfiles
-clean-testfiles:
+	# clean rendered documentation:
+	rm -rf doc/build/
+	rm -rf doc/_build/
+	rm -rf build/sphinx/
+
+	# clean caches:
+	find . -name '.mypy_cache' -exec rm -rf {} +
+	find . -name '.ruff_cache' -exec rm -rf {} +
+
+	# clean test files:
 	rm -rf tests/.coverage
 	rm -rf tests/build
 	rm -rf .tox/
 	rm -rf .cache/
+	find . -name '.pytest_cache' -exec rm -rf {} +
+	rm -f tests/test-server.lock
 
-.PHONY: clean-buildfiles
-clean-buildfiles:
-	rm -rf build
-
-.PHONY: clean-mypyfiles
-clean-mypyfiles:
-	find . -name '.mypy_cache' -exec rm -rf {} +
+	# clean build files:
+	rm -rf dist/
+	rm -rf build/
 
 .PHONY: style-check
 style-check:
-	@flake8
+	@echo '[+] running ruff' ; ruff check .
+
+.PHONY: format
+format:
+	@ruff format .
 
 .PHONY: type-check
 type-check:
-	mypy sphinx
+	@mypy
 
 .PHONY: doclinter
 doclinter:
-	sphinx-lint --enable line-too-long --max-line-length 85 CHANGES *.rst doc/
+	@sphinx-lint --enable all --disable triple-backticks --max-line-length 85 --sort-by filename,line \
+			     $(addprefix -i doc/, _build _static _templates _themes) \
+	             AUTHORS.rst CHANGES.rst CODE_OF_CONDUCT.rst CONTRIBUTING.rst README.rst doc/
 
 .PHONY: test
 test:

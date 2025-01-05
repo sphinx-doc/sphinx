@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "sk",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Copyright %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", v ",
         "About these documents": "O dokument\u00e1cii",
         "Automatically generated list of changes in version %(version)s": "Automaticky generovan\u00fd zoznam zmien vo verzii %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "OK",
         "Hide Search Matches": "Skry\u0165 v\u00fdsledky h\u013eadania",
         "Index": "Index",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indexov\u00e9 str\u00e1nky po p\u00edsmen\u00e1ch",
         "Indices and tables:": "Indexy a tabu\u013eky",
         "Last updated on %(last_updated)s.": "Naposledy aktualizovan\u00e9 %(last_updated)s.",
@@ -37,7 +36,12 @@ Documentation.addTranslations({
         "Search": "H\u013eada\u0165",
         "Search Page": "Str\u00e1nka h\u013eadania",
         "Search Results": "V\u00fdsledky h\u013eadania",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "H\u013eada\u0165 v %(docstitle)s",
         "Searching": "H\u013eadanie",
         "Searching for multiple words only shows matches that contain\n    all words.": "H\u013eadanie viacer\u00fdch slov vracia len zhody, ktor\u00e9 obsahuj\u00fa\n    v\u0161etky slov\u00e1.",

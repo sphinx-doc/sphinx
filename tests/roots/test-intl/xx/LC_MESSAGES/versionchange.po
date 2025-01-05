@@ -31,3 +31,5 @@ msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSIONADDED."
 msgid "This is the *first* paragraph of versionchanged."
 msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSIONCHANGED."
 
+msgid "This is the *first* paragraph of versionremoved."
+msgstr "THIS IS THE *FIRST* PARAGRAPH OF VERSIONREMOVED."

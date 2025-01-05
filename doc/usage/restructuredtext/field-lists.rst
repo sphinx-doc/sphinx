@@ -48,9 +48,9 @@ At the moment, these metadata fields are recognized:
 
    .. note::
 
-      This metadata effects to the depth of local toctree.  But it does not
-      effect to the depth of *global* toctree.  So this would not be change
-      the sidebar of some themes which uses global one.
+      This metadata affects the depth of the local toctree.  But it does not
+      affect the depth of the *global* toctree.  So this does not change
+      the sidebar of themes that use the global toctree.
 
    .. versionadded:: 0.4
 
@@ -73,6 +73,6 @@ At the moment, these metadata fields are recognized:
 
        :nosearch:
 
-   .. note:: object search is still available even if `nosearch` option is set.
+   .. note:: object search is still available even if ``nosearch`` option is set.
 
    .. versionadded:: 3.0
