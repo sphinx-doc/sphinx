@@ -69,11 +69,8 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
                 for mod in module_path[1:]:
                     module = getattr(module, mod)
 
-            # Extract path from module name
-            actual_path_str = str(module).split("'")[1]
-
             # Load module with exact path
-            module = import_module(actual_path_str)
+            module = import_module(module.__name__)
 
         # Allow an attribute to have multiple parts and incidentally allow
         # repeated .s in the attribute.
