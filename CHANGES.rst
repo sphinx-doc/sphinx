@@ -41,12 +41,12 @@ Bugs fixed
 * LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
   (refs: PR #13152).
   Patch by Jean-François B.
-* #13195: viewcode: Fix issue where import paths differ from the directory
-  structure.
 * #13096: HTML Search: check that query terms exist as properties in
   term indices before accessing them.
 * #11233: linkcheck: match redirect URIs against :confval:`linkcheck_ignore` by
   overriding session-level ``requests.get_redirect_target``.
+* #13195: viewcode: Fix issue where import paths differ from the directory
+  structure.
 
 Testing
 -------
