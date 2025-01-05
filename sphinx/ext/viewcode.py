@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import importlib.util
 import operator
 import os.path
 import posixpath
 import traceback
 from importlib import import_module
-from importlib.util import find_spec, module_from_spec
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes
@@ -60,10 +60,10 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
         except ModuleNotFoundError:
             # Attempt to find full path of module
             mod_root, *remaining_mod_path = modname.split('.')
-            module_spec = find_spec(mod_root)
+            module_spec = importlib.util.find_spec(mod_root)
             if module_spec is None:
                 return None
-            module = module_from_spec(module_spec)
+            module = importlib.util.module_from_spec(module_spec)
             module_spec.loader.exec_module(module)
             if remaining_mod_path:
                 for mod in remaining_mod_path:
@@ -77,7 +77,6 @@ def _get_full_modname(modname: str, attribute: str) -> str | None:
                 value = getattr(value, attr)
 
         return getattr(value, '__module__', None)
-
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
         # then AttributeError logging output only debug mode.
