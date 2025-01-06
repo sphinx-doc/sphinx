@@ -6,6 +6,7 @@ import re
 import shutil
 from typing import TYPE_CHECKING
 
+import pygments
 import pytest
 
 if TYPE_CHECKING:
@@ -13,6 +14,11 @@ if TYPE_CHECKING:
 
 
 def check_viewcode_output(app: SphinxTestApp) -> str:
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span> </span>'
+    else:
+        sp = ' '
+
     warnings = re.sub(r'\\+', '/', app.warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include "
@@ -41,7 +47,7 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
         '<a class="viewcode-back" href="../../index.html#spam.Class1">[docs]</a>\n'
     ) in result
     assert '<span>@decorator</span>\n' in result
-    assert '<span>class</span> <span>Class1</span><span>:</span>\n' in result
+    assert f'<span>class</span>{sp}<span>Class1</span><span>:</span>\n' in result
     assert '<span>    </span><span>&quot;&quot;&quot;</span>\n' in result
     assert '<span>    this is Class1</span>\n' in result
     assert '<span>    &quot;&quot;&quot;</span>\n' in result
