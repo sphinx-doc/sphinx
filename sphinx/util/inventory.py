@@ -88,23 +88,23 @@ class InventoryFile:
 
     @classmethod
     def _loads_v2(cls, inv_data: bytes, *, uri: str) -> Inventory:
-        lines = inv_data.split(b'\n', maxsplit=3)
-        if len(lines) < 3:
+        try:
+            line_1, line_2, check_line, compressed = inv_data.split(b'\n', maxsplit=3)
+        except ValueError:
             msg = 'invalid inventory header: missing project name or version'
-            raise ValueError(msg)
+            raise ValueError(msg) from None
         invdata: Inventory = {}
-        projname = lines[0].decode().rstrip()[11:]  # Project name
-        version = lines[1].decode().rstrip()[11:]  # Project version
+        projname = line_1.rstrip()[11:].decode()  # Project name
+        version = line_2.rstrip()[11:].decode()  # Project version
         # definition -> priority, location, display name
         potential_ambiguities: dict[str, tuple[str, str, str]] = {}
         actual_ambiguities = set()
-        check_line = lines[2]  # '... compressed using zlib'
-        if b'zlib' not in check_line:
+        if b'zlib' not in check_line:  # '... compressed using zlib'
             msg = f'invalid inventory header (not compressed): {check_line.decode()}'
             raise ValueError(msg)
 
-        compressed = lines[3]  # the remaining content (per maxsplit above)
-        for line in zlib.decompress(compressed).decode().splitlines():
+        decompressed_content = zlib.decompress(compressed)
+        for line in decompressed_content.decode().splitlines():
             # be careful to handle names with embedded spaces correctly
             m = re.match(
                 r'(.+?)\s+(\S+)\s+(-?\d+)\s+?(\S*)\s+(.*)',
