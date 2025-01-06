@@ -895,7 +895,8 @@ class Documenter:
         member_documenters: list[tuple[Documenter, bool]] = []
         for mname, member, isattr in self.filter_members(members, want_all):
             classes = [
-                cls for cls in self.documenters.values()
+                cls
+                for cls in self.documenters.values()
                 if cls.can_document_member(member, mname, isattr, self)
             ]
             if not classes:
