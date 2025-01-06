@@ -536,19 +536,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         else:
             time_tuple = time.gmtime()
 
-        metadata: dict[str, Any] = {}
-        metadata['title'] = html.escape(self.config.epub_title)
-        metadata['author'] = html.escape(self.config.epub_author)
-        metadata['uid'] = html.escape(self.config.epub_uid)
-        metadata['lang'] = html.escape(self.config.epub_language)
-        metadata['publisher'] = html.escape(self.config.epub_publisher)
-        metadata['copyright'] = html.escape(self.config.epub_copyright)
-        metadata['scheme'] = html.escape(self.config.epub_scheme)
-        metadata['id'] = html.escape(self.config.epub_identifier)
-        metadata['date'] = html.escape(time.strftime('%Y-%m-%d', time_tuple))
-        metadata['manifest_items'] = []
-        metadata['spines'] = []
-        metadata['guides'] = []
+        metadata: dict[str, Any] = {
+            'title': html.escape(self.config.epub_title),
+            'author': html.escape(self.config.epub_author),
+            'uid': html.escape(self.config.epub_uid),
+            'lang': html.escape(self.config.epub_language),
+            'publisher': html.escape(self.config.epub_publisher),
+            'copyright': html.escape(self.config.epub_copyright),
+            'scheme': html.escape(self.config.epub_scheme),
+            'id': html.escape(self.config.epub_identifier),
+            'date': html.escape(time.strftime('%Y-%m-%d', time_tuple)),
+            'manifest_items': [],
+            'spines': [],
+            'guides': [],
+        }
         return metadata
 
     def build_content(self) -> None:
@@ -707,8 +708,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Subelements of a node are nested inside the navpoint.  For nested nodes
         the parent node is reinserted in the subnav.
         """
-        navstack: list[NavPoint] = []
-        navstack.append(NavPoint('dummy', 0, '', '', []))
+        navstack: list[NavPoint] = [NavPoint('dummy', 0, '', '', [])]
         level = 0
         lastnode = None
         for node in nodes:
@@ -752,11 +752,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the toc.ncx file
         properly escaped.
         """
-        metadata: dict[str, Any] = {}
-        metadata['uid'] = self.config.epub_uid
-        metadata['title'] = html.escape(self.config.epub_title)
-        metadata['level'] = level
-        metadata['navpoints'] = navpoints
+        metadata: dict[str, Any] = {
+            'uid': self.config.epub_uid,
+            'title': html.escape(self.config.epub_title),
+            'level': level,
+            'navpoints': navpoints,
+        }
         return metadata
 
     def build_toc(self) -> None:

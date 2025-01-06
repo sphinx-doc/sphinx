@@ -771,7 +771,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_image_files(self) -> None:
         if self.images:
-            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
+            stringify_func = ImageAdapter(self.env).get_original_image_uri
             ensuredir(self._images_dir)
             for src in status_iterator(
                 self.images,

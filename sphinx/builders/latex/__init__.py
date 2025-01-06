@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
 
-import sphinx.builders.latex.nodes  # NoQA: F401,E501  # Workaround: import this before writer to avoid ImportError
+import sphinx.builders.latex.nodes  # NoQA: F401  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
 from sphinx.builders import Builder
 from sphinx.builders.latex.constants import (
@@ -476,7 +476,7 @@ class LaTeXBuilder(Builder):
 
     def copy_image_files(self) -> None:
         if self.images:
-            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
+            stringify_func = ImageAdapter(self.env).get_original_image_uri
             for src in status_iterator(
                 self.images,
                 __('copying images... '),

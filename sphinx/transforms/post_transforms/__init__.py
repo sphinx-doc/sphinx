@@ -277,7 +277,7 @@ class OnlyNodeTransform(SphinxPostTransform):
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to
         # something, even if it's just a comment and will lose the id anyway...
-        process_only_nodes(self.document, self.app.builder.tags)
+        process_only_nodes(self.document, self.app.tags)
 
 
 class SigElementFallbackTransform(SphinxPostTransform):

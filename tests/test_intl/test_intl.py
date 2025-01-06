@@ -11,6 +11,7 @@ import shutil
 import time
 from typing import TYPE_CHECKING
 
+import pygments
 import pytest
 from babel.messages import mofile, pofile
 from babel.messages.catalog import Catalog
@@ -1487,6 +1488,11 @@ def test_xml_strange_markup(app):
 @pytest.mark.sphinx('html', testroot='intl')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_additional_targets_should_not_be_translated(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build()
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
@@ -1525,7 +1531,7 @@ def test_additional_targets_should_not_be_translated(app):
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
-        """<span class="kn">import</span> <span class="nn">sys</span>  """
+        f"""<span class="kn">import</span>{sp}<span class="nn">sys</span>  """
         """<span class="c1"># sys importing</span>"""
     )
     assert_count(expected_expr, result, 1)
@@ -1570,6 +1576,11 @@ def test_additional_targets_should_not_be_translated(app):
     },
 )
 def test_additional_targets_should_be_translated(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build()
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').read_text(encoding='utf8')
@@ -1619,7 +1630,7 @@ def test_additional_targets_should_be_translated(app):
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
-        """<span class="kn">import</span> <span class="nn">sys</span>  """
+        f"""<span class="kn">import</span>{sp}<span class="nn">sys</span>  """
         """<span class="c1"># SYS IMPORTING</span>"""
     )
     assert_count(expected_expr, result, 1)

@@ -141,8 +141,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack: list[NavPoint] = []
-        navstack.append(NavPoint('', '', []))
+        navstack: list[NavPoint] = [NavPoint('', '', [])]
         level = 0
         for node in navnodes:
             if not node['text']:

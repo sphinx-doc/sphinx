@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pygments
 import pytest
 from docutils import nodes
 
@@ -358,7 +359,7 @@ def test_code_block_emphasize_latex(app):
         .read_text(encoding='utf8')
         .replace('\r\n', '\n')
     )
-    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
+    includes = '\\fvset{hllines={, 6, 7, 16, 17, 18, 19, 29, 30, 31,}}%\n'
     assert includes in latex
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
@@ -394,6 +395,11 @@ def test_literal_include_block_start_with_comment_or_brank(app):
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_linenos(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build(filenames=[app.srcdir / 'linenos.rst'])
     html = (app.outdir / 'linenos.html').read_text(encoding='utf8')
 
@@ -411,7 +417,7 @@ def test_literal_include_linenos(app):
 
     # :lines: 5-9
     assert (
-        '<span class="linenos">5</span><span class="k">class</span> '
+        f'<span class="linenos">5</span><span class="k">class</span>{sp}'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 
@@ -556,12 +562,17 @@ def test_code_block_highlighted(app):
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_linenothreshold(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build(filenames=[app.srcdir / 'linenothreshold.rst'])
     html = (app.outdir / 'linenothreshold.html').read_text(encoding='utf8')
 
     # code-block using linenothreshold
     assert (
-        '<span class="linenos">1</span><span class="k">class</span> '
+        f'<span class="linenos">1</span><span class="k">class</span>{sp}'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 

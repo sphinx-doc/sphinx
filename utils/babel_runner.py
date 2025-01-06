@@ -84,11 +84,12 @@ def run_extract() -> None:
     log = _get_logger()
 
     with open('sphinx/__init__.py', encoding='utf-8') as f:
-        for line in f.read().splitlines():
-            if line.startswith('__version__ = '):
-                # remove prefix; strip whitespace; remove quotation marks
-                sphinx_version = line[14:].strip()[1:-1]
-                break
+        lines = f.readlines()
+    for line in lines:
+        if line.startswith('__version__ = '):
+            # remove prefix; strip whitespace; remove quotation marks
+            sphinx_version = line[14:].strip()[1:-1]
+            break
 
     catalogue = Catalog(project='Sphinx', version=sphinx_version, charset='utf-8')
 

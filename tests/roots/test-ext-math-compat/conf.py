@@ -4,7 +4,7 @@ from docutils.parsers.rst import Directive
 extensions = ['sphinx.ext.mathjax']
 
 
-def my_math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
+def my_math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):  # NoQA: B006
     text = 'E = mc^2'
     return [nodes.math(text, text)], []
 

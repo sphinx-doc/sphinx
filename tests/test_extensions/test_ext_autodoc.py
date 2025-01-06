@@ -10,16 +10,17 @@ import functools
 import itertools
 import operator
 import sys
-from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
 from warnings import catch_warnings
 
 import pytest
-from docutils.statemachine import ViewList
 
 from sphinx import addnodes
 from sphinx.ext.autodoc import ALL, ModuleLevelDocumenter, Options
+
+# NEVER import these objects from sphinx.ext.autodoc directly
+from sphinx.ext.autodoc.directive import DocumenterBridge
 
 from tests.test_extensions.autodoc_util import do_autodoc
 
@@ -34,8 +35,10 @@ except ImportError:
 if TYPE_CHECKING:
     from typing import Any
 
+    from sphinx.environment import BuildEnvironment
 
-def make_directive_bridge(env):
+
+def make_directive_bridge(env: BuildEnvironment) -> DocumenterBridge:
     options = Options(
         inherited_members=False,
         undoc_members=False,
@@ -54,11 +57,11 @@ def make_directive_bridge(env):
         ignore_module_all=False,
     )
 
-    directive = SimpleNamespace(
+    directive = DocumenterBridge(
         env=env,
-        genopt=options,
-        result=ViewList(),
-        record_dependencies=set(),
+        reporter=None,
+        options=options,
+        lineno=0,
         state=Mock(),
     )
     directive.state.document.settings.tab_width = 8
@@ -95,9 +98,10 @@ def test_parse_name(app):
         'test_ext_autodoc.raises(exc) -> None',
         ('test_ext_autodoc', ['raises'], 'exc', 'None'),
     )
-    directive.env.temp_data['autodoc:module'] = 'test_ext_autodoc'
+    directive.env.current_document.autodoc_module = 'test_ext_autodoc'
     verify('function', 'raises', ('test_ext_autodoc', ['raises'], None, None))
-    del directive.env.temp_data['autodoc:module']
+    directive.env.current_document.autodoc_module = ''
+
     directive.env.ref_context['py:module'] = 'test_ext_autodoc'
     verify('function', 'raises', ('test_ext_autodoc', ['raises'], None, None))
     verify('class', 'Base', ('test_ext_autodoc', ['Base'], None, None))
@@ -111,7 +115,7 @@ def test_parse_name(app):
     )
     directive.env.ref_context['py:module'] = 'sphinx.testing.util'
     directive.env.ref_context['py:class'] = 'Foo'
-    directive.env.temp_data['autodoc:class'] = 'SphinxTestApp'
+    directive.env.current_document.autodoc_class = 'SphinxTestApp'
     verify(
         'method',
         'cleanup',
@@ -526,7 +530,7 @@ def test_autodoc_exception(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_warnings(app):
-    app.env.temp_data['docname'] = 'dummy'
+    app.env.current_document.docname = 'dummy'
 
     # can't import module
     do_autodoc(app, 'module', 'unknown')
@@ -1301,7 +1305,7 @@ def test_autodoc_module_member_order(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_module_scope(app):
-    app.env.temp_data['autodoc:module'] = 'target'
+    app.env.current_document.autodoc_module = 'target'
     actual = do_autodoc(app, 'attribute', 'Class.mdocattr')
     assert list(actual) == [
         '',
@@ -1316,8 +1320,8 @@ def test_autodoc_module_scope(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_autodoc_class_scope(app):
-    app.env.temp_data['autodoc:module'] = 'target'
-    app.env.temp_data['autodoc:class'] = 'Class'
+    app.env.current_document.autodoc_module = 'target'
+    app.env.current_document.autodoc_class = 'Class'
     actual = do_autodoc(app, 'attribute', 'mdocattr')
     assert list(actual) == [
         '',

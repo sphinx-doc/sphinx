@@ -19,7 +19,7 @@ from docutils.statemachine import State, StateMachine, StringList
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
-from sphinx.locale import _, __
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.parsing import nested_parse_to_nodes
 
@@ -29,7 +29,7 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator  # NoQA: TC003
+    from collections.abc import Callable, Iterator
     from types import ModuleType, TracebackType
 
     from docutils.frontend import Values
@@ -263,40 +263,9 @@ class sphinx_domains(CustomReSTDispatcher):
     """
 
     def __init__(self, env: BuildEnvironment) -> None:
-        self.env = env
+        self.domains = env.domains
+        self.current_document = env.current_document
         super().__init__()
-
-    def lookup_domain_element(self, type: str, name: str) -> Any:
-        """Lookup a markup element (directive or role), given its name which can
-        be a full name (with domain).
-        """
-        name = name.lower()
-        # explicit domain given?
-        if ':' in name:
-            domain_name, name = name.split(':', 1)
-            if domain_name in self.env.domains:
-                domain = self.env.get_domain(domain_name)
-                element = getattr(domain, type)(name)
-                if element is not None:
-                    return element, []
-            else:
-                logger.warning(
-                    _('unknown directive or role name: %s:%s'), domain_name, name
-                )
-        # else look in the default domain
-        else:
-            def_domain = self.env.temp_data.get('default_domain')
-            if def_domain is not None:
-                element = getattr(def_domain, type)(name)
-                if element is not None:
-                    return element, []
-
-        # always look in the std domain
-        element = getattr(self.env.domains.standard_domain, type)(name)
-        if element is not None:
-            return element, []
-
-        raise ElementLookupError
 
     def directive(
         self,
@@ -304,10 +273,34 @@ class sphinx_domains(CustomReSTDispatcher):
         language_module: ModuleType,
         document: nodes.document,
     ) -> tuple[type[Directive] | None, list[system_message]]:
-        try:
-            return self.lookup_domain_element('directive', directive_name)
-        except ElementLookupError:
-            return super().directive(directive_name, language_module, document)
+        """Lookup a directive, given its name which can include a domain."""
+        directive_name = directive_name.lower()
+        # explicit domain given?
+        if ':' in directive_name:
+            domain_name, _, name = directive_name.partition(':')
+            try:
+                domain = self.domains[domain_name]
+            except KeyError:
+                logger.warning(__('unknown directive name: %s'), directive_name)
+            else:
+                element = domain.directive(name)
+                if element is not None:
+                    return element, []
+        # else look in the default domain
+        else:
+            name = directive_name
+            default_domain = self.current_document.default_domain
+            if default_domain is not None:
+                element = default_domain.directive(name)
+                if element is not None:
+                    return element, []
+
+        # always look in the std domain
+        element = self.domains.standard_domain.directive(name)
+        if element is not None:
+            return element, []
+
+        return super().directive(directive_name, language_module, document)
 
     def role(
         self,
@@ -316,10 +309,34 @@ class sphinx_domains(CustomReSTDispatcher):
         lineno: int,
         reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        try:
-            return self.lookup_domain_element('role', role_name)
-        except ElementLookupError:
-            return super().role(role_name, language_module, lineno, reporter)
+        """Lookup a role, given its name which can include a domain."""
+        role_name = role_name.lower()
+        # explicit domain given?
+        if ':' in role_name:
+            domain_name, _, name = role_name.partition(':')
+            try:
+                domain = self.domains[domain_name]
+            except KeyError:
+                logger.warning(__('unknown role name: %s'), role_name)
+            else:
+                element = domain.role(name)
+                if element is not None:
+                    return element, []
+        # else look in the default domain
+        else:
+            name = role_name
+            default_domain = self.current_document.default_domain
+            if default_domain is not None:
+                element = default_domain.role(name)
+                if element is not None:
+                    return element, []
+
+        # always look in the std domain
+        element = self.domains.standard_domain.role(name)
+        if element is not None:
+            return element, []
+
+        return super().role(role_name, language_module, lineno, reporter)
 
 
 class WarningStream:
@@ -378,7 +395,7 @@ def switch_source_input(state: State, content: StringList) -> Iterator[None]:
         # replace it by new one
         state_machine: StateMachine[None] = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # NoQA: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]
 
         yield
     finally:
@@ -403,9 +420,10 @@ class SphinxFileOutput(FileOutput):
             and os.path.exists(self.destination_path)
         ):
             with open(self.destination_path, encoding=self.encoding) as f:
-                # skip writing: content not changed
-                if f.read() == data:
-                    return data
+                on_disk = f.read()
+            # skip writing: content not changed
+            if on_disk == data:
+                return data
 
         return super().write(data)
 
@@ -587,7 +605,7 @@ class SphinxRole:
         if name:
             self.name = name.lower()
         else:
-            self.name = self.env.temp_data.get('default_role', '')
+            self.name = self.env.current_document.default_role
             if not self.name:
                 self.name = self.env.config.default_role
             if not self.name:
@@ -708,6 +726,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+        self._domains = builder.env.domains
 
     def dispatch_visit(self, node: Node) -> None:
         """
