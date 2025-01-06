@@ -410,7 +410,7 @@ class DocFieldTransformer:
                         self.directive.domain or '',
                         target,
                         contnode=content[0],
-                        env=self.directive.state.document.settings.env,
+                        env=self.directive.env,
                     )
                     if _is_single_paragraph(field_body):
                         paragraph = cast('nodes.paragraph', field_body[0])
@@ -477,7 +477,7 @@ class DocFieldTransformer:
             else:
                 fieldtype, items, location = entry
                 fieldtypes = types.get(fieldtype.name, {})
-                env = self.directive.state.document.settings.env
+                env = self.directive.env
                 inliner = self.directive.state.inliner
                 domain = self.directive.domain or ''
                 new_list += fieldtype.make_field(

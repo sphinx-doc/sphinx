@@ -73,9 +73,9 @@ class ImageCollector(EnvironmentCollector):
                 # Search language-specific figures at first
                 i18n_imguri = get_image_filename_for_language(imguri, app.env)
                 _, full_i18n_imgpath = app.env.relfn2path(i18n_imguri, docname)
-                self.collect_candidates(app.env, full_i18n_imgpath, candidates, node)
+                self.collect_candidates(app.srcdir, full_i18n_imgpath, candidates, node)
 
-                self.collect_candidates(app.env, full_imgpath, candidates, node)
+                self.collect_candidates(app.srcdir, full_imgpath, candidates, node)
             else:
                 # substitute imguri by figure_language_filename
                 # (ex. foo.png -> foo.en.png)
@@ -93,7 +93,7 @@ class ImageCollector(EnvironmentCollector):
             # into a single directory)
             for imgpath in candidates.values():
                 app.env.note_dependency(imgpath)
-                if not os.access(os.path.join(app.srcdir, imgpath), os.R_OK):
+                if not os.access(app.srcdir / imgpath, os.R_OK):
                     logger.warning(
                         __('image file not readable: %s'),
                         imgpath,
@@ -106,14 +106,14 @@ class ImageCollector(EnvironmentCollector):
 
     def collect_candidates(
         self,
-        env: BuildEnvironment,
+        srcdir: Path,
         imgpath: str,
         candidates: dict[str, str],
         node: Node,
     ) -> None:
         globbed: dict[str, list[str]] = {}
         for filename in glob(imgpath):
-            new_imgpath = _relative_path(Path(filename), env.srcdir)
+            new_imgpath = _relative_path(Path(filename), srcdir)
             try:
                 mimetype = guess_mimetype(filename)
                 if mimetype is None:

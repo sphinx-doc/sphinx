@@ -146,10 +146,8 @@ class I18nBuilder(Builder):
 
     def init(self) -> None:
         super().init()
-        self.env.set_versioning_method(
-            self.versioning_method, self.env.config.gettext_uuid
-        )
-        self.tags = I18nTags()
+        self.env.set_versioning_method(self.versioning_method, self.config.gettext_uuid)
+        self.tags = self.app.tags = I18nTags()
         self.catalogs: defaultdict[str, Catalog] = defaultdict(Catalog)
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
@@ -174,7 +172,7 @@ class I18nBuilder(Builder):
             if not _is_node_in_substitution_definition(node):
                 catalog.add(msg, node)
 
-        if 'index' in self.env.config.gettext_additional_targets:
+        if 'index' in self.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
                 for entry_type, value, _target_id, _main, _category_key in entries:
@@ -198,14 +196,14 @@ def should_write(filepath: str, new_content: str) -> bool:
     try:
         with open(filepath, encoding='utf-8') as oldpot:
             old_content = oldpot.read()
-            old_header_index = old_content.index('"POT-Creation-Date:')
-            new_header_index = new_content.index('"POT-Creation-Date:')
-            old_body_index = old_content.index('"PO-Revision-Date:')
-            new_body_index = new_content.index('"PO-Revision-Date:')
-            return (
-                old_content[:old_header_index] != new_content[:new_header_index]
-                or new_content[new_body_index:] != old_content[old_body_index:]
-            )
+        old_header_index = old_content.index('"POT-Creation-Date:')
+        new_header_index = new_content.index('"POT-Creation-Date:')
+        old_body_index = old_content.index('"PO-Revision-Date:')
+        new_body_index = new_content.index('"PO-Revision-Date:')
+        return (
+            old_content[:old_header_index] != new_content[:new_header_index]
+            or new_content[new_body_index:] != old_content[old_body_index:]
+        )
     except ValueError:
         pass
 

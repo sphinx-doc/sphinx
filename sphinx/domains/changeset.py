@@ -133,7 +133,7 @@ class ChangeSetDomain(Domain):
     def note_changeset(self, node: addnodes.versionmodified) -> None:
         version = node['version']
         module = self.env.ref_context.get('py:module')
-        objname = self.env.temp_data.get('object', '')
+        objname = self.env.current_document.obj_desc_name
         changeset = ChangeSet(
             node['type'],
             self.env.docname,

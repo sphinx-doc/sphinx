@@ -240,6 +240,7 @@ def fix_svg_relative_paths(
     self: HTML5Translator | LaTeXTranslator | TexinfoTranslator, filepath: str
 ) -> None:
     """Change relative links in generated svg files to be relative to imgpath."""
+    env = self.builder.env
     tree = ET.parse(filepath)  # NoQA: S314
     root = tree.getroot()
     ns = {'svg': 'http://www.w3.org/2000/svg', 'xlink': 'http://www.w3.org/1999/xlink'}
@@ -255,11 +256,11 @@ def fix_svg_relative_paths(
             # not a relative link
             continue
 
-        docname = self.builder.env.path2doc(self.document['source'])
+        docname = env.path2doc(self.document['source'])
         if docname is None:
             # This shouldn't happen!
             continue
-        doc_dir = self.builder.app.outdir.joinpath(docname).resolve().parent
+        doc_dir = self.builder.outdir.joinpath(docname).resolve().parent
 
         old_path = doc_dir / rel_uri
         img_path = doc_dir / self.builder.imgpath

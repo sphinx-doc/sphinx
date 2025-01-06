@@ -452,7 +452,7 @@ def test_domain_objects_document_scoping(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_document_toc(app):
     app.build()
-    toctree = document_toc(app.env, 'index', app.builder.tags)
+    toctree = document_toc(app.env, 'index', app.tags)
 
     assert_node(
         toctree,
@@ -502,8 +502,8 @@ def test_document_toc(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_document_toc_only(app):
     app.build()
-    builder = StandaloneHTMLBuilder(app, app.env)
-    toctree = document_toc(app.env, 'index', builder.tags)
+    StandaloneHTMLBuilder(app, app.env)  # adds format/builder tags
+    toctree = document_toc(app.env, 'index', app.tags)
 
     assert_node(
         toctree,
@@ -561,7 +561,7 @@ def test_document_toc_only(app):
 @pytest.mark.test_params(shared_result='test_environment_toctree_basic')
 def test_document_toc_tocdepth(app):
     app.build()
-    toctree = document_toc(app.env, 'tocdepth', app.builder.tags)
+    toctree = document_toc(app.env, 'tocdepth', app.tags)
 
     assert_node(
         toctree,

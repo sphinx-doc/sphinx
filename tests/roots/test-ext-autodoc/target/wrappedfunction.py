@@ -12,6 +12,6 @@ def slow_function(message, timeout):
 
 
 @contextmanager
-def feeling_good(x: int, y: int) -> Generator:  # NoQA: UP006
+def feeling_good(x: int, y: int) -> Generator:
     """You'll feel better in this context!"""
     yield

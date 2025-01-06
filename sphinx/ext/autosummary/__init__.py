@@ -234,6 +234,7 @@ class Autosummary(SphinxDirective):
     has_content = True
     option_spec: ClassVar[OptionSpec] = {
         'caption': directives.unchanged_required,
+        'class': directives.class_option,
         'toctree': directives.unchanged,
         'nosignatures': directives.flag,
         'recursive': directives.flag,
@@ -431,7 +432,9 @@ class Autosummary(SphinxDirective):
         table_spec['spec'] = r'\X{1}{2}\X{1}{2}'
 
         table = autosummary_table('')
-        real_table = nodes.table('', classes=['autosummary longtable'])
+        real_table = nodes.table(
+            '', classes=['autosummary', 'longtable', *self.options.get('class', ())]
+        )
         table.append(real_table)
         group = nodes.tgroup('', cols=2)
         real_table.append(group)
@@ -867,7 +870,7 @@ def process_generate_options(app: Sphinx) -> None:
     genfiles = app.config.autosummary_generate
 
     if genfiles is True:
-        env = app.builder.env
+        env = app.env
         genfiles = [
             str(env.doc2path(x, base=False))
             for x in env.found_docs
@@ -883,7 +886,7 @@ def process_generate_options(app: Sphinx) -> None:
         ]
 
         for entry in genfiles[:]:
-            if not os.path.isfile(os.path.join(app.srcdir, entry)):
+            if not (app.srcdir / entry).is_file():
                 logger.warning(__('autosummary_generate: file not found: %s'), entry)
                 genfiles.remove(entry)
 
