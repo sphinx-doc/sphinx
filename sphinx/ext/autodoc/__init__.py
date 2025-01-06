@@ -915,7 +915,8 @@ class Documenter:
         # avoid possible circular imports if we were to import objects after
         # their associated documenters have been sorted.
         member_documenters = [
-            (documenter, isattr) for documenter, isattr in member_documenters
+            (documenter, isattr)
+            for documenter, isattr in member_documenters
             if documenter.parse_name() and documenter.import_object()
         ]
         member_documenters = self.sort_members(member_documenters, member_order)
