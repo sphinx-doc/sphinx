@@ -1,5 +1,7 @@
 """Tests util functions."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.util import logging
@@ -91,7 +93,7 @@ def test_progress_message(app):
     # error case
     try:
         with progress_message('testing'):
-            raise
+            raise RuntimeError
     except Exception:
         pass
 

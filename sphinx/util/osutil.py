@@ -5,12 +5,12 @@ from __future__ import annotations
 import contextlib
 import filecmp
 import os
+import os.path
 import re
 import shutil
 import sys
 import unicodedata
 from io import StringIO
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -18,23 +18,23 @@ from sphinx.locale import __
 
 if TYPE_CHECKING:
     from types import TracebackType
-    from typing import Any
+    from typing import Any, Self
 
 # SEP separates path elements in the canonical file names
 #
 # Define SEP as a manifest constant, not so much because we expect it to change
 # in the future as to avoid the suspicion that a stray "/" in the code is a
 # hangover from more *nix-oriented origins.
-SEP = "/"
+SEP = '/'
 
 
 def os_path(canonical_path: str, /) -> str:
-    return canonical_path.replace(SEP, path.sep)
+    return canonical_path.replace(SEP, os.path.sep)
 
 
 def canon_path(native_path: str | os.PathLike[str], /) -> str:
     """Return path in OS-independent form"""
-    return os.fspath(native_path).replace(path.sep, SEP)
+    return os.fspath(native_path).replace(os.path.sep, SEP)
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
@@ -115,27 +115,33 @@ def copyfile(
         raise FileNotFoundError(msg)
 
     if (
-        not (dest_exists := dest.exists()) or
+        not (dest_exists := dest.exists())
         # comparison must be done using shallow=False since
         # two different files might have the same size
-        not filecmp.cmp(source, dest, shallow=False)
+        or not filecmp.cmp(source, dest, shallow=False)
     ):
         if not force and dest_exists:
             # sphinx.util.logging imports sphinx.util.osutil,
             # so use a local import to avoid circular imports
             from sphinx.util import logging
+
             logger = logging.getLogger(__name__)
 
-            msg = __('Aborted attempted copy from %s to %s '
-                     '(the destination path has existing data).')
-            logger.warning(msg, source, dest,
-                           type='misc', subtype='copy_overwrite')
+            msg = __(
+                'Aborted attempted copy from %s to %s '
+                '(the destination path has existing data).'
+            )
+            logger.warning(msg, source, dest, type='misc', subtype='copy_overwrite')
             return
 
-        shutil.copyfile(source, dest)
-        with contextlib.suppress(OSError):
-            # don't do full copystat because the source may be read-only
-            _copy_times(source, dest)
+        if sys.platform == 'win32':
+            # copy2() uses Windows API calls
+            shutil.copy2(source, dest)
+        else:
+            shutil.copyfile(source, dest)
+            with contextlib.suppress(OSError):
+                # don't do full copystat because the source may be read-only
+                _copy_times(source, dest)
 
 
 _no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
@@ -149,8 +155,9 @@ def make_filename_from_project(project: str) -> str:
     return make_filename(project.removesuffix(' Documentation')).lower()
 
 
-def relpath(path: str | os.PathLike[str],
-            start: str | os.PathLike[str] | None = os.curdir) -> str:
+def relpath(
+    path: str | os.PathLike[str], start: str | os.PathLike[str] | None = os.curdir
+) -> str:
     """Return a relative filepath to *path* either from the current directory or
     from an optional *start* directory.
 
@@ -163,36 +170,27 @@ def relpath(path: str | os.PathLike[str],
         return str(path)
 
 
+def _relative_path(path: Path, root: Path, /) -> Path:
+    """Return a relative filepath to *path* from the given *root* directory.
+
+    This is an alternative of ``Path.relative_to``.
+    It returns the original path if *path* and *root* are on different drives,
+    which may happen on Windows.
+    """
+    if path.anchor != root.anchor or '..' in root.parts:
+        # If the drives are different, no relative path exists.
+        # Path.relative_to() requires fully-resolved paths (no '..').
+        return path
+    if sys.version_info[:2] < (3, 12):
+        return Path(os.path.relpath(path, root))
+    return path.relative_to(root, walk_up=True)
+
+
 safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-abspath = path.abspath
-
-
-class _chdir:
-    """Remove this fall-back once support for Python 3.10 is removed."""
-
-    def __init__(self, target_dir: str, /) -> None:
-        self.path = target_dir
-        self._dirs: list[str] = []
-
-    def __enter__(self) -> None:
-        self._dirs.append(os.getcwd())
-        os.chdir(self.path)
-
-    def __exit__(
-        self,
-        type: type[BaseException] | None,
-        value: BaseException | None,
-        traceback: TracebackType | None,
-        /,
-    ) -> None:
-        os.chdir(self._dirs.pop())
-
-
-if sys.version_info[:2] < (3, 11):
-    cd = _chdir
+abspath = os.path.abspath
 
 
 class FileAvoidWrite:
@@ -229,19 +227,22 @@ class FileAvoidWrite:
         try:
             with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
-                if old_content == buf:
-                    return
+            if old_content == buf:
+                return
         except OSError:
             pass
 
         with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
-    def __enter__(self) -> FileAvoidWrite:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any,
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> bool:
         self.close()
         return True
@@ -255,7 +256,7 @@ class FileAvoidWrite:
         return getattr(self._io, name)
 
 
-def rmtree(path: str) -> None:
+def rmtree(path: str | os.PathLike[str], /) -> None:
     if os.path.isdir(path):
         shutil.rmtree(path)
     else:

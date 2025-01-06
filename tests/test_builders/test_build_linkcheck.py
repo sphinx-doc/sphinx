@@ -500,7 +500,7 @@ def custom_handler(
     def authenticated(
         method: Callable[[CustomHandler], None],
     ) -> Callable[[CustomHandler], None]:
-        def method_if_authenticated(self):
+        def method_if_authenticated(self: CustomHandler) -> None:
             if expected_token is None:
                 return method(self)
             elif not self.headers['Authorization']:
@@ -512,6 +512,7 @@ def custom_handler(
                 self.send_response(403, 'Forbidden')
                 self.send_header('Content-Length', '0')
                 self.end_headers()
+            return None
 
         return method_if_authenticated
 
@@ -925,7 +926,7 @@ class InfiniteRedirectOnHeadHandler(BaseHTTPRequestHandler):
 
     def do_HEAD(self):
         self.send_response(302, 'Found')
-        self.send_header('Location', '/')
+        self.send_header('Location', '/redirected')
         self.send_header('Content-Length', '0')
         self.end_headers()
 
@@ -962,6 +963,55 @@ def test_TooManyRedirects_on_HEAD(app, monkeypatch):
         'lineno': 1,
         'uri': f'http://{address}/',
         'info': '',
+    }
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
+def test_ignore_local_redirection(app):
+    with serve_application(app, InfiniteRedirectOnHeadHandler) as address:
+        app.config.linkcheck_ignore = [f'http://{address}/redirected']
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+    assert content == {
+        'code': 302,
+        'status': 'ignored',
+        'filename': 'index.rst',
+        'lineno': 1,
+        'uri': f'http://{address}/',
+        'info': f'ignored redirect: http://{address}/redirected',
+    }
+
+
+class RemoteDomainRedirectHandler(InfiniteRedirectOnHeadHandler):
+    protocol_version = 'HTTP/1.1'
+
+    def do_GET(self):
+        self.send_response(301, 'Found')
+        if self.path == '/':
+            self.send_header('Location', '/local')
+        elif self.path == '/local':
+            self.send_header('Location', 'http://example.test/migrated')
+        self.send_header('Content-Length', '0')
+        self.end_headers()
+
+
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck-localserver')
+def test_ignore_remote_redirection(app):
+    with serve_application(app, RemoteDomainRedirectHandler) as address:
+        app.config.linkcheck_ignore = ['http://example.test']
+        app.build()
+
+    with open(app.outdir / 'output.json', encoding='utf-8') as fp:
+        content = json.load(fp)
+    assert content == {
+        'code': 301,
+        'status': 'ignored',
+        'filename': 'index.rst',
+        'lineno': 1,
+        'uri': f'http://{address}/',
+        'info': 'ignored redirect: http://example.test/migrated',
     }
 
 

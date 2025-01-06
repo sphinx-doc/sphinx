@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Buscar",
         "Search Page": "P\u00e1gina de Busca",
         "Search Results": "Resultados da Busca",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "Pesquisa finalizada, encontrada(s) ${resultCount} p\u00e1gina(s) correspondendo \u00e0 consulta da pesquisa.",
+        "Search finished, found one page matching the search query.": [
+            "Pesquisa conclu\u00edda, encontrada uma p\u00e1gina que correspondendo \u00e0 consulta da pesquisa.",
+            "Pesquisa finalizada, encontradas ${resultCount} p\u00e1ginas correspondendo \u00e0 consulta da pesquisa.",
+            "Pesquisa finalizada, encontradas ${resultCount} p\u00e1ginas correspondendo \u00e0 consulta da pesquisa."
+        ],
         "Search within %(docstitle)s": "Pesquisar dentro de %(docstitle)s",
         "Searching": "Buscando",
         "Searching for multiple words only shows matches that contain\n    all words.": "Pesquisando por v\u00e1rias palavras s\u00f3 mostra correspond\u00eancias\nque cont\u00eam todas as palavras.",

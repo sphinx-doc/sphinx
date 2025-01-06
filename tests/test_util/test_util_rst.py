@@ -1,5 +1,7 @@
 """Tests sphinx.util.rst functions."""
 
+from __future__ import annotations
+
 from docutils.statemachine import StringList
 from jinja2 import Environment
 
@@ -165,7 +167,7 @@ def test_textwidth():
 
 
 def test_heading():
-    env = Environment()
+    env = Environment(autoescape=True)
     env.extend(language=None)
 
     assert heading(env, 'Hello') == 'Hello\n====='

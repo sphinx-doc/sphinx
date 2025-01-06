@@ -10,9 +10,7 @@ from sphinx.util.console import blue, reset, strip_colors, strip_escape_sequence
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Final, TypeVar
-
-    _T = TypeVar('_T')
+    from typing import Final
 
 CURSOR_UP: Final[str] = '\x1b[2A'  # ignored ANSI code
 ERASE_LINE: Final[str] = '\x1b[2K'  # supported ANSI code
@@ -78,7 +76,7 @@ def test_strip_ansi_short_forms():
     # some messages use '\x1b[0m' instead of ``reset(s)``, so we
     # test whether this alternative form is supported or not.
 
-    for strip_function in [strip_colors, strip_escape_sequences]:
+    for strip_function in strip_colors, strip_escape_sequences:
         # \x1b[m and \x1b[0m are equivalent to \x1b[00m
         assert strip_function('\x1b[m') == ''
         assert strip_function('\x1b[0m') == ''

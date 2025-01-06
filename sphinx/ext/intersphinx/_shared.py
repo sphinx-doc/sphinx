@@ -54,7 +54,7 @@ class _IntersphinxProject:
         'locations':  'A tuple of local or remote targets containing '
                       'the inventory data to fetch. '
                       'None indicates the default inventory file name.',
-    }
+    }  # fmt: skip
 
     def __init__(
         self,
@@ -83,10 +83,12 @@ class _IntersphinxProject:
         object.__setattr__(self, 'locations', tuple(locations))
 
     def __repr__(self) -> str:
-        return (f'{self.__class__.__name__}('
-                f'name={self.name!r}, '
-                f'target_uri={self.target_uri!r}, '
-                f'locations={self.locations!r})')
+        return (
+            f'{self.__class__.__name__}('
+            f'name={self.name!r}, '
+            f'target_uri={self.target_uri!r}, '
+            f'locations={self.locations!r})'
+        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, _IntersphinxProject):

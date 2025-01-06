@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
-from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ConfigError
 from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
@@ -301,9 +300,7 @@ def test_html_raw_directive(app):
     [
         (".//link[@href='_static/persistent.css'][@rel='stylesheet']", '', True),
         (
-            ".//link[@href='_static/default.css']"
-            "[@rel='stylesheet']"
-            "[@title='Default']",
+            ".//link[@href='_static/default.css'][@rel='stylesheet'][@title='Default']",
             '',
             True,
         ),
@@ -339,8 +336,7 @@ def test_html_raw_directive(app):
             True,
         ),
         (
-            ".//link[@href='_static/more_alternate2.css']"
-            "[@rel='alternate stylesheet']",
+            ".//link[@href='_static/more_alternate2.css'][@rel='alternate stylesheet']",
             '',
             True,
         ),
@@ -512,11 +508,15 @@ def test_validate_html_extra_path(app):
         app.outdir,              # outdir
         app.outdir / '_static',  # inside outdir
     ]  # fmt: skip
-    with pytest.warns(
-        RemovedInSphinx90Warning, match='Use "pathlib.Path" or "os.fspath" instead'
-    ):
-        validate_html_extra_path(app, app.config)
+
+    validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
+
+    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    assert "html_extra_path entry '/path/to/not_found' does not exist" in warnings[0]
+    assert warnings[1].endswith(' is placed inside outdir')
+    assert warnings[2].endswith(' does not exist')
+    assert len(warnings) == 3
 
 
 @pytest.mark.sphinx(
@@ -532,11 +532,15 @@ def test_validate_html_static_path(app):
         app.outdir,              # outdir
         app.outdir / '_static',  # inside outdir
     ]  # fmt: skip
-    with pytest.warns(
-        RemovedInSphinx90Warning, match='Use "pathlib.Path" or "os.fspath" instead'
-    ):
-        validate_html_static_path(app, app.config)
+
+    validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
+
+    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    assert "html_static_path entry '/path/to/not_found' does not exist" in warnings[0]
+    assert warnings[1].endswith(' is placed inside outdir')
+    assert warnings[2].endswith(' does not exist')
+    assert len(warnings) == 3
 
 
 @pytest.mark.sphinx(

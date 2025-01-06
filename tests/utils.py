@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 # Generated with:
 # $ openssl req -new -x509 -days 3650 -nodes -out cert.pem \
 #     -keyout cert.pem -addext "subjectAltName = DNS:localhost"
-TESTS_ROOT: Final[Path] = Path(__file__).parent
+TESTS_ROOT: Final[Path] = Path(__file__).resolve().parent
 CERT_FILE: Final[str] = str(TESTS_ROOT / 'certs' / 'cert.pem')
 
 
@@ -67,7 +67,7 @@ def http_server(
     server_thread = server_cls(handler, port=port)
     server_thread.start()
     server_port = server_thread.server.server_port
-    assert port == 0 or server_port == port
+    assert port in {0, server_port}
     try:
         socket.create_connection(('localhost', server_port), timeout=0.5).close()
         yield server_thread.server  # Connection has been confirmed possible; proceed.

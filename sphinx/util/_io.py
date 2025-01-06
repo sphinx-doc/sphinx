@@ -8,8 +8,7 @@ if TYPE_CHECKING:
     from typing import Protocol
 
     class SupportsWrite(Protocol):
-        def write(self, text: str, /) -> int | None:
-            ...
+        def write(self, text: str, /) -> int | None: ...
 
 
 class TeeStripANSI:

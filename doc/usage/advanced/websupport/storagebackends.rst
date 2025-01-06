@@ -2,7 +2,7 @@
 
 .. currentmodule:: sphinxcontrib.websupport.storage
 
-Storage Backends
+Storage backends
 ================
 
 To create a custom storage backend you will need to subclass the

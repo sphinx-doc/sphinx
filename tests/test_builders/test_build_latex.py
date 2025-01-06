@@ -1,13 +1,17 @@
 """Test the build process with LaTeX builder with the test root."""
 
+from __future__ import annotations
+
 import http.server
 import os
 import re
 import subprocess
+from contextlib import chdir
 from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
 
+import pygments
 import pytest
 
 from sphinx.builders.latex import default_latex_documents
@@ -19,11 +23,6 @@ from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
 from tests.utils import http_server
-
-try:
-    from contextlib import chdir
-except ImportError:
-    from sphinx.util.osutil import _chdir as chdir
 
 STYLEFILES = [
     'article.cls',
@@ -44,7 +43,7 @@ STYLEFILES = [
 # only run latex if all needed packages are there
 def kpsetest(*filenames):
     try:
-        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)
+        subprocess.run(['kpsewhich', *list(filenames)], capture_output=True, check=True)  # NoQA: S607
         return True
     except (OSError, CalledProcessError):
         return False  # command not found or exit with non-zero
@@ -102,7 +101,7 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
         if self.path == '/sphinx.png':
             with open('tests/roots/test-local-logo/images/img.png', 'rb') as f:
                 content = f.read()
-                content_type = 'image/png'
+            content_type = 'image/png'
 
         if content:
             self.send_response(200, 'OK')
@@ -393,8 +392,7 @@ def test_numref(app):
     print(app.status.getvalue())
     print(app.warning.getvalue())
     assert (
-        '\\hyperref[\\detokenize{index:fig1}]'
-        '{Fig.\\@ \\ref{\\detokenize{index:fig1}}}'
+        '\\hyperref[\\detokenize{index:fig1}]{Fig.\\@ \\ref{\\detokenize{index:fig1}}}'
     ) in result
     assert (
         '\\hyperref[\\detokenize{baz:fig22}]{Figure\\ref{\\detokenize{baz:fig22}}}'
@@ -404,8 +402,7 @@ def test_numref(app):
         '{Table \\ref{\\detokenize{index:table-1}}}'
     ) in result
     assert (
-        '\\hyperref[\\detokenize{baz:table22}]'
-        '{Table:\\ref{\\detokenize{baz:table22}}}'
+        '\\hyperref[\\detokenize{baz:table22}]{Table:\\ref{\\detokenize{baz:table22}}}'
     ) in result
     assert (
         '\\hyperref[\\detokenize{index:code-1}]'
@@ -466,8 +463,7 @@ def test_numref_with_prefix1(app):
     assert '\\ref{\\detokenize{index:code-1}}' in result
     assert '\\ref{\\detokenize{baz:code22}}' in result
     assert (
-        '\\hyperref[\\detokenize{index:fig1}]'
-        '{Figure:\\ref{\\detokenize{index:fig1}}}'
+        '\\hyperref[\\detokenize{index:fig1}]{Figure:\\ref{\\detokenize{index:fig1}}}'
     ) in result
     assert (
         '\\hyperref[\\detokenize{baz:fig22}]{Figure\\ref{\\detokenize{baz:fig22}}}'
@@ -477,8 +473,7 @@ def test_numref_with_prefix1(app):
         '{Tab\\_\\ref{\\detokenize{index:table-1}}}'
     ) in result
     assert (
-        '\\hyperref[\\detokenize{baz:table22}]'
-        '{Table:\\ref{\\detokenize{baz:table22}}}'
+        '\\hyperref[\\detokenize{baz:table22}]{Table:\\ref{\\detokenize{baz:table22}}}'
     ) in result
     assert (
         '\\hyperref[\\detokenize{index:code-1}]'
@@ -544,8 +539,7 @@ def test_numref_with_prefix2(app):
         '{Tab\\_\\ref{\\detokenize{index:table-1}}:}'
     ) in result
     assert (
-        '\\hyperref[\\detokenize{baz:table22}]'
-        '{Table:\\ref{\\detokenize{baz:table22}}}'
+        '\\hyperref[\\detokenize{baz:table22}]{Table:\\ref{\\detokenize{baz:table22}}}'
     ) in result
     assert (
         '\\hyperref[\\detokenize{index:code-1}]{Code\\sphinxhyphen{}\\ref{\\detokenize{index:code-1}} '
@@ -556,8 +550,7 @@ def test_numref_with_prefix2(app):
         '{Code\\sphinxhyphen{}\\ref{\\detokenize{baz:code22}}}'
     ) in result
     assert (
-        '\\hyperref[\\detokenize{foo:foo}]'
-        '{SECTION\\_\\ref{\\detokenize{foo:foo}}\\_}'
+        '\\hyperref[\\detokenize{foo:foo}]{SECTION\\_\\ref{\\detokenize{foo:foo}}\\_}'
     ) in result
     assert (
         '\\hyperref[\\detokenize{bar:bar-a}]'
@@ -594,8 +587,7 @@ def test_numref_with_language_ja(app):
     print(app.status.getvalue())
     print(app.warning.getvalue())
     assert (
-        '\\hyperref[\\detokenize{index:fig1}]'
-        '{\u56f3 \\ref{\\detokenize{index:fig1}}}'
+        '\\hyperref[\\detokenize{index:fig1}]{\u56f3 \\ref{\\detokenize{index:fig1}}}'
     ) in result
     assert (
         '\\hyperref[\\detokenize{baz:fig22}]{Figure\\ref{\\detokenize{baz:fig22}}}'
@@ -605,8 +597,7 @@ def test_numref_with_language_ja(app):
         '{\u8868 \\ref{\\detokenize{index:table-1}}}'
     ) in result
     assert (
-        '\\hyperref[\\detokenize{baz:table22}]'
-        '{Table:\\ref{\\detokenize{baz:table22}}}'
+        '\\hyperref[\\detokenize{baz:table22}]{Table:\\ref{\\detokenize{baz:table22}}}'
     ) in result
     assert (
         '\\hyperref[\\detokenize{index:code-1}]'
@@ -941,8 +932,7 @@ def test_footnote(app):
         'numbered\n%\n\\end{footnote}'
     ) in result
     assert (
-        '\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n'
-        '\\end{footnote}'
+        '\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n\\end{footnote}'
     ) in result
     assert (
         '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}'
@@ -1884,8 +1874,7 @@ def test_latex_nested_enumerated_list(app):
 
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
     assert (
-        '\\sphinxsetlistlabels{\\arabic}{enumi}{enumii}{}{.}%\n'
-        '\\setcounter{enumi}{4}\n'
+        '\\sphinxsetlistlabels{\\arabic}{enumi}{enumii}{}{.}%\n\\setcounter{enumi}{4}\n'
     ) in result
     assert (
         '\\sphinxsetlistlabels{\\alph}{enumii}{enumiii}{}{.}%\n'
@@ -2127,12 +2116,16 @@ def test_latex_container(app):
 
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = r'\PYG{+w}{ }'
+    else:
+        sp = ' '
+
     app.build()
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     common_content = (
-        r'\PYG{k}{def} '
-        r'\PYG{n+nf}{foo}'
+        r'\PYG{k}{def}' + sp + r'\PYG{n+nf}{foo}'
         r'\PYG{p}{(}'
         r'\PYG{l+m+mi}{1} '
         r'\PYG{o}{+} '
@@ -2148,7 +2141,7 @@ def test_latex_code_role(app):
         r'\PYG{k}{pass}'
     )
     assert (
-        r'Inline \sphinxcode{\sphinxupquote{%'  # NoQA: ISC003
+        r'Inline \sphinxcode{\sphinxupquote{%'
         + '\n'
         + common_content
         + '%\n}} code block'
@@ -2193,7 +2186,7 @@ def test_duplicated_labels_before_module(app):
     tested_labels = set()
 
     # iterate over the (explicit) labels in the corresponding index.rst
-    for rst_label_name in [
+    for rst_label_name in (
         'label_1a',
         'label_1b',
         'label_2',
@@ -2202,12 +2195,12 @@ def test_duplicated_labels_before_module(app):
         'label_auto_1b',
         'label_auto_2',
         'label_auto_3',
-    ]:
+    ):
         tex_label_name = 'index:' + rst_label_name.replace('_', '-')
         tex_label_code = r'\phantomsection\label{\detokenize{%s}}' % tex_label_name
-        assert (
-            content.count(tex_label_code) == 1
-        ), f'duplicated label: {tex_label_name!r}'
+        assert content.count(tex_label_code) == 1, (
+            f'duplicated label: {tex_label_name!r}'
+        )
         tested_labels.add(tex_label_code)
 
     # ensure that we did not forget any label to check

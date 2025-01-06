@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Bilatu",
         "Search Page": "Bilaketa orria",
         "Search Results": "Bilaketa emaitzak",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Bilatu %(docstitle)s(e)n",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

@@ -1,5 +1,7 @@
 """Test all builders."""
 
+from __future__ import annotations
+
 import os
 import shutil
 from contextlib import contextmanager
@@ -98,6 +100,14 @@ def test_numbered_circular_toctree(app):
     assert (
         'circular toctree references detected, ignoring: index <- sub <- index'
     ) in warnings
+
+
+@pytest.mark.sphinx('text', testroot='toctree-multiple-parents')
+def test_multiple_parents_toctree(app):
+    app.build(force_all=True)
+    assert (
+        "document is referenced in multiple toctrees: ['bravo', 'delta'], selecting: delta <- charlie"
+    ) in app.status.getvalue()
 
 
 @pytest.mark.usefixtures('_http_teapot')

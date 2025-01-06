@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Callable  # NoQA: TCH003
+from collections.abc import Callable  # NoQA: TC003
 
 if sys.platform == 'win32':
     import colorama
@@ -17,6 +17,8 @@ def terminal_supports_colour() -> bool:
     """Return True if coloured terminal output is supported."""
     if 'NO_COLOUR' in os.environ or 'NO_COLOR' in os.environ:
         return False
+    if sys.platform == 'win32':
+        colorama.just_fix_windows_console()
     if 'FORCE_COLOUR' in os.environ or 'FORCE_COLOR' in os.environ:
         return True
 
@@ -33,17 +35,13 @@ def terminal_supports_colour() -> bool:
 
 
 def disable_colour() -> None:
-    global _COLOURING_DISABLED
+    global _COLOURING_DISABLED  # NoQA: PLW0603
     _COLOURING_DISABLED = True
-    if sys.platform == 'win32':
-        colorama.deinit()
 
 
 def enable_colour() -> None:
-    global _COLOURING_DISABLED
+    global _COLOURING_DISABLED  # NoQA: PLW0603
     _COLOURING_DISABLED = False
-    if sys.platform == 'win32':
-        colorama.init()
 
 
 def colourise(colour_name: str, text: str, /) -> str:
@@ -57,6 +55,7 @@ def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
         if _COLOURING_DISABLED:
             return text
         return f'\x1b[{escape_code}m{text}\x1b[39;49;00m'
+
     return inner
 
 
@@ -69,11 +68,13 @@ def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
 if sys.platform == 'win32':
     _create_input_mode_colour_func = _create_colour_func
 else:
+
     def _create_input_mode_colour_func(escape_code: str, /) -> Callable[[str], str]:
         def inner(text: str) -> str:
             if _COLOURING_DISABLED:
                 return text
             return f'\x01\x1b[{escape_code}m\x02{text}\x01\x1b[39;49;00m\x02'
+
         return inner
 
 

@@ -1,119 +1,53 @@
-Release 8.1.0 (in development)
+Release 8.2.0 (in development)
 ==============================
 
 Dependencies
 ------------
 
-* #12756: Add lower-bounds to the ``sphinxcontrib-*`` dependencies.
-  Patch by Adam Turner.
+* #13000: Drop Python 3.10 support.
 
 Incompatible changes
 --------------------
 
-* #12763: Remove unused internal class ``sphinx.util.Tee``.
-  Patch by Adam Turner.
-* #12822: LaTeX: for Unicode engines, the :ref:`fvset` default is changed to
-  ``'\\fvset{fontsize=auto}'`` from ``'\\fvset{fontsize=\\small}'``.
-  Code-blokcs are unchanged as FreeMono is now loaded with ``Scale=0.9``.
-  An adjustement to existing projects is needed only if they used a custom
-  :ref:`fontpkg` configuration and did not set :ref:`fvset`.
-* #12875: Disable smartquotes for languages: ``zh_CN`` and ``zh_TW`` by default.
-
 Deprecated
 ----------
 
-* #12762: Deprecate ``sphinx.util.import_object``.
-  Use :py:func:`importlib.import_module` instead.
-  Patch by Adam Turner.
-* #12766: Deprecate ``sphinx.util.FilenameUniqDict``
-  and ``sphinx.util.DownloadFiles``.
-  Patch by Adam Turner.
+* #13037: Deprecate the ``SingleHTMLBuilder.fix_refuris`` method.
+  Patch by James Addison.
 
 Features added
 --------------
 
-* #11328: Mention evaluation of templated content during production of static
-  output files.
-* #12704: LaTeX: make :dudir:`contents <table-of-contents>`, :dudir:`topic`,
-  and :dudir:`sidebar` directives separately customizable for PDF output.
-  Patch by Jean-François B. and Bénédikt Tran.
-* #12474: Support type-dependent search result highlighting via CSS.
+* Add a new ``duplicate_declaration`` warning type,
+  with ``duplicate_declaration.c`` and ``duplicate_declaration.cpp`` subtypes.
+  Patch by Julien Lecomte and Adam Turner.
+* #11824: linkcode: Allow extensions to add support for a domain by defining
+  the keys that should be present.
+  Patch by Nicolas Peugnet.
+* #13144: Add a ``class`` option to the :rst:dir:`autosummary` directive.
   Patch by Tim Hoffmann.
-* #12652: LaTeX: Add :confval:`math_numsep` support to latex builder.
-  Patch by Thomas Fanning and Jean-François B.
-* #12743: No longer exit on the first warning when
-  :option:`--fail-on-warning <sphinx-build --fail-on-warning>` is used.
-  Instead, exit with a non-zero status if any warnings were generated
-  during the build.
-  Patch by Adam Turner.
-* #12743: Add :option:`sphinx-build --exception-on-warning`,
-  to raise an exception when warnings are emitted during the build.
-  Patch by Adam Turner and Jeremy Maitin-Shepard.
-* #12907: Add :confval:`html_last_updated_time_zone` to allow using
-  GMT (universal time) instead of local time for the date-time
-  supplied to :confval:`html_last_updated_fmt`.
-  Patch by Adam Turner.
+* #13146: Napoleon: Unify the type preprocessing logic to allow
+  Google-style docstrings to use the optional and default keywords.
+  Patch by Chris Barrick.
 
 Bugs fixed
 ----------
 
-* #12514: intersphinx: fix the meaning of a negative value for
-  :confval:`intersphinx_cache_limit`.
-  Patch by Shengyu Zhang.
-* #12722: LaTeX: avoid TeX reporting ``Overfull \hbox`` from too long
-  strings in a codeline when the problem has actually been solved thanks
-  to :ref:`latexsphinxsetupforcewraps`.
+* #13060: HTML Search: use ``Map`` to store per-file term scores.
+  Patch by James Addison
+* #13130: LaTeX docs: ``pdflatex`` index creation may fail for index entries
+  in French.  See :confval:`latex_use_xindy`.
   Patch by Jean-François B.
-* #12730: The ``UnreferencedFootnotesDetector`` transform has been improved
-  to more consistently detect unreferenced footnotes.
-  Note, the priority of the transform has been changed from 200 to 622,
-  so that it now runs after the docutils ``Footnotes`` resolution transform.
-  Patch by Chris Sewell.
-* #12778: LaTeX: let :ref:`'sphinxsetup' <latexsphinxsetup>`
-  ``div.topic_box-shadow`` key if used with only one dimension set both
-  x-offset and y-offset as per documentation.
-* #12587: Do not warn when potential ambiguity detected during Intersphinx
-  resolution occurs due to duplicate targets that differ case-insensitively.
-  Patch by James Addison.
-* #12639: Fix singular and plural search results text.
-  Patch by Hugo van Kemenade.
-* #12645: Correctly support custom gettext output templates.
-  Patch by Jeremy Bowman.
-* #12717: LaTeX: let :option:`-q <sphinx-build -q>` (quiet) option for
-  :program:`sphinx-build -M latexpdf` or :program:`make latexpdf` (``O=-q``)
-  get passed to :program:`latexmk`.  Let :option:`-Q <sphinx-build -Q>`
-  (silent) apply as well to the PDF build phase.
+* LaTeX: fix a ``7.4.0`` typo in a default for ``\sphinxboxsetup``
+  (refs: PR #13152).
   Patch by Jean-François B.
-* #12744: LaTeX: Classes injected by a custom interpreted text role now give
-  rise to nested ``\DUrole``'s, rather than a single one with comma separated
-  classes.
-  Patch by Jean-François B.
-* #12831: LaTeX: avoid large voids sometimes occurring at page bottoms.
-  Patch by Jean-François B.
-* #11970, #12551: singlehtml builder: make target URIs to be same-document
-  references in the sense of :rfc:`RFC 3986, §4.4 <3986#section-4.4>`,
-  e.g., ``index.html#foo`` becomes ``#foo``.
-  (note: continuation of a partial fix added in Sphinx 7.3.0)
-  Patch by James Addison (with reference to prior work by Eric Norige)
-* #12735: Fix :pep:`695` generic classes LaTeX output formatting.
-  Patch by Jean-François B. and Bénédikt Tran.
-* #12782: intersphinx: fix double forward slashes when generating the inventory
-  file URL (user-defined base URL of an intersphinx project are left untouched
-  even if they end with double forward slashes).
-  Patch by Bénédikt Tran.
-* #12796: Enable parallel reading if requested,
-  even if there are fewer than 6 documents.
-  Patch by Matthias Geier.
-* #12844: Restore support for ``:noindex:`` for the :rst:dir:`js:module`
-  and :rst:dir:`py:module` directives.
-  Patch by Stephen Finucane.
-* #12916: Restore support for custom templates named with the legacy ``_t``
-  suffix during ``apidoc`` RST rendering (regression in 7.4.0).
-  Patch by James Addison.
+* #13096: HTML Search: check that query terms exist as properties in
+  term indices before accessing them.
+* #11233: linkcheck: match redirect URIs against :confval:`linkcheck_ignore` by
+  overriding session-level ``requests.get_redirect_target``.
+* #13195: viewcode: Fix issue where import paths differ from the directory
+  structure.
+  Patch by Ben Egan and Adam Turner.
 
 Testing
 -------
-
-* #12141: Migrate from the deprecated ``karma`` JavaScript test framework to
-  the actively-maintained ``jasmine`` framework.  Test coverage is unaffected.
-  Patch by James Addison.

@@ -9,7 +9,7 @@
 % by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2024/07/28 v8.1.0 Sphinx LaTeX package (sphinx-doc)]
+\ProvidesPackage{sphinx}[2024/11/23 v8.2.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -885,15 +885,12 @@
   {\DeclareStringOption[fontawesome]{iconpackage}}
   {\DeclareStringOption[none]{iconpackage}}%
 }%
-\newcommand\spx@faIcon[3][]{}%
-% The hacky definition of \spx@faIcon above is to let it by default swallow
-% the icon macro and the \sphinxtitlerowaftericonspacecmd (see
-% \sphinxdotitlerowwithicon in sphinxlatexadmonitions.sty) which inserts
-% a space between it and title.  See how \spx@faIcon is used below.
-%
-% If user sets a title-icon key to some LaTeX code of their own, of course
-% \spx@faIcon is not executed and the inserted space will thus be there, as
-% expected.
+\newcommand\spx@faIcon[2][]{}%
+% The above \spx@faIcon which gobbles one mandatory and one optional
+% argument is put into use only if both fontawesome5 and fontawesome
+% LaTeX packages are not available, as part of the defaults for the
+% div.*_title-icon keys (these keys can be redefined via the sphinxsetup
+% interface).
 %
 \def\spxstring@fontawesome{fontawesome}
 \def\spxstring@fontawesomev{fontawesome5}
@@ -920,8 +917,8 @@
                    \let\faicon@pen\faPencil
               \fi
           % if neither has been required, \spx@faIcon will simply swallow
-          % its argument (and follwing space macro) and it is up to user
-          % to set the keys appropriately.
+          % its argument and it is up to user
+          % to set the various div.*_title-icon keys appropriately.
           \fi\fi %
          }%
          {%
@@ -1101,12 +1098,13 @@
 % Some of these defaults got already set.  But we now list them all explicitly
 % for a complete initial configuration of reset storage.
 % At 7.4.0, \fboxrule and \fboxsep replaced by 0.4pt and 3pt which are anyhow
-% the defaults for these LaTeX dimensions.
+% the defaults for these LaTeX dimensions. 8.2.0 corrected border-radius
+% default back to 3pt (\fboxsep) not 0.4pt (\fboxrule).
 \let\spx@boxes@sphinxbox@defaults\@gobble
 \sphinxboxsetup{%
                 border-width=0.4pt,
                 padding=3pt,
-                border-radius=0.4pt,
+                border-radius=3pt,
                 box-shadow=none,
 % MEMO: as xcolor is loaded, \spx@defineorletcolor has a "\colorlet" branch
 % which makes this syntax acceptable and avoids duplicating here the values.

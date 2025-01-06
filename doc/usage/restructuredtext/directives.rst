@@ -831,7 +831,8 @@ __ https://pygments.org/docs/lexers
    .. rst:directive:option:: class: class names
       :type: a list of class names separated by spaces
 
-      The class name of the graph.
+      Assign `class attributes`_.
+      This is a :dudir:`common option <common-options>`.
 
       .. versionadded:: 1.4
 

@@ -4,6 +4,10 @@ This tests mainly the Documenters; the auto directives are tested in a test
 source file translated by test_build.
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 import pytest
 
 from tests.test_extensions.autodoc_util import do_autodoc
@@ -109,7 +113,7 @@ def test_decorated(app):
 
 @pytest.mark.sphinx('html', testroot='ext-autodoc')
 def test_singledispatch(app):
-    options = {}
+    options: dict[str, Any] = {}
     actual = do_autodoc(app, 'function', 'target.singledispatch.func', options)
     assert list(actual) == [
         '',

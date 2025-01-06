@@ -1,6 +1,9 @@
 """Test the HTML builder and check output against XPath."""
 
+from __future__ import annotations
+
 import re
+from unittest.mock import patch
 
 import pytest
 
@@ -63,3 +66,24 @@ def test_numbered_toctree(app):
 def test_singlehtml_hyperlinks(app, cached_etree_parse, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / 'index.html'), 'index.html', *expect)
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='toctree-multiple-parents',
+    confoverrides={'html_theme': 'alabaster'},
+)
+def test_toctree_multiple_parents(app, cached_etree_parse):
+    # The lexicographically greatest parent of the document in global toctree
+    # should be chosen, regardless of the order in which files are read
+    with patch.object(app.builder, '_read_serial') as m:
+        # Read files in reversed order
+        _read_serial = type(app.builder)._read_serial
+        m.side_effect = lambda docnames: _read_serial(app.builder, docnames[::-1])
+        app.build()
+        # Check if charlie is a child of delta in charlie.html
+        xpath_delta_children = (
+            ".//ul[@class='current']//a[@href='delta.html']/../ul/li//a"
+        )
+        etree = cached_etree_parse(app.outdir / 'charlie.html')
+        check_xpath(etree, 'charlie.html', xpath=xpath_delta_children, check='Charlie')

@@ -6,7 +6,6 @@ import ast
 import datetime
 import enum
 import functools
-import sys
 import types
 from inspect import Parameter
 from typing import Callable, List, Optional, Union  # NoQA: UP035
@@ -63,7 +62,7 @@ async def coroutinefunc():
     pass
 
 
-async def asyncgenerator():
+async def asyncgenerator():  # NoQA: RUF029
     yield
 
 
@@ -95,11 +94,11 @@ def _decorator(f):
 def test_TypeAliasForwardRef():
     alias = TypeAliasForwardRef('example')
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
-    assert sig_str == 'example'
+    assert sig_str == "TypeAliasForwardRef('example')"
 
     alias = Optional[alias]  # NoQA: UP007
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
-    assert sig_str == 'example | None'
+    assert sig_str == "TypeAliasForwardRef('example') | None"
 
 
 def test_TypeAliasNamespace():
@@ -272,10 +271,7 @@ def test_signature_annotations():
     # Space around '=' for defaults
     sig = inspect.signature(mod.f7)
     sig_str = stringify_signature(sig)
-    if sys.version_info[:2] <= (3, 10):
-        assert sig_str == '(x: int | None = None, y: dict = {}) -> None'
-    else:
-        assert sig_str == '(x: int = None, y: dict = {}) -> None'
+    assert sig_str == '(x: int = None, y: dict = {}) -> None'
 
     # Callable types
     sig = inspect.signature(mod.f8)
@@ -303,10 +299,10 @@ def test_signature_annotations():
 
     # optional union
     sig = inspect.signature(mod.f20)
-    assert stringify_signature(sig) in (
+    assert stringify_signature(sig) in {
         '() -> int | str | None',
         '() -> str | int | None',
-    )
+    }
 
     # Any
     sig = inspect.signature(mod.f14)
@@ -355,18 +351,12 @@ def test_signature_annotations():
     # show_return_annotation is False
     sig = inspect.signature(mod.f7)
     sig_str = stringify_signature(sig, show_return_annotation=False)
-    if sys.version_info[:2] <= (3, 10):
-        assert sig_str == '(x: int | None = None, y: dict = {})'
-    else:
-        assert sig_str == '(x: int = None, y: dict = {})'
+    assert sig_str == '(x: int = None, y: dict = {})'
 
     # unqualified_typehints is True
     sig = inspect.signature(mod.f7)
     sig_str = stringify_signature(sig, unqualified_typehints=True)
-    if sys.version_info[:2] <= (3, 10):
-        assert sig_str == '(x: int | None = None, y: dict = {}) -> None'
-    else:
-        assert sig_str == '(x: int = None, y: dict = {}) -> None'
+    assert sig_str == '(x: int = None, y: dict = {}) -> None'
 
     # case: separator at head
     sig = inspect.signature(mod.f22)
@@ -821,7 +811,7 @@ def test_isproperty():
 def test_isgenericalias():
     #: A list of int
     T = List[int]  # NoQA: UP006
-    S = list[Union[str, None]]  # NoQA: UP006, UP007
+    S = list[Union[str, None]]  # NoQA: UP007
 
     C = Callable[[int], None]  # a generic alias not having a doccomment
 
@@ -853,7 +843,7 @@ def test_getdoc_inherited_classmethod():
         @classmethod
         def meth(self):
             """
-            docstring
+            Docstring
                 indented text
             """
 
@@ -871,7 +861,7 @@ def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
             """
-            docstring
+            Docstring
                 indented text
             """
 

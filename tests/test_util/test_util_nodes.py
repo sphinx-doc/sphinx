@@ -180,7 +180,7 @@ def test_extract_messages_without_rawsource():
     document.append(p)
     _transform(document)
     assert_node_count(extract_messages(document), nodes.TextElement, 1)
-    assert [m for n, m in extract_messages(document)][0], 'text sentence'
+    assert next(m for n, m in extract_messages(document)), 'text sentence'
 
 
 def test_clean_astext():

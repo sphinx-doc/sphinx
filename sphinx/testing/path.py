@@ -12,9 +12,11 @@ if TYPE_CHECKING:
     import builtins
     from collections.abc import Callable
 
-warnings.warn("'sphinx.testing.path' is deprecated. "
-              "Use 'os.path' or 'pathlib' instead.",
-              RemovedInSphinx90Warning, stacklevel=2)
+warnings.warn(
+    "'sphinx.testing.path' is deprecated. Use 'os.path' or 'pathlib' instead.",
+    RemovedInSphinx90Warning,
+    stacklevel=2,
+)
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -30,7 +32,7 @@ def getumask() -> int:
 UMASK = getumask()
 
 
-class path(str):
+class path(str):  # NoQA: FURB189
     """
     Represents a path which behaves like a string.
     """
@@ -86,7 +88,7 @@ class path(str):
     def rmtree(
         self,
         ignore_errors: bool = False,
-        onerror:  Callable[[Callable[..., Any], str, Any], object] | None = None,
+        onerror: Callable[[Callable[..., Any], str, Any], object] | None = None,
     ) -> None:
         """
         Removes the file or directory and any files or directories it may
@@ -155,7 +157,7 @@ class path(str):
         os.utime(self, arg)
 
     def open(self, mode: str = 'r', **kwargs: Any) -> IO[str]:
-        return open(self, mode, **kwargs)  # NoQA: SIM115
+        return open(self, mode, **kwargs)
 
     def write_text(self, text: str, encoding: str = 'utf-8', **kwargs: Any) -> None:
         """

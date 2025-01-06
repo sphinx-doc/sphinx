@@ -1,17 +1,19 @@
 """Tests sphinx.util.fileutil functions."""
 
+from __future__ import annotations
+
 import re
 from unittest import mock
 
 import pytest
 
 from sphinx.jinja2glue import BuiltinTemplateLoader
-from sphinx.util import strip_colors
+from sphinx.util.console import strip_colors
 from sphinx.util.fileutil import _template_basename, copy_asset, copy_asset_file
 
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         builder = mock.Mock()
         builder.config.templates_path = []

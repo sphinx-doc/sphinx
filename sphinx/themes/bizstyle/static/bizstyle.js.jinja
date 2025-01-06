@@ -1,14 +1,8 @@
-//
-// bizstyle.js
-// ~~~~~~~~~~~
-//
-// Sphinx javascript -- for bizstyle theme.
-//
-// This theme was created by referring to 'sphinxdoc'
-//
-// :copyright: Copyright 2007-2024 by Sphinx team, see AUTHORS.
-// :license: BSD, see LICENSE for details.
-//
+/*
+ * Sphinx javascript -- for bizstyle theme.
+ *
+ * This theme was created by referring to 'sphinxdoc'
+ */
 const initialiseBizStyle = () => {
     if (navigator.userAgent.indexOf("iPhone") > 0 || navigator.userAgent.indexOf("Android") > 0) {
         document.querySelector("li.nav-item-0 a").innerText = "Top"

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
 
-def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> None:
+def assert_node(node: Node, cls: Any = None, xpath: str = '', **kwargs: Any) -> None:
     if cls:
         if isinstance(cls, list):
             assert_node(node, cls[0], xpath=xpath, **kwargs)
@@ -37,36 +37,43 @@ def assert_node(node: Node, cls: Any = None, xpath: str = "", **kwargs: Any) -> 
                 if isinstance(cls[1], tuple):
                     assert_node(node, cls[1], xpath=xpath, **kwargs)
                 else:
-                    assert isinstance(node, nodes.Element), \
-                        'The node%s does not have any children' % xpath
-                    assert len(node) == 1, \
-                        'The node%s has %d child nodes, not one' % (xpath, len(node))
-                    assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
+                    assert (
+                        isinstance(node, nodes.Element)
+                    ), f'The node{xpath} does not have any children'  # fmt: skip
+                    assert len(node) == 1, (
+                        f'The node{xpath} has {len(node)} child nodes, not one'
+                    )
+                    assert_node(node[0], cls[1:], xpath=xpath + '[0]', **kwargs)
         elif isinstance(cls, tuple):
-            assert isinstance(node, list | nodes.Element), \
-                'The node%s does not have any items' % xpath
-            assert len(node) == len(cls), \
-                'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
+            assert (
+                isinstance(node, list | nodes.Element)
+            ), f'The node{xpath} does not have any items'  # fmt: skip
+            assert (
+                len(node) == len(cls)
+            ), f'The node{xpath} has {len(node)} child nodes, not {len(cls)!r}'  # fmt: skip
             for i, nodecls in enumerate(cls):
-                path = xpath + "[%d]" % i
+                path = xpath + f'[{i}]'
                 assert_node(node[i], nodecls, xpath=path, **kwargs)
         elif isinstance(cls, str):
             assert node == cls, f'The node {xpath!r} is not {cls!r}: {node!r}'
         else:
-            assert isinstance(node, cls), \
-                f'The node{xpath} is not subclass of {cls!r}: {node!r}'
+            assert (
+                isinstance(node, cls)
+            ), f'The node{xpath} is not subclass of {cls!r}: {node!r}'  # fmt: skip
 
     if kwargs:
-        assert isinstance(node, nodes.Element), \
-            'The node%s does not have any attributes' % xpath
+        assert (
+            isinstance(node, nodes.Element)
+        ), f'The node{xpath} does not have any attributes'  # fmt: skip
 
         for key, value in kwargs.items():
             if key not in node:
                 if (key := key.replace('_', '-')) not in node:
                     msg = f'The node{xpath} does not have {key!r} attribute: {node!r}'
                     raise AssertionError(msg)
-            assert node[key] == value, \
+            assert node[key] == value, (
                 f'The node{xpath}[{key}] is not {value!r}: {node[key]!r}'
+            )
 
 
 # keep this to restrict the API usage and to have a correct return type
@@ -138,7 +145,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             status = None if quiet else StringIO()
         elif not isinstance(status, StringIO):
-            err = "%r must be an io.StringIO object, got: %s" % ('status', type(status))
+            err = f"'status' must be an io.StringIO object, got: {type(status)}"
             raise TypeError(err)
 
         if warning is None:
@@ -146,7 +153,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
             # but allow the stream to be /dev/null by passing verbosity=-1
             warning = None if quiet else StringIO()
         elif not isinstance(warning, StringIO):
-            err = '%r must be an io.StringIO object, got: %s' % ('warning', type(warning))
+            err = f"'warning' must be an io.StringIO object, got: {type(warning)}"
             raise TypeError(err)
 
         self.docutils_conf_path = srcdir / 'docutils.conf'
@@ -170,11 +177,21 @@ class SphinxTestApp(sphinx.application.Sphinx):
 
         try:
             super().__init__(
-                srcdir, confdir, outdir, doctreedir, buildername,
-                confoverrides=confoverrides, status=status, warning=warning,
-                freshenv=freshenv, warningiserror=warningiserror, tags=tags,
-                verbosity=verbosity, parallel=parallel,
-                pdb=pdb, exception_on_warning=exception_on_warning,
+                srcdir,
+                confdir,
+                outdir,
+                doctreedir,
+                buildername,
+                confoverrides=confoverrides,
+                status=status,
+                warning=warning,
+                freshenv=freshenv,
+                warningiserror=warningiserror,
+                tags=tags,
+                verbosity=verbosity,
+                parallel=parallel,
+                pdb=pdb,
+                exception_on_warning=exception_on_warning,
             )
         except Exception:
             self.cleanup()
@@ -213,7 +230,9 @@ class SphinxTestApp(sphinx.application.Sphinx):
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self._builder_name!r}>'
 
-    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+    def build(
+        self, force_all: bool = False, filenames: list[str] | None = None
+    ) -> None:
         self.env._pickled_doctree_cache.clear()
         super().build(force_all, filenames)
 
@@ -225,7 +244,9 @@ class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
     if it has already been built and there are any output files.
     """
 
-    def build(self, force_all: bool = False, filenames: list[str] | None = None) -> None:
+    def build(
+        self, force_all: bool = False, filenames: list[str] | None = None
+    ) -> None:
         if not os.listdir(self.outdir):
             # if listdir is empty, do build.
             super().build(force_all, filenames)

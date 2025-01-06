@@ -24,63 +24,86 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Install uv
-      run: curl -LsSf https://astral.sh/uv/${{ env.UV_VERSION }}/install.sh | sh
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ env.UV_VERSION }}
+        enable-cache: false
     - name: Lint with Ruff
-      run: uv run ruff check . --output-format github
+      run: uv run ruff check --output-format=github
     - name: Format with Ruff
-      run: uv run ruff format . --diff
-
-  flake8:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Install uv
-      run: curl -LsSf https://astral.sh/uv/${{ env.UV_VERSION }}/install.sh | sh
-    - name: Lint with flake8
-      run: uv run flake8 .
+      run: uv run ruff format --diff
 
   mypy:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Install uv
-      run: curl -LsSf https://astral.sh/uv/${{ env.UV_VERSION }}/install.sh | sh
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ env.UV_VERSION }}
+        enable-cache: false
     - name: Type check with mypy
       run: uv run mypy
 
-  # docs-lint:
+  # pyright:
   #   runs-on: ubuntu-latest
-
+  #
   #   steps:
   #   - uses: actions/checkout@v4
-  #   - name: Install uv
-  #     run: curl -LsSf https://astral.sh/uv/${{ env.UV_VERSION }}/install.sh | sh
-  #   - name: Install dependencies
-  #     run: uv pip install --upgrade sphinx-lint
-  #   - name: Lint documentation with sphinx-lint
-  #     run: make doclinter
-
-  # twine:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v4
+  #     with:
+  #       persist-credentials: false
   #   - name: Set up Python
   #     uses: actions/setup-python@v5
   #     with:
   #       python-version: "3"
   #   - name: Install uv
-  #     run: >
-  #       curl --no-progress-meter --location --fail
-  #       --proto '=https' --tlsv1.2
-  #       "https://astral.sh/uv/install.sh"
-  #       | sh
+  #     uses: astral-sh/setup-uv@v5
+  #     with:
+  #       version: latest
+  #       enable-cache: false
   #   - name: Install dependencies
-  #     run: uv pip install --upgrade twine build
-  #   - name: Lint with twine
-  #     run: |
-  #       python -m build .
-  #       twine check dist/*
+  #     run: uv pip install ".[lint,test]"
+  #   - name: Type check with pyright
+  #     run: pyright
+
+  #  docs-lint:
+  #    runs-on: ubuntu-latest
+  #
+  #    steps:
+  #    - uses: actions/checkout@v4
+  #   - name: Install uv
+  #     uses: astral-sh/setup-uv@v5
+  #     with:
+  #       version: ${{ env.UV_VERSION }}
+  #       enable-cache: false
+  #    - name: Install dependencies
+  #      run: uv pip install --upgrade sphinx-lint
+  #    - name: Lint documentation with sphinx-lint
+  #      run: make doclinter
+
+  #  twine:
+  #    runs-on: ubuntu-latest
+  #
+  #    steps:
+  #    - uses: actions/checkout@v4
+  #    - name: Set up Python
+  #      uses: actions/setup-python@v5
+  #      with:
+  #        python-version: "3"
+  #   - name: Install uv
+  #     uses: astral-sh/setup-uv@v5
+  #     with:
+  #       version: ${{ env.UV_VERSION }}
+  #       enable-cache: false
+  #    - name: Install dependencies
+  #      run: uv pip install --upgrade twine build
+  #    - name: Lint with twine
+  #      run: |
+  #        python -m build .
+  #        twine check dist/*

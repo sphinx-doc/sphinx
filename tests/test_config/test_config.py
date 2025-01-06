@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pickle
-import time
 from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -18,7 +17,6 @@ from sphinx.config import (
     Config,
     _Opt,
     check_confval_types,
-    correct_copyright_year,
     is_serializable,
 )
 from sphinx.deprecation import RemovedInSphinx90Warning
@@ -465,16 +463,15 @@ def test_config_eol(logger, tmp_path):
 )
 def test_builtin_conf(app):
     warnings = app.warning.getvalue()
-    assert (
-        'root_doc'
-    ) in warnings, 'override on builtin "root_doc" should raise a type warning'
+    assert 'root_doc' in warnings, (
+        'override on builtin "root_doc" should raise a type warning'
+    )
     assert 'language' not in warnings, (
         'explicitly permitted override on builtin "language" should NOT raise '
         'a type warning'
     )
     assert 'primary_domain' not in warnings, (
-        'override to None on builtin "primary_domain" should NOT raise a type '
-        'warning'
+        'override to None on builtin "primary_domain" should NOT raise a type warning'
     )
 
 
@@ -739,101 +736,6 @@ def test_conf_py_nitpick_ignore_list(tmp_path):
     # Then the default nitpick_ignore[_regex] is an empty list
     assert cfg.nitpick_ignore == []
     assert cfg.nitpick_ignore_regex == []
-
-
-@pytest.fixture(
-    params=[
-        # test with SOURCE_DATE_EPOCH unset: no modification
-        None,
-        # test with SOURCE_DATE_EPOCH set: copyright year should be updated
-        1293840000,
-        1293839999,
-    ]
-)
-def source_date_year(request, monkeypatch):
-    sde = request.param
-    with monkeypatch.context() as m:
-        if sde:
-            m.setenv('SOURCE_DATE_EPOCH', str(sde))
-            yield time.gmtime(sde).tm_year
-        else:
-            m.delenv('SOURCE_DATE_EPOCH', raising=False)
-            yield None
-
-
-@pytest.mark.sphinx('html', testroot='copyright-multiline')
-def test_multi_line_copyright(source_date_year, app):
-    app.build(force_all=True)
-
-    content = (app.outdir / 'index.html').read_text(encoding='utf-8')
-
-    if source_date_year is None:
-        # check the copyright footer line by line (empty lines ignored)
-        assert '  &#169; Copyright 2006.<br/>\n' in content
-        assert '  &#169; Copyright 2006-2009, Alice.<br/>\n' in content
-        assert '  &#169; Copyright 2010-2013, Bob.<br/>\n' in content
-        assert '  &#169; Copyright 2014-2017, Charlie.<br/>\n' in content
-        assert '  &#169; Copyright 2018-2021, David.<br/>\n' in content
-        assert '  &#169; Copyright 2022-2025, Eve.' in content
-
-        # check the raw copyright footer block (empty lines included)
-        assert (
-            '      &#169; Copyright 2006.<br/>\n'
-            '    \n'
-            '      &#169; Copyright 2006-2009, Alice.<br/>\n'
-            '    \n'
-            '      &#169; Copyright 2010-2013, Bob.<br/>\n'
-            '    \n'
-            '      &#169; Copyright 2014-2017, Charlie.<br/>\n'
-            '    \n'
-            '      &#169; Copyright 2018-2021, David.<br/>\n'
-            '    \n'
-            '      &#169; Copyright 2022-2025, Eve.'
-        ) in content
-    else:
-        # check the copyright footer line by line (empty lines ignored)
-        assert f'  &#169; Copyright {source_date_year}.<br/>\n' in content
-        assert f'  &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n' in content
-        assert f'  &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n' in content
-        assert f'  &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n' in content
-        assert f'  &#169; Copyright 2018-{source_date_year}, David.<br/>\n' in content
-        assert f'  &#169; Copyright 2022-{source_date_year}, Eve.' in content
-
-        # check the raw copyright footer block (empty lines included)
-        assert (
-            f'      &#169; Copyright {source_date_year}.<br/>\n'
-            f'    \n'
-            f'      &#169; Copyright 2006-{source_date_year}, Alice.<br/>\n'
-            f'    \n'
-            f'      &#169; Copyright 2010-{source_date_year}, Bob.<br/>\n'
-            f'    \n'
-            f'      &#169; Copyright 2014-{source_date_year}, Charlie.<br/>\n'
-            f'    \n'
-            f'      &#169; Copyright 2018-{source_date_year}, David.<br/>\n'
-            f'    \n'
-            f'      &#169; Copyright 2022-{source_date_year}, Eve.'
-        ) in content
-
-
-@pytest.mark.parametrize(
-    ('conf_copyright', 'expected_copyright'),
-    [
-        ('1970', '{current_year}'),
-        # https://github.com/sphinx-doc/sphinx/issues/11913
-        ('1970-1990', '1970-{current_year}'),
-        ('1970-1990 Alice', '1970-{current_year} Alice'),
-    ],
-)
-def test_correct_copyright_year(conf_copyright, expected_copyright, source_date_year):
-    config = Config({}, {'copyright': conf_copyright})
-    correct_copyright_year(_app=None, config=config)
-    actual_copyright = config['copyright']
-
-    if source_date_year is None:
-        expected_copyright = conf_copyright
-    else:
-        expected_copyright = expected_copyright.format(current_year=source_date_year)
-    assert actual_copyright == expected_copyright
 
 
 def test_gettext_compact_command_line_true():

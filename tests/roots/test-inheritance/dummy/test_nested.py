@@ -1,9 +1,8 @@
-"""Test with nested classes.
-"""
+"""Test with nested classes."""
 
 
 class A:
-    class B:
+    class B:  # NoQA: D106
         pass
 
 

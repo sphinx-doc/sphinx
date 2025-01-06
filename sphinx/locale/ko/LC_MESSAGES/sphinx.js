@@ -36,7 +36,9 @@ Documentation.addTranslations({
         "Search": "\uac80\uc0c9",
         "Search Page": "\uac80\uc0c9 \ud398\uc774\uc9c0",
         "Search Results": "\uac80\uc0c9 \uacb0\uacfc",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "\uac80\uc0c9\uc774 \uc644\ub8cc\ub418\uc5c8\uc73c\uba70, \uac80\uc0c9\uc5b4\uc640 \uc77c\uce58\ud558\ub294 ${resultCount} \uac1c \ud398\uc774\uc9c0\ub97c \ucc3e\uc558\uc2b5\ub2c8\ub2e4.",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "%(docstitle)s\uc5d0\uc11c \ucc3e\uae30",
         "Searching": "\uac80\uc0c9 \uc911",
         "Searching for multiple words only shows matches that contain\n    all words.": "\uc5ec\ub7ec \ub2e8\uc5b4\ub97c \uac80\uc0c9\ud558\uba74 \ubaa8\ub4e0 \ub2e8\uc5b4\uac00 \ud3ec\ud568\ub41c \uc77c\uce58 \ud56d\ubaa9\ub9cc \ud45c\uc2dc\ub429\ub2c8\ub2e4.",

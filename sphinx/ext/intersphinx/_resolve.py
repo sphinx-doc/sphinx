@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import posixpath
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.utils import relative_path
 
 from sphinx.addnodes import pending_xref
 from sphinx.deprecation import _deprecation_warning
@@ -16,6 +15,7 @@ from sphinx.ext.intersphinx._shared import LOGGER, InventoryAdapter
 from sphinx.locale import _, __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
+from sphinx.util.osutil import _relative_path
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -32,13 +32,17 @@ if TYPE_CHECKING:
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
 
 
-def _create_element_from_result(domain: Domain, inv_name: InventoryName | None,
-                                data: InventoryItem,
-                                node: pending_xref, contnode: TextElement) -> nodes.reference:
+def _create_element_from_result(
+    domain: Domain,
+    inv_name: InventoryName | None,
+    data: InventoryItem,
+    node: pending_xref,
+    contnode: TextElement,
+) -> nodes.reference:
     proj, version, uri, dispname = data
     if '://' not in uri and node.get('refdoc'):
         # get correct path in case of subdirectories
-        uri = posixpath.join(relative_path(node['refdoc'], '.'), uri)
+        uri = (_relative_path(Path(), Path(node['refdoc']).parent) / uri).as_posix()
     if version:
         reftitle = _('(in %s v%s)') % (proj, version)
     else:
@@ -51,8 +55,11 @@ def _create_element_from_result(domain: Domain, inv_name: InventoryName | None,
         # use whatever title was given, but strip prefix
         title = contnode.astext()
         if inv_name is not None and title.startswith(inv_name + ':'):
-            newnode.append(contnode.__class__(title[len(inv_name) + 1:],
-                                              title[len(inv_name) + 1:]))
+            newnode.append(
+                contnode.__class__(
+                    title[len(inv_name) + 1 :], title[len(inv_name) + 1 :]
+                )
+            )
         else:
             newnode.append(contnode)
     else:
@@ -62,10 +69,14 @@ def _create_element_from_result(domain: Domain, inv_name: InventoryName | None,
 
 
 def _resolve_reference_in_domain_by_target(
-        inv_name: InventoryName | None, inventory: Inventory,
-        domain: Domain, objtypes: Iterable[str],
-        target: str,
-        node: pending_xref, contnode: TextElement) -> nodes.reference | None:
+    inv_name: InventoryName | None,
+    inventory: Inventory,
+    domain: Domain,
+    objtypes: Iterable[str],
+    target: str,
+    node: pending_xref,
+    contnode: TextElement,
+) -> nodes.reference | None:
     for objtype in objtypes:
         if objtype not in inventory:
             # Continue if there's nothing of this kind in the inventory
@@ -79,19 +90,34 @@ def _resolve_reference_in_domain_by_target(
             # * 'term': https://github.com/sphinx-doc/sphinx/issues/9291
             # * 'label': https://github.com/sphinx-doc/sphinx/issues/12008
             target_lower = target.lower()
-            insensitive_matches = list(filter(lambda k: k.lower() == target_lower,
-                                              inventory[objtype].keys()))
+            insensitive_matches = list(
+                filter(lambda k: k.lower() == target_lower, inventory[objtype].keys())
+            )
             if len(insensitive_matches) > 1:
-                data_items = {inventory[objtype][match] for match in insensitive_matches}
+                data_items = {
+                    inventory[objtype][match] for match in insensitive_matches
+                }
                 inv_descriptor = inv_name or 'main_inventory'
                 if len(data_items) == 1:  # these are duplicates; relatively innocuous
-                    LOGGER.debug(__("inventory '%s': duplicate matches found for %s:%s"),
-                                 inv_descriptor, objtype, target,
-                                 type='intersphinx',  subtype='external', location=node)
+                    LOGGER.debug(
+                        __("inventory '%s': duplicate matches found for %s:%s"),
+                        inv_descriptor,
+                        objtype,
+                        target,
+                        type='intersphinx',
+                        subtype='external',
+                        location=node,
+                    )
                 else:
-                    LOGGER.warning(__("inventory '%s': multiple matches found for %s:%s"),
-                                   inv_descriptor, objtype, target,
-                                   type='intersphinx',  subtype='external', location=node)
+                    LOGGER.warning(
+                        __("inventory '%s': multiple matches found for %s:%s"),
+                        inv_descriptor,
+                        objtype,
+                        target,
+                        type='intersphinx',
+                        subtype='external',
+                        location=node,
+                    )
             if insensitive_matches:
                 data = inventory[objtype][insensitive_matches[0]]
             else:
@@ -106,12 +132,16 @@ def _resolve_reference_in_domain_by_target(
     return None
 
 
-def _resolve_reference_in_domain(env: BuildEnvironment,
-                                 inv_name: InventoryName | None, inventory: Inventory,
-                                 honor_disabled_refs: bool,
-                                 domain: Domain, objtypes: Iterable[str],
-                                 node: pending_xref, contnode: TextElement,
-                                 ) -> nodes.reference | None:
+def _resolve_reference_in_domain(
+    env: BuildEnvironment,
+    inv_name: InventoryName | None,
+    inventory: Inventory,
+    honor_disabled_refs: bool,
+    domain: Domain,
+    objtypes: Iterable[str],
+    node: pending_xref,
+    contnode: TextElement,
+) -> nodes.reference | None:
     obj_types: dict[str, None] = {}.fromkeys(objtypes)
 
     # we adjust the object types for backwards compatibility
@@ -129,15 +159,16 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
         disabled = set(env.config.intersphinx_disabled_reftypes)
-        obj_types = {obj_type: None
-                     for obj_type in obj_types
-                     if obj_type not in disabled}
+        obj_types = {
+            obj_type: None for obj_type in obj_types if obj_type not in disabled
+        }
 
     objtypes = [*obj_types.keys()]
 
     # without qualification
-    res = _resolve_reference_in_domain_by_target(inv_name, inventory, domain, objtypes,
-                                                 node['reftarget'], node, contnode)
+    res = _resolve_reference_in_domain_by_target(
+        inv_name, inventory, domain, objtypes, node['reftarget'], node, contnode
+    )
     if res is not None:
         return res
 
@@ -145,14 +176,19 @@ def _resolve_reference_in_domain(env: BuildEnvironment,
     full_qualified_name = domain.get_full_qualified_name(node)
     if full_qualified_name is None:
         return None
-    return _resolve_reference_in_domain_by_target(inv_name, inventory, domain, objtypes,
-                                                  full_qualified_name, node, contnode)
+    return _resolve_reference_in_domain_by_target(
+        inv_name, inventory, domain, objtypes, full_qualified_name, node, contnode
+    )
 
 
-def _resolve_reference(env: BuildEnvironment,
-                       inv_name: InventoryName | None, inventory: Inventory,
-                       honor_disabled_refs: bool,
-                       node: pending_xref, contnode: TextElement) -> nodes.reference | None:
+def _resolve_reference(
+    env: BuildEnvironment,
+    inv_name: InventoryName | None,
+    inventory: Inventory,
+    honor_disabled_refs: bool,
+    node: pending_xref,
+    contnode: TextElement,
+) -> nodes.reference | None:
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
     intersphinx_disabled_reftypes = env.config.intersphinx_disabled_reftypes
@@ -163,13 +199,22 @@ def _resolve_reference(env: BuildEnvironment,
     typ = node['reftype']
     if typ == 'any':
         for domain in env.domains.sorted():
-            if honor_disabled_refs and f'{domain.name}:*' in intersphinx_disabled_reftypes:
+            if (
+                honor_disabled_refs
+                and f'{domain.name}:*' in intersphinx_disabled_reftypes
+            ):
                 continue
             objtypes: Iterable[str] = domain.object_types.keys()
-            res = _resolve_reference_in_domain(env, inv_name, inventory,
-                                               honor_disabled_refs,
-                                               domain, objtypes,
-                                               node, contnode)
+            res = _resolve_reference_in_domain(
+                env,
+                inv_name,
+                inventory,
+                honor_disabled_refs,
+                domain,
+                objtypes,
+                node,
+                contnode,
+            )
             if res is not None:
                 return res
         return None
@@ -184,20 +229,28 @@ def _resolve_reference(env: BuildEnvironment,
         objtypes = domain.objtypes_for_role(typ) or ()
         if not objtypes:
             return None
-        return _resolve_reference_in_domain(env, inv_name, inventory,
-                                            honor_disabled_refs,
-                                            domain, objtypes,
-                                            node, contnode)
+        return _resolve_reference_in_domain(
+            env,
+            inv_name,
+            inventory,
+            honor_disabled_refs,
+            domain,
+            objtypes,
+            node,
+            contnode,
+        )
 
 
 def inventory_exists(env: BuildEnvironment, inv_name: InventoryName) -> bool:
     return inv_name in InventoryAdapter(env).named_inventory
 
 
-def resolve_reference_in_inventory(env: BuildEnvironment,
-                                   inv_name: InventoryName,
-                                   node: pending_xref, contnode: TextElement,
-                                   ) -> nodes.reference | None:
+def resolve_reference_in_inventory(
+    env: BuildEnvironment,
+    inv_name: InventoryName,
+    node: pending_xref,
+    contnode: TextElement,
+) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried in the given inventory with the target as is.
@@ -205,26 +258,39 @@ def resolve_reference_in_inventory(env: BuildEnvironment,
     Requires ``inventory_exists(env, inv_name)``.
     """
     assert inventory_exists(env, inv_name)
-    return _resolve_reference(env, inv_name, InventoryAdapter(env).named_inventory[inv_name],
-                              False, node, contnode)
+    return _resolve_reference(
+        env,
+        inv_name,
+        InventoryAdapter(env).named_inventory[inv_name],
+        False,
+        node,
+        contnode,
+    )
 
 
-def resolve_reference_any_inventory(env: BuildEnvironment,
-                                    honor_disabled_refs: bool,
-                                    node: pending_xref, contnode: TextElement,
-                                    ) -> nodes.reference | None:
+def resolve_reference_any_inventory(
+    env: BuildEnvironment,
+    honor_disabled_refs: bool,
+    node: pending_xref,
+    contnode: TextElement,
+) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried with the target as is in any inventory.
     """
-    return _resolve_reference(env, None, InventoryAdapter(env).main_inventory,
-                              honor_disabled_refs,
-                              node, contnode)
+    return _resolve_reference(
+        env,
+        None,
+        InventoryAdapter(env).main_inventory,
+        honor_disabled_refs,
+        node,
+        contnode,
+    )
 
 
-def resolve_reference_detect_inventory(env: BuildEnvironment,
-                                       node: pending_xref, contnode: TextElement,
-                                       ) -> nodes.reference | None:
+def resolve_reference_detect_inventory(
+    env: BuildEnvironment, node: pending_xref, contnode: TextElement
+) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references.
 
     Resolution is tried first with the target as is in any inventory.
@@ -250,8 +316,9 @@ def resolve_reference_detect_inventory(env: BuildEnvironment,
     return res_inv
 
 
-def missing_reference(app: Sphinx, env: BuildEnvironment, node: pending_xref,
-                      contnode: TextElement) -> nodes.reference | None:
+def missing_reference(
+    app: Sphinx, env: BuildEnvironment, node: pending_xref, contnode: TextElement
+) -> nodes.reference | None:
     """Attempt to resolve a missing reference via intersphinx references."""
     return resolve_reference_detect_inventory(env, node, contnode)
 
@@ -263,7 +330,11 @@ class IntersphinxDispatcher(CustomReSTDispatcher):
     """
 
     def role(
-        self, role_name: str, language_module: ModuleType, lineno: int, reporter: Reporter,
+        self,
+        role_name: str,
+        language_module: ModuleType,
+        lineno: int,
+        reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
         if len(role_name) > 9 and role_name.startswith(('external:', 'external+')):
             return IntersphinxRole(role_name), []
@@ -327,7 +398,7 @@ class IntersphinxRole(SphinxRole):
             # the user did not specify a domain,
             # so we check first the default (if available) then standard domains
             domains: list[Domain] = []
-            if default_domain := self.env.temp_data.get('default_domain'):
+            if default_domain := self.env.current_document.default_domain:
                 domains.append(default_domain)
             if (
                 std_domain := self.env.domains.standard_domain
@@ -434,7 +505,7 @@ class IntersphinxRole(SphinxRole):
         names = name.split(':')
         if len(names) == 1:
             # role
-            default_domain = self.env.temp_data.get('default_domain')
+            default_domain = self.env.current_document.default_domain
             domain = default_domain.name if default_domain else None
             role = names[0]
         elif len(names) == 2:
@@ -445,9 +516,9 @@ class IntersphinxRole(SphinxRole):
             return None
 
         if domain and self.is_existent_role(domain, role):
-            return (domain, role)
+            return domain, role
         elif self.is_existent_role('std', role):
-            return ('std', role)
+            return 'std', role
         else:
             return None
 
@@ -461,7 +532,9 @@ class IntersphinxRole(SphinxRole):
         except ExtensionError:
             return False
 
-    def invoke_role(self, role: tuple[str, str]) -> tuple[list[Node], list[system_message]]:
+    def invoke_role(
+        self, role: tuple[str, str]
+    ) -> tuple[list[Node], list[system_message]]:
         """Invoke the role described by a ``(domain, role name)`` pair."""
         _deprecation_warning(
             __name__, f'{self.__class__.__name__}.invoke_role', '', remove=(9, 0)
@@ -471,8 +544,15 @@ class IntersphinxRole(SphinxRole):
             role_func = domain.role(role[1])
             assert role_func is not None
 
-            return role_func(':'.join(role), self.rawtext, self.text, self.lineno,
-                             self.inliner, self.options, self.content)
+            return role_func(
+                ':'.join(role),
+                self.rawtext,
+                self.text,
+                self.lineno,
+                self.inliner,
+                self.options,
+                self.content,
+            )
         else:
             return [], []
 
@@ -489,17 +569,24 @@ class IntersphinxRoleResolver(ReferencesResolver):
         for node in self.document.findall(pending_xref):
             if 'intersphinx' not in node:
                 continue
-            contnode = cast(nodes.TextElement, node[0].deepcopy())
+            contnode = cast('nodes.TextElement', node[0].deepcopy())
             inv_name = node['inventory']
             if inv_name is not None:
                 assert inventory_exists(self.env, inv_name)
-                newnode = resolve_reference_in_inventory(self.env, inv_name, node, contnode)
+                newnode = resolve_reference_in_inventory(
+                    self.env, inv_name, node, contnode
+                )
             else:
-                newnode = resolve_reference_any_inventory(self.env, False, node, contnode)
+                newnode = resolve_reference_any_inventory(
+                    self.env, False, node, contnode
+                )
             if newnode is None:
                 typ = node['reftype']
-                msg = (__('external %s:%s reference target not found: %s') %
-                       (node['refdomain'], typ, node['reftarget']))
+                msg = __('external %s:%s reference target not found: %s') % (
+                    node['refdomain'],
+                    typ,
+                    node['reftarget'],
+                )
                 LOGGER.warning(msg, location=node, type='ref', subtype=typ)
                 node.replace_self(contnode)
             else:

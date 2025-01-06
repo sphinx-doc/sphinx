@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 try:
     import multiprocessing
+
     HAS_MULTIPROCESSING = True
 except ImportError:
     HAS_MULTIPROCESSING = False
@@ -33,7 +34,7 @@ class SerialTasks:
         pass
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
     ) -> None:
         if arg is not None:
             res = task_func(arg)
@@ -83,7 +84,7 @@ class ParallelTasks:
         pipe.send((failed, collector.logs, ret))
 
     def add_task(
-        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None,
+        self, task_func: Callable, arg: Any = None, result_func: Callable | None = None
     ) -> None:
         tid = self._taskid
         self._taskid += 1
@@ -156,4 +157,4 @@ def make_chunks(arguments: Sequence[str], nproc: int, maxbatch: int = 10) -> lis
     if rest:
         nchunks += 1
     # partition documents in "chunks" that will be written by one Process
-    return [arguments[i * chunksize:(i + 1) * chunksize] for i in range(nchunks)]
+    return [arguments[i * chunksize : (i + 1) * chunksize] for i in range(nchunks)]

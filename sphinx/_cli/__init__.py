@@ -38,7 +38,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
     from typing import NoReturn, TypeAlias
 
-    _PARSER_SETUP: TypeAlias = Callable[[argparse.ArgumentParser], argparse.ArgumentParser]
+    _PARSER_SETUP: TypeAlias = Callable[
+        [argparse.ArgumentParser], argparse.ArgumentParser
+    ]
     _RUNNER: TypeAlias = Callable[[argparse.Namespace], int]
 
     from typing import Protocol
@@ -50,8 +52,7 @@ if TYPE_CHECKING:
 
 
 # Map of command name to import path.
-_COMMANDS: dict[str, str] = {
-}
+_COMMANDS: dict[str, str] = {}
 
 
 def _load_subcommand_descriptions() -> Iterator[tuple[str, str]]:
@@ -61,7 +62,7 @@ def _load_subcommand_descriptions() -> Iterator[tuple[str, str]]:
             description = module.parser_description
         except AttributeError:
             # log an error here, but don't fail the full enumeration
-            print(f"Failed to load the description for {command}", file=sys.stderr)
+            print(f'Failed to load the description for {command}', file=sys.stderr)
         else:
             yield command, description.split('\n\n', 1)[0]
 
@@ -79,7 +80,8 @@ class _RootArgumentParser(argparse.ArgumentParser):
         ]
 
         if commands := list(_load_subcommand_descriptions()):
-            command_max_length = min(max(map(len, next(zip(*commands, strict=True), ()))), 22)
+            command_lengths = map(len, next(zip(*commands, strict=True), ()))
+            command_max_length = min(max(command_lengths), 22)
             help_fragments += [
                 '\n',
                 bold(underline(__('Commands:'))),
@@ -95,8 +97,11 @@ class _RootArgumentParser(argparse.ArgumentParser):
         # Uppercase the title of the Optionals group
         self._optionals.title = __('Options')
         for argument_group in self._action_groups[1:]:
-            if arguments := [action for action in argument_group._group_actions
-                             if action.help != argparse.SUPPRESS]:
+            if arguments := [
+                action
+                for action in argument_group._group_actions
+                if action.help != argparse.SUPPRESS
+            ]:
                 help_fragments += self._format_optional_arguments(
                     arguments,
                     argument_group.title or '',
@@ -104,7 +109,9 @@ class _RootArgumentParser(argparse.ArgumentParser):
 
         help_fragments += [
             '\n',
-            __('For more information, visit https://www.sphinx-doc.org/en/master/man/.'),
+            __(
+                'For more information, visit https://www.sphinx-doc.org/en/master/man/.'
+            ),
             '\n',
         ]
         return ''.join(help_fragments)
@@ -123,7 +130,7 @@ class _RootArgumentParser(argparse.ArgumentParser):
             opt = prefix + '  ' + ', '.join(map(bold, action.option_strings))
             if action.nargs != 0:
                 opt += ' ' + self._format_metavar(
-                    action.nargs, action.metavar, action.choices, action.dest,
+                    action.nargs, action.metavar, action.choices, action.dest
                 )
             yield opt
             yield '\n'
@@ -161,10 +168,8 @@ class _RootArgumentParser(argparse.ArgumentParser):
         raise ValueError(msg)
 
     def error(self, message: str) -> NoReturn:
-        sys.stderr.write(__(
-            '{0}: error: {1}\n'
-            "Run '{0} --help' for information"  # NoQA: COM812
-        ).format(self.prog, message))
+        msg = __("{0}: error: {1}\nRun '{0} --help' for information")
+        sys.stderr.write(msg.format(self.prog, message))
         raise SystemExit(2)
 
 
@@ -172,18 +177,23 @@ def _create_parser() -> _RootArgumentParser:
     parser = _RootArgumentParser(
         prog='sphinx',
         description=__('   Manage documentation with Sphinx.'),
-        epilog=__('For more information, visit https://www.sphinx-doc.org/en/master/man/.'),
+        epilog=__(
+            'For more information, visit https://www.sphinx-doc.org/en/master/man/.'
+        ),
         add_help=False,
         allow_abbrev=False,
     )
     parser.add_argument(
-        '-V', '--version',
+        '-V',
+        '--version',
         action='store_true',
         default=argparse.SUPPRESS,
         help=__('Show the version and exit.'),
     )
     parser.add_argument(
-        '-h', '-?', '--help',
+        '-h',
+        '-?',
+        '--help',
         action='store_true',
         default=argparse.SUPPRESS,
         help=__('Show this message and exit.'),
@@ -192,14 +202,16 @@ def _create_parser() -> _RootArgumentParser:
     # logging control
     log_control = parser.add_argument_group(__('Logging'))
     log_control.add_argument(
-        '-v', '--verbose',
+        '-v',
+        '--verbose',
         action='count',
         dest='verbosity',
         default=0,
         help=__('Increase verbosity (can be repeated)'),
     )
     log_control.add_argument(
-        '-q', '--quiet',
+        '-q',
+        '--quiet',
         action='store_const',
         dest='verbosity',
         const=-1,
@@ -235,6 +247,7 @@ def _parse_command(argv: Sequence[str] = ()) -> tuple[str, Sequence[str]]:
     # Handle '--version' or '-V' passed to the main command or any subcommand
     if 'version' in args or {'-V', '--version'}.intersection(command_argv):
         from sphinx import __display_version__
+
         sys.stderr.write(f'sphinx {__display_version__}\n')
         raise SystemExit(0)
 
@@ -245,8 +258,12 @@ def _parse_command(argv: Sequence[str] = ()) -> tuple[str, Sequence[str]]:
         raise SystemExit(0)
 
     if command_name not in _COMMANDS:
-        sys.stderr.write(__(f'sphinx: {command_name!r} is not a sphinx command. '
-                            "See 'sphinx --help'.\n"))
+        sys.stderr.write(
+            __(
+                f'sphinx: {command_name!r} is not a sphinx command. '
+                "See 'sphinx --help'.\n"
+            )
+        )
         raise SystemExit(2)
 
     return command_name, command_argv

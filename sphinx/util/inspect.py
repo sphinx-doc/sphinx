@@ -24,7 +24,7 @@ from sphinx.util import logging
 from sphinx.util.typing import stringify_annotation
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Iterator, Sequence
     from inspect import _ParameterKind
     from types import MethodType, ModuleType
     from typing import Final, Protocol, TypeAlias
@@ -32,15 +32,15 @@ if TYPE_CHECKING:
     from typing_extensions import TypeIs
 
     class _SupportsGet(Protocol):
-        def __get__(self, __instance: Any, __owner: type | None = ...) -> Any: ...  # NoQA: E704
+        def __get__(self, instance: Any, owner: type | None = ..., /) -> Any: ...
 
     class _SupportsSet(Protocol):
         # instance and value are contravariants but we do not need that precision
-        def __set__(self, __instance: Any, __value: Any) -> None: ...  # NoQA: E704
+        def __set__(self, instance: Any, value: Any, /) -> None: ...
 
     class _SupportsDelete(Protocol):
         # instance is contravariant but we do not need that precision
-        def __delete__(self, __instance: Any) -> None: ...  # NoQA: E704
+        def __delete__(self, instance: Any, /) -> None: ...
 
     _RoutineType: TypeAlias = (
         types.FunctionType
@@ -52,11 +52,7 @@ if TYPE_CHECKING:
         | types.MethodDescriptorType
         | types.ClassMethodDescriptorType
     )
-    _SignatureType: TypeAlias = (
-        Callable[..., Any]
-        | staticmethod
-        | classmethod
-    )
+    _SignatureType: TypeAlias = Callable[..., Any] | staticmethod | classmethod
 
 logger = logging.getLogger(__name__)
 
@@ -266,7 +262,8 @@ def isstaticmethod(
 def isdescriptor(x: Any) -> TypeIs[_SupportsGet | _SupportsSet | _SupportsDelete]:
     """Check if the object is a :external+python:term:`descriptor`."""
     return any(
-        callable(safe_getattr(x, item, None)) for item in ('__get__', '__set__', '__delete__')
+        callable(safe_getattr(x, item, None))
+        for item in ('__get__', '__set__', '__delete__')
     )
 
 
@@ -392,6 +389,10 @@ def isgenericalias(obj: Any) -> TypeIs[types.GenericAlias]:
 
 def safe_getattr(obj: Any, name: str, *defargs: Any) -> Any:
     """A getattr() that turns all exceptions into AttributeErrors."""
+    if len(defargs) > 1:
+        msg = f'safe_getattr expected at most 3 arguments, got {len(defargs)}'
+        raise TypeError(msg)
+
     try:
         return getattr(obj, name, *defargs)
     except Exception as exc:
@@ -429,7 +430,10 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
             sorted_keys = sorted(obj, key=lambda k: object_description(k, _seen=seen))
 
         items = (
-            (object_description(key, _seen=seen), object_description(obj[key], _seen=seen))
+            (
+                object_description(key, _seen=seen),
+                object_description(obj[key], _seen=seen),
+            )
             for key in sorted_keys
         )
         return '{%s}' % ', '.join(f'{key}: {value}' for (key, value) in items)
@@ -442,7 +446,9 @@ def object_description(obj: Any, *, _seen: frozenset[int] = frozenset()) -> str:
         except TypeError:
             # Cannot sort set values, fall back to using descriptions as a sort key
             sorted_values = sorted(obj, key=lambda x: object_description(x, _seen=seen))
-        return '{%s}' % ', '.join(object_description(x, _seen=seen) for x in sorted_values)
+        return '{%s}' % ', '.join(
+            object_description(x, _seen=seen) for x in sorted_values
+        )
     elif isinstance(obj, frozenset):
         if id(obj) in seen:
             return 'frozenset(...)'
@@ -517,6 +523,9 @@ class DefaultValue:
     def __eq__(self, other: object) -> bool:
         return self.value == other
 
+    def __hash__(self) -> int:
+        return hash(self.value)
+
     def __repr__(self) -> str:
         return self.value
 
@@ -534,14 +543,14 @@ class TypeAliasForwardRef:
         # Dummy method to imitate special typing classes
         pass
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return self.name == other
 
     def __hash__(self) -> int:
         return hash(self.name)
 
     def __repr__(self) -> str:
-        return self.name
+        return f'{self.__class__.__name__}({self.name!r})'
 
 
 class TypeAliasModule:
@@ -577,7 +586,7 @@ class TypeAliasModule:
                     return getattr(self.__module, name)
 
 
-class TypeAliasNamespace(dict[str, Any]):
+class TypeAliasNamespace(Mapping[str, Any]):
     """Pseudo namespace class for :confval:`autodoc_type_aliases`.
 
     Useful for looking up nested objects via ``namespace.foo.bar.Class``.
@@ -587,7 +596,9 @@ class TypeAliasNamespace(dict[str, Any]):
         super().__init__()
         self.__mapping = mapping
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: object) -> Any:
+        if not isinstance(key, str):
+            raise KeyError
         if key in self.__mapping:
             # exactly matched
             return TypeAliasForwardRef(self.__mapping[key])
@@ -599,6 +610,22 @@ class TypeAliasNamespace(dict[str, Any]):
                 return TypeAliasModule(key, nested)
             else:
                 raise KeyError
+
+    def __contains__(self, key: object) -> bool:
+        if not isinstance(key, str):
+            return False
+        ns = self.__mapping
+        prefix = f'{key}.'
+        return key in ns or any(k.startswith(prefix) for k in ns)
+
+    def __iter__(self) -> Iterator[str]:
+        for k in self.__mapping:
+            yield k
+            for i in range(k.count('.')):
+                yield k.rsplit('.', i + 1)[0]
+
+    def __len__(self) -> int:
+        return sum(k.count('.') + 1 for k in self.__mapping)
 
 
 def _should_unwrap(subject: _SignatureType) -> bool:
@@ -703,14 +730,20 @@ def _evaluate_forwardref(
     localns: dict[str, Any] | None,
 ) -> Any:
     """Evaluate a forward reference."""
+    if sys.version_info[:2] >= (3, 14):
+        # https://docs.python.org/dev/library/annotationlib.html#annotationlib.ForwardRef.evaluate
+        # https://docs.python.org/dev/library/typing.html#typing.evaluate_forward_ref
+        return typing.evaluate_forward_ref(ref, globals=globalns, locals=localns)
     if sys.version_info >= (3, 12, 4):
         # ``type_params`` were added in 3.13 and the signature of _evaluate()
         # is not backward-compatible (it was backported to 3.12.4, so anything
         # before 3.12.4 still has the old signature).
         #
         # See: https://github.com/python/cpython/pull/118104.
-        return ref._evaluate(globalns, localns, {}, recursive_guard=frozenset())  # type: ignore[arg-type, misc]
-    return ref._evaluate(globalns, localns, frozenset())
+        return ref._evaluate(
+            globalns, localns, type_params=(), recursive_guard=frozenset()
+        )  # type: ignore[call-arg]
+    return ref._evaluate(globalns, localns, recursive_guard=frozenset())
 
 
 def _evaluate(
@@ -721,14 +754,14 @@ def _evaluate(
     """Evaluate unresolved type annotation."""
     try:
         if isinstance(annotation, str):
-            ref = ForwardRef(annotation, True)
+            ref = ForwardRef(annotation)
             annotation = _evaluate_forwardref(ref, globalns, localns)
 
             if isinstance(annotation, ForwardRef):
                 annotation = _evaluate_forwardref(ref, globalns, localns)
             elif isinstance(annotation, str):
                 # might be a ForwardRef'ed annotation in overloaded functions
-                ref = ForwardRef(annotation, True)
+                ref = ForwardRef(annotation)
                 annotation = _evaluate_forwardref(ref, globalns, localns)
     except (NameError, TypeError):
         # failed to evaluate type. skipped.
@@ -760,14 +793,17 @@ def stringify_signature(
     args = []
     last_kind = None
     for param in sig.parameters.values():
-        if param.kind != Parameter.POSITIONAL_ONLY and last_kind == Parameter.POSITIONAL_ONLY:
+        if (
+            param.kind != Parameter.POSITIONAL_ONLY
+            and last_kind == Parameter.POSITIONAL_ONLY
+        ):
             # PEP-570: Separator for Positional Only Parameter: /
             args.append('/')
-        if param.kind == Parameter.KEYWORD_ONLY and last_kind in (
+        if param.kind == Parameter.KEYWORD_ONLY and last_kind in {
             Parameter.POSITIONAL_OR_KEYWORD,
             Parameter.POSITIONAL_ONLY,
             None,
-        ):
+        }:
             # PEP-3102: Separator for Keyword Only Parameter: *
             args.append('*')
 
@@ -797,7 +833,11 @@ def stringify_signature(
         args.append('/')
 
     concatenated_args = ', '.join(args)
-    if sig.return_annotation is EMPTY or not show_annotation or not show_return_annotation:
+    if (
+        sig.return_annotation is EMPTY
+        or not show_annotation
+        or not show_return_annotation
+    ):
         return f'({concatenated_args})'
     else:
         retann = stringify_annotation(sig.return_annotation, mode)  # type: ignore[arg-type]
@@ -808,7 +848,7 @@ def signature_from_str(signature: str) -> Signature:
     """Create a :class:`~inspect.Signature` object from a string."""
     code = 'def func' + signature + ': pass'
     module = ast.parse(code)
-    function = typing.cast(ast.FunctionDef, module.body[0])
+    function = typing.cast('ast.FunctionDef', module.body[0])
 
     return signature_from_ast(function, code)
 
@@ -842,11 +882,15 @@ def signature_from_ast(node: ast.FunctionDef, code: str = '') -> Signature:
 
     # normal arguments
     for arg, defexpr in zip(args.args, defaults[pos_only_offset:], strict=False):
-        params.append(_define(Parameter.POSITIONAL_OR_KEYWORD, arg, code, defexpr=defexpr))
+        params.append(
+            _define(Parameter.POSITIONAL_OR_KEYWORD, arg, code, defexpr=defexpr)
+        )
 
     # variadic positional argument (no possible default expression)
     if args.vararg:
-        params.append(_define(Parameter.VAR_POSITIONAL, args.vararg, code, defexpr=None))
+        params.append(
+            _define(Parameter.VAR_POSITIONAL, args.vararg, code, defexpr=None)
+        )
 
     # keyword-only arguments
     for arg, defexpr in zip(args.kwonlyargs, args.kw_defaults, strict=False):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from functools import partial
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from jinja2 import TemplateNotFound
@@ -20,6 +20,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from jinja2.environment import Environment
+
+_TEMPLATES_PATH = Path(package_dir, 'templates')
+_LATEX_TEMPLATES_PATH = _TEMPLATES_PATH / 'latex'
 
 
 class BaseRenderer:
@@ -49,31 +52,39 @@ class FileRenderer(BaseRenderer):
 
     @classmethod
     def render_from_file(
-        cls: type[FileRenderer], filename: str, context: dict[str, Any],
+        cls: type[FileRenderer],
+        filename: str | os.PathLike[str],
+        context: dict[str, Any],
     ) -> str:
-        dirname = os.path.dirname(filename)
-        basename = os.path.basename(filename)
-        return cls(dirname).render(basename, context)
+        filename = Path(filename)
+        return cls((filename.parent,)).render(filename.name, context)
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None) -> None:
+    def __init__(
+        self, template_path: Sequence[str | os.PathLike[str]] | None = None
+    ) -> None:
         if template_path is None:
-            template_path = os.path.join(package_dir, 'templates')
+            template_path = (_TEMPLATES_PATH,)
         super().__init__(template_path)
 
     @classmethod
     def render_from_file(
-        cls: type[FileRenderer], filename: str, context: dict[str, Any],
+        cls: type[FileRenderer],
+        filename: str | os.PathLike[str],
+        context: dict[str, Any],
     ) -> str:
         return FileRenderer.render_from_file(filename, context)
 
 
 class LaTeXRenderer(SphinxRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None,
-                 latex_engine: str | None = None) -> None:
+    def __init__(
+        self,
+        template_path: Sequence[str | os.PathLike[str]] | None = None,
+        latex_engine: str | None = None,
+    ) -> None:
         if template_path is None:
-            template_path = [os.path.join(package_dir, 'templates', 'latex')]
+            template_path = (_LATEX_TEMPLATES_PATH,)
         super().__init__(template_path)
 
         # use texescape as escape filter
@@ -93,8 +104,11 @@ class LaTeXRenderer(SphinxRenderer):
 
 
 class ReSTRenderer(SphinxRenderer):
-    def __init__(self, template_path: Sequence[str | os.PathLike[str]] | None = None,
-                 language: str | None = None) -> None:
+    def __init__(
+        self,
+        template_path: Sequence[str | os.PathLike[str]] | None = None,
+        language: str | None = None,
+    ) -> None:
         super().__init__(template_path)
 
         # add language to environment
@@ -109,14 +123,18 @@ class ReSTRenderer(SphinxRenderer):
 class SphinxTemplateLoader(BaseLoader):
     """A loader supporting template inheritance"""
 
-    def __init__(self, confdir: str | os.PathLike[str],
-                 templates_paths: Sequence[str | os.PathLike[str]],
-                 system_templates_paths: Sequence[str | os.PathLike[str]]) -> None:
+    def __init__(
+        self,
+        confdir: str | os.PathLike[str],
+        templates_paths: Sequence[str | os.PathLike[str]],
+        system_templates_paths: Sequence[str | os.PathLike[str]],
+    ) -> None:
         self.loaders = []
         self.sysloaders = []
 
+        conf_dir = Path(confdir)
         for templates_path in templates_paths:
-            loader = SphinxFileSystemLoader(path.join(confdir, templates_path))
+            loader = SphinxFileSystemLoader(conf_dir / templates_path)
             self.loaders.append(loader)
 
         for templates_path in system_templates_paths:

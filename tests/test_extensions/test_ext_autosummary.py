@@ -1,9 +1,12 @@
 """Test the autosummary extension."""
 
+from __future__ import annotations
+
 import sys
+from contextlib import chdir
 from io import StringIO
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
-from xml.etree.ElementTree import Element
 
 import pytest
 from docutils import nodes
@@ -25,10 +28,8 @@ from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
 
-try:
-    from contextlib import chdir
-except ImportError:
-    from sphinx.util.osutil import _chdir as chdir
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
 
 html_warnfile = StringIO()
 
@@ -185,9 +186,9 @@ def test_get_items_summary(make_app, app_params):
     assert html_warnings == ''
 
     expected_values = {
-        'withSentence': 'I have a sentence which spans multiple lines.',
-        'noSentence': "this doesn't start with a capital.",
-        'emptyLine': 'This is the real summary',
+        'with_sentence': 'I have a sentence which spans multiple lines.',
+        'no_sentence': "this doesn't start with a capital.",
+        'empty_line': 'This is the real summary',
         'module_attr': 'This is a module attribute',
         'C.class_attr': 'This is a class attribute',
         'C.instance_attr': 'This is an instance attribute',
@@ -196,9 +197,9 @@ def test_get_items_summary(make_app, app_params):
         'C.C2': 'This is a nested inner class docstring',
     }
     for key, expected in expected_values.items():
-        assert (
-            autosummary_items[key][2] == expected
-        ), f'Summary for {key} was {autosummary_items[key]!r} - expected {expected!r}'
+        assert autosummary_items[key][2] == expected, (
+            f'Summary for {key} was {autosummary_items[key]!r} - expected {expected!r}'
+        )
 
     # check an item in detail
     assert 'func' in autosummary_items
@@ -341,7 +342,7 @@ def test_autosummary_generate_content_for_module_skipped(app):
     template = Mock()
 
     def skip_member(app, what, name, obj, skip, options):
-        if name in ('Foo', 'bar', 'Exc'):
+        if name in {'Foo', 'bar', 'Exc'}:
             return True
         return None
 
@@ -570,11 +571,7 @@ def test_autosummary_generate(app):
     Foo = path.read_text(encoding='utf8')
     assert '.. automethod:: __init__' in Foo
     assert (
-        '   .. autosummary::\n'
-        '   \n'
-        '      ~Foo.__init__\n'
-        '      ~Foo.bar\n'
-        '   \n'
+        '   .. autosummary::\n   \n      ~Foo.__init__\n      ~Foo.bar\n   \n'
     ) in Foo
     assert (
         '   .. autosummary::\n'
@@ -595,9 +592,7 @@ def test_autosummary_generate(app):
     path = app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.value.rst'
     Foo_value = path.read_text(encoding='utf8')
     assert (
-        '.. currentmodule:: autosummary_dummy_module\n'
-        '\n'
-        '.. autoattribute:: Foo.value'
+        '.. currentmodule:: autosummary_dummy_module\n\n.. autoattribute:: Foo.value'
     ) in Foo_value
 
     path = app.srcdir / 'generated' / 'autosummary_dummy_module.qux.rst'
@@ -824,17 +819,10 @@ def test_autosummary_module_all(app):
         ).read_text(encoding='utf8')
         assert '   .. autosummary::\n   \n      PublicBar\n   \n' in module
         assert (
-            '   .. autosummary::\n'
-            '   \n'
-            '      public_foo\n'
-            '      public_baz\n'
-            '   \n'
+            '   .. autosummary::\n   \n      public_foo\n      public_baz\n   \n'
         ) in module
         assert (
-            '.. autosummary::\n'
-            '   :toctree:\n'
-            '   :recursive:\n\n'
-            '   extra_dummy_module\n'
+            '.. autosummary::\n   :toctree:\n   :recursive:\n\n   extra_dummy_module\n'
         ) in module
     finally:
         sys.modules.pop('autosummary_dummy_package_all', None)

@@ -265,7 +265,7 @@ class Config:
         Use the type annotations of class attributes that are documented in the docstring
         but do not have a type in the docstring.
 
-    """  # NoQA: D301
+    """
 
     _config_values: dict[str, tuple[Any, _ConfigRebuild]] = {
         'napoleon_google_docstring': (True, 'env'),
@@ -333,19 +333,26 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 def _patch_python_domain() -> None:
     from sphinx.domains.python._object import PyObject, PyTypedField
     from sphinx.locale import _
+
     for doc_field in PyObject.doc_field_types:
         if doc_field.name == 'parameter':
             doc_field.names = ('param', 'parameter', 'arg', 'argument')
             break
     PyObject.doc_field_types.append(
-        PyTypedField('keyword', label=_('Keyword Arguments'),
-                     names=('keyword', 'kwarg', 'kwparam'),
-                     typerolename='class', typenames=('paramtype', 'kwtype'),
-                     can_collapse=True))
+        PyTypedField(
+            'keyword',
+            label=_('Keyword Arguments'),
+            names=('keyword', 'kwarg', 'kwparam'),
+            typerolename='class',
+            typenames=('paramtype', 'kwtype'),
+            can_collapse=True,
+        )
+    )
 
 
-def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
-                       options: Any, lines: list[str]) -> None:
+def _process_docstring(
+    app: Sphinx, what: str, name: str, obj: Any, options: Any, lines: list[str]
+) -> None:
     """Process the docstring for a given python object.
 
     Called when autodoc has read and processed a docstring. `lines` is a list
@@ -384,18 +391,21 @@ def _process_docstring(app: Sphinx, what: str, name: str, obj: Any,
     result_lines = lines
     docstring: GoogleDocstring
     if app.config.napoleon_numpy_docstring:
-        docstring = NumpyDocstring(result_lines, app.config, app, what, name,
-                                   obj, options)
+        docstring = NumpyDocstring(
+            result_lines, app.config, app, what, name, obj, options
+        )
         result_lines = docstring.lines()
     if app.config.napoleon_google_docstring:
-        docstring = GoogleDocstring(result_lines, app.config, app, what, name,
-                                    obj, options)
+        docstring = GoogleDocstring(
+            result_lines, app.config, app, what, name, obj, options
+        )
         result_lines = docstring.lines()
     lines[:] = result_lines.copy()
 
 
-def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
-                 skip: bool, options: Any) -> bool | None:
+def _skip_member(
+    app: Sphinx, what: str, name: str, obj: Any, skip: bool, options: Any
+) -> bool | None:
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class
@@ -438,10 +448,10 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_member = what in ('class', 'exception', 'module')
+    is_member = what in {'class', 'exception', 'module'}
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
-        if what in ('class', 'exception'):
+        if what in {'class', 'exception'}:
             qualname = getattr(obj, '__qualname__', '')
             cls_path, _, _ = qualname.rpartition('.')
             if cls_path:
@@ -458,22 +468,25 @@ def _skip_member(app: Sphinx, what: str, name: str, obj: Any,
                 except Exception:
                     cls_is_owner = False
                 else:
-                    cls_is_owner = (cls and hasattr(cls, name) and  # type: ignore[assignment]
-                                    name in cls.__dict__)
+                    cls_is_owner = (
+                        cls  # type: ignore[assignment]
+                        and hasattr(cls, name)
+                        and name in cls.__dict__
+                    )
             else:
                 cls_is_owner = False
 
         if what == 'module' or cls_is_owner:
-            is_init = (name == '__init__')
-            is_special = (not is_init and name.startswith('__') and
-                          name.endswith('__'))
-            is_private = (not is_init and not is_special and
-                          name.startswith('_'))
+            is_init = name == '__init__'
+            is_special = not is_init and name.startswith('__') and name.endswith('__')
+            is_private = not is_init and not is_special and name.startswith('_')
             inc_init = app.config.napoleon_include_init_with_doc
             inc_special = app.config.napoleon_include_special_with_doc
             inc_private = app.config.napoleon_include_private_with_doc
-            if ((is_special and inc_special) or
-                    (is_private and inc_private) or
-                    (is_init and inc_init)):
+            if (
+                (is_special and inc_special)
+                or (is_private and inc_private)
+                or (is_init and inc_init)
+            ):
                 return False
     return None

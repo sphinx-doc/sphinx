@@ -1,6 +1,7 @@
 """Test the BuildEnvironment class."""
 
-import os
+from __future__ import annotations
+
 import shutil
 from pathlib import Path
 
@@ -8,12 +9,15 @@ import pytest
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.config import Config
 from sphinx.environment import (
     CONFIG_CHANGED,
     CONFIG_EXTENSIONS_CHANGED,
     CONFIG_NEW,
     CONFIG_OK,
+    _differing_config_keys,
 )
+from sphinx.util.console import strip_colors
 
 
 @pytest.mark.sphinx('dummy', testroot='basic')
@@ -24,23 +28,30 @@ def test_config_status(make_app, app_params):
     app1 = make_app(*args, freshenv=True, **kwargs)
     assert app1.env.config_status == CONFIG_NEW
     app1.build()
-    assert '[new config] 1 added' in app1._status.getvalue()
+    output = strip_colors(app1.status.getvalue())
+    # assert 'The configuration has changed' not in output
+    assert '[new config] 1 added' in output
 
     # incremental build (no config changed)
     app2 = make_app(*args, **kwargs)
     assert app2.env.config_status == CONFIG_OK
     app2.build()
-    assert '0 added, 0 changed, 0 removed' in app2._status.getvalue()
+    output = strip_colors(app2.status.getvalue())
+    assert 'The configuration has changed' not in output
+    assert '0 added, 0 changed, 0 removed' in output
 
     # incremental build (config entry changed)
     app3 = make_app(*args, confoverrides={'root_doc': 'indexx'}, **kwargs)
-    fname = os.path.join(app3.srcdir, 'index.rst')
-    assert os.path.isfile(fname)
-    shutil.move(fname, fname[:-4] + 'x.rst')
+    fname = app3.srcdir / 'index.rst'
+    other_fname = app3.srcdir / 'indexx.rst'
+    assert fname.is_file()
+    shutil.move(fname, other_fname)
     assert app3.env.config_status == CONFIG_CHANGED
     app3.build()
-    shutil.move(fname[:-4] + 'x.rst', fname)
-    assert "[config changed ('master_doc')] 1 added" in app3._status.getvalue()
+    shutil.move(other_fname, fname)
+    output = strip_colors(app3.status.getvalue())
+    assert 'The configuration has changed' in output
+    assert "[config changed ('master_doc')] 1 added," in output
 
     # incremental build (extension changed)
     app4 = make_app(
@@ -49,7 +60,9 @@ def test_config_status(make_app, app_params):
     assert app4.env.config_status == CONFIG_EXTENSIONS_CHANGED
     app4.build()
     want_str = "[extensions changed ('sphinx.ext.autodoc')] 1 added"
-    assert want_str in app4._status.getvalue()
+    output = strip_colors(app4.status.getvalue())
+    assert 'The configuration has changed' not in output
+    assert want_str in output
 
 
 @pytest.mark.sphinx('dummy', testroot='root')
@@ -172,12 +185,40 @@ def test_env_relfn2path(app):
     assert absfn == str(app.srcdir / 'logo.jpg')
 
     # omit docname (w/ current docname)
-    app.env.temp_data['docname'] = 'subdir/document'
+    app.env.current_document.docname = 'subdir/document'
     relfn, absfn = app.env.relfn2path('images/logo.jpg')
     assert Path(relfn) == Path('subdir/images/logo.jpg')
     assert absfn == str(app.srcdir / 'subdir' / 'images' / 'logo.jpg')
 
     # omit docname (w/o current docname)
-    app.env.temp_data.clear()
-    with pytest.raises(KeyError):
+    app.env.current_document.clear()
+    with pytest.raises(KeyError, match=r"^'docname'$"):
         app.env.relfn2path('images/logo.jpg')
+
+
+def test_differing_config_keys():
+    diff = _differing_config_keys
+
+    old = Config({'project': 'old'})
+    new = Config({'project': 'new'})
+    assert diff(old, new) == frozenset({'project'})
+
+    old = Config({'project': 'project', 'release': 'release'})
+    new = Config({'project': 'project', 'version': 'version'})
+    assert diff(old, new) == frozenset({'release', 'version'})
+
+    old = Config({'project': 'project', 'release': 'release'})
+    new = Config({'project': 'project'})
+    assert diff(old, new) == frozenset({'release'})
+
+    old = Config({'project': 'project'})
+    new = Config({'project': 'project', 'version': 'version'})
+    assert diff(old, new) == frozenset({'version'})
+
+    old = Config({'project': 'project', 'release': 'release', 'version': 'version'})
+    new = Config({'project': 'project', 'release': 'release', 'version': 'version'})
+    assert diff(old, new) == frozenset()
+
+    old = Config({'project': 'old', 'release': 'release'})
+    new = Config({'project': 'new', 'version': 'version'})
+    assert diff(old, new) == frozenset({'project', 'release', 'version'})

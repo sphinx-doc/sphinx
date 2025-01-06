@@ -35,7 +35,7 @@ explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<([^<]*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
 
-N = TypeVar("N", bound=Node)
+N = TypeVar('N', bound=Node)
 
 
 class NodeMatcher(Generic[N]):
@@ -95,7 +95,7 @@ class NodeMatcher(Generic[N]):
         confounds type checkers' ability to determine the return type of the iterator.
         """
         for found in node.findall(self):
-            yield cast(N, found)
+            yield cast('N', found)
 
 
 def get_full_module_name(node: Node) -> str:
@@ -110,7 +110,7 @@ def get_full_module_name(node: Node) -> str:
 
 def repr_domxml(node: Node, length: int = 80) -> str:
     """
-    return DOM XML representation of the specified node like:
+    Return DOM XML representation of the specified node like:
     '<paragraph translatable="False"><inline classes="versionadded">Added in version...'
 
     :param nodes.Node node: target node
@@ -135,8 +135,11 @@ def apply_source_workaround(node: Element) -> None:
     # * rawsource of term node will have: ``term text : classifier1 : classifier2``
     # * rawsource of classifier node will be None
     if isinstance(node, nodes.classifier) and not node.rawsource:
-        logger.debug('[i18n] PATCH: %r to have source, line and rawsource: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            '[i18n] PATCH: %r to have source, line and rawsource: %s',
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         definition_list_item = node.parent
         node.source = definition_list_item.source
         node.line = definition_list_item.line - 1  # type: ignore[operator]
@@ -145,24 +148,37 @@ def apply_source_workaround(node: Element) -> None:
         # docutils-0.15 fills in rawsource attribute, but not in source.
         node.source = node.parent.source
     if isinstance(node, nodes.image) and node.source is None:
-        logger.debug('[i18n] PATCH: %r to have source, line: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            '[i18n] PATCH: %r to have source, line: %s',
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.title) and node.source is None:
-        logger.debug('[i18n] PATCH: %r to have source: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            '[i18n] PATCH: %r to have source: %s',
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.term):
-        logger.debug('[i18n] PATCH: %r to have rawsource: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            '[i18n] PATCH: %r to have rawsource: %s',
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         # strip classifier from rawsource of term
         for classifier in reversed(list(node.parent.findall(nodes.classifier))):
-            node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
-                                    '', node.rawsource)
+            node.rawsource = re.sub(
+                r'\s*:\s*%s' % re.escape(classifier.astext()), '', node.rawsource
+            )
     if isinstance(node, nodes.topic) and node.source is None:
         # docutils-0.18 does not fill the source attribute of topic
-        logger.debug('[i18n] PATCH: %r to have source, line: %s',
-                     get_full_module_name(node), repr_domxml(node))
+        logger.debug(
+            '[i18n] PATCH: %r to have source, line: %s',
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         node.source, node.line = node.parent.source, node.parent.line
 
     # workaround: literal_block under bullet list (#4913)
@@ -178,14 +194,20 @@ def apply_source_workaround(node: Element) -> None:
         return
 
     # workaround: some docutils nodes doesn't have source, line.
-    if isinstance(node, (
-        nodes.rubric  # #1305 rubric directive
-        | nodes.line  # #1477 line node
-        | nodes.image  # #3093 image directive in substitution
-        | nodes.field_name  # #3335 field list syntax
-    )):
-        logger.debug('[i18n] PATCH: %r to have source and line: %s',
-                     get_full_module_name(node), repr_domxml(node))
+    if isinstance(
+        node,
+        (
+            nodes.rubric  # #1305 rubric directive
+            | nodes.line  # #1477 line node
+            | nodes.image  # #3093 image directive in substitution
+            | nodes.field_name  # #3335 field list syntax
+        ),
+    ):
+        logger.debug(
+            '[i18n] PATCH: %r to have source and line: %s',
+            get_full_module_name(node),
+            repr_domxml(node),
+        )
         try:
             node.source = get_node_source(node)
         except ValueError:
@@ -217,24 +239,36 @@ def is_translatable(node: Node) -> bool:
 
     if isinstance(node, nodes.TextElement):
         if not node.source:
-            logger.debug('[i18n] SKIP %r because no node.source: %s',
-                         get_full_module_name(node), repr_domxml(node))
+            logger.debug(
+                '[i18n] SKIP %r because no node.source: %s',
+                get_full_module_name(node),
+                repr_domxml(node),
+            )
             return False  # built-in message
         if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
-            logger.debug("[i18n] SKIP %r because node is in IGNORED_NODES "
-                         "and no node['translatable']: %s",
-                         get_full_module_name(node), repr_domxml(node))
+            logger.debug(
+                '[i18n] SKIP %r because node is in IGNORED_NODES '
+                "and no node['translatable']: %s",
+                get_full_module_name(node),
+                repr_domxml(node),
+            )
             return False
         if not node.get('translatable', True):
             # not(node['translatable'] == True or node['translatable'] is None)
-            logger.debug("[i18n] SKIP %r because not node['translatable']: %s",
-                         get_full_module_name(node), repr_domxml(node))
+            logger.debug(
+                "[i18n] SKIP %r because not node['translatable']: %s",
+                get_full_module_name(node),
+                repr_domxml(node),
+            )
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
         if isinstance(node, nodes.field_name) and (node.children[0] == 'orphan'):
-            logger.debug('[i18n] SKIP %r because orphan node: %s',
-                         get_full_module_name(node), repr_domxml(node))
+            logger.debug(
+                '[i18n] SKIP %r because orphan node: %s',
+                get_full_module_name(node),
+                repr_domxml(node),
+            )
             return False
         return True
 
@@ -249,7 +283,7 @@ LITERAL_TYPE_NODES = (
 )
 IMAGE_TYPE_NODES = (
     nodes.image,
-)
+)  # fmt: skip
 
 
 def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
@@ -272,7 +306,7 @@ def extract_messages(doctree: Element) -> Iterable[tuple[Element, str]]:
             else:
                 msg = ''
         elif isinstance(node, nodes.meta):
-            msg = node["content"]
+            msg = node['content']
         else:
             msg = node.rawsource.replace('\n', ' ').strip()  # type: ignore[attr-defined]
 
@@ -325,8 +359,9 @@ def traverse_translatable_index(
         yield node, entries
 
 
-def nested_parse_with_titles(state: RSTState, content: StringList, node: Node,
-                             content_offset: int = 0) -> str:
+def nested_parse_with_titles(
+    state: RSTState, content: StringList, node: Node, content_offset: int = 0
+) -> str:
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -359,13 +394,13 @@ def split_explicit_title(text: str) -> tuple[bool, str, str]:
     return False, text, text
 
 
-indextypes = [
-    'single', 'pair', 'double', 'triple', 'see', 'seealso',
-]
+indextypes = ['single', 'pair', 'double', 'triple', 'see', 'seealso']
 
 
-def process_index_entry(entry: str, targetid: str,
-                        ) -> list[tuple[str, str, str, str, str | None]]:
+def process_index_entry(
+    entry: str,
+    targetid: str,
+) -> list[tuple[str, str, str, str, str | None]]:
     from sphinx.domains.python import pairindextypes
 
     indexentries: list[tuple[str, str, str, str, str | None]] = []
@@ -377,18 +412,25 @@ def process_index_entry(entry: str, targetid: str,
         entry = entry[1:].lstrip()
     for index_type in pairindextypes:
         if entry.startswith(f'{index_type}:'):
-            value = entry[len(index_type) + 1:].strip()
+            value = entry[len(index_type) + 1 :].strip()
             value = f'{pairindextypes[index_type]}; {value}'
             # xref RemovedInSphinx90Warning
-            logger.warning(__('%r is deprecated for index entries (from entry %r). '
-                              "Use 'pair: %s' instead."),
-                           index_type, entry, value, type='index')
+            logger.warning(
+                __(
+                    '%r is deprecated for index entries (from entry %r). '
+                    "Use 'pair: %s' instead."
+                ),
+                index_type,
+                entry,
+                value,
+                type='index',
+            )
             indexentries.append(('pair', value, targetid, main, None))
             break
     else:
         for index_type in indextypes:
             if entry.startswith(f'{index_type}:'):
-                value = entry[len(index_type) + 1:].strip()
+                value = entry[len(index_type) + 1 :].strip()
                 if index_type == 'double':
                     index_type = 'pair'
                 indexentries.append((index_type, value, targetid, main, None))
@@ -430,13 +472,22 @@ def inline_all_toctrees(
                 try:
                     traversed.append(includefile)
                     logger.info(indent + colorfunc(includefile))
-                    subtree = inline_all_toctrees(builder, docnameset, includefile,
-                                                  builder.env.get_doctree(includefile),
-                                                  colorfunc, traversed, indent)
+                    subtree = inline_all_toctrees(
+                        builder,
+                        docnameset,
+                        includefile,
+                        builder.env.get_doctree(includefile),
+                        colorfunc,
+                        traversed,
+                        indent,
+                    )
                     docnameset.add(includefile)
                 except Exception:
-                    logger.warning(__('toctree contains ref to nonexisting file %r'),
-                                   includefile, location=docname)
+                    logger.warning(
+                        __('toctree contains ref to nonexisting file %r'),
+                        includefile,
+                        location=docname,
+                    )
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
                     sof.children = subtree.children
@@ -478,57 +529,61 @@ def _make_id(string: str) -> str:
 _non_id_chars = re.compile('[^a-zA-Z0-9._]+')
 _non_id_at_ends = re.compile('^[-0-9._]+|-+$')
 _non_id_translate = {
-    0x00f8: 'o',       # o with stroke
-    0x0111: 'd',       # d with stroke
-    0x0127: 'h',       # h with stroke
-    0x0131: 'i',       # dotless i
-    0x0142: 'l',       # l with stroke
-    0x0167: 't',       # t with stroke
-    0x0180: 'b',       # b with stroke
-    0x0183: 'b',       # b with topbar
-    0x0188: 'c',       # c with hook
-    0x018c: 'd',       # d with topbar
-    0x0192: 'f',       # f with hook
-    0x0199: 'k',       # k with hook
-    0x019a: 'l',       # l with bar
-    0x019e: 'n',       # n with long right leg
-    0x01a5: 'p',       # p with hook
-    0x01ab: 't',       # t with palatal hook
-    0x01ad: 't',       # t with hook
-    0x01b4: 'y',       # y with hook
-    0x01b6: 'z',       # z with stroke
-    0x01e5: 'g',       # g with stroke
-    0x0225: 'z',       # z with hook
-    0x0234: 'l',       # l with curl
-    0x0235: 'n',       # n with curl
-    0x0236: 't',       # t with curl
-    0x0237: 'j',       # dotless j
-    0x023c: 'c',       # c with stroke
-    0x023f: 's',       # s with swash tail
-    0x0240: 'z',       # z with swash tail
-    0x0247: 'e',       # e with stroke
-    0x0249: 'j',       # j with stroke
-    0x024b: 'q',       # q with hook tail
-    0x024d: 'r',       # r with stroke
-    0x024f: 'y',       # y with stroke
+    0x00F8: 'o',  # o with stroke
+    0x0111: 'd',  # d with stroke
+    0x0127: 'h',  # h with stroke
+    0x0131: 'i',  # dotless i
+    0x0142: 'l',  # l with stroke
+    0x0167: 't',  # t with stroke
+    0x0180: 'b',  # b with stroke
+    0x0183: 'b',  # b with topbar
+    0x0188: 'c',  # c with hook
+    0x018C: 'd',  # d with topbar
+    0x0192: 'f',  # f with hook
+    0x0199: 'k',  # k with hook
+    0x019A: 'l',  # l with bar
+    0x019E: 'n',  # n with long right leg
+    0x01A5: 'p',  # p with hook
+    0x01AB: 't',  # t with palatal hook
+    0x01AD: 't',  # t with hook
+    0x01B4: 'y',  # y with hook
+    0x01B6: 'z',  # z with stroke
+    0x01E5: 'g',  # g with stroke
+    0x0225: 'z',  # z with hook
+    0x0234: 'l',  # l with curl
+    0x0235: 'n',  # n with curl
+    0x0236: 't',  # t with curl
+    0x0237: 'j',  # dotless j
+    0x023C: 'c',  # c with stroke
+    0x023F: 's',  # s with swash tail
+    0x0240: 'z',  # z with swash tail
+    0x0247: 'e',  # e with stroke
+    0x0249: 'j',  # j with stroke
+    0x024B: 'q',  # q with hook tail
+    0x024D: 'r',  # r with stroke
+    0x024F: 'y',  # y with stroke
 }
 _non_id_translate_digraphs = {
-    0x00df: 'sz',      # ligature sz
-    0x00e6: 'ae',      # ae
-    0x0153: 'oe',      # ligature oe
-    0x0238: 'db',      # db digraph
-    0x0239: 'qp',      # qp digraph
+    0x00DF: 'sz',  # ligature sz
+    0x00E6: 'ae',  # ae
+    0x0153: 'oe',  # ligature oe
+    0x0238: 'db',  # db digraph
+    0x0239: 'qp',  # qp digraph
 }
 
 
-def make_id(env: BuildEnvironment, document: nodes.document,
-            prefix: str = '', term: str | None = None) -> str:
+def make_id(
+    env: BuildEnvironment,
+    document: nodes.document,
+    prefix: str = '',
+    term: str | None = None,
+) -> str:
     """Generate an appropriate node_id for given *prefix* and *term*."""
     node_id = None
     if prefix:
-        idformat = prefix + "-%s"
+        idformat = prefix + '-%s'
     else:
-        idformat = (document.settings.id_prefix or "id") + "%s"
+        idformat = (document.settings.id_prefix or 'id') + '%s'
 
     # try to generate node_id by *term*
     if prefix and term:
@@ -538,7 +593,7 @@ def make_id(env: BuildEnvironment, document: nodes.document,
             node_id = None
     elif term:
         node_id = _make_id(term)
-        if node_id == '':
+        if not node_id:
             node_id = None  # fallback to None
 
     while node_id is None or node_id in document.ids:
@@ -547,27 +602,36 @@ def make_id(env: BuildEnvironment, document: nodes.document,
     return node_id
 
 
-def find_pending_xref_condition(node: addnodes.pending_xref, condition: str,
-                                ) -> Element | None:
+def find_pending_xref_condition(
+    node: addnodes.pending_xref, condition: str
+) -> Element | None:
     """Pick matched pending_xref_condition node up from the pending_xref."""
     for subnode in node:
-        if (isinstance(subnode, addnodes.pending_xref_condition) and
-                subnode.get('condition') == condition):
+        if (
+            isinstance(subnode, addnodes.pending_xref_condition)
+            and subnode.get('condition') == condition
+        ):
             return subnode
     return None
 
 
-def make_refnode(builder: Builder, fromdocname: str, todocname: str, targetid: str | None,
-                 child: Node | list[Node], title: str | None = None,
-                 ) -> nodes.reference:
+def make_refnode(
+    builder: Builder,
+    fromdocname: str,
+    todocname: str,
+    targetid: str | None,
+    child: Node | list[Node],
+    title: str | None = None,
+) -> nodes.reference:
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
     if fromdocname == todocname and targetid:
         node['refid'] = targetid
     else:
         if targetid:
-            node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
-                              '#' + targetid)
+            node['refuri'] = (
+                builder.get_relative_uri(fromdocname, todocname) + '#' + targetid
+            )
         else:
             node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
     if title:
@@ -577,8 +641,9 @@ def make_refnode(builder: Builder, fromdocname: str, todocname: str, targetid: s
 
 
 def set_source_info(directive: Directive, node: Node) -> None:
-    node.source, node.line = \
-        directive.state_machine.get_source_and_line(directive.lineno)
+    node.source, node.line = directive.state_machine.get_source_and_line(
+        directive.lineno
+    )
 
 
 def set_role_source_info(inliner: Inliner, lineno: int, node: Node) -> None:
@@ -635,7 +700,8 @@ def _only_node_keep_children(node: addnodes.only, tags: Tags) -> bool:
         logger.warning(
             __('exception while evaluating only directive expression: %s'),
             err,
-            location=node)
+            location=node,
+        )
         return True
 
 
@@ -651,10 +717,10 @@ def _copy_except__document(el: Element) -> Element:
     newnode.rawsource = el.rawsource
     newnode.tagname = el.tagname
     # copied in Element.copy()
-    newnode.attributes = {k: (v
-                              if k not in {'ids', 'classes', 'names', 'dupnames', 'backrefs'}
-                              else v[:])
-                          for k, v in el.attributes.items()}
+    newnode.attributes = {
+        k: (v if k not in {'ids', 'classes', 'names', 'dupnames', 'backrefs'} else v[:])
+        for k, v in el.attributes.items()
+    }
     newnode.line = el.line
     newnode.source = el.source
     return newnode

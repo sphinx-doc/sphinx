@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import html
 import os
+import os.path
 import re
 import time
-from os import path
 from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
@@ -24,10 +24,13 @@ from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import copyfile, ensuredir, relpath
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from docutils.nodes import Element, Node
 
 try:
     from PIL import Image
+
     PILLOW_AVAILABLE = True
 except ImportError:
     PILLOW_AVAILABLE = False
@@ -79,7 +82,7 @@ VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
 # Regular expression to match colons only in local fragment identifiers.
 # If the URI contains a colon before the #,
 # it is an external link that should not change.
-REFURI_RE = re.compile("([^#:]*#)(.*)")
+REFURI_RE = re.compile('([^#:]*#)(.*)')
 
 
 class ManifestItem(NamedTuple):
@@ -120,6 +123,7 @@ ssp = sphinx_smarty_pants
 
 # The epub publisher
 
+
 class EpubBuilder(StandaloneHTMLBuilder):
     """
     Builder that outputs epub files.
@@ -131,8 +135,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     # don't copy the reST source
     copysource = False
-    supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
-                             'image/jpeg']
+    supported_image_types = ['image/svg+xml', 'image/png', 'image/gif', 'image/jpeg']
     supported_remote_images = False
 
     # don't add links
@@ -155,8 +158,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     guide_titles = GUIDE_TITLES
     media_types = MEDIA_TYPES
     refuri_re = REFURI_RE
-    template_dir = ""
-    doctype = ""
+    template_dir = ''
+    doctype = ''
 
     def init(self) -> None:
         super().init()
@@ -186,7 +189,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return id
 
     def get_refnodes(
-        self, doctree: Node, result: list[dict[str, Any]],
+        self,
+        doctree: Node,
+        result: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
@@ -216,8 +221,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 logger.warning(
                     __('duplicated ToC entry found: %s'),
                     node['refuri'],
-                    type="epub",
-                    subtype="duplicated_toc_entry",
+                    type='epub',
+                    subtype='duplicated_toc_entry',
                 )
             else:
                 appeared.add(node['refuri'])
@@ -226,11 +231,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Get the total table of contents, containing the root_doc
         and pre and post files not managed by sphinx.
         """
-        doctree = self.env.get_and_resolve_doctree(self.config.root_doc,
-                                                   self, prune_toctrees=False,
-                                                   includehidden=True)
+        doctree = self.env.get_and_resolve_doctree(
+            self.config.root_doc, self, prune_toctrees=False, includehidden=True
+        )
         self.refnodes = self.get_refnodes(doctree, [])
-        master_dir = path.dirname(self.config.root_doc)
+        master_dir = os.path.dirname(self.config.root_doc)
         if master_dir:
             master_dir += '/'  # XXX or os.sep?
             for item in self.refnodes:
@@ -238,20 +243,26 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.toc_add_files(self.refnodes)
 
     def toc_add_files(self, refnodes: list[dict[str, Any]]) -> None:
-        """Add the root_doc, pre and post files to a list of refnodes.
-        """
-        refnodes.insert(0, {
-            'level': 1,
-            'refuri': html.escape(self.config.root_doc + self.out_suffix),
-            'text': ssp(html.escape(
-                self.env.titles[self.config.root_doc].astext())),
-        })
-        for file, text in reversed(self.config.epub_pre_files):
-            refnodes.insert(0, {
+        """Add the root_doc, pre and post files to a list of refnodes."""
+        refnodes.insert(
+            0,
+            {
                 'level': 1,
-                'refuri': html.escape(file),
-                'text': ssp(html.escape(text)),
-            })
+                'refuri': html.escape(self.config.root_doc + self.out_suffix),
+                'text': ssp(
+                    html.escape(self.env.titles[self.config.root_doc].astext())
+                ),
+            },
+        )
+        for file, text in reversed(self.config.epub_pre_files):
+            refnodes.insert(
+                0,
+                {
+                    'level': 1,
+                    'refuri': html.escape(file),
+                    'text': ssp(html.escape(text)),
+                },
+            )
         for file, text in self.config.epub_post_files:
             refnodes.append({
                 'level': 1,
@@ -269,6 +280,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Some readers crash because they interpret the part as a
         transport protocol specification.
         """
+
         def update_node_id(node: Element) -> None:
             """Update IDs of given *node*."""
             new_ids: list[str] = []
@@ -296,10 +308,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for desc_signature in tree.findall(addnodes.desc_signature):
             update_node_id(desc_signature)
 
-    def add_visible_links(self, tree: nodes.document, show_urls: str = 'inline') -> None:
+    def add_visible_links(
+        self, tree: nodes.document, show_urls: str = 'inline'
+    ) -> None:
         """Add visible link targets for external links"""
 
-        def make_footnote_ref(doc: nodes.document, label: str) -> nodes.footnote_reference:
+        def make_footnote_ref(
+            doc: nodes.document, label: str
+        ) -> nodes.footnote_reference:
             """Create a footnote_reference node with children"""
             footnote_ref = nodes.footnote_reference('[#]_')
             footnote_ref.append(nodes.Text(label))
@@ -380,21 +396,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # Logic modeled from themes/basic/genindex.html
         for _key, columns in tree:
             for _entryname, (links, subitems, _key) in columns:
-                for (i, (ismain, link)) in enumerate(links):
-                    m = self.refuri_re.match(link)
-                    if m:
-                        links[i] = (ismain,
-                                    self.fix_fragment(m.group(1), m.group(2)))
+                for i, (ismain, link) in enumerate(links):
+                    if m := self.refuri_re.match(link):
+                        links[i] = ismain, self.fix_fragment(m.group(1), m.group(2))
                 for _subentryname, subentrylinks in subitems:
-                    for (i, (ismain, link)) in enumerate(subentrylinks):
-                        m = self.refuri_re.match(link)
-                        if m:
-                            subentrylinks[i] = (ismain,
-                                                self.fix_fragment(m.group(1), m.group(2)))
+                    for i, (ismain, link) in enumerate(subentrylinks):
+                        if m := self.refuri_re.match(link):
+                            subentrylinks[i] = (
+                                ismain,
+                                self.fix_fragment(m.group(1), m.group(2)),
+                            )
 
     def is_vector_graphics(self, filename: str) -> bool:
         """Does the filename extension indicate a vector graphic format?"""
-        ext = path.splitext(filename)[-1]
+        ext = os.path.splitext(filename)[-1]
         return ext in VECTOR_GRAPHICS_EXTENSIONS
 
     def copy_image_files_pil(self) -> None:
@@ -402,16 +417,23 @@ class EpubBuilder(StandaloneHTMLBuilder):
         The method tries to read and write the files with Pillow, converting
         the format and resizing the image if necessary/possible.
         """
-        ensuredir(path.join(self.outdir, self.imagedir))
-        for src in status_iterator(self.images, __('copying images... '), "brown",
-                                   len(self.images), self.app.verbosity):
+        ensuredir(os.path.join(self.outdir, self.imagedir))
+        for src in status_iterator(
+            self.images,
+            __('copying images... '),
+            'brown',
+            len(self.images),
+            self.app.verbosity,
+        ):
             dest = self.images[src]
             try:
-                img = Image.open(path.join(self.srcdir, src))
+                img = Image.open(os.path.join(self.srcdir, src))
             except OSError:
                 if not self.is_vector_graphics(src):
-                    logger.warning(__('cannot read image file %r: copying it instead'),
-                                   path.join(self.srcdir, src))
+                    logger.warning(
+                        __('cannot read image file %r: copying it instead'),
+                        os.path.join(self.srcdir, src),
+                    )
                 try:
                     copyfile(
                         self.srcdir / src,
@@ -419,8 +441,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         force=True,
                     )
                 except OSError as err:
-                    logger.warning(__('cannot copy image file %r: %s'),
-                                   path.join(self.srcdir, src), err)
+                    logger.warning(
+                        __('cannot copy image file %r: %s'),
+                        os.path.join(self.srcdir, src),
+                        err,
+                    )
                 continue
             if self.config.epub_fix_images:
                 if img.mode == 'P':
@@ -434,10 +459,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     nh = round((height * nw) / width)
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
-                img.save(path.join(self.outdir, self.imagedir, dest))
+                img.save(os.path.join(self.outdir, self.imagedir, dest))
             except OSError as err:
-                logger.warning(__('cannot write image file %r: %s'),
-                               path.join(self.srcdir, src), err)
+                logger.warning(
+                    __('cannot write image file %r: %s'),
+                    os.path.join(self.srcdir, src),
+                    err,
+                )
 
     def copy_image_files(self) -> None:
         """Copy image files to destination directory.
@@ -461,7 +489,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         pagename: str,
         addctx: dict[str, Any],
         templatename: str = 'page.html',
-        outfilename: str | None = None,
+        *,
+        outfilename: Path | None = None,
         event_arg: Any = None,
     ) -> None:
         """Create a rendered page.
@@ -474,13 +503,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 return
             self.fix_genindex(addctx['genindexentries'])
         addctx['doctype'] = self.doctype
-        super().handle_page(pagename, addctx, templatename, outfilename, event_arg)
+        super().handle_page(
+            pagename, addctx, templatename, outfilename=outfilename, event_arg=event_arg
+        )
 
     def build_mimetype(self) -> None:
         """Write the metainfo file mimetype."""
         logger.info(__('writing mimetype file...'))
         copyfile(
-            path.join(self.template_dir, 'mimetype'),
+            os.path.join(self.template_dir, 'mimetype'),
             self.outdir / 'mimetype',
             force=True,
         )
@@ -491,7 +522,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         outdir = self.outdir / 'META-INF'
         ensuredir(outdir)
         copyfile(
-            path.join(self.template_dir, 'container.xml'),
+            os.path.join(self.template_dir, 'container.xml'),
             outdir / 'container.xml',
             force=True,
         )
@@ -505,19 +536,20 @@ class EpubBuilder(StandaloneHTMLBuilder):
         else:
             time_tuple = time.gmtime()
 
-        metadata: dict[str, Any] = {}
-        metadata['title'] = html.escape(self.config.epub_title)
-        metadata['author'] = html.escape(self.config.epub_author)
-        metadata['uid'] = html.escape(self.config.epub_uid)
-        metadata['lang'] = html.escape(self.config.epub_language)
-        metadata['publisher'] = html.escape(self.config.epub_publisher)
-        metadata['copyright'] = html.escape(self.config.epub_copyright)
-        metadata['scheme'] = html.escape(self.config.epub_scheme)
-        metadata['id'] = html.escape(self.config.epub_identifier)
-        metadata['date'] = html.escape(time.strftime('%Y-%m-%d', time_tuple))
-        metadata['manifest_items'] = []
-        metadata['spines'] = []
-        metadata['guides'] = []
+        metadata: dict[str, Any] = {
+            'title': html.escape(self.config.epub_title),
+            'author': html.escape(self.config.epub_author),
+            'uid': html.escape(self.config.epub_uid),
+            'lang': html.escape(self.config.epub_language),
+            'publisher': html.escape(self.config.epub_publisher),
+            'copyright': html.escape(self.config.epub_copyright),
+            'scheme': html.escape(self.config.epub_scheme),
+            'id': html.escape(self.config.epub_identifier),
+            'date': html.escape(time.strftime('%Y-%m-%d', time_tuple)),
+            'manifest_items': [],
+            'spines': [],
+            'guides': [],
+        }
         return metadata
 
     def build_content(self) -> None:
@@ -547,21 +579,27 @@ class EpubBuilder(StandaloneHTMLBuilder):
         for root, dirs, files in os.walk(self.outdir):
             dirs.sort()
             for fn in sorted(files):
-                filename = relpath(path.join(root, fn), self.outdir)
+                filename = relpath(os.path.join(root, fn), self.outdir)
                 if filename in self.ignored_files:
                     continue
-                ext = path.splitext(filename)[-1]
+                ext = os.path.splitext(filename)[-1]
                 if ext not in self.media_types:
                     # we always have JS and potentially OpenSearch files, don't
                     # always warn about them
-                    if ext not in ('.js', '.xml'):
-                        logger.warning(__('unknown mimetype for %s, ignoring'), filename,
-                                       type='epub', subtype='unknown_project_files')
+                    if ext not in {'.js', '.xml'}:
+                        logger.warning(
+                            __('unknown mimetype for %s, ignoring'),
+                            filename,
+                            type='epub',
+                            subtype='unknown_project_files',
+                        )
                     continue
                 filename = filename.replace(os.sep, '/')
-                item = ManifestItem(html.escape(quote(filename)),
-                                    html.escape(self.make_id(filename)),
-                                    html.escape(self.media_types[ext]))
+                item = ManifestItem(
+                    html.escape(quote(filename)),
+                    html.escape(self.make_id(filename)),
+                    html.escape(self.media_types[ext]),
+                )
                 metadata['manifest_items'].append(item)
                 self.files.append(filename)
 
@@ -599,15 +637,18 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 spine = Spine(html.escape(self.make_id(self.coverpage_name)), True)
                 metadata['spines'].insert(0, spine)
                 if self.coverpage_name not in self.files:
-                    ext = path.splitext(self.coverpage_name)[-1]
+                    ext = os.path.splitext(self.coverpage_name)[-1]
                     self.files.append(self.coverpage_name)
-                    item = ManifestItem(html.escape(self.coverpage_name),
-                                        html.escape(self.make_id(self.coverpage_name)),
-                                        html.escape(self.media_types[ext]))
+                    item = ManifestItem(
+                        html.escape(self.coverpage_name),
+                        html.escape(self.make_id(self.coverpage_name)),
+                        html.escape(self.media_types[ext]),
+                    )
                     metadata['manifest_items'].append(item)
                 ctx = {'image': html.escape(image), 'title': self.config.project}
                 self.handle_page(
-                    path.splitext(self.coverpage_name)[0], ctx, html_tmpl)
+                    os.path.splitext(self.coverpage_name)[0], ctx, html_tmpl
+                )
                 spinefiles.add(self.coverpage_name)
 
         auto_add_cover = True
@@ -621,34 +662,45 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     auto_add_cover = False
                 if type == 'toc':
                     auto_add_toc = False
-                metadata['guides'].append(Guide(html.escape(type),
-                                                html.escape(title),
-                                                html.escape(uri)))
+                metadata['guides'].append(
+                    Guide(html.escape(type), html.escape(title), html.escape(uri))
+                )
         if auto_add_cover and html_tmpl:
-            metadata['guides'].append(Guide('cover',
-                                            self.guide_titles['cover'],
-                                            html.escape(self.coverpage_name)))
+            metadata['guides'].append(
+                Guide(
+                    'cover',
+                    self.guide_titles['cover'],
+                    html.escape(self.coverpage_name),
+                )
+            )
         if auto_add_toc and self.refnodes:
-            metadata['guides'].append(Guide('toc',
-                                            self.guide_titles['toc'],
-                                            html.escape(self.refnodes[0]['refuri'])))
+            metadata['guides'].append(
+                Guide(
+                    'toc',
+                    self.guide_titles['toc'],
+                    html.escape(self.refnodes[0]['refuri']),
+                )
+            )
 
         # write the project file
         copy_asset_file(
-            path.join(self.template_dir, 'content.opf.jinja'),
+            os.path.join(self.template_dir, 'content.opf.jinja'),
             self.outdir,
             context=metadata,
             force=True,
         )
 
-    def new_navpoint(self, node: dict[str, Any], level: int, incr: bool = True) -> NavPoint:
+    def new_navpoint(
+        self, node: dict[str, Any], level: int, incr: bool = True
+    ) -> NavPoint:
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         if incr:
             self.playorder += 1
         self.tocid += 1
-        return NavPoint('navPoint%d' % self.tocid, self.playorder,
-                        node['text'], node['refuri'], [])
+        return NavPoint(
+            f'navPoint{self.tocid}', self.playorder, node['text'], node['refuri'], []
+        )
 
     def build_navpoints(self, nodes: list[dict[str, Any]]) -> list[NavPoint]:
         """Create the toc navigation structure.
@@ -656,8 +708,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Subelements of a node are nested inside the navpoint.  For nested nodes
         the parent node is reinserted in the subnav.
         """
-        navstack: list[NavPoint] = []
-        navstack.append(NavPoint('dummy', 0, '', '', []))
+        navstack: list[NavPoint] = [NavPoint('dummy', 0, '', '', [])]
         level = 0
         lastnode = None
         for node in nodes:
@@ -677,7 +728,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 level += 1
                 if lastnode and self.config.epub_tocdup:
                     # Insert starting point in subtoc with same playOrder
-                    navstack[-1].children.append(self.new_navpoint(lastnode, level, False))
+                    navstack[-1].children.append(
+                        self.new_navpoint(lastnode, level, False)
+                    )
                 navpoint = self.new_navpoint(node, level)
                 navstack[-1].children.append(navpoint)
                 navstack.append(navpoint)
@@ -689,7 +742,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 navstack[-1].children.append(navpoint)
                 navstack.append(navpoint)
             else:
-                raise
+                msg = __('node has an invalid level')
+                raise ValueError(msg)
             lastnode = node
 
         return navstack[0].children
@@ -698,11 +752,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Create a dictionary with all metadata for the toc.ncx file
         properly escaped.
         """
-        metadata: dict[str, Any] = {}
-        metadata['uid'] = self.config.epub_uid
-        metadata['title'] = html.escape(self.config.epub_title)
-        metadata['level'] = level
-        metadata['navpoints'] = navpoints
+        metadata: dict[str, Any] = {
+            'uid': self.config.epub_uid,
+            'title': html.escape(self.config.epub_title),
+            'level': level,
+            'navpoints': navpoints,
+        }
         return metadata
 
     def build_toc(self) -> None:
@@ -710,9 +765,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         logger.info(__('writing toc.ncx file...'))
 
         if self.config.epub_tocscope == 'default':
-            doctree = self.env.get_and_resolve_doctree(self.config.root_doc,
-                                                       self, prune_toctrees=False,
-                                                       includehidden=False)
+            doctree = self.env.get_and_resolve_doctree(
+                self.config.root_doc, self, prune_toctrees=False, includehidden=False
+            )
             refnodes = self.get_refnodes(doctree, [])
             self.toc_add_files(refnodes)
         else:
@@ -723,7 +778,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
         copy_asset_file(
-            path.join(self.template_dir, 'toc.ncx.jinja'),
+            os.path.join(self.template_dir, 'toc.ncx.jinja'),
             self.outdir,
             context=self.toc_metadata(level, navpoints),
             force=True,
@@ -737,10 +792,10 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         outname = self.config.epub_basename + '.epub'
         logger.info(__('writing %s file...'), outname)
-        epub_filename = path.join(self.outdir, outname)
+        epub_filename = os.path.join(self.outdir, outname)
         with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:
-            epub.write(path.join(self.outdir, 'mimetype'), 'mimetype', ZIP_STORED)
+            epub.write(os.path.join(self.outdir, 'mimetype'), 'mimetype', ZIP_STORED)
             for filename in ('META-INF/container.xml', 'content.opf', 'toc.ncx'):
-                epub.write(path.join(self.outdir, filename), filename, ZIP_DEFLATED)
+                epub.write(os.path.join(self.outdir, filename), filename, ZIP_DEFLATED)
             for filename in self.files:
-                epub.write(path.join(self.outdir, filename), filename, ZIP_DEFLATED)
+                epub.write(os.path.join(self.outdir, filename), filename, ZIP_DEFLATED)

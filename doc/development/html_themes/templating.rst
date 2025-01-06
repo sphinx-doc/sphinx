@@ -308,20 +308,13 @@ in the future.
    .. versionadded:: 4.0
 
 .. data:: master_doc
+          root_doc
 
-   Same as :data:`root_doc`.
+   The value of :confval:`master_doc` or :confval:`root_doc` (aliases),
+   for usage with :func:`pathto`.
 
-   .. versionchanged:: 4.0
-
-      Renamed to ``root_doc``.
-
-.. data:: root_doc
-
-   The value of :confval:`root_doc`, for usage with :func:`pathto`.
-
-   .. versionchanged:: 4.0
-
-      Renamed from ``master_doc``.
+   .. versionadded:: 4.0
+      The :data:`!root_doc` template variable.
 
 .. data:: pagename
 

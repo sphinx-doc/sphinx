@@ -86,7 +86,7 @@ def app_params(
     kwargs: dict[str, Any] = {}
 
     # to avoid stacking positional args
-    for info in reversed(list(request.node.iter_markers("sphinx"))):
+    for info in reversed(list(request.node.iter_markers('sphinx'))):
         pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
@@ -114,7 +114,7 @@ def app_params(
     return _app_params(args, kwargs)
 
 
-_app_params = namedtuple('_app_params', 'args,kwargs')
+_app_params = namedtuple('_app_params', 'args,kwargs')  # NoQA: PYI024
 
 
 @pytest.fixture
@@ -203,6 +203,7 @@ def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp
             app_ = SphinxTestApp(*args, **kwargs)
         apps.append(app_)
         return app_
+
     yield make
 
     sys.path[:] = syspath
@@ -221,7 +222,7 @@ def _shared_result_cache() -> None:
 
 
 @pytest.fixture
-def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
+def if_graphviz_found(app: SphinxTestApp) -> None:
     """
     The test will be skipped when using 'if_graphviz_found' fixture and graphviz
     dot command is not found.
@@ -245,7 +246,7 @@ def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 @pytest.fixture
-def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
+def rollback_sysmodules() -> Iterator[None]:
     """
     Rollback sys.modules to its value before testing to unload modules
     during tests.

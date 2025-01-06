@@ -184,11 +184,11 @@ Sphinx is tested using pytest_ for Python code and Jasmine_ for JavaScript.
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _Jasmine: https://jasmine.github.io/
 
-* To run unit tests for a specific Python version, such as Python 3.12:
+* To run unit tests for a specific Python version, such as Python 3.13:
 
   .. code-block:: shell
 
-     uv run --python 3.12 pytest
+     uv run --python 3.13 pytest
 
 * Arguments to :program:`pytest` can be passed,
   e.g., in order to run a particular test:
@@ -260,12 +260,14 @@ you to preview in :file:`build/sphinx/html`.
 
 You can also build a **live version of the documentation** that you can preview
 in the browser. It will detect changes and reload the page any time you make
-edits. To do so, run the following command:
+edits.
+To do so, use `sphinx-autobuild`_ to run the following command:
 
 .. code-block:: shell
 
    uv run sphinx-autobuild ./doc ./build/sphinx/
 
+.. _sphinx-autobuild: https://github.com/sphinx-doc/sphinx-autobuild
 
 Translations
 ~~~~~~~~~~~~

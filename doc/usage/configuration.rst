@@ -114,6 +114,8 @@ Project information
 
       author = 'Joe Bloggs'
 
+.. _config-copyright:
+
 .. confval:: copyright
              project_copyright
    :type: :code-py:`str | Sequence[str]`
@@ -128,12 +130,23 @@ Project information
    * :code-py:`copyright = 'YYYY-YYYY, Author Name'`
    * :code-py:`copyright = 'YYYY-YYYY Author Name'`
 
+   If the string :code-py:`'%Y'` appears in a copyright line,
+   it will be replaced with the current four-digit year.
+   For example:
+
+   * :code-py:`copyright = '%Y'`
+   * :code-py:`copyright = '%Y, Author Name'`
+   * :code-py:`copyright = 'YYYY-%Y, Author Name'`
+
    .. versionadded:: 3.5
       The :code-py:`project_copyright` alias.
 
    .. versionchanged:: 7.1
       The value may now be a sequence of copyright statements in the above form,
       which will be displayed each to their own line.
+
+   .. versionchanged:: 8.1
+      Copyright statements support the :code-py:`'%Y'` placeholder.
 
 .. confval:: version
    :type: :code-py:`str`
@@ -210,11 +223,14 @@ General configuration
 
    Ensure that absolute paths are used when modifying :data:`sys.path`.
    If your custom extensions live in a directory that is relative to the
-   :term:`configuration directory`, use :func:`os.path.abspath` like so:
+   :term:`configuration directory`, use :meth:`pathlib.Path.resolve` like so:
 
    .. code-block:: python
 
-      import os, sys; sys.path.append(os.path.abspath('sphinxext'))
+      import sys
+      from pathlib import Path
+
+      sys.path.append(str(Path('sphinxext').resolve()))
 
       extensions = [
          ...
@@ -556,17 +572,17 @@ See the documentation on :ref:`intl` for details.
 
 .. confval:: locale_dirs
    :type: :code-py:`list[str]`
-   :default: :code-py:`['locale']`
+   :default: :code-py:`['locales']`
 
    Directories in which to search for additional message catalogs
    (see :confval:`language`), relative to the source directory.
    The directories on this path are searched by the :mod:`gettext` module.
 
    Internal messages are fetched from a text domain of ``sphinx``;
-   so if you add the directory :file:`./locale` to this setting,
+   so if you add the directory :file:`./locales` to this setting,
    the message catalogs
    (compiled from ``.po`` format using :program:`msgfmt`)
-   must be in :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.
+   must be in :file:`./locales/{language}/LC_MESSAGES/sphinx.mo`.
    The text domain of individual documents
    depends on :confval:`gettext_compact`.
 
@@ -1358,6 +1374,8 @@ Options for warning control
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
+   * ``duplicate_declaration.c``
+   * ``duplicate_declaration.cpp``
    * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
    * ``i18n.inconsistent_references``
@@ -1427,6 +1445,9 @@ Options for warning control
 
    .. versionadded:: 8.0
       Added ``misc.copy_overwrite``.
+
+   .. versionadded:: 8.2
+      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
 
 
 Builder options
@@ -1710,18 +1731,18 @@ and also make use of these options.
 
 .. confval:: html_last_updated_fmt
    :type: :code-py:`str`
-   :default: :code-py:`'%b %d, %Y'`
+   :default: :code-py:`None`
 
    If set, a 'Last updated on:' timestamp is inserted into the page footer
    using the given :func:`~time.strftime` format.
    The empty string is equivalent to :code-py:`'%b %d, %Y'`
    (or a locale-dependent equivalent).
 
-.. confval:: html_last_updated_time_zone
-   :type: :code-py:`'local' | 'GMT'`
-   :default: :code-py:`'local'`
+.. confval:: html_last_updated_use_utc
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
-   Choose GMT (+00:00) or the system's local time zone
+   Use GMT/UTC (+00:00) instead of the system's local time zone
    for the time supplied to :confval:`html_last_updated_fmt`.
    This is most useful when the format used includes the time.
 
@@ -2528,6 +2549,7 @@ so the HTML options also apply where appropriate.
    :default: The value of **copyright**
 
    The copyright of the document.
+   See :confval:`copyright` for permitted formats.
 
 .. confval:: epub_identifier
    :type: :code-py:`str`
@@ -3032,8 +3054,11 @@ These options influence LaTeX output.
          Please update your project to use the
          :ref:`latex table color configuration <tablecolors>` keys instead.
 
-   Each table can override the global style via ``:class:`` option,
-   or ``.. rst-class::`` for no-directive tables (cf.  :ref:`table-directives`).
+   To customise the styles for a table,
+   use the ``:class:`` option if the table is defined using a directive,
+   or otherwise insert a :ref:`rst-class <rstclass>` directive before the table
+   (cf. :ref:`table-directives`).
+
    Currently recognised classes are ``booktabs``, ``borderless``,
    ``standard``, ``colorrows``, ``nocolorrows``.
    The latter two can be combined with any of the first three.
@@ -3137,6 +3162,9 @@ These options influence LaTeX output.
    * The default is :code-py:`False` for :code-py:`'pdflatex'`,
      but :code-py:`True` is recommended for non-English documents as soon
      as some indexed terms use non-ASCII characters from the language script.
+     Attempting to index a term whose first character is non-ASCII
+     will break the build, if :confval:`latex_use_xindy` is left to its
+     default :code-py:`False`.
 
    Sphinx adds some dedicated support to the :program:`xindy` base distribution
    for using :code-py:`'pdflatex'` engine with Cyrillic scripts.
@@ -3680,6 +3708,9 @@ and which failures and redirects it ignores.
 
    A list of regular expressions that match URIs that should not be checked
    when doing a ``linkcheck`` build.
+
+   Server-issued redirects that match :confval:`ignored URIs <linkcheck_ignore>`
+   will not be followed.
 
    Example:
 

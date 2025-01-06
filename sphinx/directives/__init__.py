@@ -9,11 +9,11 @@ from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature  # NoQA: TCH001
+from sphinx.addnodes import desc_signature  # NoQA: TC001
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TCH001
+from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TC001
 
 if TYPE_CHECKING:
     from docutils.nodes import Node
@@ -81,7 +81,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
                     self._doc_field_type_map[name] = (field, False)
 
                 if field.is_typed:
-                    typed_field = cast(TypedField, field)
+                    typed_field = cast('TypedField', field)
                     for name in typed_field.typenames:
                         self._doc_field_type_map[name] = (field, True)
 
@@ -111,7 +111,9 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
         """
         raise ValueError
 
-    def add_target_and_index(self, name: ObjDescT, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(
+        self, name: ObjDescT, sig: str, signode: desc_signature
+    ) -> None:
         """
         Add cross-reference IDs and entries to self.indexnode, if applicable.
 
@@ -228,19 +230,18 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             self.options['no-index'] = self.options['noindex']
         if 'no-index-entry' not in self.options and 'noindexentry' in self.options:
             self.options['no-index-entry'] = self.options['noindexentry']
-        if 'no-contents-entry' not in self.options and 'nocontentsentry' in self.options:
+        if (
+            'no-contents-entry' not in self.options
+            and 'nocontentsentry' in self.options
+        ):
             self.options['no-contents-entry'] = self.options['nocontentsentry']
 
-        node['no-index'] = node['noindex'] = no_index = (
-            'no-index' in self.options
-        )
-        node['no-index-entry'] = node['noindexentry'] = (
-            'no-index-entry' in self.options
-        )
+        node['no-index'] = node['noindex'] = no_index = 'no-index' in self.options
+        node['no-index-entry'] = node['noindexentry'] = 'no-index-entry' in self.options
         node['no-contents-entry'] = node['nocontentsentry'] = (
             'no-contents-entry' in self.options
         )
-        node['no-typesetting'] = ('no-typesetting' in self.options)
+        node['no-typesetting'] = 'no-typesetting' in self.options
         if self.domain:
             node['classes'].append(self.domain)
         node['classes'].append(node['objtype'])
@@ -266,7 +267,7 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             finally:
                 # Private attributes for ToC generation. Will be modified or removed
                 # without notice.
-                if self.env.app.config.toc_object_entries:
+                if self.config.toc_object_entries:
                     signode['_toc_parts'] = self._object_hierarchy_parts(signode)
                     signode['_toc_name'] = self._toc_entry_name(signode)
                 else:
@@ -281,16 +282,21 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
 
         if self.names:
             # needed for association of version{added,changed} directives
-            self.env.temp_data['object'] = self.names[0]
+            object_name: ObjDescT = self.names[0]
+            if isinstance(object_name, tuple):
+                self.env.current_document.obj_desc_name = str(object_name[0])
+            else:
+                self.env.current_document.obj_desc_name = str(object_name)
         self.before_content()
         content_children = self.parse_content_to_nodes(allow_section_headings=True)
         content_node = addnodes.desc_content('', *content_children)
         node.append(content_node)
         self.transform_content(content_node)
-        self.env.app.emit('object-description-transform',
-                          self.domain, self.objtype, content_node)
+        self.env.events.emit(
+            'object-description-transform', self.domain, self.objtype, content_node
+        )
         DocFieldTransformer(self).transform_all(content_node)
-        self.env.temp_data['object'] = None
+        self.env.current_document.obj_desc_name = ''
         self.after_content()
 
         if node['no-typesetting']:
@@ -299,8 +305,11 @@ class ObjectDescription(SphinxDirective, Generic[ObjDescT]):
             # If ``:no-index:`` is set, or there are no ids on the node
             # or any of its children, then just return the index node,
             # as Docutils expects a target node to have at least one id.
-            if node_ids := [node_id for el in node.findall(nodes.Element)  # type: ignore[var-annotated]
-                            for node_id in el.get('ids', ())]:
+            if node_ids := [  # type: ignore[var-annotated]
+                node_id
+                for el in node.findall(nodes.Element)
+                for node_id in el.get('ids', ())
+            ]:
                 target_node = nodes.target(ids=node_ids)
                 self.set_source_info(target_node)
                 return [self.indexnode, target_node]
@@ -321,19 +330,23 @@ class DefaultRole(SphinxDirective):
             docutils.unregister_role('')
             return []
         role_name = self.arguments[0]
-        role, messages = roles.role(role_name, self.state_machine.language,
-                                    self.lineno, self.state.reporter)
+        role, messages = roles.role(
+            role_name, self.state_machine.language, self.lineno, self.state.reporter
+        )
         if role:
             docutils.register_role('', role)  # type: ignore[arg-type]
-            self.env.temp_data['default_role'] = role_name
+            self.env.current_document.default_role = role_name
         else:
             literal_block = nodes.literal_block(self.block_text, self.block_text)
             reporter = self.state.reporter
-            error = reporter.error('Unknown interpreted text role "%s".' % role_name,
-                                   literal_block, line=self.lineno)
+            error = reporter.error(
+                'Unknown interpreted text role "%s".' % role_name,
+                literal_block,
+                line=self.lineno,
+            )
             messages += [error]
 
-        return cast(list[nodes.Node], messages)
+        return cast('list[nodes.Node]', messages)
 
 
 class DefaultDomain(SphinxDirective):
@@ -349,18 +362,13 @@ class DefaultDomain(SphinxDirective):
 
     def run(self) -> list[Node]:
         domain_name = self.arguments[0].lower()
-        # if domain_name not in env.domains:
-        #     # try searching by label
-        #     for domain in env.domains.sorted():
-        #         if domain.label.lower() == domain_name:
-        #             domain_name = domain.name
-        #             break
-        self.env.temp_data['default_domain'] = self.env.domains.get(domain_name)
+        default_domain = self.env.domains.get(domain_name)
+        self.env.current_document.default_domain = default_domain
         return []
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_config_value("strip_signature_backslash", False, 'env')
+    app.add_config_value('strip_signature_backslash', False, 'env')
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)

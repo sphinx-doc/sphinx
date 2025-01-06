@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import os
 import re
-import time
 from typing import TYPE_CHECKING
 
 from sphinx import __display_version__
@@ -27,7 +26,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = f'2007-{time.strftime("%Y")}, the Sphinx developers'
+copyright = '2007-%Y, the Sphinx developers'
 release = version = __display_version__
 show_authors = True
 nitpicky = True
@@ -46,7 +45,6 @@ html_additional_pages = {'contents': 'contents.html'}
 html_use_opensearch = 'https://www.sphinx-doc.org/en/master'
 html_baseurl = 'https://www.sphinx-doc.org/en/master/'
 html_favicon = '_static/favicon.svg'
-html_last_updated_time_zone = 'GMT'
 
 htmlhelp_basename = 'Sphinxdoc'
 
@@ -175,19 +173,19 @@ intersphinx_mapping = {
 }
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
-locale_dirs = ['locale/']
 gettext_compact = False
 
 nitpick_ignore = {
     (
         'cpp:class',
         'template<typename TOuter> template<typename TInner> Wrapper::Outer<TOuter>::Inner',
-    ),  # NoQA: E501
+    ),
     ('cpp:identifier', 'MyContainer'),
     ('js:func', 'SomeError'),
     ('js:func', 'number'),
     ('js:func', 'string'),
     ('py:attr', 'srcline'),
+    ('py:class', '_AutodocProcessDocstringListener'),
     ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
     ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
@@ -314,7 +312,7 @@ REDIRECT_TEMPLATE = """
         <a href="{{rel_url}}">If not, click here to continue.</a>
     </body>
 </html>
-"""  # noqa: E501
+"""  # NoQA: E501
 
 
 def build_redirects(app: Sphinx, exception: Exception | None) -> None:

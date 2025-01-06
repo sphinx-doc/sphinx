@@ -17,6 +17,10 @@ from tests.utils import TESTS_ROOT
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
+    from typing import Any
+
+    from sphinx.domains import ObjType
 
 JAVASCRIPT_TEST_ROOTS = [
     directory
@@ -52,27 +56,13 @@ class DummyDomain:
     def __init__(self, name: str, data: dict) -> None:
         self.name = name
         self.data = data
-        self.object_types = {}
+        self.object_types: dict[str, ObjType] = {}
 
-    def get_objects(self):
+    def get_objects(self) -> list[tuple[str, str, str, str, str, int]]:
         return self.data
 
 
-settings = parser = None
-
-
-def setup_module():
-    global settings, parser
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        # DeprecationWarning: The frontend.OptionParser class will be replaced
-        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        optparser = frontend.OptionParser(components=(rst.Parser,))
-    settings = optparser.get_default_values()
-    parser = rst.Parser()
-
-
-def load_searchindex(path):
+def load_searchindex(path: Path) -> Any:
     searchindex = path.read_text(encoding='utf8')
     assert searchindex.startswith('Search.setIndex(')
     assert searchindex.endswith(')')
@@ -80,7 +70,7 @@ def load_searchindex(path):
     return json.loads(searchindex[16:-1])
 
 
-def is_registered_term(index, keyword):
+def is_registered_term(index: Any, keyword: str) -> bool:
     return index['terms'].get(keyword, []) != []
 
 
@@ -162,8 +152,8 @@ def test_term_in_heading_and_section(app):
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert '"textinhead": 2' in searchindex
-    assert '"textinhead": 0' in searchindex
+    assert '"textinhead":2' in searchindex
+    assert '"textinhead":0' in searchindex
 
 
 @pytest.mark.sphinx('html', testroot='search')
@@ -176,6 +166,14 @@ def test_term_in_raw_directive(app):
 
 
 def test_IndexBuilder():
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        optparser = frontend.OptionParser(components=(rst.Parser,))
+    settings = optparser.get_default_values()
+    parser = rst.Parser()
+
     domain1 = DummyDomain(
         'dummy1',
         [
@@ -191,12 +189,12 @@ def test_IndexBuilder():
         ],
     )
     env = DummyEnvironment('1.0', DummyDomainsContainer(dummy1=domain1, dummy2=domain2))
-    doc = utils.new_document(b'test data', settings)
+    doc = utils.new_document('test data', settings)
     doc['file'] = 'dummy'
     parser.parse(FILE_CONTENTS, doc)
 
     # feed
-    index = IndexBuilder(env, 'en', {}, None)
+    index = IndexBuilder(env, 'en', {}, '')
     index.feed('docname1_1', 'filename1_1', 'title1_1', doc)
     index.feed('docname1_2', 'filename1_2', 'title1_2', doc)
     index.feed('docname2_2', 'filename2_2', 'title2_2', doc)
@@ -285,7 +283,7 @@ def test_IndexBuilder():
     index.dump(stream, 'pickle')
     stream.seek(0)
 
-    index2 = IndexBuilder(env, 'en', {}, None)
+    index2 = IndexBuilder(env, 'en', {}, '')
     index2.load(stream, 'pickle')
 
     assert index2._titles == index._titles
@@ -366,11 +364,11 @@ def test_IndexBuilder_lookup():
     env = DummyEnvironment('1.0', {})
 
     # zh
-    index = IndexBuilder(env, 'zh', {}, None)
+    index = IndexBuilder(env, 'zh', {}, '')
     assert index.lang.lang == 'zh'
 
     # zh_CN
-    index = IndexBuilder(env, 'zh_CN', {}, None)
+    index = IndexBuilder(env, 'zh_CN', {}, '')
     assert index.lang.lang == 'zh'
 
 
@@ -426,7 +424,7 @@ def test_search_index_is_deterministic(app):
     assert_is_sorted(index, '')
 
 
-def is_title_tuple_type(item: list[int | str]):
+def is_title_tuple_type(item: list[int | str]) -> bool:
     """
     In the search index, titles inside .alltitles are stored as a tuple of
     (document_idx, title_anchor). Tuples are represented as lists in JSON,
@@ -436,7 +434,9 @@ def is_title_tuple_type(item: list[int | str]):
     return len(item) == 2 and isinstance(item[0], int) and isinstance(item[1], str)
 
 
-def assert_is_sorted(item, path: str):
+def assert_is_sorted(
+    item: dict[str, str] | list[int | str] | int | str, path: str
+) -> None:
     lists_not_to_sort = {
         # Each element of .titles is related to the element of .docnames in the same position.
         # The ordering is deterministic because .docnames is sorted.
@@ -454,9 +454,9 @@ def assert_is_sorted(item, path: str):
     elif isinstance(item, list):
         if not is_title_tuple_type(item) and path not in lists_not_to_sort:
             # sort nulls last; http://stackoverflow.com/questions/19868767/
-            assert item == sorted(
-                item, key=lambda x: (x is None, x)
-            ), f'{err_path} is not sorted'
+            assert item == sorted(item, key=lambda x: (x is None, x)), (
+                f'{err_path} is not sorted'
+            )
         for i, child in enumerate(item):
             assert_is_sorted(child, f'{path}[{i}]')
 

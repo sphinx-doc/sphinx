@@ -3,31 +3,36 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
-from sphinx.ext.intersphinx._load import _fetch_inventory
+from sphinx.ext.intersphinx._load import _fetch_inventory, _InvConfig
 
 
 def inspect_main(argv: list[str], /) -> int:
     """Debug functionality to print out an inventory"""
     if len(argv) < 1:
-        print('Print out an inventory file.\n'
-              'Error: must specify local path or URL to an inventory file.',
-              file=sys.stderr)
+        print(
+            'Print out an inventory file.\n'
+            'Error: must specify local path or URL to an inventory file.',
+            file=sys.stderr,
+        )
         return 1
 
-    class MockConfig:
-        intersphinx_timeout: int | None = None
-        tls_verify = False
-        tls_cacerts: str | dict[str, str] | None = None
-        user_agent: str = ''
+    filename = argv[0]
+    config = _InvConfig(
+        intersphinx_cache_limit=5,
+        intersphinx_timeout=None,
+        tls_verify=False,
+        tls_cacerts=None,
+        user_agent='',
+    )
 
     try:
-        filename = argv[0]
         inv_data = _fetch_inventory(
             target_uri='',
             inv_location=filename,
-            config=MockConfig(),  # type: ignore[arg-type]
-            srcdir=''  # type: ignore[arg-type]
+            config=config,
+            srcdir=Path(''),
         )
         for key in sorted(inv_data or {}):
             print(key)

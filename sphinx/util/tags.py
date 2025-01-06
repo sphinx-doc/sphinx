@@ -69,8 +69,11 @@ class Tags:
 
     @property
     def tags(self) -> dict[str, Literal[True]]:
-        warnings.warn('Tags.tags is deprecated, use methods on Tags.',
-                      RemovedInSphinx90Warning, stacklevel=2)
+        warnings.warn(
+            'Tags.tags is deprecated, use methods on Tags.',
+            RemovedInSphinx90Warning,
+            stacklevel=2,
+        )
         return dict.fromkeys(self._tags, True)
 
     def eval_condition(self, condition: str) -> bool:

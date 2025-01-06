@@ -30,27 +30,33 @@ jobs:
   ubuntu:
     runs-on: ubuntu-latest
     name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         python:
-        - "3.10"
         - "3.11"
         - "3.12"
+        - "3.13"
         docutils:
         - "0.20"
         - "0.21"
-#        include:
-#        # test every supported Docutils version for the latest supported Python
-#        - python: "3.12"
-#          docutils: "0.20"
+  #       include:
+  #       # test every supported Docutils version for the latest supported Python
+  #       - python: "3.13"
+  #         docutils: "0.20"
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Install graphviz
-      run: sudo apt-get install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      run: curl -LsSf https://astral.sh/uv/${{ env.UV_VERSION }}/install.sh | sh
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ env.UV_VERSION }}
+        enable-cache: false
     - name: Install Docutils ${{ matrix.docutils }}
       run: uv add "docutils~=${{ matrix.docutils }}.0"
     - name: Test with pytest
@@ -61,11 +67,12 @@ jobs:
   # deadsnakes:
   #   runs-on: ubuntu-latest
   #   name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }})
+  #   timeout-minutes: 15
   #   strategy:
   #     fail-fast: false
   #     matrix:
   #       python:
-  #       - "3.13-dev"
+  #       - "3.14"
   #       docutils:
   #       - "0.20"
   #       - "0.21"
@@ -73,17 +80,20 @@ jobs:
 <<<<<<< HEAD
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
-        python-version: ${{ matrix.python }}
+        python-version: ${{ matrix.python }}-dev
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
         python -m pip install .[test]
     - name: Install Docutils ${{ matrix.docutils }}
       run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
@@ -114,9 +124,10 @@ jobs:
   #       PYTHONWARNINGS: "error"  # treat all warnings as errors
 >>>>>>> bd848ae56 (migrate to uv as package manager)
 
-  # deadsnakes-free-threraded:
+  # free-threaded:
   #   runs-on: ubuntu-latest
-  #   name: Python ${{ matrix.python }} (Docutils ${{ matrix.docutils }}; free-threaded)
+  #   name: Python ${{ matrix.python }} (free-threaded)
+  #   timeout-minutes: 15
   #   strategy:
   #     fail-fast: false
   #     matrix:
@@ -129,6 +140,8 @@ jobs:
 <<<<<<< HEAD
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python ${{ matrix.python }} (deadsnakes)
       uses: deadsnakes/action@v3.2.0
       with:
@@ -137,13 +150,11 @@ jobs:
     - name: Check Python version
       run: python --version --version
     - name: Install graphviz
-      run: sudo apt-get install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install .[test]
-    - name: Install Docutils ${{ matrix.docutils }}
-      run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
     # markupsafe._speedups has not declared that it can run safely without the GIL
     - name: Remove markupsafe._speedups
       run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
@@ -151,37 +162,47 @@ jobs:
       run: python -m pytest -vv --durations 25
       env:
         PYTHONWARNINGS: "error"  # treat all warnings as errors
-=======
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Set up Python ${{ matrix.python }} (deadsnakes)
-  #     uses: deadsnakes/action@v3.1.0
-  #     with:
-  #       python-version: ${{ matrix.python }}
-  #       nogil: true
-  #   - name: Check Python version
-  #     run: python --version --version
-  #   - name: Install graphviz
-  #     run: sudo apt-get install graphviz
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       python -m pip install .[test]
-  #   - name: Install Docutils ${{ matrix.docutils }}
-  #     run: python -m pip install --upgrade "docutils~=${{ matrix.docutils }}.0"
-  #   # markupsafe._speedups has not declared that it can run safely without the GIL
-  #   - name: Remove markupsafe._speedups
-  #     run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
-  #   - name: Test with pytest
-  #     run: python -m pytest -vv --durations 25
-  #     env:
-  #       PYTHONWARNINGS: "error"  # treat all warnings as errors
->>>>>>> bd848ae56 (migrate to uv as package manager)
+
+  deadsnakes-free-threaded:
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python }} (free-threaded)
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+        - "3.14"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python ${{ matrix.python }} (deadsnakes)
+      uses: deadsnakes/action@v3.2.0
+      with:
+        python-version: ${{ matrix.python }}-dev
+        nogil: true
+    - name: Check Python version
+      run: python --version --version
+    - name: Install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        sed -i 's/flit_core>=3.7/flit_core @ git+https:\/\/github.com\/pypa\/flit.git#subdirectory=flit_core/' pyproject.toml
+        python -m pip install .[test]
+    # markupsafe._speedups has not declared that it can run safely without the GIL
+    - name: Remove markupsafe._speedups
+      run: rm -rf "$(python -c 'from markupsafe._speedups import __file__ as f; print(f)')"
+    - name: Test with pytest
+      run: python -m pytest -vv --durations 25
+      env:
+        PYTHONWARNINGS: "error"  # treat all warnings as errors
 
   # windows:
   #   runs-on: windows-2019
   #   name: Windows
-
+  #
   #   steps:
   #   - uses: actions/checkout@v4
   #   - name: Set up Python
@@ -202,11 +223,11 @@ jobs:
   #     run: python -m pytest -vv --durations 25
   #     env:
   #       PYTHONWARNINGS: "error"  # treat all warnings as errors
-
+  #
   # docutils-latest:
   #   runs-on: ubuntu-latest
   #   name: Docutils HEAD
-
+  #
   #   steps:
   #   - name: Install epubcheck
   #     run: |
@@ -239,11 +260,11 @@ jobs:
   #       PYTHONWARNINGS: "error"  # treat all warnings as errors
   #       DO_EPUBCHECK: "1"
   #       EPUBCHECK_PATH: "/tmp/epubcheck/epubcheck-5.1.0/epubcheck.jar"
-
+  #
   # oldest-supported:
   #   runs-on: ubuntu-latest
   #   name: Oldest supported
-
+  #
   #   steps:
   #   - uses: actions/checkout@v4
   #   - name: Set up Python
@@ -268,13 +289,13 @@ jobs:
   #     run: python -m pytest -vv --durations 25
   #     env:
   #       PYTHONWARNINGS: "error"  # treat all warnings as errors
-
+  #
   # latex:
   #   runs-on: ubuntu-latest
   #   name: LaTeX
   #   container:
   #     image: ghcr.io/sphinx-doc/sphinx-ci
-
+  #
   #   steps:
   #   - uses: actions/checkout@v4
   #   - name: Set up Python
@@ -296,12 +317,12 @@ jobs:
   #     env:
   #       PYTHONWARNINGS: "error"  # treat all warnings as errors
   #       DO_EPUBCHECK: "1"
-
+  #
   # coverage:
   #   if: github.event_name == 'push' && github.repository_owner == 'sphinx-doc'
   #   runs-on: ubuntu-latest
   #   name: Coverage
-
+  #
   #   steps:
   #   - uses: actions/checkout@v4
   #   - name: Set up Python

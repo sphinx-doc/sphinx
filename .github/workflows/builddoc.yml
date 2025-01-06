@@ -17,21 +17,26 @@ env:
   UV_VERSION: 0.3.2  # Pin the version of UV
 
 jobs:
-  build:
+  verbose:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Install graphviz
-      run: sudo apt-get install graphviz
+      run: sudo apt-get install --no-install-recommends --yes graphviz
     - name: Install uv
-      run: curl -LsSf https://astral.sh/uv/${{ env.UV_VERSION }}/install.sh | sh
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Render the documentation
       run: >
         uv run
         sphinx-build
         -M html ./doc ./build/sphinx
-        -vv
+        --verbose
         --jobs=auto
         --show-traceback
         --fail-on-warning

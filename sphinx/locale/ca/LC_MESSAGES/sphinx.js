@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Cerca",
         "Search Page": "P\u00e0gina de cerca",
         "Search Results": "Resultats de la cerca",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "Cerca acabada, s'han trobat ${resultCount} p\u00e0gines que coincideixen amb la consulta de cerca.",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Cerca dins de %(docstitle)s",
         "Searching": "S'est\u00e0 cercant",
         "Searching for multiple words only shows matches that contain\n    all words.": "Cercar m\u00faltiples paraules nom\u00e9s mostrar\u00e0 les coincid\u00e8ncies\n    que continguin totes les paraules.",

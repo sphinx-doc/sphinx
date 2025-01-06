@@ -16,11 +16,11 @@ import fnmatch
 import glob
 import locale
 import os
+import os.path
 import re
 import sys
 from copy import copy
 from importlib.machinery import EXTENSION_SUFFIXES
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -50,7 +50,7 @@ else:
 
 PY_SUFFIXES = ('.py', '.pyx', *tuple(EXTENSION_SUFFIXES))
 
-template_dir = path.join(package_dir, 'templates', 'apidoc')
+template_dir = os.path.join(package_dir, 'templates', 'apidoc')
 
 
 def is_initpy(filename: str | Path) -> bool:
@@ -297,7 +297,7 @@ def recurse_tree(
     """
     # check if the base directory is a package and get its name
     if is_packagedir(rootpath) or opts.implicit_namespaces:
-        root_package = rootpath.split(path.sep)[-1]
+        root_package = rootpath.split(os.path.sep)[-1]
     else:
         # otherwise, the base is a directory with packages
         root_package = None
@@ -322,7 +322,7 @@ def recurse_tree(
             # we are in a package with something to document
             if subs or len(files) > 1 or not is_skipped_package(root, opts):
                 subpackage = (
-                    root[len(rootpath) :].lstrip(path.sep).replace(path.sep, '.')
+                    root[len(rootpath) :].lstrip(os.path.sep).replace(os.path.sep, '.')
                 )
                 # if this is not a namespace or
                 # a namespace and there is something there to document
@@ -627,12 +627,12 @@ def main(argv: Sequence[str] = (), /) -> int:
     parser = get_parser()
     args: CliOptions = parser.parse_args(argv or sys.argv[1:])
 
-    rootpath = path.abspath(args.module_path)
+    rootpath = os.path.abspath(args.module_path)
 
     # normalize opts
 
     if args.header is None:
-        args.header = rootpath.split(path.sep)[-1]
+        args.header = rootpath.split(os.path.sep)[-1]
     args.suffix = args.suffix.removeprefix('.')
     if not Path(rootpath).is_dir():
         logger.error(__('%s is not a directory.'), rootpath)
@@ -640,7 +640,7 @@ def main(argv: Sequence[str] = (), /) -> int:
     if not args.dryrun:
         ensuredir(args.destdir)
     excludes = tuple(
-        re.compile(fnmatch.translate(path.abspath(exclude)))
+        re.compile(fnmatch.translate(os.path.abspath(exclude)))
         for exclude in dict.fromkeys(args.exclude_pattern)
     )
     written_files, modules = recurse_tree(rootpath, excludes, args, args.templatedir)

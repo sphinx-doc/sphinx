@@ -1,5 +1,7 @@
 """Test the versioning implementation."""
 
+from __future__ import annotations
+
 import pickle
 import shutil
 
@@ -8,12 +10,12 @@ import pytest
 from sphinx.testing.util import SphinxTestApp
 from sphinx.versioning import add_uids, get_ratio, merge_doctrees
 
-app = original = original_uids = None
+original = original_uids = None
 
 
 @pytest.fixture(scope='module', autouse=True)
 def _setup_module(rootdir, sphinx_test_tempdir):
-    global app, original, original_uids
+    global original, original_uids  # NoQA: PLW0603
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
         shutil.copytree(rootdir / 'test-versioning', srcdir)

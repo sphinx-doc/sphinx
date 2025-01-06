@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from os import path
+from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, cast
 
 from docutils import nodes
@@ -16,7 +16,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import set_source_info
-from sphinx.util.osutil import SEP, os_path, relpath
+from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -38,7 +38,7 @@ class Figure(images.Figure):  # type: ignore[misc]
             return result
 
         assert len(result) == 1
-        figure_node = cast(nodes.figure, result[0])
+        figure_node = cast('nodes.figure', result[0])
         if name:
             # set ``name`` to figure_node if given
             self.options['name'] = name
@@ -46,7 +46,7 @@ class Figure(images.Figure):  # type: ignore[misc]
 
         # copy lineno from image node
         if figure_node.line is None and len(figure_node) == 2:
-            caption = cast(nodes.caption, figure_node[1])
+            caption = cast('nodes.caption', figure_node[1])
             figure_node.line = caption.line
 
         return [figure_node]
@@ -60,16 +60,20 @@ class CSVTable(tables.CSVTable):  # type: ignore[misc]
     def run(self) -> list[Node]:
         if 'file' in self.options and self.options['file'].startswith((SEP, os.sep)):
             env = self.state.document.settings.env
-            filename = self.options['file']
-            if path.exists(filename):
-                logger.warning(__('":file:" option for csv-table directive now recognizes '
-                                  'an absolute path as a relative path from source directory. '
-                                  'Please update your document.'),
-                               location=(env.docname, self.lineno))
+            filename = Path(self.options['file'])
+            if filename.exists():
+                logger.warning(
+                    __(
+                        '":file:" option for csv-table directive now recognizes '
+                        'an absolute path as a relative path from source directory. '
+                        'Please update your document.'
+                    ),
+                    location=(env.docname, self.lineno),
+                )
             else:
-                abspath = path.join(env.srcdir, os_path(self.options['file'][1:]))
-                docdir = path.dirname(env.doc2path(env.docname))
-                self.options['file'] = relpath(abspath, docdir)
+                abspath = env.srcdir / self.options['file'][1:]
+                doc_dir = env.doc2path(env.docname).parent
+                self.options['file'] = relpath(abspath, doc_dir)
 
         return super().run()
 
@@ -94,10 +98,13 @@ class Code(SphinxDirective):
 
         set_classes(self.options)
         code = '\n'.join(self.content)
-        node = nodes.literal_block(code, code,
-                                   classes=self.options.get('classes', []),
-                                   force='force' in self.options,
-                                   highlight_args={})
+        node = nodes.literal_block(
+            code,
+            code,
+            classes=self.options.get('classes', []),
+            force='force' in self.options,
+            highlight_args={},
+        )
         self.add_name(node)
         set_source_info(self, node)
 
@@ -108,8 +115,10 @@ class Code(SphinxDirective):
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
-            node['language'] = self.env.temp_data.get('highlight_language',
-                                                      self.config.highlight_language)
+            node['language'] = (
+                self.env.current_document.highlight_language
+                or self.config.highlight_language
+            )
 
         if 'number-lines' in self.options:
             node['linenos'] = True
@@ -138,12 +147,15 @@ class MathDirective(SphinxDirective):
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
         label = self.options.get('label', self.options.get('name'))
-        node = nodes.math_block(latex, latex,
-                                classes=self.options.get('class', []),
-                                docname=self.env.docname,
-                                number=None,
-                                label=label,
-                                nowrap='nowrap' in self.options)
+        node = nodes.math_block(
+            latex,
+            latex,
+            classes=self.options.get('class', []),
+            docname=self.env.docname,
+            number=None,
+            label=label,
+            nowrap='nowrap' in self.options,
+        )
         self.add_name(node)
         self.set_source_info(node)
 
@@ -152,12 +164,12 @@ class MathDirective(SphinxDirective):
         return ret
 
     def add_target(self, ret: list[Node]) -> None:
-        node = cast(nodes.math_block, ret[0])
+        node = cast('nodes.math_block', ret[0])
 
         # assign label automatically if math_number_all enabled
-        if node['label'] == '' or (self.config.math_number_all and not node['label']):
+        if node['label'] == '' or (self.config.math_number_all and not node['label']):  # NoQA: PLC1901
             seq = self.env.new_serialno('sphinx.ext.math#equations')
-            node['label'] = "%s:%d" % (self.env.docname, seq)
+            node['label'] = f'{self.env.docname}:{seq}'
 
         # no targets and numbers are needed
         if not node['label']:
