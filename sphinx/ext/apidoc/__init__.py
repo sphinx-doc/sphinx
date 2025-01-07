@@ -737,8 +737,3 @@ def _remove_old_files(
                     exc.strerror,
                     type='autodoc',
                 )
-
-
-# So program can be started with "python -m sphinx.apidoc ..."
-if __name__ == '__main__':
-    raise SystemExit(main(sys.argv[1:]))
