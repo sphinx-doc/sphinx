@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-import sphinx.ext.apidoc
+import sphinx.ext.apidoc._generate
 from sphinx.ext.apidoc._cli import main as apidoc_main
 
 if TYPE_CHECKING:
@@ -728,10 +728,10 @@ def test_no_duplicates(rootdir, tmp_path):
     We can't use pytest.mark.apidoc here as we use a different set of arguments
     to apidoc_main
     """
-    original_suffixes = sphinx.ext.apidoc.PY_SUFFIXES
+    original_suffixes = sphinx.ext.apidoc._generate.PY_SUFFIXES
     try:
         # Ensure test works on Windows
-        sphinx.ext.apidoc.PY_SUFFIXES += ('.so',)
+        sphinx.ext.apidoc._generate.PY_SUFFIXES += ('.so',)
 
         package = rootdir / 'test-apidoc-duplicates' / 'fish_licence'
         outdir = tmp_path / 'out'
@@ -746,7 +746,7 @@ def test_no_duplicates(rootdir, tmp_path):
         assert count_submodules == 1
 
     finally:
-        sphinx.ext.apidoc.PY_SUFFIXES = original_suffixes
+        sphinx.ext.apidoc._generate.PY_SUFFIXES = original_suffixes
 
 
 def test_remove_old_files(tmp_path: Path):

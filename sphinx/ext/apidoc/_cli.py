@@ -13,11 +13,10 @@ from typing import TYPE_CHECKING, Any
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.ext.apidoc import (
+from sphinx.ext.apidoc import _remove_old_files, logger
+from sphinx.ext.apidoc._generate import (
     CliOptions,
-    _remove_old_files,
     create_modules_toc_file,
-    logger,
     recurse_tree,
 )
 from sphinx.locale import __
