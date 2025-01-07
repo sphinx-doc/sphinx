@@ -52,6 +52,7 @@ classifiers = [
     "Topic :: Text Processing :: Markup :: LaTeX",
     "Topic :: Utilities",
 ]
+dynamic = ["version"]
 dependencies = [
     "sphinxcontrib-applehelp>=1.0.7",
     "sphinxcontrib-devhelp>=1.0.6",
@@ -71,7 +72,31 @@ dependencies = [
     "packaging>=23.0",
     "colorama>=0.4.6; sys_platform == 'win32'",
 ]
-dynamic = ["version"]
+[dependency-groups]
+dev = [
+    # docs
+    "sphinxcontrib-websupport",
+
+    # lint
+    "mypy==1.14.1",
+    "ruff==0.8.6",
+    "sphinx-lint~=0.9",
+    "types-colorama==0.4.15.20240311",
+    "types-defusedxml==0.7.0.20240218",
+    "types-docutils==0.21.0.20241128",
+    "types-Pillow==10.2.0.20240822",
+    "types-Pygments==2.18.0.20240506",
+    "types-requests==2.32.0.20241016",  # align with requests
+    "types-urllib3==1.26.25.14",
+    "typing_extensions~=4.9",  # for typing_extensions.Unpack
+    "pyright==1.1.391",
+
+    # test
+    "cython~=3.0",
+    "defusedxml~=0.7.1",       # for secure XML/HTML parsing
+    "pytest~=8.0",
+    "setuptools~=70.0",        # for Cython compilation
+]
 
 [project.scripts]
 sphinx-build = "sphinx.cmd.build:main"
@@ -104,33 +129,6 @@ include = [
 ]
 exclude = [
     "doc/_build",
-]
-
-[tool.uv]
-dev-dependencies = [
-    # docs
-    "sphinxcontrib-websupport",
-
-    # lint
-    "ruff==0.8.6",
-    "mypy==1.14.1",
-    "sphinx-lint>=0.9",
-    "types-colorama==0.4.15.20240311",
-    "types-defusedxml==0.7.0.20240218",
-    "types-docutils==0.21.0.20241128",
-    "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.18.0.20240506",
-    "types-requests==2.32.0.20241016",  # align with requests
-    "types-urllib3==1.26.25.14",
-    "pyright==1.1.391",
-    "pytest>=6.0",
-
-    # test
-    "pytest>=8.0",
-    "defusedxml>=0.7.1",       # for secure XML/HTML parsing
-    "cython>=3.0",
-    "setuptools>=70.0",        # for Cython compilation
-    "typing_extensions>=4.9",  # for typing_extensions.Unpack
 ]
 
 [tool.mypy]
