@@ -313,7 +313,7 @@ class Cmdoption(ObjectDescription[str]):
         self.state.document.note_explicit_target(signode)
 
         domain = self.env.domains.standard_domain
-        for optname in signode.get('allnames', []):
+        for optname in signode.get('allnames', ()):
             domain.add_program_option(
                 currprogram, optname, self.env.docname, signode['ids'][0]
             )
@@ -323,7 +323,7 @@ class Cmdoption(ObjectDescription[str]):
             descr = _('%s command line option') % currprogram
         else:
             descr = _('command line option')
-        for option in signode.get('allnames', []):  # type: ignore[var-annotated]
+        for option in signode.get('allnames', ()):  # type: ignore[var-annotated]
             entry = f'{descr}; {option}'
             self.indexnode['entries'].append((
                 'pair',

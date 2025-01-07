@@ -91,7 +91,7 @@ class ExternalLinksChecker(SphinxPostTransform):
                 logger.warning(msg, uri, replacement, location=refnode)
 
 
-def make_link_role(name: str, base_url: str, caption: str) -> RoleFunction:
+def make_link_role(name: str, base_url: str, caption: str | None) -> RoleFunction:
     # Check whether we have base_url and caption strings have an '%s' for
     # expansion.  If not, fall back to the old behaviour and use the string as
     # a prefix.
@@ -132,4 +132,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     app.connect('builder-inited', setup_link_roles)
     app.add_post_transform(ExternalLinksChecker)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

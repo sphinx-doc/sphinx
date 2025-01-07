@@ -523,8 +523,11 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('graph', GraphvizSimple)
     app.add_directive('digraph', GraphvizSimple)
     app.add_config_value('graphviz_dot', 'dot', 'html')
-    app.add_config_value('graphviz_dot_args', [], 'html')
+    app.add_config_value('graphviz_dot_args', (), 'html')
     app.add_config_value('graphviz_output_format', 'png', 'html')
     app.add_css_file('graphviz.css')
     app.connect('config-inited', on_config_inited)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

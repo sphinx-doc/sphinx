@@ -8,6 +8,9 @@
 
 .. versionadded:: 1.6
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension converts images in your document to appropriate format for
 builders.  For example, it allows you to use SVG images with LaTeX builder.
 As a result, you don't mind what image format the builder supports.
@@ -31,25 +34,22 @@ Configuration
 -------------
 
 .. confval:: image_converter
+   :type: :code-py:`str`
+   :default: :code-py:`'convert'` on Unix; :code-py:`'magick'` on Windows
 
    A path to a conversion command.  By default, the imgconverter finds
    the command from search paths.
-
-   On Unix platforms, the command :command:`convert` is used by default.
-
-   On Windows, the command :command:`magick` is used by default.
 
    .. versionchanged:: 3.1
 
       Use :command:`magick` command by default on windows
 
 .. confval:: image_converter_args
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`['convert']` on Windows; :code-py:`()` on Unix
 
    Additional command-line arguments to give to :command:`convert`, as a list.
-   The default is an empty list ``[]``.
-
-   On Windows, it defaults to ``["convert"]``.
 
    .. versionchanged:: 3.1
 
-      Use ``["convert"]`` by default on Windows
+      Use ``['convert']`` by default on Windows

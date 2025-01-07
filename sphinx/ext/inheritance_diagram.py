@@ -540,4 +540,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('inheritance_node_attrs', {}, '')
     app.add_config_value('inheritance_edge_attrs', {}, '')
     app.add_config_value('inheritance_alias', {}, '')
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

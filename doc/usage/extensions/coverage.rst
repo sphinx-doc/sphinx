@@ -4,6 +4,9 @@
 .. module:: sphinx.ext.coverage
    :synopsis: Check Python modules and C API for coverage in the documentation.
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension features one additional builder, the :class:`CoverageBuilder`.
 
 .. todo:: Write this section.
@@ -49,8 +52,8 @@ Several configuration values can be used to specify
 what the builder should check:
 
 .. confval:: coverage_modules
-   :type: ``list[str]``
-   :default: ``[]``
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`()`
 
    List of Python packages or modules to test coverage for.
    When this is provided, Sphinx will introspect each package
@@ -66,12 +69,11 @@ what the builder should check:
    .. versionadded:: 7.4
 
 .. confval:: coverage_ignore_modules
-
-.. confval:: coverage_ignore_functions
-
-.. confval:: coverage_ignore_classes
-
-.. confval:: coverage_ignore_pyobjects
+             coverage_ignore_functions
+             coverage_ignore_classes
+             coverage_ignore_pyobjects
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`()`
 
    List of `Python regular expressions`_.
 
@@ -84,35 +86,46 @@ what the builder should check:
    .. versionadded:: 2.1
 
 .. confval:: coverage_c_path
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`()`
 
 .. confval:: coverage_c_regexes
+   :type: :code-py:`dict[str, str]`
+   :default: :code-py:`{}`
 
 .. confval:: coverage_ignore_c_items
+   :type: :code-py:`dict[str, Sequence[str]]`
+   :default: :code-py:`{}`
 
 .. confval:: coverage_write_headline
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    Set to ``False`` to not write headlines.
 
    .. versionadded:: 1.1
 
 .. confval:: coverage_skip_undoc_in_source
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    Skip objects that are not documented in the source with a docstring.
-   ``False`` by default.
 
    .. versionadded:: 1.1
 
 .. confval:: coverage_show_missing_items
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    Print objects that are missing to standard output also.
-   ``False`` by default.
 
    .. versionadded:: 3.1
 
 .. confval:: coverage_statistics_to_report
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    Print a tabular report of the coverage statistics to the coverage report.
-   ``True`` by default.
 
    Example output:
 
@@ -129,9 +142,10 @@ what the builder should check:
    .. versionadded:: 7.2
 
 .. confval:: coverage_statistics_to_stdout
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    Print a tabular report of the coverage statistics to standard output.
-   ``False`` by default.
 
    Example output:
 

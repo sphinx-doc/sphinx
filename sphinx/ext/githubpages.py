@@ -55,4 +55,7 @@ def create_nojekyll_and_cname(app: Sphinx, env: BuildEnvironment) -> None:
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('env-updated', create_nojekyll_and_cname)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

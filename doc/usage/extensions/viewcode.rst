@@ -7,6 +7,9 @@
 
 .. versionadded:: 1.0
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension looks at your Python object descriptions (``.. class::``, ``..
 function::`` etc.) and tries to find the source files where the objects are
 contained.  When found, a separate HTML page will be output for each module with
@@ -40,10 +43,12 @@ Configuration
 -------------
 
 .. confval:: viewcode_follow_imported_members
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    If this is ``True``, viewcode extension will emit
    :event:`viewcode-follow-imported` event to resolve the name of the module
-   by other extensions.  The default is ``True``.
+   by other extensions.
 
    .. versionadded:: 1.3
 
@@ -51,6 +56,8 @@ Configuration
       Renamed from ``viewcode_import`` to ``viewcode_follow_imported_members``.
 
 .. confval:: viewcode_enable_epub
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    If this is ``True``, viewcode extension is also enabled even if you use
    epub builders. This extension generates pages outside toctree, but this
@@ -59,8 +66,6 @@ Configuration
    Until 1.4.x, this extension is always enabled. If you want to generate
    epub as same as 1.4.x, you should set ``True``, but epub format checker's
    score becomes worse.
-
-   The default is ``False``.
 
    .. versionadded:: 1.5
 
@@ -74,8 +79,8 @@ Configuration
       becomes worse even if the reader supports.
 
 .. confval:: viewcode_line_numbers
-
-   Default: ``False``.
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    If set to ``True``, inline line numbers will be added to the highlighted code.
 
