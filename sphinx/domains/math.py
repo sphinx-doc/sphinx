@@ -146,6 +146,10 @@ class MathDomain(Domain):
     def get_objects(self) -> Iterable[tuple[str, str, str, str, str, int]]:
         return []
 
+    def has_equations(self, docname: str | None = None) -> bool:
+        # retained for backwards compatibility
+        return True
+
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(MathDomain)
