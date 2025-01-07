@@ -90,9 +90,9 @@ def install_mathjax(
         msg = 'mathjax_path config value must be set for the mathjax extension to work'
         raise ExtensionError(msg)
 
-    domain = app.env.domains.math_domain
     builder = cast('StandaloneHTMLBuilder', app.builder)
-    if app.registry.html_assets_policy == 'always' or domain.has_equations(pagename):
+    page_has_equations = context.get('has_maths_elements', False)
+    if app.registry.html_assets_policy == 'always' or page_has_equations:
         # Enable mathjax only if equations exists
         if app.config.mathjax2_config:
             if app.config.mathjax_path == MATHJAX_URL:
