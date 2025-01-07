@@ -22,15 +22,15 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
-__all__: Sequence[str] = ('main',)
+__all__: Sequence[str] = 'main', 'setup'
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    from sphinx.ext.apidoc._extension import run_apidoc_ext
+    from sphinx.ext.apidoc._extension import run_apidoc
 
     app.setup_extension('sphinx.ext.autodoc')
-    app.add_config_value('apidoc_modules', [], 'env')
-    app.connect('builder-inited', run_apidoc_ext)
+    app.add_config_value('apidoc_modules', (), 'env', types=frozenset((list, tuple)))
+    app.connect('builder-inited', run_apidoc)
     return {
         'version': sphinx.__display_version__,
         'parallel_read_safe': True,

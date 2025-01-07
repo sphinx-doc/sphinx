@@ -5,247 +5,220 @@ from __future__ import annotations
 import fnmatch
 import os
 import re
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from sphinx.ext.apidoc._generate import create_modules_toc_file, recurse_tree
-from sphinx.ext.apidoc._shared import LOGGER, _remove_old_files
+from sphinx.ext.apidoc._shared import LOGGER, ApidocOptions, _remove_old_files
 from sphinx.locale import __
 from sphinx.util.console import bold
 
 if TYPE_CHECKING:
-    from typing import Any
+    from collections.abc import Sequence
 
     from sphinx.application import Sphinx
 
-WARNING_TYPE = 'apidoc'
+_BOOL_KEYS = frozenset({
+    'followlinks',
+    'separatemodules',
+    'includeprivate',
+    'noheadings',
+    'modulefirst',
+    'implicit_namespaces',
+})
+_ALLOWED_KEYS = _BOOL_KEYS | frozenset({
+    'path',
+    'destination',
+    'exclude_patterns',
+    'automodule_options',
+    'maxdepth',
+})
 
 
-def run_apidoc_ext(app: Sphinx) -> None:
+def run_apidoc(app: Sphinx) -> None:
     """Run the apidoc extension."""
-    LOGGER.info(bold(__('Running apidoc')))  # TODO use iterater
+    apidoc_modules: Sequence[dict[str, Any]] = app.config.apidoc_modules
+    srcdir: Path = app.srcdir
+    confdir: Path = app.confdir
 
-    options: dict[str, Any]
-    for i, options in enumerate(app.config.apidoc_modules):
-        if not isinstance(options, dict):
-            LOGGER.warning(
-                __('apidoc_modules item %i must be a dict'), i, type=WARNING_TYPE
-            )
-            continue
+    LOGGER.info(bold(__('Running apidoc')))
 
-        # module path should be absolute or relative to the conf directory
-        # TODO account for Windows path?
-        if not (path := _check_string(i, options, 'path', True)):
-            continue
-        module_path = app.confdir.joinpath(path)
-        if not module_path.is_dir():
-            LOGGER.warning(
-                __("apidoc_modules item %i 'path' is not an existing folder: %s"),
-                i,
-                module_path,
-                type=WARNING_TYPE,
-            )
-            continue
+    module_options: dict[str, Any]
+    for i, module_options in enumerate(apidoc_modules):
+        _run_apidoc_module(i, options=module_options, srcdir=srcdir, confdir=confdir)
 
-        # destination path should be relative to the source directory
-        # TODO account for Windows path?
-        if not (destination := _check_string(i, options, 'destination', True)):
-            continue
-        if os.path.isabs(destination):  # noqa: PTH117
-            LOGGER.warning(
-                __("apidoc_modules item %i 'destination' should be a relative path"),
-                i,
-                type=WARNING_TYPE,
-            )
-            continue
-        dest_path = app.srcdir.joinpath(destination)
-        try:
-            dest_path.mkdir(parents=True, exist_ok=True)
-        except OSError as exc:
-            LOGGER.warning(
-                __('apidoc_modules item %i cannot create destination directory: %s'),
-                i,
-                exc.strerror,
-                type=WARNING_TYPE,
-            )
-            continue
 
-        # exclude patterns should be absolute or relative to the conf directory
-        # TODO account for Windows path?
-        exclude_patterns: list[str] = []
-        exclude_patterns_compiled: list[re.Pattern[str]] = []
-        for pattern in _check_list_of_strings(i, options, 'exclude_patterns') or []:
-            exclude_path = app.confdir.joinpath(pattern)
-            exclude_patterns.append(str(exclude_path))
-            exclude_patterns_compiled.append(
-                re.compile(fnmatch.translate(str(exclude_path)))
-            )
+def _run_apidoc_module(
+    i: int, *, options: dict[str, Any], srcdir: Path, confdir: Path
+) -> None:
+    args = _parse_module_options(i, options=options, srcdir=srcdir, confdir=confdir)
+    if args is None:
+        return
 
-        # TODO template_dir
+    exclude_patterns_compiled: list[re.Pattern[str]] = [
+        re.compile(fnmatch.translate(exclude)) for exclude in args.exclude_pattern
+    ]
 
-        maxdepth = 4
-        if 'maxdepth' in options:
-            if not isinstance(options['maxdepth'], int):
-                LOGGER.warning(
-                    __("apidoc_modules item %i '%s' must be an int"),
-                    i,
-                    'maxdepth',
-                    type=WARNING_TYPE,
-                )
-            else:
-                maxdepth = options['maxdepth']
-
-        extra_options = {}
-        bool_keys = (
-            'followlinks',
-            'separatemodules',
-            'includeprivate',
-            'noheadings',
-            'modulefirst',
-            'implicit_namespaces',
+    written_files, modules = recurse_tree(
+        args.module_path, exclude_patterns_compiled, args, args.templatedir
+    )
+    if args.tocfile:
+        written_files.append(
+            create_modules_toc_file(modules, args, args.tocfile, args.templatedir)
         )
-        for key in bool_keys:
-            if key not in options:
-                continue
-            if not isinstance(options[key], bool):
-                LOGGER.warning(
-                    __("apidoc_modules item %i '%s' must be a boolean"),
-                    i,
-                    key,
-                    type=WARNING_TYPE,
-                )
-                continue
-            extra_options[key] = options[key]
-
-        # TODO per-module automodule_options
-        automodule_options = ['members', 'undoc-members', 'show-inheritance']
-        if (
-            _options := _check_list_of_strings(i, options, 'automodule_options')
-        ) is not None:
-            automodule_options = _options
-
-        diff = (
-            set(options)
-            - {
-                'path',
-                'destination',
-                'exclude_patterns',
-                'automodule_options',
-                'maxdepth',
-            }
-            - set(bool_keys)
-        )
-        if diff:
-            LOGGER.warning(
-                __('apidoc_modules item %i has unexpected keys: %s'),
-                i,
-                ', '.join(diff),
-                type=WARNING_TYPE,
-            )
-
-        args = ExtensionOptions(
-            module_path=str(module_path),
-            destdir=str(dest_path),
-            exclude_pattern=exclude_patterns,
-            automodule_options=automodule_options,
-            maxdepth=maxdepth,
-            quiet=True,
-            **extra_options,
-        )
-
-        written_files, modules = recurse_tree(
-            args.module_path, exclude_patterns_compiled, args, args.templatedir
-        )
-        if args.tocfile:
-            written_files.append(
-                create_modules_toc_file(modules, args, args.tocfile, args.templatedir)
-            )
-        if args.remove_old:
-            _remove_old_files(written_files, args.destdir, args.suffix)
+    if args.remove_old:
+        _remove_old_files(written_files, args.destdir, args.suffix)
 
 
-def _check_string(
-    index: int, options: dict[str, Any], key: str, required: bool
-) -> str | None:
-    """Check that a key's value is a string in the options.
-
-    :returns: the value of the key, or None if missing or it is not a string
-    """
-    if key not in options:
-        if required:
-            LOGGER.warning(
-                __("apidoc_modules item %i must have a '%s' key"),
-                index,
-                key,
-                type=WARNING_TYPE,
-            )
+def _parse_module_options(
+    i: int, *, options: dict[str, Any], srcdir: Path, confdir: Path
+) -> ApidocOptions | None:
+    if not isinstance(options, dict):
+        LOGGER.warning(__('apidoc_modules item %i must be a dict'), i, type='apidoc')
         return None
-    if not isinstance(options[key], str):
+
+    # module path should be absolute or relative to the conf directory
+    try:
+        path = Path(os.fspath(options['path']))
+    except KeyError:
         LOGGER.warning(
-            __("apidoc_modules item %i '%s' must be a string"), index, type=WARNING_TYPE
+            __("apidoc_modules item %i must have a 'path' key"), i, type='apidoc'
         )
         return None
-    return options[key]
+    except TypeError:
+        LOGGER.warning(
+            __("apidoc_modules item %i 'path' must be a string"), i, type='apidoc'
+        )
+        return None
+    module_path = confdir / path
+    if not module_path.is_dir():
+        LOGGER.warning(
+            __("apidoc_modules item %i 'path' is not an existing folder: %s"),
+            i,
+            module_path,
+            type='apidoc',
+        )
+        return None
+
+    # destination path should be relative to the source directory
+    try:
+        destination = Path(os.fspath(options['destination']))
+    except KeyError:
+        LOGGER.warning(
+            __("apidoc_modules item %i must have a 'destination' key"),
+            i,
+            type='apidoc',
+        )
+        return None
+    except TypeError:
+        LOGGER.warning(
+            __("apidoc_modules item %i 'destination' must be a string"),
+            i,
+            type='apidoc',
+        )
+        return None
+    if destination.is_absolute():
+        LOGGER.warning(
+            __("apidoc_modules item %i 'destination' should be a relative path"),
+            i,
+            type='apidoc',
+        )
+        return None
+    dest_path = srcdir / destination
+    try:
+        dest_path.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        LOGGER.warning(
+            __('apidoc_modules item %i cannot create destination directory: %s'),
+            i,
+            exc.strerror,
+            type='apidoc',
+        )
+        return None
+
+    # exclude patterns should be absolute or relative to the conf directory
+    exclude_patterns: list[str] = [
+        str(confdir / pattern)
+        for pattern in _check_list_of_strings(i, options, key='exclude_patterns')
+    ]
+
+    # TODO template_dir
+
+    maxdepth = 4
+    if 'maxdepth' in options:
+        if not isinstance(options['maxdepth'], int):
+            LOGGER.warning(
+                __("apidoc_modules item %i '%s' must be an int"),
+                i,
+                'maxdepth',
+                type='apidoc',
+            )
+        else:
+            maxdepth = options['maxdepth']
+
+    extra_options = {}
+    for key in sorted(_BOOL_KEYS):
+        if key not in options:
+            continue
+        if not isinstance(options[key], bool):
+            LOGGER.warning(
+                __("apidoc_modules item %i '%s' must be a boolean"),
+                i,
+                key,
+                type='apidoc',
+            )
+            continue
+        extra_options[key] = options[key]
+
+    if _options := _check_list_of_strings(i, options, key='automodule_options'):
+        automodule_options = set(_options)
+    else:
+        # TODO per-module automodule_options
+        automodule_options = {'members', 'undoc-members', 'show-inheritance'}
+
+    if diff := set(options) - _ALLOWED_KEYS:
+        LOGGER.warning(
+            __('apidoc_modules item %i has unexpected keys: %s'),
+            i,
+            ', '.join(sorted(diff)),
+            type='apidoc',
+        )
+
+    return ApidocOptions(
+        module_path=module_path,
+        destdir=dest_path,
+        exclude_pattern=exclude_patterns,
+        automodule_options=automodule_options,
+        maxdepth=maxdepth,
+        quiet=True,
+        **extra_options,
+    )
 
 
 def _check_list_of_strings(
-    index: int, options: dict[str, Any], key: str
-) -> list[str] | None:
+    index: int, options: dict[str, Any], *, key: str
+) -> list[str]:
     """Check that a key's value is a list of strings in the options.
 
-    :returns: the value of the key, or None if missing or it is not a string list
+    :returns: the value of the key, or the empty list if invalid.
     """
     if key not in options:
-        return None
+        return []
     if not isinstance(options[key], list):
         LOGGER.warning(
             __("apidoc_modules item %i '%s' must be a list"),
             index,
             key,
-            type=WARNING_TYPE,
+            type='apidoc',
         )
-        return None
+        return []
     for item in options[key]:
         if not isinstance(item, str):
             LOGGER.warning(
                 __("apidoc_modules item %i '%s' must contain strings"),
                 index,
                 key,
-                type=WARNING_TYPE,
+                type='apidoc',
             )
-            return None
+            return []
     return options[key]
-
-
-@dataclass
-class ExtensionOptions:
-    """Options for the apidoc extension."""
-
-    destdir: str
-    module_path: str
-    exclude_pattern: list[str]
-    automodule_options: list[str] | None
-    maxdepth: int
-    followlinks: bool = False
-    separatemodules: bool = False
-    includeprivate: bool = False
-    noheadings: bool = False
-    modulefirst: bool = False
-    implicit_namespaces: bool = False
-    tocfile: str = 'modules'
-    suffix: str = 'rst'
-    header: str = ''
-    templatedir: str | None = None
-
-    remove_old: bool = True
-
-    quiet: bool = False
-    dryrun: bool = False
-    force: bool = True
-
-    full: bool = False
-    author: str | None = None
-    version: str | None = None
-    release: str | None = None
-    extensions: list[str] | None = None
-    append_syspath: bool = False

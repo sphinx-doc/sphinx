@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+sys.path.insert(0, str(Path.cwd().resolve() / 'src'))
 
 extensions = ['sphinx.ext.apidoc']
 
