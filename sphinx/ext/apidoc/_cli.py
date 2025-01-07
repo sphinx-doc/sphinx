@@ -14,7 +14,7 @@ import sphinx.locale
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS
 from sphinx.ext.apidoc._generate import (
-    CliOptions,
+    ApidocOptions,
     create_modules_toc_file,
     recurse_tree,
 )
@@ -284,7 +284,7 @@ def main(argv: Sequence[str] = (), /) -> int:
     return 0
 
 
-def _parse_args(argv: Sequence[str], /) -> CliOptions:
+def _parse_args(argv: Sequence[str], /) -> ApidocOptions:
     parser = get_parser()
     args = parser.parse_args(argv or sys.argv[1:])
 
@@ -308,10 +308,10 @@ def _parse_args(argv: Sequence[str], /) -> CliOptions:
     elif isinstance(args.automodule_options, str):
         args.automodule_options = set(args.automodule_options.split(','))
 
-    return CliOptions(**args.__dict__)
+    return ApidocOptions(**args.__dict__)
 
 
-def _full_quickstart(opts: CliOptions, /, *, modules: list[str]) -> None:
+def _full_quickstart(opts: ApidocOptions, /, *, modules: list[str]) -> None:
     from sphinx.cmd import quickstart as qs
 
     modules.sort()

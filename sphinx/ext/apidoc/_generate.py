@@ -59,7 +59,7 @@ def is_packagedir(dirname: str | None = None, files: list[str] | None = None) ->
     return any(f for f in files if is_initpy(f))
 
 
-def write_file(name: str, text: str, opts: CliOptions) -> Path:
+def write_file(name: str, text: str, opts: ApidocOptions) -> Path:
     """Write the output file for module/package <name>."""
     fname = Path(opts.destdir, f'{name}.{opts.suffix}')
     if opts.dryrun:
@@ -80,7 +80,7 @@ def write_file(name: str, text: str, opts: CliOptions) -> Path:
 def create_module_file(
     package: str | None,
     basename: str,
-    opts: CliOptions,
+    opts: ApidocOptions,
     user_template_dir: str | None = None,
 ) -> Path:
     """Build the text of the file and write the file."""
@@ -108,7 +108,7 @@ def create_package_file(
     master_package: str | None,
     subroot: str,
     py_files: list[str],
-    opts: CliOptions,
+    opts: ApidocOptions,
     subs: list[str],
     is_namespace: bool,
     excludes: Sequence[re.Pattern[str]] = (),
@@ -173,7 +173,7 @@ def create_package_file(
 
 def create_modules_toc_file(
     modules: list[str],
-    opts: CliOptions,
+    opts: ApidocOptions,
     name: str = 'modules',
     user_template_dir: str | None = None,
 ) -> Path:
@@ -201,7 +201,7 @@ def create_modules_toc_file(
 
 
 def is_skipped_package(
-    dirname: str | Path, opts: CliOptions, excludes: Sequence[re.Pattern[str]] = ()
+    dirname: str | Path, opts: ApidocOptions, excludes: Sequence[re.Pattern[str]] = ()
 ) -> bool:
     """Check if we want to skip this module."""
     if not Path(dirname).is_dir():
@@ -218,7 +218,7 @@ def is_skipped_package(
 
 
 def is_skipped_module(
-    filename: str | Path, opts: CliOptions, _excludes: Sequence[re.Pattern[str]]
+    filename: str | Path, opts: ApidocOptions, _excludes: Sequence[re.Pattern[str]]
 ) -> bool:
     """Check if we want to skip this module."""
     filename = Path(filename)
@@ -232,7 +232,7 @@ def is_skipped_module(
 def walk(
     rootpath: str,
     excludes: Sequence[re.Pattern[str]],
-    opts: CliOptions,
+    opts: ApidocOptions,
 ) -> Iterator[tuple[str, list[str], list[str]]]:
     """Walk through the directory and list files and subdirectories up."""
     for root, subs, files in os.walk(rootpath, followlinks=opts.followlinks):
@@ -261,7 +261,7 @@ def walk(
 
 
 def has_child_module(
-    rootpath: str, excludes: Sequence[re.Pattern[str]], opts: CliOptions
+    rootpath: str, excludes: Sequence[re.Pattern[str]], opts: ApidocOptions
 ) -> bool:
     """Check the given directory contains child module/s (at least one)."""
     return any(files for _root, _subs, files in walk(rootpath, excludes, opts))
@@ -270,7 +270,7 @@ def has_child_module(
 def recurse_tree(
     rootpath: str | os.PathLike[str],
     excludes: Sequence[re.Pattern[str]],
-    opts: CliOptions,
+    opts: ApidocOptions,
     user_template_dir: str | None = None,
 ) -> tuple[list[Path], list[str]]:
     """
@@ -352,7 +352,7 @@ def is_excluded(root: str | Path, excludes: Sequence[re.Pattern[str]]) -> bool:
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
-class CliOptions:
+class ApidocOptions:
     """Options for apidoc."""
 
     module_path: Path
