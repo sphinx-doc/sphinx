@@ -5,7 +5,7 @@ from typing import Union
 
 
 class Foo:
-    class Bar:
+    class Bar:  # NoQA: D106
         pass
 
     def __init__(self):

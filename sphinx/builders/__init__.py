@@ -3,17 +3,22 @@
 from __future__ import annotations
 
 import codecs
+import os.path
 import pickle
 import re
 import time
 from contextlib import nullcontext
-from os import path
 from typing import TYPE_CHECKING, Any, Literal, final
 
 from docutils import nodes
 from docutils.utils import DependencyList
 
-from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
+from sphinx.environment import (
+    CONFIG_CHANGED_REASON,
+    CONFIG_OK,
+    BuildEnvironment,
+    _CurrentDocument,
+)
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
@@ -23,6 +28,7 @@ from sphinx.util import (
     rst,
 )
 from sphinx.util._importer import import_object
+from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
@@ -42,6 +48,7 @@ from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
+    from pathlib import Path
 
     from docutils.nodes import Node
 
@@ -80,7 +87,7 @@ class Builder:
     # doctree versioning method
     versioning_method = 'none'
     versioning_compare = False
-    #: Whether it is safe to make parallel :meth:`~.Builder.write_doc()` calls.
+    #: Whether it is safe to make parallel :meth:`~.Builder.write_doc` calls.
     allow_parallel: bool = False
     # support translation
     use_message_catalog = True
@@ -92,6 +99,11 @@ class Builder:
     supported_remote_images: bool = False
     #: The file format produced by the builder allows images to be embedded using data-URIs.
     supported_data_uri_images: bool = False
+
+    srcdir = _StrPathProperty()
+    confdir = _StrPathProperty()
+    outdir = _StrPathProperty()
+    doctreedir = _StrPathProperty()
 
     def __init__(self, app: Sphinx, env: BuildEnvironment) -> None:
         self.srcdir = app.srcdir
@@ -203,7 +215,7 @@ class Builder:
                     image_uri = images.get_original_image_uri(node['uri'])
                     if mimetypes:
                         logger.warning(
-                            __('a suitable image for %s builder not found: ' '%s (%s)'),
+                            __('a suitable image for %s builder not found: %s (%s)'),
                             self.name,
                             mimetypes,
                             image_uri,
@@ -231,8 +243,8 @@ class Builder:
         if not self.config.gettext_auto_build:
             return
 
-        def cat2relpath(cat: CatalogInfo) -> str:
-            return relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
+        def cat2relpath(cat: CatalogInfo, srcdir: Path = self.srcdir) -> str:
+            return relpath(cat.mo_path, srcdir).replace(os.path.sep, SEP)
 
         logger.info(bold(__('building [mo]: ')) + message)
         for catalog in status_iterator(
@@ -259,7 +271,7 @@ class Builder:
 
     def compile_specific_catalogs(self, specified_files: list[str]) -> None:
         def to_domain(fpath: str) -> str | None:
-            docname = self.env.path2doc(path.abspath(fpath))
+            docname = self.env.path2doc(os.path.abspath(fpath))
             if docname:
                 return docname_to_domain(docname, self.config.gettext_compact)
             else:
@@ -306,9 +318,9 @@ class Builder:
         docnames: list[str] = []
 
         for filename in filenames:
-            filename = path.normpath(path.abspath(filename))
+            filename = os.path.normpath(os.path.abspath(filename))
 
-            if not path.isfile(filename):
+            if not os.path.isfile(filename):
                 logger.warning(
                     __('file %r given on command line does not exist, '), filename
                 )
@@ -399,7 +411,7 @@ class Builder:
 
             with (
                 progress_message(__('pickling environment')),
-                open(path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f,
+                open(os.path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f,
             ):
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
@@ -604,22 +616,23 @@ class Builder:
     @final
     def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
-        self.env.prepare_settings(docname)
+        env = self.env
+        env.prepare_settings(docname)
 
         # Add confdir/docutils.conf to dependencies list if exists
-        docutilsconf = path.join(self.confdir, 'docutils.conf')
-        if path.isfile(docutilsconf):
-            self.env.note_dependency(docutilsconf)
+        docutilsconf = os.path.join(self.confdir, 'docutils.conf')
+        if os.path.isfile(docutilsconf):
+            env.note_dependency(docutilsconf)
 
-        filename = str(self.env.doc2path(docname))
+        filename = str(env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
-        self.env.temp_data['_parser'] = publisher.parser
+        self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
         publisher.settings.record_dependencies = DependencyList()
         with (
-            sphinx_domains(self.env),
+            sphinx_domains(env),
             rst.default_role(docname, self.config.default_role),
         ):
             # set up error_handler for the target document
@@ -631,11 +644,11 @@ class Builder:
             doctree = publisher.document
 
         # store time of reading, for outdated files detection
-        self.env.all_docs[docname] = time.time_ns() // 1_000
+        env.all_docs[docname] = time.time_ns() // 1_000
 
         # cleanup
-        self.env.temp_data.clear()
-        self.env.ref_context.clear()
+        env.current_document = _CurrentDocument()
+        env.ref_context.clear()
 
         self.write_doctree(docname, doctree, _cache=_cache)
 
@@ -659,8 +672,8 @@ class Builder:
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
 
-        doctree_filename = path.join(self.doctreedir, docname + '.doctree')
-        ensuredir(path.dirname(doctree_filename))
+        doctree_filename = os.path.join(self.doctreedir, docname + '.doctree')
+        ensuredir(os.path.dirname(doctree_filename))
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 

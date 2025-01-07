@@ -1,6 +1,7 @@
 """
 docsting of empty_all module.
 """
+
 __all__ = []
 
 

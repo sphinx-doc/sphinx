@@ -86,6 +86,7 @@ def global_toctree_for_doc(
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=builder.tags,
         )
         for toctree_node in env.master_doctree.findall(addnodes.toctree)
     )
@@ -110,6 +111,7 @@ def _resolve_toctree(
     titles_only: bool = False,
     collapse: bool = False,
     includehidden: bool = False,
+    tags: Tags,
 ) -> Element | None:
     """Resolve a *toctree* node into individual bullet lists with titles
     as items, returning None (if no containing titles are found) or
@@ -159,7 +161,7 @@ def _resolve_toctree(
         titles_only,
         collapse,
         includehidden,
-        builder.tags,
+        tags,
         toctree_ancestors,
         included,
         excluded,
@@ -315,7 +317,7 @@ def _toctree_entry(
         else:
             if ref in parents:
                 logger.warning(
-                    __('circular toctree references ' 'detected, ignoring: %s <- %s'),
+                    __('circular toctree references detected, ignoring: %s <- %s'),
                     ref,
                     ' <- '.join(parents),
                     location=ref,
@@ -558,13 +560,14 @@ class TocTree:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=builder.tags,
         )
 
     def get_toctree_ancestors(self, docname: str) -> list[str]:
         return [*_get_toctree_ancestors(self.env.toctree_includes, docname)]
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
-        return document_toc(self.env, docname, self.env.app.builder.tags)
+        return document_toc(self.env, docname, self.env.app.tags)
 
     def get_toctree_for(
         self,

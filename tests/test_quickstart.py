@@ -1,17 +1,20 @@
 """Test the sphinx.quickstart module."""
 
+from __future__ import annotations
+
 import time
-from collections.abc import Callable
 from io import StringIO
-from os import path
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from sphinx.cmd import quickstart as qs
 from sphinx.testing.util import SphinxTestApp
 from sphinx.util.console import coloron, nocolor
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
 
 warnfile = StringIO()
 
@@ -260,10 +263,7 @@ def test_extensions(tmp_path):
 def test_exits_when_existing_confpy(monkeypatch):
     # The code detects existing conf.py with path.is_file()
     # so we mock it as True with pytest's monkeypatch
-    def mock_isfile(path):
-        return True
-
-    monkeypatch.setattr(path, 'isfile', mock_isfile)
+    monkeypatch.setattr('os.path.isfile', lambda path: True)
 
     qs.term_input = mock_input({
         'Please enter a new root path (or just Enter to exit)': '',

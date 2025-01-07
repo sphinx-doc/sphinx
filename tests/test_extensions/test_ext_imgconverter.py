@@ -1,5 +1,7 @@
 """Test sphinx.ext.imgconverter extension."""
 
+from __future__ import annotations
+
 import subprocess
 
 import pytest

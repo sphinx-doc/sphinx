@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import os
 import posixpath
 import re
 import urllib.parse
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -19,6 +17,8 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -233,7 +233,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             next_is_required = (
                 not is_last_group
                 and self.list_is_required_param[self.param_group_index + 1]
-            )  # fmt: skip
+            )
             opt_param_left_at_level = self.params_left_at_level > 0
             if (
                 opt_param_left_at_level
@@ -328,9 +328,9 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 atts['href'] = self.cloak_mailto(atts['href'])
                 self.in_mailto = True
         else:
-            assert (
-                'refid' in node
-            ), 'References must have "refuri" or "refid" attribute.'
+            assert 'refid' in node, (
+                'References must have "refuri" or "refid" attribute.'
+            )
             atts['href'] = '#' + node['refid']
         if not isinstance(node.parent, nodes.TextElement):
             assert len(node) == 1 and isinstance(node[0], nodes.image)  # NoQA: PT018
@@ -380,7 +380,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         if isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
                 docname = self.docnames[-1]
-                anchorname = f"{docname}/#{node.parent['ids'][0]}"
+                anchorname = f'{docname}/#{node.parent["ids"][0]}'
                 if anchorname not in self.builder.secnumbers:
                     # try first heading which has no anchor
                     anchorname = f'{docname}/'
@@ -420,9 +420,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains.standard_domain.get_enumerable_node_type(
-            node
-        )
+        figtype = self._domains.standard_domain.get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
                 msg = __('Any IDs not assigned for %s node') % node.tagname
@@ -672,7 +670,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
-        productionlist = cast(Iterable[addnodes.production], node)
+        productionlist = cast('Iterable[addnodes.production]', node)
         names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
@@ -753,8 +751,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
             if not ('width' in node and 'height' in node):
-                path = os.path.join(self.builder.srcdir, olduri)  # type: ignore[has-type]
-                size = get_image_size(path)
+                size = get_image_size(self.builder.srcdir / olduri)
                 if size is None:
                     logger.warning(
                         __('Could not obtain image size. :scale: option is ignored.'),

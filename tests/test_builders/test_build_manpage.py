@@ -1,5 +1,7 @@
 """Test the build process with manpage builder with the test root."""
 
+from __future__ import annotations
+
 import docutils
 import pytest
 

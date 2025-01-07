@@ -6,9 +6,8 @@ import functools
 import os
 import pickle
 from collections import defaultdict
-from copy import copy
-from os import path
-from typing import TYPE_CHECKING
+from copy import deepcopy
+from typing import TYPE_CHECKING, Final
 
 from sphinx import addnodes
 from sphinx.domains._domains_container import _DomainsContainer
@@ -23,16 +22,16 @@ from sphinx.locale import __
 from sphinx.transforms import SphinxTransformer
 from sphinx.util import logging
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
+from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util._serialise import stable_str
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util.docutils import LoggingReporter
 from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.nodes import is_translatable
-from sphinx.util.osutil import _last_modified_time, canon_path, os_path
+from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
-    from pathlib import Path
     from typing import Any, Literal
 
     from docutils import nodes
@@ -43,6 +42,8 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.config import Config
     from sphinx.domains import Domain
+    from sphinx.domains.c._symbol import Symbol as CSymbol
+    from sphinx.domains.cpp._symbol import Symbol as CPPSymbol
     from sphinx.events import EventManager
     from sphinx.project import Project
     from sphinx.util._pathlib import _StrPath
@@ -100,10 +101,13 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
+    srcdir = _StrPathProperty()
+    doctreedir = _StrPathProperty()
+
     def __init__(self, app: Sphinx) -> None:
         self.app: Sphinx = app
-        self.doctreedir: Path = app.doctreedir
-        self.srcdir: Path = app.srcdir
+        self.doctreedir = app.doctreedir
+        self.srcdir = app.srcdir
         self.config: Config = None  # type: ignore[assignment]
         self.config_status: int = CONFIG_UNSET
         self.config_status_extra: str = ''
@@ -194,10 +198,10 @@ class BuildEnvironment:
         self.original_image_uri: dict[_StrPath, str] = {}
 
         # temporary data storage while reading a document
-        self.temp_data: dict[str, Any] = {}
+        self.current_document: _CurrentDocument = _CurrentDocument()
         # context for cross-references (e.g. current module or class)
-        # this is similar to temp_data, but will for example be copied to
-        # attributes of "any" cross references
+        # this is similar to ``self.current_document``,
+        # but will for example be copied to attributes of "any" cross references
         self.ref_context: dict[str, Any] = {}
 
         # search index data
@@ -220,7 +224,9 @@ class BuildEnvironment:
         self._search_index_objnames: dict[int, tuple[str, str, str]] = {}
 
         # all the registered domains, set by the application
-        self.domains: _DomainsContainer = _DomainsContainer._from_environment(self)
+        self.domains: _DomainsContainer = _DomainsContainer._from_environment(
+            self, registry=app.registry
+        )
 
         # set up environment
         self.setup(app)
@@ -259,7 +265,9 @@ class BuildEnvironment:
         # initialise domains
         if self.domains is None:
             # if we are unpickling an environment, we need to recreate the domains
-            self.domains = _DomainsContainer._from_environment(self)
+            self.domains = _DomainsContainer._from_environment(
+                self, registry=app.registry
+            )
         # setup domains (must do after all initialization)
         self.domains._setup()
 
@@ -416,17 +424,21 @@ class BuildEnvironment:
         source dir, while relative filenames are relative to the dir of the
         containing document.
         """
-        filename = os_path(filename)
-        if filename.startswith(('/', os.sep)):
-            rel_fn = filename[1:]
+        filename = canon_path(filename)
+        if filename.startswith('/'):
+            abs_fn = (self.srcdir / filename[1:]).resolve()
         else:
-            docdir = path.dirname(self.doc2path(docname or self.docname, base=False))
-            rel_fn = path.join(docdir, filename)
+            if not docname:
+                if self.docname:
+                    docname = self.docname
+                else:
+                    msg = 'docname'
+                    raise KeyError(msg)
+            doc_dir = self.doc2path(docname, base=False).parent
+            abs_fn = (self.srcdir / doc_dir / filename).resolve()
 
-        return (
-            canon_path(path.normpath(rel_fn)),
-            path.normpath(path.join(self.srcdir, rel_fn)),
-        )
+        rel_fn = _relative_path(abs_fn, self.srcdir)
+        return canon_path(rel_fn), os.fspath(abs_fn)
 
     @property
     def found_docs(self) -> set[str]:
@@ -463,7 +475,7 @@ class BuildEnvironment:
                 for docname in self.found_docs:
                     domain = docname_to_domain(docname, self.config.gettext_compact)
                     if domain in mo_paths:
-                        self.dependencies[docname].add(mo_paths[domain])
+                        self.note_dependency(mo_paths[domain], docname=docname)
         except OSError as exc:
             raise DocumentError(
                 __('Failed to scan documents in %s: %r') % (self.srcdir, exc)
@@ -489,8 +501,8 @@ class BuildEnvironment:
                     added.add(docname)
                     continue
                 # if the doctree file is not there, rebuild
-                filename = path.join(self.doctreedir, docname + '.doctree')
-                if not path.isfile(filename):
+                filename = self.doctreedir / f'{docname}.doctree'
+                if not filename.is_file():
                     logger.debug('[build target] changed %r', docname)
                     changed.add(docname)
                     continue
@@ -515,21 +527,21 @@ class BuildEnvironment:
                 for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
-                        deppath = path.join(self.srcdir, dep)
-                        if not path.isfile(deppath):
+                        dep_path = self.srcdir / dep
+                        if not dep_path.is_file():
                             logger.debug(
                                 '[build target] changed %r missing dependency %r',
                                 docname,
-                                deppath,
+                                dep_path,
                             )
                             changed.add(docname)
                             break
-                        depmtime = _last_modified_time(deppath)
+                        depmtime = _last_modified_time(dep_path)
                         if depmtime > mtime:
                             logger.debug(
                                 '[build target] outdated %r from dependency %r: %s -> %s',
                                 docname,
-                                deppath,
+                                dep_path,
                                 _format_rfc3339_microseconds(mtime),
                                 _format_rfc3339_microseconds(depmtime),
                             )
@@ -554,43 +566,57 @@ class BuildEnvironment:
 
     def prepare_settings(self, docname: str) -> None:
         """Prepare to set up environment for reading."""
-        self.temp_data['docname'] = docname
-        # defaults to the global default, but can be re-set in a document
-        self.temp_data['default_role'] = self.config.default_role
-        self.temp_data['default_domain'] = self.domains.get(self.config.primary_domain)
+        self.current_document = _CurrentDocument(
+            docname=docname,
+            # defaults to the global default, but can be re-set in a document
+            default_role=self.config.default_role,
+            default_domain=self.domains.get(self.config.primary_domain),
+        )
 
     # utilities to use while reading a document
 
     @property
+    def temp_data(self) -> _CurrentDocument:
+        """Returns the temporary data storage for the current document.
+
+        Kept for backwards compatibility.
+        """
+        return self.current_document
+
+    @property
     def docname(self) -> str:
         """Returns the docname of the document currently being parsed."""
-        return self.temp_data['docname']
+        return self.current_document.docname
 
     @property
     def parser(self) -> Parser:
         """Returns the parser being used for to parse the current document."""
-        return self.temp_data['_parser']
+        if (parser := self.current_document._parser) is not None:
+            return parser
+        msg = 'parser'
+        raise KeyError(msg)
 
     def new_serialno(self, category: str = '') -> int:
         """Return a serial number, e.g. for index entry targets.
 
         The number is guaranteed to be unique in the current document.
         """
-        key = category + 'serialno'
-        cur = self.temp_data.get(key, 0)
-        self.temp_data[key] = cur + 1
-        return cur
+        return self.current_document.new_serial_number(category)
 
-    def note_dependency(self, filename: str) -> None:
+    def note_dependency(
+        self, filename: str | os.PathLike[str], *, docname: str | None = None
+    ) -> None:
         """Add *filename* as a dependency of the current document.
 
         This means that the document will be rebuilt if this file changes.
 
         *filename* should be absolute or relative to the source directory.
         """
-        self.dependencies[self.docname].add(filename)
+        if docname is None:
+            docname = self.docname
+        self.dependencies[docname].add(os.fspath(filename))
 
-    def note_included(self, filename: str) -> None:
+    def note_included(self, filename: str | os.PathLike[str]) -> None:
         """Add *filename* as a included from other document.
 
         This means the document is not orphaned.
@@ -625,7 +651,7 @@ class BuildEnvironment:
         try:
             serialised = self._pickled_doctree_cache[docname]
         except KeyError:
-            filename = path.join(self.doctreedir, docname + '.doctree')
+            filename = self.doctreedir / f'{docname}.doctree'
             with open(filename, 'rb') as f:
                 serialised = self._pickled_doctree_cache[docname] = f.read()
 
@@ -669,6 +695,7 @@ class BuildEnvironment:
                 toctreenode,
                 prune=prune_toctrees,
                 includehidden=includehidden,
+                tags=builder.tags,
             )
             if result is None:
                 toctreenode.parent.replace(toctreenode, [])
@@ -709,6 +736,7 @@ class BuildEnvironment:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=builder.tags,
         )
 
     def resolve_references(
@@ -718,17 +746,19 @@ class BuildEnvironment:
 
     def apply_post_transforms(self, doctree: nodes.document, docname: str) -> None:
         """Apply all post-transforms."""
+        backup = self.current_document
+        new = deepcopy(backup)
+        new.docname = docname
         try:
             # set env.docname during applying post-transforms
-            backup = copy(self.temp_data)
-            self.temp_data['docname'] = docname
+            self.current_document = new
 
             transformer = SphinxTransformer(doctree)
             transformer.set_environment(self)
             transformer.add_transforms(self.app.registry.get_post_transforms())
             transformer.apply_transforms()
         finally:
-            self.temp_data = backup
+            self.current_document = backup
 
         # allow custom references to be resolved
         self.events.emit('doctree-resolved', doctree, docname)
@@ -838,3 +868,230 @@ def _check_toc_parents(toctree_includes: dict[str, list[str]]) -> None:
                 type='toc',
                 subtype='multiple_toc_parents',
             )
+
+
+class _CurrentDocument:
+    """Temporary data storage while reading a document.
+
+    This class is only for internal use. Please don't use this in your extensions.
+    It will be removed or changed without notice.
+    The only stable API is via ``env.current_document``.
+    """
+
+    __slots__ = (
+        '_parser',
+        '_serial_numbers',
+        '_extension_data',
+        'autodoc_annotations',
+        'autodoc_class',
+        'autodoc_module',
+        'c_last_symbol',
+        'c_namespace_stack',
+        'c_parent_symbol',
+        'cpp_domain_name',
+        'cpp_last_symbol',
+        'cpp_namespace_stack',
+        'cpp_parent_symbol',
+        'default_domain',
+        'default_role',
+        'docname',
+        'highlight_language',
+        'obj_desc_name',
+        'reading_started_at',
+    )
+
+    # Map of old-style temp_data keys to _CurrentDocument attributes
+    __attr_map: Final = {
+        '_parser': '_parser',
+        'annotations': 'autodoc_annotations',
+        'autodoc:class': 'autodoc_class',
+        'autodoc:module': 'autodoc_module',
+        'c:last_symbol': 'c_last_symbol',
+        'c:namespace_stack': 'c_namespace_stack',
+        'c:parent_symbol': 'c_parent_symbol',
+        'cpp:domain_name': 'cpp_domain_name',
+        'cpp:last_symbol': 'cpp_last_symbol',
+        'cpp:namespace_stack': 'cpp_namespace_stack',
+        'cpp:parent_symbol': 'cpp_parent_symbol',
+        'default_domain': 'default_domain',
+        'default_role': 'default_role',
+        'docname': 'docname',
+        'highlight_language': 'highlight_language',
+        'object': 'obj_desc_name',
+        'started_at': 'reading_started_at',
+    }
+
+    # Attributes that should reset to None if popped.
+    __attr_default_none: Final = frozenset({
+        '_parser',
+        'c:last_symbol',
+        'c:parent_symbol',
+        'cpp:last_symbol',
+        'cpp:parent_symbol',
+        'default_domain',
+    })
+
+    def __init__(
+        self,
+        *,
+        docname: str = '',
+        default_role: str = '',
+        default_domain: Domain | None = None,
+    ) -> None:
+        #: The docname of the document currently being parsed.
+        self.docname: str = docname
+
+        #: The default role for the current document.
+        #: Set by the ``.. default-role::`` directive.
+        self.default_role: str = default_role
+
+        #: The default domain for the current document.
+        #: Set by the ``.. default-domain::`` directive.
+        self.default_domain: Domain | None = default_domain
+
+        #: The parser being used to parse the current document.
+        self._parser: Parser | None = None
+
+        #: The default language for syntax highlighting.
+        #: Set by the ``.. highlight::`` directive to override
+        #: the ``highlight_language`` config value.
+        self.highlight_language: str = ''
+
+        #: The current object's name.
+        #: Used in the Changes builder.
+        self.obj_desc_name: str = ''
+
+        #: Records type hints of Python objects in the current document.
+        #: Used in ``sphinx.ext.autodoc.typehints``.
+        #: Maps object names to maps of attribute names -> type hints.
+        self.autodoc_annotations: dict[str, dict[str, str]] = {}
+
+        #: The current Python class name.
+        #: Used in ``sphinx.ext.autodoc``.
+        self.autodoc_class: str = ''
+
+        #: The current Python module name.
+        #: Used in ``sphinx.ext.autodoc``.
+        self.autodoc_module: str = ''
+
+        #: The most-recently added declaration in a directive.
+        #: Used in the C Domain.
+        self.c_last_symbol: CSymbol | None = None
+
+        #: The stack of namespace scopes, altered by the ``.. c:namespace::``
+        #: and ``.. c:namespace-(push|pop)::``directives.
+        #: Used in the C Domain.
+        self.c_namespace_stack: list[CSymbol] = []
+
+        #: The parent declaration.
+        #: Used in the C Domain.
+        self.c_parent_symbol: CSymbol | None = None
+
+        #: A stack of the string representation of declarations,
+        #: used to format the table of contents entry.
+        #: Used in the C++ Domain.
+        self.cpp_domain_name: tuple[str, ...] = ()
+
+        #: The most-recently added declaration in a directive.
+        #: Used in the C++ Domain.
+        self.cpp_last_symbol: CPPSymbol | None = None
+
+        #: The stack of namespace scopes, altered by the ``.. cpp:namespace::``
+        #: and ``.. cpp:namespace-(push|pop)::``directives.
+        #: Used in the C++ Domain.
+        self.cpp_namespace_stack: list[CPPSymbol] = []
+
+        #: The parent declaration.
+        #: Used in the C++ Domain.
+        self.cpp_parent_symbol: CPPSymbol | None = None
+
+        #: Records the time when reading begain for the current document.
+        #: Used in ``sphinx.ext.duration``.
+        self.reading_started_at: float = 0.0
+
+        # Used for generating unique serial numbers.
+        self._serial_numbers: dict[str, int] = {}
+
+        # Stores properties relating to the current document set by extensions.
+        self._extension_data: dict[str, Any] = {}
+
+    def new_serial_number(self, category: str = '', /) -> int:
+        """Return a serial number, e.g. for index entry targets.
+
+        The number is guaranteed to be unique in the current document & category.
+        """
+        current = self._serial_numbers.get(category, 0)
+        self._serial_numbers[category] = current + 1
+        return current
+
+    # Mapping interface:
+
+    def __getitem__(self, item: str) -> Any:
+        if item in self.__attr_map:
+            return getattr(self, self.__attr_map[item])
+        return self._extension_data[item]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        if key in self.__attr_map:
+            setattr(self, self.__attr_map[key], value)
+        else:
+            self._extension_data[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        self.pop(key, default=None)
+
+    def __contains__(self, item: str) -> bool:
+        if item in {'c:parent_symbol', 'cpp:parent_symbol'}:
+            return getattr(self, item) is not None
+        return item in self.__attr_map or item in self._extension_data
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.keys())
+
+    def __len__(self) -> int:
+        return len(self.__attr_map) + len(self._extension_data)
+
+    def keys(self) -> Iterable[str]:
+        return frozenset(self.__attr_map.keys() | self._extension_data.keys())
+
+    def items(self) -> Iterable[tuple[str, Any]]:
+        for key in self.keys():
+            yield key, self[key]
+
+    def values(self) -> Iterable[Any]:
+        for key in self.keys():
+            yield self[key]
+
+    def get(self, key: str, default: Any | None = None) -> Any | None:
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    __sentinel = object()
+
+    def pop(self, key: str, default: Any | None = __sentinel) -> Any | None:
+        if key in self.__attr_map:
+            # the keys in  __attr_map always exist, so ``default`` is ignored
+            value = getattr(self, self.__attr_map[key])
+            if key in self.__attr_default_none:
+                default = None
+            else:
+                default = type(value)()  # set key to type's default
+            setattr(self, self.__attr_map[key], default)
+            return value
+        if default is self.__sentinel:
+            return self._extension_data.pop(key)
+        return self._extension_data.pop(key, default)
+
+    def setdefault(self, key: str, default: Any | None = None) -> Any | None:
+        return self._extension_data.setdefault(key, default)
+
+    def clear(self) -> None:
+        _CurrentDocument.__init__(self)  # NoQA: PLC2801
+
+    def update(self, other: Iterable[tuple[str, Any]] = (), /, **kwargs: Any) -> None:
+        other_dict = dict(other) if not isinstance(other, dict) else other
+        for dct in other_dict, kwargs:
+            for key, value in dct.items():
+                self[key] = value

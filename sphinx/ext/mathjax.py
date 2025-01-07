@@ -13,13 +13,13 @@ from typing import TYPE_CHECKING, Any, cast
 from docutils import nodes
 
 import sphinx
-from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.errors import ExtensionError
 from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
+    from sphinx.builders.html import StandaloneHTMLBuilder
     from sphinx.util.typing import ExtensionMetadata
     from sphinx.writers.html5 import HTML5Translator
 
@@ -31,10 +31,15 @@ logger = sphinx.util.logging.getLogger(__name__)
 
 
 def html_visit_math(self: HTML5Translator, node: nodes.math) -> None:
-    self.body.append(self.starttag(node, 'span', '', CLASS='math notranslate nohighlight'))
-    self.body.append(self.builder.config.mathjax_inline[0] +
-                     self.encode(node.astext()) +
-                     self.builder.config.mathjax_inline[1] + '</span>')
+    self.body.append(
+        self.starttag(node, 'span', '', CLASS='math notranslate nohighlight')
+    )
+    self.body.append(
+        self.builder.config.mathjax_inline[0]
+        + self.encode(node.astext())
+        + self.builder.config.mathjax_inline[1]
+        + '</span>'
+    )
     raise nodes.SkipNode
 
 
@@ -70,25 +75,30 @@ def html_visit_displaymath(self: HTML5Translator, node: nodes.math_block) -> Non
     raise nodes.SkipNode
 
 
-def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict[str, Any],
-                    event_arg: Any) -> None:
-    if (
-        app.builder.format != 'html' or
-        app.builder.math_renderer_name != 'mathjax'  # type: ignore[attr-defined]
-    ):
+def install_mathjax(
+    app: Sphinx,
+    pagename: str,
+    templatename: str,
+    context: dict[str, Any],
+    event_arg: Any,
+) -> None:
+    if app.builder.format != 'html':
+        return
+    if app.builder.math_renderer_name != 'mathjax':  # type: ignore[attr-defined]
         return
     if not app.config.mathjax_path:
         msg = 'mathjax_path config value must be set for the mathjax extension to work'
         raise ExtensionError(msg)
 
-    builder = cast(StandaloneHTMLBuilder, app.builder)
+    builder = cast('StandaloneHTMLBuilder', app.builder)
     if app.registry.html_assets_policy == 'always' or context.get('_has_equations'):
         # Enable mathjax only if equations exists
         if app.config.mathjax2_config:
             if app.config.mathjax_path == MATHJAX_URL:
                 logger.warning(
                     'mathjax_config/mathjax2_config does not work '
-                    'for the current MathJax version, use mathjax3_config instead')
+                    'for the current MathJax version, use mathjax3_config instead'
+                )
             body = 'MathJax.Hub.Config(%s)' % json.dumps(app.config.mathjax2_config)
             builder.add_js_file('', type='text/x-mathjax-config', body=body)
         if app.config.mathjax3_config:
@@ -109,9 +119,11 @@ def install_mathjax(app: Sphinx, pagename: str, templatename: str, context: dict
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
-    app.add_html_math_renderer('mathjax',
-                               (html_visit_math, None),
-                               (html_visit_displaymath, None))
+    app.add_html_math_renderer(
+        'mathjax',
+        inline_renderers=(html_visit_math, None),
+        block_renderers=(html_visit_displaymath, None),
+    )
 
     app.add_config_value('mathjax_path', MATHJAX_URL, 'html')
     app.add_config_value('mathjax_options', {}, 'html')
