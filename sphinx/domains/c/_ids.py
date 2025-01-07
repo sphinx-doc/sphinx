@@ -31,7 +31,7 @@ _keywords = [
 ]  # fmt: skip
 # These are only keyword'y when the corresponding headers are included.
 # They are used as default value for c_extra_keywords.
-_macroKeywords = [
+_macro_keywords = [
     'alignas',
     'alignof',
     'bool',

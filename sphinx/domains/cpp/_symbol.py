@@ -163,8 +163,8 @@ class Symbol:
 
         # Remember to modify Symbol.remove if modifications to the parent change.
         self._children: list[Symbol] = []
-        self._anonChildren: list[Symbol] = []
-        # note: _children includes _anonChildren
+        self._anon_children: list[Symbol] = []
+        # note: _children includes _anon_children
         if self.parent:
             self.parent._children.append(self)
         if self.declaration:

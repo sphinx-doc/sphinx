@@ -22,7 +22,7 @@ from sphinx.addnodes import (
     desc_signature_line,
     pending_xref,
 )
-from sphinx.domains.c._ids import _id_prefix, _macroKeywords, _max_id
+from sphinx.domains.c._ids import _id_prefix, _macro_keywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol
 from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 class Config:
     c_id_attributes = ['id_attr', 'LIGHTGBM_C_EXPORT']
     c_paren_attributes = ['paren_attr']
-    c_extra_keywords = _macroKeywords
+    c_extra_keywords = _macro_keywords
 
 
 def parse(name, string):
