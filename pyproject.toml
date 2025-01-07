@@ -88,7 +88,7 @@ lint = [
     "types-defusedxml==0.7.0.20240218",
     "types-docutils==0.21.0.20241128",
     "types-Pillow==10.2.0.20240822",
-    "types-Pygments==2.18.0.20240506",
+    "types-Pygments==2.19.0.20250107",
     "types-requests==2.32.0.20241016",  # align with requests
     "types-urllib3==1.26.25.14",
     "pyright==1.1.391",
