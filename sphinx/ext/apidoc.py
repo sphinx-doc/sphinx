@@ -19,7 +19,6 @@ import os
 import os.path
 import re
 import sys
-from copy import copy
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
@@ -48,7 +47,7 @@ else:
         'show-inheritance',
     }
 
-PY_SUFFIXES = ('.py', '.pyx', *tuple(EXTENSION_SUFFIXES))
+PY_SUFFIXES = ('.py', '.pyx', *EXTENSION_SUFFIXES)
 
 template_dir = os.path.join(package_dir, 'templates', 'apidoc')
 
@@ -386,7 +385,7 @@ Note: By default this script will not overwrite already created files."""),
         '--version',
         action='version',
         dest='show_version',
-        version='%%(prog)s %s' % __display_version__,
+        version=f'%(prog)s {__display_version__}',
     )
 
     parser.add_argument('module_path', help=__('path to module to document'))
@@ -576,15 +575,15 @@ Note: By default this script will not overwrite already created files."""),
         metavar='EXTENSIONS',
         dest='extensions',
         action='append',
-        help=__('enable arbitrary extensions'),
+        help=__('enable arbitrary extensions, used when --full is given'),
     )
     for ext in EXTENSIONS:
         group.add_argument(
-            '--ext-%s' % ext,
+            f'--ext-{ext}',
             action='append_const',
-            const='sphinx.ext.%s' % ext,
+            const=f'sphinx.ext.{ext}',
             dest='extensions',
-            help=__('enable %s extension') % ext,
+            help=__('enable %s extension, used when --full is given') % ext,
         )
 
     group = parser.add_argument_group(__('Project templating'))
@@ -618,19 +617,22 @@ class CliOptions(Protocol):
     implicit_namespaces: bool
     automodule_options: set[str]
     suffix: str
+
+    remove_old: bool
+
+    # --full only
     full: bool
     append_syspath: bool
-    header: str | None
+    header: str
     author: str | None
     version: str | None
     release: str | None
     extensions: list[str] | None
     templatedir: str | None
-    remove_old: bool
 
 
 def main(argv: Sequence[str] = (), /) -> int:
-    """Parse and check the command line arguments."""
+    """Run the apidoc CLI."""
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
@@ -669,7 +671,7 @@ def main(argv: Sequence[str] = (), /) -> int:
             if module.startswith(prev_module + '.'):
                 continue
             prev_module = module
-            text += '   %s\n' % module
+            text += f'   {module}\n'
         d: dict[str, Any] = {
             'path': args.destdir,
             'sep': False,
@@ -715,19 +717,26 @@ def main(argv: Sequence[str] = (), /) -> int:
         )
 
     if args.remove_old and not args.dryrun:
-        for existing in Path(args.destdir).glob(f'**/*.{args.suffix}'):
-            if existing not in written_files:
-                try:
-                    existing.unlink()
-                except OSError as exc:
-                    logger.warning(
-                        __('Failed to remove %s: %s'),
-                        existing,
-                        exc.strerror,
-                        type='autodoc',
-                    )
+        _remove_old_files(written_files, Path(args.destdir), args.suffix)
 
     return 0
+
+
+def _remove_old_files(
+    written_files: Sequence[Path], destdir: Path, suffix: str
+) -> None:
+    files_to_keep = frozenset(written_files)
+    for existing in destdir.rglob(f'*.{suffix}'):
+        if existing not in files_to_keep:
+            try:
+                existing.unlink()
+            except OSError as exc:
+                logger.warning(
+                    __('Failed to remove %s: %s'),
+                    existing,
+                    exc.strerror,
+                    type='autodoc',
+                )
 
 
 # So program can be started with "python -m sphinx.apidoc ..."
