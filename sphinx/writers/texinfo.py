@@ -1171,7 +1171,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_topic(self, node: Element) -> None:
         # ignore TOC's since we have to have a "menu" anyway
-        if 'contents' in node.get('classes', []):
+        if 'contents' in node.get('classes', ()):
             raise nodes.SkipNode
         title = cast('nodes.title', node[0])
         self.visit_rubric(title)

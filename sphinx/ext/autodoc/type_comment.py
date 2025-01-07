@@ -155,4 +155,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'autodoc-before-process-signature', update_annotations_using_type_comments
     )
 
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

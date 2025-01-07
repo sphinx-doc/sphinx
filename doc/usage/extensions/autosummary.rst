@@ -8,6 +8,9 @@
 
 .. versionadded:: 0.6
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension generates function/method/attribute summary lists, similar to
 those output e.g. by Epydoc and other API doc generation tools.  This is
 especially useful when your docstrings are long and detailed, and putting each
@@ -168,6 +171,8 @@ If you do not want to create stub pages with :program:`sphinx-autogen`, you can
 also use these config values:
 
 .. confval:: autosummary_context
+   :type: :code-py:`dict[str, Any]`
+   :default: :code-py:`{}`
 
    A dictionary of values to pass into the template engine's context for
    autosummary stubs files.
@@ -175,9 +180,11 @@ also use these config values:
    .. versionadded:: 3.1
 
 .. confval:: autosummary_generate
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    Boolean indicating whether to scan all found documents for autosummary
-   directives, and to generate stub pages for each. It is enabled by default.
+   directives, and to generate stub pages for each.
 
    Can also be a list of documents for which stub pages should be generated.
 
@@ -194,24 +201,29 @@ also use these config values:
       Enabled by default.
 
 .. confval:: autosummary_generate_overwrite
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    If true, autosummary overwrites existing files by generated stub pages.
-   Defaults to true (enabled).
 
    .. versionadded:: 3.0
 
 .. confval:: autosummary_mock_imports
+   :type: :code-py:`list[str]`
+   :default: :code-py:`[]`
 
-   This value contains a list of modules to be mocked up.  See
-   :confval:`autodoc_mock_imports` for more details.  It defaults to
-   :confval:`autodoc_mock_imports`.
+   This value contains a list of modules to be mocked up.
+   See :confval:`autodoc_mock_imports` for more details.
+   It defaults to :confval:`autodoc_mock_imports`.
 
    .. versionadded:: 2.0
 
 .. confval:: autosummary_imported_members
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    A boolean flag indicating whether to document classes and functions imported
-   in modules. Default is ``False``
+   in modules.
 
    .. versionadded:: 2.1
 
@@ -221,10 +233,11 @@ also use these config values:
       value is ignored for members listed in ``__all__``.
 
 .. confval:: autosummary_ignore_module_all
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    If ``False`` and a module has the ``__all__`` attribute set, autosummary
-   documents every member listed in ``__all__`` and no others. Default is
-   ``True``
+   documents every member listed in ``__all__`` and no others.
 
    Note that if an imported member is listed in ``__all__``, it will be
    documented regardless of the value of ``autosummary_imported_members``. To
@@ -235,6 +248,8 @@ also use these config values:
    .. versionadded:: 4.4
 
 .. confval:: autosummary_filename_map
+   :type: :code-py:`dict[str, str]`
+   :default: :code-py:`{}`
 
    A dict mapping object names to filenames. This is necessary to avoid
    filename conflicts where multiple objects have names that are

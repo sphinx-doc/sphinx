@@ -235,7 +235,7 @@ class CoverageBuilder(Builder):
                                 continue
 
                             if name not in c_objects[key]:
-                                for exp in self.c_ignorexps.get(key, []):
+                                for exp in self.c_ignorexps.get(key, ()):
                                     if exp.match(name):
                                         break
                                 else:
@@ -537,4 +537,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('coverage_statistics_to_stdout', True, '', bool)
     app.add_config_value('coverage_skip_undoc_in_source', False, '')
     app.add_config_value('coverage_show_missing_items', False, '')
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }
