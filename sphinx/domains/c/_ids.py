@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence, Set
 
 # https://en.cppreference.com/w/c/keyword
-_keywords = [
+_keywords: Set[str] = frozenset({
     'auto',
     'break',
     'case', 'char', 'const', 'continue',
@@ -28,10 +32,10 @@ _keywords = [
     '_Noreturn',
     '_Static_assert',
     '_Thread_local',
-]  # fmt: skip
+})  # fmt: skip
 # These are only keyword'y when the corresponding headers are included.
 # They are used as default value for c_extra_keywords.
-_macro_keywords = [
+_macro_keywords: Set[str] = frozenset({
     'alignas',
     'alignof',
     'bool',
@@ -40,23 +44,23 @@ _macro_keywords = [
     'noreturn',
     'static_assert',
     'thread_local',
-]
+})
 
 # these are ordered by precedence
-_expression_bin_ops = [
-    ['||', 'or'],
-    ['&&', 'and'],
-    ['|', 'bitor'],
-    ['^', 'xor'],
-    ['&', 'bitand'],
-    ['==', '!=', 'not_eq'],
-    ['<=', '>=', '<', '>'],
-    ['<<', '>>'],
-    ['+', '-'],
-    ['*', '/', '%'],
-    ['.*', '->*'],
+_expression_bin_ops: Sequence[tuple[str, ...]] = [
+    ('||', 'or'),
+    ('&&', 'and'),
+    ('|', 'bitor'),
+    ('^', 'xor'),
+    ('&', 'bitand'),
+    ('==', '!=', 'not_eq'),
+    ('<=', '>=', '<', '>'),
+    ('<<', '>>'),
+    ('+', '-'),
+    ('*', '/', '%'),
+    ('.*', '->*'),
 ]
-_expression_unary_ops = [
+_expression_unary_ops: Sequence[str] = [
     '++',
     '--',
     '*',
@@ -68,7 +72,7 @@ _expression_unary_ops = [
     '~',
     'compl',
 ]
-_expression_assignment_ops = [
+_expression_assignment_ops: Sequence[str] = [
     '=',
     '*=',
     '/=',
@@ -86,7 +90,7 @@ _expression_assignment_ops = [
 ]
 
 _max_id = 1
-_id_prefix = [None, 'c.', 'Cv2.']
+_id_prefix: Sequence[str] = ('', 'c.', 'Cv2.')
 # Ids are used in lookup keys which are used across pickled files,
 # so when _max_id changes, make sure to update the ENV_VERSION.
 

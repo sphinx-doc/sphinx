@@ -102,7 +102,7 @@ XINDY_LANG_OPTIONS = {
     'el-polyton': '-L greek-polytonic -C utf8 ',
 }  # fmt: skip
 
-XINDY_CYRILLIC_SCRIPTS = ['be', 'bg', 'mk', 'mn', 'ru', 'sr', 'sh', 'uk']
+XINDY_CYRILLIC_SCRIPTS = frozenset({'be', 'bg', 'mk', 'mn', 'ru', 'sr', 'sh', 'uk'})
 
 logger = logging.getLogger(__name__)
 

@@ -38,12 +38,12 @@ AUTODOC_DEFAULT_OPTIONS = [
     'no-value',
 ]
 
-AUTODOC_EXTENDABLE_OPTIONS = [
+AUTODOC_EXTENDABLE_OPTIONS = frozenset({
     'members',
     'private-members',
     'special-members',
     'exclude-members',
-]
+})
 
 
 class DummyOptionSpec(dict[str, Callable[[str], str]]):
