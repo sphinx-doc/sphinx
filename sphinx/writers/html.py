@@ -27,7 +27,7 @@ class HTMLWriter(Writer):  # type: ignore[misc]
     def __init__(self, builder: StandaloneHTMLBuilder) -> None:
         super().__init__()
         self.builder = builder
-        self._has_equations: bool = False
+        self._has_maths_elements: bool = False
 
     def translate(self) -> None:
         # sadly, this is mostly copied from parent class
@@ -58,4 +58,4 @@ class HTMLWriter(Writer):  # type: ignore[misc]
         ):
             setattr(self, attr, getattr(visitor, attr, None))
         self.clean_meta = ''.join(self.visitor.meta[2:])
-        self._has_equations = getattr(visitor, '_has_equations', False)
+        self._has_maths_elements = getattr(visitor, '_has_maths_elements', False)

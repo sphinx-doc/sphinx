@@ -9,8 +9,11 @@ Dependencies
 Incompatible changes
 --------------------
 
-* #13044: Remove the internal and undocumented ``has_equations`` data and
-  :py:meth:`!has_equations` method from the :py:class:`!MathDomain`` domain.
+* #13044: Remove the internal and undocumented ``has_equations`` data
+  from the :py:class:`!MathDomain`` domain.
+  The undocumented :py:meth:`!MathDomain.has_equations` method
+  now unconditionally returns ``True``.
+  These are replaced by the ``has_maths_elements`` key of the page context dict.
   Patch by Adam Turner.
 
 Deprecated

@@ -66,7 +66,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self._table_row_indices = [0]
         self._fieldlist_row_indices = [0]
         self.required_params_left = 0
-        self._has_equations: bool = False
+        self._has_maths_elements: bool = False
 
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
@@ -956,7 +956,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             node['classes'].append('field-odd')
 
     def visit_math(self, node: Element, math_env: str = '') -> None:
-        self._has_equations = True
+        self._has_maths_elements = True
 
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
@@ -971,7 +971,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
-        self._has_equations = True
+        self._has_maths_elements = True
 
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
