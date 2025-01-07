@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx import package_dir
-from sphinx.ext.apidoc import logger
+from sphinx.ext.apidoc._shared import LOGGER
 from sphinx.locale import __
 from sphinx.util.osutil import FileAvoidWrite
 from sphinx.util.template import ReSTRenderer
@@ -64,14 +64,14 @@ def write_file(name: str, text: str, opts: CliOptions) -> Path:
     fname = Path(opts.destdir, f'{name}.{opts.suffix}')
     if opts.dryrun:
         if not opts.quiet:
-            logger.info(__('Would create file %s.'), fname)
+            LOGGER.info(__('Would create file %s.'), fname)
         return fname
     if not opts.force and fname.is_file():
         if not opts.quiet:
-            logger.info(__('File %s already exists, skipping.'), fname)
+            LOGGER.info(__('File %s already exists, skipping.'), fname)
     else:
         if not opts.quiet:
-            logger.info(__('Creating file %s.'), fname)
+            LOGGER.info(__('Creating file %s.'), fname)
         with FileAvoidWrite(fname) as f:
             f.write(text)
     return fname

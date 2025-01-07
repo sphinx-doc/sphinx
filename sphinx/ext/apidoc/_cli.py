@@ -13,12 +13,12 @@ from typing import TYPE_CHECKING, Any
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.ext.apidoc import _remove_old_files, logger
 from sphinx.ext.apidoc._generate import (
     CliOptions,
     create_modules_toc_file,
     recurse_tree,
 )
+from sphinx.ext.apidoc._shared import LOGGER, _remove_old_files
 from sphinx.locale import __
 from sphinx.util.osutil import ensuredir
 
@@ -293,7 +293,7 @@ def _parse_args(argv: Sequence[str], /) -> CliOptions:
     args.module_path = root_path = Path(args.module_path).resolve()
     args.destdir = Path(args.destdir)
     if not root_path.is_dir():
-        logger.error(__('%s is not a directory.'), root_path)
+        LOGGER.error(__('%s is not a directory.'), root_path)
         raise SystemExit(1)
 
     if args.header is None:
