@@ -35,17 +35,14 @@ jobs:
         with:
           python-version: "3"
       - name: Install uv
-        run: >
-          curl --no-progress-meter --location --fail
-          --proto '=https' --tlsv1.2
-          "https://astral.sh/uv/install.sh"
-          | sh
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: latest
+          enable-cache: false
 
       - name: Install build dependencies (pypa/build, twine)
         run: |
           uv pip install build "twine>=5.1"
-          # resolution fails without betterproto and protobuf-specs
-          uv pip install "pypi-attestations~=0.0.12" "sigstore-protobuf-specs==0.3.2" "betterproto==2.0.0b6"
 
       - name: Build distribution
         run: python -m build
@@ -65,7 +62,7 @@ jobs:
 
       - name: Convert attestations to PEP 740
         run: >
-          python utils/convert_attestations.py
+          uv run utils/convert_attestations.py
           "$BUNDLE_PATH"
           "$SIGNER_IDENTITY"
         env:

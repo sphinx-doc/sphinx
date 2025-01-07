@@ -811,7 +811,7 @@ def test_isproperty():
 def test_isgenericalias():
     #: A list of int
     T = List[int]  # NoQA: UP006
-    S = list[Union[str, None]]  # NoQA: UP006, UP007
+    S = list[Union[str, None]]  # NoQA: UP007
 
     C = Callable[[int], None]  # a generic alias not having a doccomment
 
@@ -843,7 +843,7 @@ def test_getdoc_inherited_classmethod():
         @classmethod
         def meth(self):
             """
-            docstring
+            Docstring
                 indented text
             """
 
@@ -861,7 +861,7 @@ def test_getdoc_inherited_decorated_method():
     class Foo:
         def meth(self):
             """
-            docstring
+            Docstring
                 indented text
             """
 

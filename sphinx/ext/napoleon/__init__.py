@@ -265,7 +265,7 @@ class Config:
         Use the type annotations of class attributes that are documented in the docstring
         but do not have a type in the docstring.
 
-    """  # NoQA: D301
+    """
 
     _config_values: dict[str, tuple[Any, _ConfigRebuild]] = {
         'napoleon_google_docstring': (True, 'env'),
@@ -317,7 +317,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     """
     if not isinstance(app, Sphinx):
         # probably called by tests
-        return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+        return {
+            'version': sphinx.__display_version__,
+            'parallel_read_safe': True,
+        }
 
     _patch_python_domain()
 
@@ -327,7 +330,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }
 
 
 def _patch_python_domain() -> None:

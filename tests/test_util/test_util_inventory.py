@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import os
-import posixpath
-from io import BytesIO
 from typing import TYPE_CHECKING
 
 import pytest
@@ -25,8 +23,7 @@ if TYPE_CHECKING:
 
 
 def test_read_inventory_v1():
-    f = BytesIO(INVENTORY_V1)
-    invdata = InventoryFile.load(f, '/util', posixpath.join)
+    invdata = InventoryFile.loads(INVENTORY_V1, uri='/util')
     assert invdata['py:module']['module'] == (
         'foo',
         '1.0',
@@ -42,8 +39,7 @@ def test_read_inventory_v1():
 
 
 def test_read_inventory_v2():
-    f = BytesIO(INVENTORY_V2)
-    invdata = InventoryFile.load(f, '/util', posixpath.join)
+    invdata = InventoryFile.loads(INVENTORY_V2, uri='/util')
 
     assert len(invdata['py:module']) == 2
     assert invdata['py:module']['module1'] == (
@@ -69,8 +65,7 @@ def test_read_inventory_v2():
 
 
 def test_read_inventory_v2_not_having_version():
-    f = BytesIO(INVENTORY_V2_NO_VERSION)
-    invdata = InventoryFile.load(f, '/util', posixpath.join)
+    invdata = InventoryFile.loads(INVENTORY_V2_NO_VERSION, uri='/util')
     assert invdata['py:module']['module1'] == (
         'foo',
         '',
@@ -81,8 +76,7 @@ def test_read_inventory_v2_not_having_version():
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_ambiguous_definition_warning(app):
-    f = BytesIO(INVENTORY_V2_AMBIGUOUS_TERMS)
-    InventoryFile.load(f, '/util', posixpath.join)
+    InventoryFile.loads(INVENTORY_V2_AMBIGUOUS_TERMS, uri='/util')
 
     def _multiple_defs_notice_for(entity: str) -> str:
         return f'contains multiple definitions for {entity}'

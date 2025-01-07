@@ -64,7 +64,9 @@ class GenericObject(ObjectDescription[str]):
             name = ws_re.sub(' ', sig)
         return name
 
-    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(
+        self, name: str, sig: str, signode: desc_signature
+    ) -> None:
         node_id = make_id(self.env, self.state.document, self.objtype, name)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
@@ -73,7 +75,7 @@ class GenericObject(ObjectDescription[str]):
             colon = self.indextemplate.find(':')
             if colon != -1:
                 indextype = self.indextemplate[:colon].strip()
-                indexentry = self.indextemplate[colon + 1:].strip() % (name,)
+                indexentry = self.indextemplate[colon + 1 :].strip() % (name,)
             else:
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
@@ -92,8 +94,13 @@ class EnvVarXRefRole(XRefRole):
     Cross-referencing role for environment variables (adds an index entry).
     """
 
-    def result_nodes(self, document: nodes.document, env: BuildEnvironment, node: Element,
-                     is_ref: bool) -> tuple[list[Node], list[system_message]]:
+    def result_nodes(
+        self,
+        document: nodes.document,
+        env: BuildEnvironment,
+        node: Element,
+        is_ref: bool,
+    ) -> tuple[list[Node], list[system_message]]:
         if not is_ref:
             return [node], []
         varname = node['reftarget']
@@ -132,10 +139,12 @@ class ConfigurationValue(ObjectDescription[str]):
     def _toc_entry_name(self, sig_node: desc_signature) -> str:
         if not sig_node.get('_toc_parts'):
             return ''
-        name, = sig_node['_toc_parts']
+        (name,) = sig_node['_toc_parts']
         return name
 
-    def add_target_and_index(self, name: str, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(
+        self, name: str, sig: str, signode: desc_signature
+    ) -> None:
         node_id = make_id(self.env, self.state.document, self.objtype, name)
         signode['ids'].append(node_id)
         self.state.document.note_explicit_target(signode)
@@ -206,7 +215,7 @@ class Target(SphinxDirective):
             colon = indexentry.find(':')
             if colon != -1:
                 indextype = indexentry[:colon].strip()
-                indexentry = indexentry[colon + 1:].strip()
+                indexentry = indexentry[colon + 1 :].strip()
             inode = addnodes.index(entries=[(indextype, indexentry, node_id, '', None)])
             ret.insert(0, inode)
         name = self.name
@@ -232,10 +241,15 @@ class Cmdoption(ObjectDescription[str]):
             potential_option = potential_option.strip()
             m = option_desc_re.match(potential_option)
             if not m:
-                logger.warning(__('Malformed option description %r, should '
-                                  'look like "opt", "-opt args", "--opt args", '
-                                  '"/opt args" or "+opt args"'), potential_option,
-                               location=signode)
+                logger.warning(
+                    __(
+                        'Malformed option description %r, should '
+                        'look like "opt", "-opt args", "--opt args", '
+                        '"/opt args" or "+opt args"'
+                    ),
+                    potential_option,
+                    location=signode,
+                )
                 continue
             optname, args = m.groups()
             if optname[-1] == '[' and args[-1] == ']':
@@ -244,13 +258,13 @@ class Cmdoption(ObjectDescription[str]):
                 args = '[' + args
 
             if count:
-                if self.env.config.option_emphasise_placeholders:
+                if self.config.option_emphasise_placeholders:
                     signode += addnodes.desc_sig_punctuation(',', ',')
                     signode += addnodes.desc_sig_space()
                 else:
                     signode += addnodes.desc_addname(', ', ', ')
             signode += addnodes.desc_name(optname, optname)
-            if self.env.config.option_emphasise_placeholders:
+            if self.config.option_emphasise_placeholders:
                 add_end_bracket = False
                 if args:
                     if args[0] == '[' and args[-1] == ']':
@@ -282,7 +296,9 @@ class Cmdoption(ObjectDescription[str]):
             raise ValueError
         return firstname
 
-    def add_target_and_index(self, firstname: str, sig: str, signode: desc_signature) -> None:
+    def add_target_and_index(
+        self, firstname: str, sig: str, signode: desc_signature
+    ) -> None:
         currprogram = self.env.ref_context.get('std:program')
         for optname in signode.get('allnames', []):  # type: ignore[var-annotated]
             prefixes = ['cmdoption']
@@ -297,18 +313,25 @@ class Cmdoption(ObjectDescription[str]):
         self.state.document.note_explicit_target(signode)
 
         domain = self.env.domains.standard_domain
-        for optname in signode.get('allnames', []):
-            domain.add_program_option(currprogram, optname,
-                                      self.env.docname, signode['ids'][0])
+        for optname in signode.get('allnames', ()):
+            domain.add_program_option(
+                currprogram, optname, self.env.docname, signode['ids'][0]
+            )
 
         # create an index entry
         if currprogram:
             descr = _('%s command line option') % currprogram
         else:
             descr = _('command line option')
-        for option in signode.get('allnames', []):  # type: ignore[var-annotated]
+        for option in signode.get('allnames', ()):  # type: ignore[var-annotated]
             entry = f'{descr}; {option}'
-            self.indexnode['entries'].append(('pair', entry, signode['ids'][0], '', None))
+            self.indexnode['entries'].append((
+                'pair',
+                entry,
+                signode['ids'][0],
+                '',
+                None,
+            ))
 
 
 class Program(SphinxDirective):
@@ -332,8 +355,14 @@ class Program(SphinxDirective):
 
 
 class OptionXRefRole(XRefRole):
-    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
-                     title: str, target: str) -> tuple[str, str]:
+    def process_link(
+        self,
+        env: BuildEnvironment,
+        refnode: Element,
+        has_explicit_title: bool,
+        title: str,
+        target: str,
+    ) -> tuple[str, str]:
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
@@ -349,9 +378,15 @@ def split_term_classifiers(line: str) -> tuple[str, str | None]:
     return term, first_classifier
 
 
-def make_glossary_term(env: BuildEnvironment, textnodes: Iterable[Node], index_key: str | None,
-                       source: str, lineno: int, node_id: str | None, document: nodes.document,
-                       ) -> nodes.term:
+def make_glossary_term(
+    env: BuildEnvironment,
+    textnodes: Iterable[Node],
+    index_key: str | None,
+    source: str,
+    lineno: int,
+    node_id: str | None,
+    document: nodes.document,
+) -> nodes.term:
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)
@@ -395,7 +430,7 @@ class Glossary(SphinxDirective):
     def run(self) -> list[Node]:
         node = addnodes.glossary()
         node.document = self.state.document
-        node['sorted'] = ('sorted' in self.options)
+        node['sorted'] = 'sorted' in self.options
 
         # This directive implements a custom format of the reST definition list
         # that allows multiple lines of terms before the definition.  This is
@@ -408,7 +443,9 @@ class Glossary(SphinxDirective):
         in_comment = False
         was_empty = True
         messages: list[Node] = []
-        for line, (source, lineno) in zip(self.content, self.content.items, strict=True):
+        for line, (source, lineno) in zip(
+            self.content, self.content.items, strict=True
+        ):
             # empty line -> add to last definition
             if not line:
                 if in_definition and entries:
@@ -426,23 +463,39 @@ class Glossary(SphinxDirective):
                 # first term of definition
                 if in_definition:
                     if not was_empty:
-                        messages.append(self.state.reporter.warning(
-                            _('glossary term must be preceded by empty line'),
-                            source=source, line=lineno))
+                        messages.append(
+                            self.state.reporter.warning(
+                                _('glossary term must be preceded by empty line'),
+                                source=source,
+                                line=lineno,
+                            )
+                        )
                     entries.append(([(line, source, lineno)], StringList()))
                     in_definition = False
                 # second term and following
                 else:
                     if was_empty:
-                        messages.append(self.state.reporter.warning(
-                            _('glossary terms must not be separated by empty lines'),
-                            source=source, line=lineno))
+                        messages.append(
+                            self.state.reporter.warning(
+                                _(
+                                    'glossary terms must not be separated by empty lines'
+                                ),
+                                source=source,
+                                line=lineno,
+                            )
+                        )
                     if entries:
                         entries[-1][0].append((line, source, lineno))
                     else:
-                        messages.append(self.state.reporter.warning(
-                            _('glossary seems to be misformatted, check indentation'),
-                            source=source, line=lineno))
+                        messages.append(
+                            self.state.reporter.warning(
+                                _(
+                                    'glossary seems to be misformatted, check indentation'
+                                ),
+                                source=source,
+                                line=lineno,
+                            )
+                        )
             elif in_comment:
                 pass
             else:
@@ -453,9 +506,13 @@ class Glossary(SphinxDirective):
                 if entries:
                     entries[-1][1].append(line[indent_len:], source, lineno)
                 else:
-                    messages.append(self.state.reporter.warning(
-                        _('glossary seems to be misformatted, check indentation'),
-                        source=source, line=lineno))
+                    messages.append(
+                        self.state.reporter.warning(
+                            _('glossary seems to be misformatted, check indentation'),
+                            source=source,
+                            line=lineno,
+                        )
+                    )
             was_empty = False
 
         # now, parse all the entries into a big definition list
@@ -470,9 +527,15 @@ class Glossary(SphinxDirective):
                 textnodes, sysmsg = self.parse_inline(term_, lineno=lineno)
 
                 # use first classifier as a index key
-                term = make_glossary_term(self.env, textnodes,
-                                          first_classifier, source, lineno,
-                                          node_id=None, document=self.state.document)
+                term = make_glossary_term(
+                    self.env,
+                    textnodes,
+                    first_classifier,
+                    source,
+                    lineno,
+                    node_id=None,
+                    document=self.state.document,
+                )
                 term.rawsource = line
                 system_messages.extend(sysmsg)
                 termnodes.append(term)
@@ -482,7 +545,10 @@ class Glossary(SphinxDirective):
             if definition:
                 offset = definition.items[0][1]
                 definition_nodes = nested_parse_to_nodes(
-                    self.state, definition, offset=offset, allow_section_headings=False,
+                    self.state,
+                    definition,
+                    offset=offset,
+                    allow_section_headings=False,
                 )
             else:
                 definition_nodes = []
@@ -495,14 +561,14 @@ class Glossary(SphinxDirective):
         return [*messages, node]
 
 
-def token_xrefs(text: str, productionGroup: str = '') -> list[Node]:
-    if len(productionGroup) != 0:
-        productionGroup += ':'
+def token_xrefs(text: str, *, production_group: str = '') -> list[Node]:
+    if len(production_group) != 0:
+        production_group += ':'
     retnodes: list[Node] = []
     pos = 0
     for m in token_re.finditer(text):
         if m.start() > pos:
-            txt = text[pos:m.start()]
+            txt = text[pos : m.start()]
             retnodes.append(nodes.Text(txt))
         token = m.group(1)
         if ':' in token:
@@ -517,9 +583,10 @@ def token_xrefs(text: str, productionGroup: str = '') -> list[Node]:
                 target = token
         else:
             title = token
-            target = productionGroup + token
-        refnode = pending_xref(title, reftype='token', refdomain='std',
-                               reftarget=target)
+            target = production_group + token
+        refnode = pending_xref(
+            title, reftype='token', refdomain='std', reftarget=target
+        )
         refnode += nodes.literal(token, title, classes=['xref'])
         retnodes.append(refnode)
         pos = m.end()
@@ -547,11 +614,11 @@ class ProductionList(SphinxDirective):
         nl_escape_re = re.compile(r'\\\n')
         lines = nl_escape_re.sub('', self.arguments[0]).split('\n')
 
-        productionGroup = ""
+        production_group = ''
         first_rule_seen = False
         for rule in lines:
             if not first_rule_seen and ':' not in rule:
-                productionGroup = rule.strip()
+                production_group = rule.strip()
                 continue
             first_rule_seen = True
             try:
@@ -562,24 +629,30 @@ class ProductionList(SphinxDirective):
             name = name.strip()
             subnode['tokenname'] = name
             if subnode['tokenname']:
-                prefix = 'grammar-token-%s' % productionGroup
+                prefix = 'grammar-token-%s' % production_group
                 node_id = make_id(self.env, self.state.document, prefix, name)
                 subnode['ids'].append(node_id)
                 self.state.document.note_implicit_target(subnode, subnode)
 
-                if len(productionGroup) != 0:
-                    objName = f"{productionGroup}:{name}"
+                if len(production_group) != 0:
+                    obj_name = f'{production_group}:{name}'
                 else:
-                    objName = name
-                domain.note_object('token', objName, node_id, location=node)
-            subnode.extend(token_xrefs(tokens, productionGroup))
+                    obj_name = name
+                domain.note_object('token', obj_name, node_id, location=node)
+            subnode.extend(token_xrefs(tokens, production_group=production_group))
             node.append(subnode)
         return [node]
 
 
 class TokenXRefRole(XRefRole):
-    def process_link(self, env: BuildEnvironment, refnode: Element, has_explicit_title: bool,
-                     title: str, target: str) -> tuple[str, str]:
+    def process_link(
+        self,
+        env: BuildEnvironment,
+        refnode: Element,
+        has_explicit_title: bool,
+        title: str,
+        target: str,
+    ) -> tuple[str, str]:
         target = target.lstrip('~')  # a title-specific thing
         if not self.has_explicit_title and title[0] == '~':
             if ':' in title:
@@ -601,8 +674,7 @@ class StandardDomain(Domain):
     object_types: dict[str, ObjType] = {
         'term': ObjType(_('glossary term'), 'term', searchprio=-1),
         'token': ObjType(_('grammar token'), 'token', searchprio=-1),
-        'label': ObjType(_('reference label'), 'ref', 'keyword',
-                         searchprio=-1),
+        'label': ObjType(_('reference label'), 'ref', 'keyword', searchprio=-1),
         'confval': ObjType('configuration value', 'confval'),
         'envvar': ObjType(_('environment variable'), 'envvar'),
         'cmdoption': ObjType(_('program option'), 'option'),
@@ -619,42 +691,42 @@ class StandardDomain(Domain):
         'productionlist': ProductionList,
     }
     roles: dict[str, RoleFunction | XRefRole] = {
-        'option':  OptionXRefRole(warn_dangling=True),
+        'option': OptionXRefRole(warn_dangling=True),
         'confval': XRefRole(warn_dangling=True),
-        'envvar':  EnvVarXRefRole(),
+        'envvar': EnvVarXRefRole(),
         # links to tokens in grammar productions
-        'token':   TokenXRefRole(),
+        'token': TokenXRefRole(),
         # links to terms in glossary
-        'term':    XRefRole(innernodeclass=nodes.inline,
-                            warn_dangling=True),
+        'term': XRefRole(innernodeclass=nodes.inline, warn_dangling=True),
         # links to headings or arbitrary labels
-        'ref':     XRefRole(lowercase=True, innernodeclass=nodes.inline,
-                            warn_dangling=True),
+        'ref': XRefRole(
+            lowercase=True, innernodeclass=nodes.inline, warn_dangling=True
+        ),
         # links to labels of numbered figures, tables and code-blocks
-        'numref':  XRefRole(lowercase=True,
-                            warn_dangling=True),
+        'numref': XRefRole(lowercase=True, warn_dangling=True),
         # links to labels, without a different title
         'keyword': XRefRole(warn_dangling=True),
         # links to documents
-        'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
+        'doc': XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
     }
 
     initial_data: Final = {  # type: ignore[misc]
-        'progoptions': {},      # (program, name) -> docname, labelid
-        'objects': {},          # (type, name) -> docname, labelid
-        'labels': {             # labelname -> docname, labelid, sectionname
+        'progoptions': {},  # (program, name) -> docname, labelid
+        'objects': {},  # (type, name) -> docname, labelid
+        'labels': {  # labelname -> docname, labelid, sectionname
             'genindex': ('genindex', '', _('Index')),
             'modindex': ('py-modindex', '', _('Module Index')),
-            'search':   ('search', '', _('Search Page')),
+            'search': ('search', '', _('Search Page')),
         },
-        'anonlabels': {         # labelname -> docname, labelid
+        'anonlabels': {  # labelname -> docname, labelid
             'genindex': ('genindex', ''),
             'modindex': ('py-modindex', ''),
-            'search':   ('search', ''),
+            'search': ('search', ''),
         },
     }
 
-    _virtual_doc_names: dict[str, tuple[str, str]] = {  # labelname -> docname, sectionname
+    # labelname -> docname, sectionname
+    _virtual_doc_names: dict[str, tuple[str, str]] = {
         'genindex': ('genindex', _('Index')),
         'modindex': ('py-modindex', _('Module Index')),
         'search': ('search', _('Search Page')),
@@ -662,7 +734,7 @@ class StandardDomain(Domain):
 
     dangling_warnings = {
         'term': 'term not in glossary: %(target)r',
-        'numref':  'undefined label: %(target)r',
+        'numref': 'undefined label: %(target)r',
         'keyword': 'unknown keyword: %(target)r',
         'doc': 'unknown document: %(target)r',
         'option': 'unknown option: %(target)r',
@@ -679,12 +751,15 @@ class StandardDomain(Domain):
         super().__init__(env)
 
         # set up enumerable nodes
-        self.enumerable_nodes = copy(self.enumerable_nodes)  # create a copy for this instance
+        self.enumerable_nodes = copy(
+            self.enumerable_nodes
+        )  # create a copy for this instance
         for node, settings in env.app.registry.enumerable_nodes.items():
             self.enumerable_nodes[node] = settings
 
-    def note_hyperlink_target(self, name: str, docname: str, node_id: str,
-                              title: str = '') -> None:
+    def note_hyperlink_target(
+        self, name: str, docname: str, node_id: str, title: str = ''
+    ) -> None:
         """Add a hyperlink target for cross reference.
 
         .. warning::
@@ -700,8 +775,11 @@ class StandardDomain(Domain):
         .. versionadded:: 3.0
         """
         if name in self.anonlabels and self.anonlabels[name] != (docname, node_id):
-            logger.warning(__('duplicate label %s, other instance in %s'),
-                           name, self.env.doc2path(self.anonlabels[name][0]))
+            logger.warning(
+                __('duplicate label %s, other instance in %s'),
+                name,
+                self.env.doc2path(self.anonlabels[name][0]),
+            )
 
         self.anonlabels[name] = (docname, node_id)
         if title:
@@ -709,18 +787,25 @@ class StandardDomain(Domain):
 
     @property
     def objects(self) -> dict[tuple[str, str], tuple[str, str]]:
-        return self.data.setdefault('objects', {})  # (objtype, name) -> docname, labelid
+        # (objtype, name) -> docname, labelid
+        return self.data.setdefault('objects', {})
 
-    def note_object(self, objtype: str, name: str, labelid: str, location: Any = None,
-                    ) -> None:
+    def note_object(
+        self, objtype: str, name: str, labelid: str, location: Any = None
+    ) -> None:
         """Note a generic object for cross reference.
 
         .. versionadded:: 3.0
         """
         if (objtype, name) in self.objects:
             docname = self.objects[objtype, name][0]
-            logger.warning(__('duplicate %s description of %s, other instance in %s'),
-                           objtype, name, docname, location=location)
+            logger.warning(
+                __('duplicate %s description of %s, other instance in %s'),
+                objtype,
+                name,
+                docname,
+                location=location,
+            )
         self.objects[objtype, name] = (self.env.docname, labelid)
 
     @property
@@ -739,18 +824,24 @@ class StandardDomain(Domain):
 
     @property
     def progoptions(self) -> dict[tuple[str | None, str], tuple[str, str]]:
-        return self.data.setdefault('progoptions', {})  # (program, name) -> docname, labelid
+        return self.data.setdefault(
+            'progoptions', {}
+        )  # (program, name) -> docname, labelid
 
     @property
     def labels(self) -> dict[str, tuple[str, str, str]]:
-        return self.data.setdefault('labels', {})  # labelname -> docname, labelid, sectionname
+        return self.data.setdefault(
+            'labels', {}
+        )  # labelname -> docname, labelid, sectionname
 
     @property
     def anonlabels(self) -> dict[str, tuple[str, str]]:
         return self.data.setdefault('anonlabels', {})  # labelname -> docname, labelid
 
     def clear_doc(self, docname: str) -> None:
-        to_remove1 = [key for key, (fn, _l) in self.progoptions.items() if fn == docname]
+        to_remove1 = [
+            key for key, (fn, _l) in self.progoptions.items() if fn == docname
+        ]
         for key1 in to_remove1:
             del self.progoptions[key1]
 
@@ -789,7 +880,7 @@ class StandardDomain(Domain):
                 self.anonlabels[key] = data
 
     def process_doc(
-        self, env: BuildEnvironment, docname: str, document: nodes.document,
+        self, env: BuildEnvironment, docname: str, document: nodes.document
     ) -> None:
         for name, explicit in document.nametypes.items():
             if not explicit:
@@ -802,16 +893,21 @@ class StandardDomain(Domain):
                 # indirect hyperlink targets
                 node = document.ids.get(node['refid'])  # type: ignore[assignment]
                 labelid = node['names'][0]
-            if (node.tagname == 'footnote' or
-                    'refuri' in node or
-                    node.tagname.startswith('desc_')):
+            if (
+                node.tagname == 'footnote'
+                or 'refuri' in node
+                or node.tagname.startswith('desc_')
+            ):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions
                 continue
             if name in self.labels:
-                logger.warning(__('duplicate label %s, other instance in %s'),
-                               name, env.doc2path(self.labels[name][0]),
-                               location=node)
+                logger.warning(
+                    __('duplicate label %s, other instance in %s'),
+                    name,
+                    env.doc2path(self.labels[name][0]),
+                    location=node,
+                )
             self.anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 title = cast('nodes.title', node[0])
@@ -823,8 +919,10 @@ class StandardDomain(Domain):
                 if not sectname:
                     continue
             else:
-                if (isinstance(node, nodes.definition_list | nodes.field_list) and
-                        node.children):
+                if (
+                    isinstance(node, nodes.definition_list | nodes.field_list)
+                    and node.children
+                ):
                     node = cast('nodes.Element', node.children[0])
                 if isinstance(node, nodes.field | nodes.definition_list_item):
                     node = cast('nodes.Element', node.children[0])
@@ -839,17 +937,25 @@ class StandardDomain(Domain):
                         continue
             self.labels[name] = docname, labelid, sectname
 
-    def add_program_option(self, program: str | None, name: str,
-                           docname: str, labelid: str) -> None:
+    def add_program_option(
+        self, program: str | None, name: str, docname: str, labelid: str
+    ) -> None:
         # prefer first command option entry
         if (program, name) not in self.progoptions:
             self.progoptions[program, name] = (docname, labelid)
 
-    def build_reference_node(self, fromdocname: str, builder: Builder, docname: str,
-                             labelid: str, sectname: str, rolename: str, *,
-                             node_class: type[nodes.reference] = nodes.reference,
-                             **options: Any,
-                             ) -> nodes.reference:
+    def build_reference_node(
+        self,
+        fromdocname: str,
+        builder: Builder,
+        docname: str,
+        labelid: str,
+        sectname: str,
+        rolename: str,
+        *,
+        node_class: type[nodes.reference] = nodes.reference,
+        **options: Any,
+    ) -> nodes.reference:
         newnode = node_class('', '', internal=True, **options)
         innernode = nodes.inline(sectname, sectname)
         if innernode.get('classes') is not None:
@@ -864,16 +970,22 @@ class StandardDomain(Domain):
             contnode = pending_xref('')
             contnode['refdocname'] = docname
             contnode['refsectname'] = sectname
-            newnode['refuri'] = builder.get_relative_uri(
-                fromdocname, docname)
+            newnode['refuri'] = builder.get_relative_uri(fromdocname, docname)
             if labelid:
                 newnode['refuri'] += '#' + labelid
         newnode.append(innernode)
         return newnode
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> nodes.reference | None:
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         if typ == 'ref':
             resolver = self._resolve_ref_xref
         elif typ == 'numref':
@@ -891,9 +1003,16 @@ class StandardDomain(Domain):
 
         return resolver(env, fromdocname, builder, typ, target, node, contnode)
 
-    def _resolve_ref_xref(self, env: BuildEnvironment, fromdocname: str,
-                          builder: Builder, typ: str, target: str, node: pending_xref,
-                          contnode: Element) -> nodes.reference | None:
+    def _resolve_ref_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         if node['refexplicit']:
             # reference to anonymous label; the reference uses
             # the supplied link caption
@@ -906,13 +1025,20 @@ class StandardDomain(Domain):
         if not docname:
             return None
 
-        return self.build_reference_node(fromdocname, builder,
-                                         docname, labelid, sectname, 'ref')
+        return self.build_reference_node(
+            fromdocname, builder, docname, labelid, sectname, 'ref'
+        )
 
-    def _resolve_numref_xref(self, env: BuildEnvironment, fromdocname: str,
-                             builder: Builder, typ: str, target: str,
-                             node: pending_xref, contnode: Element
-                             ) -> nodes.reference | Element | None:
+    def _resolve_numref_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | Element | None:
         if target in self.labels:
             docname, labelid, figname = self.labels.get(target, ('', '', ''))
         else:
@@ -929,7 +1055,9 @@ class StandardDomain(Domain):
             return None
 
         if figtype != 'section' and env.config.numfig is False:
-            logger.warning(__('numfig is disabled. :numref: is ignored.'), location=node)
+            logger.warning(
+                __('numfig is disabled. :numref: is ignored.'), location=node
+            )
             return contnode
 
         try:
@@ -937,9 +1065,13 @@ class StandardDomain(Domain):
             if fignumber is None:
                 return contnode
         except ValueError:
-            logger.warning(__("Failed to create a cross reference. Any number is not "
-                              "assigned: %s"),
-                           labelid, location=node)
+            logger.warning(
+                __(
+                    'Failed to create a cross reference. Any number is not assigned: %s'
+                ),
+                labelid,
+                location=node,
+            )
             return contnode
 
         try:
@@ -963,30 +1095,51 @@ class StandardDomain(Domain):
                     # old style format (cf. "Fig.%s")
                     newtitle = title % fignum
         except KeyError as exc:
-            logger.warning(__('invalid numfig_format: %s (%r)'), title, exc, location=node)
+            logger.warning(
+                __('invalid numfig_format: %s (%r)'), title, exc, location=node
+            )
             return contnode
         except TypeError:
             logger.warning(__('invalid numfig_format: %s'), title, location=node)
             return contnode
 
-        return self.build_reference_node(fromdocname, builder,
-                                         docname, labelid, newtitle, 'numref',
-                                         node_class=addnodes.number_reference,
-                                         title=title)
+        return self.build_reference_node(
+            fromdocname,
+            builder,
+            docname,
+            labelid,
+            newtitle,
+            'numref',
+            node_class=addnodes.number_reference,
+            title=title,
+        )
 
-    def _resolve_keyword_xref(self, env: BuildEnvironment, fromdocname: str,
-                              builder: Builder, typ: str, target: str,
-                              node: pending_xref, contnode: Element) -> nodes.reference | None:
+    def _resolve_keyword_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         # keywords are oddballs: they are referenced by named labels
         docname, labelid, _ = self.labels.get(target, ('', '', ''))
         if not docname:
             return None
-        return make_refnode(builder, fromdocname, docname,
-                            labelid, contnode)
+        return make_refnode(builder, fromdocname, docname, labelid, contnode)
 
-    def _resolve_doc_xref(self, env: BuildEnvironment, fromdocname: str,
-                          builder: Builder, typ: str, target: str,
-                          node: pending_xref, contnode: Element) -> nodes.reference | None:
+    def _resolve_doc_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         # directly reference to document by source name; can be absolute or relative
         refdoc = node.get('refdoc', fromdocname)
         docname = docname_join(refdoc, node['reftarget'])
@@ -1001,9 +1154,16 @@ class StandardDomain(Domain):
             innernode = nodes.inline(caption, caption, classes=['doc'])
             return make_refnode(builder, fromdocname, docname, None, innernode)
 
-    def _resolve_option_xref(self, env: BuildEnvironment, fromdocname: str,
-                             builder: Builder, typ: str, target: str,
-                             node: pending_xref, contnode: Element) -> nodes.reference | None:
+    def _resolve_option_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.progoptions.get((progname, target), ('', ''))
@@ -1023,7 +1183,7 @@ class StandardDomain(Domain):
             while ws_re.search(target):
                 subcommand, target = ws_re.split(target, 1)
                 commands.append(subcommand)
-                progname = "-".join(commands)
+                progname = '-'.join(commands)
 
                 docname, labelid = self.progoptions.get((progname, target), ('', ''))
                 if docname:
@@ -1031,14 +1191,21 @@ class StandardDomain(Domain):
             else:
                 return None
 
-        return make_refnode(builder, fromdocname, docname,
-                            labelid, contnode)
+        return make_refnode(builder, fromdocname, docname, labelid, contnode)
 
-    def _resolve_term_xref(self, env: BuildEnvironment, fromdocname: str,
-                           builder: Builder, typ: str, target: str,
-                           node: pending_xref, contnode: Element) -> nodes.reference | None:
-        result = self._resolve_obj_xref(env, fromdocname, builder, typ,
-                                        target, node, contnode)
+    def _resolve_term_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
+        result = self._resolve_obj_xref(
+            env, fromdocname, builder, typ, target, node, contnode
+        )
         if result:
             return result
         else:
@@ -1049,9 +1216,16 @@ class StandardDomain(Domain):
             else:
                 return None
 
-    def _resolve_obj_xref(self, env: BuildEnvironment, fromdocname: str,
-                          builder: Builder, typ: str, target: str,
-                          node: pending_xref, contnode: Element) -> nodes.reference | None:
+    def _resolve_obj_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         objtypes = self.objtypes_for_role(typ) or []
         for objtype in objtypes:
             if (objtype, target) in self.objects:
@@ -1061,18 +1235,29 @@ class StandardDomain(Domain):
             docname, labelid = '', ''
         if not docname:
             return None
-        return make_refnode(builder, fromdocname, docname,
-                            labelid, contnode)
+        return make_refnode(builder, fromdocname, docname, labelid, contnode)
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str,
-                         builder: Builder, target: str, node: pending_xref,
-                         contnode: Element) -> list[tuple[str, nodes.reference]]:
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, nodes.reference]]:
         results: list[tuple[str, nodes.reference]] = []
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
-            res = self.resolve_xref(env, fromdocname, builder, role,
-                                    ltarget if role == 'ref' else target,
-                                    node, contnode)
+            res = self.resolve_xref(
+                env,
+                fromdocname,
+                builder,
+                role,
+                ltarget if role == 'ref' else target,
+                node,
+                contnode,
+            )
             if res:
                 results.append(('std:' + role, res))
         # all others
@@ -1083,8 +1268,10 @@ class StandardDomain(Domain):
             if key in self.objects:
                 docname, labelid = self.objects[key]
                 role = 'std:' + self.role_for_objtype(objtype)  # type: ignore[operator]
-                results.append((role, make_refnode(builder, fromdocname, docname,
-                                                   labelid, contnode)))
+                results.append((
+                    role,
+                    make_refnode(builder, fromdocname, docname, labelid, contnode),
+                ))
         return results
 
     def get_objects(self) -> Iterator[tuple[str, str, str, str, str, int]]:
@@ -1098,8 +1285,14 @@ class StandardDomain(Domain):
             else:
                 yield option, option, 'cmdoption', info[0], info[1], 1
         for (type, name), info in self.objects.items():
-            yield (name, name, type, info[0], info[1],
-                   self.object_types[type].attrs['searchprio'])
+            yield (
+                name,
+                name,
+                type,
+                info[0],
+                info[1],
+                self.object_types[type].attrs['searchprio'],
+            )
         for name, (docname, labelid, sectionname) in self.labels.items():
             yield name, sectionname, 'label', docname, labelid, -1
         # add anonymous-only labels as well
@@ -1131,14 +1324,17 @@ class StandardDomain(Domain):
 
     def get_enumerable_node_type(self, node: Node) -> str | None:
         """Get type of enumerable nodes."""
+
         def has_child(node: Element, cls: type) -> bool:
             return any(isinstance(child, cls) for child in node)
 
         if isinstance(node, nodes.section):
             return 'section'
-        elif (isinstance(node, nodes.container) and
-              'literal_block' in node and
-              has_child(node, nodes.literal_block)):
+        elif (
+            isinstance(node, nodes.container)
+            and 'literal_block' in node
+            and has_child(node, nodes.literal_block)
+        ):
             # given node is a code-block having caption
             return 'code-block'
         else:
@@ -1190,8 +1386,11 @@ class StandardDomain(Domain):
             return None
 
 
-def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
-                           ) -> bool | None:
+def warn_missing_reference(
+    app: Sphinx,
+    domain: Domain,
+    node: pending_xref,
+) -> bool | None:
     if (domain and domain.name != 'std') or node['reftype'] != 'ref':
         return None
     else:
@@ -1199,7 +1398,9 @@ def warn_missing_reference(app: Sphinx, domain: Domain, node: pending_xref,
         if target not in domain.anonlabels:  # type: ignore[attr-defined]
             msg = __('undefined label: %r')
         else:
-            msg = __('Failed to create a cross reference. A title or caption not found: %r')
+            msg = __(
+                'Failed to create a cross reference. A title or caption not found: %r'
+            )
 
         logger.warning(msg, target, location=node, type='ref', subtype=node['reftype'])
         return True

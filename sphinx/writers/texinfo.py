@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, ClassVar, cast
 from docutils import nodes, writers
 
 from sphinx import __display_version__, addnodes
-from sphinx.errors import ExtensionError
 from sphinx.locale import _, __, admonitionlabels
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
@@ -493,7 +492,7 @@ class TexinfoTranslator(SphinxTranslator):
                 indices_config = frozenset(indices_config)
             else:
                 check_names = False
-            for domain in self.builder.env.domains.sorted():
+            for domain in self._domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
                     if check_names and index_name not in indices_config:
@@ -507,7 +506,7 @@ class TexinfoTranslator(SphinxTranslator):
                             generate(content, collapsed),
                         ))
         # only add the main Index if it's not empty
-        domain = self.builder.env.domains.index_domain
+        domain = self._domains.index_domain
         for docname in self.builder.docnames:
             if domain.entries[docname]:
                 self.indices.append((_('Index'), '\n@printindex ge\n'))
@@ -1172,7 +1171,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_topic(self, node: Element) -> None:
         # ignore TOC's since we have to have a "menu" anyway
-        if 'contents' in node.get('classes', []):
+        if 'contents' in node.get('classes', ()):
             raise nodes.SkipNode
         title = cast('nodes.title', node[0])
         self.visit_rubric(title)
@@ -1420,11 +1419,11 @@ class TexinfoTranslator(SphinxTranslator):
                 self.add_anchor(id, node)
         # use the full name of the objtype for the category
         try:
-            domain = self.builder.env.get_domain(node.parent['domain'])
+            domain = self._domains[node.parent['domain']]
             name = domain.get_type_name(
                 domain.object_types[objtype], self.config.primary_domain == domain.name
             )
-        except (KeyError, ExtensionError):
+        except KeyError:
             name = objtype
         # by convention, the deffn category should be capitalized like a title
         category = self.escape_arg(smart_capwords(name))

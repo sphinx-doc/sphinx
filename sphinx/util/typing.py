@@ -95,7 +95,7 @@ PathMatcher: TypeAlias = Callable[[str], bool]
 if TYPE_CHECKING:
 
     class RoleFunction(Protocol):
-        def __call__(  # NoQA: E704
+        def __call__(
             self,
             name: str,
             rawtext: str,
@@ -118,26 +118,6 @@ OptionSpec: TypeAlias = dict[str, Callable[[str], Any]]
 
 # title getter functions for enumerable nodes (see sphinx.domains.std)
 TitleGetter: TypeAlias = Callable[[nodes.Node], str]
-
-# Readable file stream for inventory loading
-if TYPE_CHECKING:
-    from types import TracebackType
-    from typing import Self
-
-    _T_co = TypeVar('_T_co', str, bytes, covariant=True)
-
-    class _ReadableStream(Protocol[_T_co]):  # NoQA: PYI046 (false positive)
-        def read(self, size: int = ...) -> _T_co: ...  # NoQA: E704
-
-        def __enter__(self) -> Self: ...  # NoQA: E704
-
-        def __exit__(  # NoQA: E704
-            self,
-            exc_type: type[BaseException] | None,
-            exc_val: BaseException | None,
-            exc_tb: TracebackType | None,
-        ) -> None: ...
-
 
 # inventory data on memory
 InventoryItem: TypeAlias = tuple[

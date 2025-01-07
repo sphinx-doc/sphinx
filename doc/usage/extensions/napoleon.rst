@@ -8,6 +8,9 @@
 
 .. versionadded:: 1.3
 
+.. role:: code-py(code)
+   :language: Python
+
 Overview
 --------
 
@@ -301,21 +304,27 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 .. confval:: napoleon_google_docstring
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    True to parse `Google style`_ docstrings. False to disable support
-   for Google style docstrings. *Defaults to True.*
+   for Google style docstrings.
 
 .. confval:: napoleon_numpy_docstring
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    True to parse `NumPy style`_ docstrings. False to disable support
-   for NumPy style docstrings. *Defaults to True.*
+   for NumPy style docstrings.
 
 .. confval:: napoleon_include_init_with_doc
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    True to list ``__init___`` docstrings separately from the class
    docstring. False to fall back to Sphinx's default behavior, which
    considers the ``__init___`` docstring as part of the class
-   documentation. *Defaults to False.*
+   documentation.
 
    **If True**::
 
@@ -328,10 +337,11 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
            # This will NOT be included in the docs
 
 .. confval:: napoleon_include_private_with_doc
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    True to include private members (like ``_membername``) with docstrings
    in the documentation. False to fall back to Sphinx's default behavior.
-   *Defaults to False.*
 
    **If True**::
 
@@ -346,10 +356,12 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
            pass
 
 .. confval:: napoleon_include_special_with_doc
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    True to include special members (like ``__membername__``) with
    docstrings in the documentation. False to fall back to Sphinx's
-   default behavior. *Defaults to True.*
+   default behavior.
 
    **If True**::
 
@@ -364,11 +376,13 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
            return unicode(self.__class__.__name__)
 
 .. confval:: napoleon_use_admonition_for_examples
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    True to use the ``.. admonition::`` directive for the **Example** and
    **Examples** sections. False to use the ``.. rubric::`` directive
    instead. One may look better than the other depending on what HTML
-   theme is used. *Defaults to False.*
+   theme is used.
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -389,9 +403,11 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
        This is just a quick example
 
 .. confval:: napoleon_use_admonition_for_notes
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    True to use the ``.. admonition::`` directive for **Notes** sections.
-   False to use the ``.. rubric::`` directive instead. *Defaults to False.*
+   False to use the ``.. rubric::`` directive instead.
 
    .. note:: The singular **Note** section will always be converted to a
       ``.. note::`` directive.
@@ -401,19 +417,22 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
       :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_admonition_for_references
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    True to use the ``.. admonition::`` directive for **References**
    sections. False to use the ``.. rubric::`` directive instead.
-   *Defaults to False.*
 
    .. seealso::
 
       :confval:`napoleon_use_admonition_for_examples`
 
 .. confval:: napoleon_use_ivar
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    True to use the ``:ivar:`` role for instance variables. False to use
-   the ``.. attribute::`` directive instead. *Defaults to False.*
+   the ``.. attribute::`` directive instead.
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -436,10 +455,11 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
           :type: int
 
 .. confval:: napoleon_use_param
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    True to use a ``:param:`` role for each function parameter. False to
    use a single ``:parameters:`` role for all the parameters.
-   *Defaults to True.*
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -465,11 +485,12 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
                       Description of `arg2`, defaults to 0
 
 .. confval:: napoleon_use_keyword
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    True to use a ``:keyword:`` role for each function keyword argument.
    False to use a single ``:keyword arguments:`` role for all the
    keywords.
-   *Defaults to True.*
 
    This behaves similarly to :confval:`napoleon_use_param`. Note unlike docutils,
    ``:keyword:`` and ``:param:`` will not be treated the same way - there will
@@ -481,9 +502,11 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
       :confval:`napoleon_use_param`
 
 .. confval:: napoleon_use_rtype
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    True to use the ``:rtype:`` role for the return type. False to output
-   the return type inline with the description. *Defaults to True.*
+   the return type inline with the description.
 
    This `NumPy style`_ snippet will be converted as follows::
 
@@ -502,9 +525,10 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
        :returns: *bool* -- True if successful, False otherwise
 
 .. confval:: napoleon_preprocess_types
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    True to convert the type definitions in the docstrings as references.
-   Defaults to *False*.
 
    .. versionadded:: 3.2.1
    .. versionchanged:: 3.5
@@ -512,9 +536,11 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
       Do preprocess the Google style docstrings also.
 
 .. confval:: napoleon_type_aliases
+   :type: :code-py:`dict[str, str] | None`
+   :default: :code-py:`None`
 
    A mapping to translate type names to other names or references. Works
-   only when ``napoleon_use_param = True``. *Defaults to None.*
+   only when ``napoleon_use_param = True``.
 
    With::
 
@@ -542,6 +568,8 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
    .. versionadded:: 3.2
 
 .. confval:: napoleon_attr_annotations
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
    True to allow using :pep:`526` attributes annotations in classes.
    If an attribute is documented in the docstring without a type and
@@ -550,9 +578,10 @@ sure that "sphinx.ext.napoleon" is enabled in ``conf.py``::
    .. versionadded:: 3.4
 
 .. confval:: napoleon_custom_sections
+   :type: :code-py:`Sequence[str | tuple[str, str]] | None`
+   :default: :code-py:`None`
 
    Add a list of custom sections to include, expanding the list of parsed sections.
-   *Defaults to None.*
 
    The entries can either be strings or tuples, depending on the intention:
 

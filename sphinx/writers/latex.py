@@ -560,7 +560,7 @@ class LaTeXTranslator(SphinxTranslator):
                 indices_config = frozenset(indices_config)
             else:
                 check_names = False
-            for domain in self.builder.env.domains.sorted():
+            for domain in self._domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
                     if check_names and index_name not in indices_config:
@@ -1816,7 +1816,7 @@ class LaTeXTranslator(SphinxTranslator):
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
-        domain = self.builder.env.domains.standard_domain
+        domain = self._domains.standard_domain
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if (

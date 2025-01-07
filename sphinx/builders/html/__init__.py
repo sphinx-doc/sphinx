@@ -673,6 +673,7 @@ class StandaloneHTMLBuilder(Builder):
         metatags = self.docwriter.clean_meta
 
         ctx = self.get_doc_context(docname, body, metatags)
+        ctx['has_maths_elements'] = self.docwriter._has_maths_elements
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname: str, doctree: nodes.document) -> None:
@@ -771,7 +772,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def copy_image_files(self) -> None:
         if self.images:
-            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
+            stringify_func = ImageAdapter(self.env).get_original_image_uri
             ensuredir(self._images_dir)
             for src in status_iterator(
                 self.images,

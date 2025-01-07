@@ -27,8 +27,13 @@ jobs:
         mkdir -p /tmp/tx_cli && cd $_
         curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
       shell: bash
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: pip install --upgrade babel jinja2
+      run: uv pip install --upgrade babel jinja2
     - name: Extract translations from source code
       run: python utils/babel_runner.py extract
     - name: Push translations to transifex.com
@@ -58,8 +63,13 @@ jobs:
         mkdir -p /tmp/tx_cli && cd $_
         curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
       shell: bash
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: pip install --upgrade babel jinja2
+      run: uv pip install --upgrade babel jinja2
     - name: Extract translations from source code
       run: python utils/babel_runner.py extract
     - name: Pull translations from transifex.com

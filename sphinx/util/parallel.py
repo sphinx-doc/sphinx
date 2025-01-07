@@ -61,7 +61,7 @@ class ParallelTasks:
         # list of receiving pipe connections of running subprocesses
         self._precvs: dict[int, Any] = {}
         # list of receiving pipe connections of waiting subprocesses
-        self._precvsWaiting: dict[int, Any] = {}
+        self._precvs_waiting: dict[int, Any] = {}
         # number of working subprocesses
         self._pworking = 0
         # task number of each subprocess
@@ -94,7 +94,7 @@ class ParallelTasks:
         context: Any = multiprocessing.get_context('fork')
         proc = context.Process(target=self._process, args=(psend, task_func, arg))
         self._procs[tid] = proc
-        self._precvsWaiting[tid] = precv
+        self._precvs_waiting[tid] = precv
         try:
             self._join_one()
         except Exception:
@@ -135,8 +135,8 @@ class ParallelTasks:
                 joined_any = True
                 break
 
-        while self._precvsWaiting and self._pworking < self.nproc:
-            newtid, newprecv = self._precvsWaiting.popitem()
+        while self._precvs_waiting and self._pworking < self.nproc:
+            newtid, newprecv = self._precvs_waiting.popitem()
             self._precvs[newtid] = newprecv
             self._procs[newtid].start()
             self._pworking += 1
