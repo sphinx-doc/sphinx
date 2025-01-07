@@ -263,18 +263,19 @@ def main(argv: Sequence[str] = (), /) -> int:
     sphinx.locale.init_console()
 
     parser = get_parser()
-    args: CliOptions = parser.parse_args(argv or sys.argv[1:])
+    args = parser.parse_args(argv or sys.argv[1:])
 
-    rootpath = os.path.abspath(args.module_path)
+    args.module_path = rootpath = Path(args.module_path).resolve()
 
     # normalize opts
 
     if args.header is None:
-        args.header = rootpath.split(os.path.sep)[-1]
+        args.header = str(rootpath).split(os.path.sep)[-1]
     args.suffix = args.suffix.removeprefix('.')
     if not Path(rootpath).is_dir():
         logger.error(__('%s is not a directory.'), rootpath)
         raise SystemExit(1)
+    args.destdir = destdir = Path(args.destdir)
     if not args.dryrun:
         ensuredir(args.destdir)
     excludes = tuple(
@@ -285,7 +286,9 @@ def main(argv: Sequence[str] = (), /) -> int:
         args.automodule_options = set()
     elif isinstance(args.automodule_options, str):
         args.automodule_options = set(args.automodule_options.split(','))
-    written_files, modules = recurse_tree(rootpath, excludes, args, args.templatedir)
+
+    opts = CliOptions(**args.__dict__)
+    written_files, modules = recurse_tree(rootpath, excludes, opts, args.templatedir)
 
     if args.full:
         from sphinx.cmd import quickstart as qs
@@ -299,7 +302,7 @@ def main(argv: Sequence[str] = (), /) -> int:
             prev_module = module
             text += f'   {module}\n'
         d: dict[str, Any] = {
-            'path': args.destdir,
+            'path': str(destdir),
             'sep': False,
             'dot': '_',
             'project': args.header,
@@ -320,7 +323,7 @@ def main(argv: Sequence[str] = (), /) -> int:
             'mastertocmaxdepth': args.maxdepth,
             'mastertoctree': text,
             'language': 'en',
-            'module_path': rootpath,
+            'module_path': str(rootpath),
             'append_syspath': args.append_syspath,
         }
         if args.extensions:
@@ -339,10 +342,10 @@ def main(argv: Sequence[str] = (), /) -> int:
             )
     elif args.tocfile:
         written_files.append(
-            create_modules_toc_file(modules, args, args.tocfile, args.templatedir)
+            create_modules_toc_file(modules, opts, args.tocfile, args.templatedir)
         )
 
     if args.remove_old and not args.dryrun:
-        _remove_old_files(written_files, Path(args.destdir), args.suffix)
+        _remove_old_files(written_files, destdir, args.suffix)
 
     return 0

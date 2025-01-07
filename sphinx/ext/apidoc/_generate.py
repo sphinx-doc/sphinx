@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import dataclasses
 import glob
 import os
 import os.path
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING
 
 from sphinx import package_dir
 from sphinx.ext.apidoc import logger
@@ -267,7 +268,7 @@ def has_child_module(
 
 
 def recurse_tree(
-    rootpath: str,
+    rootpath: str | os.PathLike[str],
     excludes: Sequence[re.Pattern[str]],
     opts: CliOptions,
     user_template_dir: str | None = None,
@@ -277,6 +278,7 @@ def recurse_tree(
     ReST files.
     """
     # check if the base directory is a package and get its name
+    rootpath = os.fspath(rootpath)
     if is_packagedir(rootpath) or opts.implicit_namespaces:
         root_package = rootpath.split(os.path.sep)[-1]
     else:
@@ -349,34 +351,35 @@ def is_excluded(root: str | Path, excludes: Sequence[re.Pattern[str]]) -> bool:
     return any(exclude.match(root_str) for exclude in excludes)
 
 
-class CliOptions(Protocol):
-    """Arguments parsed from the command line."""
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class CliOptions:
+    """Options for apidoc."""
 
-    module_path: str
+    module_path: Path
     exclude_pattern: list[str]
-    destdir: str
-    quiet: bool
-    maxdepth: int
-    force: bool
-    followlinks: bool
-    dryrun: bool
-    separatemodules: bool
-    includeprivate: bool
-    tocfile: str
-    noheadings: bool
-    modulefirst: bool
-    implicit_namespaces: bool
-    automodule_options: set[str]
-    suffix: str
+    destdir: Path
+    quiet: bool = False
+    maxdepth: int = 4
+    force: bool = False
+    followlinks: bool = False
+    dryrun: bool = False
+    separatemodules: bool = False
+    includeprivate: bool = False
+    tocfile: str = 'modules'
+    noheadings: bool = False
+    modulefirst: bool = False
+    implicit_namespaces: bool = False
+    automodule_options: set[str] = dataclasses.field(default_factory=set)
+    suffix: str = 'rst'
 
-    remove_old: bool
+    remove_old: bool = False
 
     # --full only
-    full: bool
-    append_syspath: bool
-    header: str
-    author: str | None
-    version: str | None
-    release: str | None
-    extensions: list[str] | None
-    templatedir: str | None
+    full: bool = False
+    append_syspath: bool = False
+    header: str = ''
+    author: str | None = None
+    version: str | None = None
+    release: str | None = None
+    extensions: list[str] | None = None
+    templatedir: str | None = None
