@@ -28,6 +28,7 @@ __all__: Sequence[str] = 'main', 'setup'
 def setup(app: Sphinx) -> ExtensionMetadata:
     from sphinx.ext.apidoc._extension import run_apidoc
 
+    # Require autodoc
     app.setup_extension('sphinx.ext.autodoc')
     app.add_config_value('apidoc_modules', (), 'env', types=frozenset((list, tuple)))
     app.connect('builder-inited', run_apidoc)

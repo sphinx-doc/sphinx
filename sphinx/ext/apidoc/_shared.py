@@ -37,8 +37,8 @@ class ApidocOptions:
 
     destdir: Path
     module_path: Path
-    exclude_pattern: list[str]
 
+    exclude_pattern: Sequence[str] = ()
     maxdepth: int = 4
     followlinks: bool = False
     separatemodules: bool = False
