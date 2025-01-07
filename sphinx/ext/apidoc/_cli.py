@@ -262,90 +262,100 @@ def main(argv: Sequence[str] = (), /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
+    opts = _parse_args(argv)
+    rootpath = opts.module_path
+    excludes = tuple(
+        re.compile(fnmatch.translate(os.path.abspath(exclude)))
+        for exclude in dict.fromkeys(opts.exclude_pattern)
+    )
+
+    written_files, modules = recurse_tree(rootpath, excludes, opts, opts.templatedir)
+
+    if opts.full:
+        _full_quickstart(opts, modules=modules)
+    elif opts.tocfile:
+        written_files.append(
+            create_modules_toc_file(modules, opts, opts.tocfile, opts.templatedir)
+        )
+
+    if opts.remove_old and not opts.dryrun:
+        _remove_old_files(written_files, opts.destdir, opts.suffix)
+
+    return 0
+
+
+def _parse_args(argv: Sequence[str], /) -> CliOptions:
     parser = get_parser()
     args = parser.parse_args(argv or sys.argv[1:])
 
-    args.module_path = rootpath = Path(args.module_path).resolve()
+    # normalise options
 
-    # normalize opts
+    args.module_path = root_path = Path(args.module_path).resolve()
+    args.destdir = Path(args.destdir)
+    if not root_path.is_dir():
+        logger.error(__('%s is not a directory.'), root_path)
+        raise SystemExit(1)
 
     if args.header is None:
-        args.header = str(rootpath).split(os.path.sep)[-1]
+        args.header = root_path.name
     args.suffix = args.suffix.removeprefix('.')
-    if not Path(rootpath).is_dir():
-        logger.error(__('%s is not a directory.'), rootpath)
-        raise SystemExit(1)
-    args.destdir = destdir = Path(args.destdir)
+
     if not args.dryrun:
         ensuredir(args.destdir)
-    excludes = tuple(
-        re.compile(fnmatch.translate(os.path.abspath(exclude)))
-        for exclude in dict.fromkeys(args.exclude_pattern)
-    )
+
     if not args.automodule_options:
         args.automodule_options = set()
     elif isinstance(args.automodule_options, str):
         args.automodule_options = set(args.automodule_options.split(','))
 
-    opts = CliOptions(**args.__dict__)
-    written_files, modules = recurse_tree(rootpath, excludes, opts, args.templatedir)
+    return CliOptions(**args.__dict__)
 
-    if args.full:
-        from sphinx.cmd import quickstart as qs
 
-        modules.sort()
-        prev_module = ''
-        text = ''
-        for module in modules:
-            if module.startswith(prev_module + '.'):
-                continue
-            prev_module = module
-            text += f'   {module}\n'
-        d: dict[str, Any] = {
-            'path': str(destdir),
-            'sep': False,
-            'dot': '_',
-            'project': args.header,
-            'author': args.author or 'Author',
-            'version': args.version or '',
-            'release': args.release or args.version or '',
-            'suffix': '.' + args.suffix,
-            'master': 'index',
-            'epub': True,
-            'extensions': [
-                'sphinx.ext.autodoc',
-                'sphinx.ext.viewcode',
-                'sphinx.ext.todo',
-            ],
-            'makefile': True,
-            'batchfile': True,
-            'make_mode': True,
-            'mastertocmaxdepth': args.maxdepth,
-            'mastertoctree': text,
-            'language': 'en',
-            'module_path': str(rootpath),
-            'append_syspath': args.append_syspath,
-        }
-        if args.extensions:
-            d['extensions'].extend(args.extensions)
-        if args.quiet:
-            d['quiet'] = True
+def _full_quickstart(opts: CliOptions, /, *, modules: list[str]) -> None:
+    from sphinx.cmd import quickstart as qs
 
-        for ext in d['extensions'][:]:
-            if ',' in ext:
-                d['extensions'].remove(ext)
-                d['extensions'].extend(ext.split(','))
+    modules.sort()
+    prev_module = ''
+    text = ''
+    for module in modules:
+        if module.startswith(prev_module + '.'):
+            continue
+        prev_module = module
+        text += f'   {module}\n'
+    d: dict[str, Any] = {
+        'path': str(opts.destdir),
+        'sep': False,
+        'dot': '_',
+        'project': opts.header,
+        'author': opts.author or 'Author',
+        'version': opts.version or '',
+        'release': opts.release or opts.version or '',
+        'suffix': '.' + opts.suffix,
+        'master': 'index',
+        'epub': True,
+        'extensions': [
+            'sphinx.ext.autodoc',
+            'sphinx.ext.viewcode',
+            'sphinx.ext.todo',
+        ],
+        'makefile': True,
+        'batchfile': True,
+        'make_mode': True,
+        'mastertocmaxdepth': opts.maxdepth,
+        'mastertoctree': text,
+        'language': 'en',
+        'module_path': str(opts.module_path),
+        'append_syspath': opts.append_syspath,
+    }
+    if opts.extensions:
+        d['extensions'].extend(opts.extensions)
+    if opts.quiet:
+        d['quiet'] = True
 
-        if not args.dryrun:
-            qs.generate(
-                d, silent=True, overwrite=args.force, templatedir=args.templatedir
-            )
-    elif args.tocfile:
-        written_files.append(
-            create_modules_toc_file(modules, opts, args.tocfile, args.templatedir)
-        )
+    for ext in d['extensions'][:]:
+        if ',' in ext:
+            d['extensions'].remove(ext)
+            d['extensions'].extend(ext.split(','))
 
-    if args.remove_old and not args.dryrun:
-        _remove_old_files(written_files, destdir, args.suffix)
-
-    return 0
+    if not opts.dryrun:
+        qs.generate(d, silent=True, overwrite=opts.force, templatedir=opts.templatedir)
