@@ -39,14 +39,14 @@ logger = logging.getLogger(__name__)
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
-    OPTIONS = os.environ['SPHINX_APIDOC_OPTIONS'].split(',')
+    OPTIONS = set(os.environ['SPHINX_APIDOC_OPTIONS'].split(','))
 else:
-    OPTIONS = [
+    OPTIONS = {
         'members',
         'undoc-members',
         # 'inherited-members', # disabled because there's a bug in sphinx
         'show-inheritance',
-    ]
+    }
 
 PY_SUFFIXES = ('.py', '.pyx', *tuple(EXTENSION_SUFFIXES))
 
@@ -102,16 +102,16 @@ def create_module_file(
     user_template_dir: str | None = None,
 ) -> Path:
     """Build the text of the file and write the file."""
-    options = copy(OPTIONS)
-    if opts.includeprivate and 'private-members' not in options:
-        options.append('private-members')
+    options = set(OPTIONS if not opts.automodule_options else opts.automodule_options)
+    if opts.includeprivate:
+        options.add('private-members')
 
     qualname = module_join(package, basename)
     context = {
         'show_headings': not opts.noheadings,
         'basename': basename,
         'qualname': qualname,
-        'automodule_options': options,
+        'automodule_options': sorted(options),
     }
     if user_template_dir is not None:
         template_path = [user_template_dir, template_dir]
@@ -154,9 +154,9 @@ def create_package_file(
     submodules = [
         module_join(master_package, subroot, modname) for modname in submodules
     ]
-    options = copy(OPTIONS)
-    if opts.includeprivate and 'private-members' not in options:
-        options.append('private-members')
+    options = OPTIONS.copy()
+    if opts.includeprivate:
+        options.add('private-members')
 
     pkgname = module_join(master_package, subroot)
     context = {
@@ -166,7 +166,7 @@ def create_package_file(
         'is_namespace': is_namespace,
         'modulefirst': opts.modulefirst,
         'separatemodules': opts.separatemodules,
-        'automodule_options': options,
+        'automodule_options': sorted(options),
         'show_headings': not opts.noheadings,
         'maxdepth': opts.maxdepth,
     }
@@ -500,6 +500,15 @@ Note: By default this script will not overwrite already created files."""),
         ),
     )
     parser.add_argument(
+        '--automodule-options',
+        dest='automodule_options',
+        default='',
+        help=__(
+            'Comma-separated list of options to pass to automodule directive '
+            '(or use SPHINX_APIDOC_OPTIONS).'
+        ),
+    )
+    parser.add_argument(
         '-s',
         '--suffix',
         action='store',
@@ -607,6 +616,7 @@ class CliOptions(Protocol):
     noheadings: bool
     modulefirst: bool
     implicit_namespaces: bool
+    automodule_options: set[str]
     suffix: str
     full: bool
     append_syspath: bool
@@ -643,6 +653,10 @@ def main(argv: Sequence[str] = (), /) -> int:
         re.compile(fnmatch.translate(os.path.abspath(exclude)))
         for exclude in dict.fromkeys(args.exclude_pattern)
     )
+    if not args.automodule_options:
+        args.automodule_options = set()
+    elif isinstance(args.automodule_options, str):
+        args.automodule_options = set(args.automodule_options.split(','))
     written_files, modules = recurse_tree(rootpath, excludes, args, args.templatedir)
 
     if args.full:

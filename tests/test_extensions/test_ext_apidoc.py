@@ -507,8 +507,8 @@ def test_module_file(tmp_path):
         '\n'
         '.. automodule:: example\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
 
@@ -522,8 +522,8 @@ def test_module_file_noheadings(tmp_path):
     assert content == (
         '.. automodule:: example\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
 
@@ -560,24 +560,24 @@ def test_package_file(tmp_path):
         '\n'
         '.. automodule:: testpkg.hello\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
         '\n'
         'testpkg.world module\n'
         '--------------------\n'
         '\n'
         '.. automodule:: testpkg.world\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
         '\n'
         'Module contents\n'
         '---------------\n'
         '\n'
         '.. automodule:: testpkg\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
     content = (outdir / 'testpkg.subpkg.rst').read_text(encoding='utf8')
@@ -590,8 +590,8 @@ def test_package_file(tmp_path):
         '\n'
         '.. automodule:: testpkg.subpkg\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
 
@@ -622,8 +622,8 @@ def test_package_file_separate(tmp_path):
         '\n'
         '.. automodule:: testpkg\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
     content = (outdir / 'testpkg.example.rst').read_text(encoding='utf8')
@@ -633,8 +633,8 @@ def test_package_file_separate(tmp_path):
         '\n'
         '.. automodule:: testpkg.example\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
 
@@ -652,8 +652,8 @@ def test_package_file_module_first(tmp_path):
         '\n'
         '.. automodule:: testpkg\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
         '\n'
         'Submodules\n'
         '----------\n'
@@ -663,8 +663,8 @@ def test_package_file_module_first(tmp_path):
         '\n'
         '.. automodule:: testpkg.example\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
 
@@ -685,8 +685,8 @@ def test_package_file_without_submodules(tmp_path):
         '\n'
         '.. automodule:: testpkg\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
 
@@ -717,8 +717,8 @@ def test_namespace_package_file(tmp_path):
         '\n'
         '.. automodule:: testpkg.example\n'
         '   :members:\n'
-        '   :undoc-members:\n'
         '   :show-inheritance:\n'
+        '   :undoc-members:\n'
     )
 
 
