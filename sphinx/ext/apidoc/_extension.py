@@ -185,8 +185,8 @@ def _parse_module_options(
         )
 
     return ApidocOptions(
-        module_path=module_path,
         destdir=dest_path,
+        module_path=module_path,
         exclude_pattern=exclude_patterns,
         automodule_options=automodule_options,
         maxdepth=maxdepth,
@@ -204,9 +204,9 @@ def _check_list_of_strings(
     """
     if key not in options:
         return []
-    if not isinstance(options[key], list):
+    if not isinstance(options[key], list | tuple | set | frozenset):
         LOGGER.warning(
-            __("apidoc_modules item %i '%s' must be a list"),
+            __("apidoc_modules item %i '%s' must be a sequence"),
             index,
             key,
             type='apidoc',
