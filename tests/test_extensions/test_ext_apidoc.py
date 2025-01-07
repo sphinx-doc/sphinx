@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 import sphinx.ext.apidoc
-from sphinx.ext.apidoc import main as apidoc_main
+from sphinx.ext.apidoc._cli import main as apidoc_main
 
 if TYPE_CHECKING:
     from pathlib import Path
