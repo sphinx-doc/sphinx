@@ -60,10 +60,10 @@ def test_simple(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-custom-templates',
+    coderoot='test-ext-apidoc-custom-templates',
     options=[
         '--separate',
-        '--templatedir=tests/roots/test-apidoc-custom-templates/_templates',
+        '--templatedir=tests/roots/test-ext-apidoc-custom-templates/_templates',
     ],
 )
 def test_custom_templates(make_app, apidoc):
@@ -95,7 +95,7 @@ def test_custom_templates(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-pep420/a',
+    coderoot='test-ext-apidoc-pep420/a',
     options=['--implicit-namespaces'],
 )
 def test_pep_0420_enabled(make_app, apidoc):
@@ -143,7 +143,7 @@ def test_pep_0420_enabled(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-pep420/a',
+    coderoot='test-ext-apidoc-pep420/a',
     options=['--implicit-namespaces', '--separate'],
 )
 def test_pep_0420_enabled_separate(make_app, apidoc):
@@ -192,7 +192,7 @@ def test_pep_0420_enabled_separate(make_app, apidoc):
     assert 'a.b.x namespace\n' in txt
 
 
-@pytest.mark.apidoc(coderoot='test-apidoc-pep420/a')
+@pytest.mark.apidoc(coderoot='test-ext-apidoc-pep420/a')
 def test_pep_0420_disabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -205,7 +205,7 @@ def test_pep_0420_disabled(make_app, apidoc):
     print(app._warning.getvalue())
 
 
-@pytest.mark.apidoc(coderoot='test-apidoc-pep420/a/b')
+@pytest.mark.apidoc(coderoot='test-ext-apidoc-pep420/a/b')
 def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -224,7 +224,7 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     print(app._warning.getvalue())
 
 
-@pytest.mark.apidoc(coderoot='test-apidoc-trailing-underscore')
+@pytest.mark.apidoc(coderoot='test-ext-apidoc-trailing-underscore')
 def test_trailing_underscore(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').is_file()
@@ -243,7 +243,7 @@ def test_trailing_underscore(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-pep420/a',
+    coderoot='test-ext-apidoc-pep420/a',
     excludes=['b/c/d.py', 'b/e/f.py', 'b/e/__init__.py'],
     options=['--implicit-namespaces', '--separate'],
 )
@@ -261,7 +261,7 @@ def test_excludes(apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-pep420/a',
+    coderoot='test-ext-apidoc-pep420/a',
     excludes=['b/e'],
     options=['--implicit-namespaces', '--separate'],
 )
@@ -278,7 +278,7 @@ def test_excludes_subpackage_should_be_skipped(apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-pep420/a',
+    coderoot='test-ext-apidoc-pep420/a',
     excludes=['b/e/f.py'],
     options=['--implicit-namespaces', '--separate'],
 )
@@ -295,7 +295,7 @@ def test_excludes_module_should_be_skipped(apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-pep420/a',
+    coderoot='test-ext-apidoc-pep420/a',
     excludes=[],
     options=['--implicit-namespaces', '--separate'],
 )
@@ -353,7 +353,7 @@ def test_extension_parsed(apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-toc/mypackage',
+    coderoot='test-ext-apidoc-toc/mypackage',
     options=['--implicit-namespaces'],
 )
 def test_toc_all_references_should_exist_pep420_enabled(apidoc):
@@ -385,7 +385,7 @@ def test_toc_all_references_should_exist_pep420_enabled(apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-toc/mypackage',
+    coderoot='test-ext-apidoc-toc/mypackage',
 )
 def test_toc_all_references_should_exist_pep420_disabled(apidoc):
     """All references in toc should exist. This test doesn't say if
@@ -432,7 +432,7 @@ def extract_toc(path):
 
 
 @pytest.mark.apidoc(
-    coderoot='test-apidoc-subpackage-in-toc',
+    coderoot='test-ext-apidoc-subpackage-in-toc',
     options=['--separate'],
 )
 def test_subpackage_in_toc(apidoc):
@@ -733,7 +733,7 @@ def test_no_duplicates(rootdir, tmp_path):
         # Ensure test works on Windows
         sphinx.ext.apidoc._generate.PY_SUFFIXES += ('.so',)
 
-        package = rootdir / 'test-apidoc-duplicates' / 'fish_licence'
+        package = rootdir / 'test-ext-apidoc-duplicates' / 'fish_licence'
         outdir = tmp_path / 'out'
         apidoc_main(['-o', str(outdir), '-T', str(package), '--implicit-namespaces'])
 
