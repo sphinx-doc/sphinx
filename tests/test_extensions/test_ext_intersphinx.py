@@ -88,7 +88,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
         srcdir=app.srcdir,
     )
     assert 'intersphinx inventory has moved' not in app.status.getvalue()
-    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
+    assert InventoryFile.loads.call_args[1]['uri'] == 'https://hostname/'
 
     # same uri and inv, redirected
     app.status.seek(0)
@@ -106,7 +106,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
         'https://hostname/%s -> https://hostname/new/%s\n'
         % (INVENTORY_FILENAME, INVENTORY_FILENAME)
     )
-    assert InventoryFile.load.call_args[0][1] == 'https://hostname/new'
+    assert InventoryFile.loads.call_args[1]['uri'] == 'https://hostname/new'
 
     # different uri and inv, not redirected
     app.status.seek(0)
@@ -120,7 +120,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
         srcdir=app.srcdir,
     )
     assert 'intersphinx inventory has moved' not in app.status.getvalue()
-    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
+    assert InventoryFile.loads.call_args[1]['uri'] == 'https://hostname/'
 
     # different uri and inv, redirected
     app.status.seek(0)
@@ -138,7 +138,7 @@ def test_fetch_inventory_redirection(get_request, InventoryFile, app):
         'https://hostname/new/%s -> https://hostname/other/%s\n'
         % (INVENTORY_FILENAME, INVENTORY_FILENAME)
     )
-    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
+    assert InventoryFile.loads.call_args[1]['uri'] == 'https://hostname/'
 
 
 @pytest.mark.sphinx('html', testroot='root')
