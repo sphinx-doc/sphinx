@@ -376,7 +376,7 @@ class Only(SphinxDirective):
             # Use these depths to determine where the nested sections should
             # be placed in the doctree.
             n_sects_to_raise = current_depth - nested_depth + 1
-            parent = cast(nodes.Element, self.state.parent)
+            parent = cast('nodes.Element', self.state.parent)
             for _i in range(n_sects_to_raise):
                 if parent.parent:
                     parent = parent.parent
@@ -412,7 +412,7 @@ class Include(BaseInclude, SphinxDirective):
 
             # Emit the "include-read" event
             arg = [text]
-            self.env.app.events.emit('include-read', path, docname, arg)
+            self.env.events.emit('include-read', path, docname, arg)
             text = arg[0]
 
             # Split back into lines and reattach the two marker lines
@@ -424,7 +424,7 @@ class Include(BaseInclude, SphinxDirective):
             return StateMachine.insert_input(self.state_machine, include_lines, source)
 
         # Only enable this patch if there are listeners for 'include-read'.
-        if self.env.app.events.listeners.get('include-read'):
+        if self.env.events.listeners.get('include-read'):
             # See https://github.com/python/mypy/issues/2427 for details on the mypy issue
             self.state_machine.insert_input = _insert_input
 

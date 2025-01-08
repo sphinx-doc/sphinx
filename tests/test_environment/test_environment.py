@@ -1,5 +1,7 @@
 """Test the BuildEnvironment class."""
 
+from __future__ import annotations
+
 import shutil
 from pathlib import Path
 
@@ -41,11 +43,12 @@ def test_config_status(make_app, app_params):
     # incremental build (config entry changed)
     app3 = make_app(*args, confoverrides={'root_doc': 'indexx'}, **kwargs)
     fname = app3.srcdir / 'index.rst'
+    other_fname = app3.srcdir / 'indexx.rst'
     assert fname.is_file()
-    shutil.move(fname, fname[:-4] + 'x.rst')
+    shutil.move(fname, other_fname)
     assert app3.env.config_status == CONFIG_CHANGED
     app3.build()
-    shutil.move(fname[:-4] + 'x.rst', fname)
+    shutil.move(other_fname, fname)
     output = strip_colors(app3.status.getvalue())
     assert 'The configuration has changed' in output
     assert "[config changed ('master_doc')] 1 added," in output
@@ -182,14 +185,14 @@ def test_env_relfn2path(app):
     assert absfn == str(app.srcdir / 'logo.jpg')
 
     # omit docname (w/ current docname)
-    app.env.temp_data['docname'] = 'subdir/document'
+    app.env.current_document.docname = 'subdir/document'
     relfn, absfn = app.env.relfn2path('images/logo.jpg')
     assert Path(relfn) == Path('subdir/images/logo.jpg')
     assert absfn == str(app.srcdir / 'subdir' / 'images' / 'logo.jpg')
 
     # omit docname (w/o current docname)
-    app.env.temp_data.clear()
-    with pytest.raises(KeyError):
+    app.env.current_document.clear()
+    with pytest.raises(KeyError, match=r"^'docname'$"):
         app.env.relfn2path('images/logo.jpg')
 
 

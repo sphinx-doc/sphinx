@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import os
 import posixpath
 import re
 import urllib.parse
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -19,6 +17,8 @@ from sphinx.util.docutils import SphinxTranslator
 from sphinx.util.images import get_image_size
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from docutils.nodes import Element, Node, Text
 
     from sphinx.builders import Builder
@@ -66,6 +66,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self._table_row_indices = [0]
         self._fieldlist_row_indices = [0]
         self.required_params_left = 0
+        self._has_maths_elements: bool = False
 
     def visit_start_of_file(self, node: Element) -> None:
         # only occurs in the single-file builder
@@ -233,7 +234,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             next_is_required = (
                 not is_last_group
                 and self.list_is_required_param[self.param_group_index + 1]
-            )  # fmt: skip
+            )
             opt_param_left_at_level = self.params_left_at_level > 0
             if (
                 opt_param_left_at_level
@@ -428,9 +429,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
-        figtype = self.builder.env.domains.standard_domain.get_enumerable_node_type(
-            node
-        )
+        figtype = self._domains.standard_domain.get_enumerable_node_type(node)
         if figtype:
             if len(node['ids']) == 0:
                 msg = __('Any IDs not assigned for %s node') % node.tagname
@@ -680,7 +679,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def visit_productionlist(self, node: Element) -> None:
         self.body.append(self.starttag(node, 'pre'))
-        productionlist = cast(Iterable[addnodes.production], node)
+        productionlist = cast('Iterable[addnodes.production]', node)
         names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
@@ -761,8 +760,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
             if not ('width' in node and 'height' in node):
-                path = os.path.join(self.builder.srcdir, olduri)  # type: ignore[has-type]
-                size = get_image_size(path)
+                size = get_image_size(self.builder.srcdir / olduri)
                 if size is None:
                     logger.warning(
                         __('Could not obtain image size. :scale: option is ignored.'),
@@ -967,6 +965,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             node['classes'].append('field-odd')
 
     def visit_math(self, node: Element, math_env: str = '') -> None:
+        self._has_maths_elements = True
+
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         visit, _ = self.builder.app.registry.html_inline_math_renderers[name]
@@ -980,6 +980,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             depart(self, node)
 
     def visit_math_block(self, node: Element, math_env: str = '') -> None:
+        self._has_maths_elements = True
+
         # see validate_math_renderer
         name: str = self.builder.math_renderer_name  # type: ignore[assignment]
         visit, _ = self.builder.app.registry.html_block_math_renderers[name]

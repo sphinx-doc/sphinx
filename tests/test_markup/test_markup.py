@@ -1,5 +1,7 @@
 """Test various Sphinx-specific markup extensions."""
 
+from __future__ import annotations
+
 import re
 import warnings
 from types import SimpleNamespace
@@ -24,6 +26,7 @@ from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 @pytest.fixture
 def settings(app):
+    env = app.env
     texescape.init()  # otherwise done by the latex builder
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -35,10 +38,10 @@ def settings(app):
         )
     settings = optparser.get_default_values()
     settings.smart_quotes = True
-    settings.env = app.builder.env
-    settings.env.temp_data['docname'] = 'dummy'
+    settings.env = env
+    settings.env.current_document.docname = 'dummy'
     settings.contentsname = 'dummy'
-    domain_context = sphinx_domains(settings.env)
+    domain_context = sphinx_domains(env)
     domain_context.enable()
     yield settings
     domain_context.disable()
@@ -403,10 +406,7 @@ def get_verifier(verify, verify_re):
             'verify',
             ':kbd:`-`',
             '<p><kbd class="kbd docutils literal notranslate">-</kbd></p>',
-            (
-                '\\sphinxAtStartPar\n'
-                '\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}'
-            ),
+            '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{\\sphinxhyphen{}}}',
         ),
         (
             # kbd role

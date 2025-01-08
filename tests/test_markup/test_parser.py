@@ -1,5 +1,7 @@
 """Tests parsers module."""
 
+from __future__ import annotations
+
 from unittest.mock import Mock, patch
 
 import pytest
@@ -27,7 +29,7 @@ def test_RSTParser_prolog_epilog(RSTStateMachine, app):
     ]
 
     # with rst_prolog
-    app.env.config.rst_prolog = 'this is rst_prolog\nhello reST!'
+    app.config.rst_prolog = 'this is rst_prolog\nhello reST!'
     parser.parse(text, document)
     (content, _), _ = RSTStateMachine().run.call_args
     assert list(content.xitems()) == [
@@ -39,8 +41,8 @@ def test_RSTParser_prolog_epilog(RSTStateMachine, app):
     ]
 
     # with rst_epilog
-    app.env.config.rst_prolog = None
-    app.env.config.rst_epilog = 'this is rst_epilog\ngood-bye reST!'
+    app.config.rst_prolog = None
+    app.config.rst_epilog = 'this is rst_epilog\ngood-bye reST!'
     parser.parse(text, document)
     (content, _), _ = RSTStateMachine().run.call_args
     assert list(content.xitems()) == [
@@ -52,8 +54,8 @@ def test_RSTParser_prolog_epilog(RSTStateMachine, app):
     ]
 
     # expandtabs / convert whitespaces
-    app.env.config.rst_prolog = None
-    app.env.config.rst_epilog = None
+    app.config.rst_prolog = None
+    app.config.rst_epilog = None
     text = '\thello Sphinx world\n\v\fSphinx is a document generator'
     parser.parse(text, document)
     (content, _), _ = RSTStateMachine().run.call_args

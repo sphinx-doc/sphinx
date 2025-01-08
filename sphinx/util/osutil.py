@@ -5,19 +5,20 @@ from __future__ import annotations
 import contextlib
 import filecmp
 import os
+import os.path
 import re
 import shutil
 import sys
 import unicodedata
 from io import StringIO
-from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 
 if TYPE_CHECKING:
-    from typing import Any
+    from types import TracebackType
+    from typing import Any, Self
 
 # SEP separates path elements in the canonical file names
 #
@@ -28,12 +29,12 @@ SEP = '/'
 
 
 def os_path(canonical_path: str, /) -> str:
-    return canonical_path.replace(SEP, path.sep)
+    return canonical_path.replace(SEP, os.path.sep)
 
 
 def canon_path(native_path: str | os.PathLike[str], /) -> str:
     """Return path in OS-independent form"""
-    return os.fspath(native_path).replace(path.sep, SEP)
+    return os.fspath(native_path).replace(os.path.sep, SEP)
 
 
 def path_stabilize(filepath: str | os.PathLike[str], /) -> str:
@@ -169,11 +170,27 @@ def relpath(
         return str(path)
 
 
+def _relative_path(path: Path, root: Path, /) -> Path:
+    """Return a relative filepath to *path* from the given *root* directory.
+
+    This is an alternative of ``Path.relative_to``.
+    It returns the original path if *path* and *root* are on different drives,
+    which may happen on Windows.
+    """
+    if path.anchor != root.anchor or '..' in root.parts:
+        # If the drives are different, no relative path exists.
+        # Path.relative_to() requires fully-resolved paths (no '..').
+        return path
+    if sys.version_info[:2] < (3, 12):
+        return Path(os.path.relpath(path, root))
+    return path.relative_to(root, walk_up=True)
+
+
 safe_relpath = relpath  # for compatibility
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-abspath = path.abspath
+abspath = os.path.abspath
 
 
 class FileAvoidWrite:
@@ -210,19 +227,22 @@ class FileAvoidWrite:
         try:
             with open(self._path, encoding='utf-8') as old_f:
                 old_content = old_f.read()
-                if old_content == buf:
-                    return
+            if old_content == buf:
+                return
         except OSError:
             pass
 
         with open(self._path, 'w', encoding='utf-8') as f:
             f.write(buf)
 
-    def __enter__(self) -> FileAvoidWrite:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> bool:
         self.close()
         return True
@@ -236,7 +256,7 @@ class FileAvoidWrite:
         return getattr(self._io, name)
 
 
-def rmtree(path: str) -> None:
+def rmtree(path: str | os.PathLike[str], /) -> None:
     if os.path.isdir(path):
         shutil.rmtree(path)
     else:

@@ -1,5 +1,7 @@
 """Tests the reStructuredText domain."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx import addnodes

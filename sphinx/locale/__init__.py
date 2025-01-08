@@ -141,7 +141,7 @@ def init(
     return translator, has_translation
 
 
-_LOCALE_DIR = Path(__file__).parent.resolve()
+_LOCALE_DIR = Path(__file__).resolve().parent
 
 
 def init_console(
@@ -184,7 +184,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     The extension can use this API to translate the messages on the
     extension::
 
-        import os
+        from pathlib import Path
         from sphinx.locale import get_translation
 
         MESSAGE_CATALOG_NAME = 'myextension'  # name of *.pot, *.po and *.mo files
@@ -193,8 +193,8 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
 
         def setup(app):
-            package_dir = os.path.abspath(os.path.dirname(__file__))
-            locale_dir = os.path.join(package_dir, 'locales')
+            package_dir = Path(__file__).resolve().parent
+            locale_dir = package_dir / 'locales'
             app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
 
     With this code, sphinx searches a message catalog from
@@ -207,7 +207,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]  # NoQA: E501
+            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]
         else:
             translator = get_translator(catalog, namespace)
             return translator.gettext(message)

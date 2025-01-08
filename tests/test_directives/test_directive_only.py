@@ -1,5 +1,7 @@
 """Test the only directive with the test root."""
 
+from __future__ import annotations
+
 import re
 
 import pytest
@@ -28,9 +30,9 @@ def test_sectioning(app):
         assert prefix == parent_num, f'Section out of place: {title!r}'
         for i, subsect in enumerate(sects[1]):
             num = subsect[0].split()[0]
-            assert re.match(
-                '[0-9]+[.0-9]*[.]', num
-            ), f'Unnumbered section: {subsect[0]!r}'
+            assert re.match('[0-9]+[.0-9]*[.]', num), (
+                f'Unnumbered section: {subsect[0]!r}'
+            )
             testsects(prefix + str(i + 1) + '.', subsect, indent + 4)
 
     app.build(filenames=[app.srcdir / 'only.rst'])
@@ -41,6 +43,6 @@ def test_sectioning(app):
     for i, s in enumerate(parts):
         testsects(str(i + 1) + '.', s, 4)
     actual_headings = '\n'.join(p[0] for p in parts)
-    assert (
-        len(parts) == 4
-    ), f'Expected 4 document level headings, got:\n{actual_headings}'
+    assert len(parts) == 4, (
+        f'Expected 4 document level headings, got:\n{actual_headings}'
+    )

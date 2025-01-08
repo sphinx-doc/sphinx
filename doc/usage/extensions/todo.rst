@@ -7,6 +7,9 @@
 
 .. versionadded:: 0.5
 
+.. role:: code-py(code)
+   :language: Python
+
 There are two additional directives when using this extension:
 
 .. rst:directive:: todo
@@ -34,21 +37,26 @@ Configuration
 -------------
 
 .. confval:: todo_include_todos
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    If this is ``True``, :rst:dir:`todo` and :rst:dir:`todolist` produce output,
-   else they produce nothing.  The default is ``False``.
+   else they produce nothing.
 
 .. confval:: todo_emit_warnings
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    If this is ``True``, :rst:dir:`todo` emits a warning for each TODO entries.
-   The default is ``False``.
 
    .. versionadded:: 1.5
 
 .. confval:: todo_link_only
+   :type: :code-py:`bool`
+   :default: :code-py:`False`
 
    If this is ``True``, :rst:dir:`todolist` produce output without file path and
-   line, The default is ``False``.
+   line.
 
    .. versionadded:: 1.4
 

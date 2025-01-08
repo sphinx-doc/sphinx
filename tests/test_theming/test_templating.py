@@ -1,5 +1,7 @@
 """Test templating."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.ext.autosummary.generate import setup_documenters

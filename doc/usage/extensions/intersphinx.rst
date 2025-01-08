@@ -10,6 +10,9 @@
 
 .. versionadded:: 0.5
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension can generate links to the documentation of objects in external
 projects, either explicitly through the :rst:role:`external` role, or as a
 fallback resolution for any other cross-reference.
@@ -54,6 +57,8 @@ To use Intersphinx linking, add ``'sphinx.ext.intersphinx'`` to your
 linking:
 
 .. confval:: intersphinx_mapping
+   :type: :code-py:`dict[str, tuple[str, tuple[str, tuple[str | None, ...]]]]`
+   :default: :code-py:`{}`
 
    This config value contains the locations and names of other projects that
    should be linked to in this documentation.
@@ -129,23 +134,27 @@ linking:
       }
 
 .. confval:: intersphinx_cache_limit
+   :type: :code-py:`int`
+   :default: :code-py:`5` (five days)
 
-   The maximum number of days to cache remote inventories.  The default is
-   ``5``, meaning five days.  Set this to a negative value to cache inventories
-   for unlimited time.
+   The maximum number of days to cache remote inventories.
+   Set this to a negative value to cache inventories for unlimited time.
 
 .. confval:: intersphinx_timeout
+   :type: :code-py:`int | float | None`
+   :default: :code-py:`None`
 
-   The number of seconds for timeout.  The default is ``None``, meaning do not
-   timeout.
+   The number of seconds for timeout. Use ``None`` for no timeout.
 
    .. note::
 
       timeout is not a time limit on the entire response download; rather, an
-      exception is raised if the server has not issued a response for timeout
+      exception is raised if the server has not issued a response for *timeout*
       seconds.
 
 .. confval:: intersphinx_disabled_reftypes
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`['std:doc']`
 
    .. versionadded:: 4.3
 
@@ -160,8 +169,6 @@ linking:
    - the name of a domain, and a wildcard, e.g.,
      ``std:*``, ``py:*``, or ``cpp:*``, or
    - simply a wildcard ``*``.
-
-   The default value is ``['std:doc']``.
 
    When a non-:rst:role:`external` cross-reference is being resolved by
    intersphinx, skip resolution if it matches one of the specifications in this

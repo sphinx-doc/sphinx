@@ -1,10 +1,12 @@
 """Test the autosummary extension."""
 
+from __future__ import annotations
+
 import sys
 from contextlib import chdir
 from io import StringIO
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
-from xml.etree.ElementTree import Element
 
 import pytest
 from docutils import nodes
@@ -25,6 +27,9 @@ from sphinx.ext.autosummary.generate import (
 from sphinx.ext.autosummary.generate import main as autogen_main
 from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.docutils import new_document
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
 
 html_warnfile = StringIO()
 
@@ -142,7 +147,11 @@ def test_extract_summary(capsys):
     assert err == ''
 
 
-@pytest.mark.sphinx('dummy', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary
     import sphinx.ext.autosummary.generate
@@ -181,9 +190,9 @@ def test_get_items_summary(make_app, app_params):
     assert html_warnings == ''
 
     expected_values = {
-        'withSentence': 'I have a sentence which spans multiple lines.',
-        'noSentence': "this doesn't start with a capital.",
-        'emptyLine': 'This is the real summary',
+        'with_sentence': 'I have a sentence which spans multiple lines.',
+        'no_sentence': "this doesn't start with a capital.",
+        'empty_line': 'This is the real summary',
         'module_attr': 'This is a module attribute',
         'C.class_attr': 'This is a class attribute',
         'C.instance_attr': 'This is an instance attribute',
@@ -192,9 +201,9 @@ def test_get_items_summary(make_app, app_params):
         'C.C2': 'This is a nested inner class docstring',
     }
     for key, expected in expected_values.items():
-        assert (
-            autosummary_items[key][2] == expected
-        ), f'Summary for {key} was {autosummary_items[key]!r} - expected {expected!r}'
+        assert autosummary_items[key][2] == expected, (
+            f'Summary for {key} was {autosummary_items[key]!r} - expected {expected!r}'
+        )
 
     # check an item in detail
     assert 'func' in autosummary_items
@@ -214,7 +223,11 @@ def str_content(elem: Element) -> str:
         return ''.join(str_content(e) for e in elem)
 
 
-@pytest.mark.sphinx('xml', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'xml',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_escaping(app):
     app.build(force_all=True)
 
@@ -566,11 +579,7 @@ def test_autosummary_generate(app):
     Foo = path.read_text(encoding='utf8')
     assert '.. automethod:: __init__' in Foo
     assert (
-        '   .. autosummary::\n'
-        '   \n'
-        '      ~Foo.__init__\n'
-        '      ~Foo.bar\n'
-        '   \n'
+        '   .. autosummary::\n   \n      ~Foo.__init__\n      ~Foo.bar\n   \n'
     ) in Foo
     assert (
         '   .. autosummary::\n'
@@ -591,9 +600,7 @@ def test_autosummary_generate(app):
     path = app.srcdir / 'generated' / 'autosummary_dummy_module.Foo.value.rst'
     Foo_value = path.read_text(encoding='utf8')
     assert (
-        '.. currentmodule:: autosummary_dummy_module\n'
-        '\n'
-        '.. autoattribute:: Foo.value'
+        '.. currentmodule:: autosummary_dummy_module\n\n.. autoattribute:: Foo.value'
     ) in Foo_value
 
     path = app.srcdir / 'generated' / 'autosummary_dummy_module.qux.rst'
@@ -745,7 +752,11 @@ def test_autosummary_filename_map(app):
     assert html_warnings == ''
 
 
-@pytest.mark.sphinx('latex', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'latex',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_autosummary_latex_table_colspec(app):
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
@@ -820,17 +831,10 @@ def test_autosummary_module_all(app):
         ).read_text(encoding='utf8')
         assert '   .. autosummary::\n   \n      PublicBar\n   \n' in module
         assert (
-            '   .. autosummary::\n'
-            '   \n'
-            '      public_foo\n'
-            '      public_baz\n'
-            '   \n'
+            '   .. autosummary::\n   \n      public_foo\n      public_baz\n   \n'
         ) in module
         assert (
-            '.. autosummary::\n'
-            '   :toctree:\n'
-            '   :recursive:\n\n'
-            '   extra_dummy_module\n'
+            '.. autosummary::\n   :toctree:\n   :recursive:\n\n   extra_dummy_module\n'
         ) in module
     finally:
         sys.modules.pop('autosummary_dummy_package_all', None)

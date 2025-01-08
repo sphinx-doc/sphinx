@@ -13,6 +13,8 @@ babel_runner.py compile
     Compile the ".po" catalogue files to ".mo" and ".js" files.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import sys
@@ -33,7 +35,7 @@ from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
 IS_CI = 'CI' in environ
-ROOT = Path(__file__).parent.parent.resolve()
+ROOT = Path(__file__).resolve().parent.parent
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
     'variable_end_string': '%>',
@@ -82,11 +84,12 @@ def run_extract() -> None:
     log = _get_logger()
 
     with open('sphinx/__init__.py', encoding='utf-8') as f:
-        for line in f.read().splitlines():
-            if line.startswith('__version__ = '):
-                # remove prefix; strip whitespace; remove quotation marks
-                sphinx_version = line[14:].strip()[1:-1]
-                break
+        lines = f.readlines()
+    for line in lines:
+        if line.startswith('__version__ = '):
+            # remove prefix; strip whitespace; remove quotation marks
+            sphinx_version = line[14:].strip()[1:-1]
+            break
 
     catalogue = Catalog(project='Sphinx', version=sphinx_version, charset='utf-8')
 

@@ -44,14 +44,7 @@ def test_lineblock(app):
     # regression test for #1109: need empty line after line block
     app.build()
     result = (app.outdir / 'lineblock.txt').read_text(encoding='utf8')
-    expect = (
-        '* one\n'
-        '\n'
-        '     line-block 1\n'
-        '     line-block 2\n'
-        '\n'
-        'followed paragraph.\n'
-    )
+    expect = '* one\n\n     line-block 1\n     line-block 2\n\nfollowed paragraph.\n'
     assert result == expect
 
 
@@ -265,16 +258,5 @@ def test_secnums(app):
     assert lines[5] == ''
     assert lines[6] == '  * Sub Bb'
     doc2 = (app.outdir / 'doc2.txt').read_text(encoding='utf8')
-    expect = (
-        'Section B\n'
-        '*********\n'
-        '\n'
-        '\n'
-        'Sub Ba\n'
-        '======\n'
-        '\n'
-        '\n'
-        'Sub Bb\n'
-        '======\n'
-    )
+    expect = 'Section B\n*********\n\n\nSub Ba\n======\n\n\nSub Bb\n======\n'
     assert doc2 == expect

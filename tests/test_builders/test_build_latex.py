@@ -1,5 +1,7 @@
 """Test the build process with LaTeX builder with the test root."""
 
+from __future__ import annotations
+
 import http.server
 import os
 import re
@@ -9,6 +11,7 @@ from pathlib import Path
 from shutil import copyfile
 from subprocess import CalledProcessError
 
+import pygments
 import pytest
 
 from sphinx.builders.latex import default_latex_documents
@@ -98,7 +101,7 @@ class RemoteImageHandler(http.server.BaseHTTPRequestHandler):
         if self.path == '/sphinx.png':
             with open('tests/roots/test-local-logo/images/img.png', 'rb') as f:
                 content = f.read()
-                content_type = 'image/png'
+            content_type = 'image/png'
 
         if content:
             self.send_response(200, 'OK')
@@ -2113,12 +2116,16 @@ def test_latex_container(app):
 
 @pytest.mark.sphinx('latex', testroot='reST-code-role')
 def test_latex_code_role(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = r'\PYG{+w}{ }'
+    else:
+        sp = ' '
+
     app.build()
     content = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
     common_content = (
-        r'\PYG{k}{def} '
-        r'\PYG{n+nf}{foo}'
+        r'\PYG{k}{def}' + sp + r'\PYG{n+nf}{foo}'
         r'\PYG{p}{(}'
         r'\PYG{l+m+mi}{1} '
         r'\PYG{o}{+} '
@@ -2134,7 +2141,7 @@ def test_latex_code_role(app):
         r'\PYG{k}{pass}'
     )
     assert (
-        r'Inline \sphinxcode{\sphinxupquote{%'  # NoQA: ISC003
+        r'Inline \sphinxcode{\sphinxupquote{%'
         + '\n'
         + common_content
         + '%\n}} code block'
