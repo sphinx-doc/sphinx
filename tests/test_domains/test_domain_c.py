@@ -923,11 +923,7 @@ def test_domain_c_parse_cvar(app):
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_domain_c_parse_no_index_entry(app):
-    text = (
-        '.. c:function:: void f()\n'
-        '.. c:function:: void g()\n'
-        '   :no-index-entry:\n'
-    )
+    text = '.. c:function:: void f()\n.. c:function:: void g()\n   :no-index-entry:\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(doctree, (addnodes.index, desc, addnodes.index, desc))
     assert_node(

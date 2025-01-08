@@ -2460,7 +2460,7 @@ class LaTeXTranslator(SphinxTranslator):
 
     def visit_math_block(self, node: Element) -> None:
         if node.get('label'):
-            label = f"equation:{node['docname']}:{node['label']}"
+            label = f'equation:{node["docname"]}:{node["label"]}'
         else:
             label = None
 
@@ -2477,7 +2477,7 @@ class LaTeXTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math_reference(self, node: Element) -> None:
-        label = f"equation:{node['docname']}:{node['target']}"
+        label = f'equation:{node["docname"]}:{node["target"]}'
         eqref_format = self.config.math_eqref_format
         if eqref_format:
             try:
