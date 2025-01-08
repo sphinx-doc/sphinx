@@ -1081,7 +1081,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'python_maximum_signature_line_length', None, 'env', {int, type(None)}
     )
     app.add_config_value(
-        'python_trailing_comma_in_multi_line_signatures', True, 'env', bool,
+        'python_trailing_comma_in_multi_line_signatures',
+        True,
+        'env',
+        bool,
     )
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)

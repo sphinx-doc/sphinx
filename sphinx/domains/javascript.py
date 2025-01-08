@@ -110,7 +110,9 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             and (len(sig) > max_len > 0)
         )
 
-        trailing_comma = self.env.config.javascript_trailing_comma_in_multi_line_signatures
+        trailing_comma = (
+            self.env.config.javascript_trailing_comma_in_multi_line_signatures
+        )
 
         display_prefix = self.get_display_prefix()
         if display_prefix:
@@ -571,7 +573,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'javascript_maximum_signature_line_length', None, 'env', {int, type(None)}
     )
     app.add_config_value(
-        'javascript_trailing_comma_in_multi_line_signatures', True, 'env', bool,
+        'javascript_trailing_comma_in_multi_line_signatures',
+        True,
+        'env',
+        bool,
     )
     return {
         'version': 'builtin',

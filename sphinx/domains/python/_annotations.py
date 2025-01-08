@@ -398,7 +398,8 @@ class _TypeParameterListParser(TokenProcessor):
 
 
 def _parse_type_list(
-    tp_list: str, env: BuildEnvironment,
+    tp_list: str,
+    env: BuildEnvironment,
     multi_line_parameter_list: bool = False,
     trailing_comma: bool = True,
 ) -> addnodes.desc_type_parameter_list:
@@ -463,7 +464,8 @@ def _parse_type_list(
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment,
+    arglist: str,
+    env: BuildEnvironment,
     multi_line_parameter_list: bool = False,
     trailing_comma: bool = True,
 ) -> addnodes.desc_parameterlist:
@@ -526,7 +528,8 @@ def _parse_arglist(
 
 
 def _pseudo_parse_arglist(
-    signode: desc_signature, arglist: str,
+    signode: desc_signature,
+    arglist: str,
     multi_line_parameter_list: bool = False,
     trailing_comma: bool = True,
 ) -> None:
