@@ -244,7 +244,8 @@ def is_classmethod_descriptor(
 ) -> TypeIs[types.ClassMethodDescriptorType]:
     """Check if the object is a :class:`~types.ClassMethodDescriptorType`.
 
-    This is typically useful to check if a built-in method is a class method.
+    This check is stricter than :func:`is_builtin_classmethod_like` as
+    a classmethod descriptor does not have a ``__func__`` attribute.
     """
     if isinstance(obj, types.ClassMethodDescriptorType):
         return True
@@ -258,8 +259,14 @@ def is_classmethod_descriptor(
     return False
 
 
-def is_builtin_classmethod(obj: Any, cls: Any = None, name: str | None = None) -> bool:
-    """Check if the object is a class method implemented in C."""
+def is_builtin_classmethod_like(obj: Any, cls: Any = None, name: str | None = None) -> bool:
+    """Check if the object looks like a class method implemented in C.
+
+    This is equivalent to test that *obj* is a class method descriptor
+    or is a built-in object with a ``__self__`` attribute that is a type,
+    or that ``parent_class.__dict__[name]`` satisfies those properties
+    for some parent class in *cls* MRO.
+    """
     if is_classmethod_descriptor(obj, cls, name):
         return True
     if (
@@ -283,8 +290,8 @@ def is_builtin_classmethod(obj: Any, cls: Any = None, name: str | None = None) -
 
 
 def is_classmethod_like(obj: Any, cls: Any = None, name: str | None = None) -> bool:
-    """Check if the object behaves like a class method."""
-    return isclassmethod(obj, cls, name) or is_builtin_classmethod(obj, cls, name)
+    """Check if the object looks like a class method."""
+    return isclassmethod(obj, cls, name) or is_builtin_classmethod_like(obj, cls, name)
 
 
 def isstaticmethod(
