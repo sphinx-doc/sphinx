@@ -355,19 +355,17 @@ def get_verifier(verify, verify_re):
             'verify',
             ':kbd:`Control+X`',
             (
-                '<p><span class="kbd compound">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">Control</kbd>'
                 '+'
                 '<kbd class="kbd docutils literal notranslate">X</kbd>'
-                '</span></p>'
+                '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\DUrole{kbd}{\\DUrole{compound}{'
                 '\\sphinxkeyboard{\\sphinxupquote{Control}}'
                 '+'
                 '\\sphinxkeyboard{\\sphinxupquote{X}}'
-                '}}'
             ),
         ),
         (
@@ -375,19 +373,17 @@ def get_verifier(verify, verify_re):
             'verify',
             ':kbd:`Alt+^`',
             (
-                '<p><span class="kbd compound">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
                 '+'
                 '<kbd class="kbd docutils literal notranslate">^</kbd>'
-                '</span></p>'
+                '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\DUrole{kbd}{\\DUrole{compound}{'
                 '\\sphinxkeyboard{\\sphinxupquote{Alt}}'
                 '+'
                 '\\sphinxkeyboard{\\sphinxupquote{\\textasciicircum{}}}'
-                '}}'
             ),
         ),
         (
@@ -395,7 +391,7 @@ def get_verifier(verify, verify_re):
             'verify',
             ':kbd:`M-x  M-s`',
             (
-                '<p><span class="kbd compound">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
                 '-'
                 '<kbd class="kbd docutils literal notranslate">x</kbd>'
@@ -403,11 +399,10 @@ def get_verifier(verify, verify_re):
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
                 '-'
                 '<kbd class="kbd docutils literal notranslate">s</kbd>'
-                '</span></p>'
+                '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\DUrole{kbd}{\\DUrole{compound}{'
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
                 '\\sphinxhyphen{}'
                 '\\sphinxkeyboard{\\sphinxupquote{x}}'
@@ -415,7 +410,6 @@ def get_verifier(verify, verify_re):
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
                 '\\sphinxhyphen{}'
                 '\\sphinxkeyboard{\\sphinxupquote{s}}'
-                '}}'
             ),
         ),
         (
@@ -444,23 +438,21 @@ def get_verifier(verify, verify_re):
             'verify',
             ':kbd:`⌘+⇧+M`',
             (
-                '<p><span class="kbd compound">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">⌘</kbd>'
                 '+'
                 '<kbd class="kbd docutils literal notranslate">⇧</kbd>'
                 '+'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
-                '</span></p>'
+                '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\DUrole{kbd}{\\DUrole{compound}{'
                 '\\sphinxkeyboard{\\sphinxupquote{⌘}}'
                 '+'
                 '\\sphinxkeyboard{\\sphinxupquote{⇧}}'
                 '+'
                 '\\sphinxkeyboard{\\sphinxupquote{M}}'
-                '}}'
             ),
         ),
         (
