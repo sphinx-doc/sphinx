@@ -488,7 +488,7 @@ class Keyboard(SphinxRole):
     # capture ('-', '+', '^', or whitespace) in between any two characters
     _pattern: Final = re.compile(r'(?<=.)([\-+^]| +)(?=.)')
 
-    def run(self) -> tuple[list[Element | nodes.Text], list[system_message]]:
+    def run(self) -> tuple[list[Node], list[system_message]]:
         classes = ['kbd']
         if 'classes' in self.options:
             classes.extend(self.options['classes'])
@@ -497,7 +497,7 @@ class Keyboard(SphinxRole):
         if len(parts) == 1 or self._is_multi_word_key(parts):
             return [nodes.literal(self.rawtext, self.text, classes=classes)], []
 
-        compound = []
+        compound: list[Node] = []
         while parts:
             if self._is_multi_word_key(parts):
                 key = ''.join(parts[:3])
