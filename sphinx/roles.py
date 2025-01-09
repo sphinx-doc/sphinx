@@ -29,7 +29,6 @@ if TYPE_CHECKING:
 generic_docroles = {
     'command': addnodes.literal_strong,
     'dfn': nodes.emphasis,
-    'kbd': nodes.literal,
     'mailheader': addnodes.literal_emphasis,
     'makevar': addnodes.literal_strong,
     'mimetype': addnodes.literal_emphasis,
@@ -479,6 +478,60 @@ class Abbreviation(SphinxRole):
         return [nodes.abbreviation(self.rawtext, text, **options)], []
 
 
+class Keyboard(SphinxRole):
+    """Implement the :kbd: role.
+
+    Split words in the text by separator or whitespace,
+    but keep multi-word keys together.
+    """
+
+    # capture ('-', '+', '^', or whitespace) in between any two characters
+    _pattern: Final = re.compile(r'(?<=.)([\-+^]| +)(?=.)')
+
+    def run(self) -> tuple[list[Element], list[system_message]]:
+        classes = ['kbd']
+        if 'classes' in self.options:
+            classes.extend(self.options['classes'])
+
+        parts = self._pattern.split(self.text)
+        if len(parts) == 1 or self._is_multi_word_key(parts):
+            return [nodes.literal(self.rawtext, self.text, classes=classes)], []
+
+        classes.append('compound')
+        node = nodes.inline(self.rawtext, classes=classes)
+        while parts:
+            if self._is_multi_word_key(parts):
+                key = ''.join(parts[:3])
+                parts[:3] = []
+            else:
+                key = parts.pop(0)
+            node += nodes.literal(key, key, classes=['kbd'])
+
+            try:
+                sep = parts.pop(0)  # key separator ('-', '+', '^', etc)
+            except IndexError:
+                pass
+            else:
+                node += nodes.Text(sep)
+
+        return [node], []
+
+    @staticmethod
+    def _is_multi_word_key(parts: list[str]) -> bool:
+        if len(parts) <= 2 or not parts[1].isspace():
+            return False
+        name = parts[0].lower(), parts[2].lower()
+        return name in frozenset({
+            ('back', 'space'),
+            ('caps', 'lock'),
+            ('num', 'lock'),
+            ('page', 'down'),
+            ('page', 'up'),
+            ('scroll', 'lock'),
+            ('sys', 'rq'),
+        })
+
+
 class Manpage(ReferenceRole):
     _manpage_re = re.compile(r'^(?P<path>(?P<page>.+)[(.](?P<section>[1-9]\w*)?\)?)$')
 
@@ -576,6 +629,7 @@ specific_docroles: dict[str, RoleFunction] = {
     'samp': EmphasizedLiteral(),
     # other
     'abbr': Abbreviation(),
+    'kbd': Keyboard(),
     'manpage': Manpage(),
 }
 
