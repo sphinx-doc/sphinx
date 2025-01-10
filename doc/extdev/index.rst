@@ -164,13 +164,13 @@ This is treated by Sphinx as metadata of the extension.
 Metadata keys currently recognized are:
 
 ``'version'``
-  a string that identifies the extension version.
+  A string that identifies the extension version.
   It is used for extension version requirement checking
   (see :confval:`needs_extensions`) and informational purposes.
-  If not given, ``"unknown version"`` is substituted.
+  If no version string is returned, ``'unknown version'`` is used by default.
 
 ``'env_version'``
-  a non-zero positive integer integer that records
+  A non-zero positive integer integer that records
   the version of data stored in the environment by the extension.
 
   .. attention::
@@ -185,7 +185,7 @@ Metadata keys currently recognized are:
   .. versionadded:: 1.8
 
 ``'parallel_read_safe'``
-  a boolean that specifies if parallel reading of source files
+  A boolean that specifies if parallel reading of source files
   can be used when the extension is loaded.
   It defaults to ``False``, meaning that you have to explicitly specify
   your extension to be safe for parallel reading after checking that it is.
@@ -202,7 +202,7 @@ Metadata keys currently recognized are:
        environment object (``env``) during the reading phase.
 
 ``'parallel_write_safe'``
-  a boolean that specifies if parallel writing of output files
+  A boolean that specifies if parallel writing of output files
   can be used when the extension is loaded.
   Since extensions usually don't negatively influence the process,
   this defaults to ``True``.
