@@ -1,57 +1,62 @@
 """Locale utilities."""
 
+from __future__ import annotations
+
 import locale
+import sys
 from gettext import NullTranslations, translation
-from os import path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import os
+    from collections.abc import Callable, Iterable
+    from typing import Any
 
 
 class _TranslationProxy:
     """
-    Class for proxy strings from gettext translations. This is a helper for the
-    lazy_* functions from this module.
-
     The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
-    __slots__ = ('_func', '_args')
 
-    def __new__(cls, func: Callable[..., str], *args: str) -> '_TranslationProxy':
-        if not args:
-            # not called with "function" and "arguments", but a plain string
-            return str(func)  # type: ignore[return-value]
-        return object.__new__(cls)
+    __slots__ = '_catalogue', '_namespace', '_message'
 
-    def __getnewargs__(self) -> Tuple[str]:
-        return (self._func,) + self._args  # type: ignore
-
-    def __init__(self, func: Callable[..., str], *args: str) -> None:
-        self._func = func
-        self._args = args
+    def __init__(self, catalogue: str, namespace: str, message: str) -> None:
+        self._catalogue = catalogue
+        self._namespace = namespace
+        self._message = message
 
     def __str__(self) -> str:
-        return str(self._func(*self._args))
+        try:
+            return translators[self._namespace, self._catalogue].gettext(self._message)
+        except KeyError:
+            # NullTranslations().gettext(self._message) == self._message
+            return self._message
 
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> list[str]:
         return dir(str)
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.__str__(), name)
 
-    def __getstate__(self) -> Tuple[Callable[..., str], Tuple[str, ...]]:
-        return self._func, self._args
+    def __getstate__(self) -> tuple[str, str, str]:
+        return self._catalogue, self._namespace, self._message
 
-    def __setstate__(self, tup: Tuple[Callable[..., str], Tuple[str]]) -> None:
-        self._func, self._args = tup
+    def __setstate__(self, tup: tuple[str, str, str]) -> None:
+        self._catalogue, self._namespace, self._message = tup
 
-    def __copy__(self) -> '_TranslationProxy':
-        return _TranslationProxy(self._func, *self._args)
+    def __copy__(self) -> _TranslationProxy:
+        return _TranslationProxy(self._catalogue, self._namespace, self._message)
 
     def __repr__(self) -> str:
         try:
-            return 'i' + repr(str(self.__str__()))
+            return f'i{self.__str__()!r}'
         except Exception:
-            return f'<{self.__class__.__name__} broken>'
+            return (
+                self.__class__.__name__
+                + f'({self._catalogue}, {self._namespace}, {self._message})'
+            )
 
     def __add__(self, other: str) -> str:
         return self.__str__() + other
@@ -71,34 +76,34 @@ class _TranslationProxy:
     def __rmul__(self, other: Any) -> str:
         return other * self.__str__()
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.__str__())
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.__str__() == other
 
-    def __lt__(self, string):
+    def __lt__(self, string: str) -> bool:
         return self.__str__() < string
 
-    def __contains__(self, char):
+    def __contains__(self, char: str) -> bool:
         return char in self.__str__()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__str__())
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int | slice) -> str:
         return self.__str__()[index]
 
 
-translators: Dict[Tuple[str, str], NullTranslations] = {}
+translators: dict[tuple[str, str], NullTranslations] = {}
 
 
 def init(
-    locale_dirs: List[Optional[str]],
-    language: Optional[str],
+    locale_dirs: Iterable[str | os.PathLike[str] | None],
+    language: str | None,
     catalog: str = 'sphinx',
     namespace: str = 'general',
-) -> Tuple[NullTranslations, bool]:
+) -> tuple[NullTranslations, bool]:
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`. If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -108,18 +113,14 @@ def init(
     # ignore previously failed attempts to find message catalogs
     if translator.__class__ is NullTranslations:
         translator = None
-    # the None entry is the system's default locale path
-    has_translation = True
 
-    if language and '_' in language:
-        # for language having country code (like "de_AT")
-        languages: Optional[List[str]] = [language, language.split('_')[0]]
-    elif language:
-        languages = [language]
+    if language:
+        languages: list[str] | None = [language]
     else:
         languages = None
 
     # loading
+    # the None entry is the system's default locale path
     for dir_ in locale_dirs:
         try:
             trans = translation(catalog, localedir=dir_, languages=languages)
@@ -130,49 +131,51 @@ def init(
         except Exception:
             # Language couldn't be found in the specified path
             pass
-    # guarantee translators[(namespace, catalog)] exists
-    if translator is None:
+    if translator is not None:
+        has_translation = True
+    else:
         translator = NullTranslations()
         has_translation = False
-    translators[(namespace, catalog)] = translator
+    # guarantee translators[(namespace, catalog)] exists
+    translators[namespace, catalog] = translator
     return translator, has_translation
 
 
-_LOCALE_DIR = path.abspath(path.dirname(__file__))
+_LOCALE_DIR = Path(__file__).resolve().parent
 
 
 def init_console(
-    locale_dir: str = _LOCALE_DIR,
+    locale_dir: str | os.PathLike[str] | None = None,
     catalog: str = 'sphinx',
-) -> Tuple[NullTranslations, bool]:
+) -> tuple[NullTranslations, bool]:
     """Initialize locale for console.
 
     .. versionadded:: 1.8
     """
-    try:
-        # encoding is ignored
-        language, _ = locale.getlocale(locale.LC_MESSAGES)
-    except AttributeError:
-        # LC_MESSAGES is not always defined. Fallback to the default language
-        # in case it is not.
+    if locale_dir is None:
+        locale_dir = _LOCALE_DIR
+    if sys.platform == 'win32':
         language = None
+    else:
+        try:
+            # encoding is ignored
+            language, _ = locale.getlocale(locale.LC_MESSAGES)
+        except AttributeError:
+            # Fallback to the default language in case LC_MESSAGES is not defined.
+            language = None
     return init([locale_dir], language, catalog, 'console')
 
 
-def get_translator(catalog: str = 'sphinx', namespace: str = 'general') -> NullTranslations:
+def get_translator(
+    catalog: str = 'sphinx', namespace: str = 'general'
+) -> NullTranslations:
     return translators.get((namespace, catalog), NullTranslations())
 
 
-def is_translator_registered(catalog: str = 'sphinx', namespace: str = 'general') -> bool:
+def is_translator_registered(
+    catalog: str = 'sphinx', namespace: str = 'general'
+) -> bool:
     return (namespace, catalog) in translators
-
-
-def _lazy_translate(catalog: str, namespace: str, message: str) -> str:
-    """Used instead of _ when creating TranslationProxy, because _ is
-    not bound yet at that time.
-    """
-    translator = get_translator(catalog, namespace)
-    return translator.gettext(message)
 
 
 def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str], str]:
@@ -181,7 +184,7 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
     The extension can use this API to translate the messages on the
     extension::
 
-        import os
+        from pathlib import Path
         from sphinx.locale import get_translation
 
         MESSAGE_CATALOG_NAME = 'myextension'  # name of *.pot, *.po and *.mo files
@@ -190,8 +193,8 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
 
         def setup(app):
-            package_dir = os.path.abspath(os.path.dirname(__file__))
-            locale_dir = os.path.join(package_dir, 'locales')
+            package_dir = Path(__file__).resolve().parent
+            locale_dir = package_dir / 'locales'
             app.add_message_catalog(MESSAGE_CATALOG_NAME, locale_dir)
 
     With this code, sphinx searches a message catalog from
@@ -200,10 +203,11 @@ def get_translation(catalog: str, namespace: str = 'general') -> Callable[[str],
 
     .. versionadded:: 1.8
     """
+
     def gettext(message: str) -> str:
         if not is_translator_registered(catalog, namespace):
             # not initialized yet
-            return _TranslationProxy(_lazy_translate, catalog, namespace, message)  # type: ignore[return-value]  # noqa: E501
+            return _TranslationProxy(catalog, namespace, message)  # type: ignore[return-value]
         else:
             translator = get_translator(catalog, namespace)
             return translator.gettext(message)
@@ -223,19 +227,13 @@ __ = get_translation('sphinx', 'console')
 # labels
 admonitionlabels = {
     'attention': _('Attention'),
-    'caution':   _('Caution'),
-    'danger':    _('Danger'),
-    'error':     _('Error'),
-    'hint':      _('Hint'),
+    'caution': _('Caution'),
+    'danger': _('Danger'),
+    'error': _('Error'),
+    'hint': _('Hint'),
     'important': _('Important'),
-    'note':      _('Note'),
-    'seealso':   _('See also'),
-    'tip':       _('Tip'),
-    'warning':   _('Warning'),
+    'note': _('Note'),
+    'seealso': _('See also'),
+    'tip': _('Tip'),
+    'warning': _('Warning'),
 }
-
-# Moved to sphinx.directives.other (will be overridden later)
-versionlabels: Dict[str, str] = {}
-
-# Moved to sphinx.domains.python (will be overridden later)
-pairindextypes: Dict[str, str] = {}

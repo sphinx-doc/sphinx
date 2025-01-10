@@ -1,0 +1,246 @@
+==========
+Sphinx 4.0
+==========
+
+
+Release 4.0.3 (released Jul 05, 2021)
+=====================================
+
+Features added
+--------------
+
+* C, add C23 keywords ``_Decimal32``, ``_Decimal64``, and ``_Decimal128``.
+* #9354: C, add :confval:`c_extra_keywords` to allow user-defined keywords
+  during parsing.
+* Revert the removal of ``sphinx.util:force_decode()`` to become some 3rd party
+  extensions available again during 5.0
+
+Bugs fixed
+----------
+
+* #9330: changeset domain: :rst:dir:`versionchanged` with contents being a list
+  will cause error during pdf build
+* #9313: LaTeX: complex table with merged cells broken since 4.0
+* #9305: LaTeX: backslash may cause Improper discretionary list pdf build error
+  with Japanese engines
+* #9354: C, remove special macro names from the keyword list.
+  See also :confval:`c_extra_keywords`.
+* #9322: KeyError is raised on PropagateDescDomain transform
+
+Release 4.0.2 (released May 20, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9216: Support jinja2-3.0
+
+Incompatible changes
+--------------------
+
+* #9222: Update Underscore.js to 1.13.1
+* #9217: manpage: Stop creating a section directory on build manpage by default
+  (see :confval:`man_make_section_directory`)
+
+Bugs fixed
+----------
+
+* #9210: viewcode: crashed if non importable modules found on parallel build
+* #9240: Unknown node error for pending_xref_condition is raised if an extension
+  that does not support the node installs a missing-reference handler
+
+Release 4.0.1 (released May 11, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #9189: autodoc: crashed when ValueError is raised on generating signature
+  from a property of the class
+* #9188: autosummary: warning is emitted if list value is set to
+  autosummary_generate
+* #8380: html search: tags for search result are broken
+* #9198: i18n: Babel emits errors when running compile_catalog
+* #9205: py domain: The :canonical: option causes "more than one target for
+  cross-reference" warning
+* #9201: websupport: UndefinedError is raised: 'css_tag' is undefined
+
+Release 4.0.0 (released May 09, 2021)
+=====================================
+
+Dependencies
+------------
+
+4.0.0b1
+
+* Drop python 3.5 support
+* Drop Docutils 0.12 and 0.13 support
+* LaTeX: add ``tex-gyre`` font dependency
+
+4.0.0b2
+
+* Support Docutils 0.17.  Please notice it changes the output of HTML builder.
+  Some themes do not support it, and you need to update your custom CSS to
+  upgrade it.
+
+Incompatible changes
+--------------------
+
+4.0.0b1
+
+* #8539: autodoc: info-field-list is generated into the class description when
+  :confval:`autodoc_typehints`\ ``='description'`` and
+  :confval:`autoclass_content`\ ``='class'`` set
+* #8898: extlinks: "%s" becomes required keyword in the link caption string
+* domain: The ``Index`` class becomes subclasses of ``abc.ABC`` to indicate
+  methods that must be overridden in the concrete classes
+* #4826: py domain: The structure of python objects is changed.  A boolean value
+  is added to indicate that the python object is canonical one
+* #7425: MathJax: The MathJax was changed from 2 to 3. Users using a custom
+  MathJax configuration may have to set the old MathJax path or update their
+  configuration for version 3. See :mod:`sphinx.ext.mathjax`.
+* #7784: i18n: The msgid for alt text of image is changed
+* #5560: napoleon: :confval:`napoleon_use_param` also affect "other parameters"
+  section
+* #7996: manpage: Make a section directory on build manpage by default (see
+  :confval:`man_make_section_directory`)
+* #7849: html: Change the default setting of
+  :confval:`html_codeblock_linenos_style` to ``'inline'``
+* #8380: html search: search results are wrapped with ``<p>`` instead of
+  ``<div>``
+* html theme: Move a script tag for documentation_options.js in
+  basic/layout.html to ``script_files`` variable
+* html theme: Move CSS tags in basic/layout.html to ``css_files`` variable
+* #8915: html theme: Emit a warning for ``sphinx_rtd_theme`` 0.2.4 or older
+* #8508: LaTeX: uplatex becomes a default setting of latex_engine for Japanese
+  documents
+* #5977: py domain: ``:var:``, ``:cvar:`` and ``:ivar:`` fields do not create
+  cross-references
+* #4550: The ``align`` attribute of ``figure`` and ``table`` nodes becomes
+  ``None`` by default instead of ``'default'``
+* #8769: LaTeX refactoring: split sphinx.sty into multiple files and rename
+  some auxiliary files created in ``latex`` build output repertory
+* #8937: Use explicit title instead of <no title>
+* #8487: The :file: option for csv-table directive now recognizes an absolute
+  path as a relative path from source directory
+
+4.0.0b2
+
+* #9023: Change the CSS classes on :rst:role:`cpp:expr` and
+  :rst:role:`cpp:texpr`.
+
+Deprecated
+----------
+
+* :confval:`html_codeblock_linenos_style`
+* ``favicon`` and ``logo`` variable in HTML templates
+* ``sphinx.directives.patches.CSVTable``
+* ``sphinx.directives.patches.ListTable``
+* ``sphinx.directives.patches.RSTTable``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.filename_set``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.warn()``
+* ``sphinx.registry.SphinxComponentRegistry.get_source_input()``
+* ``sphinx.registry.SphinxComponentRegistry.source_inputs``
+* ``sphinx.transforms.FigureAligner``
+* ``sphinx.util.pycompat.convert_with_2to3()``
+* ``sphinx.util.pycompat.execfile_()``
+* ``sphinx.util.smartypants``
+* ``sphinx.util.typing.DirectiveOption``
+
+Features added
+--------------
+
+4.0.0b1
+
+* #8924: autodoc: Support ``bound`` argument for TypeVar
+* #7383: autodoc: Support typehints for properties
+* #5603: autodoc: Allow to refer to a python class using its canonical name
+  when the class has two different names; a canonical name and an alias name
+* #8539: autodoc: Add :confval:`autodoc_typehints_description_target` to control
+  the behavior of ``autodoc_typehints=description``
+* #8841: autodoc: :confval:`autodoc_docstring_signature` will continue to look
+  for multiple signature lines without backslash character
+* #7549: autosummary: Enable :confval:`autosummary_generate` by default
+* #8898: extlinks: Allow %s in link caption string
+* #4826: py domain: Add ``:canonical:`` option to python directives to describe
+  the location where the object is defined
+* #7199: py domain: Add :confval:`python_use_unqualified_type_names` to suppress
+  the module name of the python reference if it can be resolved (experimental)
+* #7068: py domain: Add :rst:dir:`py:property` directive to describe a property
+* #7784: i18n: The alt text for image is translated by default (without
+  :confval:`gettext_additional_targets` setting)
+* #2018: html: :confval:`html_favicon` and :confval:`html_logo` now accept URL
+  for the image
+* #8070: html search: Support searching for 2characters word
+* #9036: html theme: Allow to inherite the search page
+* #8938: imgconverter: Show the error of the command availability check
+* #7830: Add debug logs for change detection of sources and templates
+* #8201: Emit a warning if toctree contains duplicated entries
+* #8326: ``master_doc`` is now renamed to :confval:`root_doc`
+* #8942: C++, add support for the C++20 spaceship operator, ``<=>``.
+* #7199: A new node, ``sphinx.addnodes.pending_xref_condition`` has been added.
+  It can be used to choose appropriate content of the reference by conditions.
+
+4.0.0b2
+
+* #8818: autodoc: Super class having ``Any`` arguments causes nitpicky warning
+* #9095: autodoc: TypeError is raised on processing broken metaclass
+* #9110: autodoc: metadata of GenericAlias is not rendered as a reference in
+  py37+
+* #9098: html: copy-range protection for doctests doesn't work in Safari
+* #9103: LaTeX: imgconverter: conversion runs even if not needed
+* #8127: py domain: Ellipsis in info-field-list causes nitpicky warning
+* #9121: py domain: duplicated warning is emitted when both canonical and its
+  alias objects are defined on the document
+* #9023: More CSS classes on domain descriptions, see :ref:`nodes` for details.
+* #8195: mathjax: Rename :confval:`mathjax_config` to
+  :confval:`mathjax2_config` and add :confval:`mathjax3_config`
+
+Bugs fixed
+----------
+
+4.0.0b1
+
+* #8917: autodoc: Raises a warning if function has wrong __globals__ value
+* #8415: autodoc: a TypeVar imported from other module is not resolved (in
+  Python 3.7 or above)
+* #8992: autodoc: Failed to resolve types.TracebackType type annotation
+* #8905: html: ``html_add_permalinks=None`` and ``html_add_permalinks=""``
+  are ignored
+* #8380: html search: Paragraphs in search results are not identified as ``<p>``
+* #8915: html theme: The translation of ``sphinx_rtd_theme`` does not work
+* #8342: Emit a warning if a unknown domain is given for directive or role (ex.
+  ``:unknown:doc:``)
+* #7241: LaTeX: No wrapping for ``cpp:enumerator``
+* #8711: LaTeX: backticks in code-blocks trigger latexpdf build warning (and font
+  change) with late TeXLive 2019
+* #8253: LaTeX: Figures with no size defined get overscaled (compared to images
+  with size explicitly set in pixels) (fixed for ``'pdflatex'/'lualatex'`` only)
+* #8881: LaTeX: The depth of bookmarks panel in PDF is not enough for navigation
+* #8874: LaTeX: the fix to two minor Pygments LaTeXFormatter output issues ignore
+  Pygments style
+* #8925: LaTeX: 3.5.0 ``verbatimmaxunderfull`` setting does not work as
+  expected
+* #8980: LaTeX: missing line break in ``\pysigline``
+* #8995: LaTeX: legacy ``\pysiglinewithargsret`` does not compute correctly
+  available horizontal space and should use a ragged right style
+* #9009: LaTeX: "release" value with underscore leads to invalid LaTeX
+* #8911: C++: remove the longest matching prefix in
+  :confval:`cpp_index_common_prefix` instead of the first that matches.
+* C, properly reject function declarations when a keyword is used
+  as parameter name.
+* #8933: viewcode: Failed to create back-links on parallel build
+* #8960: C and C++, fix rendering of (member) function pointer types in
+  function parameter lists.
+* C++, fix linking of names in array declarators, pointer to member
+  (function) declarators, and in the argument to ``sizeof...``.
+* C, fix linking of names in array declarators.
+
+4.0.0b2
+
+* C, C++, fix ``KeyError`` when an ``alias`` directive is the first C/C++
+  directive in a file with another C/C++ directive later.
+
+4.0.0b3
+
+* #9167: html: Failed to add CSS files to the specific page

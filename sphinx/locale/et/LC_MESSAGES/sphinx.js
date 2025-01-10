@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "et",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Autori\u00f5igused</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Autori\u00f5igused %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "Info selle dokumentatsiooni kohta",
         "Automatically generated list of changes in version %(version)s": "Automaatselt genereeritud nimekiri versiooni %(version)s muutustest",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Otsi",
         "Hide Search Matches": "Varja otsingu tulemused",
         "Index": "Indeks",
-        "Index &ndash; %(key)s": "Indeks &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indeksi lehek\u00fcljed algust\u00e4he kaupa",
         "Indices and tables:": "Indeksid ja tabelid:",
         "Last updated on %(last_updated)s.": "Viimati uuendatud %(last_updated)s.",
@@ -37,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Otsing",
         "Search Page": "Otsinguleht",
         "Search Results": "Otsingu tulemused",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Otsi %(docstitle)s piires",
         "Searching": "Otsimine",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

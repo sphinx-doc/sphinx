@@ -6,19 +6,25 @@ Originally derived from epub.py.
 from __future__ import annotations
 
 import html
+import os
+import os.path
 import re
-from os import path
-from typing import Any, NamedTuple
+import time
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from sphinx import package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import _epub_base
 from sphinx.config import ENUM, Config
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.i18n import format_date
 from sphinx.util.osutil import make_filename
+
+if TYPE_CHECKING:
+    from collections.abc import Set
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +32,7 @@ logger = logging.getLogger(__name__)
 class NavPoint(NamedTuple):
     text: str
     refuri: str
-    children: list[Any]     # mypy does not support recursive types
-                            # https://github.com/python/mypy/issues/7069
+    children: list[NavPoint]
 
 
 # writing modes
@@ -44,7 +49,7 @@ THEME_WRITING_MODES = {
     'horizontal': 'horizontal-tb',
 }
 
-DOCTYPE = '''<!DOCTYPE html>'''
+DOCTYPE = """<!DOCTYPE html>"""
 
 HTML_TAG = (
     '<html xmlns="http://www.w3.org/1999/xhtml" '
@@ -53,14 +58,14 @@ HTML_TAG = (
 
 # https://www.w3.org/TR/REC-xml/#NT-Name
 _xml_name_start_char = (
-    ':|[A-Z]|_|[a-z]|[\u00C0-\u00D6]'
-    '|[\u00D8-\u00F6]|[\u00F8-\u02FF]|[\u0370-\u037D]'
-    '|[\u037F-\u1FFF]|[\u200C-\u200D]|[\u2070-\u218F]'
-    '|[\u2C00-\u2FEF]|[\u3001-\uD7FF]|[\uF900-\uFDCF]'
-    '|[\uFDF0-\uFFFD]|[\U00010000-\U000EFFFF]'
+    ':|[A-Z]|_|[a-z]|[\u00c0-\u00d6]'
+    '|[\u00d8-\u00f6]|[\u00f8-\u02ff]|[\u0370-\u037d]'
+    '|[\u037f-\u1fff]|[\u200c-\u200d]|[\u2070-\u218f]'
+    '|[\u2c00-\u2fef]|[\u3001-\ud7ff]|[\uf900-\ufdcf]'
+    '|[\ufdf0-\ufffd]|[\U00010000-\U000effff]'
 )
 _xml_name_char = (
-    _xml_name_start_char + r'\-|\.' '|[0-9]|\u00B7|[\u0300-\u036F]|[\u203F-\u2040]'
+    _xml_name_start_char + r'\-|\.|[0-9]|\u00b7|[\u0300-\u036f]|[\u203f-\u2040]'
 )
 _XML_NAME_PATTERN = re.compile(f'({_xml_name_start_char})({_xml_name_char})*')
 
@@ -73,11 +78,12 @@ class Epub3Builder(_epub_base.EpubBuilder):
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
     an epub file.
     """
+
     name = 'epub'
     epilog = __('The ePub file is in %(outdir)s.')
 
     supported_remote_images = False
-    template_dir = path.join(package_dir, 'templates', 'epub3')
+    template_dir = os.path.join(package_dir, 'templates', 'epub3')
     doctype = DOCTYPE
     html_tag = HTML_TAG
     use_meta_charset = True
@@ -99,17 +105,24 @@ class Epub3Builder(_epub_base.EpubBuilder):
         """
         writing_mode = self.config.epub_writing_mode
 
+        if (source_date_epoch := os.getenv('SOURCE_DATE_EPOCH')) is not None:
+            time_tuple = time.gmtime(int(source_date_epoch))
+        else:
+            time_tuple = time.gmtime()
+
         metadata = super().content_metadata()
         metadata['description'] = html.escape(self.config.epub_description)
         metadata['contributor'] = html.escape(self.config.epub_contributor)
-        metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
+        metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(
+            writing_mode
+        )
         metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
-        metadata['date'] = html.escape(format_date("%Y-%m-%dT%H:%M:%SZ", language='en'))
+        metadata['date'] = html.escape(time.strftime('%Y-%m-%dT%H:%M:%SZ', time_tuple))
         metadata['version'] = html.escape(self.config.version)
         metadata['epub_version'] = self.config.epub_version
         return metadata
 
-    def prepare_writing(self, docnames: set[str]) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
         super().prepare_writing(docnames)
 
         writing_mode = self.config.epub_writing_mode
@@ -128,8 +141,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack: list[NavPoint] = []
-        navstack.append(NavPoint('', '', []))
+        navstack: list[NavPoint] = [NavPoint('', '', [])]
         level = 0
         for node in navnodes:
             if not node['text']:
@@ -156,7 +168,8 @@ class Epub3Builder(_epub_base.EpubBuilder):
                 navstack[-1].children.append(navpoint)
                 navstack.append(navpoint)
             else:
-                raise RuntimeError('Should never reach here. It might be a bug.')
+                unreachable = 'Should never reach here. It might be a bug.'
+                raise RuntimeError(unreachable)
 
         return navstack[0].children
 
@@ -176,16 +189,20 @@ class Epub3Builder(_epub_base.EpubBuilder):
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(
-                self.config.root_doc, self,
-                prune_toctrees=False, includehidden=False)
+                self.config.root_doc, self, prune_toctrees=False, includehidden=False
+            )
             refnodes = self.get_refnodes(doctree, [])
             self.toc_add_files(refnodes)
         else:
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'), self.outdir,
-                        self.navigation_doc_metadata(navlist))
+        copy_asset_file(
+            os.path.join(self.template_dir, 'nav.xhtml.jinja'),
+            self.outdir,
+            context=self.navigation_doc_metadata(navlist),
+            force=True,
+        )
 
         # Add nav.xhtml to epub file
         if 'nav.xhtml' not in self.files:
@@ -198,31 +215,47 @@ def validate_config_values(app: Sphinx) -> None:
 
     # <package> lang attribute, dc:language
     if not app.config.epub_language:
-        logger.warning(__('conf value "epub_language" (or "language") '
-                          'should not be empty for EPUB3'))
+        logger.warning(
+            __(
+                'conf value "epub_language" (or "language") '
+                'should not be empty for EPUB3'
+            )
+        )
     # <package> unique-identifier attribute
     if not _XML_NAME_PATTERN.match(app.config.epub_uid):
         logger.warning(__('conf value "epub_uid" should be XML NAME for EPUB3'))
     # dc:title
     if not app.config.epub_title:
-        logger.warning(__('conf value "epub_title" (or "html_title") '
-                          'should not be empty for EPUB3'))
+        logger.warning(
+            __(
+                'conf value "epub_title" (or "html_title") '
+                'should not be empty for EPUB3'
+            )
+        )
     # dc:creator
     if not app.config.epub_author:
         logger.warning(__('conf value "epub_author" should not be empty for EPUB3'))
     # dc:contributor
     if not app.config.epub_contributor:
-        logger.warning(__('conf value "epub_contributor" should not be empty for EPUB3'))
+        logger.warning(
+            __('conf value "epub_contributor" should not be empty for EPUB3')
+        )
     # dc:description
     if not app.config.epub_description:
-        logger.warning(__('conf value "epub_description" should not be empty for EPUB3'))
+        logger.warning(
+            __('conf value "epub_description" should not be empty for EPUB3')
+        )
     # dc:publisher
     if not app.config.epub_publisher:
         logger.warning(__('conf value "epub_publisher" should not be empty for EPUB3'))
     # dc:rights
     if not app.config.epub_copyright:
-        logger.warning(__('conf value "epub_copyright" (or "copyright")'
-                          'should not be empty for EPUB3'))
+        logger.warning(
+            __(
+                'conf value "epub_copyright" (or "copyright")'
+                'should not be empty for EPUB3'
+            )
+        )
     # dc:identifier
     if not app.config.epub_identifier:
         logger.warning(__('conf value "epub_identifier" should not be empty for EPUB3'))
@@ -232,7 +265,7 @@ def validate_config_values(app: Sphinx) -> None:
 
 
 def convert_epub_css_files(app: Sphinx, config: Config) -> None:
-    """This converts string styled epub_css_files to tuple styled one."""
+    """Convert string styled epub_css_files to tuple styled one."""
     epub_css_files: list[tuple[str, dict[str, Any]]] = []
     for entry in config.epub_css_files:
         if isinstance(entry, str):
@@ -245,14 +278,14 @@ def convert_epub_css_files(app: Sphinx, config: Config) -> None:
                 logger.warning(__('invalid css_file: %r, ignored'), entry)
                 continue
 
-    config.epub_css_files = epub_css_files  # type: ignore
+    config.epub_css_files = epub_css_files
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(Epub3Builder)
 
     # config values
-    app.add_config_value('epub_basename', lambda self: make_filename(self.project), False)
+    app.add_config_value('epub_basename', lambda self: make_filename(self.project), '')
     app.add_config_value('epub_version', 3.0, 'epub')  # experimental
     app.add_config_value('epub_theme', 'epub', 'epub')
     app.add_config_value('epub_theme_options', {}, 'epub')
@@ -279,8 +312,9 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'epub')
     app.add_config_value('epub_description', 'unknown', 'epub')
     app.add_config_value('epub_contributor', 'unknown', 'epub')
-    app.add_config_value('epub_writing_mode', 'horizontal', 'epub',
-                         ENUM('horizontal', 'vertical'))
+    app.add_config_value(
+        'epub_writing_mode', 'horizontal', 'epub', ENUM('horizontal', 'vertical')
+    )
 
     # event handlers
     app.connect('config-inited', convert_epub_css_files, priority=800)

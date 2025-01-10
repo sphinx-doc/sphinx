@@ -1,0 +1,56 @@
+==========
+Sphinx 4.2
+==========
+
+
+Release 4.2.0 (released Sep 12, 2021)
+=====================================
+
+Features added
+--------------
+
+* #9445: autodoc: Support class properties
+* #9479: autodoc: Emit a warning if target is a mocked object
+* #9560: autodoc: Allow to refer NewType instances with module name in Python
+  3.10 or above
+* #9447: html theme: Expose the version of Sphinx in the form of tuple as a
+  template variable ``sphinx_version_tuple``
+* #9594: manpage: Suppress the title of man page if description is empty
+* #9445: py domain: :rst:dir:`py:property` directive supports ``:classmethod:``
+  option to describe the class property
+* #9524: test: SphinxTestApp can take ``builddir`` as an argument
+* #9535: C and C++, support more fundamental types, including GNU extensions.
+
+Bugs fixed
+----------
+
+* #9608: apidoc: apidoc does not generate a module definition for implicit
+  namespace package
+* #9504: autodoc: generate incorrect reference to the parent class if the target
+  class inherites the class having ``_name`` attribute
+* #9537, #9589: autodoc: Some objects under ``typing`` module are not displayed
+  well with the HEAD of 3.10
+* #9487: autodoc: typehint for cached_property is not shown
+* #9509: autodoc: AttributeError is raised on failed resolving typehints
+* #9518: autodoc: autodoc_docstring_signature does not effect to ``__init__()``
+  and ``__new__()``
+* #9522: autodoc: PEP 585 style typehints having arguments (ex. ``list[int]``)
+  are not displayed well
+* #9481: autosummary: some warnings contain non-existing filenames
+* #9568: autosummary: summarise overlined sectioned headings correctly
+* #9600: autosummary: Type annotations which contain commas in autosummary table
+  are not removed completely
+* #9481: c domain: some warnings contain non-existing filenames
+* #9481: cpp domain: some warnings contain non-existing filenames
+* #9456: html search: abbreation marks are inserted to the search result if
+  failed to fetch the content of the page
+* #9617: html search: The JS requirement warning is shown if browser is slow
+* #9267: html theme: CSS and JS files added by theme were loaded twice
+* #9585: py domain: ``:type:`` option for :rst:dir:`py:property` directive does
+  not create a hyperlink
+* #9576: py domain: Literal typehint was converted to a cross reference
+* #9535 comment: C++, fix parsing of defaulted function parameters that are
+  function pointers.
+* #9564: smartquotes: don't adjust typography for text with
+  language-highlighted ``:code:`` role.
+* #9512: sphinx-build: crashed with the HEAD of Python 3.10

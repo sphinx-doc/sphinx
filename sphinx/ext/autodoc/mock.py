@@ -8,10 +8,16 @@ import sys
 from importlib.abc import Loader, MetaPathFinder
 from importlib.machinery import ModuleSpec
 from types import MethodType, ModuleType
-from typing import Any, Generator, Iterator, Sequence
+from typing import TYPE_CHECKING
 
 from sphinx.util import logging
 from sphinx.util.inspect import isboundmethod, safe_getattr
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+    from typing import Any
+
+    from typing_extensions import TypeIs
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +35,12 @@ class _MockObject:
             superclass = args[1][-1].__class__
             if superclass is cls:
                 # subclassing MockObject
-                return _make_subclass(args[0], superclass.__display_name__,
-                                      superclass=superclass, attributes=args[2])
+                return _make_subclass(
+                    args[0],
+                    superclass.__display_name__,
+                    superclass=superclass,
+                    attributes=args[2],
+                )
 
         return super().__new__(cls)
 
@@ -43,10 +53,10 @@ class _MockObject:
     def __contains__(self, key: str) -> bool:
         return False
 
-    def __iter__(self) -> Iterator:
-        return iter([])
+    def __iter__(self) -> Iterator[Any]:
+        return iter(())
 
-    def __mro_entries__(self, bases: tuple) -> tuple:
+    def __mro_entries__(self, bases: tuple[Any, ...]) -> tuple[type, ...]:
         return (self.__class__,)
 
     def __getitem__(self, key: Any) -> _MockObject:
@@ -64,12 +74,19 @@ class _MockObject:
         return self.__display_name__
 
 
-def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
-                   attributes: Any = None, decorator_args: tuple = ()) -> Any:
-    attrs = {'__module__': module,
-             '__display_name__': module + '.' + name,
-             '__name__': name,
-             '__sphinx_decorator_args__': decorator_args}
+def _make_subclass(
+    name: str,
+    module: str,
+    superclass: Any = _MockObject,
+    attributes: Any = None,
+    decorator_args: tuple[Any, ...] = (),
+) -> Any:
+    attrs = {
+        '__module__': module,
+        '__display_name__': module + '.' + name,
+        '__name__': name,
+        '__sphinx_decorator_args__': decorator_args,
+    }
     attrs.update(attributes or {})
 
     return type(name, (superclass,), attrs)
@@ -77,6 +94,7 @@ def _make_subclass(name: str, module: str, superclass: Any = _MockObject,
 
 class _MockModule(ModuleType):
     """Used by autodoc_mock_imports."""
+
     __file__ = os.devnull
     __sphinx_mock__ = True
 
@@ -94,6 +112,7 @@ class _MockModule(ModuleType):
 
 class MockLoader(Loader):
     """A loader for mocking."""
+
     def __init__(self, finder: MockFinder) -> None:
         super().__init__()
         self.finder = finder
@@ -116,8 +135,12 @@ class MockFinder(MetaPathFinder):
         self.loader = MockLoader(self)
         self.mocked_modules: list[str] = []
 
-    def find_spec(self, fullname: str, path: Sequence[bytes | str] | None,
-                  target: ModuleType = None) -> ModuleSpec | None:
+    def find_spec(
+        self,
+        fullname: str,
+        path: Sequence[bytes | str] | None,
+        target: ModuleType | None = None,
+    ) -> ModuleSpec | None:
         for modname in self.modnames:
             # check if fullname is (or is a descendant of) one of our targets
             if modname == fullname or fullname.startswith(modname + '.'):
@@ -132,15 +155,15 @@ class MockFinder(MetaPathFinder):
 
 
 @contextlib.contextmanager
-def mock(modnames: list[str]) -> Generator[None, None, None]:
+def mock(modnames: list[str]) -> Iterator[None]:
     """Insert mock modules during context::
 
-        with mock(['target.module.name']):
-            # mock modules are enabled here
-            ...
+    with mock(['target.module.name']):
+        # mock modules are enabled here
+        ...
     """
+    finder = MockFinder(modnames)
     try:
-        finder = MockFinder(modnames)
         sys.meta_path.insert(0, finder)
         yield
     finally:
@@ -148,7 +171,7 @@ def mock(modnames: list[str]) -> Generator[None, None, None]:
         finder.invalidate_caches()
 
 
-def ismockmodule(subject: Any) -> bool:
+def ismockmodule(subject: Any) -> TypeIs[_MockModule]:
     """Check if the object is a mocked module."""
     return isinstance(subject, _MockModule)
 

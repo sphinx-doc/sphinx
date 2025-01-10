@@ -1,53 +1,74 @@
 %% NOTICES AND ADMONITIONS
 %
 % change this info string if making any custom modification
-\ProvidesFile{sphinxlatexadmonitions.sty}[2023/03/19 admonitions]
+\ProvidesPackage{sphinxlatexadmonitions}[2024/10/11 v8.1.1 admonitions]
 
 % Provides support for this output mark-up from Sphinx latex writer:
 %
-% - sphinxseealso environment added at 6.1.0
+% - sphinxseealso environment added at 6.1.0.
+%
+% - sphinxtodo environment added at 7.4.0.
 %
 % - sphinxadmonition (environment)
-%   This is a dispatch supporting
+%   This is a dispatch which formerly configured
 %
-%   - note, hint, important, tip                 (via sphinxlightbox)
-%                    (also optionally via sphinxheavybox since 6.2.0)
-%   - warning, caution, attention, danger, error (via sphinxheavybox)
+%   - note, hint, important, tip to use sphinxlightbox (or optionally
+%     sphinxheavybox since 6.2.0),
+%   - warning, caution, attention, danger, error to use sphinxheavybox.
 %
-%   Each sphinx<notice name> environment can be redefined by user.
-%   The defaults are customizable via various colour and dimension
-%   settings, cf sphinx docs (latex customization).
+%   Since 7.4.0 all admonitions use sphinxheavybox.
 %
-% Requires:
-\RequirePackage{sphinxpackageboxes}
-\RequirePackage{framed}% used by sphinxheavybox
+% - All environments sphinxnote, sphinxwarning, etc... can be redefined as
+%   will by user. Thay have a single parameter #1 which is the title.
 %
+% - Also redefinable by user are the one-argument commands
+%   * \sphinxstylenotetitle,
+%   * \sphinxstylewarningtitle,
+%   * etc.... one for each admonition type (also seealso and todo).
+%
+% - At 7.4.0, all commands of previous item use \sphinxdotitlerow.
+%   (the 7.4.0 name, still usable, was \sphinxdotitlerowwithicon; the 8.1.0
+%   version is also used for topic, contents and sidebar directives, see
+%   sphinxlatexshadowbox.sty, and handles both "with icon" and "without
+%   icon" situations).
+%
+% The sphinxlightbox environment is kept for backward compatibility, for user
+% custom code which used it via custom definitions done in preamble or via
+% raw latex directive.
+% MEMO: here is for example how sphinxnote was formerly defined:
+% (where #1 is the localized string Note, followed with  a colon)
+%     \newenvironment{sphinxnote}[1]
+%       {\begin{sphinxlightbox}\sphinxstrong{#1} }
+%       {\end{sphinxlightbox}}
+% Use this if you want to revert the 7.4.0 switch to usage of sphinxheavybox.
+% (the 7.4.0 redefined \sphinxstylenotetitle will not work in sphinxlightbox,
+%  so \sphinxstrong{#1}<space> which was its former default is used above).
+
 % Dependencies (they do not need to be defined at time of loading):
 %
 % - of course the various colour and dimension options handled via sphinx.sty
-%
 % - dimension register \spx@image@maxheight from sphinxlatexgraphics.sty
+% - \savenotes/\spewnotes from sphinxpackagefootnote.sty
+% - \ifspx@inframed defined in sphinx.sty
+% - \spx@boxes@fcolorbox@setup from sphinxpackageboxes.sty
 %
-% - \savenotes/\spewnotes from sphinxpackagefootnote (for sphinxheavybox)
+\RequirePackage{framed}
+% Those are required either before or after by sphinx.sty anyhow, but for
+% clarity we list them here:
+\RequirePackage{sphinxlatexgraphics}
+\RequirePackage{sphinxpackagefootnote}
+\RequirePackage{sphinxpackageboxes}
 %
-% - \sphinxstylenotetitle, ..., \sphinxstylewarningtitle, etc... which are used by
-%   default in the corresponding sphinx<notice> environments to replace at 6.2.0
-%   formerly hard-coded \sphinxstrong{#1}<space>
-%   Their definitions are in sphinxlatexstyletext.sty.
-
-
 % Provides: (also in sphinxlatexliterals.sty)
+% Only needed here by legacy (deprecated) sphinxlightbox environment.
 \providecommand*\sphinxvspacefixafterfrenchlists{%
    \ifvmode\ifdim\lastskip<\z@ \vskip\parskip\fi\else\par\fi
 }
 
-% Some are quite plain
-\newenvironment{sphinxseealso}[1]{\sphinxstyleseealsotitle{#1}}{}
-
 % This \dimen register is a legacy relic from Sphinx 1.5 which is used now
 % only for sphinxlightbox.  It is set in the sphinxadmonition environment.
 \newdimen\spx@notice@border
-
+% sphinxlightbox is now also a legacy relic, not used by Sphinx anymore
 \newenvironment{sphinxlightbox}{%
   \par
   \noindent{\color{spx@notice@bordercolor}%
@@ -65,55 +86,28 @@
              {\linewidth}{\spx@notice@border}}\hss}\allowbreak
   }% end of sphinxlightbox environment definition
 
-% note/hint/important/tip notices
+% Since 1.5 these environments are named individually sphinxnote, sphinxhint,
+% etc... to allow user to redefine them entirely.
 %
-% Since 1.5 these environments are named individually to allow user to
-% redefine them entirely.
-%
-% The Sphinx definitions were done like this, prior to 6.2.0:
+% The Sphinx definitions for note/hint/important/tip notices were done like
+% this, prior to 6.2.0:
 %
 % \newenvironment{sphinxhint}[1]
 %   {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
 %
-% The more complex definition below will branch to sphinxheavybox if a certain
-% boolean associated to the notice type is true.  This boolean is set to true
-% whenever a CSS-named alike options for the notice type has been used in
-% sphinxsetup.  The old coding as above would still work, with the new options
-% being then simply ignored.  A user redefinition will probably either use
-% directly sphinxlightbox or sphinxheavybox or something else, with no need to
-% test the boolean.
+% Then from 6.2.0 to 7.4.0 (exclusive) a more complex definition decided
+% to use either sphinxlightbox or sphinxheavybox according to whether
+% some CSS-like options had been used, for example for a background color.
 %
-% 6.2.0 also adds one layer of mark-up via \sphinxnotetitle etc..., because
-% the former \sphinxstrong{#1}<space> used a too generic \sphinxstrong.  But
-% perhaps the #1 should be passed over to sphinx{light,heavy}box as parameter.
-% Unfortunately replacing these environments with one-parameter environments
-% would be potentially a breaking change.  Anyway, sphinxpackageboxes.sty does not
-% provide a "titled" box; the caption of code-blocks is handled by extra
-% code in sphinxVerbatim.
-\newenvironment{sphinxnote}[1]
-  {\edef\spx@env{sphinx\ifspx@opt@heavynote heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxstylenotetitle{#1}}
-  {\expandafter\end\expandafter{\spx@env}}
-\newenvironment{sphinxhint}[1]
-  {\edef\spx@env{sphinx\ifspx@opt@heavyhint heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxstylehinttitle{#1}}
-  {\expandafter\end\expandafter{\spx@env}}
-\newenvironment{sphinximportant}[1]
-  {\edef\spx@env{sphinx\ifspx@opt@heavyimportant heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxstyleimportanttitle{#1}}
-  {\expandafter\end\expandafter{\spx@env}}
-\newenvironment{sphinxtip}[1]
-  {\edef\spx@env{sphinx\ifspx@opt@heavytip heavy\else light\fi box}%
-   \expandafter\begin\expandafter{\spx@env}\sphinxstyletiptitle{#1}}
-  {\expandafter\end\expandafter{\spx@env}}
-
-% warning/caution/attention/danger/error  get more distinction
+% 6.2.0 also added one layer of mark-up via \sphinxnotetitle etc..., because
+% the former \sphinxstrong{#1}<space> used a too generic \sphinxstrong.
+%
+% At 7.4.0, sphinxheavybox environment is default for all types of notices
+% and also for the seealso and todo directives.
 %
 % Code adapted from framed.sty's "snugshade" environment.
 % Nesting works (inner frames do not allow page breaks).
 \newenvironment{sphinxheavybox}{\par
-   % 6.2.0 allows to not have to distinguish here between warning type notices
-   % which always use sphinxheavybox or note type notices which might use it.
    % (MEMO: it is not a problem here if there is no sphinx<type>ShadowColor,
    %  as it used only if set)
    \spx@boxes@fcolorbox@setup{\spx@noticetype}%
@@ -205,16 +199,80 @@
 % Example:
 % \renewcommand{\sphinxwarningtitle}[1]{\textbf{#1}\par\smallskip
 %   {\color{sphinxwarningBorderColor}\hrule height1pt}\smallskip}
+%
+% - Since 7.4.0, all types of notices use sphinxheavybox and the default
+% for \sphinxstyle<type>title is mapped to using \sphinxdotitlerowwithicon{<type>}
+%
+% MEMO: except for the generic admonition directive (which uses "note" type)
+% the argument #1 in these environments has a postfixed colon originating
+% in Sphinx LaTeX writer legacy code.  The
+% \sphinxremovefinalcolon utility in sphinxlatexstyletext.sty can be used as
+% \sphinxremovefinalcolon{#1} from inside the definitions of
+% \sphinxstylenotetitle et al. commands.
+
+% Important: even prior to 5.1.0 it was not really possible to use directly
+% sphinxheavybox if not triggered from sphinxadmonition, because some
+% parameters were defined in sphinxadmonition.  This meant that the
+% sphinxwarning, sphinxcaution etc... environments (defined below) could not
+% be used directly in a document, they had to be triggered via
+% sphinxadmonition.  The sole data since 5.1.0 needed by sphinxheavybox is the
+% type of the notice which sphinxadmonition stores into \spx@noticetype.
+%
+% In order to facilitate recycling or imitation of the sphinx<type>
+% environments, 7.4.0 inserts an extra \def\spx@noticetype{<type>} in their
+% definitions, so that they can be used independently of sphinxadmonition
+% dispatcher.
+%
+% MEMO: direct usage of these environments does not execute the div.<type>_TeXextras
+% and div.<type>_TexColor code, there are only done from the sphinxadmonition wrapper.
+\newenvironment{sphinxnote}[1]
+  {\def\spx@noticetype{note}\begin{sphinxheavybox}\sphinxstylenotetitle{#1}}
+  {\end{sphinxheavybox}}
+\newenvironment{sphinxhint}[1]
+  {\def\spx@noticetype{hint}\begin{sphinxheavybox}\sphinxstylehinttitle{#1}}
+  {\end{sphinxheavybox}}
+\newenvironment{sphinxtip}[1]
+  {\def\spx@noticetype{tip}\begin{sphinxheavybox}\sphinxstyletiptitle{#1}}
+  {\end{sphinxheavybox}}
+\newenvironment{sphinximportant}[1]
+  {\def\spx@noticetype{important}\begin{sphinxheavybox}\sphinxstyleimportanttitle{#1}}
+  {\end{sphinxheavybox}}
 \newenvironment{sphinxwarning}[1]
-  {\begin{sphinxheavybox}\sphinxstylewarningtitle{#1}}{\end{sphinxheavybox}}
+  {\def\spx@noticetype{warning}\begin{sphinxheavybox}\sphinxstylewarningtitle{#1}}
+  {\end{sphinxheavybox}}
 \newenvironment{sphinxcaution}[1]
-  {\begin{sphinxheavybox}\sphinxstylecautiontitle{#1}}{\end{sphinxheavybox}}
+  {\def\spx@noticetype{caution}\begin{sphinxheavybox}\sphinxstylecautiontitle{#1}}
+  {\end{sphinxheavybox}}
 \newenvironment{sphinxattention}[1]
-  {\begin{sphinxheavybox}\sphinxstyleattentiontitle{#1}}{\end{sphinxheavybox}}
+  {\def\spx@noticetype{attention}\begin{sphinxheavybox}\sphinxstyleattentiontitle{#1}}
+  {\end{sphinxheavybox}}
 \newenvironment{sphinxdanger}[1]
-  {\begin{sphinxheavybox}\sphinxstyledangertitle{#1}}{\end{sphinxheavybox}}
+  {\def\spx@noticetype{danger}\begin{sphinxheavybox}\sphinxstyledangertitle{#1}}
+  {\end{sphinxheavybox}}
 \newenvironment{sphinxerror}[1]
-  {\begin{sphinxheavybox}\sphinxstyleerrortitle{#1}}{\end{sphinxheavybox}}
+  {\def\spx@noticetype{error}\begin{sphinxheavybox}\sphinxstyleerrortitle{#1}}
+  {\end{sphinxheavybox}}
+% The "see also" was quite plain until 7.4.0 as it simply did
+% \newenvironment{sphinxseealso}[1]{\sphinxstyleseealsotitle{#1}}{}
+% Here we need to manually insert execution of div.seealso_TeX{color,extras} values
+\newenvironment{sphinxseealso}[1]
+  {\def\spx@noticetype{seealso}%
+   \begin{sphinxheavybox}\sphinxstyleseealsotitle{#1}%
+   \ifspx@seealso@withtextcolor\color{sphinxseealsoTextColor}\fi
+   \spx@seealso@TeXextras
+  }
+  {\end{sphinxheavybox}}
+% There was no sphinxtodo environment until 7.4.0 because sphinx.ext.todo
+% generated \begin{sphinxadmonition}{note}{Todo:} mark-up.
+\newcounter{sphinxtodo}% to provide targets from todolist directive output
+\newenvironment{sphinxtodo}[1]
+  {\refstepcounter{sphinxtodo}\def\spx@noticetype{todo}%
+   \begin{sphinxheavybox}\sphinxstyletodotitle{#1}%
+   \ifspx@todo@withtextcolor\color{sphinxtodoTextColor}\fi
+   \spx@todo@TeXextras
+  }
+  {\end{sphinxheavybox}}
+
 
 % the main dispatch for all types of notices
 \newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
@@ -227,16 +285,119 @@
   % the more bulky "sphinx\spx@noticetype BgColor".
   \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
   \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
-  \spx@notice@border \dimexpr\csname spx@#1@border\endcsname\relax
+  % At 7.4.0 there are no \spx@<type>@boder macros anymore only top, left,
+  % bottom, right.  For this legacy \spx@notice@border only needed by
+  % sphinxlightbox (which is not used by own Sphinx environments anymore)
+  % we thus use here @top
+  \spx@notice@border \dimexpr\csname spx@#1@border@top\endcsname\relax
   % trigger the sphinx<type> environment, #2=heading is passed as argument
   \begin{sphinx#1}{#2}%
+  % MEMO: the heading #2 will be typeset before the next lines are executed
   % 6.2.0 support of div.<type>_TeX{color,extras} options
   \csname ifspx@\spx@noticetype @withtextcolor\endcsname
          \color{sphinx\spx@noticetype TextColor}%
   \fi
+  % Other code to be executed at start of contents (after title)
   \csname spx@\spx@noticetype @TeXextras\endcsname
   }
-  % workaround some LaTeX "feature" of \end command (can't use "sphinx#1" here)
+  % workaround some LaTeX "feature" of \end command (i.e. can't use "sphinx#1" here)
   {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
+
+% TODO: allow these next three settings to be customized individually.
+%       This can however already be done at user level by \renewcommand
+%       inside renew'ed environments sphinxnote, sphinxhint etc...
+\newcommand\sphinxtitlerowtoppadding{5pt}
+\newcommand\sphinxtitlerowbottompadding{3pt}
+\newcommand\sphinxtitlerowaftericonspacecmd{\hskip0.5em\relax}
+% 7.4.0 used this longer name:
+\newcommand\sphinxdotitlerowwithicon{\sphinxdotitlerow}
+\newcommand\sphinxdotitlerow[2]{% #1=type, #2=heading (without final colon)
+   \begingroup
+     \kern-\spx@boxes@padding@top
+     \parskip\z@skip % the \parskip business is a workaround to a vertical
+                     % glue issue showing in LaTeX earlier than 2023-06-01
+     \noindent
+     \kern-\spx@boxes@padding@left % must have been configured by a prior
+                                   % \spx@boxes@fcolorbox@setup{<type>}
+     % inherit settings from the enclosing box and modify what is needed
+     \spx@boxes@border@top    =\z@
+     \spx@boxes@border@right  =\z@
+     \spx@boxes@border@bottom =\z@
+     \spx@boxes@border@left   =\z@
+     \spx@boxes@radius@bottomright@x=\z@
+     \spx@boxes@radius@bottomright@y=\z@
+     \spx@boxes@radius@bottomleft@x=\z@
+     \spx@boxes@radius@bottomleft@x=\z@
+     \spx@boxes@padding@top   =\sphinxtitlerowtoppadding\relax
+     \spx@boxes@padding@bottom=\sphinxtitlerowbottompadding\relax
+     \spx@boxes@withshadowfalse
+     \sphinxcolorlet{spx@boxes@backgroundcolor}{sphinx#1TtlBgColor}%
+     \spx@boxes@fcolorbox{%
+        \parbox[t]{\linewidth}{% 7.4.0 used \makebox, but wrapping of long titles
+                               % is needed for generic admonition or topic box.
+         \sphinxAtStartPar
+         % 8.1.0 auto-drops extra space if no icon
+         \sbox\z@{\@nameuse{sphinx#1TtlIcon}}%
+         \ifdim\wd\z@>\z@
+          \textcolor{sphinx#1TtlFgColor}{%
+            \@nameuse{sphinx#1TtlIcon}%
+            % The next macro is located here for legacy reasons of earlier
+            % functioning of \spx@faIcon.  When fontawesome{5,}.sty both
+            % are unavailable, it (formerly) gobbled this next macro.
+            % We leave it here now although it could be moved to after
+            % the closing brace.
+            \sphinxtitlerowaftericonspacecmd
+          }%
+         \fi
+         \sphinxstrong{#2}%
+         \strut
+         \par
+        }%
+      }%
+     \kern-\spx@boxes@padding@right
+     \par
+   \endgroup
+   \vskip-\parskip
+   \kern\spx@boxes@padding@top
+}
+
+% #1 holds the localized name of the notice, postfixed with a colon.
+% \sphinxremovefinalcolon{#1} will typeset #1 without the colon.
+% Legacy definitions (done in sphinxlatexstyletext.sty) were all using
+% a boring plain \sphinxstrong{#1}, now we use a coloured title row.
+\newcommand\sphinxstylenotetitle     [1]{\sphinxdotitlerow{note}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstylehinttitle     [1]{\sphinxdotitlerow{hint}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyleimportanttitle[1]{\sphinxdotitlerow{important}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyletiptitle      [1]{\sphinxdotitlerow{tip}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstylewarningtitle  [1]{\sphinxdotitlerow{warning}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstylecautiontitle  [1]{\sphinxdotitlerow{caution}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyleattentiontitle[1]{\sphinxdotitlerow{attention}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyledangertitle   [1]{\sphinxdotitlerow{danger}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyleerrortitle    [1]{\sphinxdotitlerow{error}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyleseealsotitle  [1]{\sphinxdotitlerow{seealso}{\sphinxremovefinalcolon{#1}}}
+\newcommand\sphinxstyletodotitle     [1]{\sphinxdotitlerow{todo}{\sphinxremovefinalcolon{#1}}}
+%
+% A utility to remove a final colon.  Removing last token is not easy in
+% LaTeX, and there are additional complications:
+% - some languages will make the : "active" in document body,
+% - the generic admonition ends up using "note", so for \sphinxnotetitle to
+%   use it safely, the utility has to allow an input not having any final colon.
+% - a bit far-fetched but maybe there is more than one colon inside the input
+%   (possible from a generic admonition title).
+% Hence the scary code.
+\newcommand\sphinxremovefinalcolon[1]{% #1 is the "active" : TeX token
+% Prior to 7.4.0 this was defined with \protected\def but we do not
+% see what usefulness this could have.
+\renewcommand\sphinxremovefinalcolon[1]{%
+   % complications due to : possibly "active"
+   \begingroup\ifnum\catcode`:=\active
+                    \def\x####1#1\relax{####1}%
+               \else\def\x####1:\relax{####1}\fi
+   \expandafter\endgroup\x##1\relax
+   % trick to let \x work also if input ##1 has no ending colon
+   \@gobblefour#1\relax:\relax\relax\relax
+   }%
+}% end of wrapper to inject active :
+\begingroup\catcode`:\active\expandafter\endgroup\sphinxremovefinalcolon:
 
 \endinput

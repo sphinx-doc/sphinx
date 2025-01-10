@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 
 class SphinxError(Exception):
     """Base class for Sphinx errors.
@@ -25,16 +23,19 @@ class SphinxError(Exception):
        exception to a string ("category: message").  Should be set accordingly
        in subclasses.
     """
+
     category = 'Sphinx error'
 
 
 class SphinxWarning(SphinxError):
     """Warning, treated as error."""
+
     category = 'Warning, treated as error'
 
 
 class ApplicationError(SphinxError):
     """Application initialization error."""
+
     category = 'Application error'
 
 
@@ -42,7 +43,10 @@ class ExtensionError(SphinxError):
     """Extension error."""
 
     def __init__(
-        self, message: str, orig_exc: Exception | None = None, modname: str | None = None,
+        self,
+        message: str,
+        orig_exc: Exception | None = None,
+        modname: str | None = None,
     ) -> None:
         super().__init__(message)
         self.message = message
@@ -50,7 +54,7 @@ class ExtensionError(SphinxError):
         self.modname = modname
 
     @property
-    def category(self) -> str:  # type: ignore
+    def category(self) -> str:  # type: ignore[override]
         if self.modname:
             return 'Extension error (%s)' % self.modname
         else:
@@ -70,26 +74,31 @@ class ExtensionError(SphinxError):
 
 class BuildEnvironmentError(SphinxError):
     """BuildEnvironment error."""
+
     category = 'BuildEnvironment error'
 
 
 class ConfigError(SphinxError):
     """Configuration error."""
+
     category = 'Configuration error'
 
 
 class DocumentError(SphinxError):
     """Document error."""
+
     category = 'Document error'
 
 
 class ThemeError(SphinxError):
     """Theme error."""
+
     category = 'Theme error'
 
 
 class VersionRequirementError(SphinxError):
     """Incompatible Sphinx version error."""
+
     category = 'Sphinx version error'
 
 
@@ -98,7 +107,7 @@ class SphinxParallelError(SphinxError):
 
     category = 'Sphinx parallel build error'
 
-    def __init__(self, message: str, traceback: Any) -> None:
+    def __init__(self, message: str, traceback: str) -> None:
         self.message = message
         self.traceback = traceback
 
@@ -118,10 +127,13 @@ class PycodeError(Exception):
 
 class NoUri(Exception):
     """Raised by builder.get_relative_uri() or from missing-reference handlers
-    if there is no URI available."""
+    if there is no URI available.
+    """
+
     pass
 
 
 class FiletypeNotFoundError(Exception):
     """Raised by get_filetype() if a filename matches no source suffix."""
+
     pass

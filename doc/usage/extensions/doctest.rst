@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.doctest` -- Test snippets in the documentation
 ===============================================================
@@ -9,6 +9,9 @@
 .. index:: pair: automatic; testing
            single: doctest
            pair: testing; snippets
+
+.. role:: code-py(code)
+   :language: Python
 
 
 It is often helpful to include snippets of code in your documentation and
@@ -51,6 +54,14 @@ a comma-separated list of group names.
    A setup code block.  This code is not shown in the output for other builders,
    but executed before the doctests of the group(s) it belongs to.
 
+   .. rubric:: Options
+
+   .. rst:directive:option:: skipif: condition
+      :type: text
+
+      Skip the directive if the python expression *condition* is True.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
+
 
 .. rst:directive:: .. testcleanup:: [group]
 
@@ -58,6 +69,14 @@ a comma-separated list of group names.
    builders, but executed after the doctests of the group(s) it belongs to.
 
    .. versionadded:: 1.1
+
+   .. rubric:: Options
+
+   .. rst:directive:option:: skipif: condition
+      :type: text
+
+      Skip the directive if the python expression *condition* is True.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
 
 .. rst:directive:: .. doctest:: [group]
@@ -67,72 +86,99 @@ a comma-separated list of group names.
    default set of flags is specified by the :confval:`doctest_default_flags`
    configuration variable.
 
-   This directive supports five options:
+   .. rubric:: Options
 
-   * ``hide``, a flag option, hides the doctest block in other builders.  By
-     default it is shown as a highlighted doctest block.
+   .. rst:directive:option:: hide
 
-   * ``options``, a string option, can be used to give a comma-separated list of
-     doctest flags that apply to each example in the tests.  (You still can give
-     explicit flags per example, with doctest comments, but they will show up in
-     other builders too.)
+     Hide the doctest block in other builders.
+     By default it is shown as a highlighted doctest block.
 
-   * ``pyversion``, a string option, can be used to specify the required Python
-     version for the example to be tested. For instance, in the following case
-     the example will be tested only for Python versions greater than 3.3::
+   .. rst:directive:option:: options: doctest flags
+      :type: comma separated list
+
+      A comma-separated list of doctest flags that apply to each example in the
+      tests.  (You still can give explicit flags per example, with doctest comments,
+      but they will show up in other builders too.)
+
+      Alternatively, you can give inline doctest options, like in doctest:
+
+      .. code-block:: pycon
+
+         >>> datetime.date.now()   # doctest: +SKIP
+         datetime.date(2008, 1, 1)
+
+      They will be respected when the test is run, but by default will be stripped from
+      presentation output. You can prevent stripping using the option
+      :rst:dir:`doctest:no-trim-doctest-flags`.
+
+   .. rst:directive:option:: pyversion
+      :type: text
+
+      Specify the required Python version for the example to be tested. For instance,
+      in the following case the example will be tested only for Python versions greater
+      than 3.12::
 
          .. doctest::
-            :pyversion: > 3.3
+            :pyversion: > 3.12
 
-     The following operands are supported:
+      The following operands are supported:
 
-     * ``~=``: Compatible release clause
-     * ``==``: Version matching clause
-     * ``!=``: Version exclusion clause
-     * ``<=``, ``>=``: Inclusive ordered comparison clause
-     * ``<``, ``>``: Exclusive ordered comparison clause
-     * ``===``: Arbitrary equality clause.
+      * ``~=``: Compatible release clause
+      * ``==``: Version matching clause
+      * ``!=``: Version exclusion clause
+      * ``<=``, ``>=``: Inclusive ordered comparison clause
+      * ``<``, ``>``: Exclusive ordered comparison clause
+      * ``===``: Arbitrary equality clause.
 
-     ``pyversion`` option is followed :pep:`PEP-440: Version Specifiers
-     <440#version-specifiers>`.
+      ``pyversion`` option is followed :pep:`PEP-440: Version Specifiers
+      <440#version-specifiers>`.
 
-     .. versionadded:: 1.6
+      .. versionadded:: 1.6
 
-     .. versionchanged:: 1.7
+      .. versionchanged:: 1.7
 
-        Supported PEP-440 operands and notations
+         Supported PEP-440 operands and notations
 
-   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
-     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
-     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
-     individually.  Default is ``trim-doctest-flags``.
+   .. rst:directive:option:: trim-doctest-flags
+                             no-trim-doctest-flags
 
-   Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
-   signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
-   when building presentation output (HTML, LaTeX etc.).
+      Whether to trim remove doctest flags (comments looking like
+      ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
+      individually.  Default is ``trim-doctest-flags``.
 
-   Also, you can give inline doctest options, like in doctest::
+      Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
+      signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed
+      when building presentation output (HTML, LaTeX etc.).
 
-      >>> datetime.date.now()   # doctest: +SKIP
-      datetime.date(2008, 1, 1)
+   .. rst:directive:option:: skipif: condition
+      :type: text
 
-   They will be respected when the test is run, but stripped from presentation
-   output.
-
+      Skip the directive if the python expression *condition* is True.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
 .. rst:directive:: .. testcode:: [group]
 
    A code block for a code-output-style test.
 
-   This directive supports three options:
+   .. rubric:: Options
 
-   * ``hide``, a flag option, hides the code block in other builders.  By
-     default it is shown as a highlighted code block.
+   .. rst:directive:option:: hide
 
-   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
-     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
-     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
-     individually.  Default is ``trim-doctest-flags``.
+      Hide the code block in other builders.
+      By default it is shown as a highlighted code block.
+
+   .. rst:directive:option:: trim-doctest-flags
+                             no-trim-doctest-flags
+
+      Whether to trim remove doctest flags (comments looking like
+      ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
+      individually.  Default is ``trim-doctest-flags``.
+
+   .. rst:directive:option:: skipif: condition
+      :type: text
+
+      Skip the directive if the python expression *condition* is True.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
    .. note::
 
@@ -159,18 +205,28 @@ a comma-separated list of group names.
    The corresponding output, or the exception message, for the last
    :rst:dir:`testcode` block.
 
-   This directive supports four options:
+   .. rst:directive:option:: hide
 
-   * ``hide``, a flag option, hides the output block in other builders.  By
-     default it is shown as a literal block without highlighting.
+     Hide the doctest block in other builders.
+     By default it is shown as a highlighted doctest block.
 
-   * ``options``, a string option, can be used to give doctest flags
-     (comma-separated) just like in normal doctest blocks.
+   .. rst:directive:option:: options: doctest flags
+      :type: comma separated list
 
-   * ``trim-doctest-flags`` and ``no-trim-doctest-flags``, a flag option,
-     doctest flags (comments looking like ``# doctest: FLAG, ...``) at the
-     ends of lines and ``<BLANKLINE>`` markers are removed (or not removed)
-     individually.  Default is ``trim-doctest-flags``.
+      A comma-separated list of doctest flags.
+
+   .. rst:directive:option:: trim-doctest-flags
+                             no-trim-doctest-flags
+
+      Whether to trim remove doctest flags (comments looking like
+      ``# doctest: FLAG, ...``) at the ends of lines and ``<BLANKLINE>`` markers
+      individually.  Default is ``trim-doctest-flags``.
+
+   .. rst:directive:option:: skipif: condition
+      :type: text
+
+      Skip the directive if the python expression *condition* is True.
+      See :ref:`skipping tests conditionally <doctest-skipif>`.
 
    Example::
 
@@ -216,6 +272,8 @@ The following is an example for the usage of the directives.  The test via
 
       This parrot wouldn't voom if you put 3000 volts through it!
 
+
+.. _doctest-skipif:
 
 Skipping tests conditionally
 ----------------------------
@@ -298,6 +356,8 @@ Configuration
 The doctest extension uses the following configuration values:
 
 .. confval:: doctest_default_flags
+   :type: :code-py:`int`
+   :default: :code-py:`ELLIPSIS | IGNORE_EXCEPTION_DETAIL | DONT_ACCEPT_TRUE_FOR_1`
 
    By default, these options are enabled:
 
@@ -311,12 +371,27 @@ The doctest extension uses the following configuration values:
 
    .. versionadded:: 1.5
 
+.. confval:: doctest_show_successes
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Controls whether successes are reported.
+
+   For a project with many doctests,
+   it may be useful to set this to ``False`` to only highlight failures.
+
+   .. versionadded:: 7.2
+
 .. confval:: doctest_path
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`()`
 
    A list of directories that will be added to :data:`sys.path` when the doctest
    builder is used.  (Make sure it contains absolute paths.)
 
 .. confval:: doctest_global_setup
+   :type: :code-py:`str`
+   :default: :code-py:`''`
 
    Python code that is treated like it were put in a ``testsetup`` directive for
    *every* file that is tested, and for every group.  You can use this to
@@ -325,6 +400,8 @@ The doctest extension uses the following configuration values:
    .. versionadded:: 0.6
 
 .. confval:: doctest_global_cleanup
+   :type: :code-py:`str`
+   :default: :code-py:`''`
 
    Python code that is treated like it were put in a ``testcleanup`` directive
    for *every* file that is tested, and for every group.  You can use this to
@@ -333,13 +410,15 @@ The doctest extension uses the following configuration values:
    .. versionadded:: 1.1
 
 .. confval:: doctest_test_doctest_blocks
+   :type: :code-py:`str`
+   :default: :code-py:`'default'`
 
-   If this is a nonempty string (the default is ``'default'``), standard reST
-   doctest blocks will be tested too.  They will be assigned to the group name
-   given.
+   If this is a nonempty string,
+   standard reStructuredText doctest blocks will be tested too.
+   They will be assigned to the group name given.
 
-   reST doctest blocks are simply doctests put into a paragraph of their own,
-   like so::
+   reStructuredText doctest blocks are simply doctests
+   put into a paragraph of their own, like so::
 
       Some documentation text.
 
@@ -368,8 +447,8 @@ The doctest extension uses the following configuration values:
    with the :mod:`~sphinx.ext.autodoc` extension without marking them up with a
    special directive.
 
-   Note though that you can't have blank lines in reST doctest blocks.  They
-   will be interpreted as one block ending and another one starting.  Also,
-   removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
+   Note though that you can't have blank lines in reStructuredText doctest blocks.
+   They will be interpreted as one block ending and another one starting.
+   Also, removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
    :rst:dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags`
    to achieve that in all code blocks with Python console content.

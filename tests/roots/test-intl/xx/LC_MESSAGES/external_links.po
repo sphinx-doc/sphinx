@@ -25,8 +25,8 @@ msgstr "EXTERNAL LINK TO Python_."
 msgid "Internal link to `i18n with external links`_."
 msgstr "`EXTERNAL LINKS`_ IS INTERNAL LINK."
 
-msgid "Inline link by `Sphinx Site <http://sphinx-doc.org>`_."
-msgstr "INLINE LINK BY `THE SPHINX SITE <http://sphinx-doc.org>`_."
+msgid "Inline link by `Sphinx Site <https://sphinx-doc.org>`_."
+msgstr "INLINE LINK BY `THE SPHINX SITE <https://sphinx-doc.org>`_."
 
 msgid "Unnamed link__."
 msgstr "UNNAMED LINK__."
@@ -37,11 +37,11 @@ msgstr "LINK TARGET SWAPPED TRANSLATION"
 msgid "link to external1_ and external2_."
 msgstr "LINK TO external2_ AND external1_."
 
-msgid "link to `Sphinx Site <http://sphinx-doc.org>`_ and `Python Site <http://python.org>`_."
-msgstr "LINK TO `THE PYTHON SITE <http://python.org>`_ AND `THE SPHINX SITE <http://sphinx-doc.org>`_."
+msgid "link to `Sphinx Site <https://sphinx-doc.org>`_ and `Python Site <https://python.org>`_."
+msgstr "LINK TO `THE PYTHON SITE <https://python.org>`_ AND `THE SPHINX SITE <https://sphinx-doc.org>`_."
 
 msgid "Multiple references in the same line"
 msgstr "MULTIPLE REFERENCES IN THE SAME LINE"
 
-msgid "Link to `Sphinx Site <http://sphinx-doc.org>`_, `Python Site <http://python.org>`_, Python_, Unnamed__ and `i18n with external links`_."
-msgstr "LINK TO `EXTERNAL LINKS`_, Python_, `THE SPHINX SITE <http://sphinx-doc.org>`_, UNNAMED__ AND `THE PYTHON SITE <http://python.org>`_."
+msgid "Link to `Sphinx Site <https://sphinx-doc.org>`_, `Python Site <https://python.org>`_, Python_, Unnamed__ and `i18n with external links`_."
+msgstr "LINK TO `EXTERNAL LINKS`_, Python_, `THE SPHINX SITE <https://sphinx-doc.org>`_, UNNAMED__ AND `THE PYTHON SITE <https://python.org>`_."

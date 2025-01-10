@@ -3,18 +3,20 @@
 from __future__ import annotations
 
 import os
+import os.path
 import warnings
-from os import path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 from docutils.frontend import OptionParser
-from docutils.nodes import Node
 
-import sphinx.builders.latex.nodes  # noqa: F401,E501  # Workaround: import this before writer to avoid ImportError
+import sphinx.builders.latex.nodes  # NoQA: F401  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
-from sphinx.application import Sphinx
 from sphinx.builders import Builder
-from sphinx.builders.latex.constants import ADDITIONAL_SETTINGS, DEFAULT_SETTINGS, SHORTHANDOFF
+from sphinx.builders.latex.constants import (
+    ADDITIONAL_SETTINGS,
+    DEFAULT_SETTINGS,
+    SHORTHANDOFF,
+)
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
 from sphinx.config import ENUM, Config
@@ -22,18 +24,26 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, make_filename_from_project
+from sphinx.util.osutil import SEP, copyfile, make_filename_from_project
 from sphinx.util.template import LaTeXRenderer
 from sphinx.writers.latex import LaTeXTranslator, LaTeXWriter
 
 # load docutils.nodes after loading sphinx.builders.latex.nodes
 from docutils import nodes  # isort:skip
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Set
+
+    from docutils.nodes import Node
+
+    from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata
 
 XINDY_LANG_OPTIONS = {
     # language codes from docutils.writers.latex2e.Babel
@@ -90,11 +100,9 @@ XINDY_LANG_OPTIONS = {
     'el': '-L greek -C utf8 ',
     # FIXME, not compatible with [:2] slice but does Sphinx support Greek ?
     'el-polyton': '-L greek-polytonic -C utf8 ',
-}
+}  # fmt: skip
 
-XINDY_CYRILLIC_SCRIPTS = [
-    'be', 'bg', 'mk', 'mn', 'ru', 'sr', 'sh', 'uk',
-]
+XINDY_CYRILLIC_SCRIPTS = frozenset({'be', 'bg', 'mk', 'mn', 'ru', 'sr', 'sh', 'uk'})
 
 logger = logging.getLogger(__name__)
 
@@ -103,20 +111,23 @@ class LaTeXBuilder(Builder):
     """
     Builds LaTeX output to create PDF.
     """
+
     name = 'latex'
     format = 'latex'
     epilog = __('The LaTeX files are in %(outdir)s.')
     if os.name == 'posix':
-        epilog += __("\nRun 'make' in that directory to run these through "
-                     "(pdf)latex\n"
-                     "(use `make latexpdf' here to do that automatically).")
+        epilog += __(
+            "\nRun 'make' in that directory to run these through "
+            '(pdf)latex\n'
+            "(use `make latexpdf' here to do that automatically)."
+        )
 
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
     supported_remote_images = False
     default_translator_class = LaTeXTranslator
 
     def init(self) -> None:
-        self.babel: ExtBabel = None
+        self.babel: ExtBabel
         self.context: dict[str, Any] = {}
         self.docnames: Iterable[str] = {}
         self.document_data: list[tuple[str, str, str, str, str, bool]] = []
@@ -142,20 +153,25 @@ class LaTeXBuilder(Builder):
     def init_document_data(self) -> None:
         preliminary_document_data = [list(x) for x in self.config.latex_documents]
         if not preliminary_document_data:
-            logger.warning(__('no "latex_documents" config value found; no documents '
-                              'will be written'))
+            logger.warning(
+                __(
+                    'no "latex_documents" config value found; no documents '
+                    'will be written'
+                )
+            )
             return
         # assign subdirs to titles
         self.titles: list[tuple[str, str]] = []
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
-                logger.warning(__('"latex_documents" config value references unknown '
-                                  'document %s'), docname)
+                logger.warning(
+                    __('"latex_documents" config value references unknown document %s'),
+                    docname,
+                )
                 continue
-            self.document_data.append(entry)  # type: ignore
-            if docname.endswith(SEP + 'index'):
-                docname = docname[:-5]
+            self.document_data.append(entry)  # type: ignore[arg-type]
+            docname = docname.removesuffix(SEP + 'index')
             self.titles.append((docname, entry[2]))
 
     def init_context(self) -> None:
@@ -179,11 +195,11 @@ class LaTeXBuilder(Builder):
         if self.config.today:
             self.context['date'] = self.config.today
         else:
-            self.context['date'] = format_date(self.config.today_fmt or _('%b %d, %Y'),
-                                               language=self.config.language)
+            today_fmt = self.config.today_fmt or _('%b %d, %Y')
+            self.context['date'] = format_date(today_fmt, language=self.config.language)
 
         if self.config.latex_logo:
-            self.context['logofilename'] = path.basename(self.config.latex_logo)
+            self.context['logofilename'] = os.path.basename(self.config.latex_logo)
 
         # for compatibilities
         self.context['indexname'] = _('Index')
@@ -203,25 +219,34 @@ class LaTeXBuilder(Builder):
         if not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
-            logger.warning(__('no Babel option known for language %r'),
-                           self.config.language)
+            logger.warning(
+                __('no Babel option known for language %r'), self.config.language
+            )
 
     def init_multilingual(self) -> None:
         if self.context['latex_engine'] == 'pdflatex':
             if not self.babel.uses_cyrillic():
                 if 'X2' in self.context['fontenc']:
-                    self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = ('\\usepackage[Xtwo]'
-                                                    '{sphinxpackagecyrillic}')
+                    self.context['substitutefont'] = (
+                        '\\usepackage{sphinxpackagesubstitutefont}'
+                    )
+                    self.context['textcyrillic'] = (
+                        '\\usepackage[Xtwo]{sphinxpackagecyrillic}'
+                    )
                 elif 'T2A' in self.context['fontenc']:
-                    self.context['substitutefont'] = '\\usepackage{substitutefont}'
-                    self.context['textcyrillic'] = ('\\usepackage[TtwoA]'
-                                                    '{sphinxpackagecyrillic}')
+                    self.context['substitutefont'] = (
+                        '\\usepackage{sphinxpackagesubstitutefont}'
+                    )
+                    self.context['textcyrillic'] = (
+                        '\\usepackage[TtwoA]{sphinxpackagecyrillic}'
+                    )
             if 'LGR' in self.context['fontenc']:
-                self.context['substitutefont'] = '\\usepackage{substitutefont}'
+                self.context['substitutefont'] = (
+                    '\\usepackage{sphinxpackagesubstitutefont}'
+                )
             else:
                 self.context['textgreek'] = ''
-            if self.context['substitutefont'] == '':
+            if not self.context['substitutefont']:
                 self.context['fontsubstitution'] = ''
 
         # 'babel' key is public and user setting must be obeyed
@@ -232,13 +257,18 @@ class LaTeXBuilder(Builder):
             self.context['shorthandoff'] = SHORTHANDOFF
 
             # Times fonts don't work with Cyrillic languages
-            if self.babel.uses_cyrillic() and 'fontpkg' not in self.config.latex_elements:
+            if (
+                self.babel.uses_cyrillic()
+                and 'fontpkg' not in self.config.latex_elements
+            ):
                 self.context['fontpkg'] = ''
         elif self.context['polyglossia']:
             self.context['classoptions'] += ',' + self.babel.get_language()
             options = self.babel.get_mainlanguage_options()
             if options:
-                language = fr'\setmainlanguage[{options}]{{{self.babel.get_language()}}}'
+                language = (
+                    rf'\setmainlanguage[{options}]{{{self.babel.get_language()}}}'
+                )
             else:
                 language = r'\setmainlanguage{%s}' % self.babel.get_language()
 
@@ -246,15 +276,29 @@ class LaTeXBuilder(Builder):
 
     def write_stylesheet(self) -> None:
         highlighter = highlighting.PygmentsBridge('latex', self.config.pygments_style)
-        stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
-        with open(stylesheet, 'w', encoding="utf-8") as f:
+        stylesheet = os.path.join(self.outdir, 'sphinxhighlight.sty')
+        with open(stylesheet, 'w', encoding='utf-8') as f:
             f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
-            f.write('\\ProvidesPackage{sphinxhighlight}'
-                    '[2022/06/30 stylesheet for highlighting with pygments]\n')
-            f.write('% Its contents depend on pygments_style configuration variable.\n\n')
+            f.write(
+                '\\ProvidesPackage{sphinxhighlight}'
+                '[2022/06/30 stylesheet for highlighting with pygments]\n'
+            )
+            f.write(
+                '% Its contents depend on pygments_style configuration variable.\n\n'
+            )
             f.write(highlighter.get_stylesheet())
 
-    def write(self, *ignored: Any) -> None:
+    def prepare_writing(self, docnames: Set[str]) -> None:
+        self.init_document_data()
+        self.write_stylesheet()
+
+    def copy_assets(self) -> None:
+        self.copy_support_files()
+
+        if self.config.latex_additional_files:
+            self.copy_latex_additional_files()
+
+    def write_documents(self, _docnames: Set[str]) -> None:
         docwriter = LaTeXWriter(self)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', category=DeprecationWarning)
@@ -263,10 +307,8 @@ class LaTeXBuilder(Builder):
             docsettings: Any = OptionParser(
                 defaults=self.env.settings,
                 components=(docwriter,),
-                read_config_files=True).get_default_values()
-
-        self.init_document_data()
-        self.write_stylesheet()
+                read_config_files=True,
+            ).get_default_values()
 
         for entry in self.document_data:
             docname, targetname, title, author, themename = entry[:5]
@@ -274,9 +316,12 @@ class LaTeXBuilder(Builder):
             toctree_only = False
             if len(entry) > 5:
                 toctree_only = entry[5]
-            destination = SphinxFileOutput(destination_path=path.join(self.outdir, targetname),
-                                           encoding='utf-8', overwrite_if_changed=True)
-            with progress_message(__("processing %s") % targetname):
+            destination = SphinxFileOutput(
+                destination_path=os.path.join(self.outdir, targetname),
+                encoding='utf-8',
+                overwrite_if_changed=True,
+            )
+            with progress_message(__('processing %s') % targetname, nonl=False):
                 doctree = self.env.get_doctree(docname)
                 toctree = next(doctree.findall(addnodes.toctree), None)
                 if toctree and toctree.get('maxdepth') > 0:
@@ -285,8 +330,12 @@ class LaTeXBuilder(Builder):
                     tocdepth = None
 
                 doctree = self.assemble_doctree(
-                    docname, toctree_only,
-                    appendices=(self.config.latex_appendices if theme.name != 'howto' else []))
+                    docname,
+                    toctree_only,
+                    appendices=(
+                        self.config.latex_appendices if theme.name != 'howto' else []
+                    ),
+                )
                 doctree['docclass'] = theme.docclass
                 doctree['contentsname'] = self.get_contentsname(docname)
                 doctree['tocdepth'] = tocdepth
@@ -294,7 +343,7 @@ class LaTeXBuilder(Builder):
                 self.update_doc_context(title, author, theme)
                 self.update_context()
 
-            with progress_message(__("writing")):
+            with progress_message(__('writing')):
                 docsettings._author = author
                 docsettings._title = title
                 docsettings._contentsname = doctree['contentsname']
@@ -307,7 +356,7 @@ class LaTeXBuilder(Builder):
 
     def get_contentsname(self, indexfile: str) -> str:
         tree = self.env.get_doctree(indexfile)
-        contentsname = None
+        contentsname = ''
         for toctree in tree.findall(addnodes.toctree):
             if 'caption' in toctree:
                 contentsname = toctree['caption']
@@ -324,10 +373,13 @@ class LaTeXBuilder(Builder):
         self.context['wrapperclass'] = theme.wrapperclass
 
     def assemble_doctree(
-        self, indexfile: str, toctree_only: bool, appendices: list[str],
+        self,
+        indexfile: str,
+        toctree_only: bool,
+        appendices: list[str],
     ) -> nodes.document:
-        self.docnames = set([indexfile] + appendices)
-        logger.info(darkgreen(indexfile) + " ", nonl=True)
+        self.docnames = {indexfile, *appendices}
+        logger.info(darkgreen(indexfile))
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:
@@ -335,21 +387,21 @@ class LaTeXBuilder(Builder):
             # fresh document
             new_tree = new_document('<latex output>')
             new_sect = nodes.section()
-            new_sect += nodes.title('<Set title in conf.py>',
-                                    '<Set title in conf.py>')
+            new_sect += nodes.title('<Set title in conf.py>', '<Set title in conf.py>')
             new_tree += new_sect
             for node in tree.findall(addnodes.toctree):
                 new_sect += node
             tree = new_tree
-        largetree = inline_all_toctrees(self, self.docnames, indexfile, tree,
-                                        darkgreen, [indexfile])
+        largetree = inline_all_toctrees(
+            self, self.docnames, indexfile, tree, darkgreen, [indexfile]
+        )
         largetree['docname'] = indexfile
         for docname in appendices:
             appendix = self.env.get_doctree(docname)
             appendix['docname'] = docname
             largetree.append(appendix)
         logger.info('')
-        logger.info(__("resolving references..."))
+        logger.info(__('resolving references...'))
         self.env.resolve_references(largetree, indexfile, self)
         # resolve :ref:s to distant tex files -- we can't add a cross-reference,
         # but append the document name
@@ -359,9 +411,11 @@ class LaTeXBuilder(Builder):
             newnodes: list[Node] = [nodes.emphasis(sectname, sectname)]
             for subdir, title in self.titles:
                 if docname.startswith(subdir):
-                    newnodes.append(nodes.Text(_(' (in ')))
-                    newnodes.append(nodes.emphasis(title, title))
-                    newnodes.append(nodes.Text(')'))
+                    newnodes.extend((
+                        nodes.Text(_(' (in ')),
+                        nodes.emphasis(title, title),
+                        nodes.Text(')'),
+                    ))
                     break
             else:
                 pass
@@ -371,63 +425,90 @@ class LaTeXBuilder(Builder):
     def finish(self) -> None:
         self.copy_image_files()
         self.write_message_catalog()
-        self.copy_support_files()
-
-        if self.config.latex_additional_files:
-            self.copy_latex_additional_files()
 
     @progress_message(__('copying TeX support files'))
     def copy_support_files(self) -> None:
-        """copy TeX support files from texinputs."""
+        """Copy TeX support files from texinputs."""
         # configure usage of xindy (impacts Makefile and latexmkrc)
         # FIXME: convert this rather to a confval with suitable default
         #        according to language ? but would require extra documentation
-        xindy_lang_option = XINDY_LANG_OPTIONS.get(self.config.language[:2],
-                                                   '-L general -C utf8 ')
+        xindy_lang_option = XINDY_LANG_OPTIONS.get(
+            self.config.language[:2], '-L general -C utf8 '
+        )
         xindy_cyrillic = self.config.language[:2] in XINDY_CYRILLIC_SCRIPTS
 
         context = {
-            'latex_engine':      self.config.latex_engine,
-            'xindy_use':         self.config.latex_use_xindy,
+            'latex_engine': self.config.latex_engine,
+            'xindy_use': self.config.latex_use_xindy,
             'xindy_lang_option': xindy_lang_option,
-            'xindy_cyrillic':    xindy_cyrillic,
+            'xindy_cyrillic': xindy_cyrillic,
         }
-        logger.info(bold(__('copying TeX support files...')))
-        staticdirname = path.join(package_dir, 'texinputs')
+        staticdirname = os.path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
-                copy_asset_file(path.join(staticdirname, filename),
-                                self.outdir, context=context)
+                copy_asset_file(
+                    os.path.join(staticdirname, filename),
+                    self.outdir,
+                    context=context,
+                    force=True,
+                )
 
         # use pre-1.6.x Makefile for make latexpdf on Windows
         if os.name == 'nt':
-            staticdirname = path.join(package_dir, 'texinputs_win')
-            copy_asset_file(path.join(staticdirname, 'Makefile_t'),
-                            self.outdir, context=context)
+            staticdirname = os.path.join(package_dir, 'texinputs_win')
+            copy_asset_file(
+                os.path.join(staticdirname, 'Makefile.jinja'),
+                self.outdir,
+                context=context,
+                force=True,
+            )
 
     @progress_message(__('copying additional files'))
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
             logger.info(' ' + filename, nonl=True)
-            copy_asset_file(path.join(self.confdir, filename), self.outdir)
+            source = self.confdir / filename
+            copyfile(
+                source,
+                self.outdir / source.name,
+                force=True,
+            )
 
     def copy_image_files(self) -> None:
         if self.images:
-            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
-            for src in status_iterator(self.images, __('copying images... '), "brown",
-                                       len(self.images), self.app.verbosity,
-                                       stringify_func=stringify_func):
+            stringify_func = ImageAdapter(self.env).get_original_image_uri
+            for src in status_iterator(
+                self.images,
+                __('copying images... '),
+                'brown',
+                len(self.images),
+                self.app.verbosity,
+                stringify_func=stringify_func,
+            ):
                 dest = self.images[src]
                 try:
-                    copy_asset_file(path.join(self.srcdir, src),
-                                    path.join(self.outdir, dest))
+                    copyfile(
+                        self.srcdir / src,
+                        self.outdir / dest,
+                        force=True,
+                    )
                 except Exception as err:
-                    logger.warning(__('cannot copy image file %r: %s'),
-                                   path.join(self.srcdir, src), err)
+                    logger.warning(
+                        __('cannot copy image file %r: %s'),
+                        os.path.join(self.srcdir, src),
+                        err,
+                    )
         if self.config.latex_logo:
-            if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
-                raise SphinxError(__('logo file %r does not exist') % self.config.latex_logo)
-            copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
+            if not os.path.isfile(os.path.join(self.confdir, self.config.latex_logo)):
+                raise SphinxError(
+                    __('logo file %r does not exist') % self.config.latex_logo
+                )
+            source = self.confdir / self.config.latex_logo
+            copyfile(
+                source,
+                self.outdir / source.name,
+                force=True,
+            )
 
     def write_message_catalog(self) -> None:
         formats = self.config.numfig_format
@@ -441,34 +522,42 @@ class LaTeXBuilder(Builder):
         if self.context['babel'] or self.context['polyglossia']:
             context['addtocaptions'] = r'\addto\captions%s' % self.babel.get_language()
 
-        filename = path.join(package_dir, 'templates', 'latex', 'sphinxmessages.sty_t')
-        copy_asset_file(filename, self.outdir, context=context, renderer=LaTeXRenderer())
+        filename = os.path.join(
+            package_dir, 'templates', 'latex', 'sphinxmessages.sty.jinja'
+        )
+        copy_asset_file(
+            filename,
+            self.outdir,
+            context=context,
+            renderer=LaTeXRenderer(),
+            force=True,
+        )
 
 
 def validate_config_values(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_elements):
         if key not in DEFAULT_SETTINGS:
-            msg = __("Unknown configure key: latex_elements[%r], ignored.")
-            logger.warning(msg % (key,))
+            msg = __('Unknown configure key: latex_elements[%r], ignored.')
+            logger.warning(msg, key)
             config.latex_elements.pop(key)
 
 
 def validate_latex_theme_options(app: Sphinx, config: Config) -> None:
     for key in list(config.latex_theme_options):
         if key not in Theme.UPDATABLE_KEYS:
-            msg = __("Unknown theme option: latex_theme_options[%r], ignored.")
-            logger.warning(msg % (key,))
+            msg = __('Unknown theme option: latex_theme_options[%r], ignored.')
+            logger.warning(msg, key)
             config.latex_theme_options.pop(key)
 
 
 def install_packages_for_ja(app: Sphinx) -> None:
     """Install packages for Japanese."""
-    if app.config.language == 'ja' and app.config.latex_engine in ('platex', 'uplatex'):
+    if app.config.language == 'ja' and app.config.latex_engine in {'platex', 'uplatex'}:
         app.add_latex_package('pxjahyper', after_hyperref=True)
 
 
 def default_latex_engine(config: Config) -> str:
-    """ Better default latex_engine settings for specific languages. """
+    """Better default latex_engine settings for specific languages."""
     if config.language == 'ja':
         return 'uplatex'
     if config.language.startswith('zh'):
@@ -479,35 +568,37 @@ def default_latex_engine(config: Config) -> str:
 
 
 def default_latex_docclass(config: Config) -> dict[str, str]:
-    """ Better default latex_docclass settings for specific languages. """
+    """Better default latex_docclass settings for specific languages."""
     if config.language == 'ja':
         if config.latex_engine == 'uplatex':
-            return {'manual': 'ujbook',
-                    'howto': 'ujreport'}
+            return {'manual': 'ujbook', 'howto': 'ujreport'}
         else:
-            return {'manual': 'jsbook',
-                    'howto': 'jreport'}
+            return {'manual': 'jsbook', 'howto': 'jreport'}
     else:
         return {}
 
 
 def default_latex_use_xindy(config: Config) -> bool:
-    """ Better default latex_use_xindy settings for specific engines. """
+    """Better default latex_use_xindy settings for specific engines."""
     return config.latex_engine in {'xelatex', 'lualatex'}
 
 
 def default_latex_documents(config: Config) -> list[tuple[str, str, str, str, str]]:
-    """ Better default latex_documents settings. """
+    """Better default latex_documents settings."""
     project = texescape.escape(config.project, config.latex_engine)
     author = texescape.escape(config.author, config.latex_engine)
-    return [(config.root_doc,
-             make_filename_from_project(config.project) + '.tex',
-             texescape.escape_abbr(project),
-             texescape.escape_abbr(author),
-             config.latex_theme)]
+    return [
+        (
+            config.root_doc,
+            make_filename_from_project(config.project) + '.tex',
+            texescape.escape_abbr(project),
+            texescape.escape_abbr(author),
+            config.latex_theme,
+        )
+    ]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.setup_extension('sphinx.builders.latex.transforms')
 
     app.add_builder(LaTeXBuilder)
@@ -515,26 +606,31 @@ def setup(app: Sphinx) -> dict[str, Any]:
     app.connect('config-inited', validate_latex_theme_options, priority=800)
     app.connect('builder-inited', install_packages_for_ja)
 
-    app.add_config_value('latex_engine', default_latex_engine, False,
-                         ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'))
-    app.add_config_value('latex_documents', default_latex_documents, False)
-    app.add_config_value('latex_logo', None, False, [str])
-    app.add_config_value('latex_appendices', [], False)
-    app.add_config_value('latex_use_latex_multicolumn', False, False)
-    app.add_config_value('latex_use_xindy', default_latex_use_xindy, False, [bool])
-    app.add_config_value('latex_toplevel_sectioning', None, False,
-                         ENUM(None, 'part', 'chapter', 'section'))
-    app.add_config_value('latex_domain_indices', True, False, [list])
-    app.add_config_value('latex_show_urls', 'no', False)
-    app.add_config_value('latex_show_pagerefs', False, False)
-    app.add_config_value('latex_elements', {}, False)
-    app.add_config_value('latex_additional_files', [], False)
-    app.add_config_value('latex_table_style', ['booktabs', 'colorrows'], False, [list])
-    app.add_config_value('latex_theme', 'manual', False, [str])
-    app.add_config_value('latex_theme_options', {}, False)
-    app.add_config_value('latex_theme_path', [], False, [list])
+    app.add_config_value(
+        'latex_engine',
+        default_latex_engine,
+        '',
+        ENUM('pdflatex', 'xelatex', 'lualatex', 'platex', 'uplatex'),
+    )
+    app.add_config_value('latex_documents', default_latex_documents, '')
+    app.add_config_value('latex_logo', None, '', str)
+    app.add_config_value('latex_appendices', [], '')
+    app.add_config_value('latex_use_latex_multicolumn', False, '')
+    app.add_config_value('latex_use_xindy', default_latex_use_xindy, '', bool)
+    app.add_config_value(
+        'latex_toplevel_sectioning', None, '', ENUM(None, 'part', 'chapter', 'section')
+    )
+    app.add_config_value('latex_domain_indices', True, '', types={set, list})
+    app.add_config_value('latex_show_urls', 'no', '')
+    app.add_config_value('latex_show_pagerefs', False, '')
+    app.add_config_value('latex_elements', {}, '')
+    app.add_config_value('latex_additional_files', [], '')
+    app.add_config_value('latex_table_style', ['booktabs', 'colorrows'], '', list)
+    app.add_config_value('latex_theme', 'manual', '', str)
+    app.add_config_value('latex_theme_options', {}, '')
+    app.add_config_value('latex_theme_path', [], '', list)
 
-    app.add_config_value('latex_docclass', default_latex_docclass, False)
+    app.add_config_value('latex_docclass', default_latex_docclass, '')
 
     return {
         'version': 'builtin',

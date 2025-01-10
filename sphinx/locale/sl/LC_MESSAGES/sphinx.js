@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "sl",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "O dokumentih",
         "Automatically generated list of changes in version %(version)s": "Avtomatsko generiran seznam sprememb v verziji %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Potrdi",
         "Hide Search Matches": "Skrij resultate iskanja",
         "Index": "Abecedni seznam",
-        "Index &ndash; %(key)s": "Seznam &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Indeksiraj strani po \u010drki",
         "Indices and tables:": "Kazalo in seznami:",
         "Last updated on %(last_updated)s.": "Zadnji\u010d posodobljeno %(last_updated)s.",
@@ -37,7 +36,12 @@ Documentation.addTranslations({
         "Search": "I\u0161\u010di",
         "Search Page": "Iskalnik",
         "Search Results": "Rezultati Iskanja",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "I\u0161\u010di med %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

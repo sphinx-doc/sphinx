@@ -3,7 +3,11 @@
 \begin{savenotes}
 \sphinxatlongtablestart
 \sphinxthistablewithglobalstyle
-\begin{longtable}[r]{|l|l|}
+\makeatletter
+  \LTleft \@totalleftmargin plus1fill
+  \LTright\dimexpr\columnwidth-\@totalleftmargin-\linewidth\relax
+\makeatother
+\begin{longtable}{|l|l|}
 \sphinxtoprule
 \sphinxstyletheadfamily 
 \sphinxAtStartPar

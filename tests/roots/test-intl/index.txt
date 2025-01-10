@@ -29,7 +29,9 @@ CONTENTS
    raw
    refs
    section
+   translation_progress
    topic
+   markup
 
 .. toctree::
    :maxdepth: 2

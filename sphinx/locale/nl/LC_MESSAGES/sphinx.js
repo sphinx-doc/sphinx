@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "nl",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Copyright %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", in",
         "About these documents": "Over deze documenten",
         "Automatically generated list of changes in version %(version)s": "Automatisch gegenereerde lijst van veranderingen in versie %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Zoek",
         "Hide Search Matches": "Zoekresultaten verbergen",
         "Index": "Index",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Index pagineerd per letter",
         "Indices and tables:": "Indices en tabellen:",
         "Last updated on %(last_updated)s.": "Laatste aanpassing op %(last_updated)s.",
@@ -37,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Zoeken",
         "Search Page": "Zoekpagina",
         "Search Results": "Zoekresultaten",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Zoeken in %(docstitle)s",
         "Searching": "Bezig met zoeken",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

@@ -10,11 +10,11 @@ Description
 -----------
 
 :program:`sphinx-autogen` is a tool for automatic generation of Sphinx sources
-that, using the :rst:dir:`autodoc` extension, document items included in
-:rst:dir:`autosummary` listing(s).
+that, using the :py:mod:`~sphinx.ext.autodoc` extension, document items included
+in :rst:dir:`autosummary` listing(s).
 
 *sourcefile* is the path to one or more reStructuredText documents containing
-:rst:dir:`autosummary` entries with the ``:toctree::`` option set. *sourcefile*
+:rst:dir:`autosummary` entries with the ``:toctree:`` option set. *sourcefile*
 can be an :py:mod:`fnmatch`-style pattern.
 
 Options
@@ -42,6 +42,11 @@ Options
 .. option:: -a, --respect-module-all
 
    Document exactly the members in a module's ``__all__`` attribute.
+
+.. option:: --remove-old
+
+   Remove existing files in the output directory
+   that are not generated anymore.
 
 Example
 -------
@@ -88,8 +93,8 @@ then the following stub files will be created in ``docs``::
         ├── foobar.bar.baz.rst
         └── foobar.foo.rst
 
-and each of those files will contain a :rst:dir:`autodoc` directive and some
-other information.
+and each of those files will contain a :py:mod:`~sphinx.ext.autodoc` directive
+and some other information.
 
 See also
 --------

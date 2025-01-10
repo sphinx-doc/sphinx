@@ -1,12 +1,4 @@
-{#
-    haiku/layout.html
-    ~~~~~~~~~~~~~~~~~
-
-    Sphinx layout template for the haiku theme.
-
-    :copyright: Copyright 2007-2023 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-#}
+{# Sphinx layout template for the haiku theme. #}
 {%- extends "basic/layout.html" %}
 
 {# do not display relbars #}
@@ -35,20 +27,20 @@
       <div class="header" role="banner">
         {%- block haikuheader %}
         {%- if theme_full_logo != "false" %}
-        <a href="{{ pathto('index') }}">
-          <img class="logo" src="{{ logo_url|e }}" alt="Logo"/>
+        <a href="{{ pathto(root_doc)|e }}">
+          <img class="logo" src="{{ logo_url|e }}" alt="{{ logo_alt|e }}"/>
         </a>
         {%- else %}
         {%- if logo -%}
-          <img class="rightlogo" src="{{ logo_url|e }}" alt="Logo"/>
+          <img class="rightlogo" src="{{ logo_url|e }}" alt="{{ logo_alt|e }}"/>
         {%- endif -%}
-        <h1 class="heading"><a href="{{ pathto('index') }}">
+        <h1 class="heading"><a href="{{ pathto(root_doc)|e }}">
           <span>{{ shorttitle|e }}</span></a></h1>
         <h2 class="heading"><span>{{ title|striptags|e }}</span></h2>
         {%- endif %}
         {%- endblock %}
       </div>
-      <div class="topnav" role="navigation" aria-label="top navigation">
+      <div class="topnav" role="navigation" aria-label="Top">
       {{ nav() }}
       </div>
       <div class="content" role="main">
@@ -60,7 +52,7 @@
         {%- endif %}#}
         {% block body %}{% endblock %}
       </div>
-      <div class="bottomnav" role="navigation" aria-label="bottom navigation">
+      <div class="bottomnav" role="navigation" aria-label="Bottom">
       {{ nav() }}
       </div>
 {% endblock %}

@@ -24,7 +24,7 @@ The following are some general guidelines for core developers:
   in a good working state and that all tests pass before pushing your changes.
 
 * When committing code written by someone else, please attribute the original
-  author in the commit message and any relevant :file:`CHANGES` entry.
+  author in the commit message and any relevant :file:`CHANGES.rst` entry.
 
 Membership
 ~~~~~~~~~~

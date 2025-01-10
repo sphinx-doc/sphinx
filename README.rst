@@ -40,7 +40,7 @@ Features
 * **Language Support**: Python, C, C++, JavaScript, mathematics, and many other
   languages through extensions.
 
-For more information, refer to the `the documentation`_.
+For more information, refer to `the documentation`_.
 
 Installation
 ============
@@ -48,7 +48,7 @@ Installation
 The following command installs Sphinx from the `Python Package Index`_. You will
 need a working installation of Python and pip.
 
-.. code-block:: sh
+.. code-block:: shell
 
    pip install -U sphinx
 
@@ -57,15 +57,6 @@ Contributing
 
 We appreciate all contributions! Refer to `the contributors guide`_ for
 information.
-
-Release signatures
-==================
-
-Releases are signed with following keys:
-
-* `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
-* `5EBA0E07 <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x1425F8CE5EBA0E07>`_
-* `61F0FB52 <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x52C8F72A61F0FB52>`_
 
 .. _the documentation: https://www.sphinx-doc.org/
 .. _the contributors guide: https://www.sphinx-doc.org/en/master/internals/contributing.html

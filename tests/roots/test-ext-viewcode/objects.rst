@@ -8,7 +8,7 @@ Testing object descriptions
 .. function:: func_without_body()
 
 .. function:: func_noindex
-   :noindex:
+   :no-index:
 
 .. function:: func_with_module
    :module: foolib
@@ -167,3 +167,10 @@ CPP domain
 
    .. cpp:function:: T& operator[]( unsigned j )
                      const T& operator[]( unsigned j ) const
+
+rST domain
+==========
+
+.. rst:role:: foo
+
+   Foo description.

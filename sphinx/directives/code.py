@@ -3,23 +3,27 @@ from __future__ import annotations
 import sys
 import textwrap
 from difflib import unified_diff
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
-from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.config import Config
 from sphinx.directives import optional_int
 from sphinx.locale import __
-from sphinx.util import logging, parselinenos
+from sphinx.util import logging
+from sphinx.util._lines import parse_line_num_spec
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    import os
+
+    from docutils.nodes import Element, Node
+
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +38,7 @@ class Highlight(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'force': directives.flag,
         'linenothreshold': directives.positive_int,
     }
@@ -44,14 +48,16 @@ class Highlight(SphinxDirective):
         linenothreshold = self.options.get('linenothreshold', sys.maxsize)
         force = 'force' in self.options
 
-        self.env.temp_data['highlight_language'] = language
-        return [addnodes.highlightlang(lang=language,
-                                       force=force,
-                                       linenothreshold=linenothreshold)]
+        self.env.current_document.highlight_language = language
+        return [
+            addnodes.highlightlang(
+                lang=language, force=force, linenothreshold=linenothreshold
+            )
+        ]
 
 
 def dedent_lines(
-    lines: list[str], dedent: int | None, location: tuple[str, int] | None = None,
+    lines: list[str], dedent: int | None, location: tuple[str, int] | None = None
 ) -> list[str]:
     if dedent is None:
         return textwrap.dedent(''.join(lines)).splitlines(True)
@@ -70,19 +76,18 @@ def dedent_lines(
 
 
 def container_wrapper(
-    directive: SphinxDirective, literal_node: Node, caption: str,
+    directive: SphinxDirective, literal_node: Node, caption: str
 ) -> nodes.container:
-    container_node = nodes.container('', literal_block=True,
-                                     classes=['literal-block-wrapper'])
-    parsed = nodes.Element()
-    directive.state.nested_parse(StringList([caption], source=''),
-                                 directive.content_offset, parsed)
-    if isinstance(parsed[0], nodes.system_message):
-        msg = __('Invalid caption: %s' % parsed[0].astext())
+    container_node = nodes.container(
+        '', literal_block=True, classes=['literal-block-wrapper']
+    )
+    parsed = directive.parse_text_to_nodes(caption, offset=directive.content_offset)
+    node = parsed[0]
+    if isinstance(node, nodes.system_message):
+        msg = __('Invalid caption: %s') % node.astext()
         raise ValueError(msg)
-    if isinstance(parsed[0], nodes.Element):
-        caption_node = nodes.caption(parsed[0].rawsource, '',
-                                     *parsed[0].children)
+    if isinstance(node, nodes.Element):
+        caption_node = nodes.caption(node.rawsource, '', *node.children)
         caption_node.source = literal_node.source
         caption_node.line = literal_node.line
         container_node += caption_node
@@ -101,7 +106,7 @@ class CodeBlock(SphinxDirective):
     required_arguments = 0
     optional_arguments = 1
     final_argument_whitespace = False
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'force': directives.flag,
         'linenos': directives.flag,
         'dedent': optional_int,
@@ -121,11 +126,14 @@ class CodeBlock(SphinxDirective):
         if linespec:
             try:
                 nlines = len(self.content)
-                hl_lines = parselinenos(linespec, nlines)
+                hl_lines = parse_line_num_spec(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
-                    logger.warning(__('line number spec is out of range(1-%d): %r') %
-                                   (nlines, self.options['emphasize-lines']),
-                                   location=location)
+                    logger.warning(
+                        __('line number spec is out of range(1-%d): %r'),
+                        nlines,
+                        self.options['emphasize-lines'],
+                        location=location,
+                    )
 
                 hl_lines = [x + 1 for x in hl_lines if x < nlines]
             except ValueError as err:
@@ -151,8 +159,10 @@ class CodeBlock(SphinxDirective):
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
-            literal['language'] = self.env.temp_data.get('highlight_language',
-                                                         self.config.highlight_language)
+            literal['language'] = (
+                self.env.current_document.highlight_language
+                or self.config.highlight_language
+            )
         extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
@@ -191,8 +201,10 @@ class LiteralIncludeReader:
         ('diff', 'end-at'),
     ]
 
-    def __init__(self, filename: str, options: dict[str, Any], config: Config) -> None:
-        self.filename = filename
+    def __init__(
+        self, filename: str | os.PathLike[str], options: dict[str, Any], config: Config
+    ) -> None:
+        self.filename = _StrPath(filename)
         self.options = options
         self.encoding = options.get('encoding', config.source_encoding)
         self.lineno_start = self.options.get('lineno-start', 1)
@@ -202,38 +214,43 @@ class LiteralIncludeReader:
     def parse_options(self) -> None:
         for option1, option2 in self.INVALID_OPTIONS_PAIR:
             if option1 in self.options and option2 in self.options:
-                raise ValueError(__('Cannot use both "%s" and "%s" options') %
-                                 (option1, option2))
+                msg = __('Cannot use both "%s" and "%s" options') % (option1, option2)
+                raise ValueError(msg)
 
     def read_file(
-        self, filename: str, location: tuple[str, int] | None = None,
+        self, filename: str | os.PathLike[str], location: tuple[str, int] | None = None
     ) -> list[str]:
+        filename = _StrPath(filename)
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:
                 text = f.read()
-                if 'tab-width' in self.options:
-                    text = text.expandtabs(self.options['tab-width'])
+            if 'tab-width' in self.options:
+                text = text.expandtabs(self.options['tab-width'])
 
-                return text.splitlines(True)
+            return text.splitlines(True)
         except OSError as exc:
-            raise OSError(__('Include file %r not found or reading it failed') %
-                          filename) from exc
+            msg = __("Include file '%s' not found or reading it failed") % filename
+            raise OSError(msg) from exc
         except UnicodeError as exc:
-            raise UnicodeError(__('Encoding %r used for reading included file %r seems to '
-                                  'be wrong, try giving an :encoding: option') %
-                               (self.encoding, filename)) from exc
+            msg = __(
+                "Encoding %r used for reading included file '%s' seems to "
+                'be wrong, try giving an :encoding: option'
+            ) % (self.encoding, filename)
+            raise UnicodeError(msg) from exc
 
     def read(self, location: tuple[str, int] | None = None) -> tuple[str, int]:
         if 'diff' in self.options:
             lines = self.show_diff()
         else:
-            filters = [self.pyobject_filter,
-                       self.start_filter,
-                       self.end_filter,
-                       self.lines_filter,
-                       self.dedent_filter,
-                       self.prepend_filter,
-                       self.append_filter]
+            filters = [
+                self.pyobject_filter,
+                self.start_filter,
+                self.end_filter,
+                self.lines_filter,
+                self.dedent_filter,
+                self.prepend_filter,
+                self.append_filter,
+            ]
             lines = self.read_file(self.filename, location=location)
             for func in filters:
                 lines = func(lines, location=location)
@@ -244,37 +261,45 @@ class LiteralIncludeReader:
         new_lines = self.read_file(self.filename)
         old_filename = self.options['diff']
         old_lines = self.read_file(old_filename)
-        diff = unified_diff(old_lines, new_lines, old_filename, self.filename)
+        diff = unified_diff(old_lines, new_lines, str(old_filename), str(self.filename))
         return list(diff)
 
     def pyobject_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None,
+        self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         pyobject = self.options.get('pyobject')
         if pyobject:
             from sphinx.pycode import ModuleAnalyzer
+
             analyzer = ModuleAnalyzer.for_file(self.filename, '')
             tags = analyzer.find_tags()
             if pyobject not in tags:
-                raise ValueError(__('Object named %r not found in include file %r') %
-                                 (pyobject, self.filename))
+                msg = __('Object named %r not found in include file %r') % (
+                    pyobject,
+                    self.filename,
+                )
+                raise ValueError(msg)
             start = tags[pyobject][1]
             end = tags[pyobject][2]
-            lines = lines[start - 1:end]
+            lines = lines[start - 1 : end]
             if 'lineno-match' in self.options:
                 self.lineno_start = start
 
         return lines
 
     def lines_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None,
+        self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         linespec = self.options.get('lines')
         if linespec:
-            linelist = parselinenos(linespec, len(lines))
+            linelist = parse_line_num_spec(linespec, len(lines))
             if any(i >= len(lines) for i in linelist):
-                logger.warning(__('line number spec is out of range(1-%d): %r') %
-                               (len(lines), linespec), location=location)
+                logger.warning(
+                    __('line number spec is out of range(1-%d): %r'),
+                    len(lines),
+                    linespec,
+                    location=location,
+                )
 
             if 'lineno-match' in self.options:
                 # make sure the line list is not "disjoint".
@@ -282,18 +307,21 @@ class LiteralIncludeReader:
                 if all(first + i == n for i, n in enumerate(linelist)):
                     self.lineno_start += linelist[0]
                 else:
-                    raise ValueError(__('Cannot use "lineno-match" with a disjoint '
-                                        'set of "lines"'))
+                    msg = __('Cannot use "lineno-match" with a disjoint set of "lines"')
+                    raise ValueError(msg)
 
             lines = [lines[n] for n in linelist if n < len(lines)]
-            if lines == []:
-                raise ValueError(__('Line spec %r: no lines pulled from include file %r') %
-                                 (linespec, self.filename))
+            if not lines:
+                msg = __('Line spec %r: no lines pulled from include file %r') % (
+                    linespec,
+                    self.filename,
+                )
+                raise ValueError(msg)
 
         return lines
 
     def start_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None,
+        self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         if 'start-at' in self.options:
             start = self.options.get('start-at')
@@ -311,7 +339,7 @@ class LiteralIncludeReader:
                         if 'lineno-match' in self.options:
                             self.lineno_start += lineno + 1
 
-                        return lines[lineno + 1:]
+                        return lines[lineno + 1 :]
                     else:
                         if 'lineno-match' in self.options:
                             self.lineno_start += lineno
@@ -326,7 +354,7 @@ class LiteralIncludeReader:
         return lines
 
     def end_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None,
+        self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         if 'end-at' in self.options:
             end = self.options.get('end-at')
@@ -341,7 +369,7 @@ class LiteralIncludeReader:
             for lineno, line in enumerate(lines):
                 if end in line:
                     if inclusive:
-                        return lines[:lineno + 1]
+                        return lines[: lineno + 1]
                     else:
                         if lineno == 0:
                             pass  # end-before ignores first line
@@ -355,7 +383,7 @@ class LiteralIncludeReader:
         return lines
 
     def prepend_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None,
+        self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         prepend = self.options.get('prepend')
         if prepend:
@@ -364,7 +392,7 @@ class LiteralIncludeReader:
         return lines
 
     def append_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None,
+        self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         append = self.options.get('append')
         if append:
@@ -373,7 +401,7 @@ class LiteralIncludeReader:
         return lines
 
     def dedent_filter(
-        self, lines: list[str], location: tuple[str, int] | None = None,
+        self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         if 'dedent' in self.options:
             return dedent_lines(lines, self.options.get('dedent'), location=location)
@@ -392,7 +420,7 @@ class LiteralInclude(SphinxDirective):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'dedent': optional_int,
         'linenos': directives.flag,
         'lineno-start': int,
@@ -419,8 +447,9 @@ class LiteralInclude(SphinxDirective):
     def run(self) -> list[Node]:
         document = self.state.document
         if not document.settings.file_insertion_enabled:
-            return [document.reporter.warning('File insertion disabled',
-                                              line=self.lineno)]
+            return [
+                document.reporter.warning('File insertion disabled', line=self.lineno)
+            ]
         # convert options['diff'] to absolute path
         if 'diff' in self.options:
             _, path = self.env.relfn2path(self.options['diff'])
@@ -441,17 +470,23 @@ class LiteralInclude(SphinxDirective):
                 retnode['language'] = 'udiff'
             elif 'language' in self.options:
                 retnode['language'] = self.options['language']
-            if ('linenos' in self.options or 'lineno-start' in self.options or
-                    'lineno-match' in self.options):
+            if (
+                'linenos' in self.options
+                or 'lineno-start' in self.options
+                or 'lineno-match' in self.options
+            ):
                 retnode['linenos'] = True
             retnode['classes'] += self.options.get('class', [])
             extra_args = retnode['highlight_args'] = {}
             if 'emphasize-lines' in self.options:
-                hl_lines = parselinenos(self.options['emphasize-lines'], lines)
+                hl_lines = parse_line_num_spec(self.options['emphasize-lines'], lines)
                 if any(i >= lines for i in hl_lines):
-                    logger.warning(__('line number spec is out of range(1-%d): %r') %
-                                   (lines, self.options['emphasize-lines']),
-                                   location=location)
+                    logger.warning(
+                        __('line number spec is out of range(1-%d): %r'),
+                        lines,
+                        self.options['emphasize-lines'],
+                        location=location,
+                    )
                 extra_args['hl_lines'] = [x + 1 for x in hl_lines if x < lines]
             extra_args['linenostart'] = reader.lineno_start
 
@@ -468,7 +503,7 @@ class LiteralInclude(SphinxDirective):
             return [document.reporter.warning(exc, line=self.lineno)]
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     directives.register_directive('highlight', Highlight)
     directives.register_directive('code-block', CodeBlock)
     directives.register_directive('sourcecode', CodeBlock)

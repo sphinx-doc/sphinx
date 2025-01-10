@@ -2,40 +2,45 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from docutils import nodes
-from docutils.nodes import Node, system_message
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
 from sphinx.domains import Domain
-from sphinx.environment import BuildEnvironment
-from sphinx.util import logging, split_index_msg
+from sphinx.util import logging
 from sphinx.util.docutils import ReferenceRole, SphinxDirective
+from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import process_index_entry
-from sphinx.util.typing import OptionSpec
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
+    from docutils.nodes import Node, system_message
+
     from sphinx.application import Sphinx
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 logger = logging.getLogger(__name__)
 
 
 class IndexDomain(Domain):
-    """Mathematics domain."""
+    """Index domain."""
+
     name = 'index'
     label = 'index'
 
     @property
-    def entries(self) -> dict[str, list[tuple[str, str, str, str, str]]]:
+    def entries(self) -> dict[str, list[tuple[str, str, str, str, str | None]]]:
         return self.data.setdefault('entries', {})
 
     def clear_doc(self, docname: str) -> None:
         self.entries.pop(docname, None)
 
-    def merge_domaindata(self, docnames: Iterable[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         for docname in docnames:
             self.entries[docname] = otherdata['entries'][docname]
 
@@ -43,14 +48,15 @@ class IndexDomain(Domain):
         """Process a document after it is read by the environment."""
         entries = self.entries.setdefault(env.docname, [])
         for node in list(document.findall(addnodes.index)):
+            node_entries = node['entries']
             try:
-                for entry in node['entries']:
-                    split_index_msg(entry[0], entry[1])
+                for entry_type, value, _target_id, _main, _category_key in node_entries:
+                    split_index_msg(entry_type, value)
             except ValueError as exc:
                 logger.warning(str(exc), location=node)
                 node.parent.remove(node)
             else:
-                for entry in node['entries']:
+                for entry in node_entries:
                     entries.append(entry)
 
 
@@ -58,11 +64,12 @@ class IndexDirective(SphinxDirective):
     """
     Directive to add entries to the index.
     """
+
     has_content = False
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec: OptionSpec = {
+    option_spec: ClassVar[OptionSpec] = {
         'name': directives.unchanged,
     }
 
@@ -82,7 +89,9 @@ class IndexDirective(SphinxDirective):
         indexnode['inline'] = False
         self.set_source_info(indexnode)
         for entry in arguments:
-            indexnode['entries'].extend(process_index_entry(entry, targetnode['ids'][0]))
+            indexnode['entries'].extend(
+                process_index_entry(entry, targetnode['ids'][0])
+            )
         return [indexnode, targetnode]
 
 
@@ -109,7 +118,7 @@ class IndexRole(ReferenceRole):
         return [index, target, text], []
 
 
-def setup(app: Sphinx) -> dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(IndexDomain)
     app.add_directive('index', IndexDirective)
     app.add_role('index', IndexRole())

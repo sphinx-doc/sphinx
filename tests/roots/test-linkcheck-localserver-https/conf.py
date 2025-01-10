@@ -1,2 +1,2 @@
 exclude_patterns = ['_build']
-linkcheck_timeout = 0.05
+linkcheck_timeout = 0.25

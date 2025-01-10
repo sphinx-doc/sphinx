@@ -1,0 +1,175 @@
+==========
+Sphinx 2.1
+==========
+
+
+Release 2.1.2 (released Jun 19, 2019)
+=====================================
+
+Bugs fixed
+----------
+
+* #6497: custom lexers fails highlighting when syntax error
+* #6478, #6488: info field lists are incorrectly recognized
+
+Release 2.1.1 (released Jun 10, 2019)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #6447: autodoc: Stop to generate document for undocumented module variables
+
+Bugs fixed
+----------
+
+* #6442: LaTeX: admonitions of :rst:dir:`note` type can get separated from
+  immediately preceding section title by pagebreak
+* #6448: autodoc: crashed when autodocumenting classes with ``__slots__ = None``
+* #6451: autodoc: generates docs for "optional import"ed modules as variables
+* #6452: autosummary: crashed when generating document of properties
+* #6455: napoleon: docstrings for properties are not processed
+* #6436: napoleon: "Unknown target name" error if variable name ends with
+  underscore
+* #6440: apidoc: missing blank lines between modules
+
+Release 2.1.0 (released Jun 02, 2019)
+=====================================
+
+Incompatible changes
+--------------------
+
+* Ignore filenames without file extension given to ``Builder.build_specific()``
+  API directly
+* #6230: The anchor of term in glossary directive is changed if it is consisted
+  by non-ASCII characters
+* #4550: html: Centering tables by default using CSS
+* #6239: latex: xelatex and xeCJK are used for Chinese documents by default
+* ``Sphinx.add_lexer()`` now takes a Lexer class instead of instance.  An
+  instance of lexers are still supported until Sphinx 3.x.
+
+Deprecated
+----------
+
+* ``sphinx.builders.latex.LaTeXBuilder.apply_transforms()``
+* ``sphinx.builders._epub_base.EpubBuilder.esc()``
+* ``sphinx.directives.Acks``
+* ``sphinx.directives.Author``
+* ``sphinx.directives.Centered``
+* ``sphinx.directives.Class``
+* ``sphinx.directives.CodeBlock``
+* ``sphinx.directives.Figure``
+* ``sphinx.directives.HList``
+* ``sphinx.directives.Highlight``
+* ``sphinx.directives.Include``
+* ``sphinx.directives.Index``
+* ``sphinx.directives.LiteralInclude``
+* ``sphinx.directives.Meta``
+* ``sphinx.directives.Only``
+* ``sphinx.directives.SeeAlso``
+* ``sphinx.directives.TabularColumns``
+* ``sphinx.directives.TocTree``
+* ``sphinx.directives.VersionChange``
+* ``sphinx.domains.python.PyClassmember``
+* ``sphinx.domains.python.PyModulelevel``
+* ``sphinx.domains.std.StandardDomain._resolve_citation_xref()``
+* ``sphinx.domains.std.StandardDomain.note_citations()``
+* ``sphinx.domains.std.StandardDomain.note_citation_refs()``
+* ``sphinx.domains.std.StandardDomain.note_labels()``
+* ``sphinx.environment.NoUri``
+* ``sphinx.ext.apidoc.format_directive()``
+* ``sphinx.ext.apidoc.format_heading()``
+* ``sphinx.ext.apidoc.makename()``
+* ``sphinx.ext.autodoc.importer.MockFinder``
+* ``sphinx.ext.autodoc.importer.MockLoader``
+* ``sphinx.ext.autodoc.importer.mock()``
+* ``sphinx.ext.autosummary.autolink_role()``
+* ``sphinx.ext.imgmath.DOC_BODY``
+* ``sphinx.ext.imgmath.DOC_BODY_PREVIEW``
+* ``sphinx.ext.imgmath.DOC_HEAD``
+* ``sphinx.transforms.CitationReferences``
+* ``sphinx.transforms.SmartQuotesSkipper``
+* ``sphinx.util.docfields.DocFieldTransformer.preprocess_fieldtypes()``
+* ``sphinx.util.node.find_source_node()``
+* ``sphinx.util.i18n.find_catalog()``
+* ``sphinx.util.i18n.find_catalog_files()``
+* ``sphinx.util.i18n.find_catalog_source_files()``
+
+For more details, see :ref:`deprecation APIs list <dev-deprecated-apis>`.
+
+Features added
+--------------
+
+* Add a helper class ``sphinx.transforms.post_transforms.SphinxPostTransform``
+* Add helper methods
+
+  - ``PythonDomain.note_module()``
+  - ``PythonDomain.note_object()``
+  - ``SphinxDirective.set_source_info()``
+
+* #6180: Support ``--keep-going`` with ``BuildDoc`` setup command
+* ``math`` directive now supports ``:class:`` option
+* todo: ``todo`` directive now supports ``:name:`` option
+* Enable override via environment of ``SPHINXOPTS`` and ``SPHINXBUILD`` Makefile
+  variables (refs: #6232, #6303)
+* #6287: autodoc: Unable to document bound instance methods exported as module
+  functions
+* #6289: autodoc: :confval:`autodoc_default_options` now supports
+  ``imported-members`` option
+* #4777: autodoc: Support coroutine
+* #744: autodoc: Support abstractmethod
+* #6325: autodoc: Support attributes in __slots__.  For dict-style __slots__,
+  autodoc considers values as a docstring of the attribute
+* #6361: autodoc: Add :confval:`autodoc_typehints` to suppress typehints from
+  signature
+* #1063: autodoc: ``automodule`` directive now handles undocumented module level
+  variables
+* #6212: autosummary: Add :confval:`autosummary_imported_members` to display
+  imported members on autosummary
+* #6271: ``make clean`` is catastrophically broken if building into '.'
+* #6363: Support ``%O%`` environment variable in make.bat
+* #4777: py domain: Add ``:async:`` option to :rst:dir:`py:function` directive
+* py domain: Add new options to :rst:dir:`py:method` directive
+
+  - ``:abstractmethod:``
+  - ``:async:``
+  - ``:classmethod:``
+  - ``:property:``
+  - ``:staticmethod:``
+
+* rst domain: Add :rst:dir:`rst:directive:option` directive to describe the option
+  for directive
+* #6306: html: Add a label to search form for accessibility purposes
+* #4390: html: Consistent and semantic CSS for signatures
+* #6358: The ``rawsource`` property of ``production`` nodes now contains the
+  full production rule
+* #6373: autosectionlabel: Allow suppression of warnings
+* coverage: Support a new ``coverage_ignore_pyobjects`` option
+* #6239: latex: Support to build Chinese documents
+
+Bugs fixed
+----------
+
+* #6230: Inappropriate node_id has been generated by glossary directive if term
+  is consisted by non-ASCII characters
+* #6213: ifconfig: contents after headings are not shown
+* commented term in glossary directive is wrongly recognized
+* #6299: rst domain: rst:directive directive generates waste space
+* #6379: py domain: Module index (py-modindex.html) has duplicate titles
+* #6331: man: invalid output when doctest follows rubric
+* #6351: "Hyperlink target is not referenced" message is shown even if
+  referenced
+* #6165: autodoc: ``tab_width`` setting of Docutils has been ignored
+* #6347: autodoc: crashes with a plain Tuple on Python 3.6 and 3.5
+* #6311: autosummary: autosummary table gets confused by complex type hints
+* #6350: autosummary: confused by an argument having some kind of default value
+* Generated Makefiles lack a final EOL (refs: #6232)
+* #6375: extlinks: Cannot escape angle brackets in link caption
+* #6378: linkcheck: Send commonly used User-Agent
+* #6387: html search: failed to search document with haiku and scrolls themes
+* #6408: html search: Fix the ranking of search results
+* #6406: Wrong year is returned for ``SOURCE_DATE_EPOCH``
+* #6402: image directive crashes by unknown image format
+* #6286: C++, allow 8 and 9 in hexadecimal integer literals.
+* #6305: Fix the string in quickstart for 'path' argument of parser
+* LaTeX: Figures in admonitions produced errors (refs: #6364)
