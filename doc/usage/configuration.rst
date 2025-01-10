@@ -1448,10 +1448,8 @@ Options for warning control
       Added ``misc.copy_overwrite``.
 
    .. versionadded:: 8.2
-      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
-
-   .. versionadded:: 8.2
-      Added ``toc.glob_not_matching``.
+      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``, and 
+      ``toc.glob_not_matching``.
 
 Builder options
 ===============
