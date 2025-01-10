@@ -1397,7 +1397,7 @@ Options for warning control
    * ``toc.no_title``
    * ``toc.not_readable``
    * ``toc.secnum``
-   * ``toc.glob_not_matching``
+   * ``toc.empty_glob``
 
    Extensions can also define their own warning types.
    Those defined by the first-party ``sphinx.ext`` extensions are:
@@ -1448,8 +1448,10 @@ Options for warning control
       Added ``misc.copy_overwrite``.
 
    .. versionadded:: 8.2
-      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``, and
-      ``toc.glob_not_matching``.
+      Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``
+
+   .. versionadded:: 8.2
+      Added ``toc.empty_glob``.
 
 Builder options
 ===============
