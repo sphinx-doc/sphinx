@@ -58,3 +58,6 @@ Bugs fixed
 
 Testing
 -------
+
+* #13224: Correctness fixup for ``test_html_multi_line_copyright``.
+  Patch by Colin Watson, applied by James Addison.
