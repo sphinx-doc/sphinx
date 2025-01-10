@@ -223,7 +223,7 @@ class WordCollector(nodes.NodeVisitor):
     def dispatch_visit(self, node: Node) -> None:
         if isinstance(node, nodes.comment):
             raise nodes.SkipNode
-        elif isinstance(node, nodes.Element) and 'noindex' in node.get('classes'):
+        elif isinstance(node, nodes.Element) and 'noindex' in node['classes']:
             # skip nodes marked with a 'noindex' class
             raise nodes.SkipNode
         elif isinstance(node, nodes.raw):
@@ -601,7 +601,7 @@ def _feed_visit_nodes(
 ) -> None:
     if isinstance(node, nodes.comment):
         return
-    elif isinstance(node, nodes.Element) and 'noindex' in node.get('classes'):
+    elif isinstance(node, nodes.Element) and 'noindex' in node['classes']:
         # skip nodes marked with a 'noindex' class
         return
     elif isinstance(node, nodes.raw):
