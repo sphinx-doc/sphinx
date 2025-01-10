@@ -96,7 +96,7 @@ def test_TypeAliasForwardRef():
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example')"
 
-    alias = Optional[alias]  # NoQA: UP007
+    alias = Optional[alias]  # NoQA: UP045
     sig_str = stringify_annotation(alias, 'fully-qualified-except-typing')
     assert sig_str == "TypeAliasForwardRef('example') | None"
 

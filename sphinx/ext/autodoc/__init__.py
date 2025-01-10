@@ -304,6 +304,14 @@ class ObjectMember:
     represent each member of the object.
     """
 
+    __slots__ = '__name__', 'object', 'docstring', 'class_', 'skipped'
+
+    __name__: str
+    object: Any
+    docstring: str | None
+    class_: Any
+    skipped: bool
+
     def __init__(
         self,
         name: str,
@@ -316,8 +324,19 @@ class ObjectMember:
         self.__name__ = name
         self.object = obj
         self.docstring = docstring
-        self.skipped = skipped
         self.class_ = class_
+        self.skipped = skipped
+
+    def __repr__(self) -> str:
+        return (
+            f'ObjectMember('
+            f'name={self.__name__!r}, '
+            f'obj={self.object!r}, '
+            f'docstring={self.docstring!r}, '
+            f'class_={self.class_!r}, '
+            f'skipped={self.skipped!r}'
+            f')'
+        )
 
 
 class Documenter:

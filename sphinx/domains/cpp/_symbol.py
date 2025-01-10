@@ -17,7 +17,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from sphinx.environment import BuildEnvironment
 
@@ -36,31 +36,81 @@ class _DuplicateSymbolError(Exception):
 
 
 class SymbolLookupResult:
+    __slots__ = (
+        'symbols',
+        'parent_symbol',
+        'ident_or_op',
+        'template_params',
+        'template_args',
+    )
+
+    symbols: Iterable[Symbol]
+    parent_symbol: Symbol
+    ident_or_op: ASTIdentifier | ASTOperator
+    template_params: Any
+    template_args: ASTTemplateArgs
+
     def __init__(
         self,
-        symbols: Iterator[Symbol],
-        parentSymbol: Symbol,
-        identOrOp: ASTIdentifier | ASTOperator,
-        templateParams: Any,
-        templateArgs: ASTTemplateArgs,
+        symbols: Iterable[Symbol],
+        parent_symbol: Symbol,
+        ident_or_op: ASTIdentifier | ASTOperator,
+        template_params: Any,
+        template_args: ASTTemplateArgs,
     ) -> None:
         self.symbols = symbols
-        self.parentSymbol = parentSymbol
-        self.identOrOp = identOrOp
-        self.templateParams = templateParams
-        self.templateArgs = templateArgs
+        self.parent_symbol = parent_symbol
+        self.ident_or_op = ident_or_op
+        self.template_params = template_params
+        self.template_args = template_args
+
+    @property
+    def parentSymbol(self) -> Symbol:
+        return self.parent_symbol
+
+    @property
+    def identOrOp(self) -> ASTIdentifier | ASTOperator:
+        return self.ident_or_op
+
+    @property
+    def templateParams(self) -> Any:
+        return self.template_params
+
+    @property
+    def templateArgs(self) -> ASTTemplateArgs:
+        return self.template_args
 
 
 class LookupKey:
+    __slots__ = ('data',)
+
+    data: Sequence[
+        tuple[
+            ASTNestedNameElement,
+            ASTTemplateParams | ASTTemplateIntroduction,
+            str | None,
+        ]
+    ]
+
     def __init__(
         self,
-        data: list[
+        data: Sequence[
             tuple[
-                ASTNestedNameElement, ASTTemplateParams | ASTTemplateIntroduction, str
+                ASTNestedNameElement,
+                ASTTemplateParams | ASTTemplateIntroduction,
+                str | None,
             ]
         ],
+        /,
     ) -> None:
         self.data = data
+
+    def __repr__(self) -> str:
+        return f'LookupKey({self.data!r})'
+
+    def __str__(self) -> str:
+        inner = ', '.join(f'({ident}, {id_})' for ident, _, id_ in self.data)
+        return f'[{inner}]'
 
 
 def _is_specialization(
@@ -279,14 +329,14 @@ class Symbol:
         while s.parent:
             symbols.append(s)
             s = s.parent
-        symbols.reverse()
-        key = []
-        for s in symbols:
-            nne = ASTNestedNameElement(s.identOrOp, s.templateArgs)
-            if s.declaration is not None:
-                key.append((nne, s.templateParams, s.declaration.get_newest_id()))
-            else:
-                key.append((nne, s.templateParams, None))
+        key = [
+            (
+                ASTNestedNameElement(s.identOrOp, s.templateArgs),
+                s.templateParams,
+                None if s.declaration is None else s.declaration.get_newest_id(),
+            )
+            for s in reversed(symbols)
+        ]
         return LookupKey(key)
 
     def get_full_nested_name(self) -> ASTNestedName:
@@ -438,7 +488,7 @@ class Symbol:
         recurse_in_anon: bool,
         correct_primary_template_args: bool,
         search_in_siblings: bool,
-    ) -> SymbolLookupResult:
+    ) -> SymbolLookupResult | None:
         # ancestor_lookup_type: if not None, specifies the target type of the lookup
         if Symbol.debug_lookup:
             Symbol.debug_indent += 1
@@ -650,17 +700,17 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print('_add_symbols, result, no symbol:')
                 Symbol.debug_indent += 1
-                Symbol.debug_print('template_params:', lookup_result.templateParams)
-                Symbol.debug_print('ident_or_op:    ', lookup_result.identOrOp)
-                Symbol.debug_print('template_args:  ', lookup_result.templateArgs)
+                Symbol.debug_print('template_params:', lookup_result.template_params)
+                Symbol.debug_print('ident_or_op:    ', lookup_result.ident_or_op)
+                Symbol.debug_print('template_args:  ', lookup_result.template_args)
                 Symbol.debug_print('declaration:    ', declaration)
                 Symbol.debug_print(f'location:      {docname}:{line}')
                 Symbol.debug_indent -= 1
             symbol = Symbol(
-                parent=lookup_result.parentSymbol,
-                identOrOp=lookup_result.identOrOp,
-                templateParams=lookup_result.templateParams,
-                templateArgs=lookup_result.templateArgs,
+                parent=lookup_result.parent_symbol,
+                identOrOp=lookup_result.ident_or_op,
+                templateParams=lookup_result.template_params,
+                templateArgs=lookup_result.template_args,
                 declaration=declaration,
                 docname=docname,
                 line=line,
@@ -709,10 +759,10 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print('begin: creating candidate symbol')
             symbol = Symbol(
-                parent=lookup_result.parentSymbol,
-                identOrOp=lookup_result.identOrOp,
-                templateParams=lookup_result.templateParams,
-                templateArgs=lookup_result.templateArgs,
+                parent=lookup_result.parent_symbol,
+                identOrOp=lookup_result.ident_or_op,
+                templateParams=lookup_result.template_params,
+                templateArgs=lookup_result.template_args,
                 declaration=declaration,
                 docname=docname,
                 line=line,
@@ -1117,13 +1167,13 @@ class Symbol:
                 Symbol.debug_indent -= 2
             return res, None
 
-        if lookup_result.parentSymbol.declaration is not None:
-            if lookup_result.parentSymbol.declaration.objectType == 'templateParam':
+        if lookup_result.parent_symbol.declaration is not None:
+            if lookup_result.parent_symbol.declaration.objectType == 'templateParam':
                 return None, 'templateParamInQualified'
 
         # try without template params and args
-        symbol = lookup_result.parentSymbol._find_first_named_symbol(
-            lookup_result.identOrOp,
+        symbol = lookup_result.parent_symbol._find_first_named_symbol(
+            lookup_result.ident_or_op,
             None,
             None,
             template_shorthand=templateShorthand,
@@ -1186,10 +1236,10 @@ class Symbol:
             return None
 
         query_symbol = Symbol(
-            parent=lookup_result.parentSymbol,
-            identOrOp=lookup_result.identOrOp,
-            templateParams=lookup_result.templateParams,
-            templateArgs=lookup_result.templateArgs,
+            parent=lookup_result.parent_symbol,
+            identOrOp=lookup_result.ident_or_op,
+            templateParams=lookup_result.template_params,
+            templateArgs=lookup_result.template_args,
             declaration=declaration,
             docname='fakeDocnameForQuery',
             line=42,

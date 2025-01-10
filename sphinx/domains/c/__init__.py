@@ -865,7 +865,7 @@ class CDomain(Domain):
                 'Unparseable C cross-reference: %r\n%s', target, e, location=node
             )
             return None, None
-        parent_key: LookupKey = node.get('c:parent_key', None)
+        parent_key: LookupKey | None = node.get('c:parent_key', None)
         root_symbol = self.data['root_symbol']
         if parent_key:
             parent_symbol: Symbol = root_symbol.direct_lookup(parent_key)
