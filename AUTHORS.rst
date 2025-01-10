@@ -106,6 +106,7 @@ Contributors
 * Vince Salvino -- JavaScript search improvements
 * Will Maier -- directory HTML builder
 * Zac Hatfield-Dodds -- doctest reporting improvements, intersphinx performance
+* Slawek Figiel -- additional warning suppression
 
 Former maintainers
 ==================

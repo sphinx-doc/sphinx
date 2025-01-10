@@ -46,6 +46,8 @@ Features added
   Patch by Adam Turner.
 * #13065: Enable colour by default in when running on CI.
   Patch by Adam Turner.
+* Add a subtype ``toc.glob_not_matching`` to a warning of a non-matching glob
+  pattern in TOC.
 
 Bugs fixed
 ----------
