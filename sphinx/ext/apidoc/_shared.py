@@ -63,5 +63,5 @@ class ApidocOptions:
     author: str | None = None
     version: str | None = None
     release: str | None = None
-    extensions: list[str] | None = None
+    extensions: Sequence[str] | None = None
     templatedir: str | None = None

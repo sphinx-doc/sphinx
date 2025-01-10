@@ -22,7 +22,7 @@ from sphinx.util.logging import prefixed_warnings
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Callable, Iterator, Mapping, Sequence
 
     from docutils import nodes
     from docutils.core import Publisher
@@ -565,16 +565,10 @@ class SphinxComponentRegistry:
 
             app.extensions[extname] = Extension(extname, mod, **metadata)
 
-    def get_envversion(self, app: Sphinx) -> dict[str, int]:
-        from sphinx.environment import ENV_VERSION
+    def get_envversion(self, app: Sphinx) -> Mapping[str, int]:
+        from sphinx.environment import _get_env_version
 
-        envversion = {
-            ext.name: ext.metadata['env_version']
-            for ext in app.extensions.values()
-            if ext.metadata.get('env_version')
-        }
-        envversion['sphinx'] = ENV_VERSION
-        return envversion
+        return _get_env_version(app.extensions)
 
     def get_publisher(self, app: Sphinx, filetype: str) -> Publisher:
         try:
