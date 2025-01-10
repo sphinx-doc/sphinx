@@ -11,7 +11,6 @@ from docutils import frontend, nodes, utils
 from docutils.parsers.rst import Parser as RstParser
 
 from sphinx import addnodes
-from sphinx.builders.html.transforms import KeyboardTransform
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.environment import default_settings
 from sphinx.roles import XRefRole
@@ -100,7 +99,6 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 def verify_re_html(app, parse):
     def verify(rst, html_expected):
         document = parse(rst)
-        KeyboardTransform(document).apply()
         html_translator = ForgivingHTMLTranslator(document, app.builder)
         document.walkabout(html_translator)
         html_translated = ''.join(html_translator.fragment).strip()
@@ -357,28 +355,35 @@ def get_verifier(verify, verify_re):
             'verify',
             ':kbd:`Control+X`',
             (
-                '<p><kbd class="kbd compound docutils literal notranslate">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">Control</kbd>'
                 '+'
                 '<kbd class="kbd docutils literal notranslate">X</kbd>'
-                '</kbd></p>'
+                '</p>'
             ),
-            '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{Control+X}}',
+            (
+                '\\sphinxAtStartPar\n'
+                '\\sphinxkeyboard{\\sphinxupquote{Control}}'
+                '+'
+                '\\sphinxkeyboard{\\sphinxupquote{X}}'
+            ),
         ),
         (
             # kbd role
             'verify',
             ':kbd:`Alt+^`',
             (
-                '<p><kbd class="kbd compound docutils literal notranslate">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">Alt</kbd>'
                 '+'
                 '<kbd class="kbd docutils literal notranslate">^</kbd>'
-                '</kbd></p>'
+                '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\sphinxkeyboard{\\sphinxupquote{Alt+\\textasciicircum{}}}'
+                '\\sphinxkeyboard{\\sphinxupquote{Alt}}'
+                '+'
+                '\\sphinxkeyboard{\\sphinxupquote{\\textasciicircum{}}}'
             ),
         ),
         (
@@ -386,7 +391,7 @@ def get_verifier(verify, verify_re):
             'verify',
             ':kbd:`M-x  M-s`',
             (
-                '<p><kbd class="kbd compound docutils literal notranslate">'
+                '<p>'
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
                 '-'
                 '<kbd class="kbd docutils literal notranslate">x</kbd>'
@@ -394,11 +399,17 @@ def get_verifier(verify, verify_re):
                 '<kbd class="kbd docutils literal notranslate">M</kbd>'
                 '-'
                 '<kbd class="kbd docutils literal notranslate">s</kbd>'
-                '</kbd></p>'
+                '</p>'
             ),
             (
                 '\\sphinxAtStartPar\n'
-                '\\sphinxkeyboard{\\sphinxupquote{M\\sphinxhyphen{}x  M\\sphinxhyphen{}s}}'
+                '\\sphinxkeyboard{\\sphinxupquote{M}}'
+                '\\sphinxhyphen{}'
+                '\\sphinxkeyboard{\\sphinxupquote{x}}'
+                '  '
+                '\\sphinxkeyboard{\\sphinxupquote{M}}'
+                '\\sphinxhyphen{}'
+                '\\sphinxkeyboard{\\sphinxupquote{s}}'
             ),
         ),
         (
@@ -421,6 +432,28 @@ def get_verifier(verify, verify_re):
             ':kbd:`sys   rq`',
             '<p><kbd class="kbd docutils literal notranslate">sys   rq</kbd></p>',
             '\\sphinxAtStartPar\n\\sphinxkeyboard{\\sphinxupquote{sys   rq}}',
+        ),
+        (
+            # kbd role
+            'verify',
+            ':kbd:`⌘+⇧+M`',
+            (
+                '<p>'
+                '<kbd class="kbd docutils literal notranslate">⌘</kbd>'
+                '+'
+                '<kbd class="kbd docutils literal notranslate">⇧</kbd>'
+                '+'
+                '<kbd class="kbd docutils literal notranslate">M</kbd>'
+                '</p>'
+            ),
+            (
+                '\\sphinxAtStartPar\n'
+                '\\sphinxkeyboard{\\sphinxupquote{⌘}}'
+                '+'
+                '\\sphinxkeyboard{\\sphinxupquote{⇧}}'
+                '+'
+                '\\sphinxkeyboard{\\sphinxupquote{M}}'
+            ),
         ),
         (
             # non-interpolation of dashes in option role
