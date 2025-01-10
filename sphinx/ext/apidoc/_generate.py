@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import dataclasses
 import glob
 import os
 import os.path
@@ -17,6 +16,8 @@ from sphinx.util.template import ReSTRenderer
 if TYPE_CHECKING:
     import re
     from collections.abc import Iterator, Sequence
+
+    from sphinx.ext.apidoc._shared import ApidocOptions
 
 
 # automodule options
@@ -349,37 +350,3 @@ def is_excluded(root: str | Path, excludes: Sequence[re.Pattern[str]]) -> bool:
     """
     root_str = str(root)
     return any(exclude.match(root_str) for exclude in excludes)
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
-class ApidocOptions:
-    """Options for apidoc."""
-
-    module_path: Path
-    exclude_pattern: list[str]
-    destdir: Path
-    quiet: bool = False
-    maxdepth: int = 4
-    force: bool = False
-    followlinks: bool = False
-    dryrun: bool = False
-    separatemodules: bool = False
-    includeprivate: bool = False
-    tocfile: str = 'modules'
-    noheadings: bool = False
-    modulefirst: bool = False
-    implicit_namespaces: bool = False
-    automodule_options: set[str] = dataclasses.field(default_factory=set)
-    suffix: str = 'rst'
-
-    remove_old: bool = False
-
-    # --full only
-    full: bool = False
-    append_syspath: bool = False
-    header: str = ''
-    author: str | None = None
-    version: str | None = None
-    release: str | None = None
-    extensions: list[str] | None = None
-    templatedir: str | None = None

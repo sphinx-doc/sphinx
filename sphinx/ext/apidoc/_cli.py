@@ -13,12 +13,8 @@ from typing import TYPE_CHECKING, Any
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.ext.apidoc._generate import (
-    ApidocOptions,
-    create_modules_toc_file,
-    recurse_tree,
-)
-from sphinx.ext.apidoc._shared import LOGGER, _remove_old_files
+from sphinx.ext.apidoc._generate import create_modules_toc_file, recurse_tree
+from sphinx.ext.apidoc._shared import LOGGER, ApidocOptions, _remove_old_files
 from sphinx.locale import __
 from sphinx.util.osutil import ensuredir
 
