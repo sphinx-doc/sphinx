@@ -191,9 +191,12 @@ nitpick_ignore = {
     ('py:class', 'Element'),  # sphinx.domains.Domain
     ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
+    ('py:class', 'Inliner'),  # sphinx.util.docutils.SphinxRole.inliner
     ('py:class', 'Lexer'),  # sphinx.application.Sphinx.add_lexer
     ('py:class', 'Node'),  # sphinx.domains.Domain
     ('py:class', 'NullTranslations'),  # gettext.NullTranslations
+    ('py:class', 'ObjDescT'),  # sphinx.directives.ObjectDescription
+    ('py:class', 'OptionSpec'),  # sphinx.directives.ObjectDescription.option_spec
     ('py:class', 'Path'),  # sphinx.application.Sphinx.connect
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes

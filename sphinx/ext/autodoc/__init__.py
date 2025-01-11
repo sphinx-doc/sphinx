@@ -32,13 +32,7 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import (
-    ExtensionMetadata,
-    OptionSpec,
-    get_type_hints,
-    restify,
-    stringify_annotation,
-)
+from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -49,6 +43,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc.directive import DocumenterBridge
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
     _AutodocObjType = Literal[
         'module', 'class', 'exception', 'function', 'method', 'attribute'

@@ -240,8 +240,8 @@ select = [
     "T10",
     # flake8-print ('T20')
     "T20",
-    # flake8-type-checking ('TCH')
-    "TCH",
+    # flake8-type-checking ('TC')
+    "TC",
     # flake8-todos ('TD')
 #    "TD001",  # Invalid TODO tag: `{tag}`
 #    "TD002",  # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`

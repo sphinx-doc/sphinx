@@ -22,7 +22,7 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from typing import IO, TYPE_CHECKING, Any
+    from typing import IO, Any
 
     from sphinx.environment import BuildEnvironment
 
