@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -16,6 +16,7 @@ from sphinx.util.nodes import process_index_entry
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Node, system_message
 

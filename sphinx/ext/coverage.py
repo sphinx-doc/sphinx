@@ -14,7 +14,7 @@ import pkgutil
 import re
 import sys
 from importlib import import_module
-from typing import IO, TYPE_CHECKING, Any, TextIO
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.builders import Builder
@@ -25,6 +25,7 @@ from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence, Set
+    from typing import IO, Any, TextIO
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata

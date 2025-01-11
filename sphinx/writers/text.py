@@ -7,7 +7,7 @@ import os
 import re
 import textwrap
 from itertools import chain, groupby, pairwise
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -18,6 +18,7 @@ from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Text
 

@@ -59,7 +59,7 @@ import sys
 from inspect import Parameter
 from pathlib import Path
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -93,6 +93,7 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any, ClassVar
 
     from docutils.nodes import Node, system_message
 

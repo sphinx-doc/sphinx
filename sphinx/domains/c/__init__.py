@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -34,6 +34,7 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement, system_message
 

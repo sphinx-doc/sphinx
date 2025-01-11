@@ -8,7 +8,7 @@ from collections.abc import Sequence  # NoQA: TC003
 from contextlib import contextmanager
 from copy import copy
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 import docutils
 from docutils import nodes
@@ -31,6 +31,7 @@ report_re = re.compile(
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from types import ModuleType, TracebackType
+    from typing import IO, Any
 
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message

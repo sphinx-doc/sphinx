@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import ast
-from typing import NoReturn, overload
+from typing import TYPE_CHECKING, overload
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 OPERATORS: dict[type[ast.AST], str] = {
     ast.Add: '+',

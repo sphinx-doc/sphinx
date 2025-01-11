@@ -7,7 +7,7 @@ import os
 import pickle
 from collections import defaultdict
 from copy import deepcopy
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING
 
 from sphinx import addnodes
 from sphinx.domains._domains_container import _DomainsContainer
@@ -32,7 +32,7 @@ from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Mapping
-    from typing import Any, Literal
+    from typing import Any, Final, Literal
 
     from docutils import nodes
     from docutils.nodes import Node

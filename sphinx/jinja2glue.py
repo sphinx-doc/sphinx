@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import os.path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -18,6 +18,7 @@ from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from typing import Any
 
     from jinja2.environment import Environment
 

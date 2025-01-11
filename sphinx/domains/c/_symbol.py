@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.domains.c._ast import (
     ASTDeclaration,
@@ -12,7 +12,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Self
+    from typing import Any, Self
 
     from sphinx.environment import BuildEnvironment
 

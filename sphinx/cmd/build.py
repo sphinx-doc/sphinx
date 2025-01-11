@@ -8,7 +8,7 @@ import locale
 import multiprocessing
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TextIO
+from typing import TYPE_CHECKING
 
 import sphinx._cli.util.errors
 import sphinx.locale
@@ -23,6 +23,7 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Sequence
+    from typing import Any, TextIO
 
     from sphinx.extension import Extension
 

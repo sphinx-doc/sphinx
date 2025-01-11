@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import textwrap
 from difflib import unified_diff
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -18,6 +18,7 @@ from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
     import os
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 

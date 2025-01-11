@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from docutils import nodes
 from pygments.lexers import PythonConsoleLexer, guess_lexer
@@ -13,6 +13,8 @@ from sphinx.ext import doctest
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Node, TextElement
 
     from sphinx.application import Sphinx

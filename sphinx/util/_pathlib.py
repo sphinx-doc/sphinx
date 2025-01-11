@@ -17,9 +17,12 @@ from __future__ import annotations
 import sys
 import warnings
 from pathlib import Path, PosixPath, PurePath, WindowsPath
-from typing import Any, overload
+from typing import TYPE_CHECKING, overload
 
 from sphinx.deprecation import RemovedInSphinx90Warning
+
+if TYPE_CHECKING:
+    from typing import Any
 
 _STR_METHODS = frozenset(str.__dict__)
 _PATH_NAME = Path().__class__.__name__

@@ -36,7 +36,7 @@ import inspect
 import os.path
 import re
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -54,6 +54,7 @@ from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+    from typing import Any, ClassVar, Final
 
     from docutils.nodes import Node
 

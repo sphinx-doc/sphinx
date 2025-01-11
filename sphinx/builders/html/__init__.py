@@ -12,7 +12,7 @@ import shutil
 import sys
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -65,7 +65,7 @@ from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
-    from typing import TypeAlias
+    from typing import Any, TypeAlias
 
     from docutils.nodes import Node
     from docutils.readers import Reader

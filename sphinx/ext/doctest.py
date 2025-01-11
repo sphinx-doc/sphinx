@@ -11,7 +11,7 @@ import re
 import sys
 import time
 from io import StringIO
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -28,6 +28,7 @@ from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement
 

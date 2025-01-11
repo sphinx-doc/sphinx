@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -15,6 +15,7 @@ from sphinx.util.nodes import copy_source_info, make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any
 
     from docutils.nodes import Element
 

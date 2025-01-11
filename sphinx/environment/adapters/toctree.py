@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from docutils import nodes
 from docutils.nodes import Element, Node
@@ -15,6 +15,7 @@ from sphinx.util.nodes import _only_node_keep_children, clean_astext
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
+    from typing import Any
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment

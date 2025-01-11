@@ -16,7 +16,7 @@ namespace of the project configuration (that is, all variables from
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -24,6 +24,8 @@ import sphinx
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx

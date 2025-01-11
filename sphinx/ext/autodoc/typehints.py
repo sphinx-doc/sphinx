@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -14,6 +14,7 @@ from sphinx.util.typing import ExtensionMetadata, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any
 
     from docutils.nodes import Element
 

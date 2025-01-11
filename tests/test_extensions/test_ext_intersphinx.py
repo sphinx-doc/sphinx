@@ -38,9 +38,6 @@ from tests.test_util.intersphinx_data import (
 )
 from tests.utils import http_server
 
-if TYPE_CHECKING:
-    from typing import NoReturn
-
 
 class FakeList(list):  # NoQA: FURB189
     def __iter__(self) -> NoReturn:
@@ -744,6 +741,8 @@ def test_intersphinx_role(app):
 
 
 if TYPE_CHECKING:
+    from typing import NoReturn
+
     from sphinx.ext.intersphinx._shared import InventoryCacheEntry
 
 

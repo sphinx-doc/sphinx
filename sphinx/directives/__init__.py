@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, ClassVar, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -16,6 +16,8 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TC001
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import docutils.parsers.rst.directives
 import docutils.parsers.rst.roles
@@ -17,7 +17,7 @@ from sphinx.util.docutils import ReferenceRole, SphinxRole
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Final
+    from typing import Any, Final
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
