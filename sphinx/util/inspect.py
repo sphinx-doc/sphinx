@@ -259,7 +259,9 @@ def is_classmethod_descriptor(
     return False
 
 
-def is_builtin_classmethod_like(obj: Any, cls: Any = None, name: str | None = None) -> bool:
+def is_builtin_classmethod_like(
+    obj: Any, cls: Any = None, name: str | None = None
+) -> bool:
     """Check if the object looks like a class method implemented in C.
 
     This is equivalent to test that *obj* is a class method descriptor

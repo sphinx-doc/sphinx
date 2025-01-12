@@ -67,7 +67,7 @@ class MyIntOverride(MyInt):
 
     def conjugate(self):
         return super().conjugate()
-    
+
 
 def func():
     pass
@@ -724,7 +724,7 @@ def test_getslots():
         (False, Inherited, 'meth'),
         (False, MyInt, 'conjugate'),
         (False, MyIntOverride, 'conjugate'),
-    ]
+    ],
 )
 def test_isclassmethod(expect, klass, name):
     subject = getattr(klass, name)
@@ -746,7 +746,7 @@ def test_isclassmethod(expect, klass, name):
         (False, int, 'conjugate'),
         (False, MyInt, 'classmeth'),
         (False, MyIntOverride, 'from_bytes'),  # overridden in pure Python
-    ]
+    ],
 )
 def test_is_classmethod_descriptor(expect, klass, dict_key):
     in_dict = dict_key in klass.__dict__
@@ -772,7 +772,7 @@ def test_is_classmethod_descriptor(expect, klass, dict_key):
         (False, int, 'conjugate'),
         (False, MyInt, 'classmeth'),
         (False, MyIntOverride, 'from_bytes'),  # overridden in pure Python
-    ]
+    ],
 )
 def test_is_builtin_classmethod_like(expect, klass, dict_key):
     method = getattr(klass, dict_key)
@@ -797,7 +797,7 @@ def test_is_builtin_classmethod_like(expect, klass, dict_key):
         (False, int, '__init__'),
         (False, int, 'conjugate'),
         (False, MyIntOverride, 'conjugate'),  # overridden in pure Python
-    ]
+    ],
 )
 def test_is_classmethod_like(expect, klass, name):
     subject = getattr(klass, name)
