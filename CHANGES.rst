@@ -63,6 +63,8 @@ Bugs fixed
 * #13195: viewcode: Fix issue where import paths differ from the directory
   structure.
   Patch by Ben Egan and Adam Turner.
+* #13188: autodoc: fix detection of class methods implemented in C.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
