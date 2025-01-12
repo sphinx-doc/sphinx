@@ -6,7 +6,7 @@ import traceback
 from importlib import import_module
 from importlib.metadata import entry_points
 from types import MethodType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.domains import Domain, Index, ObjType
 from sphinx.domains.std import GenericObject, Target
@@ -23,6 +23,7 @@ from sphinx.util.logging import prefixed_warnings
 if TYPE_CHECKING:
     import os
     from collections.abc import Callable, Iterator, Mapping, Sequence
+    from typing import Any
 
     from docutils import nodes
     from docutils.core import Publisher

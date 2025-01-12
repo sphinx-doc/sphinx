@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import warnings
-from typing import TYPE_CHECKING, Any, ClassVar, Literal
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -29,6 +29,8 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
+    from typing import Any, ClassVar, Literal
+
     from docutils.nodes import Element, TextElement
 
     from sphinx.addnodes import desc_signature

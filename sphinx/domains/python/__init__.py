@@ -5,7 +5,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import typing
-from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -26,6 +26,7 @@ from sphinx.util.nodes import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -37,6 +38,7 @@ if TYPE_CHECKING:
 
 # re-export objects for backwards compatibility
 # xref https://github.com/sphinx-doc/sphinx/issues/12295
+
 from sphinx.domains.python._annotations import (  # NoQA: F401
     _parse_arglist,  # for sphinx-immaterial
     type_to_xref,

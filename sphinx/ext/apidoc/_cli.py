@@ -8,7 +8,7 @@ import os.path
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import sphinx.locale
 from sphinx import __display_version__
@@ -20,6 +20,7 @@ from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
 
 def get_parser() -> argparse.ArgumentParser:

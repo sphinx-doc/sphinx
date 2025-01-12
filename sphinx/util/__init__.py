@@ -6,7 +6,7 @@ import hashlib
 import os
 import posixpath
 import re
-from typing import Any
+from typing import TYPE_CHECKING
 
 from sphinx.errors import ExtensionError as _ExtensionError
 from sphinx.errors import FiletypeNotFoundError
@@ -34,6 +34,9 @@ from sphinx.util.osutil import (  # NoQA: F401
     os_path,
     relative_uri,
 )
+
+if TYPE_CHECKING:
+    from typing import Any
 
 logger = logging.getLogger(__name__)
 

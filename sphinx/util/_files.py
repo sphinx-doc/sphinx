@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import os.path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any
 
 
 class FilenameUniqDict(dict[str, tuple[set[str], str]]):

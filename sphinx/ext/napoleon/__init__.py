@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.application import Sphinx
@@ -10,6 +10,8 @@ from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.config import _ConfigRebuild
     from sphinx.util.typing import ExtensionMetadata
 

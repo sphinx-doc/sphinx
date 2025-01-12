@@ -13,7 +13,10 @@ from __future__ import annotations
 import os
 import re
 import sys
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 try:
     import MeCab  # type: ignore[import-not-found]

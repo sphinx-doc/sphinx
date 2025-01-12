@@ -8,7 +8,7 @@ from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from docutils import nodes
@@ -30,6 +30,7 @@ from sphinx.util.template import SphinxRenderer
 if TYPE_CHECKING:
     import os
     from collections.abc import Iterable, Iterator, Sequence
+    from typing import Any, Literal
 
     from docutils.nodes import Element
 

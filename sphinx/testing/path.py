@@ -4,13 +4,14 @@ import os
 import shutil
 import sys
 import warnings
-from typing import IO, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 
 if TYPE_CHECKING:
     import builtins
     from collections.abc import Callable
+    from typing import IO, Any
 
 warnings.warn(
     "'sphinx.testing.path' is deprecated. Use 'os.path' or 'pathlib' instead.",

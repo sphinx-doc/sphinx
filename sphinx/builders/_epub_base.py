@@ -7,7 +7,7 @@ import os
 import os.path
 import re
 import time
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
@@ -25,6 +25,7 @@ from sphinx.util.osutil import copyfile, ensuredir, relpath
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Any
 
     from docutils.nodes import Element, Node
 

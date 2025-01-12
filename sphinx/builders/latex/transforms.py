@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.transforms.references import Substitutions
@@ -21,6 +21,8 @@ from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.statemachine import StringList
@@ -13,6 +13,8 @@ from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
 

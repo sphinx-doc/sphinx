@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from copy import copy
-from typing import TYPE_CHECKING, Any, ClassVar, Final, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -23,6 +23,7 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Set
+    from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
 
