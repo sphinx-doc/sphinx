@@ -32,13 +32,7 @@ from sphinx.util.inspect import (
     safe_getattr,
     stringify_signature,
 )
-from sphinx.util.typing import (
-    ExtensionMetadata,
-    OptionSpec,
-    get_type_hints,
-    restify,
-    stringify_annotation,
-)
+from sphinx.util.typing import get_type_hints, restify, stringify_annotation
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
@@ -49,6 +43,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc.directive import DocumenterBridge
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
     _AutodocObjType = Literal[
         'module', 'class', 'exception', 'function', 'method', 'attribute'
@@ -304,6 +299,14 @@ class ObjectMember:
     represent each member of the object.
     """
 
+    __slots__ = '__name__', 'object', 'docstring', 'class_', 'skipped'
+
+    __name__: str
+    object: Any
+    docstring: str | None
+    class_: Any
+    skipped: bool
+
     def __init__(
         self,
         name: str,
@@ -316,8 +319,19 @@ class ObjectMember:
         self.__name__ = name
         self.object = obj
         self.docstring = docstring
-        self.skipped = skipped
         self.class_ = class_
+        self.skipped = skipped
+
+    def __repr__(self) -> str:
+        return (
+            f'ObjectMember('
+            f'name={self.__name__!r}, '
+            f'obj={self.object!r}, '
+            f'docstring={self.docstring!r}, '
+            f'class_={self.class_!r}, '
+            f'skipped={self.skipped!r}'
+            f')'
+        )
 
 
 class Documenter:
@@ -2431,9 +2445,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         if inspect.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj):
             self.add_line('   :async:', sourcename)
         if (
-            inspect.isclassmethod(obj)
+            inspect.is_classmethod_like(obj)
             or inspect.is_singledispatch_method(obj)
-            and inspect.isclassmethod(obj.func)
+            and inspect.is_classmethod_like(obj.func)
         ):
             self.add_line('   :classmethod:', sourcename)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):

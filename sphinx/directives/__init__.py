@@ -3,22 +3,24 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, ClassVar, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature  # NoQA: TC001
 from sphinx.util import docutils
 from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util.typing import ExtensionMetadata, OptionSpec  # NoQA: TC001
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from docutils.nodes import Node
 
+    from sphinx.addnodes import desc_signature
     from sphinx.application import Sphinx
+    from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 
 # RE to strip backslash escapes

@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 from hashlib import sha1
 from itertools import chain
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -26,6 +26,8 @@ from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
+    from typing import Any, ClassVar
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx

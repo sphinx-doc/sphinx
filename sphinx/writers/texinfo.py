@@ -5,7 +5,7 @@ from __future__ import annotations
 import os.path
 import re
 import textwrap
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 
@@ -18,6 +18,7 @@ from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, Text
 

@@ -20,7 +20,7 @@ Both, the url string and the caption string must escape ``%`` as ``%%``.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes, utils
 
@@ -32,6 +32,7 @@ from sphinx.util.nodes import split_explicit_title
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from docutils.nodes import Node, system_message
     from docutils.parsers.rst.states import Inliner

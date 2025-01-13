@@ -7,7 +7,7 @@ be domain-specifically transformed to a more appealing presentation.
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -17,6 +17,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Element, Node
     from docutils.parsers.rst.states import Inliner
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
@@ -23,7 +23,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Literal, TypeAlias
+    from typing import Any, Literal, TypeAlias
 
     from docutils.nodes import Node, Text
     from typing_extensions import TypeIs

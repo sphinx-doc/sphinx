@@ -4,13 +4,14 @@ import os
 import warnings
 import zlib
 from functools import cache
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ThemeError
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Any, NoReturn
 
 
 class _CascadingStyleSheet:

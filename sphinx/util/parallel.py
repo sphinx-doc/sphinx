@@ -6,7 +6,7 @@ import os
 import time
 import traceback
 from math import sqrt
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 try:
     import multiprocessing
@@ -20,6 +20,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 import warnings
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Union, cast
 
 from docutils import nodes
 
@@ -17,7 +17,7 @@ from sphinx.util.cfamily import (
 )
 
 if TYPE_CHECKING:
-    from typing import TypeAlias
+    from typing import Any, TypeAlias
 
     from docutils.nodes import Element, Node, TextElement
 

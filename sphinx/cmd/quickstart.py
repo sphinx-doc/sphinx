@@ -8,7 +8,7 @@ import os
 import os.path
 import sys
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 # try to import readline, unix specific enhancement
 try:
@@ -38,6 +38,7 @@ from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
 EXTENSIONS = {
     'autodoc': __('automatically insert docstrings from modules'),

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.core import Publisher
 from docutils.io import FileInput, Input, NullOutput
@@ -23,6 +23,8 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils import nodes
     from docutils.frontend import Values
     from docutils.parsers import Parser

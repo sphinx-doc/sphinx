@@ -25,7 +25,7 @@ import pydoc
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -54,6 +54,7 @@ from sphinx.util.template import SphinxTemplateLoader
 if TYPE_CHECKING:
     from collections.abc import Sequence, Set
     from gettext import NullTranslations
+    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter

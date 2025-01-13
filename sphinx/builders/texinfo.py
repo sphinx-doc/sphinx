@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import os.path
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -26,6 +26,7 @@ from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
+    from typing import Any
 
     from docutils.nodes import Node
 

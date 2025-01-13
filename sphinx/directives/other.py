@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from os.path import abspath, relpath
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -22,6 +22,7 @@ from sphinx.util.nodes import explicit_title_re
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 

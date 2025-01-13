@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.domains.cpp._ast import (
     ASTAlignofExpr,
@@ -128,6 +128,7 @@ from sphinx.util.cfamily import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
 logger = logging.getLogger(__name__)
 

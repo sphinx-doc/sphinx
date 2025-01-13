@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 from io import StringIO
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -15,6 +15,7 @@ from sphinx.util.console import coloron, nocolor
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
+    from typing import Any
 
 warnfile = StringIO()
 

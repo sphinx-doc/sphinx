@@ -15,6 +15,12 @@ Incompatible changes
   now unconditionally returns ``True``.
   These are replaced by the ``has_maths_elements`` key of the page context dict.
   Patch by Adam Turner.
+* #13227: HTML output for sequences of keys in the :rst:role:`kbd` role
+  no longer uses a ``<kbd class="kbd compound">`` element to wrap
+  the keys and separators, but places them directly in the relevant parent node.
+  This means that CSS rulesets targeting ``kbd.compound`` or ``.kbd.compound``
+  will no longer have any effect.
+  Patch by Adam Turner.
 
 Deprecated
 ----------
@@ -40,6 +46,8 @@ Features added
 * #13146: Napoleon: Unify the type preprocessing logic to allow
   Google-style docstrings to use the optional and default keywords.
   Patch by Chris Barrick.
+* #13227: Implement the :rst:role:`kbd` role as a ``SphinxRole``.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
@@ -60,6 +68,11 @@ Bugs fixed
 * #13195: viewcode: Fix issue where import paths differ from the directory
   structure.
   Patch by Ben Egan and Adam Turner.
+* #13188: autodoc: fix detection of class methods implemented in C.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
+
+* #13224: Correctness fixup for ``test_html_multi_line_copyright``.
+  Patch by Colin Watson, applied by James Addison.

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import functools
 import operator
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -25,6 +25,7 @@ from sphinx.util.docutils import SphinxDirective, new_document
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 

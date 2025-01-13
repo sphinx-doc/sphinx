@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os.path
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.frontend import OptionParser
 from docutils.io import FileOutput
@@ -21,6 +21,7 @@ from sphinx.writers.manpage import ManualPageTranslator, ManualPageWriter
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.config import Config

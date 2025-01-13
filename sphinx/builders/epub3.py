@@ -10,7 +10,7 @@ import os
 import os.path
 import re
 import time
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx import package_dir
 from sphinx.builders import _epub_base
@@ -22,6 +22,7 @@ from sphinx.util.osutil import make_filename
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import re
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -25,6 +25,8 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from docutils.nodes import Node
     from docutils.parsers.rst.states import Inliner
 

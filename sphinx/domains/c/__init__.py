@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -34,6 +34,7 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -865,7 +866,7 @@ class CDomain(Domain):
                 'Unparseable C cross-reference: %r\n%s', target, e, location=node
             )
             return None, None
-        parent_key: LookupKey = node.get('c:parent_key', None)
+        parent_key: LookupKey | None = node.get('c:parent_key', None)
         root_symbol = self.data['root_symbol']
         if parent_key:
             parent_symbol: Symbol = root_symbol.direct_lookup(parent_key)

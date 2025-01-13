@@ -8,22 +8,19 @@ import os.path
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import sphinx.locale
 from sphinx import __display_version__
 from sphinx.cmd.quickstart import EXTENSIONS
-from sphinx.ext.apidoc._generate import (
-    ApidocOptions,
-    create_modules_toc_file,
-    recurse_tree,
-)
-from sphinx.ext.apidoc._shared import LOGGER, _remove_old_files
+from sphinx.ext.apidoc._generate import create_modules_toc_file, recurse_tree
+from sphinx.ext.apidoc._shared import LOGGER, ApidocOptions, _remove_old_files
 from sphinx.locale import __
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
 
 def get_parser() -> argparse.ArgumentParser:

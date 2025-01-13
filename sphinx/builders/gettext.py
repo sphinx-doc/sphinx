@@ -8,7 +8,7 @@ from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from docutils import nodes
@@ -30,6 +30,7 @@ from sphinx.util.template import SphinxRenderer
 if TYPE_CHECKING:
     import os
     from collections.abc import Iterable, Iterator, Sequence
+    from typing import Any, Literal
 
     from docutils.nodes import Element
 
@@ -45,6 +46,12 @@ logger = logging.getLogger(__name__)
 class Message:
     """An entry of translatable message."""
 
+    __slots__ = 'text', 'locations', 'uuids'
+
+    text: str
+    locations: list[tuple[str, int]]
+    uuids: list[str]
+
     def __init__(
         self, text: str, locations: list[tuple[str, int]], uuids: list[str]
     ) -> None:
@@ -52,36 +59,41 @@ class Message:
         self.locations = locations
         self.uuids = uuids
 
+    def __repr__(self) -> str:
+        return (
+            'Message('
+            f'text={self.text!r}, locations={self.locations!r}, uuids={self.uuids!r}'
+            ')'
+        )
+
 
 class Catalog:
     """Catalog of translatable messages."""
 
-    def __init__(self) -> None:
-        self.messages: list[str] = []  # retain insertion order
+    __slots__ = ('metadata',)
 
+    def __init__(self) -> None:
         # msgid -> file, line, uid
         self.metadata: dict[str, list[tuple[str, int, str]]] = {}
 
     def add(self, msg: str, origin: Element | MsgOrigin) -> None:
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
-            # however i18n is also unnecessary.
+            # however translation is also unnecessary.
             return
-        if msg not in self.metadata:  # faster lookup in hash
-            self.messages.append(msg)
-            self.metadata[msg] = []
-        line = origin.line
-        if line is None:
-            line = -1
-        self.metadata[msg].append((origin.source, line, origin.uid))  # type: ignore[arg-type]
+        msg_metadata = self.metadata.setdefault(msg, [])
+        line = line if (line := origin.line) is not None else -1
+        msg_metadata.append((origin.source or '', line, origin.uid))
 
     def __iter__(self) -> Iterator[Message]:
-        for message in self.messages:
-            positions = sorted({
-                (source, line) for source, line, uuid in self.metadata[message]
-            })
-            uuids = [uuid for source, line, uuid in self.metadata[message]]
-            yield Message(message, positions, uuids)
+        for message, msg_metadata in self.metadata.items():
+            positions = sorted(set(map(operator.itemgetter(0, 1), msg_metadata)))
+            uuids = list(map(operator.itemgetter(2), msg_metadata))
+            yield Message(text=message, locations=positions, uuids=uuids)
+
+    @property
+    def messages(self) -> list[str]:
+        return list(self.metadata)
 
 
 class MsgOrigin:
@@ -89,10 +101,19 @@ class MsgOrigin:
     Origin holder for Catalog message origin.
     """
 
+    __slots__ = 'source', 'line', 'uid'
+
+    source: str
+    line: int
+    uid: str
+
     def __init__(self, source: str, line: int) -> None:
         self.source = source
         self.line = line
         self.uid = uuid4().hex
+
+    def __repr__(self) -> str:
+        return f'<MsgOrigin {self.source}:{self.line}; uid={self.uid!r}>'
 
 
 class GettextRenderer(SphinxRenderer):
@@ -258,7 +279,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 with open(template, encoding='utf-8') as f:
                     context = f.read()
                 for line, _meth, msg in extract_translations(context):
-                    origin = MsgOrigin(template, line)
+                    origin = MsgOrigin(source=template, line=line)
                     self.catalogs['sphinx'].add(msg, origin)
             except Exception as exc:
                 msg = f'{template}: {exc!r}'
@@ -285,6 +306,7 @@ class MessageCatalogBuilder(I18nBuilder):
             'display_location': self.config.gettext_location,
             'display_uuid': self.config.gettext_uuid,
         }
+        catalog: Catalog
         for textdomain, catalog in status_iterator(
             self.catalogs.items(),
             __('writing message catalogs... '),

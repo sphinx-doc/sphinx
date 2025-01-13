@@ -8,7 +8,7 @@ import pickle
 import re
 import time
 from contextlib import nullcontext
-from typing import TYPE_CHECKING, Any, Literal, final
+from typing import TYPE_CHECKING, final
 
 from docutils import nodes
 from docutils.utils import DependencyList
@@ -49,6 +49,7 @@ from sphinx import roles  # NoQA: F401  isort:skip
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
     from pathlib import Path
+    from typing import Any, Literal
 
     from docutils.nodes import Node
 

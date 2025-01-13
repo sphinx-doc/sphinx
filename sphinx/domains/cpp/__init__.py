@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -38,6 +38,7 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -628,6 +629,7 @@ class AliasNode(nodes.Element):
         super().__init__()
         self.sig = sig
         self.aliasOptions = aliasOptions
+        self.parentKey: LookupKey
         if env is not None:
             if env.current_document.cpp_parent_symbol is None:
                 root = env.domaindata['cpp']['root_symbol']
@@ -1092,7 +1094,7 @@ class CPPDomain(Domain):
                 'Unparseable C++ cross-reference: %r\n%s', target, ex, location=node
             )
             return None, None
-        parent_key: LookupKey = node.get('cpp:parent_key', None)
+        parent_key: LookupKey | None = node.get('cpp:parent_key', None)
         root_symbol = self.data['root_symbol']
         if parent_key:
             parent_symbol: Symbol = root_symbol.direct_lookup(parent_key)
@@ -1288,7 +1290,7 @@ class CPPDomain(Domain):
         target = node.get('reftarget', None)
         if target is None:
             return None
-        parent_key: LookupKey = node.get('cpp:parent_key', None)
+        parent_key: LookupKey | None = node.get('cpp:parent_key', None)
         if parent_key is None or len(parent_key.data) <= 0:
             return None
 
