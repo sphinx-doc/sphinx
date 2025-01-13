@@ -773,16 +773,22 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('linkcheck_auth', [], '')
     app.add_config_value('linkcheck_request_headers', {}, '')
     app.add_config_value('linkcheck_retries', 1, '')
-    app.add_config_value('linkcheck_timeout', 30, '', (int, float))
+    app.add_config_value('linkcheck_timeout', 30, '', types=frozenset({int, float}))
     app.add_config_value('linkcheck_workers', 5, '')
     app.add_config_value('linkcheck_anchors', True, '')
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
-    app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
-    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
+    app.add_config_value(
+        'linkcheck_anchors_ignore_for_url', (), '', types=frozenset({tuple, list})
+    )
+    app.add_config_value(
+        'linkcheck_rate_limit_timeout', 300.0, '', types=frozenset({int, float})
+    )
     app.add_config_value('linkcheck_allow_unauthorized', False, '')
-    app.add_config_value('linkcheck_report_timeouts_as_broken', False, '', bool)
+    app.add_config_value(
+        'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
+    )
 
     app.add_event('linkcheck-process-uri')
 

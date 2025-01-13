@@ -314,7 +314,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('epub_description', 'unknown', 'epub')
     app.add_config_value('epub_contributor', 'unknown', 'epub')
     app.add_config_value(
-        'epub_writing_mode', 'horizontal', 'epub', ENUM('horizontal', 'vertical')
+        'epub_writing_mode', 'horizontal', 'epub', types=ENUM('horizontal', 'vertical')
     )
 
     # event handlers

@@ -562,7 +562,10 @@ class JavaScriptDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)}
+        'javascript_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     return {
         'version': 'builtin',

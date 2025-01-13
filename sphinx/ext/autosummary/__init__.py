@@ -943,13 +943,19 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, 'env')
     app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', True, 'env', {bool, list})
+    app.add_config_value(
+        'autosummary_generate', True, 'env', types=frozenset({bool, list})
+    )
     app.add_config_value('autosummary_generate_overwrite', True, '')
     app.add_config_value(
         'autosummary_mock_imports', lambda config: config.autodoc_mock_imports, 'env'
     )
-    app.add_config_value('autosummary_imported_members', False, '', bool)
-    app.add_config_value('autosummary_ignore_module_all', True, 'env', bool)
+    app.add_config_value(
+        'autosummary_imported_members', False, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'autosummary_ignore_module_all', True, 'env', types=frozenset({bool})
+    )
 
     return {
         'version': sphinx.__display_version__,

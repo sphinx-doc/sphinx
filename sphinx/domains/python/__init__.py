@@ -1080,7 +1080,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(PythonDomain)
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
     app.add_config_value(
-        'python_maximum_signature_line_length', None, 'env', {int, type(None)}
+        'python_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)

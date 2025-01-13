@@ -927,7 +927,13 @@ class Sphinx:
            The *description* parameter.
         """
         logger.debug('[app] adding config value: %r', (name, default, rebuild, types))
-        self.config.add(name, default, rebuild, types, description)
+        self.config.add(
+            name=name,
+            default=default,
+            rebuild=rebuild,
+            types=types,
+            description=description,
+        )
 
     def add_event(self, name: str) -> None:
         """Register an event called *name*.

@@ -162,7 +162,7 @@ def test_config_pickle_circular_reference_in_list():
 
     config = Config()
     config.add('a', [], '', types=list)
-    config.add('b', [], '', types=list)
+    config.add('b', [], '', types=frozenset({list}))
     config.a, config.b = a, b
 
     actual = pickle.loads(pickle.dumps(config))
@@ -244,7 +244,7 @@ def test_config_pickle_circular_reference_in_dict():
     check_is_serializable(x, circular=True)
 
     config = Config()
-    config.add('x', [], '', types=dict)
+    config.add('x', [], '', types=frozenset({dict}))
     config.x = x
 
     actual = pickle.loads(pickle.dumps(config))

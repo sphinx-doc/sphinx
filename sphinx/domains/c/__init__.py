@@ -947,11 +947,18 @@ class CDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CDomain)
-    app.add_config_value('c_id_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('c_paren_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('c_extra_keywords', _macro_keywords, 'env', types={set, list})
+    app.add_config_value('c_id_attributes', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(
-        'c_maximum_signature_line_length', None, 'env', types={int, type(None)}
+        'c_paren_attributes', [], 'env', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'c_extra_keywords', _macro_keywords, 'env', types=frozenset({set, list})
+    )
+    app.add_config_value(
+        'c_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     app.add_post_transform(AliasTransform)
 

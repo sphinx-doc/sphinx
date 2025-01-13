@@ -343,11 +343,15 @@ def _gettext_compact_validator(app: Sphinx, config: Config) -> None:
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(MessageCatalogBuilder)
 
-    app.add_config_value('gettext_compact', True, 'gettext', {bool, str})
+    app.add_config_value(
+        'gettext_compact', True, 'gettext', types=frozenset({bool, str})
+    )
     app.add_config_value('gettext_location', True, 'gettext')
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
-    app.add_config_value('gettext_additional_targets', [], 'env', types={set, list})
+    app.add_config_value(
+        'gettext_additional_targets', [], 'env', types=frozenset({set, list})
+    )
     app.add_config_value(
         'gettext_last_translator', 'FULL NAME <EMAIL@ADDRESS>', 'gettext'
     )

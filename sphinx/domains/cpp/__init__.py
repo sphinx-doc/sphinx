@@ -1303,10 +1303,15 @@ class CPPDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CPPDomain)
     app.add_config_value('cpp_index_common_prefix', [], 'env')
-    app.add_config_value('cpp_id_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('cpp_paren_attributes', [], 'env', types={list, tuple})
+    app.add_config_value('cpp_id_attributes', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(
-        'cpp_maximum_signature_line_length', None, 'env', types={int, type(None)}
+        'cpp_paren_attributes', [], 'env', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'cpp_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     app.add_post_transform(AliasTransform)
 

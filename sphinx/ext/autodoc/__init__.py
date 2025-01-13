@@ -3141,19 +3141,19 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'autoclass_content',
         'class',
         'env',
-        ENUM('both', 'class', 'init'),
+        types=ENUM('both', 'class', 'init'),
     )
     app.add_config_value(
         'autodoc_member_order',
         'alphabetical',
         'env',
-        ENUM('alphabetical', 'bysource', 'groupwise'),
+        types=ENUM('alphabetical', 'bysource', 'groupwise'),
     )
     app.add_config_value(
         'autodoc_class_signature',
         'mixed',
         'env',
-        ENUM('mixed', 'separated'),
+        types=ENUM('mixed', 'separated'),
     )
     app.add_config_value('autodoc_default_options', {}, 'env')
     app.add_config_value('autodoc_docstring_signature', True, 'env')
@@ -3162,20 +3162,20 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'autodoc_typehints',
         'signature',
         'env',
-        ENUM('signature', 'description', 'none', 'both'),
+        types=ENUM('signature', 'description', 'none', 'both'),
     )
     app.add_config_value(
         'autodoc_typehints_description_target',
         'all',
         'env',
-        ENUM('all', 'documented', 'documented_params'),
+        types=ENUM('all', 'documented', 'documented_params'),
     )
     app.add_config_value('autodoc_type_aliases', {}, 'env')
     app.add_config_value(
         'autodoc_typehints_format',
         'short',
         'env',
-        ENUM('fully-qualified', 'short'),
+        types=ENUM('fully-qualified', 'short'),
     )
     app.add_config_value('autodoc_warningiserror', True, 'env')
     app.add_config_value('autodoc_inherit_docstrings', True, 'env')

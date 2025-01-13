@@ -431,7 +431,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('imgmath_latex_preamble', '', 'html')
     app.add_config_value('imgmath_add_tooltips', True, 'html')
     app.add_config_value('imgmath_font_size', 12, 'html')
-    app.add_config_value('imgmath_embed', False, 'html', bool)
+    app.add_config_value('imgmath_embed', False, 'html', types=frozenset({bool}))
     app.connect('build-finished', clean_up_files)
     return {
         'version': sphinx.__display_version__,
