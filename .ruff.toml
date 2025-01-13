@@ -70,7 +70,6 @@ ignore = [
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
     # Ruff-specific rules ('RUF')
-    "RUF001",  # String contains ambiguous {}. Did you mean {}?
     "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
     "RUF021",  # Parenthesize `a and b` expressions when chaining `and` and `or` together, to make the precedence clear
     "RUF022",  # `__all__` is not sorted
@@ -321,7 +320,7 @@ logger-objects = [
 "sphinx/ext/autodoc/importer.py" = ["D402"]
 "sphinx/util/requests.py" = ["D402"]
 
-"sphinx/search/*" = ["E501"]
+"sphinx/search/*" = ["E501", "RUF001"]
 
 # whitelist ``token`` in date format parsing
 "sphinx/util/i18n.py" = ["S105"]
@@ -334,6 +333,7 @@ logger-objects = [
     "ANN",  # tests don't need annotations
     "D402",
     "PLC1901",  # whitelist comparisons to the empty string ('')
+    "RUF001",  # ambiguous unicode character
     "S301",  # allow use of ``pickle``
     "S403",  # allow use of ``pickle``
     "T201",  # whitelist ``print`` for tests
