@@ -65,6 +65,9 @@ Bugs fixed
   Patch by Ben Egan and Adam Turner.
 * #13188: autodoc: fix detection of class methods implemented in C.
   Patch by Bénédikt Tran.
+* #1810: Always copy static files when building, regardless of whether
+  any documents have changed since the previous build.
+  Patch by Adam Turner.
 
 Testing
 -------

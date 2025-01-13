@@ -354,8 +354,8 @@ class Builder:
 
         self.build(
             docnames,
-            method='specific',
             summary=__('%d source files given on command line') % len(docnames),
+            method='specific',
         )
 
     @final
@@ -365,13 +365,14 @@ class Builder:
 
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
-            self.build(['__all__'], to_build)
+            self.build(['__all__'], summary=to_build, method='update')
         else:
-            to_build = list(to_build)
+            to_build = set(to_build)
             self.build(
                 to_build,
                 summary=__('targets for %d source files that are out of date')
                 % len(to_build),
+                method='update',
             )
 
     @final
@@ -423,7 +424,6 @@ class Builder:
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
-                return
 
         self.app.phase = BuildPhase.RESOLVING
 
@@ -447,7 +447,7 @@ class Builder:
         self.finish_tasks = SerialTasks()
 
         # write all "normal" documents (or everything for some builders)
-        self.write(docnames, list(updated_docnames), method)
+        self.write(docnames, updated_docnames, method)
 
         # finish (write static files etc.)
         self.finish()
@@ -688,33 +688,38 @@ class Builder:
     def write(
         self,
         build_docnames: Iterable[str] | None,
-        updated_docnames: Sequence[str],
+        updated_docnames: Iterable[str],
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         """Write builder specific output files."""
+        env = self.env
+
         # Allow any extensions to perform setup for writing
         self.events.emit('write-started', self)
 
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
-            build_docnames = self.env.found_docs
+            build_docnames = env.found_docs
         if method == 'update':
             # build updated ones as well
             docnames = set(build_docnames) | set(updated_docnames)
         else:
             docnames = set(build_docnames)
-        logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
+        if docnames:
+            logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
+        else:
+            logger.debug(__('no docnames to write!'))
 
         # add all toctree-containing files that may have changed
-        extra = {self.config.root_doc}
-        for docname in docnames:
-            for tocdocname in self.env.files_to_rebuild.get(docname, set()):
-                if tocdocname in self.env.found_docs:
-                    extra.add(tocdocname)
-        docnames |= extra
+        docnames |= {
+            toc_docname
+            for docname in docnames
+            for toc_docname in env.files_to_rebuild.get(docname, ())
+            if toc_docname in env.found_docs
+        }
 
         # sort to ensure deterministic toctree generation
-        self.env.toctree_includes = dict(sorted(self.env.toctree_includes.items()))
+        env.toctree_includes = dict(sorted(env.toctree_includes.items()))
 
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
@@ -722,7 +727,8 @@ class Builder:
         with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
-        self.write_documents(docnames)
+        if docnames:
+            self.write_documents(docnames)
 
     def write_documents(self, docnames: Set[str]) -> None:
         """Write all documents in *docnames*.
