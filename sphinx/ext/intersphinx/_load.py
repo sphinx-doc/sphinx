@@ -292,9 +292,9 @@ def _fetch_inventory_group(
     else:
         issues = '\n'.join(f[0] % f[1:] for f in failures)
         LOGGER.warning(
-            __('failed to reach any of the inventories with the following issues:')
-            + '\n'
-            + issues
+            '%s\n%s',
+            __('failed to reach any of the inventories with the following issues:'),
+            issues,
         )
     return updated
 

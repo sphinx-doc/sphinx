@@ -468,7 +468,7 @@ class LaTeXBuilder(Builder):
     @progress_message(__('copying additional files'))
     def copy_latex_additional_files(self) -> None:
         for filename in self.config.latex_additional_files:
-            logger.info(' ' + filename, nonl=True)
+            logger.info(' %s', filename, nonl=True)
             source = self.confdir / filename
             copyfile(
                 source,

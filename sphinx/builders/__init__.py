@@ -250,7 +250,7 @@ class Builder:
         def cat2relpath(cat: CatalogInfo, srcdir: Path = self.srcdir) -> str:
             return relpath(cat.mo_path, srcdir).replace(os.path.sep, SEP)
 
-        logger.info(bold(__('building [mo]: ')) + message)
+        logger.info(bold(__('building [mo]: ')) + message)  # NoQA: G003
         for catalog in status_iterator(
             catalogs,
             __('writing output... '),
@@ -390,7 +390,7 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ')) + summary, self.name)
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)  # NoQA: G003
 
         # while reading, collect all warnings from docutils
         with (

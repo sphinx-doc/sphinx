@@ -93,7 +93,7 @@ class ManualPageBuilder(Builder):
             else:
                 targetname = f'{name}.{section}'
 
-            logger.info(darkgreen(targetname) + ' { ')
+            logger.info('%s { ', darkgreen(targetname))
             destination = FileOutput(
                 destination_path=os.path.join(self.outdir, targetname),
                 encoding='utf-8',

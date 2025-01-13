@@ -40,7 +40,7 @@ def status_iterator(
     if length == 0:
         logger.info(bold_summary, nonl=True)
         for item in iterable:
-            logger.info(stringify_func(item) + ' ', nonl=True, color=color)
+            logger.info('%s ', stringify_func(item), nonl=True, color=color)
             yield item
     else:
         for i, item in enumerate(iterable, start=1):
@@ -78,14 +78,14 @@ class progress_message:
     ) -> bool:
         prefix = '' if self.nonl else bold(self.message + ': ')
         if isinstance(val, SkipProgressMessage):
-            logger.info(prefix + __('skipped'))
+            logger.info(prefix + __('skipped'))  # NoQA: G003
             if val.args:
                 logger.info(*val.args)
             return True
         elif val:
-            logger.info(prefix + __('failed'))
+            logger.info(prefix + __('failed'))  # NoQA: G003
         else:
-            logger.info(prefix + __('done'))
+            logger.info(prefix + __('done'))  # NoQA: G003
 
         return False
 

@@ -266,7 +266,7 @@ class CoverageBuilder(Builder):
                             )
                         else:
                             logger.info(
-                                red('undocumented  ')
+                                red('undocumented  ')  # NoQA: G003
                                 + f'c   api       {f"{name} [{typ:>9}]":<30}'
                                 + red(' - in file ')
                                 + filename
@@ -459,7 +459,7 @@ class CoverageBuilder(Builder):
                             else:
                                 for func in undoc['funcs']:
                                     logger.info(
-                                        red('undocumented  ')
+                                        red('undocumented  ')  # NoQA: G003
                                         + f'py  function  {func:<30}'
                                         + red(' - in module ')
                                         + name
@@ -479,7 +479,7 @@ class CoverageBuilder(Builder):
                                         )
                                     else:
                                         logger.info(
-                                            red('undocumented  ')
+                                            red('undocumented  ')  # NoQA: G003
                                             + f'py  class     {class_name:<30}'
                                             + red(' - in module ')
                                             + name
@@ -502,7 +502,7 @@ class CoverageBuilder(Builder):
                                     else:
                                         for meth in methods:
                                             logger.info(
-                                                red('undocumented  ')
+                                                red('undocumented  ')  # NoQA: G003
                                                 + f'py  method    {f"{class_name}.{meth}":<30}'
                                                 + red(' - in module ')
                                                 + name

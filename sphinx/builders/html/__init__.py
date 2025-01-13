@@ -364,7 +364,7 @@ class StandaloneHTMLBuilder(Builder):
                     msg = __(
                         'build_info mismatch, copying .buildinfo to .buildinfo.bak'
                     )
-                    logger.info(bold(__('building [html]: ')) + msg)
+                    logger.info(bold(__('building [html]: ')) + msg)  # NoQA: G003
 
                 yield from self.env.found_docs
                 return
@@ -379,7 +379,7 @@ class StandaloneHTMLBuilder(Builder):
                 # Let users know they have a newer template
                 if template_mtime > old_mtime:
                     logger.info(
-                        bold('building [html]: ')
+                        bold('building [html]: ')  # NoQA: G003
                         + __(
                             'template %s has been changed since the previous build, '
                             'all docs will be rebuilt'
@@ -713,7 +713,7 @@ class StandaloneHTMLBuilder(Builder):
     def gen_additional_pages(self) -> None:
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            logger.info(pagename + ' ', nonl=True)
+            logger.info('%s ', pagename, nonl=True)
             self.handle_page(pagename, {}, template)
 
         # the search page

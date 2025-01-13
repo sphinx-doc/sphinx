@@ -471,7 +471,7 @@ def inline_all_toctrees(
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
-                    logger.info(indent + colorfunc(includefile))
+                    logger.info(indent + colorfunc(includefile))  # NoQA: G003
                     subtree = inline_all_toctrees(
                         builder,
                         docnameset,

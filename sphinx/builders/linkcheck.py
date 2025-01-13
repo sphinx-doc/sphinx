@@ -123,9 +123,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     msg = f'{res_uri}: {result.message}'
                 else:
                     msg = res_uri
-                logger.info(darkgray('-ignored- ') + msg)
+                logger.info(darkgray('-ignored- ') + msg)  # NoQA: G003
             case _Status.WORKING:
-                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')
+                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # NoQA: G003
             case _Status.TIMEOUT:
                 if self.app.quiet:
                     msg = 'timeout   ' + f'{res_uri}{result.message}'
@@ -433,7 +433,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             status, info, code = self._check(docname, uri, hyperlink)
             if status == _Status.RATE_LIMITED:
                 logger.info(
-                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')
+                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')  # NoQA: G003
                 )
             else:
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))

@@ -29,8 +29,6 @@ ignore = [
     "E741",  # Ambiguous variable name: `{name}`
     # pyflakes
     "F841",  # Local variable `{name}` is assigned to but never used
-    # flake8-logging-format
-    "G003",  # Logging statement uses `+`
     # refurb
     "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
     "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
