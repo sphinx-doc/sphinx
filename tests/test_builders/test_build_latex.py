@@ -2298,6 +2298,7 @@ def test_one_parameter_per_line_without_trailing_comma(app):
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')
 
+    assert r'\sphinxparam{\DUrole{n}{f}}\sphinxparamcomma' not in result
     assert r'\sphinxparam{\DUrole{n}{f}}}}' in result
 
 
