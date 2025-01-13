@@ -270,12 +270,16 @@ logger-objects = [
     "ANN",  # documentation doesn't need annotations
     "TC001",  # documentation doesn't need type-checking blocks
 ]
-"doc/conf.py" = ["INP001", "W605"]
-"doc/development/tutorials/examples/*" = ["I002", "INP001"]
-# allow print() in the tutorial
+"doc/conf.py" = [
+    "INP001",  # doc/ is not a namespace package
+]
+"doc/development/tutorials/examples/*" = [
+    "I002",  # we don't need the annotations future
+    "INP001",  # examples/ is not a namespace package
+]
 "doc/development/tutorials/examples/recipe.py" = [
-    "FURB118",
-    "T201"
+    "FURB118",  # keep the tutorial simple: no itemgetter
+    "T201"  # allow print() in the tutorial
 ]
 "doc/usage/extensions/example_{google,numpy}.py" = [
     "D416",  # Section name should end with a colon ("{name}")
@@ -283,9 +287,6 @@ logger-objects = [
     "INP001",  # File {filename} is part of an implicit namespace package. Add an __init__.py.
     "PLW3201",  # Dunder method {name} has no special meaning in Python 3
 ]
-
-# from .flake8
-"sphinx/*" = ["E241"]
 
 # whitelist ``print`` for stdout messages
 "sphinx/_cli/__init__.py" = ["T201"]
@@ -310,17 +311,10 @@ logger-objects = [
 # whitelist ``token`` in docstring parsing
 "sphinx/ext/napoleon/docstring.py" = ["S105"]
 
+"sphinx/search/*" = ["RUF001"]
+
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
-
-# Ruff bug: https://github.com/astral-sh/ruff/issues/6540
-"sphinx/transforms/i18n.py" = ["PGH004"]
-
-# Function wrappers
-"sphinx/ext/autodoc/importer.py" = ["D402"]
-"sphinx/util/requests.py" = ["D402"]
-
-"sphinx/search/*" = ["E501", "RUF001"]
 
 # whitelist ``token`` in date format parsing
 "sphinx/util/i18n.py" = ["S105"]

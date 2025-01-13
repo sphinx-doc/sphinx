@@ -407,12 +407,12 @@ class IndexBuilder:
     def get_terms(
         self, fn2index: dict[str, int]
     ) -> tuple[dict[str, list[int] | int], dict[str, list[int] | int]]:
-        """
-        Return a mapping of document and title terms to their corresponding sorted document IDs.
+        """Return a mapping of document and title terms to sorted document IDs.
 
-        When a term is only found within a single document, then the value for that term will be
-        an integer value.  When a term is found within multiple documents, the value will be a list
-        of integers.
+        When a term is only found within a single document,
+        then the value for that term will be an integer value.
+        When a term is found within multiple documents,
+        the value will be a list of integers.
         """
         rvs: tuple[dict[str, list[int] | int], dict[str, list[int] | int]] = ({}, {})
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping), strict=True):
