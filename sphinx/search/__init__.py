@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 
 from sphinx import addnodes, package_dir
 from sphinx.util._pathlib import _StrPath
@@ -23,6 +23,8 @@ from sphinx.util.index_entries import split_index_msg
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
     from typing import IO, Any
+
+    from docutils.nodes import Node
 
     from sphinx.environment import BuildEnvironment
 

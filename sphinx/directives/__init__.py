@@ -10,7 +10,7 @@ from docutils.parsers.rst import directives, roles
 
 from sphinx import addnodes
 from sphinx.util import docutils
-from sphinx.util.docfields import DocFieldTransformer, Field, TypedField
+from sphinx.util.docfields import DocFieldTransformer
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     from sphinx.addnodes import desc_signature
     from sphinx.application import Sphinx
+    from sphinx.util.docfields import Field, TypedField
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
 
 

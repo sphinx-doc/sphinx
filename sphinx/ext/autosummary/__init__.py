@@ -71,7 +71,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc import INSTANCEATTR, Documenter, Options
+from sphinx.ext.autodoc import INSTANCEATTR, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
@@ -98,6 +98,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node, system_message
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Documenter
     from sphinx.extension import Extension
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator

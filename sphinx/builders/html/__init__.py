@@ -30,7 +30,7 @@ from sphinx.builders.html._assets import (
     _JavaScript,
 )
 from sphinx.builders.html._build_info import BuildInfo
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -71,6 +71,7 @@ if TYPE_CHECKING:
     from docutils.readers import Reader
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
 

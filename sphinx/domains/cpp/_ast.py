@@ -20,7 +20,6 @@ from sphinx.domains.cpp._ids import (
     _max_id,
 )
 from sphinx.util.cfamily import (
-    ASTAttributeList,
     ASTBaseBase,
     ASTBaseParenExprList,
     NoOldIdError,
@@ -36,7 +35,10 @@ if TYPE_CHECKING:
     from sphinx.addnodes import desc_signature
     from sphinx.domains.cpp._symbol import Symbol
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.cfamily import StringifyTransform
+    from sphinx.util.cfamily import (
+        ASTAttributeList,
+        StringifyTransform,
+    )
 
 
 class ASTBase(ASTBaseBase):

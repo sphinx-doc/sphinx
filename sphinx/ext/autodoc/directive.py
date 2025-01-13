@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.statemachine import StringList
-from docutils.utils import Reporter, assemble_option_dict
+from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import Documenter, Options
+from sphinx.ext.autodoc import Options
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
@@ -17,9 +17,11 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
+    from docutils.utils import Reporter
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
+    from sphinx.ext.autodoc import Documenter
 
 logger = logging.getLogger(__name__)
 

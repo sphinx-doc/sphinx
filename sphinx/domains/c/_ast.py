@@ -9,7 +9,6 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.domains.c._ids import _id_prefix, _max_id
 from sphinx.util.cfamily import (
-    ASTAttributeList,
     ASTBaseBase,
     ASTBaseParenExprList,
     UnsupportedMultiCharacterCharLiteral,
@@ -23,7 +22,10 @@ if TYPE_CHECKING:
 
     from sphinx.domains.c._symbol import Symbol
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.cfamily import StringifyTransform
+    from sphinx.util.cfamily import (
+        ASTAttributeList,
+        StringifyTransform,
+    )
 
 DeclarationType: TypeAlias = Union[
     'ASTStruct',

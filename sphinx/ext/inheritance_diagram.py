@@ -42,7 +42,6 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 
 import sphinx
-from sphinx import addnodes
 from sphinx.ext.graphviz import (
     figure_wrapper,
     graphviz,
@@ -58,6 +57,7 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Node
 
+    from sphinx import addnodes
     from sphinx.application import Sphinx
     from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata, OptionSpec

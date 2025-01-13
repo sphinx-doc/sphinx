@@ -8,7 +8,7 @@ from importlib.metadata import entry_points
 from types import MethodType
 from typing import TYPE_CHECKING
 
-from sphinx.domains import Domain, Index, ObjType
+from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target
 from sphinx.errors import ExtensionError, SphinxError, VersionRequirementError
 from sphinx.extension import Extension
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.config import Config
+    from sphinx.domains import Domain, Index
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.autodoc import Documenter
     from sphinx.util.typing import (

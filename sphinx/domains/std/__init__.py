@@ -7,11 +7,11 @@ from copy import copy
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref
+from sphinx.addnodes import pending_xref
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
@@ -26,7 +26,9 @@ if TYPE_CHECKING:
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
+    from docutils.parsers.rst import Directive
 
+    from sphinx.addnodes import desc_signature
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment

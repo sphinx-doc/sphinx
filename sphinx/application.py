@@ -13,11 +13,11 @@ from collections import deque
 from io import StringIO
 from typing import TYPE_CHECKING, overload
 
-from docutils.parsers.rst import Directive, roles
+from docutils.parsers.rst import roles
 
 import sphinx
 from sphinx import locale, package_dir
-from sphinx.config import ENUM, Config, _ConfigRebuild
+from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
@@ -43,11 +43,13 @@ if TYPE_CHECKING:
     from docutils import nodes
     from docutils.nodes import Element, Node
     from docutils.parsers import Parser
+    from docutils.parsers.rst import Directive
     from docutils.transforms import Transform
     from pygments.lexer import Lexer
 
     from sphinx import addnodes
     from sphinx.builders import Builder
+    from sphinx.config import ENUM, _ConfigRebuild
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
     from sphinx.ext.autodoc import Documenter, _AutodocProcessDocstringListener

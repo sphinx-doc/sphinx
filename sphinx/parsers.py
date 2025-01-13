@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 import docutils.parsers
 import docutils.parsers.rst
-from docutils import nodes
 from docutils.parsers.rst import states
 from docutils.statemachine import StringList
 from docutils.transforms.universal import SmartQuotes
@@ -14,6 +13,7 @@ from docutils.transforms.universal import SmartQuotes
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
+    from docutils import nodes
     from docutils.transforms import Transform
 
     from sphinx.application import Sphinx

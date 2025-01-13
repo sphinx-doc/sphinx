@@ -16,7 +16,6 @@ from docutils.utils import DependencyList
 from sphinx.environment import (
     CONFIG_CHANGED_REASON,
     CONFIG_OK,
-    BuildEnvironment,
     _CurrentDocument,
 )
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -33,7 +32,7 @@ from sphinx.util.build_phase import BuildPhase
 from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
-from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
+from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import (
     ParallelTasks,
@@ -55,7 +54,11 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.environment import (
+        BuildEnvironment,
+    )
     from sphinx.events import EventManager
+    from sphinx.util.i18n import CatalogInfo
     from sphinx.util.tags import Tags
 
 

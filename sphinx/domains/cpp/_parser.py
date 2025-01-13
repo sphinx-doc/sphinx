@@ -18,7 +18,6 @@ from sphinx.domains.cpp._ast import (
     ASTConcept,
     ASTConditionalExpr,
     ASTDeclaration,
-    ASTDeclarator,
     ASTDeclaratorMemPtr,
     ASTDeclaratorNameBitField,
     ASTDeclaratorNameParamQual,
@@ -33,14 +32,12 @@ from sphinx.domains.cpp._ast import (
     ASTEnumerator,
     ASTExplicitCast,
     ASTExplicitSpec,
-    ASTExpression,
     ASTFallbackExpr,
     ASTFoldExpr,
     ASTFunctionParameter,
     ASTIdentifier,
     ASTIdExpression,
     ASTInitializer,
-    ASTLiteral,
     ASTNamespace,
     ASTNestedName,
     ASTNestedNameElement,
@@ -48,7 +45,6 @@ from sphinx.domains.cpp._ast import (
     ASTNoexceptExpr,
     ASTNoexceptSpec,
     ASTNumberLiteral,
-    ASTOperator,
     ASTOperatorBuildIn,
     ASTOperatorLiteral,
     ASTOperatorType,
@@ -64,7 +60,6 @@ from sphinx.domains.cpp._ast import (
     ASTPostfixInc,
     ASTPostfixMember,
     ASTPostfixMemberOfPointer,
-    ASTPostfixOp,
     ASTRequiresClause,
     ASTSizeofExpr,
     ASTSizeofParamPack,
@@ -76,14 +71,12 @@ from sphinx.domains.cpp._ast import (
     ASTTemplateIntroduction,
     ASTTemplateIntroductionParameter,
     ASTTemplateKeyParamPackIdDefault,
-    ASTTemplateParam,
     ASTTemplateParamConstrainedTypeWithInit,
     ASTTemplateParamNonType,
     ASTTemplateParams,
     ASTTemplateParamTemplateType,
     ASTTemplateParamType,
     ASTThisLiteral,
-    ASTTrailingTypeSpec,
     ASTTrailingTypeSpecDecltype,
     ASTTrailingTypeSpecDecltypeAuto,
     ASTTrailingTypeSpecFundamental,
@@ -129,6 +122,16 @@ from sphinx.util.cfamily import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import Any
+
+    from sphinx.domains.cpp._ast import (
+        ASTDeclarator,
+        ASTExpression,
+        ASTLiteral,
+        ASTOperator,
+        ASTPostfixOp,
+        ASTTemplateParam,
+        ASTTrailingTypeSpec,
+    )
 
 logger = logging.getLogger(__name__)
 

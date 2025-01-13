@@ -10,7 +10,7 @@ import traceback
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 
 import sphinx
 from sphinx import addnodes
@@ -25,6 +25,8 @@ from sphinx.util.osutil import _last_modified_time
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
     from typing import Any
+
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
     from sphinx.builders import Builder

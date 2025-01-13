@@ -21,7 +21,6 @@ from urllib3.poolmanager import PoolManager
 import sphinx.util.http_date
 from sphinx.builders.linkcheck import (
     CheckRequest,
-    CheckResult,
     Hyperlink,
     HyperlinkAvailabilityCheckWorker,
     RateLimit,
@@ -41,6 +40,9 @@ if TYPE_CHECKING:
 
     from urllib3 import HTTPConnectionPool
 
+    from sphinx.builders.linkcheck import (
+        CheckResult,
+    )
     from sphinx.testing.util import SphinxTestApp
 
 

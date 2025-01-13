@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx import package_dir
 from sphinx.builders import _epub_base
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)

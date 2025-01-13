@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, NewType, TypeVar
 from docutils.statemachine import StringList
 
 import sphinx
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.errors import PycodeError
 from sphinx.ext.autodoc.importer import get_class_members, import_module, import_object
 from sphinx.ext.autodoc.mock import ismock, mock, undecorate
@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from typing import ClassVar, Literal, TypeAlias
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.environment import BuildEnvironment, _CurrentDocument
     from sphinx.events import EventManager
     from sphinx.ext.autodoc.directive import DocumenterBridge

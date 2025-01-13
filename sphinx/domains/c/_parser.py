@@ -12,7 +12,6 @@ from sphinx.domains.c._ast import (
     ASTCastExpr,
     ASTCharLiteral,
     ASTDeclaration,
-    ASTDeclarator,
     ASTDeclaratorNameBitField,
     ASTDeclaratorNameParam,
     ASTDeclaratorParen,
@@ -21,13 +20,11 @@ from sphinx.domains.c._ast import (
     ASTDeclSpecsSimple,
     ASTEnum,
     ASTEnumerator,
-    ASTExpression,
     ASTFallbackExpr,
     ASTFunctionParameter,
     ASTIdentifier,
     ASTIdExpression,
     ASTInitializer,
-    ASTLiteral,
     ASTMacro,
     ASTMacroParameter,
     ASTNestedName,
@@ -41,12 +38,10 @@ from sphinx.domains.c._ast import (
     ASTPostfixExpr,
     ASTPostfixInc,
     ASTPostfixMemberOfPointer,
-    ASTPostfixOp,
     ASTSizeofExpr,
     ASTSizeofType,
     ASTStringLiteral,
     ASTStruct,
-    ASTTrailingTypeSpec,
     ASTTrailingTypeSpecFundamental,
     ASTTrailingTypeSpecName,
     ASTType,
@@ -82,7 +77,14 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import Any
 
-    from sphinx.domains.c._ast import DeclarationType
+    from sphinx.domains.c._ast import (
+        ASTDeclarator,
+        ASTExpression,
+        ASTLiteral,
+        ASTPostfixOp,
+        ASTTrailingTypeSpec,
+        DeclarationType,
+    )
 
 
 class DefinitionParser(BaseParser):

@@ -12,7 +12,7 @@ from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
 from docutils.parsers.rst.states import Body
 from docutils.utils import Reporter
-from jinja2 import Environment, pass_environment
+from jinja2 import pass_environment
 
 from sphinx.locale import __
 from sphinx.util import docutils, logging
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from docutils.statemachine import StringList
+    from jinja2 import Environment
 
 logger = logging.getLogger(__name__)
 

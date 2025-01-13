@@ -19,7 +19,7 @@ from sphinx.builders.latex.constants import (
 )
 from sphinx.builders.latex.theming import Theme, ThemeFactory
 from sphinx.builders.latex.util import ExtBabel
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
 
 XINDY_LANG_OPTIONS = {

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from docutils.core import Publisher
-from docutils.io import FileInput, Input, NullOutput
+from docutils.io import FileInput, NullOutput
 from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 
     from docutils import nodes
     from docutils.frontend import Values
+    from docutils.io import Input
     from docutils.parsers import Parser
     from docutils.transforms import Transform
 

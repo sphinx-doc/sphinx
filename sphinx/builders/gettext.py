@@ -20,7 +20,7 @@ from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.console import bold
 from sphinx.util.display import status_iterator
-from sphinx.util.i18n import CatalogInfo, docname_to_domain
+from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import canon_path, ensuredir, relpath
@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.util.i18n import CatalogInfo
     from sphinx.util.typing import ExtensionMetadata
 
 DEFAULT_TEMPLATE_PATH = Path(package_dir, 'templates', 'gettext')

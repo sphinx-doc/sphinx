@@ -263,6 +263,10 @@ select = [
     # flake8-2020 ('YTT')
     "YTT",
 ]
+logger-objects = [
+    "sphinx.ext.apidoc._shared.LOGGER",
+    "sphinx.ext.intersphinx._shared.LOGGER",
+]
 
 [lint.per-file-ignores]
 "doc/*" = [
@@ -361,6 +365,10 @@ max-line-length = 95
 
 [lint.flake8-quotes]
 inline-quotes = "single"
+
+[lint.flake8-type-checking]
+exempt-modules = []
+strict = true
 
 [lint.isort]
 forced-separate = [

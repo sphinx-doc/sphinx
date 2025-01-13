@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
+from sphinx.addnodes import pending_xref, pending_xref_condition
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.util.inspect import signature_from_str
 
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Element, Node
 
+    from sphinx.addnodes import desc_signature
     from sphinx.environment import BuildEnvironment
 
 
