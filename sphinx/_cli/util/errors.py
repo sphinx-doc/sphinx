@@ -2,15 +2,35 @@ from __future__ import annotations
 
 import re
 import sys
-import tempfile
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING
 
-from sphinx.errors import SphinxParallelError
+from sphinx.errors import SphinxError, SphinxParallelError
 
 if TYPE_CHECKING:
-    from sphinx.application import Sphinx
+    from collections.abc import Collection
+    from typing import Final, Protocol
 
-_ANSI_COLOUR_CODES: re.Pattern[str] = re.compile('\x1b.*?m')
+    from sphinx.extension import Extension
+
+    class SupportsWrite(Protocol):
+        def write(self, text: str, /) -> int | None: ...
+
+
+_CSI: Final[str] = re.escape('\x1b[')  # 'ESC [': Control Sequence Introducer
+
+# Pattern matching ANSI CSI colors (SGR) and erase line (EL) sequences.
+#
+# See ``_strip_escape_sequences()`` for details.
+_ANSI_CODES: Final[re.Pattern[str]] = re.compile(
+    '\x1b'
+    r"""\[
+    (?:
+      (?:\d+;){0,2}\d*m  # ANSI color code    ('m' is equivalent to '0m')
+    |
+      [012]?K            # ANSI Erase in Line ('K' is equivalent to '0K')
+    )""",
+    re.VERBOSE | re.ASCII,
+)
 
 
 def terminal_safe(s: str, /) -> str:
@@ -18,11 +38,51 @@ def terminal_safe(s: str, /) -> str:
     return s.encode('ascii', 'backslashreplace').decode('ascii')
 
 
-def strip_colors(s: str, /) -> str:
-    return _ANSI_COLOUR_CODES.sub('', s).strip()
+def strip_escape_sequences(text: str, /) -> str:
+    r"""Remove the ANSI CSI colors and "erase in line" sequences.
+
+    Other `escape sequences <https://en.wikipedia.org/wiki/ANSI_escape_code>`_
+    (e.g., VT100-specific functions) are not supported. Only control sequences
+    *natively* known to Sphinx (i.e., colour sequences used in Sphinx
+    and "erase entire line" (``'\x1b[2K'``)) are stripped by this function.
+
+    .. warning:: This function only for use within Sphinx..
+
+    __ https://en.wikipedia.org/wiki/ANSI_escape_code
+    """
+    return _ANSI_CODES.sub('', text)
+
+
+def full_exception_context(
+    exception: BaseException,
+    *,
+    message_log: Collection[str] = (),
+    extensions: Collection[Extension] = (),
+) -> str:
+    """Return a formatted message containing useful debugging context."""
+    last_msgs = '\n'.join(f'* {strip_escape_sequences(s)}' for s in message_log)
+    exts_list = '\n'.join(
+        f'* {ext.name} ({ext.version})'
+        for ext in extensions
+        if ext.version != 'builtin'
+    )
+    exc_format = format_traceback(exception)
+    return error_info(last_msgs or 'None.', exts_list or 'None.', exc_format)
+
+
+def format_traceback(exception: BaseException, /) -> str:
+    """Format the given exception's traceback."""
+    if isinstance(exception, SphinxParallelError):
+        return f'(Error in parallel process)\n{exception.traceback}'
+    else:
+        from traceback import format_exception
+
+        exc_format = ''.join(format_exception(exception))
+    return exc_format
 
 
 def error_info(messages: str, extensions: str, traceback: str) -> str:
+    """Format the traceback and extensions list with environment information."""
     import platform
 
     import docutils
@@ -59,29 +119,30 @@ Traceback
 """
 
 
-def save_traceback(app: Sphinx | None, exc: BaseException) -> str:
+def save_traceback(
+    exception: BaseException,
+    *,
+    message_log: Collection[str] = (),
+    extensions: Collection[Extension] = (),
+) -> str:
     """Save the given exception's traceback in a temporary file."""
-    if isinstance(exc, SphinxParallelError):
-        exc_format = '(Error in parallel process)\n' + exc.traceback
-    else:
-        import traceback
+    output = full_exception_context(
+        exception=exception,
+        message_log=message_log,
+        extensions=extensions,
+    )
+    filename = write_temporary_file(output)
+    return filename
 
-        exc_format = traceback.format_exc()
 
-    last_msgs = exts_list = ''
-    if app is not None:
-        extensions = app.extensions.values()
-        last_msgs = '\n'.join(f'* {strip_colors(s)}' for s in app.messagelog)
-        exts_list = '\n'.join(
-            f'* {ext.name} ({ext.version})'
-            for ext in extensions
-            if ext.version != 'builtin'
-        )
+def write_temporary_file(content: str) -> str:
+    """Write content to a temporary file and return the filename."""
+    import tempfile
 
     with tempfile.NamedTemporaryFile(
-        suffix='.log', prefix='sphinx-err-', delete=False
+        'w', encoding='utf-8', suffix='.log', prefix='sphinx-err-', delete=False
     ) as f:
-        f.write(error_info(last_msgs, exts_list, exc_format).encode('utf-8'))
+        f.write(content)
 
     return f.name
 
@@ -90,18 +151,18 @@ def handle_exception(
     exception: BaseException,
     /,
     *,
-    stderr: TextIO = sys.stderr,
+    stderr: SupportsWrite = sys.stderr,
     use_pdb: bool = False,
     print_traceback: bool = False,
-    app: Sphinx | None = None,
+    message_log: Collection[str] = (),
+    extensions: Collection[Extension] = (),
 ) -> None:
     from bdb import BdbQuit
-    from traceback import TracebackException, print_exc
+    from traceback import TracebackException
 
     from docutils.utils import SystemMessage
 
     from sphinx._cli.util.colour import red
-    from sphinx.errors import SphinxError
     from sphinx.locale import __
 
     if isinstance(exception, BdbQuit):
@@ -115,14 +176,14 @@ def handle_exception(
 
     print_err()
     if print_traceback or use_pdb:
-        print_exc(file=stderr)
+        print_err(format_traceback(exception))
         print_err()
 
     if use_pdb:
         from pdb import post_mortem
 
         print_red(__('Exception occurred, starting debugger:'))
-        post_mortem()
+        post_mortem(exception.__traceback__)
         return
 
     if isinstance(exception, KeyboardInterrupt):
@@ -152,7 +213,7 @@ def handle_exception(
             __(
                 'This can happen with very large or deeply nested source '
                 'files. You can carefully increase the default Python '
-                'recursion limit of 1000 in conf.py with e.g.:'
+                'recursion limit of 1,000 in conf.py with e.g.:'
             )
         )
         print_err('\n    import sys\n    sys.setrecursionlimit(1_500)\n')
@@ -164,7 +225,9 @@ def handle_exception(
 
     print_red(__('Exception occurred:'))
     print_err(formatted_tb)
-    traceback_info_path = save_traceback(app, exception)
+    traceback_info_path = save_traceback(
+        exception, message_log=message_log, extensions=extensions
+    )
     print_err(__('The full traceback has been saved in:'))
     print_err(traceback_info_path)
     print_err()

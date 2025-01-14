@@ -7,10 +7,9 @@ be domain-specifically transformed to a more appealing presentation.
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node
 
 from sphinx import addnodes
 from sphinx.locale import __
@@ -18,6 +17,9 @@ from sphinx.util import logging
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from docutils.nodes import Element, Node
     from docutils.parsers.rst.states import Inliner
 
     from sphinx.directives import ObjectDescription
@@ -132,7 +134,7 @@ class Field:
         ]
 
     def make_entry(self, fieldarg: str, content: list[Node]) -> tuple[str, list[Node]]:
-        return (fieldarg, content)
+        return fieldarg, content
 
     def make_field(
         self,
@@ -181,8 +183,7 @@ class Field:
 
 
 class GroupedField(Field):
-    """
-    A doc field that is grouped; i.e., all fields of that type will be
+    """A doc field that is grouped; i.e., all fields of that type will be
     transformed into one field with its body being a bulleted list.  It always
     has an argument.  The argument can be linked using the given *rolename*.
     GroupedField should be used for doc fields that can occur more than once.
@@ -237,7 +238,7 @@ class GroupedField(Field):
             listnode += nodes.list_item('', par)
 
         if len(items) == 1 and self.can_collapse:
-            list_item = cast(nodes.list_item, listnode[0])
+            list_item = cast('nodes.list_item', listnode[0])
             fieldbody = nodes.field_body('', list_item[0])
             return nodes.field('', fieldname, fieldbody)
 
@@ -246,8 +247,7 @@ class GroupedField(Field):
 
 
 class TypedField(GroupedField):
-    """
-    A doc field that is grouped and has type information for the arguments.  It
+    """A doc field that is grouped and has type information for the arguments.  It
     always has an argument.  The argument can be linked using the given
     *rolename*, the type using the given *typerolename*.
 
@@ -338,8 +338,7 @@ class TypedField(GroupedField):
 
 
 class DocFieldTransformer:
-    """
-    Transforms field lists in "doc field" syntax into better-looking
+    """Transforms field lists in "doc field" syntax into better-looking
     equivalents, using the field type definitions given on a domain.
     """
 
@@ -366,10 +365,10 @@ class DocFieldTransformer:
         types: dict[str, dict] = {}
 
         # step 1: traverse all fields and collect field types and content
-        for field in cast(list[nodes.field], node):
+        for field in cast('list[nodes.field]', node):
             assert len(field) == 2
-            field_name = cast(nodes.field_name, field[0])
-            field_body = cast(nodes.field_body, field[1])
+            field_name = cast('nodes.field_name', field[0])
+            field_body = cast('nodes.field_body', field[1])
             try:
                 # split into field type and argument
                 fieldtype_name, fieldarg = field_name.astext().split(None, 1)
@@ -380,7 +379,7 @@ class DocFieldTransformer:
 
             # collect the content, trying not to keep unnecessary paragraphs
             if _is_single_paragraph(field_body):
-                paragraph = cast(nodes.paragraph, field_body[0])
+                paragraph = cast('nodes.paragraph', field_body[0])
                 content = paragraph.children
             else:
                 content = field_body.children
@@ -403,17 +402,17 @@ class DocFieldTransformer:
                     and len(content) == 1
                     and isinstance(content[0], nodes.Text)
                 ):
-                    typed_field = cast(TypedField, typedesc)
+                    typed_field = cast('TypedField', typedesc)
                     target = content[0].astext()
                     xrefs = typed_field.make_xrefs(
                         typed_field.typerolename,
                         self.directive.domain or '',
                         target,
                         contnode=content[0],
-                        env=self.directive.state.document.settings.env,
+                        env=self.directive.env,
                     )
                     if _is_single_paragraph(field_body):
-                        paragraph = cast(nodes.paragraph, field_body[0])
+                        paragraph = cast('nodes.paragraph', field_body[0])
                         paragraph.clear()
                         paragraph.extend(xrefs)
                     else:
@@ -456,7 +455,7 @@ class DocFieldTransformer:
             if typedesc.is_grouped:
                 if typename in groupindices:
                     group = cast(
-                        tuple[Field, list, Node], entries[groupindices[typename]]
+                        'tuple[Field, list, Node]', entries[groupindices[typename]]
                     )
                 else:
                     groupindices[typename] = len(entries)
@@ -477,7 +476,7 @@ class DocFieldTransformer:
             else:
                 fieldtype, items, location = entry
                 fieldtypes = types.get(fieldtype.name, {})
-                env = self.directive.state.document.settings.env
+                env = self.directive.env
                 inliner = self.directive.state.inliner
                 domain = self.directive.domain or ''
                 new_list += fieldtype.make_field(

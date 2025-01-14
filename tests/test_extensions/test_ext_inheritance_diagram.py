@@ -1,9 +1,11 @@
 """Test sphinx.ext.inheritance_diagram extension."""
 
-import os
+from __future__ import annotations
+
 import re
 import sys
 import zlib
+from pathlib import Path
 
 import pytest
 
@@ -26,7 +28,7 @@ def test_inheritance_diagram(app):
     def new_run(self):
         result = orig_run(self)
         node = result[0]
-        source = os.path.basename(node.document.current_source).replace('.rst', '')
+        source = Path(node.document.current_source).stem
         graphs[source] = node['graph']
         return result
 
@@ -48,25 +50,25 @@ def test_inheritance_diagram(app):
     # basic inheritance diagram showing all classes
     for cls in graphs['basic_diagram'].class_info:
         # use in b/c traversing order is different sometimes
-        assert cls in [
-            ('dummy.test.A', 'dummy.test.A', [], None),
-            ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
-            ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
-            ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
-            ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', ['dummy.test.A'], None),
-        ]
+        assert cls in {
+            ('dummy.test.A', 'dummy.test.A', (), None),
+            ('dummy.test.F', 'dummy.test.F', ('dummy.test.C',), None),
+            ('dummy.test.C', 'dummy.test.C', ('dummy.test.A',), None),
+            ('dummy.test.E', 'dummy.test.E', ('dummy.test.B',), None),
+            ('dummy.test.D', 'dummy.test.D', ('dummy.test.B', 'dummy.test.C'), None),
+            ('dummy.test.B', 'dummy.test.B', ('dummy.test.A',), None),
+        }
 
     # inheritance diagram using :parts: 1 option
     for cls in graphs['diagram_w_parts'].class_info:
-        assert cls in [
-            ('A', 'dummy.test.A', [], None),
-            ('F', 'dummy.test.F', ['C'], None),
-            ('C', 'dummy.test.C', ['A'], None),
-            ('E', 'dummy.test.E', ['B'], None),
-            ('D', 'dummy.test.D', ['B', 'C'], None),
-            ('B', 'dummy.test.B', ['A'], None),
-        ]
+        assert cls in {
+            ('A', 'dummy.test.A', (), None),
+            ('F', 'dummy.test.F', ('C',), None),
+            ('C', 'dummy.test.C', ('A',), None),
+            ('E', 'dummy.test.E', ('B',), None),
+            ('D', 'dummy.test.D', ('B', 'C'), None),
+            ('B', 'dummy.test.B', ('A',), None),
+        }
 
     # inheritance diagram with 1 top class
     # :top-classes: dummy.test.B
@@ -78,14 +80,14 @@ def test_inheritance_diagram(app):
     #   E   D   F
     #
     for cls in graphs['diagram_w_1_top_class'].class_info:
-        assert cls in [
-            ('dummy.test.A', 'dummy.test.A', [], None),
-            ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
-            ('dummy.test.C', 'dummy.test.C', ['dummy.test.A'], None),
-            ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
-            ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None),
-        ]
+        assert cls in {
+            ('dummy.test.A', 'dummy.test.A', (), None),
+            ('dummy.test.F', 'dummy.test.F', ('dummy.test.C',), None),
+            ('dummy.test.C', 'dummy.test.C', ('dummy.test.A',), None),
+            ('dummy.test.E', 'dummy.test.E', ('dummy.test.B',), None),
+            ('dummy.test.D', 'dummy.test.D', ('dummy.test.B', 'dummy.test.C'), None),
+            ('dummy.test.B', 'dummy.test.B', (), None),
+        }
 
     # inheritance diagram with 2 top classes
     # :top-classes: dummy.test.B, dummy.test.C
@@ -97,13 +99,13 @@ def test_inheritance_diagram(app):
     #   E   D   F
     #
     for cls in graphs['diagram_w_2_top_classes'].class_info:
-        assert cls in [
-            ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
-            ('dummy.test.C', 'dummy.test.C', [], None),
-            ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
-            ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None),
-        ]
+        assert cls in {
+            ('dummy.test.F', 'dummy.test.F', ('dummy.test.C',), None),
+            ('dummy.test.C', 'dummy.test.C', (), None),
+            ('dummy.test.E', 'dummy.test.E', ('dummy.test.B',), None),
+            ('dummy.test.D', 'dummy.test.D', ('dummy.test.B', 'dummy.test.C'), None),
+            ('dummy.test.B', 'dummy.test.B', (), None),
+        }
 
     # inheritance diagram with 2 top classes and specifying the entire module
     # rendering should be
@@ -119,27 +121,27 @@ def test_inheritance_diagram(app):
     # If you'd like to not show class A in the graph don't specify the entire module.
     # this is a known issue.
     for cls in graphs['diagram_module_w_2_top_classes'].class_info:
-        assert cls in [
-            ('dummy.test.F', 'dummy.test.F', ['dummy.test.C'], None),
-            ('dummy.test.C', 'dummy.test.C', [], None),
-            ('dummy.test.E', 'dummy.test.E', ['dummy.test.B'], None),
-            ('dummy.test.D', 'dummy.test.D', ['dummy.test.B', 'dummy.test.C'], None),
-            ('dummy.test.B', 'dummy.test.B', [], None),
-            ('dummy.test.A', 'dummy.test.A', [], None),
-        ]
+        assert cls in {
+            ('dummy.test.F', 'dummy.test.F', ('dummy.test.C',), None),
+            ('dummy.test.C', 'dummy.test.C', (), None),
+            ('dummy.test.E', 'dummy.test.E', ('dummy.test.B',), None),
+            ('dummy.test.D', 'dummy.test.D', ('dummy.test.B', 'dummy.test.C'), None),
+            ('dummy.test.B', 'dummy.test.B', (), None),
+            ('dummy.test.A', 'dummy.test.A', (), None),
+        }
 
     # inheritance diagram involving a base class nested within another class
     for cls in graphs['diagram_w_nested_classes'].class_info:
-        assert cls in [
-            ('dummy.test_nested.A', 'dummy.test_nested.A', [], None),
+        assert cls in {
+            ('dummy.test_nested.A', 'dummy.test_nested.A', (), None),
             (
                 'dummy.test_nested.C',
                 'dummy.test_nested.C',
-                ['dummy.test_nested.A.B'],
+                ('dummy.test_nested.A.B',),
                 None,
             ),
-            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', [], None),
-        ]
+            ('dummy.test_nested.A.B', 'dummy.test_nested.A.B', (), None),
+        }
 
 
 # An external inventory to test intersphinx links in inheritance diagrams
@@ -293,17 +295,17 @@ def test_inheritance_diagram_latex_alias(app):
     assert (
         'test.DocSubDir2',
         'test.DocSubDir2',
-        ['test.DocSubDir1'],
+        ('test.DocSubDir1',),
         None,
     ) in aliased_graph
     assert (
         'test.DocSubDir1',
         'test.DocSubDir1',
-        ['test.DocHere'],
+        ('test.DocHere',),
         None,
     ) in aliased_graph
-    assert ('test.DocHere', 'test.DocHere', ['alias.Foo'], None) in aliased_graph
-    assert ('alias.Foo', 'alias.Foo', [], None) in aliased_graph
+    assert ('test.DocHere', 'test.DocHere', ('alias.Foo',), None) in aliased_graph
+    assert ('alias.Foo', 'alias.Foo', (), None) in aliased_graph
 
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
 

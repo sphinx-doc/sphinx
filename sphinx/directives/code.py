@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import textwrap
 from difflib import unified_diff
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -13,9 +13,13 @@ from sphinx.directives import optional_int
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util._lines import parse_line_num_spec
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
+    import os
+    from typing import Any, ClassVar
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
@@ -26,8 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class Highlight(SphinxDirective):
-    """
-    Directive to set the highlighting language for code blocks, as well
+    """Directive to set the highlighting language for code blocks, as well
     as the threshold for line numbers.
     """
 
@@ -45,7 +48,7 @@ class Highlight(SphinxDirective):
         linenothreshold = self.options.get('linenothreshold', sys.maxsize)
         force = 'force' in self.options
 
-        self.env.temp_data['highlight_language'] = language
+        self.env.current_document.highlight_language = language
         return [
             addnodes.highlightlang(
                 lang=language, force=force, linenothreshold=linenothreshold
@@ -82,7 +85,7 @@ def container_wrapper(
     node = parsed[0]
     if isinstance(node, nodes.system_message):
         msg = __('Invalid caption: %s') % node.astext()
-        raise ValueError(msg)
+        raise ValueError(msg)  # NoQA: TRY004
     if isinstance(node, nodes.Element):
         caption_node = nodes.caption(node.rawsource, '', *node.children)
         caption_node.source = literal_node.source
@@ -94,8 +97,7 @@ def container_wrapper(
 
 
 class CodeBlock(SphinxDirective):
-    """
-    Directive for a code block with special highlighting or line numbering
+    """Directive for a code block with special highlighting or line numbering
     settings.
     """
 
@@ -156,8 +158,9 @@ class CodeBlock(SphinxDirective):
             # no highlight language specified.  Then this directive refers the current
             # highlight setting via ``highlight`` directive or ``highlight_language``
             # configuration.
-            literal['language'] = self.env.temp_data.get(
-                'highlight_language', self.config.highlight_language
+            literal['language'] = (
+                self.env.current_document.highlight_language
+                or self.config.highlight_language
             )
         extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
@@ -197,8 +200,10 @@ class LiteralIncludeReader:
         ('diff', 'end-at'),
     ]
 
-    def __init__(self, filename: str, options: dict[str, Any], config: Config) -> None:
-        self.filename = filename
+    def __init__(
+        self, filename: str | os.PathLike[str], options: dict[str, Any], config: Config
+    ) -> None:
+        self.filename = _StrPath(filename)
         self.options = options
         self.encoding = options.get('encoding', config.source_encoding)
         self.lineno_start = self.options.get('lineno-start', 1)
@@ -212,21 +217,22 @@ class LiteralIncludeReader:
                 raise ValueError(msg)
 
     def read_file(
-        self, filename: str, location: tuple[str, int] | None = None
+        self, filename: str | os.PathLike[str], location: tuple[str, int] | None = None
     ) -> list[str]:
+        filename = _StrPath(filename)
         try:
             with open(filename, encoding=self.encoding, errors='strict') as f:
                 text = f.read()
-                if 'tab-width' in self.options:
-                    text = text.expandtabs(self.options['tab-width'])
+            if 'tab-width' in self.options:
+                text = text.expandtabs(self.options['tab-width'])
 
-                return text.splitlines(True)
+            return text.splitlines(True)
         except OSError as exc:
-            msg = __('Include file %r not found or reading it failed') % filename
+            msg = __("Include file '%s' not found or reading it failed") % filename
             raise OSError(msg) from exc
         except UnicodeError as exc:
             msg = __(
-                'Encoding %r used for reading included file %r seems to '
+                "Encoding %r used for reading included file '%s' seems to "
                 'be wrong, try giving an :encoding: option'
             ) % (self.encoding, filename)
             raise UnicodeError(msg) from exc
@@ -403,8 +409,7 @@ class LiteralIncludeReader:
 
 
 class LiteralInclude(SphinxDirective):
-    """
-    Like ``.. include:: :literal:``, but only warns if the include file is
+    """Like ``.. include:: :literal:``, but only warns if the include file is
     not found, and does not raise errors.  Also has several options for
     selecting what to include.
     """

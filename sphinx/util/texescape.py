@@ -29,8 +29,8 @@ tex_replacements = [
     # map some special Unicode characters to similar ASCII ones
     # (even for Unicode LaTeX as may not be supported by OpenType font)
     ('⎽', r'\_'),
-    ('ℯ', r'e'),
-    ('ⅈ', r'i'),
+    ('ℯ', r'e'),  # U+212F # NoQA: RUF001
+    ('ⅈ', r'i'),  # U+2148 # NoQA: RUF001
     # Greek alphabet not escaped: pdflatex handles it via textalpha and inputenc
     # OHM SIGN U+2126 is handled by LaTeX textcomp package
 ]
@@ -63,7 +63,7 @@ unicode_tex_replacements = [
     ('±', r'\(\pm\)'),
     ('→', r'\(\rightarrow\)'),
     ('‣', r'\(\rightarrow\)'),
-    ('–', r'\textendash{}'),
+    ('\N{EN DASH}', r'\textendash{}'),
     # superscript
     ('⁰', r'\(\sp{\text{0}}\)'),
     ('¹', r'\(\sp{\text{1}}\)'),
@@ -103,7 +103,7 @@ _tex_hlescape_map_without_unicode: dict[int, str] = {}
 
 def escape(s: str, latex_engine: str | None = None) -> str:
     """Escape text for LaTeX output."""
-    if latex_engine in ('lualatex', 'xelatex'):
+    if latex_engine in {'lualatex', 'xelatex'}:
         # unicode based LaTeX engine
         return s.translate(_tex_escape_map_without_unicode)
     else:
@@ -112,7 +112,7 @@ def escape(s: str, latex_engine: str | None = None) -> str:
 
 def hlescape(s: str, latex_engine: str | None = None) -> str:
     """Escape text for LaTeX highlighter."""
-    if latex_engine in ('lualatex', 'xelatex'):
+    if latex_engine in {'lualatex', 'xelatex'}:
         # unicode based LaTeX engine
         return s.translate(_tex_hlescape_map_without_unicode)
     else:

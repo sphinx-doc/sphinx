@@ -4,22 +4,20 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import Sequence  # NoQA: TCH003
 from contextlib import contextmanager
 from copy import copy
-from os import path
-from typing import IO, TYPE_CHECKING, Any, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 import docutils
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner  # NoQA: TCH002
-from docutils.statemachine import State, StateMachine, StringList
+from docutils.statemachine import StateMachine
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
-from sphinx.locale import _, __
+from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.parsing import nested_parse_to_nodes
 
@@ -29,11 +27,14 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator  # NoQA: TCH003
-    from types import ModuleType
+    from collections.abc import Callable, Iterator, Sequence
+    from types import ModuleType, TracebackType
+    from typing import IO, Any
 
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
+    from docutils.parsers.rst.states import Inliner
+    from docutils.statemachine import State, StringList
 
     from sphinx.builders import Builder
     from sphinx.config import Config
@@ -171,25 +172,23 @@ def patched_rst_get_language() -> Iterator[None]:
 
 
 @contextmanager
-def using_user_docutils_conf(confdir: str | None) -> Iterator[None]:
+def using_user_docutils_conf(confdir: str | os.PathLike[str] | None) -> Iterator[None]:
     """Let docutils know the location of ``docutils.conf`` for Sphinx."""
     try:
-        docutilsconfig = os.environ.get('DOCUTILSCONFIG', None)
+        docutils_config = os.environ.get('DOCUTILSCONFIG', None)
         if confdir:
-            os.environ['DOCUTILSCONFIG'] = path.join(
-                path.abspath(confdir), 'docutils.conf'
-            )
-
+            docutils_conf_path = Path(confdir, 'docutils.conf').resolve()
+            os.environ['DOCUTILSCONFIG'] = str(docutils_conf_path)
         yield
     finally:
-        if docutilsconfig is None:
+        if docutils_config is None:
             os.environ.pop('DOCUTILSCONFIG', None)
         else:
-            os.environ['DOCUTILSCONFIG'] = docutilsconfig
+            os.environ['DOCUTILSCONFIG'] = docutils_config
 
 
 @contextmanager
-def patch_docutils(confdir: str | None = None) -> Iterator[None]:
+def patch_docutils(confdir: str | os.PathLike[str] | None = None) -> Iterator[None]:
     """Patch to docutils temporarily."""
     with (
         patched_get_language(),
@@ -214,7 +213,10 @@ class CustomReSTDispatcher:
         self.enable()
 
     def __exit__(
-        self, exc_type: type[Exception], exc_value: Exception, traceback: Any
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.disable()
 
@@ -262,40 +264,9 @@ class sphinx_domains(CustomReSTDispatcher):
     """
 
     def __init__(self, env: BuildEnvironment) -> None:
-        self.env = env
+        self.domains = env.domains
+        self.current_document = env.current_document
         super().__init__()
-
-    def lookup_domain_element(self, type: str, name: str) -> Any:
-        """Lookup a markup element (directive or role), given its name which can
-        be a full name (with domain).
-        """
-        name = name.lower()
-        # explicit domain given?
-        if ':' in name:
-            domain_name, name = name.split(':', 1)
-            if domain_name in self.env.domains:
-                domain = self.env.get_domain(domain_name)
-                element = getattr(domain, type)(name)
-                if element is not None:
-                    return element, []
-            else:
-                logger.warning(
-                    _('unknown directive or role name: %s:%s'), domain_name, name
-                )
-        # else look in the default domain
-        else:
-            def_domain = self.env.temp_data.get('default_domain')
-            if def_domain is not None:
-                element = getattr(def_domain, type)(name)
-                if element is not None:
-                    return element, []
-
-        # always look in the std domain
-        element = getattr(self.env.domains.standard_domain, type)(name)
-        if element is not None:
-            return element, []
-
-        raise ElementLookupError
 
     def directive(
         self,
@@ -303,10 +274,34 @@ class sphinx_domains(CustomReSTDispatcher):
         language_module: ModuleType,
         document: nodes.document,
     ) -> tuple[type[Directive] | None, list[system_message]]:
-        try:
-            return self.lookup_domain_element('directive', directive_name)
-        except ElementLookupError:
-            return super().directive(directive_name, language_module, document)
+        """Lookup a directive, given its name which can include a domain."""
+        directive_name = directive_name.lower()
+        # explicit domain given?
+        if ':' in directive_name:
+            domain_name, _, name = directive_name.partition(':')
+            try:
+                domain = self.domains[domain_name]
+            except KeyError:
+                logger.warning(__('unknown directive name: %s'), directive_name)
+            else:
+                element = domain.directive(name)
+                if element is not None:
+                    return element, []
+        # else look in the default domain
+        else:
+            name = directive_name
+            default_domain = self.current_document.default_domain
+            if default_domain is not None:
+                element = default_domain.directive(name)
+                if element is not None:
+                    return element, []
+
+        # always look in the std domain
+        element = self.domains.standard_domain.directive(name)
+        if element is not None:
+            return element, []
+
+        return super().directive(directive_name, language_module, document)
 
     def role(
         self,
@@ -315,10 +310,34 @@ class sphinx_domains(CustomReSTDispatcher):
         lineno: int,
         reporter: Reporter,
     ) -> tuple[RoleFunction, list[system_message]]:
-        try:
-            return self.lookup_domain_element('role', role_name)
-        except ElementLookupError:
-            return super().role(role_name, language_module, lineno, reporter)
+        """Lookup a role, given its name which can include a domain."""
+        role_name = role_name.lower()
+        # explicit domain given?
+        if ':' in role_name:
+            domain_name, _, name = role_name.partition(':')
+            try:
+                domain = self.domains[domain_name]
+            except KeyError:
+                logger.warning(__('unknown role name: %s'), role_name)
+            else:
+                element = domain.role(name)
+                if element is not None:
+                    return element, []
+        # else look in the default domain
+        else:
+            name = role_name
+            default_domain = self.current_document.default_domain
+            if default_domain is not None:
+                element = default_domain.role(name)
+                if element is not None:
+                    return element, []
+
+        # always look in the std domain
+        element = self.domains.standard_domain.role(name)
+        if element is not None:
+            return element, []
+
+        return super().role(role_name, language_module, lineno, reporter)
 
 
 class WarningStream:
@@ -354,7 +373,7 @@ class LoggingReporter(Reporter):
         debug: bool = False,
         error_handler: str = 'backslashreplace',
     ) -> None:
-        stream = cast(IO, WarningStream())
+        stream = cast('IO', WarningStream())
         super().__init__(
             source, report_level, halt_level, stream, debug, error_handler=error_handler
         )
@@ -377,7 +396,7 @@ def switch_source_input(state: State, content: StringList) -> Iterator[None]:
         # replace it by new one
         state_machine: StateMachine[None] = StateMachine([], None)  # type: ignore[arg-type]
         state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]  # NoQA: E501
+        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line  # type: ignore[attr-defined]
 
         yield
     finally:
@@ -402,9 +421,10 @@ class SphinxFileOutput(FileOutput):
             and os.path.exists(self.destination_path)
         ):
             with open(self.destination_path, encoding=self.encoding) as f:
-                # skip writing: content not changed
-                if f.read() == data:
-                    return data
+                on_disk = f.read()
+            # skip writing: content not changed
+            if on_disk == data:
+                return data
 
         return super().write(data)
 
@@ -586,7 +606,7 @@ class SphinxRole:
         if name:
             self.name = name.lower()
         else:
-            self.name = self.env.temp_data.get('default_role', '')
+            self.name = self.env.current_document.default_role
             if not self.name:
                 self.name = self.env.config.default_role
             if not self.name:
@@ -707,10 +727,10 @@ class SphinxTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.config = builder.config
         self.settings = document.settings
+        self._domains = builder.env.domains
 
     def dispatch_visit(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate visitor method.
+        """Dispatch node to appropriate visitor method.
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
@@ -718,7 +738,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         3. ``self.unknown_visit()``
         """
         for node_class in node.__class__.__mro__:
-            method = getattr(self, 'visit_%s' % (node_class.__name__), None)
+            method = getattr(self, 'visit_%s' % node_class.__name__, None)
             if method:
                 method(node)
                 break
@@ -726,8 +746,7 @@ class SphinxTranslator(nodes.NodeVisitor):
             super().dispatch_visit(node)
 
     def dispatch_departure(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate departure method.
+        """Dispatch node to appropriate departure method.
         The priority of departure method is:
 
         1. ``self.depart_{node_class}()``
@@ -735,7 +754,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         3. ``self.unknown_departure()``
         """
         for node_class in node.__class__.__mro__:
-            method = getattr(self, 'depart_%s' % (node_class.__name__), None)
+            method = getattr(self, 'depart_%s' % node_class.__name__, None)
             if method:
                 method(node)
                 break
@@ -758,7 +777,7 @@ def new_document(source_path: str, settings: Any = None) -> nodes.document:
     caches the result of docutils' and use it on second call for instantiation.
     This makes an instantiation of document nodes much faster.
     """
-    global __document_cache__
+    global __document_cache__  # NoQA: PLW0603
     try:
         cached_settings, reporter = __document_cache__
     except NameError:

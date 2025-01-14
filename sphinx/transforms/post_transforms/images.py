@@ -7,7 +7,7 @@ import re
 from hashlib import sha1
 from math import ceil
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -20,6 +20,8 @@ from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_u
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -61,7 +63,7 @@ class ImageDownloader(BaseImageConverter):
             basename = os.path.basename(node['uri'])
             if '?' in basename:
                 basename = basename.split('?')[0]
-            if basename == '' or len(basename) > MAX_FILENAME_LEN:
+            if not basename or len(basename) > MAX_FILENAME_LEN:
                 filename, ext = os.path.splitext(node['uri'])
                 basename = (
                     sha1(filename.encode(), usedforsecurity=False).hexdigest() + ext
@@ -83,7 +85,7 @@ class ImageDownloader(BaseImageConverter):
             timestamp: float = ceil(path.stat().st_mtime)
             headers['If-Modified-Since'] = epoch_to_rfc1123(timestamp)
 
-        config = self.app.config
+        config = self.config
         r = requests.get(
             node['uri'],
             headers=headers,
@@ -94,7 +96,7 @@ class ImageDownloader(BaseImageConverter):
             msg = __('Could not fetch remote image: %s [%d]')
             logger.warning(msg, node['uri'], r.status_code)
         else:
-            self.app.env.original_image_uri[_StrPath(path)] = node['uri']
+            self.env.original_image_uri[_StrPath(path)] = node['uri']
 
             if r.status_code == 200:
                 path.write_bytes(r.content)
@@ -106,22 +108,22 @@ class ImageDownloader(BaseImageConverter):
 
     def _process_image(self, node: nodes.image, path: Path) -> None:
         str_path = _StrPath(path)
-        self.app.env.original_image_uri[str_path] = node['uri']
+        self.env.original_image_uri[str_path] = node['uri']
 
         mimetype = guess_mimetype(path, default='*')
-        if mimetype != '*' and path.suffix == '':
+        if mimetype != '*' and not path.suffix:
             # append a suffix if URI does not contain suffix
             ext = get_image_extension(mimetype) or ''
             with_ext = path.with_name(path.name + ext)
-            os.replace(path, with_ext)
-            self.app.env.original_image_uri.pop(str_path)
-            self.app.env.original_image_uri[_StrPath(with_ext)] = node['uri']
+            path.replace(with_ext)
+            self.env.original_image_uri.pop(str_path)
+            self.env.original_image_uri[_StrPath(with_ext)] = node['uri']
             path = with_ext
         path_str = str(path)
         node['candidates'].pop('?')
         node['candidates'][mimetype] = path_str
         node['uri'] = path_str
-        self.app.env.images.add_file(self.env.docname, path_str)
+        self.env.images.add_file(self.env.docname, path_str)
 
 
 class DataURIExtractor(BaseImageConverter):
@@ -145,7 +147,7 @@ class DataURIExtractor(BaseImageConverter):
         ensuredir(os.path.join(self.imagedir, 'embeded'))
         digest = sha1(image.data, usedforsecurity=False).hexdigest()
         path = _StrPath(self.imagedir, 'embeded', digest + ext)
-        self.app.env.original_image_uri[path] = node['uri']
+        self.env.original_image_uri[path] = node['uri']
 
         with open(path, 'wb') as f:
             f.write(image.data)
@@ -154,7 +156,7 @@ class DataURIExtractor(BaseImageConverter):
         node['candidates'].pop('?')
         node['candidates'][image.mimetype] = path_str
         node['uri'] = path_str
-        self.app.env.images.add_file(self.env.docname, path_str)
+        self.env.images.add_file(self.env.docname, path_str)
 
 
 def get_filename_for(filename: str, mimetype: str) -> str:

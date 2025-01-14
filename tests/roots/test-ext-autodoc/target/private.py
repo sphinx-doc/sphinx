@@ -4,6 +4,7 @@ def private_function(name):
     :meta private:
     """
 
+
 def _public_function(name):
     """public_function is a docstring().
 

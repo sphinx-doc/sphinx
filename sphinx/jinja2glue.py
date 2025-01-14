@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import os
-from os import path
+import os.path
+from pathlib import Path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -13,10 +14,12 @@ from jinja2.utils import open_if_exists, pass_context
 
 from sphinx.application import TemplateBridge
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from typing import Any
 
     from jinja2.environment import Environment
 
@@ -26,7 +29,7 @@ if TYPE_CHECKING:
 
 def _tobool(val: str) -> bool:
     if isinstance(val, str):
-        return val.lower() in ('true', '1', 'yes', 'on')
+        return val.lower() in {'true', '1', 'yes', 'on'}
     return bool(val)
 
 
@@ -38,8 +41,7 @@ def _toint(val: str) -> int:
 
 
 def _todim(val: int | str) -> str:
-    """
-    Make val a css dimension. In particular the following transformations
+    """Make val a css dimension. In particular the following transformations
     are performed:
 
     - None -> 'initial' (default CSS value)
@@ -111,8 +113,7 @@ def warning(context: dict[str, Any], message: str, *args: Any, **kwargs: Any) ->
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
-    """
-    FileSystemLoader subclass that is not so strict about '..'  entries in
+    """FileSystemLoader subclass that is not so strict about '..'  entries in
     template names.
     """
 
@@ -126,12 +127,12 @@ class SphinxFileSystemLoader(FileSystemLoader):
             legacy_template = None
 
         for searchpath in self.searchpath:
-            filename = path.join(searchpath, template)
+            filename = os.path.join(searchpath, template)
             f = open_if_exists(filename)
             if f is not None:
                 break
             if legacy_template is not None:
-                filename = path.join(searchpath, legacy_template)
+                filename = os.path.join(searchpath, legacy_template)
                 f = open_if_exists(filename)
                 if f is not None:
                     break
@@ -153,9 +154,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
-    """
-    Interfaces the rendering environment of jinja2 for use in Sphinx.
-    """
+    """Interfaces the rendering environment of jinja2 for use in Sphinx."""
 
     # TemplateBridge interface
 
@@ -170,10 +169,10 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
             # the theme's own dir and its bases' dirs
             pathchain = theme.get_theme_dirs()
             # the loader dirs: pathchain + the parent directories for all themes
-            loaderchain = pathchain + [path.join(p, '..') for p in pathchain]
+            loaderchain = pathchain + [p.parent for p in pathchain]
         elif dirs:
-            pathchain = list(dirs)
-            loaderchain = list(dirs)
+            pathchain = list(map(_StrPath, dirs))
+            loaderchain = list(map(_StrPath, dirs))
         else:
             pathchain = []
             loaderchain = []
@@ -182,7 +181,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
             cfg_templates_path = [
-                path.join(builder.confdir, tp) for tp in builder.config.templates_path
+                builder.confdir / tp for tp in builder.config.templates_path
             ]
             pathchain[0:0] = cfg_templates_path
             loaderchain[0:0] = cfg_templates_path
@@ -224,7 +223,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def _newest_template_mtime_name(self) -> tuple[float, str]:
         return max(
-            (os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9, sfile)
+            (Path(root, sfile).stat().st_mtime_ns / 10**9, sfile)
             for dirname in self.pathchain
             for root, _dirs, files in os.walk(dirname)
             for sfile in files

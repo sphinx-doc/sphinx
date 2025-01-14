@@ -25,6 +25,7 @@ from sphinx.ext.intersphinx._load import (
     _fetch_inventory,
     _fetch_inventory_group,
     _get_safe_url,
+    _InvConfig,
     _strip_basic_auth,
 )
 from sphinx.ext.intersphinx._shared import _IntersphinxProject
@@ -37,11 +38,8 @@ from tests.test_util.intersphinx_data import (
 )
 from tests.utils import http_server
 
-if TYPE_CHECKING:
-    from typing import NoReturn
 
-
-class FakeList(list):
+class FakeList(list):  # NoQA: FURB189
     def __iter__(self) -> NoReturn:
         raise NotImplementedError
 
@@ -67,35 +65,37 @@ def set_config(app, mapping):
     app.config.intersphinx_mapping = mapping.copy()
     app.config.intersphinx_cache_limit = 0
     app.config.intersphinx_disabled_reftypes = []
+    app.config.intersphinx_timeout = None
 
 
 @mock.patch('sphinx.ext.intersphinx._load.InventoryFile')
-@mock.patch('sphinx.ext.intersphinx._load._read_from_url')
+@mock.patch('sphinx.ext.intersphinx._load.requests.get')
 @pytest.mark.sphinx('html', testroot='root')
-def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQA: PT019
+def test_fetch_inventory_redirection(get_request, InventoryFile, app):
+    mocked_get = get_request.return_value.__enter__.return_value
     intersphinx_setup(app)
-    _read_from_url().readline.return_value = b'# Sphinx inventory version 2'
+    mocked_get.content = b'# Sphinx inventory version 2'
 
     # same uri and inv, not redirected
-    _read_from_url().url = 'https://hostname/' + INVENTORY_FILENAME
+    mocked_get.url = 'https://hostname/' + INVENTORY_FILENAME
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/' + INVENTORY_FILENAME,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
     assert 'intersphinx inventory has moved' not in app.status.getvalue()
-    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
+    assert InventoryFile.loads.call_args[1]['uri'] == 'https://hostname/'
 
     # same uri and inv, redirected
     app.status.seek(0)
     app.status.truncate(0)
-    _read_from_url().url = 'https://hostname/new/' + INVENTORY_FILENAME
+    mocked_get.url = 'https://hostname/new/' + INVENTORY_FILENAME
 
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/' + INVENTORY_FILENAME,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
     assert app.status.getvalue() == (
@@ -103,31 +103,31 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
         'https://hostname/%s -> https://hostname/new/%s\n'
         % (INVENTORY_FILENAME, INVENTORY_FILENAME)
     )
-    assert InventoryFile.load.call_args[0][1] == 'https://hostname/new'
+    assert InventoryFile.loads.call_args[1]['uri'] == 'https://hostname/new'
 
     # different uri and inv, not redirected
     app.status.seek(0)
     app.status.truncate(0)
-    _read_from_url().url = 'https://hostname/new/' + INVENTORY_FILENAME
+    mocked_get.url = 'https://hostname/new/' + INVENTORY_FILENAME
 
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/new/' + INVENTORY_FILENAME,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
     assert 'intersphinx inventory has moved' not in app.status.getvalue()
-    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
+    assert InventoryFile.loads.call_args[1]['uri'] == 'https://hostname/'
 
     # different uri and inv, redirected
     app.status.seek(0)
     app.status.truncate(0)
-    _read_from_url().url = 'https://hostname/other/' + INVENTORY_FILENAME
+    mocked_get.url = 'https://hostname/other/' + INVENTORY_FILENAME
 
     _fetch_inventory(
         target_uri='https://hostname/',
         inv_location='https://hostname/new/' + INVENTORY_FILENAME,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
     assert app.status.getvalue() == (
@@ -135,7 +135,7 @@ def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app):  # NoQ
         'https://hostname/new/%s -> https://hostname/other/%s\n'
         % (INVENTORY_FILENAME, INVENTORY_FILENAME)
     )
-    assert InventoryFile.load.call_args[0][1] == 'https://hostname/'
+    assert InventoryFile.loads.call_args[1]['uri'] == 'https://hostname/'
 
 
 @pytest.mark.sphinx('html', testroot='root')
@@ -741,6 +741,8 @@ def test_intersphinx_role(app):
 
 
 if TYPE_CHECKING:
+    from typing import NoReturn
+
     from sphinx.ext.intersphinx._shared import InventoryCacheEntry
 
 
@@ -760,6 +762,7 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
     app.config.intersphinx_mapping = {
         'inv': (url, None),
     }
+    app.config.intersphinx_timeout = None
     # load the inventory and check if it's done correctly
     intersphinx_cache: dict[str, InventoryCacheEntry] = {
         url: ('inv', 0, {}),  # Timestamp of last cache write is zero.
@@ -784,7 +787,7 @@ def test_intersphinx_cache_limit(app, monkeypatch, cache_limit, expected_expired
             project=project,
             cache=intersphinx_cache,
             now=now,
-            config=app.config,
+            config=_InvConfig.from_config(app.config),
             srcdir=app.srcdir,
         )
         # If we hadn't mocked `_fetch_inventory`, it would've made

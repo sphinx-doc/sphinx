@@ -1,7 +1,8 @@
 """Test the code-block directive."""
 
-import os.path
+from __future__ import annotations
 
+import pygments
 import pytest
 from docutils import nodes
 
@@ -106,7 +107,8 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
-        ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'
+        ValueError,
+        match='Cannot use "lineno-match" with a disjoint set of "lines"',
     ):
         reader.read()
 
@@ -116,7 +118,8 @@ def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
-        ValueError, match="Line spec '100-': no lines pulled from include file"
+        ValueError,
+        match="Line spec '100-': no lines pulled from include file",
     ):
         reader.read()
 
@@ -257,12 +260,13 @@ def test_LiteralIncludeReader_tabwidth_dedent(testroot):
 
 
 def test_LiteralIncludeReader_diff(testroot, literal_inc_path):
-    options = {'diff': testroot / 'literal-diff.inc'}
+    literal_diff_path = testroot / 'literal-diff.inc'
+    options = {'diff': literal_diff_path}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == (
-        '--- ' + os.path.join(testroot, 'literal-diff.inc') + '\n'
-        '+++ ' + os.path.join(testroot, 'literal.inc') + '\n'
+        f'--- {literal_diff_path}\n'
+        f'+++ {literal_inc_path}\n'
         '@@ -6,8 +6,8 @@\n'
         '     pass\n'
         ' \n'
@@ -357,7 +361,7 @@ def test_code_block_emphasize_latex(app):
         .read_text(encoding='utf8')
         .replace('\r\n', '\n')
     )
-    includes = '\\fvset{hllines={, 5, 6, 13, 14, 15, 24, 25, 26,}}%\n'
+    includes = '\\fvset{hllines={, 6, 7, 16, 17, 18, 19, 29, 30, 31,}}%\n'
     assert includes in latex
     includes = '\\end{sphinxVerbatim}\n\\sphinxresetverbatimhllines\n'
     assert includes in latex
@@ -393,6 +397,11 @@ def test_literal_include_block_start_with_comment_or_brank(app):
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_linenos(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build(filenames=[app.srcdir / 'linenos.rst'])
     html = (app.outdir / 'linenos.html').read_text(encoding='utf8')
 
@@ -410,7 +419,7 @@ def test_literal_include_linenos(app):
 
     # :lines: 5-9
     assert (
-        '<span class="linenos">5</span><span class="k">class</span> '
+        f'<span class="linenos">5</span><span class="k">class</span>{sp}'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 
@@ -537,12 +546,7 @@ def test_literalinclude_pydecorators(app):
     assert actual == expect
 
     actual = literal_include[2].text
-    expect = (
-        '@function_decorator\n'
-        '@other_decorator()\n'
-        'def the_function():\n'
-        '    pass\n'
-    )
+    expect = '@function_decorator\n@other_decorator()\ndef the_function():\n    pass\n'
     assert actual == expect
 
 
@@ -560,12 +564,17 @@ def test_code_block_highlighted(app):
 
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_linenothreshold(app):
+    if tuple(map(int, pygments.__version__.split('.')[:2])) >= (2, 19):
+        sp = '<span class="w"> </span>'
+    else:
+        sp = ' '
+
     app.build(filenames=[app.srcdir / 'linenothreshold.rst'])
     html = (app.outdir / 'linenothreshold.html').read_text(encoding='utf8')
 
     # code-block using linenothreshold
     assert (
-        '<span class="linenos">1</span><span class="k">class</span> '
+        f'<span class="linenos">1</span><span class="k">class</span>{sp}'
         '<span class="nc">Foo</span><span class="p">:</span>'
     ) in html
 

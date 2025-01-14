@@ -231,8 +231,7 @@ def _key_func_1(entry: tuple[str, _IndexEntry]) -> tuple[tuple[int, str], str]:
         # using the specified category key to sort
         key = category_key
     lc_key = unicodedata.normalize('NFD', key.lower())
-    if lc_key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        lc_key = lc_key[1:]
+    lc_key = lc_key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
 
     if not lc_key[0:1].isalpha() and not lc_key.startswith('_'):
         # put symbols at the front of the index (0)
@@ -248,8 +247,7 @@ def _key_func_1(entry: tuple[str, _IndexEntry]) -> tuple[tuple[int, str], str]:
 def _key_func_2(entry: tuple[str, _IndexEntryTargets]) -> str:
     """Sort the sub-index entries"""
     key = unicodedata.normalize('NFD', entry[0].lower())
-    if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        key = key[1:]
+    key = key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
     if key[0:1].isalpha() or key.startswith('_'):
         key = chr(127) + key
     return key
@@ -263,8 +261,7 @@ def _group_by_func(entry: tuple[str, _IndexEntry]) -> str:
         return category_key
 
     # now calculate the key
-    if key.startswith('\N{RIGHT-TO-LEFT MARK}'):
-        key = key[1:]
+    key = key.removeprefix('\N{RIGHT-TO-LEFT MARK}')
     letter = unicodedata.normalize('NFD', key[0])[0].upper()
     if letter.isalpha() or letter == '_':
         return letter

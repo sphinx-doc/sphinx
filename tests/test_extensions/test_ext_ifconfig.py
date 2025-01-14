@@ -1,5 +1,7 @@
 """Test sphinx.ext.ifconfig extension."""
 
+from __future__ import annotations
+
 import docutils.utils
 import pytest
 

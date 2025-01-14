@@ -65,6 +65,9 @@ class BuildInfo:
             self.config_hash == other.config_hash and self.tags_hash == other.tags_hash
         )
 
+    def __hash__(self) -> int:
+        return hash((self.config_hash, self.tags_hash))
+
     def dump(self, filename: Path, /) -> None:
         build_info = (
             '# Sphinx build info version 1\n'

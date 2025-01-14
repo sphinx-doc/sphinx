@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import os
+import os.path
 import warnings
-from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -26,6 +26,7 @@ from sphinx.writers.texinfo import TexinfoTranslator, TexinfoWriter
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
+    from typing import Any
 
     from docutils.nodes import Node
 
@@ -38,9 +39,7 @@ template_dir = os.path.join(package_dir, 'templates', 'texinfo')
 
 
 class TexinfoBuilder(Builder):
-    """
-    Builds Texinfo output to create Info documentation.
-    """
+    """Builds Texinfo output to create Info documentation."""
 
     name = 'texinfo'
     format = 'texinfo'
@@ -109,7 +108,8 @@ class TexinfoBuilder(Builder):
             if len(entry) > 7:
                 toctree_only = entry[7]
             destination = FileOutput(
-                destination_path=path.join(self.outdir, targetname), encoding='utf-8'
+                destination_path=os.path.join(self.outdir, targetname),
+                encoding='utf-8',
             )
             with progress_message(__('processing %s') % targetname, nonl=False):
                 appendices = self.config.texinfo_appendices or []
@@ -195,7 +195,7 @@ class TexinfoBuilder(Builder):
 
     def copy_image_files(self, targetname: str) -> None:
         if self.images:
-            stringify_func = ImageAdapter(self.app.env).get_original_image_uri
+            stringify_func = ImageAdapter(self.env).get_original_image_uri
             for src in status_iterator(
                 self.images,
                 __('copying images... '),
@@ -216,7 +216,7 @@ class TexinfoBuilder(Builder):
                 except Exception as err:
                     logger.warning(
                         __('cannot copy image file %r: %s'),
-                        path.join(self.srcdir, src),
+                        os.path.join(self.srcdir, src),
                         err,
                     )
 
@@ -257,7 +257,9 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('texinfo_documents', default_texinfo_documents, '')
     app.add_config_value('texinfo_appendices', [], '')
     app.add_config_value('texinfo_elements', {}, '')
-    app.add_config_value('texinfo_domain_indices', True, '', types={set, list})
+    app.add_config_value(
+        'texinfo_domain_indices', True, '', types=frozenset({set, list})
+    )
     app.add_config_value('texinfo_show_urls', 'footnote', '')
     app.add_config_value('texinfo_no_detailmenu', False, '')
     app.add_config_value('texinfo_cross_references', True, '')

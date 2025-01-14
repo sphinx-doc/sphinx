@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Callable  # NoQA: TCH003
+from collections.abc import Callable  # NoQA: TC003
 
 if sys.platform == 'win32':
     import colorama
@@ -21,6 +21,8 @@ def terminal_supports_colour() -> bool:
         colorama.just_fix_windows_console()
     if 'FORCE_COLOUR' in os.environ or 'FORCE_COLOR' in os.environ:
         return True
+    if os.environ.get('CI', '') in {'true', '1'}:
+        return True
 
     try:
         if not sys.stdout.isatty():
@@ -35,12 +37,12 @@ def terminal_supports_colour() -> bool:
 
 
 def disable_colour() -> None:
-    global _COLOURING_DISABLED
+    global _COLOURING_DISABLED  # NoQA: PLW0603
     _COLOURING_DISABLED = True
 
 
 def enable_colour() -> None:
-    global _COLOURING_DISABLED
+    global _COLOURING_DISABLED  # NoQA: PLW0603
     _COLOURING_DISABLED = False
 
 

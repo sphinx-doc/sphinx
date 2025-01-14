@@ -1,5 +1,7 @@
 """Tests for :mod:`sphinx.ext.napoleon.__init__` module."""
 
+from __future__ import annotations
+
 import functools
 from collections import namedtuple
 from unittest import mock
@@ -11,9 +13,7 @@ from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
 
 
 def simple_decorator(f):
-    """
-    A simple decorator that does nothing, for tests to use.
-    """
+    """A simple decorator that does nothing, for tests to use."""
 
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
@@ -31,12 +31,12 @@ def _private_undoc():
     pass
 
 
-def __special_doc__():
+def __special_doc__():  # NoQA: N807
     """module.__special_doc__.DOCSTRING"""
     pass
 
 
-def __special_undoc__():
+def __special_undoc__():  # NoQA: N807
     pass
 
 
@@ -48,15 +48,15 @@ class SampleClass:
     def _private_undoc(self):
         pass
 
-    def __special_doc__(self):
+    def __special_doc__(self):  # NoQA: PLW3201
         """SampleClass.__special_doc__.DOCSTRING"""
         pass
 
-    def __special_undoc__(self):
+    def __special_undoc__(self):  # NoQA: PLW3201
         pass
 
     @simple_decorator
-    def __decorated_func__(self):
+    def __decorated_func__(self):  # NoQA: PLW3201
         """Doc"""
         pass
 
@@ -69,15 +69,15 @@ class SampleError(Exception):
     def _private_undoc(self):
         pass
 
-    def __special_doc__(self):
+    def __special_doc__(self):  # NoQA: PLW3201
         """SampleError.__special_doc__.DOCSTRING"""
         pass
 
-    def __special_undoc__(self):
+    def __special_undoc__(self):  # NoQA: PLW3201
         pass
 
 
-SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')
+SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')  # NoQA: PYI024
 
 
 class TestProcessDocstring:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import configparser
-from os import path
+import os.path
 from typing import TYPE_CHECKING
 
 from sphinx.errors import ThemeError
@@ -55,7 +55,7 @@ class BuiltInTheme(Theme):
         else:
             self.docclass = config.latex_docclass.get('manual', 'report')
 
-        if name in ('manual', 'howto'):
+        if name in {'manual', 'howto'}:
             self.wrapperclass = 'sphinx' + name
         else:
             self.wrapperclass = name
@@ -77,7 +77,7 @@ class UserTheme(Theme):
     def __init__(self, name: str, filename: str) -> None:
         super().__init__(name)
         self.config = configparser.RawConfigParser()
-        self.config.read(path.join(filename), encoding='utf-8')
+        self.config.read(os.path.join(filename), encoding='utf-8')
 
         for key in self.REQUIRED_CONFIG_KEYS:
             try:
@@ -104,7 +104,7 @@ class ThemeFactory:
     def __init__(self, app: Sphinx) -> None:
         self.themes: dict[str, Theme] = {}
         self.theme_paths = [
-            path.join(app.srcdir, p) for p in app.config.latex_theme_path
+            os.path.join(app.srcdir, p) for p in app.config.latex_theme_path
         ]
         self.config = app.config
         self.load_builtin_themes(app.config)
@@ -127,8 +127,8 @@ class ThemeFactory:
     def find_user_theme(self, name: str) -> Theme | None:
         """Find a theme named as *name* from latex_theme_path."""
         for theme_path in self.theme_paths:
-            config_path = path.join(theme_path, name, 'theme.conf')
-            if path.isfile(config_path):
+            config_path = os.path.join(theme_path, name, 'theme.conf')
+            if os.path.isfile(config_path):
                 try:
                     return UserTheme(name, config_path)
                 except ThemeError as exc:

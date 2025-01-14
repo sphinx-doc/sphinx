@@ -12,18 +12,15 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-from os import path
+from contextlib import chdir
 from typing import TYPE_CHECKING
 
 import sphinx
+from sphinx._cli.util.colour import terminal_supports_colour
 from sphinx.cmd.build import build_main
-from sphinx.util.console import blue, bold, color_terminal, nocolor
+from sphinx.util._pathlib import _StrPath
+from sphinx.util.console import blue, bold, nocolor
 from sphinx.util.osutil import rmtree
-
-if sys.version_info >= (3, 11):
-    from contextlib import chdir
-else:
-    from sphinx.util.osutil import _chdir as chdir
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -53,7 +50,7 @@ BUILDERS = [
     (
         '',
         'doctest',
-        'to run all doctests embedded in the documentation ' '(if enabled)',
+        'to run all doctests embedded in the documentation (if enabled)',
     ),
     ('', 'coverage', 'to run coverage check of the documentation (if enabled)'),
     ('', 'clean', 'to remove everything in the build directory'),
@@ -61,35 +58,41 @@ BUILDERS = [
 
 
 class Make:
-    def __init__(self, *, source_dir: str, build_dir: str, opts: Sequence[str]) -> None:
-        self.source_dir = source_dir
-        self.build_dir = build_dir
+    def __init__(
+        self,
+        *,
+        source_dir: str | os.PathLike[str],
+        build_dir: str | os.PathLike[str],
+        opts: Sequence[str],
+    ) -> None:
+        self.source_dir = _StrPath(source_dir)
+        self.build_dir = _StrPath(build_dir)
         self.opts = [*opts]
 
-    def build_dir_join(self, *comps: str) -> str:
-        return path.join(self.build_dir, *comps)
+    def build_dir_join(self, *comps: str | os.PathLike[str]) -> _StrPath:
+        return self.build_dir.joinpath(*comps)
 
     def build_clean(self) -> int:
-        source_dir = path.abspath(self.source_dir)
-        build_dir = path.abspath(self.build_dir)
-        if not path.exists(self.build_dir):
+        source_dir = self.source_dir.resolve()
+        build_dir = self.build_dir.resolve()
+        if not self.build_dir.exists():
             return 0
-        elif not path.isdir(self.build_dir):
-            print('Error: %r is not a directory!' % self.build_dir)
+        elif not self.build_dir.is_dir():
+            print("Error: '%s' is not a directory!" % self.build_dir)
             return 1
         elif source_dir == build_dir:
-            print('Error: %r is same as source directory!' % self.build_dir)
+            print("Error: '%s' is same as source directory!" % self.build_dir)
             return 1
-        elif path.commonpath([source_dir, build_dir]) == build_dir:
-            print('Error: %r directory contains source directory!' % self.build_dir)
+        elif source_dir.is_relative_to(build_dir):
+            print("Error: '%s' directory contains source directory!" % self.build_dir)
             return 1
-        print('Removing everything under %r...' % self.build_dir)
-        for item in os.listdir(self.build_dir):
-            rmtree(self.build_dir_join(item))
+        print("Removing everything under '%s'..." % self.build_dir)
+        for item in self.build_dir.iterdir():
+            rmtree(item)
         return 0
 
     def build_help(self) -> None:
-        if not color_terminal():
+        if not terminal_supports_colour():
             nocolor()
 
         print(bold('Sphinx v%s' % sphinx.__display_version__))
@@ -110,7 +113,7 @@ class Make:
         try:
             with chdir(self.build_dir_join('latex')):
                 if '-Q' in self.opts:
-                    with open('__LATEXSTDOUT__', 'w') as outfile:
+                    with open('__LATEXSTDOUT__', 'w', encoding='utf-8') as outfile:
                         returncode = subprocess.call(
                             [
                                 makecmd,
@@ -183,7 +186,9 @@ class Make:
             return 1
         return 0
 
-    def run_generic_build(self, builder: str, doctreedir: str | None = None) -> int:
+    def run_generic_build(
+        self, builder: str, doctreedir: str | os.PathLike[str] | None = None
+    ) -> int:
         # compatibility with old Makefile
         paper_size = os.getenv('PAPER', '')
         if paper_size in {'a4', 'letter'}:
@@ -195,9 +200,9 @@ class Make:
             '--builder',
             builder,
             '--doctree-dir',
-            doctreedir,
-            self.source_dir,
-            self.build_dir_join(builder),
+            str(doctreedir),
+            str(self.source_dir),
+            str(self.build_dir_join(builder)),
         ]
         return build_main(args + self.opts)
 

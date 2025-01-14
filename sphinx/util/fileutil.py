@@ -5,16 +5,15 @@ from __future__ import annotations
 import os
 import posixpath
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
-
-from docutils.utils import relative_path
+from typing import TYPE_CHECKING
 
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import copyfile, ensuredir
+from sphinx.util.osutil import _relative_path, copyfile, ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from typing import Any
 
     from sphinx.util.template import BaseRenderer
     from sphinx.util.typing import PathMatcher
@@ -125,7 +124,8 @@ def copy_asset(
     :param onerror: The error handler.
     :param bool force: Overwrite the destination file even if it exists.
     """
-    if not os.path.exists(source):
+    source = Path(source)
+    if not source.exists():
         return
 
     if renderer is None:
@@ -134,14 +134,14 @@ def copy_asset(
         renderer = SphinxRenderer()
 
     ensuredir(destination)
-    if os.path.isfile(source):
+    if source.is_file():
         copy_asset_file(
             source, destination, context=context, renderer=renderer, force=force
         )
         return
 
     for root, dirs, files in os.walk(source, followlinks=True):
-        reldir = relative_path(source, root)
+        reldir = _relative_path(Path(root), source).as_posix()
         for dir in dirs.copy():
             if excluded(posixpath.join(reldir, dir)):
                 dirs.remove(dir)

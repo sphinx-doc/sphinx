@@ -393,7 +393,7 @@ def test_class_alias(app):
         """A handler always raises an error.
         This confirms this handler is never called for class aliases.
         """
-        raise
+        raise RuntimeError
 
     app.connect('autodoc-process-docstring', autodoc_process_docstring)
     actual = do_autodoc(app, 'class', 'target.classes.Alias')

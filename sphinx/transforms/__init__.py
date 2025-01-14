@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
@@ -23,7 +23,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Literal, TypeAlias
+    from typing import Any, Literal, TypeAlias
 
     from docutils.nodes import Node, Text
     from typing_extensions import TypeIs
@@ -76,9 +76,7 @@ class SphinxTransform(Transform):
 
 
 class SphinxTransformer(Transformer):
-    """
-    A transformer for Sphinx.
-    """
+    """A transformer for Sphinx."""
 
     document: nodes.document
     env: BuildEnvironment | None = None
@@ -106,9 +104,7 @@ class SphinxTransformer(Transformer):
 
 
 class DefaultSubstitutions(SphinxTransform):
-    """
-    Replace some substitutions if they aren't defined in the document.
-    """
+    """Replace some substitutions if they aren't defined in the document."""
 
     # run before the default Substitutions
     default_priority = 210
@@ -150,8 +146,7 @@ def _calculate_translation_progress(document: nodes.document) -> str:
 
 
 class MoveModuleTargets(SphinxTransform):
-    """
-    Move module targets that are the first thing in a section to the section
+    """Move module targets that are the first thing in a section to the section
     title.
 
     XXX Python specific
@@ -176,9 +171,7 @@ class MoveModuleTargets(SphinxTransform):
 
 
 class HandleCodeBlocks(SphinxTransform):
-    """
-    Several code block related transformations.
-    """
+    """Several code block related transformations."""
 
     default_priority = 210
 
@@ -200,9 +193,7 @@ class HandleCodeBlocks(SphinxTransform):
 
 
 class AutoNumbering(SphinxTransform):
-    """
-    Register IDs of tables, figures and literal_blocks to assign numbers.
-    """
+    """Register IDs of tables, figures and literal_blocks to assign numbers."""
 
     default_priority = 210
 
@@ -219,9 +210,7 @@ class AutoNumbering(SphinxTransform):
 
 
 class SortIds(SphinxTransform):
-    """
-    Sort section IDs so that the "id[0-9]+" one comes last.
-    """
+    """Sort section IDs so that the "id[0-9]+" one comes last."""
 
     default_priority = 261
 
@@ -241,9 +230,7 @@ TRANSLATABLE_NODES = {
 
 
 class ApplySourceWorkaround(SphinxTransform):
-    """
-    Update source and rawsource attributes
-    """
+    """Update source and rawsource attributes"""
 
     default_priority = 10
 
@@ -254,9 +241,7 @@ class ApplySourceWorkaround(SphinxTransform):
 
 
 class AutoIndexUpgrader(SphinxTransform):
-    """
-    Detect old style (4 column based indices) and automatically upgrade to new style.
-    """
+    """Detect old style (4 column based indices) and automatically upgrade to new style."""
 
     default_priority = 210
 
@@ -277,9 +262,7 @@ class AutoIndexUpgrader(SphinxTransform):
 
 
 class ExtraTranslatableNodes(SphinxTransform):
-    """
-    Make nodes translatable
-    """
+    """Make nodes translatable"""
 
     default_priority = 10
 
@@ -297,9 +280,7 @@ class ExtraTranslatableNodes(SphinxTransform):
 
 
 class UnreferencedFootnotesDetector(SphinxTransform):
-    """
-    Detect unreferenced footnotes and emit warnings
-    """
+    """Detect unreferenced footnotes and emit warnings"""
 
     default_priority = Footnotes.default_priority + 2
 
@@ -361,8 +342,7 @@ class FilterSystemMessages(SphinxTransform):
 
 
 class SphinxContentsFilter(ContentsFilter):
-    """
-    Used with BuildEnvironment.add_toc_from() to discard cross-file links
+    """Used with BuildEnvironment.add_toc_from() to discard cross-file links
     within table-of-contents link nodes.
     """
 
@@ -373,8 +353,7 @@ class SphinxContentsFilter(ContentsFilter):
 
 
 class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
-    """
-    Customized SmartQuotes to avoid transform for some extra node types.
+    """Customized SmartQuotes to avoid transform for some extra node types.
 
     refs: sphinx.parsers.RSTParser
     """
@@ -443,11 +422,11 @@ class GlossarySorter(SphinxTransform):
     def apply(self, **kwargs: Any) -> None:
         for glossary in self.document.findall(addnodes.glossary):
             if glossary['sorted']:
-                definition_list = cast(nodes.definition_list, glossary[0])
+                definition_list = cast('nodes.definition_list', glossary[0])
                 definition_list[:] = sorted(
                     definition_list,
                     key=lambda item: unicodedata.normalize(
-                        'NFD', cast(nodes.term, item)[0].astext().lower()
+                        'NFD', cast('nodes.term', item)[0].astext().lower()
                     ),
                 )
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sphinx.util._uri import encode_uri
 
 

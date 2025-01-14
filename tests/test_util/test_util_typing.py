@@ -1,5 +1,7 @@
 """Tests util.typing functions."""
 
+from __future__ import annotations
+
 import dataclasses
 import sys
 import typing as t
@@ -173,10 +175,7 @@ def test_restify_type_hints_containers():
     ann_rst = restify(Tuple[str, ...])
     assert ann_rst == ':py:class:`~typing.Tuple`\\ [:py:class:`str`, ...]'
 
-    if sys.version_info[:2] <= (3, 10):
-        assert restify(Tuple[()]) == ':py:class:`~typing.Tuple`\\ [()]'
-    else:
-        assert restify(Tuple[()]) == ':py:class:`~typing.Tuple`'
+    assert restify(Tuple[()]) == ':py:class:`~typing.Tuple`'
 
     assert restify(List[Dict[str, Tuple]]) == (
         ':py:class:`~typing.List`\\ '
@@ -423,10 +422,9 @@ def test_restify_Unpack():
         assert restify(UnpackCompat['X'], 'fully-qualified-except-typing') == expect
         assert restify(UnpackCompat['X'], 'smart') == expect
 
-    if sys.version_info[:2] >= (3, 11):
-        expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
-        assert restify(t.Unpack['X'], 'fully-qualified-except-typing') == expect
-        assert restify(t.Unpack['X'], 'smart') == expect
+    expect = r':py:obj:`~typing.Unpack`\ [:py:class:`X`]'
+    assert restify(t.Unpack['X'], 'fully-qualified-except-typing') == expect
+    assert restify(t.Unpack['X'], 'smart') == expect
 
 
 def test_restify_type_union_operator():
@@ -534,17 +532,9 @@ def test_stringify_type_hints_containers():
     assert ann_str == 'typing.Tuple[str, ...]'
     assert stringify_annotation(Tuple[str, ...], 'smart') == '~typing.Tuple[str, ...]'
 
-    if sys.version_info[:2] <= (3, 10):
-        ann_str = stringify_annotation(Tuple[()], 'fully-qualified-except-typing')
-        assert ann_str == 'Tuple[()]'
-        assert stringify_annotation(Tuple[()], 'fully-qualified') == 'typing.Tuple[()]'
-        assert stringify_annotation(Tuple[()], 'smart') == '~typing.Tuple[()]'
-    else:
-        assert (
-            stringify_annotation(Tuple[()], 'fully-qualified-except-typing') == 'Tuple'
-        )
-        assert stringify_annotation(Tuple[()], 'fully-qualified') == 'typing.Tuple'
-        assert stringify_annotation(Tuple[()], 'smart') == '~typing.Tuple'
+    assert stringify_annotation(Tuple[()], 'fully-qualified-except-typing') == 'Tuple'
+    assert stringify_annotation(Tuple[()], 'fully-qualified') == 'typing.Tuple'
+    assert stringify_annotation(Tuple[()], 'smart') == '~typing.Tuple'
 
     ann_str = stringify_annotation(
         List[Dict[str, Tuple]], 'fully-qualified-except-typing'
@@ -677,30 +667,13 @@ def test_stringify_Annotated():
 
 
 def test_stringify_Unpack():
-    from typing_extensions import Unpack as UnpackCompat
-
     class X(t.TypedDict):
         x: int
         y: int
         label: str
 
-    if sys.version_info[:2] >= (3, 11):
-        # typing.Unpack is introduced in 3.11 but typing_extensions.Unpack only
-        # uses typing.Unpack in 3.12+, so the objects are not synchronised with
-        # each other, but we will assume that users use typing.Unpack.
-        import typing
-
-        UnpackCompat = typing.Unpack  # NoQA: F811
-        assert stringify_annotation(UnpackCompat['X']) == 'Unpack[X]'
-        assert stringify_annotation(UnpackCompat['X'], 'smart') == '~typing.Unpack[X]'
-    else:
-        assert stringify_annotation(UnpackCompat['X']) == 'typing_extensions.Unpack[X]'
-        ann_str = stringify_annotation(UnpackCompat['X'], 'smart')
-        assert ann_str == '~typing_extensions.Unpack[X]'
-
-    if sys.version_info[:2] >= (3, 11):
-        assert stringify_annotation(t.Unpack['X']) == 'Unpack[X]'
-        assert stringify_annotation(t.Unpack['X'], 'smart') == '~typing.Unpack[X]'
+    assert stringify_annotation(t.Unpack['X']) == 'Unpack[X]'
+    assert stringify_annotation(t.Unpack['X'], 'smart') == '~typing.Unpack[X]'
 
 
 def test_stringify_type_hints_string():

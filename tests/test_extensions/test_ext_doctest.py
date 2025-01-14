@@ -1,5 +1,7 @@
 """Test the doctest extension."""
 
+from __future__ import annotations
+
 import os
 from collections import Counter
 
@@ -15,7 +17,7 @@ cleanup_called = 0
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest')
 def test_build(app):
-    global cleanup_called
+    global cleanup_called  # NoQA: PLW0603
     cleanup_called = 0
     app.build(force_all=True)
     assert app.statuscode == 0, f'failures in doctests:\n{app.status.getvalue()}'
@@ -69,7 +71,7 @@ def test_is_allowed_version():
 
 
 def cleanup_call():
-    global cleanup_called
+    global cleanup_called  # NoQA: PLW0603
     cleanup_called += 1
 
 
@@ -87,7 +89,7 @@ def test_skipif(app):
     in ``test_build`` above, and the assertion below would fail.
 
     """
-    global recorded_calls
+    global recorded_calls  # NoQA: PLW0603
     recorded_calls = Counter()
     app.build(force_all=True)
     if app.statuscode != 0:
@@ -120,7 +122,7 @@ def test_skipif(app):
 
 
 def record(directive, part, should_skip):
-    recorded_calls[(directive, part, should_skip)] += 1
+    recorded_calls[directive, part, should_skip] += 1
     return f'Recorded {directive} {part} {should_skip}'
 
 

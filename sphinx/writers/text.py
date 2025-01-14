@@ -6,9 +6,8 @@ import math
 import os
 import re
 import textwrap
-from collections.abc import Iterable, Iterator, Sequence
 from itertools import chain, groupby, pairwise
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -18,6 +17,9 @@ from sphinx.locale import _, admonitionlabels
 from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+    from typing import Any, ClassVar
+
     from docutils.nodes import Element, Text
 
     from sphinx.builders.text import TextBuilder
@@ -45,7 +47,7 @@ class Cell:
         return hash((self.col, self.row))
 
     def __bool__(self) -> bool:
-        return self.text != '' and self.col is not None and self.row is not None
+        return bool(self.text) and self.col is not None and self.row is not None
 
     def wrap(self, width: int) -> None:
         self.wrapped = my_wrap(self.text, width)
@@ -292,7 +294,7 @@ class TextWrapper(textwrap.TextWrapper):
 
             width = self.width - column_width(indent)
 
-            if self.drop_whitespace and chunks[-1].strip() == '' and lines:
+            if self.drop_whitespace and not chunks[-1].strip() and lines:
                 del chunks[-1]
 
             while chunks:
@@ -308,7 +310,7 @@ class TextWrapper(textwrap.TextWrapper):
             if chunks and column_width(chunks[-1]) > width:
                 self._handle_long_word(chunks, cur_line, cur_len, width)
 
-            if self.drop_whitespace and cur_line and cur_line[-1].strip() == '':
+            if self.drop_whitespace and cur_line and not cur_line[-1].strip():
                 del cur_line[-1]
 
             if cur_line:
@@ -381,7 +383,7 @@ class TextWriter(writers.Writer):  # type: ignore[type-arg]
         assert isinstance(self.document, nodes.document)
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
-        self.output = cast(TextTranslator, visitor).body
+        self.output = cast('TextTranslator', visitor).body
 
 
 class TextTranslator(SphinxTranslator):
@@ -776,7 +778,7 @@ class TextTranslator(SphinxTranslator):
 
     def visit_productionlist(self, node: Element) -> None:
         self.new_state()
-        productionlist = cast(Iterable[addnodes.production], node)
+        productionlist = cast('Iterable[addnodes.production]', node)
         names = (production['tokenname'] for production in productionlist)
         maxlen = max(len(name) for name in names)
         lastname = None
@@ -791,7 +793,7 @@ class TextTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_footnote(self, node: Element) -> None:
-        label = cast(nodes.label, node[0])
+        label = cast('nodes.label', node[0])
         self._footnote = label.astext().strip()
         self.new_state(len(self._footnote) + 3)
 
@@ -923,8 +925,8 @@ class TextTranslator(SphinxTranslator):
         self.end_state(wrap=False)
 
     def visit_acks(self, node: Element) -> None:
-        bullet_list = cast(nodes.bullet_list, node[0])
-        list_items = cast(Iterable[nodes.list_item], bullet_list)
+        bullet_list = cast('nodes.bullet_list', node[0])
+        list_items = cast('Iterable[nodes.list_item]', bullet_list)
         self.new_state(0)
         self.add_text(', '.join(n.astext() for n in list_items) + '.')
         self.end_state()

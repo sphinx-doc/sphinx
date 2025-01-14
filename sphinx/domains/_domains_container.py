@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Set
-    from typing import Any, Final, Literal, NoReturn
+    from typing import Any, Final, Literal, NoReturn, Self
 
     from docutils import nodes
-    from typing_extensions import Self
 
     from sphinx.domains import Domain
     from sphinx.domains.c import CDomain
@@ -23,6 +22,7 @@ if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.duration import DurationDomain
     from sphinx.ext.todo import TodoDomain
+    from sphinx.registry import SphinxComponentRegistry
 
 
 class _DomainsContainer:
@@ -72,8 +72,10 @@ class _DomainsContainer:
     })
 
     @classmethod
-    def _from_environment(cls, env: BuildEnvironment, /) -> Self:
-        create_domains = env.app.registry.create_domains
+    def _from_environment(
+        cls, env: BuildEnvironment, /, *, registry: SphinxComponentRegistry
+    ) -> Self:
+        create_domains = registry.create_domains
         # Initialise domains
         if domains := {domain.name: domain for domain in create_domains(env)}:
             return cls(**domains)  # type: ignore[arg-type]
@@ -188,6 +190,9 @@ class _DomainsContainer:
             return NotImplemented
         return self._domain_instances == other._domain_instances
 
+    def __hash__(self) -> int:
+        return hash(sorted(self._domain_instances.items()))
+
     def __setattr__(self, key: str, value: object) -> None:
         if key in self._core_domains:
             msg = f'{self.__class__.__name__!r} object does not support assignment to {key!r}'
@@ -203,47 +208,47 @@ class _DomainsContainer:
     # Mapping interface: builtin domains
 
     @overload
-    def __getitem__(self, key: Literal['c']) -> CDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['c']) -> CDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['cpp']) -> CPPDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['cpp']) -> CPPDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['changeset']) -> ChangeSetDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['changeset']) -> ChangeSetDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['citation']) -> CitationDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['citation']) -> CitationDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['index']) -> IndexDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['index']) -> IndexDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['js']) -> JavaScriptDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['js']) -> JavaScriptDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['math']) -> MathDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['math']) -> MathDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['py']) -> PythonDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['py']) -> PythonDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['rst']) -> ReSTDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['rst']) -> ReSTDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['std']) -> StandardDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['std']) -> StandardDomain: ...
 
     # Mapping interface: first-party domains
 
     @overload
-    def __getitem__(self, key: Literal['duration']) -> DurationDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['duration']) -> DurationDomain: ...
 
     @overload
-    def __getitem__(self, key: Literal['todo']) -> TodoDomain: ...  # NoQA: E704
+    def __getitem__(self, key: Literal['todo']) -> TodoDomain: ...
 
     # Mapping interface: third-party domains
 
     @overload
-    def __getitem__(self, key: str) -> Domain: ...  # NoQA: E704
+    def __getitem__(self, key: str) -> Domain: ...
 
     def __getitem__(self, key: str) -> Domain:
         if domain := getattr(self, key, None):

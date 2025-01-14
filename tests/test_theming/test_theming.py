@@ -1,6 +1,7 @@
 """Test the Theme class."""
 
-import os
+from __future__ import annotations
+
 import shutil
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
@@ -52,11 +53,11 @@ def test_theme_api(app):
 
     # test Theme class API
     assert set(app.registry.html_themes.keys()) == set(themes)
-    assert app.registry.html_themes['test-theme'] == str(
+    assert app.registry.html_themes['test-theme'] == (
         app.srcdir / 'test_theme' / 'test-theme'
     )
-    assert app.registry.html_themes['ziptheme'] == str(app.srcdir / 'ziptheme.zip')
-    assert app.registry.html_themes['staticfiles'] == str(
+    assert app.registry.html_themes['ziptheme'] == (app.srcdir / 'ziptheme.zip')
+    assert app.registry.html_themes['staticfiles'] == (
         app.srcdir / 'test_theme' / 'staticfiles'
     )
 
@@ -88,14 +89,14 @@ def test_theme_api(app):
 
     # cleanup temp directories
     theme._cleanup()
-    assert not any(map(os.path.exists, theme._tmp_dirs))
+    assert not any(p.exists() for p in theme._tmp_dirs)
 
 
 def test_nonexistent_theme_settings(tmp_path):
     # Check that error occurs with a non-existent theme.toml or theme.conf
     # (https://github.com/sphinx-doc/sphinx/issues/11668)
     with pytest.raises(ThemeError):
-        _load_theme('', str(tmp_path))
+        _load_theme('', tmp_path)
 
 
 @pytest.mark.sphinx('html', testroot='double-inheriting-theme')
@@ -224,7 +225,7 @@ def test_theme_builds(make_app, rootdir, sphinx_test_tempdir, theme_name):
 
 def test_config_file_toml():
     config_path = HERE / 'theme.toml'
-    cfg = _load_theme_toml(str(config_path))
+    cfg = _load_theme_toml(config_path)
     config = _convert_theme_toml(cfg)
 
     assert config == _ConfigFile(
@@ -238,7 +239,7 @@ def test_config_file_toml():
 
 def test_config_file_conf():
     config_path = HERE / 'theme.conf'
-    cfg = _load_theme_conf(str(config_path))
+    cfg = _load_theme_conf(config_path)
     config = _convert_theme_conf(cfg)
 
     assert config == _ConfigFile(

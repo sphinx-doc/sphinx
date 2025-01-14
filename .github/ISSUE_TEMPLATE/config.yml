@@ -5,5 +5,5 @@ contact_links:
   url: https://stackoverflow.com/questions/tagged/python-sphinx
   about: For Q&A purpose, please use Stackoverflow with the tag python-sphinx
 - name: Discussion
-  url: https://groups.google.com/forum/#!forum/sphinx-users
-  about: For general discussion, please use sphinx-users mailing list.
+  url: https://github.com/sphinx-doc/sphinx/discussions
+  about: For general discussion, please use GitHub Discussions.

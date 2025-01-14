@@ -1,13 +1,15 @@
 """Test logging util."""
 
+from __future__ import annotations
+
 import codecs
 import os
-import os.path
+from pathlib import Path
 
 import pytest
 from docutils import nodes
 
-from sphinx.util import logging, osutil
+from sphinx.util import logging
 from sphinx.util.console import colorize, strip_colors
 from sphinx.util.logging import is_suppressed_warning, prefixed_warnings
 from sphinx.util.parallel import ParallelTasks
@@ -360,15 +362,15 @@ def test_get_node_location_abspath():
     # Ensure that node locations are reported as an absolute path,
     # even if the source attribute is a relative path.
 
-    relative_filename = os.path.join('relative', 'path.txt')
-    absolute_filename = osutil.abspath(relative_filename)
+    relative_filename = Path('relative', 'path.txt')
+    absolute_filename = relative_filename.resolve()
 
     n = nodes.Node()
-    n.source = relative_filename
+    n.source = str(relative_filename)
 
     location = logging.get_node_location(n)
 
-    assert location == absolute_filename + ':'
+    assert location == f'{absolute_filename}:'
 
 
 @pytest.mark.sphinx('html', testroot='root', confoverrides={'show_warning_types': True})

@@ -1,4 +1,4 @@
 exclude_patterns = ['_build']
 extensions = [
-	'sphinx.ext.intersphinx',
+    'sphinx.ext.intersphinx',
 ]

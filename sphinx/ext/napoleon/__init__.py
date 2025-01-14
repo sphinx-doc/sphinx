@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.application import Sphinx
@@ -10,6 +10,8 @@ from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.config import _ConfigRebuild
     from sphinx.util.typing import ExtensionMetadata
 
@@ -265,7 +267,7 @@ class Config:
         Use the type annotations of class attributes that are documented in the docstring
         but do not have a type in the docstring.
 
-    """  # NoQA: D301
+    """
 
     _config_values: dict[str, tuple[Any, _ConfigRebuild]] = {
         'napoleon_google_docstring': (True, 'env'),
@@ -317,7 +319,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     """
     if not isinstance(app, Sphinx):
         # probably called by tests
-        return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+        return {
+            'version': sphinx.__display_version__,
+            'parallel_read_safe': True,
+        }
 
     _patch_python_domain()
 
@@ -327,7 +332,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }
 
 
 def _patch_python_domain() -> None:
@@ -448,10 +456,10 @@ def _skip_member(
 
     """
     has_doc = getattr(obj, '__doc__', False)
-    is_member = what in ('class', 'exception', 'module')
+    is_member = what in {'class', 'exception', 'module'}
     if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
-        if what in ('class', 'exception'):
+        if what in {'class', 'exception'}:
             qualname = getattr(obj, '__qualname__', '')
             cls_path, _, _ = qualname.rpartition('.')
             if cls_path:

@@ -141,7 +141,7 @@ def module_level_function(param1, param2=None, *args, **kwargs):
 
             {
                 'param1': param1,
-                'param2': param2
+                'param2': param2,
             }
 
     Raises
@@ -154,7 +154,8 @@ def module_level_function(param1, param2=None, *args, **kwargs):
 
     """
     if param1 == param2:
-        raise ValueError('param1 may not be equal to param2')
+        msg = 'param1 may not be equal to param2'
+        raise ValueError(msg)
     return True
 
 
@@ -288,7 +289,7 @@ class ExampleClass:
 
     @readwrite_property.setter
     def readwrite_property(self, value):
-        value
+        _ = value
 
     def example_method(self, param1, param2):
         """Class methods are similar to regular functions.

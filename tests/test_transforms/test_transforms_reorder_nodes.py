@@ -1,5 +1,7 @@
 """Tests the transformations"""
 
+from __future__ import annotations
+
 import pytest
 from docutils import nodes
 
@@ -10,14 +12,7 @@ from sphinx.testing.util import assert_node
 
 @pytest.mark.sphinx('html', testroot='root')
 def test_transforms_reorder_consecutive_target_and_index_nodes_preserve_order(app):
-    text = (
-        '.. index:: abc\n'
-        '.. index:: def\n'
-        '.. index:: ghi\n'
-        '.. index:: jkl\n'
-        '\n'
-        'text\n'
-    )
+    text = '.. index:: abc\n.. index:: def\n.. index:: ghi\n.. index:: jkl\n\ntext\n'
     doctree = restructuredtext.parse(app, text)
     assert_node(
         doctree,

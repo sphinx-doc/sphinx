@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 class IndexEntry(NamedTuple):
-    """
-    An index entry.
+    """An index entry.
 
     .. note::
 
@@ -53,8 +52,7 @@ class IndexEntry(NamedTuple):
 
 
 class Index(ABC):
-    """
-    An Index is the description for a domain-specific index.  To add an index to
+    """An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
 
     * `name` is an identifier used for generating file names.
@@ -65,9 +63,9 @@ class Index(ABC):
     * `shortname` is a short name for the index, for use in the relation bar in
       HTML output.  Can be empty to disable entries in the relation bar.
 
-    and providing a :meth:`generate()` method.  Then, add the index class to
+    and providing a :meth:`generate` method.  Then, add the index class to
     your domain's `indices` list.  Extensions can add indices to existing
-    domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain()`.
+    domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain`.
 
     .. versionchanged:: 3.0
 
@@ -87,8 +85,7 @@ class Index(ABC):
 
     @abstractmethod
     def generate(
-        self,
-        docnames: Iterable[str] | None = None,
+        self, docnames: Iterable[str] | None = None
     ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
         """Get entries for the index.
 

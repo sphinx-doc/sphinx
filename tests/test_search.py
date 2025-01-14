@@ -62,20 +62,6 @@ class DummyDomain:
         return self.data
 
 
-settings = parser = None
-
-
-def setup_module():
-    global settings, parser
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
-        # DeprecationWarning: The frontend.OptionParser class will be replaced
-        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
-        optparser = frontend.OptionParser(components=(rst.Parser,))
-    settings = optparser.get_default_values()
-    parser = rst.Parser()
-
-
 def load_searchindex(path: Path) -> Any:
     searchindex = path.read_text(encoding='utf8')
     assert searchindex.startswith('Search.setIndex(')
@@ -166,8 +152,8 @@ def test_term_in_heading_and_section(app):
     # if search term is in the title of one doc and in the text of another
     # both documents should be a hit in the search index as a title,
     # respectively text hit
-    assert '"textinhead": 2' in searchindex
-    assert '"textinhead": 0' in searchindex
+    assert '"textinhead":2' in searchindex
+    assert '"textinhead":0' in searchindex
 
 
 @pytest.mark.sphinx('html', testroot='search')
@@ -180,6 +166,14 @@ def test_term_in_raw_directive(app):
 
 
 def test_IndexBuilder():
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        # DeprecationWarning: The frontend.OptionParser class will be replaced
+        # by a subclass of argparse.ArgumentParser in Docutils 0.21 or later.
+        optparser = frontend.OptionParser(components=(rst.Parser,))
+    settings = optparser.get_default_values()
+    parser = rst.Parser()
+
     domain1 = DummyDomain(
         'dummy1',
         [
@@ -431,8 +425,7 @@ def test_search_index_is_deterministic(app):
 
 
 def is_title_tuple_type(item: list[int | str]) -> bool:
-    """
-    In the search index, titles inside .alltitles are stored as a tuple of
+    """In the search index, titles inside .alltitles are stored as a tuple of
     (document_idx, title_anchor). Tuples are represented as lists in JSON,
     but their contents must not be sorted. We cannot sort them anyway, as
     document_idx is an int and title_anchor is a str.
@@ -460,9 +453,9 @@ def assert_is_sorted(
     elif isinstance(item, list):
         if not is_title_tuple_type(item) and path not in lists_not_to_sort:
             # sort nulls last; http://stackoverflow.com/questions/19868767/
-            assert item == sorted(
-                item, key=lambda x: (x is None, x)
-            ), f'{err_path} is not sorted'
+            assert item == sorted(item, key=lambda x: (x is None, x)), (
+                f'{err_path} is not sorted'
+            )
         for i, child in enumerate(item):
             assert_is_sorted(child, f'{path}[{i}]')
 

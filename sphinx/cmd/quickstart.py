@@ -5,17 +5,17 @@ from __future__ import annotations
 import argparse
 import locale
 import os
+import os.path
 import sys
 import time
-from os import path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 # try to import readline, unix specific enhancement
 try:
     import readline
 
     if TYPE_CHECKING and sys.platform == 'win32':  # always false, for type checking
-        raise ImportError
+        raise ImportError  # NoQA: TRY301
     READLINE_AVAILABLE = True
     if readline.__doc__ and 'libedit' in readline.__doc__:
         readline.parse_and_bind('bind ^I rl_complete')
@@ -31,13 +31,15 @@ from docutils.utils import column_width
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
+from sphinx._cli.util.colour import terminal_supports_colour
 from sphinx.locale import __
-from sphinx.util.console import bold, color_terminal, colorize, nocolor, red
+from sphinx.util.console import bold, colorize, nocolor, red
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
 EXTENSIONS = {
     'autodoc': __('automatically insert docstrings from modules'),
@@ -89,15 +91,15 @@ class ValidationError(Exception):
 
 
 def is_path(x: str) -> str:
-    x = path.expanduser(x)
-    if not path.isdir(x):
+    x = os.path.expanduser(x)
+    if not os.path.isdir(x):
         raise ValidationError(__('Please enter a valid path name.'))
     return x
 
 
 def is_path_or_empty(x: str) -> str:
-    if x == '':
-        return x
+    if not x:
+        return ''
     return is_path(x)
 
 
@@ -121,9 +123,9 @@ def choice(*l: str) -> Callable[[str], str]:
 
 
 def boolean(x: str) -> bool:
-    if x.upper() not in ('Y', 'YES', 'N', 'NO'):
+    if x.upper() not in {'Y', 'YES', 'N', 'NO'}:
         raise ValidationError(__("Please enter either 'y' or 'n'."))
-    return x.upper() in ('Y', 'YES')
+    return x.upper() in {'Y', 'YES'}
 
 
 def suffix(x: str) -> str:
@@ -179,12 +181,14 @@ class QuickstartRenderer(SphinxRenderer):
         Note: Please don't use this function from extensions.
               It will be removed in the future without deprecation period.
         """
-        template = path.join(self.templatedir, path.basename(template_name))
-        return bool(self.templatedir) and path.exists(template)
+        template = os.path.join(self.templatedir, os.path.basename(template_name))
+        return bool(self.templatedir) and os.path.exists(template)
 
     def render(self, template_name: str, context: dict[str, Any]) -> str:
         if self._has_custom_template(template_name):
-            custom_template = path.join(self.templatedir, path.basename(template_name))
+            custom_template = os.path.join(
+                self.templatedir, os.path.basename(template_name)
+            )
             return self.render_from_file(custom_template, context)
         else:
             return super().render(template_name, context)
@@ -228,8 +232,8 @@ def ask_user(d: dict[str, Any]) -> None:
         print(__('Enter the root path for documentation.'))
         d['path'] = do_prompt(__('Root path for the documentation'), '.', is_path)
 
-    while path.isfile(path.join(d['path'], 'conf.py')) or path.isfile(
-        path.join(d['path'], 'source', 'conf.py')
+    while os.path.isfile(os.path.join(d['path'], 'conf.py')) or os.path.isfile(
+        os.path.join(d['path'], 'source', 'conf.py')
     ):
         print()
         print(
@@ -271,7 +275,7 @@ def ask_user(d: dict[str, Any]) -> None:
                 'for custom HTML templates and "_static" for custom stylesheets and other static\n'  # NoQA: E501
                 'files. You can enter another prefix (such as ".") to replace the underscore.'
             )
-        )  # NoQA: E501
+        )
         d['dot'] = do_prompt(__('Name prefix for templates and static dir'), '_', ok)
 
     if 'project' not in d:
@@ -341,8 +345,8 @@ def ask_user(d: dict[str, Any]) -> None:
         )
 
     while (
-        path.isfile(path.join(d['path'], d['master'] + d['suffix']))
-        or path.isfile(path.join(d['path'], 'source', d['master'] + d['suffix']))
+        os.path.isfile(os.path.join(d['path'], d['master'] + d['suffix']))
+        or os.path.isfile(os.path.join(d['path'], 'source', d['master'] + d['suffix']))
     ):  # fmt: skip
         print()
         print(
@@ -424,14 +428,14 @@ def generate(
     d['path'] = os.path.abspath(d['path'])
     ensuredir(d['path'])
 
-    srcdir = path.join(d['path'], 'source') if d['sep'] else d['path']
+    srcdir = os.path.join(d['path'], 'source') if d['sep'] else d['path']
 
     ensuredir(srcdir)
     if d['sep']:
-        builddir = path.join(d['path'], 'build')
+        builddir = os.path.join(d['path'], 'build')
         d['exclude_patterns'] = ''
     else:
-        builddir = path.join(srcdir, d['dot'] + 'build')
+        builddir = os.path.join(srcdir, d['dot'] + 'build')
         exclude_patterns = map(
             repr,
             [
@@ -442,11 +446,11 @@ def generate(
         )
         d['exclude_patterns'] = ', '.join(exclude_patterns)
     ensuredir(builddir)
-    ensuredir(path.join(srcdir, d['dot'] + 'templates'))
-    ensuredir(path.join(srcdir, d['dot'] + 'static'))
+    ensuredir(os.path.join(srcdir, d['dot'] + 'templates'))
+    ensuredir(os.path.join(srcdir, d['dot'] + 'static'))
 
     def write_file(fpath: str, content: str, newline: str | None = None) -> None:
-        if overwrite or not path.isfile(fpath):
+        if overwrite or not os.path.isfile(fpath):
             if 'quiet' not in d:
                 print(__('Creating file %s.') % fpath)
             with open(fpath, 'w', encoding='utf-8', newline=newline) as f:
@@ -456,16 +460,16 @@ def generate(
                 print(__('File %s already exists, skipping.') % fpath)
 
     conf_path = os.path.join(templatedir, 'conf.py.jinja') if templatedir else None
-    if not conf_path or not path.isfile(conf_path):
+    if not conf_path or not os.path.isfile(conf_path):
         conf_path = os.path.join(
             package_dir, 'templates', 'quickstart', 'conf.py.jinja'
         )
     with open(conf_path, encoding='utf-8') as f:
         conf_text = f.read()
 
-    write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
+    write_file(os.path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
-    masterfile = path.join(srcdir, d['master'] + d['suffix'])
+    masterfile = os.path.join(srcdir, d['master'] + d['suffix'])
     if template._has_custom_template('quickstart/master_doc.rst.jinja'):
         write_file(masterfile, template.render('quickstart/master_doc.rst.jinja', d))
     else:
@@ -479,7 +483,7 @@ def generate(
         d['rbuilddir'] = 'build' if d['sep'] else d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
         write_file(
-            path.join(d['path'], 'Makefile'),
+            os.path.join(d['path'], 'Makefile'),
             template.render(makefile_template, d),
             '\n',
         )
@@ -488,7 +492,7 @@ def generate(
         d['rsrcdir'] = 'source' if d['sep'] else '.'
         d['rbuilddir'] = 'build' if d['sep'] else d['dot'] + 'build'
         write_file(
-            path.join(d['path'], 'make.bat'),
+            os.path.join(d['path'], 'make.bat'),
             template.render(batchfile_template, d),
             '\r\n',
         )
@@ -507,7 +511,7 @@ def generate(
         end='',
     )
     if d['makefile'] or d['batchfile']:
-        print(__('Use the Makefile to build the docs, like so:\n' '   make builder'))
+        print(__('Use the Makefile to build the docs, like so:\n   make builder'))
     else:
         print(
             __(
@@ -527,9 +531,9 @@ def generate(
 
 def valid_dir(d: dict[str, Any]) -> bool:
     dir = d['path']
-    if not path.exists(dir):
+    if not os.path.exists(dir):
         return True
-    if not path.isdir(dir):
+    if not os.path.isdir(dir):
         return False
 
     if {'Makefile', 'make.bat'} & set(os.listdir(dir)):
@@ -537,9 +541,9 @@ def valid_dir(d: dict[str, Any]) -> bool:
 
     if d['sep']:
         dir = os.path.join('source', dir)
-        if not path.exists(dir):
+        if not os.path.exists(dir):
             return True
-        if not path.isdir(dir):
+        if not os.path.isdir(dir):
             return False
 
     reserved_names = [
@@ -721,7 +725,7 @@ def main(argv: Sequence[str] = (), /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
-    if not color_terminal():
+    if not terminal_supports_colour():
         nocolor()
 
     # parse options

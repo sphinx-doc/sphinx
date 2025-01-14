@@ -7,14 +7,14 @@ from __future__ import annotations
 
 import html
 import os
+import os.path
 import re
 import time
-from os import path
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx import package_dir
 from sphinx.builders import _epub_base
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.locale import __
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
@@ -22,8 +22,10 @@ from sphinx.util.osutil import make_filename
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
@@ -65,14 +67,13 @@ _xml_name_start_char = (
     '|[\ufdf0-\ufffd]|[\U00010000-\U000effff]'
 )
 _xml_name_char = (
-    _xml_name_start_char + r'\-|\.' '|[0-9]|\u00b7|[\u0300-\u036f]|[\u203f-\u2040]'
+    _xml_name_start_char + r'\-|\.|[0-9]|\u00b7|[\u0300-\u036f]|[\u203f-\u2040]'
 )
 _XML_NAME_PATTERN = re.compile(f'({_xml_name_start_char})({_xml_name_char})*')
 
 
 class Epub3Builder(_epub_base.EpubBuilder):
-    """
-    Builder that outputs epub3 files.
+    """Builder that outputs epub3 files.
 
     It creates the metainfo files content.opf, nav.xhtml, toc.ncx, mimetype,
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
@@ -83,7 +84,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     epilog = __('The ePub file is in %(outdir)s.')
 
     supported_remote_images = False
-    template_dir = path.join(package_dir, 'templates', 'epub3')
+    template_dir = os.path.join(package_dir, 'templates', 'epub3')
     doctype = DOCTYPE
     html_tag = HTML_TAG
     use_meta_charset = True
@@ -141,8 +142,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack: list[NavPoint] = []
-        navstack.append(NavPoint('', '', []))
+        navstack: list[NavPoint] = [NavPoint('', '', [])]
         level = 0
         for node in navnodes:
             if not node['text']:
@@ -199,7 +199,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
         copy_asset_file(
-            path.join(self.template_dir, 'nav.xhtml.jinja'),
+            os.path.join(self.template_dir, 'nav.xhtml.jinja'),
             self.outdir,
             context=self.navigation_doc_metadata(navlist),
             force=True,
@@ -314,7 +314,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('epub_description', 'unknown', 'epub')
     app.add_config_value('epub_contributor', 'unknown', 'epub')
     app.add_config_value(
-        'epub_writing_mode', 'horizontal', 'epub', ENUM('horizontal', 'vertical')
+        'epub_writing_mode', 'horizontal', 'epub', types=ENUM('horizontal', 'vertical')
     )
 
     # event handlers

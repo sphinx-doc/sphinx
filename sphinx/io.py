@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.core import Publisher
-from docutils.io import FileInput, Input, NullOutput
+from docutils.io import FileInput, NullOutput
 from docutils.readers import standalone
 from docutils.transforms.references import DanglingReferences
 from docutils.writers import UnfilteredWriter
@@ -23,8 +23,11 @@ from sphinx.util.docutils import LoggingReporter
 from sphinx.versioning import UIDTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils import nodes
     from docutils.frontend import Values
+    from docutils.io import Input
     from docutils.parsers import Parser
     from docutils.transforms import Transform
 
@@ -36,8 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
-    """
-    A base class of readers for Sphinx.
+    """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
     """
@@ -70,8 +72,7 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
         return transforms
 
     def new_document(self) -> nodes.document:
-        """
-        Creates a new document object which has a special reporter object good
+        """Creates a new document object which has a special reporter object good
         for logging.
         """
         document = super().new_document()
@@ -89,9 +90,7 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
 
 
 class SphinxStandaloneReader(SphinxBaseReader):
-    """
-    A basic document reader for Sphinx.
-    """
+    """A basic document reader for Sphinx."""
 
     def setup(self, app: Sphinx) -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
@@ -117,8 +116,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
 
 class SphinxI18nReader(SphinxBaseReader):
-    """
-    A document reader for i18n.
+    """A document reader for i18n.
 
     This returns the source line number of original text as current source line number
     to let users know where the error happened.
