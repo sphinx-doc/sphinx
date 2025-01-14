@@ -14,11 +14,11 @@ from uuid import uuid4
 from docutils import nodes
 
 from sphinx import addnodes, package_dir
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.errors import ThemeError
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.display import status_iterator
 from sphinx.util.i18n import docname_to_domain
 from sphinx.util.index_entries import split_index_msg

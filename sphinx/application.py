@@ -16,6 +16,7 @@ from docutils.parsers.rst import roles
 
 import sphinx
 from sphinx import locale, package_dir
+from sphinx._cli.util.colour import bold
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
@@ -27,7 +28,6 @@ from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils, logging
 from sphinx.util._pathlib import _StrPath, _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings

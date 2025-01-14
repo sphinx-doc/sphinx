@@ -11,6 +11,7 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.config import Config
 from sphinx.errors import ConfigError
@@ -29,7 +30,6 @@ from sphinx.ext.intersphinx._load import (
     _strip_basic_auth,
 )
 from sphinx.ext.intersphinx._shared import _IntersphinxProject
-from sphinx.util.console import strip_colors
 
 from tests.test_util.intersphinx_data import (
     INVENTORY_V2,
@@ -532,7 +532,7 @@ def test_validate_intersphinx_mapping_warnings(app):
         match=r'^Invalid `intersphinx_mapping` configuration \(16 errors\).$',
     ):
         validate_intersphinx_mapping(app, app.config)
-    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert len(warnings) == len(bad_intersphinx_mapping) - 3
     assert warnings == [
         "ERROR: Invalid intersphinx project identifier `''` in intersphinx_mapping. Project identifiers must be non-empty strings.",
@@ -707,7 +707,7 @@ def test_intersphinx_role(app):
 
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
     index_path = app.srcdir / 'index.rst'
     assert warnings == [
         f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope' [intersphinx.external]",

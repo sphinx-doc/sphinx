@@ -127,10 +127,10 @@ def __getattr__(name: str) -> Any:
 
         return patfilter
 
-    if name == 'strip_colors':
-        from sphinx.util.console import strip_colors
+    if name == 'strip_escape_sequences':
+        from sphinx._cli.util.errors import strip_escape_sequences
 
-        return strip_colors
+        return strip_escape_sequences
 
     if name in {
         'caption_ref_re',
