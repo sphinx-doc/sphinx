@@ -45,6 +45,10 @@ ignore = [
     "D205",  # 1 blank line required between summary line and description
     "D400",  # First line should end with a period
     "D401",  # First line of docstring should be in imperative mood: "{first_line}"
+    # pydoclint
+    "DOC201",  # `return` is not documented in docstring
+    "DOC402",  # `yield` is not documented in docstring
+    "DOC501",  # Raised exception `{id}` missing from docstring
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
     # eradicate
@@ -169,6 +173,8 @@ select = [
     # "D404",  # First word of the docstring should not be "This"
     # "D415",  # First line should end with a period, question mark, or exclamation point
     "D417",  # Missing argument description in the docstring for `{definition}`: `{name}`
+    # pydoclint ('DOC')
+    "DOC",
     # flake8-django ('DJ')
       # Django is not used in Sphinx
     # flake8-datetimez ('DTZ')
@@ -290,6 +296,7 @@ logger-objects = [
 ]
 "doc/usage/extensions/example_{google,numpy}.py" = [
     "D416",  # Section name should end with a colon ("{name}")
+    "DOC502",  # Raised exception is not explicitly raised: `{id}`
     "I002",  # Missing required import: {name}
     "INP001",  # File {filename} is part of an implicit namespace package. Add an __init__.py.
     "PLW3201",  # Dunder method {name} has no special meaning in Python 3
