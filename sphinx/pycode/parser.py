@@ -43,7 +43,7 @@ def get_lvar_names(node: ast.AST, self: ast.arg | None = None) -> list[str]:
     This raises `TypeError` if the assignment does not create new variable::
 
         ary[0] = 'foo'
-        dic["bar"] = 'baz'
+        dic['bar'] = 'baz'
         # => TypeError
     """
     if self:

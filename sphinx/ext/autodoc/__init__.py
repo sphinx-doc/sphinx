@@ -197,6 +197,7 @@ def cut_lines(
     Use like this (e.g. in the ``setup()`` function of :file:`conf.py`)::
 
        from sphinx.ext.autodoc import cut_lines
+
        app.connect('autodoc-process-docstring', cut_lines(4, what={'module'}))
 
     This can (and should) be used in place of :confval:`automodule_skip_lines`.

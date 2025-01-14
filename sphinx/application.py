@@ -995,10 +995,11 @@ class Sphinx:
 
         .. code-block:: python
 
-           class math(docutils.nodes.Element): pass
+           class math(docutils.nodes.Element): ...
 
            def visit_math_html(self, node):
                self.body.append(self.starttag(node, 'math'))
+
            def depart_math_html(self, node):
                self.body.append('</math>')
 
@@ -1089,7 +1090,7 @@ class Sphinx:
                }
 
                def run(self):
-                   ...
+                   pass
 
            def setup(app):
                app.add_directive('my-directive', MyDirective)
@@ -1347,8 +1348,9 @@ class Sphinx:
         to them using custom roles instead of generic ones (like
         :rst:role:`ref`).  Example call::
 
-           app.add_crossref_type('topic', 'topic', 'single: %s',
-                                 docutils.nodes.emphasis)
+           app.add_crossref_type(
+               'topic', 'topic', 'single: %s', docutils.nodes.emphasis
+           )
 
         Example usage::
 
@@ -1458,7 +1460,7 @@ class Sphinx:
             app.add_js_file('example.js')
             # => <script src="_static/example.js"></script>
 
-            app.add_js_file('example.js', loading_method="async")
+            app.add_js_file('example.js', loading_method='async')
             # => <script src="_static/example.js" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
