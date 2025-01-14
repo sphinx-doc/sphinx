@@ -162,8 +162,7 @@ class PyTypedField(PyXrefMixin, TypedField):
 
 
 class PyObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a general Python object.
+    """Description of a general Python object.
 
     :cvar allow_nesting: Class is an object that allows for nested namespaces
     :vartype allow_nesting: bool

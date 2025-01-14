@@ -62,9 +62,7 @@ class IndexDomain(Domain):
 
 
 class IndexDirective(SphinxDirective):
-    """
-    Directive to add entries to the index.
-    """
+    """Directive to add entries to the index."""
 
     has_content = False
     required_arguments = 1

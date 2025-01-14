@@ -33,6 +33,18 @@ ignore = [
     "COM812",  # Trailing comma missing
     # flake8-copyright
     "CPY001",  # Missing copyright notice at top of file
+    # pydocstyle ('D')
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in `__init__`
+    "D200",  # One-line docstring should fit on one line
+    "D205",  # 1 blank line required between summary line and description
+    "D400",  # First line should end with a period
+    "D401",  # First line of docstring should be in imperative mood: "{first_line}"
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
     # eradicate
@@ -152,51 +164,11 @@ select = [
     # flake8-copyright ('CPY')
     "CPY",
     # pydocstyle ('D')
-#    "D100",  # Missing docstring in public module
-#    "D101",  # Missing docstring in public class
-#    "D102",  # Missing docstring in public method
-#    "D103",  # Missing docstring in public function
-#    "D104",  # Missing docstring in public package
-#    "D105",  # Missing docstring in magic method
-    "D106",  # Missing docstring in public nested class
-#    "D107",  # Missing docstring in `__init__`
-#    "D200",  # One-line docstring should fit on one line
-    "D201",  # No blank lines allowed before function docstring (found {num_lines})
-    "D202",  # No blank lines allowed after function docstring (found {num_lines})
-    "D204",  # 1 blank line required after class docstring
-#    "D205",  # 1 blank line required between summary line and description
-    "D206",  # Docstring should be indented with spaces, not tabs
-    "D207",  # Docstring is under-indented
-    "D208",  # Docstring is over-indented
-    "D209",  # Multi-line docstring closing quotes should be on a separate line
-    "D210",  # No whitespaces allowed surrounding docstring text
-    "D211",  # No blank lines allowed before class docstring
-#    "D212",  # Multi-line docstring summary should start at the first line
-#    "D213",  # Multi-line docstring summary should start at the second line
-#    "D214",  # Section is over-indented ("{name}")
-#    "D215",  # Section underline is over-indented ("{name}")
-    "D300",  # Use triple double quotes `"""`
-    "D301",  # Use `r"""` if any backslashes in a docstring
-#    "D400",  # First line should end with a period
-#    "D401",  # First line of docstring should be in imperative mood: "{first_line}"
-    "D402",  # First line should not be the function's signature
-    "D403",  # First word of the first line should be capitalized: `{}` -> `{}`
-#    "D404",  # First word of the docstring should not be "This"
-    "D405",  # Section name should be properly capitalized ("{name}")
-#    "D406",  # Section name should end with a newline ("{name}")
-#    "D407",  # Missing dashed underline after section ("{name}")
-    "D408",  # Section underline should be in the line following the section's name ("{name}")
-    "D409",  # Section underline should match the length of its name ("{name}")
-    "D410",  # Missing blank line after section ("{name}")
-    "D411",  # Missing blank line before section ("{name}")
-#    "D412",  # No blank lines allowed between a section header and its content ("{name}")
-#    "D413",  # Missing blank line after last section ("{name}")
-    "D414",  # Section has no content ("{name}")
-#    "D415",  # First line should end with a period, question mark, or exclamation point
-    "D416",  # Section name should end with a colon ("{name}")
+    "D",
+    "D212",  # Multi-line docstring summary should start at the first line
+    # "D404",  # First word of the docstring should not be "This"
+    # "D415",  # First line should end with a period, question mark, or exclamation point
     "D417",  # Missing argument description in the docstring for `{definition}`: `{name}`
-    "D418",  # Function decorated with `@overload` shouldn't contain a docstring
-    "D419",  # Docstring is empty
     # flake8-django ('DJ')
       # Django is not used in Sphinx
     # flake8-datetimez ('DTZ')
@@ -294,6 +266,7 @@ select = [
     # flake8-2020 ('YTT')
     "YTT",
 ]
+
 logger-objects = [
     "sphinx.ext.apidoc._shared.LOGGER",
     "sphinx.ext.intersphinx._shared.LOGGER",
@@ -412,3 +385,8 @@ forced-separate = [
 required-imports = [
     "from __future__ import annotations",
 ]
+
+[lint.pydocstyle]
+convention = "pep257"
+ignore-decorators = ["typing.overload"]
+ignore-var-parameters = true

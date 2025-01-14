@@ -35,9 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a JavaScript object.
-    """
+    """Description of a JavaScript object."""
 
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
@@ -303,8 +301,7 @@ class JSConstructor(JSCallable):
 
 
 class JSModule(SphinxDirective):
-    """
-    Directive to mark description of a new JavaScript module.
+    """Directive to mark description of a new JavaScript module.
 
     This directive specifies the module name that will be used by objects that
     follow this directive.

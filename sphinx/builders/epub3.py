@@ -73,8 +73,7 @@ _XML_NAME_PATTERN = re.compile(f'({_xml_name_start_char})({_xml_name_char})*')
 
 
 class Epub3Builder(_epub_base.EpubBuilder):
-    """
-    Builder that outputs epub3 files.
+    """Builder that outputs epub3 files.
 
     It creates the metainfo files content.opf, nav.xhtml, toc.ncx, mimetype,
     and META-INF/container.xml. Afterwards, all necessary files are zipped to

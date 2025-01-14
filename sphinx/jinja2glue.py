@@ -41,8 +41,7 @@ def _toint(val: str) -> int:
 
 
 def _todim(val: int | str) -> str:
-    """
-    Make val a css dimension. In particular the following transformations
+    """Make val a css dimension. In particular the following transformations
     are performed:
 
     - None -> 'initial' (default CSS value)
@@ -114,8 +113,7 @@ def warning(context: dict[str, Any], message: str, *args: Any, **kwargs: Any) ->
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
-    """
-    FileSystemLoader subclass that is not so strict about '..'  entries in
+    """FileSystemLoader subclass that is not so strict about '..'  entries in
     template names.
     """
 
@@ -156,9 +154,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
-    """
-    Interfaces the rendering environment of jinja2 for use in Sphinx.
-    """
+    """Interfaces the rendering environment of jinja2 for use in Sphinx."""
 
     # TemplateBridge interface
 

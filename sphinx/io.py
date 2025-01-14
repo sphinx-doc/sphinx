@@ -39,8 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
-    """
-    A base class of readers for Sphinx.
+    """A base class of readers for Sphinx.
 
     This replaces reporter by Sphinx's on generating document.
     """
@@ -73,8 +72,7 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
         return transforms
 
     def new_document(self) -> nodes.document:
-        """
-        Creates a new document object which has a special reporter object good
+        """Creates a new document object which has a special reporter object good
         for logging.
         """
         document = super().new_document()
@@ -92,9 +90,7 @@ class SphinxBaseReader(standalone.Reader):  # type: ignore[misc]
 
 
 class SphinxStandaloneReader(SphinxBaseReader):
-    """
-    A basic document reader for Sphinx.
-    """
+    """A basic document reader for Sphinx."""
 
     def setup(self, app: Sphinx) -> None:
         self.transforms = self.transforms + app.registry.get_transforms()
@@ -120,8 +116,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
 
 
 class SphinxI18nReader(SphinxBaseReader):
-    """
-    A document reader for i18n.
+    """A document reader for i18n.
 
     This returns the source line number of original text as current source line number
     to let users know where the error happened.

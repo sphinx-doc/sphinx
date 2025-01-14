@@ -72,9 +72,7 @@ DEFAULT_DELAY = 60.0
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
-    """
-    Checks for broken external links.
-    """
+    """Checks for broken external links."""
 
     name = 'linkcheck'
     epilog = __('Look for any errors in the above output or in %(outdir)s/output.txt')

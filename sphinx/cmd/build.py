@@ -50,10 +50,10 @@ def handle_exception(
 
 
 def jobs_argument(value: str) -> int:
-    """
-    Special type to handle 'auto' flags passed to 'sphinx-build' via -j flag. Can
-    be expanded to handle other special scaling requests, such as setting job count
-    to cpu_count.
+    """Parse the ``--jobs`` flag.
+
+    Return the number of CPUs if 'auto' is used,
+    otherwise ensure *value* is a positive integer.
     """
     if value == 'auto':
         return multiprocessing.cpu_count()

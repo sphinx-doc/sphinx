@@ -276,8 +276,7 @@ def recurse_tree(
     opts: ApidocOptions,
     user_template_dir: str | None = None,
 ) -> tuple[list[Path], list[str]]:
-    """
-    Look for every file in the directory tree and create the corresponding
+    """Look for every file in the directory tree and create the corresponding
     ReST files.
     """
     # check if the base directory is a package and get its name

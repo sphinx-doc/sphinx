@@ -1624,8 +1624,7 @@ class DefinitionParser(BaseParser):
         return ASTInitializer(value)
 
     def _parse_type(self, named: bool | str, outer: str | None = None) -> ASTType:
-        """
-        named=False|'maybe'|True: 'maybe' is e.g., for function objects which
+        """named=False|'maybe'|True: 'maybe' is e.g., for function objects which
         doesn't need to name the arguments
 
         outer == operatorCast: annoying case, we should not take the params

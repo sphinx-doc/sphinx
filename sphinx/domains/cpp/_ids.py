@@ -1,5 +1,4 @@
-"""
-Important note on ids
+"""Important note on ids
 ----------------------------------------------------------------------------
 
 Multiple id generation schemes are used due to backwards compatibility.

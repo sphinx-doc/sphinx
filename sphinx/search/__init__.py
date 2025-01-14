@@ -33,8 +33,7 @@ _MINIFIED_JS_PATH = Path(package_dir, 'search', 'minified-js')
 
 
 class SearchLanguage:
-    """
-    This class is the base class for search natural language preprocessors.  If
+    """This class is the base class for search natural language preprocessors.  If
     you want to add support for a new language, you should override the methods
     of this class.
 
@@ -86,21 +85,17 @@ var Stemmer = function() {
         self.init(options)
 
     def init(self, options: dict[str, str]) -> None:
-        """
-        Initialize the class with the options the user has given.
-        """
+        """Initialize the class with the options the user has given."""
 
     def split(self, input: str) -> list[str]:
-        """
-        This method splits a sentence into words.  Default splitter splits input
+        """This method splits a sentence into words.  Default splitter splits input
         at white spaces, which should be enough for most languages except CJK
         languages.
         """
         return self._word_re.findall(input)
 
     def stem(self, word: str) -> str:
-        """
-        This method implements stemming algorithm of the Python version.
+        """This method implements stemming algorithm of the Python version.
 
         Default implementation does nothing.  You should implement this if the
         language has any stemming rules.
@@ -112,8 +107,7 @@ var Stemmer = function() {
         return word
 
     def word_filter(self, word: str) -> bool:
-        """
-        Return true if the target word should be registered in the search index.
+        """Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
         return len(word) == 0 or not (
@@ -127,8 +121,7 @@ from sphinx.search.en import SearchEnglish  # NoQA: E402
 
 
 def parse_stop_word(source: str) -> set[str]:
-    """
-    Parse snowball style word list like this:
+    """Parse snowball style word list like this:
 
     * https://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
@@ -162,8 +155,7 @@ languages: dict[str, str | type[SearchLanguage]] = {
 
 
 class _JavaScriptIndex:
-    """
-    The search index as JavaScript file that calls a function
+    """The search index as JavaScript file that calls a function
     on the documentation search object to register the index.
     """
 
@@ -212,9 +204,7 @@ class WordStore:
 
 
 class WordCollector(nodes.NodeVisitor):
-    """
-    A special visitor that collects words for the `IndexBuilder`.
-    """
+    """A special visitor that collects words for the `IndexBuilder`."""
 
     def __init__(self, document: nodes.document, lang: SearchLanguage) -> None:
         super().__init__(document)
@@ -262,8 +252,7 @@ class WordCollector(nodes.NodeVisitor):
 
 
 class IndexBuilder:
-    """
-    Helper class that creates a search index based on the doctrees
+    """Helper class that creates a search index based on the doctrees
     passed to the `feed` method.
     """
 

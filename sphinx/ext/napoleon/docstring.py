@@ -55,8 +55,7 @@ _SINGLETONS = frozenset({'None', 'True', 'False', 'Ellipsis', '...'})
 
 
 class Deque(collections.deque[Any]):
-    """
-    A subclass of deque that mimics ``pockets.iterators.modify_iter``.
+    """A subclass of deque that mimics ``pockets.iterators.modify_iter``.
 
     The `.Deque.get` and `.Deque.next` methods are added.
     """
@@ -64,8 +63,7 @@ class Deque(collections.deque[Any]):
     sentinel = object()
 
     def get(self, n: int) -> Any:
-        """
-        Return the nth element of the stack, or ``self.sentinel`` if n is
+        """Return the nth element of the stack, or ``self.sentinel`` if n is
         greater than the stack size.
         """
         return self[n] if n < len(self) else self.sentinel
@@ -1293,8 +1291,7 @@ class NumpyDocstring(GoogleDocstring):
             return self._format_admonition('seealso', lines)
 
     def _parse_numpydoc_see_also_section(self, content: list[str]) -> list[str]:
-        """
-        See Also
+        """See Also
         --------
         func_name : Descriptive text
             continued text

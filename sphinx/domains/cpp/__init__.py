@@ -528,8 +528,7 @@ class CPPEnumeratorObject(CPPObject):
 
 
 class CPPNamespaceObject(SphinxDirective):
-    """
-    This directive is just to tell Sphinx that we're documenting stuff in
+    """This directive is just to tell Sphinx that we're documenting stuff in
     namespace foo.
     """
 
@@ -807,8 +806,7 @@ class CPPAliasObject(ObjectDescription):
     }
 
     def run(self) -> list[Node]:
-        """
-        On purpose this doesn't call the ObjectDescription version, but is based on it.
+        """On purpose this doesn't call the ObjectDescription version, but is based on it.
         Each alias signature may expand into multiple real signatures (an overload set).
         The code is therefore based on the ObjectDescription version.
         """

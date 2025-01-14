@@ -165,9 +165,7 @@ def _determine_py_coverage_modules(
 
 
 class CoverageBuilder(Builder):
-    """
-    Evaluates coverage of code in the documentation.
-    """
+    """Evaluates coverage of code in the documentation."""
 
     name = 'coverage'
     epilog = __(

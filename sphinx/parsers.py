@@ -23,10 +23,12 @@ if TYPE_CHECKING:
 
 
 class Parser(docutils.parsers.Parser):
-    """
-    A base class of source parsers.  The additional parsers should inherit this class instead
-    of ``docutils.parsers.Parser``.  Compared with ``docutils.parsers.Parser``, this class
-    improves accessibility to Sphinx APIs.
+    """A base class of source parsers.
+
+    The additional parsers should inherit this class
+    instead of ``docutils.parsers.Parser``.
+    Compared with ``docutils.parsers.Parser``,
+    this class improves accessibility to Sphinx APIs.
 
     The subclasses can access sphinx core runtime objects (app, config and env).
     """
@@ -51,8 +53,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
     def get_transforms(self) -> list[type[Transform]]:
-        """
-        Sphinx's reST parser replaces a transform class for smart-quotes by its own
+        """Sphinx's reST parser replaces a transform class for smart-quotes by its own
 
         refs: sphinx.io.SphinxStandaloneReader
         """

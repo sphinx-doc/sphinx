@@ -106,9 +106,7 @@ def _make_phony_error_name() -> ASTNestedName:
 
 
 class CObject(ObjectDescription[ASTDeclaration]):
-    """
-    Description of a C language object.
-    """
+    """Description of a C language object."""
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index-entry': directives.flag,
@@ -383,8 +381,7 @@ class CTypeObject(CObject):
 
 
 class CNamespaceObject(SphinxDirective):
-    """
-    This directive is just to tell Sphinx that we're documenting stuff in
+    """This directive is just to tell Sphinx that we're documenting stuff in
     namespace foo.
     """
 
@@ -639,8 +636,7 @@ class CAliasObject(ObjectDescription):
     }
 
     def run(self) -> list[Node]:
-        """
-        On purpose this doesn't call the ObjectDescription version, but is based on it.
+        """On purpose this doesn't call the ObjectDescription version, but is based on it.
         Each alias signature may expand into multiple real signatures if 'noroot'.
         The code is therefore based on the ObjectDescription version.
         """

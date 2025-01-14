@@ -163,8 +163,7 @@ def run_update() -> None:
 
 
 def run_compile() -> None:
-    """
-    Catalog compilation command.
+    """Catalogue compilation command.
 
     An extended command that writes all message strings that occur in
     JavaScript files to a JavaScript file along with the .mo file.

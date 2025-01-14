@@ -36,8 +36,7 @@ __all__ = (
 
 
 class ObjType:
-    """
-    An ObjType is the description for a type of object that a domain can
+    """An ObjType is the description for a type of object that a domain can
     document.  In the object_types attribute of Domain subclasses, object type
     names are mapped to instances of this class.
 
@@ -61,8 +60,7 @@ class ObjType:
 
 
 class Domain:
-    """
-    A Domain is meant to be a group of "object" description directives for
+    """A Domain is meant to be a group of "object" description directives for
     objects of a similar nature, and corresponding roles to create references to
     them.  Examples would be Python modules, classes, functions etc., elements
     of a templating language, Sphinx roles and directives, etc.

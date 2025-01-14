@@ -10,8 +10,7 @@ if TYPE_CHECKING:
 
 
 class FilenameUniqDict(dict[str, tuple[set[str], str]]):
-    """
-    A dictionary that automatically generates unique names for its keys,
+    """A dictionary that automatically generates unique names for its keys,
     interpreted as filenames, and keeps track of a set of docnames they
     appear in.  Used for images and downloadable files in the environment.
     """

@@ -66,9 +66,7 @@ logger = logging.getLogger(__name__)
 
 
 class Builder:
-    """
-    Builds target formats from the reST sources.
-    """
+    """Builds target formats from the reST sources."""
 
     #: The builder's name.
     #: This is the value used to select builders on the command line.
@@ -812,8 +810,7 @@ class Builder:
         pass
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        """
-        Write the output file for the document
+        """Write the output file for the document
 
         :param docname: the :term:`docname <document name>`.
         :param doctree: defines the content to be written.

@@ -105,9 +105,7 @@ def convert_locale_to_language_tag(locale: str | None) -> str | None:
 
 
 class StandaloneHTMLBuilder(Builder):
-    """
-    Builds standalone HTML docs.
-    """
+    """Builds standalone HTML docs."""
 
     name = 'html'
     format = 'html'

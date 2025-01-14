@@ -337,8 +337,7 @@ class ObjectMember:
 
 
 class Documenter:
-    """
-    A Documenter knows how to autodocument a single object type.  When
+    """A Documenter knows how to autodocument a single object type.  When
     registered with the AutoDirective, it will be used to document objects
     of that type when needed by autodoc.
 
@@ -1075,9 +1074,7 @@ class Documenter:
 
 
 class ModuleDocumenter(Documenter):
-    """
-    Specialized Documenter subclass for modules.
-    """
+    """Specialized Documenter subclass for modules."""
 
     objtype = 'module'
     content_indent = ''
@@ -1264,8 +1261,7 @@ class ModuleDocumenter(Documenter):
 
 
 class ModuleLevelDocumenter(Documenter):
-    """
-    Specialized Documenter subclass for objects on module level (functions,
+    """Specialized Documenter subclass for objects on module level (functions,
     classes, data/constants).
     """
 
@@ -1289,8 +1285,7 @@ class ModuleLevelDocumenter(Documenter):
 
 
 class ClassLevelDocumenter(Documenter):
-    """
-    Specialized Documenter subclass for objects on class level (methods,
+    """Specialized Documenter subclass for objects on class level (methods,
     attributes).
     """
 
@@ -1325,8 +1320,7 @@ class ClassLevelDocumenter(Documenter):
 
 
 class DocstringSignatureMixin:
-    """
-    Mixin for FunctionDocumenter and MethodDocumenter to provide the
+    """Mixin for FunctionDocumenter and MethodDocumenter to provide the
     feature of reading the signature from the docstring.
     """
 
@@ -1407,8 +1401,7 @@ class DocstringSignatureMixin:
 
 
 class DocstringStripSignatureMixin(DocstringSignatureMixin):
-    """
-    Mixin for AttributeDocumenter to provide the
+    """Mixin for AttributeDocumenter to provide the
     feature of stripping any function signature from the docstring.
     """
 
@@ -1426,9 +1419,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
 
 
 class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for functions.
-    """
+    """Specialized Documenter subclass for functions."""
 
     objtype = 'function'
     member_order = 30
@@ -1568,9 +1559,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
 
 class DecoratorDocumenter(FunctionDocumenter):
-    """
-    Specialized Documenter subclass for decorator functions.
-    """
+    """Specialized Documenter subclass for decorator functions."""
 
     objtype = 'decorator'
 
@@ -1600,9 +1589,7 @@ _CLASS_NEW_BLACKLIST = frozenset({
 
 
 class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for classes.
-    """
+    """Specialized Documenter subclass for classes."""
 
     objtype = 'class'
     member_order = 20
@@ -2098,9 +2085,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
 
 
 class ExceptionDocumenter(ClassDocumenter):
-    """
-    Specialized ClassDocumenter subclass for exceptions.
-    """
+    """Specialized ClassDocumenter subclass for exceptions."""
 
     objtype = 'exception'
     member_order = 10
@@ -2148,8 +2133,7 @@ class DataDocumenterMixinBase:
 
 
 class GenericAliasMixin(DataDocumenterMixinBase):
-    """
-    Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
+    """Mixin for DataDocumenter and AttributeDocumenter to provide the feature for
     supporting GenericAliases.
     """
 
@@ -2173,8 +2157,7 @@ class GenericAliasMixin(DataDocumenterMixinBase):
 
 
 class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
-    """
-    Mixin for DataDocumenter to provide the feature for supporting uninitialized
+    """Mixin for DataDocumenter to provide the feature for supporting uninitialized
     (type annotation only) global variables.
     """
 
@@ -2220,9 +2203,7 @@ class UninitializedGlobalVariableMixin(DataDocumenterMixinBase):
 class DataDocumenter(
     GenericAliasMixin, UninitializedGlobalVariableMixin, ModuleLevelDocumenter
 ):
-    """
-    Specialized Documenter subclass for data items.
-    """
+    """Specialized Documenter subclass for data items."""
 
     objtype = 'data'
     member_order = 40
@@ -2355,9 +2336,7 @@ class DataDocumenter(
 
 
 class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for methods (normal, static and class).
-    """
+    """Specialized Documenter subclass for methods (normal, static and class)."""
 
     objtype = 'method'
     directivetype = 'method'
@@ -2616,8 +2595,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
 
 class NonDataDescriptorMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting non
+    """Mixin for AttributeDocumenter to provide the feature for supporting non
     data-descriptors.
 
     .. note:: This mix-in must be inherited after other mix-ins.  Otherwise, docstring
@@ -2649,9 +2627,7 @@ class NonDataDescriptorMixin(DataDocumenterMixinBase):
 
 
 class SlotsMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting __slots__.
-    """
+    """Mixin for AttributeDocumenter to provide the feature for supporting __slots__."""
 
     def isslotsattribute(self) -> bool:
         """Check the subject is an attribute in __slots__."""
@@ -2699,11 +2675,10 @@ class SlotsMixin(DataDocumenterMixinBase):
 
 
 class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting runtime
+    """Mixin for AttributeDocumenter to provide the feature for supporting runtime
     instance attributes (that are defined in __init__() methods with doc-comments).
 
-    Example:
+    Example::
 
         class Foo:
             def __init__(self):
@@ -2783,11 +2758,10 @@ class RuntimeInstanceAttributeMixin(DataDocumenterMixinBase):
 
 
 class UninitializedInstanceAttributeMixin(DataDocumenterMixinBase):
-    """
-    Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
+    """Mixin for AttributeDocumenter to provide the feature for supporting uninitialized
     instance attributes (PEP-526 styled, annotation only attributes).
 
-    Example:
+    Example::
 
         class Foo:
             attr: int  #: This is a target of this mix-in.
@@ -2848,9 +2822,7 @@ class AttributeDocumenter(  # type: ignore[misc]
     DocstringStripSignatureMixin,
     ClassLevelDocumenter,
 ):
-    """
-    Specialized Documenter subclass for attributes.
-    """
+    """Specialized Documenter subclass for attributes."""
 
     objtype = 'attribute'
     member_order = 60
@@ -3020,9 +2992,7 @@ class AttributeDocumenter(  # type: ignore[misc]
 
 
 class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  # type: ignore[misc]
-    """
-    Specialized Documenter subclass for properties.
-    """
+    """Specialized Documenter subclass for properties."""
 
     objtype = 'property'
     member_order = 60

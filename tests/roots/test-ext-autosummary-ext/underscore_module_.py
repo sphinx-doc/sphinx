@@ -1,6 +1,4 @@
-"""
-module with trailing underscores everywhere
-"""
+"""module with trailing underscores everywhere"""
 
 
 class class_:

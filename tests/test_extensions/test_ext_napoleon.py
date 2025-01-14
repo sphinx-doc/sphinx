@@ -13,9 +13,7 @@ from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
 
 
 def simple_decorator(f):
-    """
-    A simple decorator that does nothing, for tests to use.
-    """
+    """A simple decorator that does nothing, for tests to use."""
 
     @functools.wraps(f)
     def wrapper(*args, **kwargs):

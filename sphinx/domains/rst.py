@@ -34,9 +34,7 @@ dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
 
 class ReSTMarkup(ObjectDescription[str]):
-    """
-    Description of generic reST markup.
-    """
+    """Description of generic reST markup."""
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index': directives.flag,
@@ -119,9 +117,7 @@ def parse_directive(d: str) -> tuple[str, str]:
 
 
 class ReSTDirective(ReSTMarkup):
-    """
-    Description of a reST directive.
-    """
+    """Description of a reST directive."""
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         name, args = parse_directive(sig)
@@ -147,9 +143,7 @@ class ReSTDirective(ReSTMarkup):
 
 
 class ReSTDirectiveOption(ReSTMarkup):
-    """
-    Description of an option for reST directive.
-    """
+    """Description of an option for reST directive."""
 
     option_spec: ClassVar[OptionSpec] = ReSTMarkup.option_spec.copy()
     option_spec.update({
@@ -219,9 +213,7 @@ class ReSTDirectiveOption(ReSTMarkup):
 
 
 class ReSTRole(ReSTMarkup):
-    """
-    Description of a reST role.
-    """
+    """Description of a reST role."""
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         desc_name = f':{sig}:'

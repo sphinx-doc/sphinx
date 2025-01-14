@@ -730,8 +730,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         self._domains = builder.env.domains
 
     def dispatch_visit(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate visitor method.
+        """Dispatch node to appropriate visitor method.
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
@@ -747,8 +746,7 @@ class SphinxTranslator(nodes.NodeVisitor):
             super().dispatch_visit(node)
 
     def dispatch_departure(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate departure method.
+        """Dispatch node to appropriate departure method.
         The priority of departure method is:
 
         1. ``self.depart_{node_class}()``

@@ -14,8 +14,7 @@ if TYPE_CHECKING:
 
 
 class IndexEntry(NamedTuple):
-    """
-    An index entry.
+    """An index entry.
 
     .. note::
 
@@ -53,8 +52,7 @@ class IndexEntry(NamedTuple):
 
 
 class Index(ABC):
-    """
-    An Index is the description for a domain-specific index.  To add an index to
+    """An Index is the description for a domain-specific index.  To add an index to
     a domain, subclass Index, overriding the three name attributes:
 
     * `name` is an identifier used for generating file names.

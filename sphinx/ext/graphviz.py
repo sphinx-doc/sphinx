@@ -113,9 +113,7 @@ def align_spec(argument: Any) -> str:
 
 
 class Graphviz(SphinxDirective):
-    """
-    Directive to insert arbitrary dot markup.
-    """
+    """Directive to insert arbitrary dot markup."""
 
     has_content = True
     required_arguments = 0
@@ -195,9 +193,7 @@ class Graphviz(SphinxDirective):
 
 
 class GraphvizSimple(SphinxDirective):
-    """
-    Directive to insert arbitrary dot markup.
-    """
+    """Directive to insert arbitrary dot markup."""
 
     has_content = True
     required_arguments = 1

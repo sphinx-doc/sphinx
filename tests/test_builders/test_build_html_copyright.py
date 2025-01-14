@@ -11,8 +11,7 @@ LOCALTIME_2009 = type(LT)(LT_NEW)
 
 @pytest.fixture
 def no_source_date_year(monkeypatch):
-    """
-    Explicitly clear SOURCE_DATE_EPOCH from the environment; this
+    """Explicitly clear SOURCE_DATE_EPOCH from the environment; this
     fixture can be used to ensure that copyright substitution logic
     does not occur during selected test cases.
     """

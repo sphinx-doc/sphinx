@@ -64,9 +64,7 @@ def is_allowed_version(spec: str, version: str) -> bool:
 
 
 class TestDirective(SphinxDirective):
-    """
-    Base class for doctest-related directives.
-    """
+    """Base class for doctest-related directives."""
 
     has_content = True
     required_arguments = 0
@@ -292,9 +290,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
 
 
 class DocTestBuilder(Builder):
-    """
-    Runs test snippets in the documentation.
-    """
+    """Runs test snippets in the documentation."""
 
     name = 'doctest'
     epilog = __(

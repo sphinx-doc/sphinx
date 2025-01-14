@@ -143,8 +143,7 @@ class InheritanceException(Exception):
 
 
 class InheritanceGraph:
-    """
-    Given a list of classes, determines the set of classes that they inherit
+    """Given a list of classes, determines the set of classes that they inherit
     from all the way to the root "object", and then is able to generate a
     graphviz dot graph from them.
     """
@@ -361,17 +360,13 @@ class InheritanceGraph:
 
 
 class inheritance_diagram(graphviz):
-    """
-    A docutils node to use as a placeholder for the inheritance diagram.
-    """
+    """A docutils node to use as a placeholder for the inheritance diagram."""
 
     pass
 
 
 class InheritanceDiagram(SphinxDirective):
-    """
-    Run when the inheritance_diagram directive is first encountered.
-    """
+    """Run when the inheritance_diagram directive is first encountered."""
 
     has_content = False
     required_arguments = 1
@@ -441,8 +436,7 @@ def get_graph_hash(node: inheritance_diagram) -> str:
 def html_visit_inheritance_diagram(
     self: HTML5Translator, node: inheritance_diagram
 ) -> None:
-    """
-    Output the graph for HTML.  This will insert a PNG with clickable
+    """Output the graph for HTML.  This will insert a PNG with clickable
     image map.
     """
     graph = node['graph']
@@ -488,9 +482,7 @@ def html_visit_inheritance_diagram(
 def latex_visit_inheritance_diagram(
     self: LaTeXTranslator, node: inheritance_diagram
 ) -> None:
-    """
-    Output the graph for LaTeX.  This will insert a PDF.
-    """
+    """Output the graph for LaTeX.  This will insert a PDF."""
     graph = node['graph']
 
     graph_hash = get_graph_hash(node)
@@ -507,9 +499,7 @@ def texinfo_visit_inheritance_diagram(
     self: TexinfoTranslator,
     node: inheritance_diagram,
 ) -> None:
-    """
-    Output the graph for Texinfo.  This will insert a PNG.
-    """
+    """Output the graph for Texinfo.  This will insert a PNG."""
     graph = node['graph']
 
     graph_hash = get_graph_hash(node)

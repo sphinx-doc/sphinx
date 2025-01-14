@@ -243,8 +243,7 @@ def test_format_signature(app):
         """some docstring for F2."""
 
         def __init__(self, *args, **kw):
-            """
-            __init__(a1, a2, kw1=True, kw2=False)
+            """__init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
             """
@@ -363,9 +362,7 @@ def test_get_doc(app):
         """Docstring"""
 
     def g():
-        """
-        Docstring
-        """
+        """Docstring"""
 
     for func in (f, g):
         assert getdocl('function', func) == ['Docstring']

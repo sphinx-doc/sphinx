@@ -488,8 +488,7 @@ def custom_handler(
     valid_credentials: tuple[str, str] | None = None,
     success_criteria: Callable[[Any], bool] = lambda _: True,
 ) -> type[BaseHTTPRequestHandler]:
-    """
-    Returns an HTTP request handler that authenticates the client and then determines
+    """Returns an HTTP request handler that authenticates the client and then determines
     an appropriate HTTP response code, based on caller-provided credentials and optional
     success criteria, respectively.
     """

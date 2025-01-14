@@ -1803,8 +1803,7 @@ class Sphinx:
 
 
 class TemplateBridge:
-    """
-    This class defines the interface for a "template bridge", that is, a class
+    """This class defines the interface for a "template bridge", that is, a class
     that renders templates given a template name and a context.
     """
 

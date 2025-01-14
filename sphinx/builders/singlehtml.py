@@ -29,10 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
-    """
-    A StandaloneHTMLBuilder subclass that puts the whole document tree on one
-    HTML page.
-    """
+    """Builds the whole document tree as a single HTML page."""
 
     name = 'singlehtml'
     epilog = __('The HTML page is in %(outdir)s.')

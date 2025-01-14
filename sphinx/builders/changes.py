@@ -25,9 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class ChangesBuilder(Builder):
-    """
-    Write a summary with all versionadded/changed/deprecated/removed directives.
-    """
+    """Write a summary with all versionadded/changed/deprecated/removed directives."""
 
     name = 'changes'
     epilog = __('The overview file is in %(outdir)s.')

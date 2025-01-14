@@ -94,8 +94,7 @@ def test_todo_not_included(app):
     confoverrides={'todo_include_todos': True},
 )
 def test_todo_valid_link(app):
-    """
-    Test that the inserted "original entry" links for todo items have a target
+    """Test that the inserted "original entry" links for todo items have a target
     that exists in the LaTeX output. The target was previously incorrectly
     omitted (GitHub issue #1020).
     """

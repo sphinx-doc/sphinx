@@ -224,8 +224,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
 
 
 class Autosummary(SphinxDirective):
-    """
-    Pretty table containing short signatures and summaries of functions etc.
+    """Pretty table containing short signatures and summaries of functions etc.
 
     autosummary can also optionally generate a hidden toctree:: node.
     """
@@ -660,8 +659,7 @@ class ImportExceptionGroup(Exception):
 
 
 def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
-    """
-    Obtain current Python import prefixes (for `import_by_name`)
+    """Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
     """
     prefixes: list[str | None] = [None]

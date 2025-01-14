@@ -111,9 +111,7 @@ logger = logging.getLogger(__name__)
 
 
 class LaTeXBuilder(Builder):
-    """
-    Builds LaTeX output to create PDF.
-    """
+    """Builds LaTeX output to create PDF."""
 
     name = 'latex'
     format = 'latex'
