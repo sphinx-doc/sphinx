@@ -314,8 +314,11 @@ def test_domain_c_ast_expressions():
     expr_check('5 / 42')
     expr_check('5 % 42')
     # ['.*', '->*']
+    expr_check('5 .* 42')
+    expr_check('5 ->* 42')
+    # TODO: conditional is unimplemented
     # conditional
-    # TODO
+    # expr_check('5 ? 7 : 3')
     # assignment
     expr_check('a = 5')
     expr_check('a *= 5')

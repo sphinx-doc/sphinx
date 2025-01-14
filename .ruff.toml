@@ -66,6 +66,11 @@ ignore = [
     # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
+    # flake8-todos ('TD')
+    "TD001",  # Invalid TODO tag: `{tag}`
+    "TD002",  # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
+    "TD003",  # Missing issue link on the line following this TODO
+    "TD004",  # Missing colon in TODO
     # pyupgrade
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
@@ -240,13 +245,7 @@ select = [
     # flake8-type-checking ('TC')
     "TC",
     # flake8-todos ('TD')
-#    "TD001",  # Invalid TODO tag: `{tag}`
-#    "TD002",  # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
-#    "TD003",  # Missing issue link on the line following this TODO
-#    "TD004",  # Missing colon in TODO
-#    "TD005",  # Missing issue description after `TODO`
-    "TD006",  # Invalid TODO capitalization: `{tag}` should be `TODO`
-    "TD007",  # Missing space after colon in TODO
+    "TD",
     # flake8-tidy-imports ('TID')
     "TID",
     # flake8-trio ('TRIO')
