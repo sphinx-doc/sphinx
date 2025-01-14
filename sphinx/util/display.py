@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import functools
 
+from sphinx._cli.util.colour import terminal_supports_colour
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold, color_terminal
+from sphinx.util.console import bold
 
 if False:
     from collections.abc import Callable, Iterable, Iterator
@@ -35,7 +36,7 @@ def status_iterator(
     stringify_func: Callable[[Any], str] = display_chunk,
 ) -> Iterator[T]:
     # printing on a single line requires ANSI control sequences
-    single_line = verbosity < 1 and color_terminal()
+    single_line = verbosity < 1 and terminal_supports_colour()
     bold_summary = bold(summary)
     if length == 0:
         logger.info(bold_summary, nonl=True)
