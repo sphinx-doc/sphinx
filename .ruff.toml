@@ -90,6 +90,10 @@ ignore = [
     "PTH123",  # `open()` should be replaced by `Path.open()`
     # flake8-pyi ('PYI')
     "PYI025",  # Use `from collections.abc import Set as AbstractSet` to avoid confusion with the `set` builtin
+    # flake8-return
+    "RET504",  # Unnecessary assignment to `{name}` before `return` statement
+    "RET505",  # Unnecessary `{branch}` after `return` statement
+    "RET506",  # Unnecessary `{branch}` after `raise` statement
     # flake8-bandit ('S')
     "S101",  # Use of `assert` detected
     "S110",  # `try`-`except`-`pass` detected, consider logging the exception
@@ -256,14 +260,7 @@ select = [
     # flake8-quotes ('Q')
     "Q",
     # flake8-return ('RET')
-    "RET501",  # Do not explicitly `return None` in function if it is the only possible return value
-    "RET502",  # Do not implicitly `return None` in function able to return non-`None` value
-    "RET503",  # Missing explicit `return` at the end of function able to return non-`None` value
-#    "RET504",  # Unnecessary assignment to `{name}` before `return` statement
-#    "RET505",  # Unnecessary `{branch}` after `return` statement
-#    "RET506",  # Unnecessary `{branch}` after `raise` statement
-    "RET507",  # Unnecessary `{branch}` after `continue` statement
-    "RET508",  # Unnecessary `{branch}` after `break` statement
+    "RET",
     # flake8-raise ('RSE')
     "RSE",
     # Ruff-specific rules ('RUF')
