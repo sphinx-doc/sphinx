@@ -21,6 +21,8 @@ def terminal_supports_colour() -> bool:
         colorama.just_fix_windows_console()
     if 'FORCE_COLOUR' in os.environ or 'FORCE_COLOR' in os.environ:
         return True
+    if os.environ.get('CI', '') in {'true', '1'}:
+        return True
 
     try:
         if not sys.stdout.isatty():

@@ -44,6 +44,8 @@ Features added
   Patch by Chris Barrick.
 * #13227: Implement the :rst:role:`kbd` role as a ``SphinxRole``.
   Patch by Adam Turner.
+* #13065: Enable colour by default in when running on CI.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------

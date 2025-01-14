@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-import os
 import re
 import shutil
 import sys
 from typing import TYPE_CHECKING
+
+from sphinx._cli.util.colour import (
+    terminal_supports_colour as color_terminal,  # NoQA: F401
+)
 
 if TYPE_CHECKING:
     from typing import Final
@@ -89,24 +92,6 @@ def term_width_line(text: str) -> str:
     else:
         # codes are not displayed, this must be taken into account
         return text.ljust(_tw + len(text) - len(strip_escape_sequences(text))) + '\r'
-
-
-def color_terminal() -> bool:
-    if 'NO_COLOR' in os.environ:
-        return False
-    if sys.platform == 'win32' and COLORAMA_AVAILABLE:
-        colorama.just_fix_windows_console()
-        return True
-    if 'FORCE_COLOR' in os.environ:
-        return True
-    if not hasattr(sys.stdout, 'isatty'):
-        return False
-    if not sys.stdout.isatty():
-        return False
-    if 'COLORTERM' in os.environ:
-        return True
-    term = os.environ.get('TERM', 'dumb').lower()
-    return term in {'xterm', 'linux'} or 'color' in term
 
 
 def nocolor() -> None:
