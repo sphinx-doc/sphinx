@@ -81,7 +81,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
                 'Values must be a (target URI, inventory locations) pair.'
             )
-            LOGGER.error(msg, value, name)
+            LOGGER.error(msg, value, name)  # NoQA: TRY400
             del config.intersphinx_mapping[name]
             continue
 

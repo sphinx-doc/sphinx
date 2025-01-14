@@ -76,7 +76,7 @@ class Todo(BaseAdmonition, SphinxDirective):
             self.state.document.note_explicit_target(todo)
             return [todo]
         else:
-            raise RuntimeError  # never reached here
+            raise TypeError  # never reached here
 
 
 class TodoDomain(Domain):

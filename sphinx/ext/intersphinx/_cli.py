@@ -32,7 +32,7 @@ def inspect_main(argv: list[str], /) -> int:
             target_uri='',
             inv_location=filename,
             config=config,
-            srcdir=Path(''),
+            srcdir=Path(),
         )
         for key in sorted(inv_data or {}):
             print(key)

@@ -2052,7 +2052,7 @@ class DefinitionParser(BaseParser):
                     if object_type == 'member' and len(templates) == 0:
                         return ASTTemplateDeclarationPrefix(None)
                     else:
-                        raise e
+                        raise
                 if object_type == 'concept' and params.requiresClause is not None:
                     self.fail('requires-clause not allowed for concept')
             else:

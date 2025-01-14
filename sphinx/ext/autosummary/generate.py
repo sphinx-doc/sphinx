@@ -131,7 +131,7 @@ class AutosummaryRenderer:
     def __init__(self, app: Sphinx) -> None:
         if isinstance(app, Builder):
             msg = 'Expected a Sphinx application object!'
-            raise ValueError(msg)
+            raise TypeError(msg)
 
         system_templates_path = [
             os.path.join(package_dir, 'ext', 'autosummary', 'templates')

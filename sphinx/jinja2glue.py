@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import os.path
+from pathlib import Path
 from pprint import pformat
 from typing import TYPE_CHECKING
 
@@ -226,7 +227,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def _newest_template_mtime_name(self) -> tuple[float, str]:
         return max(
-            (os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9, sfile)
+            (Path(root, sfile).stat().st_mtime_ns / 10**9, sfile)
             for dirname in self.pathchain
             for root, _dirs, files in os.walk(dirname)
             for sfile in files

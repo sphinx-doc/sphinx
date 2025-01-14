@@ -942,7 +942,7 @@ def test_unpartial():
 def test_getdoc_inherited_classmethod():
     class Foo:
         @classmethod
-        def meth(self):
+        def meth(cls):
             """
             Docstring
                 indented text
@@ -950,7 +950,7 @@ def test_getdoc_inherited_classmethod():
 
     class Bar(Foo):
         @classmethod
-        def meth(self):
+        def meth(cls):
             # inherited classmethod
             pass
 

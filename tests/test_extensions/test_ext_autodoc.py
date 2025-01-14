@@ -260,7 +260,7 @@ def test_format_signature(app):
         def foo1(self, b, *c):
             pass
 
-        def foo2(b, *c):
+        def foo2(b, *c):  # NoQA: N805
             pass
 
         def foo3(self, d='\n'):

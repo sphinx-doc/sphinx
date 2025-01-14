@@ -179,7 +179,7 @@ class CoverageBuilder(Builder):
         self.c_sourcefiles: list[str] = []
         for pattern in self.config.coverage_c_path:
             pattern = os.path.join(self.srcdir, pattern)
-            self.c_sourcefiles.extend(glob.glob(pattern))
+            self.c_sourcefiles.extend(glob.glob(pattern))  # NoQA: PTH207
 
         self.c_regexes: list[tuple[str, re.Pattern[str]]] = []
         for name, exp in self.config.coverage_c_regexes.items():

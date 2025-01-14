@@ -6,7 +6,6 @@ Gracefully adapted from the TextPress system by Armin.
 from __future__ import annotations
 
 import contextlib
-import os
 import pickle
 import sys
 from collections import deque
@@ -36,6 +35,7 @@ from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Callable, Collection, Iterable, Sequence, Set
     from pathlib import Path
     from typing import IO, Any, Final, Literal
@@ -424,7 +424,7 @@ class Sphinx:
             # delete the saved env to force a fresh build next time
             envfile = self.doctreedir / ENV_PICKLE_FILENAME
             if envfile.is_file():
-                os.unlink(envfile)
+                envfile.unlink()
             self.events.emit('build-finished', err)
             raise
 

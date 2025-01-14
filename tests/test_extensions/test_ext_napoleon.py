@@ -33,12 +33,12 @@ def _private_undoc():
     pass
 
 
-def __special_doc__():
+def __special_doc__():  # NoQA: N807
     """module.__special_doc__.DOCSTRING"""
     pass
 
 
-def __special_undoc__():
+def __special_undoc__():  # NoQA: N807
     pass
 
 

@@ -515,7 +515,7 @@ def _toctree_copy(
             copy.append(sub_node_copy)
         else:
             msg = f'Unexpected node type {subnode.__class__.__name__!r}!'
-            raise ValueError(msg)
+            raise ValueError(msg)  # NoQA: TRY004
     return copy
 
 

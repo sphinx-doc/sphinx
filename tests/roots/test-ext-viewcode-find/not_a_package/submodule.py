@@ -2,7 +2,7 @@
 submodule
 """
 
-raise RuntimeError('This module should not get imported')  # NoQA: EM101
+raise RuntimeError('This module should not get imported')  # NoQA: EM101,TRY003
 
 
 def decorator(f):

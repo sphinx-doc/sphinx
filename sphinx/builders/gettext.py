@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import codecs
 import operator
 import time
-from codecs import open
 from collections import defaultdict
 from os import getenv, path, walk
 from pathlib import Path
@@ -216,7 +216,7 @@ def should_write(filepath: str, new_content: str) -> bool:
     if not path.exists(filepath):
         return True
     try:
-        with open(filepath, encoding='utf-8') as oldpot:
+        with codecs.open(filepath, encoding='utf-8') as oldpot:
             old_content = oldpot.read()
         old_header_index = old_content.index('"POT-Creation-Date:')
         new_header_index = new_content.index('"POT-Creation-Date:')
@@ -277,7 +277,7 @@ class MessageCatalogBuilder(I18nBuilder):
             files, __('reading templates... '), 'purple', len(files), self.app.verbosity
         ):
             try:
-                with open(template, encoding='utf-8') as f:
+                with codecs.open(template, encoding='utf-8') as f:
                     context = f.read()
                 for line, _meth, msg in extract_translations(context):
                     origin = MsgOrigin(source=template, line=line)
@@ -328,7 +328,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             if should_write(pofn, content):
-                with open(pofn, 'w', encoding='utf-8') as pofile:
+                with codecs.open(pofn, 'w', encoding='utf-8') as pofile:
                     pofile.write(content)
 
 

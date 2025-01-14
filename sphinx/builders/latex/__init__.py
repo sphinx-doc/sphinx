@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import os.path
 import warnings
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils.frontend import OptionParser
@@ -446,8 +447,8 @@ class LaTeXBuilder(Builder):
             'xindy_cyrillic': xindy_cyrillic,
         }
         staticdirname = os.path.join(package_dir, 'texinputs')
-        for filename in os.listdir(staticdirname):
-            if not filename.startswith('.'):
+        for filename in Path(staticdirname).iterdir():
+            if not filename.name.startswith('.'):
                 copy_asset_file(
                     os.path.join(staticdirname, filename),
                     self.outdir,

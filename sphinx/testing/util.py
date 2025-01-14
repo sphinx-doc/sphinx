@@ -4,8 +4,6 @@ from __future__ import annotations
 
 __all__ = ('SphinxTestApp', 'SphinxTestAppWrapperForSkipBuilding')
 
-import contextlib
-import os
 import sys
 from io import StringIO
 from types import MappingProxyType
@@ -21,6 +19,7 @@ from sphinx.util.console import strip_colors
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Mapping, Sequence
     from pathlib import Path
     from typing import Any
@@ -224,8 +223,7 @@ class SphinxTestApp(sphinx.application.Sphinx):
     def cleanup(self, doctrees: bool = False) -> None:
         sys.path[:] = self._saved_path
         _clean_up_global_state()
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(self.docutils_conf_path)
+        self.docutils_conf_path.unlink(missing_ok=True)
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} buildername={self._builder_name!r}>'
@@ -247,7 +245,7 @@ class SphinxTestAppWrapperForSkipBuilding(SphinxTestApp):
     def build(
         self, force_all: bool = False, filenames: list[str] | None = None
     ) -> None:
-        if not os.listdir(self.outdir):
+        if not list(self.outdir.iterdir()):
             # if listdir is empty, do build.
             super().build(force_all, filenames)
             # otherwise, we can use built cache

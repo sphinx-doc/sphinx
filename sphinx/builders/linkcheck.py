@@ -16,7 +16,12 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
-from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
+from requests.exceptions import (
+    ConnectionError,  # NoQA: A004
+    HTTPError,
+    SSLError,
+    TooManyRedirects,
+)
 from requests.exceptions import Timeout as RequestTimeout
 
 from sphinx.builders.dummy import DummyBuilder

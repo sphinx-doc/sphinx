@@ -115,7 +115,7 @@ class ImageDownloader(BaseImageConverter):
             # append a suffix if URI does not contain suffix
             ext = get_image_extension(mimetype) or ''
             with_ext = path.with_name(path.name + ext)
-            os.replace(path, with_ext)
+            path.replace(with_ext)
             self.env.original_image_uri.pop(str_path)
             self.env.original_image_uri[_StrPath(with_ext)] = node['uri']
             path = with_ext

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 
 import pytest
@@ -94,10 +93,10 @@ def test_ambiguous_definition_warning(app):
 
 def _write_appconfig(dir: Path, language: str, prefix: str | None = None) -> Path:
     prefix = prefix or language
-    os.makedirs(dir / prefix, exist_ok=True)
+    (dir / prefix).mkdir(parents=True, exist_ok=True)
     (dir / prefix / 'conf.py').write_text(f'language = "{language}"', encoding='utf8')
     (dir / prefix / 'index.rst').write_text('index.rst', encoding='utf8')
-    assert sorted(os.listdir(dir / prefix)) == ['conf.py', 'index.rst']
+    assert sorted(p.name for p in (dir / prefix).iterdir()) == ['conf.py', 'index.rst']
     assert (dir / prefix / 'index.rst').exists()
     return dir / prefix
 

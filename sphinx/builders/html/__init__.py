@@ -1274,7 +1274,7 @@ class StandaloneHTMLBuilder(Builder):
             else:
                 with open(search_index_tmp, 'wb') as fb:
                     self.indexer.dump(fb, self.indexer_format)
-            os.replace(search_index_tmp, search_index_path)
+            Path(search_index_tmp).replace(search_index_path)
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:

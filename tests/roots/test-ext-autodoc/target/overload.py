@@ -57,12 +57,12 @@ class Bar:
     """docstring"""
 
     @overload
-    def __init__(cls, x: int, y: int) -> None: ...
+    def __init__(self, x: int, y: int) -> None: ...
 
     @overload
-    def __init__(cls, x: str, y: str) -> None: ...
+    def __init__(self, x: str, y: str) -> None: ...
 
-    def __init__(cls, x, y):
+    def __init__(self, x, y):
         pass
 
 

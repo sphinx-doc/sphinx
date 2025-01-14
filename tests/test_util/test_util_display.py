@@ -85,7 +85,7 @@ def test_progress_message(app):
 
     # skipping case
     with progress_message('testing'):
-        raise SkipProgressMessage('Reason: %s', 'error')  # NoQA: EM101
+        raise SkipProgressMessage('Reason: %s', 'error')  # NoQA: EM101,TRY003
 
     output = strip_colors(app.status.getvalue())
     assert 'testing... skipped\nReason: error\n' in output
@@ -93,7 +93,7 @@ def test_progress_message(app):
     # error case
     try:
         with progress_message('testing'):
-            raise RuntimeError
+            raise RuntimeError  # NoQA: TRY301
     except Exception:
         pass
 

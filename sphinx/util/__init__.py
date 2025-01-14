@@ -77,7 +77,7 @@ def __getattr__(name: str) -> Any:
         return obj
 
     if name == 'ExtensionError':
-        from sphinx.errors import ExtensionError as obj
+        from sphinx.errors import ExtensionError as obj  # NoQA: N813
 
         canonical_name = f'{obj.__module__}.{obj.__qualname__}'
         _deprecation_warning(__name__, name, canonical_name, remove=(9, 0))

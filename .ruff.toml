@@ -16,6 +16,10 @@ quote-style = "single"
 [lint]
 preview = true
 ignore = [
+    # flake8-builtins
+    "A001",  # Variable `{name}` is shadowing a Python builtin
+    "A002",  # Function argument `{name}` is shadowing a Python builtin
+    "A005",  # Module `{name}` is shadowing a Python builtin module
     # flake8-annotations
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `{name}`
     # flake8-unused-arguments ('ARG')
@@ -23,23 +27,44 @@ ignore = [
     "ARG002",  # Unused method argument: `{name}`
     "ARG003",  # Unused class method argument: `{name}`
     "ARG005",  # Unused lambda argument: `{name}`
-    # flake8-commas ('COM')
+    # flake8-blind-except
+    "BLE001",  # Do not catch blind exception: `{name}`
+    # flake8-commas
     "COM812",  # Trailing comma missing
+    # flake8-copyright
+    "CPY001",  # Missing copyright notice at top of file
     # pycodestyle
     "E741",  # Ambiguous variable name: `{name}`
+    # eradicate
+    "ERA001",  # Found commented-out code
     # pyflakes
     "F841",  # Local variable `{name}` is assigned to but never used
+    # flake8-boolean-trap
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "FBT002",  # Boolean default positional argument in function definition
+    "FBT003",  # Boolean positional value in function call
+    # flake8-fixme
+    "FIX001",  # Line contains FIXME, consider resolving the issue
+    "FIX002",  # Line contains TODO, consider resolving the issue
+    "FIX003",  # Line contains XXX, consider resolving the issue
+    "FIX004",  # Line contains HACK, consider resolving the issue
     # refurb
     "FURB101",  # `open` and `read` should be replaced by `Path(...).read_text(...)`
     "FURB103",  # `open` and `write` should be replaced by `Path(...).write_text(...)`
+    # flake8-implicit-str-concat
+    # pep8-naming
+    "N801",  # Class name `{name}` should use CapWords convention
+    "N802",  # Function name `{name}` should be lowercase
+    "N803",  # Argument name `{name}` should be lowercase
+    "N806",  # Variable `{name}` in function should be lowercase
+    "N818",  # Exception name `{name}` should be named with an Error suffix
     # perflint
     "PERF203",  # `try`-`except` within a loop incurs performance overhead
-    # flake8-pie ('PIE')
+    # flake8-pie
     "PIE790",  # Unnecessary `pass` statement
-    # pylint ('PLC')
+    # pylint
     "PLC0415",  # `import` should be at the top-level of a file
     "PLC2701",  # Private name import `{name}` from external module `{module}`
-    # pylint ('PLR')
     "PLR0904",  # Too many public methods ({methods} > {max_methods})
     "PLR0911",  # Too many return statements ({returns} > {max_returns})
     "PLR0912",  # Too many branches ({branches} > {max_branches})
@@ -53,8 +78,16 @@ ignore = [
     "PLR5501",  # Use `elif` instead of `else` then `if`, to reduce indentation
     "PLR6104",  # Use `{operator}` to perform an augmented assignment directly
     "PLR6301",  # Method `{method_name}` could be a function, class method, or static method
-    # pylint ('PLW')
     "PLW2901",  # Outer {outer_kind} variable `{name}` overwritten by inner {inner_kind} target
+    # flake8-use-pathlib
+    "PTH100",  # `os.path.abspath()` should be replaced by `Path.resolve()`
+    "PTH110",  # `os.path.exists()` should be replaced by `Path.exists()`
+    "PTH113",  # `os.path.isfile()` should be replaced by `Path.is_file()`
+    "PTH118",  # `os.{module}.join()` should be replaced by `Path` with `/` operator
+    "PTH119",  # `os.path.basename()` should be replaced by `Path.name`
+    "PTH120",  # `os.path.dirname()` should be replaced by `Path.parent`
+    "PTH122",  # `os.path.splitext()` should be replaced by `Path.suffix`, `Path.stem`, and `Path.parent`
+    "PTH123",  # `open()` should be replaced by `Path.open()`
     # flake8-pyi ('PYI')
     "PYI025",  # Use `from collections.abc import Set as AbstractSet` to avoid confusion with the `set` builtin
     # flake8-bandit ('S')
@@ -66,11 +99,16 @@ ignore = [
     # flake8-simplify
     "SIM102",  # Use a single `if` statement instead of nested `if` statements
     "SIM108",  # Use ternary operator `{contents}` instead of `if`-`else`-block
+    # flake8-self
+    "SLF001",  # Private member accessed: `{access}`
     # flake8-todos ('TD')
     "TD001",  # Invalid TODO tag: `{tag}`
     "TD002",  # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
     "TD003",  # Missing issue link on the line following this TODO
     "TD004",  # Missing colon in TODO
+    # tryceratops
+    "TRY002",  # Create your own exception
+    "TRY300",  # Consider moving this statement to an `else` block
     # pyupgrade
     "UP031",   # Use format specifiers instead of percent format
     "UP032",   # Use f-string instead of `format` call
@@ -88,7 +126,7 @@ external = [  # Whitelist for RUF100 unknown code warnings
 ]
 select = [
     # flake8-builtins ('A')
-      # NOT YET USED
+    "A",
     # airflow ('AIR')
       # Airflow is not used in Sphinx
     # flake8-annotations ('ANN')
@@ -100,7 +138,7 @@ select = [
     # flake8-bugbear ('B')
     "B",
     # flake8-blind-except ('BLE')
-      # NOT YET USED
+    "BLE",
     # flake8-comprehensions ('C4')
     "C4",
     # mccabe ('C90')
@@ -108,7 +146,7 @@ select = [
     # flake8-commas ('COM')
     "COM",  # Trailing comma prohibited
     # flake8-copyright ('CPY')
-      # NOT YET USED
+    "CPY",
     # pydocstyle ('D')
 #    "D100",  # Missing docstring in public module
 #    "D101",  # Missing docstring in public class
@@ -164,7 +202,7 @@ select = [
     # flake8-errmsg ('EM')
     "EM",
     # eradicate ('ERA')
-      # NOT YET USED
+    "ERA",
     # flake8-executable ('EXE')
     "EXE",
     # pyflakes ('F')
@@ -174,9 +212,9 @@ select = [
     # flake8-fastapi ('FAST')
       # FastAPI is not used in Sphinx
     # flake8-boolean-trap ('FBT')
-      # NOT YET USED
+    "FBT",
     # flake8-fixme ('FIX')
-      # NOT YET USED
+    "FIX",
     # flynt ('FLY')
     "FLY",
     # refurb ('FURB')
@@ -186,17 +224,17 @@ select = [
     # isort ('I')
     "I",
     # flake8-import-conventions ('ICN')
-    "ICN",  # flake8-import-conventions
+    "ICN",
     # flake8-no-pep420 ('INP')
     "INP",
     # flake8-gettext ('INT')
     "INT",
     # flake8-implicit-str-concat ('ISC')
-      # NOT YET USED
+    "ISC",
     # flake8-logging ('LOG')
     "LOG",
     # pep8-naming ('N')
-      # NOT YET USED
+    "N",
     # numpy-specific rules ('NPY')
       # Numpy is not used in Sphinx
     # pandas-vet ('PD')
@@ -212,9 +250,9 @@ select = [
     # flake8-pytest-style ('PT')
     "PT",
     # flake8-use-pathlib ('PTH')
-      # NOT YET USED
+    "PTH",
+    # flake8-pyi ('PYI')
     "PYI",
-      # Stub files are not used in Sphinx
     # flake8-quotes ('Q')
     "Q",
     # flake8-return ('RET')
@@ -235,7 +273,7 @@ select = [
     # flake8-simplify ('SIM')
     "SIM",  # flake8-simplify
     # flake8-self ('SLF')
-      # NOT YET USED
+    "SLF",
     # flake8-slots ('SLOT')
     "SLOT",
     # flake8-debugger ('T10')
@@ -251,7 +289,7 @@ select = [
     # flake8-trio ('TRIO')
       # Trio is not used in Sphinx
     # tryceratops ('TRY')
-      # NOT YET USED
+    "TRY",
     # pyupgrade ('UP')
     "UP",
     # pycodestyle ('W')
@@ -299,7 +337,10 @@ logger-objects = [
 # whitelist ``print`` for stdout messages
 "sphinx/cmd/build.py" = ["T201"]
 "sphinx/cmd/make_mode.py" = ["T201"]
-"sphinx/cmd/quickstart.py" = ["T201"]
+"sphinx/cmd/quickstart.py" = [
+    "PTH",
+    "T201",
+]
 
 "sphinx/environment/collectors/toctree.py" = ["B026"]
 "sphinx/environment/adapters/toctree.py" = ["B026"]
@@ -315,8 +356,14 @@ logger-objects = [
 # whitelist ``print`` for stdout messages
 "sphinx/testing/fixtures.py" = ["T201"]
 
+# whitelist ``os.path`` for deprecated ``sphinx.testing.path``
+"sphinx/testing/path.py" = ["PTH"]
+
 # whitelist ``token`` in date format parsing
 "sphinx/util/i18n.py" = ["S105"]
+
+# whitelist ``os.path`` for ``sphinx.util.osutil``
+"sphinx/util/osutil.py" = ["PTH"]
 
 # whitelist ``token`` in literal parsing
 "sphinx/writers/html5.py" = ["S105"]

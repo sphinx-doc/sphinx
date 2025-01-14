@@ -366,12 +366,12 @@ def render_dot_html(
     filename: str | None = None,
 ) -> tuple[str, str]:
     format = self.builder.config.graphviz_output_format
+    if format not in {'png', 'svg'}:
+        logger.warning(
+            __("graphviz_output_format must be either 'png' or 'svg', but is %r"),
+            format,
+        )
     try:
-        if format not in {'png', 'svg'}:
-            raise GraphvizError(
-                __("graphviz_output_format must be one of 'png', 'svg', but is %r")
-                % format
-            )
         fname, outfn = render_dot(self, code, options, format, prefix, filename)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)

@@ -157,7 +157,7 @@ class AutodocDirective(SphinxDirective):
             )
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
-            logger.error(
+            logger.error(  # NoQA: TRY400
                 'An option to %s is either unknown or has an invalid value: %s',
                 self.name,
                 exc,

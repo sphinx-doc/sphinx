@@ -388,7 +388,7 @@ class Config:
             # given falsy string from a command line option
             return value not in {'0', ''}
         if isinstance(default, dict):
-            raise ValueError(
+            raise ValueError(  # NoQA: TRY004
                 __(
                     'cannot override dictionary config setting %r, '
                     'ignoring (use %r to set individual elements)'

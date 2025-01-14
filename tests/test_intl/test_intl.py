@@ -24,6 +24,7 @@ from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
     from io import StringIO
+    from pathlib import Path
 
 _CATALOG_LOCALE = 'xx'
 
@@ -47,9 +48,9 @@ def write_mo(pathname, po):
         return mofile.write_mo(f, po)
 
 
-def _set_mtime_ns(target: str | os.PathLike[str], value: int) -> int:
+def _set_mtime_ns(target: Path, value: int) -> int:
     os.utime(target, ns=(value, value))
-    return os.stat(target).st_mtime_ns
+    return target.stat().st_mtime_ns
 
 
 def _get_bom_intl_path(app):

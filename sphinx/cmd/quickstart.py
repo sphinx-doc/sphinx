@@ -15,7 +15,7 @@ try:
     import readline
 
     if TYPE_CHECKING and sys.platform == 'win32':  # always false, for type checking
-        raise ImportError
+        raise ImportError  # NoQA: TRY301
     READLINE_AVAILABLE = True
     if readline.__doc__ and 'libedit' in readline.__doc__:
         readline.parse_and_bind('bind ^I rl_complete')
