@@ -176,7 +176,19 @@ def handle_exception(
 
     print_err()
     if print_traceback or use_pdb:
-        print_err(format_traceback(exception))
+        # format an exception with traceback, but only the last frame.
+        te = TracebackException.from_exception(exception, limit=-1)
+        formatted_tb = te.stack.format()[-1] + ''.join(te.format_exception_only()).rstrip()
+
+        print_red(__('Exception occurred:'))
+        print_err(formatted_tb)
+        traceback_output = full_exception_context(
+            exception, message_log=message_log, extensions=extensions
+        )
+        print_err(traceback_output)
+        traceback_info_path = write_temporary_file(traceback_output)
+        print_err(__('The full traceback has been saved in:'))
+        print_err(traceback_info_path)
         print_err()
 
     if use_pdb:
@@ -184,64 +196,3 @@ def handle_exception(
 
         print_red(__('Exception occurred, starting debugger:'))
         post_mortem(exception.__traceback__)
-        return
-
-    if isinstance(exception, KeyboardInterrupt):
-        print_err(__('Interrupted!'))
-        return
-
-    if isinstance(exception, SystemMessage):
-        print_red(__('reStructuredText markup error:'))
-        print_err(str(exception))
-        return
-
-    if isinstance(exception, SphinxError):
-        print_red(f'{exception.category}:')
-        print_err(str(exception))
-        return
-
-    if isinstance(exception, UnicodeError):
-        print_red(__('Encoding error:'))
-        print_err(str(exception))
-        return
-
-    if isinstance(exception, RecursionError):
-        print_red(__('Recursion error:'))
-        print_err(str(exception))
-        print_err()
-        print_err(
-            __(
-                'This can happen with very large or deeply nested source '
-                'files. You can carefully increase the default Python '
-                'recursion limit of 1,000 in conf.py with e.g.:'
-            )
-        )
-        print_err('\n    import sys\n    sys.setrecursionlimit(1_500)\n')
-        return
-
-    # format an exception with traceback, but only the last frame.
-    te = TracebackException.from_exception(exception, limit=-1)
-    formatted_tb = te.stack.format()[-1] + ''.join(te.format_exception_only()).rstrip()
-
-    print_red(__('Exception occurred:'))
-    print_err(formatted_tb)
-    traceback_output = full_exception_context(
-        exception, message_log=message_log, extensions=extensions
-    )
-    traceback_info_path = write_temporary_file(traceback_output)
-    print_err(traceback_output)
-    print_err(__('The full traceback has been saved in:'))
-    print_err(traceback_info_path)
-    print_err()
-    print_err(
-        __(
-            'To report this error to the developers, please open an issue '
-            'at <https://github.com/sphinx-doc/sphinx/issues/>. Thanks!'
-        )
-    )
-    print_err(
-        __(
-            'Please also report this if it was a user error, so '
-            'that a better error message can be provided next time.'
-        )
-    )
