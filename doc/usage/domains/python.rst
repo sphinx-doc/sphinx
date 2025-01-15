@@ -133,6 +133,14 @@ The following directives are provided for module and class contents:
    .. rst:directive:option:: type: type of the variable
       :type: text
 
+      This will be parsed as a Python expression for cross-referencing
+      the type annotation.
+      As such, the argument to ``:type:`` should be a valid Python expression.
+
+      .. caution:: The valid syntax for the ``:type:`` directive option
+                   differs from the syntax for the ``:type:`` `info field
+                   <info-field-lists_>`__.
+
       .. versionadded:: 2.4
 
    .. rst:directive:option:: value: initial value of the variable
@@ -267,6 +275,14 @@ The following directives are provided for module and class contents:
    .. rst:directive:option:: type: type of the attribute
       :type: text
 
+      This will be parsed as a Python expression for cross-referencing
+      the type annotation.
+      As such, the argument to ``:type:`` should be a valid Python expression.
+
+      .. caution:: The valid syntax for the ``:type:`` directive option
+                   differs from the syntax for the ``:type:`` `info field
+                   <info-field-lists_>`__.
+
       .. versionadded:: 2.4
 
    .. rst:directive:option:: value: initial value of the attribute
@@ -310,6 +326,14 @@ The following directives are provided for module and class contents:
 
    .. rst:directive:option:: type: type of the property
       :type: text
+
+      This will be parsed as a Python expression for cross-referencing
+      the type annotation.
+      As such, the argument to ``:type:`` should be a valid Python expression.
+
+      .. caution:: The valid syntax for the ``:type:`` directive option
+                   differs from the syntax for the ``:type:`` `info field
+                   <info-field-lists_>`__.
 
    .. rst::directive:option:: module
       :type: text
@@ -608,7 +632,7 @@ explained by an example::
       :param str recipient: The recipient of the message
       :param str message_body: The body of the message
       :param priority: The priority of the message, can be a number 1-5
-      :type priority: integer or None
+      :type priority: int or None
       :return: the message id
       :rtype: int
       :raises ValueError: if the message_body exceeds 160 characters
@@ -649,12 +673,16 @@ using the following syntax::
    :type point: tuple(float, float)
    :type point: tuple[float, float]
 
-Multiple types in a type field will be linked automatically if separated by the
-word "or"::
+Multiple types in a type field will be linked automatically
+if separated by either the vertical bar (``|``) or the word "or"::
 
    :type an_arg: int or None
    :vartype a_var: str or int
    :rtype: float or str
+
+   :type an_arg: int | None
+   :vartype a_var: str | int
+   :rtype: float | str
 
 .. _python-xref-roles:
 
