@@ -14,20 +14,18 @@ from sphinx import addnodes
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.config import Config
 from sphinx.errors import ConfigError
-from sphinx.ext.intersphinx import (
-    inspect_main,
-    load_mappings,
-    missing_reference,
-    validate_intersphinx_mapping,
-)
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.ext.intersphinx._cli import inspect_main
 from sphinx.ext.intersphinx._load import (
     _fetch_inventory,
     _fetch_inventory_group,
     _get_safe_url,
     _InvConfig,
     _strip_basic_auth,
+    load_mappings,
+    validate_intersphinx_mapping,
 )
+from sphinx.ext.intersphinx._resolve import missing_reference
 from sphinx.ext.intersphinx._shared import _IntersphinxProject
 from sphinx.util.console import strip_colors
 

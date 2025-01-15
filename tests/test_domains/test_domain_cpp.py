@@ -26,7 +26,7 @@ from sphinx.addnodes import (
 from sphinx.domains.cpp._ids import _id_prefix, _max_id
 from sphinx.domains.cpp._parser import DefinitionParser
 from sphinx.domains.cpp._symbol import Symbol
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.testing import restructuredtext
 from sphinx.testing.util import assert_node
 from sphinx.util.cfamily import DefinitionError, NoOldIdError
