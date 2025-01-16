@@ -218,9 +218,7 @@ iti|ous|ive|ize)$/;
 
 
 class SearchChinese(SearchLanguage):
-    """
-    Chinese search implementation
-    """
+    """Chinese search implementation"""
 
     lang = 'zh'
     language_name = 'Chinese'

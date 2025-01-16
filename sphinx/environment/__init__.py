@@ -7,7 +7,7 @@ import os
 import pickle
 from collections import defaultdict
 from copy import deepcopy
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING
 
 from sphinx import addnodes
 from sphinx.domains._domains_container import _DomainsContainer
@@ -31,8 +31,8 @@ from sphinx.util.nodes import is_translatable
 from sphinx.util.osutil import _last_modified_time, _relative_path, canon_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
-    from typing import Any, Literal
+    from collections.abc import Callable, Iterable, Iterator, Mapping
+    from typing import Any, Final, Literal
 
     from docutils import nodes
     from docutils.nodes import Node
@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from sphinx.domains.c._symbol import Symbol as CSymbol
     from sphinx.domains.cpp._symbol import Symbol as CPPSymbol
     from sphinx.events import EventManager
+    from sphinx.extension import Extension
     from sphinx.project import Project
     from sphinx.util._pathlib import _StrPath
 
@@ -93,8 +94,7 @@ versioning_conditions: dict[str, Literal[False] | Callable[[Node], bool]] = {
 
 
 class BuildEnvironment:
-    """
-    The environment in which the ReST files are translated.
+    """The environment in which the ReST files are translated.
     Stores an inventory of cross-file targets and provides doctree
     transformations to resolve links to them.
     """
@@ -113,7 +113,7 @@ class BuildEnvironment:
         self.config_status_extra: str = ''
         self.events: EventManager = app.events
         self.project: Project = app.project
-        self.version: dict[str, int] = app.registry.get_envversion(app)
+        self.version: Mapping[str, int] = _get_env_version(app.extensions)
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition: Literal[False] | Callable[[Node], bool] | None = None
@@ -247,7 +247,7 @@ class BuildEnvironment:
 
     def setup(self, app: Sphinx) -> None:
         """Set up BuildEnvironment object."""
-        if self.version and self.version != app.registry.get_envversion(app):
+        if self.version and self.version != _get_env_version(app.extensions):
             raise BuildEnvironmentError(__('build environment version not current'))
         if self.srcdir and self.srcdir != app.srcdir:
             raise BuildEnvironmentError(__('source directory has changed'))
@@ -260,7 +260,7 @@ class BuildEnvironment:
         self.events = app.events
         self.srcdir = app.srcdir
         self.project = app.project
-        self.version = app.registry.get_envversion(app)
+        self.version = _get_env_version(app.extensions)
 
         # initialise domains
         if self.domains is None:
@@ -806,6 +806,16 @@ class BuildEnvironment:
         # call check-consistency for all extensions
         self.domains._check_consistency()
         self.events.emit('env-check-consistency', self)
+
+
+def _get_env_version(extensions: Mapping[str, Extension]) -> Mapping[str, int]:
+    env_version = {
+        ext.name: ext_env_version
+        for ext in extensions.values()
+        if (ext_env_version := ext.metadata.get('env_version'))
+    }
+    env_version['sphinx'] = ENV_VERSION
+    return env_version
 
 
 def _differing_config_keys(old: Config, new: Config) -> frozenset[str]:

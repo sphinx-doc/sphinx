@@ -147,7 +147,11 @@ def test_extract_summary(capsys):
     assert err == ''
 
 
-@pytest.mark.sphinx('dummy', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'dummy',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_get_items_summary(make_app, app_params):
     import sphinx.ext.autosummary
     import sphinx.ext.autosummary.generate
@@ -219,7 +223,11 @@ def str_content(elem: Element) -> str:
         return ''.join(str_content(e) for e in elem)
 
 
-@pytest.mark.sphinx('xml', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'xml',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_escaping(app):
     app.build(force_all=True)
 
@@ -744,7 +752,11 @@ def test_autosummary_filename_map(app):
     assert html_warnings == ''
 
 
-@pytest.mark.sphinx('latex', testroot='autosummary', confoverrides=defaults.copy())
+@pytest.mark.sphinx(
+    'latex',
+    testroot='ext-autosummary-ext',
+    confoverrides=defaults.copy(),
+)
 def test_autosummary_latex_table_colspec(app):
     app.build(force_all=True)
     result = (app.outdir / 'projectnamenotset.tex').read_text(encoding='utf8')

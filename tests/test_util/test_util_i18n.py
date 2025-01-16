@@ -39,7 +39,7 @@ def test_catalog_outdated(tmp_path):
     mo_file.write_text('#', encoding='utf8')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
-    new_mtime = os.stat(mo_file).st_mtime_ns - 10_000_000_000
+    new_mtime = mo_file.stat().st_mtime_ns - 10_000_000_000
     os.utime(mo_file, ns=(new_mtime, new_mtime))  # to be outdated
     assert cat.is_outdated()  # if mo is exist and older than po
 
@@ -98,7 +98,7 @@ def test_format_date():
 def test_format_date_timezone():
     dt = datetime.datetime(2016, 8, 7, 5, 11, 17, 0, tzinfo=datetime.UTC)
     if time.localtime(dt.timestamp()).tm_gmtoff == 0:
-        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101
+        raise pytest.skip('Local time zone is GMT')  # NoQA: EM101,TRY003
 
     fmt = '%Y-%m-%d %H:%M:%S'
 

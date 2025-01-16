@@ -17,8 +17,8 @@ import pytest
 from sphinx.builders.latex import default_latex_documents
 from sphinx.config import Config
 from sphinx.errors import SphinxError
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 from sphinx.util.osutil import ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
@@ -2141,10 +2141,7 @@ def test_latex_code_role(app):
         r'\PYG{k}{pass}'
     )
     assert (
-        r'Inline \sphinxcode{\sphinxupquote{%'
-        + '\n'
-        + common_content
-        + '%\n}} code block'
+        'Inline \\sphinxcode{\\sphinxupquote{%\n' + common_content + '%\n}} code block'
     ) in content
     assert (
         r'\begin{sphinxVerbatim}[commandchars=\\\{\}]'

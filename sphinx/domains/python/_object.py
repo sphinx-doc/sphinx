@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import contextlib
 import re
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
+from sphinx.addnodes import pending_xref, pending_xref_condition
 from sphinx.directives import ObjectDescription
 from sphinx.domains.python._annotations import (
     _parse_annotation,
@@ -25,9 +25,12 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from docutils.nodes import Node
     from docutils.parsers.rst.states import Inliner
 
+    from sphinx.addnodes import desc_signature
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import OptionSpec, TextlikeNode
 
@@ -159,8 +162,7 @@ class PyTypedField(PyXrefMixin, TypedField):
 
 
 class PyObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a general Python object.
+    """Description of a general Python object.
 
     :cvar allow_nesting: Class is an object that allows for nested namespaces
     :vartype allow_nesting: bool

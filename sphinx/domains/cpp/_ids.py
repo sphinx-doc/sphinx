@@ -1,5 +1,4 @@
-"""
-Important note on ids
+"""Important note on ids
 ----------------------------------------------------------------------------
 
 Multiple id generation schemes are used due to backwards compatibility.
@@ -253,6 +252,10 @@ namespace_object:
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence, Set
 
 udl_identifier_re = re.compile(
     r'[a-zA-Z_][a-zA-Z0-9_]*\b'  # note, no word boundary in the beginning
@@ -286,7 +289,7 @@ _fold_operator_re = re.compile(
     re.VERBOSE,
 )
 # see https://en.cppreference.com/w/cpp/keyword
-_keywords = [
+_keywords: Set[str] = frozenset({
     'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto',
     'bitand', 'bitor', 'bool', 'break',
     'case', 'catch', 'class', 'compl', 'concept', 'continue',
@@ -311,7 +314,7 @@ _keywords = [
     'virtual', 'void', 'volatile',
     'wchar_t', 'while',
     'xor', 'xor_eq',
-]  # fmt: skip
+})  # fmt: skip
 
 
 _simple_type_specifiers_re = re.compile(
@@ -332,7 +335,7 @@ _simple_type_specifiers_re = re.compile(
 )
 
 _max_id = 4
-_id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
+_id_prefix: Sequence[str] = ('', '', '_CPPv2', '_CPPv3', '_CPPv4')
 # Ids are used in lookup keys which are used across pickled files,
 # so when _max_id changes, make sure to update the ENV_VERSION.
 
@@ -553,20 +556,20 @@ _id_char_from_prefix: dict[str | None, str] = {
     'L': 'w',
 }
 # these are ordered by preceedence
-_expression_bin_ops = [
-    ['||', 'or'],
-    ['&&', 'and'],
-    ['|', 'bitor'],
-    ['^', 'xor'],
-    ['&', 'bitand'],
-    ['==', '!=', 'not_eq'],
-    ['<=>', '<=', '>=', '<', '>'],
-    ['<<', '>>'],
-    ['+', '-'],
-    ['*', '/', '%'],
-    ['.*', '->*'],
+_expression_bin_ops: Sequence[tuple[str, ...]] = [
+    ('||', 'or'),
+    ('&&', 'and'),
+    ('|', 'bitor'),
+    ('^', 'xor'),
+    ('&', 'bitand'),
+    ('==', '!=', 'not_eq'),
+    ('<=>', '<=', '>=', '<', '>'),
+    ('<<', '>>'),
+    ('+', '-'),
+    ('*', '/', '%'),
+    ('.*', '->*'),
 ]
-_expression_unary_ops = [
+_expression_unary_ops: Sequence[str] = [
     '++',
     '--',
     '*',
@@ -578,7 +581,7 @@ _expression_unary_ops = [
     '~',
     'compl',
 ]
-_expression_assignment_ops = [
+_expression_assignment_ops: Sequence[str] = [
     '=',
     '*=',
     '/=',

@@ -8,7 +8,7 @@ This requires the MathJax JavaScript library on your webserver/computer.
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -18,6 +18,8 @@ from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
     from sphinx.builders.html import StandaloneHTMLBuilder
     from sphinx.util.typing import ExtensionMetadata
@@ -90,9 +92,9 @@ def install_mathjax(
         msg = 'mathjax_path config value must be set for the mathjax extension to work'
         raise ExtensionError(msg)
 
-    domain = app.env.domains.math_domain
     builder = cast('StandaloneHTMLBuilder', app.builder)
-    if app.registry.html_assets_policy == 'always' or domain.has_equations(pagename):
+    page_has_equations = context.get('has_maths_elements', False)
+    if app.registry.html_assets_policy == 'always' or page_has_equations:
         # Enable mathjax only if equations exists
         if app.config.mathjax2_config:
             if app.config.mathjax_path == MATHJAX_URL:
@@ -135,4 +137,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('mathjax3_config', None, 'html')
     app.connect('html-page-context', install_mathjax)
 
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

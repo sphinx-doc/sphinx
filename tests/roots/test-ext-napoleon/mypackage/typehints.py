@@ -1,6 +1,5 @@
 def hello(x: int, *args: int, **kwargs: int) -> None:
-    """
-    Parameters
+    """Parameters
     ----------
     x
         X

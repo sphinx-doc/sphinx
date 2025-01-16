@@ -7,7 +7,7 @@ class Foo:
 
     @classmethod
     @property
-    def prop2(self) -> int:
+    def prop2(cls) -> int:
         """docstring"""
 
     @property
@@ -17,6 +17,6 @@ class Foo:
 
     @classmethod
     @property
-    def prop2_with_type_comment(self):
+    def prop2_with_type_comment(cls):
         # type: () -> int
         """docstring"""

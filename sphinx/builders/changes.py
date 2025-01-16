@@ -7,11 +7,11 @@ import os.path
 from typing import TYPE_CHECKING
 
 from sphinx import package_dir
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
 
@@ -25,9 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class ChangesBuilder(Builder):
-    """
-    Write a summary with all versionadded/changed/deprecated/removed directives.
-    """
+    """Write a summary with all versionadded/changed/deprecated/removed directives."""
 
     name = 'changes'
     epilog = __('The overview file is in %(outdir)s.')

@@ -4,45 +4,38 @@ import itertools
 import operator
 from typing import TYPE_CHECKING
 
-import pytest
-
-from sphinx.util.console import blue, reset, strip_colors, strip_escape_sequences
+from sphinx._cli.util.colour import blue, reset
+from sphinx._cli.util.errors import strip_escape_sequences
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Sequence
     from typing import Final
 
 CURSOR_UP: Final[str] = '\x1b[2A'  # ignored ANSI code
 ERASE_LINE: Final[str] = '\x1b[2K'  # supported ANSI code
-TEXT: Final[str] = '\x07 Hello world!'
+TEXT: Final[str] = '\x07 ß Hello world!'
 
 
-@pytest.mark.parametrize(
-    ('strip_function', 'ansi_base_blocks', 'text_base_blocks'),
-    [
-        (
-            strip_colors,
-            # double ERASE_LINE so that the tested strings may have 2 of them
-            [TEXT, blue(TEXT), reset(TEXT), ERASE_LINE, ERASE_LINE, CURSOR_UP],
-            # :func:`strip_colors` removes color codes but keeps ERASE_LINE and CURSOR_UP
-            [TEXT, TEXT, TEXT, ERASE_LINE, ERASE_LINE, CURSOR_UP],
-        ),
-        (
-            strip_escape_sequences,
-            # double ERASE_LINE so that the tested strings may have 2 of them
-            [TEXT, blue(TEXT), reset(TEXT), ERASE_LINE, ERASE_LINE, CURSOR_UP],
-            # :func:`strip_escape_sequences` strips ANSI codes known by Sphinx
-            [TEXT, TEXT, TEXT, '', '', CURSOR_UP],
-        ),
-    ],
-    ids=[strip_colors.__name__, strip_escape_sequences.__name__],
-)
-def test_strip_ansi(
-    strip_function: Callable[[str], str],
-    ansi_base_blocks: Sequence[str],
-    text_base_blocks: Sequence[str],
-) -> None:
-    assert callable(strip_function)
+def test_strip_escape_sequences() -> None:
+    # double ERASE_LINE so that the tested strings may have 2 of them
+    ansi_base_blocks = [
+        TEXT,
+        blue(TEXT),
+        reset(TEXT),
+        ERASE_LINE,
+        ERASE_LINE,
+        CURSOR_UP,
+    ]
+    # :func:`strip_escape_sequences` strips ANSI codes known by Sphinx
+    text_base_blocks = [
+        TEXT,
+        TEXT,
+        TEXT,
+        '',
+        '',
+        CURSOR_UP,
+    ]
+
     assert len(text_base_blocks) == len(ansi_base_blocks)
     N = len(ansi_base_blocks)
 
@@ -67,7 +60,7 @@ def test_strip_ansi(
 
             ansi_string = glue.join(ansi_strings)
             text_string = glue.join(text_strings)
-            assert strip_function(ansi_string) == text_string
+            assert strip_escape_sequences(ansi_string) == text_string
 
 
 def test_strip_ansi_short_forms():
@@ -76,7 +69,7 @@ def test_strip_ansi_short_forms():
     # some messages use '\x1b[0m' instead of ``reset(s)``, so we
     # test whether this alternative form is supported or not.
 
-    for strip_function in strip_colors, strip_escape_sequences:
+    for strip_function in strip_escape_sequences, strip_escape_sequences:
         # \x1b[m and \x1b[0m are equivalent to \x1b[00m
         assert strip_function('\x1b[m') == ''
         assert strip_function('\x1b[0m') == ''

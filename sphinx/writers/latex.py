@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from roman_numerals import RomanNumeral
@@ -26,6 +26,7 @@ from sphinx.util.texescape import tex_replace_map
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, Text
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os.path
 import re
 import textwrap
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 
@@ -18,6 +18,7 @@ from sphinx.writers.latex import collected_footnote
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, Text
 
@@ -1171,7 +1172,7 @@ class TexinfoTranslator(SphinxTranslator):
 
     def visit_topic(self, node: Element) -> None:
         # ignore TOC's since we have to have a "menu" anyway
-        if 'contents' in node.get('classes', []):
+        if 'contents' in node.get('classes', ()):
             raise nodes.SkipNode
         title = cast('nodes.title', node[0])
         self.visit_rubric(title)
@@ -1502,7 +1503,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.first_param = 0
         text = self.escape(node.astext())
         # replace no-break spaces with normal ones
-        text = text.replace(' ', '@w{ }')
+        text = text.replace('\N{NO-BREAK SPACE}', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
 

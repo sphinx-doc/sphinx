@@ -109,7 +109,7 @@ uw             |  your
 iemand         |  somebody
 geweest        |  been; past participle of 'be'
 andere         |  other
-""")
+""")  # NoQA: E501
 
 
 class SearchDutch(SearchLanguage):

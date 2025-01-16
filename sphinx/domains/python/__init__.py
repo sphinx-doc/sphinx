@@ -5,7 +5,7 @@ from __future__ import annotations
 import builtins
 import inspect
 import typing
-from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -26,6 +26,7 @@ from sphinx.util.nodes import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -37,6 +38,7 @@ if TYPE_CHECKING:
 
 # re-export objects for backwards compatibility
 # xref https://github.com/sphinx-doc/sphinx/issues/12295
+
 from sphinx.domains.python._annotations import (  # NoQA: F401
     _parse_arglist,  # for sphinx-immaterial
     type_to_xref,
@@ -180,9 +182,7 @@ class PyVariable(PyObject):
 
 
 class PyClasslike(PyObject):
-    """
-    Description of a class-like object (classes, interfaces, exceptions).
-    """
+    """Description of a class-like object (classes, interfaces, exceptions)."""
 
     option_spec: ClassVar[OptionSpec] = PyObject.option_spec.copy()
     option_spec.update({
@@ -469,9 +469,7 @@ class PyTypeAlias(PyObject):
 
 
 class PyModule(SphinxDirective):
-    """
-    Directive to mark description of a new module.
-    """
+    """Directive to mark description of a new module."""
 
     has_content = True
     required_arguments = 1
@@ -531,8 +529,7 @@ class PyModule(SphinxDirective):
 
 
 class PyCurrentModule(SphinxDirective):
-    """
-    This directive is just to tell Sphinx that we're documenting
+    """This directive is just to tell Sphinx that we're documenting
     stuff in module foo, but links to module foo won't lead here.
     """
 
@@ -598,9 +595,7 @@ def filter_meta_fields(
 
 
 class PythonModuleIndex(Index):
-    """
-    Index subclass to provide the Python module index.
-    """
+    """Index subclass to provide the Python module index."""
 
     name = 'modindex'
     localname = _('Python Module Index')
@@ -1078,7 +1073,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(PythonDomain)
     app.add_config_value('python_use_unqualified_type_names', False, 'env')
     app.add_config_value(
-        'python_maximum_signature_line_length', None, 'env', {int, type(None)}
+        'python_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)

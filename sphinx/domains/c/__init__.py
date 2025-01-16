@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -15,7 +15,7 @@ from sphinx.domains.c._ast import (
     ASTIdentifier,
     ASTNestedName,
 )
-from sphinx.domains.c._ids import _macroKeywords, _max_id
+from sphinx.domains.c._ids import _macro_keywords, _max_id
 from sphinx.domains.c._parser import DefinitionParser
 from sphinx.domains.c._symbol import Symbol, _DuplicateSymbolError
 from sphinx.locale import _, __
@@ -34,6 +34,7 @@ from sphinx.util.nodes import make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement, system_message
 
@@ -105,9 +106,7 @@ def _make_phony_error_name() -> ASTNestedName:
 
 
 class CObject(ObjectDescription[ASTDeclaration]):
-    """
-    Description of a C language object.
-    """
+    """Description of a C language object."""
 
     option_spec: ClassVar[OptionSpec] = {
         'no-index-entry': directives.flag,
@@ -382,8 +381,7 @@ class CTypeObject(CObject):
 
 
 class CNamespaceObject(SphinxDirective):
-    """
-    This directive is just to tell Sphinx that we're documenting stuff in
+    """This directive is just to tell Sphinx that we're documenting stuff in
     namespace foo.
     """
 
@@ -638,8 +636,7 @@ class CAliasObject(ObjectDescription):
     }
 
     def run(self) -> list[Node]:
-        """
-        On purpose this doesn't call the ObjectDescription version, but is based on it.
+        """On purpose this doesn't call the ObjectDescription version, but is based on it.
         Each alias signature may expand into multiple real signatures if 'noroot'.
         The code is therefore based on the ObjectDescription version.
         """
@@ -865,7 +862,7 @@ class CDomain(Domain):
                 'Unparseable C cross-reference: %r\n%s', target, e, location=node
             )
             return None, None
-        parent_key: LookupKey = node.get('c:parent_key', None)
+        parent_key: LookupKey | None = node.get('c:parent_key', None)
         root_symbol = self.data['root_symbol']
         if parent_key:
             parent_symbol: Symbol = root_symbol.direct_lookup(parent_key)
@@ -946,11 +943,18 @@ class CDomain(Domain):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(CDomain)
-    app.add_config_value('c_id_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('c_paren_attributes', [], 'env', types={list, tuple})
-    app.add_config_value('c_extra_keywords', _macroKeywords, 'env', types={set, list})
+    app.add_config_value('c_id_attributes', [], 'env', types=frozenset({list, tuple}))
     app.add_config_value(
-        'c_maximum_signature_line_length', None, 'env', types={int, type(None)}
+        'c_paren_attributes', [], 'env', types=frozenset({list, tuple})
+    )
+    app.add_config_value(
+        'c_extra_keywords', _macro_keywords, 'env', types=frozenset({set, list})
+    )
+    app.add_config_value(
+        'c_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     app.add_post_transform(AliasTransform)
 

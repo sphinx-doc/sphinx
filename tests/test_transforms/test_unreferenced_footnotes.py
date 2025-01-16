@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sphinx.util.console import strip_colors
+from sphinx._cli.util.errors import strip_escape_sequences
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -35,7 +35,7 @@ Title
     )
     app = make_app(srcdir=tmp_path)
     app.build()
-    warnings = strip_colors(app.warning.getvalue()).lstrip()
+    warnings = strip_escape_sequences(app.warning.getvalue()).lstrip()
     warnings = warnings.replace(str(tmp_path / 'index.rst'), 'source/index.rst')
     assert (
         warnings

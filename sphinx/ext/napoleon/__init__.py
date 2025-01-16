@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import sphinx
 from sphinx.application import Sphinx
@@ -10,6 +10,8 @@ from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from sphinx.util import inspect
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.config import _ConfigRebuild
     from sphinx.util.typing import ExtensionMetadata
 
@@ -317,7 +319,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     """
     if not isinstance(app, Sphinx):
         # probably called by tests
-        return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+        return {
+            'version': sphinx.__display_version__,
+            'parallel_read_safe': True,
+        }
 
     _patch_python_domain()
 
@@ -327,7 +332,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     for name, (default, rebuild) in Config._config_values.items():
         app.add_config_value(name, default, rebuild)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }
 
 
 def _patch_python_domain() -> None:

@@ -16,15 +16,20 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 from urllib.parse import quote, unquote, urlparse, urlsplit, urlunparse
 
 from docutils import nodes
-from requests.exceptions import ConnectionError, HTTPError, SSLError, TooManyRedirects
+from requests.exceptions import (
+    ConnectionError,  # NoQA: A004
+    HTTPError,
+    SSLError,
+    TooManyRedirects,
+)
 from requests.exceptions import Timeout as RequestTimeout
 
+from sphinx._cli.util.colour import darkgray, darkgreen, purple, red, turquoise
 from sphinx.builders.dummy import DummyBuilder
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging, requests
 from sphinx.util._uri import encode_uri
-from sphinx.util.console import darkgray, darkgreen, purple, red, turquoise
 from sphinx.util.http_date import rfc1123_to_epoch
 from sphinx.util.nodes import get_node_line
 
@@ -67,9 +72,7 @@ DEFAULT_DELAY = 60.0
 
 
 class CheckExternalLinksBuilder(DummyBuilder):
-    """
-    Checks for broken external links.
-    """
+    """Checks for broken external links."""
 
     name = 'linkcheck'
     epilog = __('Look for any errors in the above output or in %(outdir)s/output.txt')
@@ -123,9 +126,9 @@ class CheckExternalLinksBuilder(DummyBuilder):
                     msg = f'{res_uri}: {result.message}'
                 else:
                     msg = res_uri
-                logger.info(darkgray('-ignored- ') + msg)
+                logger.info(darkgray('-ignored- ') + msg)  # NoQA: G003
             case _Status.WORKING:
-                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')
+                logger.info(darkgreen('ok        ') + f'{res_uri}{result.message}')  # NoQA: G003
             case _Status.TIMEOUT:
                 if self.app.quiet:
                     msg = 'timeout   ' + f'{res_uri}{result.message}'
@@ -433,7 +436,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
             status, info, code = self._check(docname, uri, hyperlink)
             if status == _Status.RATE_LIMITED:
                 logger.info(
-                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')
+                    darkgray('-rate limited-   ') + uri + darkgray(' | sleeping...')  # NoQA: G003
                 )
             else:
                 self.rqueue.put(CheckResult(uri, docname, lineno, status, info, code))
@@ -773,16 +776,22 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('linkcheck_auth', [], '')
     app.add_config_value('linkcheck_request_headers', {}, '')
     app.add_config_value('linkcheck_retries', 1, '')
-    app.add_config_value('linkcheck_timeout', 30, '', (int, float))
+    app.add_config_value('linkcheck_timeout', 30, '', types=frozenset({int, float}))
     app.add_config_value('linkcheck_workers', 5, '')
     app.add_config_value('linkcheck_anchors', True, '')
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ['^!'], '')
-    app.add_config_value('linkcheck_anchors_ignore_for_url', (), '', (tuple, list))
-    app.add_config_value('linkcheck_rate_limit_timeout', 300.0, '', (int, float))
+    app.add_config_value(
+        'linkcheck_anchors_ignore_for_url', (), '', types=frozenset({tuple, list})
+    )
+    app.add_config_value(
+        'linkcheck_rate_limit_timeout', 300.0, '', types=frozenset({int, float})
+    )
     app.add_config_value('linkcheck_allow_unauthorized', False, '')
-    app.add_config_value('linkcheck_report_timeouts_as_broken', False, '', bool)
+    app.add_config_value(
+        'linkcheck_report_timeouts_as_broken', False, '', types=frozenset({bool})
+    )
 
     app.add_event('linkcheck-process-uri')
 

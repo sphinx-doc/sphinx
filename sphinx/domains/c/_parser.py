@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.domains.c._ast import (
     ASTAlignofExpr,
@@ -12,7 +12,6 @@ from sphinx.domains.c._ast import (
     ASTCastExpr,
     ASTCharLiteral,
     ASTDeclaration,
-    ASTDeclarator,
     ASTDeclaratorNameBitField,
     ASTDeclaratorNameParam,
     ASTDeclaratorParen,
@@ -21,13 +20,11 @@ from sphinx.domains.c._ast import (
     ASTDeclSpecsSimple,
     ASTEnum,
     ASTEnumerator,
-    ASTExpression,
     ASTFallbackExpr,
     ASTFunctionParameter,
     ASTIdentifier,
     ASTIdExpression,
     ASTInitializer,
-    ASTLiteral,
     ASTMacro,
     ASTMacroParameter,
     ASTNestedName,
@@ -41,12 +38,10 @@ from sphinx.domains.c._ast import (
     ASTPostfixExpr,
     ASTPostfixInc,
     ASTPostfixMemberOfPointer,
-    ASTPostfixOp,
     ASTSizeofExpr,
     ASTSizeofType,
     ASTStringLiteral,
     ASTStruct,
-    ASTTrailingTypeSpec,
     ASTTrailingTypeSpecFundamental,
     ASTTrailingTypeSpecName,
     ASTType,
@@ -80,8 +75,16 @@ from sphinx.util.cfamily import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+    from typing import Any
 
-    from sphinx.domains.c._ast import DeclarationType
+    from sphinx.domains.c._ast import (
+        ASTDeclarator,
+        ASTExpression,
+        ASTLiteral,
+        ASTPostfixOp,
+        ASTTrailingTypeSpec,
+        DeclarationType,
+    )
 
 
 class DefinitionParser(BaseParser):
@@ -868,7 +871,7 @@ class DefinitionParser(BaseParser):
         self, outer: str | None = None, allow_fallback: bool = True
     ) -> ASTInitializer | None:
         self.skip_ws()
-        if outer == 'member' and False:  # NoQA: SIM223  # TODO
+        if outer == 'member' and False:  # NoQA: SIM223,TD005  # TODO
             braced_init = self._parse_braced_init_list()
             if braced_init is not None:
                 return ASTInitializer(braced_init, hasAssign=False)
@@ -898,8 +901,7 @@ class DefinitionParser(BaseParser):
         return ASTInitializer(value)
 
     def _parse_type(self, named: bool | str, outer: str | None = None) -> ASTType:
-        """
-        named=False|'single'|True: 'single' is e.g., for function objects which
+        """named=False|'single'|True: 'single' is e.g., for function objects which
         doesn't need to name the arguments, but otherwise is a single name
         """
         if outer:  # always named

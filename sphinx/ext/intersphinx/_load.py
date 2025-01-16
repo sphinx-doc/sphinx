@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import concurrent.futures
 import dataclasses
-import io
 import os.path
 import posixpath
 import time
@@ -82,7 +81,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
                 'Values must be a (target URI, inventory locations) pair.'
             )
-            LOGGER.error(msg, value, name)
+            LOGGER.error(msg, value, name)  # NoQA: TRY400
             del config.intersphinx_mapping[name]
             continue
 
@@ -293,9 +292,9 @@ def _fetch_inventory_group(
     else:
         issues = '\n'.join(f[0] % f[1:] for f in failures)
         LOGGER.warning(
-            __('failed to reach any of the inventories with the following issues:')
-            + '\n'
-            + issues
+            '%s\n%s',
+            __('failed to reach any of the inventories with the following issues:'),
+            issues,
         )
     return updated
 
@@ -327,9 +326,8 @@ def _fetch_inventory(
     else:
         raw_data = _fetch_inventory_file(inv_location=inv_location, srcdir=srcdir)
 
-    stream = io.BytesIO(raw_data)
     try:
-        invdata = InventoryFile.load(stream, target_uri, posixpath.join)
+        invdata = InventoryFile.loads(raw_data, uri=target_uri)
     except ValueError as exc:
         msg = f'unknown or unsupported inventory version: {exc!r}'
         raise ValueError(msg) from exc

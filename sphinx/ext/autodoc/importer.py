@@ -161,9 +161,7 @@ def import_module(modname: str) -> Any:
 
 
 def _reload_module(module: ModuleType) -> Any:
-    """
-    Call importlib.reload(module), convert exceptions to ImportError
-    """
+    """Call importlib.reload(module), convert exceptions to ImportError"""
     try:
         return importlib.reload(module)
     except BaseException as exc:

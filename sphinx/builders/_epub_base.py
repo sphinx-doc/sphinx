@@ -7,7 +7,7 @@ import os
 import os.path
 import re
 import time
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import quote
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
@@ -25,6 +25,7 @@ from sphinx.util.osutil import copyfile, ensuredir, relpath
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Any
 
     from docutils.nodes import Element, Node
 
@@ -125,8 +126,7 @@ ssp = sphinx_smarty_pants
 
 
 class EpubBuilder(StandaloneHTMLBuilder):
-    """
-    Builder that outputs epub files.
+    """Builder that outputs epub files.
 
     It creates the metainfo files container.opf, toc.ncx, mimetype, and
     META-INF/container.xml.  Afterwards, all necessary files are zipped to an

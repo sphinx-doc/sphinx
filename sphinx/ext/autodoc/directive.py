@@ -1,23 +1,27 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.statemachine import StringList
-from docutils.utils import Reporter, assemble_option_dict
+from docutils.utils import assemble_option_dict
 
-from sphinx.ext.autodoc import Documenter, Options
+from sphinx.ext.autodoc import Options
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Node
     from docutils.parsers.rst.states import RSTState
+    from docutils.utils import Reporter
 
     from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
+    from sphinx.ext.autodoc import Documenter
 
 logger = logging.getLogger(__name__)
 
@@ -38,12 +42,12 @@ AUTODOC_DEFAULT_OPTIONS = [
     'no-value',
 ]
 
-AUTODOC_EXTENDABLE_OPTIONS = [
+AUTODOC_EXTENDABLE_OPTIONS = frozenset({
     'members',
     'private-members',
     'special-members',
     'exclude-members',
-]
+})
 
 
 class DummyOptionSpec(dict[str, Callable[[str], str]]):
@@ -153,7 +157,7 @@ class AutodocDirective(SphinxDirective):
             )
         except (KeyError, ValueError, TypeError) as exc:
             # an option is either unknown or has a wrong type
-            logger.error(
+            logger.error(  # NoQA: TRY400
                 'An option to %s is either unknown or has an invalid value: %s',
                 self.name,
                 exc,

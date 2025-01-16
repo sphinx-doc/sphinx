@@ -7,6 +7,9 @@
 
 .. versionadded:: 1.2
 
+.. role:: code-py(code)
+   :language: Python
+
 This extension looks at your object descriptions (``.. class::``,
 ``.. function::`` etc.) and adds external links to code hosted
 somewhere on the web. The intent is similar to the
@@ -21,6 +24,8 @@ Configuration
 -------------
 
 .. confval:: linkcode_resolve
+   :type: :code-py:`Callable[[str, dict[str, str]], str | None] | None`
+   :default: :code-py:`None`
 
    This is a function ``linkcode_resolve(domain, info)``,
    which should return the URL to source code corresponding to

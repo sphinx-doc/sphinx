@@ -7,7 +7,7 @@ import re
 from hashlib import sha1
 from math import ceil
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
@@ -20,6 +20,8 @@ from sphinx.util.images import get_image_extension, guess_mimetype, parse_data_u
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -113,7 +115,7 @@ class ImageDownloader(BaseImageConverter):
             # append a suffix if URI does not contain suffix
             ext = get_image_extension(mimetype) or ''
             with_ext = path.with_name(path.name + ext)
-            os.replace(path, with_ext)
+            path.replace(with_ext)
             self.env.original_image_uri.pop(str_path)
             self.env.original_image_uri[_StrPath(with_ext)] = node['uri']
             path = with_ext

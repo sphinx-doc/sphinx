@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, overload
+from typing import TYPE_CHECKING, overload
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 @overload
@@ -54,12 +57,12 @@ class Bar:
     """docstring"""
 
     @overload
-    def __init__(cls, x: int, y: int) -> None: ...
+    def __init__(self, x: int, y: int) -> None: ...
 
     @overload
-    def __init__(cls, x: str, y: str) -> None: ...
+    def __init__(self, x: str, y: str) -> None: ...
 
-    def __init__(cls, x, y):
+    def __init__(self, x, y):
         pass
 
 

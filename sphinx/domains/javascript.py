@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -21,6 +21,7 @@ from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -34,9 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a JavaScript object.
-    """
+    """Description of a JavaScript object."""
 
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
@@ -302,8 +301,7 @@ class JSConstructor(JSCallable):
 
 
 class JSModule(SphinxDirective):
-    """
-    Directive to mark description of a new JavaScript module.
+    """Directive to mark description of a new JavaScript module.
 
     This directive specifies the module name that will be used by objects that
     follow this directive.
@@ -561,7 +559,10 @@ class JavaScriptDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)}
+        'javascript_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     return {
         'version': 'builtin',

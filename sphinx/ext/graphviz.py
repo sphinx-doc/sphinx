@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 from hashlib import sha1
 from itertools import chain
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
 
 from docutils import nodes
@@ -26,6 +26,8 @@ from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
+    from typing import Any, ClassVar
+
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
@@ -111,9 +113,7 @@ def align_spec(argument: Any) -> str:
 
 
 class Graphviz(SphinxDirective):
-    """
-    Directive to insert arbitrary dot markup.
-    """
+    """Directive to insert arbitrary dot markup."""
 
     has_content = True
     required_arguments = 0
@@ -193,9 +193,7 @@ class Graphviz(SphinxDirective):
 
 
 class GraphvizSimple(SphinxDirective):
-    """
-    Directive to insert arbitrary dot markup.
-    """
+    """Directive to insert arbitrary dot markup."""
 
     has_content = True
     required_arguments = 1
@@ -364,12 +362,12 @@ def render_dot_html(
     filename: str | None = None,
 ) -> tuple[str, str]:
     format = self.builder.config.graphviz_output_format
+    if format not in {'png', 'svg'}:
+        logger.warning(
+            __("graphviz_output_format must be either 'png' or 'svg', but is %r"),
+            format,
+        )
     try:
-        if format not in {'png', 'svg'}:
-            raise GraphvizError(
-                __("graphviz_output_format must be one of 'png', 'svg', but is %r")
-                % format
-            )
         fname, outfn = render_dot(self, code, options, format, prefix, filename)
     except GraphvizError as exc:
         logger.warning(__('dot code %r: %s'), code, exc)
@@ -523,8 +521,11 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('graph', GraphvizSimple)
     app.add_directive('digraph', GraphvizSimple)
     app.add_config_value('graphviz_dot', 'dot', 'html')
-    app.add_config_value('graphviz_dot_args', [], 'html')
+    app.add_config_value('graphviz_dot_args', (), 'html')
     app.add_config_value('graphviz_output_format', 'png', 'html')
     app.add_css_file('graphviz.css')
     app.connect('config-inited', on_config_inited)
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

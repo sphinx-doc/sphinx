@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
-    """
-    A StandaloneHTMLBuilder that creates all HTML pages as "index.html" in
+    """A StandaloneHTMLBuilder that creates all HTML pages as "index.html" in
     a directory given by their pagename, so that generated URLs don't have
     ``.html`` in them.
     """
