@@ -340,7 +340,6 @@ def _fetch_inventory_url(
     try:
         with requests.get(
             inv_location,
-            stream=True,
             timeout=config.intersphinx_timeout,
             _user_agent=config.user_agent,
             _tls_info=(config.tls_verify, config.tls_cacerts),
