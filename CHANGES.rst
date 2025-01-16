@@ -54,7 +54,7 @@ Features added
 Bugs fixed
 ----------
 
-* #12463: ``autosummary`` ignores ``__all__`` when it is empty.
+* #12463: autosummary: Respect an empty module ``__all__``.
   Patch by Valentin Pratz
 * #13060: HTML Search: use ``Map`` to store per-file term scores.
   Patch by James Addison
