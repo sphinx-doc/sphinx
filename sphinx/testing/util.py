@@ -15,7 +15,7 @@ from docutils.parsers.rst import directives, roles
 import sphinx.application
 import sphinx.locale
 import sphinx.pycode
-from sphinx.util.console import strip_colors
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.util.docutils import additional_nodes
 
 if TYPE_CHECKING:
@@ -271,7 +271,11 @@ def _clean_up_global_state() -> None:
 
 # deprecated name -> (object to return, canonical path or '', removal version)
 _DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'strip_escseq': (strip_colors, 'sphinx.util.console.strip_colors', (9, 0)),
+    'strip_escseq': (
+        strip_escape_sequences,
+        'sphinx.util.console.strip_escape_sequences',
+        (9, 0),
+    ),
 }
 
 

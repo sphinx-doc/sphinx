@@ -10,10 +10,10 @@ from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
 from sphinx import addnodes
+from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project

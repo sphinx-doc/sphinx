@@ -31,9 +31,14 @@ from docutils.utils import column_width
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
-from sphinx._cli.util.colour import terminal_supports_colour
+from sphinx._cli.util.colour import (
+    bold,
+    disable_colour,
+    red,
+    terminal_supports_colour,
+)
 from sphinx.locale import __
-from sphinx.util.console import bold, colorize, nocolor, red
+from sphinx.util.console import colorize
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
@@ -726,7 +731,7 @@ def main(argv: Sequence[str] = (), /) -> int:
     sphinx.locale.init_console()
 
     if not terminal_supports_colour():
-        nocolor()
+        disable_colour()
 
     # parse options
     parser = get_parser()

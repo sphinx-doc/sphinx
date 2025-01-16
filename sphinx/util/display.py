@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import functools
 
-from sphinx._cli.util.colour import terminal_supports_colour
+from sphinx._cli.util.colour import bold, terminal_supports_colour
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold
 
 if False:
     from collections.abc import Callable, Iterable, Iterator

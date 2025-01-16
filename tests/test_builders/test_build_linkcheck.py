@@ -19,6 +19,7 @@ import pytest
 from urllib3.poolmanager import PoolManager
 
 import sphinx.util.http_date
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.linkcheck import (
     CheckRequest,
     Hyperlink,
@@ -28,7 +29,6 @@ from sphinx.builders.linkcheck import (
 )
 from sphinx.util import requests
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.console import strip_colors
 
 from tests.utils import CERT_FILE, serve_application
 
@@ -775,7 +775,7 @@ def test_linkcheck_allowed_redirects(app: SphinxTestApp) -> None:
     assert (
         f'index.rst:3: WARNING: redirect  http://{address}/path2 - with Found to '
         f'http://{address}/?redirected=1\n'
-    ) in strip_colors(app.warning.getvalue())
+    ) in strip_escape_sequences(app.warning.getvalue())
     assert len(app.warning.getvalue().splitlines()) == 1
 
 
@@ -1061,7 +1061,7 @@ def test_too_many_requests_retry_after_int_delay(app, capsys):
         'info': '',
     }
     rate_limit_log = f'-rate limited-   http://{address}/ | sleeping...\n'
-    assert rate_limit_log in strip_colors(app.status.getvalue())
+    assert rate_limit_log in strip_escape_sequences(app.status.getvalue())
     _stdout, stderr = capsys.readouterr()
     assert stderr == textwrap.dedent(
         """\

@@ -10,7 +10,7 @@ if sys.platform == 'win32':
     import colorama
 
 
-_COLOURING_DISABLED = True
+_COLOURING_DISABLED = False
 
 
 def terminal_supports_colour() -> bool:
@@ -19,6 +19,7 @@ def terminal_supports_colour() -> bool:
         return False
     if sys.platform == 'win32':
         colorama.just_fix_windows_console()
+        return True
     if 'FORCE_COLOUR' in os.environ or 'FORCE_COLOR' in os.environ:
         return True
     if os.environ.get('CI', '') in {'true', '1'}:
@@ -58,6 +59,7 @@ def _create_colour_func(escape_code: str, /) -> Callable[[str], str]:
             return text
         return f'\x1b[{escape_code}m{text}\x1b[39;49;00m'
 
+    inner.__escape_code = escape_code  # type: ignore[attr-defined]
     return inner
 
 
@@ -75,7 +77,7 @@ else:
         def inner(text: str) -> str:
             if _COLOURING_DISABLED:
                 return text
-            return f'\x01\x1b[{escape_code}m\x02{text}\x01\x1b[39;49;00m\x02'
+            return f'\1\x1b[{escape_code}m\2{text}\1\x1b[39;49;00m\2'
 
         return inner
 
