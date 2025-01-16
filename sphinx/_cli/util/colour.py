@@ -10,7 +10,7 @@ if sys.platform == 'win32':
     import colorama
 
 
-_COLOURING_DISABLED = True
+_COLOURING_DISABLED = False
 
 
 def terminal_supports_colour() -> bool:
@@ -19,6 +19,7 @@ def terminal_supports_colour() -> bool:
         return False
     if sys.platform == 'win32':
         colorama.just_fix_windows_console()
+        return True
     if 'FORCE_COLOUR' in os.environ or 'FORCE_COLOR' in os.environ:
         return True
     if os.environ.get('CI', '') in {'true', '1'}:
