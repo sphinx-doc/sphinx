@@ -18,7 +18,7 @@ from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.osutil import _relative_path
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Set
+    from collections.abc import Iterable, Sequence, Set
     from types import ModuleType
     from typing import Any
 
@@ -404,27 +404,30 @@ class IntersphinxRole(SphinxRole):
         else:
             # the user did not specify a domain,
             # so we check first the default (if available) then standard domains
-            domains: list[Domain] = []
-            if default_domain := self.env.current_document.default_domain:
-                domains.append(default_domain)
-            if (
-                std_domain := self.env.domains.standard_domain
-            ) is not None and std_domain not in domains:
-                domains.append(std_domain)
+            default_domain = self.env.current_document.default_domain
+            std_domain = self.env.domains.standard_domain
+            domains: Sequence[Domain]
+            if default_domain is None or std_domain == default_domain:
+                domains = (std_domain,)
+            else:
+                domains = (default_domain, std_domain)
 
             role_func = None
             for domain in domains:
-                if (role_func := domain.roles.get(role_name)) is not None:
+                role_func = domain.roles.get(role_name)
+                if role_func is not None:
                     domain_name = domain.name
                     break
 
             if role_func is None or domain_name is None:
-                domains_str = self._concat_strings(d.name for d in domains)
+                domains_str = self._concat_strings(domain.name for domain in domains)
                 msg = 'role for external cross-reference not found in domains %s: %r'
-                possible_roles: set[str] = set()
-                for d in domains:
-                    if o := d.object_types.get(role_name):
-                        possible_roles.update(f'{d.name}:{r}' for r in o.roles)
+                possible_roles: set[str] = {
+                    f'{domain.name}:{r}'
+                    for domain in domains
+                    if (object_types := domain.object_types.get(role_name))
+                    for r in object_types.roles
+                }
                 if possible_roles:
                     msg = f'{msg} (perhaps you meant one of: %s)'
                     self._emit_warning(
