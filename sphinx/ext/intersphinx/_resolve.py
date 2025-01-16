@@ -30,30 +30,33 @@ if TYPE_CHECKING:
     from sphinx.domains._domains_container import _DomainsContainer
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.intersphinx._shared import InventoryName
-    from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
+    from sphinx.util.inventory import _InventoryItem
+    from sphinx.util.typing import Inventory, RoleFunction
 
 
 def _create_element_from_result(
     domain_name: str,
     inv_name: InventoryName | None,
-    data: InventoryItem,
+    inv_item: _InventoryItem,
     node: pending_xref,
     contnode: TextElement,
 ) -> nodes.reference:
-    proj, version, uri, dispname = data
+    uri = inv_item.uri
     if '://' not in uri and node.get('refdoc'):
         # get correct path in case of subdirectories
         uri = (_relative_path(Path(), Path(node['refdoc']).parent) / uri).as_posix()
-    if version:
-        reftitle = _('(in %s v%s)') % (proj, version)
+    if inv_item.project_version:
+        reftitle = _('(in %s v%s)') % (inv_item.project_name, inv_item.project_version)
     else:
-        reftitle = _('(in %s)') % (proj,)
+        reftitle = _('(in %s)') % (inv_item.project_name,)
 
     newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
     if node.get('refexplicit'):
         # use whatever title was given
         newnode.append(contnode)
-    elif dispname == '-' or (domain_name == 'std' and node['reftype'] == 'keyword'):
+    elif inv_item.display_name == '-' or (
+        domain_name == 'std' and node['reftype'] == 'keyword'
+    ):
         # use whatever title was given, but strip prefix
         title = contnode.astext()
         if inv_name is not None and title.startswith(inv_name + ':'):
@@ -66,7 +69,7 @@ def _create_element_from_result(
             newnode.append(contnode)
     else:
         # else use the given display name (used for :ref:)
-        newnode.append(contnode.__class__(dispname, dispname))
+        newnode.append(contnode.__class__(inv_item.display_name, inv_item.display_name))
     return newnode
 
 
