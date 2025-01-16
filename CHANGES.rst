@@ -46,8 +46,9 @@ Features added
   Patch by Adam Turner.
 * #13065: Enable colour by default in when running on CI.
   Patch by Adam Turner.
-* Add the subtype ``toc.empty_glob`` to allow suppressing the warning of
-  a non-matching glob pattern in TOC.
+* Allow supressing warnings from the :rst:dir`toctree` directive when a glob pattern
+  doesn't match any documents, via the new ``toc.glob_not_matching`` warning sub-type.
+  Patch by Slawek Figiel.
 
 Bugs fixed
 ----------
