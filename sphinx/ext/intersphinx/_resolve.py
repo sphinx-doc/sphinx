@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
 
 def _create_element_from_result(
-    domain: Domain,
+    domain_name: str,
     inv_name: InventoryName | None,
     data: InventoryItem,
     node: pending_xref,
@@ -47,11 +47,12 @@ def _create_element_from_result(
         reftitle = _('(in %s v%s)') % (proj, version)
     else:
         reftitle = _('(in %s)') % (proj,)
+
     newnode = nodes.reference('', '', internal=False, refuri=uri, reftitle=reftitle)
     if node.get('refexplicit'):
         # use whatever title was given
         newnode.append(contnode)
-    elif dispname == '-' or (domain.name == 'std' and node['reftype'] == 'keyword'):
+    elif dispname == '-' or (domain_name == 'std' and node['reftype'] == 'keyword'):
         # use whatever title was given, but strip prefix
         title = contnode.astext()
         if inv_name is not None and title.startswith(inv_name + ':'):
@@ -71,7 +72,7 @@ def _create_element_from_result(
 def _resolve_reference_in_domain_by_target(
     inv_name: InventoryName | None,
     inventory: Inventory,
-    domain: Domain,
+    domain_name: str,
     objtypes: Iterable[str],
     target: str,
     node: pending_xref,
@@ -128,7 +129,7 @@ def _resolve_reference_in_domain_by_target(
             # This is a fix for terms specifically, but potentially should apply to
             # other types.
             continue
-        return _create_element_from_result(domain, inv_name, data, node, contnode)
+        return _create_element_from_result(domain_name, inv_name, data, node, contnode)
     return None
 
 
@@ -142,18 +143,18 @@ def _resolve_reference_in_domain(
     node: pending_xref,
     contnode: TextElement,
 ) -> nodes.reference | None:
-    obj_types: dict[str, None] = {}.fromkeys(objtypes)
+    domain_name = domain.name
+    obj_types: dict[str, None] = dict.fromkeys(objtypes)
 
     # we adjust the object types for backwards compatibility
-    if domain.name == 'std' and 'cmdoption' in obj_types:
+    if domain_name == 'std' and 'cmdoption' in obj_types:
         # cmdoptions were stored as std:option until Sphinx 1.6
         obj_types['option'] = None
-    if domain.name == 'py' and 'attribute' in obj_types:
+    if domain_name == 'py' and 'attribute' in obj_types:
         # properties are stored as py:method since Sphinx 2.1
         obj_types['method'] = None
 
     # the inventory contains domain:type as objtype
-    domain_name = domain.name
     obj_types = {f'{domain_name}:{obj_type}': None for obj_type in obj_types}
 
     # now that the objtypes list is complete we can remove the disabled ones
@@ -167,7 +168,7 @@ def _resolve_reference_in_domain(
 
     # without qualification
     res = _resolve_reference_in_domain_by_target(
-        inv_name, inventory, domain, objtypes, node['reftarget'], node, contnode
+        inv_name, inventory, domain_name, objtypes, node['reftarget'], node, contnode
     )
     if res is not None:
         return res
@@ -177,7 +178,7 @@ def _resolve_reference_in_domain(
     if full_qualified_name is None:
         return None
     return _resolve_reference_in_domain_by_target(
-        inv_name, inventory, domain, objtypes, full_qualified_name, node, contnode
+        inv_name, inventory, domain_name, objtypes, full_qualified_name, node, contnode
     )
 
 
@@ -505,18 +506,19 @@ class IntersphinxRole(SphinxRole):
         names = name.split(':')
         if len(names) == 1:
             # role
-            default_domain = self.env.current_document.default_domain
-            domain = default_domain.name if default_domain else None
+            if (domain := self.env.current_document.default_domain) is not None:
+                domain_name = domain.name
+            else:
+                domain_name = None
             role = names[0]
         elif len(names) == 2:
             # domain:role:
-            domain = names[0]
-            role = names[1]
+            domain_name, role = names
         else:
             return None
 
-        if domain and self.is_existent_role(domain, role):
-            return domain, role
+        if domain_name and self.is_existent_role(domain_name, role):
+            return domain_name, role
         elif self.is_existent_role('std', role):
             return 'std', role
         else:
