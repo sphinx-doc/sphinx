@@ -535,10 +535,11 @@ class IntersphinxRole(SphinxRole):
             __name__, f'{self.__class__.__name__}.is_existent_role', '', remove=(9, 0)
         )
         try:
-            domain = self.env.get_domain(domain_name)
-            return role_name in domain.roles
-        except ExtensionError:
+            domain = self.env.domains[domain_name]
+        except KeyError:
             return False
+        else:
+            return role_name in domain.roles
 
     def invoke_role(
         self, role: tuple[str, str]
