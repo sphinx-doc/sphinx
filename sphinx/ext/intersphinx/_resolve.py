@@ -18,7 +18,7 @@ from sphinx.util.docutils import CustomReSTDispatcher, SphinxRole
 from sphinx.util.osutil import _relative_path
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Set
     from types import ModuleType
     from typing import Any
 
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 
     from sphinx.application import Sphinx
     from sphinx.domains import Domain
+    from sphinx.domains._domains_container import _DomainsContainer
     from sphinx.environment import BuildEnvironment
     from sphinx.ext.intersphinx._shared import InventoryName
     from sphinx.util.typing import Inventory, InventoryItem, RoleFunction
@@ -134,10 +135,10 @@ def _resolve_reference_in_domain_by_target(
 
 
 def _resolve_reference_in_domain(
-    env: BuildEnvironment,
     inv_name: InventoryName | None,
     inventory: Inventory,
     honor_disabled_refs: bool,
+    disabled_reftypes: Set[str],
     domain: Domain,
     objtypes: Iterable[str],
     node: pending_xref,
@@ -159,9 +160,10 @@ def _resolve_reference_in_domain(
 
     # now that the objtypes list is complete we can remove the disabled ones
     if honor_disabled_refs:
-        disabled = set(env.config.intersphinx_disabled_reftypes)
         obj_types = {
-            obj_type: None for obj_type in obj_types if obj_type not in disabled
+            obj_type: None
+            for obj_type in obj_types
+            if obj_type not in disabled_reftypes
         }
 
     objtypes = [*obj_types.keys()]
@@ -183,34 +185,31 @@ def _resolve_reference_in_domain(
 
 
 def _resolve_reference(
-    env: BuildEnvironment,
     inv_name: InventoryName | None,
+    domains: _DomainsContainer,
     inventory: Inventory,
     honor_disabled_refs: bool,
+    disabled_reftypes: Set[str],
     node: pending_xref,
     contnode: TextElement,
 ) -> nodes.reference | None:
     # disabling should only be done if no inventory is given
     honor_disabled_refs = honor_disabled_refs and inv_name is None
-    intersphinx_disabled_reftypes = env.config.intersphinx_disabled_reftypes
 
-    if honor_disabled_refs and '*' in intersphinx_disabled_reftypes:
+    if honor_disabled_refs and '*' in disabled_reftypes:
         return None
 
     typ = node['reftype']
     if typ == 'any':
-        for domain in env.domains.sorted():
-            if (
-                honor_disabled_refs
-                and f'{domain.name}:*' in intersphinx_disabled_reftypes
-            ):
+        for domain in domains.sorted():
+            if honor_disabled_refs and f'{domain.name}:*' in disabled_reftypes:
                 continue
             objtypes: Iterable[str] = domain.object_types.keys()
             res = _resolve_reference_in_domain(
-                env,
                 inv_name,
                 inventory,
                 honor_disabled_refs,
+                disabled_reftypes,
                 domain,
                 objtypes,
                 node,
@@ -224,17 +223,22 @@ def _resolve_reference(
         if not domain_name:
             # only objects in domains are in the inventory
             return None
-        if honor_disabled_refs and f'{domain_name}:*' in intersphinx_disabled_reftypes:
+        if honor_disabled_refs and f'{domain_name}:*' in disabled_reftypes:
             return None
-        domain = env.get_domain(domain_name)
+        try:
+            domain = domains[domain_name]
+        except KeyError as exc:
+            msg = __('Domain %r is not registered') % domain_name
+            raise ExtensionError(msg) from exc
+
         objtypes = domain.objtypes_for_role(typ) or ()
         if not objtypes:
             return None
         return _resolve_reference_in_domain(
-            env,
             inv_name,
             inventory,
             honor_disabled_refs,
+            disabled_reftypes,
             domain,
             objtypes,
             node,
@@ -260,10 +264,11 @@ def resolve_reference_in_inventory(
     """
     assert inventory_exists(env, inv_name)
     return _resolve_reference(
-        env,
         inv_name,
+        env.domains,
         InventoryAdapter(env).named_inventory[inv_name],
         False,
+        frozenset(env.config.intersphinx_disabled_reftypes),
         node,
         contnode,
     )
@@ -280,10 +285,11 @@ def resolve_reference_any_inventory(
     Resolution is tried with the target as is in any inventory.
     """
     return _resolve_reference(
-        env,
         None,
+        env.domains,
         InventoryAdapter(env).main_inventory,
         honor_disabled_refs,
+        frozenset(env.config.intersphinx_disabled_reftypes),
         node,
         contnode,
     )
