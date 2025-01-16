@@ -13,9 +13,7 @@ from sphinx.ext.napoleon import Config, _process_docstring, _skip_member, setup
 
 
 def simple_decorator(f):
-    """
-    A simple decorator that does nothing, for tests to use.
-    """
+    """A simple decorator that does nothing, for tests to use."""
 
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
@@ -33,12 +31,12 @@ def _private_undoc():
     pass
 
 
-def __special_doc__():
+def __special_doc__():  # NoQA: N807
     """module.__special_doc__.DOCSTRING"""
     pass
 
 
-def __special_undoc__():
+def __special_undoc__():  # NoQA: N807
     pass
 
 

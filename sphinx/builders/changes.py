@@ -7,11 +7,11 @@ import os.path
 from typing import TYPE_CHECKING
 
 from sphinx import package_dir
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import ensuredir, os_path
 
@@ -25,9 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class ChangesBuilder(Builder):
-    """
-    Write a summary with all versionadded/changed/deprecated/removed directives.
-    """
+    """Write a summary with all versionadded/changed/deprecated/removed directives."""
 
     name = 'changes'
     epilog = __('The overview file is in %(outdir)s.')
@@ -128,7 +126,7 @@ class ChangesBuilder(Builder):
         logger.info(bold(__('copying source files...')))
         for docname in self.env.all_docs:
             with open(
-                self.env.doc2path(docname), encoding=self.env.config.source_encoding
+                self.env.doc2path(docname), encoding=self.config.source_encoding
             ) as f:
                 try:
                     lines = f.readlines()
@@ -137,15 +135,16 @@ class ChangesBuilder(Builder):
                         __('could not read %r for changelog creation'), docname
                     )
                     continue
+            text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
+            ctx = {
+                'filename': str(self.env.doc2path(docname, False)),
+                'text': text,
+            }
+            rendered = self.templates.render('changes/rstsource.html', ctx)
             targetfn = os.path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(os.path.dirname(targetfn))
             with open(targetfn, 'w', encoding='utf-8') as f:
-                text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
-                ctx = {
-                    'filename': str(self.env.doc2path(docname, False)),
-                    'text': text,
-                }
-                f.write(self.templates.render('changes/rstsource.html', ctx))
+                f.write(rendered)
         themectx = {
             'theme_' + key: val for (key, val) in self.theme.get_options({}).items()
         }

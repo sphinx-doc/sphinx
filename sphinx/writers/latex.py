@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from roman_numerals import RomanNumeral
@@ -26,6 +26,7 @@ from sphinx.util.texescape import tex_replace_map
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, Text
 
@@ -560,7 +561,7 @@ class LaTeXTranslator(SphinxTranslator):
                 indices_config = frozenset(indices_config)
             else:
                 check_names = False
-            for domain in self.builder.env.domains.sorted():
+            for domain in self._domains.sorted():
                 for index_cls in domain.indices:
                     index_name = f'{domain.name}-{index_cls.name}'
                     if check_names and index_name not in indices_config:
@@ -1816,7 +1817,7 @@ class LaTeXTranslator(SphinxTranslator):
         while isinstance(next_node, nodes.target):
             next_node = next_node.next_node(ascend=True)
 
-        domain = self.builder.env.domains.standard_domain
+        domain = self._domains.standard_domain
         if isinstance(next_node, HYPERLINK_SUPPORT_NODES):
             return
         if (

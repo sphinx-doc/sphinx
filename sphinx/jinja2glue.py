@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import os
 import os.path
+from pathlib import Path
 from pprint import pformat
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from jinja2 import BaseLoader, FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -18,6 +19,7 @@ from sphinx.util.osutil import _last_modified_time
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from typing import Any
 
     from jinja2.environment import Environment
 
@@ -39,8 +41,7 @@ def _toint(val: str) -> int:
 
 
 def _todim(val: int | str) -> str:
-    """
-    Make val a css dimension. In particular the following transformations
+    """Make val a css dimension. In particular the following transformations
     are performed:
 
     - None -> 'initial' (default CSS value)
@@ -112,8 +113,7 @@ def warning(context: dict[str, Any], message: str, *args: Any, **kwargs: Any) ->
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
-    """
-    FileSystemLoader subclass that is not so strict about '..'  entries in
+    """FileSystemLoader subclass that is not so strict about '..'  entries in
     template names.
     """
 
@@ -154,9 +154,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
-    """
-    Interfaces the rendering environment of jinja2 for use in Sphinx.
-    """
+    """Interfaces the rendering environment of jinja2 for use in Sphinx."""
 
     # TemplateBridge interface
 
@@ -225,7 +223,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def _newest_template_mtime_name(self) -> tuple[float, str]:
         return max(
-            (os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9, sfile)
+            (Path(root, sfile).stat().st_mtime_ns / 10**9, sfile)
             for dirname in self.pathchain
             for root, _dirs, files in os.walk(dirname)
             for sfile in files

@@ -7,7 +7,7 @@ be domain-specifically transformed to a more appealing presentation.
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -17,6 +17,8 @@ from sphinx.util import logging
 from sphinx.util.nodes import get_node_line
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.nodes import Element, Node
     from docutils.parsers.rst.states import Inliner
 
@@ -181,8 +183,7 @@ class Field:
 
 
 class GroupedField(Field):
-    """
-    A doc field that is grouped; i.e., all fields of that type will be
+    """A doc field that is grouped; i.e., all fields of that type will be
     transformed into one field with its body being a bulleted list.  It always
     has an argument.  The argument can be linked using the given *rolename*.
     GroupedField should be used for doc fields that can occur more than once.
@@ -246,8 +247,7 @@ class GroupedField(Field):
 
 
 class TypedField(GroupedField):
-    """
-    A doc field that is grouped and has type information for the arguments.  It
+    """A doc field that is grouped and has type information for the arguments.  It
     always has an argument.  The argument can be linked using the given
     *rolename*, the type using the given *typerolename*.
 
@@ -338,8 +338,7 @@ class TypedField(GroupedField):
 
 
 class DocFieldTransformer:
-    """
-    Transforms field lists in "doc field" syntax into better-looking
+    """Transforms field lists in "doc field" syntax into better-looking
     equivalents, using the field type definitions given on a domain.
     """
 
@@ -410,7 +409,7 @@ class DocFieldTransformer:
                         self.directive.domain or '',
                         target,
                         contnode=content[0],
-                        env=self.directive.state.document.settings.env,
+                        env=self.directive.env,
                     )
                     if _is_single_paragraph(field_body):
                         paragraph = cast('nodes.paragraph', field_body[0])
@@ -477,7 +476,7 @@ class DocFieldTransformer:
             else:
                 fieldtype, items, location = entry
                 fieldtypes = types.get(fieldtype.name, {})
-                env = self.directive.state.document.settings.env
+                env = self.directive.env
                 inliner = self.directive.state.inliner
                 domain = self.directive.domain or ''
                 new_list += fieldtype.make_field(

@@ -13,7 +13,10 @@ from __future__ import annotations
 import os
 import re
 import sys
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 try:
     import MeCab  # type: ignore[import-not-found]
@@ -39,8 +42,7 @@ class BaseSplitter:
         self.options = options
 
     def split(self, input: str) -> list[str]:
-        """
-        :param str input:
+        """:param str input:
         :return:
         :rtype: list[str]
         """
@@ -513,8 +515,7 @@ class DefaultSplitter(BaseSplitter):
 
 
 class SearchJapanese(SearchLanguage):
-    """
-    Japanese search implementation: uses no stemmer, but word splitting is quite
+    """Japanese search implementation: uses no stemmer, but word splitting is quite
     complicated.
     """
 

@@ -29,9 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class XMLBuilder(Builder):
-    """
-    Builds Docutils-native XML.
-    """
+    """Builds Docutils-native XML."""
 
     name = 'xml'
     format = 'xml'
@@ -101,9 +99,7 @@ class XMLBuilder(Builder):
 
 
 class PseudoXMLBuilder(XMLBuilder):
-    """
-    Builds pseudo-XML for display purposes.
-    """
+    """Builds pseudo-XML for display purposes."""
 
     name = 'pseudoxml'
     format = 'pseudoxml'

@@ -10,6 +10,9 @@
            single: doctest
            pair: testing; snippets
 
+.. role:: code-py(code)
+   :language: Python
+
 
 It is often helpful to include snippets of code in your documentation and
 demonstrate the results of executing them. But it is important to ensure that
@@ -353,6 +356,8 @@ Configuration
 The doctest extension uses the following configuration values:
 
 .. confval:: doctest_default_flags
+   :type: :code-py:`int`
+   :default: :code-py:`ELLIPSIS | IGNORE_EXCEPTION_DETAIL | DONT_ACCEPT_TRUE_FOR_1`
 
    By default, these options are enabled:
 
@@ -367,8 +372,9 @@ The doctest extension uses the following configuration values:
    .. versionadded:: 1.5
 
 .. confval:: doctest_show_successes
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
 
-   Defaults to ``True``.
    Controls whether successes are reported.
 
    For a project with many doctests,
@@ -377,11 +383,15 @@ The doctest extension uses the following configuration values:
    .. versionadded:: 7.2
 
 .. confval:: doctest_path
+   :type: :code-py:`Sequence[str]`
+   :default: :code-py:`()`
 
    A list of directories that will be added to :data:`sys.path` when the doctest
    builder is used.  (Make sure it contains absolute paths.)
 
 .. confval:: doctest_global_setup
+   :type: :code-py:`str`
+   :default: :code-py:`''`
 
    Python code that is treated like it were put in a ``testsetup`` directive for
    *every* file that is tested, and for every group.  You can use this to
@@ -390,6 +400,8 @@ The doctest extension uses the following configuration values:
    .. versionadded:: 0.6
 
 .. confval:: doctest_global_cleanup
+   :type: :code-py:`str`
+   :default: :code-py:`''`
 
    Python code that is treated like it were put in a ``testcleanup`` directive
    for *every* file that is tested, and for every group.  You can use this to
@@ -398,8 +410,10 @@ The doctest extension uses the following configuration values:
    .. versionadded:: 1.1
 
 .. confval:: doctest_test_doctest_blocks
+   :type: :code-py:`str`
+   :default: :code-py:`'default'`
 
-   If this is a nonempty string (the default is ``'default'``),
+   If this is a nonempty string,
    standard reStructuredText doctest blocks will be tested too.
    They will be assigned to the group name given.
 

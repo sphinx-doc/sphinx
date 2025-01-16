@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 
 import pytest
@@ -309,7 +308,7 @@ def test_numfig_without_numbered_toctree(
     index = re.sub(':numbered:.*', '', index)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf8')
 
-    if not os.listdir(app.outdir):
+    if not list(app.outdir.iterdir()):
         app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, path, check, be_found)
 

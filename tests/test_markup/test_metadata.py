@@ -9,8 +9,7 @@ import pytest
 
 @pytest.mark.sphinx('dummy', testroot='metadata')
 def test_docinfo(app):
-    """
-    Inspect the 'docinfo' metadata stored in the first node of the document.
+    """Inspect the 'docinfo' metadata stored in the first node of the document.
     Note this doesn't give us access to data stored in subsequence blocks
     that might be considered document metadata, such as 'abstract' or
     'dedication' blocks, or the 'meta' role. Doing otherwise is probably more

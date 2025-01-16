@@ -140,22 +140,26 @@ def test_file_checksum(app):
 
 def test_file_checksum_query_string():
     with pytest.raises(
-        ThemeError, match='Local asset file paths must not contain query strings'
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
     ):
         _file_checksum(Path(), 'with_query_string.css?dead_parrots=1')
 
     with pytest.raises(
-        ThemeError, match='Local asset file paths must not contain query strings'
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
     ):
         _file_checksum(Path(), 'with_query_string.js?dead_parrots=1')
 
     with pytest.raises(
-        ThemeError, match='Local asset file paths must not contain query strings'
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
     ):
         _file_checksum(Path.cwd(), '_static/with_query_string.css?dead_parrots=1')
 
     with pytest.raises(
-        ThemeError, match='Local asset file paths must not contain query strings'
+        ThemeError,
+        match='Local asset file paths must not contain query strings',
     ):
         _file_checksum(Path.cwd(), '_static/with_query_string.js?dead_parrots=1')
 

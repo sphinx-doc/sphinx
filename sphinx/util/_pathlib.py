@@ -17,9 +17,12 @@ from __future__ import annotations
 import sys
 import warnings
 from pathlib import Path, PosixPath, PurePath, WindowsPath
-from typing import Any, overload
+from typing import TYPE_CHECKING, overload
 
 from sphinx.deprecation import RemovedInSphinx90Warning
+
+if TYPE_CHECKING:
+    from typing import Any
 
 _STR_METHODS = frozenset(str.__dict__)
 _PATH_NAME = Path().__class__.__name__
@@ -143,10 +146,10 @@ class _StrPathProperty:
         self.instance_attr = f'_{name}'  # i.e. '_srcdir'
 
     @overload
-    def __get__(self, obj: None, objtype: None) -> _StrPathProperty: ...  # NoQA: E704
+    def __get__(self, obj: None, objtype: None) -> _StrPathProperty: ...
 
     @overload
-    def __get__(self, obj: object, objtype: type[object]) -> _StrPath: ...  # NoQA: E704
+    def __get__(self, obj: object, objtype: type[object]) -> _StrPath: ...
 
     def __get__(
         self, obj: object | None, objtype: type[object] | None = None

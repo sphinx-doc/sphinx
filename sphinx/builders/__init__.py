@@ -8,12 +8,17 @@ import pickle
 import re
 import time
 from contextlib import nullcontext
-from typing import TYPE_CHECKING, Any, Literal, final
+from typing import TYPE_CHECKING, final
 
 from docutils import nodes
 from docutils.utils import DependencyList
 
-from sphinx.environment import CONFIG_CHANGED_REASON, CONFIG_OK, BuildEnvironment
+from sphinx._cli.util.colour import bold
+from sphinx.environment import (
+    CONFIG_CHANGED_REASON,
+    CONFIG_OK,
+    _CurrentDocument,
+)
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import SphinxError
 from sphinx.locale import __
@@ -25,10 +30,9 @@ from sphinx.util import (
 from sphinx.util._importer import import_object
 from sphinx.util._pathlib import _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import sphinx_domains
-from sphinx.util.i18n import CatalogInfo, CatalogRepository, docname_to_domain
+from sphinx.util.i18n import CatalogRepository, docname_to_domain
 from sphinx.util.osutil import SEP, canon_path, ensuredir, relative_uri, relpath
 from sphinx.util.parallel import (
     ParallelTasks,
@@ -43,12 +47,18 @@ from sphinx import roles  # NoQA: F401  isort:skip
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence, Set
+    from pathlib import Path
+    from typing import Any, Literal
 
     from docutils.nodes import Node
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
+    from sphinx.environment import (
+        BuildEnvironment,
+    )
     from sphinx.events import EventManager
+    from sphinx.util.i18n import CatalogInfo
     from sphinx.util.tags import Tags
 
 
@@ -56,9 +66,7 @@ logger = logging.getLogger(__name__)
 
 
 class Builder:
-    """
-    Builds target formats from the reST sources.
-    """
+    """Builds target formats from the reST sources."""
 
     #: The builder's name.
     #: This is the value used to select builders on the command line.
@@ -237,10 +245,10 @@ class Builder:
         if not self.config.gettext_auto_build:
             return
 
-        def cat2relpath(cat: CatalogInfo) -> str:
-            return relpath(cat.mo_path, self.env.srcdir).replace(os.path.sep, SEP)
+        def cat2relpath(cat: CatalogInfo, srcdir: Path = self.srcdir) -> str:
+            return relpath(cat.mo_path, srcdir).replace(os.path.sep, SEP)
 
-        logger.info(bold(__('building [mo]: ')) + message)
+        logger.info(bold(__('building [mo]: ')) + message)  # NoQA: G003
         for catalog in status_iterator(
             catalogs,
             __('writing output... '),
@@ -347,8 +355,8 @@ class Builder:
 
         self.build(
             docnames,
-            method='specific',
             summary=__('%d source files given on command line') % len(docnames),
+            method='specific',
         )
 
     @final
@@ -358,13 +366,14 @@ class Builder:
 
         to_build = self.get_outdated_docs()
         if isinstance(to_build, str):
-            self.build(['__all__'], to_build)
+            self.build(['__all__'], summary=to_build, method='update')
         else:
-            to_build = list(to_build)
+            to_build = set(to_build)
             self.build(
                 to_build,
                 summary=__('targets for %d source files that are out of date')
                 % len(to_build),
+                method='update',
             )
 
     @final
@@ -380,7 +389,7 @@ class Builder:
         :meth:`!write`.
         """
         if summary:
-            logger.info(bold(__('building [%s]: ')) + summary, self.name)
+            logger.info(bold(__('building [%s]: ')) + summary, self.name)  # NoQA: G003
 
         # while reading, collect all warnings from docutils
         with (
@@ -416,7 +425,6 @@ class Builder:
         else:
             if method == 'update' and not docnames:
                 logger.info(bold(__('no targets are out of date.')))
-                return
 
         self.app.phase = BuildPhase.RESOLVING
 
@@ -440,7 +448,7 @@ class Builder:
         self.finish_tasks = SerialTasks()
 
         # write all "normal" documents (or everything for some builders)
-        self.write(docnames, list(updated_docnames), method)
+        self.write(docnames, updated_docnames, method)
 
         # finish (write static files etc.)
         self.finish()
@@ -610,22 +618,23 @@ class Builder:
     @final
     def read_doc(self, docname: str, *, _cache: bool = True) -> None:
         """Parse a file and add/update inventory entries for the doctree."""
-        self.env.prepare_settings(docname)
+        env = self.env
+        env.prepare_settings(docname)
 
         # Add confdir/docutils.conf to dependencies list if exists
         docutilsconf = os.path.join(self.confdir, 'docutils.conf')
         if os.path.isfile(docutilsconf):
-            self.env.note_dependency(docutilsconf)
+            env.note_dependency(docutilsconf)
 
-        filename = str(self.env.doc2path(docname))
+        filename = str(env.doc2path(docname))
         filetype = get_filetype(self.app.config.source_suffix, filename)
         publisher = self.app.registry.get_publisher(self.app, filetype)
-        self.env.temp_data['_parser'] = publisher.parser
+        self.env.current_document._parser = publisher.parser
         # record_dependencies is mutable even though it is in settings,
         # explicitly re-initialise for each document
         publisher.settings.record_dependencies = DependencyList()
         with (
-            sphinx_domains(self.env),
+            sphinx_domains(env),
             rst.default_role(docname, self.config.default_role),
         ):
             # set up error_handler for the target document
@@ -637,11 +646,11 @@ class Builder:
             doctree = publisher.document
 
         # store time of reading, for outdated files detection
-        self.env.all_docs[docname] = time.time_ns() // 1_000
+        env.all_docs[docname] = time.time_ns() // 1_000
 
         # cleanup
-        self.env.temp_data.clear()
-        self.env.ref_context.clear()
+        env.current_document = _CurrentDocument()
+        env.ref_context.clear()
 
         self.write_doctree(docname, doctree, _cache=_cache)
 
@@ -680,33 +689,38 @@ class Builder:
     def write(
         self,
         build_docnames: Iterable[str] | None,
-        updated_docnames: Sequence[str],
+        updated_docnames: Iterable[str],
         method: Literal['all', 'specific', 'update'] = 'update',
     ) -> None:
         """Write builder specific output files."""
+        env = self.env
+
         # Allow any extensions to perform setup for writing
         self.events.emit('write-started', self)
 
         if build_docnames is None or build_docnames == ['__all__']:
             # build_all
-            build_docnames = self.env.found_docs
+            build_docnames = env.found_docs
         if method == 'update':
             # build updated ones as well
             docnames = set(build_docnames) | set(updated_docnames)
         else:
             docnames = set(build_docnames)
-        logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
+        if docnames:
+            logger.debug(__('docnames to write: %s'), ', '.join(sorted(docnames)))
+        else:
+            logger.debug(__('no docnames to write!'))
 
         # add all toctree-containing files that may have changed
-        extra = {self.config.root_doc}
-        for docname in docnames:
-            for tocdocname in self.env.files_to_rebuild.get(docname, set()):
-                if tocdocname in self.env.found_docs:
-                    extra.add(tocdocname)
-        docnames |= extra
+        docnames |= {
+            toc_docname
+            for docname in docnames
+            for toc_docname in env.files_to_rebuild.get(docname, ())
+            if toc_docname in env.found_docs
+        }
 
         # sort to ensure deterministic toctree generation
-        self.env.toctree_includes = dict(sorted(self.env.toctree_includes.items()))
+        env.toctree_includes = dict(sorted(env.toctree_includes.items()))
 
         with progress_message(__('preparing documents')):
             self.prepare_writing(docnames)
@@ -714,7 +728,8 @@ class Builder:
         with progress_message(__('copying assets'), nonl=False):
             self.copy_assets()
 
-        self.write_documents(docnames)
+        if docnames:
+            self.write_documents(docnames)
 
     def write_documents(self, docnames: Set[str]) -> None:
         """Write all documents in *docnames*.
@@ -801,8 +816,7 @@ class Builder:
         pass
 
     def write_doc(self, docname: str, doctree: nodes.document) -> None:
-        """
-        Write the output file for the document
+        """Write the output file for the document
 
         :param docname: the :term:`docname <document name>`.
         :param doctree: defines the content to be written.

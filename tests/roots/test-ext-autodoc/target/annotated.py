@@ -24,7 +24,7 @@ def validate(value: str) -> str:
 ValidatedString = Annotated[str, FuncValidator(validate)]
 
 
-def hello(name: Annotated[str, "attribute"]) -> None:
+def hello(name: Annotated[str, 'attribute']) -> None:
     """docstring"""
     pass
 
@@ -33,7 +33,7 @@ class AnnotatedAttributes:
     """docstring"""
 
     #: Docstring about the ``name`` attribute.
-    name: Annotated[str, "attribute"]
+    name: Annotated[str, 'attribute']
 
     #: Docstring about the ``max_len`` attribute.
     max_len: list[Annotated[str, MaxLen(10, ['word_one', 'word_two'])]]

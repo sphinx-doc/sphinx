@@ -28,13 +28,14 @@ Contributors
 * Antonio Valentino -- qthelp builder, docstring inheritance
 * Antti Kaihola -- doctest extension (skipif option)
 * Barry Warsaw -- setup command improvements
-* Ben Egan -- Napoleon improvements
+* Ben Egan -- Napoleon improvements & viewcode improvements
 * Benjamin Peterson -- unittests
 * Blaise Laflamme -- pyramid theme
 * Brecht Machiels -- builder entry-points
 * Bruce Mitchener -- Minor epub improvement
 * Buck Evan -- dummy builder
 * Charles Duffy -- original graphviz extension
+* Chris Barrick -- Napoleon type preprocessing logic
 * Chris Holdgraf -- improved documentation structure
 * Chris Lamb -- reproducibility fixes
 * Christopher Perkins -- autosummary integration

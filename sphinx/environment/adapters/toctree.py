@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 
 from sphinx import addnodes
 from sphinx.locale import __
@@ -15,6 +15,9 @@ from sphinx.util.nodes import _only_node_keep_children, clean_astext
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
+    from typing import Any
+
+    from docutils.nodes import Node
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -86,6 +89,7 @@ def global_toctree_for_doc(
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=builder.tags,
         )
         for toctree_node in env.master_doctree.findall(addnodes.toctree)
     )
@@ -110,6 +114,7 @@ def _resolve_toctree(
     titles_only: bool = False,
     collapse: bool = False,
     includehidden: bool = False,
+    tags: Tags,
 ) -> Element | None:
     """Resolve a *toctree* node into individual bullet lists with titles
     as items, returning None (if no containing titles are found) or
@@ -159,7 +164,7 @@ def _resolve_toctree(
         titles_only,
         collapse,
         includehidden,
-        builder.tags,
+        tags,
         toctree_ancestors,
         included,
         excluded,
@@ -510,7 +515,7 @@ def _toctree_copy(
             copy.append(sub_node_copy)
         else:
             msg = f'Unexpected node type {subnode.__class__.__name__!r}!'
-            raise ValueError(msg)
+            raise ValueError(msg)  # NoQA: TRY004
     return copy
 
 
@@ -558,13 +563,14 @@ class TocTree:
             titles_only=titles_only,
             collapse=collapse,
             includehidden=includehidden,
+            tags=builder.tags,
         )
 
     def get_toctree_ancestors(self, docname: str) -> list[str]:
         return [*_get_toctree_ancestors(self.env.toctree_includes, docname)]
 
     def get_toc_for(self, docname: str, builder: Builder) -> Node:
-        return document_toc(self.env, docname, self.env.app.builder.tags)
+        return document_toc(self.env, docname, self.env.app.tags)
 
     def get_toctree_for(
         self,

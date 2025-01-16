@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
-from sphinx.util.console import strip_colors
 from sphinx.util.inventory import InventoryFile
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
@@ -512,7 +512,7 @@ def test_validate_html_extra_path(app):
     validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
 
-    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert "html_extra_path entry '/path/to/not_found' does not exist" in warnings[0]
     assert warnings[1].endswith(' is placed inside outdir')
     assert warnings[2].endswith(' does not exist')
@@ -536,7 +536,7 @@ def test_validate_html_static_path(app):
     validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
 
-    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert "html_static_path entry '/path/to/not_found' does not exist" in warnings[0]
     assert warnings[1].endswith(' is placed inside outdir')
     assert warnings[2].endswith(' does not exist')
@@ -598,7 +598,7 @@ def test_html_remove_sources_before_write_gh_issue_10786(app):
     app.build()
     assert not target.exists()
 
-    ws = strip_colors(app.warning.getvalue()).splitlines()
+    ws = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert len(ws) >= 1
 
     file = os.fsdecode(target)

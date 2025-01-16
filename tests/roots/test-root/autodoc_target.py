@@ -32,7 +32,7 @@ class CustomDataDescriptor:
 
     def meth(self):
         """Function."""
-        return "The Answer"
+        return 'The Answer'
 
 
 class CustomDataDescriptorMeta(type):
@@ -41,15 +41,18 @@ class CustomDataDescriptorMeta(type):
 
 class CustomDataDescriptor2(CustomDataDescriptor):
     """Descriptor class with custom metaclass docstring."""
+
     __metaclass__ = CustomDataDescriptorMeta
 
 
 def _funky_classmethod(name, b, c, d, docstring=None):
-    """Generates a classmethod for a class from a template by filling out
-    some arguments."""
+    """Generates a classmethod for a class from a template by filling out some arguments."""
+
     def template(cls, a, b, c, d=4, e=5, f=6):
         return a, b, c, d, e, f
+
     from functools import partial
+
     function = partial(template, b=b, c=c, d=d)
     function.__name__ = name
     function.__doc__ = docstring
@@ -70,7 +73,7 @@ class Derived(Base):
 class Class(Base):
     """Class to document."""
 
-    descr = CustomDataDescriptor("Descriptor instance docstring.")
+    descr = CustomDataDescriptor('Descriptor instance docstring.')
 
     def meth(self):
         """Function."""
@@ -104,10 +107,11 @@ class Class(Base):
     mdocattr = StringIO()
     """should be documented as well - süß"""
 
-    roger = _funky_classmethod("roger", 2, 3, 4)
+    roger = _funky_classmethod('roger', 2, 3, 4)
 
-    moore = _funky_classmethod("moore", 9, 8, 7,
-                               docstring="moore(a, e, f) -> happiness")
+    moore = _funky_classmethod(
+        'moore', 9, 8, 7, docstring='moore(a, e, f) -> happiness'
+    )
 
     def __init__(self, arg):
         self.inst_attr_inline = None  #: an inline documented instance attr
@@ -117,22 +121,20 @@ class Class(Base):
         """a documented instance attribute"""
         self._private_inst_attr = None  #: a private instance attribute
 
-    def __special1__(self):
+    def __special1__(self):  # NoQA: PLW3201
         """documented special method"""
 
-    def __special2__(self):
+    def __special2__(self):  # NoQA: PLW3201
         # undocumented special method
         pass
 
 
-class CustomDict(dict):
+class CustomDict(dict):  # NoQA: FURB189
     """Docstring."""
 
 
 def function(foo, *args, **kwds):
-    """
-    Return spam.
-    """
+    """Return spam."""
     pass
 
 
@@ -152,7 +154,7 @@ class Outer:
 class DocstringSig:
     def meth(self):
         """meth(FOO, BAR=1) -> BAZ
-First line of docstring
+        First line of docstring
 
         rest of docstring
         """
@@ -179,7 +181,7 @@ First line of docstring
         return 456
 
 
-class StrRepr(str):
+class StrRepr(str):  # NoQA: FURB189,SLOT000
     def __repr__(self):
         return self
 
@@ -196,7 +198,7 @@ class InstAttCls:
     #: It can have multiple lines.
     ca1 = 'a'
 
-    ca2 = 'b'    #: Doc comment for InstAttCls.ca2. One line only.
+    ca2 = 'b'  #: Doc comment for InstAttCls.ca2. One line only.
 
     ca3 = 'c'
     """Docstring for class attribute InstAttCls.ca3."""
@@ -210,9 +212,7 @@ class InstAttCls:
 
 
 class EnumCls(enum.Enum):
-    """
-    this is enum class
-    """
+    """this is enum class"""
 
     #: doc for val1
     val1 = 12

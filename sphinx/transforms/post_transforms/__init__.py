@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from itertools import starmap
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -18,6 +18,7 @@ from sphinx.util.nodes import find_pending_xref_condition, process_only_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from docutils.nodes import Element, Node
 
@@ -59,9 +60,7 @@ class SphinxPostTransform(SphinxTransform):
 
 
 class ReferencesResolver(SphinxPostTransform):
-    """
-    Resolves cross-references on doctrees.
-    """
+    """Resolves cross-references on doctrees."""
 
     default_priority = 10
 
@@ -277,7 +276,7 @@ class OnlyNodeTransform(SphinxPostTransform):
         # result in a "Losing ids" exception if there is a target node before
         # the only node, so we make sure docutils can transfer the id to
         # something, even if it's just a comment and will lose the id anyway...
-        process_only_nodes(self.document, self.app.builder.tags)
+        process_only_nodes(self.document, self.app.tags)
 
 
 class SigElementFallbackTransform(SphinxPostTransform):

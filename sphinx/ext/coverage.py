@@ -14,17 +14,18 @@ import pkgutil
 import re
 import sys
 from importlib import import_module
-from typing import IO, TYPE_CHECKING, Any, TextIO
+from typing import TYPE_CHECKING
 
 import sphinx
+from sphinx._cli.util.colour import red
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import red
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence, Set
+    from typing import IO, Any, TextIO
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
@@ -62,12 +63,17 @@ def _add_line(sizes: list[int], separator: str) -> str:
     return '+' + ''.join((separator * (size + 1)) + '+' for size in sizes)
 
 
-def _add_row(col_widths: list[int], columns: list[str], separator: str) -> Iterator[str]:
-    yield ''.join(f'| {column: <{col_widths[i]}}' for i, column in enumerate(columns)) + '|'
+def _add_row(
+    col_widths: list[int], columns: list[str], separator: str
+) -> Iterator[str]:
+    row = ''.join(f'| {column: <{col_widths[i]}}' for i, column in enumerate(columns))
+    yield f'{row}|'
     yield _add_line(col_widths, separator)
 
 
-def _load_modules(mod_name: str, ignored_module_exps: Iterable[re.Pattern[str]]) -> Set[str]:
+def _load_modules(
+    mod_name: str, ignored_module_exps: Iterable[re.Pattern[str]]
+) -> Set[str]:
     """Recursively load all submodules.
 
     :param mod_name: The name of a module to load submodules for.
@@ -87,7 +93,7 @@ def _load_modules(mod_name: str, ignored_module_exps: Iterable[re.Pattern[str]])
         return modules
 
     search_locations = mod.__spec__.submodule_search_locations
-    for (_, sub_mod_name, sub_mod_ispkg) in pkgutil.iter_modules(search_locations):
+    for _, sub_mod_name, sub_mod_ispkg in pkgutil.iter_modules(search_locations):
         if sub_mod_name == '__main__':
             continue
 
@@ -138,16 +144,20 @@ def _determine_py_coverage_modules(
     # if there are additional modules then we warn but continue scanning
     if additional_modules := seen_modules - modules:
         logger.warning(
-            __('the following modules are documented but were not specified '
-               'in coverage_modules: %s'),
+            __(
+                'the following modules are documented but were not specified '
+                'in coverage_modules: %s'
+            ),
             ', '.join(additional_modules),
         )
 
     # likewise, if there are missing modules we warn but continue scanning
     if missing_modules := modules - seen_modules:
         logger.warning(
-            __('the following modules are specified in coverage_modules '
-               'but were not documented'),
+            __(
+                'the following modules are specified in coverage_modules '
+                'but were not documented'
+            ),
             ', '.join(missing_modules),
         )
 
@@ -155,39 +165,43 @@ def _determine_py_coverage_modules(
 
 
 class CoverageBuilder(Builder):
-    """
-    Evaluates coverage of code in the documentation.
-    """
+    """Evaluates coverage of code in the documentation."""
 
     name = 'coverage'
-    epilog = __('Testing of coverage in the sources finished, look at the '
-                'results in %(outdir)s' + os.path.sep + 'python.txt.')
+    epilog = __(
+        'Testing of coverage in the sources finished, look at the '
+        'results in %(outdir)s' + os.path.sep + 'python.txt.'
+    )
 
     def init(self) -> None:
         self.c_sourcefiles: list[str] = []
         for pattern in self.config.coverage_c_path:
             pattern = os.path.join(self.srcdir, pattern)
-            self.c_sourcefiles.extend(glob.glob(pattern))
+            self.c_sourcefiles.extend(glob.glob(pattern))  # NoQA: PTH207
 
         self.c_regexes: list[tuple[str, re.Pattern[str]]] = []
-        for (name, exp) in self.config.coverage_c_regexes.items():
+        for name, exp in self.config.coverage_c_regexes.items():
             try:
                 self.c_regexes.append((name, re.compile(exp)))
             except Exception:
                 logger.warning(__('invalid regex %r in coverage_c_regexes'), exp)
 
-        self.c_ignorexps: dict[str, list[re.Pattern[str]]] = {}
-        for (name, exps) in self.config.coverage_ignore_c_items.items():
-            self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
-                                                        exps)
-        self.mod_ignorexps = compile_regex_list('coverage_ignore_modules',
-                                                self.config.coverage_ignore_modules)
-        self.cls_ignorexps = compile_regex_list('coverage_ignore_classes',
-                                                self.config.coverage_ignore_classes)
-        self.fun_ignorexps = compile_regex_list('coverage_ignore_functions',
-                                                self.config.coverage_ignore_functions)
-        self.py_ignorexps = compile_regex_list('coverage_ignore_pyobjects',
-                                               self.config.coverage_ignore_pyobjects)
+        self.c_ignorexps: dict[str, list[re.Pattern[str]]] = {
+            name: compile_regex_list('coverage_ignore_c_items', exps)
+            for name, exps in self.config.coverage_ignore_c_items.items()
+        }
+        self.mod_ignorexps = compile_regex_list(
+            'coverage_ignore_modules', self.config.coverage_ignore_modules
+        )
+        self.cls_ignorexps = compile_regex_list(
+            'coverage_ignore_classes', self.config.coverage_ignore_classes
+        )
+        self.fun_ignorexps = compile_regex_list(
+            'coverage_ignore_functions', self.config.coverage_ignore_functions
+        )
+        self.py_ignorexps = compile_regex_list(
+            'coverage_ignore_pyobjects', self.config.coverage_ignore_pyobjects
+        )
 
     def get_outdated_docs(self) -> str:
         return 'coverage overview'
@@ -209,7 +223,7 @@ class CoverageBuilder(Builder):
             c_objects[obj[2]] = obj[1]
         for filename in self.c_sourcefiles:
             undoc: set[tuple[str, str]] = set()
-            with open(filename, encoding="utf-8") as f:
+            with open(filename, encoding='utf-8') as f:
                 for line in f:
                     for key, regex in self.c_regexes:
                         match = regex.match(line)
@@ -220,7 +234,7 @@ class CoverageBuilder(Builder):
                                 continue
 
                             if name not in c_objects[key]:
-                                for exp in self.c_ignorexps.get(key, []):
+                                for exp in self.c_ignorexps.get(key, ()):
                                     if exp.match(name):
                                         break
                                 else:
@@ -231,7 +245,7 @@ class CoverageBuilder(Builder):
 
     def write_c_coverage(self) -> None:
         output_file = os.path.join(self.outdir, 'c.txt')
-        with open(output_file, 'w', encoding="utf-8") as op:
+        with open(output_file, 'w', encoding='utf-8') as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented C API elements', '=')
             op.write('\n')
@@ -242,19 +256,23 @@ class CoverageBuilder(Builder):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                     if self.config.coverage_show_missing_items:
                         if self.app.quiet:
-                            logger.warning(__('undocumented c api: %s [%s] in file %s'),
-                                           name, typ, filename)
+                            logger.warning(
+                                __('undocumented c api: %s [%s] in file %s'),
+                                name,
+                                typ,
+                                filename,
+                            )
                         else:
-                            logger.info(red('undocumented  ') + 'c   ' + 'api       ' +
-                                        '%-30s' % (name + " [%9s]" % typ) +
-                                        red(' - in file ') + filename)
+                            logger.info(
+                                red('undocumented  ')  # NoQA: G003
+                                + f'c   api       {f"{name} [{typ:>9}]":<30}'
+                                + red(' - in file ')
+                                + filename
+                            )
                 op.write('\n')
 
     def ignore_pyobj(self, full_name: str) -> bool:
-        return any(
-            exp.search(full_name)
-            for exp in self.py_ignorexps
-        )
+        return any(exp.search(full_name) for exp in self.py_ignorexps)
 
     def build_py_coverage(self) -> None:
         seen_objects = frozenset(self.env.domaindata['py']['objects'])
@@ -263,7 +281,10 @@ class CoverageBuilder(Builder):
         skip_undoc = self.config.coverage_skip_undoc_in_source
 
         modules = _determine_py_coverage_modules(
-            self.config.coverage_modules, seen_modules, self.mod_ignorexps, self.py_undoc,
+            self.config.coverage_modules,
+            seen_modules,
+            self.mod_ignorexps,
+            self.py_undoc,
         )
         for mod_name in modules:
             ignore = False
@@ -336,8 +357,7 @@ class CoverageBuilder(Builder):
                                 attr = safe_getattr(obj, attr_name)
                             except AttributeError:
                                 continue
-                            if not (inspect.ismethod(attr) or
-                                    inspect.isfunction(attr)):
+                            if not (inspect.ismethod(attr) or inspect.isfunction(attr)):
                                 continue
                             if attr_name[0] == '_':
                                 # starts with an underscore, ignore it
@@ -380,7 +400,11 @@ class CoverageBuilder(Builder):
             else:
                 value = 100.0
 
-            table.append([module, '%.2f%%' % value, '%d' % len(self.py_undocumented[module])])
+            table.append([
+                module,
+                f'{value:.2f}%',
+                str(len(self.py_undocumented[module])),
+            ])
 
         if all_objects:
             table.append([
@@ -397,7 +421,7 @@ class CoverageBuilder(Builder):
     def write_py_coverage(self) -> None:
         output_file = os.path.join(self.outdir, 'python.txt')
         failed = []
-        with open(output_file, 'w', encoding="utf-8") as op:
+        with open(output_file, 'w', encoding='utf-8') as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented Python objects', '=')
 
@@ -427,27 +451,37 @@ class CoverageBuilder(Builder):
                                 for func in undoc['funcs']:
                                     logger.warning(
                                         __('undocumented python function: %s :: %s'),
-                                        name, func)
+                                        name,
+                                        func,
+                                    )
                             else:
                                 for func in undoc['funcs']:
-                                    logger.info(red('undocumented  ') + 'py  ' + 'function  ' +
-                                                '%-30s' % func + red(' - in module ') + name)
+                                    logger.info(
+                                        red('undocumented  ')  # NoQA: G003
+                                        + f'py  function  {func:<30}'
+                                        + red(' - in module ')
+                                        + name
+                                    )
                         op.write('\n')
                     if undoc['classes']:
                         op.write('Classes:\n')
-                        for class_name, methods in sorted(
-                                undoc['classes'].items()):
+                        for class_name, methods in sorted(undoc['classes'].items()):
                             if not methods:
                                 op.write(' * %s\n' % class_name)
                                 if self.config.coverage_show_missing_items:
                                     if self.app.quiet:
                                         logger.warning(
                                             __('undocumented python class: %s :: %s'),
-                                            name, class_name)
+                                            name,
+                                            class_name,
+                                        )
                                     else:
-                                        logger.info(red('undocumented  ') + 'py  ' +
-                                                    'class     ' + '%-30s' % class_name +
-                                                    red(' - in module ') + name)
+                                        logger.info(
+                                            red('undocumented  ')  # NoQA: G003
+                                            + f'py  class     {class_name:<30}'
+                                            + red(' - in module ')
+                                            + name
+                                        )
                             else:
                                 op.write(' * %s -- missing methods:\n\n' % class_name)
                                 op.writelines('   - %s\n' % x for x in methods)
@@ -455,32 +489,41 @@ class CoverageBuilder(Builder):
                                     if self.app.quiet:
                                         for meth in methods:
                                             logger.warning(
-                                                __('undocumented python method:'
-                                                   ' %s :: %s :: %s'),
-                                                name, class_name, meth)
+                                                __(
+                                                    'undocumented python method:'
+                                                    ' %s :: %s :: %s'
+                                                ),
+                                                name,
+                                                class_name,
+                                                meth,
+                                            )
                                     else:
                                         for meth in methods:
-                                            logger.info(red('undocumented  ') + 'py  ' +
-                                                        'method    ' + '%-30s' %
-                                                        (class_name + '.' + meth) +
-                                                        red(' - in module ') + name)
+                                            logger.info(
+                                                red('undocumented  ')  # NoQA: G003
+                                                + f'py  method    {f"{class_name}.{meth}":<30}'
+                                                + red(' - in module ')
+                                                + name
+                                            )
                         op.write('\n')
 
             if failed:
                 write_header(op, 'Modules that failed to import')
-                op.writelines(' * %s -- %s\n' % x for x in failed)
+                op.writelines(f' * {name} -- {err}\n' for name, err in failed)
 
     def finish(self) -> None:
         # dump the coverage data to a pickle file too
         picklepath = os.path.join(self.outdir, 'undoc.pickle')
         with open(picklepath, 'wb') as dumpfile:
-            pickle.dump((self.py_undoc, self.c_undoc,
-                         self.py_undocumented, self.py_documented), dumpfile)
+            pickle.dump(
+                (self.py_undoc, self.c_undoc, self.py_undocumented, self.py_documented),
+                dumpfile,
+            )
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CoverageBuilder)
-    app.add_config_value('coverage_modules', (), '', types={tuple, list})
+    app.add_config_value('coverage_modules', (), '', types=frozenset({tuple, list}))
     app.add_config_value('coverage_ignore_modules', [], '')
     app.add_config_value('coverage_ignore_functions', [], '')
     app.add_config_value('coverage_ignore_classes', [], '')
@@ -489,8 +532,15 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('coverage_c_regexes', {}, '')
     app.add_config_value('coverage_ignore_c_items', {}, '')
     app.add_config_value('coverage_write_headline', True, '')
-    app.add_config_value('coverage_statistics_to_report', True, '', bool)
-    app.add_config_value('coverage_statistics_to_stdout', True, '', bool)
+    app.add_config_value(
+        'coverage_statistics_to_report', True, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'coverage_statistics_to_stdout', True, '', types=frozenset({bool})
+    )
     app.add_config_value('coverage_skip_undoc_in_source', False, '')
     app.add_config_value('coverage_show_missing_items', False, '')
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }

@@ -11,10 +11,10 @@ import pickle
 import re
 from importlib import import_module
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
-from docutils.nodes import Element, Node
+from docutils.nodes import Element
 
 from sphinx import addnodes, package_dir
 from sphinx.util._pathlib import _StrPath
@@ -22,6 +22,9 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
+    from typing import IO, Any
+
+    from docutils.nodes import Node
 
     from sphinx.environment import BuildEnvironment
 
@@ -30,8 +33,7 @@ _MINIFIED_JS_PATH = Path(package_dir, 'search', 'minified-js')
 
 
 class SearchLanguage:
-    """
-    This class is the base class for search natural language preprocessors.  If
+    """This class is the base class for search natural language preprocessors.  If
     you want to add support for a new language, you should override the methods
     of this class.
 
@@ -83,21 +85,17 @@ var Stemmer = function() {
         self.init(options)
 
     def init(self, options: dict[str, str]) -> None:
-        """
-        Initialize the class with the options the user has given.
-        """
+        """Initialize the class with the options the user has given."""
 
     def split(self, input: str) -> list[str]:
-        """
-        This method splits a sentence into words.  Default splitter splits input
+        """This method splits a sentence into words.  Default splitter splits input
         at white spaces, which should be enough for most languages except CJK
         languages.
         """
         return self._word_re.findall(input)
 
     def stem(self, word: str) -> str:
-        """
-        This method implements stemming algorithm of the Python version.
+        """This method implements stemming algorithm of the Python version.
 
         Default implementation does nothing.  You should implement this if the
         language has any stemming rules.
@@ -109,8 +107,7 @@ var Stemmer = function() {
         return word
 
     def word_filter(self, word: str) -> bool:
-        """
-        Return true if the target word should be registered in the search index.
+        """Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
         return len(word) == 0 or not (
@@ -124,8 +121,7 @@ from sphinx.search.en import SearchEnglish  # NoQA: E402
 
 
 def parse_stop_word(source: str) -> set[str]:
-    """
-    Parse snowball style word list like this:
+    """Parse snowball style word list like this:
 
     * https://snowball.tartarus.org/algorithms/finnish/stop.txt
     """
@@ -159,8 +155,7 @@ languages: dict[str, str | type[SearchLanguage]] = {
 
 
 class _JavaScriptIndex:
-    """
-    The search index as JavaScript file that calls a function
+    """The search index as JavaScript file that calls a function
     on the documentation search object to register the index.
     """
 
@@ -209,9 +204,7 @@ class WordStore:
 
 
 class WordCollector(nodes.NodeVisitor):
-    """
-    A special visitor that collects words for the `IndexBuilder`.
-    """
+    """A special visitor that collects words for the `IndexBuilder`."""
 
     def __init__(self, document: nodes.document, lang: SearchLanguage) -> None:
         super().__init__(document)
@@ -259,8 +252,7 @@ class WordCollector(nodes.NodeVisitor):
 
 
 class IndexBuilder:
-    """
-    Helper class that creates a search index based on the doctrees
+    """Helper class that creates a search index based on the doctrees
     passed to the `feed` method.
     """
 
@@ -272,7 +264,8 @@ class IndexBuilder:
     def __init__(
         self, env: BuildEnvironment, lang: str, options: dict[str, str], scoring: str
     ) -> None:
-        self.env = env
+        self._domains = env.domains
+        self._env_version = env.version
         # docname -> title
         self._titles: dict[str, str | None] = env._search_index_titles
         # docname -> filename
@@ -323,7 +316,10 @@ class IndexBuilder:
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
-        if not isinstance(frozen, dict) or frozen.get('envversion') != self.env.version:
+        if (
+            not isinstance(frozen, dict)
+            or frozen.get('envversion') != self._env_version
+        ):
             msg = 'old format'
             raise ValueError(msg)
         index2fn = frozen['docnames']
@@ -362,7 +358,7 @@ class IndexBuilder:
         rv: dict[str, list[tuple[int, int, int, str, str]]] = {}
         otypes = self._objtypes
         onames = self._objnames
-        for domain in self.env.domains.sorted():
+        for domain in self._domains.sorted():
             sorted_objects = sorted(domain.get_objects())
             for fullname, dispname, type, docname, anchor, prio in sorted_objects:
                 if docname not in fn2index:
@@ -400,12 +396,12 @@ class IndexBuilder:
     def get_terms(
         self, fn2index: dict[str, int]
     ) -> tuple[dict[str, list[int] | int], dict[str, list[int] | int]]:
-        """
-        Return a mapping of document and title terms to their corresponding sorted document IDs.
+        """Return a mapping of document and title terms to sorted document IDs.
 
-        When a term is only found within a single document, then the value for that term will be
-        an integer value.  When a term is found within multiple documents, the value will be a list
-        of integers.
+        When a term is only found within a single document,
+        then the value for that term will be an integer value.
+        When a term is found within multiple documents,
+        the value will be a list of integers.
         """
         rvs: tuple[dict[str, list[int] | int], dict[str, list[int] | int]] = ({}, {})
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping), strict=True):
@@ -452,7 +448,7 @@ class IndexBuilder:
             'objtypes': objtypes,
             'objnames': objnames,
             'titleterms': title_terms,
-            'envversion': self.env.version,
+            'envversion': self._env_version,
             'alltitles': alltitles,
             'indexentries': index_entries,
         }

@@ -7,7 +7,7 @@ import logging.handlers
 from collections import defaultdict
 from contextlib import contextmanager, nullcontext
 from os.path import abspath
-from typing import IO, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.utils import get_source_line
@@ -17,7 +17,7 @@ from sphinx.util.console import colorize
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence, Set
-    from typing import NoReturn
+    from typing import IO, Any, NoReturn
 
     from docutils.nodes import Node
 

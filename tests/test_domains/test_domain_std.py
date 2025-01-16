@@ -522,8 +522,8 @@ def test_productionlist(app):
         assert len(code_list) == 1
         span = code_list[0]
         assert span.tag == 'span'
-        linkText = span.text.strip()
-        cases.append((text, link, linkText))
+        link_text = span.text.strip()
+        cases.append((text, link, link_text))
     assert cases == [
         ('A', 'Bare.html#grammar-token-A', 'A'),
         ('B', 'Bare.html#grammar-token-B', 'B'),

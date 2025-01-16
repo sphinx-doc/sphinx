@@ -9,7 +9,7 @@ from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 from typing import TYPE_CHECKING
 
-from sphinx.ext.intersphinx import InventoryAdapter
+from sphinx.ext.intersphinx._shared import InventoryAdapter
 from sphinx.testing.util import SphinxTestApp
 
 from tests.utils import http_server
