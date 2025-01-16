@@ -222,10 +222,10 @@ class _InventoryItem:
         uri: str,
         display_name: str,
     ) -> None:
-        self.project_name = project_name
-        self.project_version = project_version
-        self.uri = uri
-        self.display_name = display_name
+        object.__setattr__(self, 'project_name', project_name)
+        object.__setattr__(self, 'project_version', project_version)
+        object.__setattr__(self, 'uri', uri)
+        object.__setattr__(self, 'display_name', display_name)
 
     def __repr__(self) -> str:
         return (
