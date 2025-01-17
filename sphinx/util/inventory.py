@@ -211,7 +211,7 @@ class _InventoryItem:
 
     project_name: str
     project_version: str
-    uri: str  # URL
+    uri: str
     display_name: str
 
     def __init__(
@@ -279,12 +279,8 @@ class _InventoryItem:
             RemovedInSphinx10Warning,
             stacklevel=2,
         )
-        return (
-            self.project_name,
-            self.project_version,
-            self.uri,
-            self.display_name,
-        )[key]
+        tpl = self.project_name, self.project_version, self.uri, self.display_name
+        return tpl[key]
 
     def __iter__(self) -> Iterator[str]:
         warnings.warn(
@@ -292,9 +288,5 @@ class _InventoryItem:
             RemovedInSphinx10Warning,
             stacklevel=2,
         )
-        return iter((
-            self.project_name,
-            self.project_version,
-            self.uri,
-            self.display_name,
-        ))
+        tpl = self.project_name, self.project_version, self.uri, self.display_name
+        return iter(tpl)
