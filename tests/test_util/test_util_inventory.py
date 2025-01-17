@@ -53,12 +53,12 @@ def test_read_inventory_v2():
         uri='/util/foo.html#module-module2',
         display_name='-',
     )
-    assert invdata['py:function']['module1.func'][2] == (
+    assert invdata['py:function']['module1.func'].uri == (
         '/util/sub/foo.html#module1.func'
     )
-    assert invdata['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
-    assert invdata['std:term']['a term'][2] == '/util/glossary.html#term-a-term'
-    assert invdata['std:term']['a term including:colon'][2] == (
+    assert invdata['c:function']['CFunc'].uri == '/util/cfunc.html#CFunc'
+    assert invdata['std:term']['a term'].uri == '/util/glossary.html#term-a-term'
+    assert invdata['std:term']['a term including:colon'].uri == (
         '/util/glossary.html#term-a-term-including-colon'
     )
 
