@@ -225,6 +225,11 @@ def handle_exception(
 
     print_red(__('Exception occurred:'))
     print_err(formatted_tb)
+    print_err(full_exception_context(
+        exception=exception,
+        message_log=message_log,
+        extensions=extensions,
+    ))
     traceback_info_path = save_traceback(
         exception, message_log=message_log, extensions=extensions
     )
