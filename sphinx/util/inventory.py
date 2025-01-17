@@ -263,6 +263,16 @@ class _InventoryItem:
         msg = '_InventoryItem is immutable'
         raise AttributeError(msg)
 
+    def __getstate__(self) -> tuple[str, str, str, str]:
+        return self.project_name, self.project_version, self.uri, self.display_name
+
+    def __setstate__(self, state: tuple[str, str, str, str]) -> None:
+        project_name, project_version, uri, display_name = state
+        object.__setattr__(self, 'project_name', project_name)
+        object.__setattr__(self, 'project_version', project_version)
+        object.__setattr__(self, 'uri', uri)
+        object.__setattr__(self, 'display_name', display_name)
+
     def __getitem__(self, key: int | slice) -> str | tuple[str, ...]:
         warnings.warn(
             'The tuple interface for _InventoryItem objects is deprecated.',
