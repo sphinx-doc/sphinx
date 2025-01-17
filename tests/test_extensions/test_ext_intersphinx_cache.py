@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from sphinx.ext.intersphinx._shared import InventoryAdapter
 from sphinx.testing.util import SphinxTestApp
+from sphinx.util.inventory import _InventoryItem
 
 from tests.utils import http_server
 
@@ -18,7 +19,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import BinaryIO
 
-    from sphinx.util.typing import InventoryItem
 
 BASE_CONFIG = {
     'extensions': ['sphinx.ext.intersphinx'],
@@ -109,10 +109,14 @@ class IntersphinxProject:
         """The :confval:`intersphinx_mapping` record for this project."""
         return {self.name: (self.url, self.file)}
 
-    def normalise(self, entry: InventoryEntry) -> tuple[str, InventoryItem]:
+    def normalise(self, entry: InventoryEntry) -> tuple[str, _InventoryItem]:
         """Format an inventory entry as if it were part of this project."""
-        url = posixpath.join(self.url, entry.uri)
-        return entry.name, (self.safe_name, self.safe_version, url, entry.display_name)
+        return entry.name, _InventoryItem(
+            project_name=self.safe_name,
+            project_version=self.safe_version,
+            uri=posixpath.join(self.url, entry.uri),
+            display_name=entry.display_name,
+        )
 
 
 class FakeInventory:

@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from typing_extensions import TypeIs
 
     from sphinx.application import Sphinx
+    from sphinx.util.inventory import _InventoryItem
 
     _RestifyMode: TypeAlias = Literal[
         'fully-qualified-except-typing',
@@ -110,13 +111,7 @@ OptionSpec: TypeAlias = dict[str, Callable[[str], typing.Any]]
 TitleGetter: TypeAlias = Callable[[nodes.Node], str]
 
 # inventory data on memory
-InventoryItem: TypeAlias = tuple[
-    str,  # project name
-    str,  # project version
-    str,  # URL
-    str,  # display name
-]
-Inventory: TypeAlias = dict[str, dict[str, InventoryItem]]
+Inventory: TypeAlias = dict[str, dict[str, '_InventoryItem']]
 
 
 class ExtensionMetadata(typing.TypedDict, total=False):

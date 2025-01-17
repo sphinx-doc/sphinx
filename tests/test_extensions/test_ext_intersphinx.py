@@ -28,6 +28,7 @@ from sphinx.ext.intersphinx._load import (
 )
 from sphinx.ext.intersphinx._resolve import missing_reference
 from sphinx.ext.intersphinx._shared import _IntersphinxProject
+from sphinx.util.inventory import _InventoryItem
 
 from tests.test_util.intersphinx_data import (
     INVENTORY_V2,
@@ -155,11 +156,11 @@ def test_missing_reference(tmp_path, app):
     load_mappings(app)
     inv = app.env.intersphinx_inventory
 
-    assert inv['py:module']['module2'] == (
-        'foo',
-        '2.0',
-        'https://docs.python.org/foo.html#module-module2',
-        '-',
+    assert inv['py:module']['module2'] == _InventoryItem(
+        project_name='foo',
+        project_version='2.0',
+        uri='https://docs.python.org/foo.html#module-module2',
+        display_name='-',
     )
 
     # check resolution when a target is found
