@@ -83,13 +83,15 @@ class ENUM:
     """
 
     def __init__(self, *candidates: str | bool | None) -> None:
-        self.candidates = candidates
+        self._candidates = frozenset(candidates)
+
+    def __repr__(self) -> str:
+        return f'ENUM({", ".join(sorted(map(repr, self._candidates)))})'
 
     def match(self, value: str | list | tuple) -> bool:
-        if isinstance(value, list | tuple):
-            return all(item in self.candidates for item in value)
-        else:
-            return value in self.candidates
+        if isinstance(value, frozenset | list | set | tuple):
+            return all(item in self._candidates for item in value)
+        return value in self._candidates
 
 
 _OptValidTypes: TypeAlias = tuple[()] | tuple[type, ...] | frozenset[type] | ENUM
@@ -803,7 +805,7 @@ def check_confval_types(app: Sphinx | None, config: Config) -> None:
                 )
                 logger.warning(
                     msg.format(
-                        name=name, current=value, candidates=valid_types.candidates
+                        name=name, current=value, candidates=valid_types._candidates
                     ),
                     once=True,
                 )
