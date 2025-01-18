@@ -18,7 +18,8 @@ class FilenameUniqDict(dict[str, tuple[set[str], str]]):
     def __init__(self) -> None:
         self._existing: set[str] = set()
 
-    def add_file(self, docname: str, newfile: str) -> str:
+    def add_file(self, docname: str, newfile: str | os.PathLike[str]) -> str:
+        newfile = str(newfile)
         if newfile in self:
             self[newfile][0].add(docname)
             return self[newfile][1]
