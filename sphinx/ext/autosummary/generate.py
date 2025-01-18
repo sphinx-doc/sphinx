@@ -275,7 +275,11 @@ def members_of(obj: Any, conf: Config) -> Sequence[str]:
     if conf.autosummary_ignore_module_all:
         return dir(obj)
     else:
-        return getall(obj) or dir(obj)
+        if (obj___all__ := getall(obj)) is not None:
+            # return __all__, even if empty.
+            return obj___all__
+        # if __all__ is not set, return dir(obj)
+        return dir(obj)
 
 
 def generate_autosummary_content(

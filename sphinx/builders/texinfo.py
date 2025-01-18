@@ -12,12 +12,12 @@ from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
 from sphinx import addnodes, package_dir
+from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder
 from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri
 from sphinx.locale import _, __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.nodes import inline_all_toctrees

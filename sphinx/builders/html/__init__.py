@@ -23,6 +23,7 @@ from docutils.io import DocTreeInput, StringOutput
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.builders.html._assets import (
     _CascadingStyleSheet,
@@ -45,7 +46,6 @@ from sphinx.util import logging
 from sphinx.util._pathlib import _StrPath
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util._uri import is_url
-from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset

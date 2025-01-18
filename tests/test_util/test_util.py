@@ -5,13 +5,13 @@ from __future__ import annotations
 import pytest
 
 import sphinx.util
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.deprecation import RemovedInSphinx10Warning, RemovedInSphinx90Warning
 from sphinx.errors import ExtensionError
 from sphinx.util._files import DownloadFiles, FilenameUniqDict
 from sphinx.util._importer import import_object
 from sphinx.util._lines import parse_line_num_spec
 from sphinx.util._uri import encode_uri, is_url
-from sphinx.util.console import strip_colors
 from sphinx.util.index_entries import _split_into, split_index_msg
 from sphinx.util.matching import patfilter
 from sphinx.util.nodes import (
@@ -78,7 +78,7 @@ def test_exported_attributes():
     assert sphinx.util.isurl is is_url
     assert sphinx.util.parselinenos is parse_line_num_spec
     assert sphinx.util.patfilter is patfilter
-    assert sphinx.util.strip_colors is strip_colors
+    assert sphinx.util.strip_escape_sequences is strip_escape_sequences
     assert sphinx.util.caption_ref_re is caption_ref_re
     assert sphinx.util.explicit_title_re is explicit_title_re
     assert sphinx.util.nested_parse_with_titles is nested_parse_with_titles

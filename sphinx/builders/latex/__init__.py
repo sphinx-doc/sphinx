@@ -12,6 +12,7 @@ from docutils.frontend import OptionParser
 
 import sphinx.builders.latex.nodes  # NoQA: F401  # Workaround: import this before writer to avoid ImportError
 from sphinx import addnodes, highlighting, package_dir
+from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder
 from sphinx.builders.latex.constants import (
     ADDITIONAL_SETTINGS,
@@ -25,7 +26,6 @@ from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.errors import NoUri, SphinxError
 from sphinx.locale import _, __
 from sphinx.util import logging, texescape
-from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput, new_document
 from sphinx.util.fileutil import copy_asset_file

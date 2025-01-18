@@ -18,8 +18,8 @@ from babel.messages.catalog import Catalog
 from docutils import nodes
 
 from sphinx import locale
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.testing.util import assert_node, etree_parse
-from sphinx.util.console import strip_colors
 from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
@@ -1893,7 +1893,7 @@ def test_image_glob_intl_using_figure_language_filename(app):
 
 
 def getwarning(warnings: StringIO) -> str:
-    return strip_colors(warnings.getvalue().replace(os.sep, '/'))
+    return strip_escape_sequences(warnings.getvalue().replace(os.sep, '/'))
 
 
 @pytest.mark.sphinx(

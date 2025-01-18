@@ -13,12 +13,11 @@ from typing import TYPE_CHECKING
 import sphinx._cli.util.errors
 import sphinx.locale
 from sphinx import __display_version__
-from sphinx._cli.util.colour import terminal_supports_colour
+from sphinx._cli.util.colour import disable_colour, terminal_supports_colour
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.util._io import TeeStripANSI
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.console import nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import ensuredir
 
@@ -328,7 +327,7 @@ def _validate_filenames(
 
 def _validate_colour_support(colour: str) -> None:
     if colour == 'no' or (colour == 'auto' and not terminal_supports_colour()):
-        nocolor()
+        disable_colour()
 
 
 def _parse_logging(

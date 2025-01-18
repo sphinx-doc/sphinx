@@ -14,7 +14,7 @@ from sphinx.ext.inheritance_diagram import (
     InheritanceException,
     import_classes,
 )
-from sphinx.ext.intersphinx import load_mappings, validate_intersphinx_mapping
+from sphinx.ext.intersphinx._load import load_mappings, validate_intersphinx_mapping
 
 
 @pytest.mark.sphinx('html', testroot='inheritance')
