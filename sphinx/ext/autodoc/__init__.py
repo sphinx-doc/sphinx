@@ -1261,33 +1261,38 @@ class ModuleDocumenter(Documenter):
 
 
 class PyObjectDocumenter(Documenter):
-    """Documenter for eveything except modules"""
+    """Documenter for everything except modules"""
 
     def add_directive_header(self, sig: str) -> None:
         super().add_directive_header(sig)
         self.add_canonical_option()
 
     def add_canonical_option(self) -> None:
-        sourcename = self.get_sourcename()
-
         canonical_fullname = self.get_canonical_fullname()
         if (
             not isinstance(self.object, NewType)
             and canonical_fullname
             and self.fullname != canonical_fullname
         ):
-            self.add_line(f'   :canonical: {canonical_fullname}', sourcename)
+            source_name = self.get_sourcename()
+            self.add_line(f'   :canonical: {canonical_fullname}', source_name)
 
     def get_canonical_fullname(self) -> str | None:
         modname = safe_getattr(self.object, '__module__', self.modname)
         if not modname:
             return None
-        for attr in ('__qualname__', '__name__'):
-            if qualname := safe_getattr(self.object, attr, None):
-                if all(map(str.isidentifier, qualname.split('.'))):
-                    return f'{modname}.{qualname}'
+
+        name = safe_getattr(self.object, '__qualname__', None)
+        if name is None:
+            name = safe_getattr(self.object, '__name__', None)
+            if name is None:
                 return None
-        # qualname doesn't exist or is not valid (e.g. object is defined as locals)
+
+        if all(map(str.isidentifier, name.split('.'))):
+            return f'{modname}.{name}'
+
+        # qualname doesn't exist or is not valid
+        # (e.g. object is defined as <locals>)
         return None
 
 
