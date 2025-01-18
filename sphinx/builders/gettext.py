@@ -252,11 +252,11 @@ class MessageCatalogBuilder(I18nBuilder):
     def _collect_templates(self) -> set[str]:
         template_files = set()
         for template_path in self.config.templates_path:
-            tmpl_abs_path = os.path.join(self.app.srcdir, template_path)
+            tmpl_abs_path = self.app.srcdir / template_path
             for dirpath, _dirs, files in walk(tmpl_abs_path):
                 for fn in files:
                     if fn.endswith('.html'):
-                        filename = canon_path(os.path.join(dirpath, fn))
+                        filename = Path(dirpath, fn).as_posix()
                         template_files.add(filename)
         return template_files
 
@@ -312,7 +312,7 @@ class MessageCatalogBuilder(I18nBuilder):
             operator.itemgetter(0),
         ):
             # noop if config.gettext_compact is set
-            ensuredir(os.path.join(self.outdir, os.path.dirname(textdomain)))
+            ensuredir(self.outdir / os.path.dirname(textdomain))
 
             context['messages'] = list(catalog)
             template_path = [
@@ -321,7 +321,7 @@ class MessageCatalogBuilder(I18nBuilder):
             renderer = GettextRenderer(template_path, outdir=self.outdir)
             content = renderer.render('message.pot.jinja', context)
 
-            pofn = os.path.join(self.outdir, textdomain + '.pot')
+            pofn = self.outdir / textdomain + '.pot'
             if should_write(pofn, content):
                 with codecs.open(pofn, 'w', encoding='utf-8') as pofile:
                     pofile.write(content)

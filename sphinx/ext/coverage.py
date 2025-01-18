@@ -176,8 +176,8 @@ class CoverageBuilder(Builder):
     def init(self) -> None:
         self.c_sourcefiles: list[str] = []
         for pattern in self.config.coverage_c_path:
-            pattern = os.path.join(self.srcdir, pattern)
-            self.c_sourcefiles.extend(glob.glob(pattern))  # NoQA: PTH207
+            pattern = self.srcdir / pattern
+            self.c_sourcefiles.extend(glob.glob(str(pattern)))  # NoQA: PTH207
 
         self.c_regexes: list[tuple[str, re.Pattern[str]]] = []
         for name, exp in self.config.coverage_c_regexes.items():
@@ -244,7 +244,7 @@ class CoverageBuilder(Builder):
                 self.c_undoc[filename] = undoc
 
     def write_c_coverage(self) -> None:
-        output_file = os.path.join(self.outdir, 'c.txt')
+        output_file = self.outdir / 'c.txt'
         with open(output_file, 'w', encoding='utf-8') as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented C API elements', '=')
@@ -419,7 +419,7 @@ class CoverageBuilder(Builder):
             op.write(f'{line}\n')
 
     def write_py_coverage(self) -> None:
-        output_file = os.path.join(self.outdir, 'python.txt')
+        output_file = self.outdir / 'python.txt'
         failed = []
         with open(output_file, 'w', encoding='utf-8') as op:
             if self.config.coverage_write_headline:
@@ -513,7 +513,7 @@ class CoverageBuilder(Builder):
 
     def finish(self) -> None:
         # dump the coverage data to a pickle file too
-        picklepath = os.path.join(self.outdir, 'undoc.pickle')
+        picklepath = self.outdir / 'undoc.pickle'
         with open(picklepath, 'wb') as dumpfile:
             pickle.dump(
                 (self.py_undoc, self.c_undoc, self.py_undocumented, self.py_documented),

@@ -14,6 +14,8 @@ from sphinx.transforms.post_transforms.images import ImageConverter
 from sphinx.util import logging
 
 if TYPE_CHECKING:
+    import os
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -57,17 +59,19 @@ class ImagemagickConverter(ImageConverter):
             )
             return False
 
-    def convert(self, _from: str, _to: str) -> bool:
+    def convert(
+        self, _from: str | os.PathLike[str], _to: str | os.PathLike[str]
+    ) -> bool:
         """Converts the image to expected one."""
         try:
             # append an index 0 to source filename to pick up the first frame
             # (or first page) of image (ex. Animation GIF, PDF)
-            _from += '[0]'
+            from_ = f'{_from}[0]'
 
             args = [
                 self.config.image_converter,
                 *self.config.image_converter_args,
-                _from,
+                from_,
                 _to,
             ]
             logger.debug('Invoking %r ...', args)

@@ -48,7 +48,7 @@ class TextBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = os.path.join(self.outdir, docname + self.out_suffix)
+            targetname = self.outdir / docname + self.out_suffix
             try:
                 targetmtime = _last_modified_time(targetname)
             except Exception:
@@ -72,7 +72,7 @@ class TextBuilder(Builder):
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
-        outfilename = os.path.join(self.outdir, os_path(docname) + self.out_suffix)
+        outfilename = self.outdir / os_path(docname) + self.out_suffix
         ensuredir(os.path.dirname(outfilename))
         try:
             with open(outfilename, 'w', encoding='utf-8') as f:

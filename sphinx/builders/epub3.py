@@ -17,6 +17,7 @@ from sphinx.builders import _epub_base
 from sphinx.config import ENUM
 from sphinx.locale import __
 from sphinx.util import logging
+from sphinx.util._pathlib import _StrPath
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import make_filename
 
@@ -84,7 +85,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
     epilog = __('The ePub file is in %(outdir)s.')
 
     supported_remote_images = False
-    template_dir = os.path.join(package_dir, 'templates', 'epub3')
+    template_dir = _StrPath(package_dir, 'templates', 'epub3')
     doctype = DOCTYPE
     html_tag = HTML_TAG
     use_meta_charset = True
@@ -199,7 +200,7 @@ class Epub3Builder(_epub_base.EpubBuilder):
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
         copy_asset_file(
-            os.path.join(self.template_dir, 'nav.xhtml.jinja'),
+            self.template_dir / 'nav.xhtml.jinja',
             self.outdir,
             context=self.navigation_doc_metadata(navlist),
             force=True,

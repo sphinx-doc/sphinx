@@ -126,14 +126,14 @@ class SphinxFileSystemLoader(FileSystemLoader):
         else:
             legacy_template = None
 
-        for searchpath in self.searchpath:
-            filename = os.path.join(searchpath, template)
-            f = open_if_exists(filename)
+        for search_path in map(Path, self.searchpath):
+            filename = search_path / template
+            f = open_if_exists(str(filename))
             if f is not None:
                 break
             if legacy_template is not None:
-                filename = os.path.join(searchpath, legacy_template)
-                f = open_if_exists(filename)
+                filename = search_path / legacy_template
+                f = open_if_exists(str(filename))
                 if f is not None:
                     break
         else:
@@ -150,7 +150,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
             except OSError:
                 return False
 
-        return contents, filename, uptodate
+        return contents, str(filename), uptodate
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
