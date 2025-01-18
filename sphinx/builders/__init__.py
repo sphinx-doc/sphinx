@@ -674,7 +674,7 @@ class Builder:
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
 
-        doctree_filename = self.doctreedir / docname + '.doctree'
+        doctree_filename = self.doctreedir / f'{docname}.doctree'
         ensuredir(os.path.dirname(doctree_filename))
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)

@@ -10,11 +10,7 @@ from docutils.io import StringOutput
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.osutil import (
-    _last_modified_time,
-    ensuredir,
-    os_path,
-)
+from sphinx.util.osutil import _last_modified_time, ensuredir
 from sphinx.writers.text import TextTranslator, TextWriter
 
 if TYPE_CHECKING:
@@ -48,7 +44,7 @@ class TextBuilder(Builder):
             if docname not in self.env.all_docs:
                 yield docname
                 continue
-            targetname = self.outdir / docname + self.out_suffix
+            targetname = self.outdir / (docname + self.out_suffix)
             try:
                 targetmtime = _last_modified_time(targetname)
             except Exception:
@@ -72,7 +68,7 @@ class TextBuilder(Builder):
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         destination = StringOutput(encoding='utf-8')
         self.writer.write(doctree, destination)
-        outfilename = self.outdir / os_path(docname) + self.out_suffix
+        outfilename = self.outdir / (docname + self.out_suffix)
         ensuredir(os.path.dirname(outfilename))
         try:
             with open(outfilename, 'w', encoding='utf-8') as f:

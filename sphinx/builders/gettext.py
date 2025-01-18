@@ -209,11 +209,11 @@ else:
 ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
 
 
-def should_write(filepath: str, new_content: str) -> bool:
+def should_write(filepath: str | os.PathLike[str], new_content: str) -> bool:
     if not os.path.exists(filepath):
         return True
     try:
-        with codecs.open(filepath, encoding='utf-8') as oldpot:
+        with codecs.open(str(filepath), encoding='utf-8') as oldpot:
             old_content = oldpot.read()
         old_header_index = old_content.index('"POT-Creation-Date:')
         new_header_index = new_content.index('"POT-Creation-Date:')
@@ -321,9 +321,9 @@ class MessageCatalogBuilder(I18nBuilder):
             renderer = GettextRenderer(template_path, outdir=self.outdir)
             content = renderer.render('message.pot.jinja', context)
 
-            pofn = self.outdir / textdomain + '.pot'
+            pofn = self.outdir / f'{textdomain}.pot'
             if should_write(pofn, content):
-                with codecs.open(pofn, 'w', encoding='utf-8') as pofile:
+                with codecs.open(str(pofn), 'w', encoding='utf-8') as pofile:
                     pofile.write(content)
 
 

@@ -14,7 +14,7 @@ from sphinx.locale import _, __
 from sphinx.theming import HTMLThemeFactory
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import ensuredir, os_path
+from sphinx.util.osutil import ensuredir
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -142,7 +142,7 @@ class ChangesBuilder(Builder):
                 'text': text,
             }
             rendered = self.templates.render('changes/rstsource.html', ctx)
-            targetfn = self.outdir / 'rst' / os_path(docname) + '.html'
+            targetfn = self.outdir / 'rst' / f'{docname}.html'
             ensuredir(os.path.dirname(targetfn))
             with open(targetfn, 'w', encoding='utf-8') as f:
                 f.write(rendered)
