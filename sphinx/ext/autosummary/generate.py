@@ -133,9 +133,7 @@ class AutosummaryRenderer:
             msg = 'Expected a Sphinx application object!'
             raise TypeError(msg)
 
-        system_templates_path = [
-            os.path.join(package_dir, 'ext', 'autosummary', 'templates')
-        ]
+        system_templates_path = [Path(package_dir, 'ext', 'autosummary', 'templates')]
         loader = SphinxTemplateLoader(
             app.srcdir, app.config.templates_path, system_templates_path
         )

@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import codecs
 import operator
+import os
+import os.path
 import time
 from collections import defaultdict
-from os import getenv, path, walk
+from os import getenv, walk
 from pathlib import Path
 from typing import TYPE_CHECKING
 from uuid import uuid4
@@ -28,7 +30,6 @@ from sphinx.util.tags import Tags
 from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
-    import os
     from collections.abc import Iterable, Iterator, Sequence
     from typing import Any, Literal
 
@@ -208,11 +209,11 @@ else:
 ctime = time.strftime('%Y-%m-%d %H:%M%z', timestamp)
 
 
-def should_write(filepath: str, new_content: str) -> bool:
-    if not path.exists(filepath):
+def should_write(filepath: str | os.PathLike[str], new_content: str) -> bool:
+    if not os.path.exists(filepath):
         return True
     try:
-        with codecs.open(filepath, encoding='utf-8') as oldpot:
+        with codecs.open(str(filepath), encoding='utf-8') as oldpot:
             old_content = oldpot.read()
         old_header_index = old_content.index('"POT-Creation-Date:')
         new_header_index = new_content.index('"POT-Creation-Date:')
@@ -251,11 +252,11 @@ class MessageCatalogBuilder(I18nBuilder):
     def _collect_templates(self) -> set[str]:
         template_files = set()
         for template_path in self.config.templates_path:
-            tmpl_abs_path = path.join(self.app.srcdir, template_path)
+            tmpl_abs_path = self.app.srcdir / template_path
             for dirpath, _dirs, files in walk(tmpl_abs_path):
                 for fn in files:
                     if fn.endswith('.html'):
-                        filename = canon_path(path.join(dirpath, fn))
+                        filename = Path(dirpath, fn).as_posix()
                         template_files.add(filename)
         return template_files
 
@@ -311,7 +312,7 @@ class MessageCatalogBuilder(I18nBuilder):
             operator.itemgetter(0),
         ):
             # noop if config.gettext_compact is set
-            ensuredir(path.join(self.outdir, path.dirname(textdomain)))
+            ensuredir(self.outdir / os.path.dirname(textdomain))
 
             context['messages'] = list(catalog)
             template_path = [
@@ -320,9 +321,9 @@ class MessageCatalogBuilder(I18nBuilder):
             renderer = GettextRenderer(template_path, outdir=self.outdir)
             content = renderer.render('message.pot.jinja', context)
 
-            pofn = path.join(self.outdir, textdomain + '.pot')
+            pofn = self.outdir / f'{textdomain}.pot'
             if should_write(pofn, content):
-                with codecs.open(pofn, 'w', encoding='utf-8') as pofile:
+                with codecs.open(str(pofn), 'w', encoding='utf-8') as pofile:
                     pofile.write(content)
 
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os.path
 import warnings
 from typing import TYPE_CHECKING
 
@@ -86,14 +85,14 @@ class ManualPageBuilder(Builder):
 
             if self.config.man_make_section_directory:
                 dirname = 'man%s' % section
-                ensuredir(os.path.join(self.outdir, dirname))
+                ensuredir(self.outdir / dirname)
                 targetname = f'{dirname}/{name}.{section}'
             else:
                 targetname = f'{name}.{section}'
 
             logger.info('%s { ', darkgreen(targetname))
             destination = FileOutput(
-                destination_path=os.path.join(self.outdir, targetname),
+                destination_path=self.outdir / targetname,
                 encoding='utf-8',
             )
 

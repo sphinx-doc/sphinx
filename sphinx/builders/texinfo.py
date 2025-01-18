@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import os.path
 import warnings
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from docutils import nodes
@@ -35,7 +36,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import ExtensionMetadata
 
 logger = logging.getLogger(__name__)
-template_dir = os.path.join(package_dir, 'templates', 'texinfo')
+template_dir = Path(package_dir, 'templates', 'texinfo')
 
 
 class TexinfoBuilder(Builder):
@@ -108,7 +109,7 @@ class TexinfoBuilder(Builder):
             if len(entry) > 7:
                 toctree_only = entry[7]
             destination = FileOutput(
-                destination_path=os.path.join(self.outdir, targetname),
+                destination_path=self.outdir / targetname,
                 encoding='utf-8',
             )
             with progress_message(__('processing %s') % targetname, nonl=False):
@@ -216,7 +217,7 @@ class TexinfoBuilder(Builder):
                 except Exception as err:
                     logger.warning(
                         __('cannot copy image file %r: %s'),
-                        os.path.join(self.srcdir, src),
+                        self.srcdir / src,
                         err,
                     )
 
@@ -225,7 +226,7 @@ class TexinfoBuilder(Builder):
             with progress_message(__('copying Texinfo support files')):
                 logger.info('Makefile ', nonl=True)
                 copyfile(
-                    os.path.join(template_dir, 'Makefile'),
+                    template_dir / 'Makefile',
                     self.outdir / 'Makefile',
                     force=True,
                 )

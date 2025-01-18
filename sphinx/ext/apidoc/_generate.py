@@ -33,7 +33,7 @@ else:
 
 PY_SUFFIXES = ('.py', '.pyx', *EXTENSION_SUFFIXES)
 
-template_dir = os.path.join(package_dir, 'templates', 'apidoc')
+template_dir = Path(package_dir, 'templates', 'apidoc')
 
 
 def is_initpy(filename: str | Path) -> bool:
@@ -84,7 +84,7 @@ def create_module_file(
     package: str | None,
     basename: str,
     opts: ApidocOptions,
-    user_template_dir: str | None = None,
+    user_template_dir: str | os.PathLike[str] | None = None,
 ) -> Path:
     """Build the text of the file and write the file."""
     options = set(OPTIONS if not opts.automodule_options else opts.automodule_options)
@@ -98,6 +98,7 @@ def create_module_file(
         'qualname': qualname,
         'automodule_options': sorted(options),
     }
+    template_path: Sequence[str | os.PathLike[str]]
     if user_template_dir is not None:
         template_path = [user_template_dir, template_dir]
     else:
@@ -115,7 +116,7 @@ def create_package_file(
     subs: list[str],
     is_namespace: bool,
     excludes: Sequence[re.Pattern[str]] = (),
-    user_template_dir: str | None = None,
+    user_template_dir: str | os.PathLike[str] | None = None,
 ) -> list[Path]:
     """Build the text of the file and write the file.
 
@@ -178,7 +179,7 @@ def create_modules_toc_file(
     modules: list[str],
     opts: ApidocOptions,
     name: str = 'modules',
-    user_template_dir: str | None = None,
+    user_template_dir: str | os.PathLike[str] | None = None,
 ) -> Path:
     """Create the module's index."""
     modules.sort()
@@ -195,6 +196,7 @@ def create_modules_toc_file(
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
+    template_path: Sequence[str | os.PathLike[str]]
     if user_template_dir is not None:
         template_path = [user_template_dir, template_dir]
     else:
@@ -274,7 +276,7 @@ def recurse_tree(
     rootpath: str | os.PathLike[str],
     excludes: Sequence[re.Pattern[str]],
     opts: ApidocOptions,
-    user_template_dir: str | None = None,
+    user_template_dir: str | os.PathLike[str] | None = None,
 ) -> tuple[list[Path], list[str]]:
     """Look for every file in the directory tree and create the corresponding
     ReST files.
