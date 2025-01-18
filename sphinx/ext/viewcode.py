@@ -258,7 +258,7 @@ def should_generate_module_page(app: Sphinx, modname: str) -> bool:
 
     builder = cast('StandaloneHTMLBuilder', app.builder)
     basename = modname.replace('.', '/') + builder.out_suffix
-    page_filename = app.outdir / '_modules/' / basename
+    page_filename = app.outdir / '_modules' / basename
 
     try:
         if _last_modified_time(module_filename) <= _last_modified_time(page_filename):
