@@ -1404,6 +1404,7 @@ Options for warning control
 
    * ``autodoc``
    * ``autodoc.import_object``
+   * ``autodoc.mocked_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
@@ -1452,6 +1453,11 @@ Options for warning control
 
    .. versionadded:: 8.2
       Added ``toc.empty_glob``.
+
+   .. versionadded:: 8.2
+
+      Added ``autodoc.mocked_object``
+
 
 Builder options
 ===============

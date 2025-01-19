@@ -50,6 +50,8 @@ Features added
   pattern doesn't match any documents, via the new ``toc.glob_not_matching``
   warning sub-type.
   Patch by Slawek Figiel.
+* #9732: Add the new ``autodoc.mock_objects`` warnings sub-type.
+  Patch by Cyril Roelandt.
 
 Bugs fixed
 ----------
