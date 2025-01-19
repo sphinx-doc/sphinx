@@ -152,6 +152,7 @@ def unmangle(subject: Any, name: str) -> str | None:
 
 
 def import_module(modname: str) -> Any:
+    original_module_names = frozenset(sys.modules)
     try:
         spec = find_spec(modname)
         if spec is None:
@@ -162,13 +163,25 @@ def import_module(modname: str) -> Any:
             raise ImportError(msg, name=spec.name)  # NoQA: TRY301
         sys.modules[modname] = module = module_from_spec(spec)
         spec.loader.exec_module(module)
-        return module
     except ImportError:
         raise
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
         raise ImportError(exc, traceback.format_exc()) from exc
+    if os.environ.get('SPHINX_AUTODOC_RELOAD_MODULES'):
+        new_modules = [m for m in sys.modules if m not in original_module_names]
+        # Try reloading modules with ``typing.TYPE_CHECKING == True``.
+        try:
+            typing.TYPE_CHECKING = True
+            # Ignore failures; we've already successfully loaded these modules
+            with contextlib.suppress(ImportError, KeyError):
+                for m in new_modules:
+                    _reload_module(sys.modules[m])
+        finally:
+            typing.TYPE_CHECKING = False
+        module = sys.modules[modname]
+    return module
 
 
 def _reload_module(module: ModuleType) -> Any:
@@ -198,22 +211,7 @@ def import_object(
         objpath = objpath.copy()
         while module is None:
             try:
-                original_module_names = frozenset(sys.modules)
                 module = import_module(modname)
-                if os.environ.get('SPHINX_AUTODOC_RELOAD_MODULES'):
-                    new_modules = [
-                        m for m in sys.modules if m not in original_module_names
-                    ]
-                    # Try reloading modules with ``typing.TYPE_CHECKING == True``.
-                    try:
-                        typing.TYPE_CHECKING = True
-                        # Ignore failures; we've already successfully loaded these modules
-                        with contextlib.suppress(ImportError, KeyError):
-                            for m in new_modules:
-                                _reload_module(sys.modules[m])
-                    finally:
-                        typing.TYPE_CHECKING = False
-                    module = sys.modules[modname]
                 logger.debug('[autodoc] import %s => %r', modname, module)
             except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', modname)
