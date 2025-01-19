@@ -9,6 +9,7 @@ import sys
 import traceback
 import typing
 from enum import Enum
+from importlib.util import find_spec, module_from_spec
 from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx.errors import PycodeError
@@ -151,9 +152,19 @@ def unmangle(subject: Any, name: str) -> str | None:
 
 
 def import_module(modname: str) -> Any:
-    """Call importlib.import_module(modname), convert exceptions to ImportError."""
     try:
-        return importlib.import_module(modname)
+        spec = find_spec(modname)
+        if spec is None:
+            msg = f'No module named {modname!r}'
+            raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
+        if spec.loader is None:
+            msg = 'missing loader'
+            raise ImportError(msg, name=spec.name)  # NoQA: TRY301
+        sys.modules[modname] = module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    except ImportError:
+        raise
     except BaseException as exc:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
@@ -249,7 +260,8 @@ def import_object(
         if isinstance(exc, ImportError):
             # import_module() raises ImportError having real exception obj and
             # traceback
-            real_exc, traceback_msg = exc.args
+            real_exc = exc.args[0]
+            traceback_msg = traceback.format_exception(exc)
             if isinstance(real_exc, SystemExit):
                 errmsg += (
                     '; the module executes module level statement '
