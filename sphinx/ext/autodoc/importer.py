@@ -155,7 +155,7 @@ def unmangle(subject: Any, name: str) -> str | None:
     return name
 
 
-def import_module(modname: str) -> Any:
+def import_module(modname: str, try_reload: bool = False) -> Any:
     original_module_names = frozenset(sys.modules)
     try:
         spec = find_spec(modname)
@@ -186,7 +186,7 @@ def import_module(modname: str) -> Any:
         # Importing modules may cause any side effects, including
         # SystemExit, so we need to catch all errors.
         raise ImportError(exc, traceback.format_exc()) from exc
-    if os.environ.get('SPHINX_AUTODOC_RELOAD_MODULES'):
+    if try_reload and os.environ.get('SPHINX_AUTODOC_RELOAD_MODULES'):
         new_modules = [m for m in sys.modules if m not in original_module_names]
         # Try reloading modules with ``typing.TYPE_CHECKING == True``.
         try:
@@ -247,7 +247,7 @@ def import_object(
         objpath = objpath.copy()
         while module is None:
             try:
-                module = import_module(modname)
+                module = import_module(modname, try_reload=True)
                 logger.debug('[autodoc] import %s => %r', modname, module)
             except ImportError as exc:
                 logger.debug('[autodoc] import %s => failed', modname)
