@@ -9,7 +9,9 @@ import sys
 import traceback
 import typing
 from enum import Enum
-from importlib.util import find_spec, module_from_spec
+from importlib.machinery import EXTENSION_SUFFIXES
+from importlib.util import find_spec, module_from_spec, spec_from_file_location
+from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
 from sphinx.errors import PycodeError
@@ -33,6 +35,7 @@ if TYPE_CHECKING:
 
     from sphinx.ext.autodoc import ObjectMember
 
+_NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
 
 
@@ -158,6 +161,18 @@ def import_module(modname: str) -> Any:
         if spec is None:
             msg = f'No module named {modname!r}'
             raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
+        if spec.origin is not None:
+            # Try finding a spec for a '.pyi' file for native modules.
+            for suffix in _NATIVE_SUFFIXES:
+                if not spec.origin.endswith(suffix):
+                    continue
+                pyi_path = Path(spec.origin.removesuffix(suffix) + '.pyi')
+                if not pyi_path.is_file():
+                    continue
+                pyi_spec = spec_from_file_location(modname, pyi_path)
+                if pyi_spec is not None:
+                    spec = pyi_spec
+                    break
         if spec.loader is None:
             msg = 'missing loader'
             raise ImportError(msg, name=spec.name)  # NoQA: TRY301
