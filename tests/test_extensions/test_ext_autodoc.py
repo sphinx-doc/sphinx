@@ -1146,6 +1146,7 @@ def test_autodoc_descriptor(app):
         '',
         '   .. py:property:: Class.prop',
         '      :module: target.descriptor',
+        '      :canonical: target.descriptor.prop',
         '',
         '      Property.',
         '',
@@ -1522,6 +1523,7 @@ class _EnumFormatter:
         *,
         args: str,
         indent: int,
+        canonical: bool = False,
         **options: Any,
     ) -> list[str]:
         prefix = indent * ' '
@@ -1535,8 +1537,10 @@ class _EnumFormatter:
             '',
             f'{prefix}.. py:{role}:: {name}{args}',
             f'{prefix}{tab}:module: {self.module}',
-            *itertools.starmap(rst_option, options.items()),
         ]
+        if canonical:
+            lines.append(f'{prefix}{tab}:canonical: {self.module}.{name}')
+        lines += itertools.starmap(rst_option, options.items())
         if doc:
             lines.extend(['', f'{prefix}{tab}{doc}'])
         lines.append('')
@@ -1550,11 +1554,20 @@ class _EnumFormatter:
         role: str,
         args: str = '',
         indent: int = 3,
+        canonical: bool = False,
         **rst_options: Any,
     ) -> list[str]:
         """Get the RST lines for a named attribute, method, etc."""
         qualname = f'{self.name}.{entry_name}'
-        return self._node(role, qualname, doc, args=args, indent=indent, **rst_options)
+        return self._node(
+            role,
+            qualname,
+            doc,
+            args=args,
+            indent=indent,
+            canonical=canonical,
+            **rst_options,
+        )
 
     def preamble_lookup(
         self, doc: str, *, indent: int = 0, **options: Any
@@ -1619,15 +1632,37 @@ class _EnumFormatter:
         *flags: str,
         args: str = '()',
         indent: int = 3,
+        canonical: bool = False,
     ) -> list[str]:
         rst_options = dict.fromkeys(flags, '')
         return self.entry(
-            name, doc, role='method', args=args, indent=indent, **rst_options
+            name,
+            doc,
+            role='method',
+            args=args,
+            indent=indent,
+            canonical=canonical,
+            **rst_options,
         )
 
-    def member(self, name: str, value: Any, doc: str, *, indent: int = 3) -> list[str]:
+    def member(
+        self,
+        name: str,
+        value: Any,
+        doc: str,
+        *,
+        indent: int = 3,
+        canonical: bool = False,
+    ) -> list[str]:
         rst_options = {'value': repr(value)}
-        return self.entry(name, doc, role='attribute', indent=indent, **rst_options)
+        return self.entry(
+            name,
+            doc,
+            role='attribute',
+            indent=indent,
+            canonical=canonical,
+            **rst_options,
+        )
 
 
 @pytest.fixture
@@ -1691,8 +1726,8 @@ def test_enum_class_with_data_type(app, autodoc_enum_options):
     actual = do_autodoc(app, 'class', fmt.target, options)
     assert list(actual) == [
         *fmt.preamble_lookup('this is enum class'),
-        *fmt.entry('dtype', 'docstring', role='property'),
-        *fmt.method('isupper', 'inherited'),
+        *fmt.entry('dtype', 'docstring', role='property', canonical=True),
+        *fmt.method('isupper', 'inherited', canonical=True),
         *fmt.method('say_goodbye', 'docstring', 'classmethod'),
         *fmt.method('say_hello', 'docstring'),
         *fmt.member('x', 'x', ''),

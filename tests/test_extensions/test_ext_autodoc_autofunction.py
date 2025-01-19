@@ -101,7 +101,7 @@ def test_methoddescriptor(app):
         '',
         '.. py:function:: __add__(self, value, /)',
         '   :module: builtins.int',
-        '   :canonical: builtins.int.int.__add__',
+        '   :canonical: builtins.int.__add__',
         '',
         '   Return self+value.',
         '',
@@ -197,6 +197,7 @@ def test_synchronized_coroutine(app):
         '',
         '.. py:function:: sync_func()',
         '   :module: target.coroutine',
+        '   :canonical: target.coroutine._other_coro_func',
         '',
     ]
 

@@ -145,6 +145,7 @@ def test_autoattribute_GenericAlias(app):
         '',
         '.. py:attribute:: Class.T',
         '   :module: target.genericalias',
+        '   :canonical: typing.List',
         '',
         '   A list of int',
         '',
