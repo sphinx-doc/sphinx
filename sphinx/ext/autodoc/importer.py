@@ -165,6 +165,7 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
         if spec is None:
             msg = f'No module named {modname!r}'
             raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
+        pyi_path = None
         if spec.origin is not None:
             # Try finding a spec for a '.pyi' stubs file for native modules.
             for suffix in _NATIVE_SUFFIXES:
@@ -178,11 +179,14 @@ def import_module(modname: str, try_reload: bool = False) -> Any:
                 if pyi_spec is not None:
                     spec = pyi_spec
                     break
-        if spec.loader is None:
-            msg = 'missing loader'
-            raise ImportError(msg, name=spec.name)  # NoQA: TRY301
-        sys.modules[modname] = module = module_from_spec(spec)
-        spec.loader.exec_module(module)
+        if pyi_path is None:
+            module = importlib.import_module(modname)
+        else:
+            if spec.loader is None:
+                msg = 'missing loader'
+                raise ImportError(msg, name=spec.name)  # NoQA: TRY301
+            sys.modules[modname] = module = module_from_spec(spec)
+            spec.loader.exec_module(module)
     except ImportError:
         raise
     except BaseException as exc:
