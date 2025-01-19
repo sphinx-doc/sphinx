@@ -471,7 +471,7 @@ class Documenter:
         self.modname = modname
         self.args = args
         self.retann = retann
-        self.fullname = '.'.join([self.modname, *self.objpath])
+        self.fullname = '.'.join((self.modname or '', *self.objpath))
         return True
 
     def import_object(self, raiseerror: bool = False) -> bool:
