@@ -1404,7 +1404,7 @@ Options for warning control
 
    * ``autodoc``
    * ``autodoc.import_object``
-   * ``autodoc.mocked_object`
+   * ``autodoc.mocked_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
