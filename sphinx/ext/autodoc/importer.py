@@ -9,8 +9,9 @@ import sys
 import traceback
 import typing
 from enum import Enum
+from importlib.abc import FileLoader
 from importlib.machinery import EXTENSION_SUFFIXES
-from importlib.util import find_spec, module_from_spec, spec_from_file_location
+from importlib.util import decode_source, find_spec, module_from_spec, spec_from_loader
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
@@ -162,14 +163,15 @@ def import_module(modname: str) -> Any:
             msg = f'No module named {modname!r}'
             raise ModuleNotFoundError(msg, name=modname)  # NoQA: TRY301
         if spec.origin is not None:
-            # Try finding a spec for a '.pyi' file for native modules.
+            # Try finding a spec for a '.pyi' stubs file for native modules.
             for suffix in _NATIVE_SUFFIXES:
                 if not spec.origin.endswith(suffix):
                     continue
                 pyi_path = Path(spec.origin.removesuffix(suffix) + '.pyi')
                 if not pyi_path.is_file():
                     continue
-                pyi_spec = spec_from_file_location(modname, pyi_path)
+                pyi_loader = _StubFileLoader(modname, path=str(pyi_path))
+                pyi_spec = spec_from_loader(modname, loader=pyi_loader)
                 if pyi_spec is not None:
                     spec = pyi_spec
                     break
@@ -192,11 +194,30 @@ def import_module(modname: str) -> Any:
             # Ignore failures; we've already successfully loaded these modules
             with contextlib.suppress(ImportError, KeyError):
                 for m in new_modules:
+                    mod_path = getattr(sys.modules[m], '__file__', '')
+                    if mod_path and mod_path.endswith('.pyi'):
+                        continue
                     _reload_module(sys.modules[m])
         finally:
             typing.TYPE_CHECKING = False
         module = sys.modules[modname]
     return module
+
+
+class _StubFileLoader(FileLoader):
+    """Load modules from ``.pyi`` stub files."""
+
+    def get_source(self, fullname: str) -> str:
+        path = self.get_filename(fullname)
+        for suffix in _NATIVE_SUFFIXES:
+            if not path.endswith(suffix):
+                continue
+            path = path.removesuffix(suffix) + '.pyi'
+        try:
+            source_bytes = self.get_data(path)
+        except OSError as exc:
+            raise ImportError from exc
+        return decode_source(source_bytes)
 
 
 def _reload_module(module: ModuleType) -> Any:

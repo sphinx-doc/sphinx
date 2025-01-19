@@ -50,6 +50,9 @@ Features added
   pattern doesn't match any documents, via the new ``toc.glob_not_matching``
   warning sub-type.
   Patch by Slawek Figiel.
+* #7630, #4824: autodoc: Use :file:`.pyi` type stub files
+  to auto-document native modules.
+  Patch by Adam Turner, partially based on work by Allie Fitter.
 
 Bugs fixed
 ----------
