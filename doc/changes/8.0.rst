@@ -1,0 +1,115 @@
+==========
+Sphinx 8.0
+==========
+
+
+Release 8.0.2 (released Jul 30, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* Fix the ``pygments.Formatter.__class_getitem__`` patch.
+  Patch by Adam Turner.
+
+Release 8.0.1 (released Jul 30, 2024)
+=====================================
+
+Bugs fixed
+----------
+
+* Patch ``pygments.Formatter.__class_getitem__`` in Pygments 2.17.
+  Patch by Adam Turner.
+
+Release 8.0.0 (released Jul 29, 2024)
+=====================================
+
+Dependencies
+------------
+
+* #12633: Drop Python 3.9 support.
+
+Incompatible changes
+--------------------
+
+.. rst-class:: compact
+
+* Remove deprecated functions from ``sphinx.util``:
+
+  * Removed ``sphinx.util.path_stabilize``
+    (use ``sphinx.util.osutil.path_stabilize``).
+  * Removed ``sphinx.util.display_chunk``
+    (use ``sphinx.util.display.display_chunk``).
+  * Removed ``sphinx.util.status_iterator``
+    (use ``sphinx.util.display.status_iterator``).
+  * Removed ``sphinx.util.SkipProgressMessage``
+    (use ``sphinx.util.display.SkipProgressMessage``).
+  * Removed ``sphinx.util.progress_message``
+    (use ``sphinx.util.display.progress_message``).
+  * Removed ``sphinx.util.epoch_to_rfc1123``
+    (use ``sphinx.http_date.epoch_to_rfc1123``).
+  * Removed ``sphinx.util.rfc1123_to_epoch``
+    (use ``sphinx.http_date.rfc1123_to_epoch``).
+  * Removed ``sphinx.util.save_traceback``
+    (use ``sphinx.exceptions.save_traceback``).
+  * Removed ``sphinx.util.format_exception_cut_frames``
+    (use ``sphinx.exceptions.format_exception_cut_frames``).
+  * Removed ``sphinx.util.xmlname_checker``
+    (use ``sphinx.builders.epub3._XML_NAME_PATTERN``).
+
+  Patch by Adam Turner.
+* Removed :py:func:`!sphinx.util.osutil.cd`
+  (use :py:func:`contextlib.chdir`).
+  Patch by Adam Turner.
+* Removed :py:func:`!sphinx.util.typing.stringify`
+  (use :py:func:`!sphinx.util.typing.stringify_annotation`).
+  Patch by Adam Turner.
+* #12593: Raise an error for invalid :confval:`html_sidebars` values.
+  Patch by Adam Turner.
+* #12593: Raise an error in :py:func:`!Theme.get_config` for invalid sections.
+  Patch by Adam Turner.
+* #11693: Remove support for old-style :file:`Makefile` and :file:`make.bat`
+  output in :program:`sphinx-quickstart`.
+* #11693: Remove the :option:`!--no-use-make-mode`, :option:`!-M`,
+  :option:`!--use-make-mode`, and :option:`!-m` options
+  from :program:`sphinx-quickstart`.
+  Patch by Adam Turner.
+* Removed the tuple interface to :py:class:`!sphinx.ext.autodoc.ObjectMember`.
+  Patch by Adam Turner.
+* #12630: Sphinx 8 makes two changes to the ``linkcheck`` configuration defaults:
+
+  * :confval:`linkcheck_allow_unauthorized` is now ``False`` by default.
+  * :confval:`linkcheck_report_timeouts_as_broken` is now ``False`` by default.
+
+  Patch by James Addison.
+* #12597: Change the default of :confval:`show_warning_types`
+  from ``False`` to ``True``.
+  Patch by Chris Sewell.
+* #12083: Remove support for the old (2008--2010) Sphinx 0.5 and Sphinx 0.6
+  :confval:`intersphinx_mapping` format.
+  Patch by Bénédikt Tran and Adam Turner.
+* #12096: Do not overwrite user-supplied files when copying assets
+  unless forced with ``force=True``.
+  Patch by Adam Turner.
+* #12646: Remove :py:func:`!sphinx.util.inspect.isNewType`.
+  Use ``isinstance(obj, typing.NewType)`` instead on Python 3.10 and newer.
+  Patch by Adam Turner.
+* Remove the long-deprecated (since Sphinx 2) alias
+  to :py:class:`!VersionChange` in
+  :py:mod:`!sphinx.directives.other`
+  (Deprecated since Sphinx 2).
+  Use :py:class:`!sphinx.domains.changeset.VersionChange` directly.
+  Patch by Adam Turner.
+
+Deprecated
+----------
+
+* #12643: Renamed ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
+  to ``sphinx.ext.intersphinx.validate_intersphinx_mapping``.
+  The old name will be removed in Sphinx 10.
+  Patch by Adam Turner.
+* #12650, #12686, #12690: Extend the deprecation for string methods on
+  :py:class:`~pathlib.Path` objects to Sphinx 9.
+  Use :py:func:`os.fspath` to convert :py:class:`~pathlib.Path` objects to strings,
+  or :py:class:`~pathlib.Path`'s methods to work with path objects.
+  Patch by Adam Turner.

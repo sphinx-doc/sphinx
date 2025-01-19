@@ -1,37 +1,34 @@
-"""
-    sphinx.search.zh
-    ~~~~~~~~~~~~~~~~
+"""Chinese search language: includes routine to split words."""
 
-    Chinese search language: includes routine to split words.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import os
 import re
-from typing import Dict, List
+from pathlib import Path
+
+import snowballstemmer
 
 from sphinx.search import SearchLanguage
-from sphinx.util.stemmer import get_stemmer
 
 try:
-    import jieba
+    import jieba  # type: ignore[import-not-found]
+
     JIEBA = True
+    JIEBA_DEFAULT_DICT = Path(jieba.__file__).parent / jieba.DEFAULT_DICT_NAME
 except ImportError:
     JIEBA = False
+    JIEBA_DEFAULT_DICT = Path()
 
-english_stopwords = set("""
-a  and  are  as  at
-be  but  by
-for
-if  in  into  is  it
-near  no  not
-of  on  or
-such
-that  the  their  then  there  these  they  this  to
-was  will  with
-""".split())
+english_stopwords = {
+    'a', 'and', 'are', 'as', 'at',
+    'be', 'but', 'by',
+    'for',
+    'if', 'in', 'into', 'is', 'it',
+    'near', 'no', 'not',
+    'of', 'on', 'or',
+    'such',
+    'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to',
+    'was', 'will', 'with',
+}  # fmt: skip
 
 js_porter_stemmer = """
 /**
@@ -221,33 +218,34 @@ iti|ous|ive|ize)$/;
 
 
 class SearchChinese(SearchLanguage):
-    """
-    Chinese search implementation
-    """
+    """Chinese search implementation"""
 
     lang = 'zh'
     language_name = 'Chinese'
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
     latin1_letters = re.compile(r'[a-zA-Z0-9_]+')
-    latin_terms: List[str] = []
 
-    def init(self, options: Dict) -> None:
+    def __init__(self, options: dict[str, str]) -> None:
+        super().__init__(options)
+        self.latin_terms: set[str] = set()
+
+    def init(self, options: dict[str, str]) -> None:
         if JIEBA:
-            dict_path = options.get('dict')
-            if dict_path and os.path.isfile(dict_path):
+            dict_path = options.get('dict', JIEBA_DEFAULT_DICT)
+            if dict_path and Path(dict_path).is_file():
                 jieba.load_userdict(dict_path)
 
-        self.stemmer = get_stemmer()
+        self.stemmer = snowballstemmer.stemmer('english')
 
-    def split(self, input: str) -> List[str]:
-        chinese: List[str] = []
+    def split(self, input: str) -> list[str]:
         if JIEBA:
-            chinese = list(jieba.cut_for_search(input))
+            chinese: list[str] = list(jieba.cut_for_search(input))
+        else:
+            chinese = []
 
-        latin1 = \
-            [term.strip() for term in self.latin1_letters.findall(input)]
-        self.latin_terms.extend(latin1)
+        latin1 = [term.strip() for term in self.latin1_letters.findall(input)]
+        self.latin_terms.update(latin1)
         return chinese + latin1
 
     def word_filter(self, stemmed_word: str) -> bool:
@@ -257,11 +255,10 @@ class SearchChinese(SearchLanguage):
         # Don't stem Latin words that are long enough to be relevant for search
         # if not stemmed, but would be too short after being stemmed
         # avoids some issues with acronyms
+        stemmed = self.stemmer.stemWord(word.lower())
         should_not_be_stemmed = (
-            word in self.latin_terms and
-            len(word) >= 3 and
-            len(self.stemmer.stem(word.lower())) < 3
+            len(word) >= 3 > len(stemmed) and word in self.latin_terms
         )
         if should_not_be_stemmed:
             return word.lower()
-        return self.stemmer.stem(word.lower())
+        return stemmed

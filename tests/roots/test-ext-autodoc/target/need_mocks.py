@@ -1,18 +1,17 @@
+import missing_module
+import missing_package1.missing_module1
+from missing_module import missing_name
+from missing_package2 import missing_module2
+from missing_package3.missing_module3 import missing_name  # NoQA: F811
 
-import missing_module  # NOQA
-import missing_package1.missing_module1  # NOQA
-from missing_module import missing_name  # NOQA
-from missing_package2 import missing_module2  # NOQA
-from missing_package3.missing_module3 import missing_name  # NOQA
-
-import sphinx.missing_module4  # NOQA
-from sphinx.missing_module4 import missing_name2  # NOQA
+import sphinx.missing_module4
+from sphinx.missing_module4 import missing_name2
 
 
 @missing_name(int)
-def decoratedFunction():
-    """decoratedFunction docstring"""
-    return None
+def decorated_function():
+    """decorated_function docstring"""
+    return None  # NoQA: RET501
 
 
 def func(arg: missing_module.Class):
@@ -20,17 +19,25 @@ def func(arg: missing_module.Class):
     pass
 
 
-class TestAutodoc(object):
+class TestAutodoc:
     """TestAutodoc docstring."""
+
+    #: docstring
+    Alias = missing_module2.Class
+
     @missing_name
-    def decoratedMethod(self):
-        """TestAutodoc::decoratedMethod docstring"""
-        return None
+    def decorated_method(self):
+        """TestAutodoc::decorated_method docstring"""
+        return None  # NoQA: RET501
 
 
 class Inherited(missing_module.Class):
     """docstring"""
+
     pass
 
 
 sphinx.missing_module4.missing_function(len(missing_name2))
+
+#: docstring
+Alias = missing_module2.Class

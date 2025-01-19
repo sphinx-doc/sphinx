@@ -1,21 +1,13 @@
-"""
-    sphinx.search.no
-    ~~~~~~~~~~~~~~~~
+"""Norwegian search language: includes the JS Norwegian stemmer."""
 
-    Norwegian search language: includes the JS Norwegian stemmer.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Dict
+from __future__ import annotations
 
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-norwegian_stopwords = parse_stop_word('''
-| source: http://snowball.tartarus.org/algorithms/norwegian/stop.txt
+norwegian_stopwords = parse_stop_word("""
+| source: https://snowball.tartarus.org/algorithms/norwegian/stop.txt
 og             | and
 i              | in
 jeg            | I
@@ -192,7 +184,7 @@ verte          | become *
 vort           | become *
 varte          | became *
 vart           | became *
-''')
+""")
 
 
 class SearchNorwegian(SearchLanguage):
@@ -201,7 +193,7 @@ class SearchNorwegian(SearchLanguage):
     js_stemmer_rawcode = 'norwegian-stemmer.js'
     stopwords = norwegian_stopwords
 
-    def init(self, options: Dict) -> None:
+    def init(self, options: dict[str, str]) -> None:
         self.stemmer = snowballstemmer.stemmer('norwegian')
 
     def stem(self, word: str) -> str:

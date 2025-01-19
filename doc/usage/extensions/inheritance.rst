@@ -1,4 +1,4 @@
-.. highlight:: rest
+.. highlight:: rst
 
 :mod:`sphinx.ext.inheritance_diagram` -- Include inheritance diagrams
 =====================================================================
@@ -7,6 +7,9 @@
    :synopsis: Support for displaying inheritance diagrams via graphviz.
 
 .. versionadded:: 0.6
+
+.. role:: code-py(code)
+   :language: Python
 
 This extension allows you to include inheritance diagrams, rendered via the
 :mod:`Graphviz extension <sphinx.ext.graphviz>`.
@@ -131,12 +134,19 @@ part (``sphinx``) from all names::
    :top-classes: sphinx.util.docutils.SphinxDirective
    :parts: -1
 
+.. py:class:: sphinx.ext.inheritance_diagram.InheritanceDiagram
+   :no-contents-entry:
+   :no-index-entry:
+
+   The internal class that implements the ``inheritance-diagram`` directive.
 
 
 Configuration
 -------------
 
 .. confval:: inheritance_graph_attrs
+   :type: :code-py:`dict[str, str | int | float | bool]`
+   :default: :code-py:`{}`
 
    A dictionary of graphviz graph attributes for inheritance diagrams.
 
@@ -146,6 +156,8 @@ Configuration
                                      fontsize=14, ratio='compress')
 
 .. confval:: inheritance_node_attrs
+   :type: :code-py:`dict[str, str | int | float | bool]`
+   :default: :code-py:`{}`
 
    A dictionary of graphviz node attributes for inheritance diagrams.
 
@@ -155,10 +167,14 @@ Configuration
                                     color='dodgerblue1', style='filled')
 
 .. confval:: inheritance_edge_attrs
+   :type: :code-py:`dict[str, str | int | float | bool]`
+   :default: :code-py:`{}`
 
    A dictionary of graphviz edge attributes for inheritance diagrams.
 
 .. confval:: inheritance_alias
+   :type: :code-py:`dict[str, str]`
+   :default: :code-py:`{}`
 
    Allows mapping the full qualified name of the class to custom values
    (useful when exposing the underlying path of a class is not desirable,

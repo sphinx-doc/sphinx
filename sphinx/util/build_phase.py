@@ -1,18 +1,13 @@
-"""
-    sphinx.util.build_phase
-    ~~~~~~~~~~~~~~~~~~~~~~~
+"""Build phase of Sphinx application."""
 
-    Build phase of Sphinx application.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 from enum import IntEnum
 
 
 class BuildPhase(IntEnum):
     """Build phase of Sphinx application."""
+
     INITIALIZATION = 1
     READING = 2
     CONSISTENCY_CHECK = 3

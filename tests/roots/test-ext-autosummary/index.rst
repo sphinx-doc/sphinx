@@ -13,4 +13,6 @@
    autosummary_dummy_module.Foo.value
    autosummary_dummy_module.bar
    autosummary_dummy_module.qux
+   autosummary_dummy_inherited_module.InheritedAttrClass
+   autosummary_dummy_inherited_module.InheritedAttrClass.subclassattr
    autosummary_importfail

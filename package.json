@@ -1,7 +1,7 @@
 {
   "name": "sphinx",
   "scripts": {
-    "test": "./node_modules/.bin/karma start --browsers Firefox --single-run"
+    "test": "npx jasmine-browser-runner runSpecs --config=tests/js/jasmine-browser.mjs"
   },
   "repository": {
     "type": "git",
@@ -11,10 +11,7 @@
     "url": "https://github.com/sphinx-doc/sphinx/issues"
   },
   "devDependencies": {
-    "jasmine-core": "^3.4.0",
-    "karma": "^4.0.0",
-    "karma-chrome-launcher": "^3.0.0",
-    "karma-firefox-launcher": "^1.1.0",
-    "karma-jasmine": "^2.0.0"
+    "jasmine-browser-runner": "^2.5.0",
+    "jasmine-core": "^5.2.0"
   }
 }

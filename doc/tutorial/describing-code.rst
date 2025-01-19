@@ -8,19 +8,22 @@ will describe code objects instead.
 Sphinx supports documenting code objects in several languages, namely Python,
 C, C++, JavaScript, and reStructuredText. Each of them can be documented using
 a series of directives and roles grouped by
-:doc:`domain </usage/restructuredtext/domains>`. For the remainder of the
+:doc:`domain </usage/domains/index>`. For the remainder of the
 tutorial you will use the Python domain, but all the concepts seen in this
 section apply for the other domains as well.
 
 .. _tutorial-describing-objects:
 
+Python
+------
+
 Documenting Python objects
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sphinx offers several roles and directives to document Python objects,
-all grouped together in :ref:`the Python domain <python-domain>`. For example,
-you can use the :rst:dir:`py:function` directive to document a Python function,
-as follows:
+all grouped together in :doc:`the Python domain </usage/domains/python>`.
+For example, you can use the :rst:dir:`py:function` directive to document
+a Python function, as follows:
 
 .. code-block:: rst
    :caption: docs/source/usage.rst
@@ -54,7 +57,7 @@ Notice several things:
 - Sphinx parsed the argument of the ``.. py:function`` directive and
   highlighted the module, the function name, and the parameters appropriately.
 - The directive content includes a one-line description of the function,
-  as well as a :ref:`info field list <info-field-lists>` containing the function
+  as well as an :ref:`info field list <info-field-lists>` containing the function
   parameter, its expected type, the return value, and the return type.
 
 .. note::
@@ -68,11 +71,11 @@ Notice several things:
    ``.. function::`` directly.
 
 Cross-referencing Python objects
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, most of these directives generate entities that can be
 cross-referenced from any part of the documentation by using
-:ref:`a corresponding role <python-roles>`. For the case of functions,
+:ref:`a corresponding role <python-xref-roles>`. For the case of functions,
 you can use :rst:role:`py:func` for that, as follows:
 
 .. code-block:: rst
@@ -82,10 +85,11 @@ you can use :rst:role:`py:func` for that, as follows:
    or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
    will raise an exception.
 
-When generating code documentation, Sphinx will generate a cross-reference automatically just
-by using the name of the object, without you having to explicitly use a role
-for that. For example, you can describe the custom exception raised by the
-function using the :rst:dir:`py:exception` directive:
+When generating code documentation, Sphinx will generate a
+cross-reference automatically just by using the name of the object,
+without you having to explicitly use a role for that. For example, you
+can describe the custom exception raised by the function using the
+:rst:dir:`py:exception` directive:
 
 .. code-block:: rst
    :caption: docs/source/usage.rst
@@ -123,7 +127,7 @@ And finally, this is how the result would look:
 Beautiful, isn't it?
 
 Including doctests in your documentation
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Since you are now describing code from a Python library, it will become useful
 to keep both the documentation and the code as synchronized as possible.
@@ -141,9 +145,9 @@ at the beginning of ``conf.py``:
 
    # If extensions (or modules to document with autodoc) are in another directory,
    # add these directories to sys.path here.
-   import pathlib
    import sys
-   sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
+   from pathlib import Path
+   sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 .. note::
 
@@ -224,8 +228,49 @@ for easy examination. It is now time to fix the function:
    def get_random_ingredients(kind=None):
        return ["shells", "gorgonzola", "parsley"]
 
-And finally, ``make test`` reports success!
+And finally, ``make doctest`` reports success!
 
 For big projects though, this manual approach can become a bit tedious.
 In the next section, you will see :doc:`how to automate the
 process </tutorial/automatic-doc-generation>`.
+
+Other languages (C, C++, others)
+--------------------------------
+
+Documenting and cross-referencing objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sphinx also supports documenting and cross-referencing objects written in
+other programming languages. There are four additional built-in domains:
+C, C++, JavaScript, and reStructuredText. Third-party extensions may
+define domains for more languages, such as
+
+- `Fortran <https://sphinx-fortran.readthedocs.io>`_,
+- `Julia <https://bastikr.github.io/sphinx-julia>`_, or
+- `PHP <https://github.com/markstory/sphinxcontrib-phpdomain>`_.
+
+For example, to document a C++ type definition, you would use the built-in
+:rst:dir:`cpp:type` directive, as follows:
+
+.. code-block:: rst
+
+   .. cpp:type:: std::vector<int> CustomList
+
+      A typedef-like declaration of a type.
+
+Which would give the following result:
+
+.. cpp:type:: std::vector<int> CustomList
+
+   A typedef-like declaration of a type.
+
+All such directives then generate references that can be
+cross-referenced by using the corresponding role. For example, to reference
+the previous type definition, you can use the :rst:role:`cpp:type` role
+as follows:
+
+.. code-block:: rst
+
+   Cross reference to :cpp:type:`CustomList`.
+
+Which would produce a hyperlink to the previous definition: :cpp:type:`CustomList`.

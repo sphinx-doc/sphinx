@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "vi",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "",
-        "&#169; Copyright %(copyright)s.": "",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": "",
         "About these documents": "V\u1ec1 c\u00e1c t\u00e0i li\u1ec7u n\u00e0y",
         "Automatically generated list of changes in version %(version)s": "",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Th\u1ef1c hi\u1ec7n",
         "Hide Search Matches": "",
         "Index": "",
-        "Index &ndash; %(key)s": "Ch\u1ec9 m\u1ee5c &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "C\u00e1c trang ch\u1ec9 m\u1ee5c theo ch\u1eef c\u00e1i",
         "Indices and tables:": "C\u00e1c ch\u1ec9 m\u1ee5c v\u00e0 b\u1ea3ng bi\u1ec3u:",
         "Last updated on %(last_updated)s.": "C\u1eadp nh\u1eadt m\u1edbi nh\u1ea5t v\u00e0o %(last_updated)s.",
@@ -30,8 +29,6 @@ Documentation.addTranslations({
         "Next topic": "Ch\u1ee7 \u0111\u1ec1 ti\u1ebfp",
         "Other changes": "",
         "Overview": "T\u1ed5ng quan",
-        "Permalink to this definition": "",
-        "Permalink to this headline": "",
         "Please activate JavaScript to enable the search\n    functionality.": "H\u00e3y b\u1eadt JavaScript \u0111\u1ec3 d\u00f9ng t\u00ednh n\u0103ng\nt\u00ecm ki\u1ebfm.",
         "Preparing search...": "",
         "Previous topic": "Ch\u1ee7 \u0111\u1ec1 tr\u01b0\u1edbc",
@@ -39,7 +36,9 @@ Documentation.addTranslations({
         "Search": "T\u00ecm Ki\u1ebfm",
         "Search Page": "",
         "Search Results": "",
-        "Search finished, found %s page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "T\u00ecm ki\u1ebfm trong %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

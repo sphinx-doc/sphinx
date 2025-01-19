@@ -26,9 +26,9 @@ Glossary
       Sphinx and custom extensions can add their own.  The basic directive
       syntax looks like this:
 
-      .. sourcecode:: rst
+      .. code-block:: rst
 
-         .. directivename:: argument ...
+         .. directive-name:: argument ...
             :option: value
 
             Content of the directive.
@@ -36,9 +36,10 @@ Glossary
       See :ref:`rst-directives` for more information.
 
    document name
-      Since reST source files can have different extensions (some people like
-      ``.txt``, some like ``.rst`` -- the extension can be configured with
-      :confval:`source_suffix`) and different OSes have different path
+      Since reStructuredText source files can have different extensions
+      (some people like ``.txt``, some like ``.rst`` -- the extension can be
+      configured with :confval:`source_suffix`)
+      and different OSes have different path
       separators, Sphinx abstracts them: :dfn:`document names` are always
       relative to the :term:`source directory`, the extension is stripped, and
       path separators are converted to slashes.  All values, parameters and such
@@ -59,7 +60,7 @@ Glossary
       means that extensions that support the documentation of whole new
       languages are much easier to write.
 
-      For more information, refer to :doc:`/usage/restructuredtext/domains`.
+      For more information, refer to :doc:`/usage/domains/index`.
 
    environment
       A structure where information about all documents under the root is saved,
@@ -74,15 +75,13 @@ Glossary
      For more information, refer to :doc:`/usage/extensions/index`.
 
    master document
-      The document that contains the root :rst:dir:`toctree` directive.
-
    root document
-      Same as :term:`master document`.
+      The document that contains the root :rst:dir:`toctree` directive.
 
    object
       The basic building block of Sphinx documentation.  Every "object
-      directive" (e.g. :rst:dir:`function` or :rst:dir:`object`) creates such a
-      block; and most objects can be cross-referenced to.
+      directive" (e.g. :rst:dir:`py:function` or :rst:dir:`object`) creates such
+      a block; and most objects can be cross-referenced to.
 
    RemoveInSphinxXXXWarning
       The feature which is warned will be removed in Sphinx-XXX version.

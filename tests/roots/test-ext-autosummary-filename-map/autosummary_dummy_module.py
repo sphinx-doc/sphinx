@@ -1,9 +1,11 @@
-from os import path  # NOQA
+from __future__ import annotations
+
+from os import path
 from typing import Union
 
 
 class Foo:
-    class Bar:
+    class Bar:  # NoQA: D106
         pass
 
     def __init__(self):
@@ -17,5 +19,5 @@ class Foo:
         pass
 
 
-def bar(x: Union[int, str], y: int = 1) -> None:
+def bar(x: int | str, y: int = 1) -> None:
     pass

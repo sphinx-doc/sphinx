@@ -2,8 +2,7 @@ Documentation.addTranslations({
     "locale": "id",
     "messages": {
         "%(filename)s &#8212; %(docstitle)s": "%(filename)s &#8212; %(docstitle)s",
-        "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s.": "&#169; <a href=\"%(path)s\">Hak cipta</a> %(copyright)s.",
-        "&#169; Copyright %(copyright)s.": "&#169; Hak cipta %(copyright)s.",
+        "&#169; %(copyright_prefix)s %(copyright)s.": "",
         ", in ": ", di",
         "About these documents": "Tentang dokumen ini",
         "Automatically generated list of changes in version %(version)s": "Daftar perubahan dibuat otomatis untuk versi %(version)s",
@@ -21,7 +20,7 @@ Documentation.addTranslations({
         "Go": "Go",
         "Hide Search Matches": "Sembunyikan Hasil Pencarian",
         "Index": "Indeks",
-        "Index &ndash; %(key)s": "Index &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "Index halaman berdasarkan huruf",
         "Indices and tables:": "Indeks dan tabel:",
         "Last updated on %(last_updated)s.": "Terakhir diperbarui pada %(last_updated)s.",
@@ -30,8 +29,6 @@ Documentation.addTranslations({
         "Next topic": "Topik berikutnya",
         "Other changes": "Perubahan lain",
         "Overview": "Tinjauan",
-        "Permalink to this definition": "Link permanen untuk definisi ini",
-        "Permalink to this headline": "Link permanen untuk headline ini",
         "Please activate JavaScript to enable the search\n    functionality.": "Tolong aktifkan JavaScript untuk melakukan pencarian.\n ",
         "Preparing search...": "Penyiapkan pencarian...",
         "Previous topic": "Topik sebelumnya",
@@ -39,7 +36,9 @@ Documentation.addTranslations({
         "Search": "Pencarian",
         "Search Page": "Pencarian Halaman",
         "Search Results": "Hasil Pencarian",
-        "Search finished, found %s page(s) matching the search query.": "Pencarian selesai, menemukan %s halaman yang cocok dengan kueri pencarian.",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "Pencarian dalam %(docstitle)s",
         "Searching": "Pencarian",
         "Searching for multiple words only shows matches that contain\n    all words.": "Mencari beberapa kata hanya menunjukkan kecocokan yang mengandung\n \u00a0\u00a0 semua kata.",

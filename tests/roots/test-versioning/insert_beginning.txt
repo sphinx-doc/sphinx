@@ -1,7 +1,7 @@
 Versioning test text
 ====================
 
-Apperantly inserting a paragraph at the beginning of a document caused
+Apparently inserting a paragraph at the beginning of a document caused
 problems earlier so this document should be used to test that.
 
 So the thing is I need some kind of text - not the lorem ipsum stuff, that

@@ -48,9 +48,9 @@ At the moment, these metadata fields are recognized:
 
    .. note::
 
-      This metadata effects to the depth of local toctree.  But it does not
-      effect to the depth of *global* toctree.  So this would not be change
-      the sidebar of some themes which uses global one.
+      This metadata affects the depth of the local toctree.  But it does not
+      affect the depth of the *global* toctree.  So this does not change
+      the sidebar of themes that use the global toctree.
 
    .. versionadded:: 0.4
 
@@ -68,11 +68,24 @@ At the moment, these metadata fields are recognized:
 
    .. versionadded:: 1.0
 
-``nosearch``
-   If set, full text search for this file is disabled. ::
+``no-search``
+   Disable full text search for this document.
 
-       :nosearch:
+   .. code-block:: rst
 
-   .. note:: object search is still available even if `nosearch` option is set.
+      :no-search:
+
+   .. note::
+      The ``:no-search:`` option only disables full text search,
+      meaning that object search will still be available even if
+      ``:no-search:`` is set.
 
    .. versionadded:: 3.0
+
+   .. versionchanged:: 7.3
+
+      The file-wide metadata option ``:nosearch:`` was renamed
+      to ``:no-search:``.
+      The previous name has been retained as an alias,
+      but will be deprecated and removed
+      in a future version of Sphinx.

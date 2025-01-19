@@ -1,14 +1,6 @@
-"""
-    sphinx.builders.latex.util
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Utilities for LaTeX builder."""
 
-    Utilities for LaTeX builder.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Optional
+from __future__ import annotations
 
 from docutils.writers.latex2e import Babel
 
@@ -20,7 +12,7 @@ class ExtBabel(Babel):
         self.language_code = language_code
         self.use_polyglossia = use_polyglossia
         self.supported = True
-        super().__init__(language_code or '')
+        super().__init__(language_code)
 
     def uses_cyrillic(self) -> bool:
         return self.language in self.cyrillic_languages
@@ -42,8 +34,8 @@ class ExtBabel(Babel):
             self.supported = False
             return 'english'  # fallback to english
 
-    def get_mainlanguage_options(self) -> Optional[str]:
-        """Return options for polyglossia's ``\\setmainlanguage``."""
+    def get_mainlanguage_options(self) -> str | None:
+        r"""Return options for polyglossia's ``\setmainlanguage``."""
         if self.use_polyglossia is False:
             return None
         elif self.language == 'german':

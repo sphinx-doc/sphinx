@@ -1,29 +1,22 @@
-"""
-    sphinx.search.en
-    ~~~~~~~~~~~~~~~~
+"""English search language: includes the JS porter stemmer."""
 
-    English search language: includes the JS porter stemmer.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-from typing import Dict
+import snowballstemmer
 
 from sphinx.search import SearchLanguage
-from sphinx.util.stemmer import get_stemmer
 
-english_stopwords = set("""
-a  and  are  as  at
-be  but  by
-for
-if  in  into  is  it
-near  no  not
-of  on  or
-such
-that  the  their  then  there  these  they  this  to
-was  will  with
-""".split())
+english_stopwords = {
+    'a', 'and', 'are', 'as', 'at',
+    'be', 'but', 'by',
+    'for',
+    'if', 'in', 'into', 'is', 'it',
+    'near', 'no', 'not',
+    'of', 'on', 'or',
+    'such',
+    'that', 'the', 'their', 'then', 'there', 'these', 'they', 'this', 'to',
+    'was', 'will', 'with',
+}  # fmt: skip
 
 js_porter_stemmer = """
 /**
@@ -218,8 +211,8 @@ class SearchEnglish(SearchLanguage):
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
 
-    def init(self, options: Dict) -> None:
-        self.stemmer = get_stemmer()
+    def init(self, options: dict[str, str]) -> None:
+        self.stemmer = snowballstemmer.stemmer('porter')
 
     def stem(self, word: str) -> str:
-        return self.stemmer.stem(word.lower())
+        return self.stemmer.stemWord(word.lower())

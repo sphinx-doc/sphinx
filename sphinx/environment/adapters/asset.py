@@ -1,14 +1,13 @@
-"""
-    sphinx.environment.adapters.asset
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Assets adapter for sphinx.environment."""
 
-    Assets adapter for sphinx.environment.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from typing import TYPE_CHECKING
 
-from sphinx.environment import BuildEnvironment
+from sphinx.util._pathlib import _StrPath
+
+if TYPE_CHECKING:
+    from sphinx.environment import BuildEnvironment
 
 
 class ImageAdapter:
@@ -17,7 +16,7 @@ class ImageAdapter:
 
     def get_original_image_uri(self, name: str) -> str:
         """Get the original image URI."""
-        while name in self.env.original_image_uri:
-            name = self.env.original_image_uri[name]
+        while _StrPath(name) in self.env.original_image_uri:
+            name = self.env.original_image_uri[_StrPath(name)]
 
         return name

@@ -1,42 +1,30 @@
-"""
-    test_versioning
-    ~~~~~~~~~~~~~~~
+"""Test the versioning implementation."""
 
-    Test the versioning implementation.
-
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
+from __future__ import annotations
 
 import pickle
+import shutil
 
 import pytest
 
-from sphinx import addnodes
 from sphinx.testing.util import SphinxTestApp
 from sphinx.versioning import add_uids, get_ratio, merge_doctrees
 
-try:
-    from docutils.parsers.rst.directives.html import MetaBody
-    meta = MetaBody.meta
-except ImportError:
-    from docutils.nodes import meta
-
-app = original = original_uids = None
+original = original_uids = None
 
 
 @pytest.fixture(scope='module', autouse=True)
-def setup_module(rootdir, sphinx_test_tempdir):
-    global app, original, original_uids
+def _setup_module(rootdir, sphinx_test_tempdir):
+    global original, original_uids  # NoQA: PLW0603
     srcdir = sphinx_test_tempdir / 'test-versioning'
     if not srcdir.exists():
-        (rootdir / 'test-versioning').copytree(srcdir)
+        shutil.copytree(rootdir / 'test-versioning', srcdir)
     app = SphinxTestApp(srcdir=srcdir)
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)
     app.build()
     original = doctrees['original']
-    original_uids = [n.uid for n in add_uids(original, is_paragraph)]
+    original_uids = [n.uid for n in add_uids(original, is_paragraph)]  # type: ignore[attr-defined]
     yield
     app.cleanup()
 
@@ -69,16 +57,14 @@ def test_picklablility():
     copy.settings.warning_stream = None
     copy.settings.env = None
     copy.settings.record_dependencies = None
-    for metanode in copy.traverse(meta):
-        metanode.__class__ = addnodes.meta
     loaded = pickle.loads(pickle.dumps(copy, pickle.HIGHEST_PROTOCOL))
-    assert all(getattr(n, 'uid', False) for n in loaded.traverse(is_paragraph))
+    assert all(getattr(n, 'uid', False) for n in loaded.findall(is_paragraph))
 
 
 def test_modified():
     modified = doctrees['modified']
     new_nodes = list(merge_doctrees(original, modified, is_paragraph))
-    uids = [n.uid for n in modified.traverse(is_paragraph)]
+    uids = [n.uid for n in modified.findall(is_paragraph)]
     assert not new_nodes
     assert original_uids == uids
 
@@ -86,7 +72,7 @@ def test_modified():
 def test_added():
     added = doctrees['added']
     new_nodes = list(merge_doctrees(original, added, is_paragraph))
-    uids = [n.uid for n in added.traverse(is_paragraph)]
+    uids = [n.uid for n in added.findall(is_paragraph)]
     assert len(new_nodes) == 1
     assert original_uids == uids[:-1]
 
@@ -94,7 +80,7 @@ def test_added():
 def test_deleted():
     deleted = doctrees['deleted']
     new_nodes = list(merge_doctrees(original, deleted, is_paragraph))
-    uids = [n.uid for n in deleted.traverse(is_paragraph)]
+    uids = [n.uid for n in deleted.findall(is_paragraph)]
     assert not new_nodes
     assert original_uids[::2] == uids
 
@@ -102,7 +88,7 @@ def test_deleted():
 def test_deleted_end():
     deleted_end = doctrees['deleted_end']
     new_nodes = list(merge_doctrees(original, deleted_end, is_paragraph))
-    uids = [n.uid for n in deleted_end.traverse(is_paragraph)]
+    uids = [n.uid for n in deleted_end.findall(is_paragraph)]
     assert not new_nodes
     assert original_uids[:-1] == uids
 
@@ -110,7 +96,7 @@ def test_deleted_end():
 def test_insert():
     insert = doctrees['insert']
     new_nodes = list(merge_doctrees(original, insert, is_paragraph))
-    uids = [n.uid for n in insert.traverse(is_paragraph)]
+    uids = [n.uid for n in insert.findall(is_paragraph)]
     assert len(new_nodes) == 1
     assert original_uids[0] == uids[0]
     assert original_uids[1:] == uids[2:]
@@ -119,7 +105,7 @@ def test_insert():
 def test_insert_beginning():
     insert_beginning = doctrees['insert_beginning']
     new_nodes = list(merge_doctrees(original, insert_beginning, is_paragraph))
-    uids = [n.uid for n in insert_beginning.traverse(is_paragraph)]
+    uids = [n.uid for n in insert_beginning.findall(is_paragraph)]
     assert len(new_nodes) == 1
     assert len(uids) == 4
     assert original_uids == uids[1:]
@@ -129,8 +115,8 @@ def test_insert_beginning():
 def test_insert_similar():
     insert_similar = doctrees['insert_similar']
     new_nodes = list(merge_doctrees(original, insert_similar, is_paragraph))
-    uids = [n.uid for n in insert_similar.traverse(is_paragraph)]
+    uids = [n.uid for n in insert_similar.findall(is_paragraph)]
     assert len(new_nodes) == 1
-    assert new_nodes[0].rawsource == 'Anyway I need more'
+    assert new_nodes[0].rawsource == 'Anyway I need more'  # type: ignore[attr-defined]
     assert original_uids[0] == uids[0]
     assert original_uids[1:] == uids[2:]

@@ -1,0 +1,1 @@
+javascript_maximum_signature_line_length = 1

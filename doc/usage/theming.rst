@@ -2,7 +2,7 @@
 
 .. _html-themes:
 
-HTML Theming
+HTML theming
 ============
 
 Sphinx provides a number of builders for HTML and HTML-based formats.
@@ -22,7 +22,7 @@ Themes
 
    This section provides information about using pre-existing HTML themes. If
    you wish to create your own theme, refer to
-   :doc:`/development/theming`.
+   :ref:`extension-html-theme`.
 
 Sphinx supports changing the appearance of its HTML output via *themes*.  A
 theme is a collection of HTML templates, stylesheet(s) and other static files.
@@ -56,7 +56,7 @@ page's top and bottom), add the following :file:`conf.py`::
 
 If the theme does not come with Sphinx, it can be in two static forms or as a
 Python package. For the static forms, either a directory (containing
-:file:`theme.conf` and other needed files), or a zip file with the same
+:file:`theme.toml` and other needed files), or a zip file with the same
 contents is supported. The directory or zipfile must be put where Sphinx can
 find it; for this there is the config value :confval:`html_theme_path`. This
 can be a list of directories, relative to the directory containing
@@ -70,7 +70,7 @@ directory containing :file:`conf.py` and use this configuration::
 The third form is a Python package.  If a theme you want to use is distributed
 as a Python package, you can use it after installing
 
-.. code-block:: bash
+.. code-block:: console
 
     # installing theme package
     $ pip install sphinxjp.themes.dotted
@@ -81,14 +81,14 @@ zipfile-based theme::
     html_theme = "dotted"
 
 For more information on the design of themes, including information about
-writing your own themes, refer to :doc:`/development/theming`.
+writing your own themes, refer to :ref:`extension-html-theme`.
 
 .. _builtin-themes:
 
 Builtin themes
 ~~~~~~~~~~~~~~
 
-.. cssclass:: longtable
+.. cssclass:: longtable, standard
 
 +--------------------+--------------------+
 | **Theme overview** |                    |
@@ -127,6 +127,10 @@ Builtin themes
 
 Sphinx comes with a selection of themes to choose from.
 
+Note that from these themes only the Alabaster and Scrolls themes are
+mobile-optimated, the other themes resort to horizontal scrolling
+if the screen is too narrow.
+
 .. cssclass:: clear
 
 These themes are:
@@ -154,9 +158,18 @@ These themes are:
     dimension string such as '70em' or '50%'. Use 'none' if you don't
     want a width limit. Defaults may depend on the theme (often 800px).
 
-  - **navigation_with_keys** (true or false): Allow navigating to the
-    previous/next page using the keyboard's left and right arrows.  Defaults to
-    ``False``.
+  - **navigation_with_keys** (true or false): Allow navigating
+    with the following keyboard shortcuts:
+
+    - :kbd:`Left arrow`: previous page
+    - :kbd:`Right arrow`: next page
+
+    Defaults to ``False``.
+
+  - **enable_search_shortcuts** (true or false): Allow jumping to the search box
+    with :kbd:`/` and allow removal of search highlighting with :kbd:`Esc`.
+
+    Defaults to ``True``.
 
   - **globaltoc_collapse** (true or false): Only expand subsections
     of the current document in ``globaltoc.html``
@@ -312,10 +325,10 @@ These themes are:
   are supported:
 
   - **relbar1** (true or false, default ``True``): If this is true, the
-    `relbar1` block is inserted in the epub output, otherwise it is omitted.
+    ``relbar1`` block is inserted in the epub output, otherwise it is omitted.
 
   - **footer**  (true or false, default ``True``): If this is true, the
-    `footer` block is inserted in the epub output, otherwise it is omitted.
+    ``footer`` block is inserted in the epub output, otherwise it is omitted.
 
 **bizstyle**
   A simple bluish theme. The following options are supported
@@ -332,10 +345,12 @@ These themes are:
    available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
+.. _third-party-themes:
+
 Third Party Themes
 ~~~~~~~~~~~~~~~~~~
 
-There are many third-party themes available for Sphinx. Some of these are for
+There are many third-party themes created for Sphinx. Some of these are for
 general use, while others are specific to an individual project.
 
 sphinx-themes.org__ is a gallery that showcases various themes for Sphinx,

@@ -1,0 +1,4 @@
+[theme]
+inherit = "basic"
+pygments_style = { default = "default" }
+sidebars = []

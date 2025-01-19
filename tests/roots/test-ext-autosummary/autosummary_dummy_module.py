@@ -1,5 +1,17 @@
-from os import path  # NOQA
+from os import path
 from typing import Union
+
+from autosummary_class_module import Class
+
+__all__ = [
+    'CONSTANT1',
+    'Exc',
+    'Foo',
+    '_Baz',
+    'bar',
+    'qux',
+    'path',
+]
 
 #: module variable
 CONSTANT1 = None
@@ -11,7 +23,7 @@ class Foo:
     CONSTANT3 = None
     CONSTANT4 = None
 
-    class Bar:
+    class Bar:  # NoQA: D106
         pass
 
     def __init__(self):
@@ -30,7 +42,7 @@ class _Baz:
     pass
 
 
-def bar(x: Union[int, str], y: int = 1) -> None:
+def bar(x: Union[int, str], y: int = 1) -> None:  # NoQA: UP007
     pass
 
 
@@ -48,3 +60,9 @@ class _Exc(Exception):
 
 #: a module-level attribute
 qux = 2
+#: a module-level attribute that has been excluded from __all__
+quuz = 2
+
+considered_as_imported = Class()
+non_imported_member = Class()
+""" This attribute has a docstring, so it is recognized as a not-imported member """

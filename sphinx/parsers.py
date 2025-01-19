@@ -1,57 +1,45 @@
-"""
-    sphinx.parsers
-    ~~~~~~~~~~~~~~
+"""A Base class for additional parsers."""
 
-    A Base class for additional parsers.
+from __future__ import annotations
 
-    :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
-"""
-
-import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
+from typing import TYPE_CHECKING
 
 import docutils.parsers
 import docutils.parsers.rst
-from docutils import nodes
 from docutils.parsers.rst import states
 from docutils.statemachine import StringList
-from docutils.transforms import Transform
 from docutils.transforms.universal import SmartQuotes
 
-from sphinx.deprecation import RemovedInSphinx50Warning
 from sphinx.util.rst import append_epilog, prepend_prolog
 
 if TYPE_CHECKING:
+    from docutils import nodes
+    from docutils.transforms import Transform
+
     from sphinx.application import Sphinx
+    from sphinx.config import Config
+    from sphinx.environment import BuildEnvironment
+    from sphinx.util.typing import ExtensionMetadata
 
 
 class Parser(docutils.parsers.Parser):
-    """
-    A base class of source parsers.  The additional parsers should inherit this class instead
-    of ``docutils.parsers.Parser``.  Compared with ``docutils.parsers.Parser``, this class
-    improves accessibility to Sphinx APIs.
+    """A base class of source parsers.
 
-    The subclasses can access the following objects and functions:
+    The additional parsers should inherit this class
+    instead of ``docutils.parsers.Parser``.
+    Compared with ``docutils.parsers.Parser``,
+    this class improves accessibility to Sphinx APIs.
 
-    self.app
-        The application object (:class:`sphinx.application.Sphinx`)
-    self.config
-        The config object (:class:`sphinx.config.Config`)
-    self.env
-        The environment object (:class:`sphinx.environment.BuildEnvironment`)
-    self.warn()
-        Emit a warning. (Same as :meth:`sphinx.application.Sphinx.warn()`)
-    self.info()
-        Emit an info message. (Same as :meth:`sphinx.application.Sphinx.info()`)
-
-    .. deprecated:: 1.6
-       ``warn()`` and ``info()`` is deprecated.  Use :mod:`sphinx.util.logging` instead.
-    .. deprecated:: 3.0
-       parser.app is deprecated.
+    The subclasses can access sphinx core runtime objects (app, config and env).
     """
 
-    def set_application(self, app: "Sphinx") -> None:
+    #: The config object
+    config: Config
+
+    #: The environment object
+    env: BuildEnvironment
+
+    def set_application(self, app: Sphinx) -> None:
         """set_application will be called from Sphinx to set app and other instance variables
 
         :param sphinx.application.Sphinx app: Sphinx application object
@@ -60,18 +48,12 @@ class Parser(docutils.parsers.Parser):
         self.config = app.config
         self.env = app.env
 
-    @property
-    def app(self) -> "Sphinx":
-        warnings.warn('parser.app is deprecated.', RemovedInSphinx50Warning, stacklevel=2)
-        return self._app
-
 
 class RSTParser(docutils.parsers.rst.Parser, Parser):
     """A reST parser for Sphinx."""
 
-    def get_transforms(self) -> List[Type[Transform]]:
-        """
-        Sphinx's reST parser replaces a transform class for smart-quotes by its own
+    def get_transforms(self) -> list[type[Transform]]:
+        """Sphinx's reST parser replaces a transform class for smart-quotes by its own
 
         refs: sphinx.io.SphinxStandaloneReader
         """
@@ -79,19 +61,22 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         transforms.remove(SmartQuotes)
         return transforms
 
-    def parse(self, inputstring: Union[str, StringList], document: nodes.document) -> None:
+    def parse(self, inputstring: str | StringList, document: nodes.document) -> None:
         """Parse text and generate a document tree."""
-        self.setup_parse(inputstring, document)  # type: ignore
+        self.setup_parse(inputstring, document)  # type: ignore[arg-type]
         self.statemachine = states.RSTStateMachine(
             state_classes=self.state_classes,
             initial_state=self.initial_state,
-            debug=document.reporter.debug_flag)
+            debug=document.reporter.debug_flag,
+        )
 
         # preprocess inputstring
         if isinstance(inputstring, str):
             lines = docutils.statemachine.string2lines(
-                inputstring, tab_width=document.settings.tab_width,
-                convert_whitespace=True)
+                inputstring,
+                tab_width=document.settings.tab_width,
+                convert_whitespace=True,
+            )
 
             inputlines = StringList(lines, document.current_source)
         else:
@@ -107,7 +92,7 @@ class RSTParser(docutils.parsers.rst.Parser, Parser):
         append_epilog(content, self.config.rst_epilog)
 
 
-def setup(app: "Sphinx") -> Dict[str, Any]:
+def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_source_parser(RSTParser)
 
     return {

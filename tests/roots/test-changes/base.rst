@@ -10,6 +10,9 @@ Version markup
 .. deprecated:: 0.6
    Boring stuff.
 
+.. versionremoved:: 0.6
+   Goodbye boring stuff.
+
 .. versionadded:: 1.2
 
    First paragraph of versionadded.

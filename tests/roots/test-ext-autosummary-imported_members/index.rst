@@ -1,5 +1,5 @@
-test-ext-autosummary-mock_imports
-=================================
+test-ext-autosummary-imported_members
+=====================================
 
 .. autosummary::
    :toctree: generated

@@ -20,6 +20,7 @@ table having :widths: option
 .. table::
    :widths: 30,70
    :name: namedtabular
+   :class: booktabs, colorrows
 
    ======= =======
    header1 header2
@@ -63,7 +64,7 @@ table having :align: option (tabular)
 table with tabularcolumn
 ------------------------
 
-.. tabularcolumns:: |c|c|
+.. tabularcolumns:: cc
 
 ======= =======
 header1 header2
