@@ -1032,8 +1032,11 @@ class Documenter:
         )
         if ismock(self.object) and not docstrings:
             logger.warning(
-                __('A mocked object is detected: %r'), self.name, type='autodoc'
-            , subtype='mocked_object')
+                __('A mocked object is detected: %r'),
+                self.name,
+                type='autodoc',
+                subtype='mocked_object',
+            )
 
         # check __module__ of object (for members not given explicitly)
         if check_module:
