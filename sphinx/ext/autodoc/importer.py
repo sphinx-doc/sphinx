@@ -156,6 +156,9 @@ def unmangle(subject: Any, name: str) -> str | None:
 
 
 def import_module(modname: str, try_reload: bool = False) -> Any:
+    if modname in sys.modules:
+        return sys.modules[modname]
+
     original_module_names = frozenset(sys.modules)
     try:
         spec = find_spec(modname)
