@@ -44,9 +44,7 @@ def multiply_length(length: str, scale: int) -> str:
 
 
 class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
-    """
-    Our custom HTML translator.
-    """
+    """Our custom HTML translator."""
 
     builder: StandaloneHTMLBuilder
     # Override docutils.writers.html5_polyglot:HTMLTranslator

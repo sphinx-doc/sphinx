@@ -17,10 +17,10 @@ from importlib import import_module
 from typing import TYPE_CHECKING
 
 import sphinx
+from sphinx._cli.util.colour import red
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import red
 from sphinx.util.inspect import safe_getattr
 
 if TYPE_CHECKING:
@@ -165,9 +165,7 @@ def _determine_py_coverage_modules(
 
 
 class CoverageBuilder(Builder):
-    """
-    Evaluates coverage of code in the documentation.
-    """
+    """Evaluates coverage of code in the documentation."""
 
     name = 'coverage'
     epilog = __(
@@ -178,8 +176,8 @@ class CoverageBuilder(Builder):
     def init(self) -> None:
         self.c_sourcefiles: list[str] = []
         for pattern in self.config.coverage_c_path:
-            pattern = os.path.join(self.srcdir, pattern)
-            self.c_sourcefiles.extend(glob.glob(pattern))
+            pattern = self.srcdir / pattern
+            self.c_sourcefiles.extend(glob.glob(str(pattern)))  # NoQA: PTH207
 
         self.c_regexes: list[tuple[str, re.Pattern[str]]] = []
         for name, exp in self.config.coverage_c_regexes.items():
@@ -246,7 +244,7 @@ class CoverageBuilder(Builder):
                 self.c_undoc[filename] = undoc
 
     def write_c_coverage(self) -> None:
-        output_file = os.path.join(self.outdir, 'c.txt')
+        output_file = self.outdir / 'c.txt'
         with open(output_file, 'w', encoding='utf-8') as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented C API elements', '=')
@@ -266,7 +264,7 @@ class CoverageBuilder(Builder):
                             )
                         else:
                             logger.info(
-                                red('undocumented  ')
+                                red('undocumented  ')  # NoQA: G003
                                 + f'c   api       {f"{name} [{typ:>9}]":<30}'
                                 + red(' - in file ')
                                 + filename
@@ -421,7 +419,7 @@ class CoverageBuilder(Builder):
             op.write(f'{line}\n')
 
     def write_py_coverage(self) -> None:
-        output_file = os.path.join(self.outdir, 'python.txt')
+        output_file = self.outdir / 'python.txt'
         failed = []
         with open(output_file, 'w', encoding='utf-8') as op:
             if self.config.coverage_write_headline:
@@ -459,7 +457,7 @@ class CoverageBuilder(Builder):
                             else:
                                 for func in undoc['funcs']:
                                     logger.info(
-                                        red('undocumented  ')
+                                        red('undocumented  ')  # NoQA: G003
                                         + f'py  function  {func:<30}'
                                         + red(' - in module ')
                                         + name
@@ -479,7 +477,7 @@ class CoverageBuilder(Builder):
                                         )
                                     else:
                                         logger.info(
-                                            red('undocumented  ')
+                                            red('undocumented  ')  # NoQA: G003
                                             + f'py  class     {class_name:<30}'
                                             + red(' - in module ')
                                             + name
@@ -502,7 +500,7 @@ class CoverageBuilder(Builder):
                                     else:
                                         for meth in methods:
                                             logger.info(
-                                                red('undocumented  ')
+                                                red('undocumented  ')  # NoQA: G003
                                                 + f'py  method    {f"{class_name}.{meth}":<30}'
                                                 + red(' - in module ')
                                                 + name
@@ -515,7 +513,7 @@ class CoverageBuilder(Builder):
 
     def finish(self) -> None:
         # dump the coverage data to a pickle file too
-        picklepath = os.path.join(self.outdir, 'undoc.pickle')
+        picklepath = self.outdir / 'undoc.pickle'
         with open(picklepath, 'wb') as dumpfile:
             pickle.dump(
                 (self.py_undoc, self.c_undoc, self.py_undocumented, self.py_documented),
@@ -525,7 +523,7 @@ class CoverageBuilder(Builder):
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(CoverageBuilder)
-    app.add_config_value('coverage_modules', (), '', types={tuple, list})
+    app.add_config_value('coverage_modules', (), '', types=frozenset({tuple, list}))
     app.add_config_value('coverage_ignore_modules', [], '')
     app.add_config_value('coverage_ignore_functions', [], '')
     app.add_config_value('coverage_ignore_classes', [], '')
@@ -534,8 +532,12 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('coverage_c_regexes', {}, '')
     app.add_config_value('coverage_ignore_c_items', {}, '')
     app.add_config_value('coverage_write_headline', True, '')
-    app.add_config_value('coverage_statistics_to_report', True, '', bool)
-    app.add_config_value('coverage_statistics_to_stdout', True, '', bool)
+    app.add_config_value(
+        'coverage_statistics_to_report', True, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'coverage_statistics_to_stdout', True, '', types=frozenset({bool})
+    )
     app.add_config_value('coverage_skip_undoc_in_source', False, '')
     app.add_config_value('coverage_show_missing_items', False, '')
     return {

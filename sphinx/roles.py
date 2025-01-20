@@ -42,8 +42,7 @@ generic_docroles = {
 
 
 class XRefRole(ReferenceRole):
-    """
-    A generic cross-referencing role.  To create a callable that can be used as
+    """A generic cross-referencing role.  To create a callable that can be used as
     a role function, create an instance of this class.
 
     The general features of this role are:
@@ -370,8 +369,7 @@ class RFC(ReferenceRole):
 
 
 def _format_rfc_target(target: str, /) -> str:
-    """
-    Takes an RFC number with an optional anchor (like ``123#section-2.5.3``)
+    """Takes an RFC number with an optional anchor (like ``123#section-2.5.3``)
     and attempts to produce a human-friendly title for it.
 
     We have a set of known anchors that we format nicely,

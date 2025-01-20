@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
+from sphinx.addnodes import pending_xref, pending_xref_condition
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.util.inspect import signature_from_str
 
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
     from docutils.nodes import Element, Node
 
+    from sphinx.addnodes import desc_signature
     from sphinx.environment import BuildEnvironment
 
 
@@ -573,7 +574,7 @@ def _pseudo_parse_arglist(
                 stack.pop()
                 ends_close -= 1
         if len(stack) != 1:
-            raise IndexError
+            raise IndexError  # NoQA: TRY301
     except IndexError:
         # if there are too few or too many elements on the stack, just give up
         # and treat the whole argument list as one argument, discarding the

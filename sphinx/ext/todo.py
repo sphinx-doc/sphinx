@@ -47,9 +47,7 @@ class todolist(nodes.General, nodes.Element):
 
 
 class Todo(BaseAdmonition, SphinxDirective):
-    """
-    A todo entry, displayed (if configured) in the form of an admonition.
-    """
+    """A todo entry, displayed (if configured) in the form of an admonition."""
 
     node_class = todo_node
     has_content = True
@@ -76,7 +74,7 @@ class Todo(BaseAdmonition, SphinxDirective):
             self.state.document.note_explicit_target(todo)
             return [todo]
         else:
-            raise RuntimeError  # never reached here
+            raise TypeError  # never reached here
 
 
 class TodoDomain(Domain):
@@ -109,9 +107,7 @@ class TodoDomain(Domain):
 
 
 class TodoList(SphinxDirective):
-    """
-    A list of all todo entries.
-    """
+    """A list of all todo entries."""
 
     has_content = False
     required_arguments = 0

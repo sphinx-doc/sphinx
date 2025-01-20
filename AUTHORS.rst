@@ -96,6 +96,7 @@ Contributors
 * \A. Rafey Khan -- improved intersphinx typing
 * Roland Meister -- epub builder
 * Sebastian Wiesner -- image handling, distutils support
+* Slawek Figiel -- additional warning suppression
 * Stefan Seefeld -- toctree improvements
 * Stefan van der Walt -- autosummary extension
 * \T. Powers -- HTML output improvements

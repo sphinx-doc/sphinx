@@ -30,8 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class Highlight(SphinxDirective):
-    """
-    Directive to set the highlighting language for code blocks, as well
+    """Directive to set the highlighting language for code blocks, as well
     as the threshold for line numbers.
     """
 
@@ -86,7 +85,7 @@ def container_wrapper(
     node = parsed[0]
     if isinstance(node, nodes.system_message):
         msg = __('Invalid caption: %s') % node.astext()
-        raise ValueError(msg)
+        raise ValueError(msg)  # NoQA: TRY004
     if isinstance(node, nodes.Element):
         caption_node = nodes.caption(node.rawsource, '', *node.children)
         caption_node.source = literal_node.source
@@ -98,8 +97,7 @@ def container_wrapper(
 
 
 class CodeBlock(SphinxDirective):
-    """
-    Directive for a code block with special highlighting or line numbering
+    """Directive for a code block with special highlighting or line numbering
     settings.
     """
 
@@ -411,8 +409,7 @@ class LiteralIncludeReader:
 
 
 class LiteralInclude(SphinxDirective):
-    """
-    Like ``.. include:: :literal:``, but only warns if the include file is
+    """Like ``.. include:: :literal:``, but only warns if the include file is
     not found, and does not raise errors.  Also has several options for
     selecting what to include.
     """

@@ -13,11 +13,11 @@ from typing import TYPE_CHECKING
 import sphinx._cli.util.errors
 import sphinx.locale
 from sphinx import __display_version__
+from sphinx._cli.util.colour import disable_colour, terminal_supports_colour
 from sphinx.application import Sphinx
 from sphinx.locale import __
 from sphinx.util._io import TeeStripANSI
 from sphinx.util._pathlib import _StrPath
-from sphinx.util.console import color_terminal, nocolor
 from sphinx.util.docutils import docutils_namespace, patch_docutils
 from sphinx.util.osutil import ensuredir
 
@@ -50,10 +50,10 @@ def handle_exception(
 
 
 def jobs_argument(value: str) -> int:
-    """
-    Special type to handle 'auto' flags passed to 'sphinx-build' via -j flag. Can
-    be expanded to handle other special scaling requests, such as setting job count
-    to cpu_count.
+    """Parse the ``--jobs`` flag.
+
+    Return the number of CPUs if 'auto' is used,
+    otherwise ensure *value* is a positive integer.
     """
     if value == 'auto':
         return multiprocessing.cpu_count()
@@ -326,8 +326,8 @@ def _validate_filenames(
 
 
 def _validate_colour_support(colour: str) -> None:
-    if colour == 'no' or (colour == 'auto' and not color_terminal()):
-        nocolor()
+    if colour == 'no' or (colour == 'auto' and not terminal_supports_colour()):
+        disable_colour()
 
 
 def _parse_logging(

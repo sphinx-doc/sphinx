@@ -112,7 +112,7 @@ class ImageCollector(EnvironmentCollector):
         node: Node,
     ) -> None:
         globbed: dict[str, list[str]] = {}
-        for filename in glob(imgpath):
+        for filename in glob(imgpath):  # NoQA: PTH207
             new_imgpath = _relative_path(Path(filename), srcdir)
             try:
                 mimetype = guess_mimetype(filename)

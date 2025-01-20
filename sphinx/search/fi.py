@@ -95,7 +95,7 @@ kun    | when
 niin   | so
 nyt    | now
 itse   | self
-""")
+""")  # NoQA: E501
 
 
 class SearchFinnish(SearchLanguage):

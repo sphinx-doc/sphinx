@@ -41,8 +41,7 @@ class ManualPageWriter(Writer):  # type: ignore[misc]
 
 
 class NestedInlineTransform:
-    """
-    Flatten nested inline nodes:
+    """Flatten nested inline nodes:
 
     Before:
         <strong>foo=<emphasis>1</emphasis>
@@ -73,9 +72,7 @@ class NestedInlineTransform:
 
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
-    """
-    Custom man page translator.
-    """
+    """Custom man page translator."""
 
     _docinfo: dict[str, Any] = {}
 

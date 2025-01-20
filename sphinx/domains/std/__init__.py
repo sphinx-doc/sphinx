@@ -7,11 +7,11 @@ from copy import copy
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref
+from sphinx.addnodes import pending_xref
 from sphinx.directives import ObjectDescription
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import _, __
@@ -26,7 +26,9 @@ if TYPE_CHECKING:
     from typing import Any, ClassVar, Final
 
     from docutils.nodes import Element, Node, system_message
+    from docutils.parsers.rst import Directive
 
+    from sphinx.addnodes import desc_signature
     from sphinx.application import Sphinx
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
@@ -48,9 +50,7 @@ samp_role = EmphasizedLiteral()
 
 
 class GenericObject(ObjectDescription[str]):
-    """
-    A generic x-ref directive registered with Sphinx.add_object_type().
-    """
+    """A generic x-ref directive registered with Sphinx.add_object_type()."""
 
     indextemplate: str = ''
     parse_node: Callable[[BuildEnvironment, str, desc_signature], str] | None = None
@@ -91,9 +91,7 @@ class EnvVar(GenericObject):
 
 
 class EnvVarXRefRole(XRefRole):
-    """
-    Cross-referencing role for environment variables (adds an index entry).
-    """
+    """Cross-referencing role for environment variables (adds an index entry)."""
 
     def result_nodes(
         self,
@@ -190,9 +188,7 @@ class ConfigurationValue(ObjectDescription[str]):
 
 
 class Target(SphinxDirective):
-    """
-    Generic target for user-defined cross-reference types.
-    """
+    """Generic target for user-defined cross-reference types."""
 
     indextemplate = ''
 
@@ -230,9 +226,7 @@ class Target(SphinxDirective):
 
 
 class Cmdoption(ObjectDescription[str]):
-    """
-    Description of a command-line option (.. option).
-    """
+    """Description of a command-line option (.. option)."""
 
     def handle_signature(self, sig: str, signode: desc_signature) -> str:
         """Transform an option description into RST nodes."""
@@ -336,9 +330,7 @@ class Cmdoption(ObjectDescription[str]):
 
 
 class Program(SphinxDirective):
-    """
-    Directive to name the program for which options are documented.
-    """
+    """Directive to name the program for which options are documented."""
 
     has_content = False
     required_arguments = 1
@@ -415,8 +407,7 @@ def make_glossary_term(
 
 
 class Glossary(SphinxDirective):
-    """
-    Directive to create a glossary with cross-reference targets for :term:
+    """Directive to create a glossary with cross-reference targets for :term:
     roles.
     """
 
@@ -597,9 +588,7 @@ def token_xrefs(text: str, *, production_group: str = '') -> list[Node]:
 
 
 class ProductionList(SphinxDirective):
-    """
-    Directive to list grammar productions.
-    """
+    """Directive to list grammar productions."""
 
     has_content = False
     required_arguments = 1
@@ -664,8 +653,7 @@ class TokenXRefRole(XRefRole):
 
 
 class StandardDomain(Domain):
-    """
-    Domain for all objects that don't fit into another domain or are added
+    """Domain for all objects that don't fit into another domain or are added
     via the application interface.
     """
 

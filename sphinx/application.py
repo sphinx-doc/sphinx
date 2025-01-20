@@ -6,18 +6,18 @@ Gracefully adapted from the TextPress system by Armin.
 from __future__ import annotations
 
 import contextlib
-import os
 import pickle
 import sys
 from collections import deque
 from io import StringIO
 from typing import TYPE_CHECKING, overload
 
-from docutils.parsers.rst import Directive, roles
+from docutils.parsers.rst import roles
 
 import sphinx
 from sphinx import locale, package_dir
-from sphinx.config import ENUM, Config, _ConfigRebuild
+from sphinx._cli.util.colour import bold
+from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import ApplicationError, ConfigError, VersionRequirementError
 from sphinx.events import EventManager
@@ -28,7 +28,6 @@ from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import docutils, logging
 from sphinx.util._pathlib import _StrPath, _StrPathProperty
 from sphinx.util.build_phase import BuildPhase
-from sphinx.util.console import bold
 from sphinx.util.display import progress_message
 from sphinx.util.i18n import CatalogRepository
 from sphinx.util.logging import prefixed_warnings
@@ -36,6 +35,7 @@ from sphinx.util.osutil import ensuredir, relpath
 from sphinx.util.tags import Tags
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Callable, Collection, Iterable, Sequence, Set
     from pathlib import Path
     from typing import IO, Any, Final, Literal
@@ -43,11 +43,13 @@ if TYPE_CHECKING:
     from docutils import nodes
     from docutils.nodes import Element, Node
     from docutils.parsers import Parser
+    from docutils.parsers.rst import Directive
     from docutils.transforms import Transform
     from pygments.lexer import Lexer
 
     from sphinx import addnodes
     from sphinx.builders import Builder
+    from sphinx.config import ENUM, _ConfigRebuild
     from sphinx.domains import Domain, Index
     from sphinx.environment.collectors import EnvironmentCollector
     from sphinx.ext.autodoc import Documenter, _AutodocProcessDocstringListener
@@ -422,7 +424,7 @@ class Sphinx:
             # delete the saved env to force a fresh build next time
             envfile = self.doctreedir / ENV_PICKLE_FILENAME
             if envfile.is_file():
-                os.unlink(envfile)
+                envfile.unlink()
             self.events.emit('build-finished', err)
             raise
 
@@ -927,7 +929,13 @@ class Sphinx:
            The *description* parameter.
         """
         logger.debug('[app] adding config value: %r', (name, default, rebuild, types))
-        self.config.add(name, default, rebuild, types, description)
+        self.config.add(
+            name=name,
+            default=default,
+            rebuild=rebuild,
+            types=types,
+            description=description,
+        )
 
     def add_event(self, name: str) -> None:
         """Register an event called *name*.
@@ -987,10 +995,11 @@ class Sphinx:
 
         .. code-block:: python
 
-           class math(docutils.nodes.Element): pass
+           class math(docutils.nodes.Element): ...
 
            def visit_math_html(self, node):
                self.body.append(self.starttag(node, 'math'))
+
            def depart_math_html(self, node):
                self.body.append('</math>')
 
@@ -1081,7 +1090,7 @@ class Sphinx:
                }
 
                def run(self):
-                   ...
+                   pass
 
            def setup(app):
                app.add_directive('my-directive', MyDirective)
@@ -1339,8 +1348,9 @@ class Sphinx:
         to them using custom roles instead of generic ones (like
         :rst:role:`ref`).  Example call::
 
-           app.add_crossref_type('topic', 'topic', 'single: %s',
-                                 docutils.nodes.emphasis)
+           app.add_crossref_type(
+               'topic', 'topic', 'single: %s', docutils.nodes.emphasis
+           )
 
         Example usage::
 
@@ -1450,7 +1460,7 @@ class Sphinx:
             app.add_js_file('example.js')
             # => <script src="_static/example.js"></script>
 
-            app.add_js_file('example.js', loading_method="async")
+            app.add_js_file('example.js', loading_method='async')
             # => <script src="_static/example.js" async="async"></script>
 
             app.add_js_file(None, body="var myVariable = 'foo';")
@@ -1793,8 +1803,7 @@ class Sphinx:
 
 
 class TemplateBridge:
-    """
-    This class defines the interface for a "template bridge", that is, a class
+    """This class defines the interface for a "template bridge", that is, a class
     that renders templates given a template name and a context.
     """
 

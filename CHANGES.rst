@@ -48,11 +48,20 @@ Features added
   Patch by Chris Barrick.
 * #13227: Implement the :rst:role:`kbd` role as a ``SphinxRole``.
   Patch by Adam Turner.
+* #13065: Enable colour by default in when running on CI.
+  Patch by Adam Turner.
+* Allow supressing warnings from the :rst:dir:`toctree` directive when a glob
+  pattern doesn't match any documents, via the new ``toc.glob_not_matching``
+  warning sub-type.
+  Patch by Slawek Figiel.
+* #9732: Add the new ``autodoc.mock_objects`` warnings sub-type.
+  Patch by Cyril Roelandt.
 
 Bugs fixed
 ----------
 
-* #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
+* #12463: autosummary: Respect an empty module ``__all__``.
+  Patch by Valentin Pratz
 * #13060: HTML Search: use ``Map`` to store per-file term scores.
   Patch by James Addison
 * #13130: LaTeX docs: ``pdflatex`` index creation may fail for index entries
@@ -70,6 +79,10 @@ Bugs fixed
   Patch by Ben Egan and Adam Turner.
 * #13188: autodoc: fix detection of class methods implemented in C.
   Patch by Bénédikt Tran.
+* #1810: Always copy static files when building, regardless of whether
+  any documents have changed since the previous build.
+  Patch by Adam Turner.
+* #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
 
 Testing
 -------

@@ -15,8 +15,7 @@ if TYPE_CHECKING:
 
 
 class _TranslationProxy:
-    """
-    The proxy implementation attempts to be as complete as possible, so that
+    """The proxy implementation attempts to be as complete as possible, so that
     the lazy objects should mostly work as expected, for example for sorting.
     """
 

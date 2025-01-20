@@ -1503,7 +1503,7 @@ class TexinfoTranslator(SphinxTranslator):
             self.first_param = 0
         text = self.escape(node.astext())
         # replace no-break spaces with normal ones
-        text = text.replace(' ', '@w{ }')
+        text = text.replace('\N{NO-BREAK SPACE}', '@w{ }')
         self.body.append(text)
         raise nodes.SkipNode
 

@@ -42,8 +42,7 @@ class BaseSplitter:
         self.options = options
 
     def split(self, input: str) -> list[str]:
-        """
-        :param str input:
+        """:param str input:
         :return:
         :rtype: list[str]
         """
@@ -516,8 +515,7 @@ class DefaultSplitter(BaseSplitter):
 
 
 class SearchJapanese(SearchLanguage):
-    """
-    Japanese search implementation: uses no stemmer, but word splitting is quite
+    """Japanese search implementation: uses no stemmer, but word splitting is quite
     complicated.
     """
 

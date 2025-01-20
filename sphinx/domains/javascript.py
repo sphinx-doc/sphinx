@@ -35,9 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a JavaScript object.
-    """
+    """Description of a JavaScript object."""
 
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
@@ -312,8 +310,7 @@ class JSConstructor(JSCallable):
 
 
 class JSModule(SphinxDirective):
-    """
-    Directive to mark description of a new JavaScript module.
+    """Directive to mark description of a new JavaScript module.
 
     This directive specifies the module name that will be used by objects that
     follow this directive.
@@ -571,7 +568,10 @@ class JavaScriptDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)}
+        'javascript_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
     )
     app.add_config_value(
         'javascript_trailing_comma_in_multi_line_signatures',

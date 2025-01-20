@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 
+from sphinx._cli.util.colour import darkgreen
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.environment.adapters.toctree import global_toctree_for_doc
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 
@@ -29,10 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
-    """
-    A StandaloneHTMLBuilder subclass that puts the whole document tree on one
-    HTML page.
-    """
+    """Builds the whole document tree as a single HTML page."""
 
     name = 'singlehtml'
     epilog = __('The HTML page is in %(outdir)s.')
@@ -195,7 +192,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            logger.info(' ' + pagename, nonl=True)
+            logger.info(' %s', pagename, nonl=True)
             self.handle_page(pagename, {}, template)
 
         if self.config.html_use_opensearch:

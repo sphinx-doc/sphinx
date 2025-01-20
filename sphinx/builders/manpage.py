@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os.path
 import warnings
 from typing import TYPE_CHECKING
 
@@ -10,10 +9,10 @@ from docutils.frontend import OptionParser
 from docutils.io import FileOutput
 
 from sphinx import addnodes
+from sphinx._cli.util.colour import darkgreen
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import ensuredir, make_filename_from_project
@@ -31,9 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class ManualPageBuilder(Builder):
-    """
-    Builds groff output in manual page format.
-    """
+    """Builds groff output in manual page format."""
 
     name = 'man'
     format = 'man'
@@ -88,14 +85,14 @@ class ManualPageBuilder(Builder):
 
             if self.config.man_make_section_directory:
                 dirname = 'man%s' % section
-                ensuredir(os.path.join(self.outdir, dirname))
+                ensuredir(self.outdir / dirname)
                 targetname = f'{dirname}/{name}.{section}'
             else:
                 targetname = f'{name}.{section}'
 
-            logger.info(darkgreen(targetname) + ' { ')
+            logger.info('%s { ', darkgreen(targetname))
             destination = FileOutput(
-                destination_path=os.path.join(self.outdir, targetname),
+                destination_path=self.outdir / targetname,
                 encoding='utf-8',
             )
 

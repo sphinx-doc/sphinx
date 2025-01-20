@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import io  # NoQA: TC003
-from typing import Optional, overload
+from typing import TYPE_CHECKING, overload
+
+if TYPE_CHECKING:
+    from typing import Optional
 
 myint = int
 

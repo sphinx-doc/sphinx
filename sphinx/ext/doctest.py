@@ -19,10 +19,10 @@ from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
 import sphinx
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
@@ -64,9 +64,7 @@ def is_allowed_version(spec: str, version: str) -> bool:
 
 
 class TestDirective(SphinxDirective):
-    """
-    Base class for doctest-related directives.
-    """
+    """Base class for doctest-related directives."""
 
     has_content = True
     required_arguments = 0
@@ -292,9 +290,7 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
 
 
 class DocTestBuilder(Builder):
-    """
-    Runs test snippets in the documentation.
-    """
+    """Runs test snippets in the documentation."""
 
     name = 'doctest'
     epilog = __(
@@ -627,7 +623,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('testoutput', TestoutputDirective)
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
-    app.add_config_value('doctest_show_successes', True, '', bool)
+    app.add_config_value('doctest_show_successes', True, '', types=frozenset({bool}))
     app.add_config_value('doctest_path', (), '')
     app.add_config_value('doctest_test_doctest_blocks', 'default', '')
     app.add_config_value('doctest_global_setup', '', '')

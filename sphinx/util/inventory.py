@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import posixpath
 import re
+import warnings
 import zlib
 from typing import TYPE_CHECKING
 
+from sphinx.deprecation import RemovedInSphinx10Warning
 from sphinx.locale import __
 from sphinx.util import logging
 
@@ -15,12 +17,12 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     import os
-    from collections.abc import Callable, Sequence
-    from typing import Protocol
+    from collections.abc import Callable, Iterator, Sequence
+    from typing import NoReturn, Protocol
 
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
-    from sphinx.util.typing import Inventory, InventoryItem
+    from sphinx.util.typing import Inventory
 
     # Readable file stream for inventory loading
     class _SupportsRead(Protocol):
@@ -82,8 +84,12 @@ class InventoryFile:
             else:
                 item_type = f'py:{item_type}'
                 location += f'#{name}'
-            inv_item: InventoryItem = projname, version, location, '-'
-            invdata.setdefault(item_type, {})[name] = inv_item
+            invdata.setdefault(item_type, {})[name] = _InventoryItem(
+                project_name=projname,
+                project_version=version,
+                uri=location,
+                display_name='-',
+            )
         return invdata
 
     @classmethod
@@ -148,8 +154,12 @@ class InventoryFile:
             if location.endswith('$'):
                 location = location[:-1] + name
             location = posixpath.join(uri, location)
-            inv_item: InventoryItem = projname, version, location, dispname
-            invdata.setdefault(type, {})[name] = inv_item
+            invdata.setdefault(type, {})[name] = _InventoryItem(
+                project_name=projname,
+                project_version=version,
+                uri=location,
+                display_name=dispname,
+            )
         for ambiguity in actual_ambiguities:
             logger.info(
                 __('inventory <%s> contains multiple definitions for %s'),
@@ -194,3 +204,89 @@ class InventoryFile:
                     entry = f'{fullname} {domain.name}:{type} {prio} {uri} {dispname}\n'
                     f.write(compressor.compress(entry.encode()))
             f.write(compressor.flush())
+
+
+class _InventoryItem:
+    __slots__ = 'project_name', 'project_version', 'uri', 'display_name'
+
+    project_name: str
+    project_version: str
+    uri: str
+    display_name: str
+
+    def __init__(
+        self,
+        *,
+        project_name: str,
+        project_version: str,
+        uri: str,
+        display_name: str,
+    ) -> None:
+        object.__setattr__(self, 'project_name', project_name)
+        object.__setattr__(self, 'project_version', project_version)
+        object.__setattr__(self, 'uri', uri)
+        object.__setattr__(self, 'display_name', display_name)
+
+    def __repr__(self) -> str:
+        return (
+            '_InventoryItem('
+            f'project_name={self.project_name!r}, '
+            f'project_version={self.project_version!r}, '
+            f'uri={self.uri!r}, '
+            f'display_name={self.display_name!r}'
+            ')'
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, _InventoryItem):
+            return NotImplemented
+        return (
+            self.project_name == other.project_name
+            and self.project_version == other.project_version
+            and self.uri == other.uri
+            and self.display_name == other.display_name
+        )
+
+    def __hash__(self) -> int:
+        return hash((
+            self.project_name,
+            self.project_version,
+            self.uri,
+            self.display_name,
+        ))
+
+    def __setattr__(self, key: str, value: object) -> NoReturn:
+        msg = '_InventoryItem is immutable'
+        raise AttributeError(msg)
+
+    def __delattr__(self, key: str) -> NoReturn:
+        msg = '_InventoryItem is immutable'
+        raise AttributeError(msg)
+
+    def __getstate__(self) -> tuple[str, str, str, str]:
+        return self.project_name, self.project_version, self.uri, self.display_name
+
+    def __setstate__(self, state: tuple[str, str, str, str]) -> None:
+        project_name, project_version, uri, display_name = state
+        object.__setattr__(self, 'project_name', project_name)
+        object.__setattr__(self, 'project_version', project_version)
+        object.__setattr__(self, 'uri', uri)
+        object.__setattr__(self, 'display_name', display_name)
+
+    def __getitem__(self, key: int | slice) -> str | tuple[str, ...]:
+        warnings.warn(
+            'The tuple interface for _InventoryItem objects is deprecated.',
+            RemovedInSphinx10Warning,
+            stacklevel=2,
+        )
+        tpl = self.project_name, self.project_version, self.uri, self.display_name
+        return tpl[key]
+
+    def __iter__(self) -> Iterator[str]:
+        warnings.warn(
+            'The iter() interface for _InventoryItem objects is deprecated.',
+            RemovedInSphinx10Warning,
+            stacklevel=2,
+        )
+        tpl = self.project_name, self.project_version, self.uri, self.display_name
+        return iter(tpl)

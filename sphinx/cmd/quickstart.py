@@ -15,7 +15,7 @@ try:
     import readline
 
     if TYPE_CHECKING and sys.platform == 'win32':  # always false, for type checking
-        raise ImportError
+        raise ImportError  # NoQA: TRY301
     READLINE_AVAILABLE = True
     if readline.__doc__ and 'libedit' in readline.__doc__:
         readline.parse_and_bind('bind ^I rl_complete')
@@ -31,8 +31,14 @@ from docutils.utils import column_width
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
+from sphinx._cli.util.colour import (
+    bold,
+    disable_colour,
+    red,
+    terminal_supports_colour,
+)
 from sphinx.locale import __
-from sphinx.util.console import bold, color_terminal, colorize, nocolor, red
+from sphinx.util.console import colorize
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
@@ -724,8 +730,8 @@ def main(argv: Sequence[str] = (), /) -> int:
     locale.setlocale(locale.LC_ALL, '')
     sphinx.locale.init_console()
 
-    if not color_terminal():
-        nocolor()
+    if not terminal_supports_colour():
+        disable_colour()
 
     # parse options
     parser = get_parser()

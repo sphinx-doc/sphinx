@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import os.path
+from pathlib import Path
 from pprint import pformat
 from typing import TYPE_CHECKING
 
@@ -40,8 +41,7 @@ def _toint(val: str) -> int:
 
 
 def _todim(val: int | str) -> str:
-    """
-    Make val a css dimension. In particular the following transformations
+    """Make val a css dimension. In particular the following transformations
     are performed:
 
     - None -> 'initial' (default CSS value)
@@ -113,8 +113,7 @@ def warning(context: dict[str, Any], message: str, *args: Any, **kwargs: Any) ->
 
 
 class SphinxFileSystemLoader(FileSystemLoader):
-    """
-    FileSystemLoader subclass that is not so strict about '..'  entries in
+    """FileSystemLoader subclass that is not so strict about '..'  entries in
     template names.
     """
 
@@ -127,14 +126,14 @@ class SphinxFileSystemLoader(FileSystemLoader):
         else:
             legacy_template = None
 
-        for searchpath in self.searchpath:
-            filename = os.path.join(searchpath, template)
-            f = open_if_exists(filename)
+        for search_path in map(Path, self.searchpath):
+            filename = search_path / template
+            f = open_if_exists(str(filename))
             if f is not None:
                 break
             if legacy_template is not None:
-                filename = os.path.join(searchpath, legacy_template)
-                f = open_if_exists(filename)
+                filename = search_path / legacy_template
+                f = open_if_exists(str(filename))
                 if f is not None:
                     break
         else:
@@ -151,13 +150,11 @@ class SphinxFileSystemLoader(FileSystemLoader):
             except OSError:
                 return False
 
-        return contents, filename, uptodate
+        return contents, str(filename), uptodate
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
-    """
-    Interfaces the rendering environment of jinja2 for use in Sphinx.
-    """
+    """Interfaces the rendering environment of jinja2 for use in Sphinx."""
 
     # TemplateBridge interface
 
@@ -226,7 +223,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
 
     def _newest_template_mtime_name(self) -> tuple[float, str]:
         return max(
-            (os.stat(os.path.join(root, sfile)).st_mtime_ns / 10**9, sfile)
+            (Path(root, sfile).stat().st_mtime_ns / 10**9, sfile)
             for dirname in self.pathchain
             for root, _dirs, files in os.walk(dirname)
             for sfile in files

@@ -1,6 +1,4 @@
-"""
-docsting of empty_all module.
-"""
+"""docsting of empty_all module."""
 
 __all__ = []
 

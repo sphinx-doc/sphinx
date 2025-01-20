@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Node, make_id
+from docutils.nodes import make_id
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.directives import images, tables
 from docutils.parsers.rst.directives.misc import Meta
@@ -20,6 +20,8 @@ from sphinx.util.osutil import SEP, relpath
 
 if TYPE_CHECKING:
     from typing import ClassVar
+
+    from docutils.nodes import Node
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata, OptionSpec

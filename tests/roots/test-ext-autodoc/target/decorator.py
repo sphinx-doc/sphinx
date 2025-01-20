@@ -42,13 +42,13 @@ class Baz:
 
 class Qux:
     @deco1
-    def __new__(self, name=None, age=None):
+    def __new__(cls, name=None, age=None):
         pass
 
 
 class _Metaclass(type):
     @deco1
-    def __call__(self, name=None, age=None):
+    def __call__(cls, name=None, age=None):
         pass
 
 

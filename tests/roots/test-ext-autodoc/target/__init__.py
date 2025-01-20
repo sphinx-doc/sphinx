@@ -22,9 +22,7 @@ class CustomEx(Exception):
 
 
 def _funky_classmethod(name, b, c, d, docstring=None):
-    """
-    Generates a classmethod for a class from a template by filling out some arguments.
-    """
+    """Generates a classmethod for a class from a template by filling out some arguments."""
 
     def template(cls, a, b, c, d=4, e=5, f=6):
         return a, b, c, d, e, f
@@ -95,9 +93,7 @@ class CustomDict(dict):  # NoQA: FURB189
 
 
 def function(foo, *args, **kwds):
-    """
-    Return spam.
-    """
+    """Return spam."""
     pass
 
 

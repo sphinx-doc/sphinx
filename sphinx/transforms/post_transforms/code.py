@@ -28,8 +28,7 @@ class HighlightSetting(NamedTuple):
 
 
 class HighlightLanguageTransform(SphinxTransform):
-    """
-    Apply highlight_language to all literal_block nodes.
+    """Apply highlight_language to all literal_block nodes.
 
     This refers both :confval:`highlight_language` setting and
     :rst:dir:`highlight` directive.  After processing, this transform
@@ -88,8 +87,7 @@ class HighlightLanguageVisitor(nodes.NodeVisitor):
 
 
 class TrimDoctestFlagsTransform(SphinxTransform):
-    """
-    Trim doctest flags like ``# doctest: +FLAG`` from python code-blocks.
+    """Trim doctest flags like ``# doctest: +FLAG`` from python code-blocks.
 
     see :confval:`trim_doctest_flags` for more information.
     """
