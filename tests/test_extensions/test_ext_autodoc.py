@@ -1146,7 +1146,6 @@ def test_autodoc_descriptor(app):
         '',
         '   .. py:property:: Class.prop',
         '      :module: target.descriptor',
-        '      :canonical: target.descriptor.prop',
         '',
         '      Property.',
         '',
