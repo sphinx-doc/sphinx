@@ -31,10 +31,6 @@ Deprecated
 Features added
 --------------
 
-* #12975: Add the possibility to avoid rendering a trailing comma in Python and
-  Javascript multi-line signatures via
-  :confval:`python_trailing_comma_in_multi_line_signatures` and
-  :confval:`javascript_trailing_comma_in_multi_line_signatures` respectively.
 * Add a new ``duplicate_declaration`` warning type,
   with ``duplicate_declaration.c`` and ``duplicate_declaration.cpp`` subtypes.
   Patch by Julien Lecomte and Adam Turner.
@@ -56,6 +52,10 @@ Features added
   Patch by Slawek Figiel.
 * #9732: Add the new ``autodoc.mock_objects`` warnings sub-type.
   Patch by Cyril Roelandt.
+* #12975: Add the possibility to avoid rendering a trailing comma in Python and
+  Javascript multi-line signatures via
+  :confval:`python_trailing_comma_in_multi_line_signatures` and
+  :confval:`javascript_trailing_comma_in_multi_line_signatures` respectively.
 
 Bugs fixed
 ----------
