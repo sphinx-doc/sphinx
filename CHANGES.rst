@@ -70,6 +70,11 @@ Bugs fixed
 * #1810: Always copy static files when building, regardless of whether
   any documents have changed since the previous build.
   Patch by Adam Turner.
+* #13201: autodoc: fix ordering of members when using ``groupwise``
+  for :confval:`autodoc_member_order`. Class methods are now rendered
+  before static methods, which themselves are rendered before regular
+  methods and attributes.
+  Patch by Bénédikt Tran.
 
 Testing
 -------
