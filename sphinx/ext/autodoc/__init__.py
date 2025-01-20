@@ -907,7 +907,7 @@ class Documenter:
         members_check_module, members = self.get_object_members(want_all)
 
         # document non-skipped members
-        memberdocumenters: list[tuple[Documenter, bool]] = []
+        member_documenters: list[tuple[Documenter, bool]] = []
         for mname, member, isattr in self.filter_members(members, want_all):
             classes = [
                 cls
@@ -923,13 +923,27 @@ class Documenter:
             # of inner classes can be documented
             full_mname = f'{self.modname}::' + '.'.join((*self.objpath, mname))
             documenter = classes[-1](self.directive, full_mname, self.indent)
-            memberdocumenters.append((documenter, isattr))
+            member_documenters.append((documenter, isattr))
 
         member_order = self.options.member_order or self.config.autodoc_member_order
-        memberdocumenters = self.sort_members(memberdocumenters, member_order)
+        # We now try to import all objects before ordering them. This is to
+        # avoid possible circular imports if we were to import objects after
+        # their associated documenters have been sorted.
+        member_documenters = [
+            (documenter, isattr)
+            for documenter, isattr in member_documenters
+            if documenter.parse_name() and documenter.import_object()
+        ]
+        member_documenters = self.sort_members(member_documenters, member_order)
 
-        for documenter, isattr in memberdocumenters:
-            documenter.generate(
+        for documenter, isattr in member_documenters:
+            assert documenter.modname
+            # We can directly call ._generate() since the documenters
+            # already called parse_name() and import_object() before.
+            #
+            # Note that those two methods above do not emit events, so
+            # whatever objects we deduced should not have changed.
+            documenter._generate(
                 all_members=True,
                 real_modname=self.real_modname,
                 check_module=members_check_module and not isattr,
@@ -995,6 +1009,15 @@ class Documenter:
         if not self.import_object():
             return
 
+        self._generate(more_content, real_modname, check_module, all_members)
+
+    def _generate(
+        self,
+        more_content: StringList | None = None,
+        real_modname: str | None = None,
+        check_module: bool = False,
+        all_members: bool = False,
+    ) -> None:
         # If there is no real module defined, figure out which to use.
         # The real module is used in the module analyzer to look up the module
         # where the attribute documentation would actually be found in.
@@ -2358,17 +2381,14 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
             return ret
 
         # to distinguish classmethod/staticmethod
-        obj = self.parent.__dict__.get(self.object_name)
-        if obj is None:
-            obj = self.object
-
-        obj_is_staticmethod = inspect.isstaticmethod(
-            obj, cls=self.parent, name=self.object_name
-        )
-        if inspect.isclassmethod(obj) or obj_is_staticmethod:
-            # document class and static members before ordinary ones
-            self.member_order = self.member_order - 1
-
+        obj = self.parent.__dict__.get(self.object_name, self.object)
+        if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
+            # document static members before regular methods
+            self.member_order -= 1
+        elif inspect.isclassmethod(obj):
+            # document class methods before static methods as
+            # they usually behave as alternative constructors
+            self.member_order -= 2
         return ret
 
     def format_args(self, **kwargs: Any) -> str:

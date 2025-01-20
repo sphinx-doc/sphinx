@@ -986,10 +986,12 @@ There are also config values that you can set:
 
    * ``'alphabetical'``:
      Use alphabetical order.
+
    * ``'groupwise'``: order by member type. The order is:
 
      * for modules, exceptions, classes, functions, data
-     * for classes: methods, then properties and attributes
+     * for classes: class methods, static methods, methods,
+                    and properties/attributes
 
      Members are ordered alphabetically within groups.
 
