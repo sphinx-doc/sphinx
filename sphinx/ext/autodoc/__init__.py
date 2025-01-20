@@ -1308,6 +1308,9 @@ class ModuleLevelDocumenter(PyObjectDocumenter):
             return modname, [*parents, base]
         if path:
             modname = path.rstrip('.')
+            if modname.startswith('builtins.'):
+                modname, name = modname.split('.', 1)
+                parents = [*parents, name]
             return modname, [*parents, base]
 
         # if documenting a toplevel object without explicit module,

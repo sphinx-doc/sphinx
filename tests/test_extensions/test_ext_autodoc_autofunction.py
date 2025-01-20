@@ -99,9 +99,8 @@ def test_methoddescriptor(app):
     actual = do_autodoc(app, 'function', 'builtins.int.__add__')
     assert list(actual) == [
         '',
-        '.. py:function:: __add__(self, value, /)',
-        '   :module: builtins.int',
-        '   :canonical: builtins.int.__add__',
+        '.. py:function:: int.__add__(self, value, /)',
+        '   :module: builtins',
         '',
         '   Return self+value.',
         '',
