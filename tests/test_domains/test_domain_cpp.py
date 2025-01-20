@@ -1826,7 +1826,7 @@ def test_domain_cpp_build_field_role(app):
 
 @pytest.mark.sphinx('html', testroot='domain-cpp', confoverrides={'nitpicky': True})
 def test_domain_cpp_build_operator_lookup(app):
-    app.builder.build_all()
+    app.build(force_all=True)
     ws = filter_warnings(app.warning, 'operator-lookup')
     assert len(ws) == 5
     # TODO: the first one should not happen

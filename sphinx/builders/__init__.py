@@ -414,7 +414,7 @@ class Builder:
 
             with (
                 progress_message(__('pickling environment')),
-                open(os.path.join(self.doctreedir, ENV_PICKLE_FILENAME), 'wb') as f,
+                open(self.doctreedir / ENV_PICKLE_FILENAME, 'wb') as f,
             ):
                 pickle.dump(self.env, f, pickle.HIGHEST_PROTOCOL)
 
@@ -622,7 +622,7 @@ class Builder:
         env.prepare_settings(docname)
 
         # Add confdir/docutils.conf to dependencies list if exists
-        docutilsconf = os.path.join(self.confdir, 'docutils.conf')
+        docutilsconf = self.confdir / 'docutils.conf'
         if os.path.isfile(docutilsconf):
             env.note_dependency(docutilsconf)
 
@@ -674,7 +674,7 @@ class Builder:
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
 
-        doctree_filename = os.path.join(self.doctreedir, docname + '.doctree')
+        doctree_filename = self.doctreedir / f'{docname}.doctree'
         ensuredir(os.path.dirname(doctree_filename))
         with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import contextlib
 import json
-import os.path
 import re
 import socket
 import time
@@ -88,8 +87,8 @@ class CheckExternalLinksBuilder(DummyBuilder):
         checker = HyperlinkAvailabilityChecker(self.config)
         logger.info('')
 
-        output_text = os.path.join(self.outdir, 'output.txt')
-        output_json = os.path.join(self.outdir, 'output.json')
+        output_text = self.outdir / 'output.txt'
+        output_json = self.outdir / 'output.json'
         with (
             open(output_text, 'w', encoding='utf-8') as self.txt_outfile,
             open(output_json, 'w', encoding='utf-8') as self.json_outfile,
@@ -460,8 +459,7 @@ class HyperlinkAvailabilityCheckWorker(Thread):
                 # Non-supported URI schemes (ex. ftp)
                 return _Status.UNCHECKED, '', 0
 
-            src_dir = os.path.dirname(hyperlink.docpath)
-            if os.path.exists(os.path.join(src_dir, uri)):
+            if (hyperlink.docpath.parent / uri).exists():
                 return _Status.WORKING, '', 0
             return _Status.BROKEN, '', 0
 

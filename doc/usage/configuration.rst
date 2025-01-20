@@ -1393,6 +1393,7 @@ Options for warning control
    * ``misc.copy_overwrite``
    * ``misc.highlighting_failure``
    * ``toc.circular``
+   * ``toc.empty_glob``
    * ``toc.excluded``
    * ``toc.no_title``
    * ``toc.not_readable``
@@ -1403,6 +1404,7 @@ Options for warning control
 
    * ``autodoc``
    * ``autodoc.import_object``
+   * ``autodoc.mocked_object``
    * ``autosectionlabel.<document name>``
    * ``autosummary``
    * ``autosummary.import_cycle``
@@ -1448,6 +1450,13 @@ Options for warning control
 
    .. versionadded:: 8.2
       Added ``duplicate_declaration.c`` and ``duplicate_declaration.cpp``.
+
+   .. versionadded:: 8.2
+      Added ``toc.empty_glob``.
+
+   .. versionadded:: 8.2
+
+      Added ``autodoc.mocked_object``
 
 
 Builder options

@@ -133,9 +133,7 @@ class AutosummaryRenderer:
             msg = 'Expected a Sphinx application object!'
             raise TypeError(msg)
 
-        system_templates_path = [
-            os.path.join(package_dir, 'ext', 'autosummary', 'templates')
-        ]
+        system_templates_path = [Path(package_dir, 'ext', 'autosummary', 'templates')]
         loader = SphinxTemplateLoader(
             app.srcdir, app.config.templates_path, system_templates_path
         )
@@ -275,7 +273,11 @@ def members_of(obj: Any, conf: Config) -> Sequence[str]:
     if conf.autosummary_ignore_module_all:
         return dir(obj)
     else:
-        return getall(obj) or dir(obj)
+        if (obj___all__ := getall(obj)) is not None:
+            # return __all__, even if empty.
+            return obj___all__
+        # if __all__ is not set, return dir(obj)
+        return dir(obj)
 
 
 def generate_autosummary_content(

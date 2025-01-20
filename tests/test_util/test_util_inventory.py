@@ -8,7 +8,7 @@ import pytest
 
 import sphinx.locale
 from sphinx.testing.util import SphinxTestApp
-from sphinx.util.inventory import InventoryFile
+from sphinx.util.inventory import InventoryFile, _InventoryItem
 
 from tests.test_util.intersphinx_data import (
     INVENTORY_V1,
@@ -23,17 +23,17 @@ if TYPE_CHECKING:
 
 def test_read_inventory_v1():
     invdata = InventoryFile.loads(INVENTORY_V1, uri='/util')
-    assert invdata['py:module']['module'] == (
-        'foo',
-        '1.0',
-        '/util/foo.html#module-module',
-        '-',
+    assert invdata['py:module']['module'] == _InventoryItem(
+        project_name='foo',
+        project_version='1.0',
+        uri='/util/foo.html#module-module',
+        display_name='-',
     )
-    assert invdata['py:class']['module.cls'] == (
-        'foo',
-        '1.0',
-        '/util/foo.html#module.cls',
-        '-',
+    assert invdata['py:class']['module.cls'] == _InventoryItem(
+        project_name='foo',
+        project_version='1.0',
+        uri='/util/foo.html#module.cls',
+        display_name='-',
     )
 
 
@@ -41,35 +41,35 @@ def test_read_inventory_v2():
     invdata = InventoryFile.loads(INVENTORY_V2, uri='/util')
 
     assert len(invdata['py:module']) == 2
-    assert invdata['py:module']['module1'] == (
-        'foo',
-        '2.0',
-        '/util/foo.html#module-module1',
-        'Long Module desc',
+    assert invdata['py:module']['module1'] == _InventoryItem(
+        project_name='foo',
+        project_version='2.0',
+        uri='/util/foo.html#module-module1',
+        display_name='Long Module desc',
     )
-    assert invdata['py:module']['module2'] == (
-        'foo',
-        '2.0',
-        '/util/foo.html#module-module2',
-        '-',
+    assert invdata['py:module']['module2'] == _InventoryItem(
+        project_name='foo',
+        project_version='2.0',
+        uri='/util/foo.html#module-module2',
+        display_name='-',
     )
-    assert invdata['py:function']['module1.func'][2] == (
+    assert invdata['py:function']['module1.func'].uri == (
         '/util/sub/foo.html#module1.func'
     )
-    assert invdata['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
-    assert invdata['std:term']['a term'][2] == '/util/glossary.html#term-a-term'
-    assert invdata['std:term']['a term including:colon'][2] == (
+    assert invdata['c:function']['CFunc'].uri == '/util/cfunc.html#CFunc'
+    assert invdata['std:term']['a term'].uri == '/util/glossary.html#term-a-term'
+    assert invdata['std:term']['a term including:colon'].uri == (
         '/util/glossary.html#term-a-term-including-colon'
     )
 
 
 def test_read_inventory_v2_not_having_version():
     invdata = InventoryFile.loads(INVENTORY_V2_NO_VERSION, uri='/util')
-    assert invdata['py:module']['module1'] == (
-        'foo',
-        '',
-        '/util/foo.html#module-module1',
-        'Long Module desc',
+    assert invdata['py:module']['module1'] == _InventoryItem(
+        project_name='foo',
+        project_version='',
+        uri='/util/foo.html#module-module1',
+        display_name='Long Module desc',
     )
 
 

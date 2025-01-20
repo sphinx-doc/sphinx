@@ -173,7 +173,7 @@ def test_local_source_files(app):
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode-find-package', freshenv=True)
 def test_find_local_package_import_path(app, status, warning):
-    app.builder.build_all()
+    app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     count_func1 = result.count(
