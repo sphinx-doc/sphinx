@@ -2380,11 +2380,12 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         # to distinguish classmethod/staticmethod
         obj = self.parent.__dict__.get(self.object_name, self.object)
         if inspect.isstaticmethod(obj, cls=self.parent, name=self.object_name):
-            # document static members before class and regular methods
-            self.member_order -= 2
-        elif inspect.isclassmethod(obj):
-            # document class methods before regular methods
+            # document static members before regular methods
             self.member_order -= 1
+        elif inspect.isclassmethod(obj):
+            # document class methods before static methods as
+            # they usually behave as alternative constructors
+            self.member_order -= 2
         return ret
 
     def format_args(self, **kwargs: Any) -> str:
