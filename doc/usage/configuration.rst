@@ -1366,32 +1366,32 @@ Options for warning control
 
    By default, Sphinx supports the following warning codes:
 
-   * ``app.add_node``
    * ``app.add_directive``
-   * ``app.add_role``
    * ``app.add_generic_role``
+   * ``app.add_node``
+   * ``app.add_role``
    * ``app.add_source_parser``
    * ``config.cache``
    * ``docutils``
    * ``download.not_readable``
    * ``duplicate_declaration.c``
    * ``duplicate_declaration.cpp``
-   * ``epub.unknown_project_files``
    * ``epub.duplicated_toc_entry``
+   * ``epub.unknown_project_files``
    * ``i18n.inconsistent_references``
-   * ``index``
    * ``image.not_readable``
-   * ``ref.term``
-   * ``ref.ref``
-   * ``ref.numref``
-   * ``ref.keyword``
-   * ``ref.option``
-   * ``ref.citation``
-   * ``ref.footnote``
-   * ``ref.doc``
-   * ``ref.python``
+   * ``index``
    * ``misc.copy_overwrite``
    * ``misc.highlighting_failure``
+   * ``ref.citation``
+   * ``ref.doc``
+   * ``ref.footnote``
+   * ``ref.keyword``
+   * ``ref.numref``
+   * ``ref.option``
+   * ``ref.python``
+   * ``ref.ref``
+   * ``ref.term``
    * ``toc.circular``
    * ``toc.empty_glob``
    * ``toc.excluded``
@@ -1414,6 +1414,12 @@ Options for warning control
    component to exclude all warnings attached to it.
 
    .. versionadded:: 1.4
+      Added ``ref.citation``, ``ref.doc``, ``ref.keyword``,
+      ``ref.numref``, ``ref.option``, ``ref.ref``, and ``ref.term``.
+
+   .. versionadded:: 1.4.2
+      Added ``app.add_directive``, ``app.add_generic_role``,
+      ``app.add_node``, ``app.add_role``, and ``app.add_source_parser``.
 
    .. versionchanged:: 1.5
       Added ``misc.highlighting_failure``
@@ -1421,11 +1427,26 @@ Options for warning control
    .. versionchanged:: 1.5.1
       Added ``epub.unknown_project_files``
 
+   .. versionchanged:: 1.5.2
+      Added ``toc.secnum``
+
    .. versionchanged:: 1.6
       Added ``ref.footnote``
 
+   .. versionchanged:: 1.6
+      Added ``download.not_readable`` and ``image.not_readable``
+
+   .. versionchanged:: 1.7
+      Added ``ref.python``
+
+   .. versionchanged:: 2.0
+      Added ``autodoc.import_object``
+
    .. versionchanged:: 2.1
       Added ``autosectionlabel.<document name>``
+
+   .. versionchanged:: 3.1
+      Added ``toc.circular``
 
    .. versionchanged:: 3.3.0
       Added ``epub.duplicated_toc_entry``
@@ -1440,10 +1461,19 @@ Options for warning control
       Added ``index``.
 
    .. versionadded:: 7.3
+      Added ``intersphinx.external``.
+
+   .. versionadded:: 7.3
       Added ``config.cache``.
 
    .. versionadded:: 7.3
       Added ``toc.no_title``.
+
+   .. versionadded:: 7.4
+      Added ``docutils``.
+
+   .. versionadded:: 7.4
+      Added ``autosummary.import_cycle``.
 
    .. versionadded:: 8.0
       Added ``misc.copy_overwrite``.
@@ -1455,7 +1485,6 @@ Options for warning control
       Added ``toc.empty_glob``.
 
    .. versionadded:: 8.2
-
       Added ``autodoc.mocked_object``
 
 
