@@ -52,6 +52,9 @@ Features added
   Patch by Slawek Figiel.
 * #9732: Add the new ``autodoc.mock_objects`` warnings sub-type.
   Patch by Cyril Roelandt.
+* #7630, #4824: autodoc: Use :file:`.pyi` type stub files
+  to auto-document native modules.
+  Patch by Adam Turner, partially based on work by Allie Fitter.
 * #12975: Add the possibility to avoid rendering a trailing comma in Python and
   Javascript multi-line signatures via
   :confval:`python_trailing_comma_in_multi_line_signatures` and
@@ -82,6 +85,11 @@ Bugs fixed
 * #1810: Always copy static files when building, regardless of whether
   any documents have changed since the previous build.
   Patch by Adam Turner.
+* #13201: autodoc: fix ordering of members when using ``groupwise``
+  for :confval:`autodoc_member_order`. Class methods are now rendered
+  before static methods, which themselves are rendered before regular
+  methods and attributes.
+  Patch by Bénédikt Tran.
 * #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
 
 Testing

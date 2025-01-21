@@ -72,6 +72,14 @@ class Class:
         'moore', 9, 8, 7, docstring='moore(a, e, f) -> happiness'
     )
 
+    @staticmethod
+    def b_staticmeth():
+        pass
+
+    @staticmethod
+    def a_staticmeth():
+        pass
+
     def __init__(self, arg):
         self.inst_attr_inline = None  #: an inline documented instance attr
         #: a documented instance attribute

@@ -7,6 +7,11 @@ import shutil
 import sphinx._cli.util.colour
 from sphinx._cli.util.colour import (  # NoQA: F401
     _create_input_mode_colour_func,
+    black,
+    blink,
+    blue,
+    bold,
+    brown,
     colourise,
     darkblue,
     darkgray,
