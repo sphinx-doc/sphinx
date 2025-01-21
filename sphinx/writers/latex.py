@@ -954,6 +954,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = r'\sphinxparamcomma '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         if self.has_tp_list:
@@ -1013,7 +1014,7 @@ class LaTeXTranslator(SphinxTranslator):
             if (
                 opt_param_left_at_level
                 or is_required
-                and (is_last_group or next_is_required)
+                and (next_is_required or self.trailing_comma)
             ):
                 self.body.append(self.param_separator)
 
@@ -1055,13 +1056,20 @@ class LaTeXTranslator(SphinxTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
             # If it's the first time we go down one level, add the separator before the
-            # bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.body.append(self.param_separator)
         self.body.append('}')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:

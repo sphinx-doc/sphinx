@@ -1078,6 +1078,12 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'env',
         types=frozenset({int, type(None)}),
     )
+    app.add_config_value(
+        'python_trailing_comma_in_multi_line_signatures',
+        True,
+        'env',
+        types=frozenset({bool}),
+    )
     app.add_config_value('python_display_short_literal_types', False, 'env')
     app.connect('object-description-transform', filter_meta_fields)
     app.connect('missing-reference', builtin_resolver, priority=900)

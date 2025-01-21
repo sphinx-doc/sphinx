@@ -310,6 +310,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
             and (sig_len - (arglist_span[1] - arglist_span[0])) > max_len > 0
         )
 
+        trailing_comma = self.env.config.python_trailing_comma_in_multi_line_signatures
         sig_prefix = self.get_signature_prefix(sig)
         if sig_prefix:
             if type(sig_prefix) is str:
@@ -332,7 +333,10 @@ class PyObject(ObjectDescription[tuple[str, str]]):
         if tp_list:
             try:
                 signode += _parse_type_list(
-                    tp_list, self.env, multi_line_type_parameter_list
+                    tp_list,
+                    self.env,
+                    multi_line_type_parameter_list,
+                    trailing_comma,
                 )
             except Exception as exc:
                 logger.warning(
@@ -341,19 +345,34 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
         if arglist:
             try:
-                signode += _parse_arglist(arglist, self.env, multi_line_parameter_list)
+                signode += _parse_arglist(
+                    arglist,
+                    self.env,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
             except SyntaxError:
                 # fallback to parse arglist original parser
                 # (this may happen if the argument list is incorrectly used
                 # as a list of bases when documenting a class)
                 # it supports to represent optional arguments (ex. "func(foo [, bar])")
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
             except (NotImplementedError, ValueError) as exc:
                 # duplicated parameter names raise ValueError and not a SyntaxError
                 logger.warning(
                     'could not parse arglist (%r): %s', arglist, exc, location=signode
                 )
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
         else:
             if self.needs_arglist():
                 # for callables, add an empty parameter list

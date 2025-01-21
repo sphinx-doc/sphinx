@@ -400,11 +400,15 @@ class _TypeParameterListParser(TokenProcessor):
 
 
 def _parse_type_list(
-    tp_list: str, env: BuildEnvironment, multi_line_parameter_list: bool = False
+    tp_list: str,
+    env: BuildEnvironment,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> addnodes.desc_type_parameter_list:
     """Parse a list of type parameters according to PEP 695."""
     type_params = addnodes.desc_type_parameter_list(tp_list)
     type_params['multi_line_parameter_list'] = multi_line_parameter_list
+    type_params['multi_line_trailing_comma'] = trailing_comma
     # formal parameter names are interpreted as type parameter names and
     # type annotations are interpreted as type parameter bound or constraints
     parser = _TypeParameterListParser(tp_list)
@@ -462,11 +466,15 @@ def _parse_type_list(
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False
+    arglist: str,
+    env: BuildEnvironment,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     params['multi_line_parameter_list'] = multi_line_parameter_list
+    params['multi_line_trailing_comma'] = trailing_comma
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
@@ -522,7 +530,10 @@ def _parse_arglist(
 
 
 def _pseudo_parse_arglist(
-    signode: desc_signature, arglist: str, multi_line_parameter_list: bool = False
+    signode: desc_signature,
+    arglist: str,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> None:
     """'Parse' a list of arguments separated by commas.
 
@@ -532,6 +543,7 @@ def _pseudo_parse_arglist(
     """
     paramlist = addnodes.desc_parameterlist()
     paramlist['multi_line_parameter_list'] = multi_line_parameter_list
+    paramlist['multi_line_trailing_comma'] = trailing_comma
     stack: list[Element] = [paramlist]
     try:
         for argument in arglist.split(','):

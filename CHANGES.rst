@@ -55,6 +55,11 @@ Features added
 * #7630, #4824: autodoc: Use :file:`.pyi` type stub files
   to auto-document native modules.
   Patch by Adam Turner, partially based on work by Allie Fitter.
+* #12975: Enable configuration of trailing commas in multi-line signatures
+  in the Python and Javascript domains, via the new
+  :confval:`python_trailing_comma_in_multi_line_signatures` and
+  :confval:`javascript_trailing_comma_in_multi_line_signatures`
+  configuration options.
 
 Bugs fixed
 ----------
@@ -86,6 +91,7 @@ Bugs fixed
   before static methods, which themselves are rendered before regular
   methods and attributes.
   Patch by Bénédikt Tran.
+* #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
 
 Testing
 -------

@@ -2426,7 +2426,7 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_html(app):
 <dd>\
 <span class="n"><span class="pre">str</span></span>\
 <span class="w"> </span>\
-<span class="n sig-param"><span class="pre">name</span></span>,\
+<span class="n sig-param"><span class="pre">name</span></span>\
 </dd>
 </dl>
 
@@ -2445,6 +2445,6 @@ def test_domain_cpp_cpp_maximum_signature_line_length_in_text(app):
     content = (app.outdir / 'index.txt').read_text(encoding='utf8')
     param_line_fmt = STDINDENT * ' ' + '{}\n'
 
-    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name,'))
+    expected_parameter_list_hello = '(\n{})'.format(param_line_fmt.format('str name'))
 
     assert expected_parameter_list_hello in content

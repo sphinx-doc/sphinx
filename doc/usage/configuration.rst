@@ -4092,6 +4092,14 @@ Options for the Javascript domain
 
    .. versionadded:: 7.1
 
+.. confval:: javascript_trailing_comma_in_multi_line_signatures
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
+
+   .. versionadded:: 8.2
+
 
 Options for the Python domain
 -----------------------------
@@ -4180,6 +4188,14 @@ Options for the Python domain
       .. py:function:: add[T: VERY_LONG_SUPER_TYPE, U: VERY_LONG_SUPER_TYPE](a: T, b: U)
 
    .. versionadded:: 7.1
+
+.. confval:: python_trailing_comma_in_multi_line_signatures
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
+
+   .. versionadded:: 8.2
 
 .. confval:: python_use_unqualified_type_names
    :type: :code-py:`bool`
