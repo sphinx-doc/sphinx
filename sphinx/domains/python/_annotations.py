@@ -408,7 +408,7 @@ def _parse_type_list(
     """Parse a list of type parameters according to PEP 695."""
     type_params = addnodes.desc_type_parameter_list(tp_list)
     type_params['multi_line_parameter_list'] = multi_line_parameter_list
-    type_params['trailing_comma'] = trailing_comma
+    type_params['multi_line_trailing_comma'] = trailing_comma
     # formal parameter names are interpreted as type parameter names and
     # type annotations are interpreted as type parameter bound or constraints
     parser = _TypeParameterListParser(tp_list)
@@ -474,7 +474,7 @@ def _parse_arglist(
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     params['multi_line_parameter_list'] = multi_line_parameter_list
-    params['trailing_comma'] = trailing_comma
+    params['multi_line_trailing_comma'] = trailing_comma
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
@@ -543,7 +543,7 @@ def _pseudo_parse_arglist(
     """
     paramlist = addnodes.desc_parameterlist()
     paramlist['multi_line_parameter_list'] = multi_line_parameter_list
-    paramlist['trailing_comma'] = trailing_comma
+    paramlist['multi_line_trailing_comma'] = trailing_comma
     stack: list[Element] = [paramlist]
     try:
         for argument in arglist.split(','):

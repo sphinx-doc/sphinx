@@ -954,7 +954,7 @@ class LaTeXTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = r'\sphinxparamcomma '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
-        self.trailing_comma = node.get('trailing_comma', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         if self.has_tp_list:

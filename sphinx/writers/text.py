@@ -648,7 +648,7 @@ class TextTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = ', '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
-        self.trailing_comma = node.get('trailing_comma', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.param_separator = self.param_separator.rstrip()
         self.context.append(sig_close_paren)

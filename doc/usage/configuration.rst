@@ -4096,10 +4096,9 @@ Options for the Javascript domain
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   A boolean that decides whether to add a trailing comma to
-   parameter lists spanning multiple lines.
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
 
-    .. versionadded:: 8.2
+   .. versionadded:: 8.2
 
 
 Options for the Python domain
@@ -4194,10 +4193,9 @@ Options for the Python domain
    :type: :code-py:`bool`
    :default: :code-py:`True`
 
-   A boolean that decides whether to add a trailing comma to
-   parameter lists spanning multiple lines.
+   Use a trailing comma in parameter lists spanning multiple lines, if true.
 
-    .. versionadded:: 8.2
+   .. versionadded:: 8.2
 
 .. confval:: python_use_unqualified_type_names
    :type: :code-py:`bool`

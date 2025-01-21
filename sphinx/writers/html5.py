@@ -174,7 +174,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = node.child_text_separator
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
-        self.trailing_comma = node.get('trailing_comma', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))

@@ -577,7 +577,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'javascript_trailing_comma_in_multi_line_signatures',
         True,
         'env',
-        bool,
+        types=frozenset({bool}),
     )
     return {
         'version': 'builtin',
