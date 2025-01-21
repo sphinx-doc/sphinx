@@ -42,7 +42,7 @@ except ImportError:
     READLINE_AVAILABLE = USE_LIBEDIT = False
 else:
     READLINE_AVAILABLE = True
-    USE_LIBEDIT = readline.__doc__ and 'libedit' in readline.__doc__
+    USE_LIBEDIT = 'libedit' in getattr(readline, '__doc__', '')
     if USE_LIBEDIT:
         readline.parse_and_bind('bind ^I rl_complete')
     else:
