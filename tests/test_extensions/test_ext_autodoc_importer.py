@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from sphinx.ext.autodoc.importer import import_module
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def test_import_native_module_stubs(rootdir: Path) -> None:
