@@ -10,41 +10,43 @@ import sys
 import time
 from typing import TYPE_CHECKING
 
-# try to import readline, unix specific enhancement
-try:
-    import readline
-
-    if TYPE_CHECKING and sys.platform == 'win32':  # always false, for type checking
-        raise ImportError  # NoQA: TRY301
-    READLINE_AVAILABLE = True
-    if readline.__doc__ and 'libedit' in readline.__doc__:
-        readline.parse_and_bind('bind ^I rl_complete')
-        USE_LIBEDIT = True
-    else:
-        readline.parse_and_bind('tab: complete')
-        USE_LIBEDIT = False
-except ImportError:
-    READLINE_AVAILABLE = False
-    USE_LIBEDIT = False
-
 from docutils.utils import column_width
 
 import sphinx.locale
 from sphinx import __display_version__, package_dir
 from sphinx._cli.util.colour import (
+    _create_input_mode_colour_func,
     bold,
     disable_colour,
     red,
     terminal_supports_colour,
 )
 from sphinx.locale import __
-from sphinx.util.console import colorize
 from sphinx.util.osutil import ensuredir
 from sphinx.util.template import SphinxRenderer
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import Any
+
+# try to import readline, unix specific enhancement
+try:
+    import readline
+
+    if TYPE_CHECKING and sys.platform == 'win32':
+        # MyPy doesn't realise that this raises a ModuleNotFoundError
+        # on Windows, and complains that 'parse_and_bind' is not defined.
+        # This condition is always False at runtime, but tricks type checkers.
+        raise ImportError  # NoQA: TRY301
+except ImportError:
+    READLINE_AVAILABLE = USE_LIBEDIT = False
+else:
+    READLINE_AVAILABLE = True
+    USE_LIBEDIT = readline.__doc__ and 'libedit' in readline.__doc__
+    if USE_LIBEDIT:
+        readline.parse_and_bind('bind ^I rl_complete')
+    else:
+        readline.parse_and_bind('tab: complete')
 
 EXTENSIONS = {
     'autodoc': __('automatically insert docstrings from modules'),
@@ -73,10 +75,17 @@ DEFAULTS = {
 PROMPT_PREFIX = '> '
 
 if sys.platform == 'win32':
-    # On Windows, show questions as bold because of color scheme of PowerShell (refs: #5294).
-    COLOR_QUESTION = 'bold'
+    # On Windows, show questions as bold because of PowerShell's colour scheme
+    # (xref: https://github.com/sphinx-doc/sphinx/issues/5294).
+    from sphinx._cli.util.colour import bold as _question_colour
 else:
-    COLOR_QUESTION = 'purple'
+    from sphinx._cli.util.colour import purple as _question_colour
+
+    if READLINE_AVAILABLE:
+        # Use an input-mode colour function if readline is available
+        if escape_code := getattr(_question_colour, '__escape_code', ''):
+            _question_colour = _create_input_mode_colour_func(escape_code)
+            del escape_code
 
 
 # function to get input from terminal -- overridden by the test suite
@@ -158,11 +167,8 @@ def do_prompt(
             # sequence (see #5335).  To avoid the problem, all prompts are not colored
             # on libedit.
             pass
-        elif READLINE_AVAILABLE:
-            # pass input_mode=True if readline available
-            prompt = colorize(COLOR_QUESTION, prompt, input_mode=True)
         else:
-            prompt = colorize(COLOR_QUESTION, prompt, input_mode=False)
+            prompt = _question_colour(prompt)
         x = term_input(prompt).strip()
         if default and not x:
             x = default
