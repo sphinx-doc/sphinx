@@ -344,8 +344,10 @@ class Autosummary(SphinxDirective):
         if signatures_option is None:
             signatures_option = 'none' if 'nosignatures' in self.options else 'long'
         if signatures_option not in {'none', 'short', 'long'}:
-            msg = ("Invalid value for autosummary :signatures: option: "
-                   f"{signatures_option!r}. Valid values are 'none', 'short', 'long'")
+            msg = (
+                'Invalid value for autosummary :signatures: option: '
+                f"{signatures_option!r}. Valid values are 'none', 'short', 'long'"
+            )
             raise ValueError(msg)
 
         max_item_chars = 50
