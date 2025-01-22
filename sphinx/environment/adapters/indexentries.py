@@ -31,21 +31,18 @@ if TYPE_CHECKING:
         _IndexEntryCategoryKey,
     ]
     _IndexEntryMap: TypeAlias = dict[str, _IndexEntry]
-    _Index: TypeAlias = list[
+
+    # Used by ``create_index()`` for 'the real index'
+    _RealIndexEntry: TypeAlias = tuple[
+        str,
         tuple[
-            str,
-            list[
-                tuple[
-                    str,
-                    tuple[
-                        _IndexEntryTargets,
-                        list[tuple[str, _IndexEntryTargets]],
-                        _IndexEntryCategoryKey,
-                    ],
-                ]
-            ],
-        ]
+            _IndexEntryTargets,
+            list[tuple[str, _IndexEntryTargets]],
+            _IndexEntryCategoryKey,
+        ],
     ]
+    _RealIndexEntries: TypeAlias = list[_RealIndexEntry]
+    _Index: TypeAlias = list[tuple[str, _RealIndexEntries]]
 
 logger = logging.getLogger(__name__)
 

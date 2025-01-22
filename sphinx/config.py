@@ -88,7 +88,7 @@ class ENUM:
     def __repr__(self) -> str:
         return f'ENUM({", ".join(sorted(map(repr, self._candidates)))})'
 
-    def match(self, value: str | list | tuple) -> bool:
+    def match(self, value: str | Sequence[str | bool | None]) -> bool:
         if isinstance(value, frozenset | list | set | tuple):
             return all(item in self._candidates for item in value)
         return value in self._candidates
@@ -345,7 +345,7 @@ class Config:
     def read(
         cls: type[Config],
         confdir: str | os.PathLike[str],
-        overrides: dict | None = None,
+        overrides: dict[str, Any] | None = None,
         tags: Tags | None = None,
     ) -> Config:
         """Create a Config object from configuration file."""
@@ -532,7 +532,7 @@ class Config:
             return (value for value in self if value.rebuild == rebuild)
         return (value for value in self if value.rebuild in rebuild)
 
-    def __getstate__(self) -> dict:
+    def __getstate__(self) -> dict[str, Any]:
         """Obtains serializable data for pickling."""
         # remove potentially pickling-problematic values from config
         __dict__ = {
@@ -569,7 +569,7 @@ class Config:
 
         return __dict__
 
-    def __setstate__(self, state: dict) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         self._overrides = {}
         self._options = {
             name: _Opt(real_value, rebuild, ())

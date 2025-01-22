@@ -187,9 +187,16 @@ nitpick_ignore = {
     ('py:attr', 'srcline'),
     ('py:class', '_AutodocProcessDocstringListener'),
     ('py:class', '_ConfigRebuild'),  # sphinx.application.Sphinx.add_config_value
+    # sphinx.application.Sphinx.add_html_math_renderer
+    ('py:class', '_MathsBlockRenderers'),
+    # sphinx.application.Sphinx.add_html_math_renderer
+    ('py:class', '_MathsInlineRenderers'),
+    ('py:class', '_NodeHandler'),  # sphinx.application.Sphinx.add_enumerable_node
+    ('py:class', '_NodeHandlerPair'),  # sphinx.application.Sphinx.add_node
     ('py:class', '_StrPath'),  # sphinx.environment.BuildEnvironment.doc2path
     ('py:class', 'Element'),  # sphinx.domains.Domain
     ('py:class', 'Documenter'),  # sphinx.application.Sphinx.add_autodocumenter
+    ('py:class', 'Field'),  # sphinx.application.Sphinx.add_object_type
     ('py:class', 'IndexEntry'),  # sphinx.domains.IndexEntry
     ('py:class', 'Inliner'),  # sphinx.util.docutils.SphinxRole.inliner
     ('py:class', 'Lexer'),  # sphinx.application.Sphinx.add_lexer
@@ -200,10 +207,10 @@ nitpick_ignore = {
     ('py:class', 'Path'),  # sphinx.application.Sphinx.connect
     ('py:class', 'RoleFunction'),  # sphinx.domains.Domain
     ('py:class', 'RSTState'),  # sphinx.utils.parsing.nested_parse_to_nodes
-    ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
     ('py:class', 'SearchLanguage'),  # sphinx.application.Sphinx.add_search_language
     ('py:class', 'StringList'),  # sphinx.utils.parsing.nested_parse_to_nodes
     ('py:class', 'system_message'),  # sphinx.utils.docutils.SphinxDirective
+    ('py:class', 'Theme'),  # sphinx.application.TemplateBridge
     ('py:class', 'TitleGetter'),  # sphinx.domains.Domain
     ('py:class', 'todo_node'),  # sphinx.application.Sphinx.connect
     ('py:class', 'Transform'),  # sphinx.application.Sphinx.add_transform

@@ -22,11 +22,22 @@ from sphinx.util.index_entries import split_index_msg
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from typing import IO, Any
+    from typing import Any, Protocol, TypeVar
 
     from docutils.nodes import Node
 
     from sphinx.environment import BuildEnvironment
+
+    _T_co = TypeVar('_T_co', covariant=True)
+    _T_contra = TypeVar('_T_contra', contravariant=True)
+
+    class _ReadableStream(Protocol[_T_co]):
+        def read(self, n: int = ..., /) -> _T_co: ...
+        def readline(self, n: int = ..., /) -> _T_co: ...
+
+    class _WritableStream(Protocol[_T_contra]):
+        def write(self, s: _T_contra, /) -> object: ...
+
 
 _NON_MINIFIED_JS_PATH = Path(package_dir, 'search', 'non-minified-js')
 _MINIFIED_JS_PATH = Path(package_dir, 'search', 'minified-js')
@@ -173,10 +184,10 @@ class _JavaScriptIndex:
             raise ValueError(msg)
         return json.loads(data)
 
-    def dump(self, data: Any, f: IO[str]) -> None:
+    def dump(self, data: Any, f: _WritableStream[str]) -> None:
         f.write(self.dumps(data))
 
-    def load(self, f: IO[str]) -> Any:
+    def load(self, f: _ReadableStream[str]) -> Any:
         return self.loads(f.read())
 
 
@@ -310,7 +321,7 @@ class IndexBuilder:
             self.js_scorer_code = ''
         self.js_splitter_code = ''
 
-    def load(self, stream: IO, format: Any) -> None:
+    def load(self, stream: _ReadableStream[str | bytes], format: Any) -> None:
         """Reconstruct from frozen data."""
         if isinstance(format, str):
             format = self.formats[format]
@@ -346,7 +357,9 @@ class IndexBuilder:
         self._title_mapping = load_terms(frozen['titleterms'])
         # no need to load keywords/objtypes
 
-    def dump(self, stream: IO, format: Any) -> None:
+    def dump(
+        self, stream: _WritableStream[str] | _WritableStream[bytes], format: Any
+    ) -> None:
         """Dump the frozen index to a stream."""
         if isinstance(format, str):
             format = self.formats[format]

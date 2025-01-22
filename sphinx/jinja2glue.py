@@ -24,6 +24,10 @@ if TYPE_CHECKING:
     from jinja2.environment import Environment
 
     from sphinx.builders import Builder
+    from sphinx.environment.adapters.indexentries import (
+        _RealIndexEntries,
+        _RealIndexEntry,
+    )
     from sphinx.theming import Theme
 
 
@@ -57,7 +61,9 @@ def _todim(val: int | str) -> str:
     return val  # type: ignore[return-value]
 
 
-def _slice_index(values: list, slices: int) -> Iterator[list]:
+def _slice_index(
+    values: _RealIndexEntries, slices: int
+) -> Iterator[list[_RealIndexEntry]]:
     seq = values.copy()
     length = 0
     for value in values:

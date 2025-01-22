@@ -231,21 +231,14 @@ strict_optional = false
 
 [[tool.mypy.overrides]]
 module = [
-    "sphinx.application",
-    "sphinx.config",
     "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.events",
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.importer",
     "sphinx.ext.doctest",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
-    "sphinx.highlighting",
-    "sphinx.jinja2glue",
-    "sphinx.registry",
-    "sphinx.search",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
     "sphinx.util.inspect",
