@@ -274,12 +274,12 @@ class InheritanceGraph:
         return [fullname for (_, fullname, _, _) in self.class_info]
 
     # These are the default attrs for graphviz
-    default_graph_attrs = {
+    default_graph_attrs: dict[str, float | int | str] = {
         'rankdir': 'LR',
         'size': '"8.0, 12.0"',
         'bgcolor': 'transparent',
     }
-    default_node_attrs = {
+    default_node_attrs: dict[str, float | int | str] = {
         'shape': 'box',
         'fontsize': 10,
         'height': 0.25,
@@ -287,15 +287,15 @@ class InheritanceGraph:
         'style': '"setlinewidth(0.5),filled"',
         'fillcolor': 'white',
     }
-    default_edge_attrs = {
+    default_edge_attrs: dict[str, float | int | str] = {
         'arrowsize': 0.5,
         'style': '"setlinewidth(0.5)"',
     }
 
-    def _format_node_attrs(self, attrs: dict[str, Any]) -> str:
+    def _format_node_attrs(self, attrs: dict[str, float | int | str]) -> str:
         return ','.join(f'{k}={v}' for k, v in sorted(attrs.items()))
 
-    def _format_graph_attrs(self, attrs: dict[str, Any]) -> str:
+    def _format_graph_attrs(self, attrs: dict[str, float | int | str]) -> str:
         return ''.join(f'{k}={v};\n' for k, v in sorted(attrs.items()))
 
     def generate_dot(
@@ -303,9 +303,9 @@ class InheritanceGraph:
         name: str,
         urls: dict[str, str] | None = None,
         config: Config | None = None,
-        graph_attrs: dict | None = None,
-        node_attrs: dict | None = None,
-        edge_attrs: dict | None = None,
+        graph_attrs: dict[str, float | int | str] | None = None,
+        node_attrs: dict[str, float | int | str] | None = None,
+        edge_attrs: dict[str, float | int | str] | None = None,
     ) -> str:
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.

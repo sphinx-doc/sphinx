@@ -236,7 +236,6 @@ module = [
     "sphinx.domains.cpp",
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.importer",
-    "sphinx.ext.inheritance_diagram",
     "sphinx.util.docfields",
     "sphinx.util.docutils",
     "sphinx.util.inspect",
