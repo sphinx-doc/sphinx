@@ -826,9 +826,8 @@ def test_autosummary_module_all(app):
         app.build()
         # generated/foo is generated successfully
         assert app.env.get_doctree('generated/autosummary_dummy_package_all')
-        module = (
-            app.srcdir / 'generated' / 'autosummary_dummy_package_all.rst'
-        ).read_text(encoding='utf8')
+        path = app.srcdir / 'generated' / 'autosummary_dummy_package_all.rst'
+        module = path.read_text(encoding='utf8')
         assert '   .. autosummary::\n   \n      PublicBar\n   \n' in module
         assert (
             '   .. autosummary::\n   \n      public_foo\n      public_baz\n   \n'
@@ -836,6 +835,30 @@ def test_autosummary_module_all(app):
         assert (
             '.. autosummary::\n   :toctree:\n   :recursive:\n\n   extra_dummy_module\n'
         ) in module
+    finally:
+        sys.modules.pop('autosummary_dummy_package_all', None)
+
+
+@pytest.mark.sphinx('dummy', testroot='ext-autosummary-module_empty_all')
+def test_autosummary_module_empty_all(app):
+    try:
+        app.build()
+        # generated/foo is generated successfully
+        assert app.env.get_doctree('generated/autosummary_dummy_package_empty_all')
+        path = app.srcdir / 'generated' / 'autosummary_dummy_package_empty_all.rst'
+        module = path.read_text(encoding='utf8')
+        assert '.. automodule:: autosummary_dummy_package_empty_all' in module
+        # for __all__ = (), the output should not contain any variables
+        assert '__all__' not in module
+        assert '__builtins__' not in module
+        assert '__cached__' not in module
+        assert '__doc__' not in module
+        assert '__file__' not in module
+        assert '__loader__' not in module
+        assert '__name__' not in module
+        assert '__package__' not in module
+        assert '__path__' not in module
+        assert '__spec__' not in module
     finally:
         sys.modules.pop('autosummary_dummy_package_all', None)
 

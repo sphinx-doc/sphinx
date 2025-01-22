@@ -44,9 +44,7 @@ def multiply_length(length: str, scale: int) -> str:
 
 
 class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
-    """
-    Our custom HTML translator.
-    """
+    """Our custom HTML translator."""
 
     builder: StandaloneHTMLBuilder
     # Override docutils.writers.html5_polyglot:HTMLTranslator
@@ -176,6 +174,7 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = node.child_text_separator
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.body.append('\n\n')
             self.body.append(self.starttag(node, 'dl'))
@@ -240,7 +239,8 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
                 or is_required
                 and (is_last_group or next_is_required)
             ):
-                self.body.append(self.param_separator)
+                if not is_last_group or opt_param_left_at_level or self.trailing_comma:
+                    self.body.append(self.param_separator)
                 self.body.append('</dd>\n')
 
         elif self.required_params_left:
@@ -283,19 +283,26 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
-            # If it's the first time we go down one level, add the separator
-            # before the bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
+            # If it's the first time we go down one level, add the separator before the
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.body.append(self.param_separator)
             self.body.append('<span class="optional">]</span>')
             # End the line if we have just closed the last bracket of this
             # optional parameter group.
-            if self.optional_param_level == 0:
+            if level == 0:
                 self.body.append('</dd>\n')
         else:
             self.body.append('<span class="optional">]</span>')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:

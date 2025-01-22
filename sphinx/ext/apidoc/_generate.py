@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import dataclasses
 import glob
 import os
 import os.path
@@ -16,7 +15,9 @@ from sphinx.util.template import ReSTRenderer
 
 if TYPE_CHECKING:
     import re
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterable, Iterator, Sequence
+
+    from sphinx.ext.apidoc._shared import ApidocOptions
 
 
 # automodule options
@@ -32,7 +33,7 @@ else:
 
 PY_SUFFIXES = ('.py', '.pyx', *EXTENSION_SUFFIXES)
 
-template_dir = os.path.join(package_dir, 'templates', 'apidoc')
+template_dir = Path(package_dir, 'templates', 'apidoc')
 
 
 def is_initpy(filename: str | Path) -> bool:
@@ -49,13 +50,15 @@ def module_join(*modnames: str | None) -> str:
     return '.'.join(filter(None, modnames))
 
 
-def is_packagedir(dirname: str | None = None, files: list[str] | None = None) -> bool:
+def is_packagedir(
+    dirname: str | None = None, files: Iterable[str | Path] | None = None
+) -> bool:
     """Check given *files* contains __init__ file."""
     if files is None and dirname is None:
         return False
 
     if files is None:
-        files = os.listdir(dirname)
+        files = Path(dirname or '.').iterdir()
     return any(f for f in files if is_initpy(f))
 
 
@@ -81,7 +84,7 @@ def create_module_file(
     package: str | None,
     basename: str,
     opts: ApidocOptions,
-    user_template_dir: str | None = None,
+    user_template_dir: str | os.PathLike[str] | None = None,
 ) -> Path:
     """Build the text of the file and write the file."""
     options = set(OPTIONS if not opts.automodule_options else opts.automodule_options)
@@ -95,6 +98,7 @@ def create_module_file(
         'qualname': qualname,
         'automodule_options': sorted(options),
     }
+    template_path: Sequence[str | os.PathLike[str]]
     if user_template_dir is not None:
         template_path = [user_template_dir, template_dir]
     else:
@@ -112,7 +116,7 @@ def create_package_file(
     subs: list[str],
     is_namespace: bool,
     excludes: Sequence[re.Pattern[str]] = (),
-    user_template_dir: str | None = None,
+    user_template_dir: str | os.PathLike[str] | None = None,
 ) -> list[Path]:
     """Build the text of the file and write the file.
 
@@ -175,7 +179,7 @@ def create_modules_toc_file(
     modules: list[str],
     opts: ApidocOptions,
     name: str = 'modules',
-    user_template_dir: str | None = None,
+    user_template_dir: str | os.PathLike[str] | None = None,
 ) -> Path:
     """Create the module's index."""
     modules.sort()
@@ -192,6 +196,7 @@ def create_modules_toc_file(
         'maxdepth': opts.maxdepth,
         'docnames': modules,
     }
+    template_path: Sequence[str | os.PathLike[str]]
     if user_template_dir is not None:
         template_path = [user_template_dir, template_dir]
     else:
@@ -207,7 +212,7 @@ def is_skipped_package(
     if not Path(dirname).is_dir():
         return False
 
-    files = glob.glob(str(Path(dirname, '*.py')))
+    files = glob.glob(str(Path(dirname, '*.py')))  # NoQA: PTH207
     regular_package = any(f for f in files if is_initpy(f))
     if not regular_package and not opts.implicit_namespaces:
         # *dirname* is not both a regular package and an implicit namespace package
@@ -271,10 +276,9 @@ def recurse_tree(
     rootpath: str | os.PathLike[str],
     excludes: Sequence[re.Pattern[str]],
     opts: ApidocOptions,
-    user_template_dir: str | None = None,
+    user_template_dir: str | os.PathLike[str] | None = None,
 ) -> tuple[list[Path], list[str]]:
-    """
-    Look for every file in the directory tree and create the corresponding
+    """Look for every file in the directory tree and create the corresponding
     ReST files.
     """
     # check if the base directory is a package and get its name
@@ -349,37 +353,3 @@ def is_excluded(root: str | Path, excludes: Sequence[re.Pattern[str]]) -> bool:
     """
     root_str = str(root)
     return any(exclude.match(root_str) for exclude in excludes)
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
-class ApidocOptions:
-    """Options for apidoc."""
-
-    module_path: Path
-    exclude_pattern: list[str]
-    destdir: Path
-    quiet: bool = False
-    maxdepth: int = 4
-    force: bool = False
-    followlinks: bool = False
-    dryrun: bool = False
-    separatemodules: bool = False
-    includeprivate: bool = False
-    tocfile: str = 'modules'
-    noheadings: bool = False
-    modulefirst: bool = False
-    implicit_namespaces: bool = False
-    automodule_options: set[str] = dataclasses.field(default_factory=set)
-    suffix: str = 'rst'
-
-    remove_old: bool = False
-
-    # --full only
-    full: bool = False
-    append_syspath: bool = False
-    header: str = ''
-    author: str | None = None
-    version: str | None = None
-    release: str | None = None
-    extensions: list[str] | None = None
-    templatedir: str | None = None

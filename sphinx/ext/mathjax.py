@@ -8,7 +8,7 @@ This requires the MathJax JavaScript library on your webserver/computer.
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 
@@ -18,6 +18,8 @@ from sphinx.locale import _
 from sphinx.util.math import get_node_equation_number
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
     from sphinx.builders.html import StandaloneHTMLBuilder
     from sphinx.util.typing import ExtensionMetadata

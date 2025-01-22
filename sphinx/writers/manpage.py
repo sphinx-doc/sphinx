@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.writers.manpage import Translator as BaseTranslator
@@ -17,6 +17,7 @@ from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Any
 
     from docutils.nodes import Element
 
@@ -40,8 +41,7 @@ class ManualPageWriter(Writer):  # type: ignore[misc]
 
 
 class NestedInlineTransform:
-    """
-    Flatten nested inline nodes:
+    """Flatten nested inline nodes:
 
     Before:
         <strong>foo=<emphasis>1</emphasis>
@@ -72,9 +72,7 @@ class NestedInlineTransform:
 
 
 class ManualPageTranslator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
-    """
-    Custom man page translator.
-    """
+    """Custom man page translator."""
 
     _docinfo: dict[str, Any] = {}
 

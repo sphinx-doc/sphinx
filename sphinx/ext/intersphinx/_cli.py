@@ -32,14 +32,15 @@ def inspect_main(argv: list[str], /) -> int:
             target_uri='',
             inv_location=filename,
             config=config,
-            srcdir=Path(''),
+            srcdir=Path(),
         )
         for key in sorted(inv_data or {}):
             print(key)
             inv_entries = sorted(inv_data[key].items())
-            for entry, (_proj, _ver, url_path, display_name) in inv_entries:
+            for entry, inv_item in inv_entries:
+                display_name = inv_item.display_name
                 display_name = display_name * (display_name != '-')
-                print(f'    {entry:<40} {display_name:<40}: {url_path}')
+                print(f'    {entry:<40} {display_name:<40}: {inv_item.uri}')
     except ValueError as exc:
         print(exc.args[0] % exc.args[1:], file=sys.stderr)
         return 1

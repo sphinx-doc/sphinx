@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ast
 from inspect import Parameter, Signature, getsource
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 import sphinx
 from sphinx.locale import __
@@ -13,6 +13,7 @@ from sphinx.util import inspect, logging
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata

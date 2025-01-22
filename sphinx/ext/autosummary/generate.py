@@ -25,7 +25,7 @@ import pydoc
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from jinja2 import TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -54,6 +54,7 @@ from sphinx.util.template import SphinxTemplateLoader
 if TYPE_CHECKING:
     from collections.abc import Sequence, Set
     from gettext import NullTranslations
+    from typing import Any
 
     from sphinx.application import Sphinx
     from sphinx.ext.autodoc import Documenter
@@ -130,11 +131,9 @@ class AutosummaryRenderer:
     def __init__(self, app: Sphinx) -> None:
         if isinstance(app, Builder):
             msg = 'Expected a Sphinx application object!'
-            raise ValueError(msg)
+            raise TypeError(msg)
 
-        system_templates_path = [
-            os.path.join(package_dir, 'ext', 'autosummary', 'templates')
-        ]
+        system_templates_path = [Path(package_dir, 'ext', 'autosummary', 'templates')]
         loader = SphinxTemplateLoader(
             app.srcdir, app.config.templates_path, system_templates_path
         )
@@ -274,7 +273,11 @@ def members_of(obj: Any, conf: Config) -> Sequence[str]:
     if conf.autosummary_ignore_module_all:
         return dir(obj)
     else:
-        return getall(obj) or dir(obj)
+        if (obj___all__ := getall(obj)) is not None:
+            # return __all__, even if empty.
+            return obj___all__
+        # if __all__ is not set, return dir(obj)
+        return dir(obj)
 
 
 def generate_autosummary_content(

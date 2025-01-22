@@ -68,11 +68,24 @@ At the moment, these metadata fields are recognized:
 
    .. versionadded:: 1.0
 
-``nosearch``
-   If set, full text search for this file is disabled. ::
+``no-search``
+   Disable full text search for this document.
 
-       :nosearch:
+   .. code-block:: rst
 
-   .. note:: object search is still available even if ``nosearch`` option is set.
+      :no-search:
+
+   .. note::
+      The ``:no-search:`` option only disables full text search,
+      meaning that object search will still be available even if
+      ``:no-search:`` is set.
 
    .. versionadded:: 3.0
+
+   .. versionchanged:: 7.3
+
+      The file-wide metadata option ``:nosearch:`` was renamed
+      to ``:no-search:``.
+      The previous name has been retained as an alias,
+      but will be deprecated and removed
+      in a future version of Sphinx.

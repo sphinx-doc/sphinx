@@ -12,7 +12,7 @@ import shutil
 import sys
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 import docutils.readers.doctree
@@ -23,6 +23,7 @@ from docutils.io import DocTreeInput, StringOutput
 
 from sphinx import __display_version__, package_dir
 from sphinx import version_info as sphinx_version
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.builders.html._assets import (
     _CascadingStyleSheet,
@@ -30,7 +31,7 @@ from sphinx.builders.html._assets import (
     _JavaScript,
 )
 from sphinx.builders.html._build_info import BuildInfo
-from sphinx.config import ENUM, Config
+from sphinx.config import ENUM
 from sphinx.deprecation import _deprecation_warning
 from sphinx.domains import Index, IndexEntry
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -45,7 +46,6 @@ from sphinx.util import logging
 from sphinx.util._pathlib import _StrPath
 from sphinx.util._timestamps import _format_rfc3339_microseconds
 from sphinx.util._uri import is_url
-from sphinx.util.console import bold
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import new_document
 from sphinx.util.fileutil import copy_asset
@@ -65,12 +65,13 @@ from sphinx.writers.html5 import HTML5Translator
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
-    from typing import TypeAlias
+    from typing import Any, TypeAlias
 
     from docutils.nodes import Node
     from docutils.readers import Reader
 
     from sphinx.application import Sphinx
+    from sphinx.config import Config
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
 
@@ -104,9 +105,7 @@ def convert_locale_to_language_tag(locale: str | None) -> str | None:
 
 
 class StandaloneHTMLBuilder(Builder):
-    """
-    Builds standalone HTML docs.
-    """
+    """Builds standalone HTML docs."""
 
     name = 'html'
     format = 'html'
@@ -363,7 +362,7 @@ class StandaloneHTMLBuilder(Builder):
                     msg = __(
                         'build_info mismatch, copying .buildinfo to .buildinfo.bak'
                     )
-                    logger.info(bold(__('building [html]: ')) + msg)
+                    logger.info(bold(__('building [html]: ')) + msg)  # NoQA: G003
 
                 yield from self.env.found_docs
                 return
@@ -378,7 +377,7 @@ class StandaloneHTMLBuilder(Builder):
                 # Let users know they have a newer template
                 if template_mtime > old_mtime:
                     logger.info(
-                        bold('building [html]: ')
+                        bold('building [html]: ')  # NoQA: G003
                         + __(
                             'template %s has been changed since the previous build, '
                             'all docs will be rebuilt'
@@ -712,7 +711,7 @@ class StandaloneHTMLBuilder(Builder):
     def gen_additional_pages(self) -> None:
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            logger.info(pagename + ' ', nonl=True)
+            logger.info('%s ', pagename, nonl=True)
             self.handle_page(pagename, {}, template)
 
         # the search page
@@ -1273,7 +1272,7 @@ class StandaloneHTMLBuilder(Builder):
             else:
                 with open(search_index_tmp, 'wb') as fb:
                     self.indexer.dump(fb, self.indexer_format)
-            os.replace(search_index_tmp, search_index_path)
+            Path(search_index_tmp).replace(search_index_path)
 
 
 def convert_html_css_files(app: Sphinx, config: Config) -> None:
@@ -1447,21 +1446,25 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         'html_title',
         lambda c: _('%s %s documentation') % (c.project, c.release),
         'html',
-        str,
+        types=frozenset({str}),
     )
     app.add_config_value('html_short_title', lambda self: self.html_title, 'html')
-    app.add_config_value('html_style', None, 'html', {list, str})
-    app.add_config_value('html_logo', None, 'html', str)
-    app.add_config_value('html_favicon', None, 'html', str)
+    app.add_config_value('html_style', None, 'html', types=frozenset({list, str}))
+    app.add_config_value('html_logo', None, 'html', types=frozenset({str}))
+    app.add_config_value('html_favicon', None, 'html', types=frozenset({str}))
     app.add_config_value('html_css_files', [], 'html')
     app.add_config_value('html_js_files', [], 'html')
     app.add_config_value('html_static_path', [], 'html')
     app.add_config_value('html_extra_path', [], 'html')
-    app.add_config_value('html_last_updated_fmt', None, 'html', str)
-    app.add_config_value('html_last_updated_use_utc', False, 'html', types={bool})
+    app.add_config_value('html_last_updated_fmt', None, 'html', types=frozenset({str}))
+    app.add_config_value(
+        'html_last_updated_use_utc', False, 'html', types=frozenset({bool})
+    )
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_domain_indices', True, 'html', types={set, list})
+    app.add_config_value(
+        'html_domain_indices', True, 'html', types=frozenset({set, list})
+    )
     app.add_config_value('html_permalinks', True, 'html')
     app.add_config_value('html_permalinks_icon', '¶', 'html')
     app.add_config_value('html_use_index', True, 'html')
@@ -1470,8 +1473,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_show_sourcelink', True, 'html')
     app.add_config_value('html_sourcelink_suffix', '.txt', 'html')
     app.add_config_value('html_use_opensearch', '', 'html')
-    app.add_config_value('html_file_suffix', None, 'html', str)
-    app.add_config_value('html_link_suffix', None, 'html', str)
+    app.add_config_value('html_file_suffix', None, 'html', types=frozenset({str}))
+    app.add_config_value('html_link_suffix', None, 'html', types=frozenset({str}))
     app.add_config_value('html_show_copyright', True, 'html')
     app.add_config_value('html_show_search_summary', True, 'html')
     app.add_config_value('html_show_sphinx', True, 'html')
@@ -1479,14 +1482,14 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value('html_output_encoding', 'utf-8', 'html')
     app.add_config_value('html_compact_lists', True, 'html')
     app.add_config_value('html_secnumber_suffix', '. ', 'html')
-    app.add_config_value('html_search_language', None, 'html', str)
+    app.add_config_value('html_search_language', None, 'html', types=frozenset({str}))
     app.add_config_value('html_search_options', {}, 'html')
     app.add_config_value('html_search_scorer', '', '')
     app.add_config_value('html_scaled_image_link', True, 'html')
     app.add_config_value('html_baseurl', '', 'html')
     # removal is indefinitely on hold (ref: https://github.com/sphinx-doc/sphinx/issues/10265)
     app.add_config_value(
-        'html_codeblock_linenos_style', 'inline', 'html', ENUM('table', 'inline')
+        'html_codeblock_linenos_style', 'inline', 'html', types=ENUM('table', 'inline')
     )
     app.add_config_value('html_math_renderer', None, 'env')
     app.add_config_value('html4_writer', False, 'html')
@@ -1509,9 +1512,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     # load default math renderer
     app.setup_extension('sphinx.ext.mathjax')
-
-    # load transforms for HTML builder
-    app.setup_extension('sphinx.builders.html.transforms')
 
     return {
         'version': 'builtin',

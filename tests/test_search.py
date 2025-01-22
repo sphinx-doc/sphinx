@@ -425,8 +425,7 @@ def test_search_index_is_deterministic(app):
 
 
 def is_title_tuple_type(item: list[int | str]) -> bool:
-    """
-    In the search index, titles inside .alltitles are stored as a tuple of
+    """In the search index, titles inside .alltitles are stored as a tuple of
     (document_idx, title_anchor). Tuples are represented as lists in JSON,
     but their contents must not be sorted. We cannot sort them anyway, as
     document_idx is an int and title_anchor is a str.

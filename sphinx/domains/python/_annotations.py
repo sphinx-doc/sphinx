@@ -6,20 +6,22 @@ import operator
 import token
 from collections import deque
 from inspect import Parameter
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.addnodes import desc_signature, pending_xref, pending_xref_condition
+from sphinx.addnodes import pending_xref, pending_xref_condition
 from sphinx.pycode.parser import Token, TokenProcessor
 from sphinx.util.inspect import signature_from_str
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+    from typing import Any
 
     from docutils.nodes import Element, Node
 
+    from sphinx.addnodes import desc_signature
     from sphinx.environment import BuildEnvironment
 
 
@@ -398,11 +400,15 @@ class _TypeParameterListParser(TokenProcessor):
 
 
 def _parse_type_list(
-    tp_list: str, env: BuildEnvironment, multi_line_parameter_list: bool = False
+    tp_list: str,
+    env: BuildEnvironment,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> addnodes.desc_type_parameter_list:
     """Parse a list of type parameters according to PEP 695."""
     type_params = addnodes.desc_type_parameter_list(tp_list)
     type_params['multi_line_parameter_list'] = multi_line_parameter_list
+    type_params['multi_line_trailing_comma'] = trailing_comma
     # formal parameter names are interpreted as type parameter names and
     # type annotations are interpreted as type parameter bound or constraints
     parser = _TypeParameterListParser(tp_list)
@@ -460,11 +466,15 @@ def _parse_type_list(
 
 
 def _parse_arglist(
-    arglist: str, env: BuildEnvironment, multi_line_parameter_list: bool = False
+    arglist: str,
+    env: BuildEnvironment,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> addnodes.desc_parameterlist:
     """Parse a list of arguments using AST parser"""
     params = addnodes.desc_parameterlist(arglist)
     params['multi_line_parameter_list'] = multi_line_parameter_list
+    params['multi_line_trailing_comma'] = trailing_comma
     sig = signature_from_str('(%s)' % arglist)
     last_kind = None
     for param in sig.parameters.values():
@@ -520,7 +530,10 @@ def _parse_arglist(
 
 
 def _pseudo_parse_arglist(
-    signode: desc_signature, arglist: str, multi_line_parameter_list: bool = False
+    signode: desc_signature,
+    arglist: str,
+    multi_line_parameter_list: bool = False,
+    trailing_comma: bool = True,
 ) -> None:
     """'Parse' a list of arguments separated by commas.
 
@@ -530,6 +543,7 @@ def _pseudo_parse_arglist(
     """
     paramlist = addnodes.desc_parameterlist()
     paramlist['multi_line_parameter_list'] = multi_line_parameter_list
+    paramlist['multi_line_trailing_comma'] = trailing_comma
     stack: list[Element] = [paramlist]
     try:
         for argument in arglist.split(','):
@@ -560,7 +574,7 @@ def _pseudo_parse_arglist(
                 stack.pop()
                 ends_close -= 1
         if len(stack) != 1:
-            raise IndexError
+            raise IndexError  # NoQA: TRY301
     except IndexError:
         # if there are too few or too many elements on the stack, just give up
         # and treat the whole argument list as one argument, discarding the

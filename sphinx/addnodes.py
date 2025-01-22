@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from docutils.nodes import Element
 
@@ -258,6 +259,8 @@ class desc_parameterlist(nodes.Part, nodes.Inline, nodes.FixedTextElement):
     As default the parameter list is written in line with the rest of the signature.
     Set ``multi_line_parameter_list = True`` to describe a multi-line parameter list.
     In that case each parameter will then be written on its own, indented line.
+    A trailing comma will be added on the last line
+    if ``multi_line_trailing_comma`` is True.
     """
 
     child_text_separator = ', '
@@ -272,6 +275,8 @@ class desc_type_parameter_list(nodes.Part, nodes.Inline, nodes.FixedTextElement)
     As default the type parameters list is written in line with the rest of the signature.
     Set ``multi_line_parameter_list = True`` to describe a multi-line type parameters list.
     In that case each type parameter will then be written on its own, indented line.
+    A trailing comma will be added on the last line
+    if ``multi_line_trailing_comma`` is True.
     """
 
     child_text_separator = ', '

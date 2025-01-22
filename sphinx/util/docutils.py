@@ -4,18 +4,16 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import Sequence  # NoQA: TC003
 from contextlib import contextmanager
 from copy import copy
 from pathlib import Path
-from typing import IO, TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 import docutils
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.parsers.rst import Directive, directives, roles
-from docutils.parsers.rst.states import Inliner  # NoQA: TC002
-from docutils.statemachine import State, StateMachine, StringList
+from docutils.statemachine import StateMachine
 from docutils.utils import Reporter, unescape
 
 from sphinx.errors import SphinxError
@@ -29,11 +27,14 @@ report_re = re.compile(
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterator, Sequence
     from types import ModuleType, TracebackType
+    from typing import IO, Any
 
     from docutils.frontend import Values
     from docutils.nodes import Element, Node, system_message
+    from docutils.parsers.rst.states import Inliner
+    from docutils.statemachine import State, StringList
 
     from sphinx.builders import Builder
     from sphinx.config import Config
@@ -729,8 +730,7 @@ class SphinxTranslator(nodes.NodeVisitor):
         self._domains = builder.env.domains
 
     def dispatch_visit(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate visitor method.
+        """Dispatch node to appropriate visitor method.
         The priority of visitor method is:
 
         1. ``self.visit_{node_class}()``
@@ -746,8 +746,7 @@ class SphinxTranslator(nodes.NodeVisitor):
             super().dispatch_visit(node)
 
     def dispatch_departure(self, node: Node) -> None:
-        """
-        Dispatch node to appropriate departure method.
+        """Dispatch node to appropriate departure method.
         The priority of departure method is:
 
         1. ``self.depart_{node_class}()``

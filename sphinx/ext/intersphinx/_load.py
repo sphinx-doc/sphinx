@@ -81,7 +81,7 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
                 'Values must be a (target URI, inventory locations) pair.'
             )
-            LOGGER.error(msg, value, name)
+            LOGGER.error(msg, value, name)  # NoQA: TRY400
             del config.intersphinx_mapping[name]
             continue
 
@@ -292,9 +292,9 @@ def _fetch_inventory_group(
     else:
         issues = '\n'.join(f[0] % f[1:] for f in failures)
         LOGGER.warning(
-            __('failed to reach any of the inventories with the following issues:')
-            + '\n'
-            + issues
+            '%s\n%s',
+            __('failed to reach any of the inventories with the following issues:'),
+            issues,
         )
     return updated
 
@@ -340,7 +340,6 @@ def _fetch_inventory_url(
     try:
         with requests.get(
             inv_location,
-            stream=True,
             timeout=config.intersphinx_timeout,
             _user_agent=config.user_agent,
             _tls_info=(config.tls_verify, config.tls_cacerts),

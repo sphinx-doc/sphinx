@@ -2,45 +2,22 @@
 
 from __future__ import annotations
 
-import hashlib
 import os
 import posixpath
 import re
-from typing import Any
+from typing import TYPE_CHECKING
 
-from sphinx.errors import ExtensionError as _ExtensionError
 from sphinx.errors import FiletypeNotFoundError
-from sphinx.util import _files, _importer, logging
-from sphinx.util import index_entries as _index_entries
-from sphinx.util._lines import parse_line_num_spec as parselinenos  # NoQA: F401
-from sphinx.util._uri import encode_uri  # NoQA: F401
-from sphinx.util._uri import is_url as isurl  # NoQA: F401
-from sphinx.util.console import strip_colors  # NoQA: F401
-from sphinx.util.matching import patfilter  # NoQA: F401
-from sphinx.util.nodes import (  # NoQA: F401
-    caption_ref_re,
-    explicit_title_re,
-    nested_parse_with_titles,
-    split_explicit_title,
-)
 
-# import other utilities; partly for backwards compatibility, so don't
-# prune unused ones indiscriminately
-from sphinx.util.osutil import (  # NoQA: F401
-    SEP,
-    copyfile,
-    ensuredir,
-    make_filename,
-    os_path,
-    relative_uri,
-)
-
-logger = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    import hashlib
+    from collections.abc import Callable
+    from types import ModuleType
+    from typing import Any
 
 # Generally useful regular expressions.
 ws_re: re.Pattern[str] = re.compile(r'\s+')
 url_re: re.Pattern[str] = re.compile(r'(?P<schema>.+)://.*')
-
 
 # High-level utility functions.
 
@@ -64,6 +41,8 @@ def _md5(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
 
     To be removed in Sphinx 9.0
     """
+    import hashlib
+
     return hashlib.md5(data, usedforsecurity=False)
 
 
@@ -72,37 +51,108 @@ def _sha1(data: bytes = b'', **_kw: Any) -> hashlib._Hash:
 
     To be removed in Sphinx 9.0
     """
+    import hashlib
+
     return hashlib.sha1(data, usedforsecurity=False)
 
 
-# deprecated name -> (object to return, canonical path or empty string)
-_DEPRECATED_OBJECTS: dict[str, tuple[Any, str, tuple[int, int]]] = {
-    'split_index_msg': (
-        _index_entries.split_index_msg,
-        'sphinx.util.index_entries.split_index_msg',
-        (9, 0),
-    ),
-    'split_into': (
-        _index_entries.split_index_msg,
-        'sphinx.util.index_entries.split_into',
-        (9, 0),
-    ),
-    'ExtensionError': (_ExtensionError, 'sphinx.errors.ExtensionError', (9, 0)),
-    'md5': (_md5, '', (9, 0)),
-    'sha1': (_sha1, '', (9, 0)),
-    'import_object': (_importer.import_object, '', (10, 0)),
-    'FilenameUniqDict': (_files.FilenameUniqDict, '', (10, 0)),
-    'DownloadFiles': (_files.DownloadFiles, '', (10, 0)),
-}
-
-
 def __getattr__(name: str) -> Any:
-    if name not in _DEPRECATED_OBJECTS:
-        msg = f'module {__name__!r} has no attribute {name!r}'
-        raise AttributeError(msg)
-
     from sphinx.deprecation import _deprecation_warning
 
-    deprecated_object, canonical_name, remove = _DEPRECATED_OBJECTS[name]
-    _deprecation_warning(__name__, name, canonical_name, remove=remove)
-    return deprecated_object
+    obj: Callable[..., Any]
+    mod: ModuleType
+
+    # RemovedInSphinx90Warning
+    if name == 'split_index_msg':
+        from sphinx.util.index_entries import split_index_msg as obj
+
+        canonical_name = f'{obj.__module__}.{obj.__qualname__}'
+        _deprecation_warning(__name__, name, canonical_name, remove=(9, 0))
+        return obj
+
+    if name == 'split_into':
+        from sphinx.util.index_entries import _split_into as obj
+
+        _deprecation_warning(__name__, name, '', remove=(9, 0))
+        return obj
+
+    if name == 'ExtensionError':
+        from sphinx.errors import ExtensionError as obj  # NoQA: N813
+
+        canonical_name = f'{obj.__module__}.{obj.__qualname__}'
+        _deprecation_warning(__name__, name, canonical_name, remove=(9, 0))
+        return obj
+
+    if name in {'md5', 'sha1'}:
+        obj = globals()[f'_{name}']
+        canonical_name = f'hashlib.{name}'
+        _deprecation_warning(__name__, name, canonical_name, remove=(9, 0))
+        return obj
+
+    # RemovedInSphinx10Warning
+
+    if name in {'DownloadFiles', 'FilenameUniqDict'}:
+        from sphinx.util import _files as mod
+
+        obj = getattr(mod, name)
+        _deprecation_warning(__name__, name, '', remove=(10, 0))
+        return obj
+
+    if name == 'import_object':
+        from sphinx.util._importer import import_object
+
+        _deprecation_warning(__name__, name, '', remove=(10, 0))
+        return import_object
+
+    # Re-exported for backwards compatibility,
+    # but not currently deprecated
+
+    if name == 'encode_uri':
+        from sphinx.util._uri import encode_uri
+
+        return encode_uri
+
+    if name == 'isurl':
+        from sphinx.util._uri import is_url
+
+        return is_url
+
+    if name == 'parselinenos':
+        from sphinx.util._lines import parse_line_num_spec
+
+        return parse_line_num_spec
+
+    if name == 'patfilter':
+        from sphinx.util.matching import patfilter
+
+        return patfilter
+
+    if name == 'strip_escape_sequences':
+        from sphinx._cli.util.errors import strip_escape_sequences
+
+        return strip_escape_sequences
+
+    if name in {
+        'caption_ref_re',
+        'explicit_title_re',
+        'nested_parse_with_titles',
+        'split_explicit_title',
+    }:
+        from sphinx.util import nodes as mod
+
+        return getattr(mod, name)
+
+    if name in {
+        'SEP',
+        'copyfile',
+        'ensuredir',
+        'make_filename',
+        'os_path',
+        'relative_uri',
+    }:
+        from sphinx.util import osutil as mod
+
+        return getattr(mod, name)
+
+    msg = f'module {__name__!r} has no attribute {name!r}'
+    raise AttributeError(msg)

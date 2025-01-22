@@ -7,7 +7,7 @@ import os
 import re
 import textwrap
 from itertools import chain, groupby, pairwise
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -18,6 +18,7 @@ from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Text
 
@@ -647,6 +648,7 @@ class TextTranslator(SphinxTranslator):
         self.required_params_left = sum(self.list_is_required_param)
         self.param_separator = ', '
         self.multi_line_parameter_list = node.get('multi_line_parameter_list', False)
+        self.trailing_comma = node.get('multi_line_trailing_comma', False)
         if self.multi_line_parameter_list:
             self.param_separator = self.param_separator.rstrip()
         self.context.append(sig_close_paren)
@@ -698,7 +700,8 @@ class TextTranslator(SphinxTranslator):
                 or is_required
                 and (is_last_group or next_is_required)
             ):
-                self.add_text(self.param_separator)
+                if not is_last_group or opt_param_left_at_level or self.trailing_comma:
+                    self.add_text(self.param_separator)
                 self.end_state(wrap=False, end=None)
 
         elif self.required_params_left:
@@ -739,20 +742,27 @@ class TextTranslator(SphinxTranslator):
 
     def depart_desc_optional(self, node: Element) -> None:
         self.optional_param_level -= 1
+        level = self.optional_param_level
         if self.multi_line_parameter_list:
+            max_level = self.max_optional_param_level
+            len_lirp = len(self.list_is_required_param)
+            is_last_group = self.param_group_index + 1 == len_lirp
             # If it's the first time we go down one level, add the separator before the
-            # bracket.
-            if self.optional_param_level == self.max_optional_param_level - 1:
+            # bracket, except if this is the last parameter and the parameter list
+            # should not feature a trailing comma.
+            if level == max_level - 1 and (
+                not is_last_group or level > 0 or self.trailing_comma
+            ):
                 self.add_text(self.param_separator)
             self.add_text(']')
             # End the line if we have just closed the last bracket of this group of
             # optional parameters.
-            if self.optional_param_level == 0:
+            if level == 0:
                 self.end_state(wrap=False, end=None)
 
         else:
             self.add_text(']')
-        if self.optional_param_level == 0:
+        if level == 0:
             self.param_group_index += 1
 
     def visit_desc_annotation(self, node: Element) -> None:

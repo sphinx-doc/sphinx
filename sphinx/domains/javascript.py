@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -21,6 +21,7 @@ from sphinx.util.nodes import make_id, make_refnode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -34,9 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class JSObject(ObjectDescription[tuple[str, str]]):
-    """
-    Description of a JavaScript object.
-    """
+    """Description of a JavaScript object."""
 
     #: If set to ``True`` this object is callable and a `desc_parameterlist` is
     #: added
@@ -110,6 +109,10 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             and (len(sig) > max_len > 0)
         )
 
+        trailing_comma = (
+            self.env.config.javascript_trailing_comma_in_multi_line_signatures
+        )
+
         display_prefix = self.get_display_prefix()
         if display_prefix:
             signode += addnodes.desc_annotation('', '', *display_prefix)
@@ -130,7 +133,12 @@ class JSObject(ObjectDescription[tuple[str, str]]):
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
-                _pseudo_parse_arglist(signode, arglist, multi_line_parameter_list)
+                _pseudo_parse_arglist(
+                    signode,
+                    arglist,
+                    multi_line_parameter_list,
+                    trailing_comma,
+                )
         return fullname, prefix
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
@@ -302,8 +310,7 @@ class JSConstructor(JSCallable):
 
 
 class JSModule(SphinxDirective):
-    """
-    Directive to mark description of a new JavaScript module.
+    """Directive to mark description of a new JavaScript module.
 
     This directive specifies the module name that will be used by objects that
     follow this directive.
@@ -561,7 +568,16 @@ class JavaScriptDomain(Domain):
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_domain(JavaScriptDomain)
     app.add_config_value(
-        'javascript_maximum_signature_line_length', None, 'env', {int, type(None)}
+        'javascript_maximum_signature_line_length',
+        None,
+        'env',
+        types=frozenset({int, type(None)}),
+    )
+    app.add_config_value(
+        'javascript_trailing_comma_in_multi_line_signatures',
+        True,
+        'env',
+        types=frozenset({bool}),
     )
     return {
         'version': 'builtin',

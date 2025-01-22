@@ -243,8 +243,7 @@ def test_format_signature(app):
         """some docstring for F2."""
 
         def __init__(self, *args, **kw):
-            """
-            __init__(a1, a2, kw1=True, kw2=False)
+            """__init__(a1, a2, kw1=True, kw2=False)
 
             some docstring for __init__.
             """
@@ -260,7 +259,7 @@ def test_format_signature(app):
         def foo1(self, b, *c):
             pass
 
-        def foo2(b, *c):
+        def foo2(b, *c):  # NoQA: N805
             pass
 
         def foo3(self, d='\n'):
@@ -363,9 +362,7 @@ def test_get_doc(app):
         """Docstring"""
 
     def g():
-        """
-        Docstring
-        """
+        """Docstring"""
 
     for func in (f, g):
         assert getdocl('function', func) == ['Docstring']
@@ -731,7 +728,9 @@ def test_autodoc_undoc_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.attr',
+        '   .. py:method:: Class.b_staticmeth()',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -753,7 +752,9 @@ def test_autodoc_undoc_members(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.attr',
+        '   .. py:method:: Class.b_staticmeth()',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -924,7 +925,9 @@ def test_autodoc_special_members(app):
         '   .. py:method:: Class.__special1__()',
         '   .. py:method:: Class.__special2__()',
         '   .. py:attribute:: Class.__weakref__',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.attr',
+        '   .. py:method:: Class.b_staticmeth()',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',
@@ -1203,6 +1206,8 @@ def test_autodoc_member_order(app):
         '   .. py:attribute:: Class.mdocattr',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
+        '   .. py:method:: Class.b_staticmeth()',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.inst_attr_inline',
         '   .. py:attribute:: Class.inst_attr_comment',
         '   .. py:attribute:: Class.inst_attr_string',
@@ -1219,10 +1224,15 @@ def test_autodoc_member_order(app):
     actual = do_autodoc(app, 'class', 'target.Class', options)
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
-        '   .. py:method:: Class.excludemeth()',
-        '   .. py:method:: Class.meth()',
+        # class methods
         '   .. py:method:: Class.moore(a, e, f) -> happiness',
         '   .. py:method:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)',
+        # static methods
+        '   .. py:method:: Class.a_staticmeth()',
+        '   .. py:method:: Class.b_staticmeth()',
+        # regular methods
+        '   .. py:method:: Class.excludemeth()',
+        '   .. py:method:: Class.meth()',
         '   .. py:method:: Class.skipmeth()',
         '   .. py:method:: Class.undocmeth()',
         '   .. py:attribute:: Class._private_inst_attr',
@@ -1246,7 +1256,9 @@ def test_autodoc_member_order(app):
     assert list(filter(lambda l: '::' in l, actual)) == [
         '.. py:class:: Class(arg)',
         '   .. py:attribute:: Class._private_inst_attr',
+        '   .. py:method:: Class.a_staticmeth()',
         '   .. py:attribute:: Class.attr',
+        '   .. py:method:: Class.b_staticmeth()',
         '   .. py:attribute:: Class.docattr',
         '   .. py:method:: Class.excludemeth()',
         '   .. py:attribute:: Class.inst_attr_comment',

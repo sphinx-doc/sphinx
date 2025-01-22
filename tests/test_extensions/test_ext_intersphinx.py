@@ -11,25 +11,24 @@ import pytest
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.config import Config
 from sphinx.errors import ConfigError
-from sphinx.ext.intersphinx import (
-    inspect_main,
-    load_mappings,
-    missing_reference,
-    validate_intersphinx_mapping,
-)
 from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.ext.intersphinx._cli import inspect_main
 from sphinx.ext.intersphinx._load import (
     _fetch_inventory,
     _fetch_inventory_group,
     _get_safe_url,
     _InvConfig,
     _strip_basic_auth,
+    load_mappings,
+    validate_intersphinx_mapping,
 )
+from sphinx.ext.intersphinx._resolve import missing_reference
 from sphinx.ext.intersphinx._shared import _IntersphinxProject
-from sphinx.util.console import strip_colors
+from sphinx.util.inventory import _InventoryItem
 
 from tests.test_util.intersphinx_data import (
     INVENTORY_V2,
@@ -37,9 +36,6 @@ from tests.test_util.intersphinx_data import (
     INVENTORY_V2_NO_VERSION,
 )
 from tests.utils import http_server
-
-if TYPE_CHECKING:
-    from typing import NoReturn
 
 
 class FakeList(list):  # NoQA: FURB189
@@ -160,11 +156,11 @@ def test_missing_reference(tmp_path, app):
     load_mappings(app)
     inv = app.env.intersphinx_inventory
 
-    assert inv['py:module']['module2'] == (
-        'foo',
-        '2.0',
-        'https://docs.python.org/foo.html#module-module2',
-        '-',
+    assert inv['py:module']['module2'] == _InventoryItem(
+        project_name='foo',
+        project_version='2.0',
+        uri='https://docs.python.org/foo.html#module-module2',
+        display_name='-',
     )
 
     # check resolution when a target is found
@@ -535,7 +531,7 @@ def test_validate_intersphinx_mapping_warnings(app):
         match=r'^Invalid `intersphinx_mapping` configuration \(16 errors\).$',
     ):
         validate_intersphinx_mapping(app, app.config)
-    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert len(warnings) == len(bad_intersphinx_mapping) - 3
     assert warnings == [
         "ERROR: Invalid intersphinx project identifier `''` in intersphinx_mapping. Project identifiers must be non-empty strings.",
@@ -710,7 +706,7 @@ def test_intersphinx_role(app):
 
     app.build()
     content = (app.outdir / 'index.html').read_text(encoding='utf8')
-    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
     index_path = app.srcdir / 'index.rst'
     assert warnings == [
         f"{index_path}:21: WARNING: role for external cross-reference not found in domain 'py': 'nope' [intersphinx.external]",
@@ -744,6 +740,8 @@ def test_intersphinx_role(app):
 
 
 if TYPE_CHECKING:
+    from typing import NoReturn
+
     from sphinx.ext.intersphinx._shared import InventoryCacheEntry
 
 

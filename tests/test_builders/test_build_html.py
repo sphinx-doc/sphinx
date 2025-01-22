@@ -9,10 +9,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from sphinx._cli.util.errors import strip_escape_sequences
 from sphinx.builders.html import validate_html_extra_path, validate_html_static_path
 from sphinx.errors import ConfigError
-from sphinx.util.console import strip_colors
-from sphinx.util.inventory import InventoryFile
+from sphinx.testing.util import etree_parse
+from sphinx.util.inventory import InventoryFile, _InventoryItem
 
 from tests.test_builders.xpath_data import FIGURE_CAPTION
 from tests.test_builders.xpath_util import check_xpath
@@ -233,36 +234,36 @@ def test_html_inventory(app):
         'genindex',
         'search',
     }
-    assert invdata['std:label']['modindex'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/py-modindex.html',
-        'Module Index',
+    assert invdata['std:label']['modindex'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/py-modindex.html',
+        display_name='Module Index',
     )
-    assert invdata['std:label']['py-modindex'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/py-modindex.html',
-        'Python Module Index',
+    assert invdata['std:label']['py-modindex'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/py-modindex.html',
+        display_name='Python Module Index',
     )
-    assert invdata['std:label']['genindex'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/genindex.html',
-        'Index',
+    assert invdata['std:label']['genindex'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/genindex.html',
+        display_name='Index',
     )
-    assert invdata['std:label']['search'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/search.html',
-        'Search Page',
+    assert invdata['std:label']['search'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/search.html',
+        display_name='Search Page',
     )
     assert set(invdata['std:doc'].keys()) == {'index'}
-    assert invdata['std:doc']['index'] == (
-        'Project name not set',
-        '',
-        'https://www.google.com/index.html',
-        'The basic Sphinx documentation for testing',
+    assert invdata['std:doc']['index'] == _InventoryItem(
+        project_name='Project name not set',
+        project_version='',
+        uri='https://www.google.com/index.html',
+        display_name='The basic Sphinx documentation for testing',
     )
 
 
@@ -512,7 +513,7 @@ def test_validate_html_extra_path(app):
     validate_html_extra_path(app, app.config)
     assert app.config.html_extra_path == ['_static']
 
-    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert "html_extra_path entry '/path/to/not_found' does not exist" in warnings[0]
     assert warnings[1].endswith(' is placed inside outdir')
     assert warnings[2].endswith(' does not exist')
@@ -536,7 +537,7 @@ def test_validate_html_static_path(app):
     validate_html_static_path(app, app.config)
     assert app.config.html_static_path == ['_static']
 
-    warnings = strip_colors(app.warning.getvalue()).splitlines()
+    warnings = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert "html_static_path entry '/path/to/not_found' does not exist" in warnings[0]
     assert warnings[1].endswith(' is placed inside outdir')
     assert warnings[2].endswith(' does not exist')
@@ -598,7 +599,7 @@ def test_html_remove_sources_before_write_gh_issue_10786(app):
     app.build()
     assert not target.exists()
 
-    ws = strip_colors(app.warning.getvalue()).splitlines()
+    ws = strip_escape_sequences(app.warning.getvalue()).splitlines()
     assert len(ws) >= 1
 
     file = os.fsdecode(target)
@@ -656,4 +657,61 @@ def test_html_pep_695_one_type_per_line(app, cached_etree_parse):
         fname,
         r'.//dt[@id="MyList"][1]',
         chk('class MyList[\nT,\n](list[T])'),
+    )
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='domain-py-python_maximum_signature_line_length',
+    confoverrides={
+        'python_maximum_signature_line_length': 1,
+        'python_trailing_comma_in_multi_line_signatures': False,
+    },
+)
+def test_html_pep_695_trailing_comma_in_multi_line_signatures(app):
+    app.build()
+    fname = app.outdir / 'index.html'
+    etree = etree_parse(fname)
+
+    class chk:
+        def __init__(self, expect: str) -> None:
+            self.expect = expect
+
+        def __call__(self, nodes):
+            assert len(nodes) == 1, nodes
+            objnode = ''.join(nodes[0].itertext()).replace('\n\n', '')
+            objnode = objnode.rstrip(chr(182))  # remove '¶' symbol
+            objnode = objnode.strip('\n')  # remove surrounding new lines
+            assert objnode == self.expect
+
+    # each signature has a dangling ',' at the end of its parameters lists
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="generic_foo"][1]',
+        chk('generic_foo[\nT\n]()'),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="generic_bar"][1]',
+        chk('generic_bar[\nT\n](\nx: list[T]\n)'),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="generic_ret"][1]',
+        chk('generic_ret[\nR\n]() → R'),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="MyGenericClass"][1]',
+        chk('class MyGenericClass[\nX\n]'),
+    )
+    check_xpath(
+        etree,
+        fname,
+        r'.//dt[@id="MyList"][1]',
+        chk('class MyList[\nT\n](list[T])'),
     )

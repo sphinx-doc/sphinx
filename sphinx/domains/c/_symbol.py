@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.domains.c._ast import (
     ASTDeclaration,
-    ASTIdentifier,
     ASTNestedName,
 )
 from sphinx.locale import __
@@ -12,8 +11,11 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
-    from typing import Self
+    from typing import Any, Self
 
+    from sphinx.domains.c._ast import (
+        ASTIdentifier,
+    )
     from sphinx.environment import BuildEnvironment
 
 logger = logging.getLogger(__name__)
@@ -31,17 +33,34 @@ class _DuplicateSymbolError(Exception):
 
 
 class SymbolLookupResult:
+    __slots__ = 'symbols', 'parent_symbol', 'ident'
+
+    symbols: Iterable[Symbol]
+    parent_symbol: Symbol
+    ident_or_op: ASTIdentifier
+
     def __init__(
-        self, symbols: Sequence[Symbol], parentSymbol: Symbol, ident: ASTIdentifier
+        self, symbols: Iterable[Symbol], parent_symbol: Symbol, ident: ASTIdentifier
     ) -> None:
         self.symbols = symbols
-        self.parentSymbol = parentSymbol
+        self.parent_symbol = parent_symbol
         self.ident = ident
+
+    @property
+    def parentSymbol(self) -> Symbol:
+        return self.parent_symbol
 
 
 class LookupKey:
-    def __init__(self, data: list[tuple[ASTIdentifier, str]]) -> None:
+    __slots__ = ('data',)
+
+    data: Sequence[tuple[ASTIdentifier, str]]
+
+    def __init__(self, data: Sequence[tuple[ASTIdentifier, str]], /) -> None:
         self.data = data
+
+    def __repr__(self) -> str:
+        return f'LookupKey({self.data!r})'
 
     def __str__(self) -> str:
         inner = ', '.join(f'({ident}, {id_})' for ident, id_ in self.data)
@@ -226,14 +245,11 @@ class Symbol:
         while s.parent:
             symbols.append(s)
             s = s.parent
-        symbols.reverse()
-        key = []
-        for s in symbols:
-            if s.declaration is not None:
-                # TODO: do we need the ID?
-                key.append((s.ident, s.declaration.get_newest_id()))
-            else:
-                key.append((s.ident, None))
+        key = [
+            # TODO: do we need the ID?
+            (s.ident, None if s.declaration is None else s.declaration.get_newest_id())
+            for s in reversed(symbols)
+        ]
         return LookupKey(key)
 
     def get_full_nested_name(self) -> ASTNestedName:
@@ -382,7 +398,7 @@ class Symbol:
                 Symbol.debug_print(f'location:    {docname}:{line}')
                 Symbol.debug_indent -= 1
             symbol = Symbol(
-                parent=lookup_result.parentSymbol,
+                parent=lookup_result.parent_symbol,
                 ident=lookup_result.ident,
                 declaration=declaration,
                 docname=docname,
@@ -433,7 +449,7 @@ class Symbol:
             if Symbol.debug_lookup:
                 Symbol.debug_print('begin: creating candidate symbol')
             symbol = Symbol(
-                parent=lookup_result.parentSymbol,
+                parent=lookup_result.parent_symbol,
                 ident=lookup_result.ident,
                 declaration=declaration,
                 docname=docname,

@@ -48,9 +48,10 @@ def check_viewcode_output(app: SphinxTestApp) -> str:
     ) in result
     assert '<span>@decorator</span>\n' in result
     assert f'<span>class</span>{sp}<span>Class1</span><span>:</span>\n' in result
-    assert '<span>    </span><span>&quot;&quot;&quot;</span>\n' in result
-    assert '<span>    this is Class1</span>\n' in result
-    assert '<span>    &quot;&quot;&quot;</span>\n' in result
+    assert (
+        '<span>    </span>'
+        '<span>&quot;&quot;&quot;this is Class1&quot;&quot;&quot;</span></div>\n'
+    ) in result
 
     return result
 
@@ -172,7 +173,7 @@ def test_local_source_files(app):
 
 @pytest.mark.sphinx('html', testroot='ext-viewcode-find-package', freshenv=True)
 def test_find_local_package_import_path(app, status, warning):
-    app.builder.build_all()
+    app.build(force_all=True)
     result = (app.outdir / 'index.html').read_text(encoding='utf8')
 
     count_func1 = result.count(

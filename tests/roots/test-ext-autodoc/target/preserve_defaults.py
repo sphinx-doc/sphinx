@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any  # NoQA: TC003
 
 CONSTANT = 'foo'
 SENTINEL = object()

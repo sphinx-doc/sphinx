@@ -59,7 +59,7 @@ import sys
 from inspect import Parameter
 from pathlib import Path
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -71,7 +71,7 @@ from sphinx import addnodes
 from sphinx.config import Config
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import PycodeError
-from sphinx.ext.autodoc import INSTANCEATTR, Documenter, Options
+from sphinx.ext.autodoc import INSTANCEATTR, Options
 from sphinx.ext.autodoc.directive import DocumenterBridge
 from sphinx.ext.autodoc.importer import import_module
 from sphinx.ext.autodoc.mock import mock
@@ -93,10 +93,12 @@ from sphinx.util.parsing import nested_parse_to_nodes
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any, ClassVar
 
     from docutils.nodes import Node, system_message
 
     from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Documenter
     from sphinx.extension import Extension
     from sphinx.util.typing import ExtensionMetadata, OptionSpec
     from sphinx.writers.html5 import HTML5Translator
@@ -222,8 +224,7 @@ def get_documenter(app: Sphinx, obj: Any, parent: Any) -> type[Documenter]:
 
 
 class Autosummary(SphinxDirective):
-    """
-    Pretty table containing short signatures and summaries of functions etc.
+    """Pretty table containing short signatures and summaries of functions etc.
 
     autosummary can also optionally generate a hidden toctree:: node.
     """
@@ -675,8 +676,7 @@ class ImportExceptionGroup(Exception):
 
 
 def get_import_prefixes_from_env(env: BuildEnvironment) -> list[str | None]:
-    """
-    Obtain current Python import prefixes (for `import_by_name`)
+    """Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
     """
     prefixes: list[str | None] = [None]
@@ -959,13 +959,19 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_context', {}, 'env')
     app.add_config_value('autosummary_filename_map', {}, 'html')
-    app.add_config_value('autosummary_generate', True, 'env', {bool, list})
+    app.add_config_value(
+        'autosummary_generate', True, 'env', types=frozenset({bool, list})
+    )
     app.add_config_value('autosummary_generate_overwrite', True, '')
     app.add_config_value(
         'autosummary_mock_imports', lambda config: config.autodoc_mock_imports, 'env'
     )
-    app.add_config_value('autosummary_imported_members', False, '', bool)
-    app.add_config_value('autosummary_ignore_module_all', True, 'env', bool)
+    app.add_config_value(
+        'autosummary_imported_members', False, '', types=frozenset({bool})
+    )
+    app.add_config_value(
+        'autosummary_ignore_module_all', True, 'env', types=frozenset({bool})
+    )
 
     return {
         'version': sphinx.__display_version__,

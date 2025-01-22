@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import functools
 import operator
-from typing import TYPE_CHECKING, Any, ClassVar, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -25,6 +25,7 @@ from sphinx.util.docutils import SphinxDirective, new_document
 
 if TYPE_CHECKING:
     from collections.abc import Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node
 
@@ -46,9 +47,7 @@ class todolist(nodes.General, nodes.Element):
 
 
 class Todo(BaseAdmonition, SphinxDirective):
-    """
-    A todo entry, displayed (if configured) in the form of an admonition.
-    """
+    """A todo entry, displayed (if configured) in the form of an admonition."""
 
     node_class = todo_node
     has_content = True
@@ -75,7 +74,7 @@ class Todo(BaseAdmonition, SphinxDirective):
             self.state.document.note_explicit_target(todo)
             return [todo]
         else:
-            raise RuntimeError  # never reached here
+            raise TypeError  # never reached here
 
 
 class TodoDomain(Domain):
@@ -108,9 +107,7 @@ class TodoDomain(Domain):
 
 
 class TodoList(SphinxDirective):
-    """
-    A list of all todo entries.
-    """
+    """A list of all todo entries."""
 
     has_content = False
     required_arguments = 0

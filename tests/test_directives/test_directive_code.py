@@ -107,7 +107,8 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(literal_inc_path, app):
     options = {'lines': '0,3,5', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
-        ValueError, match='Cannot use "lineno-match" with a disjoint set of "lines"'
+        ValueError,
+        match='Cannot use "lineno-match" with a disjoint set of "lines"',
     ):
         reader.read()
 
@@ -117,7 +118,8 @@ def test_LiteralIncludeReader_lines_and_lineno_match3(literal_inc_path, app):
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(literal_inc_path, options, DUMMY_CONFIG)
     with pytest.raises(
-        ValueError, match="Line spec '100-': no lines pulled from include file"
+        ValueError,
+        match="Line spec '100-': no lines pulled from include file",
     ):
         reader.read()
 

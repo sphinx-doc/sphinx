@@ -20,7 +20,7 @@ Both, the url string and the caption string must escape ``%`` as ``%%``.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils import nodes, utils
 
@@ -32,6 +32,7 @@ from sphinx.util.nodes import split_explicit_title
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from docutils.nodes import Node, system_message
     from docutils.parsers.rst.states import Inliner
@@ -43,8 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class ExternalLinksChecker(SphinxPostTransform):
-    """
-    For each external link, check if it can be replaced by an extlink.
+    """For each external link, check if it can be replaced by an extlink.
 
     We treat each ``reference`` node without ``internal`` attribute as an external link.
     """
@@ -59,8 +59,7 @@ class ExternalLinksChecker(SphinxPostTransform):
             self.check_uri(refnode)
 
     def check_uri(self, refnode: nodes.reference) -> None:
-        """
-        If the URI in ``refnode`` has a replacement in ``extlinks``,
+        """If the URI in ``refnode`` has a replacement in ``extlinks``,
         emit a warning with a replacement suggestion.
         """
         if 'internal' in refnode or 'refuri' not in refnode:
