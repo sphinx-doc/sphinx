@@ -234,7 +234,6 @@ module = [
     "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
-    "sphinx.util.logging",
     "sphinx.util.parallel",
 ]
 disallow_any_generics = false

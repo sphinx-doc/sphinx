@@ -16,7 +16,7 @@ from sphinx._cli.util.colour import colourise
 from sphinx.errors import SphinxWarning
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence, Set
+    from collections.abc import Iterator, Mapping, Sequence, Set
     from typing import IO, Any, NoReturn
 
     from docutils.nodes import Node
@@ -126,7 +126,7 @@ class SphinxWarningLogRecord(SphinxLogRecord):
             return 'WARNING: '
 
 
-class SphinxLoggerAdapter(logging.LoggerAdapter):
+class SphinxLoggerAdapter(logging.LoggerAdapter[logging.Logger]):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
     KEYWORDS = ['type', 'subtype', 'location', 'nonl', 'color', 'once']
@@ -143,7 +143,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def verbose(self, msg: str, *args: Any, **kwargs: Any) -> None:
         self.log(VERBOSE, msg, *args, **kwargs)
 
-    def process(self, msg: str, kwargs: dict) -> tuple[str, dict]:  # type: ignore[override]
+    def process(self, msg: str, kwargs: dict[str, Any]) -> tuple[str, dict[str, Any]]:  # type: ignore[override]
         extra = kwargs.setdefault('extra', {})
         for keyword in self.KEYWORDS:
             if keyword in kwargs:
@@ -201,13 +201,13 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         )
 
 
-class WarningStreamHandler(logging.StreamHandler):
+class WarningStreamHandler(logging.StreamHandler['SafeEncodingWriter']):
     """StreamHandler for warnings."""
 
     pass
 
 
-class NewLineStreamHandler(logging.StreamHandler):
+class NewLineStreamHandler(logging.StreamHandler['SafeEncodingWriter']):
     """StreamHandler which switches line terminator by record.nonl flag."""
 
     def emit(self, record: logging.LogRecord) -> None:
@@ -468,7 +468,9 @@ class OnceFilter(logging.Filter):
 
     def __init__(self, name: str = '') -> None:
         super().__init__(name)
-        self.messages: dict[str, list] = {}
+        self.messages: dict[
+            str, list[tuple[object, ...] | Mapping[str, object] | None]
+        ] = {}
 
     def filter(self, record: logging.LogRecord) -> bool:
         once = getattr(record, 'once', '')
@@ -577,7 +579,7 @@ class ColorizeFormatter(logging.Formatter):
 class SafeEncodingWriter:
     """Stream writer which ignores UnicodeEncodeError silently"""
 
-    def __init__(self, stream: IO) -> None:
+    def __init__(self, stream: IO[str]) -> None:
         self.stream = stream
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
 
@@ -599,14 +601,14 @@ class SafeEncodingWriter:
 class LastMessagesWriter:
     """Stream writer storing last 10 messages in memory to save trackback"""
 
-    def __init__(self, app: Sphinx, stream: IO) -> None:
+    def __init__(self, app: Sphinx, stream: IO[str]) -> None:
         self.app = app
 
     def write(self, data: str) -> None:
         self.app.messagelog.append(data)
 
 
-def setup(app: Sphinx, status: IO, warning: IO) -> None:
+def setup(app: Sphinx, status: IO[str], warning: IO[str]) -> None:
     """Setup root logger for Sphinx"""
     logger = logging.getLogger(NAMESPACE)
     logger.setLevel(logging.DEBUG)
