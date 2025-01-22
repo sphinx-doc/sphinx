@@ -30,11 +30,15 @@ from sphinx.util.inspect import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Mapping
+    from collections.abc import Iterator, Mapping
     from types import ModuleType
-    from typing import Any
+    from typing import Any, Protocol
 
     from sphinx.ext.autodoc import ObjectMember
+
+    class _AttrGetter(Protocol):
+        def __call__(self, obj: Any, name: str, default: Any = ..., /) -> Any: ...
+
 
 _NATIVE_SUFFIXES: frozenset[str] = frozenset({'.pyx', *EXTENSION_SUFFIXES})
 logger = logging.getLogger(__name__)
@@ -42,7 +46,7 @@ logger = logging.getLogger(__name__)
 
 def _filter_enum_dict(
     enum_class: type[Enum],
-    attrgetter: Callable[[Any, str, Any], Any],
+    attrgetter: _AttrGetter,
     enum_class_dict: Mapping[str, object],
 ) -> Iterator[tuple[str, type, Any]]:
     """Find the attributes to document of an enumeration class.
@@ -241,7 +245,7 @@ def import_object(
     modname: str,
     objpath: list[str],
     objtype: str = '',
-    attrgetter: Callable[[Any, str], Any] = safe_getattr,
+    attrgetter: _AttrGetter = safe_getattr,
 ) -> Any:
     if objpath:
         logger.debug('[autodoc] from %s import %s', modname, '.'.join(objpath))
@@ -330,7 +334,7 @@ class Attribute(NamedTuple):
 def get_object_members(
     subject: Any,
     objpath: list[str],
-    attrgetter: Callable,
+    attrgetter: _AttrGetter,
     analyzer: ModuleAnalyzer | None = None,
 ) -> dict[str, Attribute]:
     """Get members and attributes of target object."""
@@ -403,7 +407,7 @@ def get_object_members(
 
 
 def get_class_members(
-    subject: Any, objpath: Any, attrgetter: Callable, inherit_docstrings: bool = True
+    subject: Any, objpath: Any, attrgetter: _AttrGetter, inherit_docstrings: bool = True
 ) -> dict[str, ObjectMember]:
     """Get members and attributes of target class."""
     from sphinx.ext.autodoc import INSTANCEATTR, ObjectMember

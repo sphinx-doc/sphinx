@@ -167,7 +167,7 @@ def bool_option(arg: Any) -> bool:
     return True
 
 
-def merge_members_option(options: dict) -> None:
+def merge_members_option(options: dict[str, Any]) -> None:
     """Merge :private-members: and :special-members: options to the
     :members: option.
     """
@@ -1553,7 +1553,9 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: type) -> Callable | None:
+    def annotate_to_first_argument(
+        self, func: Callable[..., Any], typ: type
+    ) -> Callable[..., Any] | None:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
@@ -2538,7 +2540,9 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
 
         return overload.replace(parameters=parameters)
 
-    def annotate_to_first_argument(self, func: Callable, typ: type) -> Callable | None:
+    def annotate_to_first_argument(
+        self, func: Callable[..., Any], typ: type
+    ) -> Callable[..., Any] | None:
         """Annotate type hint to the first argument of function if needed."""
         try:
             sig = inspect.signature(func, type_aliases=self.config.autodoc_type_aliases)
@@ -3104,7 +3108,7 @@ class PropertyDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  #
         except ValueError:
             pass
 
-    def _get_property_getter(self) -> Callable | None:
+    def _get_property_getter(self) -> Callable[..., Any] | None:
         if safe_getattr(self.object, 'fget', None):  # property
             return self.object.fget
         if safe_getattr(self.object, 'func', None):  # cached_property
