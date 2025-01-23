@@ -231,7 +231,6 @@ strict_optional = false
 
 [[tool.mypy.overrides]]
 module = [
-    "sphinx.domains",
     "sphinx.domains.c",
     "sphinx.domains.cpp",
 ]
