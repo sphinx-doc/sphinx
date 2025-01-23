@@ -23,6 +23,7 @@ from sphinx.testing.util import assert_node, etree_parse
 from sphinx.util.nodes import NodeMatcher
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from io import StringIO
     from pathlib import Path
 
@@ -825,7 +826,7 @@ class _MockUnixClock(_MockClock):
 
 
 @pytest.fixture
-def mock_time_and_i18n() -> tuple[pytest.MonkeyPatch, _MockClock]:
+def mock_time_and_i18n() -> Iterator[tuple[pytest.MonkeyPatch, _MockClock]]:
     from sphinx.util.i18n import CatalogInfo
 
     # save the 'original' definition
@@ -838,6 +839,7 @@ def mock_time_and_i18n() -> tuple[pytest.MonkeyPatch, _MockClock]:
 
     # see: https://github.com/pytest-dev/pytest/issues/363
     with pytest.MonkeyPatch.context() as mock:
+        clock: _MockClock
         if os.name == 'posix':
             clock = _MockUnixClock()
         else:
