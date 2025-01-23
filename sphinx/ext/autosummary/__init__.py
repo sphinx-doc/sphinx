@@ -463,7 +463,10 @@ class Autosummary(SphinxDirective):
 
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
-            if 'no-signatures' not in self.options and 'nosignatures' not in self.options:
+            if (
+                'no-signatures' not in self.options
+                and 'nosignatures' not in self.options
+            ):
                 col1 = f':py:{qualifier}:`{name} <{real_name}>`\\ {rst.escape(sig)}'
             else:
                 col1 = f':py:{qualifier}:`{name} <{real_name}>`'
