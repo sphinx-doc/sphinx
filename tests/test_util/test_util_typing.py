@@ -26,6 +26,7 @@ from types import (
     ClassMethodDescriptorType,
     CodeType,
     CoroutineType,
+    EllipsisType,
     FrameType,
     FunctionType,
     GeneratorType,
@@ -37,6 +38,8 @@ from types import (
     MethodType,
     MethodWrapperType,
     ModuleType,
+    NoneType,
+    NotImplementedType,
     TracebackType,
     WrapperDescriptorType,
 )
@@ -143,6 +146,7 @@ def test_is_invalid_builtin_class():
         ClassMethodDescriptorType,
         CodeType,
         CoroutineType,
+        EllipsisType,
         FrameType,
         FunctionType,
         GeneratorType,
@@ -154,6 +158,8 @@ def test_is_invalid_builtin_class():
         MethodType,
         MethodWrapperType,
         ModuleType,
+        NoneType,
+        NotImplementedType,
         TracebackType,
         WrapperDescriptorType,
     }
@@ -179,6 +185,7 @@ def test_is_invalid_builtin_class():
     assert ClassMethodDescriptorType.__module__ == 'builtins'
     assert CodeType.__module__ == 'builtins'
     assert CoroutineType.__module__ == 'builtins'
+    assert EllipsisType.__module__ == 'builtins'
     assert FrameType.__module__ == 'builtins'
     assert FunctionType.__module__ == 'builtins'
     assert GeneratorType.__module__ == 'builtins'
@@ -190,6 +197,8 @@ def test_is_invalid_builtin_class():
     assert MethodType.__module__ == 'builtins'
     assert MethodWrapperType.__module__ == 'builtins'
     assert ModuleType.__module__ == 'builtins'
+    assert NoneType.__module__ == 'builtins'
+    assert NotImplementedType.__module__ == 'builtins'
     assert TracebackType.__module__ == 'builtins'
     assert WrapperDescriptorType.__module__ == 'builtins'
 
