@@ -62,6 +62,7 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
     types.ClassMethodDescriptorType: 'types.ClassMethodDescriptorType',
     types.CodeType: 'types.CodeType',
     types.CoroutineType: 'types.CoroutineType',
+    types.EllipsisType: 'types.EllipsisType',
     types.FrameType: 'types.FrameType',
     types.FunctionType: 'types.FunctionType',
     types.GeneratorType: 'types.GeneratorType',
@@ -73,6 +74,8 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
     types.MethodType: 'types.MethodType',
     types.MethodWrapperType: 'types.MethodWrapperType',
     types.ModuleType: 'types.ModuleType',
+    types.NoneType: 'types.NoneType',
+    types.NotImplementedType: 'types.NotImplementedType',
     types.TracebackType: 'types.TracebackType',
     types.WrapperDescriptorType: 'types.WrapperDescriptorType',
 }
