@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 import contextvars
+import ctypes
 import dataclasses
+import io
+import json
+import lzma
+import multiprocessing
 import pathlib
+import pickle  # NoQA: S403
 import struct
 import sys
 import types
 import typing
+import weakref
+import zipfile
 from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
 
@@ -45,6 +53,27 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
     contextvars.Context: 'contextvars.Context',
     contextvars.ContextVar: 'contextvars.ContextVar',
     contextvars.Token: 'contextvars.Token',
+    # types in 'ctypes' with <type>.__module__ == '_ctypes':
+    ctypes.Array: 'ctypes.Array',
+    ctypes.Structure: 'ctypes.Structure',
+    ctypes.Union: 'ctypes.Union',
+    # types in 'io' with <type>.__module__ == '_io':
+    io.FileIO: 'io.FileIO',
+    io.BytesIO: 'io.BytesIO',
+    io.StringIO: 'io.StringIO',
+    io.BufferedReader: 'io.BufferedReader',
+    io.BufferedWriter: 'io.BufferedWriter',
+    io.BufferedRWPair: 'io.BufferedRWPair',
+    io.BufferedRandom: 'io.BufferedRandom',
+    io.TextIOWrapper: 'io.TextIOWrapper',
+    # types in 'json' with <type>.__module__ == 'json.{decoder,encoder}':
+    json.JSONDecoder: 'json.JSONDecoder',
+    json.JSONEncoder: 'json.JSONEncoder',
+    # types in 'lzma' with <type>.__module__ == '_lzma':
+    lzma.LZMACompressor: 'lzma.LZMACompressor',
+    lzma.LZMADecompressor: 'lzma.LZMADecompressor',
+    # types in 'multiprocessing' with <type>.__module__ == 'multiprocessing.context':
+    multiprocessing.Process: 'multiprocessing.Process',
     # types in 'pathlib' with <type>.__module__ == 'pathlib._local':
     pathlib.Path: 'pathlib.Path',
     pathlib.PosixPath: 'pathlib.PosixPath',
@@ -52,6 +81,9 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
     pathlib.PurePosixPath: 'pathlib.PurePosixPath',
     pathlib.PureWindowsPath: 'pathlib.PureWindowsPath',
     pathlib.WindowsPath: 'pathlib.WindowsPath',
+    # types in 'pickle' with <type>.__module__ == 'pickle':
+    pickle.Pickler: 'pickle.Pickler',
+    pickle.Unpickler: 'pickle.Unpickler',
     # types in 'struct' with <type>.__module__ == '_struct':
     struct.Struct: 'struct.Struct',
     # types in 'types' with <type>.__module__ == 'builtins':
@@ -75,6 +107,11 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
     types.ModuleType: 'types.ModuleType',
     types.TracebackType: 'types.TracebackType',
     types.WrapperDescriptorType: 'types.WrapperDescriptorType',
+    # types in 'weakref' with <type>.__module__ == '_weakrefset':
+    weakref.WeakSet: 'weakref.WeakSet',
+    # types in 'zipfile' with <type>.__module__ == 'zipfile._path':
+    zipfile.Path: 'zipfile.Path',
+    zipfile.CompleteDirs: 'zipfile.CompleteDirs',
 }
 
 

@@ -2,12 +2,27 @@
 
 from __future__ import annotations
 
+import ctypes
 import dataclasses
 import sys
 import typing as t
+import zipfile
 from collections import abc
 from contextvars import Context, ContextVar, Token
 from enum import Enum
+from io import (
+    BufferedRandom,
+    BufferedReader,
+    BufferedRWPair,
+    BufferedWriter,
+    BytesIO,
+    FileIO,
+    StringIO,
+    TextIOWrapper,
+)
+from json import JSONDecoder, JSONEncoder
+from lzma import LZMACompressor, LZMADecompressor
+from multiprocessing import Process
 from numbers import Integral
 from pathlib import (
     Path,
@@ -17,6 +32,7 @@ from pathlib import (
     PureWindowsPath,
     WindowsPath,
 )
+from pickle import Pickler, Unpickler
 from struct import Struct
 from types import (
     AsyncGeneratorType,
@@ -54,6 +70,7 @@ from typing import (
     TypeVar,
     Union,
 )
+from weakref import WeakSet
 
 from sphinx.ext.autodoc import mock
 from sphinx.util.typing import _INVALID_BUILTIN_CLASSES, restify, stringify_annotation
@@ -126,6 +143,27 @@ def test_is_invalid_builtin_class():
         Context,
         ContextVar,
         Token,
+        # ctypes
+        ctypes.Array,
+        ctypes.Structure,
+        ctypes.Union,
+        # io
+        FileIO,
+        BytesIO,
+        StringIO,
+        BufferedReader,
+        BufferedWriter,
+        BufferedRWPair,
+        BufferedRandom,
+        TextIOWrapper,
+        # json
+        JSONDecoder,
+        JSONEncoder,
+        # lzma
+        LZMACompressor,
+        LZMADecompressor,
+        # multiprocessing
+        Process,
         # pathlib
         Path,
         PosixPath,
@@ -133,6 +171,9 @@ def test_is_invalid_builtin_class():
         PurePosixPath,
         PureWindowsPath,
         WindowsPath,
+        # pickle
+        Pickler,
+        Unpickler,
         # struct
         Struct,
         # types
@@ -156,11 +197,37 @@ def test_is_invalid_builtin_class():
         ModuleType,
         TracebackType,
         WrapperDescriptorType,
+        # weakref
+        WeakSet,
+        # zipfile
+        zipfile.Path,
+        zipfile.CompleteDirs,
     }
     # contextvars
     assert Context.__module__ == '_contextvars'
     assert ContextVar.__module__ == '_contextvars'
     assert Token.__module__ == '_contextvars'
+    # ctypes
+    assert ctypes.Array.__module__ == '_ctypes'
+    assert ctypes.Structure.__module__ == '_ctypes'
+    assert ctypes.Union.__module__ == '_ctypes'
+    # io
+    assert FileIO.__module__ == '_io'
+    assert BytesIO.__module__ == '_io'
+    assert StringIO.__module__ == '_io'
+    assert BufferedReader.__module__ == '_io'
+    assert BufferedWriter.__module__ == '_io'
+    assert BufferedRWPair.__module__ == '_io'
+    assert BufferedRandom.__module__ == '_io'
+    assert TextIOWrapper.__module__ == '_io'
+    # json
+    assert JSONDecoder.__module__ == 'json.decoder'
+    assert JSONEncoder.__module__ == 'json.encoder'
+    # lzma
+    assert LZMACompressor.__module__ == '_lzma'
+    assert LZMADecompressor.__module__ == '_lzma'
+    # multiprocessing
+    assert Process.__module__ == '_io'
     if sys.version_info[:2] >= (3, 13):
         # pathlib
         assert Path.__module__ == 'pathlib._local'
@@ -169,6 +236,9 @@ def test_is_invalid_builtin_class():
         assert PurePosixPath.__module__ == 'pathlib._local'
         assert PureWindowsPath.__module__ == 'pathlib._local'
         assert WindowsPath.__module__ == 'pathlib._local'
+    # pickle
+    assert Pickler.__module__ == '_pickle'
+    assert Unpickler.__module__ == '_pickle'
     # struct
     assert Struct.__module__ == '_struct'
     # types
@@ -192,6 +262,11 @@ def test_is_invalid_builtin_class():
     assert ModuleType.__module__ == 'builtins'
     assert TracebackType.__module__ == 'builtins'
     assert WrapperDescriptorType.__module__ == 'builtins'
+    # weakref
+    assert WeakSet.__module__ == '_weakrefset'
+    # zipfile
+    assert zipfile.Path.__module__ == 'zipfile._path'
+    assert zipfile.CompleteDirs.__module__ == 'zipfile._path'
 
 
 def test_restify_type_hints_containers():
