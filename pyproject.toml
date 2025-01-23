@@ -199,8 +199,6 @@ exclude = [
     "^tests/test_util/test_util_template\\.py$",
     "^tests/test_util/test_util_typing\\.py$",
     "^tests/test_util/typing_test_data\\.py$",
-    # tests/test_writers
-    "^utils/convert_attestations\\.py$",
 ]
 python_version = "3.11"
 strict = true
@@ -232,6 +230,10 @@ strict_optional = false
 [[tool.mypy.overrides]]
 module = [
     "imagesize",
+    "pypi_attestations",
+    "sigstore.models",
+    "sigstore.verify",
+    "sigstore.verify.policy",
     "snowballstemmer",
 ]
 ignore_missing_imports = true
