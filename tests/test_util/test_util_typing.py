@@ -161,13 +161,14 @@ def test_is_invalid_builtin_class():
     assert Context.__module__ == '_contextvars'
     assert ContextVar.__module__ == '_contextvars'
     assert Token.__module__ == '_contextvars'
-    # pathlib
-    assert Path.__module__ == 'pathlib._local'
-    assert PosixPath.__module__ == 'pathlib._local'
-    assert PurePath.__module__ == 'pathlib._local'
-    assert PurePosixPath.__module__ == 'pathlib._local'
-    assert PureWindowsPath.__module__ == 'pathlib._local'
-    assert WindowsPath.__module__ == 'pathlib._local'
+    if sys.version_info[:2] >= (3, 13):
+        # pathlib
+        assert Path.__module__ == 'pathlib._local'
+        assert PosixPath.__module__ == 'pathlib._local'
+        assert PurePath.__module__ == 'pathlib._local'
+        assert PurePosixPath.__module__ == 'pathlib._local'
+        assert PureWindowsPath.__module__ == 'pathlib._local'
+        assert WindowsPath.__module__ == 'pathlib._local'
     # struct
     assert Struct.__module__ == '_struct'
     # types
