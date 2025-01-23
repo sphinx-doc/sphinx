@@ -1553,7 +1553,7 @@ or use Python raw strings (``r"raw"``).
       number to be issued.  See :rst:role:`eq` for an example.  The numbering
       style depends on the output format.
 
-   .. rst:directive:option:: nowrap
+   .. rst:directive:option:: no-wrap
 
       Prevent wrapping of the given math in a math environment.
       When you give this option, you must make sure
@@ -1561,12 +1561,20 @@ or use Python raw strings (``r"raw"``).
       For example::
 
          .. math::
-            :nowrap:
+            :no-wrap:
 
             \begin{eqnarray}
                y    & = & ax^2 + bx + c \\
                f(x) & = & x^2 + 2xy + y^2
             \end{eqnarray}
+
+      .. versionchanged:: 8.2
+
+         The directive option ``:nowrap:`` was renamed to ``:no-wrap:``.
+
+         The previous name has been retained as an alias,
+         but will be deprecated and removed
+         in a future version of Sphinx.
 
 .. _AmSMath LaTeX package: https://www.ams.org/publications/authors/tex/amslatex
 

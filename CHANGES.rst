@@ -60,6 +60,11 @@ Features added
   :confval:`python_trailing_comma_in_multi_line_signatures` and
   :confval:`javascript_trailing_comma_in_multi_line_signatures`
   configuration options.
+* #13264: Rename the :rst:dir:`math` directive's ``nowrap``option
+  to :rst:dir:`no-wrap``,
+  and rename the :rst:dir:`autosummary` directive's ``nosignatures``option
+  to :rst:dir:`no-signatures``.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------
