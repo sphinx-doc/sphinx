@@ -157,7 +157,20 @@ def test_is_invalid_builtin_class():
         TracebackType,
         WrapperDescriptorType,
     }
+    # contextvars
+    assert Context.__module__ == '_contextvars'
+    assert ContextVar.__module__ == '_contextvars'
+    assert Token.__module__ == '_contextvars'
+    # pathlib
+    assert Path.__module__ == 'pathlib._local'
+    assert PosixPath.__module__ == 'pathlib._local'
+    assert PurePath.__module__ == 'pathlib._local'
+    assert PurePosixPath.__module__ == 'pathlib._local'
+    assert PureWindowsPath.__module__ == 'pathlib._local'
+    assert WindowsPath.__module__ == 'pathlib._local'
+    # struct
     assert Struct.__module__ == '_struct'
+    # types
     assert AsyncGeneratorType.__module__ == 'builtins'
     assert BuiltinFunctionType.__module__ == 'builtins'
     assert BuiltinMethodType.__module__ == 'builtins'
