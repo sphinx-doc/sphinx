@@ -394,9 +394,11 @@ ignore_errors = true
 typeCheckingMode = "strict"
 include = [
     "doc/conf.py",
-    "utils",
+    "doc/development/tutorials/examples/autodoc_intenum.py",
+    "doc/development/tutorials/examples/helloworld.py",
     "sphinx",
     "tests",
+    "utils",
 ]
 
 reportArgumentType = "none"
