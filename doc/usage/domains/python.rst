@@ -135,11 +135,15 @@ The following directives are provided for module and class contents:
 
       This will be parsed as a Python expression for cross-referencing
       the type annotation.
-      As such, the argument to ``:type:`` should be a valid Python expression.
+      As such, the argument to ``:type:`` should be a valid `annotation expression`_.
 
-      .. caution:: The valid syntax for the ``:type:`` directive option
-                   differs from the syntax for the ``:type:`` `info field
-                   <info-field-lists_>`__.
+      .. caution::
+         The valid syntax for the ``:type:`` directive option differs from
+         the syntax for the ``:type:`` `info field <info-field-lists_>`__.
+         The ``:type:`` directive option does not understand
+         reStructuredText markup or the ``or`` or ``of`` keywords,
+         meaning unions must use ``|`` and sequences must use square brackets,
+         and roles such as ``:ref:`...``` cannot be used.
 
       .. versionadded:: 2.4
 
@@ -277,11 +281,15 @@ The following directives are provided for module and class contents:
 
       This will be parsed as a Python expression for cross-referencing
       the type annotation.
-      As such, the argument to ``:type:`` should be a valid Python expression.
+      As such, the argument to ``:type:`` should be a valid `annotation expression`_.
 
-      .. caution:: The valid syntax for the ``:type:`` directive option
-                   differs from the syntax for the ``:type:`` `info field
-                   <info-field-lists_>`__.
+      .. caution::
+         The valid syntax for the ``:type:`` directive option differs from
+         the syntax for the ``:type:`` `info field <info-field-lists_>`__.
+         The ``:type:`` directive option does not understand
+         reStructuredText markup or the ``or`` or ``of`` keywords,
+         meaning unions must use ``|`` and sequences must use square brackets,
+         and roles such as ``:ref:`...``` cannot be used.
 
       .. versionadded:: 2.4
 
@@ -329,11 +337,15 @@ The following directives are provided for module and class contents:
 
       This will be parsed as a Python expression for cross-referencing
       the type annotation.
-      As such, the argument to ``:type:`` should be a valid Python expression.
+      As such, the argument to ``:type:`` should be a valid `annotation expression`_.
 
-      .. caution:: The valid syntax for the ``:type:`` directive option
-                   differs from the syntax for the ``:type:`` `info field
-                   <info-field-lists_>`__.
+      .. caution::
+         The valid syntax for the ``:type:`` directive option differs from
+         the syntax for the ``:type:`` `info field <info-field-lists_>`__.
+         The ``:type:`` directive option does not understand
+         reStructuredText markup or the ``or`` or ``of`` keywords,
+         meaning unions must use ``|`` and sequences must use square brackets,
+         and roles such as ``:ref:`...``` cannot be used.
 
    .. rst::directive:option:: module
       :type: text
@@ -541,6 +553,8 @@ The following directives are provided for module and class contents:
    Same as :rst:dir:`py:decorator`, but for decorators that are methods.
 
    Refer to a decorator method using the :rst:role:`py:meth` role.
+
+.. _annotation expression: https://typing.readthedocs.io/en/latest/spec/annotations.html#type-and-annotation-expressions
 
 .. _signatures:
 
