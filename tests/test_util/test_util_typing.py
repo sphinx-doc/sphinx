@@ -264,9 +264,10 @@ def test_is_invalid_builtin_class():
     assert WrapperDescriptorType.__module__ == 'builtins'
     # weakref
     assert WeakSet.__module__ == '_weakrefset'
-    # zipfile
-    assert zipfile.Path.__module__ == 'zipfile._path'
-    assert zipfile.CompleteDirs.__module__ == 'zipfile._path'
+    if sys.version_info[:2] >= (3, 12):
+        # zipfile
+        assert zipfile.Path.__module__ == 'zipfile._path'
+        assert zipfile.CompleteDirs.__module__ == 'zipfile._path'
 
 
 def test_restify_type_hints_containers():
