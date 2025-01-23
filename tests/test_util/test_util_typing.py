@@ -227,7 +227,7 @@ def test_is_invalid_builtin_class():
     assert LZMACompressor.__module__ == '_lzma'
     assert LZMADecompressor.__module__ == '_lzma'
     # multiprocessing
-    assert Process.__module__ == '_io'
+    assert Process.__module__ == 'multiprocessing.context'
     if sys.version_info[:2] >= (3, 13):
         # pathlib
         assert Path.__module__ == 'pathlib._local'
