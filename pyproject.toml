@@ -231,13 +231,6 @@ strict_optional = false
 
 [[tool.mypy.overrides]]
 module = [
-    "sphinx.domains.c",
-    "sphinx.domains.cpp",
-]
-disallow_any_generics = false
-
-[[tool.mypy.overrides]]
-module = [
     "imagesize",
     "snowballstemmer",
 ]

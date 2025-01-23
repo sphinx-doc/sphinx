@@ -304,7 +304,7 @@ class CPPObject(ObjectDescription[ASTDeclaration]):
         return parser.parse_declaration(self.object_type, self.objtype)
 
     def describe_signature(
-        self, signode: desc_signature, ast: ASTDeclaration, options: dict
+        self, signode: desc_signature, ast: ASTDeclaration, options: dict[str, Any]
     ) -> None:
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
@@ -621,7 +621,7 @@ class AliasNode(nodes.Element):
     def __init__(
         self,
         sig: str,
-        aliasOptions: dict,
+        aliasOptions: dict[str, bool],
         env: BuildEnvironment | None = None,
         parentKey: LookupKey | None = None,
     ) -> None:
@@ -653,8 +653,8 @@ class AliasTransform(SphinxTransform):
         s: Symbol,
         maxdepth: int,
         skip_this: bool,
-        alias_options: dict,
-        render_options: dict,
+        alias_options: dict[str, bool],
+        render_options: dict[str, bool],
         document: Any,
     ) -> list[Node]:
         if maxdepth == 0:
@@ -799,7 +799,7 @@ class AliasTransform(SphinxTransform):
                 node.replace_self(nodes)
 
 
-class CPPAliasObject(ObjectDescription):
+class CPPAliasObject(ObjectDescription[str]):
     option_spec: ClassVar[OptionSpec] = {
         'maxdepth': directives.nonnegative_int,
         'noroot': directives.flag,
