@@ -9,6 +9,14 @@ from collections import abc
 from contextvars import Context, ContextVar, Token
 from enum import Enum
 from numbers import Integral
+from pathlib import (
+    Path,
+    PosixPath,
+    PurePath,
+    PurePosixPath,
+    PureWindowsPath,
+    WindowsPath,
+)
 from struct import Struct
 from types import (
     AsyncGeneratorType,
@@ -99,6 +107,9 @@ def test_restify():
     assert restify(TracebackType) == ':py:class:`types.TracebackType`'
     assert restify(TracebackType, 'smart') == ':py:class:`~types.TracebackType`'
 
+    assert restify(Path) == ':py:class:`pathlib.Path`'
+    assert restify(Path, 'smart') == ':py:class:`~pathlib.Path`'
+
     assert restify(Any) == ':py:obj:`~typing.Any`'
     assert restify(Any, 'smart') == ':py:obj:`~typing.Any`'
 
@@ -111,10 +122,20 @@ def test_is_invalid_builtin_class():
     # of one of these classes has changed, and _INVALID_BUILTIN_CLASSES
     # in sphinx.util.typing needs to be updated.
     assert _INVALID_BUILTIN_CLASSES.keys() == {
+        # contextvars
         Context,
         ContextVar,
         Token,
+        # pathlib
+        Path,
+        PosixPath,
+        PurePath,
+        PurePosixPath,
+        PureWindowsPath,
+        WindowsPath,
+        # struct
         Struct,
+        # types
         AsyncGeneratorType,
         BuiltinFunctionType,
         BuiltinMethodType,
@@ -136,7 +157,21 @@ def test_is_invalid_builtin_class():
         TracebackType,
         WrapperDescriptorType,
     }
+    # contextvars
+    assert Context.__module__ == '_contextvars'
+    assert ContextVar.__module__ == '_contextvars'
+    assert Token.__module__ == '_contextvars'
+    if sys.version_info[:2] >= (3, 13):
+        # pathlib
+        assert Path.__module__ == 'pathlib._local'
+        assert PosixPath.__module__ == 'pathlib._local'
+        assert PurePath.__module__ == 'pathlib._local'
+        assert PurePosixPath.__module__ == 'pathlib._local'
+        assert PureWindowsPath.__module__ == 'pathlib._local'
+        assert WindowsPath.__module__ == 'pathlib._local'
+    # struct
     assert Struct.__module__ == '_struct'
+    # types
     assert AsyncGeneratorType.__module__ == 'builtins'
     assert BuiltinFunctionType.__module__ == 'builtins'
     assert BuiltinMethodType.__module__ == 'builtins'
@@ -486,6 +521,10 @@ def test_stringify_annotation():
     ann_str = stringify_annotation(TracebackType, 'fully-qualified-except-typing')
     assert ann_str == 'types.TracebackType'
     assert stringify_annotation(TracebackType, 'smart') == '~types.TracebackType'
+
+    ann_str = stringify_annotation(Path, 'fully-qualified-except-typing')
+    assert ann_str == 'pathlib.Path'
+    assert stringify_annotation(Path, 'smart') == '~pathlib.Path'
 
     assert stringify_annotation(Any, 'fully-qualified-except-typing') == 'Any'
     assert stringify_annotation(Any, 'fully-qualified') == 'typing.Any'
