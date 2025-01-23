@@ -102,11 +102,19 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
       .. versionadded:: 3.1
 
-   .. rst:directive:option:: nosignatures
+   .. rst:directive:option:: no-signatures
 
       Do not show function signatures in the summary.
 
       .. versionadded:: 0.6
+
+      .. versionchanged:: 8.2
+
+         The directive option ``:nosignatures:`` was renamed to ``:no-signatures:``.
+
+         The previous name has been retained as an alias,
+         but will be deprecated and removed
+         in a future version of Sphinx.
 
    .. rst:directive:option:: template: filename
 

@@ -237,9 +237,10 @@ class Autosummary(SphinxDirective):
         'caption': directives.unchanged_required,
         'class': directives.class_option,
         'toctree': directives.unchanged,
-        'nosignatures': directives.flag,
+        'no-signatures': directives.flag,
         'recursive': directives.flag,
         'template': directives.unchanged,
+        'nosignatures': directives.flag,
     }
 
     def run(self) -> list[Node]:
@@ -462,7 +463,7 @@ class Autosummary(SphinxDirective):
 
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
-            if 'nosignatures' not in self.options:
+            if 'no-signatures' not in self.options and 'nosignatures' not in self.options:
                 col1 = f':py:{qualifier}:`{name} <{real_name}>`\\ {rst.escape(sig)}'
             else:
                 col1 = f':py:{qualifier}:`{name} <{real_name}>`'

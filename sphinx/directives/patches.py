@@ -143,6 +143,7 @@ class MathDirective(SphinxDirective):
         'label': directives.unchanged,
         'name': directives.unchanged,
         'class': directives.class_option,
+        'no-wrap': directives.flag,
         'nowrap': directives.flag,
     }
 
@@ -158,7 +159,7 @@ class MathDirective(SphinxDirective):
             docname=self.env.docname,
             number=None,
             label=label,
-            nowrap='nowrap' in self.options,
+            nowrap='no-wrap' in self.options or 'nowrap' in self.options,
         )
         self.add_name(node)
         self.set_source_info(node)
