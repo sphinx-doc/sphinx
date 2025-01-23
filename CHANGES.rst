@@ -92,6 +92,8 @@ Bugs fixed
   methods and attributes.
   Patch by Bénédikt Tran.
 * #12975: Avoid rendering a trailing comma in C and C++ multi-line signatures.
+* #13178: autodoc: Fix resolution for ``pathlib`` types.
+  Patch by Adam Turner.
 
 Testing
 -------
