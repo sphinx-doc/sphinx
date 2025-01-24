@@ -146,8 +146,6 @@ files = [
 ]
 exclude = [
     "tests/roots",
-    # tests/test_util
-    "^tests/test_util/typing_test_data\\.py$",
 ]
 python_version = "3.11"
 strict = true
@@ -348,6 +346,11 @@ disallow_incomplete_defs = false
 disallow_untyped_calls = false
 disallow_untyped_defs = false
 warn_unused_ignores = false
+
+[[tool.mypy.overrides]]
+
+module = ["tests.test_util.typing_test_data"]
+ignore_errors = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
