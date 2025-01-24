@@ -348,7 +348,6 @@ disallow_untyped_defs = false
 warn_unused_ignores = false
 
 [[tool.mypy.overrides]]
-
 module = ["tests.test_util.typing_test_data"]
 ignore_errors = true
 
