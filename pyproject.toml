@@ -147,7 +147,7 @@ files = [
 exclude = [
     "tests/roots",
     # tests/test_util
-    "^tests/test_util/typing_test_data\\.py$",
+    "tests/test_util/typing_test_data.py",
 ]
 python_version = "3.11"
 strict = true
