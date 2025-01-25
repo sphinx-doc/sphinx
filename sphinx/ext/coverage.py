@@ -253,7 +253,7 @@ class CoverageBuilder(Builder):
             for filename, undoc in self.c_undoc.items():
                 write_header(op, filename)
                 for typ, name in sorted(undoc):
-                    op.write(' * %-50s [%9s]\n' % (name, typ))
+                    op.write(f' * {name:<50} [{typ:>9}]\n')
                     if self.config.coverage_show_missing_items:
                         if self.app.quiet:
                             logger.warning(
@@ -415,8 +415,7 @@ class CoverageBuilder(Builder):
         else:
             table.append(['TOTAL', '100', '0'])
 
-        for line in _write_table(table):
-            op.write(f'{line}\n')
+        op.writelines(f'{line}\n' for line in _write_table(table))
 
     def write_py_coverage(self) -> None:
         output_file = self.outdir / 'python.txt'
@@ -445,7 +444,7 @@ class CoverageBuilder(Builder):
                     write_header(op, name)
                     if undoc['funcs']:
                         op.write('Functions:\n')
-                        op.writelines(' * %s\n' % x for x in undoc['funcs'])
+                        op.writelines(f' * {x}\n' for x in undoc['funcs'])
                         if self.config.coverage_show_missing_items:
                             if self.app.quiet:
                                 for func in undoc['funcs']:
@@ -467,7 +466,7 @@ class CoverageBuilder(Builder):
                         op.write('Classes:\n')
                         for class_name, methods in sorted(undoc['classes'].items()):
                             if not methods:
-                                op.write(' * %s\n' % class_name)
+                                op.write(f' * {class_name}\n')
                                 if self.config.coverage_show_missing_items:
                                     if self.app.quiet:
                                         logger.warning(
@@ -483,8 +482,8 @@ class CoverageBuilder(Builder):
                                             + name
                                         )
                             else:
-                                op.write(' * %s -- missing methods:\n\n' % class_name)
-                                op.writelines('   - %s\n' % x for x in methods)
+                                op.write(f' * {class_name} -- missing methods:\n\n')
+                                op.writelines(f'   - {x}\n' for x in methods)
                                 if self.config.coverage_show_missing_items:
                                     if self.app.quiet:
                                         for meth in methods:

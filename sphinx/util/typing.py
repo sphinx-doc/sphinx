@@ -83,7 +83,7 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
     pathlib.WindowsPath: 'pathlib.WindowsPath',
     # types in 'pickle' with <type>.__module__ == 'pickle':
     pickle.Pickler: 'pickle.Pickler',
-    pickle.Unpickler: 'pickle.Unpickler',
+    pickle.Unpickler: 'pickle.Unpickler',  # NoQA: S301
     # types in 'struct' with <type>.__module__ == '_struct':
     struct.Struct: 'struct.Struct',
     # types in 'types' with <type>.__module__ == 'builtins':
