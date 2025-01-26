@@ -48,13 +48,13 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[tuple[str, str], str]] = {
     ('_ctypes', 'Structure'): 'ctypes.Structure',
     ('_ctypes', 'Union'): 'ctypes.Union',
     # types from 'io':
-    ('_io', 'FileIO'): 'io.FileIO',
-    ('_io', 'BytesIO'): 'io.BytesIO',
-    ('_io', 'StringIO'): 'io.StringIO',
-    ('_io', 'BufferedReader'): 'io.BufferedReader',
-    ('_io', 'BufferedWriter'): 'io.BufferedWriter',
-    ('_io', 'BufferedRWPair'): 'io.BufferedRWPair',
     ('_io', 'BufferedRandom'): 'io.BufferedRandom',
+    ('_io', 'BufferedReader'): 'io.BufferedReader',
+    ('_io', 'BufferedRWPair'): 'io.BufferedRWPair',
+    ('_io', 'BufferedWriter'): 'io.BufferedWriter',
+    ('_io', 'BytesIO'): 'io.BytesIO',
+    ('_io', 'FileIO'): 'io.FileIO',
+    ('_io', 'StringIO'): 'io.StringIO',
     ('_io', 'TextIOWrapper'): 'io.TextIOWrapper',
     # types from 'json':
     ('json.decoder', 'JSONDecoder'): 'json.JSONDecoder',
@@ -90,9 +90,9 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[tuple[str, str], str]] = {
     ('builtins', 'getset_descriptor'): 'types.GetSetDescriptorType',
     ('builtins', 'mappingproxy'): 'types.MappingProxyType',
     ('builtins', 'member_descriptor'): 'types.MemberDescriptorType',
-    ('builtins', 'method_descriptor'): 'types.MethodDescriptorType',
     ('builtins', 'method'): 'types.MethodType',
     ('builtins', 'method-wrapper'): 'types.MethodWrapperType',
+    ('builtins', 'method_descriptor'): 'types.MethodDescriptorType',
     ('builtins', 'module'): 'types.ModuleType',
     ('builtins', 'NoneType'): 'types.NoneType',
     ('builtins', 'NotImplementedType'): 'types.NotImplementedType',
@@ -101,8 +101,8 @@ _INVALID_BUILTIN_CLASSES: Final[Mapping[tuple[str, str], str]] = {
     # types from 'weakref':
     ('_weakrefset', 'WeakSet'): 'weakref.WeakSet',
     # types from 'zipfile':
-    ('zipfile._path', 'Path'): 'zipfile.Path',
     ('zipfile._path', 'CompleteDirs'): 'zipfile.CompleteDirs',
+    ('zipfile._path', 'Path'): 'zipfile.Path',
 }
 
 
