@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -10,6 +10,8 @@ from sphinx import addnodes
 from sphinx.util.docutils import SphinxDirective
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from docutils.nodes import Element, Node
 
     from sphinx.application import Sphinx
@@ -46,7 +48,9 @@ class BaseAdmonition(SphinxDirective):
             admonition_node += title
             admonition_node += messages
             if 'classes' not in self.options:
-                admonition_node['classes'] += ['admonition-' + nodes.make_id(title_text)]
+                admonition_node['classes'] += [
+                    'admonition-' + nodes.make_id(title_text)
+                ]
         admonition_node.extend(self.parse_content_to_nodes())
         return [admonition_node]
 
@@ -93,9 +97,7 @@ class Warning(BaseAdmonition):
 
 
 class SeeAlso(BaseAdmonition):
-    """
-    An admonition mentioning things to look at as reference.
-    """
+    """An admonition mentioning things to look at as reference."""
 
     node_class = addnodes.seealso
 

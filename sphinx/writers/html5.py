@@ -370,13 +370,16 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
         if node.get('collapsible'):
             if node.get('open'):
                 self.body.append(
-                    self.starttag(node, 'details', CLASS=('admonition ' + name), open='open')
+                    self.starttag(
+                        node, 'details', CLASS=('admonition ' + name), open='open'
+                    )
                 )
             else:
-                self.body.append(self.starttag(node, 'details', CLASS=('admonition ' + name)))
+                self.body.append(
+                    self.starttag(node, 'details', CLASS=('admonition ' + name))
+                )
         else:
-            self.body.append(self.starttag(
-                node, 'div', CLASS=('admonition ' + name)))
+            self.body.append(self.starttag(node, 'div', CLASS=('admonition ' + name)))
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
@@ -512,8 +515,12 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             )
             self.body.append('<span class="caption-text">')
             self.context.append('</span></p>\n')
-        elif isinstance(node.parent, nodes.Admonition) and node.parent.get("collapsible"):  # type: ignore[attr-defined]
-            self.body.append(self.starttag(node, 'summary', '', CLASS='admonition-title'))
+        elif isinstance(node.parent, nodes.Admonition) and node.parent.get(
+            'collapsible'
+        ):  # type: ignore[attr-defined]
+            self.body.append(
+                self.starttag(node, 'summary', '', CLASS='admonition-title')
+            )
             self.context.append('</summary>\n')
         else:
             super().visit_title(node)
