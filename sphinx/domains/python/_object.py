@@ -25,6 +25,7 @@ from sphinx.util.nodes import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from typing import ClassVar
 
     from docutils.nodes import Node
@@ -232,7 +233,7 @@ class PyObject(ObjectDescription[tuple[str, str]]):
 
     allow_nesting = False
 
-    def get_signature_prefix(self, sig: str) -> list[nodes.Node]:
+    def get_signature_prefix(self, sig: str) -> Sequence[nodes.Node]:
         """May return a prefix to put before the object name in the
         signature.
         """

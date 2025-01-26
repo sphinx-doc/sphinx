@@ -324,6 +324,13 @@ The following directives are provided for module and class contents:
       :type: no value
 
       Indicate the property is abstract.
+      This produces the following output:
+
+      .. py:property:: Cheese.amount_in_stock
+         :no-index:
+         :abstractmethod:
+
+         Cheese levels at the *National Cheese Emporium*.
 
    .. rst:directive:option:: classmethod
       :type: no value
@@ -416,6 +423,13 @@ The following directives are provided for module and class contents:
       :type: no value
 
       Indicate the method is an abstract method.
+      This produces the following output:
+
+      .. py:method:: Cheese.order_more_stock
+         :no-index:
+         :abstractmethod:
+
+         Order more cheese (we're fresh out!).
 
       .. versionadded:: 2.1
 
