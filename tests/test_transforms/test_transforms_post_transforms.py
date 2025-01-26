@@ -173,7 +173,7 @@ class TestSigElementFallbackTransform:
         visitor_methods = {f'visit_{tp.__name__}' for tp in desc_sig_elements_list}
         visitor_methods.update(f'visit_{name}' for name in add_visitor_method_for)
         class_dict = dict.fromkeys(visitor_methods, BaseCustomTranslatorClass.mark_node)
-        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)  # type: ignore[return-value]
+        return type('CustomTranslatorClass', (BaseCustomTranslatorClass,), class_dict)
 
     @pytest.mark.parametrize(
         'add_visitor_method_for',
@@ -266,7 +266,7 @@ class TestSigElementFallbackTransform:
                 strict=True,
             ):
                 assert_node(node, node_type)
-                assert not node.hasattr('_sig_node_type')
+                assert not hasattr(node, '_sig_node_type')
                 assert mess == f'mark: {node_type.__name__!r}'
         else:
             # desc_sig_* nodes are converted into inline nodes

@@ -320,7 +320,7 @@ def test_autodoc_process_signature_typehints(app):
 
     app.connect('autodoc-process-signature', process_signature)
 
-    def func(x: int, y: int) -> int:
+    def func(x: int, y: int) -> int:  # type: ignore[empty-body]
         pass
 
     directive = make_directive_bridge(app.env)

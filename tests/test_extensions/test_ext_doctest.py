@@ -75,7 +75,7 @@ def cleanup_call():
     cleanup_called += 1
 
 
-recorded_calls = Counter()
+recorded_calls: Counter[tuple[str, str, int]] = Counter()
 
 
 @pytest.mark.sphinx('doctest', testroot='ext-doctest-skipif')

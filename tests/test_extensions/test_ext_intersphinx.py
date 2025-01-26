@@ -38,7 +38,7 @@ from tests.test_util.intersphinx_data import (
 from tests.utils import http_server
 
 
-class FakeList(list):  # NoQA: FURB189
+class FakeList(list[str]):
     def __iter__(self) -> NoReturn:
         raise NotImplementedError
 
