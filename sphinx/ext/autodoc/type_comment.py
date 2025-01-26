@@ -131,6 +131,9 @@ def update_annotations_using_type_comments(
     app: Sphinx, obj: Any, bound_method: bool
 ) -> None:
     """Update annotations info of *obj* using type_comments."""
+    if not app.config.autodoc_use_type_comments:
+        return
+
     try:
         type_sig = get_type_comment(obj, bound_method)
         if type_sig:
@@ -152,6 +155,9 @@ def update_annotations_using_type_comments(
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
+    app.add_config_value(
+        'autodoc_use_type_comments', True, 'env', types=frozenset({bool})
+    )
     app.connect(
         'autodoc-before-process-signature', update_annotations_using_type_comments
     )
