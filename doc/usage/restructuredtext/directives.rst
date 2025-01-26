@@ -423,36 +423,6 @@ and the generic :rst:dir:`admonition` directive.
 
       Remember your sun cream!
 
-   .. note::
-
-      This function is not suitable for sending spam e-mails.
-
-   Add a ``:collapsible:`` option to make the note collapsible.
-   This is useful for long notes that are not always relevant.
-   Example::
-
-      .. note::
-         :collapsible:
-
-         This note is collapsed.
-
-      .. note::
-         :collapsible:
-         :open:
-
-         This note is collapsible, but initially open.
-
-   .. note::
-      :collapsible:
-
-      This note is collapsed.
-
-   .. note::
-      :collapsible:
-      :open:
-
-      This note is collapsible, but initially open.
-
 .. rst:directive:: .. warning::
 
    An important bit of information that the reader should be very aware of.
@@ -508,6 +478,54 @@ and the generic :rst:dir:`admonition` directive.
 
       `GNU tar manual, Basic Tar Format <https://example.org>`_
          Documentation for tar archive files, including GNU tar extensions.
+
+
+.. _collapsible-admonitions:
+
+.. rubric:: Collapsible text
+
+Each admonition directive supports a ``:collapsible:`` option,
+to make the content of the admonition collapsible
+(where supported by the output format).
+This can be useful for content that is not always relevant.
+By default, collapsible admonitions are initially open,
+but this can be controlled with the ``open`` and ``closed`` arguments
+to the ``:collapsible:`` option, which change the default state.
+In output formats that don't support collapsible content,
+the text is always included.
+For example:
+
+.. code-block:: rst
+
+  .. note::
+     :collapsible:
+
+     This note is collapsible, and initially open by default.
+
+  .. admonition:: Example
+     :collapsible: open
+
+     This example is collapsible, and initially open.
+
+  .. hint::
+     :collapsible: closed
+
+     This hint is collapsible, but initially closed.
+
+.. note::
+  :collapsible:
+
+  This note is collapsible, and initially open by default.
+
+.. admonition:: Example
+  :collapsible: open
+
+  This example is collapsible, and initially open.
+
+.. hint::
+  :collapsible: closed
+
+  This hint is collapsible, but initially closed.
 
 
 Describing changes between versions

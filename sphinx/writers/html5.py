@@ -367,27 +367,21 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
 
     # overwritten
     def visit_admonition(self, node: Element, name: str = '') -> None:
-        if node.get('collapsible'):
-            if node.get('open'):
-                self.body.append(
-                    self.starttag(
-                        node, 'details', CLASS=('admonition ' + name), open='open'
-                    )
-                )
-            else:
-                self.body.append(
-                    self.starttag(node, 'details', CLASS=('admonition ' + name))
-                )
-        else:
-            self.body.append(self.starttag(node, 'div', CLASS=('admonition ' + name)))
+        attributes = {}
+        tag_name = 'div'
+        if collapsible := node.get('collapsible'):
+            tag_name = 'details'
+            if collapsible == 'open':
+                attributes['open'] = 'open'
+        self.body.append(
+            self.starttag(node, tag_name, CLASS=f'admonition {name}', **attributes)
+        )
+        self.context.append(f'</{tag_name}>\n')
         if name:
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
     def depart_admonition(self, node: Element | None = None) -> None:
-        if node and node.get('collapsible'):
-            self.body.append('</details>\n')
-        else:
-            self.body.append('</div>\n')
+        self.body.append(self.context.pop())
 
     def visit_seealso(self, node: Element) -> None:
         self.visit_admonition(node, 'seealso')
@@ -515,9 +509,11 @@ class HTML5Translator(SphinxTranslator, BaseTranslator):  # type: ignore[misc]
             )
             self.body.append('<span class="caption-text">')
             self.context.append('</span></p>\n')
-        elif isinstance(node.parent, nodes.Admonition) and node.parent.get(
-            'collapsible'
-        ):  # type: ignore[attr-defined]
+        elif (
+            isinstance(node.parent, nodes.Admonition)
+            and isinstance(node.parent, nodes.Element)
+            and 'collapsible' in node.parent
+        ):
             self.body.append(
                 self.starttag(node, 'summary', '', CLASS='admonition-title')
             )
