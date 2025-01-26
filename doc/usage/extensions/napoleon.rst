@@ -212,7 +212,7 @@ type checkers and IDEs can take advantage of them for static code
 analysis. :pep:`484` was then extended by :pep:`526` which introduced
 a similar way to annotate variables (and attributes).
 
-Google style with Python 3 type annotations:
+Google style with type annotations:
 
 .. code-block:: python
 
