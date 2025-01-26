@@ -65,6 +65,11 @@ Features added
   and rename the :rst:dir:`autosummary` directive's ``nosignatures``option
   to :rst:dir:`no-signatures``.
   Patch by Adam Turner.
+* #13269: Added the option to disable the use of type comments in
+  via the new :confval:`autodoc_use_type_comments` option,
+  which defaults to ``True`` for backwards compatibility.
+  The default will change to ``False`` in Sphinx 10.
+  Patch by Adam Turner.
 
 Bugs fixed
 ----------

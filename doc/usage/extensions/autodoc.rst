@@ -1230,6 +1230,26 @@ There are also config values that you can set:
       Added as an experimental feature.  This will be integrated into autodoc core
       in the future.
 
+.. confval:: autodoc_use_type_comments
+   :type: :code-py:`bool`
+   :default: :code-py:`True`
+
+   Attempt to read ``# type: ...`` comments from source code
+   to supplement missing type annotations, if True.
+
+   This can be disabled if your source code does not use type comments,
+   for example if it exclusively uses type annotations or
+   does not use type hints of any kind.
+
+   .. versionadded:: 8.2
+
+      Added the option to disable the use of type comments in
+      via the new :confval:`!autodoc_use_type_comments` option,
+      which defaults to :code-py:`True` for backwards compatibility.
+      The default will change to :code-py:`False` in Sphinx 10.
+
+      .. xref RemovedInSphinx10Warning
+
 .. confval:: autodoc_warningiserror
    :type: :code-py:`bool`
    :default: :code-py:`True`
