@@ -2,21 +2,10 @@
 
 from __future__ import annotations
 
-import contextvars
-import ctypes
 import dataclasses
-import io
-import json
-import lzma
-import multiprocessing
-import pathlib
-import pickle  # NoQA: S403
-import struct
 import sys
 import types
 import typing
-import weakref
-import zipfile
 from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
 
@@ -48,82 +37,82 @@ logger = logging.getLogger(__name__)
 
 
 # classes that have an incorrect .__module__ attribute
-_INVALID_BUILTIN_CLASSES: Final[Mapping[object, str]] = {
-    # types in 'contextvars' with <type>.__module__ == '_contextvars':
-    contextvars.Context: 'contextvars.Context',
-    contextvars.ContextVar: 'contextvars.ContextVar',
-    contextvars.Token: 'contextvars.Token',
-    # types in 'ctypes' with <type>.__module__ == '_ctypes':
-    ctypes.Array: 'ctypes.Array',
-    ctypes.Structure: 'ctypes.Structure',
-    ctypes.Union: 'ctypes.Union',
-    # types in 'io' with <type>.__module__ == '_io':
-    io.FileIO: 'io.FileIO',
-    io.BytesIO: 'io.BytesIO',
-    io.StringIO: 'io.StringIO',
-    io.BufferedReader: 'io.BufferedReader',
-    io.BufferedWriter: 'io.BufferedWriter',
-    io.BufferedRWPair: 'io.BufferedRWPair',
-    io.BufferedRandom: 'io.BufferedRandom',
-    io.TextIOWrapper: 'io.TextIOWrapper',
-    # types in 'json' with <type>.__module__ == 'json.{decoder,encoder}':
-    json.JSONDecoder: 'json.JSONDecoder',
-    json.JSONEncoder: 'json.JSONEncoder',
-    # types in 'lzma' with <type>.__module__ == '_lzma':
-    lzma.LZMACompressor: 'lzma.LZMACompressor',
-    lzma.LZMADecompressor: 'lzma.LZMADecompressor',
-    # types in 'multiprocessing' with <type>.__module__ == 'multiprocessing.context':
-    multiprocessing.Process: 'multiprocessing.Process',
-    # types in 'pathlib' with <type>.__module__ == 'pathlib._local':
-    pathlib.Path: 'pathlib.Path',
-    pathlib.PosixPath: 'pathlib.PosixPath',
-    pathlib.PurePath: 'pathlib.PurePath',
-    pathlib.PurePosixPath: 'pathlib.PurePosixPath',
-    pathlib.PureWindowsPath: 'pathlib.PureWindowsPath',
-    pathlib.WindowsPath: 'pathlib.WindowsPath',
-    # types in 'pickle' with <type>.__module__ == 'pickle':
-    pickle.Pickler: 'pickle.Pickler',
-    pickle.Unpickler: 'pickle.Unpickler',  # NoQA: S301
-    # types in 'struct' with <type>.__module__ == '_struct':
-    struct.Struct: 'struct.Struct',
-    # types in 'types' with <type>.__module__ == 'builtins':
-    types.AsyncGeneratorType: 'types.AsyncGeneratorType',
-    types.BuiltinFunctionType: 'types.BuiltinFunctionType',
-    types.BuiltinMethodType: 'types.BuiltinMethodType',
-    types.CellType: 'types.CellType',
-    types.ClassMethodDescriptorType: 'types.ClassMethodDescriptorType',
-    types.CodeType: 'types.CodeType',
-    types.CoroutineType: 'types.CoroutineType',
-    types.EllipsisType: 'types.EllipsisType',
-    types.FrameType: 'types.FrameType',
-    types.FunctionType: 'types.FunctionType',
-    types.GeneratorType: 'types.GeneratorType',
-    types.GetSetDescriptorType: 'types.GetSetDescriptorType',
-    types.LambdaType: 'types.LambdaType',
-    types.MappingProxyType: 'types.MappingProxyType',
-    types.MemberDescriptorType: 'types.MemberDescriptorType',
-    types.MethodDescriptorType: 'types.MethodDescriptorType',
-    types.MethodType: 'types.MethodType',
-    types.MethodWrapperType: 'types.MethodWrapperType',
-    types.ModuleType: 'types.ModuleType',
-    types.NoneType: 'types.NoneType',
-    types.NotImplementedType: 'types.NotImplementedType',
-    types.TracebackType: 'types.TracebackType',
-    types.WrapperDescriptorType: 'types.WrapperDescriptorType',
-    # types in 'weakref' with <type>.__module__ == '_weakrefset':
-    weakref.WeakSet: 'weakref.WeakSet',
-    # types in 'zipfile' with <type>.__module__ == 'zipfile._path':
-    zipfile.Path: 'zipfile.Path',
-    zipfile.CompleteDirs: 'zipfile.CompleteDirs',
+# Map of (__module__, __qualname__) to the correct fully-qualified name
+_INVALID_BUILTIN_CLASSES: Final[Mapping[tuple[str, str], str]] = {
+    # types from 'contextvars'
+    ('_contextvars', 'Context'): 'contextvars.Context',
+    ('_contextvars', 'ContextVar'): 'contextvars.ContextVar',
+    ('_contextvars', 'Token'): 'contextvars.Token',
+    # types from 'ctypes':
+    ('_ctypes', 'Array'): 'ctypes.Array',
+    ('_ctypes', 'Structure'): 'ctypes.Structure',
+    ('_ctypes', 'Union'): 'ctypes.Union',
+    # types from 'io':
+    ('_io', 'FileIO'): 'io.FileIO',
+    ('_io', 'BytesIO'): 'io.BytesIO',
+    ('_io', 'StringIO'): 'io.StringIO',
+    ('_io', 'BufferedReader'): 'io.BufferedReader',
+    ('_io', 'BufferedWriter'): 'io.BufferedWriter',
+    ('_io', 'BufferedRWPair'): 'io.BufferedRWPair',
+    ('_io', 'BufferedRandom'): 'io.BufferedRandom',
+    ('_io', 'TextIOWrapper'): 'io.TextIOWrapper',
+    # types from 'json':
+    ('json.decoder', 'JSONDecoder'): 'json.JSONDecoder',
+    ('json.encoder', 'JSONEncoder'): 'json.JSONEncoder',
+    # types from 'lzma':
+    ('_lzma', 'LZMACompressor'): 'lzma.LZMACompressor',
+    ('_lzma', 'LZMADecompressor'): 'lzma.LZMADecompressor',
+    # types from 'multiprocessing':
+    ('multiprocessing.context', 'Process'): 'multiprocessing.Process',
+    # types from 'pathlib':
+    ('pathlib._local', 'Path'): 'pathlib.Path',
+    ('pathlib._local', 'PosixPath'): 'pathlib.PosixPath',
+    ('pathlib._local', 'PurePath'): 'pathlib.PurePath',
+    ('pathlib._local', 'PurePosixPath'): 'pathlib.PurePosixPath',
+    ('pathlib._local', 'PureWindowsPath'): 'pathlib.PureWindowsPath',
+    ('pathlib._local', 'WindowsPath'): 'pathlib.WindowsPath',
+    # types from 'pickle':
+    ('_pickle', 'Pickler'): 'pickle.Pickler',
+    ('_pickle', 'Unpickler'): 'pickle.Unpickler',
+    # types from 'struct':
+    ('_struct', 'Struct'): 'struct.Struct',
+    # types from 'types':
+    ('builtins', 'async_generator'): 'types.AsyncGeneratorType',
+    ('builtins', 'builtin_function_or_method'): 'types.BuiltinMethodType',
+    ('builtins', 'cell'): 'types.CellType',
+    ('builtins', 'classmethod_descriptor'): 'types.ClassMethodDescriptorType',
+    ('builtins', 'code'): 'types.CodeType',
+    ('builtins', 'coroutine'): 'types.CoroutineType',
+    ('builtins', 'ellipsis'): 'types.EllipsisType',
+    ('builtins', 'frame'): 'types.FrameType',
+    ('builtins', 'function'): 'types.LambdaType',
+    ('builtins', 'generator'): 'types.GeneratorType',
+    ('builtins', 'getset_descriptor'): 'types.GetSetDescriptorType',
+    ('builtins', 'mappingproxy'): 'types.MappingProxyType',
+    ('builtins', 'member_descriptor'): 'types.MemberDescriptorType',
+    ('builtins', 'method_descriptor'): 'types.MethodDescriptorType',
+    ('builtins', 'method'): 'types.MethodType',
+    ('builtins', 'method-wrapper'): 'types.MethodWrapperType',
+    ('builtins', 'module'): 'types.ModuleType',
+    ('builtins', 'NoneType'): 'types.NoneType',
+    ('builtins', 'NotImplementedType'): 'types.NotImplementedType',
+    ('builtins', 'traceback'): 'types.TracebackType',
+    ('builtins', 'wrapper_descriptor'): 'types.WrapperDescriptorType',
+    # types from 'weakref':
+    ('_weakrefset', 'WeakSet'): 'weakref.WeakSet',
+    # types from 'zipfile':
+    ('zipfile._path', 'Path'): 'zipfile.Path',
+    ('zipfile._path', 'CompleteDirs'): 'zipfile.CompleteDirs',
 }
 
 
-def is_invalid_builtin_class(obj: Any) -> bool:
+def is_invalid_builtin_class(obj: Any) -> str:
     """Check *obj* is an invalid built-in class."""
     try:
-        return obj in _INVALID_BUILTIN_CLASSES
-    except TypeError:  # unhashable type
-        return False
+        key = obj.__module__, obj.__qualname__
+    except AttributeError:  # non-standard type
+        return ''
+    return _INVALID_BUILTIN_CLASSES.get(key, '')
 
 
 # Text like nodes which are initialized with text and rawsource
@@ -279,11 +268,11 @@ def restify(cls: Any, mode: _RestifyMode = 'fully-qualified-except-typing') -> s
             return f':py:class:`{module_prefix}{cls.__name__}`'
         elif ismock(cls):
             return f':py:class:`{module_prefix}{cls.__module__}.{cls.__name__}`'
-        elif is_invalid_builtin_class(cls):
+        elif fixed_cls := is_invalid_builtin_class(cls):
             # The above predicate never raises TypeError but should not be
             # evaluated before determining whether *cls* is a mocked object
             # or not; instead of two try-except blocks, we keep it here.
-            return f':py:class:`{module_prefix}{_INVALID_BUILTIN_CLASSES[cls]}`'
+            return f':py:class:`{module_prefix}{fixed_cls}`'
         elif _is_annotated_form(cls):
             args = restify(cls.__args__[0], mode)
             meta_args = []
@@ -460,8 +449,8 @@ def stringify_annotation(
         return module_prefix + annotation_name
     elif ismock(annotation):
         return module_prefix + f'{annotation_module}.{annotation_name}'
-    elif is_invalid_builtin_class(annotation):
-        return module_prefix + _INVALID_BUILTIN_CLASSES[annotation]
+    elif fixed_annotation := is_invalid_builtin_class(annotation):
+        return module_prefix + fixed_annotation
     elif _is_annotated_form(annotation):  # for py310+
         pass
     elif annotation_module == 'builtins' and annotation_qualname:
