@@ -216,7 +216,7 @@ def test_is_invalid_builtin_class():
             WindowsPath,
         )
 
-    invalid_names = {(cls.__module__, str(cls.__qualname__)) for cls in invalid_types}
+    invalid_names = {(cls.__module__, cls.__qualname__) for cls in invalid_types}
     if sys.version_info[:2] < (3, 13):
         invalid_names |= {
             ('pathlib._local', 'Path'),
