@@ -289,8 +289,8 @@ in the future.
 
 .. data:: has_source
 
-   True if the reST document sources are copied (if :confval:`html_copy_source`
-   is ``True``).
+   True if the reStructuredText document sources are copied
+   (if :confval:`html_copy_source` is ``True``).
 
 .. data:: language
 
@@ -308,26 +308,19 @@ in the future.
    .. versionadded:: 4.0
 
 .. data:: master_doc
+          root_doc
 
-   Same as :data:`root_doc`.
+   The value of :confval:`master_doc` or :confval:`root_doc` (aliases),
+   for usage with :func:`pathto`.
 
-   .. versionchanged:: 4.0
-
-      Renamed to ``root_doc``.
-
-.. data:: root_doc
-
-   The value of :confval:`root_doc`, for usage with :func:`pathto`.
-
-   .. versionchanged:: 4.0
-
-      Renamed from ``master_doc``.
+   .. versionadded:: 4.0
+      The :data:`!root_doc` template variable.
 
 .. data:: pagename
 
    The "page name" of the current file, i.e. either the document name if the
-   file is generated from a reST source, or the equivalent hierarchical name
-   relative to the output directory
+   file is generated from a reStructuredText source,
+   or the equivalent hierarchical name relative to the output directory
    (``[directory/]filename_without_extension``).
 
 .. data:: project

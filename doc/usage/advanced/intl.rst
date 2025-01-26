@@ -119,6 +119,11 @@ section describe an easy way to translate with *sphinx-intl*.
       $ make gettext
 
    The generated pot files will be placed in the ``_build/gettext`` directory.
+   If you want to customize the output beyond what can be done via the
+   :ref:`intl-options`, the
+   :download:`default pot file template <../../../sphinx/templates/gettext/message.pot.jinja>`
+   can be replaced by a custom :file:`message.pot.jinja` file placed in any
+   directory listed in :confval:`templates_path`.
 
 #. Generate po files.
 
@@ -160,8 +165,8 @@ section describe an easy way to translate with *sphinx-intl*.
       "FILL HERE BY TARGET LANGUAGE FILL HERE BY TARGET LANGUAGE FILL HERE "
       "BY TARGET LANGUAGE :ref:`EXTENSIONS <extensions>` FILL HERE."
 
-   Please be careful not to break reST notation.  Most po-editors will help you
-   with that.
+   Please be careful not to break reStructuredText notation.
+   Most po-editors will help you with that.
 
 #. Build translated document.
 
@@ -176,17 +181,17 @@ section describe an easy way to translate with *sphinx-intl*.
 
    For Windows :command:`cmd.exe`, run:
 
-   .. code-block:: console
+   .. code-block:: doscon
 
       > set SPHINXOPTS=-D language=de
       > .\make.bat html
 
    For PowerShell, run:
 
-   .. code-block:: console
+   .. code-block:: ps1con
 
-      > Set-Item env:SPHINXOPTS "-D language=de"
-      > .\make.bat html
+      PS> Set-Item env:SPHINXOPTS "-D language=de"
+      PS> .\make.bat html
 
 Congratulations! You got the translated documentation in the ``_build/html``
 directory.

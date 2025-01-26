@@ -43,7 +43,7 @@ Options
       the source and output directories, before any other options are passed.
       For example::
 
-          sphinx-build -M html ./source ./build -W --keep-going
+          sphinx-build -M html ./source ./build --fail-on-warning
 
    The *make-mode* provides the same build functionality as
    a default :ref:`Makefile or Make.bat <makefile_options>`,
@@ -102,8 +102,10 @@ Options
 
 .. option:: -t tag, --tag tag
 
-   Define the tag *tag*.  This is relevant for :rst:dir:`only` directives that
-   only include their content if this tag is set.
+   Define the tag *tag*.
+   This is relevant for :rst:dir:`only` directives that
+   include their content only if certain tags are set.
+   See :ref:`including content based on tags <tags>` for further detail.
 
    .. versionadded:: 0.6
 
@@ -124,8 +126,10 @@ Options
 .. option:: -j N, --jobs N
 
    Distribute the build over *N* processes in parallel, to make building on
-   multiprocessor machines more effective.  Note that not all parts and not all
-   builders of Sphinx can be parallelized.  If ``auto`` argument is given,
+   multiprocessor machines more effective.
+   This feature only works on systems supporting "fork". Windows is not supported.
+   Note that not all parts and not all builders of Sphinx can be parallelized.
+   If ``auto`` argument is given,
    Sphinx uses the number of CPUs as *N*. Defaults to 1.
 
    .. versionadded:: 1.2
@@ -137,7 +141,7 @@ Options
    .. versionchanged:: 6.2
       Add ``--jobs`` long option.
 
-.. option:: -c path, --config-dir path
+.. option:: -c path, --conf-dir path
 
    Don't look for the :file:`conf.py` in the source directory, but use the given
    configuration directory instead.  Note that various other files and paths
@@ -148,7 +152,7 @@ Options
    .. versionadded:: 0.3
 
    .. versionchanged:: 7.3
-      Add ``--config-dir`` long option.
+      Add ``--conf-dir`` long option.
 
 .. option:: -C, --isolated
 
@@ -192,7 +196,7 @@ Options
 
 .. option:: -n, --nitpicky
 
-   Run in nit-picky mode.  Currently, this generates warnings for all missing
+   Run in nitpicky mode.  Currently, this generates warnings for all missing
    references.  See the config value :confval:`nitpick_ignore` for a way to
    exclude some references as "known missing".
 
@@ -251,18 +255,35 @@ Options
 
 .. option:: -W, --fail-on-warning
 
-   Turn warnings into errors.  This means that the build stops at the first
-   warning and ``sphinx-build`` exits with exit status 1.
+   Turn warnings into errors.
+   This means that :program:`sphinx-build` exits with exit status 1
+   if any warnings are generated during the build.
 
    .. versionchanged:: 7.3
       Add ``--fail-on-warning`` long option.
+   .. versionchanged:: 8.1
+      :program:`sphinx-build` no longer exits on the first warning,
+      but instead runs the entire build and exits with exit status 1
+      if any warnings were generated.
+      This behaviour was previously enabled with :option:`--keep-going`.
 
 .. option:: --keep-going
 
-   With -W option, keep going processing when getting warnings to the end
-   of build, and ``sphinx-build`` exits with exit status 1.
+   From Sphinx 8.1, :option:`!--keep-going` is always enabled.
+   Previously, it was only applicable whilst using :option:`--fail-on-warning`,
+   which by default exited :program:`sphinx-build` on the first warning.
+   Using :option:`!--keep-going` runs :program:`!sphinx-build` to completion
+   and exits with exit status 1 if errors are encountered.
 
    .. versionadded:: 1.8
+   .. versionchanged:: 8.1
+      :program:`sphinx-build` no longer exits on the first warning,
+      meaning that in effect :option:`!--fail-on-warning` is always enabled.
+      The option is retained for compatibility, but may be removed at some
+      later date.
+
+   .. xref RemovedInSphinx10Warning: deprecate this option in Sphinx 10
+                                     or no earlier than 2026-01-01.
 
 .. option:: -T, --show-traceback
 
@@ -282,6 +303,13 @@ Options
 
    .. versionchanged:: 7.3
       Add ``--pdb`` long option.
+
+.. option:: --exception-on-warning
+
+   Raise an exception when a warning is emitted during the build.
+   This can be useful in combination with :option:`--pdb` to debug warnings.
+
+   .. versionadded:: 8.1
 
 .. option:: -h, --help, --version
 

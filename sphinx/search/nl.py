@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-dutch_stopwords = parse_stop_word('''
+dutch_stopwords = parse_stop_word("""
 | source: https://snowball.tartarus.org/algorithms/dutch/stop.txt
 de             |  the
 en             |  and
@@ -111,7 +109,7 @@ uw             |  your
 iemand         |  somebody
 geweest        |  been; past participle of 'be'
 andere         |  other
-''')
+""")  # NoQA: E501
 
 
 class SearchDutch(SearchLanguage):

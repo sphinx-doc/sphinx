@@ -1,5 +1,4 @@
-"""
-Important note on ids
+"""Important note on ids
 ----------------------------------------------------------------------------
 
 Multiple id generation schemes are used due to backwards compatibility.
@@ -253,14 +252,22 @@ namespace_object:
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
-udl_identifier_re = re.compile(r'''
-    [a-zA-Z_][a-zA-Z0-9_]*\b   # note, no word boundary in the beginning
-''', re.VERBOSE)
-_string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
-                        r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.DOTALL)
+if TYPE_CHECKING:
+    from collections.abc import Sequence, Set
+
+udl_identifier_re = re.compile(
+    r'[a-zA-Z_][a-zA-Z0-9_]*\b'  # note, no word boundary in the beginning
+)
+_string_re = re.compile(
+    r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
+    r'|"([^"\\]*(?:\\.[^"\\]*)*)")',
+    re.DOTALL,
+)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
-_operator_re = re.compile(r'''
+_operator_re = re.compile(
+    r"""
         \[\s*\]
     |   \(\s*\)
     |   \+\+ | --
@@ -269,33 +276,49 @@ _operator_re = re.compile(r'''
     |   <=>
     |   [!<>=/*%+|&^~-]=?
     |   (\b(and|and_eq|bitand|bitor|compl|not|not_eq|or|or_eq|xor|xor_eq)\b)
-''', re.VERBOSE)
-_fold_operator_re = re.compile(r'''
+    """,
+    re.VERBOSE,
+)
+_fold_operator_re = re.compile(
+    r"""
         ->\*    |    \.\*    |    \,
     |   (<<|>>)=?    |    &&    |    \|\|
     |   !=
     |   [<>=/*%+|&^~-]=?
-''', re.VERBOSE)
+    """,
+    re.VERBOSE,
+)
 # see https://en.cppreference.com/w/cpp/keyword
-_keywords = [
-    'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
-    'bool', 'break', 'case', 'catch', 'char', 'char8_t', 'char16_t', 'char32_t',
-    'class', 'compl', 'concept', 'const', 'consteval', 'constexpr', 'constinit',
-    'const_cast', 'continue',
-    'decltype', 'default', 'delete', 'do', 'double', 'dynamic_cast', 'else',
-    'enum', 'explicit', 'export', 'extern', 'false', 'float', 'for', 'friend',
-    'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace', 'new',
-    'noexcept', 'not', 'not_eq', 'nullptr', 'operator', 'or', 'or_eq',
-    'private', 'protected', 'public', 'register', 'reinterpret_cast',
-    'requires', 'return', 'short', 'signed', 'sizeof', 'static',
-    'static_assert', 'static_cast', 'struct', 'switch', 'template', 'this',
-    'thread_local', 'throw', 'true', 'try', 'typedef', 'typeid', 'typename',
-    'union', 'unsigned', 'using', 'virtual', 'void', 'volatile', 'wchar_t',
-    'while', 'xor', 'xor_eq',
-]
+_keywords: Set[str] = frozenset({
+    'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto',
+    'bitand', 'bitor', 'bool', 'break',
+    'case', 'catch', 'class', 'compl', 'concept', 'continue',
+    'char', 'char8_t', 'char16_t', 'char32_t',
+    'const', 'const_cast', 'consteval', 'constexpr', 'constinit',
+    'decltype', 'default', 'delete', 'do', 'double', 'dynamic_cast',
+    'else', 'enum', 'explicit', 'export', 'extern',
+    'false', 'float', 'for', 'friend',
+    'goto',
+    'if', 'inline', 'int',
+    'long',
+    'mutable',
+    'namespace', 'new', 'noexcept', 'not', 'not_eq', 'nullptr',
+    'operator', 'or', 'or_eq',
+    'private', 'protected', 'public',
+    'register', 'reinterpret_cast', 'requires', 'return',
+    'short', 'signed', 'sizeof', 'static',
+    'static_assert', 'static_cast', 'struct', 'switch',
+    'template', 'this', 'thread_local', 'throw',
+    'true', 'try', 'typedef', 'typeid', 'typename',
+    'union', 'unsigned', 'using',
+    'virtual', 'void', 'volatile',
+    'wchar_t', 'while',
+    'xor', 'xor_eq',
+})  # fmt: skip
 
 
-_simple_type_specifiers_re = re.compile(r"""
+_simple_type_specifiers_re = re.compile(
+    r"""
     \b(
     auto|void|bool
     |signed|unsigned
@@ -307,10 +330,12 @@ _simple_type_specifiers_re = re.compile(r"""
     |__float80|_Float64x|__float128|_Float128  # extension
     |_Complex|_Imaginary  # extension
     )\b
-""", re.VERBOSE)
+    """,
+    re.VERBOSE,
+)
 
 _max_id = 4
-_id_prefix = [None, '', '_CPPv2', '_CPPv3', '_CPPv4']
+_id_prefix: Sequence[str] = ('', '', '_CPPv2', '_CPPv3', '_CPPv4')
 # Ids are used in lookup keys which are used across pickled files,
 # so when _max_id changes, make sure to update the ENV_VERSION.
 
@@ -433,8 +458,10 @@ _id_fundamental_v2 = {
     'float': 'f',
     'double': 'd',
     'long double': 'e',
-    '__float80': 'e', '_Float64x': 'e',
-    '__float128': 'g', '_Float128': 'g',
+    '__float80': 'e',
+    '_Float64x': 'e',
+    '__float128': 'g',
+    '_Float128': 'g',
     '_Complex float': 'Cf',
     '_Complex double': 'Cd',
     '_Complex long double': 'Ce',
@@ -456,38 +483,49 @@ _id_operator_v2 = {
     # '-(unary)' : 'ng',
     # '&(unary)' : 'ad',
     # '*(unary)' : 'de',
-    '~': 'co', 'compl': 'co',
+    '~': 'co',
+    'compl': 'co',
     '+': 'pl',
     '-': 'mi',
     '*': 'ml',
     '/': 'dv',
     '%': 'rm',
-    '&': 'an', 'bitand': 'an',
-    '|': 'or', 'bitor': 'or',
-    '^': 'eo', 'xor': 'eo',
+    '&': 'an',
+    'bitand': 'an',
+    '|': 'or',
+    'bitor': 'or',
+    '^': 'eo',
+    'xor': 'eo',
     '=': 'aS',
     '+=': 'pL',
     '-=': 'mI',
     '*=': 'mL',
     '/=': 'dV',
     '%=': 'rM',
-    '&=': 'aN', 'and_eq': 'aN',
-    '|=': 'oR', 'or_eq': 'oR',
-    '^=': 'eO', 'xor_eq': 'eO',
+    '&=': 'aN',
+    'and_eq': 'aN',
+    '|=': 'oR',
+    'or_eq': 'oR',
+    '^=': 'eO',
+    'xor_eq': 'eO',
     '<<': 'ls',
     '>>': 'rs',
     '<<=': 'lS',
     '>>=': 'rS',
     '==': 'eq',
-    '!=': 'ne', 'not_eq': 'ne',
+    '!=': 'ne',
+    'not_eq': 'ne',
     '<': 'lt',
     '>': 'gt',
     '<=': 'le',
     '>=': 'ge',
     '<=>': 'ss',
-    '!': 'nt', 'not': 'nt',
-    '&&': 'aa', 'and': 'aa',
-    '||': 'oo', 'or': 'oo',
+    '!': 'nt',
+    'not': 'nt',
+    '&&': 'aa',
+    'and': 'aa',
+    '||': 'oo',
+    'or': 'oo',
     '++': 'pp',
     '--': 'mm',
     ',': 'cm',
@@ -505,30 +543,60 @@ _id_operator_unary_v2 = {
     '&': 'ad',
     '+': 'ps',
     '-': 'ng',
-    '!': 'nt', 'not': 'nt',
-    '~': 'co', 'compl': 'co',
+    '!': 'nt',
+    'not': 'nt',
+    '~': 'co',
+    'compl': 'co',
 }
 _id_char_from_prefix: dict[str | None, str] = {
-    None: 'c', 'u8': 'c',
-    'u': 'Ds', 'U': 'Di', 'L': 'w',
+    None: 'c',
+    'u8': 'c',
+    'u': 'Ds',
+    'U': 'Di',
+    'L': 'w',
 }
 # these are ordered by preceedence
-_expression_bin_ops = [
-    ['||', 'or'],
-    ['&&', 'and'],
-    ['|', 'bitor'],
-    ['^', 'xor'],
-    ['&', 'bitand'],
-    ['==', '!=', 'not_eq'],
-    ['<=>', '<=', '>=', '<', '>'],
-    ['<<', '>>'],
-    ['+', '-'],
-    ['*', '/', '%'],
-    ['.*', '->*'],
+_expression_bin_ops: Sequence[tuple[str, ...]] = [
+    ('||', 'or'),
+    ('&&', 'and'),
+    ('|', 'bitor'),
+    ('^', 'xor'),
+    ('&', 'bitand'),
+    ('==', '!=', 'not_eq'),
+    ('<=>', '<=', '>=', '<', '>'),
+    ('<<', '>>'),
+    ('+', '-'),
+    ('*', '/', '%'),
+    ('.*', '->*'),
 ]
-_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "not", "~", "compl"]
-_expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
-                              ">>=", "<<=", "&=", "and_eq", "^=", "|=", "xor_eq", "or_eq"]
+_expression_unary_ops: Sequence[str] = [
+    '++',
+    '--',
+    '*',
+    '&',
+    '+',
+    '-',
+    '!',
+    'not',
+    '~',
+    'compl',
+]
+_expression_assignment_ops: Sequence[str] = [
+    '=',
+    '*=',
+    '/=',
+    '%=',
+    '+=',
+    '-=',
+    '>>=',
+    '<<=',
+    '&=',
+    'and_eq',
+    '^=',
+    '|=',
+    'xor_eq',
+    'or_eq',
+]
 _id_explicit_cast = {
     'dynamic_cast': 'dc',
     'static_cast': 'sc',

@@ -89,11 +89,14 @@ To see an example of use of these objects, refer to
 
 .. _build-phases:
 
-Build Phases
+Build phases
 ------------
 
 One thing that is vital in order to understand extension mechanisms is the way
 in which a Sphinx project is built: this works in several phases.
+
+.. graphviz:: /_static/diagrams/sphinx_build_phases.dot
+   :caption: Build phases
 
 **Phase 0: Initialization**
 
@@ -156,40 +159,61 @@ Extension metadata
 
 .. versionadded:: 1.3
 
-The ``setup()`` function can return a dictionary.  This is treated by Sphinx
-as metadata of the extension.  Metadata keys currently recognized are:
+The ``setup()`` function should return a dictionary.
+This is treated by Sphinx as metadata of the extension.
+Metadata keys currently recognized are:
 
-* ``'version'``: a string that identifies the extension version.  It is used for
-  extension version requirement checking (see :confval:`needs_extensions`) and
-  informational purposes.  If not given, ``"unknown version"`` is substituted.
-* ``'env_version'``: an integer that identifies the version of env data
-  structure if the extension stores any data to environment.  It is used to
-  detect the data structure has been changed from last build.  The extensions
-  have to increment the version when data structure has changed.  If not given,
-  Sphinx considers the extension does not stores any data to environment.
-* ``'parallel_read_safe'``: a boolean that specifies if parallel reading of
-  source files can be used when the extension is loaded.  It defaults to
-  ``False``, i.e. you have to explicitly specify your extension to be
-  parallel-read-safe after checking that it is.
+``'version'``
+  A string that identifies the extension version.
+  It is used for extension version requirement checking
+  (see :confval:`needs_extensions`) and informational purposes.
+  If no version string is returned, ``'unknown version'`` is used by default.
 
-  .. note:: The *parallel-read-safe* extension must satisfy the following
-            conditions:
+``'env_version'``
+  A non-zero positive integer integer that records
+  the version of data stored in the environment by the extension.
 
-            * The core logic of the extension is parallelly executable during
-              the reading phase.
-            * It has event handlers for :event:`env-merge-info` and
-              :event:`env-purge-doc` events if it stores data to the build
-              environment object (env) during the reading phase.
+  .. attention::
+     If ``'env_version'`` is not set, the extension **must not**
+     store any data or state directly on the environment object  (``env``).
 
-* ``'parallel_write_safe'``: a boolean that specifies if parallel writing of
-  output files can be used when the extension is loaded.  Since extensions
-  usually don't negatively influence the process, this defaults to ``True``.
+  This key must be defined if the extension uses the ``env`` object to store data.
+  The version number must be incremented whenever the type, structure,  or meaning
+  of the stored data change, to ensure Sphinx does not try and load invalid data
+  from a cached environment.
 
-  .. note:: The *parallel-write-safe* extension must satisfy the following
-            conditions:
+  .. versionadded:: 1.8
 
-            * The core logic of the extension is parallelly executable during
-              the writing phase.
+``'parallel_read_safe'``
+  A boolean that specifies if parallel reading of source files
+  can be used when the extension is loaded.
+  It defaults to ``False``, meaning that you have to explicitly specify
+  your extension to be safe for parallel reading after checking that it is.
+
+  .. important::
+
+     When *parallel-read-safe* is ``True``,
+     the extension must satisfy the following conditions:
+
+     * The core logic of the extension is parallelly executable during
+       the reading phase.
+     * It has event handlers for :event:`env-merge-info` and
+       :event:`env-purge-doc` events if it stores data to the build
+       environment object (``env``) during the reading phase.
+
+``'parallel_write_safe'``
+  A boolean that specifies if parallel writing of output files
+  can be used when the extension is loaded.
+  Since extensions usually don't negatively influence the process,
+  this defaults to ``True``.
+
+  .. important::
+
+     When *parallel-write-safe* is ``True``,
+     the extension must satisfy the following conditions:
+
+     * The core logic of the extension is parallelly executable during
+       the writing phase.
 
 
 APIs used for writing extensions
@@ -216,4 +240,5 @@ disposal when developing Sphinx extensions. Some are core to Sphinx
    logging
    i18n
    utils
+   testing
    deprecated

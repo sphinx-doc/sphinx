@@ -20,7 +20,7 @@ Documentation.addTranslations({
         "Go": "\u691c\u7d22",
         "Hide Search Matches": "\u691c\u7d22\u7d50\u679c\u3092\u96a0\u3059",
         "Index": "\u7d22\u5f15",
-        "Index &ndash; %(key)s": "\u7d22\u5f15 &ndash; %(key)s",
+        "Index &#x2013; %(key)s": "",
         "Index pages by letter": "\u982d\u6587\u5b57\u5225\u7d22\u5f15",
         "Indices and tables:": "\u7d22\u5f15\u3068\u8868\u4e00\u89a7:",
         "Last updated on %(last_updated)s.": "\u6700\u7d42\u66f4\u65b0: %(last_updated)s",
@@ -36,7 +36,9 @@ Documentation.addTranslations({
         "Search": "\u691c\u7d22",
         "Search Page": "\u691c\u7d22\u30da\u30fc\u30b8",
         "Search Results": "\u691c\u7d22\u7d50\u679c",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            ""
+        ],
         "Search within %(docstitle)s": "%(docstitle)s \u5185\u3092\u691c\u7d22",
         "Searching": "\u691c\u7d22\u4e2d",
         "Searching for multiple words only shows matches that contain\n    all words.": "\u8907\u6570\u306e\u5358\u8a9e\u3092\u691c\u7d22\u3059\u308b\u3068\u3001\u6b21\u3092\u542b\u3080\u4e00\u81f4\u306e\u307f\u304c\u8868\u793a\u3055\u308c\u307e\u3059\n \u00a0\u00a0\u00a0 \u3059\u3079\u3066\u306e\u7528\u8a9e\u3002",

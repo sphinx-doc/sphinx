@@ -1,5 +1,7 @@
 """Build phase of Sphinx application."""
 
+from __future__ import annotations
+
 from enum import IntEnum
 
 

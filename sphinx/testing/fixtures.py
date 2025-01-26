@@ -28,7 +28,7 @@ DEFAULT_ENABLED_MARKERS = [
         'testroot="root", srcdir=None, '
         'confoverrides=None, freshenv=False, '
         'warningiserror=False, tags=None, verbosity=0, parallel=0, '
-        'keep_going=False, builddir=None, docutils_conf=None'
+        'builddir=None, docutils_conf=None'
         '): arguments to initialize the sphinx test application.'
     ),
     'test_params(shared_result=...): test parameters.',
@@ -42,7 +42,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 @pytest.fixture(scope='session')
-def rootdir() -> str | None:
+def rootdir() -> Path | None:
     return None
 
 
@@ -68,16 +68,15 @@ class SharedResult:
         }
 
 
-@pytest.fixture()
+@pytest.fixture
 def app_params(
     request: Any,
-    test_params: dict,
+    test_params: dict[str, Any],
     shared_result: SharedResult,
     sphinx_test_tempdir: str,
-    rootdir: str,
+    rootdir: Path,
 ) -> _app_params:
-    """
-    Parameters that are specified by 'pytest.mark.sphinx' for
+    """Parameters that are specified by 'pytest.mark.sphinx' for
     sphinx.application.Sphinx initialization
     """
     # ##### process pytest.mark.sphinx
@@ -86,7 +85,7 @@ def app_params(
     kwargs: dict[str, Any] = {}
 
     # to avoid stacking positional args
-    for info in reversed(list(request.node.iter_markers("sphinx"))):
+    for info in reversed(list(request.node.iter_markers('sphinx'))):
         pargs |= dict(enumerate(info.args))
         kwargs.update(info.kwargs)
 
@@ -114,13 +113,12 @@ def app_params(
     return _app_params(args, kwargs)
 
 
-_app_params = namedtuple('_app_params', 'args,kwargs')
+_app_params = namedtuple('_app_params', 'args,kwargs')  # NoQA: PYI024
 
 
-@pytest.fixture()
-def test_params(request: Any) -> dict:
-    """
-    Test parameters that are specified by 'pytest.mark.test_params'
+@pytest.fixture
+def test_params(request: Any) -> dict[str, Any]:
+    """Test parameters that are specified by 'pytest.mark.test_params'
 
     :param Union[str] shared_result:
        If the value is provided, app._status and app._warning objects will be
@@ -141,16 +139,14 @@ def test_params(request: Any) -> dict:
     return result
 
 
-@pytest.fixture()
+@pytest.fixture
 def app(
-    test_params: dict,
-    app_params: tuple[dict, dict],
-    make_app: Callable,
+    test_params: dict[str, Any],
+    app_params: _app_params,
+    make_app: Callable[[], SphinxTestApp],
     shared_result: SharedResult,
 ) -> Iterator[SphinxTestApp]:
-    """
-    Provides the 'sphinx.application.Sphinx' object
-    """
+    """Provides the 'sphinx.application.Sphinx' object"""
     args, kwargs = app_params
     app_ = make_app(*args, **kwargs)
     yield app_
@@ -159,33 +155,28 @@ def app(
     print('# builder:', app_.builder.name)
     print('# srcdir:', app_.srcdir)
     print('# outdir:', app_.outdir)
-    print('# status:', '\n' + app_._status.getvalue())
-    print('# warning:', '\n' + app_._warning.getvalue())
+    print('# status:', '\n' + app_.status.getvalue())
+    print('# warning:', '\n' + app_.warning.getvalue())
 
     if test_params['shared_result']:
         shared_result.store(test_params['shared_result'], app_)
 
 
-@pytest.fixture()
+@pytest.fixture
 def status(app: SphinxTestApp) -> StringIO:
-    """
-    Back-compatibility for testing with previous @with_app decorator
-    """
+    """Back-compatibility for testing with previous @with_app decorator"""
     return app.status
 
 
-@pytest.fixture()
+@pytest.fixture
 def warning(app: SphinxTestApp) -> StringIO:
-    """
-    Back-compatibility for testing with previous @with_app decorator
-    """
+    """Back-compatibility for testing with previous @with_app decorator"""
     return app.warning
 
 
-@pytest.fixture()
-def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
-    """
-    Provides make_app function to initialize SphinxTestApp instance.
+@pytest.fixture
+def make_app(test_params: dict[str, Any]) -> Iterator[Callable[[], SphinxTestApp]]:
+    """Provides make_app function to initialize SphinxTestApp instance.
     if you want to initialize 'app' in your test function. please use this
     instead of using SphinxTestApp class directory.
     """
@@ -196,11 +187,14 @@ def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_: Any = SphinxTestApp(*args, **kwargs)
-        apps.append(app_)
+        app_: SphinxTestApp
         if test_params['shared_result']:
-            app_ = SphinxTestAppWrapperForSkipBuilding(app_)
+            app_ = SphinxTestAppWrapperForSkipBuilding(*args, **kwargs)
+        else:
+            app_ = SphinxTestApp(*args, **kwargs)
+        apps.append(app_)
         return app_
+
     yield make
 
     sys.path[:] = syspath
@@ -208,7 +202,7 @@ def make_app(test_params: dict, monkeypatch: Any) -> Iterator[Callable]:
         app_.cleanup()
 
 
-@pytest.fixture()
+@pytest.fixture
 def shared_result() -> SharedResult:
     return SharedResult()
 
@@ -218,10 +212,9 @@ def _shared_result_cache() -> None:
     SharedResult.cache.clear()
 
 
-@pytest.fixture()
-def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
-    """
-    The test will be skipped when using 'if_graphviz_found' fixture and graphviz
+@pytest.fixture
+def if_graphviz_found(app: SphinxTestApp) -> None:
+    """The test will be skipped when using 'if_graphviz_found' fixture and graphviz
     dot command is not found.
     """
     graphviz_dot = getattr(app.config, 'graphviz_dot', '')
@@ -237,15 +230,14 @@ def if_graphviz_found(app: SphinxTestApp) -> None:  # NoQA: PT004
 
 
 @pytest.fixture(scope='session')
-def sphinx_test_tempdir(tmp_path_factory: Any) -> Path:
+def sphinx_test_tempdir(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Temporary directory."""
     return tmp_path_factory.getbasetemp()
 
 
-@pytest.fixture()
-def rollback_sysmodules() -> Iterator[None]:  # NoQA: PT004
-    """
-    Rollback sys.modules to its value before testing to unload modules
+@pytest.fixture
+def rollback_sysmodules() -> Iterator[None]:
+    """Rollback sys.modules to its value before testing to unload modules
     during tests.
 
     For example, used in test_ext_autosummary.py to permit unloading the

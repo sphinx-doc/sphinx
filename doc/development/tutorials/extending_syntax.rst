@@ -138,7 +138,7 @@ The simplest thing you can do is to call the
 :meth:`.Sphinx.add_role` and :meth:`.Sphinx.add_directive` methods,
 which is what we've done here.
 For this particular call, the first argument is the name of the role/directive itself
-as used in a reST file.
+as used in a reStructuredText file.
 In this case, we would use ``hello``. For example:
 
 .. code-block:: rst
@@ -169,10 +169,10 @@ For example:
 
 .. code-block:: python
 
-   import os
    import sys
+   from pathlib import Path
 
-   sys.path.append(os.path.abspath("./_ext"))
+   sys.path.append(str(Path('_ext').resolve()))
 
    extensions = ['helloworld']
 

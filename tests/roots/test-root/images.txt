@@ -18,5 +18,13 @@ Sphinx image handling
 .. an SVG image (for HTML at least)
 .. image:: svgimg.*
 
+.. an SVG image using width with units
+.. image:: svgimg.*
+   :width: 2cm
+
+.. an SVG image using height with units
+.. image:: svgimg.*
+   :height: 2cm
+
 .. an image with more than 1 dot in its file name
 .. image:: img.foo.png

@@ -4,19 +4,23 @@ from __future__ import annotations
 
 import binascii
 import struct
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import os
 
 LEN_IEND = 12
 LEN_DEPTH = 22
 
 DEPTH_CHUNK_LEN = struct.pack('!i', 10)
 DEPTH_CHUNK_START = b'tEXtDepth\x00'
-IEND_CHUNK = b'\x00\x00\x00\x00IEND\xAE\x42\x60\x82'
+IEND_CHUNK = b'\x00\x00\x00\x00IEND\xae\x42\x60\x82'
 
 
-def read_png_depth(filename: str) -> int | None:
+def read_png_depth(filename: str | os.PathLike[str]) -> int | None:
     """Read the special tEXt chunk indicating the depth from a PNG file."""
     with open(filename, 'rb') as f:
-        f.seek(- (LEN_IEND + LEN_DEPTH), 2)
+        f.seek(-(LEN_IEND + LEN_DEPTH), 2)
         depthchunk = f.read(LEN_DEPTH)
         if not depthchunk.startswith(DEPTH_CHUNK_LEN + DEPTH_CHUNK_START):
             # either not a PNG file or not containing the depth chunk
@@ -25,7 +29,7 @@ def read_png_depth(filename: str) -> int | None:
             return struct.unpack('!i', depthchunk[14:18])[0]
 
 
-def write_png_depth(filename: str, depth: int) -> None:
+def write_png_depth(filename: str | os.PathLike[str], depth: int) -> None:
     """Write the special tEXt chunk indicating the depth to a PNG file.
 
     The chunk is placed immediately before the special IEND chunk.
@@ -37,7 +41,7 @@ def write_png_depth(filename: str, depth: int) -> None:
         # overwrite it with the depth chunk
         f.write(DEPTH_CHUNK_LEN + DEPTH_CHUNK_START + data)
         # calculate the checksum over chunk name and data
-        crc = binascii.crc32(DEPTH_CHUNK_START + data) & 0xffffffff
+        crc = binascii.crc32(DEPTH_CHUNK_START + data) & 0xFFFFFFFF
         f.write(struct.pack('!I', crc))
         # replace the IEND chunk
         f.write(IEND_CHUNK)

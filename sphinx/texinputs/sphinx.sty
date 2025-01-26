@@ -3,10 +3,13 @@
 %
 % Adapted from the old python.sty, mostly written by Fred Drake,
 % by Georg Brandl.
-%
+% This has now grown to become a full-fledged LaTeX support, split
+% among multiple files, some of which provide features unavailable
+% from usual LaTeX packages in interaction with the mark-up produced
+% by the Sphinx LaTeX writer.
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2023/03/19 v6.2.0 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2024/11/23 v8.2.0 Sphinx LaTeX package (sphinx-doc)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -34,26 +37,26 @@
 }
 %% important build warnings use an undefined reference to induce latexmk
 %% into complaining (once per warning) at very end of console output
-\newcommand\sphinxbuildwarning[1]{%
-  \ifcsname sphinx_emitted_#1\endcsname
+\newcommand\sphinxbuildwarning[2][]{%
+  \ifcsname sphinx_emitted_#2\endcsname
   \else
-    \global\expandafter\let\csname sphinx_emitted_#1\endcsname\@empty
+    \global\expandafter\let\csname sphinx_emitted_#2\endcsname\@empty
     \AtEndDocument{\hbox{% should the printing of text be made conditional on
-                         % some boolean?
+                         % some boolean? (7.4.0 answers this by adding an
+                         % optional argument and testing it here for emptiness
+                         % but no usage is made of this novelty yet.)
+        \if\relax\detokenize{#1}\relax
+        % No [], print a red warning text at very end of document
                          \bfseries\color{red}%
-                         \@nameuse{sphinx_buildwarning_#1}%
+                         \@nameuse{sphinx_buildwarning_#2}%
+        \fi
                          % place an undefined reference deliberately
                          \let\nfss@text\@gobble % no ??
-                         \ref{!!\@nameuse{sphinx_buildwarning_#1}}%
-                         }}%
+                         \ref{!!\@nameuse{sphinx_buildwarning_#2}}%
+                         }%
+    }%
   \fi
 }
-\@namedef{sphinx_buildwarning_coloursyntax}{%
-   The colours whose definition used xcolor syntax were set to white
-   as xcolor was not found; check the latex log warnings for details}
-\@namedef{sphinx_buildwarning_colorblend}{%
-   Command \string\sphinxcolorblend\space seen but ignored in tables
-   as xcolor was not found; check the latex log warnings for details}
 \@namedef{sphinx_buildwarning_badtitlesec}{%
    Your system has titlesec version 2.10.1 which causes disappearance
    of section numbers; check the latex log warning for details}
@@ -63,29 +66,28 @@
 \@namedef{sphinx_buildwarning_badfootnotes}{%
    Footnote rendering may have had problems, due to extra package or
    document class; check latex log for instructions}%
-
+\@namedef{sphinx_buildwarning_badiconpackage}{%
+   You have set iconpackage=\spx@opt@iconpackage, but this LaTeX package
+   is not found}%
 
 %% OPTION HANDLING
 %
-
 % We generally first handle options then load packages, but we need
-% \definecolor from xcolor/color to handle the options.
+% \definecolor and \colorlet from xcolor to handle the options.
 
+% Support for colour options
+% --------------------------
+% At 7.4.0, package xcolor is required (which has allowed to get rid of
+% annoying fall-back branches).  Internals here got refactored to some extent.
+%
 % MEMO: xcolor \fcolorbox coloured boxes render better in some PDF viewers
 % than with color package \fcolorbox.  Since 1.6.3, Sphinx uses only its own
 % custom variant of \fcolorbox when handling code-blocks.  But \fcolorbox
-% appears also in Pygmentize output mark-up.  Also, since 5.3.0, 'sphinxsetup'
-% color options get a richer input syntax if Sphinx knows xcolor is loaded,
-% and the \sphinxcolorblend (for tables) is made available only if xcolor is
-% loaded.
-\IfFileExists{xcolor.sty}{
+% appears also in Pygmentize output mark-up.
 % Should Sphinx load xcolor with its dvipsnames and svgnames options?
-    \RequirePackage{xcolor}
-}{
-    \RequirePackage{color}
-}
+\RequirePackage{xcolor}
 
-% the \colorlet of xcolor (if at all loaded) is overkill for most internal use
+% the \colorlet of xcolor is overkill for our internal usage here
 \newcommand{\sphinxcolorlet}[2]
     {\expandafter\let\csname\@backslashchar color@#1\expandafter\endcsname
                      \csname\@backslashchar color@#2\endcsname }
@@ -93,6 +95,8 @@
 % (5.3.0) Allow colour options to use both the \definecolor and the \colorlet
 % syntaxes, for example VerbatimColor={gray}{0.9} or VerbatimColor=red!10
 % In the latter case we need the real \colorlet from xcolor package.
+% Prior to 7.4.0 xcolor was not required and thus \spx@colorlet was configured
+% to raise a warning in case of absence of xcolor.
 \def\spx@defineorletcolor#1{%
     \def\spx@definedcolor{{#1}}%
     \futurelet\spx@token\spx@defineorlet}
@@ -101,21 +105,17 @@
     \expandafter\spx@definecolor\else\expandafter\spx@colorlet\fi}
 \def\spx@colorlet#1\relax{\expandafter\colorlet\spx@definedcolor{#1}}
 \def\spx@definecolor{\expandafter\definecolor\spx@definedcolor}
-%
-\@ifpackageloaded{xcolor}%
-   {}%
-   {% xcolor not loaded because it was not found in the LaTeX installation
-\def\spx@colorlet#1\relax{%
-    \sphinxbuildwarning{coloursyntax}%
-    \PackageWarning{sphinx}{%
-Sorry, the #1 syntax requires package xcolor,\MessageBreak
-which was not found on your TeX/LaTeX installation.\MessageBreak
-\@spaces\expandafter\@firstofone\spx@definedcolor\MessageBreak
-will be set to white}%
-    \expandafter\definecolor\spx@definedcolor{rgb}{1,1,1}%
-    }% end of redefinition of \spx@colorlet
-   }% end of xcolor not found branch
-
+% These internals refactored at 7.4.0:
+\newcommand*{\spx@DeclareColorOption}[3][]{%
+% #1 = almost always "sphinx" but left empty for a few for legacy reasons
+% #2 = option name, but internal colour name is #1#2 (i.e. with prefix)
+% #3 = initial default colour with either \definecolor or \colorlet syntax
+   % Set the initial default
+   \spx@defineorletcolor{#1#2}#3\relax
+   % Set the key handler to accept both \definecolor and \colorlet syntax
+   % The key name does not have the #1 prefix from the colour name
+   \define@key{sphinx}{#2}{\spx@defineorletcolor{#1#2}##1\relax}%
+}%
 
 % Handle options via "kvoptions" (later loaded by hyperref anyhow)
 \RequirePackage{kvoptions}
@@ -156,13 +156,19 @@ will be set to white}%
 \DeclareStringOption[-1]{numfigreset}
 \DeclareBoolOption[false]{nonumfigreset}
 \DeclareBoolOption[false]{mathnumfig}
+\DeclareStringOption[.]{mathnumsep}
 \define@key{sphinx}{bookmarksdepth}{\AtBeginDocument{\hypersetup{bookmarksdepth=#1}}}
 \AtBeginDocument{\define@key{sphinx}{bookmarksdepth}{\hypersetup{bookmarksdepth=#1}}}
 % \DeclareBoolOption[false]{usespart}% not used
+
+% Code-blocks
+% -----------
+%
 % INFO: the keys for padding and border widths were extended at 5.1.0,
 % and legacy names for user interface were kept, but their definitions
 % are delayed further down.  The legacy internally used dimen registers
 % \sphinxverbatimborder and \sphinxverbatimsep got removed at 6.2.0.
+% More code-blocks related options are found in "CSS" part below.
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
 \DeclareBoolOption[false]{verbatimforcewraps}
@@ -180,70 +186,50 @@ will be set to white}%
 \DeclareStringOption % must use braces to hide the brackets
   [{\makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\m@th\hookrightarrow$}}}]%
   {verbatimcontinued}
-% topic boxes
+
+% Topic boxes
+% -----------
 %
 % 5.1.0 added new keys for configuration.  The legacy keys shadowsep,
-% shadowsize, shadowrule were kept for backward compatibility.  Unfortunately
-% this had bugs due to typos, which got fixed later at 6.1.2.
+% shadowsize, shadowrule were kept for backward compatibility.
+% 5.1.2 fixed some bugs.
 %
 % All configuration is now to be found in the "CSS" section below.
 %
-% \sphinxshadowsep, \sphinxshadowsize, \sphinxshadowrule \dimen registers
-% became at 5.1.0 either no-op or, for the latter, were used under an aliased
-% name.  They got removed at 6.2.0.
-%
-% notices/admonitions
-%
-% 5.1.0 added much customizability to warning, caution, attention, danger and
-% error types of notices via an enhanced sphinxheavybox environment.
-%
-% 6.2.0 added the possibility to use the same kind of rendering also for
-% note, hint, important, and tip.
-%
-% Legacy user interface for options was kept working.  All of it is handled in
-% the "CSS" section below.
-%
-% These 6.2.0 added booleans serve internally.  There is no reason for user to
-% know about them, except if it is desired to toggle mid-way in the document
-% whether note, hint, important, and tip should use the "lightbox" or the
-% "heavybox" rendering.
-\DeclareBoolOption[false]{heavynote}
-\DeclareBoolOption[false]{heavyhint}
-\DeclareBoolOption[false]{heavyimportant}
-\DeclareBoolOption[false]{heavytip}
-% footnotes
+% 6.2.0 removed \sphinxshadowsep, \sphinxshadowsize, \sphinxshadowrule
+% \dimen registers
+
+% Footnotes
+% ---------
 \DeclareStringOption[\mbox{ }]{AtStartFootnote}
 % we need a public macro name for direct use in latex file
 \newcommand*{\sphinxAtStartFootnote}{\spx@opt@AtStartFootnote}
 % no such need for this one, as it is used inside other macros
 \DeclareStringOption[\leavevmode\unskip]{BeforeFootnote}
-% some font styling.
+
+% Some font styling
+% -----------------
+% TODO: the replacement of old syntax \py@HeaderFamily as used
+% in sphinxlatexstyle{page,headings}.sty and sphinx{manual,howto}.cls
+% has never been really put in place.  Hence this isolated tidbit here.
 \DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
-% colours
-% same problems as for dimensions: we want the key handler to use \definecolor.
-% first, some colours with no prefix, for backward compatibility
-\newcommand*{\sphinxDeclareColorOption}[2]{%
-   % set the initial default; only \definecolor syntax for defaults!
-   \definecolor{#1}#2%
-   % set the key handler to accept both \definecolor and \colorlet syntax
-   \define@key{sphinx}{#1}{\spx@defineorletcolor{#1}##1\relax}%
-}%
-\sphinxDeclareColorOption{TitleColor}{{rgb}{0.126,0.263,0.361}}
-\sphinxDeclareColorOption{InnerLinkColor}{{rgb}{0.208,0.374,0.486}}
-\sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
-\sphinxDeclareColorOption{VerbatimColor}{{gray}{0.95}}
-\sphinxDeclareColorOption{VerbatimBorderColor}{{RGB}{32,32,32}}
-% all other colours will be named with a "sphinx" prefix
-\newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
-   % set the initial default; only \definecolor syntax for defaults!
-   \definecolor{sphinx#1}#2%
-   % set the key handler to accept both \definecolor and \colorlet syntax
-   \define@key{sphinx}{#1}{\spx@defineorletcolor{sphinx#1}##1\relax}%
-}%
-% table row colors
-\sphinxDeclareSphinxColorOption{TableRowColorHeader}{{gray}{0.86}}
-\sphinxDeclareSphinxColorOption{TableRowColorOdd}{{gray}{0.92}}
-\sphinxDeclareSphinxColorOption{TableRowColorEven}{{gray}{0.98}}
+
+% Some legacy colour options
+% --------------------------
+%
+\spx@DeclareColorOption{TitleColor}{{rgb}{0.126,0.263,0.361}}
+\spx@DeclareColorOption{InnerLinkColor}{{rgb}{0.208,0.374,0.486}}
+\spx@DeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
+% The Verbatim ones are "legacy" only since 5.1.0... call it "new-legacy" ;-)
+\spx@DeclareColorOption{VerbatimColor}{{RGB}{242,242,242}}% same as {gray}{0.95}
+\spx@DeclareColorOption{VerbatimBorderColor}{{RGB}{32,32,32}}
+% All other colours will be internally assigned a "sphinx" prefix
+
+% Table row colors (since 6.0.0)
+% ----------------
+\spx@DeclareColorOption[sphinx]{TableRowColorHeader}{{gray}{0.86}}
+\spx@DeclareColorOption[sphinx]{TableRowColorOdd}{{gray}{0.92}}
+\spx@DeclareColorOption[sphinx]{TableRowColorEven}{{gray}{0.98}}
 % if not set, the "Merge" colour will keep in sync with the "Row" colour
 \def\sphinxTableMergeColorHeader{sphinxTableRowColorHeader}
 \define@key{sphinx}{TableMergeColorHeader}{%
@@ -261,37 +247,67 @@ will be set to white}%
     \def\sphinxTableMergeColorEven{sphinxTableMergeColorEven}%
 }%
 % Default color chosen to be as in minted.sty LaTeX package!
-\sphinxDeclareSphinxColorOption{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
-% admonition boxes, "light" style
-% border color defaults to black
-% at 6.2.0 also background color is possible, but it then triggers
-% usage of the "sphinxheavybox" from sphinxlatexadmonitions.sty.
-\sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{importantBorderColor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{tipBorderColor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{noteBgColor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{hintBgColor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{importantBgColor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{tipBgColor}{{rgb}{1,1,1}}
-% admonition boxes, "heavy" style
-% border color defaults to black and background color to white
-% As long as the color are not explicitly set via user options,
-% the sphinxpackageboxes.sty code will actually not use them anyhow.
-\sphinxDeclareSphinxColorOption{warningBorderColor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{cautionBorderColor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{attentionBorderColor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{dangerBorderColor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{errorBorderColor}{{rgb}{0,0,0}}
-% BgColor should have been from the start BackgroundColor for better
-% match with CSS property names, but this is legacy interface
-% which is too late to change because the internal color names
-% and not only the option names have been documented at user level.
-\sphinxDeclareSphinxColorOption{warningBgColor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{cautionBgColor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{attentionBgColor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{dangerBgColor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{errorBgColor}{{rgb}{1,1,1}}
+\spx@DeclareColorOption[sphinx]{VerbatimHighlightColor}{{rgb}{0.878,1,1}}
+
+% Notices/admonitions
+% -------------------
+%
+% 5.1.0 added much customizability to warning, caution, attention, danger and
+% error types of notices via an enhanced sphinxheavybox environment.
+%
+% 6.2.0 added the possibility to use the same kind of rendering also for
+% note, hint, important, and tip.
+%
+% Legacy user interface for options was kept working.  All of it is handled in
+% the "CSS" section below.
+%
+% 6.2.0 added booleans to serve internally as a record of whether the
+% note, hint, important and tip admonitions used the legacy "lightbox" or
+% the then enhanced "heavybox" environment.
+%
+% 7.4.0 uses "heavybox" environment from sphinxlatexadmonitions in all cases,
+% hence the booleans mentioned above have been removed as well as the rather
+% complex TeX code which was done so that these booleans were made true if
+% and only if the CSS-named keys had been made usage of via 'sphinxsetup'.
+%
+% The "light style" implemented in sphinxlatexadmonitions.sty as
+% "sphinxlightbox" is not used.  Also, admonitions by default have a "title
+% row", and the corresponding options are only named in the CSS style which is
+% implemented further below.  Here we define options having a legacy name.
+%
+% seealso directive is also using "heavybox" at 7.4.0 acquiring the same
+% customizability as admonitions.
+% todo directive also.
+\definecolor{sphinx-admonition-bgcolor}      {RGB}{247, 247, 247}% #F7F7F7
+\definecolor{sphinx-admonition-bordercolor}  {RGB}{134, 152, 155}% #86989B
+\definecolor{sphinx-warning-bordercolor}     {RGB}{148, 0, 0}%     #940000
+\definecolor{sphinx-error-bordercolor}       {RGB}{180, 0, 0}%     #B40000
+\spx@DeclareColorOption[sphinx]{noteBorderColor}     {sphinx-admonition-bordercolor}
+\spx@DeclareColorOption[sphinx]{hintBorderColor}     {sphinx-admonition-bordercolor}
+\spx@DeclareColorOption[sphinx]{importantBorderColor}{sphinx-admonition-bordercolor}
+\spx@DeclareColorOption[sphinx]{tipBorderColor}      {sphinx-admonition-bordercolor}
+\spx@DeclareColorOption[sphinx]{seealsoBorderColor}  {sphinx-admonition-bordercolor}% 7.4.0
+\spx@DeclareColorOption[sphinx]{todoBorderColor}     {sphinx-admonition-bordercolor}% 7.4.0
+%
+\spx@DeclareColorOption[sphinx]{noteBgColor}     {sphinx-admonition-bgcolor}
+\spx@DeclareColorOption[sphinx]{hintBgColor}     {sphinx-admonition-bgcolor}
+\spx@DeclareColorOption[sphinx]{importantBgColor}{sphinx-admonition-bgcolor}
+\spx@DeclareColorOption[sphinx]{tipBgColor}      {sphinx-admonition-bgcolor}
+\spx@DeclareColorOption[sphinx]{seealsoBgColor}  {sphinx-admonition-bgcolor}% 7.4.0
+\spx@DeclareColorOption[sphinx]{todoBgColor}     {sphinx-admonition-bgcolor}% 7.4.0
+%
+\spx@DeclareColorOption[sphinx]{warningBorderColor}  {sphinx-warning-bordercolor}
+\spx@DeclareColorOption[sphinx]{cautionBorderColor}  {sphinx-warning-bordercolor}
+\spx@DeclareColorOption[sphinx]{attentionBorderColor}{sphinx-warning-bordercolor}
+\spx@DeclareColorOption[sphinx]{dangerBorderColor}   {sphinx-warning-bordercolor}
+\spx@DeclareColorOption[sphinx]{errorBorderColor}    {sphinx-error-bordercolor}
+%
+\spx@DeclareColorOption[sphinx]{warningBgColor}  {sphinx-admonition-bgcolor}
+\spx@DeclareColorOption[sphinx]{cautionBgColor}  {sphinx-admonition-bgcolor}
+\spx@DeclareColorOption[sphinx]{attentionBgColor}{sphinx-admonition-bgcolor}
+\spx@DeclareColorOption[sphinx]{dangerBgColor}   {sphinx-admonition-bgcolor}
+\spx@DeclareColorOption[sphinx]{errorBgColor}    {sphinx-admonition-bgcolor}
+%
 %%%%%%%%
 %
 % Additions of CSS-like keys at 5.1.0 (and possibility of rounded boxes)
@@ -324,14 +340,30 @@ will be set to white}%
 % finally been removed entirely.  No more \dimen register is used here only
 % storage in macros.
 %
+% Restyling at 7.4.0 with new defaults for all admonition types
+% -------------------------------------------------------------
+%
+% So far the 5.1.0 added possibilities for fancier boxes had been used by
+% default only for code-blocks, and admonitions kept their old-fashioned
+% legacy styles.  At 7.4.0, as a follow-up to the revamped styles of
+% admonitions in the HTML sphinx13 theme (PR #12439), it is decided to
+% apply similar styling for PDF output.  Also the seealso directive
+% is handled as an admonition with the same customizability. And the
+% todo directive.
+%
+% 8.1.0: style separately topic, contents, and sidebar directives
+% ---------------------------------------------------------------
+%
+% And use some title row also for them (but without icon, per default).
+%
 \def\spxstring@none{none}
 \def\spxstring@clone{clone}
 %
 % Border keys
-%
+% At 7.4.0 refactoring to avoid defining legacy \spx@<type>@border
+% macros which are (now) used nowhere, only @top, @right, @bottom, @left.
 \def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
-  \csname #1border\expandafter\endcsname
   \csname #1border@top\expandafter\endcsname
   \csname #1border@right\expandafter\endcsname
   \csname #1border@bottom\expandafter\endcsname
@@ -340,103 +372,122 @@ will be set to white}%
   \csname #1border@opentrue\expandafter\endcsname
   \csname #1border@openfalse\endcsname
 }%
-\def\spx@tempb #1#2#3#4#5#6#7#8#9{% #9 = option prefix
-  \define@key{sphinx}{#9border-top-width}{\def#2{##1}}%
-  \define@key{sphinx}{#9border-right-width}{\def#3{##1}}%
-  \define@key{sphinx}{#9border-bottom-width}{\def#4{##1}}%
-  \define@key{sphinx}{#9border-left-width}{\def#5{##1}}%
-  \define@key{sphinx}{#9border-width}{%
-    \def#1{##1}% MEMO: not immediately expanded, should this be changed?
-    \def#2{#1}\let#3#2\let#4#2\let#5#2%
+\def\spx@tempb #1#2#3#4#5#6#7#8#9{% #8 = option prefix
+  \define@key{sphinx}{#8border-top-width}{\def#1{##1}}%
+  \define@key{sphinx}{#8border-right-width}{\def#2{##1}}%
+  \define@key{sphinx}{#8border-bottom-width}{\def#3{##1}}%
+  \define@key{sphinx}{#8border-left-width}{\def#4{##1}}%
+  \define@key{sphinx}{#8border-width}{%
+    % MEMO: not immediately expanded, should this be changed?
+    \def#1{##1}\let#2#1\let#3#1\let#4#1%
     }%
-  \newif#6%
-  \define@key{sphinx}{#9box-decoration-break}%
+  \newif#5%
+  % 6.2.0 has added support for box-decoration-break also to admonition
+  % directives, formerly the option setting was ignored for them.
+  \define@key{sphinx}{#8box-decoration-break}%
            {\begingroup\edef\spx@tempa{##1}\expandafter\endgroup
-            \ifx\spx@tempa\spxstring@clone#8\else#7\fi}%
-  \spx@tempc{#9}% option prefix
-}
-\def\spx@tempc #1#2{% #1 = option prefix, #2 = legacy option name
+            \ifx\spx@tempa\spxstring@clone#7\else#6\fi}%
+  % 7.4.0 sets the default behaviour to "slice" not only for code-blocks but
+  % also for admonitions, as the latter now have a background colour each.
+  #6%
+  % #8 = option prefix (with underscore), #9 = legacy option name
   % keep legacy option names as aliases to new-named options
-  \expandafter\let\csname KV@sphinx@#2\expandafter\endcsname
-                  \csname KV@sphinx@#1border-width\endcsname
+  \expandafter\let\csname KV@sphinx@#9\expandafter\endcsname
+                  \csname KV@sphinx@#8border-width\endcsname
   % init border-width (fetches next argument)
-  \csname KV@sphinx@#1border-width\endcsname
+  \csname KV@sphinx@#8border-width\endcsname
 }
-% MEMO: prior to 6.2.0 the \fboxrule value (0.4pt, a priori) was frozen here via
-% a \dimen assignment done immediately. Now it remains \fboxrule until being used.
+% MEMO: from 6.2.0 to 7.4.0 (excluive) \fboxrule was used in the first
+% two, and was resolved only at location of use.  At 7.4.0, we again
+% use 0.4pt rather and not \fboxrule dimen register.
 %          macro prefix   option prefix   legacy option    init value
-\spx@tempa{spx@pre@}      {pre_}          {verbatimborder} \fboxrule
-\spx@tempa{spx@topic@}    {div.topic_}    {shadowrule}     \fboxrule
+\spx@tempa{spx@pre@}      {pre_}          {verbatimborder} {0.4pt}
+\spx@tempa{spx@topic@}    {div.topic_}    {shadowrule}     {0.5pt}% mod. at 7.4.0
+\spx@tempa{spx@contents@} {div.contents_} {shadowrule}     {0.5pt}% 8.1.0
+\spx@tempa{spx@sidebar@}  {div.sidebar_}  {shadowrule}     {1pt}%   8.1.0
+% let legacy shadowrule key set all topic/contents/sidebar border
+% keys to the common value given by user to shadowrule
+\def\KV@sphinx@shadowrule #1{%
+  \@nameuse{KV@sphinx@div.topic_border-width}{#1}%
+  \@nameuse{KV@sphinx@div.contents_border-width}{#1}%
+  \@nameuse{KV@sphinx@div.sidebar_border-width}{#1}%
+}%
 \spx@tempa{spx@note@}     {div.note_}     {noteborder}     {0.5pt}
 \spx@tempa{spx@hint@}     {div.hint_}     {hintborder}     {0.5pt}
 \spx@tempa{spx@important@}{div.important_}{importantborder}{0.5pt}
 \spx@tempa{spx@tip@}      {div.tip_}      {tipborder}      {0.5pt}
+\spx@tempa{spx@seealso@}  {div.seealso_}  {seealsoborder}  {0.5pt}% new at 7.4.0
+\spx@tempa{spx@todo@}     {div.todo_}     {todoborder}     {0.5pt}% new at 7.4.0
 \spx@tempa{spx@warning@}  {div.warning_}  {warningborder}  {1pt}
 \spx@tempa{spx@caution@}  {div.caution_}  {cautionborder}  {1pt}
 \spx@tempa{spx@attention@}{div.attention_}{attentionborder}{1pt}
 \spx@tempa{spx@danger@}   {div.danger_}   {dangerborder}   {1pt}
-\spx@tempa{spx@error@}    {div.error_}    {errorborder}    {1pt}
+\spx@tempa{spx@error@}    {div.error_}    {errorborder}    {1.25pt}% mod. at 7.4.0
 % this one new at 6.2.0: (we do not create a "legacy name" for it)
-\spx@tempa{spx@box@}      {box_}          {box_border-width}\fboxrule
-% Set default box-decoration-break style for codeblocks to slice
-\spx@pre@border@opentrue % new default at 6.0.0: slice, not clone
-% 6.2.0 has added support for box-decoration-break=slice to all
-% other directives, formerly the option setting was ignored for them.
+\spx@tempa{spx@box@}      {box_}          {box_border-width}{0.4pt}
+% Reset default box-decoration-break style to "clone" for \sphinxbox,
+% but anyhow this is ignored as \sphinxbox produces unbreakable boxes.
+\spx@box@border@openfalse
 
 % Padding keys
-%
+% At 7.4.0, \spx@<type>@padding internal macros removed, only @top, @right,
+% @bottom, @left are actually needed by sphinxpackageboxes.sty.
 \def\spx@tempa#1{%
   \expandafter\spx@tempb
-  \csname #1padding\expandafter\endcsname
   \csname #1padding@top\expandafter\endcsname
   \csname #1padding@right\expandafter\endcsname
   \csname #1padding@bottom\expandafter\endcsname
   \csname #1padding@left\endcsname
 }%
-\def\spx@tempb #1#2#3#4#5#6{% #6 = option prefix
-  \define@key{sphinx}{#6padding-top}{\def#2{##1}}%
-  \define@key{sphinx}{#6padding-right}{\def#3{##1}}%
-  \define@key{sphinx}{#6padding-bottom}{\def#4{##1}}%
-  \define@key{sphinx}{#6padding-left}{\def#5{##1}}%
-  \define@key{sphinx}{#6padding}{%
-     \def#1{##1}%
-     \def#2{#1}\let#3#2\let#4#2\let#5#2%
+\def\spx@tempb #1#2#3#4#5#6#7#8#9{% #5 = option prefix
+  \define@key{sphinx}{#5padding-top}{\def#1{##1}}%
+  \define@key{sphinx}{#5padding-right}{\def#2{##1}}%
+  \define@key{sphinx}{#5padding-bottom}{\def#3{##1}}%
+  \define@key{sphinx}{#5padding-left}{\def#4{##1}}%
+  \define@key{sphinx}{#5padding}{%
+     \def#1{##1}\let#2#1\let#3#1\let#4#1%
   }%
-  % initialization (will fetch "init" argument next):
-  \csname KV@sphinx@#6padding\endcsname
+  % initial defaults
+  \def#1{#6}\def#2{#7}\def#3{#8}\def#4{#9}%
 }
 % MEMO: prior to 6.2.0 the \fboxsep value (3pt, a priori) was frozen here via
-% a \dimen assignment done immediately. Now it remains \fboxsep until being used.
-%         #1 macro prefix #6 option prefix  init value
-\spx@tempa{spx@pre@}      {pre_}            \fboxsep
-\spx@tempa{spx@topic@}    {div.topic_}      {5pt}
-% MEMO: prior to 6.2.0, "note" type admonitions used sphinxlightbox automatically
-% and had no interface to set the padding parameters needed by sphinxheavybox.
-% At 6.2.0 they acquired such interface and the default is set as for legacy
-% default of "warning" type.  I hesitated using \fboxsep, but if I did I would
-% then need to explain how to change "note etc..." into behaving exactly
-% as "warning etc...", which goes via the \dimexpr here which is too scary to
-% put sanely into documentation.
-\spx@tempa{spx@note@}     {div.note_}       {\dimexpr.6\baselineskip-\spx@note@border\relax}
-\spx@tempa{spx@hint@}     {div.hint_}       {\dimexpr.6\baselineskip-\spx@hint@border\relax}
-\spx@tempa{spx@important@}{div.important_}  {\dimexpr.6\baselineskip-\spx@important@border\relax}
-\spx@tempa{spx@tip@}      {div.tip_}        {\dimexpr.6\baselineskip-\spx@tip@border\relax}
-% MEMO: prior to 5.1.0 padding was not separately customizable from border
-% width for warning type admonitions.  The below keeps the legacy behavior of a
-% constant borderwidth+padding.  The dim expression is not evaluated yet, only
-% at time of use (so that it dynamically adapts to the border width setting).
-% MEMO: I could use everywhere \spx@notice@border, as sphinxadmonition environment
-% configures it to hold the \spx@<type>@border value.
-\spx@tempa{spx@warning@}  {div.warning_}    {\dimexpr.6\baselineskip-\spx@warning@border\relax}
-\spx@tempa{spx@caution@}  {div.caution_}    {\dimexpr.6\baselineskip-\spx@caution@border\relax}
-\spx@tempa{spx@attention@}{div.attention_}  {\dimexpr.6\baselineskip-\spx@attention@border\relax}
-\spx@tempa{spx@danger@}   {div.danger_}     {\dimexpr.6\baselineskip-\spx@danger@border\relax}
-\spx@tempa{spx@error@}    {div.error_}      {\dimexpr.6\baselineskip-\spx@error@border\relax}
-\spx@tempa{spx@box@}      {box_}            \fboxsep
+% a \dimen assignment done immediately. From 6.2.0 to 7.4.0 an unfrozen
+% \fboxsep was used, and at 7.4.0 it is again explicit 3pt.
+% The defaults for admonitions were all modified at 7.4.0.
+% For topic/contents and all admonitions the horizontal padding plus borders
+% are put inside the text area (i.e. do not go into the margins).
+% In order for perfect exact same vertical alignment of contents from all such
+% directives, the value of horizontal border-width+padding is kept constant
+% (equal to 7.5pt since 7.4.0).
+% 8.1.0 styles separately topic, contents, and sidebar.
+%         #1 macro prefix #6 option prefix   top right bottom left
+\spx@tempa{spx@pre@}      {pre_}            {3pt}{3pt}{3pt}{3pt}
+\spx@tempa{spx@topic@}    {div.topic_}      {6pt}{7pt}{6pt}{7pt}% mod. at 8.1.0
+% contents styling inherits at 8.1.0 the former 7.4.0 topic defaults
+\spx@tempa{spx@contents@} {div.contents_}   {10pt}{7pt}{12pt}{7pt}%   8.1.0
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {6pt}{6.5pt}{6pt}{6.5pt}% 8.1.0
+% 7.4.0 drops legacy settings which linked strangely padding with border width
+\spx@tempa{spx@note@}     {div.note_}       {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@hint@}     {div.hint_}       {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@important@}{div.important_}  {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@tip@}      {div.tip_}        {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@seealso@}  {div.seealso_}    {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@todo@}     {div.todo_}       {6pt}{7pt}{6pt}{7pt}
+\spx@tempa{spx@warning@}  {div.warning_}    {6pt}{6.5pt}{6pt}{6.5pt}
+\spx@tempa{spx@caution@}  {div.caution_}    {6pt}{6.5pt}{6pt}{6.5pt}
+\spx@tempa{spx@attention@}{div.attention_}  {6pt}{6.5pt}{6pt}{6.5pt}
+\spx@tempa{spx@danger@}   {div.danger_}     {6pt}{6.5pt}{6pt}{6.5pt}
+\spx@tempa{spx@error@}    {div.error_}      {6pt}{6.25pt}{6pt}{6.25pt}
+\spx@tempa{spx@box@}      {box_}            {3pt}{3pt}{3pt}{3pt}
 % define legacy verbatimsep key as alias of pre_padding key
 \expandafter\let\expandafter\KV@sphinx@verbatimsep\csname KV@sphinx@pre_padding\endcsname
-% define legacy shadowsep key as alias of div.topic_padding key
-\expandafter\let\expandafter\KV@sphinx@shadowsep\csname KV@sphinx@div.topic_padding\endcsname
+% let legacy shadowsep key set all topic/contents/sidebar padding
+% keys to the common value given by user to shadosep
+\def\KV@sphinx@shadowsep #1{%
+  \@nameuse{KV@sphinx@div.topic_padding}{#1}%
+  \@nameuse{KV@sphinx@div.contents_padding}{#1}%
+  \@nameuse{KV@sphinx@div.sidebar_padding}{#1}%
+}%
 
 % Corner radii keys
 %
@@ -450,30 +501,42 @@ will be set to white}%
   \csname #1radius@bottomright\expandafter\endcsname
   \csname #1radius@bottomleft\endcsname
 }%
-\def\spx@tempb #1#2#3#4#5{% #5 = option prefix
+\def\spx@tempb #1#2#3#4#5#6#7#8#9{% #5 = option prefix
   \define@key{sphinx}{#5border-top-left-radius}{\def#1{##1}}%
   \define@key{sphinx}{#5border-top-right-radius}{\def#2{##1}}%
   \define@key{sphinx}{#5border-bottom-right-radius}{\def#3{##1}}%
   \define@key{sphinx}{#5border-bottom-left-radius}{\def#4{##1}}%
   \define@key{sphinx}{#5border-radius}{\def#1{##1}\let#2#1\let#3#1\let#4#1}%
-  \csname KV@sphinx@#5border-radius\endcsname % fetches next argument
+  \def#1{#6}\def#2{#7}\def#3{#8}\def#4{#9}%
 }
 % The init value for corner radius in code-blocks was \z@ (i.e. 0pt) prior
-% to 6.0.0., then 3pt, then \fboxsep at 6.2.0 as padding is \fboxsep,
-% and \fboxsep=3pt per default (also with platex).
-%          macro prefix    option prefix     init value
-\spx@tempa{spx@pre@}      {pre_}            \fboxsep
-\spx@tempa{spx@topic@}    {div.topic_}      \z@
-\spx@tempa{spx@note@}     {div.note_}       \z@
-\spx@tempa{spx@hint@}     {div.hint_}       \z@
-\spx@tempa{spx@important@}{div.important_}  \z@
-\spx@tempa{spx@tip@}      {div.tip_}        \z@
-\spx@tempa{spx@warning@}  {div.warning_}    \z@
-\spx@tempa{spx@caution@}  {div.caution_}    \z@
-\spx@tempa{spx@attention@}{div.attention_}  \z@
-\spx@tempa{spx@danger@}   {div.danger_}     \z@
-\spx@tempa{spx@error@}    {div.error_}      \z@
-\spx@tempa{spx@box@}      {box_}            \fboxsep
+% to 6.0.0., then 3pt, then \fboxsep at 6.2.0 as padding was also \fboxsep.
+% At 7.4.0:
+% - the 3pt is used (which is normal value of \fboxsep).
+% - some admonitions use rounded corners as well.
+% - topic boxed have only their bottom right corner rounded.
+% At 8.1.0 topic, contents and sidebar separately styled.
+%          macro prefix    option prefix     tl   tr   br   bl
+\spx@tempa{spx@pre@}      {pre_}            {3pt}{3pt}{3pt}{3pt}
+% use four rounded corners (and no shadow) for topic at 8.1.0
+\spx@tempa{spx@topic@}    {div.topic_}      {8pt}{8pt}{8pt}{8pt}
+% contents inherits at 8.1.0 the 7.4.0 former styling of topic
+\spx@tempa{spx@contents@} {div.contents_}   \z@  \z@  {12pt} \z@
+% make sidebard distinctive as we can't really safely implement
+% it with text flowing around it, but rather as a full width block
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {12pt}\z@ {12pt} \z@
+\spx@tempa{spx@note@}     {div.note_}       {5pt}{5pt}{5pt}{5pt}
+\spx@tempa{spx@hint@}     {div.hint_}       {5pt}{5pt}{5pt}{5pt}
+\spx@tempa{spx@important@}{div.important_}  \z@\z@\z@\z@
+\spx@tempa{spx@tip@}      {div.tip_}        {5pt}{5pt}{5pt}{5pt}
+\spx@tempa{spx@seealso@}  {div.seealso_}    \z@\z@\z@\z@
+\spx@tempa{spx@todo@}     {div.todo_}       \z@\z@\z@\z@
+\spx@tempa{spx@warning@}  {div.warning_}    \z@\z@\z@\z@
+\spx@tempa{spx@caution@}  {div.caution_}    \z@\z@\z@\z@
+\spx@tempa{spx@attention@}{div.attention_}  \z@\z@\z@\z@
+\spx@tempa{spx@danger@}   {div.danger_}     \z@\z@\z@\z@
+\spx@tempa{spx@error@}    {div.error_}      \z@\z@\z@\z@
+\spx@tempa{spx@box@}      {box_}            {3pt}{3pt}{3pt}{3pt}
 
 % Shadow keys
 %
@@ -490,10 +553,14 @@ will be set to white}%
 %          macro prefix
 \spx@tempa{spx@pre@}
 \spx@tempa{spx@topic@}
+\spx@tempa{spx@contents@}% 8.1.0
+\spx@tempa{spx@sidebar@}% 8.1.0
 \spx@tempa{spx@note@}
 \spx@tempa{spx@hint@}
 \spx@tempa{spx@important@}
 \spx@tempa{spx@tip@}
+\spx@tempa{spx@seealso@}% 7.4.0
+\spx@tempa{spx@todo@}% 7.4.0
 \spx@tempa{spx@warning@}
 \spx@tempa{spx@caution@}
 \spx@tempa{spx@attention@}
@@ -521,13 +588,10 @@ will be set to white}%
         % used here.  Since 6.2.0, expansion is delayed to time of use as for
         % the other dimensions handled above.  This is synched with an added
         % encapsulation in \dimexpr...\relax by the "setup" from
-        % sphinxpackageboxes.sty.  An induced regression had to be fixed in
-        % the sphinxShadowBox environment as it was using in an \ifdim the
-        % \spx@topic@shadow@yoffset macro, now holding by default 4pt+\z@
-        % rather than an already digested 262144sp.  The +\z@ is in case ##2
-        % is empty.
+        % sphinxpackageboxes.sty.
   \else #1%
-        \def#6{##1}\def#7{##2+\z@}%
+        \def#6{##1}%
+        \if\relax\detokenize{##2}\relax\let#7#6\else\def#7{##2}\fi
         \if\relax\detokenize{##3}\relax#4\else#3\fi
   \fi
   }%
@@ -535,12 +599,18 @@ will be set to white}%
 }
 \spx@tempa{spx@pre@}      {pre_}
 \spx@tempa{spx@topic@}    {div.topic_}
-% This corresponds to the legacy parameters of ShadowBox
-    \spx@topic@shadow@setter 4pt 4pt {} \@nnil
+\spx@tempa{spx@contents@} {div.contents_}
+\spx@tempa{spx@sidebar@}  {div.sidebar_}
+% This corresponds to the legacy parameters for topic/contents/sidebar,
+% but they are now only kept for contents
+    \spx@contents@shadow@setter 4pt 4pt {} \@nnil
+% topic and sidebar default to no shadow
 \spx@tempa{spx@note@}     {div.note_}
 \spx@tempa{spx@hint@}     {div.hint_}
 \spx@tempa{spx@important@}{div.important_}
 \spx@tempa{spx@tip@}      {div.tip_}
+\spx@tempa{spx@seealso@}  {div.seealso_}
+\spx@tempa{spx@todo@}     {div.todo_}
 \spx@tempa{spx@warning@}  {div.warning_}
 \spx@tempa{spx@caution@}  {div.caution_}
 \spx@tempa{spx@attention@}{div.attention_}
@@ -548,24 +618,34 @@ will be set to white}%
 \spx@tempa{spx@error@}    {div.error_}
 \spx@tempa{spx@box@}      {box_}
 
-% Support for legacy shadowsize (topic/contents)
+% Support for legacy shadowsize (topic/contents/sidebar)
 % This definition was broken due to a typo at 5.1.0 and got fixed at 6.1.2
 % MEMO: at 6.2.0 this no longer does \number\dimexpr in an \edef.  Reason is to
 % keep in sync with div.topic_box-shadow handling of xoffset and yoffset.
-% Attention in particular to \ifdim context, we add a \dimexpr to the one here.
 \define@key{sphinx}{shadowsize}{%
   \def\spx@topic@shadow@xoffset{#1}%
-  \let\spx@topic@shadow@yoffset\spx@topic@shadow@xoffset
+  \let\spx@contents@shadow@xoffset\spx@topic@shadow@xoffset
+  \let\spx@sidebar@shadow@xoffset \spx@topic@shadow@xoffset
+  \let\spx@topic@shadow@yoffset   \spx@topic@shadow@xoffset
+  \let\spx@contents@shadow@yoffset\spx@topic@shadow@xoffset
+  \let\spx@sidebar@shadow@yoffset \spx@topic@shadow@xoffset
   \ifdim\dimexpr\spx@topic@shadow@xoffset=\z@
       \spx@topic@withshadowfalse
+      \spx@contents@withshadowfalse
+      \spx@sidebar@withshadowfalse
   \else
       \spx@topic@withshadowtrue
       \spx@topic@insetshadowfalse
+      \spx@contents@withshadowtrue
+      \spx@contents@insetshadowfalse
+      \spx@sidebar@withshadowtrue
+      \spx@sidebar@insetshadowfalse
   \fi
 }%
 
-% Color keys
-% (four of them: border, background, shadow and the text color)
+% Color keys, TeXextras key, keys for admonition titles with icon
+%
+% Historical remarks to be removed at some point:
 %
 % Some problems due to legacy naming scheme which had diverging conventions
 % for code-blocks (VerbatimBorderColor, VerbatimColor) and admonitions
@@ -574,34 +654,42 @@ will be set to white}%
 % example sphinxwarningBgColor are also documented at user level, they are not
 % only internally used.
 %
-% For topic directive, "legacy" (by this I mean Sphinx around 2016-2017 after
-% my first additions to LaTeX) had no interface for colors, so I could change
-% some internals with no breakage during 5.x up to 6.2.0.  So topic
-% (shadowbox) could be unified with admonitions (sphinxheavybox), and the
-% "set-up" macros could all be moved into a single one in the
-% sphinxpackageboxes.sty file, with only one argument holding the directive
-% type.
+% For topic directive, "legacy" (around 2016-2017) had no interface for
+% colours, so some internals could be changed with no breakage during 5.x up
+% to 6.2.0.  For example topic (shadowbox) could be unified with admonitions
+% (sphinxheavybox), and the "setup" macros could all be moved into a single
+% one in the sphinxpackageboxes.sty file, with only one argument holding the
+% directive type.
 %
-% It was then needed only for sphinxlatexliterals.sty to let its
+% It was then needed only by sphinxlatexliterals.sty to let its emitted
 % \spx@verb@boxes@fcolorbox@setup incorporate some extra adjustment.
 %
-% We associate a boolean to each color, so that the box code can
-% decide to insert a \color command or consider it is not needed.
+% 7.4.0 removes usages of booleans relative to usage of a colour for
+% background or border which were there to optimize the boxing code from
+% sphinxpackageboxes.sty when colours where not needed.  These were internal
+% macros so their removal should not be considered breaking.
+% We keep the infrastructure for "shadowcolor" and "textcolor" because the
+% defaults for them remain not to have specific colour.
+%
+% 7.4.0 adds keys for admonition titles: for background and foreground colors,
+% and for icons (whose defaults are picked from Free Fontawesome 5).
 \def\spx@tempa#1{%
   \expandafter\spx@tempb
   \csname if#1withshadowcolor\expandafter\endcsname
-  \csname if#1withbordercolor\expandafter\endcsname
-  \csname if#1withbackgroundcolor\expandafter\endcsname
   \csname if#1withtextcolor\endcsname
 }%
-\def\spx@tempb#1#2#3#4{\newif#1\newif#2\newif#3\newif#4}%
+\def\spx@tempb#1#2{\newif#1\newif#2}%
 %          macro prefix
 \spx@tempa{spx@pre@}
 \spx@tempa{spx@topic@}
+\spx@tempa{spx@contents@}
+\spx@tempa{spx@sidebar@}
 \spx@tempa{spx@note@}
 \spx@tempa{spx@hint@}
 \spx@tempa{spx@important@}
 \spx@tempa{spx@tip@}
+\spx@tempa{spx@seealso@}
+\spx@tempa{spx@todo@}
 \spx@tempa{spx@warning@}
 \spx@tempa{spx@caution@}
 \spx@tempa{spx@attention@}
@@ -611,29 +699,36 @@ will be set to white}%
 %
 \def\spx@tempa#1{% #1 = macro prefix
   \expandafter\spx@tempb
-  \csname #1withbordercolortrue\expandafter\endcsname
-  \csname #1withbackgroundcolortrue\expandafter\endcsname
   \csname #1withshadowcolortrue\expandafter\endcsname
-  \csname #1withtextcolortrue\endcsname
+  \csname #1withtextcolortrue\expandafter\endcsname
+  \csname #1TeXextras\endcsname
 }
-\def\spx@tempb#1#2#3#4#5#6{% #5 = option prefix, #6 = color name prefix
-  \define@key{sphinx}{#5border-TeXcolor}%
-     {#1\spx@defineorletcolor{#6BorderColor}##1\relax}%
-  \define@key{sphinx}{#5background-TeXcolor}%
-     {#2\spx@defineorletcolor{#6BgColor}##1\relax}%
-  \define@key{sphinx}{#5box-shadow-TeXcolor}%
-     {#3\spx@defineorletcolor{#6ShadowColor}##1\relax}%
-  \define@key{sphinx}{#5TeXcolor}%
-     {#4\spx@defineorletcolor{#6TextColor}##1\relax}%
+% 7.4.0 adds options for a title.  They have an action only for admonitions,
+% seealso and todo directives.
+\def\spx@tempb#1#2#3#4#5{% #4 = option prefix, #5 = color name prefix
+  \define@key{sphinx}{#4border-TeXcolor}%
+     {\spx@defineorletcolor{#5BorderColor}##1\relax}%
+  \define@key{sphinx}{#4background-TeXcolor}%
+     {\spx@defineorletcolor{#5BgColor}##1\relax}%
+  \define@key{sphinx}{#4title-background-TeXcolor}%
+     {\spx@defineorletcolor{#5TtlBgColor}##1\relax}%
+  \define@key{sphinx}{#4title-foreground-TeXcolor}%
+     {\spx@defineorletcolor{#5TtlFgColor}##1\relax}%
+  \define@key{sphinx}{#4title-icon}%
+     {\@namedef{#5TtlIcon}{##1}}%
+  \define@key{sphinx}{#4box-shadow-TeXcolor}%
+     {#1\spx@defineorletcolor{#5ShadowColor}##1\relax}%
+  \define@key{sphinx}{#4TeXcolor}%
+     {#2\spx@defineorletcolor{#5TextColor}##1\relax}%
+  \define@key{sphinx}{#4TeXextras}%
+     {\def#3{##1}}%
 }
 %          macro prefix    option prefix    color name prefix
 \spx@tempa{spx@pre@}      {pre_}            {Verbatim}
     % (memo: internal VerbatimShadowColor was formerly sphinxVerbatimShadowColor)
     % internal legacy color name is VerbatimColor not VerbatimBgColor, so redefine:
     \define@key{sphinx}{pre_background-TeXcolor}%
-      {\spx@pre@withbackgroundcolortrue\spx@defineorletcolor{VerbatimColor}#1\relax}%
-    \spx@pre@withbordercolortrue        % 6.0.0 VerbatimBorderColor {RGB}{32,32,32}
-    \spx@pre@withbackgroundcolortrue    % 6.0.0 VerbatimColor       {gray}{0.95}
+      {\spx@defineorletcolor{VerbatimColor}#1\relax}%
     % Keep legacy option names working
     \expandafter\let\expandafter\KV@sphinx@VerbatimBorderColor
                                 \csname KV@sphinx@pre_border-TeXcolor\endcsname
@@ -641,11 +736,17 @@ will be set to white}%
                                 \csname KV@sphinx@pre_background-TeXcolor\endcsname
 % (6.2.0 modified some internal namings for the colors of topic boxes)
 %          macro prefix   option prefix     color name prefix
-\spx@tempa{spx@topic@}    {div.topic_}      {sphinxtopic}% (no legacy interface)
+% There was no legacy interface for topic/contents/sidebar
+% 8.1.0 allows separate styling for topic/contents/sidebar
+\spx@tempa{spx@topic@}    {div.topic_}      {sphinxtopic}
+\spx@tempa{spx@contents@} {div.contents_}   {sphinxcontents}
+\spx@tempa{spx@sidebar@}  {div.sidebar_}    {sphinxsidebar}
 \spx@tempa{spx@note@}     {div.note_}       {sphinxnote}
 \spx@tempa{spx@hint@}     {div.hint_}       {sphinxhint}
 \spx@tempa{spx@important@}{div.important_}  {sphinximportant}
 \spx@tempa{spx@tip@}      {div.tip_}        {sphinxtip}
+\spx@tempa{spx@seealso@}  {div.seealso_}    {sphinxseealso}
+\spx@tempa{spx@todo@}     {div.todo_}       {sphinxtodo}
 \spx@tempa{spx@warning@}  {div.warning_}    {sphinxwarning}
 \spx@tempa{spx@caution@}  {div.caution_}    {sphinxcaution}
 \spx@tempa{spx@attention@}{div.attention_}  {sphinxattention}
@@ -666,11 +767,12 @@ will be set to white}%
     \spx@tempa{div.error_}      {error}
 
     % Keep legacy sphinxsetup <type>BorderColor for <type>=note, hint, ...
-    % which will not trigger sphinxheavybox
-    % Add "legacy" hintTextColor etc... that will not trigger sphinxheavybox
+    % Add "legacy" names <type>BgColor (added at 7.4.0) and <type>TextColor
     \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy option prefix
       \expandafter\let\csname KV@sphinx@#2BorderColor\expandafter\endcsname
                       \csname KV@sphinx@#1border-TeXcolor\endcsname
+      \expandafter\let\csname KV@sphinx@#2BgColor\expandafter\endcsname
+                      \csname KV@sphinx@#1background-TeXcolor\endcsname
       \expandafter\let\csname KV@sphinx@#2TextColor\expandafter\endcsname
                       \csname KV@sphinx@#1TeXcolor\endcsname
     }
@@ -679,28 +781,7 @@ will be set to white}%
     \spx@tempa{div.important_}  {important}
     \spx@tempa{div.tip_}        {tip}
 
-% The TeXextras key
-%
-\def\spx@tempa#1{% #1 = macro prefix
-  \expandafter\spx@tempb\csname #1TeXextras\endcsname
-}
-\def\spx@tempb#1#2{% #2 = option prefix
-  \define@key{sphinx}{#2TeXextras}{\def#1{##1}}%
-}
-%          macro prefix   option prefix
-\spx@tempa{spx@pre@}      {pre_}
-\spx@tempa{spx@topic@}    {div.topic_}
-\spx@tempa{spx@note@}     {div.note_}
-\spx@tempa{spx@hint@}     {div.hint_}
-\spx@tempa{spx@important@}{div.important_}
-\spx@tempa{spx@tip@}      {div.tip_}
-\spx@tempa{spx@warning@}  {div.warning_}
-\spx@tempa{spx@caution@}  {div.caution_}
-\spx@tempa{spx@attention@}{div.attention_}
-\spx@tempa{spx@danger@}   {div.danger_}
-\spx@tempa{spx@error@}    {div.error_}
-\spx@tempa{spx@box@}      {box_}
-    % Add "legacy" hintTeXextras etc... that will not trigger sphinxheavybox
+    % Add "legacy" hintTeXextras etc...
     \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy option prefix
       \expandafter\let\csname KV@sphinx@#2TeXextras\expandafter\endcsname
                       \csname KV@sphinx@#1TeXextras\endcsname
@@ -710,64 +791,162 @@ will be set to white}%
     \spx@tempa{div.important_}  {important}
     \spx@tempa{div.tip_}        {tip}
 
-% For note type admonitions, redefine all CSS-like named options to trigger
-% the "heavybox" path.
-%
-% MEMO: the noteBorderColor and noteborder legacy options have already been
-% re-created and they do not trigger the "heavybox" as their meaning will not
-% be modified in the loop below contrarily to their CSS counterparts
-% div.note_border-TeXcolor and div.note_border-width, and to the noteBgColor
-% etc... which are handled below.
-%
-% This goes via rather hardcore TeX here.
-\def\spx@tempa#1{\if\relax#1\expandafter\@gobble
-  \else
-    \toks@{##1}%
-    \expandafter\def\csname KV@sphinx@div.note_#1\expandafter\endcsname
-        \the\toks0\expandafter{%
-        \csname spx@opt@heavynotetrue\expandafter\expandafter\expandafter\endcsname
-        \csname KV@sphinx@div.note_#1\endcsname{##1}}%
-    \expandafter\def\csname KV@sphinx@div.hint_#1\expandafter\endcsname
-        \the\toks0\expandafter{%
-        \csname spx@opt@heavyhinttrue\expandafter\expandafter\expandafter\endcsname
-        \csname KV@sphinx@div.hint_#1\endcsname{##1}}%
-    \expandafter\def\csname KV@sphinx@div.important_#1\expandafter\endcsname
-        \the\toks0\expandafter{%
-        \csname spx@opt@heavyimportanttrue\expandafter\expandafter\expandafter\endcsname
-        \csname KV@sphinx@div.important_#1\endcsname{##1}}%
-    \expandafter\def\csname KV@sphinx@div.tip_#1\expandafter\endcsname
-        \the\toks0\expandafter{%
-        \csname spx@opt@heavytiptrue\expandafter\expandafter\expandafter\endcsname
-        \csname KV@sphinx@div.tip_#1\endcsname{##1}}%
-  \fi
-  \spx@tempa
-}
-\spx@tempa{border-width}%
-          {border-top-width}{border-right-width}{border-bottom-width}{border-left-width}%
-          {box-decoration-break}%
-          {padding}%
-          {padding-top}{padding-right}{padding-bottom}{padding-left}%
-          {border-radius}%
-          {border-top-left-radius}{border-top-right-radius}%
-          {border-bottom-right-radius}{border-bottom-left-radius}%
-          {box-shadow}%
-          {border-TeXcolor}{background-TeXcolor}{box-shadow-TeXcolor}{TeXcolor}%
-          {TeXextras}%
-\relax
-
-% Now we add at 6.2.0 <type>BgColor et al. options which will trigger the
-% "heavybox" as they are \let to the div.<type>_background-TeXColor option
-% which has already been enhanced to set the boolean for rendering via
-% "heavybox".  This is in contrast with legacy <type>BorderColor,
-% and with the new <type>TeXcolor and <type>TeXextras.
-    \def\spx@tempa#1#2{% #1 = CSS like option prefix, #2 = legacy style option prefix
-      \expandafter\let\csname KV@sphinx@#2BgColor\expandafter\endcsname
-                      \csname KV@sphinx@#1background-TeXcolor\endcsname
+    % At 7.4.0, let topic/contents boxes acquire background and border colours
+    % and give the shadow some colour other than black
+    % 8.1.0 styles separately topic/contents/sidebar
+    % topic has no shadow but we keep 7.4.0 color in case it gets needed
+    \setkeys{sphinx}{%
+        div.topic_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.topic_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.topic_box-shadow-TeXcolor={RGB}{108,108,108},
+        div.contents_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.contents_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.contents_box-shadow-TeXcolor={RGB}{108,108,108},
+        div.sidebar_border-TeXcolor=sphinx-admonition-bordercolor,
+        div.sidebar_background-TeXcolor=sphinx-admonition-bgcolor,
+        div.sidebar_box-shadow-TeXcolor=sphinx-admonition-bordercolor!80,% #9eacaf
     }
-    \spx@tempa{div.note_}       {note}
-    \spx@tempa{div.hint_}       {hint}
-    \spx@tempa{div.important_}  {important}
-    \spx@tempa{div.tip_}        {tip}
+
+
+% 7.4.0 lets all types of admonitions style especially their titlss.
+% The Sphinx default colours for admonition titles are copied from PR #12486
+% which modified sphinx13.css (see also earlier #12439)
+% The actual code using the colours and icons whose defaults are set here
+% is to be found in sphinxlatexadmonitions.sty.
+%
+% MEMO: unfortunately xcolor does NOT implement HSL but only HSB!
+% So the sphinx13.css colours specified via hsl() got converted to RGB here
+\definecolor{sphinx-admonition-title-bgcolor}{RGB}{229,229,229} % hsl(0, 0%, 90%);
+\definecolor{sphinx-admonition-title-fgcolor}{RGB}{127,127,127} % hsl(0, 0%, 50%);
+\definecolor{sphinx-warning-title-bgcolor}   {RGB}{248,228,210} % hsl(28.5, 74%, 90%);
+\definecolor{sphinx-warning-title-fgcolor}   {RGB}{221,122,33}  % hsl(28.5, 74%, 50%);
+\definecolor{sphinx-note-title-bgcolor}      {RGB}{208,222,250} % hsl(219.5, 84%, 90%);
+\definecolor{sphinx-note-title-fgcolor}      {RGB}{20,93,234}   % hsl(219.5, 84%, 50%);
+\definecolor{sphinx-success-title-bgcolor}   {RGB}{220,239,230} % hsl(150, 36.7%, 90%);
+\definecolor{sphinx-success-title-fgcolor}   {RGB}{81,174,128}  % hsl(150, 36.7%, 50%);
+\definecolor{sphinx-error-title-bgcolor}     {RGB}{238,220,220} % hsl(0, 37%, 90%);
+\definecolor{sphinx-error-title-fgcolor}     {RGB}{174,80,80}   % hsl(0, 37%, 50%);
+\definecolor{sphinx-todo-title-bgcolor}      {RGB}{226,204,254} % hsl(266.8, 100%, 90%);
+\definecolor{sphinx-todo-title-fgcolor}      {RGB}{113,0,255}   % hsl(266.8, 100%, 50%);
+
+% Now use the above colours as default settings, following the choices
+% done in sphinx13.css
+\setkeys{sphinx}{
+  div.note_title-background-TeXcolor=sphinx-note-title-bgcolor,
+  div.note_title-foreground-TeXcolor=sphinx-note-title-fgcolor,
+%
+  div.hint_title-background-TeXcolor=sphinx-success-title-bgcolor,
+  div.hint_title-foreground-TeXcolor=sphinx-success-title-fgcolor,
+  div.tip_title-background-TeXcolor=sphinx-success-title-bgcolor,
+  div.tip_title-foreground-TeXcolor=sphinx-success-title-fgcolor,
+  div.seealso_title-background-TeXcolor=sphinx-success-title-bgcolor,
+  div.seealso_title-foreground-TeXcolor=sphinx-success-title-fgcolor,
+  div.todo_title-background-TeXcolor=sphinx-todo-title-bgcolor,
+  div.todo_title-foreground-TeXcolor=sphinx-todo-title-fgcolor,
+%
+  div.important_title-background-TeXcolor=sphinx-warning-title-bgcolor,
+  div.important_title-foreground-TeXcolor=sphinx-warning-title-fgcolor,
+  div.caution_title-background-TeXcolor=sphinx-warning-title-bgcolor,
+  div.caution_title-foreground-TeXcolor=sphinx-warning-title-fgcolor,
+  div.warning_title-background-TeXcolor=sphinx-warning-title-bgcolor,
+  div.warning_title-foreground-TeXcolor=sphinx-warning-title-fgcolor,
+%
+  div.attention_title-background-TeXcolor=sphinx-error-title-bgcolor,
+  div.attention_title-foreground-TeXcolor=sphinx-error-title-fgcolor,
+  div.danger_title-background-TeXcolor=sphinx-error-title-bgcolor,
+  div.danger_title-foreground-TeXcolor=sphinx-error-title-fgcolor,
+  div.error_title-background-TeXcolor=sphinx-error-title-bgcolor,
+  div.error_title-foreground-TeXcolor=sphinx-error-title-fgcolor,
+%
+% 8.1.0 add title rows, but will not use icons per default, so
+% the fgcolor setting will be used only if user uses title-icon key
+  div.topic_title-background-TeXcolor=sphinx-admonition-title-bgcolor,
+  div.topic_title-foreground-TeXcolor=sphinx-admonition-title-fgcolor,
+  div.contents_title-background-TeXcolor=sphinx-admonition-title-bgcolor,
+  div.contents_title-foreground-TeXcolor=sphinx-admonition-title-fgcolor,
+  div.sidebar_title-background-TeXcolor=sphinx-note-title-bgcolor,
+  div.sidebar_title-foreground-TeXcolor=sphinx-note-title-fgcolor,
+}
+
+% 7.4.0 Support for icons in admonition titles
+% We try to
+% - get Sphinx PDF builds to process fine in absence of fontawesome5
+% - use fontawesome5 if present, but not if user prefers another package
+% - provide an interface for using other LaTeX code for icons
+% - provide an interface for using some other package than fontawesome5
+% Indeed we can't load fontawesome5 unconditionally even if available,
+% as it proves incompatible with fontawesome package.
+% We thus must delay its loading.
+\IfFileExists{fontawesome5.sty}{%
+  \DeclareStringOption[fontawesome5]{iconpackage}%
+}%
+{%
+  \IfFileExists{fontawesome.sty}
+  {\DeclareStringOption[fontawesome]{iconpackage}}
+  {\DeclareStringOption[none]{iconpackage}}%
+}%
+\newcommand\spx@faIcon[2][]{}%
+% The above \spx@faIcon which gobbles one mandatory and one optional
+% argument is put into use only if both fontawesome5 and fontawesome
+% LaTeX packages are not available, as part of the defaults for the
+% div.*_title-icon keys (these keys can be redefined via the sphinxsetup
+% interface).
+%
+\def\spxstring@fontawesome{fontawesome}
+\def\spxstring@fontawesomev{fontawesome5}
+\AtBeginDocument{%
+  \ifx\spx@opt@iconpackage\spxstring@none
+  \else
+      \IfFileExists{\spx@opt@iconpackage.sty}
+         {\RequirePackage{\spx@opt@iconpackage}%
+          \ifx\spx@opt@iconpackage\spxstring@fontawesomev
+              \renewcommand\spx@faIcon{\faIcon}%
+          \else
+          \ifx\spx@opt@iconpackage\spxstring@fontawesome
+              \renewcommand\spx@faIcon[2][]{\faicon{##2}}%
+              % The \ifdefined's are a bit silly because we know that
+              % fontawesome.sty does not provide it, but perhaps
+              % there can be some new release of that package?
+              \ifdefined\faicon@lightbulb\else
+                   \let\faicon@lightbulb\faLightbulbO
+              \fi
+              \ifdefined\faicon@radiation\else
+                   \let\faicon@radiation\faBolt
+              \fi
+              \ifdefined\faicon@pen\else
+                   \let\faicon@pen\faPencil
+              \fi
+          % if neither has been required, \spx@faIcon will simply swallow
+          % its argument and it is up to user
+          % to set the various div.*_title-icon keys appropriately.
+          \fi\fi %
+         }%
+         {%
+         \sphinxbuildwarning{badiconpackage}%
+         \PackageWarningNoLine{sphinx}{%
+            You have set iconpackage=\spx@opt@iconpackage\MessageBreak
+            But \spx@opt@iconpackage.sty is not found by LaTeX}
+         }%
+  \fi
+}
+
+\setkeys{sphinx}{
+% Icon defaults.
+  div.note_title-icon      = \spx@faIcon{info-circle},
+  div.hint_title-icon      = \spx@faIcon[regular]{lightbulb},
+  div.tip_title-icon       = \spx@faIcon[regular]{lightbulb},
+  div.seealso_title-icon   = \spx@faIcon{share},
+  div.todo_title-icon      = \spx@faIcon{pen},
+  div.important_title-icon = \spx@faIcon{pause-circle},
+  div.caution_title-icon   = \spx@faIcon{radiation},
+  div.warning_title-icon   = \spx@faIcon{exclamation-triangle},
+  div.attention_title-icon = \spx@faIcon{exclamation-triangle},
+  div.danger_title-icon    = \spx@faIcon{radiation},
+  div.error_title-icon     = \spx@faIcon{times-circle},
+% MEMO: the new at 8.1.0 defaults for contents/topic/sidebar directives
+% use no icons, they use \sphinxdotitlerow which detects automatically
+% whether title-icon key has been set or not.
+}
 
 \newif\ifspx@opt@box@addstrut
 \expandafter\def\csname KV@sphinx@box_addstrut\endcsname#1{%
@@ -831,9 +1010,9 @@ will be set to white}%
 %% PASS OPTIONS
 %
 % pass options to hyperref; it must not have been loaded already
-\input{sphinxoptionshyperref.sty}
+\RequirePackage{sphinxoptionshyperref}
 % pass options to geometry; it must not have been loaded already
-\input{sphinxoptionsgeometry.sty}
+\RequirePackage{sphinxoptionsgeometry}
 
 
 %% COLOR (general)
@@ -872,7 +1051,7 @@ will be set to white}%
 %
 % It will always be needed, so let's load it here
 \RequirePackage{graphicx}
-\input{sphinxlatexgraphics.sty}
+\RequirePackage{sphinxlatexgraphics}
 
 
 %% FRAMED ENVIRONMENTS
@@ -918,30 +1097,34 @@ will be set to white}%
 }
 % Some of these defaults got already set.  But we now list them all explicitly
 % for a complete initial configuration of reset storage.
-%
+% At 7.4.0, \fboxrule and \fboxsep replaced by 0.4pt and 3pt which are anyhow
+% the defaults for these LaTeX dimensions. 8.2.0 corrected border-radius
+% default back to 3pt (\fboxsep) not 0.4pt (\fboxrule).
 \let\spx@boxes@sphinxbox@defaults\@gobble
 \sphinxboxsetup{%
-                border-width=\fboxrule,% <-not really needed to avoid EOL space
-                padding=\fboxsep,%         but done here out of habit
-                border-radius=\fboxsep,%
-                box-shadow=none,%
-% As xcolor is perhaps not loaded we can not use background-TeXcolor=VerbatimColor
-% which would not be compatible with \definecolor syntax.
-                border-TeXcolor={RGB}{32,32,32},%  the default VerbatimBorderColor
-                background-TeXcolor={gray}{0.95},% the default VerbatimColor
-                box-shadow-TeXcolor={rgb}{0,0,0},%
-                TeXextras={},%
-                addstrut=false% (a final comma here would not hurt)
+                border-width=0.4pt,
+                padding=3pt,
+                border-radius=3pt,
+                box-shadow=none,
+% MEMO: as xcolor is loaded, \spx@defineorletcolor has a "\colorlet" branch
+% which makes this syntax acceptable and avoids duplicating here the values.
+                border-TeXcolor=VerbatimBorderColor,
+                background-TeXcolor=VerbatimColor,
+% 7.4.0 modified the color of the shadow (anyhow box-shadow is set above to none
+% so no shadow is drawn), to be as the new shadow colour of topic boxes.
+                box-shadow-TeXcolor={RGB}{108,108,108},
+                TeXextras={},
+                addstrut=false,
                }%
 \RequirePackage{sphinxpackageboxes}
-\input{sphinxlatexadmonitions.sty}
-\input{sphinxlatexliterals.sty}
-\input{sphinxlatexshadowbox.sty}
+\RequirePackage{sphinxlatexadmonitions}
+\RequirePackage{sphinxlatexliterals}
+\RequirePackage{sphinxlatexshadowbox}
 
 
 %% CONTAINERS
 %
-\input{sphinxlatexcontainers.sty}
+\RequirePackage{sphinxlatexcontainers}
 
 
 %% PYGMENTS
@@ -951,17 +1134,17 @@ will be set to white}%
 
 %% TABLES
 %
-\input{sphinxlatextables.sty}
+\RequirePackage{sphinxlatextables}
 
 
 %% NUMBERING OF FIGURES, TABLES, AND LITERAL BLOCKS
 %
-\input{sphinxlatexnumfig.sty}
+\RequirePackage{sphinxlatexnumfig}
 
 
 %% LISTS
 %
-\input{sphinxlatexlists.sty}
+\RequirePackage{sphinxlatexlists}
 
 
 %% FOOTNOTES
@@ -991,19 +1174,19 @@ will be set to white}%
 
 %% INDEX, BIBLIOGRAPHY, APPENDIX, TABLE OF CONTENTS
 %
-\input{sphinxlatexindbibtoc.sty}
+\RequirePackage{sphinxlatexindbibtoc}
 
 
 %% STYLING
 %
-\input{sphinxlatexstylepage.sty}
-\input{sphinxlatexstyleheadings.sty}
-\input{sphinxlatexstyletext.sty}
+\RequirePackage{sphinxlatexstylepage}
+\RequirePackage{sphinxlatexstyleheadings}
+\RequirePackage{sphinxlatexstyletext}
 
 
 %% MODULE RELEASE DATA AND OBJECT DESCRIPTIONS
 %
-\input{sphinxlatexobjects.sty}
+\RequirePackage{sphinxlatexobjects}
 
 
 % FIXME: this line should be dropped, as "9" is default anyhow.

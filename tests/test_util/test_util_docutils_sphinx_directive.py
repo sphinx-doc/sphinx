@@ -4,18 +4,27 @@ from types import SimpleNamespace
 
 from docutils import nodes
 from docutils.parsers.rst.languages import en as english  # type: ignore[attr-defined]
-from docutils.parsers.rst.states import Inliner, RSTState, RSTStateMachine, state_classes
+from docutils.parsers.rst.states import (
+    Inliner,
+    RSTState,
+    RSTStateMachine,
+    state_classes,
+)
 from docutils.statemachine import StringList
 
 from sphinx.util.docutils import SphinxDirective, new_document
 
 
-def make_directive(*, env: SimpleNamespace, input_lines: StringList | None = None) -> SphinxDirective:
-    state, directive = make_directive_and_state(env=env, input_lines=input_lines)
+def make_directive(
+    *, env: SimpleNamespace, input_lines: StringList | None = None
+) -> SphinxDirective:
+    _, directive = make_directive_and_state(env=env, input_lines=input_lines)
     return directive
 
 
-def make_directive_and_state(*, env: SimpleNamespace, input_lines: StringList | None = None) -> tuple[RSTState, SphinxDirective]:
+def make_directive_and_state(
+    *, env: SimpleNamespace, input_lines: StringList | None = None
+) -> tuple[RSTState, SphinxDirective]:
     sm = RSTStateMachine(state_classes, initial_state='Body')
     sm.reporter = object()
     if input_lines is not None:

@@ -1,5 +1,7 @@
 """Test all builders."""
 
+from __future__ import annotations
+
 import os
 import shutil
 from contextlib import contextmanager
@@ -21,7 +23,7 @@ def request_session_head(url, **kwargs):
     return response
 
 
-@pytest.fixture()
+@pytest.fixture
 def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
     # Build in a non-ASCII source dir
     test_name = '\u65e5\u672c\u8a9e'
@@ -31,68 +33,86 @@ def nonascii_srcdir(request, rootdir, sphinx_test_tempdir):
         shutil.copytree(rootdir / 'test-root', srcdir)
 
     # add a doc with a non-ASCII file name to the source dir
-    (srcdir / (test_name + '.txt')).write_text("""
+    (srcdir / (test_name + '.txt')).write_text(
+        """
 nonascii file name page
 =======================
-""", encoding='utf8')
+""",
+        encoding='utf8',
+    )
 
     root_doc = srcdir / 'index.txt'
-    root_doc.write_text(root_doc.read_text(encoding='utf8') + f"""
+    root_doc.write_text(
+        root_doc.read_text(encoding='utf8')
+        + f"""
 .. toctree::
 
 {test_name}/{test_name}
-""", encoding='utf8')
+""",
+        encoding='utf8',
+    )
     return srcdir
 
 
 # note: this test skips building docs for some builders because they have independent testcase.
 #       (html, changes, epub, latex, texinfo and manpage)
 @pytest.mark.parametrize(
-    "buildername",
+    'buildername',
     ['dirhtml', 'singlehtml', 'text', 'xml', 'pseudoxml', 'linkcheck'],
 )
-@mock.patch('sphinx.builders.linkcheck.requests.head',
-            side_effect=request_session_head)
+@mock.patch(
+    'sphinx.builders.linkcheck.requests.head',
+    side_effect=request_session_head,
+)
 def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
     app = make_app(buildername, srcdir=nonascii_srcdir)
     app.build()
 
 
 def test_root_doc_not_found(tmp_path, make_app):
-    (tmp_path / 'conf.py').write_text('', encoding='utf8')
-    assert os.listdir(tmp_path) == ['conf.py']
+    (tmp_path / 'conf.py').touch()
+    assert [p.name for p in tmp_path.iterdir()] == ['conf.py']
 
     app = make_app('dummy', srcdir=tmp_path)
     with pytest.raises(SphinxError):
         app.build(force_all=True)  # no index.rst
 
 
-@pytest.mark.sphinx(buildername='text', testroot='circular')
-def test_circular_toctree(app, status, warning):
+@pytest.mark.sphinx('text', testroot='circular')
+def test_circular_toctree(app):
     app.build(force_all=True)
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert (
-        'circular toctree references detected, ignoring: '
-        'sub <- index <- sub') in warnings
+        'circular toctree references detected, ignoring: sub <- index <- sub'
+    ) in warnings
     assert (
-        'circular toctree references detected, ignoring: '
-        'index <- sub <- index') in warnings
+        'circular toctree references detected, ignoring: index <- sub <- index'
+    ) in warnings
 
 
-@pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
-def test_numbered_circular_toctree(app, status, warning):
+@pytest.mark.sphinx('text', testroot='numbered-circular')
+def test_numbered_circular_toctree(app):
     app.build(force_all=True)
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert (
-        'circular toctree references detected, ignoring: '
-        'sub <- index <- sub') in warnings
+        'circular toctree references detected, ignoring: sub <- index <- sub'
+    ) in warnings
     assert (
-        'circular toctree references detected, ignoring: '
-        'index <- sub <- index') in warnings
+        'circular toctree references detected, ignoring: index <- sub <- index'
+    ) in warnings
 
 
-@pytest.mark.sphinx(buildername='dummy', testroot='images')
-def test_image_glob(app, status, warning):
+@pytest.mark.sphinx('text', testroot='toctree-multiple-parents')
+def test_multiple_parents_toctree(app):
+    app.build(force_all=True)
+    assert (
+        "document is referenced in multiple toctrees: ['bravo', 'delta'], selecting: delta <- charlie"
+    ) in app.status.getvalue()
+
+
+@pytest.mark.usefixtures('_http_teapot')
+@pytest.mark.sphinx('dummy', testroot='images')
+def test_image_glob(app):
     app.build(force_all=True)
 
     # index.rst
@@ -108,16 +128,20 @@ def test_image_glob(app, status, warning):
     assert doctree[0][2][0]['uri'] == 'rimg.png'
 
     assert isinstance(doctree[0][3], nodes.image)
-    assert doctree[0][3]['candidates'] == {'application/pdf': 'img.pdf',
-                                           'image/gif': 'img.gif',
-                                           'image/png': 'img.png'}
+    assert doctree[0][3]['candidates'] == {
+        'application/pdf': 'img.pdf',
+        'image/gif': 'img.gif',
+        'image/png': 'img.png',
+    }
     assert doctree[0][3]['uri'] == 'img.*'
 
     assert isinstance(doctree[0][4], nodes.figure)
     assert isinstance(doctree[0][4][0], nodes.image)
-    assert doctree[0][4][0]['candidates'] == {'application/pdf': 'img.pdf',
-                                              'image/gif': 'img.gif',
-                                              'image/png': 'img.png'}
+    assert doctree[0][4][0]['candidates'] == {
+        'application/pdf': 'img.pdf',
+        'image/gif': 'img.gif',
+        'image/png': 'img.png',
+    }
     assert doctree[0][4][0]['uri'] == 'img.*'
 
     # subdir/index.rst
@@ -128,14 +152,18 @@ def test_image_glob(app, status, warning):
     assert doctree[0][1]['uri'] == 'subdir/rimg.png'
 
     assert isinstance(doctree[0][2], nodes.image)
-    assert doctree[0][2]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
-                                           'image/svg+xml': 'subdir/svgimg.svg'}
+    assert doctree[0][2]['candidates'] == {
+        'application/pdf': 'subdir/svgimg.pdf',
+        'image/svg+xml': 'subdir/svgimg.svg',
+    }
     assert doctree[0][2]['uri'] == 'subdir/svgimg.*'
 
     assert isinstance(doctree[0][3], nodes.figure)
     assert isinstance(doctree[0][3][0], nodes.image)
-    assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
-                                              'image/svg+xml': 'subdir/svgimg.svg'}
+    assert doctree[0][3][0]['candidates'] == {
+        'application/pdf': 'subdir/svgimg.pdf',
+        'image/svg+xml': 'subdir/svgimg.svg',
+    }
     assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'
 
 

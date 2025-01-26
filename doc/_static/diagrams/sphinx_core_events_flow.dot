@@ -82,8 +82,10 @@ digraph events {
     if_read_changes -> "env-check-consistency";
 
     // during write phase
+    "write-started"[style=filled fillcolor="#D5FFFF" color=blue penwidth=2];
     "Builder.write" [label = "Builder.write()"]
     "Builder.build":write -> "Builder.write";
+    "Builder.write" -> "write-started";
     write_each_doc [shape="ellipse", label="for updated"];
     "Builder.write" -> write_each_doc;
     "ReferenceResolver" [

@@ -1,0 +1,225 @@
+==========
+Sphinx 3.5
+==========
+
+
+Release 3.5.4 (released Apr 11, 2021)
+=====================================
+
+Dependencies
+------------
+
+* #9071: Restrict Docutils to 0.16
+
+Bugs fixed
+----------
+
+* #9078: autodoc: Async staticmethods and classmethods are considered as non
+  async coroutine-functions with Python3.10
+* #8870, #9001, #9051: html theme: The style are not applied with Docutils 0.17
+
+  - toctree captions
+  - The content of ``sidebar`` directive
+  - figures
+
+Release 3.5.3 (released Mar 20, 2021)
+=====================================
+
+Features added
+--------------
+
+* #8959: using UNIX path separator in image directive confuses Sphinx on Windows
+
+Release 3.5.2 (released Mar 06, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8943: i18n: Crashed by broken translation messages in ES, EL and HR
+* #8936: LaTeX: A custom LaTeX builder fails with unknown node error
+* #8952: Exceptions raised in a Directive cause parallel builds to hang
+
+Release 3.5.1 (released Feb 16, 2021)
+=====================================
+
+Bugs fixed
+----------
+
+* #8883: autodoc: AttributeError is raised on assigning __annotations__ on
+  read-only class
+* #8884: html: minified js stemmers not included in the distributed package
+* #8885: html: AttributeError is raised if CSS/JS files are installed via
+  :confval:`html_context`
+* #8880: viewcode: ExtensionError is raised on incremental build after
+  unparsable python module found
+
+Release 3.5.0 (released Feb 14, 2021)
+=====================================
+
+Dependencies
+------------
+
+* LaTeX: ``multicol`` (it is anyhow a required part of the official latex2e
+  base distribution)
+
+Incompatible changes
+--------------------
+
+* Update Underscore.js to 1.12.0
+* #6550: html: The config variable ``html_add_permalinks`` is replaced by
+  :confval:`html_permalinks` and :confval:`html_permalinks_icon`
+
+Deprecated
+----------
+
+* pending_xref node for viewcode extension
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.anchors_ignore``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.auth``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.broken``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.good``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.redirected``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.rqueue``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.to_ignore``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.workers``
+* ``sphinx.builders.linkcheck.CheckExternalLinksBuilder.wqueue``
+* ``sphinx.builders.linkcheck.node_line_or_0()``
+* ``sphinx.ext.autodoc.AttributeDocumenter.isinstanceattribute()``
+* ``sphinx.ext.autodoc.directive.DocumenterBridge.reporter``
+* ``sphinx.ext.autodoc.importer.get_module_members()``
+* ``sphinx.ext.autosummary.generate._simple_info()``
+* ``sphinx.ext.autosummary.generate._simple_warn()``
+* ``sphinx.writers.html.HTMLTranslator.permalink_text``
+* ``sphinx.writers.html5.HTML5Translator.permalink_text``
+
+Features added
+--------------
+
+* #8022: autodoc: autodata and autoattribute directives does not show right-hand
+  value of the variable if docstring contains ``:meta hide-value:`` in
+  info-field-list
+* #8514: autodoc: Default values of overloaded functions are taken from actual
+  implementation if they're ellipsis
+* #8775: autodoc: Support type union operator (PEP-604) in Python 3.10 or above
+* #8297: autodoc: Allow to extend :confval:`autodoc_default_options` via
+  directive options
+* #759: autodoc: Add a new configuration :confval:`autodoc_preserve_defaults` as
+  an experimental feature.  It preserves the default argument values of
+  functions in source code and keep them not evaluated for readability.
+* #8619: html: kbd role generates customizable HTML tags for compound keys
+* #8634: html: Allow to change the order of JS/CSS via ``priority`` parameter
+  for :meth:`.Sphinx.add_js_file` and :meth:`.Sphinx.add_css_file`
+* #6241: html: Allow to add JS/CSS files to the specific page when an extension
+  calls ``app.add_js_file()`` or ``app.add_css_file()`` on
+  :event:`html-page-context` event
+* #6550: html: Allow to use HTML permalink texts via
+  :confval:`html_permalinks_icon`
+* #1638: html: Add permalink icons to glossary terms
+* #8868: html search: performance issue with massive lists
+* #8867: html search: Update JavaScript stemmer code to the latest version of
+  Snowball (v2.1.0)
+* #8852: i18n: Allow to translate heading syntax in MyST-Parser
+* #8649: imgconverter: Skip availability check if builder supports the image
+  type
+* #8573: napoleon: Allow to change the style of custom sections using
+  :confval:`napoleon_custom_sections`
+* #8004: napoleon: Type definitions in Google style docstrings are rendered as
+  references when :confval:`napoleon_preprocess_types` enabled
+* #6241: mathjax: Include mathjax.js only on the document using equations
+* #8775: py domain: Support type union operator (PEP-604)
+* #8651: std domain: cross-reference for a rubric having inline item is broken
+* #7642: std domain: Optimize case-insensitive match of term
+* #8681: viewcode: Support incremental build
+* #8132: Add :confval:`project_copyright` as an alias of :confval:`copyright`
+* #207: Now :confval:`highlight_language` supports multiple languages
+* #2030: :rst:dir:`code-block` and :rst:dir:`literalinclude` supports automatic
+  dedent via no-argument ``:dedent:`` option
+* C++, also hyperlink operator overloads in expressions and alias declarations.
+* #8247: Allow production lists to refer to tokens from other production groups
+* #8813: Show what extension (or module) caused it on errors on event handler
+* #8213: C++: add ``maxdepth`` option to :rst:dir:`cpp:alias` to insert nested
+  declarations.
+* C, add ``noroot`` option to :rst:dir:`c:alias` to render only nested
+  declarations.
+* C++, add ``noroot`` option to :rst:dir:`cpp:alias` to render only nested
+  declarations.
+
+Bugs fixed
+----------
+
+* #8727: apidoc: namespace module file is not generated if no submodules there
+* #741: autodoc: inherited-members doesn't work for instance attributes on super
+  class
+* #8592: autodoc: ``:meta public:`` does not effect to variables
+* #8594: autodoc: empty ``__all__`` attribute is ignored
+* #8315: autodoc: Failed to resolve struct.Struct type annotation
+* #8652: autodoc: All variable comments in the module are ignored if the module
+  contains invalid type comments
+* #8693: autodoc: Default values for overloaded functions are rendered as string
+* #8134: autodoc: crashes when mocked decorator takes arguments
+* #8800: autodoc: Uninitialized attributes in superclass are recognized as
+  undocumented
+* #8655: autodoc: Failed to generate document if target module contains an
+  object that raises an exception on ``hasattr()``
+* #8306: autosummary: mocked modules are documented as empty page when using
+  :recursive: option
+* #8232: graphviz: Image node is not rendered if graph file is in subdirectory
+* #8618: html: kbd role produces incorrect HTML when compound-key separators (-,
+  + or ^) are used as keystrokes
+* #8629: html: A type warning for html_use_opensearch is shown twice
+* #8714: html: kbd role with "Caps Lock" rendered incorrectly
+* #8123: html search: fix searching for terms containing + (Requires a custom
+  search language that does not split on +)
+* #8665: html theme: Could not override globaltoc_maxdepth in theme.conf
+* #8446: html: consecutive spaces are displayed as single space
+* #8745: i18n: crashes with KeyError when translation message adds a new auto
+  footnote reference
+* #4304: linkcheck: Fix race condition that could lead to checking the
+  availability of the same URL twice
+* #8791: linkcheck: The docname for each hyperlink is not displayed
+* #7118: sphinx-quickstart: questionnaire got Mojibake if libreadline unavailable
+* #8094: texinfo: image files on the different directory with document are not
+  copied
+* #8782: todo: Cross references in todolist get broken
+* #8720: viewcode: module pages are generated for epub on incremental build
+* #8704: viewcode: anchors are generated in incremental build after singlehtml
+* #8756: viewcode: highlighted code is generated even if not referenced
+* #8671: :confval:`highlight_options` is not working
+* #8341: C, fix intersphinx lookup types for names in declarations.
+* C, C++: in general fix intersphinx and role lookup types.
+* #8683: :confval:`html_last_updated_fmt` does not support UTC offset (%z)
+* #8683: :confval:`html_last_updated_fmt` generates wrong time zone for %Z
+* #1112: ``download`` role creates duplicated copies when relative path is
+  specified
+* #2616 (fifth item): LaTeX: footnotes from captions are not clickable,
+  and for manually numbered footnotes only first one with same number is
+  an hyperlink
+* #7576: LaTeX with French babel and memoir crash: "Illegal parameter number
+  in definition of ``\FNH@prefntext``"
+* #8055: LaTeX (docs): A potential display bug with the LaTeX generation step
+  in Sphinx (how to generate one-column index)
+* #8072: LaTeX: Directive :rst:dir:`hlist` not implemented in LaTeX
+* #8214: LaTeX: The :rst:role:`index` role and the glossary generate duplicate
+  entries in the LaTeX index (if both used for same term)
+* #8735: LaTeX: wrong internal links in pdf to captioned code-blocks when
+  :confval:`numfig` is not ``True``
+* #8442: LaTeX: some indexed terms are ignored when using xelatex engine
+  (or pdflatex and :confval:`latex_use_xindy` set to ``True``) with memoir class
+* #8750: LaTeX: URLs as footnotes fail to show in PDF if originating from
+  inside function type signatures
+* #8780: LaTeX: long words in narrow columns may not be hyphenated
+* #8788: LaTeX: ``\titleformat`` last argument in sphinx.sty should be
+  bracketed, not braced (and is anyhow not needed)
+* #8849: LaTex: code-block printed out of margin (see the opt-in LaTeX syntax
+  boolean :ref:`verbatimforcewraps <latexsphinxsetupforcewraps>` for use via
+  the :ref:`'sphinxsetup' <latexsphinxsetup>` key of ``latex_elements``)
+* #8183: LaTeX: Remove substitution_reference nodes from doctree only on LaTeX
+  builds
+* #8865: LaTeX: Restructure the index nodes inside title nodes only on LaTeX
+  builds
+* #8796: LaTeX: potentially critical low level TeX coding mistake has gone
+  unnoticed so far
+* C, :rst:dir:`c:alias` skip symbols without explicit declarations
+  instead of crashing.
+* C, :rst:dir:`c:alias` give a warning when the root symbol is not declared.
+* C, ``expr`` role should start symbol lookup in the current scope.

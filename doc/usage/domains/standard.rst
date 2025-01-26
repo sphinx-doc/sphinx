@@ -42,6 +42,46 @@ There is a set of directives allowing documenting command-line programs:
 
    ``cmdoption`` directive is a deprecated alias for the ``option`` directive.
 
+.. rst:directive:: .. confval:: name
+
+   .. versionadded:: 7.4
+
+   Describes a configuration value or setting that the documented
+   code or program uses or defines.
+   Referenceable by :rst:role:`confval`.
+
+   .. rst:directive:option:: type
+      :type: text
+
+      Describes the type of the configuration value.
+      This is optional, and if specified will be interpreted as reStructuredText.
+
+   .. rst:directive:option:: default
+      :type: text
+
+      Describes the default value of the configuration value.
+      This is optional, and if specified will be interpreted as reStructuredText.
+
+   Example:
+
+   .. code-block:: rst
+
+      .. confval:: the_answer
+         :type: ``int`` (a *number*)
+         :default: **42**
+
+         This is a setting that controls the value of the answer.
+
+   will be rendered as follows:
+
+   .. confval:: the_answer
+      :no-contents-entry:
+      :no-index-entry:
+      :type: ``int`` (a *number*)
+      :default: **42**
+
+      This is a setting that controls the value of the answer.
+
 .. rst:directive:: .. envvar:: name
 
    Describes an environment variable that the documented code or program uses

@@ -1,5 +1,7 @@
 project = 'Sphinx templating <Tests>'
-source_suffix = '.txt'
+source_suffix = {
+    '.txt': 'restructuredtext',
+}
 keep_warnings = True
 templates_path = ['_templates']
 release = version = '2013.120'

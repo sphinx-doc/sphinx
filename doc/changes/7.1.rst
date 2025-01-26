@@ -1,0 +1,114 @@
+==========
+Sphinx 7.1
+==========
+
+
+Release 7.1.2 (released Aug 02, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11542: linkcheck: Properly respect :confval:`linkcheck_anchors`
+  and do not spuriously report failures to validate anchors.
+  Patch by James Addison.
+
+Release 7.1.1 (released Jul 27, 2023)
+=====================================
+
+Bugs fixed
+----------
+
+* #11514: Fix ``SOURCE_DATE_EPOCH`` in multi-line copyright footer.
+  Patch by Bénédikt Tran.
+
+Release 7.1.0 (released Jul 24, 2023)
+=====================================
+
+Incompatible changes
+--------------------
+
+* Releases are no longer signed, given the `change in PyPI policy`_.
+
+  .. _change in PyPI policy: https://blog.pypi.org/posts/2023-05-23-removing-pgp/
+
+Deprecated
+----------
+
+* #11412: Emit warnings on using a deprecated Python-specific index entry type
+  (namely, ``module``, ``keyword``, ``operator``, ``object``, ``exception``,
+  ``statement``, and ``builtin``) in the :rst:dir:`index` directive, and
+  set the removal version to Sphinx 9. Patch by Adam Turner.
+
+Features added
+--------------
+
+* #11415: Add a checksum to JavaScript and CSS asset URIs included within
+  generated HTML, using the CRC32 algorithm.
+* :meth:`~sphinx.application.Sphinx.require_sphinx` now allows the version
+  requirement to be specified as ``(major, minor)``.
+* #11011: Allow configuring a line-length limit for object signatures, via
+  :confval:`maximum_signature_line_length` and the domain-specific variants.
+  If the length of the signature (in characters) is greater than the configured
+  limit, each parameter in the signature will be split to its own logical line.
+  This behaviour may also be controlled by options on object description
+  directives, for example :rst:dir:`py:function:single-line-parameter-list`.
+  Patch by Thomas Louf, Adam Turner, and Jean-François B.
+* #10983: Support for multiline copyright statements in the footer block.
+  Patch by Stefanie Molin
+* ``sphinx.util.display.status_iterator`` now clears the current line
+  with ANSI control codes, rather than overprinting with space characters.
+* #11431: linkcheck: Treat SSL failures as broken links.
+  Patch by James Addison.
+* #11157: Keep the ``translated`` attribute on translated nodes.
+* #11451: Improve the traceback displayed when using :option:`sphinx-build -T`
+  in parallel builds. Patch by Bénédikt Tran
+* #11324: linkcheck: Use session-basd HTTP requests.
+* #11438: Add support for the :rst:dir:`py:class` and :rst:dir:`py:function`
+  directives for PEP 695 (generic classes and functions declarations) and
+  PEP 696 (default type parameters).  Multi-line support (#11011) is enabled
+  for type parameters list and can be locally controlled on object description
+  directives, e.g., :rst:dir:`py:function:single-line-type-parameter-list`.
+  Patch by Bénédikt Tran.
+* #11484: linkcheck: Allow HTML anchors to be ignored on a per-URL basis
+  via :confval:`linkcheck_anchors_ignore_for_url` while
+  still checking the validity of the page itself.
+  Patch by Bénédikt Tran
+* #1246: Add translation progress statistics and inspection support,
+  via a new substitution (``|translation progress|``) and a new
+  configuration variable (:confval:`translation_progress_classes`).
+  These enable determining the percentage of translated elements within
+  a document, and the remaining translated and untranslated elements.
+
+Bugs fixed
+----------
+
+* Restored the ``footnote-reference`` class that has been removed in
+  the latest (unreleased) version of Docutils.
+* #11486: Use :rfc:`8081` font file MIME types in the EPUB builder.
+  Using the correct MIME type will prevent warnings from ``epubcheck``
+  and will generate a valid EPUB.
+* #11435: Use microsecond-resolution timestamps for outdated file detection
+  in ``BuildEnvironment.get_outdated_files``.
+* #11437: Top-level headings starting with a reStructuredText role
+  now render properly when :confval:`rst_prolog` is set.
+  Previously, a file starting with the below would have
+  improperly rendered due to where the prologue text
+  was inserted into the document.
+
+  .. code:: rst
+
+     :mod:`lobster` -- The lobster module
+     ====================================
+
+     ...
+
+  Patch by Bénédikt Tran.
+* #11337: Fix a ``MemoryError`` in ``sphinx.ext.intersphinx`` when using ``None``
+  or ``typing.*`` as inline type references. Patch by Bénédikt Tran (picnixz)
+
+Testing
+-------
+
+* #11345: Always delete ``docutils.conf`` in test directories when running
+  ``SphinxTestApp.cleanup()``.

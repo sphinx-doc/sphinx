@@ -65,17 +65,14 @@ body {
     text-decoration: none;
 }
 
-.pageheader .brand a {
-    width: 2em;
-}
-
 .pageheader .brand img {
+    width: 2em;
     filter: invert(1) drop-shadow(1px 1px 2px black);
 }
 
-.pageheader .brand h1 {
+.pageheader .brand span {
     color: white;
-    margin: 0;
+    margin-left: 0.4em;
     font-weight: 400;
     font-size: 2em;
     line-height: 1;
@@ -221,6 +218,16 @@ div.sphinxsidebar #searchbox {
     margin: 12px 0 20px 0;
 }
 
+div.sphinxsidebar #searchbox input[type="text"] {
+    border-radius: var(--admonition-radius) 0 0 var(--admonition-radius);
+}
+
+div.sphinxsidebar #searchbox input[type="submit"] {
+    border-radius: 0 var(--admonition-radius) var(--admonition-radius) 0;
+  color: white;
+    background: var(--colour-sphinx-blue);
+}
+
 div.footer {
     background-color: var(--colour-sphinx-blue);
     color: #ccc;
@@ -244,6 +251,7 @@ div.footer a {
 
 p {
     margin: 0.8em 0 0.5em 0;
+    line-height: 1.5;
 }
 
 a {
@@ -314,6 +322,13 @@ cite, code, tt {
                  'Bitstream Vera Sans Mono', monospace;
     font-size: 1em;
     letter-spacing: -0.02em;
+}
+
+div.body code.literal {
+    background-color: #f3f4f5;
+    border: 1px solid #d1d5da;
+    border-radius: 0.25rem;
+    padding: .1rem .2rem;
 }
 
 table.deprecated code.literal {
@@ -499,6 +514,7 @@ summary.admonition-title::before {
     content: "";
     height: 1rem;
     left: .5rem;
+    top: .5rem;
     position: absolute;
     width: 1rem;
     background-color: #5f5f5f;
@@ -576,9 +592,15 @@ details.warning > summary.admonition-title::before {
     -webkit-mask-image: var(--icon-warning);
     mask-image: var(--icon-warning);
 }
-
+div.caution,
+div.important,
 div.warning, details.warning {
-    border: 1px solid #940000;
+    border-color: var(--colour-warning-fg);
+}
+div.attention,
+div.danger,
+div.error {
+    border-color: var(--colour-error-fg);
 }
 
 div.admonition > ul,
@@ -735,4 +757,31 @@ div.sphinx-feature > p.admonition-title::before {
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
+}
+.sphinx-users-logos .headerlink {
+    display: none;
+}
+
+/* -- search results -------------------------------------------------------- */
+
+ul.search {
+    padding-left: 30px;
+}
+ul.search li {
+    padding: 5px 0 5px 10px;
+}
+
+/* note: these rules apply to search results from the built-in Sphinx HTML/JS search engine
+   and only take effect in dev builds. The released docs use the ReadTheDocs search engine and are not affected. */
+ul.search li.kind-index {
+    list-style-type: "\1F4D1";  /* Unicode: Bookmark Tabs */
+}
+ul.search li.kind-object {
+    list-style-type: "\1F4E6";  /* Unicode: Package */
+}
+ul.search li.kind-title {
+    list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
+}
+ul.search li.kind-text {
+    list-style-type: "\1F4C4";  /* Unicode: Page Facing Up */
 }

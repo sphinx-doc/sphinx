@@ -13,11 +13,14 @@ babel_runner.py compile
     Compile the ".po" catalogue files to ".mo" and ".js" files.
 """
 
+from __future__ import annotations
+
 import json
 import logging
-import os
 import sys
 import tempfile
+from os import environ
+from pathlib import Path
 
 from babel.messages.catalog import Catalog
 from babel.messages.extract import (
@@ -31,7 +34,8 @@ from babel.messages.pofile import read_po, write_po
 from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
-ROOT = os.path.realpath(os.path.join(os.path.abspath(__file__), '..', '..'))
+IS_CI = 'CI' in environ
+ROOT = Path(__file__).resolve().parent.parent
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
     'variable_end_string': '%>',
@@ -80,45 +84,44 @@ def run_extract() -> None:
     log = _get_logger()
 
     with open('sphinx/__init__.py', encoding='utf-8') as f:
-        for line in f.read().splitlines():
-            if line.startswith('__version__ = '):
-                # remove prefix; strip whitespace; remove quotation marks
-                sphinx_version = line[14:].strip()[1:-1]
-                break
+        lines = f.readlines()
+    for line in lines:
+        if line.startswith('__version__ = '):
+            # remove prefix; strip whitespace; remove quotation marks
+            sphinx_version = line[14:].strip()[1:-1]
+            break
 
-    input_path = 'sphinx'
     catalogue = Catalog(project='Sphinx', version=sphinx_version, charset='utf-8')
 
-    base = os.path.abspath(input_path)
-    for root, dirnames, filenames in os.walk(base):
-        relative_root = os.path.relpath(root, base) if root != base else ''
-        dirnames.sort()
-        for filename in sorted(filenames):
-            relative_name = os.path.join(relative_root, filename)
-            for pattern, method in METHOD_MAP:
-                if not pathmatch(pattern, relative_name):
-                    continue
+    base = ROOT / 'sphinx'
+    for filename in base.rglob('*'):
+        relative_name = filename.relative_to(base)
+        for pattern, method in METHOD_MAP:
+            if not pathmatch(pattern, str(relative_name)):
+                continue
 
-                options = {}
-                for opt_pattern, opt_dict in OPTIONS_MAP.items():
-                    if pathmatch(opt_pattern, relative_name):
-                        options = opt_dict
-                with open(os.path.join(root, filename), 'rb') as fileobj:
-                    for lineno, message, comments, context in extract(
-                        method, fileobj, KEYWORDS, options=options
-                    ):
-                        filepath = os.path.join(input_path, relative_name)
-                        catalogue.add(
-                            message,
-                            None,
-                            [(filepath, lineno)],
-                            auto_comments=comments,
-                            context=context,
-                        )
-                break
+            options = {}
+            for opt_pattern, opt_dict in OPTIONS_MAP.items():
+                if pathmatch(opt_pattern, str(relative_name)):
+                    options = opt_dict
+            with open(filename, 'rb') as fileobj:
+                for lineno, message, comments, context in extract(
+                    method,  # type: ignore[arg-type]
+                    fileobj,
+                    KEYWORDS,
+                    options=options,
+                ):
+                    catalogue.add(
+                        message,
+                        None,
+                        [(str(relative_name), lineno)],
+                        auto_comments=comments,
+                        context=context,
+                    )
+            break
 
-    output_file = os.path.join('sphinx', 'locale', 'sphinx.pot')
-    log.info('writing PO template file to %s', output_file)
+    output_file = ROOT / 'sphinx' / 'locale' / 'sphinx.pot'
+    log.info('writing PO template file to %s', output_file.relative_to(ROOT))
     with open(output_file, 'wb') as outfile:
         write_po(outfile, catalogue)
 
@@ -128,39 +131,39 @@ def run_update() -> None:
     log = _get_logger()
 
     domain = 'sphinx'
-    locale_dir = os.path.join('sphinx', 'locale')
-    template_file = os.path.join(locale_dir, 'sphinx.pot')
+    locale_dir = ROOT / 'sphinx' / 'locale'
+    template_file = locale_dir / 'sphinx.pot'
 
     with open(template_file, encoding='utf-8') as infile:
         template = read_po(infile)
 
-    for locale in os.listdir(locale_dir):
-        filename = os.path.join(locale_dir, locale, 'LC_MESSAGES', f'{domain}.po')
-        if not os.path.exists(filename):
+    for locale in locale_dir.iterdir():
+        filename = locale / 'LC_MESSAGES' / f'{domain}.po'
+        if not filename.exists():
             continue
 
-        log.info('updating catalog %s based on %s', filename, template_file)
-        with open(filename, encoding='utf-8') as infile:
-            catalog = read_po(infile, locale=locale, domain=domain)
-
-        catalog.update(template)
-        tmp_name = os.path.join(
-            os.path.dirname(filename),
-            tempfile.gettempprefix() + os.path.basename(filename),
+        log.info(
+            'updating catalogue %s based on %s',
+            filename.relative_to(ROOT),
+            template_file.relative_to(ROOT),
         )
+        with open(filename, encoding='utf-8') as infile:
+            catalogue = read_po(infile, locale=locale.name, domain=domain)
+
+        catalogue.update(template)
+        tmp_name = filename.parent / (tempfile.gettempprefix() + filename.name)
         try:
             with open(tmp_name, 'wb') as tmpfile:
-                write_po(tmpfile, catalog)
+                write_po(tmpfile, catalogue)
         except Exception:
-            os.remove(tmp_name)
+            tmp_name.unlink()
             raise
 
-        os.replace(tmp_name, filename)
+        tmp_name.replace(filename)
 
 
 def run_compile() -> None:
-    """
-    Catalog compilation command.
+    """Catalogue compilation command.
 
     An extended command that writes all message strings that occur in
     JavaScript files to a JavaScript file along with the .mo file.
@@ -170,57 +173,75 @@ def run_compile() -> None:
     """
     log = _get_logger()
 
-    directory = os.path.join('sphinx', 'locale')
+    directory = ROOT / 'sphinx' / 'locale'
     total_errors = {}
 
-    for locale in os.listdir(directory):
-        po_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.po')
-        if not os.path.exists(po_file):
+    for locale in directory.iterdir():
+        po_file = locale / 'LC_MESSAGES' / 'sphinx.po'
+        if not po_file.exists():
             continue
 
         with open(po_file, encoding='utf-8') as infile:
-            catalog = read_po(infile, locale)
+            catalogue = read_po(infile, locale=locale.name)
 
-        if catalog.fuzzy:
-            log.info('catalog %s is marked as fuzzy, skipping', po_file)
+        if catalogue.fuzzy:
+            log.info(
+                'catalogue %s is marked as fuzzy, skipping', po_file.relative_to(ROOT)
+            )
             continue
 
-        for message, errors in catalog.check():
-            if locale not in total_errors:
-                total_errors[locale] = 0
+        locale_errors = 0
+        for message, errors in catalogue.check():
             for error in errors:
-                total_errors[locale] += 1
+                locale_errors += 1
                 log.error(
                     'error: %s:%d: %s\nerror:     in message string: %r',
-                    po_file,
+                    po_file.relative_to(ROOT),
                     message.lineno,
                     error,
                     message.string,
                 )
 
-        mo_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.mo')
-        log.info('compiling catalog %s to %s', po_file, mo_file)
-        with open(mo_file, 'wb') as outfile:
-            write_mo(outfile, catalog, use_fuzzy=False)
+        if locale_errors:
+            total_errors[locale.name] = locale_errors
+            log.info(
+                '%d errors encountered in %r locale, skipping',
+                locale_errors,
+                locale.name,
+            )
+            continue
 
-        js_file = os.path.join(directory, locale, 'LC_MESSAGES', 'sphinx.js')
-        log.info('writing JavaScript strings in catalog %s to %s', po_file, js_file)
+        mo_file = locale / 'LC_MESSAGES' / 'sphinx.mo'
+        log.info(
+            'compiling catalogue %s to %s',
+            po_file.relative_to(ROOT),
+            mo_file.relative_to(ROOT),
+        )
+        with open(mo_file, 'wb') as outfile:
+            write_mo(outfile, catalogue, use_fuzzy=False)
+
+        js_file = locale / 'LC_MESSAGES' / 'sphinx.js'
+        log.info(
+            'writing JavaScript strings in catalogue %s to %s',
+            po_file.relative_to(ROOT),
+            js_file.relative_to(ROOT),
+        )
         js_catalogue = {}
-        for message in catalog:
+        for message in catalogue:
             if any(
                 x[0].endswith(('.js', '.js.jinja', '.js_t', '.html'))
                 for x in message.locations
             ):
                 msgid = message.id
-                if isinstance(msgid, (list, tuple)):
+                if isinstance(msgid, list | tuple):
                     msgid = msgid[0]
                 js_catalogue[msgid] = message.string
 
         obj = json.dumps(
             {
                 'messages': js_catalogue,
-                'plural_expr': catalog.plural_expr,
-                'locale': str(catalog.locale),
+                'plural_expr': catalogue.plural_expr,
+                'locale': str(catalogue.locale),
             },
             sort_keys=True,
             indent=4,
@@ -229,26 +250,31 @@ def run_compile() -> None:
             # to ensure lines end with ``\n`` rather than ``\r\n``:
             outfile.write(f'Documentation.addTranslations({obj});'.encode())
 
-    if 'ta' in total_errors:
-        # Tamil is a known failure.
-        err_count = total_errors.pop('ta')
-        log.error('%d errors encountered in %r locale.', err_count, 'ta')
-
-    if len(total_errors) > 0:
-        for locale, err_count in total_errors.items():
-            log.error('%d errors encountered in %r locale.', err_count, locale)
-        log.error('%d errors encountered.', sum(total_errors.values()))
-        print('Compiling failed.', file=sys.stderr)
-        raise SystemExit(2)
+    if total_errors:
+        _write_pr_body_line('## Babel catalogue errors')
+        _write_pr_body_line('')
+        for locale_name, err_count in total_errors.items():
+            log.error(
+                'error: %d errors encountered in %r locale.', err_count, locale_name
+            )
+            s = 's' if err_count != 1 else ''
+            _write_pr_body_line(f'* {locale_name}: {err_count} error{s}')
 
 
-def _get_logger():
+def _get_logger() -> logging.Logger:
     log = logging.getLogger('babel')
     log.setLevel(logging.INFO)
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter('%(message)s'))
     log.addHandler(handler)
     return log
+
+
+def _write_pr_body_line(message: str) -> None:
+    if not IS_CI:
+        return
+    with open('babel_compile.txt', 'a', encoding='utf-8') as f:
+        f.write(f'{message}\n')
 
 
 if __name__ == '__main__':
@@ -258,7 +284,6 @@ if __name__ == '__main__':
         print(__doc__, file=sys.stderr)
         raise SystemExit(2) from None
 
-    os.chdir(ROOT)
     if action == 'extract':
         run_extract()
     elif action == 'update':

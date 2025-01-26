@@ -75,7 +75,7 @@ Cross-referencing Python objects
 
 By default, most of these directives generate entities that can be
 cross-referenced from any part of the documentation by using
-:ref:`a corresponding role <python-roles>`. For the case of functions,
+:ref:`a corresponding role <python-xref-roles>`. For the case of functions,
 you can use :rst:role:`py:func` for that, as follows:
 
 .. code-block:: rst
@@ -145,9 +145,9 @@ at the beginning of ``conf.py``:
 
    # If extensions (or modules to document with autodoc) are in another directory,
    # add these directories to sys.path here.
-   import pathlib
    import sys
-   sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
+   from pathlib import Path
+   sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 .. note::
 

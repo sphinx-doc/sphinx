@@ -7,18 +7,17 @@ and roles describing e.g. constructs of one programming language.
 from __future__ import annotations
 
 import copy
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, NamedTuple, Optional, cast
+from typing import TYPE_CHECKING
 
-from docutils.nodes import Element, Node, system_message
-
-from sphinx.errors import SphinxError
+from sphinx.domains._index import Index, IndexEntry
 from sphinx.locale import _
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Sequence, Set
+    from typing import Any
 
     from docutils import nodes
+    from docutils.nodes import Element, Node
     from docutils.parsers.rst import Directive
     from docutils.parsers.rst.states import Inliner
 
@@ -26,12 +25,18 @@ if TYPE_CHECKING:
     from sphinx.builders import Builder
     from sphinx.environment import BuildEnvironment
     from sphinx.roles import XRefRole
-    from sphinx.util.typing import RoleFunction
+    from sphinx.util.typing import RoleFunction, TitleGetter
+
+__all__ = (
+    'Domain',
+    'Index',
+    'IndexEntry',
+    'ObjType',
+)
 
 
 class ObjType:
-    """
-    An ObjType is the description for a type of object that a domain can
+    """An ObjType is the description for a type of object that a domain can
     document.  In the object_types attribute of Domain subclasses, object type
     names are mapped to instances of this class.
 
@@ -48,117 +53,14 @@ class ObjType:
         'searchprio': 1,
     }
 
-    def __init__(self, lname: str, *roles: Any, **attrs: Any) -> None:
-        self.lname = lname
-        self.roles: tuple = roles
-        self.attrs: dict = self.known_attrs.copy()
-        self.attrs.update(attrs)
-
-
-class IndexEntry(NamedTuple):
-    name: str
-    subtype: int
-    docname: str
-    anchor: str
-    extra: str
-    qualifier: str
-    descr: str
-
-
-class Index(ABC):
-    """
-    An Index is the description for a domain-specific index.  To add an index to
-    a domain, subclass Index, overriding the three name attributes:
-
-    * `name` is an identifier used for generating file names.
-      It is also used for a hyperlink target for the index. Therefore, users can
-      refer the index page using ``ref`` role and a string which is combined
-      domain name and ``name`` attribute (ex. ``:ref:`py-modindex```).
-    * `localname` is the section title for the index.
-    * `shortname` is a short name for the index, for use in the relation bar in
-      HTML output.  Can be empty to disable entries in the relation bar.
-
-    and providing a :meth:`generate()` method.  Then, add the index class to
-    your domain's `indices` list.  Extensions can add indices to existing
-    domains using :meth:`~sphinx.application.Sphinx.add_index_to_domain()`.
-
-    .. versionchanged:: 3.0
-
-       Index pages can be referred by domain name and index name via
-       :rst:role:`ref` role.
-    """
-
-    name: str
-    localname: str
-    shortname: str | None = None
-
-    def __init__(self, domain: Domain) -> None:
-        if not self.name or self.localname is None:
-            raise SphinxError('Index subclass %s has no valid name or localname'
-                              % self.__class__.__name__)
-        self.domain = domain
-
-    @abstractmethod
-    def generate(self, docnames: Iterable[str] | None = None,
-                 ) -> tuple[list[tuple[str, list[IndexEntry]]], bool]:
-        """Get entries for the index.
-
-        If ``docnames`` is given, restrict to entries referring to these
-        docnames.
-
-        The return value is a tuple of ``(content, collapse)``:
-
-        ``collapse``
-          A boolean that determines if sub-entries should start collapsed (for
-          output formats that support collapsing sub-entries).
-
-        ``content``:
-          A sequence of ``(letter, entries)`` tuples, where ``letter`` is the
-          "heading" for the given ``entries``, usually the starting letter, and
-          ``entries`` is a sequence of single entries. Each entry is a sequence
-          ``[name, subtype, docname, anchor, extra, qualifier, descr]``. The
-          items in this sequence have the following meaning:
-
-          ``name``
-            The name of the index entry to be displayed.
-
-          ``subtype``
-            The sub-entry related type. One of:
-
-            ``0``
-              A normal entry.
-            ``1``
-              An entry with sub-entries.
-            ``2``
-              A sub-entry.
-
-          ``docname``
-            *docname* where the entry is located.
-
-          ``anchor``
-            Anchor for the entry within ``docname``
-
-          ``extra``
-            Extra info for the entry.
-
-          ``qualifier``
-            Qualifier for the description.
-
-          ``descr``
-            Description for the entry.
-
-        Qualifier and description are not rendered for some output formats such
-        as LaTeX.
-        """
-        raise NotImplementedError
-
-
-TitleGetter = Callable[[Node], Optional[str]]
+    def __init__(self, lname: str, /, *roles: Any, **attrs: Any) -> None:
+        self.lname: str = lname
+        self.roles: tuple[Any, ...] = roles
+        self.attrs: dict[str, Any] = self.known_attrs | attrs
 
 
 class Domain:
-    """
-    A Domain is meant to be a group of "object" description directives for
+    """A Domain is meant to be a group of "object" description directives for
     objects of a similar nature, and corresponding roles to create references to
     them.  Examples would be Python modules, classes, functions etc., elements
     of a templating language, Sphinx roles and directives, etc.
@@ -196,16 +98,17 @@ class Domain:
     #: node_class -> (enum_node_type, title_getter)
     enumerable_nodes: dict[type[Node], tuple[str, TitleGetter | None]] = {}
     #: data value for a fresh environment
-    initial_data: dict = {}
+    initial_data: dict[str, Any] = {}
     #: data value
-    data: dict
+    data: dict[str, Any]
     #: data version, bump this when the format of `self.data` changes
     data_version = 0
 
     def __init__(self, env: BuildEnvironment) -> None:
+        domain_data: dict[str, dict[str, Any]] = env.domaindata
         self.env: BuildEnvironment = env
-        self._role_cache: dict[str, Callable] = {}
-        self._directive_cache: dict[str, Callable] = {}
+        self._role_cache: dict[str, RoleFunction] = {}
+        self._directive_cache: dict[str, type[Directive]] = {}
         self._role2type: dict[str, list[str]] = {}
         self._type2role: dict[str, str] = {}
 
@@ -215,13 +118,13 @@ class Domain:
         self.roles = dict(self.roles)
         self.indices = list(self.indices)
 
-        if self.name not in env.domaindata:
+        if self.name not in domain_data:
             assert isinstance(self.initial_data, dict)
             new_data = copy.deepcopy(self.initial_data)
             new_data['version'] = self.data_version
-            self.data = env.domaindata[self.name] = new_data
+            self.data = domain_data[self.name] = new_data
         else:
-            self.data = env.domaindata[self.name]
+            self.data = domain_data[self.name]
             if self.data['version'] != self.data_version:
                 raise OSError('data of %r domain out of date' % self.label)
         for name, obj in self.object_types.items():
@@ -233,13 +136,11 @@ class Domain:
 
     def setup(self) -> None:
         """Set up domain object."""
-        from sphinx.domains.std import StandardDomain
-
         # Add special hyperlink target for index pages (ex. py-modindex)
-        std = cast(StandardDomain, self.env.get_domain('std'))
+        std = self.env.domains.standard_domain
         for index in self.indices:
             if index.name and index.localname:
-                docname = f"{self.name}-{index.name}"
+                docname = f'{self.name}-{index.name}'
                 std.note_hyperlink_target(docname, docname, '', index.localname)
 
     def add_object_type(self, name: str, objtype: ObjType) -> None:
@@ -263,16 +164,23 @@ class Domain:
             return None
         fullname = f'{self.name}:{name}'
 
-        def role_adapter(typ: str, rawtext: str, text: str, lineno: int,
-                         inliner: Inliner, options: dict | None = None,
-                         content: Sequence[str] = (),
-                         ) -> tuple[list[Node], list[system_message]]:
-            return self.roles[name](fullname, rawtext, text, lineno,
-                                    inliner, options or {}, content)
+        def role_adapter(
+            typ: str,
+            rawtext: str,
+            text: str,
+            lineno: int,
+            inliner: Inliner,
+            options: dict[str, Any] | None = None,
+            content: Sequence[str] = (),
+        ) -> tuple[list[Node], list[nodes.system_message]]:
+            return self.roles[name](
+                fullname, rawtext, text, lineno, inliner, options or {}, content
+            )
+
         self._role_cache[name] = role_adapter
         return role_adapter
 
-    def directive(self, name: str) -> Callable | None:
+    def directive(self, name: str) -> type[Directive] | None:
         """Return a directive adapter class that always gives the registered
         directive its full name ('domain:name') as ``self.name``.
         """
@@ -287,6 +195,7 @@ class Domain:
             def run(self) -> list[Node]:
                 self.name = fullname
                 return super().run()
+
         self._directive_cache[name] = DirectiveAdapter
         return DirectiveAdapter
 
@@ -296,16 +205,19 @@ class Domain:
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
-    def merge_domaindata(self, docnames: list[str], otherdata: dict[str, Any]) -> None:
+    def merge_domaindata(self, docnames: Set[str], otherdata: dict[str, Any]) -> None:
         """Merge in data regarding *docnames* from a different domaindata
         inventory (coming from a subprocess in parallel builds).
         """
-        raise NotImplementedError('merge_domaindata must be implemented in %s '
-                                  'to be able to do parallel builds!' %
-                                  self.__class__)
+        msg = (
+            f'merge_domaindata must be implemented in {self.__class__} '
+            'to be able to do parallel builds!'
+        )
+        raise NotImplementedError(msg)
 
-    def process_doc(self, env: BuildEnvironment, docname: str,
-                    document: nodes.document) -> None:
+    def process_doc(
+        self, env: BuildEnvironment, docname: str, document: nodes.document
+    ) -> None:
         """Process a document after it is read by the environment."""
         pass
 
@@ -319,9 +231,16 @@ class Domain:
         """
         pass
 
-    def resolve_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                     typ: str, target: str, node: pending_xref, contnode: Element,
-                     ) -> Element | None:
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> nodes.reference | None:
         """Resolve the pending_xref *node* with the given *typ* and *target*.
 
         This method should return a new node, to replace the xref node,
@@ -337,9 +256,15 @@ class Domain:
         """
         pass
 
-    def resolve_any_xref(self, env: BuildEnvironment, fromdocname: str, builder: Builder,
-                         target: str, node: pending_xref, contnode: Element,
-                         ) -> list[tuple[str, Element]]:
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, nodes.reference]]:
         """Resolve the pending_xref *node* with the given *target*.
 
         The reference comes from an "any" or similar role, which means that we

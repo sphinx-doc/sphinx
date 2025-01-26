@@ -1,23 +1,28 @@
-import os
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().resolve()))
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
 from sphinx import addnodes
 
-sys.path.append(os.path.abspath('.'))
-
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.todo',
-              'sphinx.ext.coverage',
-              'sphinx.ext.extlinks']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.extlinks',
+]
 
 jsmath_path = 'dummy.js'
 
 templates_path = ['_templates']
 
-source_suffix = ['.txt', '.add', '.foo']
+source_suffix = {
+    '.txt': 'restructuredtext',
+    '.foo': 'foo',
+}
 
 project = 'Sphinx <Tests>'
 copyright = '1234-6789, copyright text credits'
@@ -31,9 +36,16 @@ pygments_style = 'sphinx'
 show_authors = True
 numfig = True
 
-html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html',
-                        'customsb.html', 'searchbox.html'],
-                 'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html']}
+html_sidebars = {
+    '**': [
+        'localtoc.html',
+        'relations.html',
+        'sourcelink.html',
+        'customsb.html',
+        'searchbox.html',
+    ],
+    'index': ['contentssb.html', 'localtoc.html', 'globaltoc.html'],
+}
 html_last_updated_fmt = '%b %d, %Y'
 html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 
@@ -67,10 +79,15 @@ latex_elements = {
 %
   shadowrule=1pt,
   shadowsep=10pt,
-  shadowsize=10pt,
-  div.topic_border-width=2pt,% alias to shadowrule 
-  div.topic_padding=6pt,% alias to shadowsep
-  div.topic_box-shadow=5pt,% overrides/alias shadowsize
+  shadowsize=-10pt,
+  div.topic_border-width=2pt,
+  div.topic_padding=6pt,
+  div.topic_box-shadow=5pt,
+  div.contents_border-width=3pt,
+  div.contents_padding=10pt,
+  div.contents_box-shadow=none,
+  div.sidebar_border-width=0pt,
+  div.sidebar_border-radius=0pt,
 %
   noteBorderColor={RGB}{204,204,204},
   hintBorderColor={RGB}{204,204,204},
@@ -114,11 +131,13 @@ latex_elements = {
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
 
-extlinks = {'issue': ('https://bugs.python.org/issue%s', 'issue %s'),
-            'pyurl': ('https://python.org/%s', None)}
+extlinks = {
+    'issue': ('https://bugs.python.org/issue%s', 'issue %s'),
+    'pyurl': ('https://python.org/%s', None),
+}
 
 # modify tags from conf.py
-tags.add('confpytag')
+tags.add('confpytag')  # NoQA: F821 (tags is injected into conf.py)
 
 
 # -- extension API
@@ -141,8 +160,9 @@ def setup(app):
     import parsermod
 
     app.add_directive('clsdir', ClassDirective)
-    app.add_object_type('userdesc', 'userdescrole', '%s (userdesc)',
-                        userdesc_parse, objname='user desc')
+    app.add_object_type(
+        'userdesc', 'userdescrole', '%s (userdesc)', userdesc_parse, objname='user desc'
+    )
     app.add_js_file('file://moo.js')
     app.add_source_suffix('.foo', 'foo')
     app.add_source_parser(parsermod.Parser)

@@ -13,7 +13,7 @@ value.
 Builder extensions should define an entry point in the ``"sphinx.builders"``
 group. The name of the entry point needs to match your builder's
 :attr:`~.Builder.name` attribute, which is the name passed to the
-:option:`sphinx-build -b` option. The entry point value should equal the
+:option:`sphinx-build --builder` option. The entry point value should equal the
 dotted name of the extension module. Here is an example of how an entry point
 for 'mybuilder' can be defined in the extension's ``pyproject.toml``
 
