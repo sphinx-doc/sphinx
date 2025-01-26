@@ -1246,7 +1246,7 @@ There are also config values that you can set:
       Added the option to disable the use of type comments in
       via the new :confval:`!autodoc_use_type_comments` option,
       which defaults to :code-py:`True` for backwards compatibility.
-      A future version of Sphinx will change the default to :code-py:`False`.
+      The default will change to :code-py:`False` in Sphinx 10.
 
       .. xref RemovedInSphinx10Warning
 
