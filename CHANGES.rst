@@ -67,8 +67,8 @@ Features added
   Patch by Adam Turner.
 * #13269: Added the option to disable the use of type comments in
   via the new :confval:`autodoc_use_type_comments` option,
-  which defaults to :code-py:`True` for backwards compatibility.
-  The default will change to :code-py:`False` in Sphinx 10.
+  which defaults to ``True`` for backwards compatibility.
+  The default will change to ``False`` in Sphinx 10.
   Patch by Adam Turner.
 
 Bugs fixed
