@@ -188,6 +188,8 @@ class ReferencesResolver(SphinxPostTransform):
                 target,
                 candidates,
                 location=node,
+                type='ref',
+                subtype='any',
             )
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
