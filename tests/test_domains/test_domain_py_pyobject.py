@@ -925,7 +925,7 @@ def test_domain_py_type_alias(app):
 
     content = (app.outdir / 'type_alias.html').read_text(encoding='utf8')
     assert (
-        '<em class="property"><span class="pre">type</span><span class="w"> </span></em>'
+        '<em class="property"><span class="k"><span class="pre">type</span></span><span class="w"> </span></em>'
         '<span class="sig-prename descclassname"><span class="pre">module_one.</span></span>'
         '<span class="sig-name descname"><span class="pre">MyAlias</span></span>'
         '<em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span>'
