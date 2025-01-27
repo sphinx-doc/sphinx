@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Cerca",
         "Search Page": "Cerca",
         "Search Results": "Risultati della ricerca",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Cerca in %(docstitle)s",
         "Searching": "Cerca",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
-
 import snowballstemmer
 
 from sphinx.search import SearchLanguage, parse_stop_word
 
-norwegian_stopwords = parse_stop_word('''
+norwegian_stopwords = parse_stop_word("""
 | source: https://snowball.tartarus.org/algorithms/norwegian/stop.txt
 og             | and
 i              | in
@@ -186,7 +184,7 @@ verte          | become *
 vort           | become *
 varte          | became *
 vart           | became *
-''')
+""")
 
 
 class SearchNorwegian(SearchLanguage):

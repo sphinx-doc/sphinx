@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from sphinx.errors import ConfigError
@@ -8,51 +10,72 @@ def test_default_html_math_renderer(app):
     assert app.builder.math_renderer_name == 'mathjax'
 
 
-@pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    confoverrides={'extensions': ['sphinx.ext.mathjax']},
+)
 def test_html_math_renderer_is_mathjax(app):
     assert app.builder.math_renderer_name == 'mathjax'
 
 
-@pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.imgmath']})
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    confoverrides={'extensions': ['sphinx.ext.imgmath']},
+)
 def test_html_math_renderer_is_imgmath(app):
     assert app.builder.math_renderer_name == 'imgmath'
 
 
-@pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinxcontrib.jsmath',
-                                                  'sphinx.ext.imgmath']})
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    confoverrides={'extensions': ['sphinxcontrib.jsmath', 'sphinx.ext.imgmath']},
+)
 def test_html_math_renderer_is_duplicated(make_app, app_params):
     args, kwargs = app_params
     with pytest.raises(
         ConfigError,
-        match='Many math_renderers are registered. But no math_renderer is selected.',
+        match=r'Many math_renderers are registered\. But no math_renderer is selected\.',
     ):
         make_app(*args, **kwargs)
 
 
-@pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinx.ext.imgmath',
-                                                  'sphinx.ext.mathjax']})
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    confoverrides={'extensions': ['sphinx.ext.imgmath', 'sphinx.ext.mathjax']},
+)
 def test_html_math_renderer_is_duplicated2(app):
     # case of both mathjax and another math_renderer is loaded
     assert app.builder.math_renderer_name == 'imgmath'  # The another one is chosen
 
 
-@pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinxcontrib.jsmath',
-                                                  'sphinx.ext.imgmath'],
-                                   'html_math_renderer': 'imgmath'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    confoverrides={
+        'extensions': ['sphinxcontrib.jsmath', 'sphinx.ext.imgmath'],
+        'html_math_renderer': 'imgmath',
+    },
+)
 def test_html_math_renderer_is_chosen(app):
     assert app.builder.math_renderer_name == 'imgmath'
 
 
-@pytest.mark.sphinx('html', testroot='basic',
-                    confoverrides={'extensions': ['sphinxcontrib.jsmath',
-                                                  'sphinx.ext.mathjax'],
-                                   'html_math_renderer': 'imgmath'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    confoverrides={
+        'extensions': ['sphinxcontrib.jsmath', 'sphinx.ext.mathjax'],
+        'html_math_renderer': 'imgmath',
+    },
+)
 def test_html_math_renderer_is_mismatched(make_app, app_params):
     args, kwargs = app_params
-    with pytest.raises(ConfigError, match="Unknown math_renderer 'imgmath' is given."):
+    with pytest.raises(
+        ConfigError,
+        match=r"Unknown math_renderer 'imgmath' is given\.",
+    ):
         make_app(*args, **kwargs)

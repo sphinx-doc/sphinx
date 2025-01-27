@@ -1,5 +1,7 @@
 """Test image converter with identical basenames"""
 
+from __future__ import annotations
+
 import pytest
 
 

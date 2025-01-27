@@ -1,5 +1,7 @@
 """Test the Sphinx API for translator."""
 
+from __future__ import annotations
+
 import sys
 
 import pytest
@@ -13,7 +15,7 @@ def _setup_module(rootdir):
     sys.path[:] = saved_path
 
 
-@pytest.mark.sphinx('html')
+@pytest.mark.sphinx('html', testroot='root')
 def test_html_translator(app):
     # no set_translator()
     translator_class = app.builder.get_translator_class()

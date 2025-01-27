@@ -9,8 +9,9 @@ from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 from typing import TYPE_CHECKING
 
-from sphinx.ext.intersphinx import InventoryAdapter
+from sphinx.ext.intersphinx._shared import InventoryAdapter
 from sphinx.testing.util import SphinxTestApp
+from sphinx.util.inventory import _InventoryItem
 
 from tests.utils import http_server
 
@@ -18,7 +19,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import BinaryIO
 
-    from sphinx.util.typing import InventoryItem
 
 BASE_CONFIG = {
     'extensions': ['sphinx.ext.intersphinx'],
@@ -30,8 +30,13 @@ class InventoryEntry:
     """Entry in the Intersphinx inventory."""
 
     __slots__ = (
-        'name', 'display_name', 'domain_name',
-        'object_type', 'uri', 'anchor', 'priority',
+        'name',
+        'display_name',
+        'domain_name',
+        'object_type',
+        'uri',
+        'anchor',
+        'priority',
     )
 
     def __init__(
@@ -46,7 +51,7 @@ class InventoryEntry:
         priority: int = 0,
     ):
         if anchor.endswith(name):
-            anchor = anchor[:-len(name)] + '$'
+            anchor = anchor.removesuffix(name) + '$'
 
         if anchor:
             uri += '#' + anchor
@@ -64,8 +69,10 @@ class InventoryEntry:
 
     def format(self) -> str:
         """Format the entry as it appears in the inventory file."""
-        return (f'{self.name} {self.domain_name}:{self.object_type} '
-                f'{self.priority} {self.uri} {self.display_name}\n')
+        return (
+            f'{self.name} {self.domain_name}:{self.object_type} '
+            f'{self.priority} {self.uri} {self.display_name}\n'
+        )
 
 
 class IntersphinxProject:
@@ -102,10 +109,14 @@ class IntersphinxProject:
         """The :confval:`intersphinx_mapping` record for this project."""
         return {self.name: (self.url, self.file)}
 
-    def normalise(self, entry: InventoryEntry) -> tuple[str, InventoryItem]:
+    def normalise(self, entry: InventoryEntry) -> tuple[str, _InventoryItem]:
         """Format an inventory entry as if it were part of this project."""
-        url = posixpath.join(self.url, entry.uri)
-        return entry.name, (self.safe_name, self.safe_version, url, entry.display_name)
+        return entry.name, _InventoryItem(
+            project_name=self.safe_name,
+            project_version=self.safe_version,
+            uri=posixpath.join(self.url, entry.uri),
+            display_name=entry.display_name,
+        )
 
 
 class FakeInventory:
@@ -122,9 +133,12 @@ class FakeInventory:
         return buffer.getvalue()
 
     def _write_headers(self, buffer: BinaryIO) -> None:
-        buffer.write((f'# Sphinx inventory version {self.protocol_version}\n'
-                      f'# Project: {self.project.safe_name}\n'
-                      f'# Version: {self.project.safe_version}\n').encode())
+        headers = (
+            f'# Sphinx inventory version {self.protocol_version}\n'
+            f'# Project: {self.project.safe_name}\n'
+            f'# Version: {self.project.safe_version}\n'
+        ).encode()
+        buffer.write(headers)
 
     def _write_body(self, buffer: BinaryIO, lines: Iterable[bytes]) -> None:
         raise NotImplementedError
@@ -154,7 +168,7 @@ class SingleEntryProject(IntersphinxProject):
         *,
         item_name: str = 'ham',
         domain_name: str = 'py',
-        object_type: str = 'module'
+        object_type: str = 'module',
     ) -> None:
         super().__init__(
             name=self.name,
@@ -170,10 +184,14 @@ class SingleEntryProject(IntersphinxProject):
     def make_entry(self) -> InventoryEntry:
         """Get an inventory entry for this project."""
         name = f'{self.item_name}_{self.version}'
-        return InventoryEntry(name, domain_name=self.domain_name, object_type=self.object_type)
+        return InventoryEntry(
+            name, domain_name=self.domain_name, object_type=self.object_type
+        )
 
 
-def make_inventory_handler(*projects: SingleEntryProject) -> type[BaseHTTPRequestHandler]:
+def make_inventory_handler(
+    *projects: SingleEntryProject,
+) -> type[BaseHTTPRequestHandler]:
     name, port = projects[0].name, projects[0].port
     assert all(p.name == name for p in projects)
     assert all(p.port == port for p in projects)
@@ -281,7 +299,7 @@ def test_load_mappings_cache_revert_update(tmp_path):
         app2.build()
         app2.cleanup()
 
-        # switch back to old url (re-use 'old_item')
+        # switch back to old url (reuse 'old_item')
         confoverrides3 = BASE_CONFIG | {'intersphinx_mapping': old_project.record}
         app3 = SphinxTestApp('dummy', srcdir=tmp_path, confoverrides=confoverrides3)
         app3.build()

@@ -10,6 +10,8 @@ from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.transforms import SphinxContentsFilter
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from sphinx.application import Sphinx
     from sphinx.environment import BuildEnvironment
     from sphinx.util.typing import ExtensionMetadata
@@ -22,8 +24,13 @@ class TitleCollector(EnvironmentCollector):
         env.titles.pop(docname, None)
         env.longtitles.pop(docname, None)
 
-    def merge_other(self, app: Sphinx, env: BuildEnvironment,
-                    docnames: set[str], other: BuildEnvironment) -> None:
+    def merge_other(
+        self,
+        app: Sphinx,
+        env: BuildEnvironment,
+        docnames: Set[str],
+        other: BuildEnvironment,
+    ) -> None:
         for docname in docnames:
             env.titles[docname] = other.titles[docname]
             env.longtitles[docname] = other.longtitles[docname]

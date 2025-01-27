@@ -1,5 +1,7 @@
 """Test images util."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.util.images import (
@@ -46,29 +48,40 @@ def test_get_image_extension():
 
 def test_parse_data_uri():
     # standard case
-    uri = ("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4"
-           "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
+    uri = (
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4'
+        '//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=='
+    )
     image = parse_data_uri(uri)
     assert image is not None
     assert image.mimetype == 'image/png'
     assert image.charset == 'US-ASCII'
 
     # no mimetype
-    uri = ("data:charset=utf-8,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElE"
-           "QVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
+    uri = (
+        'data:charset=utf-8,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElE'
+        'QVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=='
+    )
     image = parse_data_uri(uri)
     assert image is not None
     assert image.mimetype == 'text/plain'
     assert image.charset == 'utf-8'
 
     # non data URI
-    uri = ("image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4"
-           "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
+    uri = (
+        'image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4'
+        '//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=='
+    )
     image = parse_data_uri(uri)
     assert image is None
 
     # invalid data URI (no properties)
-    uri = ("data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4"
-           "//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
-    with pytest.raises(ValueError, match=r'not enough values to unpack \(expected 2, got 1\)'):
+    uri = (
+        'data:iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4'
+        '//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=='
+    )
+    with pytest.raises(
+        ValueError,
+        match=r'not enough values to unpack \(expected 2, got 1\)',
+    ):
         parse_data_uri(uri)

@@ -1,11 +1,17 @@
 """Test smart quotes."""
 
+from __future__ import annotations
+
 import pytest
 
 from sphinx.testing.util import etree_parse
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+)
 def test_basic(app):
     app.build()
 
@@ -13,7 +19,11 @@ def test_basic(app):
     assert '<p>– “Sphinx” is a tool that makes it easy …</p>' in content
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+)
 def test_literals(app):
     app.build()
 
@@ -29,7 +39,11 @@ def test_literals(app):
             assert code_text == "literal with 'quotes'"
 
 
-@pytest.mark.sphinx(buildername='text', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(
+    'text',
+    testroot='smartquotes',
+    freshenv=True,
+)
 def test_text_builder(app):
     app.build()
 
@@ -37,7 +51,11 @@ def test_text_builder(app):
     assert '-- "Sphinx" is a tool that makes it easy ...' in content
 
 
-@pytest.mark.sphinx(buildername='man', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(
+    'man',
+    testroot='smartquotes',
+    freshenv=True,
+)
 def test_man_builder(app):
     app.build()
 
@@ -45,7 +63,11 @@ def test_man_builder(app):
     assert r'\-\- \(dqSphinx\(dq is a tool that makes it easy ...' in content
 
 
-@pytest.mark.sphinx(buildername='latex', testroot='smartquotes', freshenv=True)
+@pytest.mark.sphinx(
+    'latex',
+    testroot='smartquotes',
+    freshenv=True,
+)
 def test_latex_builder(app):
     app.build()
 
@@ -53,8 +75,12 @@ def test_latex_builder(app):
     assert '\\textendash{} “Sphinx” is a tool that makes it easy …' in content
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
-                    confoverrides={'language': 'ja'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+    confoverrides={'language': 'ja'},
+)
 def test_ja_html_builder(app):
     app.build()
 
@@ -62,8 +88,38 @@ def test_ja_html_builder(app):
     assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
-                    confoverrides={'smartquotes': False})
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+    confoverrides={'language': 'zh_CN'},
+)
+def test_zh_cn_html_builder(app):
+    app.build()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+    confoverrides={'language': 'zh_TW'},
+)
+def test_zh_tw_html_builder(app):
+    app.build()
+
+    content = (app.outdir / 'index.html').read_text(encoding='utf8')
+    assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
+
+
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+    confoverrides={'smartquotes': False},
+)
 def test_smartquotes_disabled(app):
     app.build()
 
@@ -71,8 +127,12 @@ def test_smartquotes_disabled(app):
     assert '<p>-- &quot;Sphinx&quot; is a tool that makes it easy ...</p>' in content
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
-                    confoverrides={'smartquotes_action': 'q'})
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+    confoverrides={'smartquotes_action': 'q'},
+)
 def test_smartquotes_action(app):
     app.build()
 
@@ -80,8 +140,12 @@ def test_smartquotes_action(app):
     assert '<p>-- “Sphinx” is a tool that makes it easy ...</p>' in content
 
 
-@pytest.mark.sphinx(buildername='html', testroot='smartquotes', freshenv=True,
-                    confoverrides={'language': 'ja', 'smartquotes_excludes': {}})
+@pytest.mark.sphinx(
+    'html',
+    testroot='smartquotes',
+    freshenv=True,
+    confoverrides={'language': 'ja', 'smartquotes_excludes': {}},
+)
 def test_smartquotes_excludes_language(app):
     app.build()
 
@@ -89,8 +153,12 @@ def test_smartquotes_excludes_language(app):
     assert '<p>– 「Sphinx」 is a tool that makes it easy …</p>' in content
 
 
-@pytest.mark.sphinx(buildername='man', testroot='smartquotes', freshenv=True,
-                    confoverrides={'smartquotes_excludes': {}})
+@pytest.mark.sphinx(
+    'man',
+    testroot='smartquotes',
+    freshenv=True,
+    confoverrides={'smartquotes_excludes': {}},
+)
 def test_smartquotes_excludes_builders(app):
     app.build()
 

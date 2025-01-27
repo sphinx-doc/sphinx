@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import concurrent.futures
-import functools
+import dataclasses
+import os.path
 import posixpath
 import time
 from operator import itemgetter
-from os import path
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit, urlunsplit
 
@@ -20,7 +20,6 @@ from sphinx.util.inventory import InventoryFile
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import IO
 
     from sphinx.application import Sphinx
     from sphinx.config import Config
@@ -82,15 +81,17 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
                 'Invalid value `%r` in intersphinx_mapping[%r]. '
                 'Values must be a (target URI, inventory locations) pair.'
             )
-            LOGGER.error(msg, value, name)
+            LOGGER.error(msg, value, name)  # NoQA: TRY400
             del config.intersphinx_mapping[name]
             continue
 
         # ensure target URIs are non-empty and unique
         if not uri or not isinstance(uri, str):
             errors += 1
-            msg = __('Invalid target URI value `%r` in intersphinx_mapping[%r][0]. '
-                     'Target URIs must be unique non-empty strings.')
+            msg = __(
+                'Invalid target URI value `%r` in intersphinx_mapping[%r][0]. '
+                'Target URIs must be unique non-empty strings.'
+            )
             LOGGER.error(msg, uri, name)
             del config.intersphinx_mapping[name]
             continue
@@ -105,9 +106,12 @@ def validate_intersphinx_mapping(app: Sphinx, config: Config) -> None:
             continue
         seen[uri] = name
 
+        if not isinstance(inv, tuple | list):
+            inv = (inv,)
+
         # ensure inventory locations are None or non-empty
         targets: list[InventoryLocation] = []
-        for target in (inv if isinstance(inv, (tuple | list)) else (inv,)):
+        for target in inv:
             if target is None or target and isinstance(target, str):
                 targets.append(target)
             else:
@@ -135,17 +139,22 @@ def load_mappings(app: Sphinx) -> None:
 
     The intersphinx mappings are expected to be normalized.
     """
+    env = app.env
     now = int(time.time())
-    inventories = InventoryAdapter(app.builder.env)
+    inventories = InventoryAdapter(env)
     intersphinx_cache: dict[InventoryURI, InventoryCacheEntry] = inventories.cache
     intersphinx_mapping: IntersphinxMapping = app.config.intersphinx_mapping
 
     projects = []
     for name, (uri, locations) in intersphinx_mapping.values():
         try:
-            project = _IntersphinxProject(name=name, target_uri=uri, locations=locations)
+            project = _IntersphinxProject(
+                name=name, target_uri=uri, locations=locations
+            )
         except ValueError as err:
-            msg = __('An invalid intersphinx_mapping entry was added after normalisation.')
+            msg = __(
+                'An invalid intersphinx_mapping entry was added after normalisation.'
+            )
             raise ConfigError(msg) from err
         else:
             projects.append(project)
@@ -161,6 +170,7 @@ def load_mappings(app: Sphinx) -> None:
             # This happens when the URI in `intersphinx_mapping` is changed.
             del intersphinx_cache[uri]
 
+    inv_config = _InvConfig.from_config(app.config)
     with concurrent.futures.ThreadPoolExecutor() as pool:
         futures = [
             pool.submit(
@@ -168,7 +178,7 @@ def load_mappings(app: Sphinx) -> None:
                 project=project,
                 cache=intersphinx_cache,
                 now=now,
-                config=app.config,
+                config=inv_config,
                 srcdir=app.srcdir,
             )
             for project in projects
@@ -193,17 +203,40 @@ def load_mappings(app: Sphinx) -> None:
                 inventories.main_inventory.setdefault(objtype, {}).update(objects)
 
 
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class _InvConfig:
+    intersphinx_cache_limit: int
+    intersphinx_timeout: int | float | None
+    tls_verify: bool
+    tls_cacerts: str | dict[str, str] | None
+    user_agent: str
+
+    @classmethod
+    def from_config(cls, config: Config) -> _InvConfig:
+        return cls(
+            intersphinx_cache_limit=config.intersphinx_cache_limit,
+            intersphinx_timeout=config.intersphinx_timeout,
+            tls_verify=config.tls_verify,
+            tls_cacerts=config.tls_cacerts,
+            user_agent=config.user_agent,
+        )
+
+
 def _fetch_inventory_group(
     *,
     project: _IntersphinxProject,
     cache: dict[InventoryURI, InventoryCacheEntry],
     now: int,
-    config: Config,
+    config: _InvConfig,
     srcdir: Path,
 ) -> bool:
-    if config.intersphinx_cache_limit < 0:
+    if config.intersphinx_cache_limit >= 0:
+        # Positive value: cache is expired if its timestamp is below
+        # `now - X days`.
         cache_time = now - config.intersphinx_cache_limit * 86400
     else:
+        # Negative value: cache is expired if its timestamp is below
+        # zero, which is impossible.
         cache_time = 0
 
     updated = False
@@ -211,7 +244,10 @@ def _fetch_inventory_group(
 
     for location in project.locations:
         # location is either None or a non-empty string
-        inv = f'{project.target_uri}/{INVENTORY_FILENAME}' if location is None else location
+        if location is None:
+            inv = posixpath.join(project.target_uri, INVENTORY_FILENAME)
+        else:
+            inv = location
 
         # decide whether the inventory must be read: always read local
         # files; remote ones only if the cache time is expired
@@ -220,8 +256,11 @@ def _fetch_inventory_group(
             or project.target_uri not in cache
             or cache[project.target_uri][1] < cache_time
         ):
-            LOGGER.info(__("loading intersphinx inventory '%s' from %s ..."),
-                        project.name, _get_safe_url(inv))
+            LOGGER.info(
+                __("loading intersphinx inventory '%s' from %s ..."),
+                project.name,
+                _get_safe_url(inv),
+            )
 
             try:
                 invdata = _fetch_inventory(
@@ -242,14 +281,21 @@ def _fetch_inventory_group(
     if not failures:
         pass
     elif len(failures) < len(project.locations):
-        LOGGER.info(__('encountered some issues with some of the inventories,'
-                       ' but they had working alternatives:'))
+        LOGGER.info(
+            __(
+                'encountered some issues with some of the inventories,'
+                ' but they had working alternatives:'
+            )
+        )
         for fail in failures:
             LOGGER.info(*fail)
     else:
         issues = '\n'.join(f[0] % f[1:] for f in failures)
-        LOGGER.warning(__('failed to reach any of the inventories '
-                          'with the following issues:') + '\n' + issues)
+        LOGGER.warning(
+            '%s\n%s',
+            __('failed to reach any of the inventories with the following issues:'),
+            issues,
+        )
     return updated
 
 
@@ -258,54 +304,85 @@ def fetch_inventory(app: Sphinx, uri: InventoryURI, inv: str) -> Inventory:
     return _fetch_inventory(
         target_uri=uri,
         inv_location=inv,
-        config=app.config,
+        config=_InvConfig.from_config(app.config),
         srcdir=app.srcdir,
     )
 
 
 def _fetch_inventory(
-    *, target_uri: InventoryURI, inv_location: str, config: Config, srcdir: Path,
+    *, target_uri: InventoryURI, inv_location: str, config: _InvConfig, srcdir: Path
 ) -> Inventory:
     """Fetch, parse and return an intersphinx inventory file."""
     # both *target_uri* (base URI of the links to generate)
     # and *inv_location* (actual location of the inventory file)
     # can be local or remote URIs
     if '://' in target_uri:
-        # case: inv URI points to remote resource; strip any existing auth
+        # inv URI points to remote resource; strip any existing auth
         target_uri = _strip_basic_auth(target_uri)
-    try:
-        if '://' in inv_location:
-            f = _read_from_url(inv_location, config=config)
-        else:
-            f = open(path.join(srcdir, inv_location), 'rb')  # NoQA: SIM115
-    except Exception as err:
-        err.args = ('intersphinx inventory %r not fetchable due to %s: %s',
-                    inv_location, err.__class__, str(err))
-        raise
-    try:
-        if hasattr(f, 'url'):
-            new_inv_location = f.url
-            if inv_location != new_inv_location:
-                msg = __('intersphinx inventory has moved: %s -> %s')
-                LOGGER.info(msg, inv_location, new_inv_location)
-
-                if target_uri in {
-                    inv_location,
-                    path.dirname(inv_location),
-                    path.dirname(inv_location) + '/'
-                }:
-                    target_uri = path.dirname(new_inv_location)
-        with f:
-            try:
-                invdata = InventoryFile.load(f, target_uri, posixpath.join)
-            except ValueError as exc:
-                raise ValueError('unknown or unsupported inventory version: %r' % exc) from exc
-    except Exception as err:
-        err.args = ('intersphinx inventory %r not readable due to %s: %s',
-                    inv_location, err.__class__.__name__, str(err))
-        raise
+    if '://' in inv_location:
+        raw_data, target_uri = _fetch_inventory_url(
+            target_uri=target_uri, inv_location=inv_location, config=config
+        )
     else:
-        return invdata
+        raw_data = _fetch_inventory_file(inv_location=inv_location, srcdir=srcdir)
+
+    try:
+        invdata = InventoryFile.loads(raw_data, uri=target_uri)
+    except ValueError as exc:
+        msg = f'unknown or unsupported inventory version: {exc!r}'
+        raise ValueError(msg) from exc
+    return invdata
+
+
+def _fetch_inventory_url(
+    *, target_uri: InventoryURI, inv_location: str, config: _InvConfig
+) -> tuple[bytes, str]:
+    try:
+        with requests.get(
+            inv_location,
+            timeout=config.intersphinx_timeout,
+            _user_agent=config.user_agent,
+            _tls_info=(config.tls_verify, config.tls_cacerts),
+        ) as r:
+            r.raise_for_status()
+            raw_data = r.content
+            new_inv_location = r.url
+    except Exception as err:
+        err.args = (
+            'intersphinx inventory %r not fetchable due to %s: %s',
+            inv_location,
+            err.__class__,
+            str(err),
+        )
+        raise
+
+    if inv_location != new_inv_location:
+        msg = __('intersphinx inventory has moved: %s -> %s')
+        LOGGER.info(msg, inv_location, new_inv_location)
+
+        if target_uri in {
+            inv_location,
+            os.path.dirname(inv_location),
+            os.path.dirname(inv_location) + '/',
+        }:
+            target_uri = os.path.dirname(new_inv_location)
+
+    return raw_data, target_uri
+
+
+def _fetch_inventory_file(*, inv_location: str, srcdir: Path) -> bytes:
+    try:
+        with open(srcdir / inv_location, 'rb') as f:
+            raw_data = f.read()
+    except Exception as err:
+        err.args = (
+            'intersphinx inventory %r not readable due to %s: %s',
+            inv_location,
+            err.__class__.__name__,
+            str(err),
+        )
+        raise
+    return raw_data
 
 
 def _get_safe_url(url: str) -> str:
@@ -352,30 +429,3 @@ def _strip_basic_auth(url: str) -> str:
     if '@' in frags[1]:
         frags[1] = frags[1].split('@')[1]
     return urlunsplit(frags)
-
-
-def _read_from_url(url: str, *, config: Config) -> IO:
-    """Reads data from *url* with an HTTP *GET*.
-
-    This function supports fetching from resources which use basic HTTP auth as
-    laid out by RFC1738 § 3.1. See § 5 for grammar definitions for URLs.
-
-    .. seealso:
-
-       https://www.ietf.org/rfc/rfc1738.txt
-
-    :param url: URL of an HTTP resource
-    :type url: ``str``
-
-    :return: data read from resource described by *url*
-    :rtype: ``file``-like object
-    """
-    r = requests.get(url, stream=True, timeout=config.intersphinx_timeout,
-                     _user_agent=config.user_agent,
-                     _tls_info=(config.tls_verify, config.tls_cacerts))
-    r.raise_for_status()
-    r.raw.url = r.url
-    # decode content-body based on the header.
-    # ref: https://github.com/psf/requests/issues/2155
-    r.raw.read = functools.partial(r.raw.read, decode_content=True)
-    return r.raw

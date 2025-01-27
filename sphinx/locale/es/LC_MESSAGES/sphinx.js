@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "B\u00fasqueda",
         "Search Page": "P\u00e1gina de B\u00fasqueda",
         "Search Results": "Resultados de la b\u00fasqueda",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "B\u00fasqueda finalizada, se encontraron ${resultCount} p\u00e1ginas que coinciden con la consulta de b\u00fasqueda.",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Buscar en %(docstitle)s",
         "Searching": "Buscando",
         "Searching for multiple words only shows matches that contain\n    all words.": "La b\u00fasqueda de varias palabras solo muestra coincidencias que contienen\n    todas las palabras.",

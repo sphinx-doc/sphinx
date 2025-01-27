@@ -13,7 +13,7 @@ from sphinx.util import logging
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Any, TypeAlias
+    from typing import Any, NoReturn, TypeAlias
 
     from docutils.nodes import TextElement
 
@@ -25,19 +25,23 @@ logger = logging.getLogger(__name__)
 
 _whitespace_re = re.compile(r'\s+')
 anon_identifier_re = re.compile(r'(@[a-zA-Z0-9_])[a-zA-Z0-9_]*\b')
-identifier_re = re.compile(r'''
+identifier_re = re.compile(
+    r"""
     (   # This 'extends' _anon_identifier_re with the ordinary identifiers,
         # make sure they are in sync.
         (~?\b[a-zA-Z_])  # ordinary identifiers
     |   (@[a-zA-Z0-9_])  # our extension for names of anonymous entities
     )
     [a-zA-Z0-9_]*\b
-''', flags=re.VERBOSE)
+    """,
+    flags=re.VERBOSE,
+)
 integer_literal_re = re.compile(r'[1-9][0-9]*(\'[0-9]+)*')
 octal_literal_re = re.compile(r'0[0-7]*(\'[0-7]+)*')
 hex_literal_re = re.compile(r'0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*')
 binary_literal_re = re.compile(r'0[bB][01]+(\'[01]+)*')
-integers_literal_suffix_re = re.compile(r'''
+integers_literal_suffix_re = re.compile(
+    r"""
     # unsigned and/or (long) long, in any order, but at least one of them
     (
         ([uU]    ([lL]  |  (ll)  |  (LL))?)
@@ -46,8 +50,11 @@ integers_literal_suffix_re = re.compile(r'''
     )\b
     # the ending word boundary is important for distinguishing
     # between suffixes and UDLs in C++
-''', flags=re.VERBOSE)
-float_literal_re = re.compile(r'''
+    """,
+    flags=re.VERBOSE,
+)
+float_literal_re = re.compile(
+    r"""
     [+-]?(
     # decimal
       ([0-9]+(\'[0-9]+)*[eE][+-]?[0-9]+(\'[0-9]+)*)
@@ -59,10 +66,13 @@ float_literal_re = re.compile(r'''
         [0-9a-fA-F]+(\'[0-9a-fA-F]+)*([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     | (0[xX][0-9a-fA-F]+(\'[0-9a-fA-F]+)*\.([pP][+-]?[0-9a-fA-F]+(\'[0-9a-fA-F]+)*)?)
     )
-''', flags=re.VERBOSE)
+    """,
+    flags=re.VERBOSE,
+)
 float_literal_suffix_re = re.compile(r'[fFlL]\b')
 # the ending word boundary is important for distinguishing between suffixes and UDLs in C++
-char_literal_re = re.compile(r'''
+char_literal_re = re.compile(
+    r"""
     ((?:u8)|u|U|L)?
     '(
       (?:[^\\'])
@@ -74,11 +84,13 @@ char_literal_re = re.compile(r'''
       | (?:U[0-9a-fA-F]{8})
       ))
     )'
-''', flags=re.VERBOSE)
+    """,
+    flags=re.VERBOSE,
+)
 
 
 def verify_description_mode(mode: str) -> None:
-    if mode not in ('lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'):
+    if mode not in {'lastIsName', 'noneIsName', 'markType', 'markName', 'param', 'udl'}:
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
@@ -96,11 +108,14 @@ class ASTBaseBase:
         except AttributeError:
             return False
 
+    def __hash__(self) -> int:
+        return hash(sorted(self.__dict__.items()))
+
     def clone(self) -> Any:
         return deepcopy(self)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        raise NotImplementedError(repr(self))
+        raise NotImplementedError
 
     def __str__(self) -> str:
         return self._stringify(str)
@@ -109,12 +124,15 @@ class ASTBaseBase:
         return self._stringify(lambda ast: ast.get_display_string())
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__}: {self._stringify(repr)}>'
+        if repr_string := self._stringify(repr):
+            return f'<{self.__class__.__name__}: {repr_string}>'
+        return f'<{self.__class__.__name__}>'
 
 
 ################################################################################
 # Attributes
 ################################################################################
+
 
 class ASTAttribute(ASTBaseBase):
     def describe_signature(self, signode: TextElement) -> None:
@@ -134,7 +152,7 @@ class ASTCPPAttribute(ASTAttribute):
         return hash(self.arg)
 
     def _stringify(self, transform: StringifyTransform) -> str:
-        return f"[[{self.arg}]]"
+        return f'[[{self.arg}]]'
 
     def describe_signature(self, signode: TextElement) -> None:
         signode.append(addnodes.desc_sig_punctuation('[[', '[['))
@@ -258,11 +276,13 @@ class ASTAttributeList(ASTBaseBase):
 
 ################################################################################
 
+
 class ASTBaseParenExprList(ASTBaseBase):
     pass
 
 
 ################################################################################
+
 
 class UnsupportedMultiCharacterCharLiteral(Exception):
     pass
@@ -273,9 +293,13 @@ class DefinitionError(Exception):
 
 
 class BaseParser:
-    def __init__(self, definition: str, *,
-                 location: nodes.Node | tuple[str, int] | str,
-                 config: Config) -> None:
+    def __init__(
+        self,
+        definition: str,
+        *,
+        location: nodes.Node | tuple[str, int] | str,
+        config: Config,
+    ) -> None:
         self.definition = definition.strip()
         self.location = location  # for warnings
         self.config = config
@@ -315,16 +339,19 @@ class BaseParser:
     def status(self, msg: str) -> None:
         # for debugging
         indicator = '-' * self.pos + '^'
-        logger.debug(f"{msg}\n{self.definition}\n{indicator}")  # NoQA: G004
+        logger.debug(f'{msg}\n{self.definition}\n{indicator}')  # NoQA: G004
 
-    def fail(self, msg: str) -> None:
+    def fail(self, msg: str) -> NoReturn:
         errors = []
         indicator = '-' * self.pos + '^'
-        exMain = DefinitionError(
-            'Invalid %s declaration: %s [error at %d]\n  %s\n  %s' %
-            (self.language, msg, self.pos, self.definition, indicator))
-        errors.append((exMain, "Main error"))
-        errors.extend((err, "Potential other error") for err in self.otherErrors)
+        msg = (
+            f'Invalid {self.language} declaration: {msg} [error at {self.pos}]\n'
+            f'  {self.definition}\n'
+            f'  {indicator}'
+        )
+        exc_main = DefinitionError(msg)
+        errors.append((exc_main, 'Main error'))
+        errors.extend((err, 'Potential other error') for err in self.otherErrors)
         self.otherErrors = []
         raise self._make_multi_error(errors, '')
 
@@ -342,7 +369,7 @@ class BaseParser:
 
     def skip_string(self, string: str) -> bool:
         strlen = len(string)
-        if self.definition[self.pos:self.pos + strlen] == string:
+        if self.definition[self.pos : self.pos + strlen] == string:
             self.pos += strlen
             return True
         return False
@@ -383,14 +410,14 @@ class BaseParser:
         return ''
 
     def read_rest(self) -> str:
-        rv = self.definition[self.pos:]
+        rv = self.definition[self.pos :]
         self.pos = self.end
         return rv
 
     def assert_end(self, *, allowSemicolon: bool = False) -> None:
         self.skip_ws()
         if allowSemicolon:
-            if not self.eof and self.definition[self.pos:] != ';':
+            if not self.eof and self.definition[self.pos :] != ';':
                 self.fail('Expected end of definition or ;.')
         else:
             if not self.eof:
@@ -409,7 +436,7 @@ class BaseParser:
     def _parse_balanced_token_seq(self, end: list[str]) -> str:
         # TODO: add handling of string literals and similar
         brackets = {'(': ')', '[': ']', '{': '}'}
-        startPos = self.pos
+        start_pos = self.pos
         symbols: list[str] = []
         while not self.eof:
             if len(symbols) == 0 and self.current_char in end:
@@ -418,21 +445,22 @@ class BaseParser:
                 symbols.append(brackets[self.current_char])
             elif len(symbols) > 0 and self.current_char == symbols[-1]:
                 symbols.pop()
-            elif self.current_char in ")]}":
+            elif self.current_char in ')]}':
                 self.fail("Unexpected '%s' in balanced-token-seq." % self.current_char)
             self.pos += 1
         if self.eof:
-            self.fail("Could not find end of balanced-token-seq starting at %d."
-                      % startPos)
-        return self.definition[startPos:self.pos]
+            self.fail(
+                f'Could not find end of balanced-token-seq starting at {start_pos}.'
+            )
+        return self.definition[start_pos : self.pos]
 
     def _parse_attribute(self) -> ASTAttribute | None:
         self.skip_ws()
         # try C++11 style
-        startPos = self.pos
+        start_pos = self.pos
         if self.skip_string_and_ws('['):
             if not self.skip_string('['):
-                self.pos = startPos
+                self.pos = start_pos
             else:
                 # TODO: actually implement the correct grammar
                 arg = self._parse_balanced_token_seq(end=[']'])

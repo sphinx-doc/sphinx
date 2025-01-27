@@ -14,6 +14,7 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
+  UV_SYSTEM_PYTHON: "1"  # make uv do global installs
 
 jobs:
   # If you update any of these commands, don't forget to update the equivalent
@@ -23,69 +24,85 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
       with:
-        python-version: "3"
-    - name: Install pip
-      run: python -m pip install --upgrade pip
-
-    - name: Install Ruff
+        persist-credentials: false
+    - name: Get Ruff version from pyproject.toml
       run: |
-          ruff_version=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
-          python -m pip install "ruff==${ruff_version}"
+        RUFF_VERSION=$(awk -F'[="]' '/\[project\.optional-dependencies\]/ {p=1} /ruff/ {if (p) print $4}' pyproject.toml)
+        echo "RUFF_VERSION=$RUFF_VERSION" >> $GITHUB_ENV
+
+    - name: Install Ruff ${{ env.RUFF_VERSION }}
+      uses: astral-sh/ruff-action@v3
+      with:
+        args: --version
+        version: ${{ env.RUFF_VERSION }}
 
     - name: Lint with Ruff
-      run: ruff check . --output-format github
+      run: ruff check --output-format=github
 
     - name: Format with Ruff
-      run: ruff format . --diff
-
-  flake8:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade "flake8>=6.0"
-    - name: Lint with flake8
-      run: flake8 .
+      run: ruff format --diff
 
   mypy:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install ".[lint,test]"
+      run: uv pip install ".[lint,test]"
     - name: Type check with mypy
       run: mypy
+
+  pyright:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
+    - name: Install dependencies
+      run: uv pip install ".[lint,test]"
+    - name: Type check with pyright
+      run: pyright
 
   docs-lint:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade sphinx-lint
+      run: uv pip install --upgrade sphinx-lint
     - name: Lint documentation with sphinx-lint
       run: make doclinter
 
@@ -94,14 +111,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: "3"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: latest
+        enable-cache: false
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade twine build
+      run: uv pip install --upgrade twine build
     - name: Lint with twine
       run: |
         python -m build .

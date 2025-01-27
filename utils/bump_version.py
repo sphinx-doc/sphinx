@@ -9,12 +9,14 @@ import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import Literal
 
-script_dir = Path(__file__).parent
+
+script_dir = Path(__file__).resolve().parent
 package_dir = script_dir.parent
 
 
@@ -80,7 +82,9 @@ def parse_version(version: str) -> VersionInfo:
     raise RuntimeError(msg)
 
 
-def bump_version(path: Path, version_info: VersionInfo, in_develop: bool = True) -> None:
+def bump_version(
+    path: Path, version_info: VersionInfo, in_develop: bool = True
+) -> None:
     if in_develop or version_info.is_final:
         version = version_info.version
     else:
@@ -150,7 +154,9 @@ class Changes:
 
     @staticmethod
     def filter_empty_sections(body: str) -> str:
-        return re.sub('^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.MULTILINE)
+        return re.sub(
+            '^\n.+\n-{3,}\n+(?=\n.+\n[-=]{3,}\n)', '', body, flags=re.MULTILINE
+        )
 
 
 class Skip(Exception):

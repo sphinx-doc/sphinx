@@ -1,13 +1,30 @@
 """Tests project module."""
+
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
 
 from sphinx.project import Project
 
-DOCNAMES = {'autodoc', 'bom', 'extapi', 'extensions', 'footnote', 'images',
-            'includes', 'index', 'lists', 'markup', 'math', 'objects',
-            'subdir/excluded', 'subdir/images', 'subdir/includes'}
+DOCNAMES = {
+    'autodoc',
+    'bom',
+    'extapi',
+    'extensions',
+    'footnote',
+    'images',
+    'includes',
+    'index',
+    'lists',
+    'markup',
+    'math',
+    'objects',
+    'subdir/excluded',
+    'subdir/images',
+    'subdir/includes',
+}
 SUBDIR_DOCNAMES = {'subdir/excluded', 'subdir/images', 'subdir/includes'}
 
 
@@ -40,9 +57,11 @@ def test_project_discover_complicated_suffix(rootdir):
 def test_project_discover_templates_path(rootdir):
     # templates_path
     project = Project(rootdir / 'test-root', ['.html'])
-    assert project.discover() == {'_templates/layout',
-                                  '_templates/customsb',
-                                  '_templates/contentssb'}
+    assert project.discover() == {
+        '_templates/layout',
+        '_templates/customsb',
+        '_templates/contentssb',
+    }
 
     assert project.discover(['_templates']) == set()
 
@@ -57,7 +76,11 @@ def test_project_path2doc(rootdir):
     assert project.path2doc(rootdir / 'test-basic' / 'to/index.rst') == 'to/index'
 
 
-@pytest.mark.sphinx(srcdir='project_doc2path', testroot='basic')
+@pytest.mark.sphinx(
+    'html',
+    testroot='basic',
+    srcdir='project_doc2path',
+)
 def test_project_doc2path(app):
     source_suffix = {'.rst': 'restructuredtext', '.txt': 'restructuredtext'}
 

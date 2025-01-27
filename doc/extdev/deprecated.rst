@@ -22,6 +22,26 @@ The following is a list of deprecated interfaces.
      - Removed
      - Alternatives
 
+   * - ``sphinx.builders.singlehtml.SingleFileHTMLBuilder.fix_refuris``
+     - 8.2
+     - 10.0
+     - N/A
+
+   * - ``sphinx.util.FilenameUniqDict``
+     - 8.1
+     - 10.0
+     - N/A
+
+   * - ``sphinx.util.DownloadFiles``
+     - 8.1
+     - 10.0
+     - N/A
+
+   * - ``sphinx.util.import_object``
+     - 8.1
+     - 10.0
+     - ``importlib.import_module``
+
    * - ``sphinx.ext.intersphinx.normalize_intersphinx_mapping``
      - 8.0
      - 10.0
@@ -1432,14 +1452,14 @@ The following is a list of deprecated interfaces.
    * - :meth:`!add_stylesheet`
      - 1.8
      - 6.0
-     - :meth:`~sphinx.application.Sphinx.add_css_file()`
+     - :meth:`~sphinx.application.Sphinx.add_css_file`
 
-   * - :meth:`!add_javascript()`
+   * - :meth:`!add_javascript`
      - 1.8
      - 4.0
-     - :meth:`~sphinx.application.Sphinx.add_js_file()`
+     - :meth:`~sphinx.application.Sphinx.add_js_file`
 
-   * - :confval:`autodoc_default_flags`
+   * - :confval:`!autodoc_default_flags`
      - 1.8
      - 4.0
      - :confval:`autodoc_default_options`
@@ -1504,7 +1524,7 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.ext.mathbase.setup_math()``
      - 1.8
      - 3.0
-     - :meth:`~sphinx.application.Sphinx.add_html_math_renderer()`
+     - :meth:`~sphinx.application.Sphinx.add_html_math_renderer`
 
    * - ``sphinx.ext.mathbase.is_in_section_title()``
      - 1.8
@@ -1685,7 +1705,7 @@ The following is a list of deprecated interfaces.
    * - ``Sphinx.override_domain()``
      - 1.8
      - 3.0
-     - :meth:`~sphinx.application.Sphinx.add_domain()`
+     - :meth:`~sphinx.application.Sphinx.add_domain`
 
    * - ``Sphinx.import_object()``
      - 1.8
@@ -1693,10 +1713,10 @@ The following is a list of deprecated interfaces.
      - ``sphinx.util.import_object()``
 
    * - ``suffix`` argument of
-       :meth:`~sphinx.application.Sphinx.add_source_parser()`
+       :meth:`~sphinx.application.Sphinx.add_source_parser`
      - 1.8
      - 3.0
-     - :meth:`~sphinx.application.Sphinx.add_source_suffix()`
+     - :meth:`~sphinx.application.Sphinx.add_source_suffix`
 
 
    * - ``BuildEnvironment.load()``
@@ -1777,7 +1797,7 @@ The following is a list of deprecated interfaces.
    * - :confval:`!source_parsers`
      - 1.8
      - 3.0
-     - :meth:`~sphinx.application.Sphinx.add_source_parser()`
+     - :meth:`~sphinx.application.Sphinx.add_source_parser`
 
    * - ``sphinx.util.docutils.directive_helper()``
      - 1.8
@@ -1797,17 +1817,17 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.locale.l_()``
      - 1.8
      - 3.0
-     - :func:`sphinx.locale._()`
+     - :func:`sphinx.locale._`
 
    * - ``sphinx.locale.lazy_gettext()``
      - 1.8
      - 3.0
-     - :func:`sphinx.locale._()`
+     - :func:`sphinx.locale._`
 
    * - ``sphinx.locale.mygettext()``
      - 1.8
      - 3.0
-     - :func:`sphinx.locale._()`
+     - :func:`sphinx.locale._`
 
    * - ``sphinx.util.copy_static_entry()``
      - 1.5
@@ -1842,17 +1862,17 @@ The following is a list of deprecated interfaces.
    * - ``sphinx.ext.autodoc.add_documenter()``
      - 1.7
      - 2.0
-     - :meth:`~sphinx.application.Sphinx.add_autodocumenter()`
+     - :meth:`~sphinx.application.Sphinx.add_autodocumenter`
 
    * - ``sphinx.ext.autodoc.AutoDirective._register``
      - 1.7
      - 2.0
-     - :meth:`~sphinx.application.Sphinx.add_autodocumenter()`
+     - :meth:`~sphinx.application.Sphinx.add_autodocumenter`
 
    * - ``AutoDirective._special_attrgetters``
      - 1.7
      - 2.0
-     - :meth:`~sphinx.application.Sphinx.add_autodoc_attrgetter()`
+     - :meth:`~sphinx.application.Sphinx.add_autodoc_attrgetter`
 
    * - ``Sphinx.warn()``, ``Sphinx.info()``
      - 1.6

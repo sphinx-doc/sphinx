@@ -27,7 +27,7 @@ Features added
   by an extlink, suggesting a replacement.
 * #9961: html: Support nested <kbd> HTML elements in other HTML builders
 * #10013: html: Allow to change the loading method of JS via ``loading_method``
-  parameter for :meth:`.Sphinx.add_js_file()`
+  parameter for :meth:`.Sphinx.add_js_file`
 * #9551: html search: "Hide Search Matches" link removes "highlight" parameter
   from URL
 * #9815: html theme: Wrap sidebar components in div to allow customizing their

@@ -1,5 +1,7 @@
 """Test the build process with Texinfo builder with the test root."""
 
+from __future__ import annotations
+
 import re
 import subprocess
 from pathlib import Path
@@ -14,14 +16,16 @@ from sphinx.util.docutils import new_document
 from sphinx.writers.texinfo import TexinfoTranslator
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo(app):
     TexinfoTranslator.ignore_missing_images = True
     app.build(force_all=True)
     result = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
-    assert ('@anchor{markup doc}@anchor{11}'
-            '@anchor{markup id1}@anchor{12}'
-            '@anchor{markup testing-various-markup}@anchor{13}' in result)
+    assert (
+        '@anchor{markup doc}@anchor{11}'
+        '@anchor{markup id1}@anchor{12}'
+        '@anchor{markup testing-various-markup}@anchor{13}'
+    ) in result
     assert 'Footnotes' not in result
     # now, try to run makeinfo over it
     try:
@@ -32,7 +36,7 @@ def test_texinfo(app):
     except CalledProcessError as exc:
         print(exc.stdout)
         print(exc.stderr)
-        msg = f'makeinfo exited with return code {exc.retcode}'
+        msg = f'makeinfo exited with return code {exc.returncode}'
         raise AssertionError(msg) from exc
 
 
@@ -52,26 +56,36 @@ def test_texinfo_citation(app):
 
     output = (app.outdir / 'projectnamenotset.texi').read_text(encoding='utf8')
     assert 'This is a citation ref; @ref{1,,[CITE1]} and @ref{2,,[CITE2]}.' in output
-    assert ('@anchor{index cite1}@anchor{1}@w{(CITE1)} \n'
-            'This is a citation\n') in output
-    assert ('@anchor{index cite2}@anchor{2}@w{(CITE2)} \n'
-            'This is a multiline citation\n') in output
+    assert (
+        '@anchor{index cite1}@anchor{1}@w{(CITE1)} \nThis is a citation\n'
+    ) in output
+    assert (
+        '@anchor{index cite2}@anchor{2}@w{(CITE2)} \nThis is a multiline citation\n'
+    ) in output
 
 
 def test_default_texinfo_documents():
-    config = Config({'project': 'STASI™ Documentation',
-                     'author': "Wolfgang Schäuble & G'Beckstein"})
-    expected = [('index', 'stasi', 'STASI™ Documentation',
-                 "Wolfgang Schäuble & G'Beckstein", 'stasi',
-                 'One line description of project', 'Miscellaneous')]
+    config = Config({
+        'project': 'STASI™ Documentation',
+        'author': "Wolfgang Schäuble & G'Beckstein",
+    })
+    expected = [
+        (
+            'index',
+            'stasi',
+            'STASI™ Documentation',
+            "Wolfgang Schäuble & G'Beckstein",
+            'stasi',
+            'One line description of project',
+            'Miscellaneous',
+        )
+    ]
     assert default_texinfo_documents(config) == expected
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo_escape_id(app):
-    settings = Mock(title='',
-                    texinfo_dir_entry='',
-                    texinfo_elements={})
+    settings = Mock(title='', texinfo_dir_entry='', texinfo_elements={})
     document = new_document('', settings)
     translator = app.builder.create_translator(document, app.builder)
 
@@ -92,7 +106,7 @@ def test_texinfo_footnote(app):
     assert 'First footnote: @footnote{\nFirst\n}' in output
 
 
-@pytest.mark.sphinx('texinfo')
+@pytest.mark.sphinx('texinfo', testroot='root')
 def test_texinfo_xrefs(app):
     app.build(force_all=True)
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
@@ -103,7 +117,9 @@ def test_texinfo_xrefs(app):
     app.build(force_all=True)
     output = (app.outdir / 'sphinxtests.texi').read_text(encoding='utf8')
     assert not re.search(r'@ref{\w+,,--plugin\.option}', output)
-    assert 'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j' in output
+    assert (
+        'Link to perl +p, --ObjC++, --plugin.option, create-auth-token, arg and -j'
+    ) in output
 
 
 @pytest.mark.sphinx('texinfo', testroot='root')
@@ -117,6 +133,7 @@ def test_texinfo_samp_with_variable(app):
     assert '@code{Show @var{variable} in the middle}' in output
 
 
+@pytest.mark.usefixtures('_http_teapot')
 @pytest.mark.sphinx('texinfo', testroot='images')
 def test_copy_images(app):
     app.build()
@@ -129,4 +146,4 @@ def test_copy_images(app):
         'img.png',
         'rimg.png',
         'testimäge.png',
-    }
+    }  # fmt: skip

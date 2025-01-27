@@ -152,18 +152,18 @@ Install either ``python3x-sphinx`` using :command:`port`:
 
 ::
 
-   $ sudo port install py312-sphinx
+   $ sudo port install py313-sphinx
 
 To set up the executable paths, use the ``port select`` command:
 
 ::
 
-   $ sudo port select --set python python312
-   $ sudo port select --set sphinx py312-sphinx
+   $ sudo port select --set python python313
+   $ sudo port select --set sphinx py313-sphinx
 
 For more information, refer to the `package overview`__.
 
-__ https://www.macports.org/ports.php?by=library&substr=py312-sphinx
+__ https://www.macports.org/ports.php?by=library&substr=py313-sphinx
 
 Windows
 ~~~~~~~

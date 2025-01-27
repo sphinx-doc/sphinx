@@ -6,7 +6,6 @@ on:
       - ".github/workflows/nodejs.yml"
       - "sphinx/themes/**.js"
       - "tests/js/**"
-      - "karma.conf.js"
       - "package.json"
       - "package-lock.json"
   pull_request:
@@ -14,7 +13,6 @@ on:
       - ".github/workflows/nodejs.yml"
       - "sphinx/themes/**.js"
       - "tests/js/**"
-      - "karma.conf.js"
       - "package.json"
       - "package-lock.json"
 
@@ -25,19 +23,23 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: "1"
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      node-version: "16"
+      node-version: "20"
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Use Node.js ${{ env.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.node-version }}
         cache: "npm"
     - run: npm install
-    - name: Run headless test
-      run: xvfb-run -a npm test
+    - run: npm test

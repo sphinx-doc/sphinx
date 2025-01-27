@@ -36,7 +36,10 @@ Documentation.addTranslations({
         "Search": "Leit",
         "Search Page": "Leitars\u00ed\u00f0a",
         "Search Results": "Leitarni\u00f0urst\u00f6\u00f0ur",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Leita \u00ed %(docstitle)s",
         "Searching": "Leitar",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

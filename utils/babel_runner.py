@@ -13,6 +13,8 @@ babel_runner.py compile
     Compile the ".po" catalogue files to ".mo" and ".js" files.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import sys
@@ -33,7 +35,7 @@ from babel.util import pathmatch
 from jinja2.ext import babel_extract as extract_jinja2
 
 IS_CI = 'CI' in environ
-ROOT = Path(__file__).parent.parent.resolve()
+ROOT = Path(__file__).resolve().parent.parent
 TEX_DELIMITERS = {
     'variable_start_string': '<%=',
     'variable_end_string': '%>',
@@ -82,11 +84,12 @@ def run_extract() -> None:
     log = _get_logger()
 
     with open('sphinx/__init__.py', encoding='utf-8') as f:
-        for line in f.read().splitlines():
-            if line.startswith('__version__ = '):
-                # remove prefix; strip whitespace; remove quotation marks
-                sphinx_version = line[14:].strip()[1:-1]
-                break
+        lines = f.readlines()
+    for line in lines:
+        if line.startswith('__version__ = '):
+            # remove prefix; strip whitespace; remove quotation marks
+            sphinx_version = line[14:].strip()[1:-1]
+            break
 
     catalogue = Catalog(project='Sphinx', version=sphinx_version, charset='utf-8')
 
@@ -111,7 +114,7 @@ def run_extract() -> None:
                     catalogue.add(
                         message,
                         None,
-                        [(str(filename), lineno)],
+                        [(str(relative_name), lineno)],
                         auto_comments=comments,
                         context=context,
                     )
@@ -160,8 +163,7 @@ def run_update() -> None:
 
 
 def run_compile() -> None:
-    """
-    Catalog compilation command.
+    """Catalogue compilation command.
 
     An extended command that writes all message strings that occur in
     JavaScript files to a JavaScript file along with the .mo file.
@@ -183,7 +185,9 @@ def run_compile() -> None:
             catalogue = read_po(infile, locale=locale.name)
 
         if catalogue.fuzzy:
-            log.info('catalogue %s is marked as fuzzy, skipping', po_file.relative_to(ROOT))
+            log.info(
+                'catalogue %s is marked as fuzzy, skipping', po_file.relative_to(ROOT)
+            )
             continue
 
         locale_errors = 0
@@ -250,7 +254,9 @@ def run_compile() -> None:
         _write_pr_body_line('## Babel catalogue errors')
         _write_pr_body_line('')
         for locale_name, err_count in total_errors.items():
-            log.error('error: %d errors encountered in %r locale.', err_count, locale_name)
+            log.error(
+                'error: %d errors encountered in %r locale.', err_count, locale_name
+            )
             s = 's' if err_count != 1 else ''
             _write_pr_body_line(f'* {locale_name}: {err_count} error{s}')
 

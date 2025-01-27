@@ -1,9 +1,10 @@
 %% TEXT STYLING
 %
 % change this info string if making any custom modification
-\ProvidesPackage{sphinxlatexstyletext}[2024/07/01 v7.4.0 text styling]
+\ProvidesPackage{sphinxlatexstyletext}[2024/07/28 v8.1.0 text styling]
 
 % 7.4.0 has moved all that is related to admonitions to sphinxlatexadmonitions.sty
+% 8.1.0 has moved topic/contents/sidebar to sphinxlatexshadowbox.sty
 % Most everything left here consists of macros which are part of the latex markup
 % produced by the Sphinx LaTeX writer.
 
@@ -39,10 +40,7 @@
     {{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 \def\sphinxstyleindexlettergroupDefault #1%
     {{\Large\sffamily\sphinxnonalphabeticalgroupname}\nopagebreak\vspace{1mm}}
-\protected\def\sphinxstyletopictitle   #1{\textbf{#1}\par\medskip}
-\let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle   #1{\textbf{#1}}
-\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 % \text.. commands do not allow multiple paragraphs
 % attention, this one is not self-delimiting
 \protected\def\sphinxstyletheadfamily    {\sffamily}

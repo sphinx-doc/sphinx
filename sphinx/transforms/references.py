@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from docutils.transforms.references import DanglingReferences
 
 from sphinx.transforms import SphinxTransform
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from sphinx.application import Sphinx
     from sphinx.util.typing import ExtensionMetadata
 
@@ -34,8 +36,7 @@ class SphinxDomains(SphinxTransform):
     default_priority = 850
 
     def apply(self, **kwargs: Any) -> None:
-        for domain in self.env.domains.values():
-            domain.process_doc(self.env, self.env.docname, self.document)
+        self.env.domains._process_doc(self.env, self.env.docname, self.document)
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:

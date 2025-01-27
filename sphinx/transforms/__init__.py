@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
 from docutils.transforms import Transform, Transformer
@@ -23,7 +23,7 @@ from sphinx.util.nodes import apply_source_workaround, is_smartquotable
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from typing import Literal, TypeAlias
+    from typing import Any, Literal, TypeAlias
 
     from docutils.nodes import Node, Text
     from typing_extensions import TypeIs
@@ -76,9 +76,7 @@ class SphinxTransform(Transform):
 
 
 class SphinxTransformer(Transformer):
-    """
-    A transformer for Sphinx.
-    """
+    """A transformer for Sphinx."""
 
     document: nodes.document
     env: BuildEnvironment | None = None
@@ -106,9 +104,7 @@ class SphinxTransformer(Transformer):
 
 
 class DefaultSubstitutions(SphinxTransform):
-    """
-    Replace some substitutions if they aren't defined in the document.
-    """
+    """Replace some substitutions if they aren't defined in the document."""
 
     # run before the default Substitutions
     default_priority = 210
@@ -120,7 +116,9 @@ class DefaultSubstitutions(SphinxTransform):
             if (name := ref['refname']) in to_handle:
                 ref.replace_self(self._handle_default_substitution(name))
 
-    def _handle_default_substitution(self, name: _DEFAULT_SUBSTITUTION_NAMES) -> nodes.Text:
+    def _handle_default_substitution(
+        self, name: _DEFAULT_SUBSTITUTION_NAMES
+    ) -> nodes.Text:
         if name == 'translation progress':
             # special handling: calculate translation progress
             return nodes.Text(_calculate_translation_progress(self.document))
@@ -128,10 +126,8 @@ class DefaultSubstitutions(SphinxTransform):
             if text := self.config.today:
                 return nodes.Text(text)
             # special handling: can also specify a strftime format
-            return nodes.Text(format_date(
-                self.config.today_fmt or _('%b %d, %Y'),
-                language=self.config.language,
-            ))
+            today_fmt = self.config.today_fmt or _('%b %d, %Y')
+            return nodes.Text(format_date(today_fmt, language=self.config.language))
         # config.version and config.release
         return nodes.Text(getattr(self.config, name))
 
@@ -150,8 +146,7 @@ def _calculate_translation_progress(document: nodes.document) -> str:
 
 
 class MoveModuleTargets(SphinxTransform):
-    """
-    Move module targets that are the first thing in a section to the section
+    """Move module targets that are the first thing in a section to the section
     title.
 
     XXX Python specific
@@ -176,17 +171,14 @@ class MoveModuleTargets(SphinxTransform):
 
 
 class HandleCodeBlocks(SphinxTransform):
-    """
-    Several code block related transformations.
-    """
+    """Several code block related transformations."""
 
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
         # move doctest blocks out of blockquotes
         for node in self.document.findall(nodes.block_quote):
-            if all(isinstance(child, nodes.doctest_block) for child
-                   in node.children):
+            if all(isinstance(child, nodes.doctest_block) for child in node.children):
                 node.replace_self(node.children)
         # combine successive doctest blocks
         # for node in self.document.findall(nodes.doctest_block):
@@ -201,26 +193,24 @@ class HandleCodeBlocks(SphinxTransform):
 
 
 class AutoNumbering(SphinxTransform):
-    """
-    Register IDs of tables, figures and literal_blocks to assign numbers.
-    """
+    """Register IDs of tables, figures and literal_blocks to assign numbers."""
 
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
-        domain: StandardDomain = self.env.domains['std']
+        domain: StandardDomain = self.env.domains.standard_domain
 
         for node in self.document.findall(nodes.Element):
-            if (domain.is_enumerable_node(node) and
-                    domain.get_numfig_title(node) is not None and
-                    node['ids'] == []):
+            if (
+                domain.is_enumerable_node(node)
+                and domain.get_numfig_title(node) is not None
+                and node['ids'] == []
+            ):
                 self.document.note_implicit_target(node)
 
 
 class SortIds(SphinxTransform):
-    """
-    Sort section IDs so that the "id[0-9]+" one comes last.
-    """
+    """Sort section IDs so that the "id[0-9]+" one comes last."""
 
     default_priority = 261
 
@@ -240,30 +230,31 @@ TRANSLATABLE_NODES = {
 
 
 class ApplySourceWorkaround(SphinxTransform):
-    """
-    Update source and rawsource attributes
-    """
+    """Update source and rawsource attributes"""
 
     default_priority = 10
 
     def apply(self, **kwargs: Any) -> None:
-        for node in self.document.findall():  # type: Node
+        for node in self.document.findall():
             if isinstance(node, nodes.TextElement | nodes.image | nodes.topic):
                 apply_source_workaround(node)
 
 
 class AutoIndexUpgrader(SphinxTransform):
-    """
-    Detect old style (4 column based indices) and automatically upgrade to new style.
-    """
+    """Detect old style (4 column based indices) and automatically upgrade to new style."""
 
     default_priority = 210
 
     def apply(self, **kwargs: Any) -> None:
         for node in self.document.findall(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
-                msg = __('4 column based index found. '
-                         'It might be a bug of extensions you use: %r') % node['entries']
+                msg = (
+                    __(
+                        '4 column based index found. '
+                        'It might be a bug of extensions you use: %r'
+                    )
+                    % node['entries']
+                )
                 logger.warning(msg, location=node)
                 for i, entry in enumerate(node['entries']):
                     if len(entry) == 4:
@@ -271,9 +262,7 @@ class AutoIndexUpgrader(SphinxTransform):
 
 
 class ExtraTranslatableNodes(SphinxTransform):
-    """
-    Make nodes translatable
-    """
+    """Make nodes translatable"""
 
     default_priority = 10
 
@@ -291,9 +280,7 @@ class ExtraTranslatableNodes(SphinxTransform):
 
 
 class UnreferencedFootnotesDetector(SphinxTransform):
-    """
-    Detect unreferenced footnotes and emit warnings
-    """
+    """Detect unreferenced footnotes and emit warnings"""
 
     default_priority = Footnotes.default_priority + 2
 
@@ -302,13 +289,13 @@ class UnreferencedFootnotesDetector(SphinxTransform):
             # note we do not warn on duplicate footnotes here
             # (i.e. where the name has been moved to dupnames)
             # since this is already reported by docutils
-            if not node['backrefs'] and node["names"]:
+            if not node['backrefs'] and node['names']:
                 logger.warning(
                     __('Footnote [%s] is not referenced.'),
                     node['names'][0] if node['names'] else node['dupnames'][0],
                     type='ref',
                     subtype='footnote',
-                    location=node
+                    location=node,
                 )
         for node in self.document.symbol_footnotes:
             if not node['backrefs']:
@@ -316,18 +303,18 @@ class UnreferencedFootnotesDetector(SphinxTransform):
                     __('Footnote [*] is not referenced.'),
                     type='ref',
                     subtype='footnote',
-                    location=node
+                    location=node,
                 )
         for node in self.document.autofootnotes:
             # note we do not warn on duplicate footnotes here
             # (i.e. where the name has been moved to dupnames)
             # since this is already reported by docutils
-            if not node['backrefs'] and node["names"]:
+            if not node['backrefs'] and node['names']:
                 logger.warning(
                     __('Footnote [#] is not referenced.'),
                     type='ref',
                     subtype='footnote',
-                    location=node
+                    location=node,
                 )
 
 
@@ -355,8 +342,7 @@ class FilterSystemMessages(SphinxTransform):
 
 
 class SphinxContentsFilter(ContentsFilter):
-    """
-    Used with BuildEnvironment.add_toc_from() to discard cross-file links
+    """Used with BuildEnvironment.add_toc_from() to discard cross-file links
     within table-of-contents link nodes.
     """
 
@@ -367,8 +353,7 @@ class SphinxContentsFilter(ContentsFilter):
 
 
 class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
-    """
-    Customized SmartQuotes to avoid transform for some extra node types.
+    """Customized SmartQuotes to avoid transform for some extra node types.
 
     refs: sphinx.parsers.RSTParser
     """
@@ -403,10 +388,7 @@ class SphinxSmartQuotes(SmartQuotes, SphinxTransform):
 
         # confirm selected language supports smart_quotes or not
         language = self.env.settings['language_code']
-        return any(
-            tag in smartchars.quotes
-            for tag in normalize_language_tag(language)
-        )
+        return any(tag in smartchars.quotes for tag in normalize_language_tag(language))
 
     def get_tokens(self, txtnodes: list[Text]) -> Iterator[tuple[str, str]]:
         # A generator that yields ``(texttype, nodetext)`` tuples for a list
@@ -439,13 +421,13 @@ class GlossarySorter(SphinxTransform):
 
     def apply(self, **kwargs: Any) -> None:
         for glossary in self.document.findall(addnodes.glossary):
-            if glossary["sorted"]:
-                definition_list = cast(nodes.definition_list, glossary[0])
+            if glossary['sorted']:
+                definition_list = cast('nodes.definition_list', glossary[0])
                 definition_list[:] = sorted(
                     definition_list,
                     key=lambda item: unicodedata.normalize(
-                        'NFD',
-                        cast(nodes.term, item)[0].astext().lower()),
+                        'NFD', cast('nodes.term', item)[0].astext().lower()
+                    ),
                 )
 
 
@@ -508,7 +490,7 @@ def _reorder_index_target_nodes(start_node: nodes.target) -> None:
         first_idx = parent.index(nodes_to_reorder[0])
         last_idx = parent.index(nodes_to_reorder[-1])
         if first_idx + len(nodes_to_reorder) - 1 == last_idx:
-            parent[first_idx:last_idx + 1] = sorted(nodes_to_reorder, key=_sort_key)
+            parent[first_idx : last_idx + 1] = sorted(nodes_to_reorder, key=_sort_key)
 
 
 def _sort_key(node: nodes.Node) -> int:

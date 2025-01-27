@@ -3,13 +3,15 @@ from __future__ import annotations
 import os
 import warnings
 import zlib
-from typing import TYPE_CHECKING, Any, NoReturn
+from functools import cache
+from typing import TYPE_CHECKING
 
 from sphinx.deprecation import RemovedInSphinx90Warning
 from sphinx.errors import ThemeError
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Any, NoReturn
 
 
 class _CascadingStyleSheet:
@@ -19,7 +21,9 @@ class _CascadingStyleSheet:
 
     def __init__(
         self,
-        filename: str | os.PathLike[str], /, *,
+        filename: str | os.PathLike[str],
+        /,
+        *,
         priority: int = 500,
         rel: str = 'stylesheet',
         type: str = 'text/css',
@@ -31,20 +35,28 @@ class _CascadingStyleSheet:
 
     def __str__(self) -> str:
         attr = ', '.join(f'{k}={v!r}' for k, v in self.attributes.items())
-        return (f'{self.__class__.__name__}({self.filename!r}, '
-                f'priority={self.priority}, '
-                f'{attr})')
+        return (
+            f'{self.__class__.__name__}({self.filename!r}, '
+            f'priority={self.priority}, '
+            f'{attr})'
+        )
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
-            warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
-                          'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+            warnings.warn(
+                'The str interface for _CascadingStyleSheet objects is deprecated. '
+                'Use css.filename instead.',
+                RemovedInSphinx90Warning,
+                stacklevel=2,
+            )
             return self.filename == other
         if not isinstance(other, _CascadingStyleSheet):
             return NotImplemented
-        return (self.filename == other.filename
-                and self.priority == other.priority
-                and self.attributes == other.attributes)
+        return (
+            self.filename == other.filename
+            and self.priority == other.priority
+            and self.attributes == other.attributes
+        )
 
     def __hash__(self) -> int:
         return hash((self.filename, self.priority, *sorted(self.attributes.items())))
@@ -58,13 +70,21 @@ class _CascadingStyleSheet:
         raise AttributeError(msg)
 
     def __getattr__(self, key: str) -> str:
-        warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
-                      'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        warnings.warn(
+            'The str interface for _CascadingStyleSheet objects is deprecated. '
+            'Use css.filename instead.',
+            RemovedInSphinx90Warning,
+            stacklevel=2,
+        )
         return getattr(os.fspath(self.filename), key)
 
     def __getitem__(self, key: int | slice) -> str:
-        warnings.warn('The str interface for _CascadingStyleSheet objects is deprecated. '
-                      'Use css.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        warnings.warn(
+            'The str interface for _CascadingStyleSheet objects is deprecated. '
+            'Use css.filename instead.',
+            RemovedInSphinx90Warning,
+            stacklevel=2,
+        )
         return os.fspath(self.filename)[key]
 
 
@@ -75,7 +95,9 @@ class _JavaScript:
 
     def __init__(
         self,
-        filename: str | os.PathLike[str], /, *,
+        filename: str | os.PathLike[str],
+        /,
+        *,
         priority: int = 500,
         **attributes: str,
     ) -> None:
@@ -87,20 +109,28 @@ class _JavaScript:
         attr = ''
         if self.attributes:
             attr = ', ' + ', '.join(f'{k}={v!r}' for k, v in self.attributes.items())
-        return (f'{self.__class__.__name__}({self.filename!r}, '
-                f'priority={self.priority}'
-                f'{attr})')
+        return (
+            f'{self.__class__.__name__}({self.filename!r}, '
+            f'priority={self.priority}'
+            f'{attr})'
+        )
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
-            warnings.warn('The str interface for _JavaScript objects is deprecated. '
-                          'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+            warnings.warn(
+                'The str interface for _JavaScript objects is deprecated. '
+                'Use js.filename instead.',
+                RemovedInSphinx90Warning,
+                stacklevel=2,
+            )
             return self.filename == other
         if not isinstance(other, _JavaScript):
             return NotImplemented
-        return (self.filename == other.filename
-                and self.priority == other.priority
-                and self.attributes == other.attributes)
+        return (
+            self.filename == other.filename
+            and self.priority == other.priority
+            and self.attributes == other.attributes
+        )
 
     def __hash__(self) -> int:
         return hash((self.filename, self.priority, *sorted(self.attributes.items())))
@@ -114,13 +144,21 @@ class _JavaScript:
         raise AttributeError(msg)
 
     def __getattr__(self, key: str) -> str:
-        warnings.warn('The str interface for _JavaScript objects is deprecated. '
-                      'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        warnings.warn(
+            'The str interface for _JavaScript objects is deprecated. '
+            'Use js.filename instead.',
+            RemovedInSphinx90Warning,
+            stacklevel=2,
+        )
         return getattr(os.fspath(self.filename), key)
 
     def __getitem__(self, key: int | slice) -> str:
-        warnings.warn('The str interface for _JavaScript objects is deprecated. '
-                      'Use js.filename instead.', RemovedInSphinx90Warning, stacklevel=2)
+        warnings.warn(
+            'The str interface for _JavaScript objects is deprecated. '
+            'Use js.filename instead.',
+            RemovedInSphinx90Warning,
+            stacklevel=2,
+        )
         return os.fspath(self.filename)[key]
 
 
@@ -136,9 +174,14 @@ def _file_checksum(outdir: Path, filename: str | os.PathLike[str]) -> str:
     if '?' in filename:
         msg = f'Local asset file paths must not contain query strings: {filename!r}'
         raise ThemeError(msg)
+    return _file_checksum_inner(outdir.joinpath(filename).resolve())
+
+
+@cache
+def _file_checksum_inner(file: Path) -> str:
     try:
         # Remove all carriage returns to avoid checksum differences
-        content = outdir.joinpath(filename).read_bytes().translate(None, b'\r')
+        content = file.read_bytes().translate(None, b'\r')
     except FileNotFoundError:
         return ''
     if not content:

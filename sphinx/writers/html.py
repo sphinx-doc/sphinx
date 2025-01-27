@@ -21,24 +21,41 @@ HTMLTranslator = HTML5Translator
 
 
 class HTMLWriter(Writer):  # type: ignore[misc]
-
     # override embed-stylesheet default value to False.
-    settings_default_overrides = {"embed_stylesheet": False}
+    settings_default_overrides = {'embed_stylesheet': False}
 
     def __init__(self, builder: StandaloneHTMLBuilder) -> None:
         super().__init__()
         self.builder = builder
+        self._has_maths_elements: bool = False
 
     def translate(self) -> None:
         # sadly, this is mostly copied from parent class
         visitor = self.builder.create_translator(self.document, self.builder)
-        self.visitor = cast(HTML5Translator, visitor)
+        self.visitor = cast('HTML5Translator', visitor)
         self.document.walkabout(visitor)
         self.output = self.visitor.astext()
-        for attr in ('head_prefix', 'stylesheet', 'head', 'body_prefix',
-                     'body_pre_docinfo', 'docinfo', 'body', 'fragment',
-                     'body_suffix', 'meta', 'title', 'subtitle', 'header',
-                     'footer', 'html_prolog', 'html_head', 'html_title',
-                     'html_subtitle', 'html_body'):
+        for attr in (
+            'head_prefix',
+            'stylesheet',
+            'head',
+            'body_prefix',
+            'body_pre_docinfo',
+            'docinfo',
+            'body',
+            'fragment',
+            'body_suffix',
+            'meta',
+            'title',
+            'subtitle',
+            'header',
+            'footer',
+            'html_prolog',
+            'html_head',
+            'html_title',
+            'html_subtitle',
+            'html_body',
+        ):
             setattr(self, attr, getattr(visitor, attr, None))
         self.clean_meta = ''.join(self.visitor.meta[2:])
+        self._has_maths_elements = getattr(visitor, '_has_maths_elements', False)

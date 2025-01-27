@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sphinx.ext.autodoc import ClassDocumenter, bool_option
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from docutils.statemachine import StringList
 
     from sphinx.application import Sphinx
@@ -35,16 +37,15 @@ class IntEnumDocumenter(ClassDocumenter):
     def add_content(
         self,
         more_content: StringList | None,
-        no_docstring: bool = False,
     ) -> None:
-        super().add_content(more_content, no_docstring)
+        super().add_content(more_content)
 
         source_name = self.get_sourcename()
         enum_object: IntEnum = self.object
         use_hex = self.options.hex
         self.add_line('', source_name)
 
-        for the_member_name, enum_member in enum_object.__members__.items():
+        for the_member_name, enum_member in enum_object.__members__.items():  # type: ignore[attr-defined]
             the_member_value = enum_member.value
             if use_hex:
                 the_member_value = hex(the_member_value)

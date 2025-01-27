@@ -1,5 +1,7 @@
 """Test sphinx.ext.ifconfig extension."""
 
+from __future__ import annotations
+
 import docutils.utils
 import pytest
 
@@ -15,11 +17,10 @@ def test_ifconfig(app):
     assert 'ham' not in result
 
 
+@pytest.mark.sphinx('html', testroot='root')
 def test_ifconfig_content_line_number(app):
-    app.setup_extension("sphinx.ext.ifconfig")
-    text = (".. ifconfig:: confval1\n" +
-            "\n" +
-            "   Some link here: :ref:`abc`\n")
+    app.setup_extension('sphinx.ext.ifconfig')
+    text = '.. ifconfig:: confval1\n\n   Some link here: :ref:`abc`\n'
     doc = restructuredtext.parse(app, text)
     xrefs = list(doc.findall(condition=addnodes.pending_xref))
     assert len(xrefs) == 1

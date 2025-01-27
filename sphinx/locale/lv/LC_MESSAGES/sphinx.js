@@ -36,7 +36,11 @@ Documentation.addTranslations({
         "Search": "Mekl\u0113t",
         "Search Page": "Atlases lapa",
         "Search Results": "Atlases rezult\u0101ti",
-        "Search finished, found ${resultCount} page(s) matching the search query.": "",
+        "Search finished, found one page matching the search query.": [
+            "",
+            "",
+            ""
+        ],
         "Search within %(docstitle)s": "Mekl\u0113t iek\u0161 %(docstitle)s",
         "Searching": "",
         "Searching for multiple words only shows matches that contain\n    all words.": "",

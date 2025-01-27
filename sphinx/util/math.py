@@ -14,7 +14,7 @@ def get_node_equation_number(writer: HTML5Translator, node: nodes.math_block) ->
     if writer.builder.config.math_numfig and writer.builder.config.numfig:
         figtype = 'displaymath'
         if writer.builder.name == 'singlehtml':
-            key = f"{writer.docnames[-1]}/{figtype}"  # type: ignore[has-type]
+            key = f'{writer.docnames[-1]}/{figtype}'  # type: ignore[has-type]
         else:
             key = figtype
 

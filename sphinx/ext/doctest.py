@@ -6,12 +6,12 @@ The extension automatically execute code snippets and checks their results.
 from __future__ import annotations
 
 import doctest
+import os.path
 import re
 import sys
 import time
 from io import StringIO
-from os import path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -19,15 +19,16 @@ from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
 import sphinx
+from sphinx._cli.util.colour import bold
 from sphinx.builders import Builder
 from sphinx.locale import __
 from sphinx.util import logging
-from sphinx.util.console import bold
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.osutil import relpath
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Callable, Set
+    from typing import Any, ClassVar
 
     from docutils.nodes import Element, Node, TextElement
 
@@ -38,7 +39,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
-doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
+doctestopt_re = re.compile(r'[ \t]*#\s*doctest:.+$', re.MULTILINE)
 
 
 def is_allowed_version(spec: str, version: str) -> bool:
@@ -61,10 +62,9 @@ def is_allowed_version(spec: str, version: str) -> bool:
 
 # set up the necessary directives
 
+
 class TestDirective(SphinxDirective):
-    """
-    Base class for doctest-related directives.
-    """
+    """Base class for doctest-related directives."""
 
     has_content = True
     required_arguments = 0
@@ -81,12 +81,15 @@ class TestDirective(SphinxDirective):
                 # convert <BLANKLINE>s to ordinary blank lines for presentation
                 test = code
                 code = blankline_re.sub('', code)
-            if doctestopt_re.search(code) and 'no-trim-doctest-flags' not in self.options:
+            if (
+                doctestopt_re.search(code)
+                and 'no-trim-doctest-flags' not in self.options
+            ):
                 if not test:
                     test = code
                 code = doctestopt_re.sub('', code)
         nodetype: type[TextElement] = nodes.literal_block
-        if self.name in ('testsetup', 'testcleanup') or 'hide' in self.options:
+        if self.name in {'testsetup', 'testcleanup'} or 'hide' in self.options:
             nodetype = nodes.comment
         if self.arguments:
             groups = [x.strip() for x in self.arguments[0].split(',')]
@@ -105,7 +108,7 @@ class TestDirective(SphinxDirective):
             # don't try to highlight output
             node['language'] = 'none'
         node['options'] = {}
-        if self.name in ('doctest', 'testoutput') and 'options' in self.options:
+        if self.name in {'doctest', 'testoutput'} and 'options' in self.options:
             # parse doctest-like output comparison flags
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:
@@ -113,15 +116,17 @@ class TestDirective(SphinxDirective):
                 if prefix not in '+-':
                     self.state.document.reporter.warning(
                         __("missing '+' or '-' in '%s' option.") % option,
-                        line=self.lineno)
+                        line=self.lineno,
+                    )
                     continue
                 if option_name not in doctest.OPTIONFLAGS_BY_NAME:
                     self.state.document.reporter.warning(
                         __("'%s' is not a valid option.") % option_name,
-                        line=self.lineno)
+                        line=self.lineno,
+                    )
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
-                node['options'][flag] = (option[0] == '+')
+                node['options'][flag] = option[0] == '+'
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
                 spec = self.options['pyversion']
@@ -131,8 +136,8 @@ class TestDirective(SphinxDirective):
                     node['options'][flag] = True  # Skip the test
             except InvalidSpecifier:
                 self.state.document.reporter.warning(
-                    __("'%s' is not a valid pyversion option") % spec,
-                    line=self.lineno)
+                    __("'%s' is not a valid pyversion option") % spec, line=self.lineno
+                )
         if 'skipif' in self.options:
             node['skipif'] = self.options['skipif']
         if 'trim-doctest-flags' in self.options:
@@ -191,6 +196,7 @@ parser = doctest.DocTestParser()
 
 # helper classes
 
+
 class TestGroup:
     def __init__(self, name: str) -> None:
         self.name = name
@@ -220,27 +226,38 @@ class TestGroup:
             raise RuntimeError(__('invalid TestCode type'))
 
     def __repr__(self) -> str:
-        return (f'TestGroup(name={self.name!r}, setup={self.setup!r}, '
-                f'cleanup={self.cleanup!r}, tests={self.tests!r})')
+        return (
+            f'TestGroup(name={self.name!r}, setup={self.setup!r}, '
+            f'cleanup={self.cleanup!r}, tests={self.tests!r})'
+        )
 
 
 class TestCode:
-    def __init__(self, code: str, type: str, filename: str,
-                 lineno: int, options: dict | None = None) -> None:
+    def __init__(
+        self,
+        code: str,
+        type: str,
+        filename: str,
+        lineno: int,
+        options: dict[int, bool] | None = None,
+    ) -> None:
         self.code = code
         self.type = type
         self.filename = filename
         self.lineno = lineno
-        self.options = options or {}
+        self.options: dict[int, bool] = options or {}
 
     def __repr__(self) -> str:
-        return (f'TestCode({self.code!r}, {self.type!r}, filename={self.filename!r}, '
-                f'lineno={self.lineno!r}, options={self.options!r})')
+        return (
+            f'TestCode({self.code!r}, {self.type!r}, filename={self.filename!r}, '
+            f'lineno={self.lineno!r}, options={self.options!r})'
+        )
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
-    def summarize(self, out: Callable, verbose: bool | None = None,  # type: ignore[override]
-                  ) -> tuple[int, int]:
+    def summarize(  # type: ignore[override]
+        self, out: Callable[[str], None], verbose: bool | None = None
+    ) -> tuple[int, int]:
         string_io = StringIO()
         old_stdout = sys.stdout
         sys.stdout = string_io
@@ -251,11 +268,11 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
         out(string_io.getvalue())
         return res
 
-    def _DocTestRunner__patched_linecache_getlines(self, filename: str,
-                                                   module_globals: Any = None) -> Any:
+    def _DocTestRunner__patched_linecache_getlines(
+        self, filename: str, module_globals: Any = None
+    ) -> Any:
         # this is overridden from DocTestRunner adding the try-except below
-        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(  # type: ignore[attr-defined]
-            filename)
+        m = self._DocTestRunner__LINECACHE_FILENAME_RE.match(filename)  # type: ignore[attr-defined]
         if m and m.group('name') == self.test.name:
             try:
                 example = self.test.examples[int(m.group('examplenum'))]
@@ -266,20 +283,20 @@ class SphinxDocTestRunner(doctest.DocTestRunner):
                 pass
             else:
                 return example.source.splitlines(True)
-        return self.save_linecache_getlines(  # type: ignore[attr-defined]
-            filename, module_globals)
+        return self.save_linecache_getlines(filename, module_globals)  # type: ignore[attr-defined]
 
 
 # the new builder -- use sphinx-build.py -b doctest to run
 
+
 class DocTestBuilder(Builder):
-    """
-    Runs test snippets in the documentation.
-    """
+    """Runs test snippets in the documentation."""
 
     name = 'doctest'
-    epilog = __('Testing of doctests in the sources finished, look at the '
-                'results in %(outdir)s/output.txt.')
+    epilog = __(
+        'Testing of doctests in the sources finished, look at the '
+        'results in %(outdir)s/output.txt.'
+    )
 
     def init(self) -> None:
         # default options
@@ -306,10 +323,12 @@ class DocTestBuilder(Builder):
         date = time.strftime('%Y-%m-%d %H:%M:%S')
 
         outpath = self.outdir.joinpath('output.txt')
-        self.outfile = outpath.open('w', encoding='utf-8')  # NoQA: SIM115
-        self.outfile.write(('Results of doctest builder run on %s\n'
-                            '==================================%s\n') %
-                           (date, '=' * len(date)))
+        self.outfile = outpath.open('w', encoding='utf-8')
+        line = '=' * len(date)
+        self.outfile.write(
+            f'Results of doctest builder run on {date}\n'
+            f'=================================={line}\n'
+        )
 
     def __del__(self) -> None:
         # free resources upon destruction (the file handler might not be
@@ -322,7 +341,7 @@ class DocTestBuilder(Builder):
         self.outfile.write(text)
 
     def _warn_out(self, text: str) -> None:
-        if self.app.quiet or self.app.warningiserror:
+        if self.app.quiet:
             logger.warning(text)
         else:
             logger.info(text, nonl=True)
@@ -338,30 +357,25 @@ class DocTestBuilder(Builder):
         # write executive summary
         def s(v: int) -> str:
             return 's' if v != 1 else ''
-        repl = (self.total_tries, s(self.total_tries),
-                self.total_failures, s(self.total_failures),
-                self.setup_failures, s(self.setup_failures),
-                self.cleanup_failures, s(self.cleanup_failures))
-        self._out('''
+
+        self._out(
+            f"""
 Doctest summary
 ===============
-%5d test%s
-%5d failure%s in tests
-%5d failure%s in setup code
-%5d failure%s in cleanup code
-''' % repl)
+{self.total_tries:5} test{s(self.total_tries)}
+{self.total_failures:5} failure{s(self.total_failures)} in tests
+{self.setup_failures:5} failure{s(self.setup_failures)} in setup code
+{self.cleanup_failures:5} failure{s(self.cleanup_failures)} in cleanup code
+"""
+        )
         self.outfile.close()
 
         if self.total_failures or self.setup_failures or self.cleanup_failures:
             self.app.statuscode = 1
 
-    def write(self, build_docnames: Iterable[str] | None, updated_docnames: Sequence[str],
-              method: str = 'update') -> None:
-        if build_docnames is None:
-            build_docnames = sorted(self.env.all_docs)
-
+    def write_documents(self, docnames: Set[str]) -> None:
         logger.info(bold('running tests...'))
-        for docname in build_docnames:
+        for docname in sorted(docnames):
             # no need to resolve the doctree
             doctree = self.env.get_doctree(docname)
             self.test_doc(docname, doctree)
@@ -371,17 +385,17 @@ Doctest summary
         filename of the document it's included in.
         """
         try:
-            filename = relpath(node.source, self.env.srcdir).rsplit(':docstring of ', maxsplit=1)[0]  # type: ignore[arg-type]  # noqa: E501
+            filename = relpath(node.source, self.env.srcdir)  # type: ignore[arg-type]
+            return filename.rsplit(':docstring of ', maxsplit=1)[0]
         except Exception:
-            filename = str(self.env.doc2path(docname, False))
-        return filename
+            return str(self.env.doc2path(docname, False))
 
     @staticmethod
     def get_line_number(node: Node) -> int | None:
         """Get the real line number or admit we don't know."""
         # TODO:  Work out how to store or calculate real (file-relative)
         #       line numbers for doctest blocks in docstrings.
-        if ':docstring of ' in path.basename(node.source or ''):
+        if ':docstring of ' in os.path.basename(node.source or ''):
             # The line number is given relative to the stripped docstring,
             # not the file.  This is correct where it is set, in
             # `docutils.nodes.Node.setup_child`, but Sphinx should report
@@ -408,25 +422,29 @@ Doctest summary
     def test_doc(self, docname: str, doctree: Node) -> None:
         groups: dict[str, TestGroup] = {}
         add_to_all_groups = []
-        self.setup_runner = SphinxDocTestRunner(verbose=False,
-                                                optionflags=self.opt)
-        self.test_runner = SphinxDocTestRunner(verbose=False,
-                                               optionflags=self.opt)
-        self.cleanup_runner = SphinxDocTestRunner(verbose=False,
-                                                  optionflags=self.opt)
+        self.setup_runner = SphinxDocTestRunner(verbose=False, optionflags=self.opt)
+        self.test_runner = SphinxDocTestRunner(verbose=False, optionflags=self.opt)
+        self.cleanup_runner = SphinxDocTestRunner(verbose=False, optionflags=self.opt)
 
         self.test_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
         self.cleanup_runner._fakeout = self.setup_runner._fakeout  # type: ignore[attr-defined]
 
         if self.config.doctest_test_doctest_blocks:
+
             def condition(node: Node) -> bool:
-                return (isinstance(node, nodes.literal_block | nodes.comment) and
-                        'testnodetype' in node) or \
-                    isinstance(node, nodes.doctest_block)
-        else:
-            def condition(node: Node) -> bool:
-                return isinstance(node, nodes.literal_block | nodes.comment) \
+                return (
+                    isinstance(node, nodes.literal_block | nodes.comment)
                     and 'testnodetype' in node
+                ) or isinstance(node, nodes.doctest_block)
+
+        else:
+
+            def condition(node: Node) -> bool:
+                return (
+                    isinstance(node, nodes.literal_block | nodes.comment)
+                    and 'testnodetype' in node
+                )
+
         for node in doctree.findall(condition):
             if self.skipped(node):  # type: ignore[arg-type]
                 continue
@@ -435,12 +453,19 @@ Doctest summary
             filename = self.get_filename_for_node(node, docname)
             line_number = self.get_line_number(node)
             if not source:
-                logger.warning(__('no code/output in %s block at %s:%s'),
-                               node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
-                               filename, line_number)
-            code = TestCode(source, type=node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
-                            filename=filename, lineno=line_number,  # type: ignore[arg-type]
-                            options=node.get('options'))  # type: ignore[attr-defined]
+                logger.warning(
+                    __('no code/output in %s block at %s:%s'),
+                    node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
+                    filename,
+                    line_number,
+                )
+            code = TestCode(
+                source,
+                type=node.get('testnodetype', 'doctest'),  # type: ignore[attr-defined]
+                filename=filename,
+                lineno=line_number,  # type: ignore[arg-type]
+                options=node.get('options'),  # type: ignore[attr-defined]
+            )
             node_groups = node.get('groups', ['default'])  # type: ignore[attr-defined]
             if '*' in node_groups:
                 add_to_all_groups.append(code)
@@ -453,13 +478,21 @@ Doctest summary
             for group in groups.values():
                 group.add_code(code)
         if self.config.doctest_global_setup:
-            code = TestCode(self.config.doctest_global_setup,
-                            'testsetup', filename='<global_setup>', lineno=0)
+            code = TestCode(
+                self.config.doctest_global_setup,
+                'testsetup',
+                filename='<global_setup>',
+                lineno=0,
+            )
             for group in groups.values():
                 group.add_code(code, prepend=True)
         if self.config.doctest_global_cleanup:
-            code = TestCode(self.config.doctest_global_cleanup,
-                            'testcleanup', filename='<global_cleanup>', lineno=0)
+            code = TestCode(
+                self.config.doctest_global_cleanup,
+                'testcleanup',
+                filename='<global_cleanup>',
+                lineno=0,
+            )
             for group in groups.values():
                 group.add_code(code)
         if not groups:
@@ -467,9 +500,7 @@ Doctest summary
 
         show_successes = self.config.doctest_show_successes
         if show_successes:
-            self._out('\n'
-                      f'Document: {docname}\n'
-                      f'----------{"-" * len(docname)}\n')
+            self._out(f'\nDocument: {docname}\n----------{"-" * len(docname)}\n')
         for group in groups.values():
             self.test_group(group)
         # Separately count results from setup code
@@ -477,23 +508,27 @@ Doctest summary
         self.setup_failures += res_f
         self.setup_tries += res_t
         if self.test_runner.tries:
-            res_f, res_t = self.test_runner.summarize(
-                self._out, verbose=show_successes)
+            res_f, res_t = self.test_runner.summarize(self._out, verbose=show_successes)
             self.total_failures += res_f
             self.total_tries += res_t
         if self.cleanup_runner.tries:
             res_f, res_t = self.cleanup_runner.summarize(
-                self._out, verbose=show_successes)
+                self._out, verbose=show_successes
+            )
             self.cleanup_failures += res_f
             self.cleanup_tries += res_t
 
-    def compile(self, code: str, name: str, type: str, flags: Any, dont_inherit: bool) -> Any:
+    def compile(
+        self, code: str, name: str, type: str, flags: Any, dont_inherit: bool
+    ) -> Any:
         return compile(code, name, self.type, flags, dont_inherit)
 
     def test_group(self, group: TestGroup) -> None:
-        ns: dict = {}
+        ns: dict[str, Any] = {}
 
-        def run_setup_cleanup(runner: Any, testcodes: list[TestCode], what: Any) -> bool:
+        def run_setup_cleanup(
+            runner: Any, testcodes: list[TestCode], what: Any
+        ) -> bool:
             examples = []
             for testcode in testcodes:
                 example = doctest.Example(testcode.code, '', lineno=testcode.lineno)
@@ -501,9 +536,14 @@ Doctest summary
             if not examples:
                 return True
             # simulate a doctest with the code
-            sim_doctest = doctest.DocTest(examples, {},
-                                          f'{group.name} ({what} code)',
-                                          testcodes[0].filename, 0, None)
+            sim_doctest = doctest.DocTest(
+                examples,
+                {},
+                f'{group.name} ({what} code)',
+                testcodes[0].filename,
+                0,
+                None,
+            )
             sim_doctest.globs = ns
             old_f = runner.failures
             self.type = 'exec'  # the snippet may contain multiple statements
@@ -520,11 +560,15 @@ Doctest summary
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
                 try:
-                    test = parser.get_doctest(code[0].code, {}, group.name,
-                                              code[0].filename, code[0].lineno)
+                    test = parser.get_doctest(
+                        code[0].code, {}, group.name, code[0].filename, code[0].lineno
+                    )
                 except Exception:
-                    logger.warning(__('ignoring invalid doctest code: %r'), code[0].code,
-                                   location=(code[0].filename, code[0].lineno))
+                    logger.warning(
+                        __('ignoring invalid doctest code: %r'),
+                        code[0].code,
+                        location=(code[0].filename, code[0].lineno),
+                    )
                     continue
                 if not test.examples:
                     continue
@@ -546,10 +590,21 @@ Doctest summary
                     exc_msg = m.group('msg')
                 else:
                     exc_msg = None
-                example = doctest.Example(code[0].code, output, exc_msg=exc_msg,
-                                          lineno=code[0].lineno, options=options)
-                test = doctest.DocTest([example], {}, group.name,
-                                       code[0].filename, code[0].lineno, None)
+                example = doctest.Example(
+                    code[0].code,
+                    output,
+                    exc_msg=exc_msg,
+                    lineno=code[0].lineno,
+                    options=options,
+                )
+                test = doctest.DocTest(
+                    [example],
+                    {},
+                    group.name,
+                    code[0].filename,
+                    code[0].lineno,
+                    None,
+                )
                 self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
@@ -568,13 +623,19 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('testoutput', TestoutputDirective)
     app.add_builder(DocTestBuilder)
     # this config value adds to sys.path
-    app.add_config_value('doctest_show_successes', True, '', bool)
-    app.add_config_value('doctest_path', [], '')
+    app.add_config_value('doctest_show_successes', True, '', types=frozenset({bool}))
+    app.add_config_value('doctest_path', (), '')
     app.add_config_value('doctest_test_doctest_blocks', 'default', '')
     app.add_config_value('doctest_global_setup', '', '')
     app.add_config_value('doctest_global_cleanup', '', '')
     app.add_config_value(
         'doctest_default_flags',
-        doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | doctest.IGNORE_EXCEPTION_DETAIL,
-        '')
-    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+        doctest.DONT_ACCEPT_TRUE_FOR_1
+        | doctest.ELLIPSIS
+        | doctest.IGNORE_EXCEPTION_DETAIL,
+        '',
+    )
+    return {
+        'version': sphinx.__display_version__,
+        'parallel_read_safe': True,
+    }
