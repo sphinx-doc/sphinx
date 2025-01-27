@@ -1,6 +1,6 @@
 
 .. autosummary::
-   :no-signatures:
+   :signatures: none
    :toctree:
 
    dummy_module
